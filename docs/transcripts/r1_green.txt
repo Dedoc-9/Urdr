@@ -1,0 +1,25 @@
+R1 campaign — final gate, green ×2 with identical PASS tables (diffed clean).
+2026-07-06, Linux build sandbox, Python 3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1.
+Every sub-rung was red-first; reds are recorded in r1a_alpha_normalization.txt
+and in the per-rung test runs (R1b: 9 red, R1c: examples pre-implementation,
+R1d: 6 red before ᛃ existed).
+
+[PASS] unit-falsifiers                    59 run, 0 red
+[PASS] example:clifford_relations.urdr    914f348280c00722…   (⊢ 9, ᛞ-sealed)
+[PASS] example:determinism_probe.urdr     c3d062136241ab7c…   (re-recorded at R1a)
+[PASS] example:grounding.urdr             79b47903bdc8d794…
+[PASS] example:lens_roundtrip.urdr        b79d27d6e4401cd8…
+[PASS] example:lineage.urdr               427dea48bd711076…   (ᛃ agrees with ↩∘↩)
+[PASS] example:pipeline.urdr              4573590cf8ee7319…
+[PASS] example:z2_grading.urdr            6be45808d3ed64fe…   (⊢ 64, ᛞ-sealed)
+[PASS] reject:clifford_wrong.urdr         refused with URDR-ASSERT (≟ breach: 1 ≠ -1)
+[PASS] reject:confusable.urdr             refused with URDR-LEX-CONFUSABLE
+[PASS] reject:evidence_unearned.urdr      refused with URDR-EVIDENCE-UNEARNED
+[PASS] reject:inflate_static.urdr         refused with URDR-INFLATE-STATIC
+[PASS] reject:verify_unlicensed.urdr      refused with URDR-VERIFY-UNLICENSED
+[PASS] tamper-selftest                    tampered golden correctly mismatched
+GATE PASSED
+
+Re-run `python verify.py` on your host to earn your own green.
+transcript ≠ your machine; benchmark ≠ universal; a green gate certifies these
+tests on this code — never that a name means what it says.

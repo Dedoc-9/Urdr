@@ -72,8 +72,8 @@ not execution: the suite passes on a machine that cannot display a single rune.
 
 | Rung | Content | Grade today |
 |---|---|---|
-| R0 | This: core lexicon, epistemic checker, membrane, determinism gate | `IMPLEMENTED / MEASURED` |
-| R1 | Graded-algebra falsifier (ℤ₂ / Clifford relations verified by evaluation; Gates-method, our notation) | `SCOPED / N/A` |
+| R0 | Core lexicon, epistemic checker, membrane, determinism gate | `IMPLEMENTED / MEASURED` |
+| R1 | α-normalized canon; list prelude; **graded-algebra falsifiers** (ℤ₂ closure ⊢64, Cl(3) relations ⊢9, wrong-relation program dies); provenance ᛃ; CI on two OSes | `IMPLEMENTED / MEASURED` |
 | R2 | Deterministic actors (canonical `(tick, actor, seq)` order; digest invariant across delivery schedules) | `SCOPED / N/A` |
 | R3 | Placement / *līmes*: WHAT–WHERE split, schedule-invariance falsifier, differential oracle for fast paths | `SCOPED / N/A` |
 | R4 | Effects & capabilities (object-capability discipline); failure model; interop *līmes* | `SCOPED / N/A` |

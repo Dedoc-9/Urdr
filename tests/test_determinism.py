@@ -55,13 +55,38 @@ class TestDeterminism(unittest.TestCase):
             evaluate.run_program(PROBE, fuel=10)
         self.assertEqual(ctx.exception.code, "URDR-FUEL")
 
-    def test_alpha_sensitivity_is_pinned(self):
-        # DOCUMENTED v0.1 limitation (D1 §7): λx↦x and λy↦y digest differently.
-        # This test pins the honest current behavior; α-normalization is R1 work,
-        # and when it lands this test must be UPDATED, not deleted.
+    # -- α-normalization (R1a) ------------------------------------------------
+    # R0 shipped test_alpha_sensitivity_is_pinned, which pinned the honest R0
+    # behavior (α-SENSITIVE canon) and instructed: "when α-normalization lands
+    # this test must be UPDATED, not deleted." This is that update.
+
+    def test_alpha_equivalence_after_normalization(self):
+        # λ canonical form uses positional (De Bruijn) indices for λ-bound names,
+        # in canon only: α-equivalent lambdas are ONE value, one digest.
         dx = canon.hexdigest(evaluate.run_program(r"\fn x |-> x"))
         dy = canon.hexdigest(evaluate.run_program(r"\fn y |-> y"))
-        self.assertNotEqual(dx, dy)
+        self.assertEqual(dx, dy)
+
+    def test_alpha_normalization_is_not_structure_blind(self):
+        # Non-vacuity: structurally different lambdas must still differ.
+        d1 = canon.hexdigest(evaluate.run_program(r"\fn x y |-> x"))
+        d2 = canon.hexdigest(evaluate.run_program(r"\fn x y |-> y"))
+        self.assertNotEqual(d1, d2)
+
+    def test_alpha_normalization_respects_shadowing(self):
+        # λx↦λx↦x ≡α λa↦λb↦b (innermost binder wins) and ≢α λa↦λb↦a.
+        d_shadow = canon.hexdigest(evaluate.run_program(r"\fn x |-> \fn x |-> x"))
+        d_inner = canon.hexdigest(evaluate.run_program(r"\fn a |-> \fn b |-> b"))
+        d_outer = canon.hexdigest(evaluate.run_program(r"\fn a |-> \fn b |-> a"))
+        self.assertEqual(d_shadow, d_inner)
+        self.assertNotEqual(d_shadow, d_outer)
+
+    def test_free_names_stay_named_in_canon(self):
+        # Only λ-BOUND names normalize; a lambda over a different captured top-level
+        # binding is a different closure and must digest differently.
+        d_a = canon.hexdigest(evaluate.run_program("k := 1\n" + r"\fn x |-> x + k"))
+        d_b = canon.hexdigest(evaluate.run_program("k := 2\n" + r"\fn x |-> x + k"))
+        self.assertNotEqual(d_a, d_b)
 
     def test_digest_is_sha256_shaped(self):
         d = canon.hexdigest(evaluate.run_program("1 + 1"))

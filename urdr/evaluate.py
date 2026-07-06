@@ -93,6 +93,9 @@ def prelude() -> dict:
         "conflicted": V.Builtin("conflicted", 1, _bi_conflicted),
         "range": V.Builtin("range", 1, None),   # fuel-aware, special-cased
         "len": V.Builtin("len", 1, None),
+        "push": V.Builtin("push", 2, None),     # R1b: fuel-aware list prelude
+        "cat": V.Builtin("cat", 2, None),
+        "nth": V.Builtin("nth", 2, None),
     }
 
 
@@ -128,6 +131,26 @@ class _Interp:
                 xs = args[0]
                 _need(isinstance(xs, V.ListV), "len() wants a list", line, col)
                 return V.Int(len(xs.items))
+            if fn.name == "push":
+                xs, x = args
+                _need(isinstance(xs, V.ListV), "push() wants a list first", line, col)
+                self.fuel.tick(len(xs.items) + 1, line, col)  # the copy is paid for
+                return V.ListV(xs.items + (x,))
+            if fn.name == "cat":
+                xs, ys = args
+                _need(isinstance(xs, V.ListV) and isinstance(ys, V.ListV),
+                      "cat() wants two lists", line, col)
+                self.fuel.tick(len(xs.items) + len(ys.items), line, col)
+                return V.ListV(xs.items + ys.items)
+            if fn.name == "nth":
+                xs, i = args
+                _need(isinstance(xs, V.ListV), "nth() wants a list", line, col)
+                _need(isinstance(i, V.Int), "nth() wants an integer index", line, col)
+                if not 0 <= i.n < len(xs.items):
+                    raise UrdrError(TYPE_RUN,
+                                    f"nth() index {i.n} out of range "
+                                    f"(len {len(xs.items)})", line, col)
+                return xs.items[i.n]
             return fn.fn(args, line, col)
         raise UrdrError(TYPE_RUN, "not callable", line, col)
 
@@ -213,6 +236,16 @@ class _Interp:
             return store.parent
         if isinstance(node, P.DigestOp):
             return V.DigestV(C.digest(self.eval(node.args[0], env)))
+        if isinstance(node, P.Prov):
+            store = self.eval(node.args[0], env)
+            _need(isinstance(store, V.Store), "ᛃ wants a store", node.line, node.col)
+            ancestors = []
+            cursor = store.parent
+            while cursor is not None:
+                self.fuel.tick(1, node.line, node.col)
+                ancestors.append(V.DigestV(C.digest(cursor)))
+                cursor = cursor.parent
+            return V.ListV(ancestors)
         if isinstance(node, P.Fold):
             xs = self.eval(node.args[0], env)
             acc = self.eval(node.args[1], env)

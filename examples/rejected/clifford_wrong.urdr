@@ -1,0 +1,11 @@
+# MUST FAIL AT RUN: claims the generators COMMUTE (e0 e1 = e1 e0). They do not.
+# The algebra falsifier is non-vacuous only because this program dies.
+xor ≔ λ x y ↦ ?(x = y, 0, 1)
+delta ≔ λ a b ↦ [xor(nth(a, 0), nth(b, 0)), xor(nth(a, 1), nth(b, 1)), xor(nth(a, 2), nth(b, 2))]
+par ≔ λ n ↦ Σ(range(n), 0, λ acc i ↦ xor(acc, 1))
+crossings ≔ λ a b ↦ nth(a, 1) * nth(b, 0) + nth(a, 2) * (nth(b, 0) + nth(b, 1))
+csign ≔ λ a b ↦ ?(par(crossings(a, b)) = 1, -1, 1)
+prod ≔ λ s1 a s2 b ↦ [s1 * s2 * csign(a, b), delta(a, b)]
+p01 ≔ prod(1, [1,0,0], 1, [0,1,0])
+p10 ≔ prod(1, [0,1,0], 1, [1,0,0])
+≟(nth(p01, 0), nth(p10, 0))

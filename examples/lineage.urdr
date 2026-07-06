@@ -1,0 +1,11 @@
+# Provenance ᛃ (jera; attested 'year, harvest cycle' -- ASSIGNED here: the walk
+# through the seasons a value has lived: ancestor digests, nearest first).
+# Ties to the membrane: line[k] equals the digest anamnesis reaches in k+1 steps.
+s0 ≔ ᚠ{grain: 1}
+s1 ≔ ☿(s0, 'grain, 2)
+s2 ≔ ☿(s1, 'grain, 3)
+line ≔ ᛃ(s2)
+a ≔ ≟(len(line), 2)
+b ≔ ≟(nth(line, 0), ᛝ(s1))
+c ≔ ≟(nth(line, 1), ᛝ(s0))
+≟(ᛝ(↩(↩(s2))), nth(line, 1))

@@ -31,11 +31,12 @@ renderable`: the suite passes on a machine that cannot display a single rune.
 | ≠ | U+2260 | NE | `!=` | inequality by digest |
 | ≤ | U+2264 | LE | `<=` | integer compare |
 | ≥ | U+2265 | GE | `>=` | integer compare |
+| ᛃ | U+16C3 | PROV | `\pv` | provenance walk (R1d) |
 | ↯ | U+21AF | CONFLICTG | `\cf` | output-only value form |
 | ⊢ | U+22A2 | ENTAILS | `\|-` | output-only witness display |
 
 Prelude names (plain ASCII identifiers, part of the surface): `value maturity evidence
-grounded conflicted range len`. Epistemic keywords (uppercase, only inside ⟨…⟩):
+grounded conflicted range len push cat nth`. Epistemic keywords (uppercase, only inside ⟨…⟩):
 `SPECULATIVE SCOPED IMPLEMENTED NA DECLARED MEASURED`.
 
 ## Input methods (offline)

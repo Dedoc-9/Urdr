@@ -46,13 +46,14 @@ GLYPH_KINDS = {
     "≥": "GE",          # ≥
     "↯": "CONFLICTG",   # ↯ value form; no grammar production accepts it
     "⊢": "ENTAILS",     # ⊢ output-only likewise
+    "ᛃ": "PROV",        # ᛃ jera — provenance walk (R1d; assigned after review)
 }
 
 # Backslash digraphs (D1 §2 / D4): "\xx" ≡ glyph. Two-letter first, then one-letter.
 BACKSLASH_2 = {
     "an": "ANNOT", "ve": "VERIFY", "vw": "VIEW", "ed": "EDIT", "am": "ANA",
     "di": "DIGEST", "st": "STORE", "fl": "FLOW", "fn": "LAMBDA", "fo": "FOLD",
-    "cf": "CONFLICTG",
+    "cf": "CONFLICTG", "pv": "PROV",
 }
 BACKSLASH_1 = {"o": "COMPOSE"}
 
@@ -341,7 +342,7 @@ _FMT_ORDER = [
     ("\\an", "\U0001202D"), ("\\ve", "ᛞ"), ("\\vw", "☽"),
     ("\\ed", "☿"), ("\\am", "↩"), ("\\di", "ᛝ"),
     ("\\st", "ᚠ"), ("\\fl", "ᛚ"), ("\\fn", "λ"),
-    ("\\fo", "Σ"), ("\\cf", "↯"),
+    ("\\fo", "Σ"), ("\\cf", "↯"), ("\\pv", "ᛃ"),
     (":=", "≔"), ("<|", "⟨"), ("|>", "⟩"), ("<=", "≤"),
     (">=", "≥"), ("!=", "≠"), ("=?", "≟"),
     ("\\o", "∘"),

@@ -2,7 +2,12 @@
 # Copyright (C) 2026 Daniel J. Dillberg
 """AST + recursive-descent parser (D1 §3). Nodes know their own canonical bytes
 (source spans excluded), so a program's structure — not its spelling — is what
-digests. `x ᛚ f` deliberately desugars to `f(x)`: two spellings, one canon."""
+digests. `x ᛚ f` deliberately desugars to `f(x)`: two spellings, one canon.
+
+R1a: canonical bytes are α-normalized — λ-bound names serialize as positional
+(De Bruijn) indices relative to the enclosing binder stack (`bound`), so
+α-equivalent lambdas are one value with one digest. Free names stay named:
+what a closure captures is part of its identity, not its spelling."""
 import struct
 
 from . import lexer
@@ -10,7 +15,7 @@ from .errors import UrdrError, PARSE, REBIND
 from .values import MATURITIES, EVIDENCES
 
 PRELUDE_NAMES = ("value", "maturity", "evidence", "grounded", "conflicted",
-                 "range", "len")
+                 "range", "len", "push", "cat", "nth")
 
 CMP_OPS = ("EQ", "NE", "LT", "LE", "GT", "GE")
 BIN_OPS = ("PLUS", "MINUS", "STAR") + CMP_OPS
@@ -40,7 +45,7 @@ class Node:
         self.line = line
         self.col = col
 
-    def canon_bytes(self) -> bytes:
+    def canon_bytes(self, bound=()) -> bytes:
         raise NotImplementedError
 
     def children(self):
@@ -54,8 +59,9 @@ class Program(Node):
         super().__init__()
         self.stmts = tuple(stmts)
 
-    def canon_bytes(self):
-        return b"P" + _vi(len(self.stmts)) + b"".join(s.canon_bytes() for s in self.stmts)
+    def canon_bytes(self, bound=()):
+        return b"P" + _vi(len(self.stmts)) + b"".join(
+            s.canon_bytes(bound) for s in self.stmts)
 
     def children(self):
         return self.stmts
@@ -69,8 +75,9 @@ class Bind(Node):
         self.name = name
         self.expr = expr
 
-    def canon_bytes(self):
-        return b"B" + _s(self.name) + self.expr.canon_bytes()
+    def canon_bytes(self, bound=()):
+        # Top-level names are identity, not spelling: they stay named.
+        return b"B" + _s(self.name) + self.expr.canon_bytes(bound)
 
     def children(self):
         return (self.expr,)
@@ -83,7 +90,7 @@ class IntLit(Node):
         super().__init__(line, col)
         self.n = n
 
-    def canon_bytes(self):
+    def canon_bytes(self, bound=()):
         return b"I" + struct.pack(">q", self.n)
 
 
@@ -94,7 +101,7 @@ class SymLit(Node):
         super().__init__(line, col)
         self.name = name
 
-    def canon_bytes(self):
+    def canon_bytes(self, bound=()):
         return b"Y" + _s(self.name)
 
 
@@ -105,7 +112,11 @@ class Name(Node):
         super().__init__(line, col)
         self.id = id_
 
-    def canon_bytes(self):
+    def canon_bytes(self, bound=()):
+        # λ-bound → positional index, innermost binder = 0 (α-normalization).
+        for depth, name in enumerate(reversed(bound)):
+            if name == self.id:
+                return b"#" + _vi(depth)
         return b"N" + _s(self.id)
 
 
@@ -116,8 +127,9 @@ class ListLit(Node):
         super().__init__(line, col)
         self.items = tuple(items)
 
-    def canon_bytes(self):
-        return b"L" + _vi(len(self.items)) + b"".join(x.canon_bytes() for x in self.items)
+    def canon_bytes(self, bound=()):
+        return b"L" + _vi(len(self.items)) + b"".join(
+            x.canon_bytes(bound) for x in self.items)
 
     def children(self):
         return self.items
@@ -130,9 +142,9 @@ class StoreLit(Node):
         super().__init__(line, col)
         self.pairs = tuple(pairs)  # ((name, expr), …) in source order
 
-    def canon_bytes(self):
+    def canon_bytes(self, bound=()):
         return (b"S" + _vi(len(self.pairs))
-                + b"".join(_s(k) + e.canon_bytes() for k, e in self.pairs))
+                + b"".join(_s(k) + e.canon_bytes(bound) for k, e in self.pairs))
 
     def children(self):
         return tuple(e for _k, e in self.pairs)
@@ -146,9 +158,10 @@ class LambdaE(Node):
         self.params = tuple(params)
         self.body = body
 
-    def canon_bytes(self):
-        return (b"F" + _vi(len(self.params)) + b"".join(_s(p) for p in self.params)
-                + self.body.canon_bytes())
+    def canon_bytes(self, bound=()):
+        # Param NAMES are spelling; only their count and positions are identity.
+        return (b"F" + _vi(len(self.params))
+                + self.body.canon_bytes(tuple(bound) + self.params))
 
     def children(self):
         return (self.body,)
@@ -161,8 +174,9 @@ class Cond(Node):
         super().__init__(line, col)
         self.c, self.t, self.f = c, t, f
 
-    def canon_bytes(self):
-        return b"C" + self.c.canon_bytes() + self.t.canon_bytes() + self.f.canon_bytes()
+    def canon_bytes(self, bound=()):
+        return (b"C" + self.c.canon_bytes(bound) + self.t.canon_bytes(bound)
+                + self.f.canon_bytes(bound))
 
     def children(self):
         return (self.c, self.t, self.f)
@@ -177,9 +191,10 @@ class Annot(Node):
         self.evidence = evidence
         self.expr = expr
 
-    def canon_bytes(self):
+    def canon_bytes(self, bound=()):
         return (b"A" + bytes([MATURITIES.index(self.maturity)])
-                + bytes([EVIDENCES.index(self.evidence)]) + self.expr.canon_bytes())
+                + bytes([EVIDENCES.index(self.evidence)])
+                + self.expr.canon_bytes(bound))
 
     def children(self):
         return (self.expr,)
@@ -194,8 +209,8 @@ class _Fixed(Node):
         super().__init__(line, col)
         self.args = tuple(args)
 
-    def canon_bytes(self):
-        return self.TAG + b"".join(a.canon_bytes() for a in self.args)
+    def canon_bytes(self, bound=()):
+        return self.TAG + b"".join(a.canon_bytes(bound) for a in self.args)
 
     def children(self):
         return self.args
@@ -236,6 +251,11 @@ class AssertE(_Fixed):
     TAG = b"Q"
 
 
+class Prov(_Fixed):
+    __slots__ = ()
+    TAG = b"J"
+
+
 class BinOp(Node):
     __slots__ = ("op", "l", "r")
 
@@ -243,9 +263,9 @@ class BinOp(Node):
         super().__init__(line, col)
         self.op, self.l, self.r = op, l, r
 
-    def canon_bytes(self):
+    def canon_bytes(self, bound=()):
         return (b"X" + bytes([BIN_OPS.index(self.op)])
-                + self.l.canon_bytes() + self.r.canon_bytes())
+                + self.l.canon_bytes(bound) + self.r.canon_bytes(bound))
 
     def children(self):
         return (self.l, self.r)
@@ -258,8 +278,8 @@ class Neg(Node):
         super().__init__(line, col)
         self.x = x
 
-    def canon_bytes(self):
-        return b"G" + self.x.canon_bytes()
+    def canon_bytes(self, bound=()):
+        return b"G" + self.x.canon_bytes(bound)
 
     def children(self):
         return (self.x,)
@@ -273,9 +293,9 @@ class Call(Node):
         self.fn = fn
         self.args = tuple(args)
 
-    def canon_bytes(self):
-        return (b"K" + self.fn.canon_bytes() + _vi(len(self.args))
-                + b"".join(a.canon_bytes() for a in self.args))
+    def canon_bytes(self, bound=()):
+        return (b"K" + self.fn.canon_bytes(bound) + _vi(len(self.args))
+                + b"".join(a.canon_bytes(bound) for a in self.args))
 
     def children(self):
         return (self.fn,) + self.args
@@ -288,8 +308,8 @@ class Compose(Node):
         super().__init__(line, col)
         self.f, self.g = f, g
 
-    def canon_bytes(self):
-        return b"M" + self.f.canon_bytes() + self.g.canon_bytes()
+    def canon_bytes(self, bound=()):
+        return b"M" + self.f.canon_bytes(bound) + self.g.canon_bytes(bound)
 
     def children(self):
         return (self.f, self.g)
@@ -538,6 +558,8 @@ class _Parser:
             return self._fixed(Fold, 3, "Σ")
         if kind == "ASSERTEQ":
             return self._fixed(AssertE, 2, "≟")
+        if kind == "PROV":
+            return self._fixed(Prov, 1, "ᛃ")
         if kind == "LPAR":
             self.next()
             inner = self.expr()

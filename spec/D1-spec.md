@@ -60,6 +60,7 @@ Maturity keywords: `SPECULATIVE < SCOPED < IMPLEMENTED`. Evidence keywords: `NA 
 | ☿ | U+263F | Astronomical/astrological signs | Mercury (messenger; alchemical quicksilver) | `\ed` | 3-ary `☿(s, 'k, v)` | **Edit (put).** Returns a *new* store with field `k` set to `v`, parent-linked to `s`. The old digest remains fetchable. |
 | ↩ | U+21A9 | Arrow notation | leftwards arrow with hook | `\am` | 1-ary `↩(s)` | **Anamnesis.** Returns the parent state of an edited store — the exact prior value; `ᛝ(↩(☿(s,k,v))) = ᛝ(s)` is a falsifier, not a hope. On a root store: error `URDR-ANAMNESIS-ROOT`. |
 | ᛝ | U+16DD | Elder Futhark | *ingwaz* — the god Ing; seed/potential | `\di` | 1-ary `ᛝ(x)` | **Digest.** The SHA-256 content address of a value, as a first-class `Digest` value. The "seed" mnemonic (identity from which the value re-derives) is assigned, not attested. |
+| ᛃ | U+16C3 | Elder Futhark | *jēra* — "year; harvest; fruitful cycle" | `\pv` | 1-ary `ᛃ(s)` | **Provenance walk** (R1d). The ancestor digests of a store, nearest first; `[]` at a root. Observability for the lineage that is already part of identity (§8): `ᛃ(s)[k] = ᛝ(↩^(k+1)(s))`. The "seasons a value has lived" mnemonic is assigned, not attested. |
 
 ### 2.3 Structural glyphs
 
@@ -90,7 +91,6 @@ store/list punctuation · `'name` symbol literal · `name` identifiers (`[a-z_][
 | 𒁹 | U+12079 | Cuneiform numerals | *diš* — unit wedge | base-60 literal digit | `SCOPED / N/A` (R1+) |
 | 𒌋 | U+1230B | Cuneiform numerals | *u* — ten | base-60 literal digit | `SCOPED / N/A` (R1+) |
 | ☉ | U+2609 | Astronomical signs | Sun | reference-path marker (the authoritative WHAT against which accelerated WHEREs are differentially checked, §R3) | `SCOPED / N/A` (R3) |
-| *(tbd)* | — | — | — | provenance/lineage operator (digest-chain walk) | `SCOPED / N/A`; glyph deliberately unassigned, see §2.6 |
 
 ### 2.6 Exclusions (curatorial law, binding)
 
@@ -99,8 +99,11 @@ hate-appropriation, regardless of their legitimate historical scholarship: **ᛋ
 **ᛟ** (*ōthala*), **ᛉ** (*algiz* in its "life-rune" appropriation), **ᛏ** (*tīwaz* in its
 appropriated use). This **overrides the directive's own illustrative suggestion** of ᛟ for
 the provenance operator — the directive's curatorial law outranks its example. The
-provenance operator therefore has *no glyph yet*; assigning one waits for the confusables
-and reception review in R1, and the ledger carries it as `SCOPED`.
+provenance operator's glyph therefore waited for review. **R1d completed that review**
+and assigned **ᛃ** (*jēra*): it is not among the hate-appropriated runes catalogued by
+extremism monitors, and its shape has no ASCII/Greek lookalike in this alphabet
+(confusables check: none). Both facts are recorded here as the review's outcome; if
+either changes, the assignment is revisited before the meaning ossifies.
 
 Also excluded from v0.1 for **hygiene** (visual confusability with ASCII/Greek used in
 programs): ᚱ (~R), ᛒ (~B), ᚺ (~H), ᛁ (~I/l), ᛖ (~M), ᚹ (~P), ᛏ (~↑/T). A future revision
@@ -130,7 +133,7 @@ unary      = [ "-" ] postfix ;
 postfix    = primary { "(" [ expr { "," expr } ] ")" } ;
 primary    = INT | SYMBOL | IDENT
            | list | store | lambda | cond
-           | verify | view | edit | ana | digestop | fold | assertop
+           | verify | view | edit | ana | digestop | fold | assertop | prov
            | "(" expr ")" ;
 list       = "[" [ expr { "," expr } ] "]" ;
 store      = "ᚠ" "{" [ IDENT ":" expr { "," IDENT ":" expr } ] "}" ;
@@ -143,6 +146,7 @@ ana        = "↩" "(" expr ")" ;
 digestop   = "ᛝ" "(" expr ")" ;
 fold       = "Σ" "(" expr "," expr "," expr ")" ;
 assertop   = "≟" "(" expr "," expr ")" ;
+prov       = "ᛃ" "(" expr ")" ;                   (* R1d *)
 
 MATURITY   = "SPECULATIVE" | "SCOPED" | "IMPLEMENTED" ;
 EVIDENCE   = "NA" | "DECLARED" | "MEASURED" ;      (* MEASURED never typechecks in source *)
@@ -236,11 +240,14 @@ meaningful, sufficient, or correctly named. `Grounded ≠ true`; it is `MEASURED
   step on every host. Totality is thereby *not* claimed (README §boundaries).
 - **Errors are values of the run, not of the machine.** Every `URDR-*` error carries a
   stable code and source span; the gate matches on codes, not message prose.
-- **Prelude.** Exactly seven names are pre-bound, all pure and deterministic:
+- **Prelude.** Exactly ten names are pre-bound, all pure and deterministic:
   `value(c)` (unwrap a Claim/Grounded), `maturity(c)` / `evidence(c)` (→ symbol),
   `grounded(x)` / `conflicted(x)` (→ `1`/`0`), `range(n)` (→ `[0 … n−1]`, fuel-bounded),
-  `len(xs)`. Prelude names are ordinary bindings (shadowable is a parse error like any
-  rebind); they are part of the language surface and of D4's typeability table.
+  `len(xs)`, and (R1b) `push(xs, x)` / `cat(xs, ys)` / `nth(xs, i)` — list append,
+  concatenation, and read, each charging fuel for the copy it performs and failing
+  typed (`URDR-TYPE-RUN`, including `nth` bounds). Prelude names are ordinary bindings
+  (shadowable is a parse error like any rebind); they are part of the language surface
+  and of D4's typeability table.
 
 ## 7. Canonical form & digests
 
@@ -259,10 +266,12 @@ meaningful, sufficient, or correctly named. `Grounded ≠ true`; it is `MEASURED
 | Digest | `d` + 32 raw bytes |
 
 Notes. Store field order in *source* is irrelevant: canonical form sorts; digests never
-see Python iteration order. λ canonical form includes parameter *names* (α-equivalent
-lambdas digest differently) — a documented v0.1 limitation, `SCOPED` for α-normalization
-in R1. `digest ≠ MAC`: SHA-256 here provides content identity against accident and drift,
-not authentication against an adversary who can rewrite the files *and* the digests.
+see Python iteration order. λ canonical form is **α-normalized** (R1a): λ-bound names
+serialize as positional (De Bruijn) indices *in canon only*, so α-equivalent lambdas are
+one value with one digest; free/captured names stay named because what a closure captures
+is identity, not spelling. `digest ≠ MAC`: SHA-256 here provides content identity against
+accident and drift, not authentication against an adversary who can rewrite the files
+*and* the digests.
 
 ## 8. The membrane, precisely
 
@@ -314,7 +323,35 @@ value) and **not cached** (memoization `SCOPED`); `Σ` is O(len · body). No per
 number is published for the interpreter, and none will be except as *measured on a named
 host* (`benchmark ≠ universal`).
 
-## 12. Does-not-do (v0.1)
+## 12. Graded-algebra notation (R1c) — the honest "M-capable" conversion
+
+The directive's "M-theory capable" converts to a *testable* capability (D1 §1 of the
+directive; README §conversions): represent a ℤ₂-graded / Clifford structure as a value
+and verify its defining relations **by evaluation**. Urðr's notation is textual and
+original; the *method* — a notation that carries grading and closure mechanically — is
+learned from **S. J. Gates Jr. & Michael Faux's adinkras**, credited here, with none of
+their graphs, glyphs, or notation reproduced (`learned ≠ copied`).
+
+- A **basis blade** of Cl(n) is its 0/1 characteristic vector `[b0 … b(n-1)]` (a plain
+  list value). The scalar is the zero vector.
+- A **signed element** is `[sign, blade]` with `sign ∈ {1, −1}` — integers only; the
+  metric is e_i² = +1, so no rationals arise.
+- **Product law:** `e_A · e_B = (−1)^crossings(A,B) · e_(A Δ B)`, where Δ is elementwise
+  XOR (symmetric difference) and `crossings(A,B) = Σ_i A[i] · (Σ_{j<i} B[j])` — the
+  anticommutation sign as an inversion count. All computed in-language with `Σ`, `nth`,
+  and wrap arithmetic.
+- **ℤ₂ grade** = bit-parity of the blade; closure law `grade(aΔb) = grade(a) ⊕ grade(b)`.
+
+Falsifiers (all run by the gate): `examples/z2_grading.urdr` checks the grading law over
+all 64 blade pairs of Cl(3) and seals the count with ᛞ (a Grounded `⊢ 64`);
+`examples/clifford_relations.urdr` checks `{e_i, e_j} = 2δ_ij` for all nine pairs plus
+direct anticommutation and square spot-checks, sealed `⊢ 9`;
+`examples/rejected/clifford_wrong.urdr` claims commutation and **must die** with
+`URDR-ASSERT` (`≟ breach: 1 ≠ -1`) — the non-vacuity of the whole rung. Boundary
+restated: these verify *algebra relations under this evaluator*. They say nothing about
+physics, supersymmetry, or the universe (`sign ≠ thing`).
+
+## 13. Does-not-do (v0.1)
 
 No physics (see README). No strings, floats, division, recursion, I/O, clock, RNG,
 network, filesystem, concurrency, actors, placements, effects, capabilities, module

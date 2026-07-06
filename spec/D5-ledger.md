@@ -24,6 +24,10 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Membrane: pure ☽, fresh-store ☿, exact ↩ (digest-identical) | IMPLEMENTED | MEASURED | `tests/test_lens_laws.py`, `examples/lens_roundtrip.urdr` |
 | Lens laws: put-get exact; get-put up to lineage w/ exact ↩ recovery | IMPLEMENTED | MEASURED | same; deviation stated in D1 §8 |
 | Content addressing: canonical bytes → SHA-256, sorted, order-free | IMPLEMENTED | MEASURED | `tests/test_determinism.py` (store order, glyph/digraph one-digest) |
+| α-normalized λ canon (De Bruijn in canon only; free names stay named) | IMPLEMENTED | MEASURED | `tests/test_determinism.py` α-tests; `docs/transcripts/r1a_alpha_normalization.txt` (red-first record) |
+| List prelude `push`/`cat`/`nth` (fuel-charged copies, typed failures) | IMPLEMENTED | MEASURED | `tests/test_prelude_lists.py` (9 falsifiers incl. fuel and bounds) |
+| Graded algebra: ℤ₂ grading closure (64 pairs) + Cl(3) relations {ei,ej}=2δij (9 pairs), verified by evaluation, ᛞ-sealed; wrong-relation program dies | IMPLEMENTED | MEASURED | `examples/z2_grading.urdr` (⊢64), `examples/clifford_relations.urdr` (⊢9), `examples/rejected/clifford_wrong.urdr` (URDR-ASSERT), `tests/test_graded_algebra.py`. Algebra only — not physics |
+| Provenance walk ᛃ (ancestor digests, nearest first; agrees with iterated ↩) | IMPLEMENTED | MEASURED | `tests/test_provenance.py`, `examples/lineage.urdr` |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: all four example digests bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), 2026-07-06. Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
 | Fuel-bounded evaluation, deterministic URDR-FUEL | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -35,10 +39,7 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 
 | Capability | Grade | Rung |
 |---|---|---|
-| Graded-algebra falsifier (ℤ₂/Clifford relations verified by evaluation; Gates-method learned, our notation) | SCOPED / N/A | R1 |
-| α-normalization of λ canonical form (current α-sensitivity pinned by test) | SCOPED / N/A | R1 |
 | Base-60 numeric literals (𒁹, 𒌋) | SCOPED / N/A | R1 |
-| Provenance/lineage operator (glyph deliberately unassigned; ᛟ excluded by curatorial law) | SCOPED / N/A | R1 |
 | Division / modulo with defined zero semantics | SCOPED / N/A | R1 |
 | Persistent on-disk store; cross-run anamnesis | SCOPED / N/A | R2 |
 | Deterministic actors (canonical `(tick, actor, seq)` order; digest invariant across schedules) | SCOPED / N/A | R2 |

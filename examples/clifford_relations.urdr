@@ -1,0 +1,23 @@
+# Clifford defining relations in Cl(3), checked BY EVALUATION (R1c):
+#   {e_i, e_j} = e_i e_j + e_j e_i = 2 (i = j) | 0 (i != j),  with e_i^2 = +1.
+# Notation ours (no adinkra graphics; method credited to Gates & Faux in D1):
+# blade = 0/1 vector [b0,b1,b2]; signed element = [sign, blade];
+# e_A e_B = (-1)^crossings(A,B) e_(A delta B), crossings = sum_i A[i]*(sum_(j<i) B[j]).
+xor ≔ λ x y ↦ ?(x = y, 0, 1)
+delta ≔ λ a b ↦ [xor(nth(a, 0), nth(b, 0)), xor(nth(a, 1), nth(b, 1)), xor(nth(a, 2), nth(b, 2))]
+par ≔ λ n ↦ Σ(range(n), 0, λ acc i ↦ xor(acc, 1))
+crossings ≔ λ a b ↦ nth(a, 1) * nth(b, 0) + nth(a, 2) * (nth(b, 0) + nth(b, 1))
+csign ≔ λ a b ↦ ?(par(crossings(a, b)) = 1, -1, 1)
+prod ≔ λ s1 a s2 b ↦ [s1 * s2 * csign(a, b), delta(a, b)]
+gens ≔ [[1,0,0], [0,1,0], [0,0,1]]
+scalar ≔ [0, 0, 0]
+acoef ≔ λ i j ↦ nth(prod(1, nth(gens, i), 1, nth(gens, j)), 0) + nth(prod(1, nth(gens, j), 1, nth(gens, i)), 0)
+# showcase pair first: anticommutation and a square, asserted directly
+p01 ≔ prod(1, nth(gens, 0), 1, nth(gens, 1))
+p10 ≔ prod(1, nth(gens, 1), 1, nth(gens, 0))
+anti ≔ ≟(nth(p01, 0), -nth(p10, 0))
+square ≔ ≟(nth(prod(1, nth(gens, 2), 1, nth(gens, 2)), 0), 1)
+# all nine pairs: coefficient of the anticommutator, and blade = scalar when i = j
+checks ≔ Σ(range(3), 0, λ acc i ↦ acc + Σ(range(3), 0, λ a2 j ↦ a2 + 1 + 0 * ≟(acoef(i, j), ?(i = j, 2, 0)) + ?(i = j, 0 * len(≟(nth(prod(1, nth(gens, i), 1, nth(gens, j)), 1), scalar)), 0)))
+claim ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ checks
+ᛞ(λ v ↦ v = 9, claim)

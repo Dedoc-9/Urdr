@@ -50,10 +50,12 @@ def canon(v) -> bytes:
     if isinstance(v, V.Conflict):
         return b"x" + canon(v.claim) + v.verifier_digest
     if isinstance(v, V.Lambda):
+        # R1a α-normalized: param names are spelling, not identity — only their
+        # count is serialized, and the body canonicalizes them positionally.
+        # Captured free variables stay NAMED: what a closure closes over is
+        # part of its content identity.
         parts = [b"f", _varint(len(v.params))]
-        for p in v.params:
-            parts.append(_sym_bytes(p))
-        parts.append(v.body.canon_bytes())
+        parts.append(v.body.canon_bytes(tuple(v.params)))
         parts.append(_varint(len(v.captured)))
         for name in sorted(v.captured):
             parts.append(_sym_bytes(name))

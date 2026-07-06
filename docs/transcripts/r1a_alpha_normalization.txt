@@ -1,0 +1,35 @@
+R1a — α-normalization of λ canonical form. Red-first record, 2026-07-06,
+Linux build sandbox, Python 3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1.
+
+PHASE 1 — new falsifiers vs old (α-sensitive) canon: RED as required
+  tests.test_determinism: FAILED (failures=2)
+    - test_alpha_equivalence_after_normalization   (λx↦x vs λy↦y digests differed)
+    - test_alpha_normalization_respects_shadowing
+  (This UPDATES R0's test_alpha_sensitivity_is_pinned per that test's own
+   instruction: updated, not deleted.)
+
+PHASE 2 — after canon change, before golden re-record: RED on exactly the
+predicted blast radius (the one example whose RESULT embeds a λ witness):
+  Ran 40 tests: OK
+  [PASS] unit-falsifiers                    40 run, 0 red
+  [FAIL] example:determinism_probe.urdr     digest c3d062136241… ≠ recorded 861b960a591d…
+  [PASS] example:grounding.urdr             79b47903bdc8d794…   (result carries only Int/Sym — invariant, correctly)
+  [PASS] example:lens_roundtrip.urdr        b79d27d6e4401cd8…
+  [PASS] example:pipeline.urdr              4573590cf8ee7319…
+  GATE FAILED
+
+PHASE 3 — golden re-recorded (861b960a… → c3d062136241…), gate green:
+  [PASS] unit-falsifiers                    40 run, 0 red
+  [PASS] example:determinism_probe.urdr     c3d062136241ab7c…
+  [PASS] example:grounding.urdr             79b47903bdc8d794…
+  [PASS] example:lens_roundtrip.urdr        b79d27d6e4401cd8…
+  [PASS] example:pipeline.urdr              4573590cf8ee7319…
+  [PASS] reject:* (all four)                exact codes
+  [PASS] tamper-selftest                    gate can still redden
+  GATE PASSED
+
+Semantics of the change: λ-bound names serialize as positional (De Bruijn)
+indices IN CANON ONLY; runtime is untouched. Free/captured names stay named —
+what a closure captures is identity, not spelling. Non-vacuity guarded by
+test_alpha_normalization_is_not_structure_blind (λxy↦x ≠ λxy↦y) and
+test_free_names_stay_named_in_canon.
