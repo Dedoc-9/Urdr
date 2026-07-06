@@ -444,9 +444,9 @@ Design laws already fixed:
 
 No physics (see README). No strings, floats, division, recursion, I/O, clock, RNG,
 network, filesystem, concurrency, actors, placements, effects, capabilities, modules,
-or REPL. Each is either landed on a later rung (§§12–17), `SCOPED` to a rung in D5, or
+or REPL. Each is either landed on a later rung (§§12–20), `SCOPED` to a rung in D5, or
 absent by design law. A feature not listed in this spec does not exist, whatever a name
-elsewhere may suggest. (Sections 12–17 record the rungs that have landed since; §15
+elsewhere may suggest. (Sections 12–20 record the rungs that have landed since; §15
 remains the v0.1 baseline: I/O exists only as R4 capabilities and R5 module reads —
 the evaluator itself still performs none.)
 

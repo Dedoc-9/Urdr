@@ -14,7 +14,7 @@ README says beyond that ledger is a bug; file it.
 Successor-in-discipline to the *Dentatus → Ursprung* line (executable epistemic
 determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R5; tag v0.6.1)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R5 + §18–§20; tag v0.7.1)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -58,6 +58,19 @@ determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.
   the rhombohedral C₃ lattice (D1 §12b, ⊢11) and the centering / quotient operator
   M = nI−J (D1 §18, ⊢6). Each documents its provenance apart from its assigned meaning
   (`signum ≠ rēs`); neither claims anything about physics or society.
+- **Evidence transitions** (D1 §19): an action earns a knowledge claim only by a
+  *recorded state transition* a verifier can inspect (`claim-transition ≤ measured-delta`).
+  `transition_witness(before, after)` — the first **library function** (spelled
+  `transition_witness`, `⟿`, or `\tw`, all one digest) — witnesses a real passage and
+  refuses a zero-delta one (`URDR-DELTA-UNEARNED`); it never mints `Grounded` (only ᛞ
+  does). Falsifiers: `examples/evidence_transition.urdr`, `tests/test_transition.py`.
+- **The glyph review** (D1 §20): a glyph is *earned*, not declared — a lossless alias of
+  a proven operation, or `URDR-GLYPH-NOT-EARNED`. First glyph earned: `⟿`. Machinery:
+  `tools/glyph_review.py`. See **Glyphs — creation laws and reference** below.
+- **`voi_gate`** (`tools/voi_gate/` — a *separate* tool: float, not the integer core, its
+  own runner): a Value-of-Information decision gate (`value_per_bit·VoI − Cost > ρ`, VoI =
+  mutual information in bits) that *proposes* claims and never mints them. The engine is
+  tested; the claim it *improves outcomes* is `SPECULATIVE` behind a calibration ledger.
 
 ## Quickstart (offline; Python ≥ 3.10, stdlib only)
 
@@ -92,6 +105,101 @@ not execution: the suite passes on a machine that cannot display a single rune.
 3. **"Observation and editing as one dataflow"** is a reversible lens over a
    content-addressed store, with `anamnesis` as the return operator. Lens laws are tested;
    the live-session editor over that dataflow is `SCOPED`.
+
+## Glyphs — creation laws and reference
+
+Urðr's alphabet is curated scholarship, not decoration. Every glyph is enterable
+**offline** via an ASCII digraph, and the lexer treats a glyph and its digraph as the
+*same token* (so a program can be written, diffed, and emailed in pure ASCII, then
+canonicalized with `urdr.py fmt`). Fonts are needed only to *render*; the suite passes on
+a machine that cannot display a single rune (`typeable ≠ renderable`).
+
+### The glyph creation laws
+
+1. **Glyph budget** (design law 5). A glyph is spent **only where semantics are novel** —
+   epistemics, the membrane, structure. Arithmetic, grouping, and literals stay ASCII, and
+   every glyph must justify itself against its own digraph. New *operations* arrive as
+   ASCII prelude functions first (the `weave` / `cap` / `transition_witness` precedent) and
+   earn a glyph later, or never.
+2. **`signum ≠ rēs`** (design law 6). A glyph's *attested* historical meaning is provenance
+   only; its meaning in Urðr is the *assigned* column and nothing else. The two are recorded
+   separately in D1; resemblance is a mnemonic courtesy, never a claim about (or by) history.
+3. **Exclusions** (D1 §2.6, binding). Glyphs whose dominant modern reading includes
+   organized hate-appropriation are excluded outright (ᛋ, ᛟ, ᛉ, ᛏ), as are runes visually
+   confusable with ASCII / Greek / Cyrillic. The confusables table names each intruder and
+   what it imitates; a look-alike is rejected (`URDR-LEX-CONFUSABLE`), never guessed at.
+4. **The glyph review** (D1 §20). A glyph is **earned, not declared** — the *final* artifact
+   of a proof trail, the shortest faithful spelling of an operation already proven:
+   `ASCII function → measured law → falsifier → stable semantics → glyph alias`. The review
+   (`tools/glyph_review.py`) can **reject** with `URDR-GLYPH-NOT-EARNED`, checking five
+   mechanical criteria: *lossless* (glyph-program digest = ASCII-program digest — a spelling,
+   not new behaviour), *not confusable*, *not an excluded rune*, *has a digraph*, and
+   *provenance recorded*. A failed review is a successful gate result, and the ASCII function
+   stays valid either way. That asymmetry keeps the budget honest.
+
+### How developers use them
+
+Type the ASCII digraph and run `urdr.py fmt FILE` to canonicalize to glyphs, or type the
+glyphs directly (OS pickers / editor snippets — see [`spec/D4-typeability.md`](spec/D4-typeability.md)).
+Both spellings lex to one token and produce **one digest**; spelling is never identity. In
+the tables below the ASCII column is what you type; `&#124;` shown in a digraph is a literal
+`|` character.
+
+### Epistemic glyphs — claims, evidence, verification
+
+| Glyph | ASCII | Purpose | In code |
+|---|---|---|---|
+| 𒀭 | \an | Wrap a value in a graded **Claim** `⟨maturity, evidence⟩` | `c ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ 42` |
+| ᛞ | \ve | **Verify** — run a λ on a claim's value; the **sole** mint of `MEASURED`/`Grounded` | `ᛞ(λ v ↦ v = 42, c)` |
+| ↯ | \cf | **Conflict** — the value a failed verification yields; branch on it, never average | *(output value; `conflicted(x)`)* |
+| ⊢ | \&#124;- | **Witness display** — how a `Grounded` value renders (output only, no constructor) | `w ⊢ 42` *(printed)* |
+| ⟨ ⟩ | <&#124;  &#124;> | **Tag brackets** delimiting the ⟨maturity, evidence⟩ pair | `⟨SCOPED, NA⟩` |
+
+### Membrane glyphs — state as an immutable, content-addressed store
+
+| Glyph | ASCII | Purpose | In code |
+|---|---|---|---|
+| ᚠ | \st | **Store** literal — an immutable, content-addressed record | `s ≔ ᚠ{x: 1, y: 2}` |
+| ☽ | \vw | **View** (get) — pure read of a field; never perturbs | `☽(s, 'x)` |
+| ☿ | \ed | **Edit** (put) — returns a *new* store with a field set, parent-linked | `☿(s, 'x, 5)` |
+| ↩ | \am | **Anamnesis** — return to the exact prior state (digest-identical) | `↩(s)` |
+| ᛝ | \di | **Digest** — the SHA-256 content address of any value, first-class | `ᛝ(s)` |
+| ᛃ | \pv | **Provenance walk** — ancestor digests, nearest first (`[]` at a root) | `ᛃ(s)` |
+
+### Structural glyphs — binding, functions, iteration, comparison
+
+| Glyph | ASCII | Purpose | In code |
+|---|---|---|---|
+| ≔ | := | **Bind** a name (immutable; rebinding is a parse error) | `answer ≔ 42` |
+| λ | \fn | **Function** abstraction, closing over its environment | `inc ≔ λ x ↦ x + 1` |
+| ↦ | \&#124;-> | **Maps-to** — separates λ parameters from body | `λ x y ↦ x + y` |
+| ∘ | \o | **Compose** — `f ∘ g` = `λ x ↦ f(g(x))` | `twice ≔ inc ∘ inc` |
+| ᛚ | \fl | **Flow** — `x ᛚ f` = `f(x)`; chains read as a pipeline | `5 ᛚ inc ᛚ twice` |
+| Σ | \fo | **Fold** — the only iteration in v0.1 (left fold) | `Σ(xs, 0, λ a x ↦ a + x)` |
+| ≟ | =? | **Assertion gate** — equal by digest ⇒ the value, else dies `URDR-ASSERT` | `≟(a, b)` |
+| ≠ | != | **Structural inequality** by digest, yielding `1`/`0` | `a != b` |
+| ≤ ≥ | <=  >= | **Integer comparison** | `x <= 3` |
+
+### Library glyphs earned by review (D1 §20)
+
+| Glyph | ASCII | Purpose | In code |
+|---|---|---|---|
+| ⟿ | \tw | **Transition witness** — a lossless alias of `transition_witness(before, after)`: witnesses a *real* state passage, refuses a zero-delta one (`URDR-DELTA-UNEARNED`), and **never** mints `Grounded` (only ᛞ does). The dual of `≟`. | `⟿(before, after)` |
+
+### The ASCII surface (part of the alphabet by the glyph budget)
+
+`+ - *` wrapping 64-bit arithmetic · `= < >` comparison · `?(c, t, f)` conditional (lazy
+branches) · `( )` grouping · `[ ]` lists · `{ } , :` store/list punctuation · `'name`
+symbol literal · integer literals · `#` line comment · `@<64-hex>` module pin (R5, e.g.
+`use @<digest> as lib`). These stay ASCII because their semantics are not novel.
+
+### Reserved / deferred (curated, not yet in the grammar)
+
+`𒁹` (U+12079) and `𒌋` (U+1230B) are cuneiform base-60 numeral digits (`SCOPED`, R1+);
+`☉` (U+2609, Sun) is the reference-path marker for the differential oracle — it appears in
+the gate's output (`compiled ≡ ☉ …`) but is not yet source syntax (`SCOPED`, R3). Each will
+pass a glyph review before it enters the grammar, or it will not enter.
+
 
 ## Roadmap (rungs; each = spec → std-only impl → red-capable test → honest grade)
 

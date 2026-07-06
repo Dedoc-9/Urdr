@@ -8,7 +8,7 @@ language enforces, applied to the language's own claims. `MEASURED` below means:
 falsifier exercising the capability is green in `verify.py` on a named host (see
 `docs/transcripts/green.txt`); it never means universally proven.
 
-## Capability inventory (v0.1)
+## Capability inventory (current: v0.7.1)
 
 | Capability | Maturity | Evidence | Where falsified |
 |---|---|---|---|
