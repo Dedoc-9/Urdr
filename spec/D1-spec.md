@@ -661,3 +661,51 @@ already does; §19 only names the pattern the oracle embodies.
 "attempted claim vs. adjudicated grade" framing, and the glyph-as-final-artifact
 process, arose in collaborative design. Recorded as lineage; `cited ≠
 implemented` — the enforcement is the falsifiers above, not this prose.
+
+
+## 20. The glyph review (a falsifiable promotion event) — and the first glyph earned
+
+The glyph budget (design law 5) is enforced by a **review**, not a declaration.
+A glyph is the *final artifact of a proof trail* — the shortest faithful
+spelling of an operation already proven — never its start. The promotion path is
+`ASCII function → measured law → falsifier → stable semantics → glyph alias`.
+The review can **reject** (`URDR-GLYPH-NOT-EARNED`); a failed review is a
+successful gate result, and the ASCII function remains a valid capability either
+way. That asymmetry is what keeps the budget honest.
+
+**Five mechanical criteria** (`tools/glyph_review.py`, `tests/test_glyph_review.py`):
+
+1. **Lossless** — `digest(glyph program) = digest(ASCII program)`: the glyph is a
+   *spelling*, not new evaluator behaviour. (Falsifier: a non-lossless candidate
+   is refused.)
+2. **Not confusable** — absent from the `CONFUSABLES` table and not a collision
+   with a core glyph. (Falsifier: Greek `Α` is refused.)
+3. **Not an excluded rune** (D1 §2.6 hate-appropriation exclusion).
+4. **Typeable** — has an ASCII digraph (offline-enterable).
+5. **Provenance recorded** — attested meaning kept separate from assigned
+   (`signum ≠ rēs`). (Falsifier: missing provenance is refused.)
+
+**First glyph earned: `⟿` for `transition_witness`.** *Freeze*:
+`transition_witness/2` shipped and tested (v0.7.0) — the semantics stopped
+moving before review (the observation is implicit in `before → after`, not a
+third argument). *Non-redundancy*: the operation cannot be composed from existing
+primitives — no source raises `URDR-DELTA-UNEARNED` and `≟` has no
+difference-asserting dual, so `glyph meaning ≠ old primitives composed`. *Choice
+from the operation shape, not metaphor*: the forbidden register (truth, wisdom,
+destiny, memory, revelation) was rejected; `⟿` (U+27FF) was chosen for a *traced
+passage* between two differing states, distinct from `↦` (clean map) and `↩`
+(return).
+
+| Glyph | Cp | Attested (scholarly) | ASCII | Assigned semantics (ours) |
+|---|---|---|---|---|
+| ⟿ | U+27FF | *Long rightwards squiggle arrow* — mathematical arrow notation | `\tw` | **Transition witness.** A lossless alias of `transition_witness(before, after)`: witnesses a real state passage; refuses zero-delta (`URDR-DELTA-UNEARNED`); **never** mints `Grounded`. The squiggle-arrow's math usage is provenance; the assigned meaning is the witness (`signum ≠ rēs`). |
+
+Lossless proof: `transition_witness`, `⟿`, and `\tw` are three spellings of one
+token — one digest (`tests/test_glyph_review.py::test_three_spellings_one_digest`).
+Deferred nicety: `fmt` does not yet canonicalize the word/digraph to `⟿`; the
+glyph is an accepted input spelling, and canonicalization can follow at leisure.
+
+**Design influence (lineage).** The glyph-review-as-falsifiable-event process
+(freeze → non-redundancy → operation-shape choice → lossless alias → review with
+a red state) arose in collaborative design; recorded as lineage, `cited ≠
+implemented` — the enforcement is `tools/glyph_review.py`, not this prose.

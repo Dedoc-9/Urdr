@@ -75,6 +75,12 @@ VERBOSE_KINDS = {
 USE_WORDS = {"use": "USE", "as": "AS"}
 _HEXCHARS = frozenset("0123456789abcdef")
 
+# Glyph aliases (D1 §20): a THIRD spelling of an existing prelude IDENT, earned
+# by the glyph review as a LOSSLESS compression. glyph/digraph → IDENT, so the
+# AST — and thus the digest — is identical to the ASCII spelling.
+GLYPH_ALIASES = {"\u27ff": "transition_witness"}          # ⟿
+BACKSLASH_ALIASES = {"tw": "transition_witness"}
+
 # ------------------------------------------------------------- confusables map
 # Curated, not exhaustive: every lookalike RELEVANT TO THIS ALPHABET (D1 §4.3).
 # Value = what the intruder imitates (named in the diagnostic).
@@ -200,11 +206,21 @@ class _Scanner:
                 self.advance()
                 continue
 
+            if ch in GLYPH_ALIASES:  # lossless glyph → prelude IDENT (D1 §20)
+                self.emit("IDENT", ch, value=GLYPH_ALIASES[ch],
+                          line=line, col=col)
+                self.advance()
+                continue
+
             if ch == "\\":
                 two = self.src[self.i + 1:self.i + 3]
                 one = self.src[self.i + 1:self.i + 2]
                 if two in BACKSLASH_2:
                     self.emit(BACKSLASH_2[two], "\\" + two, line=line, col=col)
+                    self.advance(3)
+                elif two in BACKSLASH_ALIASES:
+                    self.emit("IDENT", "\\" + two,
+                              value=BACKSLASH_ALIASES[two], line=line, col=col)
                     self.advance(3)
                 elif one in BACKSLASH_1:
                     self.emit(BACKSLASH_1[one], "\\" + one, line=line, col=col)

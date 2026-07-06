@@ -34,6 +34,7 @@ renderable`: the suite passes on a machine that cannot display a single rune.
 | ᛃ | U+16C3 | PROV | `\pv` | provenance walk (R1d) |
 | ↯ | U+21AF | CONFLICTG | `\cf` | output-only value form |
 | ⊢ | U+22A2 | ENTAILS | `\|-` | output-only witness display |
+| ⟿ | U+27FF | (IDENT alias) | `\tw` | `transition_witness` — glyph earned by review (D1 §20); a lossless third spelling |
 
 Prelude names (plain ASCII identifiers, part of the surface): `value maturity evidence
 grounded conflicted range len push cat nth weave cap recorded plan transition_witness` (the R4 trio is
