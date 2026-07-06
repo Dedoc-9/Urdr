@@ -301,7 +301,8 @@ store surviving across runs (true epochal time travel on disk) is `SCOPED` (R2+)
 `URDR-INFLATE-STATIC` · `URDR-EVIDENCE-UNEARNED` · `URDR-VERIFY-UNLICENSED` ·
 `URDR-NAME` · `URDR-TYPE-RUN` · `URDR-ASSERT` · `URDR-FUEL` · `URDR-ANAMNESIS-ROOT` ·
 `URDR-INFLATE-DYN` (latch; reachable only if the checker is unsound — its firing in the
-suite is itself a red).
+suite is itself a red) · `URDR-LIMES` (R2c: fail-closed process-boundary refusal —
+unpersistable value, tampered or malformed snapshot).
 
 ## 10. Metatheory obligations (declared now, discharged by grade)
 
@@ -351,7 +352,47 @@ direct anticommutation and square spot-checks, sealed `⊢ 9`;
 restated: these verify *algebra relations under this evaluator*. They say nothing about
 physics, supersymmetry, or the universe (`sign ≠ thing`).
 
-## 13. Does-not-do (v0.1)
+## 13. Deterministic actors (R2) — active truth without inherited nondeterminism
+
+- An **actor** is an ordinary store with fields `state` (any value) and `handler`
+  (a λ `st msg ↦ [st′, outbox]`; outbox = list of `[target, payload]`).
+- A **world** is a list of actors; an actor's id is its index.
+- **`weave(world, inbox, ticks)`** — prelude builtin, ASCII name on purpose: the glyph
+  budget (design law 5) spends exotic glyphs only on settled semantics. Actor notation
+  earns a glyph at the R3 review or not at all.
+- **Canonical order law.** Each tick processes all pending messages in the order
+  `sort by (target, ᛝ(payload))` — a *pure function of the message multiset*. No
+  sequence number encoding arrival exists anywhere in the semantics. (The directive's
+  illustrative key `(tick, actor_id, seq)` reaches the same goal; the digest tiebreaker
+  is chosen because a `seq` still encodes arrival, and independence should hold by
+  construction, not by discipline. Two equal payloads to one target are literally
+  indistinguishable, so their relative order cannot matter.)
+- Deliveries left-fold the target's handler; outboxes join the **next** tick's pending.
+  Result value: `[final_states, leftover_messages]` — both inside the digest.
+- **Local cage.** Handlers evaluate under the unchanged rules: ᛞ stays the only mint,
+  the latch stays armed. An actor that tries to raise evidence above maturity dies
+  *inside its own handler* — no-inflation enforced by the entity, not by a central
+  checker after the fact (Hewitt's agency, Milner's kernel, one cage).
+- **Quarantine note.** v0.3 contains no nondeterministic delivery to quarantine — no
+  effect syntax exists yet. The falsifier is therefore *schedule permutation*: every
+  permutation of the inbox must yield one digest
+  (`examples/actors_one_digest.urdr`, `tests/test_actors.py`), and the over-claiming
+  actor must die (`examples/rejected/actor_overclaim.urdr`).
+
+### 13b. Runner snapshots (R2c) — persistence as a līmes
+
+The language gains no I/O. Persistence lives at the **process boundary**, owned by the
+CLI: `urdr.py run FILE --save-store PATH` writes the result value (with its full lineage
+chain and its digest) to a snapshot; `--load-store PATH` re-derives the value, verifies
+the recorded digest (mismatch ⇒ `URDR-LIMES`, refused not repaired), and binds it as the
+runner-provided input `loaded` — which a program may not shadow (`URDR-REBIND`). Data
+crosses; **behavior and verdicts do not**: λ, compositions, builtins, Conflict, and above
+all `Grounded` are refused (`URDR-LIMES`) — a witness certifies a verification in *this*
+process under *this* evaluator, so `MEASURED` is re-earned after load, never imported.
+Falsifier: three interpreters, one address (`tests/test_snapshot.py`). Capability-gated
+in-language persistence remains R4.
+
+## 14. Does-not-do (v0.1)
 
 No physics (see README). No strings, floats, division, recursion, I/O, clock, RNG,
 network, filesystem, concurrency, actors, placements, effects, capabilities, module

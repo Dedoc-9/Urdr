@@ -1,0 +1,5 @@
+# MUST FAIL AT RUN: this actor's handler tries to mint MEASURED on a SCOPED claim.
+# The cage holds INSIDE the entity: truth defends itself locally, no central referee.
+bad ≔ λ st msg ↦ [value(ᛞ(λ v ↦ v = msg, 𒀭⟨SCOPED, DECLARED⟩ msg)), []]
+world ≔ [ᚠ{state: 0, handler: bad}]
+weave(world, [[0, 9]], 1)

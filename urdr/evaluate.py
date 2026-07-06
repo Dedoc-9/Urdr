@@ -8,8 +8,8 @@ from . import canon as C
 from . import check as CHK
 from . import parser as P
 from . import values as V
-from .errors import (UrdrError, ASSERT, ANAMNESIS_ROOT, FUEL, NAME, TYPE_RUN,
-                     VERIFY_UNLICENSED)
+from .errors import (UrdrError, ASSERT, ANAMNESIS_ROOT, FUEL, NAME, REBIND,
+                     TYPE_RUN, VERIFY_UNLICENSED)
 
 DEFAULT_FUEL = 1_000_000
 
@@ -96,6 +96,7 @@ def prelude() -> dict:
         "push": V.Builtin("push", 2, None),     # R1b: fuel-aware list prelude
         "cat": V.Builtin("cat", 2, None),
         "nth": V.Builtin("nth", 2, None),
+        "weave": V.Builtin("weave", 3, None),   # R2: deterministic actors
     }
 
 
@@ -151,8 +152,62 @@ class _Interp:
                                     f"nth() index {i.n} out of range "
                                     f"(len {len(xs.items)})", line, col)
                 return xs.items[i.n]
+            if fn.name == "weave":
+                return self._weave(args[0], args[1], args[2], line, col)
             return fn.fn(args, line, col)
         raise UrdrError(TYPE_RUN, "not callable", line, col)
+
+    def _weave(self, world_v, inbox_v, ticks_v, line, col):
+        """R2 deterministic actors (D1 §13). Canonical delivery order per tick:
+        sort by (target, digest(payload)) — a pure function of the message
+        multiset; arrival order does not exist in these semantics."""
+        _need(isinstance(world_v, V.ListV),
+              "weave() wants a world (list of actor stores)", line, col)
+        _need(isinstance(inbox_v, V.ListV),
+              "weave() wants an inbox (list of [target, payload])", line, col)
+        _need(isinstance(ticks_v, V.Int),
+              "weave() wants an integer tick budget", line, col)
+        states, handlers = [], []
+        for actor in world_v.items:
+            _need(isinstance(actor, V.Store) and "state" in actor.fields
+                  and "handler" in actor.fields,
+                  "weave(): each actor must be a store with 'state and 'handler",
+                  line, col)
+            states.append(actor.fields["state"])
+            handlers.append(actor.fields["handler"])
+        n = len(states)
+
+        def norm(m):
+            _need(isinstance(m, V.ListV) and len(m.items) == 2,
+                  "weave(): message must be [target, payload]", line, col)
+            target = m.items[0]
+            _need(isinstance(target, V.Int),
+                  "weave(): message target must be an integer", line, col)
+            _need(0 <= target.n < n,
+                  f"weave(): no actor {target.n} (world has {n})", line, col)
+            return (target.n, m.items[1])
+
+        def canonical(msgs):
+            return sorted(msgs, key=lambda tm: (tm[0], C.digest(tm[1])))
+
+        pending = [norm(m) for m in inbox_v.items]
+        for _tick in range(max(0, ticks_v.n)):
+            if not pending:
+                break
+            nxt = []
+            for target, payload in canonical(pending):
+                self.fuel.tick(1, line, col)
+                result = self.call(handlers[target], [states[target], payload],
+                                   line, col)
+                _need(isinstance(result, V.ListV) and len(result.items) == 2
+                      and isinstance(result.items[1], V.ListV),
+                      "weave(): handler must return [state', outbox]", line, col)
+                states[target] = result.items[0]
+                for out in result.items[1].items:
+                    nxt.append(norm(out))
+            pending = nxt
+        leftovers = V.ListV(V.ListV((V.Int(t), p)) for t, p in canonical(pending))
+        return V.ListV((V.ListV(states), leftovers))
 
     def eval(self, node, env):
         self.fuel.tick(1, node.line, node.col)
@@ -306,13 +361,24 @@ class _Interp:
         raise UrdrError(TYPE_RUN, f"unknown operator {op}", node.line, node.col)
 
 
-def run_program(source: str, fuel: int = DEFAULT_FUEL):
+def run_program(source: str, fuel: int = DEFAULT_FUEL, extra_env=None):
+    """extra_env: runner-provided input bindings (e.g. `loaded` from
+    --load-store). Inputs are part of program identity; a program may not
+    rebind a runner-provided name (that would shadow its own input)."""
     program = P.parse(source)
     CHK.check(program)
     interp = _Interp(_Fuel(fuel))
-    env = _Env(prelude())
+    extra = dict(extra_env or {})
+    base = prelude()
+    base.update(extra)
+    env = _Env(base)
     result = None
     for stmt in program.stmts:
+        if isinstance(stmt, P.Bind) and stmt.name in extra:
+            raise UrdrError(REBIND,
+                            f"'{stmt.name}' is bound by the runner (an input); "
+                            f"a program may not shadow its inputs",
+                            stmt.line, stmt.col)
         if isinstance(stmt, P.Bind):
             value = interp.eval(stmt.expr, env)
             env.map[stmt.name] = value

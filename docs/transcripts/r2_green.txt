@@ -1,0 +1,32 @@
+R2 campaign — final gate, green ×2 with identical PASS tables (diffed clean).
+2026-07-06, Linux build sandbox, Python 3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1.
+Red-first throughout: test_actors 8/8 red before weave existed; test_snapshot red
+before the līmes existed; actor_overclaim and the tamper fixture stay permanently
+red-capable inside the gate.
+
+Ran 73 tests: OK
+[PASS] unit-falsifiers                    73 run, 0 red
+[PASS] example:actors_one_digest.urdr     2c2db2ee42b54b86…  (3 permuted schedules, one digest, ⊢37)
+[PASS] example:clifford_relations.urdr    914f348280c00722…
+[PASS] example:determinism_probe.urdr     c3d062136241ab7c…
+[PASS] example:grounding.urdr             79b47903bdc8d794…
+[PASS] example:lens_roundtrip.urdr        b79d27d6e4401cd8…
+[PASS] example:lineage.urdr               427dea48bd711076…
+[PASS] example:pipeline.urdr              4573590cf8ee7319…
+[PASS] example:z2_grading.urdr            6be45808d3ed64fe…
+[PASS] reject:actor_overclaim.urdr        URDR-VERIFY-UNLICENSED (cage holds INSIDE the handler)
+[PASS] reject:clifford_wrong.urdr         URDR-ASSERT
+[PASS] reject:confusable.urdr             URDR-LEX-CONFUSABLE
+[PASS] reject:evidence_unearned.urdr      URDR-EVIDENCE-UNEARNED
+[PASS] reject:inflate_static.urdr         URDR-INFLATE-STATIC
+[PASS] reject:verify_unlicensed.urdr      URDR-VERIFY-UNLICENSED
+[PASS] tamper-selftest                    gate can still redden
+GATE PASSED
+
+R2 semantics notes: weave's canonical order is sort-by (target, digest(payload))
+per tick — a pure function of the message multiset; no arrival sequence exists in
+the semantics at all. Persistence is a CLI līmes: snapshots carry their digest and
+are re-verified on load; Grounded and λ do not cross (MEASURED is re-earned, never
+imported); cross-run anamnesis was proven by three separate interpreter processes
+agreeing on one address. TLA+ membrane model written, graded DECLARED (not
+TLC-checked by this stdlib-only gate). declared ≠ verified; transcript ≠ your machine.

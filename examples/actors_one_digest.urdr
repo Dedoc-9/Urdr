@@ -1,0 +1,14 @@
+# Deterministic actors (R2): one digest, regardless of delivery schedule.
+# weave processes each tick's pending messages in canonical order
+# sort-by (target, digest-of-payload) -- a pure function of the message multiset;
+# arrival order does not exist in these semantics, so it cannot leak into results.
+h ≔ λ st msg ↦ [st + msg, []]
+relay ≔ λ st msg ↦ [st + 1, [[0, msg * 10]]]
+world ≔ [ᚠ{state: 0, handler: h}, ᚠ{state: 0, handler: relay}]
+a ≔ weave(world, [[0, 5], [1, 3], [0, 2]], 2)
+b ≔ weave(world, [[1, 3], [0, 2], [0, 5]], 2)
+c ≔ weave(world, [[0, 2], [0, 5], [1, 3]], 2)
+x ≔ ≟(ᛝ(a), ᛝ(b))
+y ≔ ≟(ᛝ(b), ᛝ(c))
+claim ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ nth(nth(a, 0), 0)
+ᛞ(λ v ↦ v = 37, claim)

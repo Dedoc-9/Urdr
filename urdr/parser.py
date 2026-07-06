@@ -15,7 +15,7 @@ from .errors import UrdrError, PARSE, REBIND
 from .values import MATURITIES, EVIDENCES
 
 PRELUDE_NAMES = ("value", "maturity", "evidence", "grounded", "conflicted",
-                 "range", "len", "push", "cat", "nth")
+                 "range", "len", "push", "cat", "nth", "weave")
 
 CMP_OPS = ("EQ", "NE", "LT", "LE", "GT", "GE")
 BIN_OPS = ("PLUS", "MINUS", "STAR") + CMP_OPS

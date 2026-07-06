@@ -39,9 +39,17 @@ def main(argv) -> int:
         source = _read(path)
         if cmd == "run":
             from urdr import canon, evaluate
-            value = evaluate.run_program(source, fuel=fuel)
+            extra = {}
+            if "--load-store" in argv:  # R2c: runner-provided input `loaded`
+                from urdr import snapshot
+                extra["loaded"] = snapshot.load(argv[argv.index("--load-store") + 1])
+            value = evaluate.run_program(source, fuel=fuel, extra_env=extra)
             sys.stdout.write("result: " + evaluate.render(value) + "\n")
             sys.stdout.write("digest: " + canon.hexdigest(value) + "\n")
+            if "--save-store" in argv:
+                from urdr import snapshot
+                saved = snapshot.save(argv[argv.index("--save-store") + 1], value)
+                sys.stdout.write("saved: " + saved + "\n")
             return 0
         if cmd == "check":
             from urdr import check

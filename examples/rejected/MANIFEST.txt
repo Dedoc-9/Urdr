@@ -5,3 +5,4 @@ evidence_unearned.urdr check URDR-EVIDENCE-UNEARNED
 confusable.urdr check URDR-LEX-CONFUSABLE
 verify_unlicensed.urdr run URDR-VERIFY-UNLICENSED
 clifford_wrong.urdr run URDR-ASSERT
+actor_overclaim.urdr run URDR-VERIFY-UNLICENSED

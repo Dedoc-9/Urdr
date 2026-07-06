@@ -36,7 +36,8 @@ renderable`: the suite passes on a machine that cannot display a single rune.
 | ⊢ | U+22A2 | ENTAILS | `\|-` | output-only witness display |
 
 Prelude names (plain ASCII identifiers, part of the surface): `value maturity evidence
-grounded conflicted range len push cat nth`. Epistemic keywords (uppercase, only inside ⟨…⟩):
+grounded conflicted range len push cat nth weave`. Runner-provided input (only with
+`--load-store`): `loaded`. Epistemic keywords (uppercase, only inside ⟨…⟩):
 `SPECULATIVE SCOPED IMPLEMENTED NA DECLARED MEASURED`.
 
 ## Input methods (offline)
