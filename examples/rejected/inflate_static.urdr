@@ -1,0 +1,4 @@
+# MUST NOT TYPECHECK: SPECULATIVE licenses evidence NA only.
+# "If you cannot give a capability a test that could fail, label it SPECULATIVE/N-A
+#  and do not describe it as achieved." -- this program describes it as achieved.
+x ≔ 𒀭⟨SPECULATIVE, DECLARED⟩ 7

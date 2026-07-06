@@ -1,0 +1,4 @@
+# Flow ᛚ: water finds one channel. ((7*2)+1)^2 = 225
+double ≔ λ x ↦ x + x
+inc ≔ λ x ↦ x + 1
+7 ᛚ double ᛚ inc ᛚ (λ x ↦ x * x)

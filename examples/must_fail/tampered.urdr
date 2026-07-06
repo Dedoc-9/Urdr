@@ -1,0 +1,3 @@
+# This program is fine. Its recorded golden digest is DELIBERATELY WRONG.
+# The gate must observe the mismatch, or the gate itself is broken (LESSONS L5).
+1 + 1

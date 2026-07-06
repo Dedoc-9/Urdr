@@ -1,0 +1,6 @@
+# file · phase (check|run) · exact error code the gate must see
+# A rejected program that gets ACCEPTED reddens the gate: non-vacuity.
+inflate_static.urdr check URDR-INFLATE-STATIC
+evidence_unearned.urdr check URDR-EVIDENCE-UNEARNED
+confusable.urdr check URDR-LEX-CONFUSABLE
+verify_unlicensed.urdr run URDR-VERIFY-UNLICENSED

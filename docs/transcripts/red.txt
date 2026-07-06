@@ -1,0 +1,612 @@
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+======================================================================
+ERROR: test_alpha_sensitivity_is_pinned (tests.test_determinism.TestDeterminism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_determinism.py", line 62, in test_alpha_sensitivity_is_pinned
+    dx = canon.hexdigest(evaluate.run_program(r"\fn x |-> x"))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_digest_is_sha256_shaped (tests.test_determinism.TestDeterminism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_determinism.py", line 67, in test_digest_is_sha256_shaped
+    d = canon.hexdigest(evaluate.run_program("1 + 1"))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_fuel_exhaustion_is_deterministic_error (tests.test_determinism.TestDeterminism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_determinism.py", line 55, in test_fuel_exhaustion_is_deterministic_error
+    evaluate.run_program(PROBE, fuel=10)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_glyph_and_digraph_sources_are_one_program (tests.test_determinism.TestDeterminism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_determinism.py", line 34, in test_glyph_and_digraph_sources_are_one_program
+    d_ascii = canon.hexdigest(evaluate.run_program(PROBE))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_i64_wrap_is_defined (tests.test_determinism.TestDeterminism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_determinism.py", line 50, in test_i64_wrap_is_defined
+    result = evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_probe_value_is_542 (tests.test_determinism.TestDeterminism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_determinism.py", line 40, in test_probe_value_is_542
+    result = evaluate.run_program(PROBE)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_same_source_same_digest (tests.test_determinism.TestDeterminism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_determinism.py", line 28, in test_same_source_same_digest
+    d1 = canon.hexdigest(evaluate.run_program(PROBE))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_store_source_order_irrelevant (tests.test_determinism.TestDeterminism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_determinism.py", line 44, in test_store_source_order_irrelevant
+    d1 = canon.hexdigest(evaluate.run_program(r"\st{a: 1, b: 2}"))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_unknown_codepoint_rejected (tests.test_hygiene.TestClosedAlphabet)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 22, in test_unknown_codepoint_rejected
+    self.assertEqual(code_of(lexer.lex, "x := 1 \U0001F409"), "URDR-LEX-UNKNOWN")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 13, in code_of
+    fn(*args)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_unlisted_rune_rejected (tests.test_hygiene.TestClosedAlphabet)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 26, in test_unlisted_rune_rejected
+    self.assertIsNotNone(code_of(lexer.lex, "ᚢ"))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 13, in code_of
+    fn(*args)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_cyrillic_o_named (tests.test_hygiene.TestConfusables)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 35, in test_cyrillic_o_named
+    self.assertEqual(code_of(lexer.lex, "о := 1"), "URDR-LEX-CONFUSABLE")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 13, in code_of
+    fn(*args)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_greek_capital_alpha_named (tests.test_hygiene.TestConfusables)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 32, in test_greek_capital_alpha_named
+    self.assertEqual(code_of(lexer.lex, "a := Α"), "URDR-LEX-CONFUSABLE")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 13, in code_of
+    fn(*args)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_hygiene_excluded_rune_raidho (tests.test_hygiene.TestConfusables)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 39, in test_hygiene_excluded_rune_raidho
+    self.assertEqual(code_of(lexer.lex, "ᚱ"), "URDR-LEX-CONFUSABLE")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 13, in code_of
+    fn(*args)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_nbsp_rejected (tests.test_hygiene.TestConfusables)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 45, in test_nbsp_rejected
+    self.assertEqual(code_of(lexer.lex, "a :=  1"), "URDR-LEX-CONFUSABLE")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 13, in code_of
+    fn(*args)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_zero_width_space_rejected (tests.test_hygiene.TestConfusables)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 42, in test_zero_width_space_rejected
+    self.assertEqual(code_of(lexer.lex, "a​ := 1"), "URDR-LEX-CONFUSABLE")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 13, in code_of
+    fn(*args)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='𒀭')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='ᛞ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='☽')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='☿')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='↩')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='ᛝ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='ᚠ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='ᛚ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='λ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='↦')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='≔')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='∘')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='Σ')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='≟')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='⟨')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='⟩')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='≠')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='≤')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_each_glyph_equals_its_digraph (tests.test_hygiene.TestGlyphDigraphIdentity) (glyph='≥')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 76, in test_each_glyph_equals_its_digraph
+    toks_g = lexer.lex(glyph)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/lexer.py", line 8, in lex
+    raise NotImplementedError("urdr.lexer.lex: v0.1 pending")
+NotImplementedError: urdr.lexer.lex: v0.1 pending
+
+======================================================================
+ERROR: test_formatter_canonicalizes_to_glyphs (tests.test_hygiene.TestGlyphDigraphIdentity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_hygiene.py", line 85, in test_formatter_canonicalizes_to_glyphs
+    formatted = lexer.format_source(src)
+AttributeError: module 'urdr.lexer' has no attribute 'format_source'
+
+======================================================================
+ERROR: test_anamnesis_on_root_is_error (tests.test_lens_laws.TestMembrane)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 64, in test_anamnesis_on_root_is_error
+    run(r"\am(\st{x: 1})")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 12, in run
+    return evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_anamnesis_returns_digest_identical_prior (tests.test_lens_laws.TestMembrane)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 50, in test_anamnesis_returns_digest_identical_prior
+    run(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 12, in run
+    return evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_edit_changes_digest (tests.test_lens_laws.TestMembrane)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 59, in test_edit_changes_digest
+    result = run(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 12, in run
+    return evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_get_put_up_to_lineage_with_exact_recovery (tests.test_lens_laws.TestMembrane)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 43, in test_get_put_up_to_lineage_with_exact_recovery
+    run(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 12, in run
+    return evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_lineage_is_part_of_identity (tests.test_lens_laws.TestMembrane)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 75, in test_lineage_is_part_of_identity
+    d_edited = canon.hexdigest(run(src_edited))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 12, in run
+    return evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_put_get_exact (tests.test_lens_laws.TestMembrane)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 31, in test_put_get_exact
+    run(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 12, in run
+    return evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_view_is_pure (tests.test_lens_laws.TestMembrane)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 24, in test_view_is_pure
+    run(src)  # ≟ raises URDR-ASSERT on breach
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_lens_laws.py", line 12, in run
+    return evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_implemented_declared_accepted_and_runs (tests.test_no_inflation.TestAcceptances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 62, in test_implemented_declared_accepted_and_runs
+    result = evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_scoped_declared_accepted (tests.test_no_inflation.TestAcceptances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 55, in test_scoped_declared_accepted
+    self.assertIsNone(check_code(r"x := \an <| SCOPED , DECLARED |> 7"))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 13, in check_code
+    check.check_source(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/check.py", line 12, in check_source
+    raise NotImplementedError("urdr.check.check_source: v0.1 pending")
+NotImplementedError: urdr.check.check_source: v0.1 pending
+
+======================================================================
+ERROR: test_speculative_na_accepted (tests.test_no_inflation.TestAcceptances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 52, in test_speculative_na_accepted
+    self.assertIsNone(check_code(r"x := \an <| SPECULATIVE , NA |> 7"))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 13, in check_code
+    check.check_source(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/check.py", line 12, in check_source
+    raise NotImplementedError("urdr.check.check_source: v0.1 pending")
+NotImplementedError: urdr.check.check_source: v0.1 pending
+
+======================================================================
+ERROR: test_claim_constructor_latch (tests.test_no_inflation.TestDynamicLatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 110, in test_claim_constructor_latch
+    values.Claim(values.Int(7), "SPECULATIVE", "MEASURED")
+AttributeError: module 'urdr.values' has no attribute 'Claim'
+
+======================================================================
+ERROR: test_grounded_requires_witness (tests.test_no_inflation.TestDynamicLatch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 116, in test_grounded_requires_witness
+    values.Grounded(values.Int(7), None)
+AttributeError: module 'urdr.values' has no attribute 'Grounded'
+
+======================================================================
+ERROR: test_implemented_measured_rejected_as_unearned (tests.test_no_inflation.TestStaticRejections)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 45, in test_implemented_measured_rejected_as_unearned
+    self.assertEqual(check_code(src), "URDR-EVIDENCE-UNEARNED")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 13, in check_code
+    check.check_source(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/check.py", line 12, in check_source
+    raise NotImplementedError("urdr.check.check_source: v0.1 pending")
+NotImplementedError: urdr.check.check_source: v0.1 pending
+
+======================================================================
+ERROR: test_scoped_measured_rejected_as_inflation (tests.test_no_inflation.TestStaticRejections)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 40, in test_scoped_measured_rejected_as_inflation
+    self.assertEqual(check_code(src), "URDR-INFLATE-STATIC")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 13, in check_code
+    check.check_source(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/check.py", line 12, in check_source
+    raise NotImplementedError("urdr.check.check_source: v0.1 pending")
+NotImplementedError: urdr.check.check_source: v0.1 pending
+
+======================================================================
+ERROR: test_speculative_declared_rejected (tests.test_no_inflation.TestStaticRejections)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 31, in test_speculative_declared_rejected
+    self.assertEqual(check_code(src), "URDR-INFLATE-STATIC")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 13, in check_code
+    check.check_source(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/check.py", line 12, in check_source
+    raise NotImplementedError("urdr.check.check_source: v0.1 pending")
+NotImplementedError: urdr.check.check_source: v0.1 pending
+
+======================================================================
+ERROR: test_speculative_measured_rejected (tests.test_no_inflation.TestStaticRejections)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 35, in test_speculative_measured_rejected
+    self.assertEqual(check_code(src), "URDR-INFLATE-STATIC")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 13, in check_code
+    check.check_source(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/check.py", line 12, in check_source
+    raise NotImplementedError("urdr.check.check_source: v0.1 pending")
+NotImplementedError: urdr.check.check_source: v0.1 pending
+
+======================================================================
+ERROR: test_failed_verifier_yields_conflict_not_average (tests.test_no_inflation.TestTheMint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 88, in test_failed_verifier_yields_conflict_not_average
+    rendered = evaluate.render(evaluate.run_program(src))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_no_ambient_grounded_constructor_in_prelude (tests.test_no_inflation.TestTheMint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 101, in test_no_ambient_grounded_constructor_in_prelude
+    self.assertEqual(run_code(r"g := grounded_forge(1)"), "URDR-NAME")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 21, in run_code
+    evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_verify_mints_grounded (tests.test_no_inflation.TestTheMint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 78, in test_verify_mints_grounded
+    rendered = evaluate.render(evaluate.run_program(src))
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+======================================================================
+ERROR: test_verify_on_scoped_claim_is_unlicensed (tests.test_no_inflation.TestTheMint)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 98, in test_verify_on_scoped_claim_is_unlicensed
+    self.assertEqual(run_code(src), "URDR-VERIFY-UNLICENSED")
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/tests/test_no_inflation.py", line 21, in run_code
+    evaluate.run_program(src)
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr/evaluate.py", line 10, in run_program
+    raise NotImplementedError("urdr.evaluate.run_program: v0.1 pending")
+NotImplementedError: urdr.evaluate.run_program: v0.1 pending
+
+----------------------------------------------------------------------
+Ran 37 tests in 0.053s
+
+FAILED (errors=55)
+
+========================================================================
+[FAIL] unit-falsifiers                    37 run, 55 red
+[FAIL] example:determinism_probe.urdr     run failed (exit 1/1) Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr.py", l
+[FAIL] example:grounding.urdr             run failed (exit 1/1) Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr.py", l
+[FAIL] example:lens_roundtrip.urdr        run failed (exit 1/1) Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr.py", l
+[FAIL] example:pipeline.urdr              run failed (exit 1/1) Traceback (most recent call last):
+  File "/sessions/jolly-magical-goldberg/mnt/Repo-Ursprung -folder - Urðr/urdr.py", l
+[FAIL] reject:confusable.urdr             wrong code: got None, wanted URDR-LEX-CONFUSABLE
+[FAIL] reject:evidence_unearned.urdr      wrong code: got None, wanted URDR-EVIDENCE-UNEARNED
+[FAIL] reject:inflate_static.urdr         wrong code: got None, wanted URDR-INFLATE-STATIC
+[FAIL] reject:verify_unlicensed.urdr      wrong code: got None, wanted URDR-VERIFY-UNLICENSED
+[FAIL] tamper-selftest                    fixture failed to run at all
+========================================================================
+GATE FAILED
+verify exit: 1

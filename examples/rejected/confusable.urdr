@@ -1,0 +1,3 @@
+# MUST NOT LEX: the second token is Greek capital Alpha (U+0391), not Latin A.
+# One glyph, one meaning; a token that merely looks right is rejected, not guessed at.
+a ≔ Α

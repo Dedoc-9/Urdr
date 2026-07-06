@@ -1,0 +1,4 @@
+# MUST FAIL AT RUN: ᛞ mints MEASURED, so the ladder applies at the mint.
+# Measuring what is only SCOPED is a category error, not a downgrade.
+c ≔ 𒀭⟨SCOPED, DECLARED⟩ 9
+ᛞ(λ v ↦ v = 9, c)

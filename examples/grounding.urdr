@@ -1,0 +1,5 @@
+# Evidence is earned at ᛞ, nowhere else. A failed verifier is a ↯ conflict, never an average.
+c ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ 42
+g ≔ ᛞ(λ v ↦ v = 42, c)
+bad ≔ ᛞ(λ v ↦ v = 43, c)
+[grounded(g), evidence(g), conflicted(bad), evidence(c)]

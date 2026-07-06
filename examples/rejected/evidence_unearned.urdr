@@ -1,0 +1,3 @@
+# MUST NOT TYPECHECK: MEASURED cannot be written, only earned at ᛞ.
+# IMPLEMENTED's ceiling admits MEASURED -- but writing it is declaring, not measuring.
+x ≔ 𒀭⟨IMPLEMENTED, MEASURED⟩ 7

@@ -1,0 +1,7 @@
+# Urdr determinism probe -- fold + membrane + grounding; one digest, forever
+base ≔ ᚠ{acc: 0, n: 12}
+xs ≔ range(☽(base, 'n))
+total ≔ Σ(xs, ☽(base, 'acc), λ acc x ↦ acc + (x * x + 3))
+s1 ≔ ☿(base, 'acc, total)
+claim ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ ☽(s1, 'acc)
+ᛞ(λ v ↦ v = 542, claim)

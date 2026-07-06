@@ -1,0 +1,9 @@
+# The membrane: view is pure, edit is a new world, anamnesis returns exactly
+s ≔ ᚠ{x: 1, y: 2}
+d0 ≔ ᛝ(s)
+v ≔ ☽(s, 'x)
+pure ≔ ≟(ᛝ(s), d0)
+putget ≔ ≟(☽(☿(s, 'x, 5), 'x), 5)
+getput ≔ ≟(ᛝ(↩(☿(s, 'x, v))), d0)
+back ≔ ≟(ᛝ(↩(☿(s, 'x, 5))), d0)
+[putget, getput, back]
