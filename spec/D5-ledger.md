@@ -47,8 +47,10 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | In-language, capability-gated persistence (the runner līmes moved into the type system) | SCOPED / N/A | R4 |
 | Actor glyph assignment (weave stays ASCII until semantics prove stable) | SCOPED / N/A | R3 review |
 | WHAT/WHERE placement split, *līmes* boundaries, differential oracle, ☉ reference marker | SCOPED / N/A | R3 |
-| Effects & capabilities (object-capability discipline); failure model; interop *līmes* | SCOPED / N/A | R4 |
-| Rust reference implementation | SPECULATIVE / N/A | R5 |
+| Effects & capabilities: recorded-input reads, effect-plan writes, `URDR-CAP` rejections; failure model; interop *līmes* | SCOPED / N/A | R4 |
+| Verbose keyword profile (third spelling, one token stream) + bytecode compiler admitted by differential oracle vs the ☉ tree-walk reference | SCOPED / N/A | R3 |
+| Import-by-digest modules, vendor dir + lockfile verified by the gate | SCOPED / N/A | R5 |
+| Rust production compiler (same oracle admission) | SPECULATIVE / N/A | R6 |
 | Live view↔edit session UI over the one dataflow | SPECULATIVE / N/A | — |
 | Self-hosting | SPECULATIVE / N/A | — |
 

@@ -75,9 +75,10 @@ not execution: the suite passes on a machine that cannot display a single rune.
 | R0 | Core lexicon, epistemic checker, membrane, determinism gate | `IMPLEMENTED / MEASURED` |
 | R1 | α-normalized canon; list prelude; **graded-algebra falsifiers** (ℤ₂ closure ⊢64, Cl(3) relations ⊢9, wrong-relation program dies); provenance ᛃ; CI on two OSes | `IMPLEMENTED / MEASURED` |
 | R2 | Deterministic actors (`weave`; canonical multiset order; one digest across permuted schedules; actor-local cage), persistence *līmes* (snapshots; Grounded does not cross), TLA+ membrane model (`DECLARED`) | `IMPLEMENTED / MEASURED` |
-| R3 | Placement / *līmes*: WHAT–WHERE split, schedule-invariance falsifier, differential oracle for fast paths | `SCOPED / N/A` |
-| R4 | Effects & capabilities (object-capability discipline); failure model; interop *līmes* | `SCOPED / N/A` |
-| R5 | Rust port of the reference interpreter | `SPECULATIVE / N/A` |
+| R3 | WHAT/WHERE + the first real placement: a bytecode compiler admitted **only** by differential oracle against the tree-walk reference (☉ spent here); verbose keyword profile (third spelling, one token stream, one digest) | `SCOPED / N/A` |
+| R4 | I/O & external state as **capabilities**: nothing ambient; reads are recorded inputs replayed bit-identically; writes are effect-plans executed at the līmes; ungranted use rejected (`URDR-CAP`) | `SCOPED / N/A` |
+| R5 | Modules & packaging without a network: **import-by-digest** (Unison lesson), vendor dir + lockfile verified by the gate; a wrong pin is refused, not resolved | `SCOPED / N/A` |
+| R6 | Rust production compiler — admitted by the same differential oracle, or not at all | `SPECULATIVE / N/A` |
 
 ## Honest boundaries (§9, in our own words)
 
