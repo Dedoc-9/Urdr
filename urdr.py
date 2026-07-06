@@ -11,6 +11,7 @@
 Exit codes: 0 ok · 2 UrdrError (stderr: "ERROR <CODE> @line:col <message>") · 3 usage.
 All I/O is UTF-8 regardless of locale (LESSONS L4).
 """
+import os
 import sys
 
 from urdr.errors import UrdrError
@@ -45,16 +46,20 @@ def main(argv) -> int:
             # R4: authority is never ambient — `caps` is a runner input,
             # always bound (empty when nothing is granted), unshadowable.
             extra = {"caps": capability.build_capset(grants)}
+            # R5: modules resolve against the vendor/ dir beside the program.
+            module_root = os.path.dirname(os.path.abspath(path))
             if "--load-store" in argv:  # R2c: runner-provided input `loaded`
                 from urdr import snapshot
                 extra["loaded"] = snapshot.load(argv[argv.index("--load-store") + 1])
             via = argv[argv.index("--via") + 1] if "--via" in argv else "reference"
             if via == "reference":  # ☉ — the source of truth
-                value = evaluate.run_program(source, fuel=fuel, extra_env=extra)
+                value = evaluate.run_program(source, fuel=fuel, extra_env=extra,
+                                             module_root=module_root)
             elif via in ("compiled", "defect"):
                 from urdr import compiler
                 value = compiler.run_program_compiled(
-                    source, fuel=fuel, extra_env=extra, defect=(via == "defect"))
+                    source, fuel=fuel, extra_env=extra, defect=(via == "defect"),
+                    module_root=module_root)
             else:
                 sys.stderr.write(f"unknown placement --via {via} "
                                  f"(reference|compiled|defect)\n")
@@ -70,7 +75,8 @@ def main(argv) -> int:
             return 0
         if cmd == "check":
             from urdr import check
-            check.check_source(source)
+            module_root = os.path.dirname(os.path.abspath(path))
+            check.check_source(source, module_root=module_root)
             sys.stdout.write("check: OK\n")
             return 0
         if cmd == "fmt":

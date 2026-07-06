@@ -45,9 +45,11 @@ class TestDifferentialOracle(unittest.TestCase):
         for fname, src, extra in corpus():
             with self.subTest(example=fname):
                 d_ref = canon.hexdigest(
-                    evaluate.run_program(src, extra_env=extra))
+                    evaluate.run_program(src, extra_env=extra,
+                                         module_root=EXDIR))
                 d_com = canon.hexdigest(
-                    compiler.run_program_compiled(src, extra_env=extra))
+                    compiler.run_program_compiled(src, extra_env=extra,
+                                                  module_root=EXDIR))
                 self.assertEqual(d_ref, d_com,
                                  f"{fname}: compiled path diverges from ☉")
 
@@ -55,11 +57,12 @@ class TestDifferentialOracle(unittest.TestCase):
         # Non-vacuity: an oracle that cannot redden proves nothing (LESSONS L5).
         disagreed = 0
         for _fname, src, extra in corpus():
-            d_ref = canon.hexdigest(evaluate.run_program(src, extra_env=extra))
+            d_ref = canon.hexdigest(evaluate.run_program(src, extra_env=extra,
+                                                         module_root=EXDIR))
             try:
                 d_def = canon.hexdigest(
                     compiler.run_program_compiled(src, extra_env=extra,
-                                                  defect=True))
+                                                  defect=True, module_root=EXDIR))
             except UrdrError:
                 disagreed += 1
                 continue

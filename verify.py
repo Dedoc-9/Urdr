@@ -245,6 +245,42 @@ class Gate:
             self.record("tamper-selftest", True,
                         "tampered golden correctly mismatched (gate can redden)")
 
+    # -- 4b. modules: vendor/ ≡ lockfile, offline; a mis-pin must redden -----
+    def modules(self):
+        from urdr import modules as M
+        from urdr.errors import UrdrError
+        exroot = os.path.join(ROOT, "examples")
+        try:
+            entries = M.verify_lock(exroot)
+            self.record("modules-lockfile", len(entries) >= 1,
+                        f"{len(entries)} pinned; vendor ≡ lock (offline)")
+        except UrdrError as err:
+            self.record("modules-lockfile", False,
+                        f"{err.code}: {err.message[:60]}")
+        # non-vacuity: a deliberately mis-pinned lock MUST be refused (LESSONS L5)
+        scratch = tempfile.mkdtemp(prefix="urdr_mod_")
+        try:
+            vend = os.path.join(scratch, "vendor")
+            os.makedirs(vend)
+            body = "\\st{a: 1}\n"
+            dig = M.module_digest(body.encode("utf-8"))
+            with open(os.path.join(vend, dig + ".urdr"), "w",
+                      encoding="utf-8") as fh:
+                fh.write(body)
+            with open(os.path.join(vend, "urdr.lock"), "w",
+                      encoding="utf-8") as fh:
+                fh.write("m " + ("c" * 64) + "\n")  # pins a digest the file lacks
+            reddened = False
+            try:
+                M.verify_lock(scratch)
+            except UrdrError as err:
+                reddened = err.code in ("URDR-PIN", "URDR-MODULE")
+            self.record("modules-mispin-selftest", reddened,
+                        "mis-pinned lock refused (gate can redden)" if reddened
+                        else "mis-pin ACCEPTED — the manifest check is broken")
+        finally:
+            shutil.rmtree(scratch, ignore_errors=True)
+
     # -- report ----------------------------------------------------------------
     def report(self) -> int:
         sys.stdout.write("\n" + "=" * 72 + "\n")
@@ -268,6 +304,7 @@ def main() -> int:
     gate.unit_tests()
     gate.examples()
     gate.oracle()
+    gate.modules()
     gate.rejections()
     gate.tamper()
     return gate.report()

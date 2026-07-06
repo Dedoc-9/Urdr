@@ -84,6 +84,24 @@ class Bind(Node):
         return (self.expr,)
 
 
+class Use(Node):
+    """R5: `use @<digest> as name` — import-by-digest. The alias binds the
+    VALUE the vendored module evaluates to; the digest is the pin the resolver
+    verifies offline (D1 §17). A statement, not an expression."""
+    __slots__ = ("alias", "digest")
+
+    def __init__(self, alias, digest, line, col):
+        super().__init__(line, col)
+        self.alias = alias
+        self.digest = digest
+
+    def canon_bytes(self, bound=()):
+        return b"U" + _s(self.alias) + _s(self.digest)
+
+    def children(self):
+        return ()
+
+
 class IntLit(Node):
     __slots__ = ("n",)
 
@@ -374,6 +392,18 @@ class _Parser:
         return Program(stmts)
 
     def statement(self):
+        if self.peek().kind == "USE":
+            use_tok = self.next()
+            dtok = self.expect("DIGESTLIT", "a @digest literal after 'use'")
+            self.expect("AS", "'as' after the module digest")
+            name_tok = self.expect("IDENT", "an alias name after 'as'")
+            if name_tok.value in self.bound:
+                raise UrdrError(REBIND,
+                                f"'{name_tok.value}' is already bound (a module "
+                                f"alias cannot shadow a name)",
+                                name_tok.line, name_tok.col)
+            self.bound.add(name_tok.value)
+            return Use(name_tok.value, dtok.value, use_tok.line, use_tok.col)
         if self.peek().kind == "IDENT" and self.peek(1).kind == "BIND":
             name_tok = self.next()
             self.next()  # ≔

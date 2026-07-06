@@ -16,8 +16,8 @@ from . import canon as C
 from . import check as CHK
 from . import parser as P
 from . import values as V
-from .errors import (UrdrError, ASSERT, ANAMNESIS_ROOT, CAP, FUEL, NAME,
-                     REBIND, TYPE_RUN, VERIFY_UNLICENSED)
+from .errors import (UrdrError, ASSERT, ANAMNESIS_ROOT, CAP, FUEL, MODULE,
+                     NAME, REBIND, TYPE_RUN, VERIFY_UNLICENSED)
 
 DEFAULT_FUEL = 1_000_000
 
@@ -413,12 +413,26 @@ class _Interp:
         raise UrdrError(TYPE_RUN, f"unknown operator {op}", node.line, node.col)
 
 
-def run_program(source: str, fuel: int = DEFAULT_FUEL, extra_env=None):
+def resolve_use(digest, module_root, line, col):
+    """R5: resolve `use @digest as name` to the module's VALUE. The source is
+    pin-verified offline (urdr/modules.py) then evaluated by the ☉ reference —
+    the same value on every placement. A module gets a fresh fuel budget and no
+    capabilities/inputs: it is a pure, deterministic constant bound once."""
+    from . import modules
+    if module_root is None:
+        raise UrdrError(MODULE, "module resolution needs a root (run a FILE, "
+                                "not a bare string)", line, col)
+    src = modules.resolve_source(digest, module_root, line, col)
+    return run_program(src, module_root=module_root)
+
+
+def run_program(source: str, fuel: int = DEFAULT_FUEL, extra_env=None,
+                module_root=None):
     """extra_env: runner-provided input bindings (e.g. `loaded` from
     --load-store). Inputs are part of program identity; a program may not
     rebind a runner-provided name (that would shadow its own input)."""
     program = P.parse(source)
-    CHK.check(program)
+    CHK.check(program, module_root)
     interp = _Interp(_Fuel(fuel))
     extra = dict(extra_env or {})
     base = prelude()
@@ -426,18 +440,26 @@ def run_program(source: str, fuel: int = DEFAULT_FUEL, extra_env=None):
     env = _Env(base)
     result = None
     for stmt in program.stmts:
-        if isinstance(stmt, P.Bind) and stmt.name in extra:
+        if isinstance(stmt, (P.Bind, P.Use)) and _binds(stmt) in extra:
             raise UrdrError(REBIND,
-                            f"'{stmt.name}' is bound by the runner (an input); "
-                            f"a program may not shadow its inputs",
+                            f"'{_binds(stmt)}' is bound by the runner (an "
+                            f"input); a program may not shadow its inputs",
                             stmt.line, stmt.col)
-        if isinstance(stmt, P.Bind):
+        if isinstance(stmt, P.Use):
+            value = resolve_use(stmt.digest, module_root, stmt.line, stmt.col)
+            env.map[stmt.alias] = value
+            result = value
+        elif isinstance(stmt, P.Bind):
             value = interp.eval(stmt.expr, env)
             env.map[stmt.name] = value
             result = value
         else:
             result = interp.eval(stmt, env)
     return result
+
+
+def _binds(stmt):
+    return stmt.alias if isinstance(stmt, P.Use) else getattr(stmt, "name", None)
 
 
 # ---------------------------------------------------------------- rendering

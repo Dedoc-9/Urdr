@@ -307,7 +307,10 @@ store surviving across runs (true epochal time travel on disk) is `SCOPED` (R2+)
 suite is itself a red) · `URDR-LIMES` (R2c: fail-closed process-boundary refusal —
 unpersistable value, tampered or malformed snapshot) · `URDR-CAP` (R4: ungranted or
 misused authority — an ungranted capability requested, authority of the wrong kind
-used, a malformed/duplicate grant, or an ambiguous effect batch at the līmes).
+used, a malformed/duplicate grant, or an ambiguous effect batch at the līmes) ·
+`URDR-PIN` (R5: vendored bytes do not hash to their declared digest — a wrong
+pin is refused, not resolved) · `URDR-MODULE` (R5: an unvendored, unpinned, or
+malformed module resolution; also a `use` with no vendor root).
 
 ## 10. Metatheory obligations (declared now, discharged by grade)
 
@@ -440,10 +443,12 @@ Design laws already fixed:
 ## 15. Does-not-do (v0.1)
 
 No physics (see README). No strings, floats, division, recursion, I/O, clock, RNG,
-network, filesystem, concurrency, actors, placements, effects, capabilities, module
-system, or REPL. Each is either `SCOPED` to a rung in D5 or absent by design law. A
-feature not listed in this spec does not exist, whatever a name elsewhere may suggest.
-(Sections 12–16 record the rungs that have landed since; §15 remains the v0.1 baseline.)
+network, filesystem, concurrency, actors, placements, effects, capabilities, modules,
+or REPL. Each is either landed on a later rung (§§12–17), `SCOPED` to a rung in D5, or
+absent by design law. A feature not listed in this spec does not exist, whatever a name
+elsewhere may suggest. (Sections 12–17 record the rungs that have landed since; §15
+remains the v0.1 baseline: I/O exists only as R4 capabilities and R5 module reads —
+the evaluator itself still performs none.)
 
 ## 16. Capabilities (R4) — I/O & external state, nothing ambient
 
@@ -497,3 +502,45 @@ recorded before it, planned during it, executed after it.
   all. `--save-store` (R2c, runner-owned) remains; write capabilities are the
   program-owned counterpart. ASCII names by the glyph budget (law 5): capability
   notation earns a glyph at a later review or not at all — the `weave` precedent.
+
+
+## 17. Import-by-digest modules (R5)
+
+The language gains dependencies without gaining a network. A **module** is a `.urdr`
+file addressed by the **SHA-256 of its canonical source bytes** (utf-8, BOM tolerated,
+universal newlines, NFC — the exact text the lexer consumes). This is byte-level content
+addressing: the Unison lesson at the *integrity* level. Its honest limit is stated up
+front — `source-hash ≠ definition-hash`: it refuses tampered or substituted *bytes*, not
+reformatted or renamed *definitions*. Formatting and comments are content here;
+α-normalized *semantic* addressing (format/rename-invariant, true Unison) is the `SCOPED`
+strengthening (D5).
+
+- **Surface.** A new statement `use @<64-hex-digest> as name` (ASCII `use`/`as` and an
+  `@` digest literal — by the glyph budget, law 5; module notation earns a glyph at a
+  later review or not at all). The alias binds the **value** the module evaluates to.
+- **Offline resolution.** Rooted at the directory of the program file: a `vendor/`
+  store of `<digest>.urdr` files (self-certifying: each file is named by its own hash)
+  and a `vendor/urdr.lock` manifest of `NAME <digest>` lines. Resolution is a pure
+  local lookup; nothing is fetched (`tests/test_modules.py::test_resolver_imports_no_network`
+  asserts the resolver imports no network library — offline is structural, not hopeful).
+- **Static pin verification.** For each `use`, at *check* time (no evaluation): the
+  vendored file must exist (`URDR-MODULE` else), its bytes must hash to the declared
+  digest (`URDR-PIN` else — a wrong pin or tampered file is refused, not resolved), and
+  the digest must be pinned in the lockfile (`URDR-MODULE` else). A wrong pin therefore
+  dies before the module ever runs.
+- **Determinism & identity.** A module is evaluated once, by the ☉ reference (so every
+  placement binds the identical value — the mint/kernel stays singular, §14b), with a
+  fresh fuel budget, prelude only, and no capabilities or inputs: a pure, deterministic
+  constant. The bound value participates in the program's digest, so `same program +
+  same vendored modules ⇒ same digest` (law 4 extends across the module boundary).
+- **Cycles are unconstructible.** Import-by-content-hash admits no cycle: a module's
+  address is the hash of bytes that would have to contain that same address — no hash is
+  a fixpoint of a body naming it. Mutual import cannot be built, so it needs no runtime
+  guard beyond the resolver's (armed, unreachable).
+- **Boundary.** `digest ≠ MAC`: a pin is integrity against accident and substitution of
+  bytes, not authentication against an adversary who rewrites the vendor file, the
+  lockfile, *and* the program together. Falsifiers: `examples/modules_demo.urdr`
+  (`⊢ 42`, a vendored λ library across the boundary), `examples/rejected/module_wrong_pin.urdr`
+  (`URDR-PIN`), `examples/rejected/use_unvendored.urdr` (`URDR-MODULE`),
+  `tests/test_modules.py`, and the gate's `modules` stage (lockfile ≡ vendor, plus a
+  mis-pin self-test that must redden).

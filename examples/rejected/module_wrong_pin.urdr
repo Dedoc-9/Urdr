@@ -1,0 +1,4 @@
+# MUST FAIL AT CHECK: vendor/<f..f>.urdr exists and is pinned, but its bytes do
+# NOT hash to the declared digest. A wrong pin is refused, not resolved.
+use @ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff as m
+m

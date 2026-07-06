@@ -1,0 +1,4 @@
+# MUST FAIL AT CHECK: a digest neither vendored nor pinned. Offline resolution
+# refuses it (URDR-MODULE) -- it does not reach for a network.
+use @aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa as m
+m

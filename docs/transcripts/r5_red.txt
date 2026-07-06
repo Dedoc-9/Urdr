@@ -1,0 +1,23 @@
+R5 — import-by-digest modules, offline. RED-FIRST record, 2026-07-06, Linux
+build sandbox (clean clone of HEAD 2e12eab), Python 3.10.12, PYTHONHASHSEED=0,
+PYTHONUTF8=1.
+
+The falsifiers, the two reject fixtures, the demo example and its vendor/
++ lockfile were written and run BEFORE `use` syntax, urdr/modules.py, and the
+URDR-PIN / URDR-MODULE codes existed. The gate reddened in every place it
+should, each for the right reason:
+
+  [FAIL] unit-falsifiers                    107 run, 3 red
+         - tests.test_modules: ImportError (urdr/modules.py absent)
+         - tests.test_oracle ×2: modules_demo.urdr could not parse
+  [FAIL] example:modules_demo.urdr          URDR-PARSE @5:5 no token begins
+                                            with '@'  (no @digest literal yet)
+  [FAIL] reject:module_wrong_pin.urdr       wrong code: got URDR-PARSE,
+                                            wanted URDR-PIN
+  [FAIL] reject:use_unvendored.urdr         wrong code: got URDR-PARSE,
+                                            wanted URDR-MODULE
+  GATE FAILED (exit 1)
+
+A red that fails for the wrong reason proves nothing; these fail precisely
+because import-by-digest, offline vendor resolution, and static pin refusal do
+not exist yet. Green record: r5_green.txt.

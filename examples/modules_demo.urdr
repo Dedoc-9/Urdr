@@ -1,0 +1,10 @@
+# R5: import-by-digest -- the dependency is named by its SHA-256, not a path.
+# The runner verifies vendor/<digest>.urdr hashes to <digest> (URDR-PIN else)
+# and that the digest is pinned in vendor/urdr.lock (URDR-MODULE else), all
+# OFFLINE, before the name binds. source-hash != definition-hash (D5 boundary).
+use @ff25ab68cb3b786b7e7715451e80a07fabba696f2fd1ba8300fd47687160fea2 as lib
+inc ≔ ☽(lib, 'inc)
+twice ≔ ☽(lib, 'twice)
+r ≔ twice(inc(20))
+claim ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ r
+ᛞ(λ v ↦ v = 42, claim)

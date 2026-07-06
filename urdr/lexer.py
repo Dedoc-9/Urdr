@@ -70,6 +70,11 @@ VERBOSE_KINDS = {
     "lineage": "PROV",
 }
 
+# R5: import-by-digest surface. ASCII by the glyph budget (design law 5):
+# module notation earns a glyph at a later review or not at all.
+USE_WORDS = {"use": "USE", "as": "AS"}
+_HEXCHARS = frozenset("0123456789abcdef")
+
 # ------------------------------------------------------------- confusables map
 # Curated, not exhaustive: every lookalike RELEVANT TO THIS ALPHABET (D1 §4.3).
 # Value = what the intruder imitates (named in the diagnostic).
@@ -279,6 +284,18 @@ class _Scanner:
                 self.emit("SYM", "'" + name, value=name, line=line, col=col)
                 continue
 
+            if ch == "@":  # R5: a module digest literal @<64 lowercase hex>
+                self.advance()
+                start = self.i
+                while self.peek() in _HEXCHARS:
+                    self.advance()
+                hexs = self.src[start:self.i]
+                if len(hexs) != 64:
+                    self.error(PARSE, "a @digest literal must be exactly 64 "
+                                      "lowercase hex chars (a SHA-256)")
+                self.emit("DIGESTLIT", "@" + hexs, value=hexs, line=line, col=col)
+                continue
+
             if ch.isascii() and ch.isdigit():
                 start = self.i
                 while self.peek().isascii() and self.peek().isdigit():
@@ -291,6 +308,8 @@ class _Scanner:
                 name = self._ident_body()
                 if name in VERBOSE_KINDS:
                     self.emit(VERBOSE_KINDS[name], name, line=line, col=col)
+                elif name in USE_WORDS:
+                    self.emit(USE_WORDS[name], name, value=name, line=line, col=col)
                 else:
                     self.emit("IDENT", name, value=name, line=line, col=col)
                 continue

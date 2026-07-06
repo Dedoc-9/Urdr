@@ -9,7 +9,7 @@ S3  no production constructs Grounded — enforced by the grammar's absence, plu
 S4  ᛞ's verifier argument must be syntactically a λ or a name
 """
 from . import parser as P
-from .errors import UrdrError, INFLATE_STATIC, EVIDENCE_UNEARNED, PARSE
+from .errors import UrdrError, INFLATE_STATIC, EVIDENCE_UNEARNED, PARSE, MODULE
 from .values import EVIDENCES, CEILING
 
 
@@ -19,7 +19,7 @@ def _walk(node):
         yield from _walk(child)
 
 
-def check(program: P.Program) -> None:
+def check(program: P.Program, module_root=None) -> None:
     for node in _walk(program):
         if isinstance(node, P.Annot):
             ceiling = CEILING[node.maturity]
@@ -46,7 +46,19 @@ def check(program: P.Program) -> None:
                     "ᛞ's first argument must be a λ or a name bound to one",
                     node.line, node.col,
                 )
+        elif isinstance(node, P.Use):
+            # R5: verify the pin STATICALLY (no evaluation) — a wrong pin or a
+            # tampered/unvendored module is refused at check time.
+            from . import modules
+            if module_root is None:
+                raise UrdrError(
+                    MODULE,
+                    "module resolution needs a root: run a FILE so vendor/ can "
+                    "be found (a bare string has no vendor dir)",
+                    node.line, node.col,
+                )
+            modules.resolve_source(node.digest, module_root, node.line, node.col)
 
 
-def check_source(source: str) -> None:
-    check(P.parse(source))
+def check_source(source: str, module_root=None) -> None:
+    check(P.parse(source), module_root)

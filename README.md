@@ -40,6 +40,11 @@ determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.
   pure values the runner executes at the līmes after success, all-or-nothing; anything
   ungranted or misused is `URDR-CAP`. The evaluator performs no I/O at any time.
   Spec: D1 §16; falsifiers: `tests/test_capability.py`.
+- **Import-by-digest modules** (R5): dependencies are named by the SHA-256 of their
+  canonical source, resolved offline from a `vendor/` store + `urdr.lock` the gate
+  verifies; a wrong pin or tampered file is refused *statically* (`URDR-PIN`), an
+  unvendored/unpinned digest too (`URDR-MODULE`). Byte-level addressing — the honest
+  limit is `source-hash ≠ definition-hash` (D5). Spec: D1 §17.
 
 ## Quickstart (offline; Python ≥ 3.10, stdlib only)
 
@@ -84,7 +89,7 @@ not execution: the suite passes on a machine that cannot display a single rune.
 | R2 | Deterministic actors (`weave`; canonical multiset order; one digest across permuted schedules; actor-local cage), persistence *līmes* (snapshots; Grounded does not cross), TLA+ membrane model (`DECLARED`) | `IMPLEMENTED / MEASURED` |
 | R3 | WHAT/WHERE landed: closure compiler admitted **only** by differential oracle vs the ☉ tree-walk reference (singular kernel — one mint; defect fixture proves the oracle can redden); verbose keyword profile (three spellings, one digest) | `IMPLEMENTED / MEASURED` |
 | R4 | I/O & external state as **capabilities**: nothing ambient; reads are recorded inputs replayed bit-identically; writes are effect-plans executed at the līmes; ungranted use rejected (`URDR-CAP`) | `IMPLEMENTED / MEASURED` |
-| R5 | Modules & packaging without a network: **import-by-digest** (Unison lesson), vendor dir + lockfile verified by the gate; a wrong pin is refused, not resolved | `SCOPED / N/A` |
+| R5 | Modules & packaging without a network: **import-by-digest** (Unison lesson, byte-level), vendor dir + lockfile verified by the gate; a wrong pin is refused, not resolved (`URDR-PIN`/`URDR-MODULE`) | `IMPLEMENTED / MEASURED` |
 | R6 | Rust production compiler — admitted by the same differential oracle, or not at all | `SPECULATIVE / N/A` |
 
 ## Honest boundaries (§9, in our own words)

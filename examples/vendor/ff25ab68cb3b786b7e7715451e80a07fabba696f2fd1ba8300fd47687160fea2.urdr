@@ -1,0 +1,3 @@
+# vendored library, addressed by the SHA-256 of these canonical bytes.
+# No name, no path: identity is content (the Unison lesson, byte-level).
+\st{inc: \fn x |-> x + 1, twice: \fn x |-> x + x}

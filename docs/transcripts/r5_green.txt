@@ -1,0 +1,56 @@
+R5 — import-by-digest modules, offline: nothing is fetched. GREEN record,
+2026-07-06, Linux build sandbox (clean clone of HEAD 2e12eab + R5 changes),
+Python 3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1. Red-first: r5_red.txt.
+
+RED  : 107 run 3 red / example URDR-PARSE '@' / reject wrong-code (r5_red.txt).
+GREEN: 119 unit falsifiers OK; full gate PASSED ×2, tables byte-identical
+       across the two runs (diff empty). Re-verified on the target repo itself
+       (not only the build clone), green ×2.
+
+New rows in the gate (now permanent):
+  [PASS] example:modules_demo.urdr          4787aea5d54124eb…
+  [PASS] oracle:modules_demo.urdr           compiled ≡ ☉ 4787aea5d541…
+  [PASS] oracle-defect-selftest             defect rejected on 8 example(s)
+                                            (was 7: the demo contains +)
+  [PASS] modules-lockfile                   1 pinned; vendor ≡ lock (offline)
+  [PASS] modules-mispin-selftest            mis-pinned lock refused (can redden)
+  [PASS] reject:module_wrong_pin.urdr       refused with URDR-PIN
+  [PASS] reject:use_unvendored.urdr         refused with URDR-MODULE
+
+What was built (spec: D1 §17; ledger: D5):
+  - Module address = SHA-256 of CANONICAL SOURCE BYTES (utf-8/BOM/universal
+    newlines/NFC). Byte-level content addressing — the Unison lesson at the
+    integrity level. Stated limit: source-hash ≠ definition-hash (rename/
+    format-invariance is the SCOPED strengthening).
+  - Surface: `use @<64-hex-digest> as name` — ASCII `use`/`as` + an `@` digest
+    literal (glyph budget: no new glyph). The alias binds the module's VALUE.
+  - urdr/modules.py: offline resolver over a vendor/ store (files named by
+    their own hash) + urdr.lock manifest. Static verification per `use`:
+    exists (URDR-MODULE) → hashes to its address (URDR-PIN) → pinned in the
+    lock (URDR-MODULE). A wrong pin dies at CHECK time, before evaluation.
+  - Singular kernel preserved: a module is reference-evaluated once (fresh
+    fuel, prelude only, no caps/inputs), so the compiled placement binds the
+    identical value — admitted by the differential oracle on modules_demo
+    unchanged.
+  - Cycles are unconstructible: no hash is a fixpoint of a body naming it, so
+    mutual import cannot be built (recorded, not merely guarded).
+
+Suite non-vacuity (beyond the red-first record): the pin-integrity check was
+disabled live (accept any bytes as matching the pin) → tests.test_modules went
+red (2) AND the gate's reject:module_wrong_pin went red; reverting restored
+green. 13 module falsifiers; 119 suite-wide; 0 red after revert.
+
+Determinism: modules_demo digest 4787aea5… identical across two subprocess
+runs and across reference/compiled placements on this host. Cross-host claim
+waits for the Windows PowerShell leg (two named hosts, not "any host").
+
+Note (process): several already-committed files were found byte-truncated in
+the working tree during this session (a filesystem-sync artifact, NOT a code
+change); each was restored from the verified clone and the gate re-run green
+×2. `caches lie` — and so can a flaky sync; the gate is what certifies.
+
+Boundary, restated: digest ≠ MAC — a pin is integrity against accident and
+byte-substitution, not a signature against an adversary who rewrites vendor +
+lock + program together. Offline is structural (the resolver imports no network
+library). A green gate certifies these tests on this code — never that a name
+means what it says.

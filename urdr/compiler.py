@@ -284,10 +284,11 @@ def compile_node(node, rt):
 
 
 def run_program_compiled(source: str, fuel: int = E.DEFAULT_FUEL,
-                         extra_env=None, defect: bool = False):
+                         extra_env=None, defect: bool = False,
+                         module_root=None):
     """Same contract as evaluate.run_program, different placement."""
     program = P.parse(source)
-    CHK.check(program)
+    CHK.check(program, module_root)
     rt = _RT(E._Fuel(fuel), defect=defect)
     extra = dict(extra_env or {})
     base = E.prelude()
@@ -295,12 +296,18 @@ def run_program_compiled(source: str, fuel: int = E.DEFAULT_FUEL,
     env = E._Env(base)
     result = None
     for stmt in program.stmts:
-        if isinstance(stmt, P.Bind) and stmt.name in extra:
+        if isinstance(stmt, (P.Bind, P.Use)) and E._binds(stmt) in extra:
             raise UrdrError(REBIND,
-                            f"'{stmt.name}' is bound by the runner (an input); "
-                            f"a program may not shadow its inputs",
+                            f"'{E._binds(stmt)}' is bound by the runner (an "
+                            f"input); a program may not shadow its inputs",
                             stmt.line, stmt.col)
-        if isinstance(stmt, P.Bind):
+        if isinstance(stmt, P.Use):
+            # R5: module value is reference-evaluated (singular kernel) so the
+            # compiled placement binds the identical value.
+            value = E.resolve_use(stmt.digest, module_root, stmt.line, stmt.col)
+            env.map[stmt.alias] = value
+            result = value
+        elif isinstance(stmt, P.Bind):
             value = compile_node(stmt.expr, rt)(env)
             env.map[stmt.name] = value
             result = value
