@@ -37,7 +37,9 @@ renderable`: the suite passes on a machine that cannot display a single rune.
 
 Prelude names (plain ASCII identifiers, part of the surface): `value maturity evidence
 grounded conflicted range len push cat nth weave`. Runner-provided input (only with
-`--load-store`): `loaded`. Epistemic keywords (uppercase, only inside ⟨…⟩):
+`--load-store`): `loaded`. Verbose profile reserved words (R3a; third spelling of the
+glyph tokens, not identifiers): `annot verify view edit recall digest store flow fn fold
+expect after lineage`. Epistemic keywords (uppercase, only inside ⟨…⟩):
 `SPECULATIVE SCOPED IMPLEMENTED NA DECLARED MEASURED`.
 
 ## Input methods (offline)

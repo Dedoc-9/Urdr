@@ -61,6 +61,15 @@ KIND_TO_GLYPH = {kind: glyph for glyph, kind in GLYPH_KINDS.items()}
 
 KEYWORDS = {"SPECULATIVE", "SCOPED", "IMPLEMENTED", "NA", "DECLARED", "MEASURED"}
 
+# R3a verbose profile: reserved words as a THIRD spelling of the same token kinds.
+# A profile is spelling, never semantics; these words cannot be identifiers.
+VERBOSE_KINDS = {
+    "annot": "ANNOT", "verify": "VERIFY", "view": "VIEW", "edit": "EDIT",
+    "recall": "ANA", "digest": "DIGEST", "store": "STORE", "flow": "FLOW",
+    "fn": "LAMBDA", "fold": "FOLD", "expect": "ASSERTEQ", "after": "COMPOSE",
+    "lineage": "PROV",
+}
+
 # ------------------------------------------------------------- confusables map
 # Curated, not exhaustive: every lookalike RELEVANT TO THIS ALPHABET (D1 §4.3).
 # Value = what the intruder imitates (named in the diagnostic).
@@ -280,7 +289,10 @@ class _Scanner:
 
             if ch.isascii() and (ch.islower() or ch == "_"):
                 name = self._ident_body()
-                self.emit("IDENT", name, value=name, line=line, col=col)
+                if name in VERBOSE_KINDS:
+                    self.emit(VERBOSE_KINDS[name], name, line=line, col=col)
+                else:
+                    self.emit("IDENT", name, value=name, line=line, col=col)
                 continue
 
             if ch.isascii() and ch.isupper():
@@ -377,6 +389,17 @@ def format_source(source: str) -> str:
                                          or src[i] == "_")):
                 out.append(src[i])
                 i += 1
+            continue
+        if ch.isascii() and (ch.islower() or ch == "_"):  # word: verbose → glyph
+            j = i
+            while j < len(src) and (src[j].isascii()
+                                    and (src[j].islower() or src[j].isdigit()
+                                         or src[j] == "_")):
+                j += 1
+            word = src[i:j]
+            kind = VERBOSE_KINDS.get(word)
+            out.append(KIND_TO_GLYPH[kind] if kind else word)
+            i = j
             continue
         for digraph, glyph in _FMT_ORDER:
             if src.startswith(digraph, i):

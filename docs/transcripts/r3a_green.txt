@@ -1,0 +1,16 @@
+R3a — verbose keyword profile. Red-first record, 2026-07-06, Linux build
+sandbox, Python 3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1.
+
+RED  (pre-implementation): tests.test_verbose FAILED (failures=14, errors=4)
+GREEN (post): 79 tests OK; full gate PASSED ×2, identical tables.
+
+Semantics: twelve reserved words (annot verify view edit recall digest store
+flow fn fold expect after lineage) are a THIRD spelling of existing token
+kinds. Falsified: three spellings of one program produce one digest; reserved
+words cannot be bound; fmt canonicalizes words → glyphs without changing the
+token stream. All nine example goldens untouched — spelling is not semantics,
+and now that claim is MEASURED, not asserted.
+
+R3b (compiler-as-placement) design is fixed in D1 §14b — the mint is singular,
+the oracle must be able to redden (--via defect fixture), values/canon/fuel
+shared — and graded SCOPED / N/A until its falsifiers run.

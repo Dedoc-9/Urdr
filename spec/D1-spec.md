@@ -392,7 +392,30 @@ process under *this* evaluator, so `MEASURED` is re-earned after load, never imp
 Falsifier: three interpreters, one address (`tests/test_snapshot.py`). Capability-gated
 in-language persistence remains R4.
 
-## 14. Does-not-do (v0.1)
+## 14. The verbose profile (R3a) and the compiler oracle (R3b)
+
+**14a. Verbose profile — `IMPLEMENTED / MEASURED`.** Twelve reserved words are a *third
+spelling* of existing token kinds: `annot verify view edit recall digest store flow fn
+fold expect after lineage`. One token stream, one digest, three spellings — falsified by
+`tests/test_verbose.py`; `fmt` canonicalizes words → glyphs. Reserved words cannot be
+identifiers (rejected at parse). A profile is spelling, never semantics.
+
+**14b. Compiler as placement — `SCOPED / N/A`, design fixed now.** The tree-walking
+interpreter is the ☉ **reference**. A closure/bytecode compiler is a *placement* (WHERE),
+admitted per run **only** by differential oracle: bit-identical digests against ☉ on the
+full example corpus, or the fast path is rejected — never averaged, never trusted.
+Design laws already fixed:
+1. **The mint is singular.** `ᛞ`'s verification semantics and the builtin kernel
+   (including `weave`) are extracted into one shared kernel used by *both* executors.
+   Two mints would be an attack surface, not a check; the oracle's job is to compare
+   *evaluation strategies*, not to fork evidence semantics.
+2. **Non-vacuity fixture.** The runner ships a deliberately defective path
+   (`--via defect`, e.g. `+` off by one) that the gate REQUIRES to disagree with ☉ on
+   at least one example. An oracle that cannot redden proves nothing (LESSONS L5).
+3. Values, canon, and fuel are shared; only the execution strategy differs. λ bodies
+   compile at first call and cache; `V.Lambda` and its canon are untouched.
+
+## 15. Does-not-do (v0.1)
 
 No physics (see README). No strings, floats, division, recursion, I/O, clock, RNG,
 network, filesystem, concurrency, actors, placements, effects, capabilities, module
