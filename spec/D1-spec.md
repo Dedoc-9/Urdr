@@ -400,7 +400,9 @@ fold expect after lineage`. One token stream, one digest, three spellings — fa
 `tests/test_verbose.py`; `fmt` canonicalizes words → glyphs. Reserved words cannot be
 identifiers (rejected at parse). A profile is spelling, never semantics.
 
-**14b. Compiler as placement — `SCOPED / N/A`, design fixed now.** The tree-walking
+**14b. Compiler as placement — `IMPLEMENTED / MEASURED` (falsified by
+`tests/test_oracle.py` and the gate's permanent oracle stage; red-first record in
+`docs/transcripts/r3b_green.txt`).** The tree-walking
 interpreter is the ☉ **reference**. A closure/bytecode compiler is a *placement* (WHERE),
 admitted per run **only** by differential oracle: bit-identical digests against ☉ on the
 full example corpus, or the fast path is rejected — never averaged, never trusted.

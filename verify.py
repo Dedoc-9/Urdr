@@ -125,6 +125,38 @@ class Gate:
             else:
                 self.record(f"example:{fname}", True, d1[:16] + "…")
 
+    # -- 2b. oracle: the compiled placement is ADMITTED, not trusted ----------
+    def oracle(self):
+        exdir = os.path.join(ROOT, "examples")
+        files = sorted(
+            f for f in os.listdir(exdir)
+            if f.endswith(".urdr") and os.path.isfile(os.path.join(exdir, f))
+        )
+        disagreements = 0
+        for fname in files:
+            path = os.path.join(exdir, fname)
+            golden_path = path[:-len(".urdr")] + ".digest"
+            if not os.path.exists(golden_path):
+                continue  # examples stage already reddened on this
+            with open(golden_path, "r", encoding="utf-8") as fh:
+                golden = fh.read().strip()
+            code_c, out_c, _err = run_cli(["run", path, "--via", "compiled"])
+            d_c = extract_digest(out_c)
+            if code_c != 0 or d_c != golden:
+                self.record(f"oracle:{fname}", False,
+                            f"compiled ≠ ☉ ({(d_c or 'error')[:12]}…) — REJECTED")
+            else:
+                self.record(f"oracle:{fname}", True, f"compiled ≡ ☉ {d_c[:12]}…")
+            code_d, out_d, _err = run_cli(["run", path, "--via", "defect"])
+            d_d = extract_digest(out_d)
+            if code_d != 0 or d_d != golden:
+                disagreements += 1
+        self.record(
+            "oracle-defect-selftest", disagreements >= 1,
+            f"defect placement rejected on {disagreements} example(s)"
+            if disagreements else
+            "defect path agreed everywhere — the oracle cannot redden; gate broken")
+
     # -- 3. rejections: the checker must refuse (non-vacuity) -----------------
     def rejections(self):
         rejdir = os.path.join(ROOT, "examples", "rejected")
@@ -193,6 +225,7 @@ def main() -> int:
     gate = Gate()
     gate.unit_tests()
     gate.examples()
+    gate.oracle()
     gate.rejections()
     gate.tamper()
     return gate.report()

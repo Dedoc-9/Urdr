@@ -1,0 +1,32 @@
+R3b — compiler as placement, admitted by differential oracle. Red-first record,
+2026-07-06, Linux build sandbox, Python 3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1.
+
+RED  : tests.test_oracle errored before urdr/compiler.py existed.
+GREEN: 85 unit falsifiers OK; full gate PASSED ×2, identical tables.
+
+Oracle stage (now permanent in verify.py, between examples and rejections):
+  [PASS] oracle:actors_one_digest.urdr      compiled ≡ ☉ 2c2db2ee42b5…
+  [PASS] oracle:clifford_relations.urdr     compiled ≡ ☉ 914f348280c0…
+  [PASS] oracle:determinism_probe.urdr      compiled ≡ ☉ c3d062136241…
+  [PASS] oracle:grounding.urdr              compiled ≡ ☉ 79b47903bdc8…
+  [PASS] oracle:lens_roundtrip.urdr         compiled ≡ ☉ b79d27d6e440…
+  [PASS] oracle:lineage.urdr                compiled ≡ ☉ 427dea48bd71…
+  [PASS] oracle:pipeline.urdr               compiled ≡ ☉ 4573590cf8ee…
+  [PASS] oracle:z2_grading.urdr             compiled ≡ ☉ 6be45808d3ed…
+  [PASS] oracle-defect-selftest             defect placement rejected on 5 example(s)
+
+What was built: the kernel extraction (verify_mint / call_builtin / weave_kernel
+are module-level, shared by every executor — THE MINT IS SINGULAR), the closure
+compiler (urdr/compiler.py: AST → Python closures, no node dispatch at run time;
+values/canon/fuel shared; λ bodies compile at first call, identity-checked cache),
+`--via reference|compiled|defect` on the CLI, and the oracle stage in the gate.
+Fuel accounting mirrors tick-for-tick: placement is never a correctness decision,
+nor a fuel one (falsified: same URDR-FUEL at the same budget on both paths).
+
+The defect path (`+` off by one) exists to be caught. It was: 5 of 9 examples
+reject it; the other 4 contain no addition, and their agreement is the correct
+behavior of a lie that never gets to speak. An oracle that cannot redden proves
+nothing — this one can, permanently, on every run.
+
+All nine goldens untouched: admission means matching ☉, and ☉ still means what
+it meant. locus rem nōn mūtat — the place does not change the thing.

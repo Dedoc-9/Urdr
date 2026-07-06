@@ -43,7 +43,17 @@ def main(argv) -> int:
             if "--load-store" in argv:  # R2c: runner-provided input `loaded`
                 from urdr import snapshot
                 extra["loaded"] = snapshot.load(argv[argv.index("--load-store") + 1])
-            value = evaluate.run_program(source, fuel=fuel, extra_env=extra)
+            via = argv[argv.index("--via") + 1] if "--via" in argv else "reference"
+            if via == "reference":  # ☉ — the source of truth
+                value = evaluate.run_program(source, fuel=fuel, extra_env=extra)
+            elif via in ("compiled", "defect"):
+                from urdr import compiler
+                value = compiler.run_program_compiled(
+                    source, fuel=fuel, extra_env=extra, defect=(via == "defect"))
+            else:
+                sys.stderr.write(f"unknown placement --via {via} "
+                                 f"(reference|compiled|defect)\n")
+                return 3
             sys.stdout.write("result: " + evaluate.render(value) + "\n")
             sys.stdout.write("digest: " + canon.hexdigest(value) + "\n")
             if "--save-store" in argv:

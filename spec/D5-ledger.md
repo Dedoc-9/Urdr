@@ -32,6 +32,7 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Persistence līmes: runner snapshots with digest re-verification; Grounded/λ refused; cross-run anamnesis reaches the fresh root's address | IMPLEMENTED | MEASURED | `tests/test_snapshot.py` (6 falsifiers incl. tamper + 3-process identity) |
 | TLA+ model of membrane laws (view-stutter, put-get, ana-exact, lineage) | IMPLEMENTED | DECLARED | `spec/membrane.tla` + `.cfg` written; NOT TLC-checked by the gate (Java outside stdlib law). Upgrades to MEASURED only if TLC joins CI |
 | Verbose keyword profile (12 reserved words; three spellings, one token stream, one digest) | IMPLEMENTED | MEASURED | `tests/test_verbose.py` (incl. reserved-bind rejection and fmt words→glyphs) |
+| Compiler as placement: closure compiler (`--via compiled`) admitted per gate run only by digest match vs ☉ on the full corpus; singular kernel (one mint, one prelude, one weave); tick-for-tick fuel parity; defect path (`--via defect`) must be rejected somewhere or the gate reds | IMPLEMENTED | MEASURED | `tests/test_oracle.py` (6 falsifiers), `verify.py` oracle stage (8 admissions + defect self-test, permanent) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: all four example digests bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), 2026-07-06. Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
 | Fuel-bounded evaluation, deterministic URDR-FUEL | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -49,7 +50,7 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Actor glyph assignment (weave stays ASCII until semantics prove stable) | SCOPED / N/A | R3 review |
 | WHAT/WHERE placement split, *līmes* boundaries, differential oracle, ☉ reference marker | SCOPED / N/A | R3 |
 | Effects & capabilities: recorded-input reads, effect-plan writes, `URDR-CAP` rejections; failure model; interop *līmes* | SCOPED / N/A | R4 |
-| Compiler-as-placement: shared-kernel closure compiler admitted by differential oracle vs ☉ reference; defect fixture must redden (design fixed in D1 §14b) | SCOPED / N/A | R3b |
+| Non-Python placements (bytecode VM, Rust) admitted by the same oracle | SPECULATIVE / N/A | R6 |
 | Import-by-digest modules, vendor dir + lockfile verified by the gate | SCOPED / N/A | R5 |
 | Rust production compiler (same oracle admission) | SPECULATIVE / N/A | R6 |
 | Live view↔edit session UI over the one dataflow | SPECULATIVE / N/A | — |

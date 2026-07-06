@@ -1,7 +1,15 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 Daniel J. Dillberg
-"""Deterministic, fuel-bounded evaluator (D1 §6). check() always runs first.
-No clock, no RNG, no float, no iteration-order dependence, no host access."""
+"""Deterministic, fuel-bounded evaluator (D1 §6) — the ☉ REFERENCE placement.
+check() always runs first. No clock, no RNG, no float, no iteration-order
+dependence, no host access.
+
+R3b (D1 §14b): THE MINT IS SINGULAR. `verify_mint`, `call_builtin`, and
+`weave_kernel` are module-level kernel functions shared by every executor
+(reference and compiled alike). An executor supplies only an `rt` with
+`.fuel` and `.call(fn, args, line, col)`. Two mints would be an attack
+surface, not a check — the differential oracle compares evaluation
+strategies, never evidence semantics."""
 import hashlib
 
 from . import canon as C
@@ -51,12 +59,135 @@ class _Env:
         return False
 
 
-# ---------------------------------------------------------------- prelude
-
 def _need(cond, msg, line, col):
     if not cond:
         raise UrdrError(TYPE_RUN, msg, line, col)
 
+
+# ------------------------------------------------------------ shared kernel
+
+def verify_mint(rt, verifier, subject, line, col):
+    """ᛞ — the ONLY constructor of MEASURED/Grounded, for every executor."""
+    _need(isinstance(verifier, (V.Lambda, V.Composed, V.Builtin)),
+          "ᛞ verifier must be callable", line, col)
+    if isinstance(subject, V.Grounded):
+        raise UrdrError(TYPE_RUN, "already Grounded; ᛞ re-verification of "
+                                  "Grounded is not in v0.1", line, col)
+    _need(isinstance(subject, V.Claim), "ᛞ wants a claim (𒀭⟨…⟩ value)",
+          line, col)
+    if subject.maturity != "IMPLEMENTED":
+        raise UrdrError(
+            VERIFY_UNLICENSED,
+            f"cannot measure a {subject.maturity} claim: MEASURED is above "
+            f"its ceiling; measuring what is not built is a category error",
+            line, col,
+        )
+    verdict = rt.call(verifier, [subject.value], line, col)
+    _need(isinstance(verdict, V.Int), "verifier must return an integer",
+          line, col)
+    v_digest = C.digest(verifier)
+    if verdict.n != 0:
+        witness = hashlib.sha256(
+            b"URDR-WITNESS" + C.canon(verifier) + C.canon(subject.value)
+        ).digest()
+        return V.Grounded(subject.value, witness)
+    return V.Conflict(subject, v_digest)
+
+
+def weave_kernel(rt, world_v, inbox_v, ticks_v, line, col):
+    """R2 deterministic actors (D1 §13). Canonical delivery order per tick:
+    sort by (target, digest(payload)) — a pure function of the message
+    multiset; arrival order does not exist in these semantics."""
+    _need(isinstance(world_v, V.ListV),
+          "weave() wants a world (list of actor stores)", line, col)
+    _need(isinstance(inbox_v, V.ListV),
+          "weave() wants an inbox (list of [target, payload])", line, col)
+    _need(isinstance(ticks_v, V.Int),
+          "weave() wants an integer tick budget", line, col)
+    states, handlers = [], []
+    for actor in world_v.items:
+        _need(isinstance(actor, V.Store) and "state" in actor.fields
+              and "handler" in actor.fields,
+              "weave(): each actor must be a store with 'state and 'handler",
+              line, col)
+        states.append(actor.fields["state"])
+        handlers.append(actor.fields["handler"])
+    n = len(states)
+
+    def norm(m):
+        _need(isinstance(m, V.ListV) and len(m.items) == 2,
+              "weave(): message must be [target, payload]", line, col)
+        target = m.items[0]
+        _need(isinstance(target, V.Int),
+              "weave(): message target must be an integer", line, col)
+        _need(0 <= target.n < n,
+              f"weave(): no actor {target.n} (world has {n})", line, col)
+        return (target.n, m.items[1])
+
+    def canonical(msgs):
+        return sorted(msgs, key=lambda tm: (tm[0], C.digest(tm[1])))
+
+    pending = [norm(m) for m in inbox_v.items]
+    for _tick in range(max(0, ticks_v.n)):
+        if not pending:
+            break
+        nxt = []
+        for target, payload in canonical(pending):
+            rt.fuel.tick(1, line, col)
+            result = rt.call(handlers[target], [states[target], payload],
+                             line, col)
+            _need(isinstance(result, V.ListV) and len(result.items) == 2
+                  and isinstance(result.items[1], V.ListV),
+                  "weave(): handler must return [state', outbox]", line, col)
+            states[target] = result.items[0]
+            for out in result.items[1].items:
+                nxt.append(norm(out))
+        pending = nxt
+    leftovers = V.ListV(V.ListV((V.Int(t), p)) for t, p in canonical(pending))
+    return V.ListV((V.ListV(states), leftovers))
+
+
+def call_builtin(rt, fn, args, line, col):
+    """The prelude kernel, shared by every executor."""
+    if len(args) != fn.arity:
+        raise UrdrError(TYPE_RUN,
+                        f"{fn.name}() takes {fn.arity} argument(s)", line, col)
+    if fn.name == "range":
+        n_v = args[0]
+        _need(isinstance(n_v, V.Int), "range() wants an integer", line, col)
+        n = max(0, n_v.n)
+        rt.fuel.tick(n, line, col)
+        return V.ListV(V.Int(i) for i in range(n))
+    if fn.name == "len":
+        xs = args[0]
+        _need(isinstance(xs, V.ListV), "len() wants a list", line, col)
+        return V.Int(len(xs.items))
+    if fn.name == "push":
+        xs, x = args
+        _need(isinstance(xs, V.ListV), "push() wants a list first", line, col)
+        rt.fuel.tick(len(xs.items) + 1, line, col)  # the copy is paid for
+        return V.ListV(xs.items + (x,))
+    if fn.name == "cat":
+        xs, ys = args
+        _need(isinstance(xs, V.ListV) and isinstance(ys, V.ListV),
+              "cat() wants two lists", line, col)
+        rt.fuel.tick(len(xs.items) + len(ys.items), line, col)
+        return V.ListV(xs.items + ys.items)
+    if fn.name == "nth":
+        xs, i = args
+        _need(isinstance(xs, V.ListV), "nth() wants a list", line, col)
+        _need(isinstance(i, V.Int), "nth() wants an integer index", line, col)
+        if not 0 <= i.n < len(xs.items):
+            raise UrdrError(TYPE_RUN,
+                            f"nth() index {i.n} out of range "
+                            f"(len {len(xs.items)})", line, col)
+        return xs.items[i.n]
+    if fn.name == "weave":
+        return weave_kernel(rt, args[0], args[1], args[2], line, col)
+    return fn.fn(args, line, col)
+
+
+# ---------------------------------------------------------------- prelude
 
 def _bi_value(args, line, col):
     c = args[0]
@@ -91,12 +222,12 @@ def prelude() -> dict:
         "evidence": V.Builtin("evidence", 1, _bi_evidence),
         "grounded": V.Builtin("grounded", 1, _bi_grounded),
         "conflicted": V.Builtin("conflicted", 1, _bi_conflicted),
-        "range": V.Builtin("range", 1, None),   # fuel-aware, special-cased
+        "range": V.Builtin("range", 1, None),   # kernel-dispatched
         "len": V.Builtin("len", 1, None),
-        "push": V.Builtin("push", 2, None),     # R1b: fuel-aware list prelude
+        "push": V.Builtin("push", 2, None),
         "cat": V.Builtin("cat", 2, None),
         "nth": V.Builtin("nth", 2, None),
-        "weave": V.Builtin("weave", 3, None),   # R2: deterministic actors
+        "weave": V.Builtin("weave", 3, None),
     }
 
 
@@ -119,95 +250,8 @@ class _Interp:
         if isinstance(fn, V.Composed):
             return self.call(fn.f, [self.call(fn.g, args, line, col)], line, col)
         if isinstance(fn, V.Builtin):
-            if len(args) != fn.arity:
-                raise UrdrError(TYPE_RUN,
-                                f"{fn.name}() takes {fn.arity} argument(s)", line, col)
-            if fn.name == "range":
-                n_v = args[0]
-                _need(isinstance(n_v, V.Int), "range() wants an integer", line, col)
-                n = max(0, n_v.n)
-                self.fuel.tick(n, line, col)
-                return V.ListV(V.Int(i) for i in range(n))
-            if fn.name == "len":
-                xs = args[0]
-                _need(isinstance(xs, V.ListV), "len() wants a list", line, col)
-                return V.Int(len(xs.items))
-            if fn.name == "push":
-                xs, x = args
-                _need(isinstance(xs, V.ListV), "push() wants a list first", line, col)
-                self.fuel.tick(len(xs.items) + 1, line, col)  # the copy is paid for
-                return V.ListV(xs.items + (x,))
-            if fn.name == "cat":
-                xs, ys = args
-                _need(isinstance(xs, V.ListV) and isinstance(ys, V.ListV),
-                      "cat() wants two lists", line, col)
-                self.fuel.tick(len(xs.items) + len(ys.items), line, col)
-                return V.ListV(xs.items + ys.items)
-            if fn.name == "nth":
-                xs, i = args
-                _need(isinstance(xs, V.ListV), "nth() wants a list", line, col)
-                _need(isinstance(i, V.Int), "nth() wants an integer index", line, col)
-                if not 0 <= i.n < len(xs.items):
-                    raise UrdrError(TYPE_RUN,
-                                    f"nth() index {i.n} out of range "
-                                    f"(len {len(xs.items)})", line, col)
-                return xs.items[i.n]
-            if fn.name == "weave":
-                return self._weave(args[0], args[1], args[2], line, col)
-            return fn.fn(args, line, col)
+            return call_builtin(self, fn, args, line, col)
         raise UrdrError(TYPE_RUN, "not callable", line, col)
-
-    def _weave(self, world_v, inbox_v, ticks_v, line, col):
-        """R2 deterministic actors (D1 §13). Canonical delivery order per tick:
-        sort by (target, digest(payload)) — a pure function of the message
-        multiset; arrival order does not exist in these semantics."""
-        _need(isinstance(world_v, V.ListV),
-              "weave() wants a world (list of actor stores)", line, col)
-        _need(isinstance(inbox_v, V.ListV),
-              "weave() wants an inbox (list of [target, payload])", line, col)
-        _need(isinstance(ticks_v, V.Int),
-              "weave() wants an integer tick budget", line, col)
-        states, handlers = [], []
-        for actor in world_v.items:
-            _need(isinstance(actor, V.Store) and "state" in actor.fields
-                  and "handler" in actor.fields,
-                  "weave(): each actor must be a store with 'state and 'handler",
-                  line, col)
-            states.append(actor.fields["state"])
-            handlers.append(actor.fields["handler"])
-        n = len(states)
-
-        def norm(m):
-            _need(isinstance(m, V.ListV) and len(m.items) == 2,
-                  "weave(): message must be [target, payload]", line, col)
-            target = m.items[0]
-            _need(isinstance(target, V.Int),
-                  "weave(): message target must be an integer", line, col)
-            _need(0 <= target.n < n,
-                  f"weave(): no actor {target.n} (world has {n})", line, col)
-            return (target.n, m.items[1])
-
-        def canonical(msgs):
-            return sorted(msgs, key=lambda tm: (tm[0], C.digest(tm[1])))
-
-        pending = [norm(m) for m in inbox_v.items]
-        for _tick in range(max(0, ticks_v.n)):
-            if not pending:
-                break
-            nxt = []
-            for target, payload in canonical(pending):
-                self.fuel.tick(1, line, col)
-                result = self.call(handlers[target], [states[target], payload],
-                                   line, col)
-                _need(isinstance(result, V.ListV) and len(result.items) == 2
-                      and isinstance(result.items[1], V.ListV),
-                      "weave(): handler must return [state', outbox]", line, col)
-                states[target] = result.items[0]
-                for out in result.items[1].items:
-                    nxt.append(norm(out))
-            pending = nxt
-        leftovers = V.ListV(V.ListV((V.Int(t), p)) for t, p in canonical(pending))
-        return V.ListV((V.ListV(states), leftovers))
 
     def eval(self, node, env):
         self.fuel.tick(1, node.line, node.col)
@@ -240,31 +284,8 @@ class _Interp:
             return V.Claim(inner, node.maturity, node.evidence)  # latch armed inside
         if isinstance(node, P.Verify):
             verifier = self.eval(node.args[0], env)
-            _need(isinstance(verifier, (V.Lambda, V.Composed, V.Builtin)),
-                  "ᛞ verifier must be callable", node.line, node.col)
             subject = self.eval(node.args[1], env)
-            if isinstance(subject, V.Grounded):
-                raise UrdrError(TYPE_RUN, "already Grounded; ᛞ re-verification of "
-                                          "Grounded is not in v0.1", node.line, node.col)
-            _need(isinstance(subject, V.Claim), "ᛞ wants a claim (𒀭⟨…⟩ value)",
-                  node.line, node.col)
-            if subject.maturity != "IMPLEMENTED":
-                raise UrdrError(
-                    VERIFY_UNLICENSED,
-                    f"cannot measure a {subject.maturity} claim: MEASURED is above "
-                    f"its ceiling; measuring what is not built is a category error",
-                    node.line, node.col,
-                )
-            verdict = self.call(verifier, [subject.value], node.line, node.col)
-            _need(isinstance(verdict, V.Int), "verifier must return an integer",
-                  node.line, node.col)
-            v_digest = C.digest(verifier)
-            if verdict.n != 0:
-                witness = hashlib.sha256(
-                    b"URDR-WITNESS" + C.canon(verifier) + C.canon(subject.value)
-                ).digest()
-                return V.Grounded(subject.value, witness)
-            return V.Conflict(subject, v_digest)
+            return verify_mint(self, verifier, subject, node.line, node.col)
         if isinstance(node, P.View):
             store = self.eval(node.args[0], env)
             key = self.eval(node.args[1], env)
