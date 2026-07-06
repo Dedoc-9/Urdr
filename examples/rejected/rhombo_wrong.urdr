@@ -1,0 +1,6 @@
+# MUST FAIL AT RUN: claims the 3-fold rotation FIXES a basis vector.
+# It does not: only the diagonal is invariant. The lattice falsifier is
+# non-vacuous only because this program dies.
+rot ≔ λ v ↦ [nth(v, 2), nth(v, 0), nth(v, 1)]
+a1 ≔ [1, 1, 0]
+≟(rot(a1), a1)

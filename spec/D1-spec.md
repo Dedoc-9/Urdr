@@ -352,6 +352,21 @@ direct anticommutation and square spot-checks, sealed `⊢ 9`;
 restated: these verify *algebra relations under this evaluator*. They say nothing about
 physics, supersymmetry, or the universe (`sign ≠ thing`).
 
+### 12b. Lattice falsifier — a user-directed conversion, recorded
+
+The request arrived as *"rhombohedral diagonal consolidation"* — not an established
+formalism, so it passed through the honest converter (§2 discipline) with the user's
+choice recorded. **Assigned meaning:** over the rhombohedral (FCC-primitive) integer
+lattice a₁=(1,1,0), a₂=(0,1,1), a₃=(1,0,1), the C₃ rotation about the body diagonal
+cycles coordinates, and the *orbit-average* v + Rv + R²v of ANY vector lands on the
+invariant diagonal subspace — group-averaging (the Reynolds operator, in exact ℤ) is
+the mathematically true content nearest the phrase. Eleven relations verified by
+evaluation and sealed at the mint (`examples/rhombo_lattice.urdr`, ⊢ 11): cyclic
+permutation closure, R³ = I, the rhombohedral Gram identity ⟨aᵢ,aⱼ⟩ = 2δᵢⱼ + 1(i≠j),
+diagonal invariance, and three consolidation instances. Non-vacuity:
+`examples/rejected/rhombo_wrong.urdr` claims R fixes a basis vector and must die
+(`URDR-ASSERT`). Crystallography inspires; physics is claimed nowhere (`signum ≠ rēs`).
+
 ## 13. Deterministic actors (R2) — active truth without inherited nondeterminism
 
 - An **actor** is an ordinary store with fields `state` (any value) and `handler`
