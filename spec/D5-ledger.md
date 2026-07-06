@@ -100,9 +100,31 @@ invented** (D1 §21b). A candidate has no syntax, no glyph, and no test until a
 real program forces it; `observed_pressure` counts programs that actually needed
 it. A count of 0 means: not yet earned — not even as a function.
 
+**The review rule.** A candidate enters the semantic search space only if a
+substrate guarantee does NOT already imply an expressible Urðr law:
+`substrate guarantee ≠ language primitive`. Classify before implementing:
+
+- **CLOSED** — already expressible (an idiom), substrate-only, or it violates a
+  design law. Not a candidate.
+- **OPEN** — inexpressible by existing primitives, has a stated falsifier, AND has
+  repeated pressure. Earns a function review (D1 §21b).
+- **DEFERRED** — plausibly inexpressible but no pressure yet, or contentless on the
+  current model. Recorded, not built.
+
+| Candidate | Class | Why |
+|---|---|---|
+| invariant preservation | CLOSED | already expressible: `≟(I(x), I(y))` (D1 §21a) |
+| canonicalization | CLOSED | substrate-only: absorbed in `canon`/`ᛝ` |
+| orchestrate / N-placement | CLOSED | already expressible: the differential oracle generalized (§14b) |
+| ownership / borrow | CLOSED | substrate-only: no mutation to alias; conflicts refused at the līmes (`URDR-CAP`) |
+| resource lifetime | CLOSED | out of bounds: `eventually released` is a termination claim, not made |
+| zero-copy identity | CLOSED | violates design law 3: identity is canonical bytes, not memory layout |
+| `capability_attenuation` | DEFERRED | inexpressible today AND currently contentless: caps are atomic (`\|Perm\| ∈ {1,0}`), no delegation target |
+| `foreign_rust_kernel` | DEFERRED | inexpressible witness (independent Rust agreement), falsifier `URDR-RUST-DIVERGENCE`, but needs a cargo host + has no pressure |
+
 | Candidate | Status | Question | Desired law | Falsifier | Promotion condition | observed_pressure |
 |---|---|---|---|---|---|---|
-| capability_attenuation | SPECULATIVE / N/A | Can a source program derive a *strictly weaker* capability? | Perm(child) ⊆ Perm(parent) | `URDR-CAP-ESCAPE` | a real program needs authority narrowing **and** composition through existing primitives (cap/recorded/plan) is insufficient | 0 |
+| capability_attenuation | SPECULATIVE / N/A (DEFERRED) | Can a source program derive a *strictly weaker* capability? | Perm(child) ⊆ Perm(parent) | `URDR-CAP-ESCAPE` | **currently contentless**: a Capability is atomic `(kind, name, payload)` so `\|Perm\| ∈ {1,0}` (no proper sub-lattice), and no capability is delegated to a sub-agent — so it earns meaning only if caps FIRST gain internal structure AND become delegable, neither of which has pressure | 0 |
 | foreign_rust_kernel | SPECULATIVE / N/A | Can an *independent* Rust kernel (`urdr-core-rs`) reproduce the reference digest on the corpus? | Rust placement ≡ reference placement | `URDR-RUST-DIVERGENCE` | a Rust kernel matches canon+digest on the pinned corpus **and** a deliberate Rust defect is caught by the harness (`tools/foreign_placement/`); needs a cargo host — absent in the build sandbox | 0 |
 
 Closed by existing mechanism (recorded so they are not re-proposed): invariant
@@ -116,3 +138,10 @@ vacuously; **resource lifetime** — no manual resources, and `eventually releas
 is a termination claim Urðr does not make; **zero-copy identity** — identity is
 canonical bytes, not memory layout (design law 3), so it is a law violation, not a
 gap. Rust improves the *substrate*, not the *semantics* — it stays a placement (R6a).
+
+**Stable-core note.** After this pass, **no OPEN candidate remains**: every proposed
+expansion is CLOSED (already-present, substrate-only, or law-violating) or DEFERRED
+(no pressure / no current content). That is itself a milestone — the core has reached
+a stable point, and future growth should come from *use cases that generate repeated
+friction*, not from expansion. A glyph is the visible trace of a missing constraint
+(D1 §21b); there is no missing constraint under pressure right now. `Nihil ultrā probātum.`
