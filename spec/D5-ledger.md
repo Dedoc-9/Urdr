@@ -50,6 +50,8 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Base-60 numeric literals (𒁹, 𒌋) | SCOPED / N/A | R1 |
 | Division / modulo with defined zero semantics | SCOPED / N/A | R1 |
 | Effect kinds beyond snapshot files (clock, RNG, network, live filesystem) — each arrives as a recorded/planned capability through the same mint, or not at all | SPECULATIVE / N/A | — |
+| Dipole/Hale involution falsifier (ℤ₂ double cover; C₂ sibling of the rhombohedral C₃ rung) — user-directed conversion, designed in `spec/R4-dipole_quantum_ratchet.md` (form precedes code). Clifford-level, **zero magic**: anchors the *contrast* to Cao et al. (arXiv:2403.07056, PRX Quantum 2025), never a non-Clifford/magic simulation. Claims nothing about the sun. Breach reuses `URDR-ASSERT`; no new code, no new glyph | SCOPED / N/A | R1-family |
+| Non-Clifford / magic (T-gate, nonstabilizerness) fragment — would require complex amplitudes outside the integer stdlib core | SPECULATIVE / N/A | — |
 | Actor glyph assignment (weave stays ASCII until semantics prove stable) | SCOPED / N/A | R3 review |
 | WHAT/WHERE placement split, *līmes* boundaries, differential oracle, ☉ reference marker | SCOPED / N/A | R3 |
 | Non-Python placements (bytecode VM, Rust) admitted by the same oracle | SPECULATIVE / N/A | R6 |
