@@ -10,3 +10,4 @@ rhombo_wrong.urdr run URDR-ASSERT
 cap_ungranted.urdr run URDR-CAP
 use_unvendored.urdr check URDR-MODULE
 module_wrong_pin.urdr check URDR-PIN
+centering_wrong.urdr run URDR-ASSERT

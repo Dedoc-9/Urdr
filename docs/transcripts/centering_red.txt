@@ -1,0 +1,15 @@
+Centering / quotient invariant (D1 §18) — RED-FIRST record, 2026-07-06, Linux
+build sandbox (clean clone of HEAD 5050970), Python 3.10.12, PYTHONHASHSEED=0,
+PYTHONUTF8=1.
+
+Red-capability shown before pinning the seal green: the wrong-projection program
+was run first and correctly died —
+
+  examples/rejected/centering_wrong.urdr  (claims M^2 = M):
+    ERROR URDR-ASSERT @11:1  ≟ breach: [5, -45, 30, -45, 55] ≠ [1, -9, 6, -9, 11]
+    exit 2
+
+That is the seal biting: over ℤ the centering operator M = nI−J satisfies
+M^2 = nM (n=5), so M(Mx) = 5·Mx = [5,-45,30,-45,55], not Mx = [1,-9,6,-9,11].
+A seal whose wrong sibling could not die would prove nothing (LESSONS L5).
+Green record: centering_green.txt.

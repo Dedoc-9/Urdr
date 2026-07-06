@@ -1,0 +1,34 @@
+# Centering / quotient invariant over Z (D1 s18) -- a user-directed conversion.
+# EXACT integer linear algebra: the centering operator M = nI - J acts as
+# (Mx)_i = n*x_i - sum(x); its scaled companion is J (all-ones). What the gate
+# SEALS are the algebraic facts below. The neijuan / gauge reading (reward is
+# gauge-invariant, cost is not; Sym(U) > Sym(C)) is recorded in docs as design
+# provenance ONLY -- never a consequence of this green test. signum != res.
+n := 5
+x := [3, 1, 4, 1, 5]
+idx := range(n)
+sumv := \fn v |-> \fo(v, 0, \fn a e |-> a + e)
+dot := \fn u v |-> \fo(idx, 0, \fn a i |-> a + nth(u, i) * nth(v, i))
+scale := \fn k v |-> \fo(idx, [], \fn a i |-> push(a, k * nth(v, i)))
+addv := \fn u v |-> \fo(idx, [], \fn a i |-> push(a, nth(u, i) + nth(v, i)))
+mcenter := \fn v |-> \fo(idx, [], \fn a i |-> push(a, n * nth(v, i) - sumv(v)))
+ones := \fo(idx, [], \fn a i |-> push(a, 1))
+zeros := \fo(idx, [], \fn a i |-> push(a, 0))
+s := sumv(x)
+mx := mcenter(x)
+jx := scale(s, ones)
+# 1: scaled orthogonal decomposition  n*x = Mx + Jx
+r1 := =?(scale(n, x), addv(mx, jx))
+# 2: the two components are orthogonal  <Mx, Jx> = 0
+r2 := =?(dot(mx, jx), 0)
+# 3: exact Pythagoras  |Mx|^2 + |Jx|^2 = n^2 |x|^2
+r3 := =?(dot(mx, mx) + dot(jx, jx), n * n * dot(x, x))
+# 4: the all-ones vector is in ker M  (the gauge direction)
+r4 := =?(mcenter(ones), zeros)
+# 5: contrasts are mean-zero  sum(Mx) = 0
+r5 := =?(sumv(mx), 0)
+# 6: idempotent-up-to-scale  M^2 x = n M x
+r6 := =?(mcenter(mx), scale(n, mx))
+tally := len([r1, r2, r3, r4, r5, r6])
+claim := \an <| IMPLEMENTED , DECLARED |> tally
+\ve(\fn v |-> v = 6, claim)

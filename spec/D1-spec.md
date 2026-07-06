@@ -544,3 +544,51 @@ strengthening (D5).
   (`URDR-PIN`), `examples/rejected/use_unvendored.urdr` (`URDR-MODULE`),
   `tests/test_modules.py`, and the gate's `modules` stage (lockfile ≡ vendor, plus a
   mis-pin self-test that must redden).
+
+
+## 18. Centering / quotient invariant over ℤ (R5.x) — a user-directed conversion, recorded
+
+Like §12b, this arrived as a request to ground an "esoteric pivot" in mathematics. It
+passed through the honest converter with the collaborators' choice recorded — and, unlike
+the √2 / oloid material it grew out of (transcendental, and refuted by direct computation:
+max curvature was 3π/2 ≈ 4.712, not the claimed √2), it reduces to **exact integer linear
+algebra**, so it can be sealed by evaluation rather than merely asserted.
+
+**The algebra that is sealed (it stands on its own).** For x ∈ ℤⁿ the centering operator is
+M = nI − J (J the all-ones matrix), acting as (Mx)ᵢ = n·xᵢ − Σx; its scaled companion J
+acts as (Jx)ᵢ = Σx. `examples/centering_quotient.urdr` verifies six relations by evaluation
+and seals the count at the mint (⊢ 6):
+
+1. scaled orthogonal decomposition  n·x = Mx + Jx;
+2. orthogonality  ⟨Mx, Jx⟩ = 0;
+3. exact Pythagoras  |Mx|² + |Jx|² = n²·|x|²;
+4. the all-ones vector is in the kernel:  M·1 = 0;
+5. contrasts are mean-zero:  Σ(Mx) = 0;
+6. idempotent up to scale:  M²x = n·Mx.
+
+Every one is an integer identity — no division, no floats. Non-vacuity:
+`examples/rejected/centering_wrong.urdr` claims M is a *true* projection over ℤ (M² = M)
+and **must die** with `URDR-ASSERT` — over ℤ the operator satisfies M² = nM, so
+M(Mx) = n·Mx ≠ Mx. The true projection is P = M/n (P² = P over ℚ); the gate stays in ℤ and
+seals the *scaled* facts, so the honest name of the sealed relation is M² = nM, never
+P² = P (`signum ≠ rēs` — the certified relation is the integer one, not the rational one it
+evokes). Falsifiers: `tests/test_centering.py` (6).
+
+**Interpretation (design provenance only — certified by no test).** The economically
+meaningful part of an effort vector is the contrasts Px = Mx/n; the common mode
+span{1} = ker M is invisible to a positional reward U (which factors through the quotient
+ℝⁿ/span{1}) but not to a cost C computed in the ambient ℝⁿ. The sharpest form of the
+discussed *neijuan / 内卷* reading is a **mismatch of symmetries**, Sym(U) ⊋ Sym(C): the
+reward is gauge-invariant under x ↦ x + α·1, the cost is not, so equilibrium is driven up
+ker M — motion the reward cannot distinguish yet the cost still charges (the deadweight of
+"everyone moves, nothing changes"). An observable-fraction invariant L = |Πx| / |x| (Π any
+projector onto the observable subspace) measures the share of effort surviving the
+quotient. **None of this is asserted by a green test.** The algebraic facts above stand on
+their own; this reading is built on top of them, never derived from them, and as an
+empirical/social claim it is `SPECULATIVE / N/A`.
+
+**Design influence (lineage, not authority).** The gauge-invariance framing, the
+identification of M as the statistician's *centering matrix* (demeaning / within-transform;
+the quotient as the space of *contrasts*), and the Sym(U) ⊋ Sym(C) compression arose in
+collaborative discussion during R5. Recorded as lineage; `cited ≠ implemented` — the
+enforcement is `tests/test_centering.py`, not this paragraph.

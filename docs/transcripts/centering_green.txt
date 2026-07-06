@@ -1,0 +1,29 @@
+Centering / quotient invariant over ℤ (D1 §18) — GREEN record, 2026-07-06,
+Linux build sandbox (clean clone of HEAD 5050970 + this falsifier), Python
+3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1. Red-first: centering_red.txt.
+
+GREEN: 125 unit falsifiers OK; full gate PASSED ×2, tables byte-identical.
+
+New permanent gate rows:
+  [PASS] example:centering_quotient.urdr    a07cd8763b981a6b…
+  [PASS] oracle:centering_quotient.urdr     compiled ≡ ☉ a07cd8763b98…
+  [PASS] oracle-defect-selftest             defect rejected on 9 example(s)
+                                            (was 8: the seal contains + and *)
+  [PASS] reject:centering_wrong.urdr        refused with URDR-ASSERT
+
+What is sealed (exact integer algebra; D1 §18): M = nI−J acting as
+(Mx)_i = n·x_i − Σx, six relations verified by evaluation and sealed ⊢ 6 —
+n·x = Mx + Jx; ⟨Mx,Jx⟩ = 0; |Mx|²+|Jx|² = n²|x|²; M·1 = 0; Σ(Mx) = 0;
+M²x = n·Mx. No new primitive, no new glyph — folds, nth, push, wrap
+arithmetic, ≟, and the ᛞ mint already in the language. Placements agree
+(compiled ≡ ☉).
+
+Separation held (per the collaborators' own instruction): the gate certifies the
+ALGEBRA only. The neijuan / gauge / Sym(U)⊋Sym(C) reading is recorded in D1 §18
+strictly as design provenance — asserted by no test, graded SPECULATIVE/N/A as a
+social claim. The algebraic facts stand alone; the interpretation is built on top
+of them, never derived from them. signum ≠ rēs.
+
+Determinism: seal digest a07cd876… identical across two subprocess runs and
+across reference/compiled placements on this host. Cross-host claim waits for the
+Windows leg (two named hosts, not "any host").
