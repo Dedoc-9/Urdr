@@ -1,0 +1,43 @@
+Evidence transitions + transition_witness (D1 s19) -- RED-FIRST / GREEN record,
+2026-07-06, Linux build sandbox (clean clone of HEAD 5050970 + this work),
+Python 3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1.
+
+The pipeline as a NATIVE source of evidence, not an external score. An action
+earns a claim only by a recorded state transition a verifier can inspect.
+Nothing here mints Grounded except the existing verify primitive (the singular
+mint). Two pieces landed, each red-first:
+
+1) Evidence-transition law (integer, no floats):
+   RED  : examples/rejected/evidence_unpurchased.urdr wanted URDR-ASSERT but the
+          example/reject/tests were written before the pattern was pinned.
+   GREEN: examples/evidence_transition.urdr (>=1 bit iff 2|kept|<=|before|)
+          seals bc223a4e...; evidence_unpurchased.urdr dies URDR-ASSERT.
+          tests/test_evidence.py: 6 falsifiers, incl. zero-delta -> Conflict
+          (the mint DECLINES, never Grounded) and measuring-the-unbuilt ->
+          URDR-VERIFY-UNLICENSED.
+
+2) transition_witness -- the FIRST library function (ASCII by the glyph budget):
+   RED  : ERROR URDR-NAME unbound 'transition_witness' (primitive absent).
+   GREEN: examples/transition_witness.urdr seals bc223a4e...; it is the dual of
+          =? (asserts a real transition, returns a witness store {from,to}); it
+          NEVER mints Grounded; a zero-delta transition is refused
+          URDR-DELTA-UNEARNED (examples/rejected/transition_unearned.urdr).
+          tests/test_transition.py: 6 falsifiers.
+   Non-vacuity: removing the zero-delta guard live -> reject ACCEPTED -> GATE
+   FAILED; reverted -> GATE PASSED. The red state is real.
+
+Full gate: 137 unit falsifiers, GATE PASSED x2, tables byte-identical.
+
+Glyph status: DEFERRED. Per the collaborators' own process, a glyph is the final
+artifact of a proof trail, not its start: transition_witness earns one only at a
+later review that confirms settled semantics, irreducibility to existing
+primitives (it cannot be reduced: no source can raise URDR-DELTA-UNEARNED, and
+=? has no difference-asserting dual), and that a glyph would compress an
+already-proven operation rather than invent meaning. Until then the ASCII
+spelling is the truth. signum != res.
+
+Boundary: the integer criterion (2|kept|<=|before|, uniform-prior >=1 bit) is
+what the gate seals. Shannon bits for arbitrary priors are the float voi_gate
+tool's job -- provenance, not a core seal. voi_gate.attempted_claim() PROPOSES a
+grade; it never mints one. A green gate certifies these tests on this code --
+never that a name means what it says.

@@ -1,0 +1,18 @@
+# Evidence transition (D1 s19) -- the pipeline as a NATIVE source of evidence.
+# An action purchases evidence iff a verifier observes a real reduction in the
+# live-hypothesis set. The pipeline only PROPOSES an attempted claim; the verify
+# primitive alone mints Grounded (the singular mint, D1 s14b). Integer criterion,
+# no floats: the observation bought >= 1 bit iff it at least HALVED the candidate
+# set (2*|kept| <= |before|). Shannon bits for arbitrary priors are the float
+# voi_gate's job -- provenance, not sealed here; uniform-prior reading only.
+# signum != res.
+before := [1, 2, 3, 4]
+# observation O: "the value is >= 3" filters the candidate set (4 -> 2 = 1 bit)
+observe := \fn xs |-> \fo(xs, [], \fn acc e |-> ?(e >= 3, push(acc, e), acc))
+kept := observe(before)
+# evidence purchased (>= 1 bit) iff the live set at least halved
+purchased := ?(2 * len(kept) <= len(before), 1, 0)
+# hand the mint an attempted claim; a passing verifier on a BUILT claim is the
+# only legal path to Grounded. A falsy verifier would yield a conflict, never it.
+claim := \an <| IMPLEMENTED , DECLARED |> purchased
+\ve(\fn v |-> v = 1, claim)

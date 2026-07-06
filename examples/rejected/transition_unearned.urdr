@@ -1,0 +1,6 @@
+# MUST FAIL AT RUN: constructing a transition witness with ZERO delta -- the
+# state did not move, so no evidence was purchased: URDR-DELTA-UNEARNED. This is
+# the falsifier that keeps the symbol honest -- a witness without a real
+# transition is refused (a symbol without a red state is decoration, LESSONS L5).
+s := \st{live: [1, 2, 3, 4]}
+transition_witness(s, s)

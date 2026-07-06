@@ -310,7 +310,7 @@ misused authority — an ungranted capability requested, authority of the wrong 
 used, a malformed/duplicate grant, or an ambiguous effect batch at the līmes) ·
 `URDR-PIN` (R5: vendored bytes do not hash to their declared digest — a wrong
 pin is refused, not resolved) · `URDR-MODULE` (R5: an unvendored, unpinned, or
-malformed module resolution; also a `use` with no vendor root).
+malformed module resolution; also a `use` with no vendor root) · `URDR-DELTA-UNEARNED` (§19: `transition_witness` on a zero-delta transition — the state did not move, so no evidence was purchased).
 
 ## 10. Metatheory obligations (declared now, discharged by grade)
 
@@ -592,3 +592,72 @@ identification of M as the statistician's *centering matrix* (demeaning / within
 the quotient as the space of *contrasts*), and the Sym(U) ⊋ Sym(C) compression arose in
 collaborative discussion during R5. Recorded as lineage; `cited ≠ implemented` — the
 enforcement is `tests/test_centering.py`, not this paragraph.
+
+
+## 19. Evidence transitions (the pipeline as a native source of evidence)
+
+A companion discipline to the epistemic ladder, arrived at in collaborative
+design: an *action* earns a knowledge claim only by recording a **state
+transition** that a verifier can inspect. The pipeline does not ask "is this
+good?"; it asks **"what evidence transition did this action purchase?"**. This
+extends the core law `claim ≤ evidence` to `claim-transition ≤ measured-delta`,
+enforced by the mint that already exists — nothing here mints `Grounded` except
+ᛞ (D1 §14b, the singular mint).
+
+**The law.** No new knowledge claim without a recorded state transition. An
+observation that leaves the live-hypothesis set unchanged purchased **zero
+bits** and cannot be graded. Falsifier: `examples/evidence_transition.urdr`
+(⊢ 1 — an observation that at least *halved* a candidate set, i.e. bought ≥ 1
+bit, sealed at the mint) and `examples/rejected/evidence_unpurchased.urdr`
+(an observation that filters nothing dies `URDR-ASSERT`). The integer criterion
+sealed is `2·|kept| ≤ |before|` (≥ 1 bit, uniform-prior reading) — **no floats,
+no log**. Shannon bits for arbitrary priors are the *float* `voi_gate` tool's
+job (`tools/voi_gate/`): provenance, not a core seal (`signum ≠ rēs`).
+
+**`transition_witness` — the first library function (ASCII, glyph deferred).**
+`transition_witness(before, after)` is the **dual of ≟**: where ≟ asserts
+*sameness* and returns the value, `transition_witness` asserts a *real
+difference* and packages its endpoints as a first-class witness store
+`ᚠ{from: ᛝ(before), to: ᛝ(after)}`. Two binding laws, each with a falsifier
+(`tests/test_transition.py`):
+
+1. **It never mints `Grounded`.** It returns a witness (a store); ᛞ alone
+   adjudicates any claim about that witness. The pipeline *proposes*; the mint
+   *decides*.
+2. **A zero-delta transition is refused** (`URDR-DELTA-UNEARNED`): if
+   `ᛝ(before) = ᛝ(after)` the state did not move, so no evidence was purchased.
+   A symbol without a red state is decoration (LESSONS L5);
+   `examples/rejected/transition_unearned.urdr` is that red state, and the guard
+   was verified to bite (a defect that removes it reddens the gate).
+
+By the glyph budget (design law 5) the function is **ASCII now**. A glyph is the
+*final artifact of a proof trail*, not its start: `transition_witness` earns one
+only at a later review that shows the name and behaviour have stabilised, that it
+cannot be reduced to existing primitives (it cannot — no source can raise
+`URDR-DELTA-UNEARNED`, and ≟ has no difference-asserting dual), and that a glyph
+would merely compress an already-proven operation rather than invent meaning —
+the same review path the provenance operator walked before becoming ᛃ. Until
+then the ASCII spelling is the truth and the glyph is a hypothesis.
+
+**The Urðr ↔ pipeline mapping (recorded, not asserted).** `DECLARED` = "this
+check *should* reduce uncertainty"; `MEASURED` = a verifier *observed* the
+reduction; `Grounded` = ᛞ *accepted* the evidence path; a `Digest` is exact
+artifact identity; a capability is permission to create observations; the
+membrane preserves the state history; `↩` replays the exact prior state
+(*returning is not knowing* — `↩` proves identity, never semantic correctness,
+so ancestry-verification is the existing one-line idiom
+`≟(ᛝ(↩(☿(A,'k,v))), ᛝ(A))`, not a new primitive). The pipeline is therefore not
+a new *metric* bolted onto Urðr; it is a new *source of evidence* adjudicated by
+the existing mint.
+
+**R6, expressed this way.** The Rust backend problem becomes an evidence
+transition with no benchmark and no trust: `CLAIM: Rust backend preserves
+evaluator semantics; OBSERVATION: Rust digest = Python reference digest over
+corpus C; VERIFIER: the differential oracle`. Same input + same digest ⇒
+admitted equivalence under the stated verifier — exactly what the R3b oracle
+already does; §19 only names the pattern the oracle embodies.
+
+**Design influence (lineage, not authority).** The "evidence transition" and
+"attempted claim vs. adjudicated grade" framing, and the glyph-as-final-artifact
+process, arose in collaborative design. Recorded as lineage; `cited ≠
+implemented` — the enforcement is the falsifiers above, not this prose.

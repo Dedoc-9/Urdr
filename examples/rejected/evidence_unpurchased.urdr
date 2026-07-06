@@ -1,0 +1,9 @@
+# MUST FAIL AT RUN: an action that purchases NO evidence cannot be graded. The
+# observation "value >= 0" filters nothing -- the live set is unchanged, zero
+# bits -- so the MEASURED transition dies. "reject actions without measurable
+# information gain" IS the claim <= evidence law (D1 s19).
+before := [1, 2, 3, 4]
+observe := \fn xs |-> \fo(xs, [], \fn acc e |-> ?(e >= 0, push(acc, e), acc))
+kept := observe(before)
+purchased := ?(2 * len(kept) <= len(before), 1, 0)
+=?(purchased, 1)

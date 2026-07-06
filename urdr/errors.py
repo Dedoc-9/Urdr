@@ -20,11 +20,12 @@ LIMES = "URDR-LIMES"  # R2c: a fail-closed process-boundary refusal
 CAP = "URDR-CAP"  # R4: ungranted or misused authority — nothing is ambient
 PIN = "URDR-PIN"  # R5: vendored bytes do not hash to their declared digest
 MODULE = "URDR-MODULE"  # R5: unvendored/unpinned/malformed module resolution
+DELTA_UNEARNED = "URDR-DELTA-UNEARNED"  # transition_witness: zero-delta (no state move)
 
 ALL_CODES = (
     LEX_UNKNOWN, LEX_CONFUSABLE, PARSE, REBIND, INFLATE_STATIC,
     EVIDENCE_UNEARNED, VERIFY_UNLICENSED, NAME, TYPE_RUN, ASSERT,
-    FUEL, ANAMNESIS_ROOT, INFLATE_DYN, LIMES, CAP, PIN, MODULE,
+    FUEL, ANAMNESIS_ROOT, INFLATE_DYN, LIMES, CAP, PIN, MODULE, DELTA_UNEARNED,
 )
 
 

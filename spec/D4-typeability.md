@@ -36,7 +36,7 @@ renderable`: the suite passes on a machine that cannot display a single rune.
 | ⊢ | U+22A2 | ENTAILS | `\|-` | output-only witness display |
 
 Prelude names (plain ASCII identifiers, part of the surface): `value maturity evidence
-grounded conflicted range len push cat nth weave cap recorded plan` (the R4 trio is
+grounded conflicted range len push cat nth weave cap recorded plan transition_witness` (the R4 trio is
 ASCII by the glyph-budget law: capability notation earns a glyph at a later review or
 not at all — the `weave` precedent). Runner-provided inputs: `loaded` (only with
 `--load-store`) and `caps` (always bound in `run`; empty when nothing is granted). R5 import surface (ASCII by the glyph budget): the reserved words `use` and `as`, and a digest literal `@<64 lowercase hex>` (a SHA-256), as in `use @<digest> as name`. Verbose profile reserved words (R3a; third spelling of the

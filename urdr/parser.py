@@ -16,7 +16,7 @@ from .values import MATURITIES, EVIDENCES
 
 PRELUDE_NAMES = ("value", "maturity", "evidence", "grounded", "conflicted",
                  "range", "len", "push", "cat", "nth", "weave",
-                 "cap", "recorded", "plan")
+                 "cap", "recorded", "plan", "transition_witness")
 
 CMP_OPS = ("EQ", "NE", "LT", "LE", "GT", "GE")
 BIN_OPS = ("PLUS", "MINUS", "STAR") + CMP_OPS

@@ -16,8 +16,8 @@ from . import canon as C
 from . import check as CHK
 from . import parser as P
 from . import values as V
-from .errors import (UrdrError, ASSERT, ANAMNESIS_ROOT, CAP, FUEL, MODULE,
-                     NAME, REBIND, TYPE_RUN, VERIFY_UNLICENSED)
+from .errors import (UrdrError, ASSERT, ANAMNESIS_ROOT, CAP, DELTA_UNEARNED,
+                     FUEL, MODULE, NAME, REBIND, TYPE_RUN, VERIFY_UNLICENSED)
 
 DEFAULT_FUEL = 1_000_000
 
@@ -212,6 +212,20 @@ def call_builtin(rt, fn, args, line, col):
                             "effect-plans, executed only at the līmes",
                             line, col)
         return V.EffectPlan(c.name, v)
+    if fn.name == "transition_witness":
+        # The dual of ≟: assert a REAL state transition and package its
+        # endpoints as a first-class witness. It does NOT mint Grounded (only ᛞ
+        # does); a zero-delta transition purchased no evidence and is refused.
+        before, after = args
+        d_from = C.digest(before)
+        d_to = C.digest(after)
+        if d_from == d_to:
+            raise UrdrError(DELTA_UNEARNED,
+                            "no evidence transition: the state did not move "
+                            "(zero delta); a witness requires a real transition",
+                            line, col)
+        return V.Store({"from": V.DigestV(d_from), "to": V.DigestV(d_to)},
+                       parent=None)
     return fn.fn(args, line, col)
 
 
@@ -259,6 +273,7 @@ def prelude() -> dict:
         "cap": V.Builtin("cap", 2, None),        # R4: kernel-dispatched
         "recorded": V.Builtin("recorded", 1, None),
         "plan": V.Builtin("plan", 2, None),
+        "transition_witness": V.Builtin("transition_witness", 2, None),
     }
 
 

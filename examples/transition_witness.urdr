@@ -1,0 +1,15 @@
+# transition_witness (D1 s19) -- the first library function earned under the
+# glyph budget: ASCII now; a glyph only if a later review proves it compresses
+# an already-proven operation (design law 5). It witnesses that a state actually
+# MOVED (a nonzero evidence transition); it does NOT mint Grounded -- the verify
+# primitive alone does that. A zero-delta transition is refused URDR-DELTA-UNEARNED.
+# Law: no knowledge claim without a recorded state transition. It is the dual of
+# =? (which asserts sameness): this asserts a real difference and packages it.
+before := \st{live: [1, 2, 3, 4]}
+kept := \st{live: [3, 4]}                   # an observation narrowed the live set
+w := transition_witness(before, kept)       # witness store {from, to}; nonzero delta
+# the witness records the endpoints; the verify primitive adjudicates the CLAIM
+# that a real transition occurred (the endpoints differ, as they must)
+real := ?(\vw(w, 'from) != \vw(w, 'to), 1, 0)
+claim := \an <| IMPLEMENTED , DECLARED |> real
+\ve(\fn v |-> v = 1, claim)
