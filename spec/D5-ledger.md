@@ -139,6 +139,17 @@ is a termination claim Urðr does not make; **zero-copy identity** — identity 
 canonical bytes, not memory layout (design law 3), so it is a law violation, not a
 gap. Rust improves the *substrate*, not the *semantics* — it stays a placement (R6a).
 
+**I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
+five paths — delegation, lifetime, effect composition, observation provenance,
+conservation — and every one collapses into an existing refusal or a design law
+(runs recorded): read-cap→write and ungranted → `URDR-CAP`; persist-a-cap →
+`URDR-LIMES` (no stale cap can exist); two-plans-one-target → `URDR-CAP`, distinct
+targets sorted (the outbox IS the effect algebra); read-42 ≡ computed-42 by content
+addressing (law 3 — origin lives in the program's inputs, R4, not the value). Authority
+transformation (delegation / attenuation / revocation) is the interesting *dimension*
+but is **contentless** in Urðr's model (caps are unforgeable, non-delegable,
+non-persistable) — CLOSED/DEFERRED, not a glyph. No new I/O gap.
+
 **Stable-core note.** After this pass, **no OPEN candidate remains**: every proposed
 expansion is CLOSED (already-present, substrate-only, or law-violating) or DEFERRED
 (no pressure / no current content). That is itself a milestone — the core has reached
