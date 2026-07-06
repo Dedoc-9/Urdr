@@ -1,0 +1,42 @@
+Glyph-law audit (D1 §20 enforceability pass) — 2026-07-06, v0.7.1.
+Purpose: not to add glyphs, but to make the glyph budget ENFORCEABLE — every
+glyph in the alphabet must carry provenance, an ASCII digraph, assigned
+semantics, a falsifier that exercises it, and an alphabet-level confusable /
+exclusion review. Method: for each glyph, confirm D1 §2 / D4 documentation and
+grep the falsifier corpus (examples/ + tests/) for any of its three spellings
+(glyph / digraph / verbose word).
+
+glyph  operation            prov  ascii  semantics  falsifier
+𒀭      annotation           yes   \an    yes        yes (26 files)
+ᛞ      verify (the mint)    yes   \ve    yes        yes (24)
+↯      conflict             yes   \cf    yes        yes (3)
+⊢      witness display      yes   \|-    yes        yes (2, output-only)
+⟨ ⟩    tag brackets         yes   <| |>  yes        yes (11)
+ᚠ      store                yes   \st    yes        yes (20)
+☽      view                 yes   \vw    yes        yes (13)
+☿      edit                 yes   \ed    yes        yes (12)
+↩      anamnesis            yes   \am    yes        yes (7)
+ᛝ      digest               yes   \di    yes        yes (26)
+ᛃ      provenance walk      yes   \pv    yes        yes (6)
+≔      bind                 yes   :=     yes        yes (40)
+λ      lambda               yes   \fn    yes        yes (31)
+↦      maps-to              yes   |->    yes        yes (32)
+∘      compose              yes   \o     yes        yes (7)
+ᛚ      flow                 yes   \fl    yes        yes (5)
+Σ      fold                 yes   \fo    yes        yes (17)
+≟      assertion gate       yes   =?     yes        yes (24)
+≠      inequality           yes   !=     yes        yes (13)
+≤      le                   yes   <=     yes        yes (4)
+≥      ge                   yes   >=     yes        yes (4)
+⟿      transition_witness   yes   \tw    yes        yes (4)  [earned by review, §20]
+
+Confusable / exclusion review: alphabet-level — the CONFUSABLES table names every
+lookalike (Greek/Cyrillic/fullwidth/hygiene-excluded runes/invisibles) and
+examples/rejected/confusable.urdr proves the lexer refuses one (URDR-LEX-CONFUSABLE);
+the §2.6 hate-appropriation exclusions (ᛋ ᛟ ᛉ ᛏ) are enforced by their absence.
+
+RESULT: 0 gaps. Every glyph is earned AND exercised. The budget is enforceable:
+a glyph that lacked a falsifier would be visible here as a NO, and adding a glyph
+without one would show up on the next audit. Reserved/deferred signs (☉, 𒁹, 𒌋)
+are intentionally NOT in the grammar and each must pass a glyph review before it
+enters (D1 §20).

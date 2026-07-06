@@ -709,3 +709,81 @@ glyph is an accepted input spelling, and canonicalization can follow at leisure.
 (freeze → non-redundancy → operation-shape choice → lossless alias → review with
 a red state) arose in collaborative design; recorded as lineage, `cited ≠
 implemented` — the enforcement is `tools/glyph_review.py`, not this prose.
+
+
+## 21. Idioms, non-features, and the gap-ledger discipline
+
+Not every unifying pattern earns a primitive. A pattern already expressible from
+existing primitives is an **idiom** — recorded here, not made a feature.
+**A unifying pattern is not automatically a language feature.** In fact the more
+a proposed operation appears to "sit underneath" everything, the more likely it
+is already the atom you have.
+
+### 21a. The invariant-preservation idiom — `IMPLEMENTED / N/A`
+
+"Change under conservation" — `preserve(transform, invariant)` — is **not a
+primitive**. It is three lines of existing surface:
+
+```
+y ≔ transform(x)
+≟( I(x), I(y) )      # dies URDR-ASSERT if the invariant broke
+y
+```
+
+The mechanism exists (the assertion gate `≟` composed with any transform); the
+abstraction does not, and `URDR-INVARIANT-BROKEN` would merely rename
+`URDR-ASSERT`. Its canonical instances are already gated:
+
+- compiled placement ⇒ ☉ tree-walk placement, **digest** invariant — the
+  differential oracle (§14b);
+- snapshot round-trip, **digest** invariant — the persistence līmes (§13b);
+- lens laws (put-get / get-put / anamnesis), **state** invariant (§8).
+
+Grade `IMPLEMENTED / N/A`: the capability is present and tested; the *preserve*
+abstraction is not a primitive and earns neither a glyph nor a prelude function.
+The one direction that would make it non-redundant — structurally **sealing the
+invariant from the transform** (a neutral-ruler discipline, so a transform cannot
+optimize against the check that judges it) — is a *scoping rule*, not a new
+primitive.
+
+### 21b. The gap-ledger discipline (Structure → Constraint → Gap → candidate)
+
+A primitive is discovered by pressure, not invented by ambition. The hunting
+question is **"Where does Urðr require a human to remember a law the language
+could mechanically enforce?"** A glyph should be the visible trace of a *missing
+constraint*, never a concept imported from outside. The path each proposal walks:
+
+1. **Representation** — can the structure be expressed? (else: missing data model)
+2. **Transformation** — can it change into another form? (else: missing operation)
+3. **Invariant** — what must remain true across the change? (else: unconstrained)
+4. **Evidence** — can the invariant be verified? (else: missing verifier)
+5. **Composition** — does the same proof pattern recur?
+6. **Compression** — can existing primitives express it? *yes ⇒ idiom; no ⇒
+   candidate prelude function.*
+7. **Pressure** — does it recur in real programs? *yes ⇒ glyph-review candidate.*
+
+The dimension matrix — each row a degree of freedom the system has; the "gap" is
+the operation that would constrain it:
+
+| Dimension | Question | Where Urðr answers it (or the gap) |
+|---|---|---|
+| Identity | What makes this the same thing? | digest / grant — closed |
+| State | What changed? | `transition_witness` — closed (§19) |
+| Authority | What is allowed to change? | **attenuation — candidate (D5 gap ledger)** |
+| Representation | What forms are equivalent? | `canon` / α-normalization — absorbed |
+| Location | Where may an operation occur? | placement / differential oracle — closed (§14b) |
+| Time | What order is admissible? | `weave` canonical order — closed (§13) |
+| Observation | What reduced uncertainty? | evidence transition — closed (§19) |
+| Composition | How do parts preserve laws? | the invariant-preservation idiom (§21a) |
+
+Worked example — **Capability**: identity (grant / digest) ✓, transformation
+(limited), invariant (permission subset), verifier (`URDR-CAP`), repeated missing
+operation ⇒ **attenuation candidate**. Worked example — **Compiler**:
+`Source → Compiled`, invariant = digest equivalence, verified by the differential
+oracle ⇒ **already closed**. The output of this path is a *gap ledger* (D5), not
+new glyph ideas; candidates emerge only from repeated pressure.
+
+**Design influence (lineage).** The gap-ledger discipline and its dimension
+matrix arose in collaborative design; recorded as lineage — `cited ≠
+implemented`. The enforcement is the ledger and the glyph audit
+(`docs/transcripts/glyph_audit.txt`), not this prose.

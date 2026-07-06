@@ -43,7 +43,7 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Evidence transition law (D1 §19): an action earns a claim only by a recorded state transition; an observation buying ≥1 bit (`2·|kept|≤|before|`, integer, uniform-prior) can be ᛞ-sealed, zero-gain dies. Extends `claim≤evidence` to `claim-transition≤measured-delta`. Float ΔH bits = voi_gate provenance, not sealed | IMPLEMENTED | MEASURED | `examples/evidence_transition.urdr` (⊢1), `examples/rejected/evidence_unpurchased.urdr` (URDR-ASSERT), `tests/test_evidence.py` (6 falsifiers incl. zero-delta→Conflict, unbuilt→URDR-VERIFY-UNLICENSED) |
 | `transition_witness` (D1 §19) — FIRST library function, ASCII by the glyph budget: dual of ≟ (asserts a real transition, returns witness store `{from,to}`); NEVER mints Grounded (ᛞ alone does); zero-delta refused `URDR-DELTA-UNEARNED`. Glyph deferred to a later review (final artifact of the proof trail, not the start) | IMPLEMENTED | MEASURED | `examples/transition_witness.urdr` (⊢1), `examples/rejected/transition_unearned.urdr` (URDR-DELTA-UNEARNED), `tests/test_transition.py` (6 falsifiers; guard-removal defect caught then reverted) |
 | Glyph review (D1 §20): a falsifiable promotion event — a glyph is earned as a LOSSLESS alias of a proven operation, never declared; the review can reject (`URDR-GLYPH-NOT-EARNED`). First glyph earned: `⟿` (U+27FF, `\tw`) for `transition_witness` — three spellings, one digest; confusables/core-collision/non-lossless/missing-provenance all refused | IMPLEMENTED | MEASURED | `tools/glyph_review.py`, `tests/test_glyph_review.py` (6 falsifiers incl. lossless three-spelling proof + four rejection modes) |
-| Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: all four example digests bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), 2026-07-06. Two named hosts, not "any host" |
+| Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: all 13 example digests bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), through v0.7.1 (143-falsifier gate green on both). Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
 | Fuel-bounded evaluation, deterministic URDR-FUEL | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
 | Gate red-capability (tamper fixture must fail; red-first transcript kept) | IMPLEMENTED | MEASURED | `verify.py` tamper stage; `docs/transcripts/red.txt` |
@@ -89,3 +89,21 @@ files at the līmes; live or ambient I/O does not exist, and the evaluator perfo
 at any time. A recorded input is digest-verified, never authenticated (digest ≠ MAC
 applies to fixtures too). Performance: no figures published; any future figure will name
 its host (`benchmark ≠ universal`).
+
+
+## Gap ledger (pressure candidates — not promises)
+
+A candidate is a *question the language cannot yet answer from existing
+primitives*, recorded so the next primitive is **discovered by pressure, not
+invented** (D1 §21b). A candidate has no syntax, no glyph, and no test until a
+real program forces it; `observed_pressure` counts programs that actually needed
+it. A count of 0 means: not yet earned — not even as a function.
+
+| Candidate | Status | Question | Desired law | Falsifier | Promotion condition | observed_pressure |
+|---|---|---|---|---|---|---|
+| capability_attenuation | SPECULATIVE / N/A | Can a source program derive a *strictly weaker* capability? | Perm(child) ⊆ Perm(parent) | `URDR-CAP-ESCAPE` | a real program needs authority narrowing **and** composition through existing primitives (cap/recorded/plan) is insufficient | 0 |
+
+Closed by existing mechanism (recorded so they are not re-proposed): invariant
+preservation (= `≟` on an invariant, D1 §21a); canonicalization (absorbed in
+`canon`/`ᛝ`); evidence transition (§19); placement equivalence (differential
+oracle, §14b); order admissibility (`weave`, §13).
