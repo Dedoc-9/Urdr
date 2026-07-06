@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# An immutable audit trail for a profile update: the membrane (☽/☿), the mint
+# (ᛞ), and the transition witness (⟿). Deterministic, integer-only, offline.
+# This is a demonstration EXAMPLE, graded by the gate like any other -- its
+# receipt is the golden digest in user_pipeline.digest and nothing more:
+# digest != MAC, so the store is content-addressed, not "secure".
+
+# 1. genesis store -- store-literal keys are bare identifiers (ᚠ / \st)
+init ≔ \st{user_id: 1575, balance: 100, clearance: 0}
+
+# 2. content address of the initial state (ᛝ / \di)
+init_digest ≔ \di(init)
+
+# 3. edit lens: a NEW parent-linked store with balance + 50. The view/edit KEYS
+#    are symbols (☽ / \vw, ☿ / \ed); the old store is untouched (membrane law).
+mutated ≔ ☿(init, 'balance, ☽(init, 'balance) + 50)
+final_digest ≔ \di(mutated)
+
+# 4. structural invariant: the state actually moved (≠, then the assertion gate ≟)
+≟(init_digest ≠ final_digest, 1)
+
+# 5. earn MEASURED: a verifier λ passes on the claim's value; only ᛞ mints Grounded
+claim ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ final_digest
+proof ≔ ᛞ(λ d ↦ d = final_digest, claim)
+
+# 6. witness the transition bit-for-bit (⟿ / \tw); a zero-delta one would die
+#    URDR-DELTA-UNEARNED -- but the balance moved, so it is admitted.
+log ≔ ⟿(init_digest, final_digest)
+
+# 7. bundle the receipt, flowing the digest through a real λ (ᛚ / \fl -- values
+#    are not callable, so we flow into a function, not into proof/log).
+final_digest ᛚ (λ d ↦ \st{final: d, proof: proof, log: log})

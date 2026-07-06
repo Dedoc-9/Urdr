@@ -192,7 +192,7 @@ class _Scanner:
                                    f"U+{ord(c):04X} in comment looks like "
                                    f"{CONFUSABLES[c]!r}; comments obey the alphabet")
                     if not (c.isascii() and c.isprintable() or c in WHITESPACE
-                            or c in GLYPH_KINDS):
+                            or c in GLYPH_KINDS or c in GLYPH_ALIASES):
                         self.error(LEX_UNKNOWN,
                                    f"U+{ord(c):04X} in comment is outside the closed "
                                    f"alphabet")
