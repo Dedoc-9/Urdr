@@ -35,6 +35,13 @@ def _enc(v):
     if isinstance(v, V.Grounded):
         raise UrdrError(LIMES, "Grounded does not cross the process boundary: "
                                "MEASURED is re-earned after load, never imported")
+    if isinstance(v, (V.Capability, V.CapSet)):
+        raise UrdrError(LIMES, "authority does not cross the process boundary: "
+                               "a grant is minted by THIS run's runner, never "
+                               "imported as data")
+    if isinstance(v, V.EffectPlan):
+        raise UrdrError(LIMES, "an effect-plan does not cross as data: plans "
+                               "are executed at the līmes or they are nothing")
     if isinstance(v, V.Claim):
         return {"t": "c", "m": v.maturity, "e": v.evidence, "v": _enc(v.value)}
     raise UrdrError(LIMES, f"{type(v).__name__} is not persistable "
@@ -67,12 +74,23 @@ def _dec(d):
     raise UrdrError(LIMES, f"malformed snapshot: unknown tag {d.get('t')!r}")
 
 
-def save(path: str, value) -> str:
-    payload = {"urdr_snapshot": _FORMAT,
-               "digest": C.hexdigest(value),
-               "value": _enc(value)}
+def encode_payload(value) -> dict:
+    """The one codec, encode side. R4 shares it: effect-plan execution and
+    --save-store both come HERE, so what cannot cross, cannot cross anywhere
+    (Grounded, λ, Conflict, builtins, authority, plans)."""
+    return {"urdr_snapshot": _FORMAT,
+            "digest": C.hexdigest(value),
+            "value": _enc(value)}
+
+
+def write_payload(path: str, payload: dict) -> None:
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(payload, fh, sort_keys=True, ensure_ascii=True, indent=1)
+
+
+def save(path: str, value) -> str:
+    payload = encode_payload(value)
+    write_payload(path, payload)
     return payload["digest"]
 
 

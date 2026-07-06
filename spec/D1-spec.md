@@ -240,7 +240,10 @@ meaningful, sufficient, or correctly named. `Grounded ≠ true`; it is `MEASURED
   step on every host. Totality is thereby *not* claimed (README §boundaries).
 - **Errors are values of the run, not of the machine.** Every `URDR-*` error carries a
   stable code and source span; the gate matches on codes, not message prose.
-- **Prelude.** Exactly ten names are pre-bound, all pure and deterministic:
+- **Prelude.** Fourteen names are pre-bound — ten of v0.1 (below), `weave` (R2, §13),
+  and the R4 capability trio `cap` / `recorded` / `plan` (§16) — all pure and
+  deterministic *at evaluation time* (even the effect surface: a plan is constructed,
+  never performed, during evaluation). The original ten:
   `value(c)` (unwrap a Claim/Grounded), `maturity(c)` / `evidence(c)` (→ symbol),
   `grounded(x)` / `conflicted(x)` (→ `1`/`0`), `range(n)` (→ `[0 … n−1]`, fuel-bounded),
   `len(xs)`, and (R1b) `push(xs, x)` / `cat(xs, ys)` / `nth(xs, i)` — list append,
@@ -302,7 +305,9 @@ store surviving across runs (true epochal time travel on disk) is `SCOPED` (R2+)
 `URDR-NAME` · `URDR-TYPE-RUN` · `URDR-ASSERT` · `URDR-FUEL` · `URDR-ANAMNESIS-ROOT` ·
 `URDR-INFLATE-DYN` (latch; reachable only if the checker is unsound — its firing in the
 suite is itself a red) · `URDR-LIMES` (R2c: fail-closed process-boundary refusal —
-unpersistable value, tampered or malformed snapshot).
+unpersistable value, tampered or malformed snapshot) · `URDR-CAP` (R4: ungranted or
+misused authority — an ungranted capability requested, authority of the wrong kind
+used, a malformed/duplicate grant, or an ambiguous effect batch at the līmes).
 
 ## 10. Metatheory obligations (declared now, discharged by grade)
 
@@ -438,3 +443,57 @@ No physics (see README). No strings, floats, division, recursion, I/O, clock, RN
 network, filesystem, concurrency, actors, placements, effects, capabilities, module
 system, or REPL. Each is either `SCOPED` to a rung in D5 or absent by design law. A
 feature not listed in this spec does not exist, whatever a name elsewhere may suggest.
+(Sections 12–16 record the rungs that have landed since; §15 remains the v0.1 baseline.)
+
+## 16. Capabilities (R4) — I/O & external state, nothing ambient
+
+The evaluator gains **no** I/O: no clock, no RNG, no network, no filesystem, at any
+time. What R4 adds is a *vocabulary of authority* — three value types and three prelude
+names — plus a runner protocol at the līmes. Effects are bracketed outside evaluation:
+recorded before it, planned during it, executed after it.
+
+- **Authority is a value, and unforgeable.** A `Capability` (one grant: kind `read` or
+  `write`, a name, and for reads a recorded payload) and the `CapSet` that carries the
+  grants are minted ONLY by the runner (`urdr/capability.py`) from explicit
+  `--grant NAME=read:PATH | NAME=write:PATH` flags. No grammar production constructs
+  either; no builtin returns a fresh one; the snapshot codec refuses to carry them
+  (`URDR-LIMES`: authority is not data), so a recorded input cannot smuggle in a forged
+  grant. Lineage: Milner's LCF `thm` mint (S3), applied to authority; the object-
+  capability discipline (Dennis & Van Horn's capabilities; Miller's ocap model) —
+  learned, credited, expressed our own way.
+- **`caps` is a runner input.** Always bound under `run` (empty when nothing is
+  granted — an empty grant set is still nothing-ambient), unshadowable
+  (`URDR-REBIND`), and deliberately NOT a store: ☽/☿/ᛃ refuse it (`URDR-TYPE-RUN`) —
+  editing a capset would be forging a grant. Its single accessor is `cap(caps, 'name)`,
+  and an ungranted name is `URDR-CAP`: refused, not defaulted, not prompted for.
+- **Reads are recorded inputs.** A read grant's file is loaded ONCE, by the runner,
+  through the one snapshot codec (digest-verified: a tampered fixture is `URDR-LIMES`;
+  Grounded/λ/Conflict/authority/plans cannot enter). `recorded(cap)` replays that fixed
+  value — bit-identically, every run, on every host. The payload is part of the
+  capability's canonical form, so inputs sit inside content identity: same program +
+  same inputs ⇒ same digest, still (law 4). Using anything but a read capability is
+  `URDR-CAP`.
+- **Writes are effect-plans.** `plan(cap, v)` with a write capability constructs an
+  `EffectPlan{name, value}` — a write *described*, not performed: pure data with a
+  canonical form, comparable and digestable like any value. Evaluation cannot write.
+  Using anything but a write capability is `URDR-CAP`.
+- **The outbox rule.** Plans reach the līmes as the program's RESULT value — the plan
+  itself or plans inside (nested) lists, deterministic left-to-right. Anywhere else an
+  EffectPlan is inert data (a plan in a store field is a datum ABOUT a write). Precedent:
+  the actor outbox (§13) — intent leaves as an explicit result, never as a side channel.
+- **Execution at the līmes, all-or-nothing.** After (and only after) successful
+  evaluation the runner validates the whole batch — duplicate target: `URDR-CAP`
+  (an ambiguous world edit is refused whole); unpersistable value (Grounded, λ, …):
+  `URDR-LIMES` through the same one codec that `--save-store` uses; ungranted target:
+  `URDR-CAP` (an armed latch, unreachable while the mint is sound — LESSONS L2 style) —
+  and only then writes, printing `effect: NAME DIGEST` per target, sorted. A refused
+  batch writes nothing: no partial world edit exists. A failed program executes nothing:
+  a dead program edits no world.
+- **Failure model, stated.** Any `URDR-*` during evaluation ⇒ zero effects. Any refusal
+  during validation ⇒ zero effects. Refusals are deterministic (same code, same span).
+- **Boundary (binding).** R4 delivers snapshot-file effects only. Clock, RNG, network,
+  and live filesystem walking remain absent by design law; if such an effect kind ever
+  arrives, it arrives as a recorded/planned capability through this same mint, or not at
+  all. `--save-store` (R2c, runner-owned) remains; write capabilities are the
+  program-owned counterpart. ASCII names by the glyph budget (law 5): capability
+  notation earns a glyph at a later review or not at all — the `weave` precedent.

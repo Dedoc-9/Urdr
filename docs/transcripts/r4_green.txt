@@ -1,0 +1,53 @@
+R4 — I/O & external state as capabilities: nothing ambient. GREEN record,
+2026-07-06, Linux build sandbox (clean clone of HEAD 10a5678 + R4 changes),
+Python 3.10.12, PYTHONHASHSEED=0, PYTHONUTF8=1. Red-first record: r4_red.txt.
+
+RED  : 90 run 3 red / example URDR-NAME / reject wrong-code (see r4_red.txt).
+GREEN: 106 unit falsifiers OK; full gate PASSED ×2, tables byte-identical
+       across the two runs (diff empty).
+
+New rows in the gate (now permanent):
+  [PASS] example:caps_roundtrip.urdr        741b4ea3f9da5e7b…
+  [PASS] oracle:caps_roundtrip.urdr         compiled ≡ ☉ 741b4ea3f9da…
+  [PASS] oracle-defect-selftest             defect placement rejected on 7
+                                            example(s)   (was 6: the caps
+                                            example contains +, so the lie
+                                            dies at ≟(answer, 42))
+  [PASS] reject:cap_ungranted.urdr          refused with URDR-CAP
+
+What was built (spec: D1 §16; ledger: D5):
+  - Three unforgeable value types: Capability (a grant; read caps CARRY their
+    recorded input, so inputs sit inside content identity), CapSet (the runner
+    input `caps` — always bound, unshadowable, not a store: ☽/☿/ᛃ refuse it),
+    EffectPlan (a write described, never performed, by evaluation).
+  - One mint: urdr/capability.py, runner side. --grant NAME=read:PATH loads
+    the fixture ONCE through the one snapshot codec (digest-verified; a
+    tampered fixture is URDR-LIMES; Grounded/λ/authority/plans cannot enter);
+    --grant NAME=write:PATH is bare permission. No grammar production, no
+    builtin, and no snapshot tag constructs authority: the codec refuses
+    Capability/CapSet/EffectPlan outward AND inward (authority is not data).
+  - Three prelude names, kernel-dispatched (one kernel, every placement —
+    the compiled path was admitted by the differential oracle on the caps
+    example unchanged): cap(caps,'n) → the grant or URDR-CAP; recorded(c) →
+    the recorded input, replayed bit-identically; plan(c,v) → an EffectPlan.
+  - The outbox rule + the līmes: plans reach the boundary as the RESULT value
+    (alone or in nested lists; anywhere else a plan is inert data). After —
+    and only after — successful evaluation, the whole batch is validated
+    (duplicate target URDR-CAP; unpersistable value URDR-LIMES via the same
+    codec --save-store uses; ungranted target URDR-CAP as an armed latch),
+    THEN written: fail closed, all-or-nothing, no partial world edit.
+
+Suite non-vacuity (beyond the red-first record): two defects were injected
+live and both were caught, then reverted —
+  1. collect_plans made to walk store fields  → test_buried_plan_is_inert RED
+  2. duplicate-target refusal deleted         → test_two_plans_one_target RED
+17 capability falsifiers total; 106 suite-wide; 0 red after revert.
+
+Determinism: caps_roundtrip digest 741b4ea3… identical across two subprocess
+runs and across reference/compiled placements on this host. Cross-host claim
+waits for the Windows PowerShell leg (two named hosts, not "any host").
+
+Boundary, restated: the evaluator performs no I/O at any time — reads happen
+before evaluation (recorded), writes after it (planned). Snapshot-file
+effects only; clock/RNG/network remain absent by design law. A green gate
+certifies these tests on this code — never that a name means what it says.

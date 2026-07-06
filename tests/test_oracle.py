@@ -4,9 +4,10 @@
 oracle against the ☉ tree-walk reference. The mint is singular (D1 §14b):
 both executors share one verification kernel, so evidence semantics cannot fork."""
 import os
+import tempfile
 import unittest
 
-from urdr import canon, compiler, evaluate
+from urdr import canon, capability, compiler, evaluate
 from urdr.errors import UrdrError
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -14,11 +15,21 @@ EXDIR = os.path.join(ROOT, "examples")
 
 
 def corpus():
+    """Every example with its runner inputs (R4: a .grants sidecar supplies
+    them) — the oracle admits placements on the same inputs the gate uses.
+    Write-cap targets point into the OS temp dir; library runs construct
+    plans but never EXECUTE them, so nothing is ever written."""
     for fname in sorted(os.listdir(EXDIR)):
         path = os.path.join(EXDIR, fname)
         if fname.endswith(".urdr") and os.path.isfile(path):
+            sidecar = path[:-len(".urdr")] + ".grants"
+            extra = {}
+            if os.path.exists(sidecar):
+                grants = capability.parse_sidecar(
+                    sidecar, ROOT, tempfile.gettempdir())
+                extra = {"caps": capability.build_capset(grants)}
             with open(path, "r", encoding="utf-8-sig") as fh:
-                yield fname, fh.read()
+                yield fname, fh.read(), extra
 
 
 def code_of(fn, *args, **kw):
@@ -31,21 +42,24 @@ def code_of(fn, *args, **kw):
 
 class TestDifferentialOracle(unittest.TestCase):
     def test_compiled_matches_reference_on_whole_corpus(self):
-        for fname, src in corpus():
+        for fname, src, extra in corpus():
             with self.subTest(example=fname):
-                d_ref = canon.hexdigest(evaluate.run_program(src))
-                d_com = canon.hexdigest(compiler.run_program_compiled(src))
+                d_ref = canon.hexdigest(
+                    evaluate.run_program(src, extra_env=extra))
+                d_com = canon.hexdigest(
+                    compiler.run_program_compiled(src, extra_env=extra))
                 self.assertEqual(d_ref, d_com,
                                  f"{fname}: compiled path diverges from ☉")
 
     def test_defect_path_disagrees_somewhere(self):
         # Non-vacuity: an oracle that cannot redden proves nothing (LESSONS L5).
         disagreed = 0
-        for _fname, src in corpus():
-            d_ref = canon.hexdigest(evaluate.run_program(src))
+        for _fname, src, extra in corpus():
+            d_ref = canon.hexdigest(evaluate.run_program(src, extra_env=extra))
             try:
                 d_def = canon.hexdigest(
-                    compiler.run_program_compiled(src, defect=True))
+                    compiler.run_program_compiled(src, extra_env=extra,
+                                                  defect=True))
             except UrdrError:
                 disagreed += 1
                 continue

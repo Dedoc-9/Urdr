@@ -1,0 +1,6 @@
+# Runner grants for caps_roundtrip.urdr -- parsed by verify.py (the gate).
+# read : NAME FIXTURE-PATH (relative to repo root; loaded via the one codec)
+# write: NAME (target allocated by the gate in a temp dir -- an effect never
+#              lands inside the repo)
+read config examples/inputs/config.urdrsnap
+write out

@@ -16,8 +16,8 @@ from . import canon as C
 from . import check as CHK
 from . import parser as P
 from . import values as V
-from .errors import (UrdrError, ASSERT, ANAMNESIS_ROOT, FUEL, NAME, REBIND,
-                     TYPE_RUN, VERIFY_UNLICENSED)
+from .errors import (UrdrError, ASSERT, ANAMNESIS_ROOT, CAP, FUEL, NAME,
+                     REBIND, TYPE_RUN, VERIFY_UNLICENSED)
 
 DEFAULT_FUEL = 1_000_000
 
@@ -184,6 +184,34 @@ def call_builtin(rt, fn, args, line, col):
         return xs.items[i.n]
     if fn.name == "weave":
         return weave_kernel(rt, args[0], args[1], args[2], line, col)
+    if fn.name == "cap":
+        cs, key = args
+        _need(isinstance(cs, V.CapSet),
+              "cap() wants the runner-granted capability set (the input "
+              "`caps`)", line, col)
+        _need(isinstance(key, V.Sym), "cap() wants a symbol name", line, col)
+        if key.name not in cs.grants:
+            granted = ", ".join("'" + n for n in sorted(cs.grants)) or "nothing"
+            raise UrdrError(CAP,
+                            f"ungranted capability '{key.name}: nothing is "
+                            f"ambient, and the runner granted {granted}",
+                            line, col)
+        return cs.grants[key.name]
+    if fn.name == "recorded":
+        c = args[0]
+        if not (isinstance(c, V.Capability) and c.kind == "read"):
+            raise UrdrError(CAP,
+                            "recorded() wants a read capability: reads are "
+                            "recorded inputs, never ambient I/O", line, col)
+        return c.payload
+    if fn.name == "plan":
+        c, v = args
+        if not (isinstance(c, V.Capability) and c.kind == "write"):
+            raise UrdrError(CAP,
+                            "plan() wants a write capability: writes are "
+                            "effect-plans, executed only at the līmes",
+                            line, col)
+        return V.EffectPlan(c.name, v)
     return fn.fn(args, line, col)
 
 
@@ -228,6 +256,9 @@ def prelude() -> dict:
         "cat": V.Builtin("cat", 2, None),
         "nth": V.Builtin("nth", 2, None),
         "weave": V.Builtin("weave", 3, None),
+        "cap": V.Builtin("cap", 2, None),        # R4: kernel-dispatched
+        "recorded": V.Builtin("recorded", 1, None),
+        "plan": V.Builtin("plan", 2, None),
     }
 
 
@@ -437,4 +468,12 @@ def render(v) -> str:
         return v.name
     if isinstance(v, V.DigestV):
         return v.raw.hex()
+    if isinstance(v, V.Capability):
+        if v.kind == "read":
+            return f"cap⟨read '{v.name} {C.digest(v.payload).hex()[:8]}⟩"
+        return f"cap⟨write '{v.name}⟩"
+    if isinstance(v, V.CapSet):
+        return "caps⟨" + ", ".join("'" + n for n in sorted(v.grants)) + "⟩"
+    if isinstance(v, V.EffectPlan):
+        return f"plan⟨'{v.name} ≔ {render(v.value)}⟩"
     return f"<host:{type(v).__name__}>"

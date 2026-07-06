@@ -149,3 +149,43 @@ class DigestV(Value):
         if not isinstance(raw, bytes) or len(raw) != 32:
             raise TypeError("Digest value requires 32 raw bytes")
         self.raw = raw
+
+
+class Capability(Value):
+    """R4 — unforgeable authority (one grant). Minted ONLY by the runner
+    (urdr/capability.py) from explicit --grant flags: no grammar production
+    constructs one, no builtin returns a fresh one, and the snapshot codec
+    refuses to carry one (authority is not data). A read capability carries
+    its RECORDED input value — the input is thereby inside content identity."""
+    __slots__ = ("kind", "name", "payload")
+
+    def __init__(self, kind: str, name: str, payload=None):
+        if kind not in ("read", "write"):
+            raise TypeError("Capability kind must be 'read' or 'write'")
+        if kind == "write" and payload is not None:
+            raise TypeError("a write capability carries no payload")
+        self.kind = kind
+        self.name = name
+        self.payload = payload
+
+
+class CapSet(Value):
+    """R4 — the runner-provided grant set, bound as the input `caps`.
+    Deliberately NOT a Store: ☽/☿/ᛃ do not apply (authority cannot be viewed
+    into, edited, or walked — editing a capset would be forging a grant), and
+    its single accessor cap() refuses ungranted names with URDR-CAP."""
+    __slots__ = ("grants",)
+
+    def __init__(self, grants: dict):
+        self.grants = dict(grants)
+
+
+class EffectPlan(Value):
+    """R4 — a write DESCRIBED, not performed: pure data (target + value).
+    Constructable only via plan(write-capability, v); executed only by the
+    runner at the līmes, after successful evaluation, all-or-nothing."""
+    __slots__ = ("name", "value")
+
+    def __init__(self, name: str, value):
+        self.name = name
+        self.value = value

@@ -7,7 +7,10 @@ Checks, in order (all sorted, all deterministic):
   1. unit falsifiers   : tests/ via unittest
   2. examples          : each examples/*.urdr runs TWICE in fresh subprocesses with a
                          pinned env (PYTHONHASHSEED=0, PYTHONUTF8=1); the two digests
-                         must be bit-identical AND match the recorded golden (.digest)
+                         must be bit-identical AND match the recorded golden (.digest);
+                         a NAME.grants sidecar supplies runner grants (R4): read
+                         fixtures from the repo, write targets in a temp dir that
+                         must exist afterwards (the līmes must actually fire)
   3. rejections        : examples/rejected/ per MANIFEST — the checker/runtime MUST
                          refuse each with the exact recorded code (non-vacuity: an
                          accepted over-claim reddens the gate)
@@ -18,8 +21,10 @@ Checks, in order (all sorted, all deterministic):
 Exit 0 iff every check passes. Output ends with 'GATE PASSED' or 'GATE FAILED'.
 """
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 import unittest
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -68,6 +73,25 @@ def extract_error_code(stderr: str):
     return None
 
 
+def grant_flags(example_path: str, write_dir: str):
+    """R4: an optional NAME.grants sidecar beside an example declares its
+    runner grants. Read fixtures resolve against the repo root; write targets
+    are allocated inside write_dir — an effect never lands inside the repo.
+    Returns (CLI flags, expected write-target paths)."""
+    sidecar = example_path[:-len(".urdr")] + ".grants"
+    if not os.path.exists(sidecar):
+        return [], []
+    from urdr import capability  # imported only when a sidecar exists
+    grants = capability.parse_sidecar(sidecar, ROOT, write_dir)
+    flags, targets = [], []
+    for name in sorted(grants):
+        kind, gpath = grants[name]
+        flags += ["--grant", f"{name}={kind}:{gpath}"]
+        if kind == "write":
+            targets.append(gpath)
+    return flags, targets
+
+
 class Gate:
     def __init__(self):
         self.rows = []
@@ -102,28 +126,39 @@ class Gate:
             return
         for fname in files:
             path = os.path.join(exdir, fname)
-            code1, out1, err1 = run_cli(["run", path])
-            code2, out2, err2 = run_cli(["run", path])
-            d1, d2 = extract_digest(out1), extract_digest(out2)
-            if code1 != 0 or code2 != 0 or d1 is None:
-                self.record(f"example:{fname}", False,
-                            f"run failed (exit {code1}/{code2}) {err1.strip()[:120]}")
-                continue
-            if d1 != d2:
-                self.record(f"example:{fname}", False,
-                            f"NONDETERMINISTIC: {d1[:12]}… ≠ {d2[:12]}…")
-                continue
-            golden_path = path[:-len(".urdr")] + ".digest"
-            if not os.path.exists(golden_path):
-                self.record(f"example:{fname}", False, "missing golden .digest")
-                continue
-            with open(golden_path, "r", encoding="utf-8") as fh:
-                golden = fh.read().strip()
-            if d1 != golden:
-                self.record(f"example:{fname}", False,
-                            f"digest {d1[:12]}… ≠ recorded {golden[:12]}…")
-            else:
+            scratch = tempfile.mkdtemp(prefix="urdr_gate_")
+            try:
+                flags, targets = grant_flags(path, scratch)
+                code1, out1, err1 = run_cli(["run", path] + flags)
+                code2, out2, err2 = run_cli(["run", path] + flags)
+                d1, d2 = extract_digest(out1), extract_digest(out2)
+                if code1 != 0 or code2 != 0 or d1 is None:
+                    self.record(f"example:{fname}", False,
+                                f"run failed (exit {code1}/{code2}) {err1.strip()[:120]}")
+                    continue
+                if d1 != d2:
+                    self.record(f"example:{fname}", False,
+                                f"NONDETERMINISTIC: {d1[:12]}… ≠ {d2[:12]}…")
+                    continue
+                golden_path = path[:-len(".urdr")] + ".digest"
+                if not os.path.exists(golden_path):
+                    self.record(f"example:{fname}", False, "missing golden .digest")
+                    continue
+                with open(golden_path, "r", encoding="utf-8") as fh:
+                    golden = fh.read().strip()
+                if d1 != golden:
+                    self.record(f"example:{fname}", False,
+                                f"digest {d1[:12]}… ≠ recorded {golden[:12]}…")
+                    continue
+                missing = [t for t in targets if not os.path.exists(t)]
+                if missing:
+                    self.record(f"example:{fname}", False,
+                                f"granted effect target not written: "
+                                f"{os.path.basename(missing[0])} (līmes did not fire)")
+                    continue
                 self.record(f"example:{fname}", True, d1[:16] + "…")
+            finally:
+                shutil.rmtree(scratch, ignore_errors=True)
 
     # -- 2b. oracle: the compiled placement is ADMITTED, not trusted ----------
     def oracle(self):
@@ -140,17 +175,24 @@ class Gate:
                 continue  # examples stage already reddened on this
             with open(golden_path, "r", encoding="utf-8") as fh:
                 golden = fh.read().strip()
-            code_c, out_c, _err = run_cli(["run", path, "--via", "compiled"])
-            d_c = extract_digest(out_c)
-            if code_c != 0 or d_c != golden:
-                self.record(f"oracle:{fname}", False,
-                            f"compiled ≠ ☉ ({(d_c or 'error')[:12]}…) — REJECTED")
-            else:
-                self.record(f"oracle:{fname}", True, f"compiled ≡ ☉ {d_c[:12]}…")
-            code_d, out_d, _err = run_cli(["run", path, "--via", "defect"])
-            d_d = extract_digest(out_d)
-            if code_d != 0 or d_d != golden:
-                disagreements += 1
+            scratch = tempfile.mkdtemp(prefix="urdr_oracle_")
+            try:
+                flags, _targets = grant_flags(path, scratch)
+                code_c, out_c, _err = run_cli(
+                    ["run", path, "--via", "compiled"] + flags)
+                d_c = extract_digest(out_c)
+                if code_c != 0 or d_c != golden:
+                    self.record(f"oracle:{fname}", False,
+                                f"compiled ≠ ☉ ({(d_c or 'error')[:12]}…) — REJECTED")
+                else:
+                    self.record(f"oracle:{fname}", True, f"compiled ≡ ☉ {d_c[:12]}…")
+                code_d, out_d, _err = run_cli(
+                    ["run", path, "--via", "defect"] + flags)
+                d_d = extract_digest(out_d)
+                if code_d != 0 or d_d != golden:
+                    disagreements += 1
+            finally:
+                shutil.rmtree(scratch, ignore_errors=True)
         self.record(
             "oracle-defect-selftest", disagreements >= 1,
             f"defect placement rejected on {disagreements} example(s)"

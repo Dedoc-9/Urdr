@@ -1,0 +1,23 @@
+R4 — I/O & external state as capabilities. RED-FIRST record,
+2026-07-06, Linux build sandbox (clean clone of HEAD 10a5678), Python 3.10.12,
+PYTHONHASHSEED=0, PYTHONUTF8=1.
+
+The falsifiers, the rejected program, the caps example and its .grants sidecar
+were written and run BEFORE any mechanism existed. The gate went red in every
+place it was supposed to, each for the right reason:
+
+  [FAIL] unit-falsifiers                    90 run, 3 red
+         - tests.test_capability: ImportError (urdr/capability.py absent)
+         - tests.test_oracle ×2: URDR-NAME on the ungranted caps example
+           (the whole-corpus sweep met a program asking for authority that
+           no mechanism could yet grant)
+  [FAIL] example:caps_roundtrip.urdr        run failed (exit 2/2)
+                                            ERROR URDR-NAME @6:10 unbound
+                                            name 'recorded'
+  [FAIL] reject:cap_ungranted.urdr          wrong code: got URDR-NAME,
+                                            wanted URDR-CAP
+  GATE FAILED (exit 1)
+
+A red that fails for the wrong reason proves nothing; these fail precisely
+because reads-as-recorded-inputs, writes-as-effect-plans, and URDR-CAP do not
+exist yet. Green record: r4_green.txt.

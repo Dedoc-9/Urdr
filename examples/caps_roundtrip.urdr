@@ -1,0 +1,12 @@
+# R4: I/O as capabilities -- nothing ambient. The runner grants (see the
+# .grants sidecar); reads arrive as RECORDED inputs replayed bit-identically
+# (the input is digest-verified at the limes and flows into this program's
+# own digest); writes leave as EFFECT-PLANS -- pure values the runner executes
+# at the limes, after success, all-or-nothing. The evaluator does no I/O ever.
+config ≔ recorded(cap(caps, 'config))
+answer ≔ ☽(config, 'base) + ☽(config, 'step)
+ok ≔ ≟(answer, 42)
+out ≔ ☿(config, 'answer, answer)
+claim ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ answer
+sealed ≔ ᛞ(λ v ↦ v = 42, claim)
+[sealed, plan(cap(caps, 'out), out)]

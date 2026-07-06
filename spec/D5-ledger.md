@@ -34,6 +34,8 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Verbose keyword profile (12 reserved words; three spellings, one token stream, one digest) | IMPLEMENTED | MEASURED | `tests/test_verbose.py` (incl. reserved-bind rejection and fmt words→glyphs) |
 | Compiler as placement: closure compiler (`--via compiled`) admitted per gate run only by digest match vs ☉ on the full corpus; singular kernel (one mint, one prelude, one weave); tick-for-tick fuel parity; defect path (`--via defect`) must be rejected somewhere or the gate reds | IMPLEMENTED | MEASURED | `tests/test_oracle.py` (6 falsifiers), `verify.py` oracle stage (admissions + defect self-test, permanent) |
 | Rhombohedral lattice falsifier: C₃ permutation closure, R³=I, Gram identity, diagonal invariance, orbit-average consolidation onto the diagonal (user-directed conversion, D1 §12b); wrong-fixation claim dies | IMPLEMENTED | MEASURED | `examples/rhombo_lattice.urdr` (⊢11), `examples/rejected/rhombo_wrong.urdr` (URDR-ASSERT), `tests/test_lattice.py` (4 falsifiers incl. both-placements agreement) |
+| Capabilities (R4): I/O & external state, nothing ambient — unforgeable `Capability`/`CapSet`/`EffectPlan` (runner-minted only; no source syntax; codec-refused as data); reads = recorded inputs loaded once through the one codec, digest-verified, replayed bit-identically, inside content identity; writes = effect-plans executed at the līmes after success, validate-all-then-write-all (no partial world edit; outbox rule: result value or nested lists only); `caps` a protected runner input, not a store; `URDR-CAP` on ungranted or misused authority; kernel-dispatched, so both placements share one semantics | IMPLEMENTED | MEASURED | `tests/test_capability.py` (17 falsifiers; suite proven non-vacuous by two injected defects each caught then reverted), `examples/caps_roundtrip.urdr` (⊢ 42 + executed effect with lineage), `examples/rejected/cap_ungranted.urdr` (URDR-CAP), gate examples+oracle stages grant-aware (`.grants` sidecar; granted write target must exist after the run) |
+| In-language capability-gated persistence (R4): write capabilities move the runner līmes into the value discipline — a program persists by RETURNING a plan it was granted the authority to make; `--save-store` (R2c, runner-owned) remains as the runner's own door | IMPLEMENTED | MEASURED | `tests/test_capability.py::TestEffectLimes` (execution, fail-closed, all-or-nothing, Grounded refused outward, buried-plan inert, no effect on a failed run) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: all four example digests bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), 2026-07-06. Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
 | Fuel-bounded evaluation, deterministic URDR-FUEL | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -47,10 +49,9 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 |---|---|---|
 | Base-60 numeric literals (𒁹, 𒌋) | SCOPED / N/A | R1 |
 | Division / modulo with defined zero semantics | SCOPED / N/A | R1 |
-| In-language, capability-gated persistence (the runner līmes moved into the type system) | SCOPED / N/A | R4 |
+| Effect kinds beyond snapshot files (clock, RNG, network, live filesystem) — each arrives as a recorded/planned capability through the same mint, or not at all | SPECULATIVE / N/A | — |
 | Actor glyph assignment (weave stays ASCII until semantics prove stable) | SCOPED / N/A | R3 review |
 | WHAT/WHERE placement split, *līmes* boundaries, differential oracle, ☉ reference marker | SCOPED / N/A | R3 |
-| Effects & capabilities: recorded-input reads, effect-plan writes, `URDR-CAP` rejections; failure model; interop *līmes* | SCOPED / N/A | R4 |
 | Non-Python placements (bytecode VM, Rust) admitted by the same oracle | SPECULATIVE / N/A | R6 |
 | Import-by-digest modules, vendor dir + lockfile verified by the gate | SCOPED / N/A | R5 |
 | Rust production compiler (same oracle admission) | SPECULATIVE / N/A | R6 |
@@ -71,6 +72,9 @@ Not physics; no claim about M-theory or the universe survives in any green test.
 proof assistant: `Grounded` = *this verifier passed under this evaluator within fuel*.
 digest ≠ MAC. declared ≠ verified. cited ≠ implemented. A green gate certifies execution
 of these tests on this code — never that a name means what it says. No strings, floats,
-recursion, I/O, clock, RNG, concurrency, modules, or REPL in v0.1 (each graded above or
-absent by design law). Performance: no figures published; any future figure will name
+recursion, clock, RNG, network, modules, or REPL (each graded above or absent by design
+law). I/O exists ONLY as R4 capabilities — recorded reads and planned writes of snapshot
+files at the līmes; live or ambient I/O does not exist, and the evaluator performs none
+at any time. A recorded input is digest-verified, never authenticated (digest ≠ MAC
+applies to fixtures too). Performance: no figures published; any future figure will name
 its host (`benchmark ≠ universal`).

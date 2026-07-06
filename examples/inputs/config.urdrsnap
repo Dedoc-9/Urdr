@@ -1,0 +1,18 @@
+{
+ "digest": "b9178dc962e176cc000611391b59ba8b72dde443a2b2fc0f72032ad5fd5f337a",
+ "urdr_snapshot": 1,
+ "value": {
+  "f": {
+   "base": {
+    "n": 40,
+    "t": "i"
+   },
+   "step": {
+    "n": 2,
+    "t": "i"
+   }
+  },
+  "p": null,
+  "t": "s"
+ }
+}

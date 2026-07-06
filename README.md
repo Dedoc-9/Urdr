@@ -33,6 +33,13 @@ determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.
 - A **gate** (`verify.py`): re-runs every example twice in isolated subprocesses,
   asserts recorded digests, requires the must-reject programs to be rejected and the
   deliberately tampered fixture to fail (a gate that cannot go red proves nothing).
+- **I/O as capabilities** (R4): nothing ambient. The runner mints unforgeable grants
+  (`--grant NAME=read:PATH | NAME=write:PATH`) into the input `caps`; reads are
+  **recorded inputs** (loaded once through the snapshot codec, digest-verified,
+  replayed bit-identically, inside program identity); writes are **effect-plans** —
+  pure values the runner executes at the līmes after success, all-or-nothing; anything
+  ungranted or misused is `URDR-CAP`. The evaluator performs no I/O at any time.
+  Spec: D1 §16; falsifiers: `tests/test_capability.py`.
 
 ## Quickstart (offline; Python ≥ 3.10, stdlib only)
 
@@ -76,7 +83,7 @@ not execution: the suite passes on a machine that cannot display a single rune.
 | R1 | α-normalized canon; list prelude; **graded-algebra falsifiers** (ℤ₂ closure ⊢64, Cl(3) relations ⊢9, wrong-relation program dies); provenance ᛃ; CI on two OSes | `IMPLEMENTED / MEASURED` |
 | R2 | Deterministic actors (`weave`; canonical multiset order; one digest across permuted schedules; actor-local cage), persistence *līmes* (snapshots; Grounded does not cross), TLA+ membrane model (`DECLARED`) | `IMPLEMENTED / MEASURED` |
 | R3 | WHAT/WHERE landed: closure compiler admitted **only** by differential oracle vs the ☉ tree-walk reference (singular kernel — one mint; defect fixture proves the oracle can redden); verbose keyword profile (three spellings, one digest) | `IMPLEMENTED / MEASURED` |
-| R4 | I/O & external state as **capabilities**: nothing ambient; reads are recorded inputs replayed bit-identically; writes are effect-plans executed at the līmes; ungranted use rejected (`URDR-CAP`) | `SCOPED / N/A` |
+| R4 | I/O & external state as **capabilities**: nothing ambient; reads are recorded inputs replayed bit-identically; writes are effect-plans executed at the līmes; ungranted use rejected (`URDR-CAP`) | `IMPLEMENTED / MEASURED` |
 | R5 | Modules & packaging without a network: **import-by-digest** (Unison lesson), vendor dir + lockfile verified by the gate; a wrong pin is refused, not resolved | `SCOPED / N/A` |
 | R6 | Rust production compiler — admitted by the same differential oracle, or not at all | `SPECULATIVE / N/A` |
 

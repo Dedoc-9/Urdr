@@ -67,6 +67,17 @@ def canon(v) -> bytes:
         return b"b" + _sym_bytes(v.name)
     if isinstance(v, V.DigestV):
         return b"d" + v.raw
+    if isinstance(v, V.Capability):
+        head = b"k" + (b"\x00" if v.kind == "read" else b"\x01") + _sym_bytes(v.name)
+        return head + (canon(v.payload) if v.kind == "read" else b"")
+    if isinstance(v, V.CapSet):
+        parts = [b"K", _varint(len(v.grants))]
+        for name in sorted(v.grants):
+            parts.append(_sym_bytes(name))
+            parts.append(canon(v.grants[name]))
+        return b"".join(parts)
+    if isinstance(v, V.EffectPlan):
+        return b"p" + _sym_bytes(v.name) + canon(v.value)
     raise TypeError(f"no canonical form for host object {type(v).__name__}")
 
 

@@ -1,0 +1,4 @@
+# MUST FAIL AT RUN: nothing is ambient. Authority arrives only by runner grant
+# (--grant NAME=read:PATH | NAME=write:PATH); this run granted nothing, so
+# asking for a capability is URDR-CAP -- refused, not defaulted, not prompted.
+cap(caps, 'sensor)

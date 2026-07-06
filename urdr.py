@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Urðr CLI. Copyright (C) 2026 Daniel J. Dillberg
 """Usage:
-  python urdr.py run   FILE [--fuel N]   lex→parse→check→eval; print result + digest
+  python urdr.py run   FILE [--fuel N] [--grant NAME=read:PATH | NAME=write:PATH]…
+                                         lex→parse→check→eval; print result + digest;
+                                         then the result's effect-plans execute (R4)
   python urdr.py check FILE              lex→parse→check only
   python urdr.py fmt   FILE              rewrite ASCII digraphs to glyphs (stdout)
 
@@ -38,8 +40,11 @@ def main(argv) -> int:
     try:
         source = _read(path)
         if cmd == "run":
-            from urdr import canon, evaluate
-            extra = {}
+            from urdr import canon, capability, evaluate
+            grants = capability.parse_grants(argv)
+            # R4: authority is never ambient — `caps` is a runner input,
+            # always bound (empty when nothing is granted), unshadowable.
+            extra = {"caps": capability.build_capset(grants)}
             if "--load-store" in argv:  # R2c: runner-provided input `loaded`
                 from urdr import snapshot
                 extra["loaded"] = snapshot.load(argv[argv.index("--load-store") + 1])
@@ -56,6 +61,8 @@ def main(argv) -> int:
                 return 3
             sys.stdout.write("result: " + evaluate.render(value) + "\n")
             sys.stdout.write("digest: " + canon.hexdigest(value) + "\n")
+            for name, hexd in capability.execute(value, grants):  # R4 līmes
+                sys.stdout.write(f"effect: {name} {hexd}\n")
             if "--save-store" in argv:
                 from urdr import snapshot
                 saved = snapshot.save(argv[argv.index("--save-store") + 1], value)
