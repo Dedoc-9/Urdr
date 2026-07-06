@@ -14,7 +14,7 @@ README says beyond that ledger is a bug; file it.
 Successor-in-discipline to the *Dentatus → Ursprung* line (executable epistemic
 determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.md).
 
-## What exists today (v0.1 core) — `IMPLEMENTED / MEASURED` via the gate
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R5; tag v0.6.1)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -29,7 +29,8 @@ determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.
   (new store, new digest), **↩** `anamnesis` (return to the exact prior state; digest
   equality is the test). Lens laws (get-put, put-get) are falsifiers, not prose.
 - **Deterministic evaluation**: 64-bit wrapping integer semantics, no ambient
-  nondeterminism, fuel-bounded; same program + inputs ⇒ same digest, on any host.
+  nondeterminism, fuel-bounded; same program + inputs ⇒ same digest — verified
+  bit-identical on two named hosts (Linux + Windows), not "any host" (D5).
 - A **gate** (`verify.py`): re-runs every example twice in isolated subprocesses,
   asserts recorded digests, requires the must-reject programs to be rejected and the
   deliberately tampered fixture to fail (a gate that cannot go red proves nothing).
@@ -45,6 +46,18 @@ determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.
   verifies; a wrong pin or tampered file is refused *statically* (`URDR-PIN`), an
   unvendored/unpinned digest too (`URDR-MODULE`). Byte-level addressing — the honest
   limit is `source-hash ≠ definition-hash` (D5). Spec: D1 §17.
+- **Deterministic actors & persistence līmes** (R2): `weave` delivers messages in a
+  canonical multiset order — one digest across every permuted schedule — and an actor
+  that over-claims dies inside its own handler; runner snapshots re-verify digests and
+  refuse to carry `Grounded`/λ across the boundary. Spec: D1 §13.
+- **Compiler as a differential placement** (R3): a closure compiler (`--via compiled`)
+  is admitted per gate run only when its digests are bit-identical to the ☉ tree-walk
+  reference on the whole corpus; a deliberately defective path (`--via defect`) must be
+  caught or the gate reddens. One shared kernel — the mint is singular. Spec: D1 §14.
+- **User-directed conversion falsifiers** (exact integer algebra, ᛞ-sealed, no floats):
+  the rhombohedral C₃ lattice (D1 §12b, ⊢11) and the centering / quotient operator
+  M = nI−J (D1 §18, ⊢6). Each documents its provenance apart from its assigned meaning
+  (`signum ≠ rēs`); neither claims anything about physics or society.
 
 ## Quickstart (offline; Python ≥ 3.10, stdlib only)
 
@@ -70,8 +83,8 @@ not execution: the suite passes on a machine that cannot display a single rune.
 
 1. **"M-theory capable"** is converted to: *membrane-native* (the ☽/☿/↩ primitive) plus
    *graded-algebra-expressive* — the ability to represent a ℤ₂-graded algebra as a value
-   and verify its defining relations by evaluation. The algebra falsifier is rung **R1**
-   (`SCOPED / N/A` today). This is a claim about a type system, **never about physics**.
+   and verify its defining relations by evaluation. The algebra falsifier landed at **R1**
+   (`IMPLEMENTED / MEASURED`: ℤ₂ closure ⊢64, Cl(3) ⊢9, wrong-relation dies). This is a claim about a type system, **never about physics**.
 2. **"Symbolic alphabet"** is an original curated glyph set; each glyph's attested
    historical meaning is documented *separately* from its assigned semantics
    (`signum ≠ rēs`). We learned the graphical-algebra *method* from S. J. Gates Jr. &
@@ -85,7 +98,7 @@ not execution: the suite passes on a machine that cannot display a single rune.
 | Rung | Content | Grade today |
 |---|---|---|
 | R0 | Core lexicon, epistemic checker, membrane, determinism gate | `IMPLEMENTED / MEASURED` |
-| R1 | α-normalized canon; list prelude; **graded-algebra falsifiers** (ℤ₂ closure ⊢64, Cl(3) relations ⊢9, wrong-relation program dies); provenance ᛃ; CI on two OSes | `IMPLEMENTED / MEASURED` |
+| R1 | α-normalized canon; list prelude; **graded-algebra falsifiers** (ℤ₂ closure ⊢64, Cl(3) relations ⊢9, wrong-relation program dies); provenance ᛃ; CI (4 jobs: 2 OS × 2 Python, pinned in D5) | `IMPLEMENTED / MEASURED` |
 | R2 | Deterministic actors (`weave`; canonical multiset order; one digest across permuted schedules; actor-local cage), persistence *līmes* (snapshots; Grounded does not cross), TLA+ membrane model (`DECLARED`) | `IMPLEMENTED / MEASURED` |
 | R3 | WHAT/WHERE landed: closure compiler admitted **only** by differential oracle vs the ☉ tree-walk reference (singular kernel — one mint; defect fixture proves the oracle can redden); verbose keyword profile (three spellings, one digest) | `IMPLEMENTED / MEASURED` |
 | R4 | I/O & external state as **capabilities**: nothing ambient; reads are recorded inputs replayed bit-identically; writes are effect-plans executed at the līmes; ungranted use rejected (`URDR-CAP`) | `IMPLEMENTED / MEASURED` |
@@ -94,7 +107,7 @@ not execution: the suite passes on a machine that cannot display a single rune.
 
 ## Honest boundaries (§9, in our own words)
 
-- Urðr is **not physics**. It can (once R1 lands) check that a finite graded-algebra value
+- Urðr is **not physics**. It can check (R1, landed) that a finite graded-algebra value
   satisfies stated relations under its own evaluator. It does not model, simulate, or
   validate M-theory, and no green test here says anything about the universe.
 - A glyph's ancient meaning is **not** its programming meaning; both are documented,
