@@ -143,6 +143,24 @@ gap. Rust improves the *substrate*, not the *semantics* — it stays a placement
 D1 §22): CLOSED — a witnessed deformation is `Σ` over the witness chain asserting `≟`
 on a declared invariant (§21a lifted); its red states collapse to `URDR-ASSERT`.
 `digest = same object`; `≟-on-invariant = same class after allowed deformation`.
+**The topology/geometry convergence — all closed, mostly already sealed.** Homotopy,
+cobordism, Seifert fibers, BMY, Kaluza–Klein, Mayer–Vietoris, and Lawrence–Krammer /
+braid representations all converge on one computational abstraction: *one object, many
+constrained representations, an invariant preserved.* Each is CLOSED — and the sharper
+finding is that each is already exercised by an existing falsifier:
+- **structure-preserving map** `f(a∘b)=f(a)⋆f(b)` (a representation / homomorphism) =
+  the ℤ₂ grading law `grade(aΔb)=grade(a)⊕grade(b)`, sealed over 64 pairs in
+  `examples/z2_grading.urdr` (R1, §12);
+- **projection round-trip** `recombine(project(X))=X` (Kaluza–Klein) = the lens laws
+  (put-get / get-put), `examples/lens_roundtrip.urdr` (§8);
+- **boundary witness** `∂W = A−B` (cobordism) = the chain boundary (§22) + `≟`;
+- **many realizations → one invariant** (Mayer–Vietoris seam / Seifert fibers) = the
+  differential oracle (§14b, N placements, one digest).
+`A representation earns trust only by carrying the laws it preserves` is the *definition*
+of `Grounded` (a named verifier passed). The topology chain rediscovers, from the
+geometric side, the primitives Urðr already has — `ᛞ` (verify a law), `≟` (assert an
+invariant), the digest (identity), the placement oracle (many realizations, one truth).
+No new primitive, no glyph.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,
