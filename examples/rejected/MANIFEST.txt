@@ -13,3 +13,4 @@ module_wrong_pin.urdr check URDR-PIN
 centering_wrong.urdr run URDR-ASSERT
 evidence_unpurchased.urdr run URDR-ASSERT
 transition_unearned.urdr run URDR-DELTA-UNEARNED
+chain_wrong.urdr run URDR-ASSERT

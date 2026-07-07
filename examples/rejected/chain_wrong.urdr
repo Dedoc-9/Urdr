@@ -1,0 +1,7 @@
+# MUST FAIL AT RUN: a WRONG boundary map breaks homology's founding law d.d = 0
+# (boundary of boundary). With orientation lost (d2([a]) = [a,a,a]) we get
+# d1(d2([1])) = [-2,0,2] != 0. boundary-of-boundary nonzero must die -- the
+# non-vacuity of the chain seal.
+d2bad := \fn c |-> [nth(c, 0), nth(c, 0), nth(c, 0)]
+d1 := \fn c |-> [0 - nth(c, 1) - nth(c, 2), 0 - nth(c, 0) + nth(c, 2), nth(c, 0) + nth(c, 1)]
+=?(d1(d2bad([1])), [0, 0, 0])

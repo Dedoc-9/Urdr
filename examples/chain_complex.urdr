@@ -1,0 +1,22 @@
+# Chain complex -- homology's founding law "boundary of boundary = 0" (d1 . d2 = 0),
+# by evaluation (D1 s22, a user-directed conversion in the s12 family). A filled
+# triangle: C2=<f>, C1=<e0,e1,e2>, C0=<v0,v1,v2>, with d2([a]) = [a,-a,a] and
+# d1([a0,a1,a2]) = [-a1-a2, -a0+a2, a0+a1]. EXACT integer algebra of a finite chain
+# complex -- not topology; nothing about spaces is claimed. signum != res.
+d2 := \fn c |-> [nth(c, 0), 0 - nth(c, 0), nth(c, 0)]
+d1 := \fn c |-> [0 - nth(c, 1) - nth(c, 2), 0 - nth(c, 0) + nth(c, 2), nth(c, 0) + nth(c, 1)]
+sub := \fn x y |-> [nth(x, 0) - nth(y, 0), nth(x, 1) - nth(y, 1), nth(x, 2) - nth(y, 2)]
+zero3 := [0, 0, 0]
+# 1-2: the founding law d1(d2(c)) = 0 (on the generator and a scaled chain)
+r1 := =?(d1(d2([1])), zero3)
+r2 := =?(d1(d2([5])), zero3)
+# 3: z = d2(f) is a 1-cycle (d1 z = 0)
+z := d2([1])
+r3 := =?(d1(z), zero3)
+# 4: EQUIVALENCE mod boundary is a COMPUTED check, not a primitive: z ~ 0 because
+#    z - d2(f) = 0, i.e. subtraction + =?. This is why "same class after allowed
+#    deformation" earns no glyph -- it reduces to =? on an invariant (D1 s21a).
+r4 := =?(sub(z, d2([1])), zero3)
+tally := len([r1, r2, r3, r4])
+claim := \an <| IMPLEMENTED , DECLARED |> tally
+\ve(\fn v |-> v = 4, claim)

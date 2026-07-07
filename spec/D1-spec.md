@@ -787,3 +787,28 @@ new glyph ideas; candidates emerge only from repeated pressure.
 matrix arose in collaborative design; recorded as lineage — `cited ≠
 implemented`. The enforcement is the ledger and the glyph audit
 (`docs/transcripts/glyph_audit.txt`), not this prose.
+
+
+## 22. Chain complexes, and the "witnessed deformation" question (§12 family)
+
+A user-directed conversion (like §12b, §18): homology's founding law — *boundary of
+boundary is zero*, ∂∘∂ = 0 — is exact integer algebra of a finite chain complex,
+sealable by evaluation. `examples/chain_complex.urdr` (⊢ 4) verifies ∂₁∘∂₂ = 0 on a
+filled triangle, that a boundary is a cycle, and that equivalence-mod-boundary
+reduces to subtraction + ≟; `examples/rejected/chain_wrong.urdr` loses orientation
+so ∂∂ ≠ 0 and dies `URDR-ASSERT`. Integer algebra of a chain complex — **not
+topology**; nothing about spaces is claimed (`signum ≠ rēs`).
+
+**The SFH-style glyph candidate, tested and closed.** The sharp question it raised:
+does Urðr need a first-class **"identity modulo a certified transformation space"** —
+`x ~ y` because a *certified chain of invariant-preserving transformations* connects
+them — distinct from digest identity (*exactly the same object*)? Tested
+(`tests/test_chain.py`): **no — it is absorbed.** A witnessed deformation is a fold
+(Σ) over the witness chain that asserts (≟) a declared invariant is preserved at
+every step. The three proposed red states collapse: a chain that breaks the
+invariant, or a transformation outside the allowed family, both die `URDR-ASSERT`;
+a claimed equivalence with *no* witness has nothing to certify (the relation
+structurally requires the witness as data). So it is the invariant-preservation
+idiom (§21a) *lifted over a chain* — `Σ + ≟` — earning no primitive and no glyph.
+`digest = same object`; `≟-on-an-invariant = same class after a witnessed
+deformation` — and the second already exists.
