@@ -155,4 +155,10 @@ expansion is CLOSED (already-present, substrate-only, or law-violating) or DEFER
 (no pressure / no current content). That is itself a milestone — the core has reached
 a stable point, and future growth should come from *use cases that generate repeated
 friction*, not from expansion. A glyph is the visible trace of a missing constraint
-(D1 §21b); there is no missing constraint under pressure right now. `Nihil ultrā probātum.`
+(D1 §21b); there is no missing constraint under pressure right now. The core LAWS were
+then probed the same way (time/ordering, identity vs behavioural equivalence, proof
+reuse across a world change, multi-party merge) and all four closed too — causal order
+invisible by design (§13), identity is structure not behaviour (law 3), a proof is
+value-pinned (`URDR-LIMES`, R2c), merge is explicit / unpressured. Two subsystems
+adversarially hunted, zero gaps. The reusable method is `spec/D6-gap-probe.md`.
+`Nihil ultrā probātum.`
