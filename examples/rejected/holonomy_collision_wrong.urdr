@@ -1,0 +1,7 @@
+# FALSE (horocycle case): two loops with the SAME base point but DIFFERENT holonomy are
+# not the same object. "Identical everywhere finite, different asymptotic/holonomy class."
+# Claiming holonomy-equivalence (=? on the holonomy) must DIE: holonomy != I is caught.
+holo := \fn loop |-> \vw(loop, 's1) + \vw(loop, 's2) + \vw(loop, 's3)
+la := \st{pt: 0, s1: 1, s2: -1, s3: 0}
+lb := \st{pt: 0, s1: 1, s2: 1, s3: 0}
+=?(holo(la), holo(lb))

@@ -47,6 +47,7 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Per-generator equivariance corpus (oracle localization): the differential oracle (§14b) checked PER language generator — each probe's `reference ≡ compiled ≡ golden` (the commuting square commutes for that generator) AND the built-in `+`-defect placement diverges on exactly the generators that exercise `+` (localization); a non-commuting square, a mislocalized defect, or a defect that breaks nowhere reddens the gate | IMPLEMENTED | MEASURED | `examples/oracle_generators/` (5 probes + goldens + MANIFEST), `verify.py` oracle_generators stage; non-vacuity proven by three injected defects (wrong golden, mismarked localization, dropped `+`-probe) each caught then reverted |
 | Manifold equivalence under an invariant witness: a finite complex as integer lists; χ = V−E+F (Euler characteristic, label-invariant). Safe transforms (vertex relabel, Pachner 2-2 flip) give DIFFERENT digests but EQUAL χ — equivalence under the witness (`≟`); false transforms (puncture χ 1→0, disconnected merge χ 1→2) change χ and die `URDR-ASSERT`. Exact integer combinatorics, not geometry (`signum ≠ rēs`) | IMPLEMENTED | MEASURED | `examples/manifold_equivalence.urdr` (⊢4), `examples/rejected/manifold_puncture_wrong.urdr` + `manifold_merge_wrong.urdr` (URDR-ASSERT) |
 | Sheaf gluing / Čech obstruction: local sections over a loop-cover with overlap transitions gᵢⱼ ∈ ℤ glue to a GLOBAL section iff the winding class (signed loop-sum, an integer H¹) vanishes — `≟(loop, 0)`; Case 1 (local agreement, GLOBAL failure = nonzero monodromy) dies `URDR-ASSERT`. The cohomological DUAL of the chain-complex boundary law (§22, ∂∂=0) | IMPLEMENTED | MEASURED | `examples/sheaf_gluing.urdr` (⊢0), `examples/rejected/sheaf_monodromy_wrong.urdr` (URDR-ASSERT) |
+| Holonomy / transport-history identity (#10): a frame transported around a loop returns to the same base POSITION (`≟` on the viewed `pt`) yet is a DISTINCT object — Urðr's digest is already state+history (measured: two edit-paths to the same field give different digests; provenance `ᛃ` differs), and the holonomy element itself is a computed transport sum witnessed by `≟`; a false holonomy-equivalence claim (same base point, different holonomy) dies `URDR-ASSERT` | IMPLEMENTED | MEASURED | `examples/holonomy_witness.urdr` (⊢3), `examples/rejected/holonomy_collision_wrong.urdr` (URDR-ASSERT) |
 | Chain-complex falsifier (D1 §22, user-directed conversion): homology's founding law ∂∘∂ = 0 (d1∘d2 on a filled triangle) sealed by exact integer evaluation; a boundary is a cycle; equivalence-mod-boundary = subtraction + ≟; orientation-lost boundary (∂∂ ≠ 0) dies. Integer algebra, no topology claimed (signum ≠ rēs). The SFH-style 'identity modulo a certified transformation space' is ABSORBED (Σ over the witness chain asserting ≟ on an invariant — §21a lifted; red states → URDR-ASSERT), so no primitive, no glyph | IMPLEMENTED | MEASURED | `examples/chain_complex.urdr` (⊢4), `examples/rejected/chain_wrong.urdr` (URDR-ASSERT), `tests/test_chain.py` (6 falsifiers incl. the witnessed-deformation absorption proof) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: every example digest in the corpus bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), through v0.7.x (143-falsifier gate green on both). Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -130,6 +131,8 @@ substrate guarantee does NOT already imply an expressible Urðr law:
 | dimensional witness | DEFERRED | reduces to transport+witness with a rank/adjacency/orientation invariant; the one non-reducible form (dimension as a *static* type axis) has `observed_pressure = 0` — the manifold code now added (`manifold_equivalence`, `sheaf_gluing`) collapses into `≟`, no pressure for a static dimension type |
 | equiv_witness (same object under a witness) | CLOSED | measured: `≟` on an invariant (`examples/manifold_equivalence.urdr` + 2 rejected); proposed `URDR-EQUIV-UNPROVEN` / `URDR-INVARIANT-DRIFT` / `URDR-MAP-NONCOMMUTING` all rename `URDR-ASSERT` |
 | sheaf gluing / Čech obstruction | CLOSED | measured: a COMPUTED integer obstruction (winding / H¹) + `≟`, cohomological dual of §22; `URDR-SHEAF-NO-GLOBAL-SECTION` / `URDR-GLUE-FAIL` = `URDR-ASSERT`. Unbounded-search obstructions = DEFERRED (Dehn-class) |
+| holonomy / transport history (#10) | CLOSED | measured: identity is already state+history (digest carries the parent-link; provenance `ᛃ` observes it); pure-position = `☽`; the holonomy element = computed transport + `≟`. The equivalence is *witness-selected* ('equivalent for what purpose?'), not a glyph |
+| boundary-at-infinity / asymptotic class (#11) | CLOSED (founding law) | a finitely-computable asymptotic class (winding, rational endpoint) is a computed witness + `≟`; one needing the actual infinite limit has no finite witness, so Urðr withholds `Grounded` (`Nihil ultrā probātum`) — not a gap. Unbounded-limit case = DEFERRED (search) |
 
 | Candidate | Status | Question | Desired law | Falsifier | Promotion condition | observed_pressure |
 |---|---|---|---|---|---|---|
@@ -238,6 +241,37 @@ SEARCH (non-finite covers, undecidable coefficients, "safe for ALL completions")
 search Urðr deliberately does not do (D1 §6). A COMPUTABLE obstruction (finite cover, ℤ
 coefficients) is not a gap — it is arithmetic + `≟`. `computed obstruction ≠ searched
 obstruction`; the first is `≟`, the second is out of scope.
+
+**Holonomy & the horocycle / boundary-at-infinity question — measured, CLOSED.** The sharp
+form: *does Urðr identify an object by state, or by state + transport history?* Measured
+answer — **state + history, already.** Two stores reaching the identical current field by
+different edit-paths have different digests (the parent-link is in the canonical bytes) and
+different provenance `ᛃ`; `holonomy_witness.urdr` shows two loops with the same base position
+(`≟` on the viewed `pt`) that are nonetheless distinct objects, and a false
+holonomy-equivalence claim (same coordinate, different holonomy) dies `URDR-ASSERT`. So the
+programmer *selects* the equivalence by choosing the witness — pure position (`☽`), full
+identity (digest = state+history), or the holonomy element (a computed transport sum + `≟`).
+That IS the "equivalent for what purpose?" / witness-selection layer: mathematics supplies
+candidate invariants; the program picks which one is the contract. The **horocycle /
+boundary-at-infinity** case is the elegant limit — an asymptotic class that is *finitely
+computable* (a winding number, a rational endpoint) is another computed witness + `≟`; one
+that genuinely needs the infinite limit has **no finite witness**, so Urðr withholds
+`Grounded` — the founding law doing its job, not a missing primitive (the "point you never
+reach" is exactly where evidence is not earned). `finite witness ⇒ ≟; no finite witness ⇒
+no Grounded`.
+**The 30-contract table — one shape, mostly already sealed.** The contracts span
+geometry/topology/physics/learned manifolds, but the repeated semantic shape is one: *a claim
+that a transformation preserves a declared invariant across a change of representation, scale,
+or context* — `compute witness → ≟` (refused as `URDR-ASSERT`), or a computed obstruction for
+global assembly, or a withheld `Grounded` for the infinite/undecidable. Several are already
+measured falsifiers: Euler-χ (#27) and Pachner invariance (#25) = `manifold_equivalence`;
+cohomological obstruction (#15) = `sheaf_gluing`; homology `∂∂=0` (#14) = `chain_complex`
+(§22); holonomy (#10) = `holonomy_witness`; structure-preserving map (#2/#18) = `z2_grading`;
+projection round-trip (#24) = the lens laws. A contract earns language surface only on the D6
+terms — a *recurring* real failure existing primitives cannot state safely: `math supplies
+invariants; experiments expose missing witnesses; applications reveal which witnesses matter;
+glyphs encode only the recurring unavoidable ones`. None has yet cleared that bar; every
+tested contract reduced to `≟` + a computed witness, or to the founding law's refusal.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,

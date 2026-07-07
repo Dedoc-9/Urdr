@@ -1,0 +1,18 @@
+# holonomy_witness -- "returns to the same coordinate" is NOT "same transport history".
+# A frame transported around a loop: holonomy = the signed sum of the transport steps
+# (a flat-connection / abelian holonomy; the winding an object accumulates). Two loops
+# share the SAME base point pt=0 but differ in holonomy. Identity = which witness you
+# pick: pure position (view), full object (digest = state+history), or the holonomy (=?).
+# Exact integer transport, not geometry. signum != res.
+holo := \fn loop |-> \vw(loop, 's1) + \vw(loop, 's2) + \vw(loop, 's3)
+la := \st{pt: 0, s1: 1, s2: -1, s3: 0}
+lb := \st{pt: 0, s1: 1, s2: 1, s3: 0}
+# same base POSITION (the loop returns to where it started):
+same_pt := =?(\vw(la, 'pt), \vw(lb, 'pt))
+# but DISTINCT objects -- the digest already carries state+history, so they differ:
+distinct := la != lb
+# la's holonomy is trivial (= identity = 0), verified:
+trivial := =?(holo(la), 0)
+checks := [same_pt, distinct, trivial]
+claim := \an <| IMPLEMENTED , DECLARED |> len(checks)
+\ve(\fn v |-> v = 3, claim)
