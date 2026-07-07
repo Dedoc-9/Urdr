@@ -45,6 +45,8 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Glyph review (D1 §20): a falsifiable promotion event — a glyph is earned as a LOSSLESS alias of a proven operation, never declared; the review can reject (`URDR-GLYPH-NOT-EARNED`). First glyph earned: `⟿` (U+27FF, `\tw`) for `transition_witness` — three spellings, one digest; confusables/core-collision/non-lossless/missing-provenance all refused | IMPLEMENTED | MEASURED | `tools/glyph_review.py`, `tests/test_glyph_review.py` (6 falsifiers incl. lossless three-spelling proof + four rejection modes) |
 | Foreign placement oracle **harness** (R6a): a foreign implementation admitted as another placement iff its digest = the ☉ reference, else refused (`URDR-PLACEMENT-DIVERGENCE`; Rust instance `URDR-RUST-DIVERGENCE`) — the differential oracle (§14b) generalized to any substrate; no foreign code trusted, only agreement. Separate tool, own runner, stdlib-only. Does NOT assert any Rust impl agrees — that is the gap-ledger candidate | IMPLEMENTED | MEASURED | `tools/foreign_placement/test_foreign_oracle.py` (3 falsifiers: agreeing admitted, diverging reddens, no-digest errors) |
 | Per-generator equivariance corpus (oracle localization): the differential oracle (§14b) checked PER language generator — each probe's `reference ≡ compiled ≡ golden` (the commuting square commutes for that generator) AND the built-in `+`-defect placement diverges on exactly the generators that exercise `+` (localization); a non-commuting square, a mislocalized defect, or a defect that breaks nowhere reddens the gate | IMPLEMENTED | MEASURED | `examples/oracle_generators/` (5 probes + goldens + MANIFEST), `verify.py` oracle_generators stage; non-vacuity proven by three injected defects (wrong golden, mismarked localization, dropped `+`-probe) each caught then reverted |
+| Manifold equivalence under an invariant witness: a finite complex as integer lists; χ = V−E+F (Euler characteristic, label-invariant). Safe transforms (vertex relabel, Pachner 2-2 flip) give DIFFERENT digests but EQUAL χ — equivalence under the witness (`≟`); false transforms (puncture χ 1→0, disconnected merge χ 1→2) change χ and die `URDR-ASSERT`. Exact integer combinatorics, not geometry (`signum ≠ rēs`) | IMPLEMENTED | MEASURED | `examples/manifold_equivalence.urdr` (⊢4), `examples/rejected/manifold_puncture_wrong.urdr` + `manifold_merge_wrong.urdr` (URDR-ASSERT) |
+| Sheaf gluing / Čech obstruction: local sections over a loop-cover with overlap transitions gᵢⱼ ∈ ℤ glue to a GLOBAL section iff the winding class (signed loop-sum, an integer H¹) vanishes — `≟(loop, 0)`; Case 1 (local agreement, GLOBAL failure = nonzero monodromy) dies `URDR-ASSERT`. The cohomological DUAL of the chain-complex boundary law (§22, ∂∂=0) | IMPLEMENTED | MEASURED | `examples/sheaf_gluing.urdr` (⊢0), `examples/rejected/sheaf_monodromy_wrong.urdr` (URDR-ASSERT) |
 | Chain-complex falsifier (D1 §22, user-directed conversion): homology's founding law ∂∘∂ = 0 (d1∘d2 on a filled triangle) sealed by exact integer evaluation; a boundary is a cycle; equivalence-mod-boundary = subtraction + ≟; orientation-lost boundary (∂∂ ≠ 0) dies. Integer algebra, no topology claimed (signum ≠ rēs). The SFH-style 'identity modulo a certified transformation space' is ABSORBED (Σ over the witness chain asserting ≟ on an invariant — §21a lifted; red states → URDR-ASSERT), so no primitive, no glyph | IMPLEMENTED | MEASURED | `examples/chain_complex.urdr` (⊢4), `examples/rejected/chain_wrong.urdr` (URDR-ASSERT), `tests/test_chain.py` (6 falsifiers incl. the witnessed-deformation absorption proof) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: every example digest in the corpus bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), through v0.7.x (143-falsifier gate green on both). Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -125,7 +127,9 @@ substrate guarantee does NOT already imply an expressible Urðr law:
 | `foreign_rust_kernel` | DEFERRED | inexpressible witness (independent Rust agreement), falsifier `URDR-RUST-DIVERGENCE`, but needs a cargo host + has no pressure |
 | intertwiner / equivariant compiler | CLOSED | already expressible: the oracle IS the commuting square `digest(E_ref(P)) = digest(E_comp(P))` (§14b); per-generator verification is corpus-completeness, not a primitive — now a permanent gate stage (`examples/oracle_generators/`, MEASURED); a defect localizes to `g=+` |
 | transport + witness set | CLOSED | already expressible: `≟(I(x), I(Φ(x)))` folded over the witness set — single-invariant = §14b oracle, multi-invariant = `examples/chain_complex.urdr` |
-| dimensional witness | DEFERRED | reduces to transport+witness with a rank/adjacency/orientation invariant; the one non-reducible form (dimension as a *static* type axis) has `observed_pressure = 0` — no manifold code exists |
+| dimensional witness | DEFERRED | reduces to transport+witness with a rank/adjacency/orientation invariant; the one non-reducible form (dimension as a *static* type axis) has `observed_pressure = 0` — the manifold code now added (`manifold_equivalence`, `sheaf_gluing`) collapses into `≟`, no pressure for a static dimension type |
+| equiv_witness (same object under a witness) | CLOSED | measured: `≟` on an invariant (`examples/manifold_equivalence.urdr` + 2 rejected); proposed `URDR-EQUIV-UNPROVEN` / `URDR-INVARIANT-DRIFT` / `URDR-MAP-NONCOMMUTING` all rename `URDR-ASSERT` |
+| sheaf gluing / Čech obstruction | CLOSED | measured: a COMPUTED integer obstruction (winding / H¹) + `≟`, cohomological dual of §22; `URDR-SHEAF-NO-GLOBAL-SECTION` / `URDR-GLUE-FAIL` = `URDR-ASSERT`. Unbounded-search obstructions = DEFERRED (Dehn-class) |
 
 | Candidate | Status | Question | Desired law | Falsifier | Promotion condition | observed_pressure |
 |---|---|---|---|---|---|---|
@@ -209,6 +213,31 @@ stresses the language until a law must be named — the way I/O forced the capab
 līmes), and it is recorded here as the intended next pressure source. But the method's
 first rule is Reality: nothing is minted until real friction repeats. `pain observed ≠
 imagined pain`; build the wheel before naming the road.
+
+**Manifold equivalence & sheaf gluing — tested under load, both CLOSED (measured).** Two
+adversarial suites were built to put real pressure on the "identity across representations"
+/ `equiv_witness(A,B,invariants)` candidate and on the sheaf-cohomology "do local proofs
+compose into a global proof?" candidate — not to assert their disposition.
+- *Equivalence under a witness*: "same object in the sense I care about" is `≟` on an
+  invariant. Safe transforms (relabel, Pachner flip) give different digests but equal χ
+  (equivalence under the χ-witness); false transforms (puncture, disconnected merge) change
+  χ and die `URDR-ASSERT`. `equiv_witness` reduces to `≟` folded over the declared
+  invariants; `URDR-EQUIV-UNPROVEN` / `URDR-INVARIANT-DRIFT` / `URDR-MAP-NONCOMMUTING` all
+  rename `URDR-ASSERT`. No new primitive.
+- *Sheaf gluing*: "do local truths compose into a global one?" is answered by a COMPUTED
+  obstruction, not a search. Over a loop-cover, local sections glue iff the Čech winding
+  class (an integer H¹) vanishes — `≟(loop, 0)`. Case 1 (every overlap locally consistent,
+  yet no global section) is a nonzero monodromy caught by `URDR-ASSERT`. This is the
+  cohomological DUAL of the chain-complex boundary law already sealed (§22, `∂∂=0`). The
+  "genuinely new epistemic category" — *local `Grounded` ⇏ global `Grounded`* — is real as
+  a concept but expressed today as `ᛞ` over an obstruction-computing verifier: global
+  `Grounded` is minted only when the obstruction verifier passes. `URDR-SHEAF-NO-GLOBAL-
+  SECTION` / `URDR-GLUE-FAIL` = `URDR-ASSERT`. No new primitive, no glyph.
+The DEFERRED remainder is the one Dehn already named: an obstruction requiring UNBOUNDED
+SEARCH (non-finite covers, undecidable coefficients, "safe for ALL completions") is a proof
+search Urðr deliberately does not do (D1 §6). A COMPUTABLE obstruction (finite cover, ℤ
+coefficients) is not a gap — it is arithmetic + `≟`. `computed obstruction ≠ searched
+obstruction`; the first is `≟`, the second is out of scope.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,

@@ -1,0 +1,7 @@
+# FALSE gluing (sheaf Case 1: local agreement, GLOBAL failure). Every overlap is
+# locally consistent, but the transitions do NOT close around the loop: the winding
+# class is nonzero (monodromy) -- no global section exists. "All local claims valid;
+# the assembled claim impossible" caught as an integer obstruction + =?. H^1(S^1,Z)!=0.
+loop := \fn g |-> \vw(g, 'g01) + \vw(g, 'g12) + \vw(g, 'g20)
+g := \st{g01: 2, g12: -3, g20: 2}
+=?(loop(g), 0)

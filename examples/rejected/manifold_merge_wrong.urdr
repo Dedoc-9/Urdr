@@ -1,0 +1,6 @@
+# FALSE transform: disconnected merge (add an isolated triangle) changes chi 1 -> 2
+# (chi is additive over components). The equivalence claim must die on =?.
+chi := \fn m |-> \vw(m, 'v) - len(\vw(m, 'e)) + len(\vw(m, 'f))
+a  := \st{v: 4, e: [[0,1],[1,2],[2,3],[3,0],[0,2]], f: [[0,1,2],[0,2,3]]}
+am := \st{v: 7, e: [[0,1],[1,2],[2,3],[3,0],[0,2],[4,5],[5,6],[6,4]], f: [[0,1,2],[0,2,3],[4,5,6]]}
+=?(chi(a), chi(am))

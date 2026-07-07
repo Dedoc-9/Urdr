@@ -1,0 +1,10 @@
+# sheaf_gluing -- do local truths compose into a global one? A cover of a LOOP by
+# three arcs u0,u1,u2; on each overlap a transition g_ij in Z (a discrete jump).
+# The Cech 1-cocycle glues to a GLOBAL section iff the obstruction -- the signed sum
+# around the loop (its winding / H^1 class) -- vanishes. Here it does. Exact integer
+# cohomology, the DUAL of chain_complex's boundary law (D1 s22). Not geometry.
+loop := \fn g |-> \vw(g, 'g01) + \vw(g, 'g12) + \vw(g, 'g20)
+g := \st{g01: 2, g12: -3, g20: 1}
+glued := =?(loop(g), 0)
+claim := \an <| IMPLEMENTED , DECLARED |> glued
+\ve(\fn v |-> v = 0, claim)

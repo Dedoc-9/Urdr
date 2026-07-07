@@ -1,0 +1,21 @@
+# manifold_equivalence -- "same object under a witness" IS =? on an invariant.
+# A finite complex as integer lists; chi = V - E + F (Euler characteristic), a
+# LABEL-INVARIANT integer. Safe transforms give DIFFERENT digests but EQUAL chi
+# (equivalence under the chi-witness); false transforms change chi and die (see
+# examples/rejected/manifold_*_wrong). Exact integer combinatorics -- not geometry.
+chi := \fn m |-> \vw(m, 'v) - len(\vw(m, 'e)) + len(\vw(m, 'f))
+# a: a square = two triangles sharing diagonal [0,2]. V=4 E=5 F=2 -> chi = 1 (a disk).
+a  := \st{v: 4, e: [[0,1],[1,2],[2,3],[3,0],[0,2]], f: [[0,1,2],[0,2,3]]}
+# SAFE 1 -- vertex relabel (a permutation): different bytes, same chi.
+ar := \st{v: 4, e: [[1,2],[2,3],[3,0],[0,1],[1,3]], f: [[1,2,3],[1,3,0]]}
+# SAFE 2 -- Pachner 2-2 flip: diagonal [0,2] -> [1,3]. Still V=4 E=5 F=2, same chi.
+af := \st{v: 4, e: [[0,1],[1,2],[2,3],[3,0],[1,3]], f: [[0,1,3],[1,2,3]]}
+# different byte identities (the digest separates them) ...
+n1 := a != ar
+n2 := a != af
+# ... yet EQUIVALENT under the chi-witness (=? holds, else it would be URDR-ASSERT):
+e1 := =?(chi(a), chi(ar))
+e2 := =?(chi(a), chi(af))
+total := n1 + n2 + e1 + e2
+claim := \an <| IMPLEMENTED , DECLARED |> total
+\ve(\fn v |-> v = 4, claim)

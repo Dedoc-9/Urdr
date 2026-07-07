@@ -1,0 +1,7 @@
+# FALSE transform: puncture (remove a 2-cell) changes Euler characteristic 1 -> 0.
+# "same object under a witness" must REFUSE this: =? on the chi-invariant dies.
+# Exact integer combinatorics of a finite complex -- not geometry. signum != res.
+chi := \fn m |-> \vw(m, 'v) - len(\vw(m, 'e)) + len(\vw(m, 'f))
+a  := \st{v: 4, e: [[0,1],[1,2],[2,3],[3,0],[0,2]], f: [[0,1,2],[0,2,3]]}
+ap := \st{v: 4, e: [[0,1],[1,2],[2,3],[3,0],[0,2]], f: [[0,1,2]]}
+=?(chi(a), chi(ap))

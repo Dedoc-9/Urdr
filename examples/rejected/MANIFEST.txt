@@ -14,3 +14,6 @@ centering_wrong.urdr run URDR-ASSERT
 evidence_unpurchased.urdr run URDR-ASSERT
 transition_unearned.urdr run URDR-DELTA-UNEARNED
 chain_wrong.urdr run URDR-ASSERT
+manifold_puncture_wrong.urdr run URDR-ASSERT
+manifold_merge_wrong.urdr run URDR-ASSERT
+sheaf_monodromy_wrong.urdr run URDR-ASSERT
