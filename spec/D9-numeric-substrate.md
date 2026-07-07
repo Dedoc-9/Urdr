@@ -114,13 +114,13 @@ operation other than i64 `+ − ×` and comparisons is ever consulted.
 | `floor_int` per §2 (needs bit-serial ÷2³²) | SPECULATIVE — lands with `div` | N/A |
 | `mul`, `div` bit-serial per §4 | SPECULATIVE until module lands | N/A |
 | `sqrt` per §2/§4 | SPECULATIVE (law frozen; lands after mul/div are MEASURED) | N/A |
-| Cross-placement bit-identity on the fixtures | SPECULATIVE until run on both | N/A |
+| Cross-placement bit-identity on the fixtures | IMPLEMENTED | **MEASURED** (2026-07-07) — `urdr-core-rs` reproduced `fixpoint_arithmetic` and refused `fixpoint_overflow_wrong` inside ADMITTED 10/10, twice, on Windows/`rustc 1.96.1` |
 | "Physics-ready substrate" | NOT CLAIMED — physics is Milestone 5B, after this ledger row is MEASURED | — |
 
 ## 7. D8 corpus extension (deliberate un-freeze)
 
 Measured fixpoint fixtures join `tools/foreign_placement/conformance.txt` as
-**corpus v2** — the Stage-4 target grows, deliberately and recorded here: each new
+**corpus v2** — DONE and CROSS-VERIFIED: `fixpoint_arithmetic` (accept) + `fixpoint_overflow_wrong` (reject) are in `conformance.txt`, and `urdr-core-rs` reproduced them inside **ADMITTED 10/10 (twice)** on Windows/`rustc 1.96.1` (2026-07-07). The Stage-4 target grows, deliberately and recorded here: each new
 vector is `MEASURED` from ☉ before it is frozen, and `urdr-core-rs` must reproduce
 it (plus survive `--defect`) to stay ADMITTED. `a frozen target may grow; it may
 never silently change`.
