@@ -281,6 +281,60 @@ class Gate:
         finally:
             shutil.rmtree(scratch, ignore_errors=True)
 
+    # -- 2c. oracle generators: per-generator equivariance + localization -----
+    def oracle_generators(self):
+        """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
+        examples/oracle_generators/ isolates one language operation; for each,
+        reference == compiled == golden is the commuting square for that generator,
+        and the built-in defect placement must diverge on exactly the generators
+        whose operation it perturbs (MANIFEST defect_breaks). A square that does
+        not commute, a mislocalized defect, or a defect that breaks nowhere reddens
+        the gate -- the composite oracle strengthened per operation, earned with no
+        new language construct."""
+        gdir = os.path.join(ROOT, "examples", "oracle_generators")
+        manifest = os.path.join(gdir, "MANIFEST.txt")
+        if not os.path.exists(manifest):
+            self.record("oracle-generators", False, "missing MANIFEST.txt (vacuous)")
+            return
+        with open(manifest, "r", encoding="utf-8") as fh:
+            rows = [ln.split() for ln in fh.read().splitlines()
+                    if ln.strip() and not ln.startswith("#")]
+        if not rows:
+            self.record("oracle-generators", False, "empty MANIFEST (vacuous)")
+            return
+        localized = 0
+        for name, fname, breaks in rows:
+            want_break = breaks.lower() == "yes"
+            path = os.path.join(gdir, fname)
+            golden_path = path[:-len(".urdr")] + ".digest"
+            if not (os.path.exists(path) and os.path.exists(golden_path)):
+                self.record("gen:" + name, False, "missing program/golden (%s)" % fname)
+                continue
+            with open(golden_path, "r", encoding="utf-8") as fh:
+                golden = fh.read().strip()
+            _cr, out_r, _er = run_cli(["run", path, "--via", "reference"])
+            _cc, out_c, _ec = run_cli(["run", path, "--via", "compiled"])
+            d_r, d_c = extract_digest(out_r), extract_digest(out_c)
+            square = d_r == golden and d_c == golden
+            self.record(
+                "gen:%s:square" % name, square,
+                ("ref==compiled==golden %s" % golden[:12]) if square
+                else "square broken (ref=%s comp=%s golden=%s)" % (
+                    str(d_r)[:10], str(d_c)[:10], golden[:10]))
+            _cd, out_d, _ed = run_cli(["run", path, "--via", "defect"])
+            diverged = extract_digest(out_d) != golden
+            self.record(
+                "gen:%s:defect" % name, diverged == want_break,
+                "defect %s (expected %s)" % (
+                    "breaks" if diverged else "agrees",
+                    "break" if want_break else "agree"))
+            if diverged:
+                localized += 1
+        self.record(
+            "oracle-generators-localize", localized >= 1,
+            ("defect localized by %d generator(s)" % localized) if localized
+            else "defect broke no generator -- the instrument is vacuous")
+
     # -- report ----------------------------------------------------------------
     def report(self) -> int:
         sys.stdout.write("\n" + "=" * 72 + "\n")
@@ -304,6 +358,7 @@ def main() -> int:
     gate.unit_tests()
     gate.examples()
     gate.oracle()
+    gate.oracle_generators()
     gate.modules()
     gate.rejections()
     gate.tamper()

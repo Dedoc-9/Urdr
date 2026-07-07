@@ -1,0 +1,2 @@
+# generator probe: multiplication. No '+' here, so the defect must AGREE (localization).
+6 * 7

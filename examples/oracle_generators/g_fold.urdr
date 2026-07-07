@@ -1,0 +1,2 @@
+# generator probe: aggregate/fold. No '+', defect agrees.
+Σ(range(3), 2, λ acc x ↦ acc * 2)

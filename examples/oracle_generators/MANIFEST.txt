@@ -1,0 +1,11 @@
+# generator · program · defect_breaks — the per-generator equivariance corpus (D1 s14b).
+# Each probe isolates ONE language generator. verify.py `oracle_generators` checks:
+#   square : reference == compiled == golden   (the commuting square commutes here)
+#   defect : --via defect diverges from golden IFF defect_breaks=yes  (localization)
+# The built-in defect is '+' off-by-one (compiler.py, --via defect); it must localize
+# to exactly the generator(s) that exercise '+'. A defect that breaks nowhere is vacuous.
+add       g_add.urdr     yes
+multiply  g_mul.urdr     no
+view      g_view.urdr    no
+aggregate g_fold.urdr    no
+verify    g_verify.urdr  no

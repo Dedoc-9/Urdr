@@ -1,0 +1,3 @@
+# generator probe: grounding verify. No '+', defect agrees.
+c ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ 42
+ᛞ(λ v ↦ v = 42, c)

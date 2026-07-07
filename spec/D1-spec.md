@@ -446,7 +446,7 @@ Design laws already fixed:
    placements. Today the gate checks it on the composite (whole-program digest over the
    corpus); the stronger per-generator form (one probe isolating each operation) is
    corpus-completeness, not a new construct — a defect localizes to the exact generator it
-   perturbs (D5, five single-generator probes). This is a law every future placement
+   perturbs — now a permanent gate stage (`examples/oracle_generators/`, `MEASURED`). This is a law every future placement
    (compiled, Rust, any Φ) must satisfy, *verified by the oracle*, not a language symbol.
 
 ## 15. Does-not-do (v0.1)

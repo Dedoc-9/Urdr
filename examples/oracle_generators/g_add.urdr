@@ -1,0 +1,2 @@
+# generator probe: addition. The built-in '+ off-by-one' defect MUST break this one.
+3 + 4
