@@ -1,5 +1,7 @@
 __pycache__/
 *.pyc
+*.exe
+*.pdb
 .pytest_cache/
 *.egg-info/
 .vscode/

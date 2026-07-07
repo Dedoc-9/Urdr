@@ -2,13 +2,16 @@
 
 # D8 — Portable kernel contract (cross-language conformance)
 
-Status: `DECLARED`. This document freezes what an **independent** execution kernel must
-reproduce to be admitted as a *placement* of Urðr's geometry-of-execution model (D7) — so the
-semantics are provably not carried by the Python interpreter alone. The contract and its
-reference vectors are `MEASURED` (they are the ☉ Python reference's actual, gate-green output);
-an independent kernel's **convergence** is `SPECULATIVE / N/A` until built and run on a host
-with a toolchain. This build sandbox has **no `rustc`/`cargo` and no root to install one** —
-so the convergence claim is *withheld*, not asserted. `target frozen ≠ target hit`.
+Status: `MEASURED` — **target hit 2026-07-07**. This document freezes what an **independent**
+execution kernel must reproduce to be admitted as a *placement* of Urðr's
+geometry-of-execution model (D7) — so the semantics are provably not carried by the Python
+interpreter alone. The contract and its reference vectors are `MEASURED` (the ☉ Python
+reference's actual, gate-green output). The independent kernel's **convergence is now also
+`MEASURED`**: `urdr-core-rs` (`tools/urdr_core_rs/urdr_core.rs` — one std-only Rust file,
+hand-rolled SHA-256, no crates) reproduced every accept digest and every rejection code
+**twice, identically**, with a deliberately-defective build caught 4/4 (§4 non-vacuity), on
+ONE named host: Windows, `rustc 1.96.1` (stable-x86_64-pc-windows-gnu). Scope: these 8
+vectors, that host; whole-corpus admission stays the SCOPED strengthening. `admitted ≠ trusted`.
 
 ## 0. Why (Stage 4)
 
@@ -69,8 +72,12 @@ substrate — no foreign code trusted, only agreement). This contract supplies i
 ## 5. Grade
 
 The contract (§1–2) and the vectors (§3) are `MEASURED`: they are the ☉ Python reference's
-actual output, green in `verify.py`. An independent kernel's convergence is `SPECULATIVE / N/A`
-— it requires an implementation (e.g. `urdr-core-rs`) built and run on a host with a toolchain,
-which the current build sandbox lacks (`no rustc/cargo, no root`). This document is the
-**target**; hitting it is Stage 4's remaining, unmeasured step. `Nihil ultrā probātum` applies
-to Stage 4 itself: the portability claim is not made until a second kernel is run and agrees.
+actual output, green in `verify.py`. The independent kernel's convergence is `MEASURED`
+(2026-07-07): `urdr-core-rs` was ADMITTED per §4 — 8/8 conformance vectors reproduced twice
+identically, the `--defect` build caught 4/4, and 18 ☉-generated unit vectors green
+(`rustc --test`, serial) — on Windows / `rustc 1.96.1` (stable-gnu). A second, independent
+kernel agrees, so the portability claim is *made at exactly this scope*: these vectors, that
+host. What this does NOT show: agreement beyond the frozen corpus (whole-corpus admission via
+`tools/foreign_placement/foreign_oracle.py` is the SCOPED strengthening), correctness on
+adversarial inputs, or performance. Falsifier kept live: any future mismatch is
+`URDR-RUST-DIVERGENCE` — refused, not resolved. `Nihil ultrā probātum`.
