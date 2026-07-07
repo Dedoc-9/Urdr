@@ -1,0 +1,11 @@
+# FALSE (aliasing / Nyquist): a coarse rate that UNDER-SAMPLES loses information -- it is NOT
+# the same object as the fine trajectory. The fine schedule nets +4; the coarse schedule drops
+# a sample and nets +3. Claiming they are the same object confuses RATE with IDENTITY and must
+# die. rate != identity; a lossy rate is a different object. signum != res.
+add1 := \fn s |-> [nth(s,0)+1, nth(s,1)]
+anyp := \fn a b |-> 1
+replay := \fn s0 p ts |-> \fo(ts, s0, \fn acc t |-> ?(p(acc, t(acc)), t(acc), acc))
+s0 := [10, 0]
+fine   := replay(s0, anyp, [add1, add1, add1, add1])
+coarse := replay(s0, anyp, [add1, add1, add1])
+=?(fine, coarse)

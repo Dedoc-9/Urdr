@@ -1,0 +1,22 @@
+# frequency_invariance (Stage 3) -- temporal reparameterization as a Layer-2 chart. The SAME
+# object observed/advanced at different UPDATE RATES is the same object: transport adds a delta,
+# whose net effect is subdivision-independent (a monoid action), so a SLOW schedule (one big
+# step), a FAST schedule (many small steps), and an INTERPOLATED schedule (medium steps) with
+# equal net all reach ONE state -- rate != identity. Uses the Stage-2 kernel replay by digest
+# (R5); aliasing (a lossy rate) is the failure, tested separately. Frequency is NOT a glyph --
+# it is transport-under-contract on the time axis (D7). signum != res.
+use @81e96a9896fc029dc31c2f4eec004b365420e3c6c6abacb0be38cd6f6ad275c3 as kernel
+replay := \vw(kernel, 'replay)
+anyp := \fn a b |-> 1
+add1 := \fn s |-> [nth(s,0)+1, nth(s,1)]
+add2 := \fn s |-> [nth(s,0)+2, nth(s,1)]
+add4 := \fn s |-> [nth(s,0)+4, nth(s,1)]
+s0 := [10, 0]
+slow   := replay(s0, anyp, [add4])
+fast   := replay(s0, anyp, [add1, add1, add1, add1])
+interp := replay(s0, anyp, [add2, add2])
+# all three rates reach the SAME object (rate != identity):
+r1 := =?(slow, fast)
+r2 := =?(slow, interp)
+claim := \an <| IMPLEMENTED , DECLARED |> [slow, r1, r2]
+\ve(\fn v |-> v = [[14, 0], [14, 0], [14, 0]], claim)
