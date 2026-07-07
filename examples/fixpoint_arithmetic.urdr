@@ -4,7 +4,7 @@
 # construction (only i64 + - * and comparisons are consulted); the refusal law is falsified
 # separately (rejected/fixpoint_overflow_wrong). Cross-placement target: same digest through both
 # placements. No float, no new glyph.
-use @d1300b034b20d2176fe0e6ac4e8a39e376d35a76d044116b1ff5dbc872801a68 as fp
+use @28aa74d31d3e68e867d6064d43437532385cc1cedc22fffbbf7bfd4c5dbb1bb5 as fp
 one := \vw(fp, 'one)
 fi := \vw(fp, 'from_int)
 ad := \vw(fp, 'add)

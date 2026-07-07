@@ -1,0 +1,15 @@
+# fixpoint_mul (D9, Milestone 5A) -- Q32.32 multiplication through the vendored fixpoint module.
+# mul is division-free multi-precision (16-bit limbs via place-value folds, floor toward -inf,
+# overflow refused; algorithm proven in tools/fixpoint_proto/mul_algorithm.py). Identities: 3*4=12,
+# sign laws, 6*0.5=3 (fractional, exact), and floor-toward-neg-inf on an inexact negative product.
+# Deterministic by construction. Cross-placement target: same digest through both placements.
+use @28aa74d31d3e68e867d6064d43437532385cc1cedc22fffbbf7bfd4c5dbb1bb5 as fp
+mul := \vw(fp, 'mul)
+fi := \vw(fp, 'from_int)
+r1 := =?(mul(fi(3), fi(4)), fi(12))
+r2 := =?(mul(fi(-3), fi(4)), fi(-12))
+r3 := =?(mul(fi(-3), fi(-4)), fi(12))
+r4 := =?(mul(fi(6), 2147483648), fi(3))
+r5 := =?(mul(-12345678, 98765432), -283897)
+claim := \an <| IMPLEMENTED , DECLARED |> [r1, r2, r3, r4, r5]
+\ve(\fn v |-> v = [51539607552, -51539607552, 51539607552, 12884901888, -283897], claim)

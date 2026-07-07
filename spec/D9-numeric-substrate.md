@@ -115,7 +115,7 @@ operation other than i64 `+ − ×` and comparisons is ever consulted.
 | This contract (representation, rounding, refusals, op identities) | IMPLEMENTED (as spec) | DECLARED |
 | `add/sub/neg/from_int` per §2–4 | IMPLEMENTED | **MEASURED** — `examples/fixpoint_arithmetic.urdr` (⊢ [30064771072,30064771072,0,4294967296,1]) + `rejected/fixpoint_overflow_wrong.urdr` (URDR-ASSERT); vendored `fixpoint` module; oracle-agree; D8 corpus v2 |
 | `floor_int` per §2 (needs bit-serial ÷2³²) | SPECULATIVE — lands with `div` | N/A |
-| `mul` bit-serial per §4 | SPECULATIVE — **algorithm proven** (`tools/fixpoint_proto/mul_algorithm.py`, battery green); Urðr encoding + cross-placement pending | N/A |
+| `mul` bit-serial per §4 | IMPLEMENTED | **MEASURED (reference)** — `examples/fixpoint_mul.urdr` (⊢ [51539607552,−51539607552,51539607552,12884901888,−283897]) matches the proven prototype on the battery; `rejected/fixpoint_mul_overflow_wrong.urdr` (URDR-ASSERT); oracle-agree. Cross-placement (`urdr-core-rs`) pending host run (corpus v3) |
 | `div` bit-serial per §4 | SPECULATIVE until it lands | N/A |
 | `sqrt` per §2/§4 | SPECULATIVE (law frozen; lands after mul/div are MEASURED) | N/A |
 | Cross-placement bit-identity on the fixtures | IMPLEMENTED | **MEASURED** (2026-07-07) — `urdr-core-rs` reproduced `fixpoint_arithmetic` and refused `fixpoint_overflow_wrong` inside ADMITTED 10/10, twice, on Windows/`rustc 1.96.1` |

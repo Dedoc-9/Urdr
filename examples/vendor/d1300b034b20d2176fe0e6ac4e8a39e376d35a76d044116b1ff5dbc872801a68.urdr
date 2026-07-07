@@ -1,7 +1,0 @@
-# fixpoint (D9) -- Q32.32 deterministic numeric substrate, FOUNDATION (Milestone 5A). A "fix" is a
-# plain Int n meaning n/2^32; identity is the Int (no new canon). one = 2^32. Additive ops enforce
-# the D9 refusal law: i64 overflow and INT_MIN die (=? breach -> URDR-ASSERT), never wrap-as-truth.
-# Comparison is already correct (the representation is monotone). from_int scales by one with an
-# overflow guard. mul/div/sqrt (bit-serial, D9 s4) land next. Composed from Layer-1 (+ - * ?, <, >,
-# =?); no float, no new glyph. Identity is these canonical bytes (R5, D5 boundary).
-\st{one: 4294967296, from_int: \fn k |-> ?(k < -2147483647, =?(0, 1), ?(k > 2147483647, =?(0, 1), k * 4294967296)), add: \fn a b |-> ?(b > 0, ?(a + b < a, =?(0, 1), a + b), ?(b < 0, ?(a + b > a, =?(0, 1), a + b), a)), sub: \fn a b |-> ?(b < 0, ?(a - b < a, =?(0, 1), a - b), ?(b > 0, ?(a - b > a, =?(0, 1), a - b), a)), neg: \fn a |-> ?(a < -9223372036854775807, =?(0, 1), 0 - a)}

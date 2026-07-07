@@ -14,3 +14,6 @@ reject  speculation_wrong         URDR-ASSERT
 # --- corpus v2 (D9 numeric substrate, Milestone 5A) ---
 accept  fixpoint_arithmetic   2aa7ed50572a611a83373013aac2fc835c768eac15ce59b4c741dad2574a3baf
 reject  fixpoint_overflow_wrong  URDR-ASSERT
+# --- corpus v3 (D9 mul, Milestone 5A) ---
+accept  fixpoint_mul   85ef7f8ab232dbda00fe1c1a32deda90d641377bbe1b004e0f315bdc749a2fb2
+reject  fixpoint_mul_overflow_wrong  URDR-ASSERT

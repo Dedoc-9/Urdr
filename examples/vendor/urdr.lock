@@ -1,4 +1,4 @@
 # NAME  DIGEST  (offline manifest; the gate verifies file==hash==pin)
 mathlib  ff25ab68cb3b786b7e7715451e80a07fabba696f2fd1ba8300fd47687160fea2
 manifold_kernel  81e96a9896fc029dc31c2f4eec004b365420e3c6c6abacb0be38cd6f6ad275c3
-fixpoint  d1300b034b20d2176fe0e6ac4e8a39e376d35a76d044116b1ff5dbc872801a68
+fixpoint  28aa74d31d3e68e867d6064d43437532385cc1cedc22fffbbf7bfd4c5dbb1bb5
