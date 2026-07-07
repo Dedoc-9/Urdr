@@ -1,0 +1,17 @@
+# witness_firewall -- the effect cannot rewrite the criterion that judges it (the "causal
+# firewall" W not in E). The required invariant is PINNED as an immutable value BEFORE any
+# transform; validation compares the new state's witness against that anchor, never against
+# a criterion the transform supplies. Bindings are immutable and content-addressed, so no
+# transform can alter the anchor -- the firewall is STRUCTURAL (immutability + content-
+# addressing), not a runtime memory guard. Exact integers. signum != res.
+inv := \fn s |-> nth(s,0) + nth(s,1) + nth(s,2)
+s0 := [4, 1, 1]
+anchor := inv(s0)
+lawful := \fn s |-> [nth(s,0)-1, nth(s,1)+1, nth(s,2)]
+s1 := lawful(s0)
+# the new witness is judged by the PINNED anchor (which the transform cannot rewrite):
+ok := =?(inv(s1), anchor)
+# rebinding the anchor is impossible (immutable); observation of s1 never mutated s0 either:
+untouched := =?(inv(s0), anchor)
+claim := \an <| IMPLEMENTED , DECLARED |> [ok, untouched]
+\ve(\fn v |-> v = [6, 6], claim)

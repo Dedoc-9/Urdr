@@ -1,0 +1,12 @@
+# FALSE (self-authorization): an unlawful transform breaks the invariant, then is judged
+# against the PINNED anchor -- which it cannot rewrite (the anchor is an immutable binding,
+# fixed BEFORE the transform, content-addressed). =? against the real criterion catches it.
+# The effect cannot authorize its own mutation. (A program CAN write a trivial self-check
+# =?(x,x), but that visibly does NOT reference the anchor -- signum != res: the witness
+# records what was actually checked.)
+inv := \fn s |-> nth(s,0) + nth(s,1) + nth(s,2)
+s0 := [4, 1, 1]
+anchor := inv(s0)
+unlawful := \fn s |-> [nth(s,0)+1, nth(s,1), nth(s,2)]
+s1 := unlawful(s0)
+=?(inv(s1), anchor)

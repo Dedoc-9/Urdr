@@ -52,6 +52,7 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Temporal invariant / transactional evolution: a conserved quantity carried THROUGH a discrete evolution — each tick proposes an integer affine delta, the contract commits it iff the invariant `Q` is preserved else reverts to the prior state; over N ticks an unlawful injection is reverted, `Q(final)=Q(initial)`. The buildable heart of a tri-partite `(O,W,E)` engine — witness read from state, effect proposed separately, `W ∉ E`. Reduces to `\fo` (fold) + `≟` + `?` — no new primitive | IMPLEMENTED | MEASURED | `examples/temporal_invariant.urdr` (⊢ [6,[5,0,1]]), `examples/rejected/temporal_drift_wrong.urdr` (URDR-ASSERT) |
 | Projection under-determination (Yoneda / anamorphosis refutation, by construction): two DISTINCT 3D affine maps (identity vs a z-shear) share the SAME 2D projection yet differ in 3D — one projection's kernel hides a whole family, so it does NOT uniquely encode the map. Yoneda is faithful over the WHOLE category (all probes, incl. `1_X`); a restricted lower-dim subcategory is not dense. `truth under a chosen invariant ≠ the totality` | IMPLEMENTED | MEASURED | `examples/projection_underdetermined.urdr` (⊢ [[3,1],1]), `examples/rejected/projection_collapse_wrong.urdr` (URDR-ASSERT) |
 | Depth perception (constructive complement of projection under-determination): a SECOND spanning view recovers the depth one view lost — two orthogonal projections `π_xy, π_xz` determine the 3D point (kernels meet only at 0), so `recon` round-trips, and the depth view SEES the z-shear the front view was blind to. An incomplete (non-spanning) set fails to reconstruct (`URDR-ASSERT`). Tested as a primitive candidate → it is the LENS round-trip (§8) over a complete witness set, `≟`-verified — no new primitive | IMPLEMENTED | MEASURED | `examples/depth_perception.urdr` (⊢ [[3,1,2],[3,1],1]), `examples/rejected/depth_incomplete_wrong.urdr` (URDR-ASSERT) |
+| Witness firewall / validator integrity (the "causal firewall" `W ∉ E`): the criterion is PINNED as an immutable, content-addressed value BEFORE any transform; a new state is judged against that anchor, never a criterion the transform supplies. An unlawful transform cannot rewrite the anchor (bindings immutable; rebinding is a parse error), so it dies against the real criterion; observation never mutates the judged state. Achieved by immutability + content-addressing, not a memory guard | IMPLEMENTED | MEASURED | `examples/witness_firewall.urdr` (⊢ [6,6]), `examples/rejected/witness_firewall_forge_wrong.urdr` (URDR-ASSERT) |
 | Chain-complex falsifier (D1 §22, user-directed conversion): homology's founding law ∂∘∂ = 0 (d1∘d2 on a filled triangle) sealed by exact integer evaluation; a boundary is a cycle; equivalence-mod-boundary = subtraction + ≟; orientation-lost boundary (∂∂ ≠ 0) dies. Integer algebra, no topology claimed (signum ≠ rēs). The SFH-style 'identity modulo a certified transformation space' is ABSORBED (Σ over the witness chain asserting ≟ on an invariant — §21a lifted; red states → URDR-ASSERT), so no primitive, no glyph | IMPLEMENTED | MEASURED | `examples/chain_complex.urdr` (⊢4), `examples/rejected/chain_wrong.urdr` (URDR-ASSERT), `tests/test_chain.py` (6 falsifiers incl. the witnessed-deformation absorption proof) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: every example digest in the corpus bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), through v0.7.x (143-falsifier gate green on both). Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -358,6 +359,30 @@ the witness-completeness boundary — `one view collides; spanning views determi
 neither side earns a symbol. The only remainder is the usual one: for *nonlinear* projections
 "is the preimage unique?" is a search, `DEFERRED`. `stereo = lens round-trip over a spanning
 witness set`.
+
+**The causal firewall — tested, and it is Urðr's founding rationale, not a new primitive.**
+The sharpest form of the whole hunt: not a geometric measure but an *absolute causal
+firewall* so "the mutation plan cannot rewrite the rules used to evaluate it" (`Γ ∩ E = ∅`,
+an append-only immutable witness ledger). `witness_firewall` measures it — the criterion is
+pinned as an immutable, content-addressed value *before* any transform; an unlawful transform
+that breaks the invariant dies against the *pinned* anchor (`URDR-ASSERT`), because it cannot
+rewrite an immutable binding (rebinding is a parse error) and observation never mutated the
+judged state. The firewall is real and necessary — but in Urðr it is not a primitive to
+*add*; it is the **consequence of immutability + content-addressing**, the same laws that
+already give the membrane, provenance `ᛃ` (the append-only hash-chain history = `Γ`), and
+`Grounded refused outward` (R4 — a witness cannot be laundered through an effect). The
+distinction worth stating: the engine seeks a *causal / memory-isolation* firewall (`Γ` and
+`E` in separate address spaces); Urðr achieves the same guarantee **epistemically** —
+evidence is content-addressed (SHA-256), so the validator cannot be overwritten because
+*nothing* can be overwritten, and a witness transparently records the verifier it was earned
+by (`signum ≠ rēs`: a program may self-grade with a trivial verifier, but the grade names
+that verifier and cannot claim a stronger one). `content-addressing ⇒ the firewall for free`;
+no memory guard, no new glyph. The continuous machinery (the Hodge / cohomology / metric
+lines) stays `SCOPED / N/A`. And the two follow-ups answer themselves: concurrent affine
+changes are safe because nothing mutates (the `weave` schedule-invariance, already sealed),
+and the append-only `∥` is exactly the content-addressed provenance chain — neither needs a
+hardware guard, because the guarantee is cryptographic, not physical. The hunt arrived, from
+the systems side, at *why* Urðr is immutable and content-addressed in the first place.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,

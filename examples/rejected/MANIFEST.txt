@@ -22,3 +22,4 @@ manifold_chi_too_coarse_wrong.urdr run URDR-ASSERT
 temporal_drift_wrong.urdr run URDR-ASSERT
 projection_collapse_wrong.urdr run URDR-ASSERT
 depth_incomplete_wrong.urdr run URDR-ASSERT
+witness_firewall_forge_wrong.urdr run URDR-ASSERT
