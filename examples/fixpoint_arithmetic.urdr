@@ -1,0 +1,19 @@
+# fixpoint_arithmetic (D9, Milestone 5A) -- the Q32.32 foundation, exercised through the vendored
+# fixpoint module: from_int/add/sub/neg satisfy the algebraic identities, additive inverse cancels,
+# one = 2^32, and ordering is already correct on the monotone representation. Deterministic by
+# construction (only i64 + - * and comparisons are consulted); the refusal law is falsified
+# separately (rejected/fixpoint_overflow_wrong). Cross-placement target: same digest through both
+# placements. No float, no new glyph.
+use @d1300b034b20d2176fe0e6ac4e8a39e376d35a76d044116b1ff5dbc872801a68 as fp
+one := \vw(fp, 'one)
+fi := \vw(fp, 'from_int)
+ad := \vw(fp, 'add)
+sb := \vw(fp, 'sub)
+ng := \vw(fp, 'neg)
+r1 := =?(ad(fi(3), fi(4)), fi(7))
+r2 := =?(sb(fi(10), fi(3)), fi(7))
+r3 := =?(ad(fi(5), ng(fi(5))), 0)
+r4 := =?(one, 4294967296)
+r5 := fi(-3) < fi(4)
+claim := \an <| IMPLEMENTED , DECLARED |> [r1, r2, r3, r4, r5]
+\ve(\fn v |-> v = [30064771072, 30064771072, 0, 4294967296, 1], claim)

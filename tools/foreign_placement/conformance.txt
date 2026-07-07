@@ -11,3 +11,6 @@ reject  manifold_transport_wrong  URDR-ASSERT
 reject  frequency_aliasing_wrong  URDR-ASSERT
 reject  race_condition_wrong      URDR-ASSERT
 reject  speculation_wrong         URDR-ASSERT
+# --- corpus v2 (D9 numeric substrate, Milestone 5A) ---
+accept  fixpoint_arithmetic   2aa7ed50572a611a83373013aac2fc835c768eac15ce59b4c741dad2574a3baf
+reject  fixpoint_overflow_wrong  URDR-ASSERT

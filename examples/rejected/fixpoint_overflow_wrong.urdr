@@ -1,0 +1,6 @@
+# FALSE (overflow-as-truth, D9 s3): i64 addition of two large fix values WRAPS in the core; the
+# refusal law forbids committing the wrapped value. The additive guard (b>0 & a+b<a -> die) fires:
+# 2^62 + 2^62 wraps to -2^63, so claiming that sum is a valid fix must die. a wrong number that
+# flows is worse than a program that dies. signum != res.
+add := \fn a b |-> ?(b > 0, ?(a + b < a, =?(0, 1), a + b), ?(b < 0, ?(a + b > a, =?(0, 1), a + b), a))
+add(4611686018427387904, 4611686018427387904)
