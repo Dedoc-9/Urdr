@@ -1,0 +1,8 @@
+# FALSE: the Layer-2 kernel's transport REVERTS an unlawful move; it does not commit it.
+# Claiming the post-transport state is the (unlawful) moved state -- the contract bypassed --
+# must die. The transport contract is load-bearing for the whole runtime (D7 s1.5). signum != res.
+sum := \fn s |-> nth(s,0) + nth(s,1) + nth(s,2)
+pred := \fn a b |-> sum(b) = sum(a)
+transport := \fn s t p |-> ?(p(s, t(s)), t(s), s)
+bad := \fn s |-> [nth(s,0)+1, nth(s,1), nth(s,2)]
+=?(transport([4,1,1], bad, pred), [5, 1, 1])

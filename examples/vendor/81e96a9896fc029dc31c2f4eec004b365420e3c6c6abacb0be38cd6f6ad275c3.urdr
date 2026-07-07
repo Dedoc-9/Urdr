@@ -1,0 +1,7 @@
+# manifold-kernel (Layer-2 reference runtime, D7): domain-agnostic geometry of execution.
+# It knows transport-under-contract and witness; it knows no physics. transport = the D7
+# step (move t, commit iff contract pred holds on (old,new), else revert); replay = the
+# deterministic fold of transport over a schedule; observe = two charts of one state;
+# preserved = the invariant witness (=? that an invariant survived). Composed from Layer-1
+# (?, \fo, =?) -- no new glyph. Identity is these canonical bytes (R5, D5 boundary).
+\st{transport: \fn s t pred |-> ?(pred(s, t(s)), t(s), s), replay: \fn s0 pred ts |-> \fo(ts, s0, \fn acc t |-> ?(pred(acc, t(acc)), t(acc), acc)), observe: \fn s c1 c2 |-> [c1(s), c2(s)], preserved: \fn inv a b |-> =?(inv(a), inv(b))}

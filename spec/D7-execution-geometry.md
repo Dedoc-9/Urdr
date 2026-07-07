@@ -128,8 +128,12 @@ it may never add a glyph without passing §20.
 ## 5. Grade
 
 `DECLARED`. The model is a design contract; its evidence is the Layer-1 falsifiers cited above,
-each `MEASURED`. The Layer-2 reference runtime — a manifold-state container, invariant witnesses,
-chart transitions, deterministic replay, and a projection/observer system — is `SPECULATIVE / N/A`
-until built (the next step). This document exists so that when it is built, it is a *general*
+each `MEASURED`. The Layer-2 reference runtime — transport-under-contract, deterministic replay, observer
+projections, and the invariant witness — is now `IMPLEMENTED / MEASURED` in *minimal* form: the
+domain-agnostic kernel is vendored as the `manifold_kernel` R5 module and exercised by
+`examples/manifold_runtime.urdr` (a program run as a constrained traversal), gate-verified through
+the modules, examples, and oracle stages. Richer runtimes — higher-dimensional state, more
+invariants, the middleware stress tests — remain ahead; this kernel is the seed, and it satisfies
+this contract by composing only Layer-1 primitives, adding no glyph. This document exists so that when it is built, it is a *general*
 geometry-of-execution kernel and not a physics engine wearing a language's clothes.
 `Nihil ultrā probātum` applies to the model itself: it claims only the reductions it can cite.

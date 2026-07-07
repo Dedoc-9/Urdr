@@ -1,0 +1,20 @@
+# manifold_runtime -- the Layer-2 reference runtime (D7) exercised: import the domain-agnostic
+# kernel by digest (R5), then run a program AS a constrained traversal. State = an integer
+# 3-vector (NOT physics); the invariant is a CHOICE (a conserved sum) supplied to the kernel.
+# transport-under-contract + deterministic replay + observer projections + the invariant
+# witness -- every piece composed from Layer-1, no new glyph. D7 s5: Layer 2 goes MEASURED.
+use @81e96a9896fc029dc31c2f4eec004b365420e3c6c6abacb0be38cd6f6ad275c3 as kernel
+sum := \fn s |-> nth(s,0) + nth(s,1) + nth(s,2)
+pred := \fn a b |-> sum(b) = sum(a)
+replay := \vw(kernel, 'replay)
+observe := \vw(kernel, 'observe)
+preserved := \vw(kernel, 'preserved)
+s0 := [4, 1, 1]
+ts := [\fn s |-> [nth(s,0)-1, nth(s,1)+1, nth(s,2)], \fn s |-> [nth(s,0)+1, nth(s,1), nth(s,2)], \fn s |-> [nth(s,0), nth(s,1)-1, nth(s,2)+1]]
+sn := replay(s0, pred, ts)
+inv := preserved(sum, s0, sn)
+front := \fn s |-> [nth(s,0), nth(s,1)]
+back := \fn s |-> [nth(s,1), nth(s,2)]
+views := observe(sn, front, back)
+claim := \an <| IMPLEMENTED , DECLARED |> [sn, inv, views]
+\ve(\fn v |-> v = [[3, 1, 2], 6, [[3, 1], [1, 2]]], claim)
