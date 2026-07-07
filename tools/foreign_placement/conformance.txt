@@ -17,3 +17,7 @@ reject  fixpoint_overflow_wrong  URDR-ASSERT
 # --- corpus v3 (D9 mul, Milestone 5A) ---
 accept  fixpoint_mul   85ef7f8ab232dbda00fe1c1a32deda90d641377bbe1b004e0f315bdc749a2fb2
 reject  fixpoint_mul_overflow_wrong  URDR-ASSERT
+# --- corpus v4 (D9 div, Milestone 5A) ---
+accept  fixpoint_div   3ddbf06dc5059e22ed10ec33a8b22068e51674a4b9d8e95554838297cac25f5e
+reject  fixpoint_div_zero_wrong  URDR-ASSERT
+reject  fixpoint_rounding_wrong  URDR-ASSERT
