@@ -161,6 +161,16 @@ of `Grounded` (a named verifier passed). The topology chain rediscovers, from th
 geometric side, the primitives Urðr already has — `ᛞ` (verify a law), `≟` (assert an
 invariant), the digest (identity), the placement oracle (many realizations, one truth).
 No new primitive, no glyph.
+**T-duality / representation correspondence / GKPW** (identity across *representations*,
+not executions): CLOSED, already sealed. A reversible correspondence preserving an
+invariant is the lens round-trip (§8) + `≟` on the invariant (§21a); *two descriptions,
+one invariant* is the differential oracle (§14b). A broken dual dies `URDR-ASSERT`
+(so `URDR-DUALITY-BROKEN` renames nothing). Demonstrated by evaluation.
+**Dehn function / witness complexity** ('how expensive was the proof?'): DEFERRED. The
+cost of a GIVEN witness is `fuel` (deterministic, bounded — a costly proof exceeds a
+small budget and gives `URDR-FUEL`); the *minimal* cost over all witnesses is a proof
+SEARCH Urðr deliberately does not do (D1 §6, totality not claimed), and no program has
+needed it. `proof existence ≠ proof complexity`; the first is `ᛞ`, the second is `fuel`.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,
