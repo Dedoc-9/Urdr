@@ -1,0 +1,21 @@
+# parallel_runtime (Stage 3B) -- parallel transport of computation. Concurrency asks: does
+# changing the ORDER of execution change identity? For INDEPENDENT (commuting) transitions the
+# answer is no -- order is a chart, not identity; for NON-commuting ones order IS identity and a
+# race is exposed (see rejected/race_condition_wrong). f increments coord 0, g coord 1 (they
+# commute). Convergence, async order-invariance, and batch=fold are all measured through the
+# Stage-2 kernel replay. Concurrency = weave-style order-invariance + =? race check + fold; no
+# glyph. Can many local evolutions produce one reliable geometry? -- yes, when they commute. signum != res.
+use @81e96a9896fc029dc31c2f4eec004b365420e3c6c6abacb0be38cd6f6ad275c3 as kernel
+replay := \vw(kernel, 'replay)
+anyp := \fn a b |-> 1
+f := \fn s |-> [nth(s,0)+1, nth(s,1), nth(s,2)]
+g := \fn s |-> [nth(s,0), nth(s,1)+2, nth(s,2)]
+s0 := [0, 0, 0]
+# 1. worker convergence: independent transitions commute -> one object regardless of order:
+conv := =?(g(f(s0)), f(g(s0)))
+# 2. async completion order is a PROJECTION, not a mutation: two schedules converge:
+async := =?(replay(s0, anyp, [f, g]), replay(s0, anyp, [g, f]))
+# 3. batch invariance: batch (the fold) == sequential composition (witness identity preserved):
+batch := =?(replay(s0, anyp, [f, g, f]), f(g(f(s0))))
+claim := \an <| IMPLEMENTED , DECLARED |> [conv, async, batch]
+\ve(\fn v |-> v = [[1, 2, 0], [1, 2, 0], [2, 2, 0]], claim)

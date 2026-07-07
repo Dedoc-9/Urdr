@@ -26,3 +26,4 @@ witness_firewall_forge_wrong.urdr run URDR-ASSERT
 contract_project_search_wrong.urdr run URDR-ASSERT
 manifold_transport_wrong.urdr run URDR-ASSERT
 frequency_aliasing_wrong.urdr run URDR-ASSERT
+race_condition_wrong.urdr run URDR-ASSERT

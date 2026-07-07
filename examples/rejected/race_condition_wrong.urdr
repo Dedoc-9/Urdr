@@ -1,0 +1,8 @@
+# FALSE (race condition): two NON-commuting concurrent transitions do NOT converge -- order is
+# part of identity for them. h copies coord1->coord0; k copies coord0->coord1; h(k(s)) != k(h(s)).
+# Claiming the two worker orders reach the same object is a RACE and must die. The runtime does
+# not silently resolve a race; the digest exposes the divergence (order IS identity here). signum != res.
+h := \fn s |-> [nth(s,1), nth(s,1), nth(s,2)]
+k := \fn s |-> [nth(s,0), nth(s,0), nth(s,2)]
+s0 := [3, 5, 0]
+=?(h(k(s0)), k(h(s0)))
