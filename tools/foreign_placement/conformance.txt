@@ -1,0 +1,13 @@
+# Portable-kernel conformance vectors (D8). An independent kernel is ADMITTED iff, run on each
+# fixture, it reproduces the exact observable: the SHA-256 digest (accept) or the rejection code
+# (reject). Any mismatch = URDR-RUST-DIVERGENCE. Digests are the Python reference (canon->SHA-256,
+# D1 s7); frozen here as the cross-language target. Regenerate: urdr.py run <fixture> --via reference.
+# kind    fixture                    observable
+accept  manifold_runtime      dff56817ef6caa3e6fc8cfd697cf5df498d52a421c29bd36b0c516055ed5fb20
+accept  frequency_invariance  0c9062be260fe7f02094f7eb80cc7101e10010926b6c1d1161387df8f74e112c
+accept  parallel_runtime      a229379636c2f29aecd5fb7aa00b3e1c11394c8e6b9da3b1782315027eea525d
+accept  speculative_runtime   7f81e5c2315b294620564665e6412fa802454d6d1b3813d886f03090687e071b
+reject  manifold_transport_wrong  URDR-ASSERT
+reject  frequency_aliasing_wrong  URDR-ASSERT
+reject  race_condition_wrong      URDR-ASSERT
+reject  speculation_wrong         URDR-ASSERT
