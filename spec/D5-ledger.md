@@ -53,6 +53,7 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Projection under-determination (Yoneda / anamorphosis refutation, by construction): two DISTINCT 3D affine maps (identity vs a z-shear) share the SAME 2D projection yet differ in 3D — one projection's kernel hides a whole family, so it does NOT uniquely encode the map. Yoneda is faithful over the WHOLE category (all probes, incl. `1_X`); a restricted lower-dim subcategory is not dense. `truth under a chosen invariant ≠ the totality` | IMPLEMENTED | MEASURED | `examples/projection_underdetermined.urdr` (⊢ [[3,1],1]), `examples/rejected/projection_collapse_wrong.urdr` (URDR-ASSERT) |
 | Depth perception (constructive complement of projection under-determination): a SECOND spanning view recovers the depth one view lost — two orthogonal projections `π_xy, π_xz` determine the 3D point (kernels meet only at 0), so `recon` round-trips, and the depth view SEES the z-shear the front view was blind to. An incomplete (non-spanning) set fails to reconstruct (`URDR-ASSERT`). Tested as a primitive candidate → it is the LENS round-trip (§8) over a complete witness set, `≟`-verified — no new primitive | IMPLEMENTED | MEASURED | `examples/depth_perception.urdr` (⊢ [[3,1,2],[3,1],1]), `examples/rejected/depth_incomplete_wrong.urdr` (URDR-ASSERT) |
 | Witness firewall / validator integrity (the "causal firewall" `W ∉ E`): the criterion is PINNED as an immutable, content-addressed value BEFORE any transform; a new state is judged against that anchor, never a criterion the transform supplies. An unlawful transform cannot rewrite the anchor (bindings immutable; rebinding is a parse error), so it dies against the real criterion; observation never mutates the judged state. Achieved by immutability + content-addressing, not a memory guard | IMPLEMENTED | MEASURED | `examples/witness_firewall.urdr` (⊢ [6,6]), `examples/rejected/witness_firewall_forge_wrong.urdr` (URDR-ASSERT) |
+| Controlled state transition under an invariant constraint — glyph review of `x ⊣ C` (the deepest candidate): "move, verify, commit-or-revert as one step" has precise semantics `cproj(x,f,pred) = ?(pred(x,f(x)), f(x), x)` (apply · conditional · select), DIGEST-IDENTICAL to that composition — a lossless alias, a shorter spelling not new semantics, so it FAILS the Isomorphic Closure Threshold (§20). Atomicity is not lost by composition (immutability provides it); the "project to nearest / minimal counterexample" reading is a SEARCH Urðr does not do (a false projection dies). `URDR-GLYPH-NOT-EARNED` | IMPLEMENTED | MEASURED | `examples/contract_project.urdr` (⊢ [[3,2,1],[4,1,1],[3,2,1]]), `examples/rejected/contract_project_search_wrong.urdr` (URDR-ASSERT) |
 | Chain-complex falsifier (D1 §22, user-directed conversion): homology's founding law ∂∘∂ = 0 (d1∘d2 on a filled triangle) sealed by exact integer evaluation; a boundary is a cycle; equivalence-mod-boundary = subtraction + ≟; orientation-lost boundary (∂∂ ≠ 0) dies. Integer algebra, no topology claimed (signum ≠ rēs). The SFH-style 'identity modulo a certified transformation space' is ABSORBED (Σ over the witness chain asserting ≟ on an invariant — §21a lifted; red states → URDR-ASSERT), so no primitive, no glyph | IMPLEMENTED | MEASURED | `examples/chain_complex.urdr` (⊢4), `examples/rejected/chain_wrong.urdr` (URDR-ASSERT), `tests/test_chain.py` (6 falsifiers incl. the witnessed-deformation absorption proof) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: every example digest in the corpus bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), through v0.7.x (143-falsifier gate green on both). Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -383,6 +384,27 @@ changes are safe because nothing mutates (the `weave` schedule-invariance, alrea
 and the append-only `∥` is exactly the content-addressed provenance chain — neither needs a
 hardware guard, because the guarantee is cryptographic, not physical. The hunt arrived, from
 the systems side, at *why* Urðr is immutable and content-addressed in the first place.
+
+**The controlled-transition primitive — the deepest candidate, reviewed and not earned.** The
+strongest glyph proposal of the arc, and the best-framed: a one-step "move, verify, commit-or-
+reject" operation (`x ⊣ C`) with an explicit irreducibility checklist. `contract_project`
+submits it to the glyph review (§20). Its precise operational semantics — written so two
+placements must agree — are `?(pred(x, f(x)), f(x), x)`: apply the move, evaluate the contract,
+select commit-or-revert. The candidate is **digest-identical to that composition** (measured),
+which is exactly the lossless-alias / Isomorphic-Closure failure: naming it `⊣` adds a spelling,
+not a relation no composition expresses. And the property it is meant to protect —
+*indivisibility* — is **not lost by composition** in Urðr: immutability makes `?(C(f(x)), f(x),
+x)` already atomic (the move yields a fresh value; no intermediate state is observable), and at
+the one boundary where atomicity is non-vacuous — the effect līmes — R4 already guarantees
+validate-all-then-write-all. The reading that *would* be irreducible — "project to the
+**nearest** valid state" / "emit a **minimal** counterexample" — is a SEARCH Urðr deliberately
+does not do (`cproj` reverts, it does not project; the false-projection fixture dies), the same
+`DEFERRED` boundary as Dehn. Verdict: `URDR-GLYPH-NOT-EARNED`. The honest concession that
+matters: in a language *with mutation* this operation **would** earn a primitive — atomicity is
+genuinely lost by composition there, which is why transactional constructs exist — and Urðr's
+immutability + content-addressing is exactly what pays for it in advance. The checklist was
+right; the substrate already satisfies it. `move-verify-commit = ?(C∘f, f, id)`; `atomicity =
+immutability`; `nearest = search`.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,

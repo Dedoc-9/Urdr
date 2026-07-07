@@ -1,0 +1,11 @@
+# FALSE: reading x |- C as "project to the NEAREST valid state" is a SEARCH the composition
+# does not perform. The commit-or-revert operation cproj just REVERTS to x on failure; it
+# does not find a nearer valid state. Claiming cproj projected an unlawful result onto a
+# corrected state (!= x) must DIE. "nearest" / "minimal counterexample" = search, which Urdr
+# deliberately does not do (D1 s6, totality not claimed). signum != res.
+q := \fn s |-> nth(s,0) + nth(s,1) + nth(s,2)
+ok := \fn x y |-> q(y) = q(x)
+cproj := \fn x f pred |-> ?(pred(x, f(x)), f(x), x)
+unlawful := \fn s |-> [nth(s,0)+1, nth(s,1), nth(s,2)]
+s0 := [4, 1, 1]
+=?(cproj(s0, unlawful, ok), [4, 1, 0])

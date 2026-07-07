@@ -1,0 +1,20 @@
+# contract_project -- the candidate primitive "x |- C": move, verify, commit-or-revert as
+# one step, submitted to the glyph review (D1 s20). Its PRECISE operational semantics ARE a
+# composition of existing primitives:  cproj(x,f,pred) = ?(pred(x, f(x)), f(x), x)  -- apply
+# (move), conditional (verify), select (commit-or-revert). We MEASURE that the "primitive"
+# is DIGEST-IDENTICAL to that composition: a lossless alias, i.e. a shorter SPELLING, not new
+# semantics -- so it FAILS the Isomorphic Closure Threshold (a glyph must name a relation no
+# composition expresses). Atomicity is not lost by composition: immutability provides it (the
+# move produces a fresh value; no intermediate state is observable). signum != res.
+q := \fn s |-> nth(s,0) + nth(s,1) + nth(s,2)
+ok := \fn x y |-> q(y) = q(x)
+cproj := \fn x f pred |-> ?(pred(x, f(x)), f(x), x)
+s0 := [4, 1, 1]
+lawful   := \fn s |-> [nth(s,0)-1, nth(s,1)+1, nth(s,2)]
+unlawful := \fn s |-> [nth(s,0)+1, nth(s,1), nth(s,2)]
+committed := cproj(s0, lawful, ok)      # lawful move -> commit -> [3,2,1]
+reverted  := cproj(s0, unlawful, ok)    # unlawful move -> revert -> [4,1,1]
+# the candidate is digest-identical to its explicit composition (the lossless-alias test):
+alias := =?(committed, ?(ok(s0, lawful(s0)), lawful(s0), s0))
+claim := \an <| IMPLEMENTED , DECLARED |> [committed, reverted, alias]
+\ve(\fn v |-> v = [[3, 2, 1], [4, 1, 1], [3, 2, 1]], claim)
