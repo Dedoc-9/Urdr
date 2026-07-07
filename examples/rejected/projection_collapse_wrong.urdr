@@ -1,0 +1,8 @@
+# FALSE (the anamorphosis / restricted-Yoneda claim): two DISTINCT 3D affine maps with the
+# SAME 2D projection are NOT equal. A single projection pi(x,y,z)=(x,y) has a kernel (the z
+# axis); its preimage is a whole family. Claiming the full 3D maps are equal because their
+# projections agree must DIE. "uniquely encoded in the anamorphic distortion" is false.
+t1 := \fn p |-> [nth(p,0), nth(p,1), nth(p,2)]
+t2 := \fn p |-> [nth(p,0), nth(p,1), nth(p,2) + nth(p,0)]
+p  := [3, 1, 2]
+=?(t1(p), t2(p))

@@ -1,0 +1,17 @@
+# projection_underdetermined -- a single projection does NOT uniquely encode a higher-dim
+# affine map (refuting the anamorphosis / restricted-Yoneda claim, by construction). Two
+# DISTINCT 3D affine maps -- identity t1 and a z-shear t2(x,y,z)=(x,y,z+x) -- give the SAME
+# 2D projection pi(x,y,z)=(x,y) yet DIFFER in 3D: the projection's kernel (the z axis) hides
+# a whole family. Yoneda is faithful over the WHOLE category (all probes, incl. the object
+# via 1_X); a restricted set of lower-dim projections is NOT dense, so it under-determines.
+# Truth under a chosen invariant, not the totality. Exact integers. signum != res.
+proj := \fn p |-> [nth(p, 0), nth(p, 1)]
+t1   := \fn p |-> [nth(p,0), nth(p,1), nth(p,2)]
+t2   := \fn p |-> [nth(p,0), nth(p,1), nth(p,2) + nth(p,0)]
+p := [3, 1, 2]
+# the two maps AGREE after projection (same anamorphic image) ...
+same_proj := =?(proj(t1(p)), proj(t2(p)))
+# ... but DIFFER as 3D maps (only a full witness SET, not one projection, could tell them apart):
+differ := t1(p) != t2(p)
+claim := \an <| IMPLEMENTED , DECLARED |> [same_proj, differ]
+\ve(\fn v |-> v = [[3, 1], 1], claim)

@@ -20,3 +20,5 @@ sheaf_monodromy_wrong.urdr run URDR-ASSERT
 holonomy_collision_wrong.urdr run URDR-ASSERT
 manifold_chi_too_coarse_wrong.urdr run URDR-ASSERT
 temporal_drift_wrong.urdr run URDR-ASSERT
+projection_collapse_wrong.urdr run URDR-ASSERT
+depth_incomplete_wrong.urdr run URDR-ASSERT

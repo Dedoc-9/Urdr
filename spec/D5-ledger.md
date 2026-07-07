@@ -50,6 +50,8 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Holonomy / transport-history identity (#10): a frame transported around a loop returns to the same base POSITION (`≟` on the viewed `pt`) yet is a DISTINCT object — Urðr's digest is already state+history (measured: two edit-paths to the same field give different digests; provenance `ᛃ` differs), and the holonomy element itself is a computed transport sum witnessed by `≟`; a false holonomy-equivalence claim (same base point, different holonomy) dies `URDR-ASSERT` | IMPLEMENTED | MEASURED | `examples/holonomy_witness.urdr` (⊢3), `examples/rejected/holonomy_collision_wrong.urdr` (URDR-ASSERT) |
 | Witness strength — Betti vector refines χ: the Euler characteristic is a lossy compression `χ = Σ(−1)ᵏβₖ`, so a torus (β=(1,2,1)) and a cylinder (β=(1,1,0)) collide at χ=0; Euler–Poincaré ties each β to real face-counts, the coarse χ-witness collides, and the finer Betti-vector witness separates them. Which invariant is the contract is the programmer's choice — the witness must be strong enough for the identity claimed | IMPLEMENTED | MEASURED | `examples/manifold_betti_refinement.urdr` (⊢4), `examples/rejected/manifold_chi_too_coarse_wrong.urdr` (URDR-ASSERT) |
 | Temporal invariant / transactional evolution: a conserved quantity carried THROUGH a discrete evolution — each tick proposes an integer affine delta, the contract commits it iff the invariant `Q` is preserved else reverts to the prior state; over N ticks an unlawful injection is reverted, `Q(final)=Q(initial)`. The buildable heart of a tri-partite `(O,W,E)` engine — witness read from state, effect proposed separately, `W ∉ E`. Reduces to `\fo` (fold) + `≟` + `?` — no new primitive | IMPLEMENTED | MEASURED | `examples/temporal_invariant.urdr` (⊢ [6,[5,0,1]]), `examples/rejected/temporal_drift_wrong.urdr` (URDR-ASSERT) |
+| Projection under-determination (Yoneda / anamorphosis refutation, by construction): two DISTINCT 3D affine maps (identity vs a z-shear) share the SAME 2D projection yet differ in 3D — one projection's kernel hides a whole family, so it does NOT uniquely encode the map. Yoneda is faithful over the WHOLE category (all probes, incl. `1_X`); a restricted lower-dim subcategory is not dense. `truth under a chosen invariant ≠ the totality` | IMPLEMENTED | MEASURED | `examples/projection_underdetermined.urdr` (⊢ [[3,1],1]), `examples/rejected/projection_collapse_wrong.urdr` (URDR-ASSERT) |
+| Depth perception (constructive complement of projection under-determination): a SECOND spanning view recovers the depth one view lost — two orthogonal projections `π_xy, π_xz` determine the 3D point (kernels meet only at 0), so `recon` round-trips, and the depth view SEES the z-shear the front view was blind to. An incomplete (non-spanning) set fails to reconstruct (`URDR-ASSERT`). Tested as a primitive candidate → it is the LENS round-trip (§8) over a complete witness set, `≟`-verified — no new primitive | IMPLEMENTED | MEASURED | `examples/depth_perception.urdr` (⊢ [[3,1,2],[3,1],1]), `examples/rejected/depth_incomplete_wrong.urdr` (URDR-ASSERT) |
 | Chain-complex falsifier (D1 §22, user-directed conversion): homology's founding law ∂∘∂ = 0 (d1∘d2 on a filled triangle) sealed by exact integer evaluation; a boundary is a cycle; equivalence-mod-boundary = subtraction + ≟; orientation-lost boundary (∂∂ ≠ 0) dies. Integer algebra, no topology claimed (signum ≠ rēs). The SFH-style 'identity modulo a certified transformation space' is ABSORBED (Σ over the witness chain asserting ≟ on an invariant — §21a lifted; red states → URDR-ASSERT), so no primitive, no glyph | IMPLEMENTED | MEASURED | `examples/chain_complex.urdr` (⊢4), `examples/rejected/chain_wrong.urdr` (URDR-ASSERT), `tests/test_chain.py` (6 falsifiers incl. the witnessed-deformation absorption proof) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: every example digest in the corpus bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), through v0.7.x (143-falsifier gate green on both). Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -330,6 +332,32 @@ the cohomology Frobenius loss (1.12), the metric-curvature integral (1.14), the 
 Stochastic integer rounding (`⌊·⌉`) is a non-issue: Urðr is integer-native, so there is
 nothing to round — the discrete discipline the engine wants is the default, not an
 approximation.
+**Refutation by construction — "a fully faithful functor makes lower-dim projections the
+totality" is false.** The Yoneda embedding `𝒴(X)=Hom(−,X)` is fully faithful over the
+*whole* category — it recovers `X` from *all* probes, including `X` itself (`1_X ∈ Hom(X,X)`
+is what makes it bite). It does not say a restricted family of lower-dimensional projections
+determines `X`: such a subcategory is generally not dense, so its restricted Yoneda is not
+faithful. `projection_underdetermined` shows it by evaluation — two distinct 3D affine maps
+(identity and a z-shear) share one 2D projection yet differ in 3D (the projection's kernel
+hides the z-shear); claiming full equality from projection-agreement dies `URDR-ASSERT`. The
+colimit reconstruction the claim invokes is real, but only over the *full* viewing family
+(the density theorem) — the complete witness set, not "lower-dim structures." So the original
+statement stands: `functor = truth under a chosen invariant`, incomplete about the larger
+object — the same lesson as χ vs the Betti vector: one witness collides, only a
+complete-enough witness set determines. `one projection ≠ the object`.
+**Depth perception — the hypothesis tested, and it closes to the lens laws.** The paired
+question: if one projection under-determines, does *reconstructing* the lost dimension from
+multiple views earn a primitive? `depth_perception` measures it — two orthogonal, spanning
+projections recover the full 3D point (`recon` round-trips) and the second (depth) view
+distinguishes the two maps the front view conflated, while an incomplete, non-spanning set
+fails to reconstruct (`depth_incomplete_wrong`, `URDR-ASSERT`). But the recovery operation is
+exactly the **lens round-trip** (§8, `recombine(project(X)) = X`) over a *complete* witness
+set, `≟`-verified: `recon` is a λ, completeness is the round-trip succeeding, and the
+reconstruction is unique iff the views span (a computable rank condition). The pair brackets
+the witness-completeness boundary — `one view collides; spanning views determine` — and
+neither side earns a symbol. The only remainder is the usual one: for *nonlinear* projections
+"is the preimage unique?" is a search, `DEFERRED`. `stereo = lens round-trip over a spanning
+witness set`.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,

@@ -1,0 +1,7 @@
+# FALSE (incomplete witness set): TWO views do not suffice unless they SPAN. Here both
+# views are the same front projection pi_xy, so depth z is still hidden -- recon cannot
+# recover z, and claiming the reconstruction round-trips must DIE. Plurality != completeness.
+pxy   := \fn p |-> [nth(p,0), nth(p,1)]
+recon := \fn a b |-> [nth(a,0), nth(a,1), nth(b,1)]
+p := [3, 1, 2]
+=?(recon(pxy(p), pxy(p)), p)

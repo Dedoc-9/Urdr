@@ -1,0 +1,22 @@
+# depth_perception -- the CONSTRUCTIVE complement of projection_underdetermined. One view
+# loses depth (its kernel hides the z-shear); a SECOND, spanning view recovers it. Two
+# orthogonal projections pi_xy(x,y,z)=(x,y) and pi_xz(x,y,z)=(x,z) together determine the 3D
+# point -- their kernels meet only at 0 -- so recon round-trips. And the depth view SEES the
+# z-shear that the front view was blind to: the witness SET distinguishes maps one view
+# conflated. Enough witnesses determine; too few collide. This IS the lens round-trip
+# (recon inverts projection, D1 s8) over a complete witness set -- not a new primitive.
+# Exact integers. signum != res.
+pxy   := \fn p |-> [nth(p,0), nth(p,1)]
+pxz   := \fn p |-> [nth(p,0), nth(p,2)]
+recon := \fn a b |-> [nth(a,0), nth(a,1), nth(b,1)]
+t1 := \fn p |-> [nth(p,0), nth(p,1), nth(p,2)]
+t2 := \fn p |-> [nth(p,0), nth(p,1), nth(p,2) + nth(p,0)]
+p := [3, 1, 2]
+# lens round-trip: two spanning views recover the FULL point (depth recovered):
+roundtrip := =?(recon(pxy(p), pxz(p)), p)
+# the front view alone is BLIND to the z-shear (the under-determination) ...
+front_blind := =?(pxy(t1(p)), pxy(t2(p)))
+# ... but the depth view SEES it -- the witness set distinguishes what one view conflated:
+depth_sees := pxz(t1(p)) != pxz(t2(p))
+claim := \an <| IMPLEMENTED , DECLARED |> [roundtrip, front_blind, depth_sees]
+\ve(\fn v |-> v = [[3, 1, 2], [3, 1], 1], claim)
