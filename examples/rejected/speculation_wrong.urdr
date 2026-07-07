@@ -1,0 +1,11 @@
+# FALSE (speculation masquerading as reality): an UNCOMMITTED speculative branch is not the
+# committed state. b1 is a hypothesis that was never selected/witnessed; claiming it equals the
+# actual (committed) state -- possible masquerading as actual -- must die. The runtime preserves
+# the boundary between knowledge and reality: an unwitnessed future is not truth (Nihil ultra
+# probatum -- the Epictetus boundary: change is real, a false state on top of it is not). signum != res.
+inc1 := \fn s |-> [nth(s,0)+1, nth(s,1)]
+inc5 := \fn s |-> [nth(s,0)+5, nth(s,1)]
+s0 := [0, 0]
+b1 := inc1(s0)
+committed := inc5(s0)
+=?(b1, committed)

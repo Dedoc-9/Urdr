@@ -1,0 +1,25 @@
+# speculative_runtime (Stage 3C) -- speculative transport: explore possible futures without
+# mistaking an uncommitted possibility for reality (the Epictetus / Nihil-ultra-probatum boundary).
+# Three futures are computed PURELY (hypotheses, no side effects); one is SELECTED by a witness
+# (the branch reaching the target) and COMMITTED; the discarded futures leave NO identity residue
+# (immutability), and an uncommitted branch is NOT the actual state (possible != actual, the digest
+# separates them). Only the committed branch becomes Grounded. Branching = pure values; select =
+# conditional; the possible/actual boundary = the no-inflation ladder + the mint. No glyph. signum != res.
+use @81e96a9896fc029dc31c2f4eec004b365420e3c6c6abacb0be38cd6f6ad275c3 as kernel
+replay := \vw(kernel, 'replay)
+anyp := \fn a b |-> 1
+inc1 := \fn s |-> [nth(s,0)+1, nth(s,1)]
+inc5 := \fn s |-> [nth(s,0)+5, nth(s,1)]
+s0 := [0, 0]
+b1 := replay(s0, anyp, [inc1])          # hypothesis A -> [1,0]
+b2 := replay(s0, anyp, [inc5])          # hypothesis B -> [5,0]
+b3 := replay(s0, anyp, [inc1, inc1])    # hypothesis C -> [2,0]
+target := [5, 0]
+# select the branch that reaches the target, and COMMIT it (b2):
+committed := ?(b1 = target, b1, ?(b2 = target, b2, b3))
+# commit == the selected branch's replay (Digest(commit(select)) = Digest(replay)):
+sel := =?(committed, b2)
+# an UNCOMMITTED hypothesis is NOT the actual state (possible != actual):
+notactual := committed != b1
+claim := \an <| IMPLEMENTED , DECLARED |> [committed, sel, notactual]
+\ve(\fn v |-> v = [[5, 0], [5, 0], 1], claim)
