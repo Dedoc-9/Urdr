@@ -122,11 +122,15 @@ substrate guarantee does NOT already imply an expressible Urðr law:
 | zero-copy identity | CLOSED | violates design law 3: identity is canonical bytes, not memory layout |
 | `capability_attenuation` | DEFERRED | inexpressible today AND currently contentless: caps are atomic (`\|Perm\| ∈ {1,0}`), no delegation target |
 | `foreign_rust_kernel` | DEFERRED | inexpressible witness (independent Rust agreement), falsifier `URDR-RUST-DIVERGENCE`, but needs a cargo host + has no pressure |
+| intertwiner / equivariant compiler | CLOSED | already expressible: the oracle IS the commuting square `digest(E_ref(P)) = digest(E_comp(P))` (§14b); per-generator verification is corpus-completeness, not a primitive — demonstrated, a defect localizes to `g=+` |
+| transport + witness set | CLOSED | already expressible: `≟(I(x), I(Φ(x)))` folded over the witness set — single-invariant = §14b oracle, multi-invariant = `examples/chain_complex.urdr` |
+| dimensional witness | DEFERRED | reduces to transport+witness with a rank/adjacency/orientation invariant; the one non-reducible form (dimension as a *static* type axis) has `observed_pressure = 0` — no manifold code exists |
 
 | Candidate | Status | Question | Desired law | Falsifier | Promotion condition | observed_pressure |
 |---|---|---|---|---|---|---|
 | capability_attenuation | SPECULATIVE / N/A (DEFERRED) | Can a source program derive a *strictly weaker* capability? | Perm(child) ⊆ Perm(parent) | `URDR-CAP-ESCAPE` | **currently contentless**: a Capability is atomic `(kind, name, payload)` so `\|Perm\| ∈ {1,0}` (no proper sub-lattice), and no capability is delegated to a sub-agent — so it earns meaning only if caps FIRST gain internal structure AND become delegable, neither of which has pressure | 0 |
 | foreign_rust_kernel | SPECULATIVE / N/A | Can an *independent* Rust kernel (`urdr-core-rs`) reproduce the reference digest on the corpus? | Rust placement ≡ reference placement | `URDR-RUST-DIVERGENCE` | a Rust kernel matches canon+digest on the pinned corpus **and** a deliberate Rust defect is caught by the harness (`tools/foreign_placement/`); needs a cargo host — absent in the build sandbox | 0 |
+| dimensional_witness | SPECULATIVE / N/A (DEFERRED) | Does a transform preserve meaning across a change of dimensional context (embedding / rank / locality)? | `I(x) = I(Φ(x))` for each declared `I` (incl. rank, adjacency, orientation) | none new — collapses to `URDR-ASSERT` | reduces to transport+witness today; earns meaning only if *dimension* must become a STATIC type axis (a mismatch a compile error, as authority is for caps), which needs a real manifold substrate producing repeated friction — none exists | 0 |
 
 Closed by existing mechanism (recorded so they are not re-proposed): invariant
 preservation (= `≟` on an invariant, D1 §21a); canonicalization (absorbed in
@@ -171,6 +175,39 @@ cost of a GIVEN witness is `fuel` (deterministic, bounded — a costly proof exc
 small budget and gives `URDR-FUEL`); the *minimal* cost over all witnesses is a proof
 SEARCH Urðr deliberately does not do (D1 §6, totality not claimed), and no program has
 needed it. `proof existence ≠ proof complexity`; the first is `ᛞ`, the second is `fuel`.
+
+**The intertwiner / equivariance reading of the oracle — CLOSED (design theorem).** With
+`f` = compile, `ρ` = evaluation, and the digest the observable, the differential oracle
+(§14b) is the commuting square `digest(f∘E_ref)(P) = digest(E_comp∘f)(P)` — *map then run
+= run then map*, the intertwiner law `f(ρ_V(g)·v) = ρ_W(g)·f(v)` instantiated on
+placements. Put under load with five single-generator probes (`+`, `*`, `☽`, `Σ`, `ᛞ`):
+reference ≡ compiled on every generator (the square commutes per-operation), and the
+defect placement breaks on exactly `g=+` and nowhere else — the square fails for precisely
+the generator it perturbs, and the failure localizes. So "compilation preserves the action
+across a family of operations" is not a new primitive; it is the oracle. Its stronger
+reading (verify each generator, not only the composite) is a corpus-completeness
+obligation — one probe per generator — plus, if wanted, a second observable (per-tick
+`fuel`, already tracked, currently unexposed by the CLI). Design theorem for future
+placements (compiled, Rust, any Φ), verified by the oracle; `commuting square = the
+oracle`, `more generators = more corpus`, no glyph.
+**Transport + witness set — CLOSED.** An agnostic map Φ plus a set of independently-checked
+invariants, accepted iff each verifies, is this same pattern generalized: `≟(I(x),
+I(Φ(x)))` folded over the witness set. Single-invariant is the oracle; multi-invariant is
+already `examples/chain_complex.urdr`, which folds `=?` over `{r1..r4}` (its own r4 note
+records why "same class after allowed deformation" earns no glyph). It may one day earn a
+library combinator (`preserves(Φ, [I…], x)`); it earns no symbol — `new spelling ≠ new
+semantics`.
+**Dimensional witness / "semantic magnitude changes with dimensional dependency" —
+DEFERRED (zero pressure).** Reduces to transport+witness with a rank / adjacency /
+orientation / locality invariant. Its only non-reducible form — making *dimension* a
+static type axis so a dimension mismatch is a compile error (as authority is for
+capabilities) — has `observed_pressure = 0`: there is no manifold code in the repo, so it
+fails the Reality wheel (D6) and cannot be minted under the project's own law. **The
+manifold engine as a pressure chamber** is the right *method* (build a substrate that
+stresses the language until a law must be named — the way I/O forced the capability
+līmes), and it is recorded here as the intended next pressure source. But the method's
+first rule is Reality: nothing is minted until real friction repeats. `pain observed ≠
+imagined pain`; build the wheel before naming the road.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,

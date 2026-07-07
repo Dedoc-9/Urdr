@@ -439,6 +439,15 @@ Design laws already fixed:
    at least one example. An oracle that cannot redden proves nothing (LESSONS L5).
 3. Values, canon, and fuel are shared; only the execution strategy differs. λ bodies
    compile at first call and cache; `V.Lambda` and its canon are untouched.
+4. **Equivariance reading (design theorem — `DECLARED`).** The oracle is a commuting
+   square: with `f` = compile, `ρ` = evaluation, and the digest the observable,
+   `digest(f∘E_ref)(P) = digest(E_comp∘f)(P)` — *map then run = run then map*, the
+   intertwiner law `f(ρ_V(g)·v) = ρ_W(g)·f(v)` of representation theory instantiated on
+   placements. Today the gate checks it on the composite (whole-program digest over the
+   corpus); the stronger per-generator form (one probe isolating each operation) is
+   corpus-completeness, not a new construct — a defect localizes to the exact generator it
+   perturbs (D5, five single-generator probes). This is a law every future placement
+   (compiled, Rust, any Φ) must satisfy, *verified by the oracle*, not a language symbol.
 
 ## 15. Does-not-do (v0.1)
 
