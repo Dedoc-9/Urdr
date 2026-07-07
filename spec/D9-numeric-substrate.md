@@ -81,7 +81,10 @@ and NO division/shift/recursion, so:
   `bh·2^32 + bl`; the low-half carry is ∈ {0..3} (comparisons, no division); every
   intermediate is provably < 2^63; an `hi` escaping 2^31 sets a refusal flag.
   Result = `hi·2^32 + lo`, floor-corrected for sign using the exact remainder
-  (dropped low 32 bits ≠ 0 ⇒ negative results subtract 1).
+  (dropped low 32 bits ≠ 0 ⇒ negative results subtract 1). **Algorithm PROVEN** (2026-07-07) by a
+  faithful prototype using only `+ − ×`/comparisons/folds — `tools/fixpoint_proto/mul_algorithm.py`
+  reproduces the exact `⌊a·b/2³²⌋` on a battery (positive, negative floor-toward-−∞, halves,
+  overflow→refuse); the Urðr encoding must mirror it. `algorithm proven ≠ Urðr mul measured`.
 - `div`: restoring long division of the 95-bit dividend `|a|·2^32` (the 63 bits of
   `|a|` followed by 32 zeros) by `|b|`, remainder always < |b| < 2^63; the doubling
   step `2r + bit` is computed as `(r−b) + r + bit` when it would overflow — exact in
@@ -112,7 +115,8 @@ operation other than i64 `+ − ×` and comparisons is ever consulted.
 | This contract (representation, rounding, refusals, op identities) | IMPLEMENTED (as spec) | DECLARED |
 | `add/sub/neg/from_int` per §2–4 | IMPLEMENTED | **MEASURED** — `examples/fixpoint_arithmetic.urdr` (⊢ [30064771072,30064771072,0,4294967296,1]) + `rejected/fixpoint_overflow_wrong.urdr` (URDR-ASSERT); vendored `fixpoint` module; oracle-agree; D8 corpus v2 |
 | `floor_int` per §2 (needs bit-serial ÷2³²) | SPECULATIVE — lands with `div` | N/A |
-| `mul`, `div` bit-serial per §4 | SPECULATIVE until module lands | N/A |
+| `mul` bit-serial per §4 | SPECULATIVE — **algorithm proven** (`tools/fixpoint_proto/mul_algorithm.py`, battery green); Urðr encoding + cross-placement pending | N/A |
+| `div` bit-serial per §4 | SPECULATIVE until it lands | N/A |
 | `sqrt` per §2/§4 | SPECULATIVE (law frozen; lands after mul/div are MEASURED) | N/A |
 | Cross-placement bit-identity on the fixtures | IMPLEMENTED | **MEASURED** (2026-07-07) — `urdr-core-rs` reproduced `fixpoint_arithmetic` and refused `fixpoint_overflow_wrong` inside ADMITTED 10/10, twice, on Windows/`rustc 1.96.1` |
 | "Physics-ready substrate" | NOT CLAIMED — physics is Milestone 5B, after this ledger row is MEASURED | — |
