@@ -49,6 +49,7 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Sheaf gluing / Čech obstruction: local sections over a loop-cover with overlap transitions gᵢⱼ ∈ ℤ glue to a GLOBAL section iff the winding class (signed loop-sum, an integer H¹) vanishes — `≟(loop, 0)`; Case 1 (local agreement, GLOBAL failure = nonzero monodromy) dies `URDR-ASSERT`. The cohomological DUAL of the chain-complex boundary law (§22, ∂∂=0) | IMPLEMENTED | MEASURED | `examples/sheaf_gluing.urdr` (⊢0), `examples/rejected/sheaf_monodromy_wrong.urdr` (URDR-ASSERT) |
 | Holonomy / transport-history identity (#10): a frame transported around a loop returns to the same base POSITION (`≟` on the viewed `pt`) yet is a DISTINCT object — Urðr's digest is already state+history (measured: two edit-paths to the same field give different digests; provenance `ᛃ` differs), and the holonomy element itself is a computed transport sum witnessed by `≟`; a false holonomy-equivalence claim (same base point, different holonomy) dies `URDR-ASSERT` | IMPLEMENTED | MEASURED | `examples/holonomy_witness.urdr` (⊢3), `examples/rejected/holonomy_collision_wrong.urdr` (URDR-ASSERT) |
 | Witness strength — Betti vector refines χ: the Euler characteristic is a lossy compression `χ = Σ(−1)ᵏβₖ`, so a torus (β=(1,2,1)) and a cylinder (β=(1,1,0)) collide at χ=0; Euler–Poincaré ties each β to real face-counts, the coarse χ-witness collides, and the finer Betti-vector witness separates them. Which invariant is the contract is the programmer's choice — the witness must be strong enough for the identity claimed | IMPLEMENTED | MEASURED | `examples/manifold_betti_refinement.urdr` (⊢4), `examples/rejected/manifold_chi_too_coarse_wrong.urdr` (URDR-ASSERT) |
+| Temporal invariant / transactional evolution: a conserved quantity carried THROUGH a discrete evolution — each tick proposes an integer affine delta, the contract commits it iff the invariant `Q` is preserved else reverts to the prior state; over N ticks an unlawful injection is reverted, `Q(final)=Q(initial)`. The buildable heart of a tri-partite `(O,W,E)` engine — witness read from state, effect proposed separately, `W ∉ E`. Reduces to `\fo` (fold) + `≟` + `?` — no new primitive | IMPLEMENTED | MEASURED | `examples/temporal_invariant.urdr` (⊢ [6,[5,0,1]]), `examples/rejected/temporal_drift_wrong.urdr` (URDR-ASSERT) |
 | Chain-complex falsifier (D1 §22, user-directed conversion): homology's founding law ∂∘∂ = 0 (d1∘d2 on a filled triangle) sealed by exact integer evaluation; a boundary is a cycle; equivalence-mod-boundary = subtraction + ≟; orientation-lost boundary (∂∂ ≠ 0) dies. Integer algebra, no topology claimed (signum ≠ rēs). The SFH-style 'identity modulo a certified transformation space' is ABSORBED (Σ over the witness chain asserting ≟ on an invariant — §21a lifted; red states → URDR-ASSERT), so no primitive, no glyph | IMPLEMENTED | MEASURED | `examples/chain_complex.urdr` (⊢4), `examples/rejected/chain_wrong.urdr` (URDR-ASSERT), `tests/test_chain.py` (6 falsifiers incl. the witnessed-deformation absorption proof) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: every example digest in the corpus bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), through v0.7.x (143-falsifier gate green on both). Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -136,6 +137,7 @@ substrate guarantee does NOT already imply an expressible Urðr law:
 | boundary-at-infinity / asymptotic class (#11) | CLOSED (founding law) | a finitely-computable asymptotic class (winding, rational endpoint) is a computed witness + `≟`; one needing the actual infinite limit has no finite witness, so Urðr withholds `Grounded` (`Nihil ultrā probātum`) — not a gap. Unbounded-limit case = DEFERRED (search) |
 | change-cage / measurement ≠ mutation | CLOSED | 'allowed change' is `ΔI = 0` on a chosen witness (transport+witness, strong enough — χ→β); `W ∉ E` (the effect cannot rewrite its own witness) is already the membrane (law 2: view pure, edit→new store) + R4 read/write capability separation + Grounded-refused-outward; 'the action cannot be its own proof' = `ᛞ`'s witness is minted from verifier×value |
 | universal validator (Matiyasevich / Hilbert 10) | CLOSED (founding law) | Urðr never promises `C(v)`; every check is `C(v; Λ)` — the verifier λ IS Λ, the bounded domain. Totality not claimed (D1 §6); the undecidable / 'all completions' case = DEFERRED (search), withheld not faked |
+| temporal / transactional invariance | CLOSED (discrete) | 'carry an invariant through evolution' = `\fo` over the tick schedule, each tick a `≟`-gated commit-or-revert (`?`); reversion = keep-prior-state (or anamnesis `↩`). The invariant lives on the STATE, threaded by the fold accumulator (transition-invariants close by state augmentation, cf. holonomy). Asymptotic / trajectory-global / continuous remainder = DEFERRED (search) or out-of-scope (no floats) |
 
 | Candidate | Status | Question | Desired law | Falsifier | Promotion condition | observed_pressure |
 |---|---|---|---|---|---|---|
@@ -303,13 +305,31 @@ validator; Urðr never writes `C(v)`, only `C(v; Λ)` — every falsifier carrie
 verifier λ), and totality is not claimed (D1 §6). "Does every completion preserve the property?"
 is the undecidable/search case, `DEFERRED` and withheld, not faked. `a cage enforces boundaries;
 it cannot contain the mathematical universe` is `Nihil ultrā probātum` from the negative side.
-**The one genuinely open frontier stays open: time.** Every witness above is *after-the-fact* —
+**The last static frontier — time — is now built, and it resolves.** Every witness above is *after-the-fact* —
 an invariant on a static pair. The place a real primitive could still appear is *carrying* an
 invariant *through* an evolving system, where after-the-fact checking is insufficient: a
 deterministic step function with a conserved quantity over many ticks, a golden over the whole
 trajectory, and a drift-injection that must redden — the first test of whether the invariant
-belongs to the *state* or to the *transition*. Unbuilt, no pressure recorded yet, awaiting a
-running temporal corpus. `dynamics ≠ a static pair`.
+belongs to the *state* or to the *transition*. Now built: `temporal_invariant` carries a conserved `Q`
+through a discrete evolution — each tick proposes an integer affine delta, the contract
+commits iff `Q` survives else reverts, and an unlawful injection is reverted, not committed
+(`temporal_drift_wrong` shows that removing the contract lets `Q` drift and dies
+`URDR-ASSERT`). *State or transition?* — the invariant lives on the STATE, threaded by the
+fold accumulator; a transition-invariant closes by augmenting the state (as holonomy did).
+So "carry an invariant through evolution" = `\fo` + `≟` + `?` (commit-or-revert) = the
+change-cage iterated over time, **no new primitive**. What stays out of reach is the usual
+boundary: a *trajectory-global* or *asymptotic* invariant (a long-run average, a Lyapunov
+bound, behaviour at t→∞) has no finite per-tick witness, so it is `DEFERRED` (search), and
+*continuous* evolution is out of Urðr's integer scope (design law 4) — the founding law, not
+a gap. `discrete transactional invariance = measured; asymptotic/continuous = deferred`.
+**The Èṣù / tri-partite engine, scoped honestly.** Its transactional core — the `(O,W,E)`
+split (1.1), the invariant contract `𝕀` (1.7), the atomic reversion (1.10), and `W ∉ E` — is
+exactly the measured example above (`\fo`+`≟`+`?`+the membrane). Its continuous machinery —
+the cohomology Frobenius loss (1.12), the metric-curvature integral (1.14), the `arg min`
+(1.15) — is `SCOPED / N/A`: no floats, no `∫`, no gradient descent, by design law 4.
+Stochastic integer rounding (`⌊·⌉`) is a non-issue: Urðr is integer-native, so there is
+nothing to round — the discrete discipline the engine wants is the default, not an
+approximation.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,

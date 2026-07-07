@@ -1,0 +1,22 @@
+# temporal_invariant -- carrying a conserved quantity THROUGH an evolution (the buildable
+# heart of a tri-partite (O,W,E) engine). State is an integer 3-vector; the invariant Q =
+# sum is the conserved "momentum ledger" (Sigma z = 0 under lawful transfers). Each tick
+# PROPOSES an affine delta; the contract COMMITS it iff Q is preserved, else REVERTS to the
+# prior state. Over N ticks the invariant survives: an unlawful injection is reverted, not
+# committed. Witness Q is READ from the state; the effect (delta) is proposed separately and
+# never rewrites Q -- measurement != mutation. Exact integers, discrete time. signum != res.
+q    := \fn s |-> nth(s, 0) + nth(s, 1) + nth(s, 2)
+add3 := \fn s d |-> [nth(s,0)+nth(d,0), nth(s,1)+nth(d,1), nth(s,2)+nth(d,2)]
+# step = the transaction: propose s+d, COMMIT iff Q preserved, else REVERT to s.
+step := \fn s d |-> ?(q(add3(s, d)) = q(s), add3(s, d), s)
+s0 := [4, 1, 1]
+# schedule: two lawful transfers (sum 0), one UNLAWFUL injection (sum +1) the contract
+# must revert, one more lawful transfer.
+deltas := [[-1, 1, 0], [0, -1, 1], [1, 0, 0], [2, -1, -1]]
+sn := \fo(deltas, s0, step)
+# the conserved quantity carried THROUGH the whole trajectory (illegal tick reverted) ...
+survived := =?(q(sn), q(s0))
+# ... to a deterministic final state (only reachable if the revert happened):
+result := =?(sn, [5, 0, 1])
+claim := \an <| IMPLEMENTED , DECLARED |> [survived, result]
+\ve(\fn v |-> v = [6, [5, 0, 1]], claim)
