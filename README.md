@@ -211,7 +211,7 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | R3 | WHAT/WHERE landed: closure compiler admitted **only** by differential oracle vs the ☉ tree-walk reference (singular kernel — one mint; defect fixture proves the oracle can redden); verbose keyword profile (three spellings, one digest) | `IMPLEMENTED / MEASURED` |
 | R4 | I/O & external state as **capabilities**: nothing ambient; reads are recorded inputs replayed bit-identically; writes are effect-plans executed at the līmes; ungranted use rejected (`URDR-CAP`) | `IMPLEMENTED / MEASURED` |
 | R5 | Modules & packaging without a network: **import-by-digest** (Unison lesson, byte-level), vendor dir + lockfile verified by the gate; a wrong pin is refused, not resolved (`URDR-PIN`/`URDR-MODULE`) | `IMPLEMENTED / MEASURED` |
-| R6 | Rust production compiler — admitted by the same differential oracle, or not at all | `SPECULATIVE / N/A` |
+| R6a | **Verified foreign execution boundary**: a foreign implementation (Rust) admitted as another *placement* iff `digest = reference`, else `URDR-RUST-DIVERGENCE` — no substrate trusted, only agreement (the §14b oracle generalized to N placements). Harness proven cargo-free (`tools/foreign_placement/`); an independent Rust kernel agreeing on the corpus is the remainder | harness `IMPLEMENTED / MEASURED`; Rust substrate `SPECULATIVE / N/A` |
 
 ## Honest boundaries (§9, in our own words)
 
