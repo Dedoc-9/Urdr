@@ -1,0 +1,7 @@
+# FALSE: chi-equivalence is NOT manifold equivalence. A torus (Betti (1,2,1)) and a
+# cylinder (Betti (1,1,0)) BOTH have chi = 0 -- so a chi-witness cannot tell them apart.
+# Claiming they are the same object by the FULL topological witness (the Betti vector)
+# must DIE: chi is a lossy compression; the Betti vector is the finer witness.
+torus_b := [1, 2, 1]
+cyl_b   := [1, 1, 0]
+=?(torus_b, cyl_b)

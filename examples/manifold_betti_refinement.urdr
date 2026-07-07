@@ -1,0 +1,21 @@
+# manifold_betti_refinement -- the Euler characteristic is a LOSSY compression of the
+# Betti vector: chi = sum (-1)^k b_k. Two spaces can share chi yet differ in homology, so
+# the chi-witness (manifold_equivalence) is TOO COARSE. Torus b=(1,2,1) and cylinder
+# b=(1,1,0) both give chi=0; the Betti vector separates them. Euler-Poincare ties each b
+# to real face-counts (V,E,F). Betti vectors are standard (textbook); this example
+# demonstrates witness STRENGTH -- which invariant is the contract -- not a homology
+# computation. signum != res.
+chi_counts := \fn m |-> \vw(m, 'v) - \vw(m, 'e) + \vw(m, 'f)
+chi_betti  := \fn b |-> nth(b, 0) - nth(b, 1) + nth(b, 2)
+torus := \st{v: 7, e: 21, f: 14, b: [1, 2, 1]}
+cyl   := \st{v: 6, e: 12, f: 6,  b: [1, 1, 0]}
+# Euler-Poincare per space: chi from face-counts == chi from the Betti vector (grounds b):
+ep_t := =?(chi_counts(torus), chi_betti(\vw(torus, 'b)))
+ep_c := =?(chi_counts(cyl),   chi_betti(\vw(cyl, 'b)))
+# the COARSE witness COLLIDES: chi(torus) == chi(cyl) == 0 (this is exactly the weakness):
+coarse := =?(chi_counts(torus), chi_counts(cyl))
+# ... so identity must come from the FINER witness -- the Betti vectors differ:
+finer := \vw(torus, 'b) != \vw(cyl, 'b)
+checks := [ep_t, ep_c, coarse, finer]
+claim := \an <| IMPLEMENTED , DECLARED |> len(checks)
+\ve(\fn v |-> v = 4, claim)

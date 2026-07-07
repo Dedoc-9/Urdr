@@ -45,9 +45,10 @@ falsifier exercising the capability is green in `verify.py` on a named host (see
 | Glyph review (D1 §20): a falsifiable promotion event — a glyph is earned as a LOSSLESS alias of a proven operation, never declared; the review can reject (`URDR-GLYPH-NOT-EARNED`). First glyph earned: `⟿` (U+27FF, `\tw`) for `transition_witness` — three spellings, one digest; confusables/core-collision/non-lossless/missing-provenance all refused | IMPLEMENTED | MEASURED | `tools/glyph_review.py`, `tests/test_glyph_review.py` (6 falsifiers incl. lossless three-spelling proof + four rejection modes) |
 | Foreign placement oracle **harness** (R6a): a foreign implementation admitted as another placement iff its digest = the ☉ reference, else refused (`URDR-PLACEMENT-DIVERGENCE`; Rust instance `URDR-RUST-DIVERGENCE`) — the differential oracle (§14b) generalized to any substrate; no foreign code trusted, only agreement. Separate tool, own runner, stdlib-only. Does NOT assert any Rust impl agrees — that is the gap-ledger candidate | IMPLEMENTED | MEASURED | `tools/foreign_placement/test_foreign_oracle.py` (3 falsifiers: agreeing admitted, diverging reddens, no-digest errors) |
 | Per-generator equivariance corpus (oracle localization): the differential oracle (§14b) checked PER language generator — each probe's `reference ≡ compiled ≡ golden` (the commuting square commutes for that generator) AND the built-in `+`-defect placement diverges on exactly the generators that exercise `+` (localization); a non-commuting square, a mislocalized defect, or a defect that breaks nowhere reddens the gate | IMPLEMENTED | MEASURED | `examples/oracle_generators/` (5 probes + goldens + MANIFEST), `verify.py` oracle_generators stage; non-vacuity proven by three injected defects (wrong golden, mismarked localization, dropped `+`-probe) each caught then reverted |
-| Manifold equivalence under an invariant witness: a finite complex as integer lists; χ = V−E+F (Euler characteristic, label-invariant). Safe transforms (vertex relabel, Pachner 2-2 flip) give DIFFERENT digests but EQUAL χ — equivalence under the witness (`≟`); false transforms (puncture χ 1→0, disconnected merge χ 1→2) change χ and die `URDR-ASSERT`. Exact integer combinatorics, not geometry (`signum ≠ rēs`) | IMPLEMENTED | MEASURED | `examples/manifold_equivalence.urdr` (⊢4), `examples/rejected/manifold_puncture_wrong.urdr` + `manifold_merge_wrong.urdr` (URDR-ASSERT) |
+| Manifold equivalence under an invariant witness: a finite complex as integer lists; χ = V−E+F (Euler characteristic, label-invariant). Safe transforms (vertex relabel, Pachner 2-2 flip) give DIFFERENT digests but EQUAL χ — equivalence under the witness (`≟`); false transforms (puncture χ 1→0, disconnected merge χ 1→2) change χ and die `URDR-ASSERT`. Exact integer combinatorics, not geometry (`signum ≠ rēs`); χ is a COARSE witness — strengthened to the Betti vector below | IMPLEMENTED | MEASURED | `examples/manifold_equivalence.urdr` (⊢4), `examples/rejected/manifold_puncture_wrong.urdr` + `manifold_merge_wrong.urdr` (URDR-ASSERT) |
 | Sheaf gluing / Čech obstruction: local sections over a loop-cover with overlap transitions gᵢⱼ ∈ ℤ glue to a GLOBAL section iff the winding class (signed loop-sum, an integer H¹) vanishes — `≟(loop, 0)`; Case 1 (local agreement, GLOBAL failure = nonzero monodromy) dies `URDR-ASSERT`. The cohomological DUAL of the chain-complex boundary law (§22, ∂∂=0) | IMPLEMENTED | MEASURED | `examples/sheaf_gluing.urdr` (⊢0), `examples/rejected/sheaf_monodromy_wrong.urdr` (URDR-ASSERT) |
 | Holonomy / transport-history identity (#10): a frame transported around a loop returns to the same base POSITION (`≟` on the viewed `pt`) yet is a DISTINCT object — Urðr's digest is already state+history (measured: two edit-paths to the same field give different digests; provenance `ᛃ` differs), and the holonomy element itself is a computed transport sum witnessed by `≟`; a false holonomy-equivalence claim (same base point, different holonomy) dies `URDR-ASSERT` | IMPLEMENTED | MEASURED | `examples/holonomy_witness.urdr` (⊢3), `examples/rejected/holonomy_collision_wrong.urdr` (URDR-ASSERT) |
+| Witness strength — Betti vector refines χ: the Euler characteristic is a lossy compression `χ = Σ(−1)ᵏβₖ`, so a torus (β=(1,2,1)) and a cylinder (β=(1,1,0)) collide at χ=0; Euler–Poincaré ties each β to real face-counts, the coarse χ-witness collides, and the finer Betti-vector witness separates them. Which invariant is the contract is the programmer's choice — the witness must be strong enough for the identity claimed | IMPLEMENTED | MEASURED | `examples/manifold_betti_refinement.urdr` (⊢4), `examples/rejected/manifold_chi_too_coarse_wrong.urdr` (URDR-ASSERT) |
 | Chain-complex falsifier (D1 §22, user-directed conversion): homology's founding law ∂∘∂ = 0 (d1∘d2 on a filled triangle) sealed by exact integer evaluation; a boundary is a cycle; equivalence-mod-boundary = subtraction + ≟; orientation-lost boundary (∂∂ ≠ 0) dies. Integer algebra, no topology claimed (signum ≠ rēs). The SFH-style 'identity modulo a certified transformation space' is ABSORBED (Σ over the witness chain asserting ≟ on an invariant — §21a lifted; red states → URDR-ASSERT), so no primitive, no glyph | IMPLEMENTED | MEASURED | `examples/chain_complex.urdr` (⊢4), `examples/rejected/chain_wrong.urdr` (URDR-ASSERT), `tests/test_chain.py` (6 falsifiers incl. the witnessed-deformation absorption proof) |
 | Determinism: same source ⇒ same digest, twice, subprocess-isolated, golden-pinned | IMPLEMENTED | MEASURED | `verify.py` examples stage; green ×2. Cross-host: every example digest in the corpus bit-identical on Linux (Python 3.10.12, sandbox) and Windows (PowerShell, `PYTHONUTF8=1`), through v0.7.x (143-falsifier gate green on both). Two named hosts, not "any host" |
 | Defined i64 wrap semantics | IMPLEMENTED | MEASURED | `tests/test_determinism.py` |
@@ -133,6 +134,8 @@ substrate guarantee does NOT already imply an expressible Urðr law:
 | sheaf gluing / Čech obstruction | CLOSED | measured: a COMPUTED integer obstruction (winding / H¹) + `≟`, cohomological dual of §22; `URDR-SHEAF-NO-GLOBAL-SECTION` / `URDR-GLUE-FAIL` = `URDR-ASSERT`. Unbounded-search obstructions = DEFERRED (Dehn-class) |
 | holonomy / transport history (#10) | CLOSED | measured: identity is already state+history (digest carries the parent-link; provenance `ᛃ` observes it); pure-position = `☽`; the holonomy element = computed transport + `≟`. The equivalence is *witness-selected* ('equivalent for what purpose?'), not a glyph |
 | boundary-at-infinity / asymptotic class (#11) | CLOSED (founding law) | a finitely-computable asymptotic class (winding, rational endpoint) is a computed witness + `≟`; one needing the actual infinite limit has no finite witness, so Urðr withholds `Grounded` (`Nihil ultrā probātum`) — not a gap. Unbounded-limit case = DEFERRED (search) |
+| change-cage / measurement ≠ mutation | CLOSED | 'allowed change' is `ΔI = 0` on a chosen witness (transport+witness, strong enough — χ→β); `W ∉ E` (the effect cannot rewrite its own witness) is already the membrane (law 2: view pure, edit→new store) + R4 read/write capability separation + Grounded-refused-outward; 'the action cannot be its own proof' = `ᛞ`'s witness is minted from verifier×value |
+| universal validator (Matiyasevich / Hilbert 10) | CLOSED (founding law) | Urðr never promises `C(v)`; every check is `C(v; Λ)` — the verifier λ IS Λ, the bounded domain. Totality not claimed (D1 §6); the undecidable / 'all completions' case = DEFERRED (search), withheld not faked |
 
 | Candidate | Status | Question | Desired law | Falsifier | Promotion condition | observed_pressure |
 |---|---|---|---|---|---|---|
@@ -272,6 +275,41 @@ terms — a *recurring* real failure existing primitives cannot state safely: `m
 invariants; experiments expose missing witnesses; applications reveal which witnesses matter;
 glyphs encode only the recurring unavoidable ones`. None has yet cleared that bar; every
 tested contract reduced to `≟` + a computed witness, or to the founding law's refusal.
+
+**The Euler characteristic is too coarse — witness strengthened, measured.** χ is a *lossy
+compression* of the Betti vector (`χ = Σ(−1)ᵏβₖ`), so a torus (β=(1,2,1)) and a cylinder
+(β=(1,1,0)) both have χ=0 — the χ-witness of `manifold_equivalence` would wrongly accept them
+as the same object. `manifold_betti_refinement` makes this legible: Euler–Poincaré ties each
+Betti vector to real face-counts, the coarse χ-witness collides (χ=0=χ), the finer Betti-vector
+witness separates them, and a false Betti-equality claim dies `URDR-ASSERT`. This is not a gap
+— it is the witness-selection principle biting: `coarse witness ≠ wrong witness` (χ is exactly
+right for "same Euler class," too weak for "same homology"). The contract must name a witness
+strong enough for the identity it claims.
+**"Change cage, not no-change cage" — CLOSED.** The invariant is not "nothing changed" but
+"change is a *constrained* transformation," `ΔI(Mₜ, Mₜ₊₁) = 0` on a chosen witness — the
+transport+witness pattern with the witness picked per contract. Large internal change with a
+preserved invariant is `≟` on the invariant, not on the state.
+**measurement ≠ mutation (`W ∉ E`) — CLOSED, already the architecture.** "The system cannot use
+a state it may modify as the unquestioned witness of its own correctness" is enforced by three
+existing laws together: the **membrane** (design law 2 — a view is pure, an edit yields a *new*
+store, so observation cannot mutate), the **R4 capability split** (read and write authority are
+separate unforgeable caps; a program cannot manufacture write authority), and the **mint** (a
+`Grounded` witness is the digest of `verifier × value`, minted once at `ᛞ` and refused outward
+into effect-plans). So the action cannot be its own proof: an effect-plan is inert data that
+cannot rewrite the witness that authorized it. `E ↛ W`; only `W → decision → E`. R4 + the
+membrane, already MEASURED — no new primitive.
+**Matiyasevich / Hilbert's tenth — a design law Urðr already obeys.** There is no universal
+validator; Urðr never writes `C(v)`, only `C(v; Λ)` — every falsifier carries its law Λ (the
+verifier λ), and totality is not claimed (D1 §6). "Does every completion preserve the property?"
+is the undecidable/search case, `DEFERRED` and withheld, not faked. `a cage enforces boundaries;
+it cannot contain the mathematical universe` is `Nihil ultrā probātum` from the negative side.
+**The one genuinely open frontier stays open: time.** Every witness above is *after-the-fact* —
+an invariant on a static pair. The place a real primitive could still appear is *carrying* an
+invariant *through* an evolving system, where after-the-fact checking is insufficient: a
+deterministic step function with a conserved quantity over many ticks, a golden over the whole
+trajectory, and a drift-injection that must redden — the first test of whether the invariant
+belongs to the *state* or to the *transition*. Unbuilt, no pressure recorded yet, awaiting a
+running temporal corpus. `dynamics ≠ a static pair`.
 
 **I/O adversarial pass (R4).** The capability/effect subsystem was stress-tested on
 five paths — delegation, lifetime, effect composition, observation provenance,

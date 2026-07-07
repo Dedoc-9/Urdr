@@ -18,3 +18,4 @@ manifold_puncture_wrong.urdr run URDR-ASSERT
 manifold_merge_wrong.urdr run URDR-ASSERT
 sheaf_monodromy_wrong.urdr run URDR-ASSERT
 holonomy_collision_wrong.urdr run URDR-ASSERT
+manifold_chi_too_coarse_wrong.urdr run URDR-ASSERT
