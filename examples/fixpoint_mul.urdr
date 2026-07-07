@@ -3,7 +3,7 @@
 # overflow refused; algorithm proven in tools/fixpoint_proto/mul_algorithm.py). Identities: 3*4=12,
 # sign laws, 6*0.5=3 (fractional, exact), and floor-toward-neg-inf on an inexact negative product.
 # Deterministic by construction. Cross-placement target: same digest through both placements.
-use @28aa74d31d3e68e867d6064d43437532385cc1cedc22fffbbf7bfd4c5dbb1bb5 as fp
+use @2ee72f10350cf69c1925a3231716c2e590f615b132d260695c43f462b20bfc41 as fp
 mul := \vw(fp, 'mul)
 fi := \vw(fp, 'from_int)
 r1 := =?(mul(fi(3), fi(4)), fi(12))

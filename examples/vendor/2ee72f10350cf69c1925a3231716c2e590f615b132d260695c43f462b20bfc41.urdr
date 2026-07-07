@@ -1,7 +1,9 @@
-# fixpoint (D9) v2 -- Q32.32 substrate: foundation (add/sub/neg/from_int, refusal law) PLUS
-# mul (division-free multi-precision: 16-bit limbs via place-value folds, floor toward -inf,
-# overflow refused). Helpers are top-level bindings; the store closes over them. No float,
-# no division/shift/recursion, no new glyph. Algorithm proven in tools/fixpoint_proto. R5 identity = these bytes.
+# fixpoint (D9) v3 -- Q32.32 substrate: foundation (add/sub/neg/from_int, refusal law), mul, PLUS
+# div (restoring long division: 95-bit dividend |a|*2^32 over |b|, bit-serial, floor toward -inf,
+# div-by-zero + i64-overflow refused). div's doubling step never overflows because an in-fold guard
+# refuses once the quotient would exceed 2^62 (Urdr i64 wraps where the proof-oracle would not).
+# Helpers are top-level bindings; the store closes over them. No float, no division/shift/recursion,
+# no new glyph. Algorithm proven in tools/fixpoint_proto/div_algorithm.py. R5 identity = these bytes.
 p48 := [[4611686018427387904, 16384], [2305843009213693952, 8192], [1152921504606846976, 4096], [576460752303423488, 2048], [288230376151711744, 1024], [144115188075855872, 512], [72057594037927936, 256], [36028797018963968, 128], [18014398509481984, 64], [9007199254740992, 32], [4503599627370496, 16], [2251799813685248, 8], [1125899906842624, 4], [562949953421312, 2], [281474976710656, 1]]
 p32 := [[140737488355328, 32768], [70368744177664, 16384], [35184372088832, 8192], [17592186044416, 4096], [8796093022208, 2048], [4398046511104, 1024], [2199023255552, 512], [1099511627776, 256], [549755813888, 128], [274877906944, 64], [137438953472, 32], [68719476736, 16], [34359738368, 8], [17179869184, 4], [8589934592, 2], [4294967296, 1]]
 p16 := [[2147483648, 32768], [1073741824, 16384], [536870912, 8192], [268435456, 4096], [134217728, 2048], [67108864, 1024], [33554432, 512], [16777216, 256], [8388608, 128], [4194304, 64], [2097152, 32], [1048576, 16], [524288, 8], [262144, 4], [131072, 2], [65536, 1]]
@@ -15,4 +17,9 @@ from_int := \fn k |-> ?(k < -2147483647, =?(0, 1), ?(k > 2147483647, =?(0, 1), k
 add := \fn a b |-> ?(b > 0, ?(a + b < a, =?(0, 1), a + b), ?(b < 0, ?(a + b > a, =?(0, 1), a + b), a))
 sub := \fn a b |-> ?(b < 0, ?(a - b < a, =?(0, 1), a - b), ?(b > 0, ?(a - b > a, =?(0, 1), a - b), a))
 neg := \fn a |-> ?(a < -9223372036854775807, =?(0, 1), 0 - a)
-\st{one: one, from_int: from_int, add: add, sub: sub, neg: neg, mul: mul}
+pw63 := [4611686018427387904, 2305843009213693952, 1152921504606846976, 576460752303423488, 288230376151711744, 144115188075855872, 72057594037927936, 36028797018963968, 18014398509481984, 9007199254740992, 4503599627370496, 2251799813685248, 1125899906842624, 562949953421312, 281474976710656, 140737488355328, 70368744177664, 35184372088832, 17592186044416, 8796093022208, 4398046511104, 2199023255552, 1099511627776, 549755813888, 274877906944, 137438953472, 68719476736, 34359738368, 17179869184, 8589934592, 4294967296, 2147483648, 1073741824, 536870912, 268435456, 134217728, 67108864, 33554432, 16777216, 8388608, 4194304, 2097152, 1048576, 524288, 262144, 131072, 65536, 32768, 16384, 8192, 4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1]
+zeros32 := [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+bits_of := \fn a |-> nth(\fo(pw63, [a, []], \fn st p |-> ?(p <= nth(st, 0), [nth(st, 0) - p, push(nth(st, 1), 1)], [nth(st, 0), push(nth(st, 1), 0)])), 1)
+divmod := \fn magb bits |-> \fo(bits, [0, 0, magb], \fn st bit |-> (\fn q |-> (\fn r |-> (\fn mb |-> ?(q < 4611686018427387904, (\fn bmr |-> ?(bmr <= r, [q + q + 1, r - bmr, mb], [q + q, r + r + bit, mb]))(mb - r - bit), =?(0, 1)))(nth(st, 2)))(nth(st, 1)))(nth(st, 0)))
+divf := \fn a b |-> ?(a < -9223372036854775807, =?(0, 1), ?(b < -9223372036854775807, =?(0, 1), ?(b = 0, =?(0, 1), (\fn sa |-> (\fn sb |-> (\fn ma |-> (\fn mb |-> (\fn dm |-> (\fn q |-> (\fn r |-> ?(sa = sb, q, ?(r = 0, 0 - q, 0 - q - 1)))(nth(dm, 1)))(nth(dm, 0)))(divmod(mb, cat(bits_of(ma), zeros32))))(?(b < 0, 0 - b, b)))(?(a < 0, 0 - a, a)))(?(b < 0, -1, 1)))(?(a < 0, -1, 1)))))
+\st{one: one, from_int: from_int, add: add, sub: sub, neg: neg, mul: mul, div: divf}

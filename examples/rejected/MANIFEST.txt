@@ -30,3 +30,5 @@ race_condition_wrong.urdr run URDR-ASSERT
 speculation_wrong.urdr run URDR-ASSERT
 fixpoint_overflow_wrong.urdr run URDR-ASSERT
 fixpoint_mul_overflow_wrong.urdr run URDR-ASSERT
+fixpoint_div_zero_wrong.urdr run URDR-ASSERT
+fixpoint_rounding_wrong.urdr run URDR-ASSERT
