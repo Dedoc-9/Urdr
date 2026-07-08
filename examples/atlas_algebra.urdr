@@ -1,0 +1,23 @@
+# atlas_algebra (Milestone 6) -- the atlas injectivity theorem GENERALIZED: the chart family is DATA
+# and injectivity is a COMPUTED predicate, so dimension n and the family are parameters (here n=5, a
+# 5D state -- NOT baked to 4D). covers(family,n) folds over the family-as-data to decide whether every
+# axis is observed by some chart, which for axis-selection charts is exactly the intersected-kernel
+# condition ker(A)={0}. A COVERING family {[0,1],[2,3],[4]} CERTIFIES injectivity (covers=1),
+# SEPARATES a witness pair, and RECONSTRUCTS via the inverse gather. Deficient families are refused
+# separately (rejected/atlas_algebra_deficient_wrong). General for axis-selection charts; general
+# LINEAR charts (matrix rank) = SCOPED strengthening. Reuses folds + nth + range; no new primitive,
+# no glyph. Change the data (n, family) and the SAME theorem applies. Exact integers. signum != res.
+apply := \fn ch x |-> \fo(ch, [], \fn acc idx |-> push(acc, nth(x, idx)))
+atlas := \fn family x |-> \fo(family, [], \fn acc ch |-> cat(acc, apply(ch, x)))
+member := \fn a fl |-> \fo(fl, 0, \fn acc i |-> ?(i = a, 1, acc))
+flat := \fn family |-> \fo(family, [], \fn acc ch |-> cat(acc, ch))
+covers := \fn family n |-> \fo(range(n), 1, \fn acc a |-> ?(member(a, flat(family)) = 1, acc, 0))
+recon := \fn img |-> [nth(img, 0), nth(img, 1), nth(img, 2), nth(img, 3), nth(img, 4)]
+fam := [[0, 1], [2, 3], [4]]
+x := [3, 1, 4, 1, 5]
+x2 := [3, 1, 4, 1, 9]
+injective := =?(covers(fam, 5), 1)
+separates := atlas(fam, x) != atlas(fam, x2)
+roundtrip := =?(recon(atlas(fam, x)), x)
+claim := \an <| IMPLEMENTED , DECLARED |> [injective, separates, roundtrip]
+\ve(\fn v |-> v = [1, 1, [3, 1, 4, 1, 5]], claim)

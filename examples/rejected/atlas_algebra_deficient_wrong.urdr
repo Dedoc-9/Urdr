@@ -1,0 +1,13 @@
+# FALSE (data-driven deficient atlas -- the COMPUTED kernel collides): Milestone 6 generalizes the
+# atlas theorem -- the chart family is DATA (a list of axis-index charts) and injectivity is COMPUTED,
+# not baked. Dimension n is a parameter (n=5). The family {[0,1],[2,3]} covers axes {0,1,2,3} but
+# MISSES axis 4, so the difference supported only on axis 4 lies in the intersected kernel: A(x)=A(x2)
+# though x != x2. Claiming injectivity for this family DIES. Non-vacuous: a covering family would not
+# collide (else branch yields 1, no death). a wrong number that flows is worse than a death. signum != res.
+apply := \fn ch x |-> \fo(ch, [], \fn acc idx |-> push(acc, nth(x, idx)))
+atlas := \fn family x |-> \fo(family, [], \fn acc ch |-> cat(acc, apply(ch, x)))
+fam := [[0, 1], [2, 3]]
+x := [3, 1, 4, 1, 5]
+x2 := [3, 1, 4, 1, 9]
+collide := atlas(fam, x) = atlas(fam, x2)
+?(collide, =?(x, x2), 1)

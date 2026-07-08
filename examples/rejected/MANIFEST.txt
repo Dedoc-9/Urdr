@@ -36,3 +36,4 @@ fixpoint_sqrt_negative_wrong.urdr run URDR-ASSERT
 fixpoint_sqrt_domain_wrong.urdr run URDR-ASSERT
 fixpoint_floor_wrong.urdr run URDR-ASSERT
 atlas_deficient_wrong.urdr run URDR-ASSERT
+atlas_algebra_deficient_wrong.urdr run URDR-ASSERT
