@@ -33,3 +33,7 @@ reject  atlas_deficient_wrong  URDR-ASSERT
 # --- corpus v7 (general atlas algebra, Milestone 6) ---
 accept  atlas_algebra   2eee0abf8a1fa4fec09e2eba01213186b0479a64646be40d858e34af299d6c99
 reject  atlas_algebra_deficient_wrong  URDR-ASSERT
+# --- corpus v8 (witnessed transition atlas, Milestone 6.5) ---
+accept  witnessed_transition_atlas   3a769c9e25b8da9e0ebe470bf4bb0f6534530a7cbcd4d00fc49856419ea5bde2
+reject  view_launder_wrong  URDR-ASSERT
+reject  transition_fork_wrong  URDR-ASSERT
