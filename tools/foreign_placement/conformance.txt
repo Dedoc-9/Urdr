@@ -37,3 +37,6 @@ reject  atlas_algebra_deficient_wrong  URDR-ASSERT
 accept  witnessed_transition_atlas   3a769c9e25b8da9e0ebe470bf4bb0f6534530a7cbcd4d00fc49856419ea5bde2
 reject  view_launder_wrong  URDR-ASSERT
 reject  transition_fork_wrong  URDR-ASSERT
+# --- corpus v9 (linear-chart atlas generalization) ---
+accept  linear_atlas   dd7f44a587c4d58303ef7a4457c473bec765c1ba448908b9c9ebaffc7be2896c
+reject  linear_atlas_singular_wrong  URDR-ASSERT
