@@ -30,3 +30,6 @@ reject  fixpoint_floor_wrong  URDR-ASSERT
 # --- corpus v6 (observer atlas injectivity, Milestone 5B) ---
 accept  atlas_injective   511b9e9a3a4331d948b1b5802896f7a6522df3a670e1b4e419f5cdc7f7484121
 reject  atlas_deficient_wrong  URDR-ASSERT
+# --- corpus v7 (general atlas algebra, Milestone 6) ---
+accept  atlas_algebra   2eee0abf8a1fa4fec09e2eba01213186b0479a64646be40d858e34af299d6c99
+reject  atlas_algebra_deficient_wrong  URDR-ASSERT
