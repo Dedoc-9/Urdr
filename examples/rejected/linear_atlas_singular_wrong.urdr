@@ -1,0 +1,11 @@
+# FALSE (singular linear atlas claims injectivity): a linear chart family A_i(x)=M_i x is injective IFF
+# the stacked matrix has trivial kernel -- for the square case, det(M) != 0. Here M has row1 = 2*row0
+# (rank-deficient, det=0), so the nonzero kernel vector D=[2,-1,0] satisfies M*D=0: A collides x and
+# x+D. Claiming injectivity DIES. Non-vacuous: a full-rank M would not send a nonzero D to 0. This
+# generalizes axis-selection to arbitrary integer linear charts (perspective, sensor fusion). signum != res.
+dot := \fn row x |-> \fo(range(len(row)), 0, \fn acc k |-> acc + nth(row, k) * nth(x, k))
+matvec := \fn m x |-> \fo(m, [], \fn acc row |-> push(acc, dot(row, x)))
+m := [[1, 2, 0], [2, 4, 0], [0, 0, 1]]
+d := [2, -1, 0]
+kernel := matvec(m, d) = [0, 0, 0]
+?(kernel, =?(d, [0, 0, 0]), 1)

@@ -1,0 +1,18 @@
+# linear_atlas (Milestone 7-lin) -- the atlas injectivity theorem GENERALIZED to arbitrary integer
+# LINEAR charts A_i(x)=M_i x (axis-selection was the special case of selection matrices). Injectivity
+# holds IFF the stacked matrix has trivial kernel; for the square case this is det(M) != 0, computed by
+# the DIVISION-FREE 3x3 cofactor expansion (the core has no division). A full-rank M CERTIFIES
+# injectivity (det != 0) and SEPARATES a witness pair (M*x != M*x2). Perspective, sensor fusion, and
+# arbitrary integer projections are now instances of ONE theorem. General n (fraction-free rank) and
+# reconstruction (inversion, which needs division) = SCOPED strengthening. Reuses folds + nth + range +
+# len; no new primitive, no glyph. Exact integers. signum != res.
+dot := \fn row x |-> \fo(range(len(row)), 0, \fn acc k |-> acc + nth(row, k) * nth(x, k))
+matvec := \fn m x |-> \fo(m, [], \fn acc row |-> push(acc, dot(row, x)))
+det3 := \fn m |-> (\fn a |-> (\fn b |-> (\fn c |-> nth(a, 0) * (nth(b, 1) * nth(c, 2) - nth(b, 2) * nth(c, 1)) - nth(a, 1) * (nth(b, 0) * nth(c, 2) - nth(b, 2) * nth(c, 0)) + nth(a, 2) * (nth(b, 0) * nth(c, 1) - nth(b, 1) * nth(c, 0)))(nth(m, 2)))(nth(m, 1)))(nth(m, 0))
+m := [[1, 1, 0], [0, 1, 1], [1, 0, 1]]
+x := [3, 1, 4]
+x2 := [3, 1, 9]
+injective := det3(m) != 0
+separates := matvec(m, x) != matvec(m, x2)
+claim := \an <| IMPLEMENTED , DECLARED |> [injective, det3(m), separates, matvec(m, x)]
+\ve(\fn v |-> v = [1, 2, 1, [4, 5, 7]], claim)
