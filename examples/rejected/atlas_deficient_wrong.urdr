@@ -1,0 +1,13 @@
+# FALSE (deficient atlas claims injectivity -- the well-posedness boundary): a chart family that does
+# NOT span the coordinates cannot determine the state. {p_xy, p_xz} covers axes {0,1,2} but MISSES
+# axis 3, so two states differing only in axis 3 COLLIDE (identical complete witness set) -- the atlas
+# is NOT injective. Claiming A(S1)=A(S2) => S1=S2 for this atlas DIES: the collision holds yet the
+# states differ. Non-vacuous: a spanning atlas would not collide (else branch yields 1, no death).
+# This is the dual of depth_perception's reconstruction failure. a wrong number that flows is worse
+# than a death. signum != res.
+s1 := [3, 1, 4, 1]
+s2 := [3, 1, 4, 9]
+pxy := \fn q |-> [nth(q, 0), nth(q, 1)]
+pxz := \fn q |-> [nth(q, 0), nth(q, 2)]
+collide := [pxy(s1), pxz(s1)] = [pxy(s2), pxz(s2)]
+?(collide, =?(s1, s2), 1)

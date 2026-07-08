@@ -1,0 +1,20 @@
+# atlas_injective -- the well-posedness biconditional made EXPLICIT (generalizes depth_perception to
+# n=4). A chart family A={p_i} determines the state IFF its charts jointly span the coordinates
+# (kernels meet only at 0): A(S1)=A(S2) => S1=S2. The SPANNING atlas {p_xy, p_zw} covers all four axes,
+# so it (a) SEPARATES distinct states (injective -- no collision), (b) RECONSTRUCTS via recon (the lens
+# round-trip, D1 s8), and (c) each chart is a WITNESS-carrying frame: it emits a DIFFERENT image yet
+# binds to the ONE authoritative digest d0=di(s), so every observer agrees on the state while seeing
+# a different view. Deficient atlases are refused separately (rejected/atlas_deficient_wrong). Reuses
+# charts + recon + di; no new primitive, no glyph. Exact integers. signum != res.
+s := [3, 1, 4, 1]
+s2 := [3, 1, 4, 9]
+d0 := \di(s)
+pxy := \fn q |-> [nth(q, 0), nth(q, 1)]
+pzw := \fn q |-> [nth(q, 2), nth(q, 3)]
+recon := \fn a b |-> [nth(a, 0), nth(a, 1), nth(b, 0), nth(b, 1)]
+distinct := pxy(s) != pzw(s)
+separates := [pxy(s), pzw(s)] != [pxy(s2), pzw(s2)]
+roundtrip := =?(recon(pxy(s), pzw(s)), s)
+consensus := ?(\di(s) = d0, 1, =?(0, 1))
+claim := \an <| IMPLEMENTED , DECLARED |> [distinct, separates, roundtrip, consensus]
+\ve(\fn v |-> v = [1, 1, [3, 1, 4, 1], 1], claim)
