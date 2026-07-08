@@ -1,0 +1,8 @@
+# FALSE (forked history, Milestone 6.5): two DISTINCT transitions from the same parent s1 produce
+# s2 != s2b. A fork is a digest DIVERGENCE: claiming the two children are the same state (equal digest)
+# DIES. Non-vacuous: identical transitions would agree. The digest is state+history, so two futures of
+# one parent are distinguishable and neither can be passed off as the other. signum != res.
+t2 := \fn s |-> [nth(s, 0), nth(s, 1) + 2, nth(s, 2)]
+t2b := \fn s |-> [nth(s, 0), nth(s, 1), nth(s, 2) + 2]
+s1 := [2, 0, 4]
+=?(\di(t2(s1)), \di(t2b(s1)))

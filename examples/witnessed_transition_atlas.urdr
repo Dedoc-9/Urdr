@@ -1,0 +1,24 @@
+# witnessed_transition_atlas (Milestone 6.5) -- the BRIDGE from static views to an evolving, witnessed
+# world. COMPOSES three already-MEASURED parts: the digest witness-chain (cf. lineage), replay
+# determinism (cf. manifold_runtime), and the atlas algebra (Milestone 6). A state evolves
+# S0 -> S1 -> S2 by deterministic transitions; the witness chain W=[di(S0),di(S1),di(S2)] records each
+# digest. A covering atlas observes the ENDPOINT S2, and its reconstruction is PROVENANCE-BOUND: the
+# reconstructed observed state's digest must equal the authenticated chain endpoint W[2]. The
+# genuinely-new content is this BINDING -- observation is tied to an authenticated transition path;
+# view-laundering and forked history are refused separately (rejected/view_launder_wrong,
+# transition_fork_wrong). Reuses folds + nth + di; no new primitive, no glyph. Exact integers.
+apply := \fn ch x |-> \fo(ch, [], \fn acc idx |-> push(acc, nth(x, idx)))
+atlas := \fn family x |-> \fo(family, [], \fn acc ch |-> cat(acc, apply(ch, x)))
+recon := \fn img |-> [nth(img, 0), nth(img, 1), nth(img, 2), nth(img, 3), nth(img, 4)]
+t1 := \fn s |-> [nth(s, 0) + 1, nth(s, 1), nth(s, 2), nth(s, 3), nth(s, 4)]
+t2 := \fn s |-> [nth(s, 0), nth(s, 1) + 2, nth(s, 2), nth(s, 3), nth(s, 4)]
+fam := [[0, 1], [2, 3], [4]]
+s0 := [1, 0, 4, 1, 5]
+s1 := t1(s0)
+s2 := t2(s1)
+w := [\di(s0), \di(s1), \di(s2)]
+replay := ?(\di(t2(t1(s0))) = nth(w, 2), 1, =?(0, 1))
+bound := ?(\di(recon(atlas(fam, s2))) = nth(w, 2), 1, =?(0, 1))
+recovered := =?(recon(atlas(fam, s2)), s2)
+claim := \an <| IMPLEMENTED , DECLARED |> [replay, bound, recovered]
+\ve(\fn v |-> v = [1, 1, [2, 2, 4, 1, 5]], claim)

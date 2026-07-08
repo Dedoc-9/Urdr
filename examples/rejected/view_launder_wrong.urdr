@@ -1,0 +1,16 @@
+# FALSE (view laundering across a transition path, Milestone 6.5): a rendered frame must bind to the
+# AUTHENTICATED chain endpoint. Here a viewer reconstructs a frame from a DIFFERENT (laundered) state
+# s2p and claims its digest equals the real chain endpoint w[2]=di(s2). Since di(recon(atlas(fam,s2p)))
+# = di(s2p) != di(s2), the claim DIES. Non-vacuous: a frame of the true s2 would not die. This is the
+# temporal anti-cheat -- a client cannot pass off a fake state as the authoritative one. signum != res.
+apply := \fn ch x |-> \fo(ch, [], \fn acc idx |-> push(acc, nth(x, idx)))
+atlas := \fn family x |-> \fo(family, [], \fn acc ch |-> cat(acc, apply(ch, x)))
+recon := \fn img |-> [nth(img, 0), nth(img, 1), nth(img, 2), nth(img, 3), nth(img, 4)]
+t1 := \fn s |-> [nth(s, 0) + 1, nth(s, 1), nth(s, 2), nth(s, 3), nth(s, 4)]
+t2 := \fn s |-> [nth(s, 0), nth(s, 1) + 2, nth(s, 2), nth(s, 3), nth(s, 4)]
+fam := [[0, 1], [2, 3], [4]]
+s0 := [1, 0, 4, 1, 5]
+s2 := t2(t1(s0))
+w := [\di(s0), \di(t1(s0)), \di(s2)]
+s2p := [9, 9, 4, 1, 5]
+=?(\di(recon(atlas(fam, s2p))), nth(w, 2))

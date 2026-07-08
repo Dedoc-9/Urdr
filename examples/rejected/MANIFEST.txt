@@ -37,3 +37,5 @@ fixpoint_sqrt_domain_wrong.urdr run URDR-ASSERT
 fixpoint_floor_wrong.urdr run URDR-ASSERT
 atlas_deficient_wrong.urdr run URDR-ASSERT
 atlas_algebra_deficient_wrong.urdr run URDR-ASSERT
+view_launder_wrong.urdr run URDR-ASSERT
+transition_fork_wrong.urdr run URDR-ASSERT
