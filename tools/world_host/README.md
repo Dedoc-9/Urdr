@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 
-# world_host — shared-world runtime reference (Milestone 7, Steps 1–2)
+# world_host — shared-world runtime reference (Milestone 7, Steps 1–3)
 
 An **executable specification** of the host enforcement loop — NOT a production runtime. It
 keeps Milestone 7 on the same proof discipline that got the kernel to D10: build the model in
@@ -32,9 +32,21 @@ the same list reaches the same head; views differ but final-state authority agre
 heads, no merge rule) are all REFUSED — the runtime analogue of the witness firewall.
 Non-vacuity: a broken accept-any-history host fails the harness.
 
+## Step 3 — deterministic multi-actor scheduling (`scheduler.py`, `test_scheduler.py`, 9/9)
+
+Many actors propose transitions concurrently; the scheduler canonicalizes them into ONE
+ordering that is a pure function of the proposal MULTISET — sort by proposal content digest
+(the kernel `weave` rule) — so arrival order cannot change the authoritative history. Green:
+the canonical head and final state are invariant under arrival order, the committed segment is
+a valid Step-2 history, and the commit is deterministic. Red: a non-canonical / speculative
+branch has a different head and CANNOT be promoted (`branch != authority`). It consumes the
+measured convergence property (kernel `weave` / `parallel_runtime`), it does not re-prove it.
+Non-vacuity: an arrival-order scheduler is order-DEPENDENT and fails invariance.
+
 ```
 python3 tools/world_host/test_world_host.py
 python3 tools/world_host/test_transition_history.py
+python3 tools/world_host/test_scheduler.py
 ```
 
 ## Grade
@@ -43,8 +55,9 @@ python3 tools/world_host/test_transition_history.py
 a URDR-gate `MEASURED` result: it is host code that *consumes* the measured kernel, graded by
 its own tests. `the runtime consumes the theorem; it does not re-prove it`.
 
-## NOT here (Steps 3–5, deliberately)
+## NOT here (Steps 4–5, deliberately)
 
-Step 3 deterministic multi-actor scheduling · Step 4 Rust port against these same fixtures ·
-Step 5 networking, persistence, replication, renderer/GPU, spatial streaming. No networking, no
-graphics, no optimization, no concurrency exists in Steps 1–2 by design.
+Step 4 Rust port against these same fixtures ·
+Step 5 networking, persistence, replication, renderer/GPU, spatial streaming. Steps 1–3 have no
+networking, no graphics, no optimization, and no concurrent EXECUTION (Step 3 is deterministic
+single-threaded scheduling, not threads) — by design.
