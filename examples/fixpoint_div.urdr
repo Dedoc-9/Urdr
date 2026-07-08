@@ -4,7 +4,7 @@
 # the in-fold overflow guard proven faithful over 40k random cases). Identities: 12/3=4, 7/2=3.5,
 # floor-toward-neg-inf on -1/3, 1/3 truncates down, and a mul->div round-trip. Deterministic by
 # construction. Cross-placement target: same digest through both placements. No float, no new glyph.
-use @2ee72f10350cf69c1925a3231716c2e590f615b132d260695c43f462b20bfc41 as fp
+use @29c6120f2172064e184f0923a5a799f1432046dc6c34236e525dc70181c95994 as fp
 dv := \vw(fp, 'div)
 mul := \vw(fp, 'mul)
 fi := \vw(fp, 'from_int)

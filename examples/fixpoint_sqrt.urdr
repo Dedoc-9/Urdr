@@ -1,0 +1,15 @@
+# fixpoint_sqrt (D9, Milestone 5A) -- Q32.32 sqrt through the vendored fixpoint module.
+# sqrt(a) = isqrt(a*2^32), floor; exact per-bit via the umul limb-pair compare (algorithm proven in
+# tools/fixpoint_proto/sqrt_algorithm.py). Domain a in [0, 2^62) (value < 2^30); a<0 and a>=2^62
+# refused (full domain = SCOPED strengthening). Identities: sqrt(4)=2, floor(sqrt(2)), and a
+# mul->sqrt round-trip sqrt(3*3)=3. Each sqrt is ~48 umuls (~250k ticks); 3 per fixture keeps well
+# under the 1M fuel bound. Deterministic. No float, no new glyph.
+use @29c6120f2172064e184f0923a5a799f1432046dc6c34236e525dc70181c95994 as fp
+sq := \vw(fp, 'sqrt)
+mul := \vw(fp, 'mul)
+fi := \vw(fp, 'from_int)
+r1 := =?(sq(fi(4)), fi(2))
+r2 := =?(sq(fi(2)), 6074000999)
+r3 := =?(sq(mul(fi(3), fi(3))), fi(3))
+claim := \an <| IMPLEMENTED , DECLARED |> [r1, r2, r3]
+\ve(\fn v |-> v = [8589934592, 6074000999, 12884901888], claim)

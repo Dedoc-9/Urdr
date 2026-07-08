@@ -89,12 +89,15 @@ and NO division/shift/recursion, so:
   `|a|` followed by 32 zeros) by `|b|`, remainder always < |b| < 2^63; the doubling
   step `2r + bit` is computed as `(r−b) + r + bit` when it would overflow — exact in
   i64 for all `r < b`. Floor-corrected for sign by the final remainder. Because the quotient is built MSB-first and i64 wraps (Python's oracle does not), an **in-fold guard refuses once the running quotient reaches 2⁶²** — proven to fire on exactly the overflow cases and never on a representable result (40k random cases, 0 misfires). **Algorithm + guard PROVEN** (2026-07-07) — `tools/fixpoint_proto/div_algorithm.py`; the Urðr encoding mirrors it and is MEASURED (reference) per §6.
-- `sqrt`: `isqrt(a·2^32)` by bounded Newton on the bit-length-derived seed, finished
-  by an exact candidate check (`c² ≤ N < (c+1)²` via `mul`-comparisons) — the floor
-  proof is *verified*, not assumed from convergence.
+- `sqrt`: `isqrt(a·2^32)` bit-by-bit MSB-first (48 bits); each candidate `rc` is tested
+  by the EXACT `umul` limb-pair compare `rc² = Q·2^32+R ≤ a·2^32=[a,0]` ⟺ `Q<a ∨ (Q=a ∧ R=0)`
+  — the floor is *verified* per bit, not assumed. Domain `a ∈ [0, 2^62)` so `umul` never
+  overflows in-domain (proven: 0 in-domain refusals over 4000 randoms); `a ≥ 2^62` refused.
+  **PROVEN** — `tools/fixpoint_proto/sqrt_algorithm.py`. Full domain = SCOPED strengthening.
 
-Fuel: each op is O(63) fold steps (~5k ticks); a fixture of dozens of ops sits well
-under the default 1,000,000 budget. Determinism is by construction: no host
+Fuel: `add/sub/neg/from_int/floor_int/mul/div` are O(63) fold steps (~5k ticks each);
+**`sqrt` is the exception at ~250k ticks (48 `umul`s)**, so a sqrt fixture batches ≤3
+calls under the default 1,000,000 budget. Cross-placement uses the SAME bound. Determinism is by construction: no host
 operation other than i64 `+ − ×` and comparisons is ever consulted.
 
 ## 5. Falsifiers (red set — written before the module is trusted)
@@ -114,17 +117,17 @@ operation other than i64 `+ − ×` and comparisons is ever consulted.
 |---|---|---|
 | This contract (representation, rounding, refusals, op identities) | IMPLEMENTED (as spec) | DECLARED |
 | `add/sub/neg/from_int` per §2–4 | IMPLEMENTED | **MEASURED** — `examples/fixpoint_arithmetic.urdr` (⊢ [30064771072,30064771072,0,4294967296,1]) + `rejected/fixpoint_overflow_wrong.urdr` (URDR-ASSERT); vendored `fixpoint` module; oracle-agree; D8 corpus v2 |
-| `floor_int` per §2 (needs bit-serial ÷2³²) | SPECULATIVE — a single `fdiv` by 2³²; lands next now that the `div`/`fdiv` machinery is MEASURED | N/A |
+| `floor_int` per §2 | IMPLEMENTED | **MEASURED (reference)** — `examples/fixpoint_floor.urdr` (⊢ [7,7,−7,−8,0]) reproduces the proven prototype (`tools/fixpoint_proto/floor_int_algorithm.py`): integer part for a≥0, floor-toward-−∞ (−7.5→−8) for negatives; INT_MIN refused; `rejected/fixpoint_floor_wrong` (trunc claim) dies URDR-ASSERT; oracle-agree; cross-placement = corpus v5 (pending) |
 | `mul` bit-serial per §4 | IMPLEMENTED | **MEASURED (reference)** — `examples/fixpoint_mul.urdr` (⊢ [51539607552,−51539607552,51539607552,12884901888,−283897]) matches the proven prototype on the battery; `rejected/fixpoint_mul_overflow_wrong.urdr` (URDR-ASSERT); oracle-agree; **cross-placement MEASURED** — `urdr-core-rs` reproduced `fixpoint_mul` within ADMITTED 12/12 twice on Windows/`rustc 1.96.1` (corpus v3, 2026-07-07) |
 | `div` bit-serial per §4 | IMPLEMENTED | **MEASURED (both placements)** — `examples/fixpoint_div.urdr` (⊢ [17179869184, 15032385536, −1431655766, 1431655765, 12884901888]) reproduces the proven prototype (`tools/fixpoint_proto/div_algorithm.py`) on 12/3=4, 7/2=3.5, floor(−1/3), 1/3, and a mul→div round-trip; the in-fold overflow guard (`q < 2⁶²`, needed because Urðr i64 wraps) was proven faithful to the math oracle over 40k random cases (0 mismatches); `rejected/fixpoint_div_zero_wrong` + `fixpoint_rounding_wrong` die URDR-ASSERT; oracle-agree; **cross-placement MEASURED** — `urdr-core-rs` reproduced `fixpoint_div` within ADMITTED 15/15 twice, defect caught 7/7, Windows/`rustc 1.96.1` (corpus v4, 2026-07-07) |
-| `sqrt` per §2/§4 | SPECULATIVE (law frozen; lands after mul/div are MEASURED) | N/A |
+| `sqrt` per §2/§4 | IMPLEMENTED (domain a∈[0,2⁶²)) | **MEASURED (reference)** — `examples/fixpoint_sqrt.urdr` (⊢ [8589934592,6074000999,12884901888]) reproduces the proven prototype (`tools/fixpoint_proto/sqrt_algorithm.py`): sqrt(4)=2, floor(sqrt(2)), mul→sqrt round-trip; exact per-bit via the `umul` limb-pair compare; a<0 and a≥2⁶² refused (`rejected/fixpoint_sqrt_negative_wrong` + `fixpoint_sqrt_domain_wrong` die URDR-ASSERT); ~250k ticks/call (48 umuls); oracle-agree; cross-placement = corpus v5 (pending). **Full domain a≥2⁶² = SCOPED strengthening** (6-limb compare) |
 | Cross-placement bit-identity on the fixtures | IMPLEMENTED | **MEASURED** (2026-07-07) — `urdr-core-rs` reproduced `fixpoint_arithmetic` and refused `fixpoint_overflow_wrong` inside ADMITTED 10/10, twice, on Windows/`rustc 1.96.1` |
 | "Physics-ready substrate" | NOT CLAIMED — physics is Milestone 5B, after this ledger row is MEASURED | — |
 
 ## 7. D8 corpus extension (deliberate un-freeze)
 
 Measured fixpoint fixtures join `tools/foreign_placement/conformance.txt` as
-**corpus v2** — DONE and CROSS-VERIFIED: `fixpoint_arithmetic` (accept) + `fixpoint_overflow_wrong` (reject) are in `conformance.txt`, and `urdr-core-rs` reproduced them inside **ADMITTED 10/10 (twice)** on Windows/`rustc 1.96.1` (2026-07-07). **Corpus v3** added the division-free `mul` (`fixpoint_mul` + `fixpoint_mul_overflow_wrong`) — ADMITTED 12/12 twice. **Corpus v4** — `fixpoint_div` (accept) + `fixpoint_div_zero_wrong` + `fixpoint_rounding_wrong` (reject) — is MEASURED (reference) here and is the **pending** cross-placement target. The Stage-4 target grows, deliberately and recorded here: each new
+**corpus v2** — DONE and CROSS-VERIFIED: `fixpoint_arithmetic` (accept) + `fixpoint_overflow_wrong` (reject) are in `conformance.txt`, and `urdr-core-rs` reproduced them inside **ADMITTED 10/10 (twice)** on Windows/`rustc 1.96.1` (2026-07-07). **Corpus v3** added the division-free `mul` (`fixpoint_mul` + `fixpoint_mul_overflow_wrong`) — ADMITTED 12/12 twice. **Corpus v4** — `fixpoint_div` (accept) + `fixpoint_div_zero_wrong` + `fixpoint_rounding_wrong` (reject) — is MEASURED (reference) here and is the **pending** cross-placement target. **Corpus v5** — `fixpoint_floor` + `fixpoint_sqrt` (accept) + `fixpoint_floor_wrong` + `fixpoint_sqrt_negative_wrong` + `fixpoint_sqrt_domain_wrong` (reject) — is MEASURED (reference) and is the **pending** cross-placement target (20 vectors). The Stage-4 target grows, deliberately and recorded here: each new
 vector is `MEASURED` from ☉ before it is frozen, and `urdr-core-rs` must reproduce
 it (plus survive `--defect`) to stay ADMITTED. `a frozen target may grow; it may
 never silently change`.

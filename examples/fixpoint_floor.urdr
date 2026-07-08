@@ -1,0 +1,16 @@
+# fixpoint_floor (D9, Milestone 5A) -- Q32.32 floor_int through the vendored fixpoint module.
+# floor_int(a) = floor(a/2^32) toward -inf (a plain Int): integer part for a>=0, one-less for a
+# negative non-integer (floor, never trunc). Algorithm proven in tools/fixpoint_proto/floor_int_algorithm.py.
+# Deterministic by construction. No float, no new glyph.
+use @29c6120f2172064e184f0923a5a799f1432046dc6c34236e525dc70181c95994 as fp
+fl := \vw(fp, 'floor_int)
+fi := \vw(fp, 'from_int)
+ng := \vw(fp, 'neg)
+sb := \vw(fp, 'sub)
+r1 := =?(fl(fi(7)), 7)
+r2 := =?(fl(fi(7) + 2147483648), 7)
+r3 := =?(fl(ng(fi(7))), -7)
+r4 := =?(fl(sb(ng(fi(7)), 2147483648)), -8)
+r5 := =?(fl(0), 0)
+claim := \an <| IMPLEMENTED , DECLARED |> [r1, r2, r3, r4, r5]
+\ve(\fn v |-> v = [7, 7, -7, -8, 0], claim)

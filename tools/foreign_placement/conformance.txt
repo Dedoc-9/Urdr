@@ -21,3 +21,9 @@ reject  fixpoint_mul_overflow_wrong  URDR-ASSERT
 accept  fixpoint_div   3ddbf06dc5059e22ed10ec33a8b22068e51674a4b9d8e95554838297cac25f5e
 reject  fixpoint_div_zero_wrong  URDR-ASSERT
 reject  fixpoint_rounding_wrong  URDR-ASSERT
+# --- corpus v5 (D9 floor_int + sqrt, Milestone 5A) ---
+accept  fixpoint_floor   e41a9f177b3e1a6c2c4f293172055ee2097c040ea44da9035ce76f94078f5b00
+accept  fixpoint_sqrt   37ad7a42a09887f6e3071e230a3ab093882f0d48381b210a03e6e3c9ac1875a5
+reject  fixpoint_sqrt_negative_wrong  URDR-ASSERT
+reject  fixpoint_sqrt_domain_wrong  URDR-ASSERT
+reject  fixpoint_floor_wrong  URDR-ASSERT
