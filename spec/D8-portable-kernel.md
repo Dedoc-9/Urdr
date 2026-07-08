@@ -11,8 +11,8 @@ reference's actual, gate-green output). The independent kernel's **convergence i
 hand-rolled SHA-256, no crates) reproduced every accept digest and every rejection code
 **twice, identically**, with a deliberately-defective build caught 4/4 (§4 non-vacuity), on
 ONE named host: Windows, `rustc 1.96.1` (stable-x86_64-pc-windows-gnu). Scope: the conformance
-corpus — grown to **15** vectors (v2 = fixpoint foundation, v3 = division-free `mul`, v4 = `div`; v2+v3 re-
-ADMITTED 12/12 twice on 2026-07-07, **v4 Rust ADMITTED 15/15 twice, defect caught 7/7, 2026-07-07**) — that host; whole-corpus admission stays the SCOPED strengthening. `admitted ≠ trusted`.
+corpus — grown to **20** vectors (v2 = fixpoint foundation, v3 = division-free `mul`, v4 = `div`, v5 = `floor_int`+`sqrt`; v2+v3 re-
+ADMITTED 12/12 twice on 2026-07-07, **v4/v5 Rust ADMITTED 20/20 twice, defect caught 9/9, 2026-07-07**) — that host; whole-corpus admission stays the SCOPED strengthening. `admitted ≠ trusted`.
 
 ## 0. Why (Stage 4)
 
