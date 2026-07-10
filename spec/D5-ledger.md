@@ -521,3 +521,26 @@ red-first gate can MEASURE conformance the same way D8 admits a second kernel: r
 digest twice bit-identically, defect caught, over a `(state → expected-frame-digest)` corpus. No new
 glyph; kernel frozen; this is contract work, not a primitive. `I/O proposes · math computes · the
 kernel certifies · the renderer projects` · `every frame is a witness`.
+
+**Renderer rung 1 — the first frame-digest witnesses — MEASURED (reference placement), red-first.**
+The D11 §4 renderer was the biggest DECLARED gap; this converts its first slice to MEASURED. A
+deterministic, integer-only, fixed-point rasterizer (`tools/render/raster.py`) realizes five of the
+eight §4 obligations *within the reference*: a fixed-point viewport transform (NDC→subpixel through
+`urdr-math.floor_divmod`), exact integer edge functions, the **top-left fill rule** (a shared edge
+covered EXACTLY once — proven by two triangles tiling a square with 0 gaps and 0 double-draws; the
+`closed` no-tie-break rule double-covers 8 diagonal pixels, the non-vacuity control), pixel-center
+sampling in a fixed scan order, and **canonical framebuffer serialization** →
+`Digest(Frame)=SHA-256(MAGIC|W|H|C|row-major pixels)`; plus integer, endpoint-symmetric line
+rasterization (red-first caught a real direction-dependence bug — `line(A,B)≠line(B,A)` on a slanted
+segment — fixed by canonicalizing endpoints, a genuine determinism repair, not a weakened test).
+Overflow in raster math is `RENDER-REFUSE`, never a saturate. The `render` gate stage reproduces
+each of four scene frame digests (`tri, tri_ndc, line_box, quad_two_tri`) **twice bit-identically**
+and matches `tools/render/conformance.txt`; a corner-sample defect is forced to diverge
+(`render-defect-selftest`, non-vacuity); nine falsifiers in `tests/test_render.py`. **Scope, stated
+honestly (the distinction the reviewer flagged — implementation-evidence vs semantic-claim):** this
+is agreement on a stated corpus + refusal set *within the reference placement*. It does NOT yet show
+a *second independent* rasterizer agreeing (the D8 cross-placement rung — the next step), NOR GPU
+determinism (there is no GPU), NOR completeness for all scenes; depth/blend/perspective remain
+DECLARED. `every frame is a witness` is now true for four frames, in one placement. No new glyph;
+kernel frozen; render consumes urdr-math, touches no core. `State_t ⟹ Framebuffer_t bit-identical
+across placements` stays the scoped next milestone.

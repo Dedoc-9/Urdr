@@ -1,0 +1,9 @@
+# urdr-render rung 1 — frame-digest conformance vectors (D11 §4).
+# name  SHA-256(canonical_serialize(Frame))
+# Every conforming INTEGER placement must reproduce these exactly. This is
+# implementation-agreement on a stated corpus, NOT a claim of GPU determinism
+# or completeness for all scenes.
+line_box bc9a85d67565dfa7f98527ca1192d61b005e0e10be3ed9eb9f71e43bf92aa763
+quad_two_tri 8594205bf0b3d3dfcd6169b65b457333064f118c8fb88965f5db24ff34ca3511
+tri d71089cf988de592d1f2e7bc6b78fcfb1c08d5d9b65c353cedd4a6a31166d9c9
+tri_ndc 62f1efe16c55cf6e809f0088b55327b6d6132efa4cedc0440e63985727618d67

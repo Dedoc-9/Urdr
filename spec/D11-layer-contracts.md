@@ -205,22 +205,35 @@ Every layer contract below is stated in six fields:
 - **GRADE.** `MEASURED` — `tools/world_host/` (`structural_world`, `regional_rigidity`,
   `persistent_world`), examples `actors_one_digest`, `structural_history`, corpus v12.
 
-### 3.7 urdr-render — **DECLARED (the biggest remaining milestone)**
+### 3.7 urdr-render — **rung 1 MEASURED; full contract DECLARED (the biggest remaining milestone)**
 
 See §4 — this is the concrete centerpiece of the spec.
 
-- **GUARANTEES (DECLARED).** A pure function `Frame_t = Render(State_t)` such that `Digest(Frame_t)`
-  is **bit-identical across independent implementations** (a second placement, D8-style, for
-  *pixels* — not just state).
-- **REQUIRES.** `urdr-world` (the authoritative state + digest) and the Q32.32 substrate (D9).
+- **GUARANTEES (DECLARED, full).** A pure function `Frame_t = Render(State_t)` such that
+  `Digest(Frame_t)` is **bit-identical across independent implementations** (a second placement,
+  D8-style, for *pixels* — not just state).
+- **GUARANTEES (MEASURED, rung 1).** A deterministic, integer-only, fixed-point rasterizer
+  (`tools/render/raster.py`) that realizes five of §4's eight obligations *within the reference
+  placement*: fixed-point viewport transform, exact integer edge functions, the top-left fill rule
+  (a shared edge is covered **exactly once** — proven by two triangles tiling a square with no gap
+  and no double-draw), pixel-center sampling in a fixed scan order, and canonical framebuffer
+  serialization → `Digest(Frame)=SHA-256(canon(Frame))`. Plus integer, endpoint-symmetric line
+  rasterization. Overflow is a refusal (`RENDER-REFUSE`), never a saturate.
+- **REQUIRES.** `urdr-world` (the authoritative state + digest) and `urdr-math` (`floor_divmod`,
+  exact floor division) as the fixed-point substrate (D9). Consumes no core.
 - **MAY-ASSUME.** The state digest is authoritative and reproducible; all geometry arrives as exact
   fixed-point, never float.
-- **REFUSES.** Out-of-gamut / overflow in fixed-point raster math is a refusal, not a saturate;
-  a frame that does not serialize canonically is refused (`URDR-LIMES`-style), not truncated.
+- **REFUSES.** `RENDER-REFUSE` on i64 overflow in raster math or an out-of-range framebuffer — a
+  refusal, not a saturate; a frame serializes only through the one canonical grammar.
 - **DETERMINISM.** No GPU, no IEEE float — a constrained fixed-point rasterizer (§4).
-- **GRADE.** `DECLARED`. Today the pipeline is only architectural: `State ⟶ Renderer ⟶ Framebuffer`
-  exists as a shape, but `State_t ⟹ Framebuffer_t` bit-identical across placements is **not yet
-  demonstrated**. §4 states the obligations precisely so a red-first gate can measure it.
+- **GRADE.** Rung 1 is `MEASURED` — the `render` gate stage reproduces each scene's frame digest
+  **twice bit-identically** and matches its golden (`tools/render/conformance.txt`), with a defect
+  rasterizer (corner sampling) forced to diverge (non-vacuity); falsifiers in
+  `tests/test_render.py`. **Scope (honest):** this is *implementation-agreement on a stated corpus
+  and refusal set, within the reference placement* — it does **not** yet demonstrate a *second
+  independent* rasterizer agreeing (the D8 cross-placement step), nor GPU determinism (there is no
+  GPU), nor completeness for all scenes. Those, plus depth/blend/perspective, remain `DECLARED`
+  (§4). `State_t ⟹ Framebuffer_t` bit-identical *across placements* is the next rung.
 
 ### 3.8 applications
 
@@ -297,7 +310,8 @@ reproduced, this contract stays `DECLARED`.
 | urdr-physics     | rigidity-admissibility                  | `MEASURED`   | `physics.py`, corpus v12 |
 | urdr-physics     | general constraint solver               | `DECLARED`   | target (§3.5) |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
-| urdr-render      | frame-digest law (bit-identical pixels) | `DECLARED`   | target (§4) — the next milestone |
+| urdr-render      | rung 1: viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
+| urdr-render      | full frame law + 2nd-placement pixels   | `DECLARED`   | target (§4) — depth/blend/perspective + cross-placement |
 | network (live)   | real socket at the runner tier          | `SPECULATIVE`| host capability; not gated |
 
 ## 7. Recommended order of work

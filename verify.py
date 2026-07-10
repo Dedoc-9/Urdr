@@ -319,6 +319,54 @@ class Gate:
         finally:
             shutil.rmtree(scratch, ignore_errors=True)
 
+    # -- 2e. urdr-render rung 1: every frame digest is a witness (D11 §4) ------
+    def render(self):
+        """D11 §4 rung 1: each scene's frame digest is reproduced twice
+        bit-identically and matches its golden (a frame is a witness). A defect
+        rasterizer (corner sampling instead of pixel-center) MUST diverge from a
+        center-sample golden on ≥1 scene (non-vacuity). No float; overflow is a
+        refusal. Scope: integer-placement agreement on a stated corpus — NOT a
+        claim of GPU determinism or completeness for all scenes."""
+        rdir = os.path.join(ROOT, "tools", "render")
+        if rdir not in sys.path:
+            sys.path.insert(0, rdir)
+        try:
+            import raster
+            import scenes
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("render-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(rdir, "conformance.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(scenes.SCENES):
+            d1 = scenes.SCENES[name]().digest()
+            d2 = scenes.SCENES[name]().digest()
+            if d1 != d2:
+                self.record(f"render:{name}", False,
+                            f"NONDETERMINISTIC {d1[:12]}… ≠ {d2[:12]}…")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"render:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            self.record(f"render:{name}", True, d1[:16] + "…")
+        # non-vacuity: a corner-sample defect must diverge from the center golden
+        from raster import Framebuffer, SUB
+        fbd = Framebuffer(16, 16)
+        fbd.draw_triangle((2 * SUB, 2 * SUB), (13 * SUB, 4 * SUB),
+                          (5 * SUB, 13 * SUB), 0xFF, sample=0)
+        diverged = fbd.digest() != goldens.get("tri")
+        self.record("render-defect-selftest", diverged,
+                    "corner-sample defect diverged (gate can redden)" if diverged
+                    else "defect agreed — the frame instrument is vacuous")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -399,6 +447,7 @@ def main() -> int:
     gate.oracle_generators()
     gate.modules()
     gate.registry()
+    gate.render()
     gate.rejections()
     gate.tamper()
     return gate.report()
