@@ -72,6 +72,38 @@ determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.
   mutual information in bits) that *proposes* claims and never mints them. The engine is
   tested; the claim it *improves outcomes* is `SPECULATIVE` behind a calibration ledger.
 
+## The manifold / observer engine (D7–D10) — a second arc, both placements
+
+Beyond the language core, the repo now carries a **measured theorem map** for a deterministic,
+verification-first manifold / observer engine (capstone: [`spec/D10-observer-engine-capstone.md`](spec/D10-observer-engine-capstone.md)).
+Every row below is `MEASURED` on **two independent placements** — the ☉ Python reference AND the
+independent `urdr-core-rs` Rust kernel — agreeing on the exact accept/reject frontier (D8
+conformance: 29/29 vectors reproduced twice, defect caught 13/13).
+
+- **Independent Rust kernel (D8, Stage 4).** `urdr-core-rs` — one std-only Rust file, hand-rolled
+  SHA-256, no crates, no cargo — reproduces the reference digests and rejection codes for the whole
+  conformance corpus; a deliberately-defective build is caught. The R6a "Rust substrate" is no longer
+  speculative — it is **ADMITTED** at a named host scope
+  ([`tools/urdr_core_rs/`](tools/urdr_core_rs/), [`spec/D8-portable-kernel.md`](spec/D8-portable-kernel.md)).
+- **Deterministic numeric substrate (D9, Q32.32).** A fixed-point `Int` discipline —
+  `add/sub/neg/from_int/mul/div/floor_int/sqrt` — deterministic *by construction* (no float, no host
+  rounding), with overflow / div-by-zero / INT_MIN / sqrt-of-negative **refused** and floor rounding
+  everywhere. Each op was proven by a faithful Python prototype ([`tools/fixpoint_proto/`](tools/fixpoint_proto/))
+  before being encoded **division-free** in Urðr and measured on both placements
+  ([`spec/D9-numeric-substrate.md`](spec/D9-numeric-substrate.md)).
+- **The atlas / observer theorem (D10).** `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) = {0}` — an observer atlas
+  determines the state iff its charts span. Measured as: axis-selection charts (a computed `covers`
+  predicate); a **data-parameterized** theorem (dimension n and the chart family are inputs, so
+  4D/5D/nD are data choices); general integer **linear** charts (`det(M) ≠ 0` via a division-free
+  cofactor); and **observation bound to a witnessed transition path** (view-laundering and forked
+  history refused). No new primitive, no glyph — it composes Layer-1.
+- **Shared-world runtime reference (host track, Python, Steps 1–3).** [`tools/world_host/`](tools/world_host/)
+  — the smallest enforcement loop that *consumes* the measured invariants: authority = the kernel
+  digest, an admissible observer = a covering atlas, a frame is admitted iff it reconstructs to the
+  authority. Static world views → a transition-history chain (reorder / missing / fork refused) → a
+  deterministic multi-actor scheduler (arrival-order invariant; speculative branch refused). Graded by
+  its own integration tests, **not** the URDR gate — it extends no theorem.
+
 ## Quickstart (offline; Python ≥ 3.10, stdlib only)
 
 ```powershell
@@ -211,7 +243,11 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | R3 | WHAT/WHERE landed: closure compiler admitted **only** by differential oracle vs the ☉ tree-walk reference (singular kernel — one mint; defect fixture proves the oracle can redden); verbose keyword profile (three spellings, one digest) | `IMPLEMENTED / MEASURED` |
 | R4 | I/O & external state as **capabilities**: nothing ambient; reads are recorded inputs replayed bit-identically; writes are effect-plans executed at the līmes; ungranted use rejected (`URDR-CAP`) | `IMPLEMENTED / MEASURED` |
 | R5 | Modules & packaging without a network: **import-by-digest** (Unison lesson, byte-level), vendor dir + lockfile verified by the gate; a wrong pin is refused, not resolved (`URDR-PIN`/`URDR-MODULE`) | `IMPLEMENTED / MEASURED` |
-| R6a | **Verified foreign execution boundary**: a foreign implementation (Rust) admitted as another *placement* iff `digest = reference`, else `URDR-RUST-DIVERGENCE` — no substrate trusted, only agreement (the §14b oracle generalized to N placements). Harness proven cargo-free (`tools/foreign_placement/`); an independent Rust kernel agreeing on the corpus is the remainder | harness `IMPLEMENTED / MEASURED`; Rust substrate `SPECULATIVE / N/A` |
+| R6a | **Verified foreign execution boundary**: a foreign implementation (Rust) admitted as another *placement* iff `digest = reference`, else `URDR-RUST-DIVERGENCE` — no substrate trusted, only agreement (the §14b oracle generalized to N placements). Harness proven cargo-free (`tools/foreign_placement/`); an independent Rust kernel agreeing on the corpus is the remainder | harness `IMPLEMENTED / MEASURED`; Rust substrate now **ADMITTED** (see R6b) |
+| R6b | **Independent Rust kernel ADMITTED** (D8): `urdr-core-rs` reproduces the conformance corpus bit-for-bit, twice, with a defect build caught — the R6a remainder discharged at a named host scope | `IMPLEMENTED / MEASURED` |
+| M5 | **Deterministic numeric substrate** (D9, Q32.32): `add/sub/neg/from_int/mul/div/floor_int/sqrt`, division-free, refusal law; `sqrt` on a documented domain | `IMPLEMENTED / MEASURED (both placements)` |
+| M6 | **Atlas / observer theorem** (D10): injectivity as a computed, data-parameterized predicate; axis-selection + general integer-linear charts; observation bound to a witnessed transition path | `IMPLEMENTED / MEASURED (both placements)` |
+| M7 | **Shared-world runtime reference** (`tools/world_host/`, host track): static views → transition history → deterministic scheduler; a Python executable spec, Steps 1–3 | `IMPLEMENTED (host track) / integration-test green` |
 
 ## Honest boundaries (§9, in our own words)
 
@@ -230,6 +266,83 @@ pass a glyph review before it enters the grammar, or it will not enter.
   error, not a proof of termination.
 - Metatheory (progress/preservation, no-inflation soundness as a theorem, lens laws as
   theorems) is `CONJECTURED`; what is `TESTED` is the falsifier suite. See D5.
+
+## Repo map
+
+Each main-tree folder carries its own README with the detail.
+
+| Path | What lives there | README |
+|---|---|---|
+| [`urdr/`](urdr/) | The language: lexer, parser, checker, evaluator, canon, store, capabilities, modules, compiler — stdlib-only, no circular imports | [`urdr/README.md`](urdr/README.md) |
+| [`spec/`](spec/) | Normative specs D1–D10 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone), the D5 graded ledger, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
+| [`examples/`](examples/) | The corpus the gate runs: accepted `.urdr` fixtures + golden `.digest`, `rejected/` must-die programs + `MANIFEST.txt`, `must_fail/` the tamper self-test, `vendor/` import-by-digest modules | [`examples/README.md`](examples/README.md) |
+| [`tests/`](tests/) | Unit falsifiers (pytest / unittest), one per subsystem — each designed to be able to go red | [`tests/README.md`](tests/README.md) |
+| [`tools/`](tools/) | Separate tools: `fixpoint_proto/` (proven numeric prototypes), `foreign_placement/` (the differential-oracle harness), `urdr_core_rs/` (the independent Rust kernel), `world_host/` (the runtime reference), `voi_gate/` (a float decision gate), `glyph_review.py` | [`tools/README.md`](tools/README.md) |
+| [`docs/`](docs/) | Design briefs and session transcripts (narrative, not normative) | [`docs/README.md`](docs/README.md) |
+| `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
+| `verify.py` | The gate: unit falsifiers + examples (×2) + oracle + modules + rejections + tamper self-test | — |
+| [`LESSONS.md`](LESSONS.md) | The 12 inherited discipline laws, each with where it is enforced | — |
+
+## Use cases
+
+Urðr is a research language and a worked example of a discipline; these are the shapes it fits.
+
+- **Honest capability / claim tracking.** The epistemic type system (`𒀭⟨maturity, evidence⟩` + the
+  no-inflation ladder + the ᛞ verify mint) is a reusable pattern for any system where *a claim must
+  not outrun its evidence* — audit ledgers, provenance chains, grant/report pipelines.
+- **Deterministic, cross-platform numeric kernels.** The Q32.32 substrate (D9) is a fixed-point core
+  that reproduces bit-for-bit on every host and placement — the property physics, multiplayer
+  simulation, and replay/debug need and that IEEE floats cannot promise across CPUs/GPUs.
+- **Verification-first engine architecture.** The atlas/observer theorem + `world_host` demonstrate a
+  design where *many renderers share one authoritative, cross-checked state*: multiplayer consensus,
+  scientific visualization, spectator/AI views, deterministic replay — the kernel owns authority, the
+  renderer owns appearance, and a laundered or forked view is refused, not repaired.
+- **A template for reproducible research claims.** Red-first, prototype-first, two-placement,
+  honestly-graded — every result here is a small case study in making a verifiable claim about code.
+- **Teaching.** A small language whose entire point is that over-claiming does not typecheck.
+
+## Further development
+
+Graded honestly — what is *not* yet done, and what kind of work each is.
+
+- **The one remaining kernel proof:** exact integer `divmod` → fraction-free (Bareiss) rank →
+  general-*n* injectivity certificate, lifting the linear-chart theorem past the square/`det` case
+  (noted in D5 and D10 §5). This is a genuine proof, gate-able here.
+- **Reconstruction / inversion** (solving `Mx = image`): needs rational arithmetic on the fix
+  substrate now that `div` exists — a substrate-heavy but honest extension.
+- **Perspective / curved charts** (`(x,y,z,w) ↦ (x/z, y/z)`): a chart swap, now possible since `div`
+  is both-placements — a renderer feature, adds no new invariant.
+- **Continuum-physics transport modules** (e.g. Marangoni surface flow) as deterministic field updates
+  `state_{t+1} = Verify(state_t, F(state_t, Δt))` that must *preserve the witness relation* — an
+  application of the measured boundary, never a new foundation.
+- **World-host Steps 4–5:** a Rust port of the runtime against the same Python fixtures, then the
+  large systems surfaces (networking, persistence, replication, renderer/GPU, spatial streaming).
+- **More independent placements** of the kernel (other languages) to widen the conformance frontier
+  beyond one Rust kernel on one host.
+- **Metatheory** (progress/preservation, no-inflation soundness, lens laws) is `CONJECTURED`; the
+  falsifier suite is what is `TESTED` (D5 §metatheory).
+
+## Development discipline (dev rules)
+
+The workflow that produced everything above, in order. The full lesson list with enforcement points
+is [`LESSONS.md`](LESSONS.md); the normative language rules are [`spec/D1-spec.md`](spec/D1-spec.md) §1–§2.
+
+1. **Red-first.** Write the falsifier before the feature; confirm it dies with the *exact* error code;
+   confirm it is **non-vacuous** — a deliberately broken build must fail the harness (L5).
+2. **Prototype-first for hard algorithms.** Prove the algorithm in a faithful prototype
+   ([`tools/fixpoint_proto/`](tools/fixpoint_proto/)) using only the operations the target actually has,
+   *then* encode it. `algorithm proven ≠ measured`.
+3. **Grade every claim** on the maturity × evidence ladder; evidence never exceeds maturity; record it
+   in [`spec/D5-ledger.md`](spec/D5-ledger.md). No inflation (L2, L6).
+4. **Gate twice.** `python verify.py` green, deterministically, in isolated subprocesses (L3).
+5. **Cross-placement.** A numeric / observer result earns *both placements* only once `urdr-core-rs`
+   reproduces it in the D8 conformance corpus — two kernels agreeing on the accept/reject frontier.
+6. **No glyph without a review.** New *operations* arrive as ASCII prelude functions; a glyph is
+   *earned* later as a lossless alias via `tools/glyph_review.py` (§20), or never (design law 5).
+7. **Determinism is an environment:** `PYTHONHASHSEED=0`, `PYTHONUTF8=1` on redirected output; no
+   clock, RNG, float, or iteration-order dependence in the core (L3, L4, L8).
+8. **Keep the sayings honest:** `signum ≠ rēs`, `declared ≠ verified`, `digest ≠ MAC`,
+   `Grounded ≠ true`, `typeable ≠ renderable`, `cited ≠ implemented`.
 
 ## License
 
