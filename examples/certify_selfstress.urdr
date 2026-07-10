@@ -1,0 +1,14 @@
+# certify_selfstress -- the authority kernel certifies that a framework carries a self-stress w:
+# transpose(R) * w = 0 (nodal equilibrium) AND w != 0. This is the equilibrium half of Connelly
+# superstability; the urdr-rigidity library produced w = nullspace(transpose(R)) (it computed), the
+# kernel certifies it cheaply (a nullspace witness on transpose(R)). Framework: the doubly-braced
+# square (a superstable framework); rt is transpose(R), 8x6; w the self-stress. Reuses matvec + =?;
+# no new primitive, no glyph. Exact integers.
+dot := \fn row x |-> \fo(range(len(row)), 0, \fn acc k |-> acc + nth(row, k) * nth(x, k))
+matvec := \fn m x |-> \fo(m, [], \fn acc row |-> push(acc, dot(row, x)))
+rt := [[-2, 0, 0, 0, -2, 0], [0, 0, 0, -2, -2, 0], [2, 0, 0, 0, 0, 2], [0, -2, 0, 0, 0, -2], [0, 0, 2, 0, 2, 0], [0, 2, 0, 0, 2, 0], [0, 0, -2, 0, 0, -2], [0, 0, 0, 2, 0, 2]]
+w := [-1, -1, -1, -1, 1, 1]
+equil := ?(matvec(rt, w) = [0, 0, 0, 0, 0, 0, 0, 0], 1, =?(0, 1))
+nonzero := w != [0, 0, 0, 0, 0, 0]
+claim := \an <| IMPLEMENTED , DECLARED |> [equil, nonzero]
+\ve(\fn r |-> r = [1, 1], claim)

@@ -1,0 +1,7 @@
+# FALSE (forged self-stress): a claimed stress not in nodal equilibrium. transpose(R) * w' != 0 for
+# the doubly-braced square -- the kernel refuses -> URDR-ASSERT. Non-vacuous: the real self-stress passes.
+dot := \fn row x |-> \fo(range(len(row)), 0, \fn acc k |-> acc + nth(row, k) * nth(x, k))
+matvec := \fn m x |-> \fo(m, [], \fn acc row |-> push(acc, dot(row, x)))
+rt := [[-2, 0, 0, 0, -2, 0], [0, 0, 0, -2, -2, 0], [2, 0, 0, 0, 0, 2], [0, -2, 0, 0, 0, -2], [0, 0, 2, 0, 2, 0], [0, 2, 0, 0, 2, 0], [0, 0, -2, 0, 0, -2], [0, 0, 0, 2, 0, 2]]
+wforged := [1, 0, 0, 0, 0, 0]
+=?(matvec(rt, wforged), [0, 0, 0, 0, 0, 0, 0, 0])
