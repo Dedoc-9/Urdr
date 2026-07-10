@@ -97,3 +97,14 @@ braces commit (arrival-order invariant); a duplicate proposal conflicts (`URDR-D
 collapse (brace removal → flexible) conflicts (inadmissible); a stale-parent proposal is refused
 (provenance); non-vacuity (an arrival-order scheduler is order-dependent). Composes the measured
 parts — no new foundations. Roadmap + boundaries: [`../../docs/roadmap_engine.md`](../../docs/roadmap_engine.md).
+
+## Regional (local) rigidity — the compression (`regional_rigidity.py`, green)
+
+The maneuver that makes multi-actor structural physics viable: a region-confined proposal recomputes
+only its **local** pinned-region rigidity (`rank(R_local) = d*|interior|`, boundary vertices fixed) at
+`O(region^3)`, not the global `O(n^3)` matrix. Verified on a 6-vertex two-square truss: for a
+globally-rigid world, the **local verdict equals the global verdict** for region-confined mutations
+(add-redundant-brace stays rigid; remove-brace/side collapses -- both), at `4x4`/`6x4` local vs
+`8x12`/`10x12` global cost. A **cross-region** mutation is not locally certifiable and escalates to a
+global check -- the honest boundary. This is the atlas / regional-chart decomposition (D10 §1) applied
+to rigidity. Verified on these cases; the general soundness theorem needs the region's complement rigid.
