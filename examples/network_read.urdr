@@ -1,0 +1,12 @@
+# R4 network-at-the-limes: an API response / online asset is NON-DETERMINISTIC while live, but the
+# kernel is not. The bridge: the runner FETCHES ONCE at the limes and RECORDS the response
+# (digest-pinned via the one codec -- see the .grants sidecar and inputs/api_response.urdrsnap). This
+# program reads that recording -- a RECORDED INPUT replayed bit-identically, its provenance auditable,
+# folded into this program's own digest. Re-fetching = a NEW recording = a NEW, separately-pinned run.
+# The evaluator does no network I/O ever; nothing is ambient. A tampered recording is refused URDR-LIMES.
+response ≔ recorded(cap(caps, 'response))
+revision ≔ ☽(response, 'revision)
+size ≔ ☽(response, 'size)
+derived ≔ revision * size + 1
+claim ≔ 𒀭⟨IMPLEMENTED, DECLARED⟩ derived
+ᛞ(λ v ↦ v = 3073, claim)

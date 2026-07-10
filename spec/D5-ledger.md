@@ -464,3 +464,33 @@ invisible by design (§13), identity is structure not behaviour (law 3), a proof
 value-pinned (`URDR-LIMES`, R2c), merge is explicit / unpressured. Two subsystems
 adversarially hunted, zero gaps. The reusable method is `spec/D6-gap-probe.md`.
 `Nihil ultrā probātum.`
+
+**The network bridge (R4 at the līmes) — the internet meets the deterministic kernel — MEASURED
+(reference), SPECULATIVE (live socket), and it needed no new language part.** The competitive-engine
+question was: can Urðr use third-party packages, API calls, live updates, and online assets without
+surrendering determinism? The answer is the līmes, and it falls straight out of R4: *a network
+response is just a recorded input whose provenance is a URL.* You **cannot** have one execution that
+is both live and deterministic — but you can have the runner fetch **once** at the boundary, **record**
+the response as a content-addressed digest-verified snapshot, and thereafter **replay** it
+bit-identically inside the kernel, which never opens a socket. `examples/network_read.urdr` measures
+it: a modeled API response, captured as a recorded input, replays to one golden digest, and the
+compiled placement agrees (`oracle:network_read`) — MEASURED. The falsifiers bite: an **ungranted**
+network read is `URDR-CAP` (`network_read_ungranted` — nothing is ambient), and a **tampered** recording
+is `URDR-LIMES` (the one codec — refused, not repaired). The package/asset UX is the R5 shape extended
+from *code* to *data*: `tools/registry/` gives a `pip`/`npm`/`cargo`-like **name→digest registry** and a
+**fetch-and-pin** tool — fetch once, record content-addressed (`<digest>.urdrsnap`), pin a name in
+`urdr.registry`; thereafter `resolve(name)` is **offline-reproducible**, digest-verified. The gate
+enforces it (`registry-pins` + `registry-mispin-selftest` non-vacuity; `tests/test_registry.py`
+falsifiers: round-trip replay, unpinned→`URDR-CAP`, tamper→`URDR-LIMES`, pin-mismatch refused,
+injected-fetcher offline core, and re-fetch-of-different-bytes = a different digest = an explicit new
+pin — a name never slides silently onto new content). Grading is honest to the tier: the recorded-replay
+and registry paths are MEASURED (gate); the *capability plumbing* is reference-runner-only by design
+(`urdr-core-rs` exits loudly on `--grant` — capabilities/snapshots are not the portable kernel's job, D8),
+so the network fixture is ☉-reference, not both-placements; the *real live socket* is SPECULATIVE — a host
+capability at the runner tier, never in the evaluator, graded only where exercised (its deterministic
+record+pin core is tested with an injected fetcher). The design note is `docs/network_bridge.md`. This is
+the enabler: online assets and live updates enter through **pins**, every build stays **bit-identical**,
+and a program that "claims more than it verifies does not typecheck" can still ship with the whole
+internet behind it — the internet just leaves its authority at the door, as a digest.
+`the digest is the authority; the name is UX; the URL is provenance` · `live = recorded input` ·
+`you cannot have live AND deterministic for one execution — you CAN pin the live world into a replayable one`.

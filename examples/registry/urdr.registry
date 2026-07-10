@@ -1,0 +1,5 @@
+# name -> digest registry (R4). NAME  DIGEST  URL.
+# The DIGEST is authority; NAME is UX; URL is provenance only.
+# Managed by tools/registry/pin.py -- edit via the tool, not by hand.
+
+asset:hero_manifest 85de01c1743878cc18ded199df4dcd6530ae2e7cae196c0b36fcad1c76cc8df2 https://assets.example.test/hero/v3.json

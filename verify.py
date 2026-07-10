@@ -281,6 +281,44 @@ class Gate:
         finally:
             shutil.rmtree(scratch, ignore_errors=True)
 
+    # -- 2d. R4 data registry: name→digest pins resolve offline, digest-verified
+    def registry(self):
+        """R4: the name→digest DATA registry (tools/registry) — the package/asset
+        UX over recorded inputs. Every pinned name's content-addressed snapshot
+        exists and hashes to its pin (offline, digest-verified): the runner-side
+        analog of the R5 lockfile. A deliberately corrupted pin MUST be refused
+        (non-vacuity)."""
+        from tools.registry import pin as R
+        from urdr.errors import UrdrError
+        regdir = os.path.join(ROOT, "examples", "registry")
+        try:
+            entries = R.verify_registry(regdir)
+            self.record("registry-pins", len(entries) >= 1,
+                        f"{len(entries)} pinned; snapshot ≡ digest (offline)")
+        except UrdrError as err:
+            self.record("registry-pins", False, f"{err.code}: {err.message[:60]}")
+        # non-vacuity: a name whose content-addressed snapshot is altered MUST redden
+        scratch = tempfile.mkdtemp(prefix="urdr_reg_")
+        try:
+            from urdr import values as V
+            dig = R.record(V.Store({"k": V.Int(1)}, None), scratch)
+            R.pin("m", dig, "-", scratch)
+            snap = R._snap_path(scratch, dig)
+            with open(snap, "r", encoding="utf-8") as fh:
+                raw = fh.read()
+            with open(snap, "w", encoding="utf-8") as fh:
+                fh.write(raw.replace('"n": 1', '"n": 2'))   # content moves, pin does not
+            reddened = False
+            try:
+                R.verify_registry(scratch)
+            except UrdrError as err:
+                reddened = err.code in ("URDR-LIMES", "URDR-CAP")
+            self.record("registry-mispin-selftest", reddened,
+                        "corrupted pin refused (gate can redden)" if reddened
+                        else "corrupt pin ACCEPTED — the registry check is broken")
+        finally:
+            shutil.rmtree(scratch, ignore_errors=True)
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -360,6 +398,7 @@ def main() -> int:
     gate.oracle()
     gate.oracle_generators()
     gate.modules()
+    gate.registry()
     gate.rejections()
     gate.tamper()
     return gate.report()

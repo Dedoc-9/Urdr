@@ -1,0 +1,22 @@
+{
+ "digest": "85de01c1743878cc18ded199df4dcd6530ae2e7cae196c0b36fcad1c76cc8df2",
+ "urdr_snapshot": 1,
+ "value": {
+  "f": {
+   "asset_id": {
+    "n": 7,
+    "t": "i"
+   },
+   "revision": {
+    "n": 3,
+    "t": "i"
+   },
+   "size": {
+    "n": 1024,
+    "t": "i"
+   }
+  },
+  "p": null,
+  "t": "s"
+ }
+}

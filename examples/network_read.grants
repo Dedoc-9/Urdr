@@ -1,0 +1,4 @@
+# Runner grant for network_read.urdr -- the network response, captured at the limes as a RECORDED
+# input (fetch-once, pin-by-digest). read: NAME FIXTURE-PATH (relative to repo root; loaded via the
+# one codec, digest-verified). The fixture IS the pinned response; a re-fetch is a re-record.
+read response examples/inputs/api_response.urdrsnap

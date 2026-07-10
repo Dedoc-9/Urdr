@@ -1,0 +1,5 @@
+# FALSE: an AMBIENT network read. Using the network capability with NO grant sidecar. Nothing is
+# ambient -- authority enters only through the limes. cap(caps, 'response) on an empty CapSet is
+# refused URDR-CAP: the internet is reachable only through an explicit, recorded, pinned grant.
+response ≔ recorded(cap(caps, 'response))
+☽(response, 'revision)
