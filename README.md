@@ -14,6 +14,16 @@ README says beyond that ledger is a bug; file it.
 Successor-in-discipline to the *Dentatus → Ursprung* line (executable epistemic
 determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.md).
 
+The language is the kernel of a larger system: a **deterministic, certified execution
+pipeline** — exact math, physics (dynamics, n-contact LCP, articulated joints), and a
+fixed-point renderer — in which every admitted output is either bit-identical across
+independent implementations or explicitly refused. Three single-file Rust placements
+reproduce the reference's state, frame, and physics digests bit-for-bit on fixed corpora.
+For the systems-level overview, read the **[OSDI-style paper →
+`docs/PAPER.md`](docs/PAPER.md)**; the layer contracts are in
+[`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
+[`spec/D12`](spec/D12-versions.md).
+
 ## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R5 + §18–§20; tag v0.7.1)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,

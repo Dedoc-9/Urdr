@@ -1,0 +1,399 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+
+# Urðr: A Deterministic, Certified Execution Pipeline for Reproducible Simulation
+
+*A systems description of the manifold pipeline — kernel, exact math, physics,
+and renderer — in which every admitted output is either bit-identical across
+independent implementations or explicitly refused.*
+
+Daniel J. Dillberg · `github.com/Dedoc-9/Urdr`
+
+---
+
+## Abstract
+
+Interactive simulation and rendering engines are widely non-reproducible across
+platforms: floating-point differences, driver-dependent GPU pipelines, and
+ambient I/O make it hard to replay a simulation, debug a divergence, or verify
+that two machines computed the same result. Urðr is an execution pipeline built
+around a single discipline — *identity is a content digest, and a computation
+either produces a certified, replayable result or refuses* — applied uniformly
+across five layers: a sealed kernel, an exact-integer math library, a
+certified-physics layer, a deterministic rasterizer, and a world runtime, with
+I/O confined to a capability boundary.
+
+We report a concrete reproducibility result: three independent, single-file Rust
+implementations — of the kernel, the renderer, and the physics — reproduce the
+reference implementation's output digests **bit-for-bit** on fixed conformance
+corpora (36 kernel vectors, 4 frame digests, 18 physics digests), twice each,
+with deliberately-defective builds caught. A 208-test verification gate enforces
+determinism, golden agreement, an in-process oracle, and 45 typed rejection
+fixtures on every change. We are precise about scope: this demonstrates
+**agreement on stated corpora across two placements**, not universal
+reproducibility nor mathematical uniqueness for all inputs. The contribution is
+architectural — deterministic layer contracts, explicit admissibility/refusal
+boundaries, and a reproducible cross-implementation evaluation methodology —
+rather than new mathematics.
+
+---
+
+## 1. Problem
+
+A simulation is *reproducible* if the same initial state and inputs yield the
+same outputs on every conforming machine. Most engines are not: IEEE-754
+evaluation order, `fma` contraction, transcendental-function libraries, and
+GPU rasterization all vary across hardware, compilers, and drivers. The
+consequences are practical:
+
+- **Replay and debugging.** A recorded input trace that does not re-derive the
+  same state is useless for reproducing a bug.
+- **Lockstep networking.** Deterministic-lockstep multiplayer requires every
+  peer to compute identical state from identical inputs; a single divergent bit
+  desynchronizes the session.
+- **Verification and auditing.** One cannot certify that a result is correct if
+  one cannot even certify that it is the *same* result twice.
+
+Existing partial answers — fixed-point arithmetic, deterministic lockstep, replay
+snapshots, exact-geometry kernels — address pieces. Urðr's question is whether a
+**single, uniform discipline** can carry reproducibility end-to-end, from
+authenticated inputs through exact computation and admissibility to projected
+output, and make the reproducibility itself *checkable* by a second, independent
+implementation.
+
+---
+
+## 2. Design
+
+The pipeline is one deterministic transformation, with non-determinism confined
+to *outside* a boundary called the *līmes*:
+
+```
+   Internet / OS              │            deterministic transformation
+   (non-deterministic)        │            (bit-identical or refused)
+                              │
+   authenticated input  ─▶  [ līmes ]  ─▶  canonical state  ─▶  exact math
+        (pinned by digest)      recorded        (content digest)     (exact ℤ/ℚ)
+                              │                                          │
+                              │                                          ▼
+   frame digest  ◀──  projection  ◀──  admissible transition  ◀──  certification
+     (renderer)         (renderer)        (physics/world)         (rigidity/LCP/joints)
+```
+
+Four design commitments make this work:
+
+1. **Identity is content.** Every value's identity is `digest = SHA-256(canon(v))`
+   (a canonical byte serialization). Two computations that produce the same value
+   produce the same digest — not "close enough," but the same bytes.
+2. **Exact computation, or refusal.** The authority path uses exact integer /
+   rational arithmetic (and division-free Q32.32 fixed-point where a fixed radix
+   suffices). There is no float, clock, RNG, or iteration-order dependence in the
+   authority path. Any operation that cannot be represented exactly within the
+   machine word bound is a **refusal**, never a wrapped or approximate answer.
+3. **Admissibility is certified, not assumed.** A state transition is admitted
+   only if it carries a *witness* the kernel re-checks: a rigidity certificate, an
+   LCP complementarity certificate, a constraint-satisfaction certificate. Where a
+   unique answer is not certifiable, the system refuses rather than guessing.
+4. **I/O is a capability at the boundary.** Nothing is ambient. Inputs arrive as
+   *recorded* values (loaded once, digest-verified, replayed bit-identically);
+   outputs leave as *effect-plans* executed only at the boundary. A network
+   response is just a recorded input whose provenance is a URL.
+
+---
+
+## 3. Architecture
+
+The system is layered; each layer depends only on the layer beneath it and may
+assume only that layer's *written* contract (specified in `spec/D11`).
+
+```
+   Applications  (games, sims, tools)          consume the certified stack
+        │
+   urdr-world    weave / commit / history      multi-actor deterministic world
+        │
+   urdr-render   State ⟹ Framebuffer           deterministic fixed-point rasterizer
+        │
+   urdr-physics  (X,V)+F ⟹ (X',V')             exact dynamics + LCP + joints
+        │
+   urdr-rigidity rigidity / stress / Connelly   exact structural certificates
+        │
+   urdr-math     exact integer linear algebra   Bareiss rank/det, gcd, i64-refusal
+        │
+   urdr-core     digest identity, refusals      the sealed language + epistemic types
+        │
+   capabilities  recorded inputs / effect-plans  the R4 līmes
+        │
+   operating system
+```
+
+Each layer has a **narrow responsibility and a testable interface**:
+
+- **capabilities** turn the non-deterministic world into pinned recorded inputs;
+- **urdr-core** certifies identity and enforces the no-inflation type discipline
+  (a value's epistemic maturity can only rise by an explicit verification);
+- **urdr-math** computes exact linear-algebra primitives (fraction-free Bareiss
+  elimination, exact rank/determinant/nullspace), refusing on `i64` overflow;
+- **urdr-rigidity** certifies structural properties (infinitesimal rigidity,
+  self-stress, Connelly superstability) as exact matrix conditions;
+- **urdr-physics** computes admissible motion (integration, contact impulses,
+  simultaneous-contact LCP, articulated joints), each step carrying a witness;
+- **urdr-render** projects state to a framebuffer whose digest is reproducible;
+- **urdr-world** orchestrates multiple actors into one canonical, non-forking
+  history.
+
+The layering is the contribution's backbone: because each interface is a written
+contract with a digest law and refusal codes, a *second implementation of any
+layer* can be admitted by reproducing that layer's outputs — which is exactly how
+the evaluation is constructed.
+
+---
+
+## 4. Implementation
+
+The reference implementation is Python (chosen for auditability, not speed);
+independent placements are single-file, `std`-only Rust with hand-rolled SHA-256
+(no crates, no cargo). Key mechanisms:
+
+**Canonical serialization (the digest law).** Every admitted artifact has a fixed
+byte grammar hashed with SHA-256. State, frames, and physics results each have a
+versioned magic and field layout (e.g., physics `URDRPH1/PN1/LCP1/JNT1`; frames
+`URDRFB1`). Rationals are serialized reduced with positive denominator, integers
+signed big-endian, so the same value has exactly one encoding on every placement.
+
+**Exact arithmetic.** The kernel and math layer operate over exact integers; the
+physics layer over exact rationals `Q` (num/den, gcd-reduced, `i64`-bounded,
+overflow ⇒ refuse); the renderer over Q32.32 division-free fixed-point. A key
+technique keeps *sphere collision response exact in any dimension without a square
+root*: the contact normal is the center-difference vector `d`, and the `|d|` from
+projecting velocity onto the unit normal cancels the `|d|` from the impulse
+direction, leaving only `d·d` (rational).
+
+**Witnesses and certification.** Admissibility is a checkable certificate:
+rigidity as `rank(R) = dn − d(d+1)/2`; contact resolution as an LCP solution
+`w = Aλ+b, w,λ ≥ 0, w·λ = 0`; joints as `Jv_new = 0` with `rank(A)` deciding
+uniqueness. The solver *returns a certified solution or refuses* — it never emits
+an uncertified guess.
+
+**Refusal semantics.** Failure is a typed stop, not a fallback. The kernel defines
+18 refusal codes (`URDR-ASSERT`, `URDR-LIMES`, `URDR-CAP`, `URDR-PIN`, …); the
+physics and render layers add `PHYS-REFUSE` and `RENDER-REFUSE`. A refusal is
+total: no partial world edit, no saturated pixel, no wrapped integer.
+
+**Deterministic scheduling.** Multi-actor proposals are ordered canonically (by
+intent digest, arrival-order-independent), so concurrency does not perturb the
+result; the constraint solvers use deterministic pivoting and canonical active-set
+enumeration — no heuristic ordering and no convergence tolerance in the authority
+path.
+
+**Cross-placement method.** Independence is established at two tiers. (a) An
+*in-process oracle*: the reference runs each example through a second execution
+path (`--via compiled`) and a deliberately-defective path, requiring the compiled
+path to agree and the defect path to diverge. (b) *External placements*: the three
+Rust files reproduce the reference digests on a host with a toolchain. Both tiers
+include **non-vacuity self-tests** — a defect that the harness must catch —
+because a gate that cannot go red proves nothing.
+
+---
+
+## 5. Evaluation
+
+All figures below are from the reference gate (`verify.py`, run with
+`PYTHONHASHSEED=0`) and from host runs of the Rust placements (Windows, `rustc`
+edition 2021). The gate is the project's CI: every change must leave it green.
+
+### 5.1 Cross-implementation agreement
+
+Three independent single-file Rust implementations reproduce the reference output
+digests **bit-for-bit**, each run **twice identically**, with a deliberately
+defective build **caught** in every case:
+
+| placement | corpus | vectors | result |
+|-----------|--------|--------:|--------|
+| `urdr-core-rs`    | D8 kernel (canon→SHA-256, transitions, refusals) | **36** | ADMITTED ×2, defect caught |
+| `urdr-render-rs`  | frame digests (viewport, edge fns, top-left fill, serialize) | **4** | ADMITTED ×2, defect caught |
+| `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints | **18** | ADMITTED ×2, defect caught |
+
+The three placements share no code, language, or SHA-256 implementation with the
+reference. This is the paper's central result: across the whole pipeline —
+**state, pixels, and motion** — a second, independent implementation computes the
+identical digest, so the digests are a property of the *specification*, not of one
+interpreter.
+
+### 5.2 Replay reproducibility
+
+Because inputs are recorded (loaded once, digest-verified) and the evaluator does
+no ambient I/O, a program replays to the same digest on every run; the gate checks
+each example's digest twice and against a recorded golden. Tampering with a
+recorded input is refused (`URDR-LIMES`), and a name→digest registry makes an
+online build offline-reproducible.
+
+### 5.3 Conformance corpus & gate
+
+The gate runs, deterministically: **208** unit falsifiers; **42** example programs
+checked for determinism (twice) and golden agreement; an in-process oracle
+(`compiled ≡ reference`) with a defect that must diverge; **45** rejection fixtures
+each producing an exact typed refusal code; and per-layer stages for the registry,
+renderer, and the four physics rungs, each with a non-vacuity self-test. A final
+`tamper-selftest` corrupts a golden and requires the mismatch to be detected.
+
+### 5.4 Adversarial / property coverage
+
+Beyond the pinned corpus, deterministic property tests (fixed-seed generator, no
+real RNG) assert invariants across many generated scenarios: 300 random 2D/3D
+collisions conserve the momentum vector always and kinetic energy exactly (elastic)
+/ non-increasingly (inelastic); resting stacks propagate to the exact impulses
+`λ = [n, …, 1]` through depth 12; articulated chains hold exactly through 15 links;
+degenerate systems and overflow refuse.
+
+### 5.5 Failure and refusal behavior
+
+The refusal path is a first-class, tested behavior, not an afterthought: 45
+rejection fixtures pin exact codes; every layer stage includes a self-test proving
+its certificate can reject a wrong input (e.g., a wrong contact impulse conserves
+momentum but is caught by the energy witness; a perturbed stack λ fails the LCP
+certificate; a redundant joint system refuses on a singular constraint matrix).
+
+### 5.6 Performance (honest status)
+
+Performance is **not** yet a contribution and is not optimized. The reference is
+Python; the LCP solver uses exact active-set *enumeration* (exponential in contact
+count), which is correct but suitable only for small contact manifolds. A Lemke /
+principal-pivoting solver yields the *same exact answer* faster and is planned;
+broad-phase acceleration, island decomposition, and SIMD are future work (roadmap
+step 7). We report correctness and reproducibility here, not throughput.
+
+---
+
+## 6. Discussion & limitations
+
+We are deliberately conservative about what the evidence supports.
+
+**Corpus agreement ≠ universal correctness.** The reproducibility result is that
+two implementations agree on *fixed corpora*. It is *not* a proof that all
+executions are reproducible, nor that the system computes a mathematically unique
+answer for every input. The property suite raises confidence beyond the corpus but
+does not close this gap.
+
+**Exact-arithmetic boundaries.** Exactness has geometric limits, which we surface
+rather than hide. Rotating a body by an arbitrary angle requires `sin/cos`, which
+are irrational — so exact rigid-body *rotation* is not available over ℚ (only a
+discrete set of Pythagorean angles). A *continuous* sphere–sphere time-of-impact
+solves a quadratic and is generally irrational; we therefore use exact *discrete*
+overlap detection plus exact response for curved bodies, and reserve exact
+continuous collision for *linear* impact conditions (a ball versus an axis-aligned
+wall). Rendering across GPUs is likewise not claimed: determinism is achieved by a
+constrained *fixed-point* rasterizer, not by taming floating-point GPUs.
+
+**Unimplemented capability.** Friction, rotational inertia, arbitrary convex
+shapes, continuous curved CCD, and the networking/replay runtime are specified and
+graded `DECLARED`, not built. Each is queued to follow the same admission ladder.
+
+**Scalability.** The exact rationals can grow; the `i64` bound converts growth into
+an explicit refusal rather than silent overflow, but a production engine would need
+bounded-precision strategies or a wider exact type, plus the algorithmic work in
+§5.6.
+
+---
+
+## 7. Related work
+
+**Deterministic lockstep and rollback.** RTS and fighting-game engines achieve
+cross-peer determinism by fixing the simulation and transmitting only inputs (e.g.
+rollback netcode à la GGPO). Urðr differs in making determinism *checkable* by an
+independent implementation and in extending it to rendering, and in its exact
+(not merely fixed-point-by-convention) authority path.
+
+**Exact geometry and arithmetic.** CGAL/LEDA and libraries like GMP/MPFR provide
+exact or arbitrary-precision arithmetic and exact geometric predicates. Urðr uses
+exact rationals similarly but embeds them in a *certified, content-addressed*
+execution model with refusal semantics and cross-implementation conformance.
+
+**Formal verification.** CompCert, seL4, and Bedrock prove properties of programs
+or compilers. Urðr does not prove a theorem about all programs; it provides a
+*runtime* discipline (witnesses, refusals) plus an *empirical* cross-placement
+reproducibility result — a systems, not a proof, contribution.
+
+**Replay and reproducible builds.** Deterministic replay systems and the
+reproducible-builds movement share the goal of bit-identical outputs; Urðr applies
+the same content-addressed, digest-pinned philosophy inside a live simulation
+pipeline rather than to a build artifact.
+
+**Deterministic/software rendering.** Fixed-point and software rasterizers
+(historically, and in some lockstep engines) achieve reproducible frames; Urðr
+formalizes this as a *frame-digest law* with an independent second rasterizer.
+
+---
+
+## 8. Conclusion
+
+Urðr demonstrates that a single discipline — content-addressed identity, exact
+computation, certified admissibility, and boundary-confined I/O — can carry
+reproducibility across an entire simulation-and-rendering pipeline, and that the
+reproducibility can itself be *checked* by independent implementations. Concretely,
+three independent Rust placements reproduce the reference's state, frame, and
+physics digests bit-for-bit on fixed corpora, behind a 208-test gate with typed
+refusals and non-vacuity self-tests. The result is scoped to corpus agreement, not
+universal correctness. Future work follows a fixed ladder — prototype → reference
+proof → conformance corpus → independent second placement → admission → freeze —
+for friction, rotation, continuous collision, performance, and the networking/
+replay and game runtime layers, each as a consumer of the now-frozen lower layers.
+
+---
+
+## Appendix A — Minimal API surface (frozen contracts)
+
+The *syntactic* surface is intentionally minimal: the sealed language (`urdr-core`)
+is a small, closed glyph alphabet with epistemic types; **no new glyph is admitted
+without a §20 review, and none has been needed**. Everything above the kernel is a
+plain function API. The frozen public surface (see `spec/D12`):
+
+- **kernel**: `digest = SHA-256(canon(v))`; epistemic tags `⟨maturity, evidence⟩`;
+  the 18 `URDR-*` refusal codes; import-by-digest modules.
+- **urdr-math v0.1**: `floor_divmod, rank, determinant, nullspace, transpose,
+  matmul, gcd, extended_gcd, modinv` (i64-bounded, overflow ⇒ refuse).
+- **urdr-physics v1.0**: `Body/Ball, integrate, resolve_contact, resolve_spheres,
+  time_of_impact, toi_wall, step, solve_lcp, complementary, solve (joints),
+  satisfied, *_digest`; substrate `Q` (exact rational) and `Vec`; `PHYS-REFUSE`.
+- **urdr-render v1.0**: `viewport, edge, triangle_pixels (top-left rule),
+  line_pixels, Framebuffer.{serialize,digest}`; `RENDER-REFUSE`.
+- **capabilities R4**: `--grant NAME=read:PATH | write:PATH`; recorded inputs,
+  effect-plans; `URDR-CAP`, `URDR-LIMES`.
+
+## Appendix B — A more compact stack (design consideration, not yet done)
+
+The pipeline could be consolidated without changing any admitted digest:
+
+- **One exact substrate.** `physics/rational.Q`, `physics/vecq.Vec`, and
+  `intla/urdr_math` overlap; a single `urdr-exact` library (integers, rationals,
+  vectors, matrices, one i64-refusal policy) would remove duplication. The LCP and
+  joint solvers already share one `lin_solve`.
+- **One physics facade.** `dynamics`, `dynamics_nd`, `contact_lcp`, `articulated`
+  export a common shape (build → solve/certify → digest); a single `urdr-physics`
+  package interface would present them uniformly.
+- **One placement core.** The three Rust files re-implement the same `Q`/`Vec` and
+  SHA-256; a shared `std`-only core module would cut ~40% of the Rust surface.
+
+These are refactors that must preserve every conformance digest (they are *format*
+frozen, not *file-layout* frozen), and each would be validated by re-running the
+gate and the three placements — i.e., they follow the same admission discipline as
+a feature.
+
+## Appendix C — Reproducibility package
+
+```bash
+# reference gate (deterministic): unit falsifiers, examples×2, oracle, rejections, tamper
+PYTHONHASHSEED=0 python3 verify.py            # expect: GATE PASSED
+
+# independent placements (host with rustc, edition 2021), each red-first then twice:
+rustc -O --edition 2021 -o urdr_core.exe    tools/urdr_core_rs/urdr_core.rs
+rustc -O --edition 2021 -o urdr_render.exe  tools/render/urdr_render_rs/urdr_render.rs
+rustc -O --edition 2021 -o urdr_physics.exe tools/physics/urdr_physics_rs/urdr_physics.rs
+./urdr_core.exe conformance . --defect ; ./urdr_core.exe conformance . ; ./urdr_core.exe conformance .
+./urdr_render.exe --defect  ; ./urdr_render.exe  ; ./urdr_render.exe
+./urdr_physics.exe --defect ; ./urdr_physics.exe ; ./urdr_physics.exe
+```
+
+Corpora: `tools/foreign_placement/conformance.txt` (36), `tools/render/conformance.txt`
+(4), `tools/physics/conformance{,_nd,_lcp,_joint}.txt` (18). Contracts: `spec/D11`
+(layers), `spec/D12` (versions/freeze), `spec/D8` (portable kernel). `admitted ≠
+trusted` — a green gate certifies these tests on this code, never that a name means
+what it says.

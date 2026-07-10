@@ -738,3 +738,22 @@ hardening raises confidence beyond the pinned corpus; it does not claim universa
 accuracy — `admitted ≠ trusted`. No new pinned cross-placement vectors (the freeze stays clean; no Rust
 churn); no new glyph; kernel frozen. `freeze the interface, then harden it — capability comes only after,
 each feature down the same ladder` · `confidence in what exists before reach for what does not`.
+
+**Docs consolidation + OSDI-style systems paper (`docs/PAPER.md`) — no new claims, only a faithful
+account of the measured ones.** With the pipeline frozen through physics, the architecture is written up
+as a systems paper (problem → design → architecture → implementation → evaluation → discussion → related
+work → conclusion), framed — per external review — as an *architectural* contribution (deterministic
+layer contracts, admissibility/refusal boundaries, cross-implementation reproducibility), NOT as new
+mathematics or a language manifesto. Every number is drawn from the gate and host runs (36 kernel + 4
+frame + 18 physics digests reproduced bit-for-bit by three independent single-file Rust placements, twice
+each with defect caught; 208 unit falsifiers; 42 examples; 45 typed rejection fixtures; 18 `URDR-*`
+refusal codes + `PHYS-REFUSE`/`RENDER-REFUSE`), and claims are scoped exactly to the evidence: **agreement
+on stated corpora across two placements, not universal reproducibility nor mathematical uniqueness for all
+inputs** — the distinction the reviewer flagged, stated explicitly in the abstract and §6. The paper also
+records the *minimal API surface* (App. A — the sealed glyph core + frozen per-layer function APIs) and a
+*stack-compaction design consideration* (App. B — unify the exact substrate, one physics facade, a shared
+Rust core — each a digest-preserving refactor to be admitted the same way as a feature, not yet done) and
+a reproducibility package (App. C). The root README and `docs/README.md` now point to it; `spec/D11`
+(layers) and `spec/D12` (versions/freeze) remain the normative contracts. No code, no gate change, no new
+glyph. `the novelty is the combination — contracts, certification boundaries, and reproducible
+cross-implementation evaluation — not the manifold as new math` · `claim exactly what the corpus shows`.
