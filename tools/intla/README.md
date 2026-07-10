@@ -69,9 +69,12 @@ API, never implementation details. **v0.1** = exact arithmetic + matrix algebra 
 (this release). Planned: **v0.2** polynomial algebra · **v0.3** algebraic number fields. Each
 conformance suite is associated with a library version, so cross-placement is versioned too.
 
-First consumer: `rigidity.py` (`urdr-rigidity`) — infinitesimal rigidity, trivial-motion
-separation, internal flex, and the self-stress / stress-matrix Ω certificate — all by calling the
-API above (never reimplementing rank/kernel). PSD verification + Connelly superstability are next.
+First consumer: `urdr-rigidity` (`rigidity.py` + `superstability.py`) — the FULL ladder by calling
+the API above (never reimplementing rank/kernel): infinitesimal rigidity, trivial-motion separation,
+internal flex, self-stress / stress-matrix Ω, exact PSD of Ω (**all principal minors ≥ 0**, not
+Sylvester's leading-minor test — Ω is singular), and **Connelly superstability** (`Ω⪰0 ∧
+rank(Ω)=n−d−1 ∧ no affine flex`). Global rigidity certified exactly over ℤ; SCOPED to i64-sized
+frameworks (bignum later).
 
 ## Roadmap (this library → its consumers)
 
