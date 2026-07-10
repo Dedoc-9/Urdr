@@ -52,6 +52,15 @@ The library **computes**; the kernel **certifies the witness** it emits — chea
 - **full-rank / injective:** `det ≠ 0` (small square, measured via the cofactor), or a general-n
   certificate the library provides and the kernel checks — the harder direction, next on the ladder.
 
+
+## Frozen public API (`urdr_math` v0.1)
+
+Downstream depends on these names, never on the implementation (`import urdr_math`):
+
+`floor_divmod(a,b)` · `rank(M)` · `determinant(M)` · `nullspace(M)` · `transpose(M)` · `matmul(A,B)` · `gcd(a,b)` · `extended_gcd(a,b)` · `modinv(a,m)`
+
+Every one is **Deterministic** (same in → same out), **Pure** (no hidden state / side effects; inputs unmutated), and **Canonically testable** (checked against exact oracles / an independent implementation). i64-bounded; overflow is a REFUSAL. `test_urdr_math.py` greens the whole surface in one command. Consumers (`urdr-rigidity`, `urdr-physics`, atlas) call these; they never reimplement rank/kernel/determinant.
+
 ## Roadmap (this library → its consumers)
 
 ```
