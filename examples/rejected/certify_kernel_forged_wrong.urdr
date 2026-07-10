@@ -1,0 +1,8 @@
+# FALSE (forged nullspace witness): a claimed kernel vector that is NOT in the kernel. The library
+# would never emit v=[1,1,0] for this M -- M*v = [3,6,0] != 0. A client forging it is REFUSED: the
+# kernel certifies M*v=0 and this fails -> URDR-ASSERT. Non-vacuous: a real kernel vector passes.
+dot := \fn row x |-> \fo(range(len(row)), 0, \fn acc k |-> acc + nth(row, k) * nth(x, k))
+matvec := \fn m x |-> \fo(m, [], \fn acc row |-> push(acc, dot(row, x)))
+m := [[1, 2, 0], [2, 4, 0], [0, 0, 1]]
+vforged := [1, 1, 0]
+=?(matvec(m, vforged), [0, 0, 0])

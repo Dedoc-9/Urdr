@@ -40,3 +40,5 @@ atlas_algebra_deficient_wrong.urdr run URDR-ASSERT
 view_launder_wrong.urdr run URDR-ASSERT
 transition_fork_wrong.urdr run URDR-ASSERT
 linear_atlas_singular_wrong.urdr run URDR-ASSERT
+certify_kernel_forged_wrong.urdr run URDR-ASSERT
+certify_kernel_zero_wrong.urdr run URDR-ASSERT

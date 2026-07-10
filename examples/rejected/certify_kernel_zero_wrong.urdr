@@ -1,0 +1,5 @@
+# FALSE (trivial zero witness): v=0 lies in every kernel but witnesses NO deficiency; a certificate
+# needs a NONZERO kernel vector. The kernel refuses v=0 as a witness -> URDR-ASSERT. Non-vacuous: a
+# nonzero kernel vector passes the same check.
+v := [0, 0, 0]
+?(v != [0, 0, 0], 1, =?(0, 1))

@@ -1,0 +1,13 @@
+# certify_kernel_witness -- the AUTHORITY KERNEL certifies a nullspace witness the urdr-math library
+# produced; it does NOT run elimination. Given a matrix M and a claimed kernel vector v, the kernel
+# checks M*v = 0 AND v != 0 -- deficiency certified (M has a nontrivial kernel). This generalizes
+# atlas_algebra_deficient_wrong to an ARBITRARY integer matrix from a library witness: the library
+# COMPUTES, the kernel CERTIFIES. Reuses dot/matvec + =? ; no new primitive, no glyph. Exact integers.
+dot := \fn row x |-> \fo(range(len(row)), 0, \fn acc k |-> acc + nth(row, k) * nth(x, k))
+matvec := \fn m x |-> \fo(m, [], \fn acc row |-> push(acc, dot(row, x)))
+m := [[1, 2, 0], [2, 4, 0], [0, 0, 1]]
+v := [2, -1, 0]
+inkernel := ?(matvec(m, v) = [0, 0, 0], 1, =?(0, 1))
+nonzero := v != [0, 0, 0]
+claim := \an <| IMPLEMENTED , DECLARED |> [inkernel, nonzero]
+\ve(\fn r |-> r = [1, 1], claim)
