@@ -84,3 +84,16 @@ shader optimization, rounding). Cross-platform identical framebuffers therefore 
 D9, is the honest basis). Without that assumption the guarantee is identical *simulation state*,
 not identical *pixels*. Urðr has the deterministic state + digest today; a deterministic renderer is
 future host-track work. `simulation is authoritative; rendering is a pure projection`.
+
+## Track 1 — multi-actor certified structural timeline (`structural_world.py`, 5/5)
+
+`urdr-physics × world_host`: many actors submit structural mutation proposals
+`{actor, parent, mutation}`; the scheduler canonicalizes them by **intent digest**
+`ᛝ(canon([actor, parent, mutation]))` (the `weave` rule — a pure function of the proposal multiset,
+so arrival order can't change the history, and the intent digest *is* the actor's cryptographic
+commitment), applies each through the `urdr-physics` admissibility check, and commits a **non-forking
+transition history** or emits a **deterministic structural conflict** (`↯`). Green: independent
+braces commit (arrival-order invariant); a duplicate proposal conflicts (`URDR-DELTA-UNEARNED`); a
+collapse (brace removal → flexible) conflicts (inadmissible); a stale-parent proposal is refused
+(provenance); non-vacuity (an arrival-order scheduler is order-dependent). Composes the measured
+parts — no new foundations. Roadmap + boundaries: [`../../docs/roadmap_engine.md`](../../docs/roadmap_engine.md).
