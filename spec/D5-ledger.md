@@ -627,3 +627,33 @@ LCP (Lemke over exact ℚ), rotational inertia + arbitrary convex shapes, contin
 and a Rust `urdr-physics-rs` reproducing the state digests. No new glyph; kernel frozen; touches no core.
 `the sphere normal is d; the |d| cancels; only d·d survives — 2D and 3D are exact` · `exactness has a
 geometric boundary: curved continuous impact is irrational`.
+
+**urdr-physics rung 3 — the exact n-contact constraint solver (simultaneous contacts) — MEASURED
+(reference), red-first.** Pairwise rungs resolved one contact at a time; a real world has coupled
+simultaneous contacts (resting stacks, multi-body impacts) whose impulses must be solved together. That
+is a linear complementarity problem — find normal impulses `λ ≥ 0` with `w = Aλ + b ≥ 0` and `w·λ = 0`
+— and `tools/physics/contact_lcp.py` *certifies* the solution rather than assuming it (the
+uniqueness-by-certificate principle the reviewer articulated): it returns a `λ` that provably satisfies
+every LCP condition, or it **REFUSES**. Exact and direct, honoring every stated constraint: normals are
+**un-normalized** (the center-difference `d` for a sphere, an axis for a wall — rational for both, so
+`A` (the Delassus operator) and `b` stay rational and the square root never appears); the solver is an
+**active-set** method — enumerate candidate active sets in a **canonical** order (increasing size, then
+lexicographic), solve the equality subsystem `A_SS λ_S = −b_S` by exact rational Gaussian elimination
+with a **deterministic** first-nonzero pivot, return the first set with `λ_S ≥ 0` and `w ≥ 0` — so there
+is **no iterative loop, no convergence tolerance, no heuristic ordering** in the authority path; a
+singular subsystem is skipped and a degenerate/inconsistent LCP `PHYS-REFUSE`s (refused, not guessed).
+Momentum is conserved by construction (each impulse `λ_k d_k` is equal-and-opposite). The canonical
+witness is **frictionless constraint propagation**: a resting 3-stack under gravity solves to the exact
+`λ = [3, 2, 1]` (the bottom contact carries the whole stack) and every ball comes exactly to rest, and a
+2D ball driven into a corner activates both wall contacts at once (`λ=[1,1]`, stops exactly). Four scenes
+(`rest2, rest3, separating, corner2d`) pinned in `conformance_lcp.txt` as certified-solution digests,
+reproduced twice by the `physics_lcp` gate stage; nine falsifiers in `tests/test_contact_lcp.py` (known
+LCPs, stack propagation + rest, complementarity certificate, wrong-λ non-vacuity, all-dynamic-chain
+momentum conservation, determinism, inconsistent-LCP + i64 refusal). **Scope:** frictionless normal
+contacts, small contact counts (enumeration is exponential — Lemke/principal pivoting is the same exact
+answer, faster: a later optimization, not a correctness change) — implementation-agreement on a stated
+corpus *within the reference placement*. DECLARED next rungs: friction, rotational inertia + arbitrary
+convex shapes, continuous sphere-sphere CCD, and a Rust `urdr-physics-rs` reproducing all the physics
+digests (state + LCP). No new glyph; kernel frozen; the solver consumes exact rationals + vectors,
+touches no core. `the LCP is not solved, it is certified — λ,w≥0 and λ·w=0 or REFUSE` · `the bottom of
+the stack carries the whole stack, exactly`.

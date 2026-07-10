@@ -195,8 +195,14 @@ Every layer contract below is stated in six fields:
   `d·d`), conserving the momentum **vector** and energy exactly (elastic) with tangential velocity
   untouched, plus exact-rational **plane CCD** (ball vs axis-aligned wall) — five 2D/3D scene
   state-digests + conservation and non-vacuity controls (`physics_nd` gate stage,
-  `tests/test_physics_nd.py`). `DECLARED` for the **general n-contact LCP** (Lemke/principal pivoting
-  over exact ℚ), **rotational inertia + arbitrary convex shapes**, **continuous sphere-sphere CCD**
+  `tests/test_physics_nd.py`); and (d) **rung-3 the exact n-contact frictionless LCP**
+  (`tools/physics/contact_lcp.py`): simultaneous coupled contacts solved as `w=Aλ+b, w,λ≥0, w·λ=0`
+  with **un-normalized** (rational) normals and a **direct active-set** method (canonical enumeration
+  + exact rational elimination, deterministic pivot — no iteration, no tolerance, no heuristic
+  ordering), *certifying* the complementarity or **refusing** a degenerate/inconsistent system; a
+  resting `n`-stack propagates exactly to `λ=[n,…,1]` (`physics_lcp` gate stage,
+  `test_contact_lcp.py`). `DECLARED` for **friction**, **rotational inertia + arbitrary convex shapes**,
+  **continuous sphere-sphere CCD**
   (its time-of-impact solves a quadratic → generally IRRATIONAL, a real exactness boundary; discrete
   overlap detection + exact response is used instead), and a **second placement** (Rust
   `urdr-physics-rs` reproducing the state digests — the D8 move for dynamics). The step function
@@ -331,7 +337,8 @@ reproduced, this contract stays `DECLARED`.
 | urdr-physics     | rigidity-admissibility                  | `MEASURED`   | `physics.py`, corpus v12 |
 | urdr-physics     | rung 1: exact 1D step + LCP kernel + conservation + CCD | `MEASURED` (reference) | `physics` gate stage, `test_physics.py`, `tools/physics/` |
 | urdr-physics     | rung 2: exact 2D & 3D sphere dynamics (vector momentum/energy, plane CCD) | `MEASURED` (reference) | `physics_nd` gate stage, `test_physics_nd.py`, `vecq.py`+`dynamics_nd.py` |
-| urdr-physics     | n-contact LCP + rotation/shapes + sphere-sphere CCD + cross-placement | `DECLARED` | targets (§3.5) — the next rungs |
+| urdr-physics     | rung 3: exact n-contact frictionless LCP (simultaneous contacts, resting stacks) | `MEASURED` (reference) | `physics_lcp` gate stage, `test_contact_lcp.py`, `contact_lcp.py` |
+| urdr-physics     | friction + rotation/shapes + sphere-sphere CCD + cross-placement | `DECLARED` | targets (§3.5) — the next rungs |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
 | urdr-render      | rung 2: 2nd-placement frame digests (Rust) | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs/urdr_render.rs` — ADMITTED 4/4 twice, defect caught 4/4 |

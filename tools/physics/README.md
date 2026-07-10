@@ -3,7 +3,32 @@
 The jump from **static geometry** (rigidity certificates) to **dynamic
 mechanics**: a deterministic, time-linked equation of motion, exact over ℤ.
 **Rung 1** is 1D (`rational.py`, `dynamics.py`); **rung 2** is n-dimensional —
-2D & 3D balls (`vecq.py`, `dynamics_nd.py`), the step toward game / VR.
+2D & 3D balls (`vecq.py`, `dynamics_nd.py`), the step toward game / VR; **rung 3**
+is the exact **n-contact constraint solver** (`contact_lcp.py`) — simultaneous
+contacts, resting stacks, frictionless constraint propagation.
+
+## Rung 3 — the exact n-contact LCP (simultaneous contacts)
+
+Pairwise rungs resolved one contact at a time; real worlds have coupled
+simultaneous contacts (a resting stack, a multi-body impact). That is a linear
+complementarity problem — find normal impulses `λ ≥ 0` with `w = Aλ + b ≥ 0` and
+`w·λ = 0` — and the solver *certifies* the answer rather than assuming it: it
+returns a `λ` that provably satisfies every LCP condition, or it **refuses**.
+
+Exact and direct: normals are **un-normalized** (rational for spheres and walls,
+so `A`,`b` stay rational — no square root), and the solve is an **active-set**
+method (enumerate candidate active sets in a canonical order, solve the equality
+subsystem by exact rational elimination with a deterministic pivot, return the
+first feasible set) — **no iterative loop, no tolerance, no heuristic ordering**
+in the authority path. A singular subsystem is skipped; a degenerate/inconsistent
+LCP `PHYS-REFUSE`s. Momentum is conserved by construction. The canonical
+constraint-propagation witness: a resting `n`-stack solves to `λ = [n, n−1, …, 1]`
+(the bottom contact carries the whole stack) and every body comes exactly to rest
+— pinned in `conformance_lcp.txt`, gated by `physics_lcp`, falsified in
+`tests/test_contact_lcp.py`. Scope: frictionless normal contacts, small contact
+counts (enumeration is exponential — Lemke/principal pivoting is the same exact
+answer, faster, a later optimization). Friction, rotational inertia, and a Rust
+second placement are later rungs.
 
     (X_t, V_t) + F  --semi-implicit Euler + exact 1-contact LCP + CCD-->  (X_t+1, V_t+1)
 

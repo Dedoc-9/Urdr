@@ -1,0 +1,9 @@
+# urdr-physics rung 3 — n-contact LCP certified-solution conformance vectors.
+# scene  SHA-256(canonical_serialize(lambda, w))
+# Exact frictionless contact resolution over Q (no float, no tolerance). Every
+# conforming placement must reproduce these exactly. Implementation-agreement on
+# a stated corpus — NOT continuum accuracy, friction, or all configurations.
+corner2d 465d6de2f6f342c59fb7e44cfe420afe2f01c68d1ba9d91bb25ce948cbd71564
+rest2 748fdfb224fc82635cd53e08b12617bdb7eb221b35704acdc8b897ad487f9226
+rest3 89666457617a17e0b6f5dee688d6a328657e59e432562c8822175eb7039760e6
+separating 4e296cf65159827c979ab816353ec1066c0b19172c2d28510ea146e76704d5d4

@@ -492,6 +492,71 @@ class Gate:
                     "wrong impulse caught by energy witness (gate can redden)"
                     if caught else "energy witness vacuous — cannot redden")
 
+    # -- 2h. urdr-physics rung 3: exact n-contact frictionless LCP ------------
+    def physics_lcp(self):
+        """urdr-physics rung 3 (D11 §3.5): the exact n-contact constraint solver.
+        Each scene's certified-solution digest is reproduced twice and matches its
+        golden; the complementarity certificate (λ,w≥0, λᵢwᵢ=0) holds; a resting
+        stack propagates exactly (λ=[n,…,1]); a WRONG λ fails the certificate
+        (non-vacuity). Exact over ℚ, direct (no tolerance, no heuristic ordering);
+        a degenerate/inconsistent LCP REFUSES."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import contact_lcp as L
+            import lcp_scenes
+            from rational import Z
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("physics-lcp-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(pdir, "conformance_lcp.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(lcp_scenes.SCENES):
+            l1, w1 = lcp_scenes.run(name)
+            l2, w2 = lcp_scenes.run(name)
+            d1 = L.lcp_digest(l1, w1)
+            if d1 != L.lcp_digest(l2, w2):
+                self.record(f"physics-lcp:{name}", False, "NONDETERMINISTIC")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"physics-lcp:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            if not L.complementary(l1, w1):
+                self.record(f"physics-lcp:{name}", False, "certificate fails")
+                continue
+            self.record(f"physics-lcp:{name}", True, d1[:16] + "…")
+        # resting-stack propagation: λ must be exactly [3, 2, 1]
+        vels, inv, _m, contacts = lcp_scenes.sc_rest3()
+        _new, lam, _w = L.resolve(vels, inv, contacts)
+        prop = lam == [Z(3), Z(2), Z(1)]
+        self.record("physics-lcp-propagation", prop,
+                    "resting 3-stack λ=[3,2,1] (exact propagation)"
+                    if prop else "stack propagation FAILED")
+        # non-vacuity: a wrong λ must fail the complementarity certificate
+        A = [[Z(2), Z(1)], [Z(1), Z(2)]]
+        b = [Z(-3), Z(-3)]
+        lam, _w = L.solve_lcp(A, b)
+        bad = [lam[0] + Z(1), lam[1]]
+        wbad = []
+        for i in range(2):
+            wi = b[i]
+            for j in range(2):
+                wi = wi + A[i][j] * bad[j]
+            wbad.append(wi)
+        caught = L.complementary(lam, _w) and not L.complementary(bad, wbad)
+        self.record("physics-lcp-defect-selftest", caught,
+                    "wrong λ fails the LCP certificate (gate can redden)"
+                    if caught else "certificate vacuous — cannot redden")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -575,6 +640,7 @@ def main() -> int:
     gate.render()
     gate.physics()
     gate.physics_nd()
+    gate.physics_lcp()
     gate.rejections()
     gate.tamper()
     return gate.report()
