@@ -1,9 +1,37 @@
-# tools/physics — exact dynamic mechanics (urdr-physics, rung 1)
+# tools/physics — exact dynamic mechanics (urdr-physics, rungs 1 & 2)
 
 The jump from **static geometry** (rigidity certificates) to **dynamic
 mechanics**: a deterministic, time-linked equation of motion, exact over ℤ.
+**Rung 1** is 1D (`rational.py`, `dynamics.py`); **rung 2** is n-dimensional —
+2D & 3D balls (`vecq.py`, `dynamics_nd.py`), the step toward game / VR.
 
     (X_t, V_t) + F  --semi-implicit Euler + exact 1-contact LCP + CCD-->  (X_t+1, V_t+1)
+
+## Rung 2 — exact 2D & 3D vector dynamics
+
+One dimension-agnostic implementation covers both 2D and 3D (a `Vec` is a tuple
+of exact rationals). The key result: a **ball collision response is exact in any
+dimension without a square root** — the contact normal is the center-difference
+vector `d`, and the `|d|` from projecting the relative velocity onto the unit
+normal cancels the `|d|` from the impulse direction, leaving only `d·d` (exact):
+
+    P = -(1+e) (v_rel · d) / ( (d·d)(1/m₁ + 1/m₂) ) · d          (exact over ℚ)
+
+Momentum is now a conserved **vector**; kinetic energy is the discriminating
+witness (conserved iff elastic, strictly decreasing iff inelastic); the
+**tangential** velocity is untouched (correct oblique physics). Proven for 2D and
+3D, head-on and oblique, in `tests/test_physics_nd.py` and the `physics_nd` gate.
+
+### The exactness boundary (honest)
+
+A **continuous** sphere-sphere time-of-impact solves `|d₀ + w·t|² = (r₁+r₂)²`, a
+quadratic whose root carries a square root and is therefore generally
+**irrational** — exact rational CCD is *not* available for curved-vs-curved
+continuous collision. So ball-ball collision uses **discrete** overlap detection
+(exact: `d·d ≤ (r₁+r₂)²`) + exact response, while exact CCD (the anti-tunneling
+witness) is provided for **linear** impact conditions — a ball vs an axis-aligned
+wall, whose TOI is a rational linear solve. That boundary is a real property of
+exact arithmetic, recorded rather than hidden.
 
 No floating point anywhere — positions, velocities, and impulses are exact
 rationals (`rational.Q`, gcd-reduced over ℤ). Any i64 overflow is `PHYS-REFUSE`,

@@ -1,0 +1,10 @@
+# urdr-physics rung 2 (n-D) — post-step state-digest conformance vectors (2D & 3D).
+# scene  SHA-256(canonical_serialize(State_after_one_step))
+# Exact vector dynamics over Z (no float). Every conforming integer placement must
+# reproduce these exactly. Implementation-agreement on a stated corpus — NOT a
+# claim of continuum physical accuracy or completeness for all scenes/shapes.
+head2d 8ed9502d00037bf5d18d043f532f6f6d255d31524c8ae5f9f32aa350596e52f8
+inelastic2d a8a1b99dfebcc39a2d4b43344bef8acbef0732c2e04da3ec431bd948d2b4c5a4
+oblique2d d55c8c446e84ceef3de524978dce21cac9b6c81322ce4c3ba27bb24ef05ae9c3
+oblique3d 5659672a43cfb893aba1adb6c639ac428663ca4d41c8ff41003b86dd7aa6fce0
+wall2d 346d2294a8d6263a53a07123db9ae6820f5c5bafc8a99cc9b48536b8613d9de3

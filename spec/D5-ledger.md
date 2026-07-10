@@ -599,3 +599,31 @@ n-contact LCP** (Lemke/principal pivoting over exact ℚ), 2D/3D + rotational in
 No new glyph; kernel frozen; physics consumes exact rationals, touches no core. `momentum is
 structural; energy is the witness; the impact time is exact` · `change is cheap; a certified transition
 is the scarce resource`.
+
+**urdr-physics rung 2 — exact 2D & 3D dynamics (the step toward game / VR) — MEASURED (reference),
+red-first.** Generalizes the 1D step to vectors, staying exact over ℤ, via ONE dimension-agnostic
+implementation (`tools/physics/vecq.py` exact rational `Vec`; `dynamics_nd.py`) that is *the same code
+for 2D and 3D*. The load-bearing result: **a ball collision RESPONSE is exact in any dimension without
+a square root.** The contact normal is the center-difference vector `d = c₂−c₁`; the `|d|` from
+projecting the relative velocity onto the unit normal cancels the `|d|` from the impulse being along
+that unit normal, leaving `P = −(1+e)(v_rel·d)/((d·d)(1/m₁+1/m₂))·d` — only `d·d` survives, exact over
+ℚ. So the momentum **vector** and kinetic energy are conserved EXACTLY for 2D and 3D, head-on and
+oblique (verified for a genuinely diagonal normal `d=(3,3)`: tangential velocity untouched, energy
+equal to the last bit), and inelastic strictly loses energy — momentum is again structural, energy the
+discriminating witness (`physics-nd-defect-selftest`). **Honest exactness boundary (a real finding,
+recorded not hidden):** a *continuous* sphere-sphere time-of-impact solves `|d₀+w·t|² = (r₁+r₂)²`, a
+quadratic whose root carries a square root and is therefore generally **irrational** — exact rational
+CCD is unavailable for curved-vs-curved continuous collision. So ball-ball uses **discrete** overlap
+(`d·d ≤ (r₁+r₂)²`, exact) + exact response, while exact CCD (anti-tunneling) is provided for **linear**
+impact conditions — a ball vs an axis-aligned wall, TOI a rational linear solve (a fast ball provably
+cannot tunnel; `wall2d` bounces at the exact half-step). Five 2D/3D scene state-digests
+(`head2d, oblique2d, inelastic2d, oblique3d, wall2d`) pinned in `conformance_nd.txt`, reproduced twice
+by the `physics_nd` gate stage; nine falsifiers in `tests/test_physics_nd.py`. (Also: caught and closed
+a module-name collision class — `tools/render/scenes.py` vs `tools/physics/scenes.py` shared the gate's
+one sys.path; renamed to `phys_scenes`/`nd_scenes`, tool module basenames now globally unique.) **Scope:**
+spheres + axis-aligned walls, single earliest event per step, restitution ∈[0,1] — implementation-
+agreement on a stated corpus *within the reference placement*. DECLARED next rungs: general n-contact
+LCP (Lemke over exact ℚ), rotational inertia + arbitrary convex shapes, continuous sphere-sphere CCD,
+and a Rust `urdr-physics-rs` reproducing the state digests. No new glyph; kernel frozen; touches no core.
+`the sphere normal is d; the |d| cancels; only d·d survives — 2D and 3D are exact` · `exactness has a
+geometric boundary: curved continuous impact is irrational`.

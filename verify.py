@@ -428,6 +428,70 @@ class Gate:
                     "wrong impulse caught by energy witness (gate can redden)"
                     if caught else "energy witness vacuous — cannot redden")
 
+    # -- 2g. urdr-physics rung 2 (n-D, 2D & 3D): exact vector dynamics ---------
+    def physics_nd(self):
+        """urdr-physics rung 2 (D11 §3.5): exact n-dimensional dynamics (2D & 3D).
+        Each scene's post-step state digest is reproduced twice and matches its
+        golden; an ELASTIC ball collision conserves the momentum VECTOR and
+        kinetic energy exactly (sphere response is exact in any dimension — no
+        square root); a WRONG impulse conserves momentum but MUST break the
+        energy witness (non-vacuity). No float; overflow refuses. Continuous
+        sphere-sphere CCD is irrational and DEFERRED; CCD here is ball-vs-wall."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import dynamics_nd as D
+            import nd_scenes
+            from dynamics_nd import Ball
+            from vecq import vec
+            from rational import Q, Z
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("physics-nd-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(pdir, "conformance_nd.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(nd_scenes.SCENES):
+            d1 = D.state_digest(nd_scenes.run(name))
+            d2 = D.state_digest(nd_scenes.run(name))
+            if d1 != d2:
+                self.record(f"physics-nd:{name}", False,
+                            f"NONDETERMINISTIC {d1[:12]}… ≠ {d2[:12]}…")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"physics-nd:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            self.record(f"physics-nd:{name}", True, d1[:16] + "…")
+        # conservation witnesses on a 2D oblique elastic collision (diagonal normal)
+        a = Ball(vec(0, 0), Z(1), vec(2, 1), 2)
+        b = Ball(vec(3, 3), Z(1), vec(-1, -1), 4)
+        a2, b2, ap = D.resolve_spheres(a, b, Z(1))
+        cons = (ap and D.momentum_conserved([a, b], [a2, b2])
+                and D.energy_conserved([a, b], [a2, b2]))
+        self.record("physics-nd-conservation", cons,
+                    "2D oblique elastic: momentum-vector + energy conserved"
+                    if cons else "n-D conservation witness FAILED")
+        # non-vacuity: a wrong impulse conserves momentum but MUST break energy
+        d = b.x - a.x
+        vn = (b.v - a.v).dot(d)
+        kbad = (Z(0) - Z(2) * vn / (d.dot(d) * (a.inv_mass() + b.inv_mass()))) * Q(3, 2)
+        p = d.scale(kbad)
+        w1 = a.clone(v=a.v - p.scale(a.inv_mass()))
+        w2 = b.clone(v=b.v + p.scale(b.inv_mass()))
+        caught = (D.momentum_conserved([a, b], [w1, w2])
+                  and not D.energy_conserved([a, b], [w1, w2]))
+        self.record("physics-nd-defect-selftest", caught,
+                    "wrong impulse caught by energy witness (gate can redden)"
+                    if caught else "energy witness vacuous — cannot redden")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -510,6 +574,7 @@ def main() -> int:
     gate.registry()
     gate.render()
     gate.physics()
+    gate.physics_nd()
     gate.rejections()
     gate.tamper()
     return gate.report()

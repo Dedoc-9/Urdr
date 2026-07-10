@@ -188,11 +188,20 @@ Every layer contract below is stated in six fields:
   complementarity, momentum/energy conservation *witnesses* (energy is the discriminating falsifier;
   momentum is structural), and exact-rational CCD time-of-impact that prevents tunneling — five
   scene state-digests reproduced twice + a wrong-impulse non-vacuity control (`physics` gate stage,
-  `tests/test_physics.py`). `DECLARED` for the **general n-contact LCP** (Lemke/principal pivoting
-  over exact ℚ), 2D/3D + rotational inertia, and a **second placement** (Rust `urdr-physics-rs`
-  reproducing the state digests — the D8 move for dynamics). The step function `(X_t,V_t)+F ⟶
-  (X_t+1,V_t+1)` exists and is exact/reproducible for 1D single-contact; the simultaneous-contact
-  solver is the next rung. Do not consume the DECLARED guarantees yet.
+  `tests/test_physics.py`); and (c) **rung-2 exact n-D dynamics — 2D & 3D** (`tools/physics/vecq.py`,
+  `dynamics_nd.py`): one dimension-agnostic vector implementation whose **ball collision response is
+  exact in any dimension without a square root** (the contact normal is the center-difference `d`;
+  the `|d|` from projecting velocity cancels the `|d|` from the impulse direction, leaving only
+  `d·d`), conserving the momentum **vector** and energy exactly (elastic) with tangential velocity
+  untouched, plus exact-rational **plane CCD** (ball vs axis-aligned wall) — five 2D/3D scene
+  state-digests + conservation and non-vacuity controls (`physics_nd` gate stage,
+  `tests/test_physics_nd.py`). `DECLARED` for the **general n-contact LCP** (Lemke/principal pivoting
+  over exact ℚ), **rotational inertia + arbitrary convex shapes**, **continuous sphere-sphere CCD**
+  (its time-of-impact solves a quadratic → generally IRRATIONAL, a real exactness boundary; discrete
+  overlap detection + exact response is used instead), and a **second placement** (Rust
+  `urdr-physics-rs` reproducing the state digests — the D8 move for dynamics). The step function
+  `(X_t,V_t)+F ⟶ (X_t+1,V_t+1)` is exact/reproducible for 1D and for 2D/3D single-contact spheres;
+  the simultaneous-contact solver is the next rung. Do not consume the DECLARED guarantees yet.
 
 ### 3.6 urdr-world
 
@@ -321,7 +330,8 @@ reproduced, this contract stays `DECLARED`.
 | urdr-rigidity    | rigidity / stress / superstability      | `MEASURED` (library); partial cross-placement | ladder tests; corpus v11 |
 | urdr-physics     | rigidity-admissibility                  | `MEASURED`   | `physics.py`, corpus v12 |
 | urdr-physics     | rung 1: exact 1D step + LCP kernel + conservation + CCD | `MEASURED` (reference) | `physics` gate stage, `test_physics.py`, `tools/physics/` |
-| urdr-physics     | general n-contact LCP + 2D/3D + cross-placement | `DECLARED` | target (§3.5) — the next rungs |
+| urdr-physics     | rung 2: exact 2D & 3D sphere dynamics (vector momentum/energy, plane CCD) | `MEASURED` (reference) | `physics_nd` gate stage, `test_physics_nd.py`, `vecq.py`+`dynamics_nd.py` |
+| urdr-physics     | n-contact LCP + rotation/shapes + sphere-sphere CCD + cross-placement | `DECLARED` | targets (§3.5) — the next rungs |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
 | urdr-render      | rung 2: 2nd-placement frame digests (Rust) | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs/urdr_render.rs` — ADMITTED 4/4 twice, defect caught 4/4 |
