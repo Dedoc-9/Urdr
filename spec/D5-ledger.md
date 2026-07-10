@@ -544,3 +544,31 @@ determinism (there is no GPU), NOR completeness for all scenes; depth/blend/pers
 DECLARED. `every frame is a witness` is now true for four frames, in one placement. No new glyph;
 kernel frozen; render consumes urdr-math, touches no core. `State_t ⟹ Framebuffer_t bit-identical
 across placements` stays the scoped next milestone.
+
+**Renderer rung 2 — the independent rasterizer (D8 cross-placement, for pixels) — SPECULATIVE
+until compile+paste, then MEASURED.** The rung-1 grade was honest but weak: *one* implementation
+signed the four frame digests, so they could be an artifact of Python. Rung 2 does for rendering
+exactly what D8 did for the kernel — a SECOND, independent implementation. `tools/render/urdr_render_rs/urdr_render.rs`
+is a single std-only Rust file (no crates, no cargo, hand-rolled SHA-256 lifted from urdr-core-rs,
+FIPS-checked at startup) that faithfully re-implements the rung-1 rasterizer — `fdiv`, integer edge
+functions, top-left rule, orientation normalization, endpoint-canonical line rasterization, the
+`MAGIC|W|H|C|row-major` serialization — in a different language / compiler / runtime, judged solely
+by `tools/render/conformance.txt`. Its **port logic is cross-checked**: mirroring the Rust exactly
+(its `fdiv`, byte layout, MAGIC) in Python reproduces all four goldens and the `--defect`
+MAGIC-corruption diverges on all four — but that is still the reference language, so the *convergence*
+grade is honestly **SPECULATIVE**: an authoring sandbox without `rustc` cannot measure it. On a host
+with a toolchain the protocol is red-first — `.\urdr_render.exe --defect` (every frame MUST diverge,
+the harness can redden) then `.\urdr_render.exe` twice (identical) — and `URDR-RENDER-RS: ADMITTED`
+twice + defect caught flips the grade to **MEASURED on that named host**. What it establishes: the
+four frame digests are a property of the *specification*, not of one interpreter — the exact
+reproducibility theorem the architecture is aiming at, now extended from state digests (D8) to frame
+digests. What it does NOT: GPU determinism (no GPU), all scenes, or depth/blend/perspective (DECLARED).
+`admitted ≠ trusted`; `a second certifier that agrees is the proof the certification is real`.
+**CONFIRMED (grade now MEASURED on a named host).** On Windows with `rustc` (edition 2021) the
+red-first protocol ran green: `.\urdr_render.exe --defect` caught all four frames (MAGIC-corruption
+divergence), and `.\urdr_render.exe` printed `URDR-RENDER-RS: ADMITTED` **twice, identically**, with
+every frame digest matching the reference goldens (`line_box bc9a85d6…`, `quad_two_tri 8594205b…`,
+`tri d71089cf…`, `tri_ndc 62f1efe1…`). Two independent implementations — Python reference and a
+std-only Rust file with its own hand-rolled SHA-256, sharing no code — now agree bit-for-bit on the
+four frame digests. The reproducibility theorem extends from state digests (D8) to frame digests:
+for this corpus, the rendered output is a property of the specification, not of one interpreter.

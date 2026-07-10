@@ -233,7 +233,11 @@ See §4 — this is the concrete centerpiece of the spec.
   and refusal set, within the reference placement* — it does **not** yet demonstrate a *second
   independent* rasterizer agreeing (the D8 cross-placement step), nor GPU determinism (there is no
   GPU), nor completeness for all scenes. Those, plus depth/blend/perspective, remain `DECLARED`
-  (§4). `State_t ⟹ Framebuffer_t` bit-identical *across placements* is the next rung.
+  (§4). **Rung 2 (cross-placement) is now `MEASURED`:** an independent Rust rasterizer
+  (`urdr_render_rs/urdr_render.rs`, std-only, own SHA-256) reproduced all four frame digests
+  bit-for-bit, twice, with a defect caught 4/4 on a Windows host — so `State_t ⟹ Framebuffer_t`
+  is bit-identical across two independent placements for this corpus. Depth/blend/perspective and
+  a wider corpus remain the DECLARED work.
 
 ### 3.8 applications
 
@@ -311,7 +315,8 @@ reproduced, this contract stays `DECLARED`.
 | urdr-physics     | general constraint solver               | `DECLARED`   | target (§3.5) |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
-| urdr-render      | full frame law + 2nd-placement pixels   | `DECLARED`   | target (§4) — depth/blend/perspective + cross-placement |
+| urdr-render      | rung 2: 2nd-placement frame digests (Rust) | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs/urdr_render.rs` — ADMITTED 4/4 twice, defect caught 4/4 |
+| urdr-render      | full frame law (depth/blend/perspective) | `DECLARED`   | target (§4) |
 | network (live)   | real socket at the runner tier          | `SPECULATIVE`| host capability; not gated |
 
 ## 7. Recommended order of work
