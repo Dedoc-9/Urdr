@@ -182,9 +182,17 @@ Every layer contract below is stated in six fields:
   candidate); will add solver-specific typed refusals (non-convergence) under the DECLARED slice.
 - **DETERMINISM.** Q32.32 fixed-point substrate (D9) where continuous quantities appear — never
   IEEE float; division-free, floor-rounded, overflow/div-zero refused.
-- **GRADE.** `MEASURED` for the admissibility slice (`tools/intla/physics.py`, corpus v12 world
-  history); `DECLARED` for the general constraint solver. **This is "largely conceptual" until the
-  solver exists — do not consume the DECLARED guarantees yet.**
+- **GRADE.** `MEASURED` for (a) the structural-admissibility slice (`tools/intla/physics.py`,
+  corpus v12 world history) and (b) **rung-1 exact 1D dynamics** (`tools/physics/`): a deterministic
+  semi-implicit-Euler step over exact rationals, a 1×1-LCP exact contact impulse with
+  complementarity, momentum/energy conservation *witnesses* (energy is the discriminating falsifier;
+  momentum is structural), and exact-rational CCD time-of-impact that prevents tunneling — five
+  scene state-digests reproduced twice + a wrong-impulse non-vacuity control (`physics` gate stage,
+  `tests/test_physics.py`). `DECLARED` for the **general n-contact LCP** (Lemke/principal pivoting
+  over exact ℚ), 2D/3D + rotational inertia, and a **second placement** (Rust `urdr-physics-rs`
+  reproducing the state digests — the D8 move for dynamics). The step function `(X_t,V_t)+F ⟶
+  (X_t+1,V_t+1)` exists and is exact/reproducible for 1D single-contact; the simultaneous-contact
+  solver is the next rung. Do not consume the DECLARED guarantees yet.
 
 ### 3.6 urdr-world
 
@@ -312,7 +320,8 @@ reproduced, this contract stays `DECLARED`.
 | urdr-math v0.1   | exact integer LA + number theory        | `MEASURED`   | oracle tests; witness cross-placement v10/v11 |
 | urdr-rigidity    | rigidity / stress / superstability      | `MEASURED` (library); partial cross-placement | ladder tests; corpus v11 |
 | urdr-physics     | rigidity-admissibility                  | `MEASURED`   | `physics.py`, corpus v12 |
-| urdr-physics     | general constraint solver               | `DECLARED`   | target (§3.5) |
+| urdr-physics     | rung 1: exact 1D step + LCP kernel + conservation + CCD | `MEASURED` (reference) | `physics` gate stage, `test_physics.py`, `tools/physics/` |
+| urdr-physics     | general n-contact LCP + 2D/3D + cross-placement | `DECLARED` | target (§3.5) — the next rungs |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
 | urdr-render      | rung 2: 2nd-placement frame digests (Rust) | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs/urdr_render.rs` — ADMITTED 4/4 twice, defect caught 4/4 |

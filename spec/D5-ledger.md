@@ -572,3 +572,30 @@ every frame digest matching the reference goldens (`line_box bc9a85d6…`, `quad
 std-only Rust file with its own hand-rolled SHA-256, sharing no code — now agree bit-for-bit on the
 four frame digests. The reproducibility theorem extends from state digests (D8) to frame digests:
 for this corpus, the rendered output is a property of the specification, not of one interpreter.
+
+**urdr-physics rung 1 — from static geometry to dynamic mechanics — MEASURED (reference), red-first.**
+The core loop shifts from validating a static rigidity matrix to executing a deterministic,
+time-linked equation of motion, exact over ℤ: `(X_t,V_t) + F ⟶ (X_t+1,V_t+1)` via semi-implicit
+(symplectic) Euler + an exact 1-contact LCP impulse + CCD, all in `tools/physics/` (`rational.py`
+exact ℚ over ℤ with i64-refusal; `dynamics.py` the step). The four themes land at a provable 1D
+foundation: **(1) state-space expansion** — phase space `(X,V)` with mass, momentum `p=Σ m·v` an
+exact rational; **(2) deterministic constraint solver** — the 1×1 LCP `w=Mz+q, w,z≥0, w·z=0` solved
+exactly (impulse applied only when approaching, non-negative, leaving the bodies separating/resting);
+**(3) conservation-law falsifiers** — the honest subtlety that momentum is conserved *structurally*
+by the equal-and-opposite impulse (so a **wrong** impulse still conserves momentum), which makes the
+**kinetic-energy witness** the discriminating falsifier (conserved iff elastic, strictly decreasing
+iff inelastic) — the `physics-defect-selftest` fires exactly here; **(4) CCD as geometric witness** —
+`time_of_impact` returns the **exact rational** edge-meets-edge time, so a fast body **cannot tunnel**
+a thin wall (`step` advances to the fractional impact time, resolves, integrates the remainder). Five
+post-step **state digests** (`free, gravity, elastic, inelastic, ccd_tunnel`) are pinned in
+`tools/physics/conformance.txt`, reproduced twice by the `physics` gate stage; nine falsifiers in
+`tests/test_physics.py` (determinism+golden, elastic momentum+energy exact, inelastic energy
+strictly-lost + rel-vel→0, wrong-impulse energy-violation non-vacuity, CCD non-tunneling + no-impact
+control, i64/zero-mass refusal). **Scope, stated honestly:** 1D, single earliest contact per step,
+restitution ∈[0,1] — implementation-agreement on a stated corpus *within the reference placement*; it
+is NOT continuum physical accuracy, NOT all scenes, NOT yet a second placement. The **general
+n-contact LCP** (Lemke/principal pivoting over exact ℚ), 2D/3D + rotational inertia, and a Rust
+`urdr-physics-rs` reproducing the state digests (the D8 move for dynamics) are the DECLARED next rungs.
+No new glyph; kernel frozen; physics consumes exact rationals, touches no core. `momentum is
+structural; energy is the witness; the impact time is exact` · `change is cheap; a certified transition
+is the scarce resource`.

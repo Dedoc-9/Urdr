@@ -367,6 +367,67 @@ class Gate:
                     "corner-sample defect diverged (gate can redden)" if diverged
                     else "defect agreed — the frame instrument is vacuous")
 
+    # -- 2f. urdr-physics rung 1: deterministic step + witnessed conservation --
+    def physics(self):
+        """urdr-physics rung 1 (D11 §3.5): the step function is a deterministic
+        equation of motion, exact over Z. Each scene's post-step state digest is
+        reproduced twice and matches its golden; an ELASTIC contact conserves
+        momentum AND kinetic energy exactly and separates (complementarity); a
+        WRONG impulse conserves momentum (structural) but MUST break the energy
+        witness (non-vacuity). No float; overflow refuses. Scope: 1D, single
+        contact per step — implementation-agreement on a stated corpus."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import dynamics as D
+            import phys_scenes as scenes           # unique basename (avoids render/scenes collision)
+            from rational import Z
+            from dynamics import Body
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("physics-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(pdir, "conformance.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(scenes.SCENES):
+            d1 = D.state_digest(scenes.run(name))
+            d2 = D.state_digest(scenes.run(name))
+            if d1 != d2:
+                self.record(f"physics:{name}", False,
+                            f"NONDETERMINISTIC {d1[:12]}… ≠ {d2[:12]}…")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"physics:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            self.record(f"physics:{name}", True, d1[:16] + "…")
+        # conservation witnesses on an elastic contact
+        b1 = Body(Z(0), Z(1), Z(2), 3)
+        b2 = Body(Z(5), Z(1), Z(-1), 5)
+        e1, e2, j, _ap = D.resolve_contact(b1, b2, Z(1))
+        elastic_ok = (D.momentum_conserved([b1, b2], [e1, e2])
+                      and D.energy_conserved([b1, b2], [e1, e2])
+                      and D.separating(e1, e2))
+        self.record("physics-conservation", elastic_ok,
+                    "elastic: momentum+energy conserved, separating"
+                    if elastic_ok else "conservation witness FAILED")
+        # non-vacuity: a wrong impulse conserves momentum but MUST break energy
+        jb = j + Z(1)
+        w1 = b1.clone(v=b1.v - jb * b1.inv_mass())
+        w2 = b2.clone(v=b2.v + jb * b2.inv_mass())
+        caught = (D.momentum_conserved([b1, b2], [w1, w2])
+                  and not D.energy_conserved([b1, b2], [w1, w2]))
+        self.record("physics-defect-selftest", caught,
+                    "wrong impulse caught by energy witness (gate can redden)"
+                    if caught else "energy witness vacuous — cannot redden")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -448,6 +509,7 @@ def main() -> int:
     gate.modules()
     gate.registry()
     gate.render()
+    gate.physics()
     gate.rejections()
     gate.tamper()
     return gate.report()

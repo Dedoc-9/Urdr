@@ -1,0 +1,10 @@
+# urdr-physics rung 1 — post-step state-digest conformance vectors.
+# scene  SHA-256(canonical_serialize(State_after_one_step))
+# Exact 1D dynamics over Z (no float). Every conforming integer placement must
+# reproduce these exactly. Implementation-agreement on a stated corpus — NOT a
+# claim of continuum physical accuracy or completeness for all scenes.
+ccd_tunnel 1b25b3965536db197b617088d49705a45096d04a6f5ebbd87eaf91c2c3f66381
+elastic 1b9591a48f257e05a3660a81c4dba017eea4614257ed0d02dfa80466a0fe9937
+free 742c9e71ca3d551bf67e231428e3aefd5d556eac92acccaa4047a4929c3326a3
+gravity b9227ff8db86d4c1ab1d264d9093c75408df6219d9eff868a5d33aba64d01230
+inelastic df5980c9d73b1dcec9dfa676db8343eef8c927f5e98e8f5e7d42f6b3d65be9e9
