@@ -47,3 +47,6 @@ reject  certify_kernel_zero_wrong  URDR-ASSERT
 # --- corpus v11 (kernel certifies a superstable framework's self-stress equilibrium) ---
 accept  certify_selfstress   aadd8a2abf6ed1a6fd6579889bed66db61377e523bcc610686e77616994bb09f
 reject  certify_selfstress_forged_wrong  URDR-ASSERT
+# --- corpus v12 (persistent multi-actor structural world history chain) ---
+accept  structural_history   aadd8a2abf6ed1a6fd6579889bed66db61377e523bcc610686e77616994bb09f
+reject  structural_history_fork_wrong  URDR-ASSERT

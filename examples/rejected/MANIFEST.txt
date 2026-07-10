@@ -43,3 +43,4 @@ linear_atlas_singular_wrong.urdr run URDR-ASSERT
 certify_kernel_forged_wrong.urdr run URDR-ASSERT
 certify_kernel_zero_wrong.urdr run URDR-ASSERT
 certify_selfstress_forged_wrong.urdr run URDR-ASSERT
+structural_history_fork_wrong.urdr run URDR-ASSERT

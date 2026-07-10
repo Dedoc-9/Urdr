@@ -1,0 +1,9 @@
+# FALSE (reordered world history): chaining the committed worlds in the WRONG order (w0->w2->w1)
+# yields a different chain head than the canonical order (w0->w1->w2). Claiming they are equal DIES:
+# the chain digest binds the path, so a reorder is a fork -- refused, not smoothed. Non-vacuous.
+w0 := [[[0, 1], [1, 2], [2, 3], [3, 0]], [[0, 0], [2, 0], [2, 2], [0, 2]]]
+w1 := [[[0, 1], [1, 2], [2, 3], [3, 0], [0, 2]], [[0, 0], [2, 0], [2, 2], [0, 2]]]
+w2 := [[[0, 1], [1, 2], [2, 3], [3, 0], [0, 2], [1, 3]], [[0, 0], [2, 0], [2, 2], [0, 2]]]
+c2 := \di([\di([\di(w0), w1]), w2])
+r2 := \di([\di([\di(w0), w2]), w1])
+=?(c2, r2)
