@@ -494,3 +494,30 @@ and a program that "claims more than it verifies does not typecheck" can still s
 internet behind it — the internet just leaves its authority at the door, as a digest.
 `the digest is the authority; the name is UX; the URL is provenance` · `live = recorded input` ·
 `you cannot have live AND deterministic for one execution — you CAN pin the live world into a replayable one`.
+
+**Inter-layer contracts (D11) — spec-before-implementation, graded per layer.** With authority /
+deterministic-computation / I/O now cleanly separated, the highest-leverage work is no longer new
+primitives (the core is stable; no glyph is under pressure, D5 stable-core note) but **stable
+interfaces** — the precondition D8 proved for the kernel (a second placement is only possible
+because the contract was frozen first), generalized up the stack. `spec/D11-layer-contracts.md`
+writes the engine stack as contracts, each in six fields (GUARANTEES / REQUIRES / MAY-ASSUME /
+REFUSES / DETERMINISM / GRADE), grounded in the ACTUAL API surface: capabilities (R4) →
+urdr-core (sealed, portable) → urdr-math v0.1 (frozen names: `floor_divmod, rank, determinant,
+nullspace, transpose, matmul, gcd, extended_gcd, modinv`; overflow=`REFUSE`) → urdr-rigidity
+(rigidity/stress/Connelly certificates) → urdr-physics → urdr-world → urdr-render → applications,
+each depending only on the layer beneath and assuming only its *written* guarantees (`Nihil ultrā
+probātum` for interfaces). Graded honestly: the layers that exist are MEASURED (capabilities,
+core+portable, math, rigidity-library, physics-admissibility, world); physics' **general
+constraint solver** is DECLARED (today it is only rigidity-admissibility — `admit iff digest
+changed AND rigid`); the live socket is SPECULATIVE. The **deterministic renderer is the DECLARED
+centerpiece and the biggest remaining milestone**: `State ⟶ Renderer ⟶ Framebuffer` exists only as
+a shape; `State_t ⟹ Framebuffer_t` *bit-identical across placements* is not yet demonstrated — a
+strictly stronger property than deterministic simulation, and unusual among engines (most inherit
+GPU float variance). §4 pins the **frame-digest law** — `Digest(Frame_t)=SHA-256(canonical_serialize(Frame_t))`
+— into eight exact, falsifiable obligations (fixed-point coords, integer edge functions, a top-left
+fill rule, fixed-point barycentric, deterministic depth tie-break, exact-integer blend with
+over-range=refusal, canonical row-major serialization, content-derived primitive order), so a later
+red-first gate can MEASURE conformance the same way D8 admits a second kernel: reproduce every frame
+digest twice bit-identically, defect caught, over a `(state → expected-frame-digest)` corpus. No new
+glyph; kernel frozen; this is contract work, not a primitive. `I/O proposes · math computes · the
+kernel certifies · the renderer projects` · `every frame is a witness`.
