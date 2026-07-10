@@ -61,3 +61,26 @@ Step 4 Rust port against these same fixtures ·
 Step 5 networking, persistence, replication, renderer/GPU, spatial streaming. Steps 1–3 have no
 networking, no graphics, no optimization, and no concurrent EXECUTION (Step 3 is deterministic
 single-threaded scheduling, not threads) — by design.
+
+## Deterministic Rendering (DECLARED — architectural invariant, with a hard caveat)
+
+If the state transition `T` and the renderer `R` are **both** deterministic, a framebuffer is a
+pure function of the state history:
+
+```
+Frame_t = R(S_t) = (R ∘ T)(S_{t-1}, Δt)
+```
+
+**Consequence:** identical initial state + identical `Δt` ⟹ identical pixels, and
+`digest(Frame_t) = H(R(S_t))` is reproducible evidence of the state — two runtimes with `S_t = S'_t`
+produce `digest(Frame_t) = digest(Frame'_t)`. Rendering is a projection (an observer, D10 §1); pixels
+never feed authority back into the simulation. This is the lockstep-determinism principle behind
+replay, rollback, and synchronization.
+
+**Caveat — why this is `DECLARED`, not `MEASURED` here.** The theorem *assumes* a deterministic
+renderer. Real GPU pipelines are **not** bit-identical across hardware/drivers (floating point,
+shader optimization, rounding). Cross-platform identical framebuffers therefore require a
+**constrained** renderer — fixed-point / specified-deterministic algorithms (the Q32.32 substrate,
+D9, is the honest basis). Without that assumption the guarantee is identical *simulation state*,
+not identical *pixels*. Urðr has the deterministic state + digest today; a deterministic renderer is
+future host-track work. `simulation is authoritative; rendering is a pure projection`.

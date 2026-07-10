@@ -61,6 +61,18 @@ Downstream depends on these names, never on the implementation (`import urdr_mat
 
 Every one is **Deterministic** (same in → same out), **Pure** (no hidden state / side effects; inputs unmutated), and **Canonically testable** (checked against exact oracles / an independent implementation). i64-bounded; overflow is a REFUSAL. `test_urdr_math.py` greens the whole surface in one command. Consumers (`urdr-rigidity`, `urdr-physics`, atlas) call these; they never reimplement rank/kernel/determinant.
 
+
+## Versioning
+
+`urdr-math` follows **semantic versioning**; downstream declares compatibility against the stable
+API, never implementation details. **v0.1** = exact arithmetic + matrix algebra + number theory
+(this release). Planned: **v0.2** polynomial algebra · **v0.3** algebraic number fields. Each
+conformance suite is associated with a library version, so cross-placement is versioned too.
+
+First consumer: `rigidity.py` (`urdr-rigidity`) — infinitesimal rigidity, trivial-motion
+separation, internal flex, and the self-stress / stress-matrix Ω certificate — all by calling the
+API above (never reimplementing rank/kernel). PSD verification + Connelly superstability are next.
+
 ## Roadmap (this library → its consumers)
 
 ```
