@@ -12,7 +12,7 @@ hand-rolled SHA-256, no crates) reproduced every accept digest and every rejecti
 **twice, identically**, with a deliberately-defective build caught 4/4 (§4 non-vacuity), on
 ONE named host: Windows, `rustc 1.96.1` (stable-x86_64-pc-windows-gnu). Scope: the conformance
 corpus — grown to **34** vectors (v2 = fixpoint foundation, v3 = division-free `mul`, v4 = `div`, v5 = `floor_int`+`sqrt`, v6 = observer atlas injectivity, v7 = general atlas algebra, v8 = witnessed transition atlas, v9 = linear-chart atlas, v10 = kernel-certifies-nullspace-witness, v11 = self-stress equilibrium; v2+v3 re-
-ADMITTED 12/12 twice on 2026-07-07, **v4/v5 Rust ADMITTED 20/20 twice, defect caught 9/9, 2026-07-07; v6 Rust ADMITTED 22/22 twice, defect caught 10/10, 2026-07-07; v7 Rust ADMITTED 24/24 twice, defect caught 11/11, 2026-07-07; v8 Rust ADMITTED 27/27 twice, defect caught 12/12, 2026-07-07; v9 Rust ADMITTED 29/29 twice, defect caught 13/13, 2026-07-07; v10 Rust ADMITTED 32/32 twice, defect caught 14/14, 2026-07-07; v11 reference-frozen, Rust ADMITTED 34/34 pending**) — that host; whole-corpus admission stays the SCOPED strengthening. `admitted ≠ trusted`.
+ADMITTED 12/12 twice on 2026-07-07, **v4/v5 Rust ADMITTED 20/20 twice, defect caught 9/9, 2026-07-07; v6 Rust ADMITTED 22/22 twice, defect caught 10/10, 2026-07-07; v7 Rust ADMITTED 24/24 twice, defect caught 11/11, 2026-07-07; v8 Rust ADMITTED 27/27 twice, defect caught 12/12, 2026-07-07; v9 Rust ADMITTED 29/29 twice, defect caught 13/13, 2026-07-07; v10 Rust ADMITTED 32/32 twice, defect caught 14/14, 2026-07-07; v11 Rust ADMITTED 34/34 twice, defect caught 15/15, 2026-07-07**) — that host; whole-corpus admission stays the SCOPED strengthening. `admitted ≠ trusted`.
 
 ## 0. Why (Stage 4)
 
