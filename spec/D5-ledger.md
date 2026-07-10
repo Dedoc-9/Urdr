@@ -716,3 +716,25 @@ implementations — the Python reference and a std-only Rust file with its own h
 no code — now agree bit-for-bit on all 18 physics digests. **The D8 reproducibility theorem now spans the
 whole engine: state (kernel, 36 vectors), pixels (renderer, 4 frames), and motion (physics, 18 digests)
 are each bit-identical across two independent placements.** `state, pixels, and motion all agree`.
+
+**Physics v1.0 freeze + adversarial hardening + version manifest (roadmap steps 1–3) — MEASURED.** With
+physics cross-placed, the disciplined move is to freeze before extending — the same order that worked for
+the language and the renderer. `spec/D12-versions.md` gives every certified subsystem an explicit
+**semantic version + corpus version** (core 1.0 / math 0.1 / render 1.0 / physics 1.0 / R4 1.0) and
+declares the **physics v1.0 frozen surface** immutable except through a versioned successor: the four
+serialization magics + byte grammar (the digest law), the exact-ℚ substrate (no float/clock/RNG/tolerance/
+heuristic ordering), the `PHYS-REFUSE` semantics, the witnesses/certificates (momentum, energy,
+complementarity, `Jv=0`, `rank(A)`-uniqueness), the public API, and the 18-scene corpus — future
+capability *extends*, never mutates. Then, per step 2 (expand the corpus/confidence before features),
+adversarial **property hardening** in `tests/test_physics_properties.py` (deterministic fixed-seed LCG —
+no real RNG in any authority path): 300 random 2D/3D collisions conserve the momentum vector ALWAYS and
+kinetic energy EXACTLY when elastic / non-increasing when inelastic (155 actually collided — non-vacuity);
+deep resting stacks propagate to the exact `λ=[n,…,1]` and stay complementary through **n=12**; long
+articulated chains are held exactly (`Jv=0`) and conserve momentum through **k=15 links**; degenerate
+systems (redundant joints, inconsistent LCPs) and i64 overflow all `PHYS-REFUSE`; a generated scene
+digests identically twice. A visible `physics_stress` gate stage records the computed certificates
+(deep rest-8 stack `λ=[8..1]`, a 12-link chain held) with a perturbed-λ non-vacuity control. **Scope:**
+hardening raises confidence beyond the pinned corpus; it does not claim universal correctness or continuum
+accuracy — `admitted ≠ trusted`. No new pinned cross-placement vectors (the freeze stays clean; no Rust
+churn); no new glyph; kernel frozen. `freeze the interface, then harden it — capability comes only after,
+each feature down the same ladder` · `confidence in what exists before reach for what does not`.

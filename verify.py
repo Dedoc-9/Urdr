@@ -621,6 +621,61 @@ class Gate:
                     "redundant constraints refused (gate can redden)"
                     if refused else "redundant system ACCEPTED — cannot redden")
 
+    # -- 2j. urdr-physics hardening: adversarial computed certificates ---------
+    def physics_stress(self):
+        """Roadmap step 2 — adversarial hardening beyond the pinned corpus, as
+        computed certificates: a deep resting stack propagates to λ=[n,…,1] and a
+        long articulated chain holds exactly (Jv=0) + conserves momentum; a wrong
+        stack λ fails the complementarity certificate (non-vacuity). Broad
+        property coverage lives in tests/test_physics_properties.py."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import contact_lcp as L
+            import articulated as J
+            from vecq import vec
+            from rational import Z
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("physics-stress", False, f"import failed: {exc}")
+            return
+        # deep resting stack (rest-8): exact propagation λ=[8,…,1]
+        n = 8
+        up = vec(1)
+        vels = [vec(0)] + [vec(-1)] * n
+        inv = [Z(0)] + [Z(1)] * n
+        contacts = [L.Contact(0, 1, up)] + [L.Contact(i, i + 1, up) for i in range(1, n)]
+        a, b = L.delassus(vels, inv, contacts)
+        lam, w = L.solve_lcp(a, b)
+        stack_ok = lam == [Z(n - i) for i in range(n)] and L.complementary(lam, w)
+        self.record("physics-stress-stack", stack_ok,
+                    f"deep rest-{n} stack λ=[{n}..1] exact + complementary"
+                    if stack_ok else "deep-stack propagation FAILED")
+        # long articulated chain (12 links): held exactly + momentum conserved
+        k = 12
+        p = [vec(i, 0) for i in range(k + 1)]
+        cv = [vec(2, 0)] + [vec(0, 0)] * k
+        ci = [Z(1)] * (k + 1)
+        cm = [1] * (k + 1)
+        rows = [J.distance_row(i, i + 1, p[i], p[i + 1]) for i in range(k)]
+        new, _lam = J.solve(cv, ci, rows)
+        chain_ok = J.satisfied(new, rows) and J.momentum(cv, cm) == J.momentum(new, cm)
+        self.record("physics-stress-chain", chain_ok,
+                    f"{k}-link chain held (Jv=0) + momentum conserved"
+                    if chain_ok else "long-chain constraint FAILED")
+        # non-vacuity: a perturbed stack λ must fail the complementarity certificate
+        bad = [lam[0] + Z(1)] + list(lam[1:])
+        wbad = []
+        for i in range(len(bad)):
+            wi = b[i]
+            for j in range(len(bad)):
+                wi = wi + a[i][j] * bad[j]
+            wbad.append(wi)
+        caught = L.complementary(lam, w) and not L.complementary(bad, wbad)
+        self.record("physics-stress-selftest", caught,
+                    "perturbed stack λ fails the certificate (gate can redden)"
+                    if caught else "certificate vacuous — cannot redden")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -706,6 +761,7 @@ def main() -> int:
     gate.physics_nd()
     gate.physics_lcp()
     gate.physics_joint()
+    gate.physics_stress()
     gate.rejections()
     gate.tamper()
     return gate.report()
