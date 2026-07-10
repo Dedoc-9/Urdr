@@ -686,3 +686,33 @@ continuous sphere-sphere CCD, and a Rust `urdr-physics-rs` reproducing all physi
 glyph; kernel frozen; the solver consumes exact rationals + vectors, touches no core. `a joint is an
 equality — its velocity is exactly zero or it does not typecheck` · `rank(A) certifies uniqueness; the
 same matrix that says a truss is rigid says a mechanism is solvable`.
+
+**Physics cross-placement — urdr-physics-rs (D8 move for dynamics) — SPECULATIVE until compile+paste,
+then MEASURED.** The four physics rungs were all reference-only; this earns physics the same
+cross-placement status the kernel (state) and renderer (pixels) already hold. `tools/physics/urdr_physics_rs/urdr_physics.rs`
+is a single std-only Rust file (no crates, no cargo, hand-rolled SHA-256 from urdr-core-rs, FIPS-checked
+at startup) that faithfully re-implements ALL FOUR rungs — exact rational `Q` (i128 intermediates,
+gcd-reduced, i64-bounded), vectors, 1D dynamics (step/contact/CCD), 2D/3D sphere dynamics + plane CCD,
+the n-contact LCP (active-set enumeration in itertools order, exact rational elimination), and the
+articulated equality-constraint solver — in a different language / compiler / runtime, judged solely by
+the four physics conformance corpora (18 scene digests across `URDRPH1/PN1/LCP1/JNT1`). Its **port logic
+is cross-checked**: mirroring the Rust exactly (its `Q` arithmetic, byte-for-byte serialization, scene
+setups, and all four solvers) in Python reproduces **all 18 goldens** and the `--defect` MAGIC-bump
+diverges on all 18 — but that is still the reference language, so the *convergence* grade is honestly
+**SPECULATIVE**: an authoring sandbox without `rustc` cannot measure it. On a host with a toolchain the
+protocol is red-first — `.\urdr_physics.exe --defect` (every digest MUST diverge) then
+`.\urdr_physics.exe` twice (identical) — and `URDR-PHYSICS-RS: ADMITTED` twice + defect caught flips the
+grade to **MEASURED on that named host**. What it establishes: the physics digests (momentum, contacts,
+joints) are a property of the *specification*, not of one interpreter — the D8 reproducibility theorem now
+spanning state (kernel), frames (renderer), AND physics. What it does NOT: add capability (friction,
+rotation, convex shapes, sphere-sphere CCD stay DECLARED) or claim continuum accuracy. No new glyph;
+kernel frozen. `three placements now agree: state, pixels, and motion` · `admitted ≠ trusted; a second
+certifier that agrees is the proof`.
+**CONFIRMED (grade now MEASURED on a named host).** On Windows with `rustc` (edition 2021) the
+red-first protocol ran green: `.\urdr_physics.exe --defect` caught all 18 digests (MAGIC-bump
+divergence), and `.\urdr_physics.exe` printed `URDR-PHYSICS-RS: ADMITTED` **twice, identically**, with
+every digest matching the reference goldens across all four corpora (1d, nd, lcp, joint). Two independent
+implementations — the Python reference and a std-only Rust file with its own hand-rolled SHA-256, sharing
+no code — now agree bit-for-bit on all 18 physics digests. **The D8 reproducibility theorem now spans the
+whole engine: state (kernel, 36 vectors), pixels (renderer, 4 frames), and motion (physics, 18 digests)
+are each bit-identical across two independent placements.** `state, pixels, and motion all agree`.

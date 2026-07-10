@@ -344,7 +344,8 @@ reproduced, this contract stays `DECLARED`.
 | urdr-physics     | rung 2: exact 2D & 3D sphere dynamics (vector momentum/energy, plane CCD) | `MEASURED` (reference) | `physics_nd` gate stage, `test_physics_nd.py`, `vecq.py`+`dynamics_nd.py` |
 | urdr-physics     | rung 3: exact n-contact frictionless LCP (simultaneous contacts, resting stacks) | `MEASURED` (reference) | `physics_lcp` gate stage, `test_contact_lcp.py`, `contact_lcp.py` |
 | urdr-physics     | rung 4: exact articulated / joint constraints (rods, pins, skeletons) | `MEASURED` (reference) | `physics_joint` gate stage, `test_articulated.py`, `articulated.py` |
-| urdr-physics     | friction + rotation/shapes + sphere-sphere CCD + cross-placement | `DECLARED` | targets (§3.5) — the next rungs |
+| urdr-physics     | 2nd-placement physics digests (Rust, all 4 corpora) | `MEASURED` (Windows, rustc edition-2021) | `urdr_physics_rs/urdr_physics.rs` — ADMITTED 18/18 twice, defect caught 18/18 |
+| urdr-physics     | friction + rotation/shapes + sphere-sphere CCD | `DECLARED` | targets (§3.5) — the next rungs |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
 | urdr-render      | rung 2: 2nd-placement frame digests (Rust) | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs/urdr_render.rs` — ADMITTED 4/4 twice, defect caught 4/4 |
