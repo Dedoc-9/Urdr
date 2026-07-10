@@ -557,6 +557,70 @@ class Gate:
                     "wrong λ fails the LCP certificate (gate can redden)"
                     if caught else "certificate vacuous — cannot redden")
 
+    # -- 2i. urdr-physics rung 4: exact articulated / joint constraints -------
+    def physics_joint(self):
+        """urdr-physics rung 4 (D11 §3.5): exact articulated equality constraints
+        (rods, pins, skeletons). Each scene's solved-system digest is reproduced
+        twice and matches its golden; after the solve every constraint velocity is
+        exactly zero (the joint HOLDS); a redundant/conflicting system (singular A)
+        REFUSES -- rank(A) is the uniqueness certificate. Exact over ℚ, a plain
+        linear solve (no complementarity, no tolerance)."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import articulated as J
+            import joint_scenes
+            from vecq import vec
+            from rational import Z, RationalError
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("physics-joint-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(pdir, "conformance_joint.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(joint_scenes.SCENES):
+            n1, l1, rows = joint_scenes.run(name)
+            n2, l2, _ = joint_scenes.run(name)
+            d1 = J.joint_digest(n1, l1)
+            if d1 != J.joint_digest(n2, l2):
+                self.record(f"physics-joint:{name}", False, "NONDETERMINISTIC")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"physics-joint:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            if not J.satisfied(n1, rows):
+                self.record(f"physics-joint:{name}", False, "constraint not held")
+                continue
+            self.record(f"physics-joint:{name}", True, d1[:16] + "…")
+        # rigidity bridge: the triangle's constraint solve holds it rigid + conserves momentum
+        vels, inv, masses, rows = joint_scenes.sc_triangle()
+        new, _lam = J.solve(vels, inv, rows)
+        rigid = (J.satisfied(new, rows)
+                 and J.momentum(vels, masses) == J.momentum(new, masses)
+                 and not J.satisfied(vels, rows))        # non-vacuity: unsolved was not held
+        self.record("physics-joint-rigid", rigid,
+                    "rigid triangle held + momentum conserved (unsolved was not held)"
+                    if rigid else "articulated certificate FAILED")
+        # non-vacuity: a redundant system (singular A) must REFUSE, not guess
+        p0, p1 = vec(0, 0), vec(1, 0)
+        dup = [J.distance_row(0, 1, p0, p1), J.distance_row(0, 1, p0, p1)]
+        refused = False
+        try:
+            J.solve([vec(1, 0), vec(0, 0)], [Z(1), Z(1)], dup)
+        except RationalError as err:
+            refused = err.code == "PHYS-REFUSE"
+        self.record("physics-joint-refusal-selftest", refused,
+                    "redundant constraints refused (gate can redden)"
+                    if refused else "redundant system ACCEPTED — cannot redden")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -641,6 +705,7 @@ def main() -> int:
     gate.physics()
     gate.physics_nd()
     gate.physics_lcp()
+    gate.physics_joint()
     gate.rejections()
     gate.tamper()
     return gate.report()

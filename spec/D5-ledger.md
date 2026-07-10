@@ -657,3 +657,32 @@ convex shapes, continuous sphere-sphere CCD, and a Rust `urdr-physics-rs` reprod
 digests (state + LCP). No new glyph; kernel frozen; the solver consumes exact rationals + vectors,
 touches no core. `the LCP is not solved, it is certified — λ,w≥0 and λ·w=0 or REFUSE` · `the bottom of
 the stack carries the whole stack, exactly`.
+
+**urdr-physics rung 4 — exact articulated / joint constraints (skeletons, mechanisms) — MEASURED
+(reference), red-first.** The reviewer's steer — articulated systems before friction — is the better
+fit for the exactness discipline, because joints are EQUALITY (bilateral) constraints, not the LCP's
+inequalities: the constraint velocity must be exactly zero, so there is no complementarity, only a plain
+exact LINEAR solve. `tools/physics/articulated.py`: build the Jacobian `J` (one row per scalar
+constraint), form the constraint-space mass `A = J M⁻¹ Jᵀ`, solve `A λ = −Jv` exactly (reusing
+`contact_lcp.lin_solve`), apply `v += M⁻¹ Jᵀ λ`, and **certify** `J v_new = 0` — the joint holds to the
+last bit. The uniqueness-by-certificate principle is literal here (exactly the Implicit-Function-Theorem
+argument the reviewer wrote out): **rank(A) decides local uniqueness** — full rank gives a unique λ that
+holds every constraint; a rank-deficient `A` means redundant or conflicting constraints and the solver
+**REFUSES** (PHYS-REFUSE), that singular `A` being the witness of non-uniqueness rather than an arbitrary
+choice. Exact over ℚ, no tolerance, no heuristic ordering: gradients are un-normalized (a distance
+constraint's gradient is `pₐ − p_b`, rational) — and that gradient row *is exactly a rigidity-matrix
+row*, so this rung **bridges static rigidity and dynamics** (roadmap items 4↔5): a rigid triangle is
+three distance constraints whose Jacobian is `R(G,p)`, and solving it holds every edge length rigid.
+Momentum is conserved for all-dynamic systems (equal-and-opposite impulses). Four witnessed scenes
+(`rod` — both bodies move together at v=½, λ=¼; `pendulum` — a bob pinned to a static anchor is driven to
+rest; `chain3` — a struck 3-link chain propagates; `triangle` — a rigid 3-rod frame stays rigid) pinned
+in `conformance_joint.txt`, reproduced twice by the `physics_joint` gate stage; seven falsifiers in
+`tests/test_articulated.py` (satisfied certificate, rod-moves-together + momentum, pendulum held, rigid
+triangle, unsolved-is-not-held non-vacuity, redundant-constraint refusal, i64 refusal). **Scope:**
+velocity-level holonomic equality constraints, frictionless, no drift stabilization (Baumgarte),
+translational (no rotational inertia yet) — implementation-agreement on a stated corpus *within the
+reference placement*. DECLARED next rungs: friction, rotational inertia + arbitrary convex shapes,
+continuous sphere-sphere CCD, and a Rust `urdr-physics-rs` reproducing all physics digests. No new
+glyph; kernel frozen; the solver consumes exact rationals + vectors, touches no core. `a joint is an
+equality — its velocity is exactly zero or it does not typecheck` · `rank(A) certifies uniqueness; the
+same matrix that says a truss is rigid says a mechanism is solvable`.

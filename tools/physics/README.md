@@ -5,7 +5,31 @@ mechanics**: a deterministic, time-linked equation of motion, exact over ℤ.
 **Rung 1** is 1D (`rational.py`, `dynamics.py`); **rung 2** is n-dimensional —
 2D & 3D balls (`vecq.py`, `dynamics_nd.py`), the step toward game / VR; **rung 3**
 is the exact **n-contact constraint solver** (`contact_lcp.py`) — simultaneous
-contacts, resting stacks, frictionless constraint propagation.
+contacts, resting stacks, frictionless constraint propagation; **rung 4** is
+exact **articulated / joint systems** (`articulated.py`) — rods, pins, skeletons.
+
+## Rung 4 — exact articulated constraints (joints)
+
+Contacts are INEQUALITY constraints (an LCP). Joints — rods, hinges, sliders,
+skeletons — are EQUALITY (bilateral) constraints: the constraint velocity must be
+exactly zero. No complementarity, just an exact linear solve:
+
+    build the Jacobian J → form A = J M⁻¹ Jᵀ → solve A λ = −J v →
+    apply v += M⁻¹ Jᵀ λ → certify J v_new = 0 → emit a witness.
+
+The uniqueness-by-certificate principle is literal: **rank(A) decides local
+uniqueness**. Full rank → a unique λ holds every constraint; rank-deficient →
+redundant/conflicting constraints, and the solver **refuses** (that singular `A`
+is the witness of non-uniqueness). Exact over ℚ — gradients are un-normalized (a
+distance constraint's gradient is `pₐ − p_b`, *the same row the rigidity matrix
+uses*, so this bridges static rigidity and dynamics). Momentum is conserved for
+all-dynamic systems. Witnessed scenes (`rod, pendulum, chain3, triangle`) in
+`conformance_joint.txt`, gated by `physics_joint`, falsified in
+`tests/test_articulated.py`: a rigid rod moves both bodies together, a bob pins
+to a static anchor, a chain propagates, and a 3-rod triangle stays rigid (its
+Jacobian *is* the rigidity matrix). Scope: velocity-level holonomic equality
+constraints, frictionless, no drift stabilization (Baumgarte); rotational inertia
+and a second placement are later rungs.
 
 ## Rung 3 — the exact n-contact LCP (simultaneous contacts)
 

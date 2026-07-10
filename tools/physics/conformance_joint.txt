@@ -1,0 +1,10 @@
+# urdr-physics rung 4 — articulated / joint constraint solved-system conformance vectors.
+# scene  SHA-256(canonical_serialize(new_vels, lambda))
+# Exact equality-constraint (bilateral joint) resolution over Q (no float, no
+# tolerance). Every conforming placement must reproduce these exactly.
+# Implementation-agreement on a stated corpus — NOT continuum accuracy, friction,
+# rotational inertia, or drift stabilization.
+chain3 e49e95b3c5781b24a0ae2a9179ed8af45aa2f0045658efdad054f162127a1cfa
+pendulum 1ac9906feaa5d355a879b61f4ef4da104dbf87ba506b9fd5f7ac0b33b351f705
+rod dab70425d36d9873454d2313c8f608482e19451cc42488d43bbdfb42efc2fb32
+triangle bec8841f9159d52ad0758a23a5bf09270d0bd9e3ba154ce1f7922e8e4e6d4447

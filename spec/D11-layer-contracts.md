@@ -201,8 +201,13 @@ Every layer contract below is stated in six fields:
   + exact rational elimination, deterministic pivot — no iteration, no tolerance, no heuristic
   ordering), *certifying* the complementarity or **refusing** a degenerate/inconsistent system; a
   resting `n`-stack propagates exactly to `λ=[n,…,1]` (`physics_lcp` gate stage,
-  `test_contact_lcp.py`). `DECLARED` for **friction**, **rotational inertia + arbitrary convex shapes**,
-  **continuous sphere-sphere CCD**
+  `test_contact_lcp.py`); and (e) **rung-4 exact articulated / joint constraints**
+  (`tools/physics/articulated.py`): bilateral (equality) joints — rods, pins, skeletons — as a plain
+  exact linear solve `A λ = −Jv` with `A = J M⁻¹ Jᵀ`, certifying `J v_new = 0` (the joint holds) and
+  REFUSING a singular `A` (**rank(A) is the uniqueness certificate** — the Implicit-Function-Theorem
+  point made literal); the distance-constraint Jacobian row *is* the rigidity-matrix row, bridging
+  static rigidity and dynamics (`physics_joint` gate stage, `test_articulated.py`). `DECLARED` for
+  **friction**, **rotational inertia + arbitrary convex shapes**, **continuous sphere-sphere CCD**
   (its time-of-impact solves a quadratic → generally IRRATIONAL, a real exactness boundary; discrete
   overlap detection + exact response is used instead), and a **second placement** (Rust
   `urdr-physics-rs` reproducing the state digests — the D8 move for dynamics). The step function
@@ -338,6 +343,7 @@ reproduced, this contract stays `DECLARED`.
 | urdr-physics     | rung 1: exact 1D step + LCP kernel + conservation + CCD | `MEASURED` (reference) | `physics` gate stage, `test_physics.py`, `tools/physics/` |
 | urdr-physics     | rung 2: exact 2D & 3D sphere dynamics (vector momentum/energy, plane CCD) | `MEASURED` (reference) | `physics_nd` gate stage, `test_physics_nd.py`, `vecq.py`+`dynamics_nd.py` |
 | urdr-physics     | rung 3: exact n-contact frictionless LCP (simultaneous contacts, resting stacks) | `MEASURED` (reference) | `physics_lcp` gate stage, `test_contact_lcp.py`, `contact_lcp.py` |
+| urdr-physics     | rung 4: exact articulated / joint constraints (rods, pins, skeletons) | `MEASURED` (reference) | `physics_joint` gate stage, `test_articulated.py`, `articulated.py` |
 | urdr-physics     | friction + rotation/shapes + sphere-sphere CCD + cross-placement | `DECLARED` | targets (§3.5) — the next rungs |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
