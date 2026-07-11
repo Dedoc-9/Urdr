@@ -965,6 +965,109 @@ const CMARANGONI: [(&str, &str); 3] = [
     ("marangoni_sharpen", "2fee5cb62d9deab9f1ca6b8919369d0be46499a3040196aa6769637208822bb5"),
 ];
 
+// ------------------------------- two-way field<->body loop (URDRLOOP, exact Q)
+// field force -> predicted velocity -> exact LCP contact resolve -> reaction
+// reservoir. Byte-for-byte identical to tools/physics/{field_body_loop,loop_scenes}.py.
+fn fgrad(grid: &[i64], w: usize, h: usize, i: usize, axis: usize) -> i64 {
+    let x = i % w;
+    let y = i / w;
+    let (l, r) = if axis == 0 {
+        (grid[y * w + if x > 0 { x - 1 } else { 0 }],
+         grid[y * w + if x + 1 < w { x + 1 } else { w - 1 }])
+    } else {
+        (grid[(if y > 0 { y - 1 } else { 0 }) * w + x],
+         grid[(if y + 1 < h { y + 1 } else { h - 1 }) * w + x])
+    };
+    r - l
+}
+fn field_impulse(grid: &[i64], w: usize, h: usize, i: usize, mu: (i128, i128), dt: (i128, i128)) -> Vq {
+    let (mn, md) = mu;
+    let (dn, dd) = dt;
+    let gx = fgrad(grid, w, h, i, 0) as i128;
+    let gy = fgrad(grid, w, h, i, 1) as i128;
+    let denom = md * (FLD_ONE as i128) * dd;
+    Vq { c: vec![Q::new(gx * mn * dn, denom), Q::new(gy * mn * dn, denom)] }
+}
+fn apply_impulses(vels: &[Vq], inv: &[Q], contacts: &[Contact], lam: &[Q]) -> Vec<Vq> {
+    let mut out: Vec<Vq> = vels.to_vec();
+    for (l, cl) in contacts.iter().enumerate() {
+        if lam[l].is_zero() {
+            continue;
+        }
+        out[cl.b] = out[cl.b].add(&cl.d.scale(lam[l].mul(inv[cl.b])));
+        out[cl.a] = out[cl.a].sub(&cl.d.scale(lam[l].mul(inv[cl.a])));
+    }
+    out
+}
+fn coupled_step(grid: &[i64], w: usize, h: usize, vels: &[Vq], inv: &[Q],
+                contacts: &[Contact], cells: &[Option<usize>],
+                mu: (i128, i128), dt: (i128, i128), reservoir: &Vq) -> (Vec<Vq>, Vec<Q>, Vq) {
+    let mut vpred: Vec<Vq> = vels.to_vec();
+    let mut totj = Vq { c: vec![Q::zi(0), Q::zi(0)] };
+    for (bi, ci) in cells.iter().enumerate() {
+        if let Some(cell) = ci {
+            if inv[bi].is_zero() {
+                continue;
+            }
+            let j = field_impulse(grid, w, h, *cell, mu, dt);
+            vpred[bi] = vpred[bi].add(&j.scale(inv[bi]));
+            totj = totj.add(&j);
+        }
+    }
+    let (a, b) = delassus(&vpred, inv, contacts);
+    let (lam, _w) = solve_lcp(&a, &b);
+    let vnew = apply_impulses(&vpred, inv, contacts, &lam);
+    let newr = reservoir.sub(&totj);
+    (vnew, lam, newr)
+}
+fn loop_digest(vels: &[Vq], lam: &[Q], reservoir: &Vq, magic: &[u8]) -> String {
+    let mut buf = magic.to_vec();
+    buf.push(vels.len() as u8);
+    for v in vels {
+        for q in &v.c {
+            put_q(&mut buf, *q);
+        }
+    }
+    buf.push(lam.len() as u8);
+    for q in lam {
+        put_q(&mut buf, *q);
+    }
+    for q in &reservoir.c {
+        put_q(&mut buf, *q);
+    }
+    hex(&sha256(&buf))
+}
+fn run_loop(name: &str, magic: &[u8]) -> String {
+    let ramp: Vec<i64> = vec![funit(1, 10), funit(2, 10), funit(4, 10), funit(7, 10), funit(10, 10)];
+    let (w, h) = (5usize, 1usize);
+    let z = || Vq { c: vec![Q::zi(0), Q::zi(0)] };
+    let nx = Vq { c: vec![Q::zi(1), Q::zi(0)] };
+    let (vels, inv, contacts, cells): (Vec<Vq>, Vec<Q>, Vec<Contact>, Vec<Option<usize>>) =
+        match name {
+            "loop_push2" => (
+                vec![z(), z()], vec![Q::zi(1), Q::zi(1)],
+                vec![Contact { a: 0, b: 1, d: nx.clone() }], vec![Some(2), None]),
+            "loop_wall" => (
+                vec![z(), z()], vec![Q::zi(1), Q::zi(0)],
+                vec![Contact { a: 0, b: 1, d: nx.clone() }], vec![Some(2), None]),
+            "loop_chain3" => (
+                vec![z(), z(), z()], vec![Q::zi(1), Q::zi(1), Q::zi(1)],
+                vec![Contact { a: 0, b: 1, d: nx.clone() },
+                     Contact { a: 1, b: 2, d: nx.clone() }],
+                vec![Some(2), None, None]),
+            _ => unreachable!(),
+        };
+    let r0 = z();
+    let (vnew, lam, newr) = coupled_step(&ramp, w, h, &vels, &inv, &contacts, &cells,
+                                         (1, 4), (1, 2), &r0);
+    loop_digest(&vnew, &lam, &newr, magic)
+}
+const CLOOP: [(&str, &str); 3] = [
+    ("loop_chain3", "551ec61db896130682992cfdf659d9b398cade3bb3c52a63c29b8244b20cf586"),
+    ("loop_push2", "4c2db431e1fbd21de502d70354d69cffb8239d96bfd437967d86bd2e0d15e89e"),
+    ("loop_wall", "b705ab4a945a7d2c18eecdb641a701c19400cfad1892406d48f1104e32686063"),
+];
+
 fn judge(defect: bool, label: &str, got: String, want: &str) -> bool {
     if defect {
         if got != want {
@@ -1017,6 +1120,10 @@ fn main() {
     }
     for (n, w) in CMARANGONI.iter() {
         all_ok &= judge(defect, &format!("marangoni/{}", n), run_marangoni(n, m_fl), w);
+    }
+    let m_lp: &[u8] = if defect { b"URDRLOOX" } else { b"URDRLOOP" };
+    for (n, w) in CLOOP.iter() {
+        all_ok &= judge(defect, &format!("loop/{}", n), run_loop(n, m_lp), w);
     }
     if all_ok {
         if defect {

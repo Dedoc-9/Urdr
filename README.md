@@ -15,11 +15,14 @@ Successor-in-discipline to the *Dentatus → Ursprung* line (executable epistemi
 determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.md).
 
 The language is the kernel of a larger system: a **deterministic, certified execution
-pipeline** — exact math, physics (dynamics, n-contact LCP, articulated joints), and a
-fixed-point renderer — in which every admitted output is either bit-identical across
-independent implementations or explicitly refused. Three single-file Rust placements
-reproduce the reference's state, frame, and physics digests bit-for-bit on fixed corpora.
-For the systems-level overview, read the **[OSDI-style paper →
+pipeline** — an exact-integer math spine (Bareiss rank/determinant, atlas injectivity +
+reconstruction), physics (dynamics, n-contact LCP, articulated joints), a fixed-point
+renderer (2D fill → 3D depth → exact perspective), and a reactive continuum (advection-
+diffusion, Marangoni surface tension, a two-way field↔body coupling loop) — in which every
+admitted output is either bit-identical across independent implementations or explicitly
+refused. **Four** single-file Rust placements (core / render / physics / math) reproduce the
+reference's kernel, frame, physics, field, and exact-math digests bit-for-bit on fixed
+corpora, behind a 261-test gate. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
@@ -258,6 +261,10 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | M5 | **Deterministic numeric substrate** (D9, Q32.32): `add/sub/neg/from_int/mul/div/floor_int/sqrt`, division-free, refusal law; `sqrt` on a documented domain | `IMPLEMENTED / MEASURED (both placements)` |
 | M6 | **Atlas / observer theorem** (D10): injectivity as a computed, data-parameterized predicate; axis-selection + general integer-linear charts; observation bound to a witnessed transition path | `IMPLEMENTED / MEASURED (both placements)` |
 | M7 | **Shared-world runtime reference** (`tools/world_host/`, host track): static views → transition history → deterministic scheduler; a Python executable spec, Steps 1–3 | `IMPLEMENTED (host track) / integration-test green` |
+| P1 | **Exact physics engine** (`tools/physics/`): 1D/2D/3D dynamics, n-contact frictionless **LCP** (complementarity witness), articulated **joints**, CCD — each step carries a certificate | `IMPLEMENTED / MEASURED (cross-placed, 18 digests)` |
+| P2 | **Deterministic renderer** (`tools/render/`): rung 1 2D fill (top-left rule) → rung 2 exact **3D depth** (z-buffer occlusion, near/far/screen clip) → rung 3 exact **perspective** (floor-div pixel grid, vanishing point) | `IMPLEMENTED / MEASURED (cross-placed, 10 frames)` |
+| P3 | **urdr-math cross-placement** (`tools/intla/urdr_math_rs/`): exact rank/determinant/floor_divmod + the **general-*n* injectivity certificate** and **exact reconstruction** solver, bit-identical in Rust | `IMPLEMENTED / MEASURED (cross-placed, 20 digests)` |
+| P4 | **Reactive continuum** (`tools/physics/`): `urdr-field` advection-diffusion (mass exact) → **Marangoni** surface-tension transport → **two-way field↔body loop** (force → LCP → reaction reservoir; total momentum exact) | field/Marangoni `MEASURED (cross-placed)`; coupling loop `MEASURED (reference)`, Rust written |
 
 ## Honest boundaries (§9, in our own words)
 
@@ -284,10 +291,10 @@ Each main-tree folder carries its own README with the detail.
 | Path | What lives there | README |
 |---|---|---|
 | [`urdr/`](urdr/) | The language: lexer, parser, checker, evaluator, canon, store, capabilities, modules, compiler — stdlib-only, no circular imports | [`urdr/README.md`](urdr/README.md) |
-| [`spec/`](spec/) | Normative specs D1–D10 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone), the D5 graded ledger, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
+| [`spec/`](spec/) | Normative specs D1–D12 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone, **layer contracts D11**, **versions/freeze D12**), the D5 graded ledger, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
 | [`examples/`](examples/) | The corpus the gate runs: accepted `.urdr` fixtures + golden `.digest`, `rejected/` must-die programs + `MANIFEST.txt`, `must_fail/` the tamper self-test, `vendor/` import-by-digest modules | [`examples/README.md`](examples/README.md) |
 | [`tests/`](tests/) | Unit falsifiers (pytest / unittest), one per subsystem — each designed to be able to go red | [`tests/README.md`](tests/README.md) |
-| [`tools/`](tools/) | Separate tools: `fixpoint_proto/` (proven numeric prototypes), `foreign_placement/` (the differential-oracle harness), `urdr_core_rs/` (the independent Rust kernel), `world_host/` (the runtime reference), `voi_gate/` (a float decision gate), `glyph_review.py` | [`tools/README.md`](tools/README.md) |
+| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/`), `physics/` (dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `world_host/` (runtime reference), plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
 | [`docs/`](docs/) | Design briefs and session transcripts (narrative, not normative) | [`docs/README.md`](docs/README.md) |
 | `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
 | `verify.py` | The gate: unit falsifiers + examples (×2) + oracle + modules + rejections + tamper self-test | — |
@@ -295,40 +302,52 @@ Each main-tree folder carries its own README with the detail.
 
 ## Use cases
 
-Urðr is a research language and a worked example of a discipline; these are the shapes it fits.
+Urðr is a research language and a worked example of a discipline, now carrying a full deterministic
+execution pipeline; these are the shapes it fits.
 
 - **Honest capability / claim tracking.** The epistemic type system (`𒀭⟨maturity, evidence⟩` + the
   no-inflation ladder + the ᛞ verify mint) is a reusable pattern for any system where *a claim must
   not outrun its evidence* — audit ledgers, provenance chains, grant/report pipelines.
-- **Deterministic, cross-platform numeric kernels.** The Q32.32 substrate (D9) is a fixed-point core
-  that reproduces bit-for-bit on every host and placement — the property physics, multiplayer
-  simulation, and replay/debug need and that IEEE floats cannot promise across CPUs/GPUs.
-- **Verification-first engine architecture.** The atlas/observer theorem + `world_host` demonstrate a
-  design where *many renderers share one authoritative, cross-checked state*: multiplayer consensus,
-  scientific visualization, spectator/AI views, deterministic replay — the kernel owns authority, the
-  renderer owns appearance, and a laundered or forked view is refused, not repaired.
+- **Deterministic, cross-platform simulation.** The Q32.32 substrate (D9) plus the exact-rational
+  physics (dynamics, n-contact LCP, articulated joints) reproduce bit-for-bit on every host and
+  placement — the property deterministic-lockstep and *rollback* netcode need and that IEEE floats
+  cannot promise across CPUs/GPUs. Four independent Rust placements (core / render / physics / math)
+  agree on a stated corpus, so the reproducibility is itself checkable.
+- **Reactive environments that stay reproducible.** `urdr-field` (advection-diffusion) + Marangoni
+  surface-tension transport + the two-way field↔body coupling loop are a deterministic
+  reactive-fluid substrate: a scalar environment flows up its own tension gradient, pushes bodies,
+  resolves their contacts through the exact LCP, and gets stirred back — mass exact, total momentum
+  exact, every unit accounted. A sandbox that reacts to perturbations *identically on every machine*.
+- **Verification-first engine architecture.** The atlas/observer theorem (now with a **cross-placed**
+  general-*n* injectivity certificate and exact reconstruction) + `world_host` demonstrate a design
+  where *many renderers share one authoritative, cross-checked state* — multiplayer consensus,
+  scientific visualization, spectator/AI views, deterministic replay: the kernel owns authority, the
+  renderer (2D fill → 3D depth → exact perspective) owns appearance, and a laundered or forked view is
+  refused, not repaired.
 - **A template for reproducible research claims.** Red-first, prototype-first, two-placement,
   honestly-graded — every result here is a small case study in making a verifiable claim about code.
 - **Teaching.** A small language whose entire point is that over-claiming does not typecheck.
 
 ## Further development
 
-Graded honestly — what is *not* yet done, and what kind of work each is.
+Graded honestly — what is *not* yet done, and what kind of work each is. Several items from earlier
+revisions are now **MEASURED** and have moved into the pipeline above: the general-*n* injectivity
+certificate and reconstruction/inversion (both **cross-placed** via `urdr-math-rs`), exact perspective
+projection (renderer rung 3, cross-placed), and Marangoni surface-tension transport with the two-way
+field↔body coupling loop (Continuum, cross-placed / reference). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
 
-- **The one remaining kernel proof:** exact integer `divmod` → fraction-free (Bareiss) rank →
-  general-*n* injectivity certificate, lifting the linear-chart theorem past the square/`det` case
-  (noted in D5 and D10 §5). This is a genuine proof, gate-able here.
-- **Reconstruction / inversion** (solving `Mx = image`): needs rational arithmetic on the fix
-  substrate now that `div` exists — a substrate-heavy but honest extension.
-- **Perspective / curved charts** (`(x,y,z,w) ↦ (x/z, y/z)`): a chart swap, now possible since `div`
-  is both-placements — a renderer feature, adds no new invariant.
-- **Continuum-physics transport modules** (e.g. Marangoni surface flow) as deterministic field updates
-  `state_{t+1} = Verify(state_t, F(state_t, Δt))` that must *preserve the witness relation* — an
-  application of the measured boundary, never a new foundation.
-- **World-host Steps 4–5:** a Rust port of the runtime against the same Python fixtures, then the
-  large systems surfaces (networking, persistence, replication, renderer/GPU, spatial streaming).
-- **More independent placements** of the kernel (other languages) to widen the conformance frontier
-  beyond one Rust kernel on one host.
+- **A third-language placement** of the kernel (or of `urdr-math`) — moving from two-runtime to
+  three-runtime agreement, widening the conformance frontier beyond Rust-on-Windows. The single
+  highest-leverage rigor item left.
+- **Cross-place the field↔body coupling loop** — the 3 `URDRLOOP` scenes are written into
+  `urdr-physics-rs` and mirror-verified; a host `ADMITTED` flips the loop to cross-placed.
+- **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
+- **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles —
+  the renderer rung beyond wireframe.
+- **World-host Rust port (Steps 4–5)** + the large systems surfaces (networking, persistence,
+  replication, spatial streaming) — graded by integration tests, not the URDR gate.
+- **Bignum substrate** — *only if* a real consumer hits the i64 ceiling (iterated exact-ℚ fields
+  overflow, refusing ~step 24–31); deliberately not built speculatively.
 - **Metatheory** (progress/preservation, no-inflation soundness, lens laws) is `CONJECTURED`; the
   falsifier suite is what is `TESTED` (D5 §metatheory).
 

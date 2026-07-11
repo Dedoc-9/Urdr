@@ -353,7 +353,8 @@ reproduced, this contract stays `DECLARED`.
 | urdr-field       | Marangoni surface-tension transport (nonlinear self-advection ∝ κ·∂σ, mass-exact, monotone under CFL) | `MEASURED` (reference) | `marangoni` gate stage, `test_marangoni.py`, `marangoni.py` |
 | urdr-field       | 2nd-placement Marangoni digests (Rust) | `MEASURED` (Windows, rustc edition-2021) | `urdr_physics_rs` — ADMITTED 24/24 (18 physics + 3 FIELDFP + 3 Marangoni) twice, defect caught |
 | urdr-field       | field→body momentum coupling (surface-tension force into the dynamics) | `MEASURED` (reference) | `field_coupling` gate stage, `test_field_coupling.py`, `field_coupling.py` |
-| urdr-field       | two-way field↔body loop (force→LCP contact resolve→reaction reservoir; total momentum exact + body-advects-field) | `MEASURED` (reference) | `field_body_loop` gate stage, `test_field_body_loop.py`, `field_body_loop.py` |
+| urdr-field       | two-way field↔body loop (force→LCP contact resolve→reaction reservoir; total momentum exact + body-advects-field) | `MEASURED` (reference) | `field_body_loop` gate stage, `test_field_body_loop.py`, `field_body_loop.py`; 3 URDRLOOP frame goldens (`conformance_loop.txt`) |
+| urdr-field       | 2nd-placement loop digests (Rust) | `SPECULATIVE` (written in `urdr_physics_rs`, mirror-verified; pending host `ADMITTED`) | `conformance_loop.txt` (3 scenes: push2 / wall / chain3) |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: 2D viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
 | urdr-render      | rung 2: exact 3D depth (z-buffer occlusion + near/far/screen clip) | `MEASURED` (reference) | `render3d` gate stage, `test_raster3d.py`, `raster3d.py` |

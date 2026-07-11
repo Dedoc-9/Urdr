@@ -968,6 +968,7 @@ class Gate:
             sys.path.insert(0, pdir)
         try:
             import field_body_loop as L
+            import loop_scenes
             from field import FixedPoint
             from rational import Q
             from vecq import Vec
@@ -975,6 +976,26 @@ class Gate:
         except Exception as exc:  # pragma: no cover - import guard
             self.record("field-body-loop", False, f"import failed: {exc}")
             return
+        # coupled-state frame digests (multi-body/multi-contact) vs pinned goldens
+        goldens = {}
+        conf = os.path.join(pdir, "conformance_loop.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        nm, dg = ln.split()
+                        goldens[nm] = dg
+        for name in sorted(loop_scenes.SCENES):
+            d1 = loop_scenes.SCENES[name]()
+            d2 = loop_scenes.SCENES[name]()
+            if d1 != d2:
+                self.record(f"loop:{name}", False, "NONDETERMINISTIC")
+            elif goldens.get(name) != d1:
+                self.record(f"loop:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+            else:
+                self.record(f"loop:{name}", True, d1[:16] + "…")
         grid = [FixedPoint.unit(1, 10), FixedPoint.unit(2, 10), FixedPoint.unit(4, 10),
                 FixedPoint.unit(7, 10), FixedPoint.unit(10, 10)]
         w, h = 5, 1

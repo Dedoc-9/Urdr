@@ -99,6 +99,19 @@ class BodyToField(unittest.TestCase):
         self.assertEqual(sum(ngrid), m0)                  # field mass exact under body drift
 
 
+class FrameGoldens(unittest.TestCase):
+    def test_loop_scenes_match_pinned_digests(self):
+        import loop_scenes
+        golden = {}
+        with open(os.path.join(_PDIR, "conformance_loop.txt"), "r", encoding="utf-8") as fh:
+            for ln in fh.read().splitlines():
+                ln = ln.strip()
+                if ln and not ln.startswith("#"):
+                    name, dig = ln.split()
+                    golden[name] = dig
+        self.assertEqual(loop_scenes.digests(), golden)
+
+
 class Determinism(unittest.TestCase):
     def test_deterministic(self):
         grid, w, h = _ramp()

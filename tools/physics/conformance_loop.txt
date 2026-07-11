@@ -1,0 +1,10 @@
+# Two-way field<->body loop conformance. One coupled step (field force -> predicted
+# velocity -> exact LCP contact resolve -> reaction reservoir), exact rational; the
+# URDRLOOP digest serializes (new velocities, contact impulses lambda, reservoir).
+# An independent placement (urdr_physics_rs/) is ADMITTED iff it reproduces each digest
+# bit-for-bit; any mismatch = URDR-LOOP-DIVERGENCE. Digests are the Python reference
+# (tools/physics/loop_scenes.py). Regenerate: python3 loop_scenes.py
+# scene        digest
+loop_push2     4c2db431e1fbd21de502d70354d69cffb8239d96bfd437967d86bd2e0d15e89e
+loop_wall      b705ab4a945a7d2c18eecdb641a701c19400cfad1892406d48f1104e32686063
+loop_chain3    551ec61db896130682992cfdf659d9b398cade3bb3c52a63c29b8244b20cf586

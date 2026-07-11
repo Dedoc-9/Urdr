@@ -995,3 +995,17 @@ exact claim is the *ledger* `Σp_body + reservoir`, whose non-vacuity is that om
 No new glyph; `urdr-field` v0.1 frozen; consumes the frozen field + exact LCP; extends, never mutates. `the
 loop is closed: the field moves the body, the contacts hold, the body stirs the field, and the books balance
 to the last unit`.
+
+**Loop conformance corpus + Rust cross-placement — corpus MEASURED; Rust SPECULATIVE (pending host).** Three
+canonical coupled-state scenes (`tools/physics/loop_scenes.py`, `conformance_loop.txt`): `loop_push2` (two
+free bodies + contact), `loop_wall` (body held against a static wall), `loop_chain3` (three bodies, two
+contacts — the field pushes the first and the impulse propagates so all three move together at `1/48`,
+multi-contact). Each serializes the exact-`Q` coupled state (new velocities + contact impulses `λ` +
+reservoir) to a `URDRLOOP` digest; the gate stage records `loop:*` against the pins. `urdr_physics_rs/
+urdr_physics.rs` is extended with `field_impulse`/`coupled_step`/`apply_impulses`/`loop_digest` and the 3
+scenes, reproducing the goldens over the *already cross-placed* exact LCP (`solve_lcp`); the frictionless
+Delassus system is positive-definite so its solution `λ` is **unique** — independent of active-set search
+order — which is why the two placements must agree. `--defect` bumps the `URDRLOOP` magic so all 3 diverge.
+Grade: **corpus MEASURED** (gate-green now); **Rust SPECULATIVE** until a host recompiles `urdr_physics.exe`
+and prints `ADMITTED` with the 3 `loop/*` scenes twice + defect caught — then the two-way loop is
+**cross-placed** and the physics placement covers **27** digests (18 + 3 FIELDFP + 3 Marangoni + 3 loop).
