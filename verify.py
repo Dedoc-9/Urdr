@@ -899,6 +899,48 @@ class Gate:
                     "deficient atlas refused NOT_INJECTIVE (state not unique)"
                     if dref else "deficient atlas produced a state — unsound")
 
+    def math_conformance(self):
+        """urdr-math cross-placement corpus (D8): the exact-integer linear-algebra
+        spine — rank, determinant, floor_divmod — plus the atlas certificates built
+        on it (injectivity verdict + exact nullspace collision witness; exact
+        reconstruction state / typed refusal), each serialized to a digest an
+        independent Rust placement (`tools/intla/urdr_math_rs/`) must reproduce
+        bit-for-bit. Here the gate PINS the corpus: the live Python reference must
+        still hash to every frozen golden, and a deliberately wrong result must
+        diverge from its pin (non-vacuity — the pin can redden)."""
+        idir = os.path.join(ROOT, "tools", "intla")
+        if idir not in sys.path:
+            sys.path.insert(0, idir)
+        try:
+            import math_scenes as MS
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("math-conformance", False, f"import failed: {exc}")
+            return
+        path = os.path.join(idir, "conformance_math.txt")
+        golden = {}
+        with open(path, "r", encoding="utf-8") as fh:
+            for ln in fh.read().splitlines():
+                ln = ln.strip()
+                if not ln or ln.startswith("#"):
+                    continue
+                name, dig = ln.split()
+                golden[name] = dig
+        live = MS.scene_digests()
+        missing = [n for n in golden if n not in live]
+        mism = [n for n in golden if n in live and live[n] != golden[n]]
+        ok = not missing and not mism and len(golden) == len(live)
+        self.record("math-conformance", ok,
+                    f"{len(golden)} exact-math digests reproduce the frozen corpus "
+                    "(rank/det/floor_divmod + injectivity + reconstruction)"
+                    if ok else f"missing={missing} mismatched={mism}")
+        # non-vacuity: a wrong result must change the digest (the pin can redden)
+        good = MS._rank_digest("rank_identity3", [[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        bad = MS._rank_digest("rank_identity3", [[1, 0, 0], [0, 1, 0], [0, 0, 0]])   # rank 2
+        sv = good == golden.get("rank_identity3") and bad != good
+        self.record("math-conformance-selftest", sv,
+                    "a wrong rank diverges from the pinned digest (gate can redden)"
+                    if sv else "digest insensitive to a wrong result — vacuous")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -980,6 +1022,7 @@ def main() -> int:
     gate.modules()
     gate.atlas_injective()
     gate.atlas_reconstruct()
+    gate.math_conformance()
     gate.registry()
     gate.render()
     gate.render3d()

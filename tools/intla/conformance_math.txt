@@ -1,0 +1,30 @@
+# urdr-math cross-placement conformance corpus (D8 for the exact-integer linear-algebra spine).
+# An independent placement (urdr_math_rs/) is ADMITTED iff, run over each fixed fixture, it
+# reproduces the exact observable below: the SHA-256 digest of the canonically-serialized RESULT
+# (rank / determinant / floor_divmod / injectivity verdict+nullspace witness / reconstruction
+# state or typed refusal). Refusal is encoded IN the result (a status byte), so every row is a
+# digest match; any mismatch = URDR-MATH-DIVERGENCE. Digests are the Python reference
+# (tools/intla/math_scenes.py, canon->SHA-256); frozen here as the cross-language target.
+# Reproducing these lifts the general-n injectivity certificate and the exact reconstruction
+# solver from reference-proven to cross-placement MEASURED. Regenerate: python3 math_scenes.py
+# name              digest
+rank_identity3      3a1b9476ef2e8933f328703923d6574a8b65e4b464b3126392e4893cf0323ae0
+rank_singular3      5bab8d01d88def49255a764ea65cad66d4e44dbab64ea06996bab39f4c324cb3
+rank_dependent      1e3aeda721b9d8607248a13e5bfa47b12f9f61e8266ce11967824759929d236c
+rank_zero           196417e34f55b68cbb656e29f7a5b0c2dda28c7e25395a1552130bc13244a692
+rank_rect5x3        77f0f165e5a7b4c6e42cb665ccea9de4ebfe890b244527877375a70266ff6ea1
+rank_overflow       22bd828d96666d80fb6f6a782f05a7c8bc4029441b1d92d4d3402c025fe4ee49
+det_2x2             65a7293d24ff4dee28affe580b5f6580e8ca84aa21226e636e73c4bc8f9f43eb
+det_3x3             f2815d50d9a5305f18e23950b49d37fe11d9384a260e211258e8293f8b7a16de
+det_singular        7c45bcee06c83e5c2767db38efc7c0ceede480b063ad7aa5d7040817f742614a
+det_overflow        efe082ab2c5ff853538c48a34a7317b4653d2b9f249966a91c312f0fc976d79d
+fdiv_pos            3fa8b73c97bf2f6ccb7d6e7ab0096029517e55643905538e684fc5d1c8cdcaba
+fdiv_neg            0758b93bd3bfcdc6a5f69a7ffbbbd038f3b9d738a916fe5bafa1cbeac5cf1337
+fdiv_zero           eaf2e9cb596a9bf450282b32af17d565be5809b1b250094c25a3799fc87198de
+inj_full            fc422b644be34069641440598d1e992e3fe54e6787364d87995948f6df2ff908
+inj_deficient       3964c7e6187363b8072397b4b129650a42c14b028789781a89d4bcde744af9fe
+inj_singular3       bd6ffdea79d52517bf54754d24828b205cf070d24c4da7b2453734ff78c49e6c
+recon_integer       ba8026ea096391e1f4daf85e46e0febe360c57116b2f98e64e565fb38d82f543
+recon_half          4e6c6204e2fff0c4f2b968e40752e2b0f9618c5a3ac2a8430aa4571da449ad56
+recon_forged        61d8bb5a61de8b8688f088fd15620b66a80a5b383b39c03d74808c7cff3265d3
+recon_deficient     35c35b95b64058d967ef16f48123f031828f67c8b923943ca4a4c188818ededa

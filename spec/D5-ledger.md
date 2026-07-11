@@ -866,3 +866,24 @@ oracle-MEASURED frozen `rank`/`determinant`; i64 overflow inside `determinant` p
 Rust cross-placement of urdr-math (and hence this certificate) remains a separate DECLARED item. No new
 glyph; kernel frozen. `the atlas doesn't just tell states apart — it hands you the state, with a receipt, or
 refuses the forgery`.
+
+**urdr-math cross-placement — corpus MEASURED; Rust placement SPECULATIVE (pending host admission).** The
+lift that turns both atlas certificates above from reference-proven into *bit-for-bit-across-two-runtimes*.
+A new standalone conformance corpus, `tools/intla/conformance_math.txt` (20 scenes), serializes the RESULT
+of every exact-integer primitive and both certificates to a SHA-256 digest: `rank`, `determinant`,
+`floor_divmod` (each with its i64-overflow/`b=0` REFUSE encoded in the result as a status byte), the
+injectivity verdict **plus the exact nullspace collision witness**, and the reconstruction state / typed
+refusal (`OK`/`NOT_INJECTIVE`/`INCONSISTENT`). `tools/intla/math_scenes.py` is the reference generator;
+gate stage `math_conformance` PINS it (the live reference must still hash to every golden) with a non-vacuity
+self-test (a wrong rank diverges from its pin). An independent single-file `std`-only Rust placement,
+`tools/intla/urdr_math_rs/urdr_math.rs` (hand-rolled SHA-256, i64-bounded i128 arithmetic, fraction-free
+Bareiss rank/det, exact-rational RREF nullspace, Cramer reconstruction), reproduces the same 20 digests and
+refuses the same cases; `--defect` corrupts the digest MAGIC so every scene must diverge (red-first).
+**Grades, split honestly:** the *corpus + gate pin* is **MEASURED** (green in the gate now); the *Rust
+placement* is **SPECULATIVE** — written and de-risked by an independent Python re-implementation (reusing
+none of urdr-math/atlas) that reproduces all 20 goldens and diverges under the corrupt-magic defect, but
+**not yet compiled/run on a host**. On a named host printing `URDR-MATH-RS: ADMITTED (20/20)` twice + defect
+caught, this flips to **MEASURED (cross-placed)**, and with it the **general-n injectivity certificate** and
+**exact reconstruction solver** flip from reference to cross-placement MEASURED — the mathematical spine
+verified across two independent runtimes. No new glyph; kernel frozen; consumes only the frozen exact-math
+surface. `the last reference-only rungs of the math spine now have a second runtime waiting at the door`.
