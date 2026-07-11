@@ -17,7 +17,7 @@ behavior. `a frozen interface is the precondition for a second implementation`
 |----------------|--------|--------|-------------------------------------|----------|
 | `urdr-core`    | 1.0    | D8 v1–v12 (36 vectors) | reference ☉ + `urdr-core-rs` | D8 |
 | `urdr-math`    | 0.1    | oracle-tested          | reference (+ witness cross-placement) | D5 |
-| `urdr-render`  | 1.0    | 4 frame digests        | reference + `urdr-render-rs` | D11 §4 |
+| `urdr-render`  | 1.0    | 8 frame digests (4 2D + 4 3D-depth) | reference + `urdr-render-rs` (2D admitted; 3D pending recompile) | D11 §4 |
 | `urdr-physics` | **1.0 (FROZEN)** | 18 scene digests (4 corpora) | reference + `urdr-physics-rs` | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 

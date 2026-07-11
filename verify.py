@@ -367,6 +367,69 @@ class Gate:
                     "corner-sample defect diverged (gate can redden)" if diverged
                     else "defect agreed — the frame instrument is vacuous")
 
+    # -- 2e2. urdr-render rung 2: 3D depth (z-buffer occlusion + clipping) -----
+    def render3d(self):
+        """D11 §4 rung 2: exact 3D depth. Each scene's frame digest is reproduced
+        twice, matches its golden, and writes zero out-of-bounds pixels (screen
+        clip). Occlusion is ORDER-INDEPENDENT for distinct depths; equal-depth
+        ties are order-dependent (proving the depth values, not just coverage, are
+        load-bearing — non-vacuity). No float, no division."""
+        rdir = os.path.join(ROOT, "tools", "render")
+        if rdir not in sys.path:
+            sys.path.insert(0, rdir)
+        try:
+            import scenes3d
+            from raster3d import DepthFramebuffer
+            from raster import SUB
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("render3d-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(rdir, "conformance3d.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(scenes3d.SCENES):
+            fb1 = scenes3d.SCENES[name]()
+            d1 = fb1.digest()
+            d2 = scenes3d.SCENES[name]().digest()
+            if d1 != d2:
+                self.record(f"render3d:{name}", False, "NONDETERMINISTIC")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"render3d:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            if fb1.oob != 0:
+                self.record(f"render3d:{name}", False, f"{fb1.oob} out-of-bounds writes")
+                continue
+            self.record(f"render3d:{name}", True, d1[:16] + "…")
+
+        def _p(x, y):
+            return (x * SUB, y * SUB)
+        a = (_p(1, 1), _p(12, 1), _p(1, 12))
+        b = (_p(10, 10), _p(2, 10), _p(10, 2))
+
+        def render(order):
+            fb = DepthFramebuffer(16, 16, 0, 100)
+            for (t, z, c) in order:
+                fb.draw_triangle_z(t[0], t[1], t[2], z, c)
+            return fb
+        oi = (render([(a, (1, 1, 1), 0xAA), (b, (5, 5, 5), 0xBB)]).digest()
+              == render([(b, (5, 5, 5), 0xBB), (a, (1, 1, 1), 0xAA)]).digest())
+        self.record("render3d-occlusion", oi,
+                    "z-buffer occlusion order-independent (distinct depths)"
+                    if oi else "occlusion is order-DEPENDENT — z-buffer broken")
+        ndv = (render([(a, (3, 3, 3), 0xAA), (b, (3, 3, 3), 0xBB)]).digest()
+               != render([(b, (3, 3, 3), 0xBB), (a, (3, 3, 3), 0xAA)]).digest())
+        self.record("render3d-selftest", ndv,
+                    "equal-depth ties order-dependent (depth is load-bearing; gate can redden)"
+                    if ndv else "depth not load-bearing — instrument vacuous")
+
     # -- 2f. urdr-physics rung 1: deterministic step + witnessed conservation --
     def physics(self):
         """urdr-physics rung 1 (D11 §3.5): the step function is a deterministic
@@ -757,6 +820,7 @@ def main() -> int:
     gate.modules()
     gate.registry()
     gate.render()
+    gate.render3d()
     gate.physics()
     gate.physics_nd()
     gate.physics_lcp()

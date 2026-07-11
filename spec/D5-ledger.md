@@ -757,3 +757,26 @@ a reproducibility package (App. C). The root README and `docs/README.md` now poi
 (layers) and `spec/D12` (versions/freeze) remain the normative contracts. No code, no gate change, no new
 glyph. `the novelty is the combination — contracts, certification boundaries, and reproducible
 cross-implementation evaluation — not the manifold as new math` · `claim exactly what the corpus shows`.
+
+**Renderer rung 2 — exact 3D depth (z-buffer occlusion + clipping) — MEASURED (reference); Rust
+cross-placement SPECULATIVE until recompile.** The renderer moves from flat 2D coverage to true 3D depth
+— objects correctly occlude what is behind them — while staying EXACT and DETERMINISTIC with **no float
+and no division**. `tools/render/raster3d.py` (`DepthFramebuffer`): per-vertex integer depth; per-pixel
+depth is the exact rational barycentric interpolation `(w0·z0+w1·z1+w2·z2)/(w0+w1+w2)` with the
+edge-function weights (sum = doubled area > 0); the **depth test is a cross-multiplication**
+`num·den' < num'·den` (denominators positive) — the z-buffer is exact, never a rounded float. Near/far
+clip keeps a fragment iff `znear·den ≤ num ≤ zfar·den`; screen clip never writes out of bounds (an `oob`
+tally the gate asserts is 0). The load-bearing property is that **occlusion is ORDER-INDEPENDENT for
+distinct depths** (draw A,B ≡ draw B,A — the nearest fragment wins regardless of submission order), with a
+sharp non-vacuity: **equal-depth ties ARE order-dependent**, proving the depth values (not just coverage)
+decide (`render3d-selftest`). Four scenes (`occlusion, gradient, nearfar, screenclip`) pinned in
+`conformance3d.txt` reusing the rung-1 `URDRFB1` color-frame law (a 3D frame is still just an image);
+`render3d` gate stage + `tests/test_raster3d.py`. The Rust placement `urdr_render_rs` was extended with a
+`DepthFb` + the four 3D scenes (a `C3D` corpus); its **port logic is cross-checked** (mirrored in Python:
+all four goldens reproduced, zero oob, defect-magic diverges on all) but the *convergence* grade is
+SPECULATIVE until the host recompiles — then `URDR-RENDER-RS: ADMITTED` on 8 frames (4 2D + 4 3D) flips it
+to MEASURED. **Scope:** orthographic screen-space depth; perspective-correct interpolation, blending, and
+geometric Sutherland-Hodgman re-triangulation (with w-clip) arrive with perspective projection, a later
+rung. No new glyph; kernel frozen; render rung-1 2D corpus unchanged (additive). `the z-buffer test is a
+cross-multiplication, not a division — depth stays exact` · `nearest wins regardless of draw order; the
+frame is a function of the SET of triangles`.

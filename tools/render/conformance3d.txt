@@ -1,0 +1,9 @@
+# urdr-render rung 2 (3D depth) — frame-digest conformance vectors.
+# name  SHA-256(canonical_serialize(color Frame))  [same URDRFB1 image law as rung 1]
+# Exact z-buffer occlusion + near/far/screen clip, deterministic integer/rational,
+# no float, no division. Every conforming placement must reproduce these exactly —
+# implementation-agreement on a stated corpus, NOT GPU determinism or all scenes.
+gradient e93cae3bd5a6ae8477f8402669f5f281fd6c450d1df738678e44859aad67cff6
+nearfar 80019028010d96f40ba88ad3114c7a27fa1b6e944c8695b3e063d0ef5acb0c2c
+occlusion 2e5fc2973905514fdd6cda38f5cf4e74109a6eb002e143a703f28f40f8ab0985
+screenclip 860f4d338bd3869a882f3f0ee6bfd529f7b77a0a2c13392bb3c53f3dcc6ac90e

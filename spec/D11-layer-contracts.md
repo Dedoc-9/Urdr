@@ -347,9 +347,11 @@ reproduced, this contract stays `DECLARED`.
 | urdr-physics     | 2nd-placement physics digests (Rust, all 4 corpora) | `MEASURED` (Windows, rustc edition-2021) | `urdr_physics_rs/urdr_physics.rs` — ADMITTED 18/18 twice, defect caught 18/18 |
 | urdr-physics     | friction + rotation/shapes + sphere-sphere CCD | `DECLARED` | targets (§3.5) — the next rungs |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
-| urdr-render      | rung 1: viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
-| urdr-render      | rung 2: 2nd-placement frame digests (Rust) | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs/urdr_render.rs` — ADMITTED 4/4 twice, defect caught 4/4 |
-| urdr-render      | full frame law (depth/blend/perspective) | `DECLARED`   | target (§4) |
+| urdr-render      | rung 1: 2D viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
+| urdr-render      | rung 2: exact 3D depth (z-buffer occlusion + near/far/screen clip) | `MEASURED` (reference) | `render3d` gate stage, `test_raster3d.py`, `raster3d.py` |
+| urdr-render      | 2nd-placement frame digests (Rust): 2D | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs` — ADMITTED 4/4 twice, defect caught |
+| urdr-render      | 2nd-placement frame digests (Rust): 3D depth | `SPECULATIVE` → `MEASURED` on recompile+paste | `urdr_render_rs` C3D (+4 scenes; port logic cross-checked vs goldens) |
+| urdr-render      | perspective-correct interp + blending + geometric clip | `DECLARED` | targets (§4) |
 | network (live)   | real socket at the runner tier          | `SPECULATIVE`| host capability; not gated |
 
 ## 7. Recommended order of work

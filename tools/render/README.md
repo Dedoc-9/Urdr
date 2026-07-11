@@ -1,9 +1,27 @@
-# tools/render — deterministic fixed-point rasterizer (urdr-render, rung 1)
+# tools/render — deterministic fixed-point rasterizer (urdr-render, rungs 1 & 2)
 
 The first **MEASURED** slice of the D11 §4 renderer contract: turn
 `State ⟶ Framebuffer` into `Digest(Frame) = SHA-256(canon(Frame))`, reproducible
 bit-for-bit by any conforming **integer** placement. No floating point anywhere;
-any i64 overflow is `RENDER-REFUSE`, never a saturate.
+any i64 overflow is `RENDER-REFUSE`, never a saturate. **Rung 1** (`raster.py`) is
+flat 2D coverage; **rung 2** (`raster3d.py`) adds exact **3D depth** — z-buffer
+occlusion + near/far/screen clipping.
+
+## Rung 2 — exact 3D depth (`raster3d.py`)
+
+True occlusion (objects hide what is behind them), still exact and deterministic
+with **no float and no division**. Per-vertex integer depth; per-pixel depth is
+the exact rational barycentric `(w0·z0+w1·z1+w2·z2)/(w0+w1+w2)` over the integer
+edge-function weights; the **depth test is a cross-multiplication**
+`num·den' < num'·den` (positive denominators), so the z-buffer stays exact.
+Near/far clip keeps `znear·den ≤ num ≤ zfar·den`; screen clip never writes out of
+bounds. Occlusion is **order-independent for distinct depths** (nearest wins) —
+the frame is a function of the *set* of triangles; equal-depth ties are
+order-dependent (the non-vacuity proving depth is load-bearing). Scenes
+(`scenes3d.py`) → `conformance3d.txt`; gated by `render3d`; falsified in
+`tests/test_raster3d.py`; cross-placed by `urdr_render_rs` (`C3D` corpus). The
+frame law is the same rung-1 `URDRFB1` color image. Scope: orthographic depth;
+perspective-correct interpolation, blending, and geometric clip are a later rung.
 
 ## What is proven (rung 1)
 

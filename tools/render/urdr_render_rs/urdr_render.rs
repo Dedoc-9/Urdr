@@ -342,6 +342,159 @@ fn build(name: &str, magic: &'static [u8]) -> Framebuffer {
     }
 }
 
+// ------------------------------------------------------------- 3D depth (rung 2)
+// z-buffer occlusion + near/far/screen clip. Exact: depth is an integer
+// barycentric num/den; the depth test is a cross-multiplication (i128, no
+// division); near/far and screen clip are exact comparisons. Frame law is the
+// same color-image URDRFB1 as rung 1.
+struct DepthFb {
+    w: i64,
+    h: i64,
+    channels: u8,
+    magic: &'static [u8],
+    buf: Vec<u8>,
+    znum: Vec<Option<i64>>,
+    zden: Vec<i64>,
+    znear: i64,
+    zfar: i64,
+    oob: i64,
+}
+impl DepthFb {
+    fn new(w: i64, h: i64, znear: i64, zfar: i64, magic: &'static [u8]) -> DepthFb {
+        DepthFb {
+            w, h, channels: 1, magic,
+            buf: vec![0u8; (w * h) as usize],
+            znum: vec![None; (w * h) as usize],
+            zden: vec![1i64; (w * h) as usize],
+            znear, zfar, oob: 0,
+        }
+    }
+    fn plot(&mut self, x: i64, y: i64, value: u8, num: i64, den: i64) {
+        if !(x >= 0 && x < self.w && y >= 0 && y < self.h) {
+            self.oob += 1;
+            return;
+        }
+        let i = (y * self.w + x) as usize;
+        let nearer = match self.znum[i] {
+            None => true,
+            Some(cn) => (num as i128 * self.zden[i] as i128) < (cn as i128 * den as i128),
+        };
+        if nearer {
+            self.buf[i] = value;
+            self.znum[i] = Some(num);
+            self.zden[i] = den;
+        }
+    }
+    fn draw_triangle_z(&mut self, v0: (i64, i64), v1: (i64, i64), v2: (i64, i64),
+                       z: (i64, i64, i64), value: u8) {
+        let (x0, y0) = v0;
+        let (mut x1, mut y1) = v1;
+        let (mut x2, mut y2) = v2;
+        let (z0, mut z1, mut z2) = z;
+        if edge(x0, y0, x1, y1, x2, y2) < 0 {
+            std::mem::swap(&mut x1, &mut x2);
+            std::mem::swap(&mut y1, &mut y2);
+            std::mem::swap(&mut z1, &mut z2);
+        }
+        let area = edge(x0, y0, x1, y1, x2, y2);
+        if area == 0 {
+            return;
+        }
+        let minx = 0.max(fdiv(x0.min(x1).min(x2), SUB));
+        let maxx = (self.w - 1).min(fdiv(x0.max(x1).max(x2), SUB));
+        let miny = 0.max(fdiv(y0.min(y1).min(y2), SUB));
+        let maxy = (self.h - 1).min(fdiv(y0.max(y1).max(y2), SUB));
+        let mut py = miny;
+        while py <= maxy {
+            let sy = py * SUB + HALF;
+            let mut px = minx;
+            while px <= maxx {
+                let sx = px * SUB + HALF;
+                let ea = edge(x0, y0, x1, y1, sx, sy);
+                let eb = edge(x1, y1, x2, y2, sx, sy);
+                let ec = edge(x2, y2, x0, y0, sx, sy);
+                let mut inside = true;
+                for &(e, (ax, ay, bx, by)) in &[
+                    (ea, (x0, y0, x1, y1)),
+                    (eb, (x1, y1, x2, y2)),
+                    (ec, (x2, y2, x0, y0)),
+                ] {
+                    if e > 0 {
+                        continue;
+                    }
+                    if e == 0 && top_left(bx - ax, by - ay) {
+                        continue;
+                    }
+                    inside = false;
+                    break;
+                }
+                if inside {
+                    let num = eb * z0 + ec * z1 + ea * z2;
+                    let den = area;
+                    if self.znear * den <= num && num <= self.zfar * den {
+                        self.plot(px, py, value, num, den);
+                    }
+                }
+                px += 1;
+            }
+            py += 1;
+        }
+    }
+    fn digest(&self) -> String {
+        let mut out = Vec::new();
+        out.extend_from_slice(self.magic);
+        out.extend_from_slice(&(self.w as u32).to_be_bytes());
+        out.extend_from_slice(&(self.h as u32).to_be_bytes());
+        out.push(self.channels);
+        out.extend_from_slice(&self.buf);
+        hex(&sha256(&out))
+    }
+}
+
+fn p3(x: i64, y: i64) -> (i64, i64) {
+    (x * SUB, y * SUB)
+}
+fn s3_occlusion(m: &'static [u8]) -> DepthFb {
+    let mut fb = DepthFb::new(16, 16, 0, 100, m);
+    fb.draw_triangle_z(p3(1, 1), p3(12, 1), p3(1, 12), (1, 1, 1), 0xAA);
+    fb.draw_triangle_z(p3(10, 10), p3(2, 10), p3(10, 2), (5, 5, 5), 0xBB);
+    fb
+}
+fn s3_gradient(m: &'static [u8]) -> DepthFb {
+    let mut fb = DepthFb::new(16, 16, 0, 100, m);
+    fb.draw_triangle_z(p3(1, 1), p3(14, 1), p3(1, 14), (1, 9, 9), 0x11);
+    fb.draw_triangle_z(p3(1, 1), p3(14, 1), p3(1, 14), (5, 5, 5), 0x22);
+    fb
+}
+fn s3_nearfar(m: &'static [u8]) -> DepthFb {
+    let mut fb = DepthFb::new(16, 16, 0, 4, m);
+    fb.draw_triangle_z(p3(1, 1), p3(12, 1), p3(1, 12), (1, 1, 1), 0xAA);
+    fb.draw_triangle_z(p3(10, 10), p3(2, 10), p3(10, 2), (5, 5, 5), 0xBB);
+    fb
+}
+fn s3_screenclip(m: &'static [u8]) -> DepthFb {
+    let mut fb = DepthFb::new(16, 16, 0, 100, m);
+    fb.draw_triangle_z((-5 * SUB, -5 * SUB), (40 * SUB, 2 * SUB), (2 * SUB, 40 * SUB),
+                       (2, 2, 2), 0xCC);
+    fb
+}
+fn build3d(name: &str, m: &'static [u8]) -> DepthFb {
+    match name {
+        "occlusion" => s3_occlusion(m),
+        "gradient" => s3_gradient(m),
+        "nearfar" => s3_nearfar(m),
+        "screenclip" => s3_screenclip(m),
+        _ => unreachable!(),
+    }
+}
+// (name, expected frame digest) — from tools/render/conformance3d.txt.
+const C3D: [(&str, &str); 4] = [
+    ("gradient", "e93cae3bd5a6ae8477f8402669f5f281fd6c450d1df738678e44859aad67cff6"),
+    ("nearfar", "80019028010d96f40ba88ad3114c7a27fa1b6e944c8695b3e063d0ef5acb0c2c"),
+    ("occlusion", "2e5fc2973905514fdd6cda38f5cf4e74109a6eb002e143a703f28f40f8ab0985"),
+    ("screenclip", "860f4d338bd3869a882f3f0ee6bfd529f7b77a0a2c13392bb3c53f3dcc6ac90e"),
+];
+
 fn main() {
     if !sha_selfcheck() {
         eprintln!("[FAIL] sha256-selftest: hand-rolled SHA-256 fails the FIPS vectors — noise below");
@@ -367,6 +520,23 @@ fn main() {
             println!("[PASS] accept:{:<14} digest {}…", name, &got[..12]);
         } else {
             println!("[FAIL] accept:{:<14} URDR-RENDER-DIVERGENCE: got {}… want {}…", name, &got[..12], &want[..12]);
+            all_ok = false;
+        }
+    }
+    // 3D depth corpus (rung 2) — same URDRFB1 image law, honest/defect magic shared.
+    for &(name, want) in C3D.iter() {
+        let got = build3d(name, magic).digest();
+        if defect {
+            if got != want {
+                println!("[PASS] defect:3d/{:<11} divergence caught ({}… ≠ {}…)", name, &got[..12], &want[..12]);
+            } else {
+                println!("[FAIL] defect:3d/{:<11} defective frame still matched — cannot redden", name);
+                all_ok = false;
+            }
+        } else if got == want {
+            println!("[PASS] accept:3d/{:<11} digest {}…", name, &got[..12]);
+        } else {
+            println!("[FAIL] accept:3d/{:<11} URDR-RENDER-DIVERGENCE: got {}… want {}…", name, &got[..12], &want[..12]);
             all_ok = false;
         }
     }
