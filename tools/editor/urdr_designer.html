@@ -731,7 +731,7 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
         <label class="chk"><input type="checkbox" id="oMom" ${rov.mom?'checked':''}> momentum vectors (m·v)</label>
         <label class="chk"><input type="checkbox" id="oCom" ${rov.com?'checked':''}> centre of mass + Σp</label>
         <label class="chk"><input type="checkbox" id="oCon" ${rov.con?'checked':''}> contacts + impulses</label>
-        ${replay.stack?`<label class="chk"><input type="checkbox" id="oLam" ${rov.lam?'checked':''}> LCP λ (contact forces)</label>`:''}
+        ${(replay.stack||replay.showlam)?`<label class="chk"><input type="checkbox" id="oLam" ${rov.lam?'checked':''}> LCP λ (contact forces)</label>`:''}
         <p class="note">Drawn from the engine's recorded state — velocity, mass, each collision's exact Δv${replay.stack?', and the certified LCP impulses λ':''} — read, never recomputed.</p>
         <h3>Exact-state witness</h3>
         <p class="note">frame ${rframe} → <span style="color:var(--acid)" id="rDig">${f.digest.slice(0,20)}…</span></p>
@@ -742,7 +742,7 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
           ? `<p class="note">Canonical <b>URDRJNT1</b> digest of the certified equality (joint) solve. J·v = 0 ${replay.certified?'✓':'✗'} — every constraint holds to the last bit, reproducible on every host.</p>
              <p class="note">${f.links?f.links.length:0} link(s); the momentum overlay shows the rigid velocity transmission. Iterated joint dynamics hit the ℚ i64 limit in ~2 steps, so this is a certified single solve.</p>`
           : replay.fp
-          ? `<p class="note">Canonical <b>URDRFPB1</b> digest — bounded <b>Q32.32</b> fixed-point (frozen round-to-nearest, ties away). Deterministic and reproducible on every host, and it time-steps <b>without overflow</b> — the scene exact-ℚ refused.</p>
+          ? `<p class="note">Canonical <b>fixed-point</b> state digest — bounded <b>Q32.32</b> (frozen round-to-nearest, ties away). Deterministic and reproducible on every host, and it time-steps <b>without overflow</b> — the scene exact-ℚ refused.</p>
              <p class="note">Not exact — the honest real-time path. ${replay.frames.length} frames; scrub to restore any fixed-point state by its digest.</p>`
           : `<p class="note">Canonical <b>URDRPN1</b> digest of the exact (X,V) state at this tick. Scrubbing restores that state — bit-identical on every conforming host. Chain: ${replay.frames.length} digests.</p>
              <p class="note">Σp = (${f.px}, ${f.py}) · 2·KE = ${f.e2} — momentum &amp; energy conserved (elastic).</p>`}`;

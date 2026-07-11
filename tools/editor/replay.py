@@ -40,7 +40,7 @@ from vecq import Vec                                     # noqa: E402
 from dynamics_nd import Ball, step, state_digest, momentum, two_kinetic  # noqa: E402
 from contact_lcp import Contact, delassus, solve_lcp, complementary, lcp_digest  # noqa: E402
 from articulated import distance_row, pin_rows, solve as jsolve, satisfied, joint_digest  # noqa: E402
-from field import FixedPoint as _FP, ONE as _FPONE, FieldError  # noqa: E402  frozen Q32.32 substrate
+from field import FixedPoint as _FP, ONE as _FPONE, FieldError, _rdiv as _rd  # noqa: E402  frozen Q32.32 substrate
 
 DT, REST = Q(1), Q(1)          # tick length; global restitution (elastic)
 
@@ -353,12 +353,20 @@ def stack_doc(N=3, W=360, H=320, R=26, GRAV=1, MASS=1):
 
 
 # ---- fixed-point time-stepping: BOUNDED, deterministic, no overflow ------------------
-def _fp_digest(cols):
-    out = bytearray(b"URDRFPB1")
+def _fp_digest(cols, magic=b"URDRFPB1"):
+    out = bytearray(magic)
     for arr in cols:
         for a in arr:
             out += _FP.ser(a)
     return hashlib.sha256(bytes(out)).hexdigest()
+
+
+def _fm(a, b):
+    return _FP._g(_rd(a * b, _FPONE))                     # fixed × fixed (rounds)
+
+
+def _fdiv(a, b):
+    return _FP._g(_rd(a * _FPONE, b))                     # fixed ÷ fixed (rounds)
 
 
 def fp_bounce_doc(N=4, steps=240, W=380, H=300):
@@ -405,6 +413,102 @@ def fp_bounce_doc(N=4, steps=240, W=380, H=300):
             "refused": refused, "frames": frames, "chain": [f["digest"] for f in frames]}
 
 
+def fp_stack_doc(N=3, steps=240, K=20, W=360, H=300):
+    """The exact contact LCP, PORTED to fixed-point: a vertical stack falls and SETTLES on
+    the ground via bounded sequential-impulse (PGS) contacts + ground-up position projection.
+    All normals are axis-aligned (no sqrt). Bounded, deterministic, no overflow — the animated
+    counterpart to `--stack`'s certified single-solve λ. Contacts carry their accumulated λ."""
+    R = 20
+    yg = H - 40
+    Rf, ygf, twoR = _FP.unit(R, 1), _FP.unit(yg, 1), _FP.unit(2 * R, 1)
+    GDT, SLEEP, cx = _FP.unit(4, 10), _FP.unit(5, 2), W / 2
+    py = [_FP.unit(50 + i * 44, 1) for i in range(N)]
+    vy = [0] * N
+    fl = lambda a: round(a / _FPONE, 2)
+    frames, refused = [], None
+    for t in range(steps + 1):
+        lf, lb = {}, {}
+        try:
+            for i in range(N):
+                vy[i] = _FP.add(vy[i], GDT)
+            for i in range(N):
+                py[i] = _FP.add(py[i], vy[i])
+            order = sorted(range(N), key=lambda i: -py[i])          # bottom (max y) first
+            for _ in range(K):                                      # PGS sweeps
+                for i in order:                                     # floor: effmass = invm(1)
+                    if _FP.add(py[i], Rf) > ygf and vy[i] > 0:
+                        acc = lf.get(i, 0); newl = acc + vy[i]; lf[i] = newl
+                        vy[i] = _FP.sub(vy[i], newl - acc)
+                for k in range(len(order) - 1):                     # ball-ball: effmass = 2
+                    lo, up = order[k], order[k + 1]
+                    if _FP.sub(py[lo], py[up]) < twoR and _FP.sub(vy[lo], vy[up]) < 0:
+                        acc = lb.get((lo, up), 0)
+                        dl = _FP.mul_k(_FP.sub(vy[up], vy[lo]), 1, 2)
+                        newl = acc + dl; d = newl - acc; lb[(lo, up)] = newl
+                        vy[up] = _FP.sub(vy[up], d); vy[lo] = _FP.add(vy[lo], d)
+            for i in order:                                         # ground-up position projection
+                if _FP.add(py[i], Rf) > ygf:
+                    py[i] = _FP.sub(ygf, Rf)
+            for k in range(len(order) - 1):
+                lo, up = order[k], order[k + 1]
+                if _FP.sub(py[lo], py[up]) < twoR:
+                    py[up] = _FP.sub(py[lo], twoR)
+            resting = set(lf) | {up for (lo, up) in lb}             # sleep supported + slow bodies
+            for i in resting:
+                if -SLEEP < vy[i] < SLEEP:
+                    vy[i] = 0
+        except FieldError as e:
+            refused = {"after_frame": t, "code": getattr(e, "code", "FIELD-REFUSE"), "message": str(e)}
+            break
+        cpts = [{"x": cx, "y": yg, "nx": 0, "ny": -1, "lam": fl(l)} for i, l in lf.items()]
+        cpts += [{"x": cx, "y": fl(_FP.sub(py[lo], Rf)), "nx": 0, "ny": -1, "lam": fl(l)} for (lo, up), l in lb.items()]
+        frames.append({"frame": t, "digest": _fp_digest((py, vy), b"URDRFPS1"),
+                       "px": 0.0, "py": 0.0, "e2": 0.0,
+                       "balls": [{"x": cx, "y": fl(py[i]), "r": R, "vx": 0.0, "vy": fl(vy[i]), "m": 1} for i in range(N)],
+                       "contacts": cpts})
+    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": [], "fp": True, "showlam": True,
+            "ground": yg,
+            "note": "fixed-point settling stack — bounded PGS contacts + ground-up projection, deterministic (no overflow)",
+            "refused": refused, "frames": frames, "chain": [f["digest"] for f in frames]}
+
+
+def fp_swing_doc(steps=220, W=380, H=300):
+    """The articulated equality solve, PORTED to fixed-point: a ball on a rod swings under
+    gravity. The distance constraint holds each step (velocity-level) with Baumgarte feedback
+    on the SQUARED length (d·d − L² — no sqrt, so it stays in i64), which removes the drift
+    exact-ℚ couldn't sustain past 2 steps. Bounded, deterministic, no overflow."""
+    ax, ay, R = W / 2, 60, 16
+    axf, ayf = _FP.unit(int(ax), 1), _FP.unit(ay, 1)
+    px, py, vx, vy = _FP.unit(int(ax) + 90, 1), _FP.unit(ay, 1), 0, 0
+    GDT = _FP.unit(3, 10)
+    fl = lambda a: round(a / _FPONE, 2)
+    L2_0, frames, refused = None, [], None
+    for t in range(steps + 1):
+        try:
+            vy = _FP.add(vy, GDT)
+            nx, ny = _FP.sub(px, axf), _FP.sub(py, ayf)
+            dd = _FP.add(_fm(nx, nx), _fm(ny, ny))
+            if L2_0 is None:
+                L2_0 = dd
+            Jv = _FP.add(_fm(nx, vx), _fm(ny, vy))
+            if dd > 0:
+                bias = _FP.mul_k(_FP.sub(dd, L2_0), 1, 6)           # feedback on squared length
+                lam = _fdiv(_FP.sub(_FP.sub(0, bias), Jv), dd)
+                vx = _FP.add(vx, _fm(lam, nx)); vy = _FP.add(vy, _fm(lam, ny))
+            px = _FP.add(px, vx); py = _FP.add(py, vy)
+        except FieldError as e:
+            refused = {"after_frame": t, "code": getattr(e, "code", "FIELD-REFUSE"), "message": str(e)}
+            break
+        frames.append({"frame": t, "digest": _fp_digest(([px], [py], [vx], [vy]), b"URDRFPP1"),
+                       "px": 0.0, "py": 0.0, "e2": 0.0,
+                       "balls": [{"x": fl(px), "y": fl(py), "r": R, "vx": fl(vx), "vy": fl(vy), "m": 1}],
+                       "links": [{"ax": ax, "ay": ay, "bx": fl(px), "by": fl(py), "type": "rod"}]})
+    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "fp": True,
+            "statics": [{"x": ax, "y": ay, "r": 6}],
+            "note": "fixed-point pendulum — articulated distance constraint, squared-length Baumgarte (no drift, no overflow)",
+            "refused": refused, "frames": frames, "chain": [f["digest"] for f in frames]}
+
+
 def main(argv):
     if len(argv) > 1 and argv[1] == "--world":
         if len(argv) < 3:
@@ -445,15 +549,22 @@ def main(argv):
         doc = joints_doc(world_path=wp, N=n)
         label = "joints (%s)" % ("authored world" if wp else "chain N=%d" % n)
     elif len(argv) > 1 and argv[1] == "--fp":
-        n = 4
+        scene, n = "bounce", None
         out_path = os.path.join(HERE, "urdr_replay.json")
         for a in argv[2:]:
-            if a.endswith(".json"):
+            if a in ("bounce", "stack", "swing"):
+                scene = a
+            elif a.endswith(".json"):
                 out_path = a
             elif a.lstrip("-").isdigit():
-                n = max(1, min(10, int(a)))
-        doc = fp_bounce_doc(N=n)
-        label = "fixed-point bounce (N=%d)" % n
+                n = int(a)
+        if scene == "stack":
+            doc = fp_stack_doc(N=max(2, min(6, n or 3)))
+        elif scene == "swing":
+            doc = fp_swing_doc()
+        else:
+            doc = fp_bounce_doc(N=max(1, min(10, n or 4)))
+        label = "fixed-point %s" % scene
     else:
         out_path = argv[1] if len(argv) > 1 else os.path.join(HERE, "urdr_replay.json")
         doc = cascade_doc()
