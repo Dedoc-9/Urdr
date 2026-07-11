@@ -509,7 +509,7 @@ def fp_swing_doc(steps=220, W=380, H=300):
             "refused": refused, "frames": frames, "chain": [f["digest"] for f in frames]}
 
 
-def fp_world_doc(path, steps=180, K=12, W=460, H=280, margin=30):
+def fp_world_doc(path, steps=180, K=12, e_pct=50, W=460, H=280, margin=30):
     """An AUTHORED world (URDR-WORLD-3), time-stepped on the fixed-point substrate — the
     bounded long-run counterpart to the exact `--world`. Dynamic instances collide against
     each other and the static colliders via a general 2D fixed-point PGS using UN-NORMALIZED
@@ -539,27 +539,50 @@ def fp_world_doc(path, steps=180, K=12, W=460, H=280, margin=30):
         try:
             for i in range(nd):
                 px[i] = _FP.add(px[i], vx[i]); pz[i] = _FP.add(pz[i], vz[i])
-            for _ in range(K):
-                for i in range(nd):
-                    for j in range(i + 1, nd + ns):
-                        dx, dz = _FP.sub(px[j], px[i]), _FP.sub(pz[j], pz[i])
-                        dd = _FP.add(_fm(dx, dx), _fm(dz, dz))
-                        rr = rad[i] + rad[j]; rr2 = _FP.unit(rr * rr, 1)
-                        if dd < rr2:                            # penetrating contact (un-normalized normal d)
-                            vn = _FP.add(_fm(_FP.sub(vx[j], vx[i]), dx), _fm(_FP.sub(vz[j], vz[i]), dz))
-                            bias = _FP.mul_k(_FP.sub(rr2, dd), 1, 8)
-                            mi, mj = mass[i], mass[j]
-                            # imsum = 1/mi + 1/mj (static → 0); effmass = dd·imsum
-                            num, den = ((mj + mi), (mi * mj)) if (mi and mj) else ((1, mi) if mi else (1, mj))
-                            eff = _FP.mul_k(dd, num, den)
-                            if eff > 0:
-                                dl = _fdiv(_FP.sub(bias, vn), eff)
-                                if dl > 0:
-                                    cacc[(i, j)] = cacc.get((i, j), 0) + dl
-                                    if mi:
-                                        vx[i] = _FP.sub(vx[i], _FP.mul_k(_fm(dl, dx), 1, mi)); vz[i] = _FP.sub(vz[i], _FP.mul_k(_fm(dl, dz), 1, mi))
-                                    if mj:
-                                        vx[j] = _FP.add(vx[j], _FP.mul_k(_fm(dl, dx), 1, mj)); vz[j] = _FP.add(vz[j], _FP.mul_k(_fm(dl, dz), 1, mj))
+            pairs, vnpre, lam = [], {}, {}
+            for i in range(nd):                                 # detect contacts + capture approach velocity
+                for j in range(i + 1, nd + ns):
+                    dx, dz = _FP.sub(px[j], px[i]), _FP.sub(pz[j], pz[i])
+                    dd = _FP.add(_fm(dx, dx), _fm(dz, dz))
+                    rr = rad[i] + rad[j]; rr2 = _FP.unit(rr * rr, 1)
+                    if dd < rr2:                                # penetrating contact (un-normalized normal d)
+                        pairs.append((i, j, rr2))
+                        vnpre[(i, j)] = _FP.add(_fm(_FP.sub(vx[j], vx[i]), dx), _fm(_FP.sub(vz[j], vz[i]), dz))
+            for _ in range(K):                                  # velocity-level restitution PGS (no sqrt)
+                for (i, j, rr2) in pairs:
+                    dx, dz = _FP.sub(px[j], px[i]), _FP.sub(pz[j], pz[i])
+                    dd = _FP.add(_fm(dx, dx), _fm(dz, dz))
+                    vn = _FP.add(_fm(_FP.sub(vx[j], vx[i]), dx), _fm(_FP.sub(vz[j], vz[i]), dz))
+                    vp = vnpre[(i, j)]
+                    rest = _FP.mul_k(vp, -e_pct, 100) if vp < 0 else 0   # target = −e·v_approach
+                    mi, mj = mass[i], mass[j]
+                    num, den = ((mj + mi), (mi * mj)) if (mi and mj) else ((1, mi) if mi else (1, mj))
+                    eff = _FP.mul_k(dd, num, den)
+                    if eff > 0:
+                        dl = _fdiv(_FP.sub(rest, vn), eff)
+                        acc = lam.get((i, j), 0); newl = acc + dl
+                        if newl < 0:
+                            newl = 0
+                        d = newl - acc; lam[(i, j)] = newl; cacc[(i, j)] = newl
+                        if d != 0:
+                            if mi:
+                                vx[i] = _FP.sub(vx[i], _FP.mul_k(_fm(d, dx), 1, mi)); vz[i] = _FP.sub(vz[i], _FP.mul_k(_fm(d, dz), 1, mi))
+                            if mj:
+                                vx[j] = _FP.add(vx[j], _FP.mul_k(_fm(d, dx), 1, mj)); vz[j] = _FP.add(vz[j], _FP.mul_k(_fm(d, dz), 1, mj))
+            for (i, j, rr2) in pairs:                            # light position projection (positions only; no energy)
+                dx, dz = _FP.sub(px[j], px[i]), _FP.sub(pz[j], pz[i])
+                dd = _FP.add(_fm(dx, dx), _fm(dz, dz))
+                if 0 < dd < rr2:
+                    s = _FP.mul_k(_fdiv(_FP.sub(rr2, dd), _FP.mul_k(dd, 4, 1)), 1, 2)
+                    mi, mj = mass[i], mass[j]
+                    if mi and mj:
+                        h = _FP.mul_k(s, 1, 2)
+                        px[i] = _FP.sub(px[i], _fm(h, dx)); pz[i] = _FP.sub(pz[i], _fm(h, dz))
+                        px[j] = _FP.add(px[j], _fm(h, dx)); pz[j] = _FP.add(pz[j], _fm(h, dz))
+                    elif mi:
+                        px[i] = _FP.sub(px[i], _fm(s, dx)); pz[i] = _FP.sub(pz[i], _fm(s, dz))
+                    elif mj:
+                        px[j] = _FP.add(px[j], _fm(s, dx)); pz[j] = _FP.add(pz[j], _fm(s, dz))
         except FieldError as e:
             refused = {"after_frame": t, "code": getattr(e, "code", "FIELD-REFUSE"), "message": str(e)}
             break
@@ -574,7 +597,7 @@ def fp_world_doc(path, steps=180, K=12, W=460, H=280, margin=30):
         frames.append(f)
     dframes, dstat = _fit(frames, sraw, W, H, margin)
     return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "fp": True,
-            "note": "authored world on the fixed-point substrate — bounded PGS collisions, deterministic (no overflow)",
+            "note": "authored world on the fixed-point substrate — bounded PGS collisions with restitution (e=%d%%), deterministic (no overflow)" % e_pct,
             "refused": refused, "frames": dframes, "chain": [f["digest"] for f in dframes]}
 
 
@@ -632,7 +655,12 @@ def main(argv):
             if not os.path.exists(wp):
                 print("no world file at %s — export one from urdr_designer.html (▸ Export world JSON)" % wp)
                 return 1
-            doc = fp_world_doc(wp)
+            ep = 50
+            if "--e" in argv:
+                ei = argv.index("--e")
+                if ei + 1 < len(argv) and argv[ei + 1].lstrip("-").isdigit():
+                    ep = max(0, min(100, int(argv[ei + 1])))
+            doc = fp_world_doc(wp, e_pct=ep)
         else:
             if jsons:
                 out_path = jsons[0]
