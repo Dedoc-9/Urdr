@@ -158,19 +158,79 @@ def _fit(frames, statics, W, H, margin):
     return out, dstat
 
 
-def world_doc(path, steps=90, W=460, H=280, margin=30):
+def _simulate_world(dyn, statics, steps, grav=0):
+    """Contact-resolving world step. Dynamic bodies collide against each other AND the static
+    colliders; ALL simultaneous contacts are resolved together by the exact frictionless LCP
+    (contact_lcp — a static body is one with inverse mass 0). Optional gravity. Momentum is
+    conserved among the dynamic bodies except where a static anchor absorbs it. Honest scope:
+    frictionless and inelastic at the normal (the LCP model), discrete overlap (no CCD),
+    restitution/elastic multi-contact a later rung. Records per-frame contacts + impulse."""
+    nd, ns = len(dyn), len(statics)
+    pos = [[Q(d["x"]), Q(d["z"])] for d in dyn] + [[Q(s["x"]), Q(s["z"])] for s in statics]
+    vel = [[Q(d["vx"]), Q(d["vz"])] for d in dyn] + [[Z(0), Z(0)] for _ in statics]
+    rad = [Q(d["r"]) for d in dyn] + [Q(s["r"]) for s in statics]
+    invm = [Q(1, d["m"]) for d in dyn] + [Z(0) for _ in statics]
+    mass = [d["m"] for d in dyn]
+    frames, refused, used = [], None, False
+    for k in range(steps + 1):
+        try:
+            contacts, info = [], []
+            for i in range(nd):                                   # i is always a dynamic body
+                for j in range(i + 1, nd + ns):
+                    dx, dy = pos[j][0] - pos[i][0], pos[j][1] - pos[i][1]
+                    rr = rad[i] + rad[j]
+                    approaching = (vel[j][0] - vel[i][0]) * dx + (vel[j][1] - vel[i][1]) * dy < Z(0)
+                    if dx * dx + dy * dy <= rr * rr and approaching:
+                        contacts.append(Contact(i, j, Vec([dx, dy]))); info.append((i, j, dx, dy))
+            craw = None
+            if contacts:
+                used = True
+                velv = [Vec([vel[b][0], vel[b][1]]) for b in range(nd + ns)]
+                newv, lam, w = resolve(velv, invm, contacts)      # exact simultaneous LCP; refuses if degenerate
+                for b in range(nd + ns):
+                    vel[b][0], vel[b][1] = newv[b].c[0], newv[b].c[1]
+                craw = []
+                for t, (i, j, dx, dy) in enumerate(info):
+                    fx, fy = _f(dx), _f(dy); L = (fx * fx + fy * fy) ** 0.5 or 1.0
+                    ri, rj = _f(rad[i]), _f(rad[j]); tt = ri / (ri + rj) if (ri + rj) else 0.5
+                    craw.append({"x": _f(pos[i][0]) + tt * fx, "y": _f(pos[i][1]) + tt * fy,
+                                 "nx": fx / L, "ny": fy / L, "imp": _f(lam[t]) * L})
+        except RationalError as e:
+            refused = {"after_frame": k, "code": getattr(e, "code", "PHYS-REFUSE"), "message": str(e)}
+            break
+        bodies = [Ball(Vec([pos[i][0], pos[i][1]]), rad[i], Vec([vel[i][0], vel[i][1]]), mass[i]) for i in range(nd)]
+        p = momentum(bodies)
+        snap = {"frame": k, "digest": state_digest(bodies), "px": _f(p.c[0]), "py": _f(p.c[1]), "e2": _f(two_kinetic(bodies)),
+                "raw": [{"x": _f(pos[i][0]), "y": _f(pos[i][1]), "r": _f(rad[i]),
+                         "vx": _f(vel[i][0]), "vy": _f(vel[i][1]), "m": mass[i]} for i in range(nd)]}
+        if craw:
+            snap["contacts"] = craw
+        frames.append(snap)
+        if k == steps:
+            break
+        try:
+            for i in range(nd):                                   # integrate; static bodies are anchors
+                pos[i][0] = pos[i][0] + vel[i][0]; pos[i][1] = pos[i][1] + vel[i][1]
+                if grav:
+                    vel[i][1] = vel[i][1] + Q(grav)
+        except RationalError as e:
+            refused = {"after_frame": k, "code": getattr(e, "code", "PHYS-REFUSE"), "message": str(e)}
+            break
+    return frames, refused, used
+
+
+def world_doc(path, steps=90, grav=0, W=460, H=280, margin=30):
     dyn, statics = _load_world(path)
     if not dyn:
         # nothing to simulate — still emit a valid (single-frame) doc so the editor shows the statics
         _, dstat = _fit([{"raw": []}], statics, W, H, margin)
-        return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat,
+        return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "lcp": False,
                 "note": "no dynamic bodies — add a dynamic object with an initial velocity to see motion",
                 "refused": None, "frames": [], "chain": []}
-    bodies = [Ball(Vec([Q(d["x"]), Q(d["z"])]), Q(d["r"]), Vec([Q(d["vx"]), Q(d["vz"])]), d["m"]) for d in dyn]
-    frames, refused = _simulate(bodies, steps, raw=True)
+    frames, refused, used = _simulate_world(dyn, statics, steps, grav)
     dframes, dstat = _fit(frames, statics, W, H, margin)
-    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat,
-            "note": "authored world simulated by the exact engine (dynamics_nd); digest per frame = URDRPN1 witness",
+    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "lcp": used,
+            "note": "authored world — dynamic bodies collide against each other and statics via the exact LCP",
             "refused": refused, "frames": dframes, "chain": [f["digest"] for f in dframes]}
 
 
@@ -208,12 +268,20 @@ def main(argv):
             print("usage: python3 replay.py --world urdr_world.json [out.json]")
             return 2
         world_path = argv[2]
-        out_path = argv[3] if len(argv) > 3 else os.path.join(HERE, "urdr_replay.json")
+        out_path = os.path.join(HERE, "urdr_replay.json")
+        for a in argv[3:]:
+            if a.endswith(".json"):
+                out_path = a
+        g = 0
+        if "--g" in argv:
+            gi = argv.index("--g")
+            if gi + 1 < len(argv) and argv[gi + 1].lstrip("-").isdigit():
+                g = int(argv[gi + 1])
         if not os.path.exists(world_path):
             print("no world file at %s — export one from urdr_designer.html (▸ Export world JSON)" % world_path)
             return 1
-        doc = world_doc(world_path)
-        label = "authored world"
+        doc = world_doc(world_path, grav=g)
+        label = "authored world" + (" + gravity %d" % g if g else "")
     elif len(argv) > 1 and argv[1] == "--stack":
         n = int(argv[2]) if len(argv) > 2 and argv[2].lstrip("-").isdigit() else 3
         n = max(1, min(10, n))
@@ -238,6 +306,9 @@ def main(argv):
         print("frame N digest:", frames[-1]["digest"][:24], "…")
         print("momentum      :", "conserved" if (frames[0]["px"], frames[0]["py"]) == (frames[-1]["px"], frames[-1]["py"]) else "changed")
         print("2*KE          :", "conserved" if frames[0]["e2"] == frames[-1]["e2"] else "changed")
+    if doc.get("lcp"):
+        nct = sum(len(f.get("contacts", [])) for f in frames)
+        print("contacts      : resolved simultaneously by the exact LCP (%d over the run)" % nct)
     print("witness chain :", len(doc["chain"]), "digests")
     if doc["refused"]:
         print("engine        : REFUSED after frame %d — %s (exact, not approximate)"
