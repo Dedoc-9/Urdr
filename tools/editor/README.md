@@ -59,15 +59,18 @@ Editor (double-click the file, or open it in any browser):
   All of it serializes into the canonical world JSON; **no engine logic runs in the
   browser** — these are authored *intent*, which the runtime/engine validates for
   admissibility downstream. Toggle **◈ 3D** for a perspective preview down the road — where
-  you can now drag whole objects on the ground plane too (children follow).
+  you can now drag whole objects on the ground plane too (children follow). Click the road
+  to drop more copies, **⧉ Duplicate** (Ctrl+D) the selected object, **＋ New object** to
+  draw a fresh one, and **nudge the selected object with the arrow keys** (children follow).
 - **▷ Replay** — load a `urdr_replay.json` (made by `replay.py`) and scrub the timeline
   (play / step / start · end). Every frame shows its exact-state **URDRPN1 digest** and the
   conserved momentum + energy; scrubbing to a frame restores that exact state, bit-identical
   on every conforming host. The browser only *draws* engine-provided state — it never
   simulates. This is the deterministic-replay capability surfaced directly in the editor.
-  **Overlays** draw per-body momentum vectors and the system centre of mass + Σp straight
-  from the recorded velocity/mass — read, never recomputed (contact normals, impulses and
-  LCP λ are the next overlay rung).
+  **Overlays** draw per-body momentum vectors, the system centre of mass + Σp, and each
+  resolved collision's contact point, normal and equal/opposite impulse — all read from the
+  engine's recorded state (velocity, mass, and the exact Δv it applied), never recomputed.
+  LCP λ over resting stacks is the next overlay rung.
 - **⤓ Save / ⤒ Open** — persist the whole project (objects + world) to a JSON file.
 - **▸ Export world JSON** (World mode) — writes `urdr_world.json` (`URDR-WORLD-3`): objects
   by digest + instances carrying their full physical state and hierarchy (`parent` + a
@@ -120,9 +123,9 @@ witness chain, and the editor scrubs it. Natural follow-ons, in order:
   (`replay.py --world`) are *done* — **▷ Replay** now simulates your own scene
   deterministically (same witness chain on every machine). Next in the runtime: static
   colliders, joints/constraints, gravity, and per-material restitution;
-- **physics-debug overlays**: centre of mass + Σp and per-body momentum vectors are *done*
-  (read from recorded velocity/mass). The next overlays — contact normals, impulses, LCP λ —
-  need the runtime to emit contact events, which pairs with adding static colliders + joints;
+- **physics-debug overlays**: centre of mass + Σp, per-body momentum vectors, and contact
+  points / normals / impulses are *done* (all read from recorded state). Next: **LCP λ over
+  resting stacks**, which pairs with adding static colliders + joints to the runtime;
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
   road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
   scene stays byte-identical across peers.

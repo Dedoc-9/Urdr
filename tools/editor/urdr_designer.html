@@ -136,7 +136,7 @@ const wcam={yaw:0, pitch:0.44, height:130, back:140, focal:520, scale:0.6, depth
 const SNAP=12, VR=4;
 let undo=[], redo=[];
 let replay=null, rframe=0, rplaying=false, rtimer=null;   // deterministic replay playback (engine-authored state)
-const rov={mom:false, com:false};                          // replay overlays: momentum vectors, centre of mass
+const rov={mom:false, com:false, con:false};               // replay overlays: momentum, centre of mass, contacts/impulses
 
 // ---------------- helpers ----------------
 const pos=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
@@ -375,6 +375,13 @@ function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
     if(M>0){ X/=M;Y/=M; const q=map(X,Y); ctx.strokeStyle=CSS('--sel'); ctx.fillStyle=CSS('--sel'); ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.moveTo(q.x-6,q.y); ctx.lineTo(q.x+6,q.y); ctx.moveTo(q.x,q.y-6); ctx.lineTo(q.x,q.y+6); ctx.stroke();
       const e=map(X+PX/M*6, Y+PY/M*6); if(Math.hypot(e.x-q.x,e.y-q.y)>2) arrow(q.x,q.y,e.x,e.y); } }
+  if(rov.con&&fr.contacts){ ctx.strokeStyle=CSS('--rust'); ctx.fillStyle=CSS('--rust'); ctx.lineWidth=1.6;
+    fr.contacts.forEach(c=>{ const q=map(c.x,c.y);
+      ctx.beginPath(); ctx.arc(q.x,q.y,3.5,0,7); ctx.fill();
+      const e1=map(c.x+c.nx*c.imp*1.5, c.y+c.ny*c.imp*1.5), e2=map(c.x-c.nx*c.imp*1.5, c.y-c.ny*c.imp*1.5);
+      arrow(q.x,q.y,e1.x,e1.y); arrow(q.x,q.y,e2.x,e2.y); });    // equal & opposite impulse
+    const cf=fr.contacts[0]; if(cf){ ctx.fillStyle=CSS('--rust'); ctx.font='10px monospace';
+      const q=map(cf.x,cf.y); ctx.fillText('|impulse| '+cf.imp.toFixed(1),q.x+8,q.y-8); } }
   ctx.fillStyle=CSS('--ink'); ctx.font='12px monospace';
   ctx.fillText('frame '+rc+' / '+(replay.frames.length-1)+(rplaying?'   ▶':''),ox,oy-14);
   let ty=oy+rh*S+22; ctx.fillStyle=CSS('--acid'); ctx.font='11px monospace';
@@ -476,6 +483,7 @@ function onUp(p){ if(mode==='design'&&view==='2d'&&drag&&drag.type==='line'){
 addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault(); e.shiftKey?doRedo():doUndo(); return;}
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault(); doRedo(); return;}
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='d'){e.preventDefault(); if(mode==='world')dupInst(); return;}
   if((e.key==='Delete'||e.key==='Backspace')){ if(mode==='world'&&worldSel!=null){world=world.filter(w=>w.id!==worldSel);worldSel=null;draw();renderSide();}
     else if(mode==='design'&&selV>=0){snapshot(); const i=selV; cur.edges=cur.edges.filter(e=>e[0]!==i&&e[1]!==i).map(e=>[e[0]>i?e[0]-1:e[0],e[1]>i?e[1]-1:e[1]]); cur.verts.splice(i,1); selV=-1; selE=-1; refresh();} }
   // arrow keys: nudge the selected point or edge "ever so slightly" (Shift=10, Alt=½)
@@ -487,7 +495,14 @@ addEventListener('keydown',e=>{
     if(e.key==='ArrowLeft')dx=-st; else if(e.key==='ArrowRight')dx=st; else if(e.key==='ArrowUp')dy=-st; else if(e.key==='ArrowDown')dy=st; else return;
     e.preventDefault(); if(!e.repeat)snapshot();
     if(view==='3d') moveVerts3(idxs,dx,dy); else idxs.forEach(i=>{cur.verts[i].x+=dx; cur.verts[i].y+=dy;});
-    refresh(); } });
+    refresh(); }
+  // arrow keys: nudge the selected WHOLE object in World mode (children follow)
+  if(mode==='world'&&worldSel!=null&&e.key.indexOf('Arrow')===0){
+    if(document.activeElement&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
+    const st=e.shiftKey?10:(e.altKey?0.5:1); let dx=0,dy=0;
+    if(e.key==='ArrowLeft')dx=-st; else if(e.key==='ArrowRight')dx=st; else if(e.key==='ArrowUp')dy=-st; else if(e.key==='ArrowDown')dy=st; else return;
+    e.preventDefault(); const it=world.find(w=>w.id===worldSel); if(!it||it.locked)return;
+    it.x+=dx; it.y+=dy; descendantsOf(it.id).forEach(c=>{c.x+=dx;c.y+=dy;}); draw(); renderSide(); } });
 
 // ---------------- transforms & primitives (dev tools) ----------------
 function setAxis(a){ rotAxis=a; renderSide(); }
@@ -519,6 +534,11 @@ function addBarrier(){ snapshot(); const cx=W*0.4,cy=H*0.42,hw=prim.rw/2,hh=prim
   for(let i=0;i<N;i++)cur.edges.push([b+i,b+(i+1)%N]); refresh(); }
 function instScale(f){ if(worldSel==null)return; const it=world.find(w=>w.id===worldSel); if(it){it.scale=clamp((it.scale||1)*f,0.1,8); draw(); renderSide();} }
 function instRot(deg){ if(worldSel==null)return; const it=world.find(w=>w.id===worldSel); if(it){it.rot+=deg*Math.PI/180; draw(); renderSide();} }
+function dupInst(){ if(worldSel==null)return; const src=world.find(w=>w.id===worldSel); if(!src)return;
+  const c=JSON.parse(JSON.stringify(src)); c.id=nextId++; c.x=(src.x||0)+24; c.y=(src.y||0)+16;
+  c.name=(src.name||'obj')+' copy'; c.parent=null; c.constraints=[]; normInst(c);
+  world.push(c); worldSel=c.id; renderSide(); draw(); msg('duplicated · '+c.name); }
+function createNewObject(){ setMode('design'); newDesign(); msg('new object — draw it, then Save to library'); }
 
 // ---------------- scene hierarchy + instance physical state (authoring only) ----------------
 function normInst(w){ if(w.name==null)w.name='obj '+w.id; if(w.parent===undefined)w.parent=null;
@@ -642,8 +662,9 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
     h+=`<h3>Keys</h3><p class="note">drag = draw line · Ctrl+Z / Ctrl+⇧+Z = undo/redo · Del = remove selected point · wheel = zoom (3D) · click a point → depth Z</p>`;
     h+=`<h3>Library</h3><div class="lib" id="lib"></div>`;
   } else if(mode==='world'){
-    h+=`<h3>Place · export</h3><div class="row"><button onclick="exportWorld()">⬇ Export world JSON</button></div>
-      <p class="note">Pick a design below, click the road to drop it. Drag to move (children follow) · amber handle rotates · Delete removes. Every physical prop here serializes into the canonical world JSON — no engine logic runs in the browser.</p>`;
+    h+=`<h3>Place · export</h3>
+      <div class="row"><button onclick="createNewObject()">＋ New object (draw)</button><button onclick="exportWorld()">⬇ Export world JSON</button></div>
+      <p class="note">Pick a design below, click the road to drop it (click again to place more). Drag to move (children follow) · amber handle rotates · arrow keys nudge · Ctrl+D duplicates · Delete removes. Every physical prop serializes into the canonical world JSON — no engine logic runs in the browser.</p>`;
     h+=`<h3>Hierarchy</h3><div class="tree" id="tree">${outlinerHTML()}</div>`;
     if(worldSel!=null){ const it=world.find(w=>w.id===worldSel);
       if(it){
@@ -670,7 +691,8 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
           <h3>Transform</h3>
           <div class="row"><button onclick="instRot(-1)">⟲ 1°</button><button onclick="instRot(-15)">⟲ 15</button><button onclick="instRot(15)">15 ⟳</button><button onclick="instRot(1)">1° ⟳</button></div>
           <div class="row"><button onclick="instScale(0.909)">− scale</button><button onclick="instScale(1.1)">+ scale</button></div>
-          <p class="note">scale ${(it.scale||1).toFixed(2)}× · rot ${Math.round(it.rot*180/Math.PI)}° · Delete to remove</p>
+          <div class="row"><button onclick="dupInst()">⧉ Duplicate (Ctrl+D)</button></div>
+          <p class="note">scale ${(it.scale||1).toFixed(2)}× · rot ${Math.round(it.rot*180/Math.PI)}° · arrow keys move it · Delete to remove</p>
           <h3>Constraints / joints</h3>`;
         it.constraints.forEach((c,i)=>{ const tgt=world.find(w=>w.id===c.to);
           h+=`<div class="crow"><span>${escapeHtml(c.type)} → ${tgt?escapeHtml(tgt.name||('#'+c.to)):('#'+c.to)}</span><span class="del" title="remove" onclick="delConstraint(${i})">✕</span></div>`; });
@@ -699,7 +721,8 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
         <h3>Overlays</h3>
         <label class="chk"><input type="checkbox" id="oMom" ${rov.mom?'checked':''}> momentum vectors (m·v)</label>
         <label class="chk"><input type="checkbox" id="oCom" ${rov.com?'checked':''}> centre of mass + Σp</label>
-        <p class="note">Drawn from the engine's recorded velocity + mass — read, never recomputed. Contact normals, impulses and LCP λ are the next overlay rung.</p>
+        <label class="chk"><input type="checkbox" id="oCon" ${rov.con?'checked':''}> contacts + impulses</label>
+        <p class="note">Drawn from the engine's recorded state — velocity, mass, and each resolved collision's exact Δv — read, never recomputed. LCP λ over resting stacks is the next rung.</p>
         <h3>Exact-state witness</h3>
         <p class="note">frame ${rframe} → <span style="color:var(--acid)" id="rDig">${f.digest.slice(0,20)}…</span></p>
         <p class="note">Canonical <b>URDRPN1</b> digest of the exact (X,V) state at this tick. Scrubbing restores that state — bit-identical on every conforming host. Chain: ${replay.frames.length} digests.</p>
@@ -741,7 +764,7 @@ function wireControls(){
   num('pRW',v=>prim.rw=v); num('pRH',v=>prim.rh=v); num('pRnd',v=>prim.round=v);
   const rtl=document.getElementById('rTL'); if(rtl)rtl.oninput=e=>scrub(parseInt(e.target.value));
   const oc=(id,k)=>{const el=document.getElementById(id); if(el)el.onchange=e=>{rov[k]=e.target.checked; draw();};};
-  oc('oMom','mom'); oc('oCom','com');
+  oc('oMom','mom'); oc('oCom','com'); oc('oCon','con');
   // world inspector (present only with a selection); text/select commit on change (focus already left)
   if(mode==='world'&&worldSel!=null){ const it=world.find(w=>w.id===worldSel);
     if(it){ num('iMass',v=>it.mass=v); num('iRest',v=>it.material.restitution=v/100); num('iFric',v=>it.material.friction=v/100);

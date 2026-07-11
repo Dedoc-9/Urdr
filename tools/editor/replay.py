@@ -58,16 +58,38 @@ def _snap(bodies, k, raw=False):
     return d
 
 
+def _veq(a, b):
+    return all(a.c[i] == b.c[i] for i in range(a.dim()))
+
+
+def _contact(before, after, i, j):
+    """A contact WITNESS derived from the engine's own before/after state (not recomputed
+    physics): contact point on the touching surface, unit normal, and impulse magnitude
+    |m·Δv| taken from the exact velocity change the engine applied."""
+    c1, c2, r1, r2 = before[i].x, before[j].x, _f(before[i].r), _f(before[j].r)
+    x1, y1, x2, y2 = _f(c1.c[0]), _f(c1.c[1]), _f(c2.c[0]), _f(c2.c[1])
+    dx, dy = x2 - x1, y2 - y1
+    L = (dx * dx + dy * dy) ** 0.5 or 1.0
+    t = r1 / (r1 + r2) if (r1 + r2) else 0.5
+    dvx = _f(after[i].v.c[0]) - _f(before[i].v.c[0]); dvy = _f(after[i].v.c[1]) - _f(before[i].v.c[1])
+    imp = before[i].m * ((dvx * dvx + dvy * dvy) ** 0.5)
+    return {"x": x1 + t * dx, "y": y1 + t * dy, "nx": dx / L, "ny": dy / L, "imp": imp, "i": i, "j": j}
+
+
 def _simulate(bodies, steps, raw):
     frames, refused = [], None
     zero = [Vec([Z(0), Z(0)]) for _ in bodies]
     for k in range(steps + 1):
-        frames.append(_snap(bodies, k, raw))
+        snap = _snap(bodies, k, raw); frames.append(snap)
         try:
-            bodies = step(bodies, zero, DT, REST, ())
+            nb = step(bodies, zero, DT, REST, ())
         except RationalError as e:                        # exact engine refuses to approximate
             refused = {"after_frame": k, "code": getattr(e, "code", "PHYS-REFUSE"), "message": str(e)}
             break
+        ch = [i for i in range(len(bodies)) if not _veq(bodies[i].v, nb[i].v)]
+        if len(ch) >= 2:                                  # a ball-ball contact resolved this step
+            snap["contacts"] = [_contact(bodies, nb, ch[0], ch[1])]
+        bodies = nb
     return frames, refused
 
 
@@ -127,6 +149,9 @@ def _fit(frames, statics, W, H, margin):
         g["balls"] = [{"x": mx(b["x"]), "y": my(b["y"]), "r": round(max(2, b["r"] * sc), 2),
                        "vx": round(b["vx"] * sc, 3), "vy": round(b["vy"] * sc, 3), "m": b["m"]}
                       for b in f["raw"]]
+        if "contacts" in f:
+            g["contacts"] = [{"x": mx(c["x"]), "y": my(c["y"]), "nx": c["nx"], "ny": c["ny"],
+                              "imp": round(c["imp"] * sc, 3), "i": c["i"], "j": c["j"]} for c in f["contacts"]]
         out.append(g)
     dstat = [{"x": mx(s["x"]), "y": my(s["z"]), "r": round(max(2, s["r"] * sc), 2)} for s in statics]
     return out, dstat
