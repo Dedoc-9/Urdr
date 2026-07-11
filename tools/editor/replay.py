@@ -28,6 +28,7 @@ Current scope (declared, not yet simulated): static COLLIDERS (statics are drawn
 collided against), constraints/joints, per-material restitution (a single global value
 is used), gravity and walls. Those are later rungs. The browser never re-simulates.
 """
+import hashlib
 import json
 import os
 import sys
@@ -39,6 +40,7 @@ from vecq import Vec                                     # noqa: E402
 from dynamics_nd import Ball, step, state_digest, momentum, two_kinetic  # noqa: E402
 from contact_lcp import Contact, delassus, solve_lcp, complementary, lcp_digest  # noqa: E402
 from articulated import distance_row, pin_rows, solve as jsolve, satisfied, joint_digest  # noqa: E402
+from field import FixedPoint as _FP, ONE as _FPONE, FieldError  # noqa: E402  frozen Q32.32 substrate
 
 DT, REST = Q(1), Q(1)          # tick length; global restitution (elastic)
 
@@ -350,6 +352,59 @@ def stack_doc(N=3, W=360, H=320, R=26, GRAV=1, MASS=1):
             "refused": None, "frames": [frame], "chain": [dig]}
 
 
+# ---- fixed-point time-stepping: BOUNDED, deterministic, no overflow ------------------
+def _fp_digest(cols):
+    out = bytearray(b"URDRFPB1")
+    for arr in cols:
+        for a in arr:
+            out += _FP.ser(a)
+    return hashlib.sha256(bytes(out)).hexdigest()
+
+
+def fp_bounce_doc(N=4, steps=240, W=380, H=300):
+    """Gravity + bounce in a box on the FROZEN Q32.32 fixed-point substrate
+    (`../physics/field.py` FixedPoint: round-to-nearest, ties away). This is the scene
+    exact-ℚ REFUSED (its denominators explode) — fixed-point is BOUNDED and ROUNDS, so it
+    time-steps as long as you like, deterministically and reproducibly (bit-identical across
+    placements). Not exact; the honest real-time path, with a per-frame URDRFPB1 witness."""
+    R = 16
+    floor, ceil, left, right = H - 28, 22, 22, W - 22
+    Rf = _FP.unit(R, 1)
+    floorf, ceilf, leftf, rightf = (_FP.unit(v, 1) for v in (floor, ceil, left, right))
+    GDT = _FP.unit(3, 10)                                 # gravity·dt per step
+    span = max(1, (W - 120) // max(1, N - 1))
+    bx = [_FP.unit(60 + i * span, 1) for i in range(N)]
+    by = [_FP.unit(40 + (i % 3) * 22, 1) for i in range(N)]
+    bvx = [_FP.unit(-2 if i % 2 else 2, 1) for i in range(N)]
+    bvy = [0] * N
+    fl = lambda a: round(a / _FPONE, 2)                   # fixed-point → decimal (drawing only)
+    frames, refused = [], None
+    for k in range(steps + 1):
+        frames.append({"frame": k, "digest": _fp_digest((bx, by, bvx, bvy)),
+                       "px": 0.0, "py": 0.0, "e2": 0.0,
+                       "balls": [{"x": fl(bx[i]), "y": fl(by[i]), "r": R,
+                                  "vx": fl(bvx[i]), "vy": fl(bvy[i]), "m": 1} for i in range(N)]})
+        try:
+            for i in range(N):
+                bvy[i] = _FP.add(bvy[i], GDT)             # gravity
+                bx[i] = _FP.add(bx[i], bvx[i]); by[i] = _FP.add(by[i], bvy[i])  # integrate
+                if by[i] + Rf > floorf and bvy[i] > 0:
+                    by[i] = _FP.sub(floorf, Rf); bvy[i] = _FP.mul_k(bvy[i], -3, 4)   # bounce (e=3/4)
+                if by[i] - Rf < ceilf and bvy[i] < 0:
+                    by[i] = _FP.add(ceilf, Rf); bvy[i] = _FP.mul_k(bvy[i], -3, 4)
+                if bx[i] + Rf > rightf and bvx[i] > 0:
+                    bx[i] = _FP.sub(rightf, Rf); bvx[i] = _FP.mul_k(bvx[i], -3, 4)
+                if bx[i] - Rf < leftf and bvx[i] < 0:
+                    bx[i] = _FP.add(leftf, Rf); bvx[i] = _FP.mul_k(bvx[i], -3, 4)
+        except FieldError as e:
+            refused = {"after_frame": k, "code": getattr(e, "code", "FIELD-REFUSE"), "message": str(e)}
+            break
+    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": [], "fp": True,
+            "ground": floor,
+            "note": "bounded Q32.32 fixed-point (frozen round-to-nearest) — deterministic, no overflow",
+            "refused": refused, "frames": frames, "chain": [f["digest"] for f in frames]}
+
+
 def main(argv):
     if len(argv) > 1 and argv[1] == "--world":
         if len(argv) < 3:
@@ -389,6 +444,16 @@ def main(argv):
         out_path = os.path.join(HERE, "urdr_replay.json")
         doc = joints_doc(world_path=wp, N=n)
         label = "joints (%s)" % ("authored world" if wp else "chain N=%d" % n)
+    elif len(argv) > 1 and argv[1] == "--fp":
+        n = 4
+        out_path = os.path.join(HERE, "urdr_replay.json")
+        for a in argv[2:]:
+            if a.endswith(".json"):
+                out_path = a
+            elif a.lstrip("-").isdigit():
+                n = max(1, min(10, int(a)))
+        doc = fp_bounce_doc(N=n)
+        label = "fixed-point bounce (N=%d)" % n
     else:
         out_path = argv[1] if len(argv) > 1 else os.path.join(HERE, "urdr_replay.json")
         doc = cascade_doc()
@@ -415,6 +480,12 @@ def main(argv):
     if doc.get("joints"):
         print("joint links   :", len(frames[0].get("links", [])) if frames else 0)
         print("J·v=0 certified:", doc.get("certified"), " URDRJNT1:", (doc.get("joint_digest") or "")[:24], "…")
+    if doc.get("fp"):
+        print("substrate     : Q32.32 fixed-point (bounded, frozen round-to-nearest) — %d ticks, no overflow"
+              % (len(frames) - 1))
+        if frames:
+            print("frame 0 digest:", frames[0]["digest"][:24], "…  (URDRFPB1)")
+            print("frame N digest:", frames[-1]["digest"][:24], "…")
     print("witness chain :", len(doc["chain"]), "digests")
     if doc["refused"]:
         print("engine        : REFUSED after frame %d — %s (exact, not approximate)"
