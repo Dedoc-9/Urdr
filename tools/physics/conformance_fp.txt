@@ -1,0 +1,5 @@
+# urdr-physics rung 5 — bounded fixed-point dynamics: frozen trace-digest goldens (URDRFPT1).
+# Reproduced bit-for-bit on every conforming host (frozen Q32.32 round-to-nearest + SHA-256).
+# name  trace_digest
+stack3 b061c760faeec16563979665898bbfb2868868cdfdca0f6b0c0b0d980e0709f5
+swing 42e4b2cb8da7dc0d3bc5dc3057a1f03f499e0618c7c8f7f89772e76d52a3e6d6

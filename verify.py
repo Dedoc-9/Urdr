@@ -799,6 +799,62 @@ class Gate:
                     "perturbed stack λ fails the certificate (gate can redden)"
                     if caught else "certificate vacuous — cannot redden")
 
+    # -- 2j2. urdr-physics rung 5: BOUNDED fixed-point dynamics (real-time path) -
+    def physics_fp(self):
+        """urdr-physics rung 5: bounded fixed-point dynamics on the FROZEN Q32.32 substrate
+        — the deterministic real-time path where the exact rungs must refuse. Each scene's
+        TRACE digest is reproduced twice and matches its golden; the settling stack comes to
+        REST (|v| < sleep threshold); a DEFECT step (no sleep clamp / no Baumgarte) diverges
+        from the golden (non-vacuity — the gate can redden). Reproducibility MEASURED (single
+        placement); the FixedPoint substrate is cross-placed (FIELDFP); a SECOND placement of
+        the stepper is DECLARED, so the steppers' own cross-placement is not yet MEASURED."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import fp_dynamics as D
+            import fp_scenes
+            from field import FixedPoint
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("physics-fp-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(pdir, "conformance_fp.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(fp_scenes.SCENES):
+            t1, _a1 = fp_scenes.run(name)
+            t2, _a2 = fp_scenes.run(name)
+            if t1 != t2:
+                self.record(f"physics-fp:{name}", False, "NONDETERMINISTIC")
+                continue
+            if goldens.get(name) != t1:
+                self.record(f"physics-fp:{name}", False,
+                            f"trace {t1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            self.record(f"physics-fp:{name}", True, t1[:16] + "…")
+        # property: the settling stack comes to rest (final |v| within the sleep threshold)
+        _t, fvy = fp_scenes.run("stack3")
+        thr = FixedPoint.unit(5, 2)
+        settled = all(-thr < v < thr for v in fvy)
+        self.record("physics-fp-settle", settled,
+                    "fixed-point stack settles to rest (|v| < sleep threshold)"
+                    if settled else "fixed-point stack did not settle")
+        # non-vacuity: a defect step (no sleep / no Baumgarte) MUST diverge from the golden
+        nv = bool(goldens)
+        for name in sorted(fp_scenes.SCENES):
+            g = goldens.get(name)
+            if g is None or fp_scenes.run_defect(name) == g:
+                nv = False
+        self.record("physics-fp-defect-selftest", nv,
+                    "a wrong step (no sleep / no Baumgarte) diverges from the golden (gate can redden)"
+                    if nv else "defect matched golden — gate cannot redden")
+
     # -- 2k. urdr-field: deterministic scalar-field transport ------------------
     def field(self):
         """urdr-field: deterministic scalar transport (advection-diffusion) over a
@@ -1255,6 +1311,7 @@ def main() -> int:
     gate.physics_lcp()
     gate.physics_joint()
     gate.physics_stress()
+    gate.physics_fp()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

@@ -204,10 +204,13 @@ witness chain, and the editor scrubs it. Natural follow-ons, in order:
   colliders, joints/constraints, gravity, and per-material restitution;
 - the fixed-point substrate now runs authored worlds fully: `--fp world <export> [--e N] [--g N]`
   collides **and settles** (gravity + an implicit box + damping), on top of `--fp stack` /
-  `--fp swing` — all bounded and deterministic. Next: continuous collision (CCD) for fast / thin
-  bodies, **Coulomb friction** (so piles rest without the damping stand-in), and folding the
-  fixed-point stepper into a **gated rung** (red-first tests + a second-placement cross-check)
-  to graduate it from exploratory to MEASURED;
+  `--fp swing` — all bounded and deterministic. The stepper is now a **gated rung**:
+  `../physics/fp_dynamics.py` (rung 5) with a frozen `URDRFPT1` golden, a `verify.py`
+  `physics_fp` stage (determinism + settle + non-vacuous defect self-test) and
+  `tests/test_fp_dynamics.py` — **reproducibility MEASURED** (this editor's `replay.py` is the
+  exploratory consumer of the same approach). Next: a SECOND placement (Rust) to make the
+  stepper's *cross-placement* MEASURED, plus continuous collision (CCD) and Coulomb friction
+  (so piles rest without the damping stand-in);
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
   road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
   scene stays byte-identical across peers.
