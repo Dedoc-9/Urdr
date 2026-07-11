@@ -260,12 +260,13 @@ See §4 — this is the concrete centerpiece of the spec.
   `tests/test_render.py`. **Scope (honest):** this is *implementation-agreement on a stated corpus
   and refusal set, within the reference placement* — it does **not** yet demonstrate a *second
   independent* rasterizer agreeing (the D8 cross-placement step), nor GPU determinism (there is no
-  GPU), nor completeness for all scenes. Those, plus blend/perspective, remain `DECLARED`
+  GPU), nor completeness for all scenes. Those, plus blend, remain `DECLARED`
   (§4). **Cross-placement is now `MEASURED`:** an independent Rust rasterizer
-  (`urdr_render_rs/urdr_render.rs`, std-only, own SHA-256) reproduced all **eight** frame digests
-  (4 2D + 4 3D depth) bit-for-bit, twice, with the defect caught 8/8 on a Windows host — so
+  (`urdr_render_rs/urdr_render.rs`, std-only, own SHA-256) reproduced all **ten** frame digests
+  (4 2D + 4 3D depth + 2 perspective) bit-for-bit, twice, with the defect caught 10/10 on a Windows host — so
   `State_t ⟹ Framebuffer_t` is bit-identical across two independent placements for this corpus.
-  Exact **3D depth** (z-buffer occlusion + near/far/screen clip) is MEASURED both placements;
+  Exact **3D depth** (z-buffer occlusion + near/far/screen clip) and exact **perspective projection**
+  (floor-division pixel grid, vanishing point) are MEASURED both placements;
   perspective-correct interpolation, blending, and geometric Sutherland-Hodgman clip remain the
   DECLARED work.
 
@@ -354,7 +355,7 @@ reproduced, this contract stays `DECLARED`.
 | urdr-render      | rung 3: exact perspective projection (floor-div pixel grid, near-plane clip, vanishing point) | `MEASURED` (reference) | `render_perspective` gate stage, `test_perspective.py`, `perspective.py` |
 | urdr-render      | 2nd-placement frame digests (Rust): 2D | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs` — ADMITTED 4/4 twice, defect caught |
 | urdr-render      | 2nd-placement frame digests (Rust): 3D depth | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs` — ADMITTED 8/8 (4 2D + 4 3D) twice, defect caught |
-| urdr-render      | 2nd-placement frame digests (Rust): perspective | `SPECULATIVE` (written in `urdr_render_rs`, mirror-verified; pending host `ADMITTED`) | `conformance_persp.txt` (2 frames) |
+| urdr-render      | 2nd-placement frame digests (Rust): perspective | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs` — ADMITTED 10/10 (4 2D + 4 3D + 2 persp) twice, defect caught |
 | urdr-render      | perspective-correct interp + blending + geometric clip | `DECLARED` | targets (§4) |
 | network (live)   | real socket at the runner tier          | `SPECULATIVE`| host capability; not gated |
 

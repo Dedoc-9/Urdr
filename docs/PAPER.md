@@ -25,7 +25,7 @@ I/O confined to a capability boundary.
 We report a concrete reproducibility result: four independent, single-file Rust
 implementations — of the kernel, the renderer, the physics, and the exact-integer
 math spine — reproduce the reference implementation's output digests **bit-for-bit**
-on fixed conformance corpora (36 kernel vectors, 8 frame digests including 3D depth,
+on fixed conformance corpora (36 kernel vectors, 10 frame digests including 3D depth and perspective,
 18 physics digests, 3 fixed-point field digests, and 20 exact-math digests —
 rank/determinant/floor_divmod plus the atlas injectivity and reconstruction
 certificates), twice each, with deliberately-defective builds caught. A 239-test
@@ -212,7 +212,7 @@ defective build **caught** in every case:
 | placement | corpus | vectors | result |
 |-----------|--------|--------:|--------|
 | `urdr-core-rs`    | D8 kernel (canon→SHA-256, transitions, refusals) | **36** | ADMITTED ×2, defect caught |
-| `urdr-render-rs`  | frame digests: 2D fill + **3D depth** (z-buffer occlusion, near/far/screen clip) | **8** | ADMITTED ×2, defect caught |
+| `urdr-render-rs`  | frame digests: 2D fill + **3D depth** (z-buffer occlusion, near/far/screen clip) + **perspective** (floor-div projection, vanishing point) | **10** | ADMITTED ×2, defect caught |
 | `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints (**18**) + fixed-point field transport (**3** FIELDFP) | **21** | ADMITTED ×2, defect caught |
 | `urdr-math-rs`    | exact-integer spine: rank/determinant/floor_divmod + atlas injectivity (verdict + nullspace witness) + reconstruction (state/refusal) | **20** | ADMITTED ×2, defect caught |
 

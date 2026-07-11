@@ -912,11 +912,12 @@ cross-placement (extend `urdr_render_rs` with the 2 perspective frames) is the D
 flip it to cross-placed. No new invariant (a chart swap over the both-placements `div`); no new glyph; kernel
 frozen. `the rails meet at the horizon — exactly, on the pixel grid, no float in sight`.
 
-**Perspective cross-placement — Rust written, SPECULATIVE (pending host).** `urdr_render_rs/urdr_render.rs`
-is extended with the exact floor-division projection (`fdiv`, the same one the 2D viewport uses) and the two
-wireframe perspective scenes, reproducing `persp_rails`/`persp_cube` against embedded goldens; `--defect`
-corrupts the framebuffer MAGIC so both frames diverge. De-risked by an independent Python mirror of the Rust
-(trunc-then-adjust `fdiv` + the transcribed scene geometry) that reproduces both goldens and diverges under
-the defect. Grade: **SPECULATIVE** until a host recompiles `urdr_render.exe` and prints `ADMITTED` twice with
-the two perspective frames + defect caught; then renderer rung 3 flips to **MEASURED (cross-placed)** and the
-render placement covers **10** frames (4 2D + 4 3D + 2 perspective).
+**Perspective cross-placement — MEASURED (cross-placed).** `urdr_render_rs/urdr_render.rs` is extended with
+the exact floor-division projection (`fdiv`, the same one the 2D viewport uses) and the two wireframe
+perspective scenes, reproducing `persp_rails`/`persp_cube`; `--defect` corrupts the framebuffer MAGIC so both
+frames diverge. **CONFIRMED on host:** on Windows (`rustc -O --edition 2021`) `urdr_render.exe` printed
+`URDR-RENDER-RS: ADMITTED` **twice** over **10 frames** (4 2D + 4 3D + 2 perspective) and `--defect` caught
+divergence 10/10; it had been de-risked by an independent Python mirror of the Rust (trunc-then-adjust `fdiv`
++ transcribed geometry) reproducing both goldens. Renderer rung 3 is therefore **MEASURED (cross-placed)** —
+perspective vanishing points are now bit-identical across two independent runtimes, and the render placement
+covers **10** frames. `the rails converge to the same pixel on every conforming machine`.
