@@ -951,7 +951,10 @@ diverges them. De-risked by an independent Python mirror of the Rust (frdiv-base
 transcribed geometry) reproducing all 3 goldens and diverging under the defect. Grade: **SPECULATIVE** until
 a host recompiles `urdr_physics.exe` and prints `ADMITTED` with the 3 Marangoni frames twice + defect caught;
 then it flips to **MEASURED (cross-placed)** and the physics placement covers **24** digests (18 physics + 3
-FIELDFP + 3 Marangoni).
+FIELDFP + 3 Marangoni). **CONFIRMED on host:** on Windows (`rustc -O --edition 2021`) `urdr_physics.exe`
+printed `URDR-PHYSICS-RS: ADMITTED` **twice** over all **24** digests including `marangoni/{sharpen,peak2d,
+ridge}`, and `--defect` caught divergence 24/24. Marangoni surface-tension transport is therefore
+**MEASURED (cross-placed)** — the nonlinear self-advection is bit-identical across two independent runtimes.
 
 **Field→body momentum coupling (Continuum) — MEASURED (reference).** The complement of Marangoni
 self-advection and the piece the original ledger called for (surface-tension force as momentum injection):

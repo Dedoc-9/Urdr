@@ -351,7 +351,7 @@ reproduced, this contract stays `DECLARED`.
 | urdr-physics     | friction + rotation/shapes + sphere-sphere CCD | `DECLARED` | targets (§3.5) — the next rungs |
 | urdr-field       | v0.1: conservative advection-diffusion (Q32.32 fixed-point, mass-exact, FROZEN) | `MEASURED` (cross-placed) | `field` gate stage; `urdr_physics_rs` FIELDFP 3/3 |
 | urdr-field       | Marangoni surface-tension transport (nonlinear self-advection ∝ κ·∂σ, mass-exact, monotone under CFL) | `MEASURED` (reference) | `marangoni` gate stage, `test_marangoni.py`, `marangoni.py` |
-| urdr-field       | 2nd-placement Marangoni digests (Rust) | `SPECULATIVE` (written in `urdr_physics_rs`, mirror-verified; pending host `ADMITTED`) | `conformance_marangoni.txt` (3 frames) |
+| urdr-field       | 2nd-placement Marangoni digests (Rust) | `MEASURED` (Windows, rustc edition-2021) | `urdr_physics_rs` — ADMITTED 24/24 (18 physics + 3 FIELDFP + 3 Marangoni) twice, defect caught |
 | urdr-field       | field→body momentum coupling (surface-tension force into the dynamics) | `MEASURED` (reference) | `field_coupling` gate stage, `test_field_coupling.py`, `field_coupling.py` |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: 2D viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
