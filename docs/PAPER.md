@@ -28,7 +28,7 @@ math spine — reproduce the reference implementation's output digests **bit-for
 on fixed conformance corpora (36 kernel vectors, 10 frame digests including 3D depth and perspective,
 18 physics digests, 3 fixed-point field digests, and 20 exact-math digests —
 rank/determinant/floor_divmod plus the atlas injectivity and reconstruction
-certificates), twice each, with deliberately-defective builds caught. A 247-test
+certificates), twice each, with deliberately-defective builds caught. A 254-test
 verification gate enforces
 determinism, golden agreement, an in-process oracle, and 45 typed rejection
 fixtures on every change. We are precise about scope: this demonstrates
@@ -233,7 +233,7 @@ online build offline-reproducible.
 
 ### 5.3 Conformance corpus & gate
 
-The gate runs, deterministically: **247** unit falsifiers; **42** example programs
+The gate runs, deterministically: **254** unit falsifiers; **42** example programs
 checked for determinism (twice) and golden agreement; an in-process oracle
 (`compiled ≡ reference`) with a defect that must diverge; **45** rejection fixtures
 each producing an exact typed refusal code; and per-layer stages for the registry,
@@ -379,74 +379,5 @@ computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
 four independent Rust placements reproduce the reference's state, frame, physics,
-and exact-math digests bit-for-bit on fixed corpora, behind a 247-test gate with typed
-refusals and non-vacuity self-tests. The result is scoped to corpus agreement, not
-universal correctness. Future work follows a fixed ladder — prototype → reference
-proof → conformance corpus → independent second placement → admission → freeze —
-for friction, rotation, continuous collision, performance, and the networking/
-replay and game runtime layers, each as a consumer of the now-frozen lower layers.
-
----
-
-## Appendix A — Minimal API surface (frozen contracts)
-
-The *syntactic* surface is intentionally minimal: the sealed language (`urdr-core`)
-is a small, closed glyph alphabet with epistemic types; **no new glyph is admitted
-without a §20 review, and none has been needed**. Everything above the kernel is a
-plain function API. The frozen public surface (see `spec/D12`):
-
-- **kernel**: `digest = SHA-256(canon(v))`; epistemic tags `⟨maturity, evidence⟩`;
-  the 18 `URDR-*` refusal codes; import-by-digest modules.
-- **urdr-math v0.1**: `floor_divmod, rank, determinant, nullspace, transpose,
-  matmul, gcd, extended_gcd, modinv` (i64-bounded, overflow ⇒ refuse).
-- **urdr-physics v1.0**: `Body/Ball, integrate, resolve_contact, resolve_spheres,
-  time_of_impact, toi_wall, step, solve_lcp, complementary, solve (joints),
-  satisfied, *_digest`; substrate `Q` (exact rational) and `Vec`; `PHYS-REFUSE`.
-- **urdr-render v1.0**: `viewport, edge, triangle_pixels (top-left rule),
-  line_pixels, Framebuffer.{serialize,digest}`; `RENDER-REFUSE`.
-- **capabilities R4**: `--grant NAME=read:PATH | write:PATH`; recorded inputs,
-  effect-plans; `URDR-CAP`, `URDR-LIMES`.
-
-## Appendix B — A more compact stack (design consideration, not yet done)
-
-The pipeline could be consolidated without changing any admitted digest:
-
-- **One exact substrate.** `physics/rational.Q`, `physics/vecq.Vec`, and
-  `intla/urdr_math` overlap; a single `urdr-exact` library (integers, rationals,
-  vectors, matrices, one i64-refusal policy) would remove duplication. The LCP and
-  joint solvers already share one `lin_solve`.
-- **One physics facade.** `dynamics`, `dynamics_nd`, `contact_lcp`, `articulated`
-  export a common shape (build → solve/certify → digest); a single `urdr-physics`
-  package interface would present them uniformly.
-- **One placement core.** The four Rust files re-implement the same `Q`/`Vec` and
-  SHA-256; a shared `std`-only core module would cut ~40% of the Rust surface.
-
-These are refactors that must preserve every conformance digest (they are *format*
-frozen, not *file-layout* frozen), and each would be validated by re-running the
-gate and the four placements — i.e., they follow the same admission discipline as
-a feature.
-
-## Appendix C — Reproducibility package
-
-```bash
-# reference gate (deterministic): unit falsifiers, examples×2, oracle, rejections, tamper
-PYTHONHASHSEED=0 python3 verify.py            # expect: GATE PASSED
-
-# independent placements (host with rustc, edition 2021), each red-first then twice:
-rustc -O --edition 2021 -o urdr_core.exe    tools/urdr_core_rs/urdr_core.rs
-rustc -O --edition 2021 -o urdr_render.exe  tools/render/urdr_render_rs/urdr_render.rs
-rustc -O --edition 2021 -o urdr_physics.exe tools/physics/urdr_physics_rs/urdr_physics.rs
-rustc -O -o urdr_math.exe                   tools/intla/urdr_math_rs/urdr_math.rs
-./urdr_core.exe conformance . --defect ; ./urdr_core.exe conformance . ; ./urdr_core.exe conformance .
-./urdr_render.exe --defect  ; ./urdr_render.exe  ; ./urdr_render.exe
-./urdr_physics.exe --defect ; ./urdr_physics.exe ; ./urdr_physics.exe
-./urdr_math.exe --defect    ; ./urdr_math.exe    ; ./urdr_math.exe
-```
-
-Corpora: `tools/foreign_placement/conformance.txt` (36), `tools/render/conformance.txt`
-+ `conformance3d.txt` (4 + 4), `tools/physics/conformance{,_nd,_lcp,_joint}.txt` (18)
-+ `conformance_field.txt` (3 FIELDFP + 1 reference-only FIELDQ),
-`tools/intla/conformance_math.txt` (20 exact-math). Contracts: `spec/D11`
-(layers), `spec/D12` (versions/freeze), `spec/D8` (portable kernel). `admitted ≠
-trusted` — a green gate certifies these tests on this code, never that a name means
-what it says.
+and exact-math digests bit-for-bit on fixed corpora, behind a 254-test gate with typed
+refusals and non-vacuity self-tests. The result is scoped to corpus ag

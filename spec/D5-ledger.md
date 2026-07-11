@@ -943,3 +943,30 @@ is a Marangoni-TYPE scalar transport (linear σ, single field), not free-surface
 (DECLARED): a Rust cross-placement of the 3 Marangoni frames, and field→body momentum coupling into the LCP.
 No new glyph; kernel and `urdr-field` v0.1 frozen; extends, never mutates. `the environment pushes back — the
 field flows up its own tension gradient, and not one unit of mass is lost doing it`.
+
+**Marangoni cross-placement — Rust written, SPECULATIVE (pending host).** `urdr_physics_rs/urdr_physics.rs`
+is extended with the value×value fixed-point multiply (`fp_mul`) and the Marangoni step, reproducing the 3
+scenes (`marangoni_sharpen`/`peak2d`/`ridge`) against embedded goldens; the shared `--defect` MAGIC bump
+diverges them. De-risked by an independent Python mirror of the Rust (frdiv-based `fp_mul`/`fmul_k` +
+transcribed geometry) reproducing all 3 goldens and diverging under the defect. Grade: **SPECULATIVE** until
+a host recompiles `urdr_physics.exe` and prints `ADMITTED` with the 3 Marangoni frames twice + defect caught;
+then it flips to **MEASURED (cross-placed)** and the physics placement covers **24** digests (18 physics + 3
+FIELDFP + 3 Marangoni).
+
+**Field→body momentum coupling (Continuum) — MEASURED (reference).** The complement of Marangoni
+self-advection and the piece the original ledger called for (surface-tension force as momentum injection):
+`tools/physics/field_coupling.py` has the field's surface-tension gradient push a rigid BODY, `F = μ·∇σ`
+(central difference over the frozen fixed-point field, zero-flux clamp), impulse `J = F·Δt`. The load-bearing
+property is **exact bookkeeping**: momentum is carried as Q32.32 integers, so `apply_impulse` is an integer
+add and the body's momentum change equals the injected impulse **exactly** (`Δp = J`, no drift) — the same
+discipline that makes the field's mass exact, carried to the body. A **uniform** field has zero gradient
+hence zero force (the non-vacuity that makes the gradient load-bearing); a field rising in +x pushes the body
+up-gradient (toward higher σ). Gate stage `field_coupling` (`field-coupling-impulse` = Δp==J + up-gradient
+direction; `field-coupling-selftest` = uniform-field-no-force vs gradient-does-force) + red-first falsifiers
+in `tests/test_field_coupling.py` (exact bookkeeping both axes, up-gradient, zero-gradient non-vacuity,
+monotone push, determinism, overflow refusal). Grade: **MEASURED (reference)**. Honest scope: this is
+**one-way** forcing (the field pushes the body; the body does not yet stir the field back), and the force
+ROUNDS (fixed-point) while the accounting is exact; wiring `J` as an external term into the LCP contact solve
+and the body→field reaction are the next rungs. No new glyph; `urdr-field` v0.1 frozen; extends, never
+mutates. `the surface-tension gradient is a force now — and every unit of impulse it spends lands on the body,
+exactly`.

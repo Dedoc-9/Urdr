@@ -922,6 +922,39 @@ class Gate:
                     "over-bound κ overshoots negative (CFL load-bearing) yet conserves mass (gate can redden)"
                     if sv else "CFL bound not load-bearing — instrument vacuous")
 
+    def field_coupling(self):
+        """Field→body Marangoni coupling: the surface-tension gradient pushes a
+        body (F = μ·∂σ). Momentum is carried as Q32.32 integers, so the impulse is
+        added EXACTLY (Δp = J, no drift) and the force points up-gradient (toward
+        higher σ). A UNIFORM field has zero gradient hence zero force — the
+        non-vacuity that makes the gradient load-bearing. One-way forcing;
+        deterministic; i64 overflow refuses. Extends the frozen field."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import field_coupling as C
+            from field import FixedPoint
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("field-coupling", False, f"import failed: {exc}")
+            return
+        grid = [C.unit(1, 10), C.unit(2, 10), C.unit(4, 10), C.unit(7, 10), C.unit(10, 10)]
+        w, h = 5, 1
+        j = C.impulse(C.force(grid, w, h, 2, (1, 4)), (1, 2))
+        p0 = (C.unit(3, 1), C.unit(-2, 1))
+        p1 = C.apply_impulse(p0, j)
+        dp = (FixedPoint.sub(p1[0], p0[0]), FixedPoint.sub(p1[1], p0[1]))
+        fx, fy = C.force(grid, w, h, 2, (1, 4))
+        exact = dp == j and fx > 0 and fy == 0
+        self.record("field-coupling-impulse", exact,
+                    "surface-tension force: Δp==J exactly + force points up-gradient"
+                    if exact else "impulse bookkeeping / direction FAILED")
+        uni = [C.unit(5, 10)] * 5
+        nv = C.force(uni, 5, 1, 2, (1, 4)) == (0, 0) and C.force(grid, w, h, 2, (1, 4)) != (0, 0)
+        self.record("field-coupling-selftest", nv,
+                    "uniform field exerts no force; a gradient does (gate can redden)"
+                    if nv else "gradient not load-bearing — instrument vacuous")
+
     # -- 2l. general-n observer-atlas injectivity certificate (exact, D10) -----
     def atlas_injective(self):
         """General-dimension atlas injectivity (D10, past the square/det case): a
@@ -1149,6 +1182,7 @@ def main() -> int:
     gate.physics_stress()
     gate.field()
     gate.marangoni()
+    gate.field_coupling()
     gate.rejections()
     gate.tamper()
     return gate.report()

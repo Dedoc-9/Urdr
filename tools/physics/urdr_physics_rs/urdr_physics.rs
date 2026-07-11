@@ -889,6 +889,82 @@ const CFIELD: [(&str, &str); 3] = [
     ("diffuse", "44bd85e6bbdf29068ddea2d9a3bb111819db4d3c986a1470dfa8753a4228b06f"),
 ];
 
+// -------------------------------- Marangoni surface-tension transport (URDRFLD1)
+// Extends the frozen field: the advective velocity is derived from the field's own
+// surface tension, v = κ·(σ[b]−σ[a]) with σ=c linear; the nonlinear term needs a
+// Q32.32 value×value multiply (`fp_mul`), unlike the frozen value×rational fmul_k.
+// Conservative flux form ⇒ mass exact even nonlinear. Byte-for-byte identical to
+// tools/physics/marangoni.py; reuses the FIELDFP frame digest.
+fn fp_mul(a: i64, b: i64) -> i64 {
+    frdiv(a as i128 * b as i128, FLD_ONE as i128)      // round-to-nearest ties-away
+}
+fn m_edge(grid: &[i64], new: &mut [i64], a: usize, b: usize,
+          kn: i64, kd: i64, cn: i64, cd: i64) {
+    let dc = fit(grid[b] as i128 - grid[a] as i128);
+    let fd = fmul_k(dc, kn, kd);                        // diffusion (smooths)
+    new[a] = fit(new[a] as i128 + fd as i128);
+    new[b] = fit(new[b] as i128 - fd as i128);
+    let v = fmul_k(dc, cn, cd);                         // Marangoni velocity ∝ ∂σ = ∂c
+    if v > 0 {                                          // flow a→b (up-gradient): upwind a
+        let f = fp_mul(v, grid[a]);
+        new[a] = fit(new[a] as i128 - f as i128);
+        new[b] = fit(new[b] as i128 + f as i128);
+    } else if v < 0 {                                   // flow b→a: upwind b
+        let f = fp_mul(-v, grid[b]);
+        new[b] = fit(new[b] as i128 - f as i128);
+        new[a] = fit(new[a] as i128 + f as i128);
+    }
+}
+fn marangoni_step(grid: &[i64], w: usize, h: usize, k: (i64, i64), kappa: (i64, i64)) -> Vec<i64> {
+    let (kn, kd) = k;
+    let (cn, cd) = kappa;
+    let mut new = grid.to_vec();
+    for y in 0..h {
+        for x in 0..w - 1 {
+            m_edge(grid, &mut new, y * w + x, y * w + x + 1, kn, kd, cn, cd);
+        }
+    }
+    for y in 0..h - 1 {
+        for x in 0..w {
+            m_edge(grid, &mut new, y * w + x, (y + 1) * w + x, kn, kd, cn, cd);
+        }
+    }
+    new
+}
+fn funit(n: i128, d: i128) -> i64 {
+    frdiv(n * FLD_ONE as i128, d)
+}
+fn run_marangoni(name: &str, magic: &[u8]) -> String {
+    let (grid, w, h, k, kappa, steps): (Vec<i64>, usize, usize, (i64, i64), (i64, i64), usize) =
+        match name {
+            "marangoni_sharpen" => {
+                let (lo, hi) = (funit(1, 10), funit(1, 1));
+                (vec![lo, lo, hi, lo, lo], 5, 1, (1, 20), (1, 8), 5)
+            }
+            "marangoni_peak2d" => {
+                let (lo, hi) = (funit(1, 10), funit(1, 1));
+                let mut g = vec![lo; 25];
+                g[12] = hi;
+                (g, 5, 5, (1, 20), (1, 10), 10)
+            }
+            "marangoni_ridge" => {
+                let (lo, hi) = (funit(2, 10), funit(8, 10));
+                (vec![lo, hi, lo, hi, lo], 5, 1, (0, 1), (1, 8), 3)
+            }
+            _ => unreachable!(),
+        };
+    let mut g = grid;
+    for _ in 0..steps {
+        g = marangoni_step(&g, w, h, k, kappa);
+    }
+    fld_digest(&g, w, h, magic)
+}
+const CMARANGONI: [(&str, &str); 3] = [
+    ("marangoni_peak2d", "162e0cd15df59c2928644c77101d73e008d259dd18704244918721c939e18019"),
+    ("marangoni_ridge", "5cf3d4f80016f1aa7d2fdc5aa913e4967314403fa62f7c05cf32b203d556194b"),
+    ("marangoni_sharpen", "2fee5cb62d9deab9f1ca6b8919369d0be46499a3040196aa6769637208822bb5"),
+];
+
 fn judge(defect: bool, label: &str, got: String, want: &str) -> bool {
     if defect {
         if got != want {
@@ -938,6 +1014,9 @@ fn main() {
     }
     for (n, w) in CFIELD.iter() {
         all_ok &= judge(defect, &format!("field/{}", n), run_field(n, m_fl), w);
+    }
+    for (n, w) in CMARANGONI.iter() {
+        all_ok &= judge(defect, &format!("marangoni/{}", n), run_marangoni(n, m_fl), w);
     }
     if all_ok {
         if defect {
