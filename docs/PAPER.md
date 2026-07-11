@@ -215,6 +215,7 @@ defective build **caught** in every case:
 | `urdr-render-rs`  | frame digests: 2D fill + **3D depth** (z-buffer occlusion, near/far/screen clip) + **perspective** (floor-div projection, vanishing point) | **10** | ADMITTED ×2, defect caught |
 | `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints (**18**) + field transport (**3** FIELDFP) + **Marangoni** (**3**) + two-way field↔body **loop** (**3**) | **27** | ADMITTED ×2, defect caught |
 | `urdr-math-rs`    | exact-integer spine: rank/determinant/floor_divmod + atlas injectivity (verdict + nullspace witness) + reconstruction (state/refusal) | **20** | ADMITTED ×2, defect caught |
+| `urdr-math-c` (C99) | the **same 20** exact-math digests — a THIRD independent runtime | **20** | ADMITTED ×2, defect caught (Linux/gcc — 3 languages, 2 OSes) |
 
 The four placements share no code, language, or SHA-256 implementation with the
 reference. This is the paper's central result: across the whole pipeline —

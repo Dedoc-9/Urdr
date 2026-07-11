@@ -22,7 +22,8 @@ diffusion, Marangoni surface tension, a two-way field↔body coupling loop) — 
 admitted output is either bit-identical across independent implementations or explicitly
 refused. **Four** single-file Rust placements (core / render / physics / math) reproduce the
 reference's kernel, frame, physics, field, and exact-math digests bit-for-bit on fixed
-corpora, behind a 261-test gate. For the systems-level overview, read the **[OSDI-style paper →
+corpora, behind a 261-test gate — and the math spine has a **third**, C99 placement, so
+rank/determinant/injectivity/reconstruction agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
@@ -294,7 +295,7 @@ Each main-tree folder carries its own README with the detail.
 | [`spec/`](spec/) | Normative specs D1–D12 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone, **layer contracts D11**, **versions/freeze D12**), the D5 graded ledger, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
 | [`examples/`](examples/) | The corpus the gate runs: accepted `.urdr` fixtures + golden `.digest`, `rejected/` must-die programs + `MANIFEST.txt`, `must_fail/` the tamper self-test, `vendor/` import-by-digest modules | [`examples/README.md`](examples/README.md) |
 | [`tests/`](tests/) | Unit falsifiers (pytest / unittest), one per subsystem — each designed to be able to go red | [`tests/README.md`](tests/README.md) |
-| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/`), `physics/` (dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `world_host/` (runtime reference), plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
+| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `world_host/` (runtime reference), plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
 | [`docs/`](docs/) | Design briefs and session transcripts (narrative, not normative) | [`docs/README.md`](docs/README.md) |
 | `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
 | `verify.py` | The gate: unit falsifiers + examples (×2) + oracle + modules + rejections + tamper self-test | — |
@@ -336,9 +337,9 @@ certificate and reconstruction/inversion (both **cross-placed** via `urdr-math-r
 projection (renderer rung 3, cross-placed), and Marangoni surface-tension transport with the two-way
 field↔body coupling loop (Continuum, cross-placed / reference). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
 
-- **A third-language placement** of the kernel (or of `urdr-math`) — moving from two-runtime to
-  three-runtime agreement, widening the conformance frontier beyond Rust-on-Windows. The single
-  highest-leverage rigor item left (in progress).
+- **Third-language placements of the remaining layers.** The math spine is now **three-runtime**
+  (Python + Rust + a C99 placement, `tools/intla/urdr_math_c/`, measured on Linux/gcc — two OSes);
+  extending a third runtime to the kernel / render / physics corpora widens the frontier further.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles —
   the renderer rung beyond wireframe.

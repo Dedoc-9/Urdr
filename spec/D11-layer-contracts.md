@@ -341,6 +341,8 @@ reproduced, this contract stays `DECLARED`.
 | capabilities R4  | recorded inputs / effect-plans / līmes  | `MEASURED`   | `capability.py`, network_read, registry |
 | urdr-core        | digest identity, refusals, epistemics   | `MEASURED` + portable | D8 corpus (36 vectors, 2 placements) |
 | urdr-math v0.1   | exact integer LA + number theory        | `MEASURED`   | oracle tests; witness cross-placement v10/v11 |
+| urdr-math        | 2nd-placement (Rust): rank/det/floor_divmod + injectivity + reconstruction | `MEASURED` (Windows, rustc) | `urdr_math_rs` — ADMITTED 20/20 twice, defect caught |
+| urdr-math        | 3rd-placement (C99): the same 20 exact-math digests | `MEASURED` (Linux, gcc 11.4) | `urdr_math_c` — ADMITTED 20/20 twice, defect caught (3 runtimes, 2 OSes) |
 | urdr-rigidity    | rigidity / stress / superstability      | `MEASURED` (library); partial cross-placement | ladder tests; corpus v11 |
 | urdr-physics     | rigidity-admissibility                  | `MEASURED`   | `physics.py`, corpus v12 |
 | urdr-physics     | rung 1: exact 1D step + LCP kernel + conservation + CCD | `MEASURED` (reference) | `physics` gate stage, `test_physics.py`, `tools/physics/` |

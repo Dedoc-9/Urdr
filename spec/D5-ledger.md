@@ -893,6 +893,19 @@ glyph; kernel frozen; consumes only the frozen exact-math surface. This makes **
 placements (core, render, physics, math). `the math spine is no longer a property of one interpreter — it is
 a law two runtimes agree on, bit for bit`.
 
+**urdr-math THIRD-runtime placement (C) — MEASURED (cross-placed), three runtimes.** The single
+highest-leverage rigor move: `tools/intla/urdr_math_c/urdr_math.c` — a single-file, std-only **C99**
+re-implementation (hand-rolled SHA-256, `__int128` wide multiplies, i64-bounded with REFUSE encoded in the
+result) that shares no code with the Python reference *or* the Rust placement. It reproduces all **20**
+exact-math digests bit-for-bit and refuses the same cases; `--defect` corrupts the MAGIC so every scene
+diverges. **CONFIRMED on host:** compiled and run on Linux (`gcc 11.4.0`, `x86_64`), it printed
+`URDR-MATH-C: ADMITTED (20/20 digests)` **twice** and `defect caught (20/20 diverged)`. This lifts the
+mathematical spine — rank/determinant/floor_divmod, the general-n injectivity verdict + exact nullspace
+collision witness, and Cramer reconstruction — from two-runtime to **three-runtime** agreement: three
+independent languages (Python, Rust, C), three compilers, and now **two operating systems** (Windows for the
+Rust placements, Linux for this one), all bit-identical. `three implementations, three languages, two OSes —
+and the same digest on all of them; the spine is a law, not an artifact of one toolchain`.
+
 **Perspective projection (Rendering rung 3) — MEASURED (reference).** The projective chart swap: a pinhole
 camera maps `(x,y,z) → (f·x/z, f·y/z)`. The real screen position is irrational, but rasterization needs only
 the integer PIXEL, and the floor of a rational is **exact** — so `tools/render/perspective.py` projects to

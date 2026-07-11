@@ -65,7 +65,9 @@ Reference implementation is **Python** (chosen for auditability, not speed).
 Independent second placements are **single-file, `std`-only Rust** with hand-rolled
 SHA-256 (no crates, no cargo): `tools/urdr_core_rs/`, `tools/render/urdr_render_rs/`,
 `tools/physics/urdr_physics_rs/`, `tools/intla/urdr_math_rs/` (the exact-integer
-linear-algebra spine + atlas certificates).
+linear-algebra spine + atlas certificates). The math spine additionally has a
+**third-runtime C99 placement** `tools/intla/urdr_math_c/` (single file, std-only,
+`__int128`) — three languages, two OSes, one digest.
 
 ---
 
