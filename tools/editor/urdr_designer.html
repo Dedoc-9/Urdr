@@ -64,6 +64,20 @@
     background:var(--panel);border-top:1px solid var(--line);color:var(--dim);font-size:11px}
   footer .k{color:var(--acid)} .pill{padding:1px 7px;border:1px solid var(--line);border-radius:10px}
   .note{color:var(--dim);font-size:11px;margin:4px 0 0}
+  .tree{display:flex;flex-direction:column;gap:1px;max-height:184px;overflow:auto;
+    border:1px solid var(--line);border-radius:5px;padding:3px;background:#0f1213}
+  .orow{display:flex;align-items:center;gap:6px;padding:3px 4px;border-radius:4px;cursor:pointer}
+  .orow:hover{background:#15191b} .orow.on{background:#1a140a;box-shadow:inset 0 0 0 1px var(--amber)}
+  .orow .onm{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+  .orow .oic{color:var(--dim);width:16px;text-align:center}
+  .ins{display:flex;align-items:center;gap:8px;color:var(--dim);padding:3px 0}
+  .ins input,.ins select{flex:1;min-width:0;background:#0f1213;border:1px solid var(--line);
+    color:var(--ink);border-radius:4px;padding:4px 6px;font:inherit}
+  .row2{display:flex;gap:6px}.row2 .ins,.row2 .chk{flex:1}
+  .crow{display:flex;align-items:center;gap:6px;padding:3px 5px;border:1px solid var(--line);
+    border-radius:4px;margin-top:4px;color:var(--ink)}
+  .crow span:first-child{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .crow .del{color:var(--rust);cursor:pointer}
 </style>
 </head>
 <body>
@@ -249,7 +263,7 @@ function drawWorld2d(){
     ctx.moveTo(x,y);ctx.lineTo(x+18-(i%5)*6,y+9-(i%3)*7);ctx.stroke();}
   ctx.strokeStyle=CSS('--dash'); ctx.lineWidth=4; ctx.setLineDash([34,26]);
   ctx.beginPath(); ctx.moveTo(0,ry+rh/2);ctx.lineTo(W,ry+rh/2);ctx.stroke(); ctx.setLineDash([]);
-  world.forEach(inst=>{ const d=designs.find(x=>x.id===inst.designId); if(!d)return;
+  world.forEach(inst=>{ const d=designs.find(x=>x.id===inst.designId); if(!d||inst.visible===false)return;
     const c=Math.cos(inst.rot),s=Math.sin(inst.rot),cx=avg(d.verts,'x'),cy=avg(d.verts,'y'),sc=inst.scale||1;
     const vs=d.verts.map(p=>{const px=(p.x-cx)*sc,py=(p.y-cy)*sc;return{x:inst.x+px*c-py*s,y:inst.y+px*s+py*c};});
     const on=inst.id===worldSel; ctx.strokeStyle=on?CSS('--amber'):CSS('--rust'); ctx.lineWidth=2; ctx.beginPath();
@@ -284,7 +298,7 @@ function drawWorld3d(){
     if(a&&b){ctx.moveTo(a.sx,a.sy);ctx.lineTo(b.sx,b.sy);}} ctx.stroke();
   // instances: draw silhouette standing up at its ground point (sorted far->near)
   const list=world.map(inst=>({inst,g:groundOf(inst)})).sort((a,b)=>b.g.gz-a.g.gz);
-  list.forEach(({inst,g})=>{ const d=designs.find(x=>x.id===inst.designId); if(!d)return;
+  list.forEach(({inst,g})=>{ const d=designs.find(x=>x.id===inst.designId); if(!d||inst.visible===false)return;
     const ocx=avg(d.verts,'x'),ocy=avg(d.verts,'y'),S=wcam.scale*(inst.scale||1),c=Math.cos(inst.rot),s=Math.sin(inst.rot);
     const pts=d.verts.map(p=>{ let lx=(p.x-ocx)*S, up=-(p.y-ocy)*S, lz=(p.z||0)*S;
       const wx=lx*c-lz*s, wz=lx*s+lz*c;                       // yaw around vertical
@@ -367,9 +381,9 @@ function d2Down(p){ hoverV=nearestVert(cur.verts,p);
 function d3Down(p){ const pr=objProj(); const i=nearestVert(cur.verts,p,-1,SNAP+3,pr);
   if(i>=0){selV=i; drag=null;} else drag={type:'orbit',x:p.x,y:p.y,yaw:ocam.yaw,pitch:ocam.pitch}; renderSide(); }
 function w2Down(p){
-  if(worldSel!=null){const it=world.find(w=>w.id===worldSel); if(it&&Math.hypot(p.x-it.x,p.y-(it.y-40))<9){drag={type:'rot',id:it.id};return;}}
-  for(let i=world.length-1;i>=0;i--){const it=world[i]; if(Math.hypot(p.x-it.x,p.y-it.y)<26){worldSel=it.id;drag={type:'moveInst',id:it.id,dx:p.x-it.x,dy:p.y-it.y};renderSide();return;}}
-  if(placeSel!=null){world.push({id:nextId++,designId:placeSel,x:p.x,y:p.y,rot:0,scale:1});worldSel=world[world.length-1].id;renderSide();return;}
+  if(worldSel!=null){const it=world.find(w=>w.id===worldSel); if(it&&!it.locked&&Math.hypot(p.x-it.x,p.y-(it.y-40))<9){drag={type:'rot',id:it.id};return;}}
+  for(let i=world.length-1;i>=0;i--){const it=world[i]; if(it.visible!==false&&Math.hypot(p.x-it.x,p.y-it.y)<26){worldSel=it.id; if(!it.locked)drag={type:'moveInst',id:it.id,dx:p.x-it.x,dy:p.y-it.y}; renderSide();return;}}
+  if(placeSel!=null){const nm=(designs.find(d=>d.id===placeSel)||{}).name; world.push(normInst({id:nextId++,designId:placeSel,x:p.x,y:p.y,rot:0,scale:1,name:nm})); worldSel=world[world.length-1].id;renderSide();return;}
   worldSel=null; renderSide(); }
 function w3Down(p){ drag={type:'worbit',x:p.x,y:p.y,yaw:wcam.yaw,pitch:wcam.pitch}; }
 
@@ -378,7 +392,9 @@ function onMove(p){
     if(drag){ if(drag.type==='line')drag.p=p; else if(drag.type==='move'){const s=snap(p);cur.verts[drag.i].x=s.x;cur.verts[drag.i].y=s.y;} else if(drag.type==='axis')mirrorX=p.x; } }
   else if(mode==='design'&&view==='3d'&&drag&&drag.type==='orbit'){
     ocam.yaw=drag.yaw+(p.x-drag.x)*0.01; ocam.pitch=clamp(drag.pitch+(p.y-drag.y)*0.01,-1.4,1.4); }
-  else if(mode==='world'&&view==='2d'&&drag){ if(drag.type==='moveInst'){const it=world.find(w=>w.id===drag.id);it.x=p.x-drag.dx;it.y=p.y-drag.dy;}
+  else if(mode==='world'&&view==='2d'&&drag){ if(drag.type==='moveInst'){const it=world.find(w=>w.id===drag.id);
+      const nx=p.x-drag.dx, ny=p.y-drag.dy, ddx=nx-it.x, ddy=ny-it.y; it.x=nx; it.y=ny;
+      descendantsOf(it.id).forEach(c=>{c.x+=ddx;c.y+=ddy;});}
     else if(drag.type==='rot'){const it=world.find(w=>w.id===drag.id);it.rot=Math.atan2(p.y-it.y,p.x-it.x)+Math.PI/2;} }
   else if(mode==='world'&&view==='3d'&&drag&&drag.type==='worbit'){
     wcam.yaw=clamp(drag.yaw+(p.x-drag.x)*0.006,-0.8,0.8); wcam.pitch=clamp(drag.pitch-(p.y-drag.y)*0.004,0.05,0.9); syncCam(); }
@@ -425,6 +441,35 @@ function addBarrier(){ snapshot(); const cx=W*0.4,cy=H*0.42,hw=prim.rw/2,hh=prim
 function instScale(f){ if(worldSel==null)return; const it=world.find(w=>w.id===worldSel); if(it){it.scale=clamp((it.scale||1)*f,0.1,8); draw(); renderSide();} }
 function instRot(deg){ if(worldSel==null)return; const it=world.find(w=>w.id===worldSel); if(it){it.rot+=deg*Math.PI/180; draw(); renderSide();} }
 
+// ---------------- scene hierarchy + instance physical state (authoring only) ----------------
+function normInst(w){ if(w.name==null)w.name='obj '+w.id; if(w.parent===undefined)w.parent=null;
+  w.visible=w.visible!==false; w.locked=!!w.locked; w.body=w.body||'dynamic'; if(w.mass==null)w.mass=1;
+  w.collider=w.collider||'hull'; if(!w.material)w.material={restitution:0.5,friction:0.3};
+  if(w.tags==null)w.tags=''; if(w.caps==null)w.caps=''; if(!Array.isArray(w.constraints))w.constraints=[]; return w; }
+function descendantsOf(id){ const out=[],stack=[id];
+  while(stack.length){ const p=stack.pop(); world.forEach(w=>{ if(w.parent===p){out.push(w);stack.push(w.id);} }); } return out; }
+function isAncestorOf(anc,node){ let w=world.find(x=>x.id===node),g=0;
+  while(w&&w.parent!=null&&g++<9999){ if(w.parent===anc)return true; w=world.find(x=>x.id===w.parent);} return false; }
+function setParent(it,pid){ if(pid===it.id||isAncestorOf(it.id,pid)){ msg('cannot parent to itself or a descendant'); return; } it.parent=pid; }
+function selInst(id){ worldSel=id; drag=null; renderSide(); draw(); }
+function toggleVis(id){ const w=world.find(x=>x.id===id); if(w){w.visible=!w.visible; renderSide(); draw();} }
+function toggleLock(id){ const w=world.find(x=>x.id===id); if(w){w.locked=!w.locked; renderSide(); draw();} }
+function addConstraint(){ const it=world.find(w=>w.id===worldSel); if(!it)return;
+  const tyEl=document.getElementById('iCType'), toEl=document.getElementById('iCTo'); if(!tyEl||!toEl)return;
+  const to=parseInt(toEl.value); if(isNaN(to)||to===it.id)return;
+  it.constraints.push({type:tyEl.value,to}); renderSide(); draw(); }
+function delConstraint(i){ const it=world.find(w=>w.id===worldSel); if(it&&it.constraints[i]){it.constraints.splice(i,1); renderSide();} }
+function outlinerHTML(){ if(!world.length)return '<span class="note">no placed objects yet</span>';
+  const kids={}; world.forEach(w=>{const k=(w.parent==null?'root':w.parent); (kids[k]=kids[k]||[]).push(w);});
+  let rows=''; const walk=(pid,depth)=>{ (kids[pid]||[]).forEach(w=>{ const sel=w.id===worldSel;
+    rows+=`<div class="orow${sel?' on':''}" style="padding-left:${4+depth*14}px" onclick="selInst(${w.id})">`
+      +`<span class="onm">${escapeHtml(w.name||('#'+w.id))}</span>`
+      +`<span class="oic" title="show / hide" onclick="event.stopPropagation();toggleVis(${w.id})">${w.visible?'◉':'○'}</span>`
+      +`<span class="oic" title="lock / unlock" onclick="event.stopPropagation();toggleLock(${w.id})">${w.locked?'▣':'▢'}</span>`
+      +`</div>`;
+    walk(w.id,depth+1); }); };
+  walk('root',0); return rows; }
+
 // ---------------- library ----------------
 async function saveDesign(){ if(!cur.verts.length){msg('nothing to save');return;}
   let d={verts:cur.verts.map(p=>({x:p.x,y:p.y,z:p.z||0})),edges:cur.edges.map(e=>[e[0],e[1]])};
@@ -446,19 +491,30 @@ function saveProject(){ const out={format:'URDR-PROJECT-1',nextId,designs,world}
   a.download='urdr_project.json'; a.click(); msg('project saved · '+designs.length+' objects, '+world.length+' placed'); }
 function openProject(file){ const r=new FileReader();
   r.onload=()=>{ try{ const p=JSON.parse(r.result);
-    designs=Array.isArray(p.designs)?p.designs:[]; world=Array.isArray(p.world)?p.world:[];
+    designs=Array.isArray(p.designs)?p.designs:[]; world=(Array.isArray(p.world)?p.world:[]).map(normInst);
     nextId=p.nextId|| (Math.max(0,...designs.map(d=>d.id||0),...world.map(w=>w.id||0))+1);
     placeSel=null; worldSel=null; selV=-1; cur={verts:[],edges:[]}; undo=[]; redo=[];
     renderSide(); draw(); msg('project loaded · '+designs.length+' objects, '+world.length+' placed');
   }catch(err){ msg('could not read that project file'); } };
   r.readAsText(file); }
 function exportWorld(){
-  const out={format:'URDR-WORLD-2',
+  const csv=s=>(s||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const out={format:'URDR-WORLD-3',
     objects:designs.map(d=>({digest:d.digest,name:d.name,verts:d.verts.map(p=>[Math.round(p.x),Math.round(p.y),Math.round(p.z||0)]),edges:d.edges})),
     instances:world.map(w=>{const d=designs.find(x=>x.id===w.designId);const g=groundOf(w);
-      return{object:d?d.digest:null,ground_x:Math.round(g.gx),ground_z:Math.round(g.gz),rot_deg:Math.round(w.rot*180/Math.PI)};})};
+      let lx=g.gx,lz=g.gz,lrot=w.rot;                            // local transform relative to parent (ground space)
+      if(w.parent!=null){const par=world.find(x=>x.id===w.parent); if(par){const pg=groundOf(par); lx=g.gx-pg.gx; lz=g.gz-pg.gz; lrot=w.rot-par.rot;}}
+      return{ id:w.id, object:d?d.digest:null, name:w.name, parent:(w.parent!=null?w.parent:null),
+        ground_x:Math.round(g.gx), ground_z:Math.round(g.gz), rot_deg:Math.round(w.rot*180/Math.PI),
+        local:{x:Math.round(lx), z:Math.round(lz), rot_deg:Math.round(lrot*180/Math.PI)},
+        scale:+(w.scale||1).toFixed(3),
+        body:w.body, mass:w.mass, collider:w.collider,
+        material:{restitution:+(+w.material.restitution).toFixed(3), friction:+(+w.material.friction).toFixed(3)},
+        tags:csv(w.tags), capabilities:csv(w.caps),
+        visible:w.visible!==false, locked:!!w.locked,
+        constraints:(w.constraints||[]).map(c=>({type:c.type, to:c.to})) };})};
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
-  a.download='urdr_world.json'; a.click(); msg('exported urdr_world.json ('+world.length+' instances)'); }
+  a.download='urdr_world.json'; a.click(); msg('exported urdr_world.json ('+world.length+' instances, URDR-WORLD-3)'); }
 function thumb(d){const c=document.createElement('canvas');c.width=40;c.height=30;const g=c.getContext('2d');
   if(!d.verts.length)return c; let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;
   d.verts.forEach(p=>{mnx=Math.min(mnx,p.x);mny=Math.min(mny,p.y);mxx=Math.max(mxx,p.x);mxy=Math.max(mxy,p.y);});
@@ -505,17 +561,48 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
     h+=`<h3>Keys</h3><p class="note">drag = draw line · Ctrl+Z / Ctrl+⇧+Z = undo/redo · Del = remove selected point · wheel = zoom (3D) · click a point → depth Z</p>`;
     h+=`<h3>Library</h3><div class="lib" id="lib"></div>`;
   } else if(mode==='world'){
-    h+=`<h3>Place objects</h3><div class="row"><button onclick="exportWorld()">⬇ Export world JSON</button></div>
-      <p class="note">Pick a design, click to drop it. Drag to move · amber handle rotates · Delete removes. Placement/drag is in 2D; toggle ◈ 3D to preview.</p>`;
+    h+=`<h3>Place · export</h3><div class="row"><button onclick="exportWorld()">⬇ Export world JSON</button></div>
+      <p class="note">Pick a design below, click the road to drop it. Drag to move (children follow) · amber handle rotates · Delete removes. Every physical prop here serializes into the canonical world JSON — no engine logic runs in the browser.</p>`;
+    h+=`<h3>Hierarchy</h3><div class="tree" id="tree">${outlinerHTML()}</div>`;
+    if(worldSel!=null){ const it=world.find(w=>w.id===worldSel);
+      if(it){
+        const opt=(v,cur,lbl)=>`<option value="${v}"${cur===v?' selected':''}>${lbl}</option>`;
+        const others=world.filter(w=>w.id!==it.id&&!isAncestorOf(it.id,w.id));
+        h+=`<h3>Inspector · ${escapeHtml(it.name||('#'+it.id))}</h3>
+          <label class="ins">name <input id="iName" type="text" value="${escapeHtml(it.name||'')}"></label>
+          <div class="row2">
+            <label class="ins">body <select id="iBody">${opt('dynamic',it.body,'dynamic')}${opt('static',it.body,'static')}${opt('kinematic',it.body,'kinematic')}</select></label>
+            <label class="ins">collider <select id="iColl">${opt('hull',it.collider,'hull')}${opt('box',it.collider,'box')}${opt('circle',it.collider,'circle')}${opt('none',it.collider,'none')}</select></label>
+          </div>
+          ${sliderRow('mass','iMass',1,100,Math.round(it.mass))}
+          ${sliderRow('restitution %','iRest',0,100,Math.round(it.material.restitution*100))}
+          ${sliderRow('friction %','iFric',0,100,Math.round(it.material.friction*100))}
+          <label class="ins">parent <select id="iParent"><option value=""${it.parent==null?' selected':''}>— none (root)</option>${others.map(w=>opt(String(w.id),String(it.parent),escapeHtml(w.name||('#'+w.id)))).join('')}</select></label>
+          <label class="ins">tags <input id="iTags" type="text" placeholder="vehicle, hazard" value="${escapeHtml(it.tags||'')}"></label>
+          <label class="ins">capabilities <input id="iCaps" type="text" placeholder="drivable, breakable" value="${escapeHtml(it.caps||'')}"></label>
+          <div class="row2">
+            <label class="chk"><input type="checkbox" id="iVis" ${it.visible?'checked':''}> visible</label>
+            <label class="chk"><input type="checkbox" id="iLock" ${it.locked?'checked':''}> locked</label>
+          </div>
+          <h3>Transform</h3>
+          <div class="row"><button onclick="instRot(-1)">⟲ 1°</button><button onclick="instRot(-15)">⟲ 15</button><button onclick="instRot(15)">15 ⟳</button><button onclick="instRot(1)">1° ⟳</button></div>
+          <div class="row"><button onclick="instScale(0.909)">− scale</button><button onclick="instScale(1.1)">+ scale</button></div>
+          <p class="note">scale ${(it.scale||1).toFixed(2)}× · rot ${Math.round(it.rot*180/Math.PI)}° · Delete to remove</p>
+          <h3>Constraints / joints</h3>`;
+        it.constraints.forEach((c,i)=>{ const tgt=world.find(w=>w.id===c.to);
+          h+=`<div class="crow"><span>${escapeHtml(c.type)} → ${tgt?escapeHtml(tgt.name||('#'+c.to)):('#'+c.to)}</span><span class="del" title="remove" onclick="delConstraint(${i})">✕</span></div>`; });
+        h+=`<div class="row2">
+            <select id="iCType">${opt('hinge','hinge','hinge')}${opt('slider','','slider')}${opt('weld','','weld')}${opt('spring','','spring')}${opt('motor','','motor')}</select>
+            <select id="iCTo">${others.map(w=>opt(String(w.id),'',escapeHtml(w.name||('#'+w.id)))).join('')||'<option value="">(no target)</option>'}</select>
+          </div>
+          <div class="row"><button onclick="addConstraint()">＋ add constraint</button></div>
+          <p class="note">Links serialize as {type, to} — the joint intent. Click-to-wire A→B and solver params are a later rung.</p>`;
+      }
+    } else h+=`<p class="note">Select a placed object (click it, or a row in the hierarchy) to inspect and edit its physical state.</p>`;
     if(view==='3d') h+=`<h3>Camera</h3>
       ${sliderRow('focal','sWF',200,1000,wcam.focal)}${sliderRow('height','sWH',20,400,wcam.height)}
       ${sliderRow('tilt','sWP',5,90,Math.round(wcam.pitch*180/Math.PI))}${sliderRow('back','sWB',20,900,wcam.back)}
       ${sliderRow('obj scale','sWS',10,150,Math.round(wcam.scale*100))}`;
-    if(worldSel!=null){ const it=world.find(w=>w.id===worldSel);
-      h+=`<h3>Selected object</h3>
-        <div class="row"><button onclick="instRot(-1)">⟲ 1°</button><button onclick="instRot(-15)">⟲ 15</button><button onclick="instRot(15)">15 ⟳</button><button onclick="instRot(1)">1° ⟳</button></div>
-        <div class="row"><button onclick="instScale(0.909)">− scale</button><button onclick="instScale(1.1)">+ scale</button></div>
-        <p class="note">scale ${(it&&it.scale?it.scale:1).toFixed(2)}× · rot ${it?Math.round(it.rot*180/Math.PI):0}° · Delete to remove</p>`; }
     h+=`<h3>Designs (palette)</h3><div class="lib" id="lib"></div>`;
   } else {   // replay
     h+=`<h3>Replay</h3>
@@ -564,6 +651,17 @@ function wireControls(){
   num('pSides',v=>prim.sides=v); num('pRad',v=>prim.radius=v);
   num('pRW',v=>prim.rw=v); num('pRH',v=>prim.rh=v); num('pRnd',v=>prim.round=v);
   const rtl=document.getElementById('rTL'); if(rtl)rtl.oninput=e=>scrub(parseInt(e.target.value));
+  // world inspector (present only with a selection); text/select commit on change (focus already left)
+  if(mode==='world'&&worldSel!=null){ const it=world.find(w=>w.id===worldSel);
+    if(it){ num('iMass',v=>it.mass=v); num('iRest',v=>it.material.restitution=v/100); num('iFric',v=>it.material.friction=v/100);
+      const T=(id,fn)=>{const el=document.getElementById(id); if(el)el.onchange=e=>fn(e.target.value);};
+      T('iName',v=>{it.name=v; renderSide();}); T('iTags',v=>{it.tags=v;}); T('iCaps',v=>{it.caps=v;});
+      T('iBody',v=>{it.body=v;}); T('iColl',v=>{it.collider=v;});
+      T('iParent',v=>{ setParent(it, v===''?null:parseInt(v)); renderSide(); draw(); });
+      const C=(id,fn)=>{const el=document.getElementById(id); if(el)el.onchange=e=>{fn(e.target.checked); renderSide(); draw();};};
+      C('iVis',v=>it.visible=v); C('iLock',v=>it.locked=v);
+    }
+  }
 }
 function syncCam(){ ['sOD','sWB'].forEach(id=>{const el=document.getElementById(id),b=document.getElementById(id+'v');
   if(el&&id==='sOD'){el.value=Math.round(ocam.dist);b.textContent=Math.round(ocam.dist);}

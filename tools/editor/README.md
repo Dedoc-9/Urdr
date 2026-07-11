@@ -48,16 +48,24 @@ Editor (double-click the file, or open it in any browser):
   continue a shape). **Move** reshapes, **Erase** removes. **Transform** rotates about
   X/Y/Z in ½°/1° steps; **Scale · flip**; **Primitives** add round N-gons and rounded
   barriers. Select a point to set its **depth Z**. Toggle **◈ 3D** to orbit.
-- **⛰ World** — pick an object, click the highway to place it, drag to move, the amber
-  handle to rotate; select a placed object for fine rotate/scale. Toggle **◈ 3D** for a
-  perspective preview down the road.
+- **⛰ World** — pick an object, click the highway to place it, drag to move (children
+  follow), the amber handle to rotate. The **Hierarchy** tree shows parent/child nesting
+  with per-row show/hide and lock; the **Inspector** edits each placed object's physical
+  state — body (static / dynamic / kinematic), collider, mass, restitution / friction,
+  parent, tags, capabilities, visibility, lock, and constraints / joints to other objects.
+  All of it serializes into the canonical world JSON; **no engine logic runs in the
+  browser** — these are authored *intent*, which the runtime/engine validates for
+  admissibility downstream. Toggle **◈ 3D** for a perspective preview down the road.
 - **▷ Replay** — load a `urdr_replay.json` (made by `replay.py`) and scrub the timeline
   (play / step / start · end). Every frame shows its exact-state **URDRPN1 digest** and the
   conserved momentum + energy; scrubbing to a frame restores that exact state, bit-identical
   on every conforming host. The browser only *draws* engine-provided state — it never
   simulates. This is the deterministic-replay capability surfaced directly in the editor.
 - **⤓ Save / ⤒ Open** — persist the whole project (objects + world) to a JSON file.
-- **▸ Export world JSON** (World mode) — writes `urdr_world.json` for the renderer.
+- **▸ Export world JSON** (World mode) — writes `urdr_world.json` (`URDR-WORLD-3`): objects
+  by digest + instances carrying their full physical state and hierarchy (`parent` + a
+  `local` transform relative to that parent). Backward-compatible — it keeps
+  `ground_x` / `ground_z` / `rot_deg`, so `load_world.py` still renders it.
 
 Render an exported world through the exact engine:
 
@@ -88,9 +96,10 @@ The **▷ Replay** spine is the first of the "expose the deterministic engine" a
 the editor authors, a runtime (`replay.py`) simulates with the exact engine and emits a
 witness chain, and the editor scrubs it. Natural follow-ons, in order:
 
-- a **properties inspector + scene hierarchy** so an authored world assigns physics/collision
-  props and parenting — the intent the runtime needs to simulate the *authored* scene (not
-  just the demo cascade);
+- the **properties inspector + scene hierarchy** now serialize an authored world's physical
+  state and parenting (`URDR-WORLD-3`) — *done*. Next is to **feed that export into
+  `replay.py`** so the **▷ Replay** mode simulates the *authored* scene instead of the
+  built-in cascade — same witness chain, same digests, same replay on every machine;
 - **physics-debug overlays** (contacts, impulses, centres of mass, momentum vectors) drawn
   over a replay by *reading the runtime witnesses*, never recomputing in the browser;
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
