@@ -973,3 +973,25 @@ ROUNDS (fixed-point) while the accounting is exact; wiring `J` as an external te
 and the body→field reaction are the next rungs. No new glyph; `urdr-field` v0.1 frozen; extends, never
 mutates. `the surface-tension gradient is a force now — and every unit of impulse it spends lands on the body,
 exactly`.
+
+**Two-way field↔body loop (Continuum) — MEASURED (reference).** Closes the feedback the one-way rung left
+open — `body motion → field update → body motion` — with an exact conservation law spanning field and bodies.
+`tools/physics/field_body_loop.py` runs a coupled step in four parts: (1) **field → body** — each in-field
+body takes the surface-tension impulse on its predicted velocity (the `Q`-converted fixed-point force);
+(2) **contacts** — the predicted velocities are resolved by the **exact** contact LCP (`contact_lcp`), so the
+field force enters the constraint solve (a body pushed into a contact is held, `λ` counteracting it);
+(3) **body → field reaction (Newton's 3rd law)** — the total impulse the field handed to bodies is DEBITED
+from a field-momentum *reservoir*, so `Σ(m·v) + reservoir` is conserved **exactly** in `Q`; (4) **body →
+field state** — the body's motion advects the field via the frozen, cross-placed `field.step` (mass exact,
+flux form), feeding the next gradient. Gate stage `field_body_loop`: `loop-momentum-conserved` (two free
+bodies + contact: total momentum exact + a valid complementary LCP), `loop-lcp-resolves` (a body pushed into
+a wall rests with `λ` exactly balancing the field impulse; a field pushing away releases the contact `λ=0`
+and the body accelerates off), `loop-selftest` (dropping the reservoir debit makes the total **drift** — the
+third-law term is load-bearing) + red-first falsifiers in `tests/test_field_body_loop.py` (incl. field mass
+exact under body-driven advection). Grade: **MEASURED (reference)**. Honest scope: the **momentum ledger and
+contact resolution are EXACT** (rational); the force conversion and body-driven advection ROUND (fixed-point);
+the reservoir is a **bookkeeping** quantity (the scalar field carries no mechanical momentum of its own) — the
+exact claim is the *ledger* `Σp_body + reservoir`, whose non-vacuity is that omitting the reaction drifts it.
+No new glyph; `urdr-field` v0.1 frozen; consumes the frozen field + exact LCP; extends, never mutates. `the
+loop is closed: the field moves the body, the contacts hold, the body stirs the field, and the books balance
+to the last unit`.

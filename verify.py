@@ -955,6 +955,60 @@ class Gate:
                     "uniform field exerts no force; a gradient does (gate can redden)"
                     if nv else "gradient not load-bearing — instrument vacuous")
 
+    def field_body_loop(self):
+        """Two-way field↔body coupling: the field pushes a body (force → predicted
+        velocity), the contact LCP resolves it, and the reaction is debited from a
+        field-momentum reservoir (Newton's third law), so `Σ(m·v) + reservoir` is
+        conserved EXACTLY across the coupled step. The LCP holds a body pushed into
+        a wall (λ balances the field impulse) and releases one pushed away. Dropping
+        the reservoir (one-way) makes the total DRIFT — the non-vacuity. Exact
+        rational ledger + contacts; fixed-point force; extends the frozen field."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import field_body_loop as L
+            from field import FixedPoint
+            from rational import Q
+            from vecq import Vec
+            from contact_lcp import Contact, complementary
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("field-body-loop", False, f"import failed: {exc}")
+            return
+        grid = [FixedPoint.unit(1, 10), FixedPoint.unit(2, 10), FixedPoint.unit(4, 10),
+                FixedPoint.unit(7, 10), FixedPoint.unit(10, 10)]
+        w, h = 5, 1
+        rest = [Vec([Q(0), Q(0)]), Vec([Q(0), Q(0)])]
+        # two free bodies + contact: total momentum (bodies + reservoir) exact
+        masses, invm = [1, 1], [Q(1), Q(1)]
+        cc = [Contact(0, 1, Vec([Q(1), Q(0)]))]
+        r0 = Vec([Q(0), Q(0)])
+        p0 = L.total_momentum(rest, masses, r0)
+        vnew, lam, wsl, _, r1, j = L.coupled_step(grid, w, h, rest, invm, cc, [2, None],
+                                                  (1, 4), (1, 2), r0)
+        cons = (L.total_momentum(vnew, masses, r1) == p0 and complementary(lam, wsl)
+                and not j == Vec([Q(0), Q(0)]))
+        self.record("loop-momentum-conserved", cons,
+                    "two-way coupling: Σ(m·v)+reservoir conserved exactly + valid LCP"
+                    if cons else "coupled momentum ledger FAILED")
+        # LCP resolves the field force: into-wall body rests, λ balances; away releases
+        wl = [Q(1), Q(0)]
+        vw, lw, sw, _, _, jw = L.coupled_step(grid, w, h, [Vec([Q(0), Q(0)]), Vec([Q(0), Q(0)])],
+                                              wl, cc, [2, None], (1, 4), (1, 2), Vec([Q(0), Q(0)]))
+        rev = list(reversed(grid))
+        va, la, sa, _, _, _ = L.coupled_step(rev, w, h, [Vec([Q(0), Q(0)]), Vec([Q(0), Q(0)])],
+                                             wl, cc, [2, None], (1, 4), (1, 2), Vec([Q(0), Q(0)]))
+        resolves = (vw[0].c[0].is_zero() and lw[0] == jw.c[0] and complementary(lw, sw)
+                    and la[0].is_zero() and va[0].c[0].n < 0)
+        self.record("loop-lcp-resolves", resolves,
+                    "field force into a wall is held (λ balances); pushed away releases (λ=0)"
+                    if resolves else "LCP did not resolve the field force correctly")
+        # non-vacuity: without the reservoir debit the total drifts (reaction is real)
+        drift = L.total_momentum(vnew, masses, r0) != p0
+        self.record("loop-selftest", drift,
+                    "dropping the field reaction (one-way) drifts the total (gate can redden)"
+                    if drift else "reservoir not load-bearing — instrument vacuous")
+
     # -- 2l. general-n observer-atlas injectivity certificate (exact, D10) -----
     def atlas_injective(self):
         """General-dimension atlas injectivity (D10, past the square/det case): a
@@ -1183,6 +1237,7 @@ def main() -> int:
     gate.field()
     gate.marangoni()
     gate.field_coupling()
+    gate.field_body_loop()
     gate.rejections()
     gate.tamper()
     return gate.report()

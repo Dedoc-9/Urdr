@@ -28,7 +28,7 @@ math spine — reproduce the reference implementation's output digests **bit-for
 on fixed conformance corpora (36 kernel vectors, 10 frame digests including 3D depth and perspective,
 18 physics digests, 3 fixed-point field + 3 Marangoni digests, and 20 exact-math digests —
 rank/determinant/floor_divmod plus the atlas injectivity and reconstruction
-certificates), twice each, with deliberately-defective builds caught. A 254-test
+certificates), twice each, with deliberately-defective builds caught. A 260-test
 verification gate enforces
 determinism, golden agreement, an in-process oracle, and 45 typed rejection
 fixtures on every change. We are precise about scope: this demonstrates
@@ -233,7 +233,7 @@ online build offline-reproducible.
 
 ### 5.3 Conformance corpus & gate
 
-The gate runs, deterministically: **254** unit falsifiers; **42** example programs
+The gate runs, deterministically: **260** unit falsifiers; **42** example programs
 checked for determinism (twice) and golden agreement; an in-process oracle
 (`compiled ≡ reference`) with a defect that must diverge; **45** rejection fixtures
 each producing an exact typed refusal code; and per-layer stages for the registry,
@@ -379,5 +379,5 @@ computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
 four independent Rust placements reproduce the reference's state, frame, physics,
-and exact-math digests bit-for-bit on fixed corpora, behind a 254-test gate with typed
-refusals and non-vacuity self-tests. The result is scoped to corpus ag
+and exact-math digests bit-for-bit on fixed corpora, behind a 260-test gate with typed
+refusa

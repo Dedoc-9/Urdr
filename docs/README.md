@@ -8,4 +8,4 @@ a brief and a spec disagree, the spec wins.
 
 | Path | What it is |
 |---|---|
-| `PAPER.md` | **OSDI-style systems paper** for the deterministic execution pipeline — problem, layered design, implementation, and the cross-implementation reproducibility evaluation (4 independent Rust placements reproducing 36 kernel + 10 frame + 18 physics + 3 field + 3 Marangoni + 20 exact-math digests, behind a 254-test gate). Scoped to corpus agreement, not universal correctness. Includes the m
+| `PAPER.md` | **OSDI-style systems paper** for the deterministic execution pipeline — problem, layered design, implementation, and the cross-implementation reproducibility evaluation (4 independent Rust placements reproducing 36 kernel + 10 frame + 18 physics + 3 field + 3 Marangoni + 20 exact-math digests, behind a 260-test gate). Scoped to corpus agreement, not universal correctness. 
