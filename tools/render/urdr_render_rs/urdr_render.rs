@@ -495,6 +495,63 @@ const C3D: [(&str, &str); 4] = [
     ("screenclip", "860f4d338bd3869a882f3f0ee6bfd529f7b77a0a2c13392bb3c53f3dcc6ac90e"),
 ];
 
+// ------------------------------------------------------- perspective (rung 3)
+// Exact floor-division projection to the integer pixel grid (frozen floor_divmod
+// == `fdiv` above): px = cx + floor(f*x/z), py = cy - floor(f*y/z). Byte-for-byte
+// identical to tools/render/persp_scenes.py (focal 100, centre 60,60, 120x120).
+// Perspective-to-pixel is EXACT (floor of a rational) — no rounding, no float.
+fn project(x: i64, y: i64, z: i64, f: i64, cx: i64, cy: i64) -> (i64, i64) {
+    (cx + fdiv(f * x, z), cy - fdiv(f * y, z))
+}
+fn scene_persp_rails(magic: &'static [u8]) -> Framebuffer {
+    let (f, cx, cy) = (100i64, 60i64, 60i64);
+    let mut fb = Framebuffer::new(120, 120, magic);
+    let zs = [2i64, 3, 5, 8, 13, 21, 34];
+    let left: Vec<(i64, i64)> = zs.iter().map(|&z| project(-20, -15, z, f, cx, cy)).collect();
+    let right: Vec<(i64, i64)> = zs.iter().map(|&z| project(20, -15, z, f, cx, cy)).collect();
+    for i in 0..zs.len() - 1 {
+        fb.draw_line(left[i].0, left[i].1, left[i + 1].0, left[i + 1].1, 255);
+        fb.draw_line(right[i].0, right[i].1, right[i + 1].0, right[i + 1].1, 255);
+    }
+    for i in 0..zs.len() {
+        fb.draw_line(left[i].0, left[i].1, right[i].0, right[i].1, 180);   // sleepers
+    }
+    fb
+}
+fn scene_persp_cube(magic: &'static [u8]) -> Framebuffer {
+    let (f, cx, cy) = (100i64, 60i64, 60i64);
+    let mut fb = Framebuffer::new(120, 120, magic);
+    let (half, dn, df) = (20i64, 4i64, 12i64);
+    let quad = [(-1i64, -1i64), (1, -1), (1, 1), (-1, 1)];
+    let mut nf: Vec<(i64, i64)> = Vec::new();
+    let mut ff: Vec<(i64, i64)> = Vec::new();
+    for &(sx, sy) in quad.iter() {
+        nf.push(project(sx * half, sy * half, dn, f, cx, cy));
+        ff.push(project(sx * half, sy * half, df, f, cx, cy));
+    }
+    for i in 0..4 {
+        let j = (i + 1) % 4;
+        fb.draw_line(nf[i].0, nf[i].1, nf[j].0, nf[j].1, 255);
+        fb.draw_line(ff[i].0, ff[i].1, ff[j].0, ff[j].1, 200);
+    }
+    for i in 0..4 {
+        fb.draw_line(nf[i].0, nf[i].1, ff[i].0, ff[i].1, 150);             // connectors
+    }
+    fb
+}
+fn build_persp(name: &str, magic: &'static [u8]) -> Framebuffer {
+    match name {
+        "persp_rails" => scene_persp_rails(magic),
+        "persp_cube" => scene_persp_cube(magic),
+        _ => unreachable!(),
+    }
+}
+// (name, expected frame digest) — from tools/render/conformance_persp.txt.
+const CPERSP: [(&str, &str); 2] = [
+    ("persp_cube", "f55f9a007a7343246fd4245049e4183eb1af889b8d27fc64ab2377f7581dd377"),
+    ("persp_rails", "9d4c339f46ea7a25dbf2399a8812173edf695db8421cfe06a1c398bc1eda51f1"),
+];
+
 fn main() {
     if !sha_selfcheck() {
         eprintln!("[FAIL] sha256-selftest: hand-rolled SHA-256 fails the FIPS vectors — noise below");
@@ -537,6 +594,23 @@ fn main() {
             println!("[PASS] accept:3d/{:<11} digest {}…", name, &got[..12]);
         } else {
             println!("[FAIL] accept:3d/{:<11} URDR-RENDER-DIVERGENCE: got {}… want {}…", name, &got[..12], &want[..12]);
+            all_ok = false;
+        }
+    }
+    // perspective corpus (rung 3) — exact floor-division projection, same URDRFB1 law.
+    for &(name, want) in CPERSP.iter() {
+        let got = build_persp(name, magic).digest();
+        if defect {
+            if got != want {
+                println!("[PASS] defect:persp/{:<8} divergence caught ({}… ≠ {}…)", name, &got[..12], &want[..12]);
+            } else {
+                println!("[FAIL] defect:persp/{:<8} defective frame still matched — cannot redden", name);
+                all_ok = false;
+            }
+        } else if got == want {
+            println!("[PASS] accept:persp/{:<8} digest {}…", name, &got[..12]);
+        } else {
+            println!("[FAIL] accept:persp/{:<8} URDR-RENDER-DIVERGENCE: got {}… want {}…", name, &got[..12], &want[..12]);
             all_ok = false;
         }
     }

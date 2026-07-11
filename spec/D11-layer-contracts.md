@@ -354,7 +354,7 @@ reproduced, this contract stays `DECLARED`.
 | urdr-render      | rung 3: exact perspective projection (floor-div pixel grid, near-plane clip, vanishing point) | `MEASURED` (reference) | `render_perspective` gate stage, `test_perspective.py`, `perspective.py` |
 | urdr-render      | 2nd-placement frame digests (Rust): 2D | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs` — ADMITTED 4/4 twice, defect caught |
 | urdr-render      | 2nd-placement frame digests (Rust): 3D depth | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs` — ADMITTED 8/8 (4 2D + 4 3D) twice, defect caught |
-| urdr-render      | 2nd-placement frame digests (Rust): perspective | `DECLARED` (next: extend `urdr_render_rs` with the 2 persp frames) | `conformance_persp.txt` |
+| urdr-render      | 2nd-placement frame digests (Rust): perspective | `SPECULATIVE` (written in `urdr_render_rs`, mirror-verified; pending host `ADMITTED`) | `conformance_persp.txt` (2 frames) |
 | urdr-render      | perspective-correct interp + blending + geometric clip | `DECLARED` | targets (§4) |
 | network (live)   | real socket at the runner tier          | `SPECULATIVE`| host capability; not gated |
 
