@@ -739,6 +739,74 @@ class Gate:
                     "perturbed stack λ fails the certificate (gate can redden)"
                     if caught else "certificate vacuous — cannot redden")
 
+    # -- 2k. urdr-field: deterministic scalar-field transport ------------------
+    def field(self):
+        """urdr-field: deterministic scalar transport (advection-diffusion) over a
+        pluggable backend. Each scene's digest is reproduced twice and matches its
+        golden; total mass is conserved EXACTLY (the conservative flux form) over a
+        fixed-point run; a TRUNCATION backend diverges from round-to-nearest
+        (non-vacuity — a divergent rounding implementation is caught). The FixedPoint
+        parameters and rounding rule are frozen spec; the backend tag is in identity."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import field as FLD
+            import field_scenes
+            from field import FixedPoint, ONE
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("field-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(pdir, "conformance_field.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(field_scenes.SCENES):
+            d1 = field_scenes.run(name)
+            d2 = field_scenes.run(name)
+            if d1 != d2:
+                self.record(f"field:{name}", False, "NONDETERMINISTIC")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"field:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            self.record(f"field:{name}", True, d1[:16] + "…")
+        # mass conservation (fixed-point, stable params) + boundedness
+        imax = (1 << 63) - 1
+        w = h = 8
+
+        def bump():
+            g = [0] * (w * h)
+            g[(h // 2) * w + w // 2] = ONE
+            return g
+        g = bump()
+        m0 = FLD.mass(FixedPoint, g)
+        for _ in range(100):
+            g = FLD.step(FixedPoint, g, w, h, (1, 16), (1, 4), (1, 4))
+        cons = FLD.mass(FixedPoint, g) == m0 and all(-imax <= v <= imax for v in g)
+        self.record("field-conservation", cons,
+                    "fixed-point flux form: mass conserved exactly + bounded"
+                    if cons else "mass/boundedness FAILED")
+
+        class _Trunc(FixedPoint):
+            @staticmethod
+            def mul_k(a, kn, kd):
+                return FixedPoint._g((a * kn) // kd)
+        ga, gt = bump(), bump()
+        for _ in range(100):
+            ga = FLD.step(FixedPoint, ga, w, h, (1, 16), (1, 4), (0, 1))
+            gt = FLD.step(_Trunc, gt, w, h, (1, 16), (1, 4), (0, 1))
+        caught = FLD.digest(FixedPoint, ga, w, h) != FLD.digest(_Trunc, gt, w, h)
+        self.record("field-selftest", caught,
+                    "truncation diverges from round-to-nearest (gate can redden)"
+                    if caught else "rounding not load-bearing — instrument vacuous")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -826,6 +894,7 @@ def main() -> int:
     gate.physics_lcp()
     gate.physics_joint()
     gate.physics_stress()
+    gate.field()
     gate.rejections()
     gate.tamper()
     return gate.report()

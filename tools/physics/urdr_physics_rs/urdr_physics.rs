@@ -798,6 +798,97 @@ const CJOINT: [(&str, &str); 4] = [
     ("triangle", "bec8841f9159d52ad0758a23a5bf09270d0bd9e3ba154ce1f7922e8e4e6d4447"),
 ];
 
+// ---------------------------------------- field transport (URDRFLD1, FIELDFP)
+// Conservative flux-form advection-diffusion in Q32.32 fixed-point, round-to-
+// nearest ties-away (frozen). Mass conserved exactly; zero-flux (interior-only
+// edges) boundary. Cross-places the three FIELDFP scenes (the FIELDQ exact
+// backend is reference-only, scoped-tiny).
+const FLD_ONE: i64 = 1i64 << 32;
+fn frdiv(p: i128, d: i128) -> i64 {
+    let q = if p >= 0 { (2 * p + d) / (2 * d) } else { -((2 * (-p) + d) / (2 * d)) };
+    fit(q)
+}
+fn fmul_k(a: i64, kn: i64, kd: i64) -> i64 {
+    frdiv(a as i128 * kn as i128, kd as i128)
+}
+fn fld_step(grid: &[i64], w: usize, h: usize, k: (i64, i64), vx: (i64, i64), vy: (i64, i64)) -> Vec<i64> {
+    let (kn, kd) = k;
+    let (vxn, vxd) = vx;
+    let (vyn, vyd) = vy;
+    let mut new = grid.to_vec();
+    for y in 0..h {
+        for x in 0..w - 1 {
+            let a = y * w + x;
+            let b = y * w + x + 1;
+            let fd = fmul_k(grid[b] - grid[a], kn, kd);
+            new[a] = fit(new[a] as i128 + fd as i128);
+            new[b] = fit(new[b] as i128 - fd as i128);
+            if vxn > 0 {
+                let fu = fmul_k(grid[a], vxn, vxd);
+                new[a] = fit(new[a] as i128 - fu as i128);
+                new[b] = fit(new[b] as i128 + fu as i128);
+            } else if vxn < 0 {
+                let fu = fmul_k(grid[b], -vxn, vxd);
+                new[b] = fit(new[b] as i128 - fu as i128);
+                new[a] = fit(new[a] as i128 + fu as i128);
+            }
+        }
+    }
+    for y in 0..h - 1 {
+        for x in 0..w {
+            let a = y * w + x;
+            let b = (y + 1) * w + x;
+            let fd = fmul_k(grid[b] - grid[a], kn, kd);
+            new[a] = fit(new[a] as i128 + fd as i128);
+            new[b] = fit(new[b] as i128 - fd as i128);
+            if vyn > 0 {
+                let fu = fmul_k(grid[a], vyn, vyd);
+                new[a] = fit(new[a] as i128 - fu as i128);
+                new[b] = fit(new[b] as i128 + fu as i128);
+            } else if vyn < 0 {
+                let fu = fmul_k(grid[b], -vyn, vyd);
+                new[b] = fit(new[b] as i128 - fu as i128);
+                new[a] = fit(new[a] as i128 + fu as i128);
+            }
+        }
+    }
+    new
+}
+fn fld_digest(grid: &[i64], w: usize, h: usize, magic: &[u8]) -> String {
+    let mut out = magic.to_vec();
+    out.extend_from_slice(b"FIELDFP ");
+    out.extend_from_slice(&(w as u32).to_be_bytes());
+    out.extend_from_slice(&(h as u32).to_be_bytes());
+    for &v in grid {
+        out.extend_from_slice(&v.to_be_bytes());
+    }
+    hex(&sha256(&out))
+}
+fn fld_bump(w: usize, h: usize) -> Vec<i64> {
+    let mut g = vec![0i64; w * h];
+    g[(h / 2) * w + w / 2] = FLD_ONE;
+    g
+}
+fn run_field(name: &str, magic: &[u8]) -> String {
+    let (w, h) = (8usize, 8usize);
+    let (k, vx, vy, steps): ((i64, i64), (i64, i64), (i64, i64), usize) = match name {
+        "diffuse" => ((1, 8), (0, 1), (0, 1), 100),
+        "advect" => ((0, 1), (1, 2), (0, 1), 100),
+        "adv_diff" => ((1, 16), (1, 4), (1, 4), 100),
+        _ => unreachable!(),
+    };
+    let mut g = fld_bump(w, h);
+    for _ in 0..steps {
+        g = fld_step(&g, w, h, k, vx, vy);
+    }
+    fld_digest(&g, w, h, magic)
+}
+const CFIELD: [(&str, &str); 3] = [
+    ("adv_diff", "cb5b5b8cde4126ee52af509bed2ac9add4105c60a96a13ef6e20c34769d98619"),
+    ("advect", "0102e2b31bec212c832f3b60ffe6c4a2b61223bc89a9f0ab57224be2e0838f9c"),
+    ("diffuse", "44bd85e6bbdf29068ddea2d9a3bb111819db4d3c986a1470dfa8753a4228b06f"),
+];
+
 fn judge(defect: bool, label: &str, got: String, want: &str) -> bool {
     if defect {
         if got != want {
@@ -828,6 +919,7 @@ fn main() {
     } else {
         (b"URDRPH1", b"URDRPN1", b"URDRLCP1", b"URDRJNT1")
     };
+    let m_fl: &[u8] = if defect { b"URDRFLD2" } else { b"URDRFLD1" };
     if defect {
         println!("(defect mode: each corpus MAGIC bumped; EVERY digest MUST diverge)");
     }
@@ -843,6 +935,9 @@ fn main() {
     }
     for (n, w) in CJOINT.iter() {
         all_ok &= judge(defect, &format!("joint/{}", n), run_joint(n, m_jn), w);
+    }
+    for (n, w) in CFIELD.iter() {
+        all_ok &= judge(defect, &format!("field/{}", n), run_field(n, m_fl), w);
     }
     if all_ok {
         if defect {

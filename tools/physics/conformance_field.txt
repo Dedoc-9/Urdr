@@ -1,0 +1,10 @@
+# urdr-field — scalar-field-transport conformance vectors.
+# scene  SHA-256(URDRFLD1 | backend tag | W | H | cells)
+# Conservative flux-form advection-diffusion. FIELDFP (Q32.32, round-to-nearest)
+# is deterministic + cross-placeable but ROUNDS; the tiny FIELDQ scene is EXACT.
+# Every conforming placement must reproduce these exactly — implementation-
+# agreement on a stated corpus, NOT continuum accuracy or all field sizes.
+adv_diff cb5b5b8cde4126ee52af509bed2ac9add4105c60a96a13ef6e20c34769d98619
+advect 0102e2b31bec212c832f3b60ffe6c4a2b61223bc89a9f0ab57224be2e0838f9c
+diffuse 44bd85e6bbdf29068ddea2d9a3bb111819db4d3c986a1470dfa8753a4228b06f
+exactq d7e09a79620027aa1fdda9c85b82e6d5f8f0a97b520d5f1f791e37ed509754df

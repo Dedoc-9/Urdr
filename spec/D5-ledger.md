@@ -785,3 +785,30 @@ frame is a function of the SET of triangles`.
 defect caught 8/8. The renderer's exact 3D depth (occlusion + near/far/screen clip) is now bit-identical
 across two independent placements, joining state, motion, and 2D frames. `the occluded 3D frame is a
 cross-placement witness now, not just a reference result`.
+
+**urdr-field rung 1 — deterministic scalar-field transport with a USER-OPTIONAL backend — MEASURED
+(reference); FIELDFP cross-placement SPECULATIVE until recompile.** The reactive-environment substrate (a
+heat/chemical grid for the "responsive fluid" gameplay direction) forced an honest substrate decision:
+exact-ℚ fields OVERFLOW (an iterated stencil grows denominators — measured: they double every step and
+refuse at step ~24-31). Rather than bury the choice, it is exposed as an **explicit, user-selectable
+backend** — the four-rule discipline: (1) the backend tag is part of state identity (`URDRFLD1 | FIELDFP |
+… ` vs `… FIELDQ …`), so the two never conflate; (2) the `FixedPoint` radix (2³²) and rounding
+(round-to-nearest ties-away) are FROZEN spec; (3) BOTH backends are deterministic and cross-placeable —
+the choice trades exactness↔scale, never determinism; (4) `FixedPoint` is the load-bearing real-time path
+(bounded, rounds), `Exact` (reusing the physics `Q`) is exact but scoped-tiny (refuses when big).
+`tools/physics/field.py` implements a **conservative FLUX-FORM** advection-diffusion (first-order upwind):
+each edge flux is computed once and applied +to one cell / −to its neighbor, so total mass is conserved
+**EXACTLY even in fixed-point** (integer add/sub cancel the rounded flux) — a strong witness, not just
+"bounded drift"; zero-flux (adiabatic) boundary. A real red-first catch: an initial scene picked unstable
+parameters (`4k+vx+vy = 5/4 > 1`) and overflowed — fixed by enforcing the monotonicity/CFL bound
+`4k+vx+vy ≤ 1`. Four scenes (`diffuse, advect, adv_diff` FIELDFP + a tiny `exactq` FIELDQ) pinned in
+`conformance_field.txt`; `field` gate stage (determinism+golden, mass-conserved-exactly, and a
+**rounding-drift non-vacuity** — a truncation backend diverges from round-to-nearest, so a divergent
+rounding implementation is caught cross-placement); falsifiers in `tests/test_field.py`. The 3 FIELDFP
+scenes are cross-placed: `urdr_physics_rs` extended with the fixed-point stencil (`CFIELD`), port logic
+cross-checked (all 3 goldens reproduced, defect diverges) — grade SPECULATIVE until recompile, then
+`URDR-PHYSICS-RS: ADMITTED` flips it to MEASURED. FIELDQ is reference-only (exact, scoped-tiny). **Scope:**
+this is DETERMINISTIC + REPRODUCIBLE, not continuum-accurate; fixed-point ROUNDS (honest); surface-tension/
+Marangoni coupling (curvature → √) is a later, partly-boundary rung. No new glyph; kernel frozen; consumes
+rational, touches no core. `exact and real-time are at odds over iterated stencils; reproducibility bridges
+both — so the backend is an explicit knob` · `flux form conserves mass exactly even when the flux rounds`.

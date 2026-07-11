@@ -19,6 +19,7 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-math`    | 0.1    | oracle-tested          | reference (+ witness cross-placement) | D5 |
 | `urdr-render`  | 1.0    | 8 frame digests (4 2D + 4 3D-depth) | reference + `urdr-render-rs` (ADMITTED 8/8) | D11 §4 |
 | `urdr-physics` | **1.0 (FROZEN)** | 18 scene digests (4 corpora) | reference + `urdr-physics-rs` | this doc |
+| `urdr-field`   | 0.1    | 4 field digests (3 FIELDFP + 1 FIELDQ) | reference + `urdr-physics-rs` (3 FIELDFP; FIELDQ reference-only) | D5 |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
 `semver` = the public API/behaviour version; `corpus` = the pinned
