@@ -892,3 +892,22 @@ witness, and Cramer reconstruction with its witness) is now verified across two 
 glyph; kernel frozen; consumes only the frozen exact-math surface. This makes **four** independent Rust
 placements (core, render, physics, math). `the math spine is no longer a property of one interpreter — it is
 a law two runtimes agree on, bit for bit`.
+
+**Perspective projection (Rendering rung 3) — MEASURED (reference).** The projective chart swap: a pinhole
+camera maps `(x,y,z) → (f·x/z, f·y/z)`. The real screen position is irrational, but rasterization needs only
+the integer PIXEL, and the floor of a rational is **exact** — so `tools/render/perspective.py` projects to
+the pixel grid with the frozen, now-cross-placed `floor_divmod` (via `raster._fdiv`): `px = cx + floor(f·x/z)`,
+`py = cy − floor(f·y/z)`. This is a key honesty point: unlike the continuous fixed-point substrate,
+**perspective-to-pixel introduces no rounding** — it is exact and reproducible; the only stops are i64
+overflow (`RENDER-REFUSE`) and the **near-plane clip** (`z < znear` refuses, never wraps). The defining
+property is exact here: two parallel receding rails project to a pixel gap
+`floor(f·h/z) − floor(−f·h/z)` that is **monotone non-increasing in z** and shrinks toward the vanishing
+pixel (2000→1 over the tested depths), while an orthographic projector keeps the gap constant at 40 — the
+non-vacuity control that makes the division load-bearing. Gate stage `render_perspective` (2 wireframe frame
+digests `persp_rails`/`persp_cube` reproduced twice vs pinned goldens; vanishing-point convergence;
+near-plane clip self-test) + red-first falsifiers in `tests/test_perspective.py` (exact pixels, clip refusal
+with a front-vertex non-vacuity, rails-converge-but-orthographic-does-not, near-face-wider-than-far
+foreshortening). Grade: **MEASURED (reference)** — reproduces the frame goldens in the gate; a Rust
+cross-placement (extend `urdr_render_rs` with the 2 perspective frames) is the DECLARED next step that will
+flip it to cross-placed. No new invariant (a chart swap over the both-placements `div`); no new glyph; kernel
+frozen. `the rails meet at the horizon — exactly, on the pixel grid, no float in sight`.

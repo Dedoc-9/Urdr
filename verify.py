@@ -430,6 +430,66 @@ class Gate:
                     "equal-depth ties order-dependent (depth is load-bearing; gate can redden)"
                     if ndv else "depth not load-bearing — instrument vacuous")
 
+    def render_perspective(self):
+        """D11 §4 rung 3: exact perspective projection (the projective chart swap).
+        Each wireframe scene's URDRFB1 frame digest is reproduced twice and matches
+        its golden. The vanishing-point property is checked: two parallel rails'
+        projected pixel gap is monotone non-increasing in depth and shrinks to the
+        vanishing pixel, while an ORTHOGRAPHIC projector keeps it constant (the
+        non-vacuity). A vertex at/behind the near plane REFUSES (screen clip). The
+        pixels are the exact floor of a rational (frozen floor_divmod) — no float."""
+        rdir = os.path.join(ROOT, "tools", "render")
+        if rdir not in sys.path:
+            sys.path.insert(0, rdir)
+        try:
+            import persp_scenes
+            import perspective as P
+            from raster import RenderError
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("render-persp-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(rdir, "conformance_persp.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(persp_scenes.SCENES):
+            d1 = persp_scenes.SCENES[name]().digest()
+            d2 = persp_scenes.SCENES[name]().digest()
+            if d1 != d2:
+                self.record(f"render-persp:{name}", False, "NONDETERMINISTIC")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"render-persp:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            self.record(f"render-persp:{name}", True, d1[:16] + "…")
+        # vanishing point: parallel rails converge; orthographic does not (non-vacuity)
+        zs = [2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 500, 2000, 4000]
+        gap = P.rail_gap(20, zs, 100, 60, 60)
+        persp_converges = (all(gap[i + 1] <= gap[i] for i in range(len(gap) - 1))
+                           and gap[0] > gap[-1] and gap[-1] <= 2)
+        ortho_gap = [40 for _ in zs]                       # px = cx ± 20, ignores z
+        vp = persp_converges and ortho_gap[0] == ortho_gap[-1]
+        self.record("render-persp-vanishing", vp,
+                    "parallel rails converge to the vanishing pixel; orthographic stays constant"
+                    if vp else "rails do not converge — perspective not load-bearing")
+        # near-plane clip: behind-camera vertex refuses; a front vertex projects
+        clipped = False
+        try:
+            P.project((1, 1, 0), 100, 60, 60, znear=1)
+        except RenderError as exc:
+            clipped = exc.code == "RENDER-REFUSE"
+        front_ok = P.project((0, 0, 5), 100, 60, 60) == (60, 60)
+        cs = clipped and front_ok
+        self.record("render-persp-clip-selftest", cs,
+                    "vertex at/behind near plane refused RENDER-REFUSE; front vertex projects (gate can redden)"
+                    if cs else "near-plane clip not enforced — instrument vacuous")
+
     # -- 2f. urdr-physics rung 1: deterministic step + witnessed conservation --
     def physics(self):
         """urdr-physics rung 1 (D11 §3.5): the step function is a deterministic
@@ -1026,6 +1086,7 @@ def main() -> int:
     gate.registry()
     gate.render()
     gate.render3d()
+    gate.render_perspective()
     gate.physics()
     gate.physics_nd()
     gate.physics_lcp()

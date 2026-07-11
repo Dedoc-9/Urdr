@@ -125,9 +125,16 @@ the strongest form of this project's claim.
   reproduces the reconstruction digests (state / typed refusal) bit-for-bit on a named host
   (`URDR-MATH-RS: ADMITTED (20/20)` twice + defect caught), so recovery is now a two-runtime law,
   not a single-interpreter property.
-- **Perspective / curved / non-linear charts.** A perspective chart `(x,y,z,w) ↦ (x/z, y/z)`
-  is a chart *swap* — measurable now that `div` is both-placements — but it adds no new
-  *invariant*; it is a renderer feature, graded as such if built.
+- **Perspective / curved / non-linear charts — BUILT (reference).** The perspective chart
+  `(x,y,z) ↦ (f·x/z, f·y/z)` is now a renderer feature: `tools/render/perspective.py` projects to
+  the integer pixel grid with the frozen, cross-placed `floor_divmod` — **exactly** (the floor of a
+  rational is exact; perspective-to-pixel does not round), refusing the near-plane clip (`z<znear`).
+  Gate stage `render_perspective` reproduces two wireframe frame digests and checks the vanishing-
+  point property (parallel rails' pixel gap monotone-shrinks to the vanishing pixel; orthographic
+  stays constant — non-vacuity). As predicted it adds **no new invariant** — a chart swap over the
+  both-placements `div`, graded `MEASURED (reference)`; a Rust cross-placement of the two perspective
+  frames is the DECLARED next step. Perspective-correct barycentric interpolation (1/z) for filled,
+  occluded triangles remains a further rung.
 - **Continuum physics (Marangoni etc.).** A transport module `state_{t+1} = Verify(state_t,
   F(state_t, Δt))` that must *preserve the witness relation* — an application of the measured
   boundary, not a new foundation.

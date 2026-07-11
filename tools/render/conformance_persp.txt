@@ -1,0 +1,9 @@
+# Perspective-renderer conformance (renderer rung 3). Exact floor-division projection
+# (frozen floor_divmod) to the integer pixel grid + rung-1 wireframe rasterization, on a
+# fixed 120x120 pinhole camera (focal 100, centre 60,60, near plane 1). An independent
+# placement (urdr_render_rs/) is ADMITTED iff it reproduces each URDRFB1 frame digest
+# bit-for-bit; any mismatch = URDR-RENDER-DIVERGENCE. Digests are the Python reference
+# (tools/render/persp_scenes.py). Regenerate: python3 persp_scenes.py
+# scene         digest
+persp_rails     9d4c339f46ea7a25dbf2399a8812173edf695db8421cfe06a1c398bc1eda51f1
+persp_cube      f55f9a007a7343246fd4245049e4183eb1af889b8d27fc64ab2377f7581dd377
