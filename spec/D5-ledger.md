@@ -780,3 +780,8 @@ geometric Sutherland-Hodgman re-triangulation (with w-clip) arrive with perspect
 rung. No new glyph; kernel frozen; render rung-1 2D corpus unchanged (additive). `the z-buffer test is a
 cross-multiplication, not a division — depth stays exact` · `nearest wins regardless of draw order; the
 frame is a function of the SET of triangles`.
+**CONFIRMED — 3D cross-placement MEASURED.** On Windows (`rustc` edition 2021) the recompiled
+`urdr_render_rs` printed `URDR-RENDER-RS: ADMITTED` twice on **8 frames** (4 2D + 4 3D depth) with the
+defect caught 8/8. The renderer's exact 3D depth (occlusion + near/far/screen clip) is now bit-identical
+across two independent placements, joining state, motion, and 2D frames. `the occluded 3D frame is a
+cross-placement witness now, not just a reference result`.
