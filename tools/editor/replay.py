@@ -45,14 +45,16 @@ def _f(q):
     return q.n / q.d           # decimal, for drawing ONLY (the digest is the authority)
 
 
+def _ball(b):   # exact-state fields carried for DRAWING (position, radius, velocity, mass)
+    return {"x": _f(b.x.c[0]), "y": _f(b.x.c[1]), "r": _f(b.r),
+            "vx": _f(b.v.c[0]), "vy": _f(b.v.c[1]), "m": b.m}
+
+
 def _snap(bodies, k, raw=False):
     p = momentum(bodies)
     d = {"frame": k, "digest": state_digest(bodies),
          "px": _f(p.c[0]), "py": _f(p.c[1]), "e2": _f(two_kinetic(bodies))}
-    if raw:   # raw plane coords (x, z, r); mapped to draw space later
-        d["raw"] = [(_f(b.x.c[0]), _f(b.x.c[1]), _f(b.r)) for b in bodies]
-    else:     # already in draw space
-        d["balls"] = [{"x": _f(b.x.c[0]), "y": _f(b.x.c[1]), "r": _f(b.r)} for b in bodies]
+    d["raw" if raw else "balls"] = [_ball(b) for b in bodies]
     return d
 
 
@@ -109,26 +111,24 @@ def _fit(frames, statics, W, H, margin):
     """Map raw plane coords (over ALL frames + statics) into a W×H draw box, uniform."""
     xs, zs = [], []
     for f in frames:
-        for (x, z, r) in f["raw"]:
-            xs += [x - r, x + r]; zs += [z - r, z + r]
+        for b in f["raw"]:
+            xs += [b["x"] - b["r"], b["x"] + b["r"]]; zs += [b["y"] - b["r"], b["y"] + b["r"]]
     for s in statics:
         xs += [s["x"] - s["r"], s["x"] + s["r"]]; zs += [s["z"] - s["r"], s["z"] + s["r"]]
     if not xs:
         xs, zs = [0, 1], [0, 1]
     xmin, xmax, zmin, zmax = min(xs), max(xs), min(zs), max(zs)
-    sx = (W - 2 * margin) / max(1, xmax - xmin)
-    sz = (H - 2 * margin) / max(1, zmax - zmin)
-    sc = min(sx, sz)
-    mx = lambda x: margin + (x - xmin) * sc
-    my = lambda z: margin + (z - zmin) * sc
+    sc = min((W - 2 * margin) / max(1, xmax - xmin), (H - 2 * margin) / max(1, zmax - zmin))
+    mx = lambda x: round(margin + (x - xmin) * sc, 2)
+    my = lambda z: round(margin + (z - zmin) * sc, 2)
     out = []
     for f in frames:
         g = {k: f[k] for k in ("frame", "digest", "px", "py", "e2")}
-        g["balls"] = [{"x": round(mx(x), 2), "y": round(my(z), 2), "r": round(max(2, r * sc), 2)}
-                      for (x, z, r) in f["raw"]]
+        g["balls"] = [{"x": mx(b["x"]), "y": my(b["y"]), "r": round(max(2, b["r"] * sc), 2),
+                       "vx": round(b["vx"] * sc, 3), "vy": round(b["vy"] * sc, 3), "m": b["m"]}
+                      for b in f["raw"]]
         out.append(g)
-    dstat = [{"x": round(mx(s["x"]), 2), "y": round(my(s["z"]), 2), "r": round(max(2, s["r"] * sc), 2)}
-             for s in statics]
+    dstat = [{"x": mx(s["x"]), "y": my(s["z"]), "r": round(max(2, s["r"] * sc), 2)} for s in statics]
     return out, dstat
 
 

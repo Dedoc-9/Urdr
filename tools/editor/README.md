@@ -45,9 +45,12 @@ machine — which is what makes deterministic-lockstep multiplayer possible.
 Editor (double-click the file, or open it in any browser):
 
 - **◇ Object** — draw with the **Line** tool (drag to draw an edge; start on a point to
-  continue a shape). **Move** reshapes, **Erase** removes. **Transform** rotates about
-  X/Y/Z in ½°/1° steps; **Scale · flip**; **Primitives** add round N-gons and rounded
-  barriers. Select a point to set its **depth Z**. Toggle **◈ 3D** to orbit.
+  continue a shape). **Move** reshapes points *and edges* (drag a line to move both ends);
+  **Erase** removes. In **◈ 3D** you can now drag points and edges directly (screen-parallel)
+  and orbit by dragging empty space. Select a point or an edge and **nudge it with the arrow
+  keys** — Shift = 10, Alt = ½ — in either 2D or 3D. **Transform** rotates about X/Y/Z in
+  ½°/1° steps; **Scale · flip**; **Primitives** add round N-gons and rounded barriers.
+  Select a point to set its **depth Z**.
 - **⛰ World** — pick an object, click the highway to place it, drag to move (children
   follow), the amber handle to rotate. The **Hierarchy** tree shows parent/child nesting
   with per-row show/hide and lock; the **Inspector** edits each placed object's physical
@@ -55,12 +58,16 @@ Editor (double-click the file, or open it in any browser):
   parent, tags, capabilities, visibility, lock, and constraints / joints to other objects.
   All of it serializes into the canonical world JSON; **no engine logic runs in the
   browser** — these are authored *intent*, which the runtime/engine validates for
-  admissibility downstream. Toggle **◈ 3D** for a perspective preview down the road.
+  admissibility downstream. Toggle **◈ 3D** for a perspective preview down the road — where
+  you can now drag whole objects on the ground plane too (children follow).
 - **▷ Replay** — load a `urdr_replay.json` (made by `replay.py`) and scrub the timeline
   (play / step / start · end). Every frame shows its exact-state **URDRPN1 digest** and the
   conserved momentum + energy; scrubbing to a frame restores that exact state, bit-identical
   on every conforming host. The browser only *draws* engine-provided state — it never
   simulates. This is the deterministic-replay capability surfaced directly in the editor.
+  **Overlays** draw per-body momentum vectors and the system centre of mass + Σp straight
+  from the recorded velocity/mass — read, never recomputed (contact normals, impulses and
+  LCP λ are the next overlay rung).
 - **⤓ Save / ⤒ Open** — persist the whole project (objects + world) to a JSON file.
 - **▸ Export world JSON** (World mode) — writes `urdr_world.json` (`URDR-WORLD-3`): objects
   by digest + instances carrying their full physical state and hierarchy (`parent` + a
@@ -113,8 +120,9 @@ witness chain, and the editor scrubs it. Natural follow-ons, in order:
   (`replay.py --world`) are *done* — **▷ Replay** now simulates your own scene
   deterministically (same witness chain on every machine). Next in the runtime: static
   colliders, joints/constraints, gravity, and per-material restitution;
-- **physics-debug overlays** (contact normals, impulses, centres of mass, momentum vectors)
-  drawn over a replay by *reading the runtime witnesses*, never recomputing in the browser;
+- **physics-debug overlays**: centre of mass + Σp and per-body momentum vectors are *done*
+  (read from recorded velocity/mass). The next overlays — contact normals, impulses, LCP λ —
+  need the runtime to emit contact events, which pairs with adding static colliders + joints;
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
   road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
   scene stays byte-identical across peers.

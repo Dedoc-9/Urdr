@@ -127,7 +127,7 @@ const CSS=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim
 let mode='design', view='2d', tool='line';
 let cur={verts:[],edges:[]};       // verts: {x,y,z}
 let designs=[], nextId=1, world=[];
-let placeSel=null, worldSel=null, selV=-1, hoverV=-1, drag=null;
+let placeSel=null, worldSel=null, selV=-1, selE=-1, hoverV=-1, drag=null;
 const set={grid:true, gsize:28, snap:false, snapInt:true, mirror:false, labels:false};
 let mirrorX=0, rotAxis='z';
 const prim={sides:16, radius:60, rw:140, rh:60, round:16};
@@ -136,6 +136,7 @@ const wcam={yaw:0, pitch:0.44, height:130, back:140, focal:520, scale:0.6, depth
 const SNAP=12, VR=4;
 let undo=[], redo=[];
 let replay=null, rframe=0, rplaying=false, rtimer=null;   // deterministic replay playback (engine-authored state)
+const rov={mom:false, com:false};                          // replay overlays: momentum vectors, centre of mass
 
 // ---------------- helpers ----------------
 const pos=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
@@ -233,6 +234,8 @@ function drawObj2d(){ grid2d();
     E.forEach(e=>{const a=V[e[0]],b=V[e[1]]; ctx.moveTo(2*mirrorX-a.x,a.y); ctx.lineTo(2*mirrorX-b.x,b.y);}); ctx.stroke(); }
   ctx.strokeStyle=CSS('--acid'); ctx.lineWidth=2; ctx.lineJoin='round'; ctx.beginPath();
   E.forEach(e=>{const a=V[e[0]],b=V[e[1]]; ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);}); ctx.stroke();
+  if(selE>=0&&E[selE]){const e=E[selE],a=V[e[0]],b=V[e[1]]; ctx.strokeStyle=CSS('--sel'); ctx.lineWidth=3.5;
+    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();}
   V.forEach((p,i)=>{ ctx.beginPath(); ctx.arc(p.x,p.y,i===selV?VR+2:VR,0,7);
     ctx.fillStyle=i===selV?CSS('--sel'):i===hoverV?CSS('--amber'):CSS('--amber'); ctx.fill();
     if(i===selV){ctx.strokeStyle=CSS('--sel');ctx.lineWidth=1;ctx.stroke();} label(p,i); });
@@ -250,6 +253,8 @@ function drawObj3d(){
   const pr=objProj(), V=cur.verts, E=cur.edges;
   ctx.strokeStyle=CSS('--acid'); ctx.lineWidth=2; ctx.lineJoin='round'; ctx.beginPath();
   E.forEach(e=>{const a=pr(V[e[0]]),b=pr(V[e[1]]); ctx.moveTo(a.sx,a.sy); ctx.lineTo(b.sx,b.sy);}); ctx.stroke();
+  if(selE>=0&&E[selE]){const e=E[selE],a=pr(V[e[0]]),b=pr(V[e[1]]); ctx.strokeStyle=CSS('--sel'); ctx.lineWidth=3.5;
+    ctx.beginPath(); ctx.moveTo(a.sx,a.sy); ctx.lineTo(b.sx,b.sy); ctx.stroke();}
   V.forEach((p,i)=>{const q=pr(p); ctx.beginPath(); ctx.arc(q.sx,q.sy,i===selV?VR+2:VR,0,7);
     ctx.fillStyle=i===selV?CSS('--sel'):CSS('--amber'); ctx.fill(); q.x=q.sx;q.y=q.sy; label(q,i);});
   ctx.fillStyle=CSS('--dim'); ctx.font='11px monospace'; ctx.fillText('drag: orbit · wheel: zoom · click a point to select, then set Z',12,H-12);
@@ -329,6 +334,9 @@ function syncTL(){ if(!replay||!replay.frames.length)return;
   const now=document.getElementById('rNow'); if(now)now.textContent=rframe;
   const dg=document.getElementById('rDig'); if(dg)dg.textContent=replay.frames[rframe].digest.slice(0,20)+'…';
   const pb=document.getElementById('rPlay'); if(pb)pb.textContent=rplaying?'❚❚ pause':'▶ play'; }
+function arrow(x0,y0,x1,y1){ ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+  const a=Math.atan2(y1-y0,x1-x0),h=5; ctx.beginPath(); ctx.moveTo(x1,y1);
+  ctx.lineTo(x1-h*Math.cos(a-0.4),y1-h*Math.sin(a-0.4)); ctx.lineTo(x1-h*Math.cos(a+0.4),y1-h*Math.sin(a+0.4)); ctx.closePath(); ctx.fill(); }
 function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
   if(!replay){ ctx.fillStyle=CSS('--dim'); ctx.font='13px monospace';
     ctx.fillText('No replay loaded.',26,44);
@@ -358,6 +366,15 @@ function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
     ctx.beginPath(); ctx.arc(q.x,q.y,rr,0,7); ctx.fillStyle=i===0?CSS('--amber'):CSS('--rust'); ctx.fill();
     ctx.strokeStyle=CSS('--ink'); ctx.lineWidth=1; ctx.stroke();
     ctx.fillStyle=CSS('--dim'); ctx.font='10px monospace'; ctx.fillText('#'+i,q.x-6,q.y-rr-4); }
+  // physics-debug overlays — drawn from the engine's recorded velocity + mass (read, not recomputed)
+  if(rov.mom&&fr.balls[0]&&('vx'in fr.balls[0])){ ctx.strokeStyle=CSS('--acid'); ctx.fillStyle=CSS('--acid'); ctx.lineWidth=1.5;
+    fr.balls.forEach(b=>{ const q=map(b.x,b.y), e=map(b.x+b.vx*b.m*3, b.y+b.vy*b.m*3);
+      if(Math.hypot(e.x-q.x,e.y-q.y)>2) arrow(q.x,q.y,e.x,e.y); }); }
+  if(rov.com&&fr.balls[0]&&('m'in fr.balls[0])){ let M=0,X=0,Y=0,PX=0,PY=0;
+    fr.balls.forEach(b=>{M+=b.m;X+=b.m*b.x;Y+=b.m*b.y;PX+=b.m*(b.vx||0);PY+=b.m*(b.vy||0);});
+    if(M>0){ X/=M;Y/=M; const q=map(X,Y); ctx.strokeStyle=CSS('--sel'); ctx.fillStyle=CSS('--sel'); ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(q.x-6,q.y); ctx.lineTo(q.x+6,q.y); ctx.moveTo(q.x,q.y-6); ctx.lineTo(q.x,q.y+6); ctx.stroke();
+      const e=map(X+PX/M*6, Y+PY/M*6); if(Math.hypot(e.x-q.x,e.y-q.y)>2) arrow(q.x,q.y,e.x,e.y); } }
   ctx.fillStyle=CSS('--ink'); ctx.font='12px monospace';
   ctx.fillText('frame '+rc+' / '+(replay.frames.length-1)+(rplaying?'   ▶':''),ox,oy-14);
   let ty=oy+rh*S+22; ctx.fillStyle=CSS('--acid'); ctx.font='11px monospace';
@@ -367,6 +384,29 @@ function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
   if(replay.refused){ ty+=18; ctx.fillStyle=CSS('--rust');
     ctx.fillText('⊘ engine REFUSED after frame '+replay.refused.after_frame+' — '+replay.refused.code+' (exact, not approximate)',ox,ty); }
 }
+
+// ---------------- 3D editing math (screen-parallel vertex drag; ground unproject) ----
+function screenToWorldDelta(zz,ddx,ddy){                    // object-orbit camera; verified vs proj3
+  const cw=Math.cos(ocam.yaw),sw=Math.sin(ocam.yaw),cp=Math.cos(ocam.pitch),sp=Math.sin(ocam.pitch);
+  const s=Math.max(1,zz)/ocam.focal;
+  const dqx=cw*ddx*s + (sw*sp)*(-ddy*s);
+  const dqy=(cp)*(-ddy*s);
+  const dqz=sw*ddx*s + (-cw*sp)*(-ddy*s);
+  return {dx:dqx, dy:-dqy, dz:dqz};                        // q-space → object p-space (objProj negates y)
+}
+function vDepth(i){ const cx=avg(cur.verts,'x'),cy=avg(cur.verts,'y'),cz=avg(cur.verts,'z');
+  const p=cur.verts[i]; return proj3({x:p.x-cx,y:-(p.y-cy),z:(p.z||0)-cz},ocam,W/2,H/2).depth; }
+function moveVerts3(idxs,ddx,ddy){ if(!idxs.length)return; let z=0; idxs.forEach(i=>z+=vDepth(i)); z/=idxs.length;
+  const d=screenToWorldDelta(z,ddx,ddy);
+  idxs.forEach(i=>{const p=cur.verts[i]; p.x+=d.dx; p.y+=d.dy; p.z=(p.z||0)+d.dz;}); }
+function unprojGround(sx,sy){                               // world camera: screen → ground (Y=0), verified vs projW
+  const cam=wcam, a=(sx-W/2)/cam.focal, b=(H/2-sy)/cam.focal;
+  const cp=Math.cos(cam.pitch),sp=Math.sin(cam.pitch),cw=Math.cos(cam.yaw),sw=Math.sin(cam.yaw);
+  const denom=b*cp-sp; if(denom>=-1e-6) return null;       // at/above horizon: no ground hit
+  const z2=-cam.height/denom, x1=a*z2, y2=b*z2, z1=y2*sp+z2*cp;
+  const xu=x1*cw+z1*sw, zu=-x1*sw+z1*cw;                   // pre-yaw (X, Z+back)
+  return {gx:xu, gz:zu-cam.back}; }
+const groundToXY=g=>({x:g.gx/wcam.depth+W/2, y:H-g.gz/wcam.depth});
 
 // ---------------- interaction ----------------
 cv.addEventListener('pointerdown',e=>{ if(mode==='replay')return; cv.setPointerCapture(e.pointerId); const p=pos(e);
@@ -381,31 +421,52 @@ cv.addEventListener('wheel',e=>{ if(mode==='replay')return; e.preventDefault();
 function d2Down(p){ hoverV=nearestVert(cur.verts,p);
   if(set.mirror&&p.y<18&&Math.abs(p.x-mirrorX)<8){drag={type:'axis'};return;}
   if(tool==='line'){ snapshot(); const sp=snap(p); let from=nearestVert(cur.verts,p);
-    if(from<0){cur.verts.push({x:sp.x,y:sp.y,z:0});from=cur.verts.length-1;} selV=from; drag={type:'line',from,p};}
-  else if(tool==='move'){ const i=nearestVert(cur.verts,p); if(i>=0){snapshot(); selV=i; drag={type:'move',i};} else selV=-1; }
+    if(from<0){cur.verts.push({x:sp.x,y:sp.y,z:0});from=cur.verts.length-1;} selV=from; selE=-1; drag={type:'line',from,p};}
+  else if(tool==='move'){ const i=nearestVert(cur.verts,p); if(i>=0){snapshot(); selV=i; selE=-1; drag={type:'move',i};}
+    else { const k=nearestEdge(cur.verts,cur.edges,p,8); if(k>=0){snapshot(); selE=k; selV=-1; drag={type:'moveE',k,lx:p.x,ly:p.y};} else {selV=-1; selE=-1;} } }
   else if(tool==='erase'){ snapshot(); const i=nearestVert(cur.verts,p);
     if(i>=0){cur.edges=cur.edges.filter(e=>e[0]!==i&&e[1]!==i).map(e=>[e[0]>i?e[0]-1:e[0],e[1]>i?e[1]-1:e[1]]); cur.verts.splice(i,1); selV=-1;}
     else{const k=nearestEdge(cur.verts,cur.edges,p);if(k>=0)cur.edges.splice(k,1);} } }
-function d3Down(p){ const pr=objProj(); const i=nearestVert(cur.verts,p,-1,SNAP+3,pr);
-  if(i>=0){selV=i; drag=null;} else drag={type:'orbit',x:p.x,y:p.y,yaw:ocam.yaw,pitch:ocam.pitch}; renderSide(); }
+function d3Down(p){ const pr=objProj();
+  const i=nearestVert(cur.verts,p,-1,SNAP+3,pr);
+  if(i>=0){ snapshot(); selV=i; selE=-1; drag={type:'v3',i,lx:p.x,ly:p.y}; renderSide(); return; }
+  const sv=cur.verts.map(v=>{const q=pr(v);return{x:q.sx,y:q.sy};});
+  const k=nearestEdge(sv,cur.edges,p,8);
+  if(k>=0){ snapshot(); selE=k; selV=-1; drag={type:'e3',k,lx:p.x,ly:p.y}; renderSide(); return; }
+  drag={type:'orbit',x:p.x,y:p.y,yaw:ocam.yaw,pitch:ocam.pitch}; renderSide(); }
 function w2Down(p){
   if(worldSel!=null){const it=world.find(w=>w.id===worldSel); if(it&&!it.locked&&Math.hypot(p.x-it.x,p.y-(it.y-40))<9){drag={type:'rot',id:it.id};return;}}
   for(let i=world.length-1;i>=0;i--){const it=world[i]; if(it.visible!==false&&Math.hypot(p.x-it.x,p.y-it.y)<26){worldSel=it.id; if(!it.locked)drag={type:'moveInst',id:it.id,dx:p.x-it.x,dy:p.y-it.y}; renderSide();return;}}
   if(placeSel!=null){const nm=(designs.find(d=>d.id===placeSel)||{}).name; world.push(normInst({id:nextId++,designId:placeSel,x:p.x,y:p.y,rot:0,scale:1,name:nm})); worldSel=world[world.length-1].id;renderSide();return;}
   worldSel=null; renderSide(); }
-function w3Down(p){ drag={type:'worbit',x:p.x,y:p.y,yaw:wcam.yaw,pitch:wcam.pitch}; }
+function w3Down(p){ let best=null,bd=32*32;
+  world.forEach(it=>{ if(it.visible===false)return; const g=groundOf(it); const q=projW({x:g.gx,y:0,z:g.gz},wcam,W/2,H/2);
+    if(!q)return; const dx=q.sx-p.x,dy=q.sy-p.y,d=dx*dx+dy*dy; if(d<bd){bd=d;best=it;} });
+  if(best){ worldSel=best.id;
+    if(!best.locked){ const gr=unprojGround(p.x,p.y), xy=gr?groundToXY(gr):{x:best.x,y:best.y};
+      drag={type:'inst3',id:best.id,ox:best.x-xy.x,oy:best.y-xy.y}; }
+    renderSide(); return; }
+  drag={type:'worbit',x:p.x,y:p.y,yaw:wcam.yaw,pitch:wcam.pitch}; }
 
 function onMove(p){
   if(mode==='design'&&view==='2d'){ hoverV=nearestVert(cur.verts,p);
-    if(drag){ if(drag.type==='line')drag.p=p; else if(drag.type==='move'){const s=snap(p);cur.verts[drag.i].x=s.x;cur.verts[drag.i].y=s.y;} else if(drag.type==='axis')mirrorX=p.x; } }
-  else if(mode==='design'&&view==='3d'&&drag&&drag.type==='orbit'){
-    ocam.yaw=drag.yaw+(p.x-drag.x)*0.01; ocam.pitch=clamp(drag.pitch+(p.y-drag.y)*0.01,-1.4,1.4); }
+    if(drag){ if(drag.type==='line')drag.p=p; else if(drag.type==='move'){const s=snap(p);cur.verts[drag.i].x=s.x;cur.verts[drag.i].y=s.y;}
+      else if(drag.type==='moveE'){const e=cur.edges[drag.k],ddx=p.x-drag.lx,ddy=p.y-drag.ly;
+        cur.verts[e[0]].x+=ddx;cur.verts[e[0]].y+=ddy;cur.verts[e[1]].x+=ddx;cur.verts[e[1]].y+=ddy; drag.lx=p.x;drag.ly=p.y;}
+      else if(drag.type==='axis')mirrorX=p.x; } }
+  else if(mode==='design'&&view==='3d'&&drag){
+    if(drag.type==='orbit'){ ocam.yaw=drag.yaw+(p.x-drag.x)*0.01; ocam.pitch=clamp(drag.pitch+(p.y-drag.y)*0.01,-1.4,1.4); }
+    else if(drag.type==='v3'){ moveVerts3([drag.i],p.x-drag.lx,p.y-drag.ly); drag.lx=p.x; drag.ly=p.y; selV=drag.i; }
+    else if(drag.type==='e3'){ moveVerts3(cur.edges[drag.k],p.x-drag.lx,p.y-drag.ly); drag.lx=p.x; drag.ly=p.y; } }
   else if(mode==='world'&&view==='2d'&&drag){ if(drag.type==='moveInst'){const it=world.find(w=>w.id===drag.id);
       const nx=p.x-drag.dx, ny=p.y-drag.dy, ddx=nx-it.x, ddy=ny-it.y; it.x=nx; it.y=ny;
       descendantsOf(it.id).forEach(c=>{c.x+=ddx;c.y+=ddy;});}
     else if(drag.type==='rot'){const it=world.find(w=>w.id===drag.id);it.rot=Math.atan2(p.y-it.y,p.x-it.x)+Math.PI/2;} }
-  else if(mode==='world'&&view==='3d'&&drag&&drag.type==='worbit'){
-    wcam.yaw=clamp(drag.yaw+(p.x-drag.x)*0.006,-0.8,0.8); wcam.pitch=clamp(drag.pitch-(p.y-drag.y)*0.004,0.05,0.9); syncCam(); }
+  else if(mode==='world'&&view==='3d'&&drag){
+    if(drag.type==='worbit'){ wcam.yaw=clamp(drag.yaw+(p.x-drag.x)*0.006,-0.8,0.8); wcam.pitch=clamp(drag.pitch-(p.y-drag.y)*0.004,0.05,0.9); syncCam(); }
+    else if(drag.type==='inst3'){ const gr=unprojGround(p.x,p.y); if(gr){ const it=world.find(w=>w.id===drag.id);
+      const xy=groundToXY(gr), nx=xy.x+drag.ox, ny=xy.y+drag.oy, ddx=nx-it.x, ddy=ny-it.y; it.x=nx; it.y=ny;
+      descendantsOf(it.id).forEach(c=>{c.x+=ddx;c.y+=ddy;}); } } }
 }
 function onUp(p){ if(mode==='design'&&view==='2d'&&drag&&drag.type==='line'){
     const sp=snap(p); let end=nearestVert(cur.verts,p,drag.from);
@@ -416,7 +477,17 @@ addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='z'){e.preventDefault(); e.shiftKey?doRedo():doUndo(); return;}
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='y'){e.preventDefault(); doRedo(); return;}
   if((e.key==='Delete'||e.key==='Backspace')){ if(mode==='world'&&worldSel!=null){world=world.filter(w=>w.id!==worldSel);worldSel=null;draw();renderSide();}
-    else if(mode==='design'&&selV>=0){snapshot(); const i=selV; cur.edges=cur.edges.filter(e=>e[0]!==i&&e[1]!==i).map(e=>[e[0]>i?e[0]-1:e[0],e[1]>i?e[1]-1:e[1]]); cur.verts.splice(i,1); selV=-1; refresh();} } });
+    else if(mode==='design'&&selV>=0){snapshot(); const i=selV; cur.edges=cur.edges.filter(e=>e[0]!==i&&e[1]!==i).map(e=>[e[0]>i?e[0]-1:e[0],e[1]>i?e[1]-1:e[1]]); cur.verts.splice(i,1); selV=-1; selE=-1; refresh();} }
+  // arrow keys: nudge the selected point or edge "ever so slightly" (Shift=10, Alt=½)
+  if(mode==='design'&&e.key.indexOf('Arrow')===0){
+    if(document.activeElement&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
+    const idxs = (selE>=0&&cur.edges[selE]) ? cur.edges[selE].slice() : (selV>=0?[selV]:[]);
+    if(!idxs.length)return;
+    const st=e.shiftKey?10:(e.altKey?0.5:1); let dx=0,dy=0;
+    if(e.key==='ArrowLeft')dx=-st; else if(e.key==='ArrowRight')dx=st; else if(e.key==='ArrowUp')dy=-st; else if(e.key==='ArrowDown')dy=st; else return;
+    e.preventDefault(); if(!e.repeat)snapshot();
+    if(view==='3d') moveVerts3(idxs,dx,dy); else idxs.forEach(i=>{cur.verts[i].x+=dx; cur.verts[i].y+=dy;});
+    refresh(); } });
 
 // ---------------- transforms & primitives (dev tools) ----------------
 function setAxis(a){ rotAxis=a; renderSide(); }
@@ -488,7 +559,7 @@ async function saveDesign(){ if(!cur.verts.length){msg('nothing to save');return
   const dg=await digestOf(d);
   designs.push({id:nextId++,name:name||('object '+designs.length),verts:d.verts,edges:d.edges,digest:dg});
   msg('saved · '+dg.slice(0,12)+'…'); renderSide(); }
-function newDesign(){snapshot(); cur={verts:[],edges:[]}; selV=-1; refresh();}
+function newDesign(){snapshot(); cur={verts:[],edges:[]}; selV=-1; selE=-1; refresh();}
 function loadDesign(id){const d=designs.find(x=>x.id===id); if(!d)return; snapshot();
   cur={verts:d.verts.map(p=>({x:p.x,y:p.y,z:p.z||0})),edges:d.edges.map(e=>[e[0],e[1]])}; selV=-1; setMode('design'); refresh();}
 function clearObj(){ if(confirm('Clear the current object?')){snapshot(); cur={verts:[],edges:[]}; selV=-1; refresh();} }
@@ -625,6 +696,10 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
         <div class="sld"><span>frame</span><input type="range" id="rTL" min="0" max="${N}" step="1" value="${rframe}"><b id="rNow">${rframe}</b></div>
         <div class="row"><button onclick="stepFrame(-1)">◀ step</button><button id="rPlay" onclick="playReplay()">${rplaying?'❚❚ pause':'▶ play'}</button><button onclick="stepFrame(1)">step ▶</button></div>
         <div class="row"><button onclick="setFrame(0)">⏮ start</button><button onclick="setFrame(${N})">end ⏭</button></div>
+        <h3>Overlays</h3>
+        <label class="chk"><input type="checkbox" id="oMom" ${rov.mom?'checked':''}> momentum vectors (m·v)</label>
+        <label class="chk"><input type="checkbox" id="oCom" ${rov.com?'checked':''}> centre of mass + Σp</label>
+        <p class="note">Drawn from the engine's recorded velocity + mass — read, never recomputed. Contact normals, impulses and LCP λ are the next overlay rung.</p>
         <h3>Exact-state witness</h3>
         <p class="note">frame ${rframe} → <span style="color:var(--acid)" id="rDig">${f.digest.slice(0,20)}…</span></p>
         <p class="note">Canonical <b>URDRPN1</b> digest of the exact (X,V) state at this tick. Scrubbing restores that state — bit-identical on every conforming host. Chain: ${replay.frames.length} digests.</p>
@@ -665,6 +740,8 @@ function wireControls(){
   num('pSides',v=>prim.sides=v); num('pRad',v=>prim.radius=v);
   num('pRW',v=>prim.rw=v); num('pRH',v=>prim.rh=v); num('pRnd',v=>prim.round=v);
   const rtl=document.getElementById('rTL'); if(rtl)rtl.oninput=e=>scrub(parseInt(e.target.value));
+  const oc=(id,k)=>{const el=document.getElementById(id); if(el)el.onchange=e=>{rov[k]=e.target.checked; draw();};};
+  oc('oMom','mom'); oc('oCom','com');
   // world inspector (present only with a selection); text/select commit on change (focus already left)
   if(mode==='world'&&worldSel!=null){ const it=world.find(w=>w.id===worldSel);
     if(it){ num('iMass',v=>it.mass=v); num('iRest',v=>it.material.restitution=v/100); num('iFric',v=>it.material.friction=v/100);
@@ -685,7 +762,7 @@ const escapeHtml=s=>(s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 function pick(id){ if(mode==='design')loadDesign(id); else{placeSel=(placeSel===id?null:id);renderSide();draw();} }
 
 // ---------------- glue ----------------
-function setMode(m){ mode=m; drag=null; worldSel=null; selV=-1; stopPlay();
+function setMode(m){ mode=m; drag=null; worldSel=null; selV=-1; selE=-1; stopPlay();
   document.getElementById('mDesign').classList.toggle('on',m==='design');
   document.getElementById('mWorld').classList.toggle('on',m==='world');
   document.getElementById('mReplay').classList.toggle('on',m==='replay'); updHint(); renderSide(); refresh(); }
