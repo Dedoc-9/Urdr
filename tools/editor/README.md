@@ -10,6 +10,7 @@ cross-placed renderer.
 |---|---|
 | `urdr_designer.html` | A browser CAD/world editor — no install, no dependencies, works offline. Draw objects in 2D or 3D, place them on a highway, export the scene. |
 | `load_world.py` | Renders an exported `urdr_world.json` through the **exact** perspective projector (`../render/perspective.py`) to a `URDRFB1` frame + digest + a viewable PGM image. Closes the loop from editor to engine. |
+| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Load it in the editor's **▷ Replay** mode to scrub the run frame-by-frame. The engine is the sole authority; the browser only draws what it recorded. |
 
 ## Grade — honest scope
 
@@ -50,6 +51,11 @@ Editor (double-click the file, or open it in any browser):
 - **⛰ World** — pick an object, click the highway to place it, drag to move, the amber
   handle to rotate; select a placed object for fine rotate/scale. Toggle **◈ 3D** for a
   perspective preview down the road.
+- **▷ Replay** — load a `urdr_replay.json` (made by `replay.py`) and scrub the timeline
+  (play / step / start · end). Every frame shows its exact-state **URDRPN1 digest** and the
+  conserved momentum + energy; scrubbing to a frame restores that exact state, bit-identical
+  on every conforming host. The browser only *draws* engine-provided state — it never
+  simulates. This is the deterministic-replay capability surfaced directly in the editor.
 - **⤓ Save / ⤒ Open** — persist the whole project (objects + world) to a JSON file.
 - **▸ Export world JSON** (World mode) — writes `urdr_world.json` for the renderer.
 
@@ -60,8 +66,33 @@ python3 load_world.py urdr_world.json urdr_frame.pgm
 # prints the URDRFB1 frame digest and writes a viewable PGM image
 ```
 
+Run a deterministic replay through the exact physics, then scrub it in the editor:
+
+```
+python3 replay.py               # writes urdr_replay.json + prints the witness chain
+#   ticks         : 73
+#   frame 0 digest: 1f3c…   frame N digest: 9ab0…
+#   witness chain : 73 digests
+#   momentum      : conserved      2*KE : conserved
+```
+
+Then open the editor, switch to **▷ Replay**, and load `urdr_replay.json`. Because the
+runtime uses the *exact* `dynamics_nd`, the state can hit the `i64` substrate limit; when it
+does, the runtime records the frames up to that point plus an honest `refused` marker — the
+exact engine **stops rather than approximate**, and the editor shows the refusal at the end
+of the timeline. (The default scene is integer-exact, so it runs the full 72 ticks.)
+
 ## Next rungs (declared)
 
-3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
-road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
-scene stays byte-identical across peers.
+The **▷ Replay** spine is the first of the "expose the deterministic engine" additions:
+the editor authors, a runtime (`replay.py`) simulates with the exact engine and emits a
+witness chain, and the editor scrubs it. Natural follow-ons, in order:
+
+- a **properties inspector + scene hierarchy** so an authored world assigns physics/collision
+  props and parenting — the intent the runtime needs to simulate the *authored* scene (not
+  just the demo cascade);
+- **physics-debug overlays** (contacts, impulses, centres of mass, momentum vectors) drawn
+  over a replay by *reading the runtime witnesses*, never recomputing in the browser;
+- 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
+  road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
+  scene stays byte-identical across peers.

@@ -1,5 +1,8 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
-<!-- Urðr Designer v2 — an EXPLORATORY authoring front-end (not a gate-tested rung). -->
+<!-- Urðr Designer v3 — an EXPLORATORY authoring front-end (not a gate-tested rung). -->
+<!-- 2D/3D object modeling + a 3D world you can populate + a ▷ Replay mode that scrubs a -->
+<!-- deterministic run (urdr_replay.json from replay.py) frame-by-frame, each frame an -->
+<!-- exact URDRPN1 state digest. The browser only draws engine state; it never simulates. -->
 <!-- 2D/3D object modeling + a 3D world you can populate. Objects export as -->
 <!-- content-addressed (SHA-256) vertex/edge lists — the Urðr identity discipline; -->
 <!-- the deterministic renderer/physics consume that data downstream. The 3D views -->
@@ -70,6 +73,7 @@
     <div class="seg">
       <button id="mDesign" class="on" onclick="setMode('design')">◇ Object</button>
       <button id="mWorld" onclick="setMode('world')">⛰ World</button>
+      <button id="mReplay" onclick="setMode('replay')">▷ Replay</button>
     </div>
     <div class="seg">
       <button id="v2d" class="on" onclick="setView('2d')">▦ 2D</button>
@@ -80,6 +84,7 @@
       <button onclick="document.getElementById('fileIn').click()" title="Open a saved project">⤒ Open</button>
     </div>
     <input id="fileIn" type="file" accept=".json,application/json" style="display:none">
+    <input id="replayIn" type="file" accept=".json,application/json" style="display:none">
     <span class="hint" id="hint"></span>
   </header>
   <aside id="side"></aside>
@@ -115,6 +120,7 @@ const ocam={yaw:0.6, pitch:0.35, dist:520, focal:620};                 // object
 const wcam={yaw:0, pitch:0.44, height:130, back:140, focal:520, scale:0.6, depth:1.0}; // world
 const SNAP=12, VR=4;
 let undo=[], redo=[];
+let replay=null, rframe=0, rplaying=false, rtimer=null;   // deterministic replay playback (engine-authored state)
 
 // ---------------- helpers ----------------
 const pos=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
@@ -196,6 +202,7 @@ function label(p,i){ if(!set.labels)return; ctx.fillStyle=CSS('--dim'); ctx.font
   ctx.fillText(i+' ('+Math.round(p.x)+','+Math.round(p.y)+(view==='3d'?','+Math.round(p.z||0):'')+')',p.sx?p.sx+6:p.x+6,(p.sy?p.sy:p.y)-6); }
 
 function draw(){ ctx.clearRect(0,0,W,H);
+  if(mode==='replay'){ drawReplay(); return; }
   if(mode==='design'){ view==='2d'?drawObj2d():drawObj3d(); }
   else { view==='2d'?drawWorld2d():drawWorld3d(); } }
 
@@ -289,12 +296,62 @@ function drawWorld3d(){
   ctx.fillText('3D preview · drag: orbit camera · wheel: dolly · place & drag objects in 2D',12,H-12);
 }
 
+// ---------------- replay: deterministic witness playback (draws engine state; never simulates) ----------------
+function loadReplay(file){ const r=new FileReader();
+  r.onload=()=>{ try{ const d=JSON.parse(r.result);
+    if(d.format!=='URDR-REPLAY-1'||!Array.isArray(d.frames)||!d.frames.length) throw 0;
+    replay=d; rframe=0; setMode('replay'); msg('replay loaded · '+d.frames.length+' frames');
+  }catch(e){ msg('not a URDR-REPLAY-1 file — generate one with replay.py'); } };
+  r.readAsText(file); }
+function stopPlay(){ rplaying=false; if(rtimer){clearInterval(rtimer);rtimer=null;} }
+function playReplay(){ if(!replay)return; if(rplaying){stopPlay();renderSide();return;}
+  rplaying=true; rtimer=setInterval(()=>{ rframe=(rframe+1)%replay.frames.length; draw(); syncTL(); },55); renderSide(); }
+function scrub(k){ if(!replay)return; stopPlay(); rframe=clamp(k|0,0,replay.frames.length-1); draw(); syncTL(); }
+function setFrame(k){ if(!replay)return; stopPlay(); rframe=clamp(k|0,0,replay.frames.length-1); draw(); renderSide(); }
+function stepFrame(d){ setFrame(rframe+d); }
+function syncTL(){ if(!replay)return;
+  const tl=document.getElementById('rTL'); if(tl)tl.value=rframe;
+  const now=document.getElementById('rNow'); if(now)now.textContent=rframe;
+  const dg=document.getElementById('rDig'); if(dg)dg.textContent=replay.frames[rframe].digest.slice(0,20)+'…';
+  const pb=document.getElementById('rPlay'); if(pb)pb.textContent=rplaying?'❚❚ pause':'▶ play'; }
+function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
+  if(!replay){ ctx.fillStyle=CSS('--dim'); ctx.font='13px monospace';
+    ctx.fillText('No replay loaded.',26,44);
+    ctx.fillText('1 · generate:  python3 replay.py   →  urdr_replay.json',26,72);
+    ctx.fillText('2 · ▷ Load replay JSON  (left panel)',26,94);
+    ctx.fillText('The exact dynamics_nd engine computes every tick; this view only draws it.',26,124); return; }
+  const rw=replay.w||380, rh=replay.h||240;
+  const S=Math.min((W-48)/rw,(H-150)/rh), ox=(W-rw*S)/2, oy=(H-rh*S)/2;
+  const map=(x,y)=>({x:ox+x*S,y:oy+y*S});
+  ctx.strokeStyle=CSS('--grid'); ctx.lineWidth=1; ctx.strokeRect(ox,oy,rw*S,rh*S);
+  const fr=replay.frames[rframe], nb=fr.balls.length;
+  const railY=oy+(replay.frames[0].balls[0].y)*S;
+  ctx.strokeStyle='#1c2226'; ctx.setLineDash([6,6]); ctx.beginPath();
+  ctx.moveTo(ox,railY); ctx.lineTo(ox+rw*S,railY); ctx.stroke(); ctx.setLineDash([]);
+  for(let i=0;i<nb;i++){ const k0=Math.max(0,rframe-8);
+    ctx.strokeStyle='#3a2f22'; ctx.lineWidth=2; ctx.beginPath();
+    for(let k=k0;k<=rframe;k++){ const b=replay.frames[k].balls[i], q=map(b.x,b.y);
+      k===k0?ctx.moveTo(q.x,q.y):ctx.lineTo(q.x,q.y); } ctx.stroke();
+    const b=fr.balls[i], q=map(b.x,b.y), rr=Math.max(3,b.r*S);
+    ctx.beginPath(); ctx.arc(q.x,q.y,rr,0,7); ctx.fillStyle=i===0?CSS('--amber'):CSS('--rust'); ctx.fill();
+    ctx.strokeStyle=CSS('--ink'); ctx.lineWidth=1; ctx.stroke();
+    ctx.fillStyle=CSS('--dim'); ctx.font='10px monospace'; ctx.fillText('#'+i,q.x-6,q.y-rr-4); }
+  ctx.fillStyle=CSS('--ink'); ctx.font='12px monospace';
+  ctx.fillText('frame '+rframe+' / '+(replay.frames.length-1)+(rplaying?'   ▶':''),ox,oy-14);
+  let ty=oy+rh*S+22; ctx.fillStyle=CSS('--acid'); ctx.font='11px monospace';
+  ctx.fillText('state  '+fr.digest.slice(0,32)+'…   URDRPN1 witness — identical on every conforming host',ox,ty);
+  ctx.fillStyle=CSS('--dim'); ty+=18;
+  ctx.fillText('Σp = ('+fr.px+', '+fr.py+')     2·KE = '+fr.e2+'      momentum & energy conserved (elastic)',ox,ty);
+  if(replay.refused){ ty+=18; ctx.fillStyle=CSS('--rust');
+    ctx.fillText('⊘ engine REFUSED after frame '+replay.refused.after_frame+' — '+replay.refused.code+' (exact, not approximate)',ox,ty); }
+}
+
 // ---------------- interaction ----------------
-cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId); const p=pos(e);
+cv.addEventListener('pointerdown',e=>{ if(mode==='replay')return; cv.setPointerCapture(e.pointerId); const p=pos(e);
   if(mode==='design'){ view==='2d'?d2Down(p):d3Down(p); } else { view==='2d'?w2Down(p):w3Down(p);} draw();});
-cv.addEventListener('pointermove',e=>{const p=pos(e); onMove(p); draw();});
-cv.addEventListener('pointerup',e=>{const p=pos(e); onUp(p); draw(); refresh();});
-cv.addEventListener('wheel',e=>{e.preventDefault();
+cv.addEventListener('pointermove',e=>{ if(mode==='replay')return; const p=pos(e); onMove(p); draw();});
+cv.addEventListener('pointerup',e=>{ if(mode==='replay')return; const p=pos(e); onUp(p); draw(); refresh();});
+cv.addEventListener('wheel',e=>{ if(mode==='replay')return; e.preventDefault();
   if(mode==='design'&&view==='3d') ocam.dist=clamp(ocam.dist*(1+Math.sign(e.deltaY)*0.08),150,2600);
   else if(mode==='world'&&view==='3d') wcam.back=clamp(wcam.back+Math.sign(e.deltaY)*20,20,900);
   syncCam(); draw();},{passive:false});
@@ -447,7 +504,7 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
       <p class="note">x ${Math.round(p.x)} · y ${Math.round(p.y)} · z ${Math.round(p.z||0)}</p>`; }
     h+=`<h3>Keys</h3><p class="note">drag = draw line · Ctrl+Z / Ctrl+⇧+Z = undo/redo · Del = remove selected point · wheel = zoom (3D) · click a point → depth Z</p>`;
     h+=`<h3>Library</h3><div class="lib" id="lib"></div>`;
-  } else {
+  } else if(mode==='world'){
     h+=`<h3>Place objects</h3><div class="row"><button onclick="exportWorld()">⬇ Export world JSON</button></div>
       <p class="note">Pick a design, click to drop it. Drag to move · amber handle rotates · Delete removes. Placement/drag is in 2D; toggle ◈ 3D to preview.</p>`;
     if(view==='3d') h+=`<h3>Camera</h3>
@@ -460,9 +517,25 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
         <div class="row"><button onclick="instScale(0.909)">− scale</button><button onclick="instScale(1.1)">+ scale</button></div>
         <p class="note">scale ${(it&&it.scale?it.scale:1).toFixed(2)}× · rot ${it?Math.round(it.rot*180/Math.PI):0}° · Delete to remove</p>`; }
     h+=`<h3>Designs (palette)</h3><div class="lib" id="lib"></div>`;
+  } else {   // replay
+    h+=`<h3>Replay</h3>
+      <div class="row"><button onclick="document.getElementById('replayIn').click()">▷ Load replay JSON</button></div>
+      <p class="note">Generate with <b>python3 replay.py</b> (the exact <b>dynamics_nd</b> engine) → <b>urdr_replay.json</b>, then load it. The engine computes every tick; this view only draws the recorded state — it never simulates.</p>`;
+    if(replay){ const N=replay.frames.length-1, f=replay.frames[rframe];
+      h+=`<h3>Timeline</h3>
+        <div class="sld"><span>frame</span><input type="range" id="rTL" min="0" max="${N}" step="1" value="${rframe}"><b id="rNow">${rframe}</b></div>
+        <div class="row"><button onclick="stepFrame(-1)">◀ step</button><button id="rPlay" onclick="playReplay()">${rplaying?'❚❚ pause':'▶ play'}</button><button onclick="stepFrame(1)">step ▶</button></div>
+        <div class="row"><button onclick="setFrame(0)">⏮ start</button><button onclick="setFrame(${N})">end ⏭</button></div>
+        <h3>Exact-state witness</h3>
+        <p class="note">frame ${rframe} → <span style="color:var(--acid)" id="rDig">${f.digest.slice(0,20)}…</span></p>
+        <p class="note">Canonical <b>URDRPN1</b> digest of the exact (X,V) state at this tick. Scrubbing restores that state — bit-identical on every conforming host. Chain: ${replay.frames.length} digests.</p>
+        <p class="note">Σp = (${f.px}, ${f.py}) · 2·KE = ${f.e2} — momentum &amp; energy conserved (elastic).</p>`;
+      if(replay.refused) h+=`<p class="note" style="color:var(--rust)">⊘ engine refused after frame ${replay.refused.after_frame}: ${replay.refused.code} — exact, not approximate.</p>`;
+    }
   }
   side.innerHTML=h;
   const lib=document.getElementById('lib');
+  if(lib){
   if(!designs.length) lib.innerHTML='<span class="note">no objects yet — draw one and Save</span>';
   designs.forEach(d=>{const on=(mode==='world'&&placeSel===d.id);
     const div=document.createElement('div'); div.className='item'+(on?' on':''); div.title=d.digest;
@@ -474,6 +547,7 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
       x.style.cssText='margin-left:auto;color:var(--dim);cursor:pointer;padding:0 5px;font-size:14px';
       x.onclick=ev=>{ev.stopPropagation(); if(confirm('Delete “'+d.name+'”?'))deleteDesign(d.id);}; div.appendChild(x); }
     lib.appendChild(div); });
+  }
   wireControls();
 }
 function wireControls(){
@@ -489,6 +563,7 @@ function wireControls(){
   num('sWP',v=>wcam.pitch=v*Math.PI/180); num('sWB',v=>wcam.back=v); num('sWS',v=>wcam.scale=v/100);
   num('pSides',v=>prim.sides=v); num('pRad',v=>prim.radius=v);
   num('pRW',v=>prim.rw=v); num('pRH',v=>prim.rh=v); num('pRnd',v=>prim.round=v);
+  const rtl=document.getElementById('rTL'); if(rtl)rtl.oninput=e=>scrub(parseInt(e.target.value));
 }
 function syncCam(){ ['sOD','sWB'].forEach(id=>{const el=document.getElementById(id),b=document.getElementById(id+'v');
   if(el&&id==='sOD'){el.value=Math.round(ocam.dist);b.textContent=Math.round(ocam.dist);}
@@ -497,21 +572,32 @@ const escapeHtml=s=>(s+'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&g
 function pick(id){ if(mode==='design')loadDesign(id); else{placeSel=(placeSel===id?null:id);renderSide();draw();} }
 
 // ---------------- glue ----------------
-function setMode(m){ mode=m; drag=null; worldSel=null; selV=-1;
+function setMode(m){ mode=m; drag=null; worldSel=null; selV=-1; stopPlay();
   document.getElementById('mDesign').classList.toggle('on',m==='design');
-  document.getElementById('mWorld').classList.toggle('on',m==='world'); updHint(); renderSide(); refresh(); }
+  document.getElementById('mWorld').classList.toggle('on',m==='world');
+  document.getElementById('mReplay').classList.toggle('on',m==='replay'); updHint(); renderSide(); refresh(); }
 function setView(v){ view=v; drag=null;
   document.getElementById('v2d').classList.toggle('on',v==='2d');
   document.getElementById('v3d').classList.toggle('on',v==='3d'); updHint(); renderSide(); draw(); }
 function setTool(t){ tool=t; cv.style.cursor=t==='move'?'grab':t==='erase'?'not-allowed':'crosshair'; renderSide(); }
-function updHint(){ const h=mode==='design'
+function updHint(){ const h=mode==='replay'
+    ? 'Deterministic replay — scrub the timeline; each frame is an exact state restored by its digest'
+    : mode==='design'
     ? (view==='2d'?'Drag to draw lines · start on a point to continue · Move/Erase in Tools':'Orbit the model · click a point then set depth Z')
     : (view==='2d'?'Pick a design, click the road to place · drag to move · handle to rotate':'3D preview — drag to orbit · dolly with wheel · edit in 2D');
   document.getElementById('hint').textContent=h;
   cv.style.cursor = (mode==='design'&&view==='2d')?'crosshair':'default'; }
 function msg(s){document.getElementById('fMsg').textContent=s;}
 let digTimer=null;
-async function refresh(){ document.getElementById('fMode').textContent=mode;
+async function refresh(){
+  if(mode==='replay'){ document.getElementById('fMode').textContent='replay';
+    document.getElementById('fView').textContent='—';
+    document.getElementById('fV').textContent=replay?rframe:0;
+    document.getElementById('fE').textContent=replay?replay.frames.length:0;
+    document.getElementById('fSel').textContent=replay?'chain':'';
+    document.getElementById('fDig').textContent=replay?replay.frames[rframe].digest.slice(0,16)+'…':'—';
+    renderSide(); draw(); return; }
+  document.getElementById('fMode').textContent=mode;
   document.getElementById('fView').textContent=view;
   document.getElementById('fV').textContent=cur.verts.length;
   document.getElementById('fE').textContent=cur.edges.length;
@@ -533,6 +619,7 @@ async function seedOne(name,V,E){ const vs=V.map(p=>({x:p[0],y:p[1],z:0}));
   renderSide();
 })();
 document.getElementById('fileIn').addEventListener('change',e=>{ if(e.target.files&&e.target.files[0])openProject(e.target.files[0]); e.target.value=''; });
+document.getElementById('replayIn').addEventListener('change',e=>{ if(e.target.files&&e.target.files[0])loadReplay(e.target.files[0]); e.target.value=''; });
 resize(); updHint(); setMode('design');
 </script>
 </body>
