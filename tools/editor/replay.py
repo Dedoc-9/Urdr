@@ -509,13 +509,14 @@ def fp_swing_doc(steps=220, W=380, H=300):
             "refused": refused, "frames": frames, "chain": [f["digest"] for f in frames]}
 
 
-def fp_world_doc(path, steps=180, K=12, e_pct=50, W=460, H=280, margin=30):
+def fp_world_doc(path, steps=200, K=14, e_pct=50, grav=0, W=460, H=280, margin=30):
     """An AUTHORED world (URDR-WORLD-3), time-stepped on the fixed-point substrate — the
     bounded long-run counterpart to the exact `--world`. Dynamic instances collide against
     each other and the static colliders via a general 2D fixed-point PGS using UN-NORMALIZED
-    normals (the `|d|` cancels via `d·d`, so no sqrt) + squared-penetration Baumgarte. Runs
-    velocity-driven (authored init velocities) as long as you like without overflow, where
-    the exact LCP would refuse. Deterministic; URDRFPW1 witness per frame."""
+    normals (the `|d|` cancels via `d·d`, so no sqrt) + squared-penetration Baumgarte + `--e`
+    restitution. With `grav`, an implicit box (floor + side walls) and light linear damping are
+    added so the scene falls and SETTLES. Runs as long as you like without overflow, where the
+    exact LCP would refuse. Deterministic; URDRFPW1 witness per frame."""
     dyn, statics, _joints = _load_world(path)
     sraw = [{"x": s["x"], "z": s["z"], "r": s["r"]} for s in statics]
     if not dyn:
@@ -531,6 +532,14 @@ def fp_world_doc(path, steps=180, K=12, e_pct=50, W=460, H=280, margin=30):
     rad = [b["r"] for b in dyn] + [s["r"] for s in statics]
     mass = [b["m"] for b in dyn] + [0] * ns                 # 0 marks static
     fl = lambda a: round(a / _FPONE, 2)
+    GDT = _FP.unit(grav, 10) if grav else 0                 # gravity·dt (down = +z)
+    if grav:                                                # implicit box so the scene settles
+        allx = [b["x"] for b in dyn] + [s["x"] for s in statics]
+        allz = [b["z"] for b in dyn] + [s["z"] for s in statics]
+        rmax = max(rad)
+        floorf = _FP.unit(max(allz) + rmax + 50, 1)
+        xlo = _FP.unit(min(allx) - rmax - 40, 1)
+        xhi = _FP.unit(max(allx) + rmax + 40, 1)
     frames, refused = [], None
     for t in range(steps + 1):
         raw = [{"x": fl(px[i]), "y": fl(pz[i]), "r": rad[i], "vx": fl(vx[i]), "vy": fl(vz[i]), "m": dyn[i]["m"]}
@@ -538,6 +547,9 @@ def fp_world_doc(path, steps=180, K=12, e_pct=50, W=460, H=280, margin=30):
         cacc = {}
         try:
             for i in range(nd):
+                if grav:
+                    vz[i] = _FP.add(vz[i], GDT)
+                    vx[i] = _FP.mul_k(vx[i], 97, 100); vz[i] = _FP.mul_k(vz[i], 97, 100)   # light linear damping
                 px[i] = _FP.add(px[i], vx[i]); pz[i] = _FP.add(pz[i], vz[i])
             pairs, vnpre, lam = [], {}, {}
             for i in range(nd):                                 # detect contacts + capture approach velocity
@@ -548,6 +560,11 @@ def fp_world_doc(path, steps=180, K=12, e_pct=50, W=460, H=280, margin=30):
                     if dd < rr2:                                # penetrating contact (un-normalized normal d)
                         pairs.append((i, j, rr2))
                         vnpre[(i, j)] = _FP.add(_fm(_FP.sub(vx[j], vx[i]), dx), _fm(_FP.sub(vz[j], vz[i]), dz))
+            floors, vnf = [], {}
+            if grav:                                            # floor contacts (axis-aligned, no sqrt)
+                for i in range(nd):
+                    if _FP.add(pz[i], _FP.unit(rad[i], 1)) > floorf:
+                        floors.append(i); vnf[i] = vz[i]
             for _ in range(K):                                  # velocity-level restitution PGS (no sqrt)
                 for (i, j, rr2) in pairs:
                     dx, dz = _FP.sub(px[j], px[i]), _FP.sub(pz[j], pz[i])
@@ -569,6 +586,13 @@ def fp_world_doc(path, steps=180, K=12, e_pct=50, W=460, H=280, margin=30):
                                 vx[i] = _FP.sub(vx[i], _FP.mul_k(_fm(d, dx), 1, mi)); vz[i] = _FP.sub(vz[i], _FP.mul_k(_fm(d, dz), 1, mi))
                             if mj:
                                 vx[j] = _FP.add(vx[j], _FP.mul_k(_fm(d, dx), 1, mj)); vz[j] = _FP.add(vz[j], _FP.mul_k(_fm(d, dz), 1, mj))
+                for i in floors:                                # upward floor impulse λ = vz + e·vz_pre
+                    vp = vnf[i]; rest = _FP.mul_k(vp, e_pct, 100) if vp > 0 else 0
+                    acc = lam.get(("f", i), 0); newl = acc + _FP.add(vz[i], rest)
+                    if newl < 0:
+                        newl = 0
+                    d = newl - acc; lam[("f", i)] = newl
+                    vz[i] = _FP.sub(vz[i], d)
             for (i, j, rr2) in pairs:                            # light position projection (positions only; no energy)
                 dx, dz = _FP.sub(px[j], px[i]), _FP.sub(pz[j], pz[i])
                 dd = _FP.add(_fm(dx, dx), _fm(dz, dz))
@@ -583,6 +607,19 @@ def fp_world_doc(path, steps=180, K=12, e_pct=50, W=460, H=280, margin=30):
                         px[i] = _FP.sub(px[i], _fm(s, dx)); pz[i] = _FP.sub(pz[i], _fm(s, dz))
                     elif mj:
                         px[j] = _FP.add(px[j], _fm(s, dx)); pz[j] = _FP.add(pz[j], _fm(s, dz))
+            if grav:                                            # side walls + floor snap + sleep
+                for i in range(nd):
+                    ri = _FP.unit(rad[i], 1)
+                    if _FP.sub(px[i], ri) < xlo and vx[i] < 0:
+                        px[i] = _FP.add(xlo, ri); vx[i] = _FP.mul_k(vx[i], -e_pct, 100)
+                    if _FP.add(px[i], ri) > xhi and vx[i] > 0:
+                        px[i] = _FP.sub(xhi, ri); vx[i] = _FP.mul_k(vx[i], -e_pct, 100)
+                    if _FP.add(pz[i], ri) > floorf:
+                        pz[i] = _FP.sub(floorf, ri)
+                SLEEP = _FP.unit(1, 1)
+                for i in set(floors) | {u for (i2, j2, r2) in pairs for u in (i2, j2)}:
+                    if i < nd and -SLEEP < vz[i] < SLEEP and -SLEEP < vx[i] < SLEEP:
+                        vz[i] = 0; vx[i] = 0
         except FieldError as e:
             refused = {"after_frame": t, "code": getattr(e, "code", "FIELD-REFUSE"), "message": str(e)}
             break
@@ -597,7 +634,7 @@ def fp_world_doc(path, steps=180, K=12, e_pct=50, W=460, H=280, margin=30):
         frames.append(f)
     dframes, dstat = _fit(frames, sraw, W, H, margin)
     return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "fp": True,
-            "note": "authored world on the fixed-point substrate — bounded PGS collisions with restitution (e=%d%%), deterministic (no overflow)" % e_pct,
+            "note": "authored world on the fixed-point substrate — bounded PGS collisions%s with restitution (e=%d%%), deterministic (no overflow)" % (" + gravity (settles in an implicit box)" if grav else "", e_pct),
             "refused": refused, "frames": dframes, "chain": [f["digest"] for f in dframes]}
 
 
@@ -660,7 +697,12 @@ def main(argv):
                 ei = argv.index("--e")
                 if ei + 1 < len(argv) and argv[ei + 1].lstrip("-").isdigit():
                     ep = max(0, min(100, int(argv[ei + 1])))
-            doc = fp_world_doc(wp, e_pct=ep)
+            g = 0
+            if "--g" in argv:
+                gi = argv.index("--g")
+                if gi + 1 < len(argv) and argv[gi + 1].lstrip("-").isdigit():
+                    g = int(argv[gi + 1])
+            doc = fp_world_doc(wp, e_pct=ep, grav=g)
         else:
             if jsons:
                 out_path = jsons[0]
