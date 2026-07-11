@@ -1,8 +1,9 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
-<!-- Urðr Designer v3 — an EXPLORATORY authoring front-end (not a gate-tested rung). -->
-<!-- 2D/3D object modeling + a 3D world you can populate + a ▷ Replay mode that scrubs a -->
-<!-- deterministic run (urdr_replay.json from replay.py) frame-by-frame, each frame an -->
-<!-- exact URDRPN1 state digest. The browser only draws engine state; it never simulates. -->
+<!-- Urðr Designer v4 — an EXPLORATORY authoring front-end (not a gate-tested rung). -->
+<!-- 2D/3D object modeling; a 3D world with full physical state (Inspector + Hierarchy → -->
+<!-- URDR-WORLD-3); a ▷ Replay mode that scrubs a deterministic run (replay.py, incl. -->
+<!-- --world to simulate the authored scene) frame-by-frame, each an exact URDRPN1 state -->
+<!-- digest. The browser only captures intent and draws engine state; it never simulates. -->
 <!-- 2D/3D object modeling + a 3D world you can populate. Objects export as -->
 <!-- content-addressed (SHA-256) vertex/edge lists — the Urðr identity discipline; -->
 <!-- the deterministic renderer/physics consume that data downstream. The 3D views -->
@@ -34,7 +35,7 @@
   .seg button.on{background:var(--amber);color:#1a1205;border-color:var(--amber)}
   header .hint{color:var(--dim);margin-left:auto;font-size:11.5px;text-align:right}
   aside{grid-row:2/3;background:var(--panel);border-right:1px solid var(--line);
-    padding:10px 12px;overflow:auto}
+    padding:10px 12px;overflow-y:auto;overflow-x:hidden}
   aside h3{margin:14px 0 7px;font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:1px}
   aside h3:first-child{margin-top:2px}
   .tools,.seg2{display:flex;flex-wrap:wrap;gap:6px}
@@ -48,9 +49,9 @@
   label.chk{display:flex;align-items:center;gap:7px;color:var(--dim);cursor:pointer;padding:3px 0}
   label.chk input{accent-color:var(--amber)}
   .sld{display:flex;align-items:center;gap:8px;color:var(--dim);padding:2px 0}
-  .sld span{width:54px}
-  .sld input{flex:1;accent-color:var(--rust)}
-  .sld b{width:34px;text-align:right;color:var(--ink);font-weight:500}
+  .sld span{width:54px;flex:none}
+  .sld input{flex:1;min-width:0;accent-color:var(--rust)}
+  .sld b{width:38px;flex:none;text-align:right;color:var(--ink);font-weight:500}
   .lib{display:flex;flex-direction:column;gap:5px}
   .lib .item{display:flex;align-items:center;gap:8px;padding:6px;border:1px solid var(--line);
     border-radius:5px;cursor:pointer;background:#0f1213}
@@ -318,12 +319,12 @@ function loadReplay(file){ const r=new FileReader();
   }catch(e){ msg('not a URDR-REPLAY-1 file — generate one with replay.py'); } };
   r.readAsText(file); }
 function stopPlay(){ rplaying=false; if(rtimer){clearInterval(rtimer);rtimer=null;} }
-function playReplay(){ if(!replay)return; if(rplaying){stopPlay();renderSide();return;}
+function playReplay(){ if(!replay||!replay.frames.length)return; if(rplaying){stopPlay();renderSide();return;}
   rplaying=true; rtimer=setInterval(()=>{ rframe=(rframe+1)%replay.frames.length; draw(); syncTL(); },55); renderSide(); }
-function scrub(k){ if(!replay)return; stopPlay(); rframe=clamp(k|0,0,replay.frames.length-1); draw(); syncTL(); }
-function setFrame(k){ if(!replay)return; stopPlay(); rframe=clamp(k|0,0,replay.frames.length-1); draw(); renderSide(); }
+function scrub(k){ if(!replay||!replay.frames.length)return; stopPlay(); rframe=clamp(k|0,0,replay.frames.length-1); draw(); syncTL(); }
+function setFrame(k){ if(!replay||!replay.frames.length)return; stopPlay(); rframe=clamp(k|0,0,replay.frames.length-1); draw(); renderSide(); }
 function stepFrame(d){ setFrame(rframe+d); }
-function syncTL(){ if(!replay)return;
+function syncTL(){ if(!replay||!replay.frames.length)return;
   const tl=document.getElementById('rTL'); if(tl)tl.value=rframe;
   const now=document.getElementById('rNow'); if(now)now.textContent=rframe;
   const dg=document.getElementById('rDig'); if(dg)dg.textContent=replay.frames[rframe].digest.slice(0,20)+'…';
@@ -338,20 +339,27 @@ function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
   const S=Math.min((W-48)/rw,(H-150)/rh), ox=(W-rw*S)/2, oy=(H-rh*S)/2;
   const map=(x,y)=>({x:ox+x*S,y:oy+y*S});
   ctx.strokeStyle=CSS('--grid'); ctx.lineWidth=1; ctx.strokeRect(ox,oy,rw*S,rh*S);
-  const fr=replay.frames[rframe], nb=fr.balls.length;
-  const railY=oy+(replay.frames[0].balls[0].y)*S;
-  ctx.strokeStyle='#1c2226'; ctx.setLineDash([6,6]); ctx.beginPath();
-  ctx.moveTo(ox,railY); ctx.lineTo(ox+rw*S,railY); ctx.stroke(); ctx.setLineDash([]);
-  for(let i=0;i<nb;i++){ const k0=Math.max(0,rframe-8);
+  // fixed (static / kinematic) bodies — recorded, not simulated
+  if(replay.statics&&replay.statics.length){ replay.statics.forEach(s=>{ const q=map(s.x,s.y);
+    ctx.beginPath(); ctx.arc(q.x,q.y,Math.max(2,s.r*S),0,7); ctx.fillStyle='#2a2f30'; ctx.globalAlpha=0.7; ctx.fill(); ctx.globalAlpha=1;
+    ctx.strokeStyle=CSS('--dim'); ctx.lineWidth=1; ctx.stroke(); }); }
+  if(!replay.frames||!replay.frames.length){ ctx.fillStyle=CSS('--dim'); ctx.font='12px monospace';
+    ctx.fillText(replay.note||'no dynamic bodies to simulate',ox,oy-14); return; }
+  const rc=Math.min(Math.max(rframe,0),replay.frames.length-1);
+  const fr=replay.frames[rc], nb=fr.balls.length;
+  if(replay.rail&&replay.frames[0].balls[0]){ const railY=oy+(replay.frames[0].balls[0].y)*S;
+    ctx.strokeStyle='#1c2226'; ctx.setLineDash([6,6]); ctx.beginPath();
+    ctx.moveTo(ox,railY); ctx.lineTo(ox+rw*S,railY); ctx.stroke(); ctx.setLineDash([]); }
+  for(let i=0;i<nb;i++){ const k0=Math.max(0,rc-8);
     ctx.strokeStyle='#3a2f22'; ctx.lineWidth=2; ctx.beginPath();
-    for(let k=k0;k<=rframe;k++){ const b=replay.frames[k].balls[i], q=map(b.x,b.y);
+    for(let k=k0;k<=rc;k++){ const b=replay.frames[k].balls[i], q=map(b.x,b.y);
       k===k0?ctx.moveTo(q.x,q.y):ctx.lineTo(q.x,q.y); } ctx.stroke();
     const b=fr.balls[i], q=map(b.x,b.y), rr=Math.max(3,b.r*S);
     ctx.beginPath(); ctx.arc(q.x,q.y,rr,0,7); ctx.fillStyle=i===0?CSS('--amber'):CSS('--rust'); ctx.fill();
     ctx.strokeStyle=CSS('--ink'); ctx.lineWidth=1; ctx.stroke();
     ctx.fillStyle=CSS('--dim'); ctx.font='10px monospace'; ctx.fillText('#'+i,q.x-6,q.y-rr-4); }
   ctx.fillStyle=CSS('--ink'); ctx.font='12px monospace';
-  ctx.fillText('frame '+rframe+' / '+(replay.frames.length-1)+(rplaying?'   ▶':''),ox,oy-14);
+  ctx.fillText('frame '+rc+' / '+(replay.frames.length-1)+(rplaying?'   ▶':''),ox,oy-14);
   let ty=oy+rh*S+22; ctx.fillStyle=CSS('--acid'); ctx.font='11px monospace';
   ctx.fillText('state  '+fr.digest.slice(0,32)+'…   URDRPN1 witness — identical on every conforming host',ox,ty);
   ctx.fillStyle=CSS('--dim'); ty+=18;
@@ -445,6 +453,7 @@ function instRot(deg){ if(worldSel==null)return; const it=world.find(w=>w.id===w
 function normInst(w){ if(w.name==null)w.name='obj '+w.id; if(w.parent===undefined)w.parent=null;
   w.visible=w.visible!==false; w.locked=!!w.locked; w.body=w.body||'dynamic'; if(w.mass==null)w.mass=1;
   w.collider=w.collider||'hull'; if(!w.material)w.material={restitution:0.5,friction:0.3};
+  if(!w.vel)w.vel={x:0,z:0};
   if(w.tags==null)w.tags=''; if(w.caps==null)w.caps=''; if(!Array.isArray(w.constraints))w.constraints=[]; return w; }
 function descendantsOf(id){ const out=[],stack=[id];
   while(stack.length){ const p=stack.pop(); world.forEach(w=>{ if(w.parent===p){out.push(w);stack.push(w.id);} }); } return out; }
@@ -510,6 +519,7 @@ function exportWorld(){
         scale:+(w.scale||1).toFixed(3),
         body:w.body, mass:w.mass, collider:w.collider,
         material:{restitution:+(+w.material.restitution).toFixed(3), friction:+(+w.material.friction).toFixed(3)},
+        vel:{x:Math.round(w.vel.x), z:Math.round(w.vel.z)},
         tags:csv(w.tags), capabilities:csv(w.caps),
         visible:w.visible!==false, locked:!!w.locked,
         constraints:(w.constraints||[]).map(c=>({type:c.type, to:c.to})) };})};
@@ -577,6 +587,8 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
           ${sliderRow('mass','iMass',1,100,Math.round(it.mass))}
           ${sliderRow('restitution %','iRest',0,100,Math.round(it.material.restitution*100))}
           ${sliderRow('friction %','iFric',0,100,Math.round(it.material.friction*100))}
+          ${sliderRow('init vel x','iVelX',-20,20,Math.round(it.vel.x))}
+          ${sliderRow('init vel z','iVelZ',-20,20,Math.round(it.vel.z))}
           <label class="ins">parent <select id="iParent"><option value=""${it.parent==null?' selected':''}>— none (root)</option>${others.map(w=>opt(String(w.id),String(it.parent),escapeHtml(w.name||('#'+w.id)))).join('')}</select></label>
           <label class="ins">tags <input id="iTags" type="text" placeholder="vehicle, hazard" value="${escapeHtml(it.tags||'')}"></label>
           <label class="ins">capabilities <input id="iCaps" type="text" placeholder="drivable, breakable" value="${escapeHtml(it.caps||'')}"></label>
@@ -608,7 +620,7 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
     h+=`<h3>Replay</h3>
       <div class="row"><button onclick="document.getElementById('replayIn').click()">▷ Load replay JSON</button></div>
       <p class="note">Generate with <b>python3 replay.py</b> (the exact <b>dynamics_nd</b> engine) → <b>urdr_replay.json</b>, then load it. The engine computes every tick; this view only draws the recorded state — it never simulates.</p>`;
-    if(replay){ const N=replay.frames.length-1, f=replay.frames[rframe];
+    if(replay&&replay.frames.length){ const N=replay.frames.length-1, f=replay.frames[Math.min(rframe,N)];
       h+=`<h3>Timeline</h3>
         <div class="sld"><span>frame</span><input type="range" id="rTL" min="0" max="${N}" step="1" value="${rframe}"><b id="rNow">${rframe}</b></div>
         <div class="row"><button onclick="stepFrame(-1)">◀ step</button><button id="rPlay" onclick="playReplay()">${rplaying?'❚❚ pause':'▶ play'}</button><button onclick="stepFrame(1)">step ▶</button></div>
@@ -619,6 +631,8 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
         <p class="note">Σp = (${f.px}, ${f.py}) · 2·KE = ${f.e2} — momentum &amp; energy conserved (elastic).</p>`;
       if(replay.refused) h+=`<p class="note" style="color:var(--rust)">⊘ engine refused after frame ${replay.refused.after_frame}: ${replay.refused.code} — exact, not approximate.</p>`;
     }
+    else if(replay){ h+=`<p class="note">${escapeHtml(replay.note||'no dynamic bodies in this world — add a dynamic object with an initial velocity.')}</p>`;
+      if(replay.statics&&replay.statics.length)h+=`<p class="note">${replay.statics.length} static / kinematic bodies recorded (drawn, not simulated).</p>`; }
   }
   side.innerHTML=h;
   const lib=document.getElementById('lib');
@@ -654,6 +668,7 @@ function wireControls(){
   // world inspector (present only with a selection); text/select commit on change (focus already left)
   if(mode==='world'&&worldSel!=null){ const it=world.find(w=>w.id===worldSel);
     if(it){ num('iMass',v=>it.mass=v); num('iRest',v=>it.material.restitution=v/100); num('iFric',v=>it.material.friction=v/100);
+      num('iVelX',v=>it.vel.x=v); num('iVelZ',v=>it.vel.z=v);
       const T=(id,fn)=>{const el=document.getElementById(id); if(el)el.onchange=e=>fn(e.target.value);};
       T('iName',v=>{it.name=v; renderSide();}); T('iTags',v=>{it.tags=v;}); T('iCaps',v=>{it.caps=v;});
       T('iBody',v=>{it.body=v;}); T('iColl',v=>{it.collider=v;});

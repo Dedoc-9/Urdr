@@ -10,7 +10,7 @@ cross-placed renderer.
 |---|---|
 | `urdr_designer.html` | A browser CAD/world editor — no install, no dependencies, works offline. Draw objects in 2D or 3D, place them on a highway, export the scene. |
 | `load_world.py` | Renders an exported `urdr_world.json` through the **exact** perspective projector (`../render/perspective.py`) to a `URDRFB1` frame + digest + a viewable PGM image. Closes the loop from editor to engine. |
-| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Load it in the editor's **▷ Replay** mode to scrub the run frame-by-frame. The engine is the sole authority; the browser only draws what it recorded. |
+| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Two modes: a built-in demo cascade, or `--world urdr_world.json` to **simulate the authored scene** (every `dynamic` instance becomes an exact ball; statics are drawn, not collided). Load the result in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
 
 ## Grade — honest scope
 
@@ -90,18 +90,31 @@ does, the runtime records the frames up to that point plus an honest `refused` m
 exact engine **stops rather than approximate**, and the editor shows the refusal at the end
 of the timeline. (The default scene is integer-exact, so it runs the full 72 ticks.)
 
+Simulate your **own** authored scene (World mode → **▸ Export world JSON**):
+
+```
+python3 replay.py --world urdr_world.json     # simulates every dynamic body with the exact engine
+```
+
+Give at least one placed object `body: dynamic` and a nonzero **init vel** in the Inspector,
+then Export and run this. Each dynamic instance becomes an exact ball (position from its
+ground transform, radius from the object's bounding box × scale, mass + velocity from the
+Inspector); static / kinematic bodies are drawn as fixed markers. Collision *against*
+statics, joints/constraints, gravity, and per-material restitution are declared later rungs —
+today the runtime resolves the dynamic bodies against each other, exactly and reproducibly.
+
 ## Next rungs (declared)
 
 The **▷ Replay** spine is the first of the "expose the deterministic engine" additions:
 the editor authors, a runtime (`replay.py`) simulates with the exact engine and emits a
 witness chain, and the editor scrubs it. Natural follow-ons, in order:
 
-- the **properties inspector + scene hierarchy** now serialize an authored world's physical
-  state and parenting (`URDR-WORLD-3`) — *done*. Next is to **feed that export into
-  `replay.py`** so the **▷ Replay** mode simulates the *authored* scene instead of the
-  built-in cascade — same witness chain, same digests, same replay on every machine;
-- **physics-debug overlays** (contacts, impulses, centres of mass, momentum vectors) drawn
-  over a replay by *reading the runtime witnesses*, never recomputing in the browser;
+- the inspector + hierarchy (`URDR-WORLD-3`) and the authored-world runtime
+  (`replay.py --world`) are *done* — **▷ Replay** now simulates your own scene
+  deterministically (same witness chain on every machine). Next in the runtime: static
+  colliders, joints/constraints, gravity, and per-material restitution;
+- **physics-debug overlays** (contact normals, impulses, centres of mass, momentum vectors)
+  drawn over a replay by *reading the runtime witnesses*, never recomputing in the browser;
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
   road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
   scene stays byte-identical across peers.
