@@ -136,7 +136,7 @@ const wcam={yaw:0, pitch:0.44, height:130, back:140, focal:520, scale:0.6, depth
 const SNAP=12, VR=4;
 let undo=[], redo=[];
 let replay=null, rframe=0, rplaying=false, rtimer=null;   // deterministic replay playback (engine-authored state)
-const rov={mom:false, com:false, con:false};               // replay overlays: momentum, centre of mass, contacts/impulses
+const rov={mom:false, com:false, con:false, lam:false};    // replay overlays: momentum, COM, contacts/impulses, LCP λ
 
 // ---------------- helpers ----------------
 const pos=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
@@ -347,6 +347,8 @@ function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
   const S=Math.min((W-48)/rw,(H-150)/rh), ox=(W-rw*S)/2, oy=(H-rh*S)/2;
   const map=(x,y)=>({x:ox+x*S,y:oy+y*S});
   ctx.strokeStyle=CSS('--grid'); ctx.lineWidth=1; ctx.strokeRect(ox,oy,rw*S,rh*S);
+  if(replay.ground!=null){ const gy=oy+replay.ground*S; ctx.strokeStyle=CSS('--dim'); ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(ox,gy); ctx.lineTo(ox+rw*S,gy); ctx.stroke(); }
   // fixed (static / kinematic) bodies — recorded, not simulated
   if(replay.statics&&replay.statics.length){ replay.statics.forEach(s=>{ const q=map(s.x,s.y);
     ctx.beginPath(); ctx.arc(q.x,q.y,Math.max(2,s.r*S),0,7); ctx.fillStyle='#2a2f30'; ctx.globalAlpha=0.7; ctx.fill(); ctx.globalAlpha=1;
@@ -380,8 +382,13 @@ function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
       ctx.beginPath(); ctx.arc(q.x,q.y,3.5,0,7); ctx.fill();
       const e1=map(c.x+c.nx*c.imp*1.5, c.y+c.ny*c.imp*1.5), e2=map(c.x-c.nx*c.imp*1.5, c.y-c.ny*c.imp*1.5);
       arrow(q.x,q.y,e1.x,e1.y); arrow(q.x,q.y,e2.x,e2.y); });    // equal & opposite impulse
-    const cf=fr.contacts[0]; if(cf){ ctx.fillStyle=CSS('--rust'); ctx.font='10px monospace';
+    const cf=fr.contacts[0]; if(cf&&cf.imp!=null){ ctx.fillStyle=CSS('--rust'); ctx.font='10px monospace';
       const q=map(cf.x,cf.y); ctx.fillText('|impulse| '+cf.imp.toFixed(1),q.x+8,q.y-8); } }
+  if(rov.lam&&fr.contacts){ ctx.strokeStyle=CSS('--acid'); ctx.fillStyle=CSS('--acid'); ctx.lineWidth=2;
+    fr.contacts.forEach(c=>{ if(c.lam==null)return; const q=map(c.x,c.y);
+      ctx.beginPath(); ctx.arc(q.x,q.y,3,0,7); ctx.fill();
+      const e=map(c.x+c.nx*c.lam*7, c.y+c.ny*c.lam*7); arrow(q.x,q.y,e.x,e.y);   // λ along the contact normal
+      ctx.font='11px monospace'; ctx.fillText('λ='+(+c.lam).toFixed(0),q.x+9,q.y+4); }); }
   ctx.fillStyle=CSS('--ink'); ctx.font='12px monospace';
   ctx.fillText('frame '+rc+' / '+(replay.frames.length-1)+(rplaying?'   ▶':''),ox,oy-14);
   let ty=oy+rh*S+22; ctx.fillStyle=CSS('--acid'); ctx.font='11px monospace';
@@ -722,11 +729,15 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
         <label class="chk"><input type="checkbox" id="oMom" ${rov.mom?'checked':''}> momentum vectors (m·v)</label>
         <label class="chk"><input type="checkbox" id="oCom" ${rov.com?'checked':''}> centre of mass + Σp</label>
         <label class="chk"><input type="checkbox" id="oCon" ${rov.con?'checked':''}> contacts + impulses</label>
-        <p class="note">Drawn from the engine's recorded state — velocity, mass, and each resolved collision's exact Δv — read, never recomputed. LCP λ over resting stacks is the next rung.</p>
+        ${replay.stack?`<label class="chk"><input type="checkbox" id="oLam" ${rov.lam?'checked':''}> LCP λ (contact forces)</label>`:''}
+        <p class="note">Drawn from the engine's recorded state — velocity, mass, each collision's exact Δv${replay.stack?', and the certified LCP impulses λ':''} — read, never recomputed.</p>
         <h3>Exact-state witness</h3>
         <p class="note">frame ${rframe} → <span style="color:var(--acid)" id="rDig">${f.digest.slice(0,20)}…</span></p>
-        <p class="note">Canonical <b>URDRPN1</b> digest of the exact (X,V) state at this tick. Scrubbing restores that state — bit-identical on every conforming host. Chain: ${replay.frames.length} digests.</p>
-        <p class="note">Σp = (${f.px}, ${f.py}) · 2·KE = ${f.e2} — momentum &amp; energy conserved (elastic).</p>`;
+        ${replay.stack
+          ? `<p class="note">Canonical <b>URDRLCP1</b> digest of the certified contact solution (λ, w). complementary ${replay.certified?'✓':'✗'} — reproducible on every conforming host.</p>
+             <p class="note">contact λ = [${f.contacts?f.contacts.map(c=>(+c.lam).toFixed(0)).join(', '):''}] (bottom → top) — each contact carries the weight above it.</p>`
+          : `<p class="note">Canonical <b>URDRPN1</b> digest of the exact (X,V) state at this tick. Scrubbing restores that state — bit-identical on every conforming host. Chain: ${replay.frames.length} digests.</p>
+             <p class="note">Σp = (${f.px}, ${f.py}) · 2·KE = ${f.e2} — momentum &amp; energy conserved (elastic).</p>`}`;
       if(replay.refused) h+=`<p class="note" style="color:var(--rust)">⊘ engine refused after frame ${replay.refused.after_frame}: ${replay.refused.code} — exact, not approximate.</p>`;
     }
     else if(replay){ h+=`<p class="note">${escapeHtml(replay.note||'no dynamic bodies in this world — add a dynamic object with an initial velocity.')}</p>`;
@@ -764,7 +775,7 @@ function wireControls(){
   num('pRW',v=>prim.rw=v); num('pRH',v=>prim.rh=v); num('pRnd',v=>prim.round=v);
   const rtl=document.getElementById('rTL'); if(rtl)rtl.oninput=e=>scrub(parseInt(e.target.value));
   const oc=(id,k)=>{const el=document.getElementById(id); if(el)el.onchange=e=>{rov[k]=e.target.checked; draw();};};
-  oc('oMom','mom'); oc('oCom','com'); oc('oCon','con');
+  oc('oMom','mom'); oc('oCom','com'); oc('oCon','con'); oc('oLam','lam');
   // world inspector (present only with a selection); text/select commit on change (focus already left)
   if(mode==='world'&&worldSel!=null){ const it=world.find(w=>w.id===worldSel);
     if(it){ num('iMass',v=>it.mass=v); num('iRest',v=>it.material.restitution=v/100); num('iFric',v=>it.material.friction=v/100);

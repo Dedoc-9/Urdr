@@ -37,6 +37,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "physics"))
 from rational import Q, Z, RationalError                 # noqa: E402
 from vecq import Vec                                     # noqa: E402
 from dynamics_nd import Ball, step, state_digest, momentum, two_kinetic  # noqa: E402
+from contact_lcp import Contact, delassus, solve_lcp, complementary, lcp_digest  # noqa: E402
 
 DT, REST = Q(1), Q(1)          # tick length; global restitution (elastic)
 
@@ -173,6 +174,34 @@ def world_doc(path, steps=90, W=460, H=280, margin=30):
             "refused": refused, "frames": dframes, "chain": [f["digest"] for f in dframes]}
 
 
+# ---- resting stack: the exact contact LCP, with per-contact λ surfaced ---------------
+def stack_doc(N=3, W=360, H=320, R=26, GRAV=1, MASS=1):
+    """A vertical stack of N equal balls resting on the ground under gravity. One gravity
+    impulse gives each ball a downward velocity; the exact frictionless LCP (contact_lcp)
+    solves the normal impulses λ that hold the stack in equilibrium — larger toward the
+    bottom (each contact carries the weight above it). The certified (λ, w) has a URDRLCP1
+    witness. Emitted as a single-frame replay whose contacts carry their λ."""
+    down = Vec([Z(0), Q(GRAV)])                          # gravity impulse (down = +y)
+    up = Vec([Z(0), Z(-1)])                              # contact normal a→b (points up)
+    vels = [Vec([Z(0), Z(0)])] + [down for _ in range(N)]        # body 0 = static ground
+    invm = [Z(0)] + [Q(1, MASS) for _ in range(N)]
+    contacts = [Contact(0, 1, up)] + [Contact(k, k + 1, up) for k in range(1, N)]
+    A, b = delassus(vels, invm, contacts)
+    lam, w = solve_lcp(A, b)                             # exact; refuses if degenerate
+    cert, dig = complementary(lam, w), lcp_digest(lam, w)
+    cx, yg = W / 2, H - 44                               # ground line
+    balls = [{"x": cx, "y": yg - (2 * k - 1) * R, "r": R, "vx": 0, "vy": 0, "m": MASS}
+             for k in range(1, N + 1)]
+    cpts = [{"x": cx, "y": yg, "nx": 0, "ny": -1, "lam": _f(lam[0])}]
+    for k in range(1, N):
+        cpts.append({"x": cx, "y": yg - 2 * k * R, "nx": 0, "ny": -1, "lam": _f(lam[k])})
+    frame = {"frame": 0, "digest": dig, "px": 0.0, "py": 0.0, "e2": 0.0, "balls": balls, "contacts": cpts}
+    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": [], "stack": True,
+            "ground": yg, "lcp_digest": dig, "certified": cert,
+            "note": "resting stack — contact λ certified by the exact LCP (URDRLCP1)",
+            "refused": None, "frames": [frame], "chain": [dig]}
+
+
 def main(argv):
     if len(argv) > 1 and argv[1] == "--world":
         if len(argv) < 3:
@@ -185,6 +214,12 @@ def main(argv):
             return 1
         doc = world_doc(world_path)
         label = "authored world"
+    elif len(argv) > 1 and argv[1] == "--stack":
+        n = int(argv[2]) if len(argv) > 2 and argv[2].lstrip("-").isdigit() else 3
+        n = max(1, min(10, n))
+        out_path = argv[3] if len(argv) > 3 else os.path.join(HERE, "urdr_replay.json")
+        doc = stack_doc(n)
+        label = "resting stack (N=%d)" % n
     else:
         out_path = argv[1] if len(argv) > 1 else os.path.join(HERE, "urdr_replay.json")
         doc = cascade_doc()
@@ -195,7 +230,10 @@ def main(argv):
     print("scene         :", label)
     print("dynamic bodies:", (len(frames[0]["balls"]) if frames else 0), " statics:", len(doc["statics"]))
     print("ticks         :", len(frames))
-    if frames:
+    if doc.get("stack"):
+        print("contact λ     :", [c["lam"] for c in frames[0]["contacts"]], "(bottom → top)")
+        print("LCP certified :", doc["certified"], " URDRLCP1:", doc["lcp_digest"][:24], "…")
+    elif frames:
         print("frame 0 digest:", frames[0]["digest"][:24], "…")
         print("frame N digest:", frames[-1]["digest"][:24], "…")
         print("momentum      :", "conserved" if (frames[0]["px"], frames[0]["py"]) == (frames[-1]["px"], frames[-1]["py"]) else "changed")

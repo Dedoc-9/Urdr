@@ -10,7 +10,7 @@ cross-placed renderer.
 |---|---|
 | `urdr_designer.html` | A browser CAD/world editor — no install, no dependencies, works offline. Draw objects in 2D or 3D, place them on a highway, export the scene. |
 | `load_world.py` | Renders an exported `urdr_world.json` through the **exact** perspective projector (`../render/perspective.py`) to a `URDRFB1` frame + digest + a viewable PGM image. Closes the loop from editor to engine. |
-| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Two modes: a built-in demo cascade, or `--world urdr_world.json` to **simulate the authored scene** (every `dynamic` instance becomes an exact ball; statics are drawn, not collided). Load the result in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
+| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Three modes: a built-in demo cascade, `--world urdr_world.json` to **simulate the authored scene** (every `dynamic` instance becomes an exact ball; statics are drawn, not collided), or `--stack N` to solve an **N-ball resting stack** through the exact contact LCP (`../physics/contact_lcp.py`) and surface the certified per-contact **λ**. Load the result in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
 
 ## Grade — honest scope
 
@@ -70,7 +70,8 @@ Editor (double-click the file, or open it in any browser):
   **Overlays** draw per-body momentum vectors, the system centre of mass + Σp, and each
   resolved collision's contact point, normal and equal/opposite impulse — all read from the
   engine's recorded state (velocity, mass, and the exact Δv it applied), never recomputed.
-  LCP λ over resting stacks is the next overlay rung.
+  For a `--stack` replay, the **LCP λ** overlay shows the exact contact LCP's certified
+  per-contact forces (larger toward the bottom of the stack).
 - **⤓ Save / ⤒ Open** — persist the whole project (objects + world) to a JSON file.
 - **▸ Export world JSON** (World mode) — writes `urdr_world.json` (`URDR-WORLD-3`): objects
   by digest + instances carrying their full physical state and hierarchy (`parent` + a
@@ -113,6 +114,18 @@ Inspector); static / kinematic bodies are drawn as fixed markers. Collision *aga
 statics, joints/constraints, gravity, and per-material restitution are declared later rungs —
 today the runtime resolves the dynamic bodies against each other, exactly and reproducibly.
 
+See the exact contact forces in a resting stack (the frictionless LCP):
+
+```
+python3 replay.py --stack 3      # 3-ball stack → λ = [3, 2, 1] (bottom → top), certified
+```
+
+Load it in **▷ Replay** and turn on the **LCP λ** overlay: each contact shows the certified
+normal impulse holding the stack up — larger toward the bottom, because each contact carries
+the weight above it. The solution is the exact `contact_lcp` output with a `URDRLCP1`
+witness, *complementary-certified*: every contact either carries λ > 0 and is exactly resting
+(w = 0), or carries none and is separating — the solver proves it, or it refuses.
+
 ## Next rungs (declared)
 
 The **▷ Replay** spine is the first of the "expose the deterministic engine" additions:
@@ -123,9 +136,11 @@ witness chain, and the editor scrubs it. Natural follow-ons, in order:
   (`replay.py --world`) are *done* — **▷ Replay** now simulates your own scene
   deterministically (same witness chain on every machine). Next in the runtime: static
   colliders, joints/constraints, gravity, and per-material restitution;
-- **physics-debug overlays**: centre of mass + Σp, per-body momentum vectors, and contact
-  points / normals / impulses are *done* (all read from recorded state). Next: **LCP λ over
-  resting stacks**, which pairs with adding static colliders + joints to the runtime;
+- **physics-debug overlays**: centre of mass + Σp, per-body momentum vectors, contact
+  points / normals / impulses, and **LCP λ over resting stacks** (`--stack`) are *done* — all
+  read from recorded state. Next in the runtime: **static colliders** (authored barriers that
+  actually stop bodies), **joints/constraints** (wire the `articulated` solver to the authored
+  constraint list), and gravity — so authored highway scenes settle and collide;
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
   road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
   scene stays byte-identical across peers.
