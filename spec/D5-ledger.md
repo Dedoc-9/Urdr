@@ -1006,6 +1006,9 @@ urdr_physics.rs` is extended with `field_impulse`/`coupled_step`/`apply_impulses
 scenes, reproducing the goldens over the *already cross-placed* exact LCP (`solve_lcp`); the frictionless
 Delassus system is positive-definite so its solution `λ` is **unique** — independent of active-set search
 order — which is why the two placements must agree. `--defect` bumps the `URDRLOOP` magic so all 3 diverge.
-Grade: **corpus MEASURED** (gate-green now); **Rust SPECULATIVE** until a host recompiles `urdr_physics.exe`
-and prints `ADMITTED` with the 3 `loop/*` scenes twice + defect caught — then the two-way loop is
-**cross-placed** and the physics placement covers **27** digests (18 + 3 FIELDFP + 3 Marangoni + 3 loop).
+Grade: **corpus MEASURED** + **Rust MEASURED (cross-placed)**. **CONFIRMED on host:** on Windows
+(`rustc -O --edition 2021`) `urdr_physics.exe` printed `URDR-PHYSICS-RS: ADMITTED` **twice** over all **27**
+digests including `loop/{push2,wall,chain3}`, with `--defect` catching divergence 27/27. The two-way
+field↔body loop — force → exact LCP contact resolve → reaction reservoir — is now bit-identical across two
+independent runtimes; the physics placement covers 27 digests (18 physics + 3 FIELDFP + 3 Marangoni + 3
+loop). `the reactive loop is a two-runtime law now: same push, same contact, same books, on every machine`.

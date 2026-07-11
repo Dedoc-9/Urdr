@@ -264,7 +264,7 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | P1 | **Exact physics engine** (`tools/physics/`): 1D/2D/3D dynamics, n-contact frictionless **LCP** (complementarity witness), articulated **joints**, CCD — each step carries a certificate | `IMPLEMENTED / MEASURED (cross-placed, 18 digests)` |
 | P2 | **Deterministic renderer** (`tools/render/`): rung 1 2D fill (top-left rule) → rung 2 exact **3D depth** (z-buffer occlusion, near/far/screen clip) → rung 3 exact **perspective** (floor-div pixel grid, vanishing point) | `IMPLEMENTED / MEASURED (cross-placed, 10 frames)` |
 | P3 | **urdr-math cross-placement** (`tools/intla/urdr_math_rs/`): exact rank/determinant/floor_divmod + the **general-*n* injectivity certificate** and **exact reconstruction** solver, bit-identical in Rust | `IMPLEMENTED / MEASURED (cross-placed, 20 digests)` |
-| P4 | **Reactive continuum** (`tools/physics/`): `urdr-field` advection-diffusion (mass exact) → **Marangoni** surface-tension transport → **two-way field↔body loop** (force → LCP → reaction reservoir; total momentum exact) | field/Marangoni `MEASURED (cross-placed)`; coupling loop `MEASURED (reference)`, Rust written |
+| P4 | **Reactive continuum** (`tools/physics/`): `urdr-field` advection-diffusion (mass exact) → **Marangoni** surface-tension transport → **two-way field↔body loop** (force → LCP → reaction reservoir; total momentum exact) | `IMPLEMENTED / MEASURED (cross-placed)` — `urdr-physics-rs` now 27 digests |
 
 ## Honest boundaries (§9, in our own words)
 
@@ -338,9 +338,7 @@ field↔body coupling loop (Continuum, cross-placed / reference). See [`spec/D5-
 
 - **A third-language placement** of the kernel (or of `urdr-math`) — moving from two-runtime to
   three-runtime agreement, widening the conformance frontier beyond Rust-on-Windows. The single
-  highest-leverage rigor item left.
-- **Cross-place the field↔body coupling loop** — the 3 `URDRLOOP` scenes are written into
-  `urdr-physics-rs` and mirror-verified; a host `ADMITTED` flips the loop to cross-placed.
+  highest-leverage rigor item left (in progress).
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles —
   the renderer rung beyond wireframe.

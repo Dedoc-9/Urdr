@@ -26,7 +26,7 @@ We report a concrete reproducibility result: four independent, single-file Rust
 implementations — of the kernel, the renderer, the physics, and the exact-integer
 math spine — reproduce the reference implementation's output digests **bit-for-bit**
 on fixed conformance corpora (36 kernel vectors, 10 frame digests including 3D depth and perspective,
-18 physics digests, 3 fixed-point field + 3 Marangoni digests, and 20 exact-math digests —
+18 physics digests, 3 fixed-point field + 3 Marangoni + 3 coupling-loop digests, and 20 exact-math digests —
 rank/determinant/floor_divmod plus the atlas injectivity and reconstruction
 certificates), twice each, with deliberately-defective builds caught. A 261-test
 verification gate enforces
@@ -213,7 +213,7 @@ defective build **caught** in every case:
 |-----------|--------|--------:|--------|
 | `urdr-core-rs`    | D8 kernel (canon→SHA-256, transitions, refusals) | **36** | ADMITTED ×2, defect caught |
 | `urdr-render-rs`  | frame digests: 2D fill + **3D depth** (z-buffer occlusion, near/far/screen clip) + **perspective** (floor-div projection, vanishing point) | **10** | ADMITTED ×2, defect caught |
-| `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints (**18**) + fixed-point field transport (**3** FIELDFP) + **Marangoni** surface-tension transport (**3**) | **24** | ADMITTED ×2, defect caught |
+| `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints (**18**) + field transport (**3** FIELDFP) + **Marangoni** (**3**) + two-way field↔body **loop** (**3**) | **27** | ADMITTED ×2, defect caught |
 | `urdr-math-rs`    | exact-integer spine: rank/determinant/floor_divmod + atlas injectivity (verdict + nullspace witness) + reconstruction (state/refusal) | **20** | ADMITTED ×2, defect caught |
 
 The four placements share no code, language, or SHA-256 implementation with the
