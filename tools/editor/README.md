@@ -10,7 +10,7 @@ cross-placed renderer.
 |---|---|
 | `urdr_designer.html` | A browser CAD/world editor — no install, no dependencies, works offline. Draw objects in 2D or 3D, place them on a highway, export the scene. |
 | `load_world.py` | Renders an exported `urdr_world.json` through the **exact** perspective projector (`../render/perspective.py`) to a `URDRFB1` frame + digest + a viewable PGM image. Closes the loop from editor to engine. |
-| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Three modes: a built-in demo cascade, `--world urdr_world.json` to **simulate the authored scene** (dynamic instances collide against each other **and** the static colliders via the exact LCP), or `--stack N` to solve an **N-ball resting stack** through the exact contact LCP (`../physics/contact_lcp.py`) and surface the certified per-contact **λ**. Load the result in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
+| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Four modes: a built-in demo cascade, `--world urdr_world.json` (dynamic instances collide against each other **and** the static colliders via the exact LCP; add `--g N` for gravity), `--stack N` (an **N-ball resting stack** solved through the exact contact LCP with certified per-contact **λ**), or `--joints [--world file]` (solve an **articulated system** — the authored hinge/rod/weld/slider constraints — through the exact equality solver `../physics/articulated.py`, certified `URDRJNT1`). Load any of these in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
 
 ## Grade — honest scope
 
@@ -130,6 +130,23 @@ the weight above it. The solution is the exact `contact_lcp` output with a `URDR
 witness, *complementary-certified*: every contact either carries λ > 0 and is exactly resting
 (w = 0), or carries none and is separating — the solver proves it, or it refuses.
 
+Solve authored **joints / constraints** (the exact articulated equality solver):
+
+```
+python3 replay.py --joints                            # built-in chain: 4 balls linked by rods, one end pushed
+python3 replay.py --joints --world urdr_world.json    # solve YOUR Inspector constraint list
+```
+
+Add a **hinge / rod / weld / slider** between two placed objects in the Inspector (Constraints
+/ joints), Export, and run the second form. The solver returns the unique constraint impulses
+that hold every joint exactly — **J·v = 0**, certified, with a `URDRJNT1` witness — or it
+**refuses** if the constraints are redundant or conflicting (a singular system, by the
+uniqueness-by-certificate principle). The links are drawn in Replay; the momentum overlay
+shows the rigid velocity transmission. Honest boundary: iterated joint *dynamics* overflow the
+ℚ i64 limit in ~2 exact steps, so joints are surfaced as a certified single solve, not a
+time-stepped animation — animated linkages need a bounded fixed-point substrate (a later
+rung). `spring` / `motor` are soft/driven and stay declared, not solved.
+
 ## Next rungs (declared)
 
 The **▷ Replay** spine is the first of the "expose the deterministic engine" additions:
@@ -140,11 +157,13 @@ witness chain, and the editor scrubs it. Natural follow-ons, in order:
   (`replay.py --world`) are *done* — **▷ Replay** now simulates your own scene
   deterministically (same witness chain on every machine). Next in the runtime: static
   colliders, joints/constraints, gravity, and per-material restitution;
-- the runtime now **collides** authored worlds: `--world` resolves dynamic-vs-dynamic and
-  dynamic-vs-static contacts together via the exact LCP, with optional `--g` gravity, plus
-  **LCP λ over resting stacks** (`--stack`) — all *done*, with the overlays reading recorded
-  state. Next: **joints/constraints** (wire the gated `articulated` solver to each object's
-  authored constraint list), restitution / elastic multi-contact, and continuous collision (CCD);
+- the runtime **collides** authored worlds (`--world`, dynamic-vs-dynamic and dynamic-vs-static
+  via the exact LCP, optional `--g` gravity), solves **resting-stack λ** (`--stack`), and now
+  solves **authored joints** (`--joints`: hinge / rod / weld / slider through the exact equality
+  solver, `URDRJNT1`-certified, refuses on singular) — all *done*. Next: restitution / elastic
+  multi-contact, continuous collision (CCD), and **time-stepped articulation on a bounded
+  fixed-point substrate** (exact ℚ overflows in ~2 joint steps, so animated linkages need a
+  Q32.32-style substrate);
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
   road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
   scene stays byte-identical across peers.

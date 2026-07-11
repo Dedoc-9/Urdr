@@ -38,6 +38,7 @@ from rational import Q, Z, RationalError                 # noqa: E402
 from vecq import Vec                                     # noqa: E402
 from dynamics_nd import Ball, step, state_digest, momentum, two_kinetic  # noqa: E402
 from contact_lcp import Contact, delassus, solve_lcp, complementary, lcp_digest  # noqa: E402
+from articulated import distance_row, pin_rows, solve as jsolve, satisfied, joint_digest  # noqa: E402
 
 DT, REST = Q(1), Q(1)          # tick length; global restitution (elastic)
 
@@ -110,7 +111,7 @@ def _load_world(path):
     with open(path, "r", encoding="utf-8") as fh:
         w = json.load(fh)
     objs = {o["digest"]: o for o in w.get("objects", [])}
-    dyn, statics = [], []
+    dyn, statics, cons = [], [], []
     for inst in w.get("instances", []):
         o = objs.get(inst.get("object"))
         if not o or not o.get("verts"):
@@ -120,14 +121,51 @@ def _load_world(path):
         sc = inst.get("scale", 1.0) or 1.0
         r = max(1, int(round(0.5 * max(max(xs) - min(xs), max(ys) - min(ys)) * sc)))
         gx, gz = int(inst.get("ground_x", 0)), int(inst.get("ground_z", 0))
+        iid = inst.get("id")
         if inst.get("body", "dynamic") == "dynamic":
             vel = inst.get("vel", {}) or {}
-            dyn.append({"x": gx, "z": gz, "r": r,
+            dyn.append({"id": iid, "x": gx, "z": gz, "r": r,
                         "m": max(1, int(round(inst.get("mass", 1) or 1))),
                         "vx": int(round(vel.get("x", 0) or 0)), "vz": int(round(vel.get("z", 0) or 0))})
         else:
-            statics.append({"x": gx, "z": gz, "r": r})
-    return dyn, statics
+            statics.append({"id": iid, "x": gx, "z": gz, "r": r})
+        if inst.get("constraints"):
+            cons.append((iid, inst["constraints"]))
+    nd = len(dyn)
+    idx = {}
+    for i, d in enumerate(dyn):
+        idx[d["id"]] = i
+    for s, st in enumerate(statics):
+        idx[st["id"]] = nd + s
+    joints = []                                            # (a_body, b_body, type) with resolved indices
+    for owner, clist in cons:
+        a = idx.get(owner)
+        if a is None:
+            continue
+        for c in clist:
+            b = idx.get(c.get("to"))
+            if b is not None and b != a and c.get("type") in ("hinge", "rod", "weld", "slider"):
+                joints.append((a, b, c.get("type")))
+    return dyn, statics, joints
+
+
+def _joint_rows(joints, pos):
+    """Turn resolved joint specs + current positions into articulated constraint rows:
+    weld → a pin (rigid coincidence of velocity), hinge/rod → a distance constraint (rigid
+    link that can swing), slider → a single row perpendicular to the link (motion along it
+    only). spring/motor are soft/driven and stay declared, not solved here."""
+    rows = []
+    for (a, b, typ) in joints:
+        pa, pb = Vec([pos[a][0], pos[a][1]]), Vec([pos[b][0], pos[b][1]])
+        if typ == "weld":
+            rows += pin_rows(a, b, 2)
+        elif typ in ("hinge", "rod"):
+            rows.append(distance_row(a, b, pa, pb))
+        elif typ == "slider":
+            n = pa - pb
+            perp = Vec([Z(0) - n.c[1], n.c[0]])
+            rows.append([(a, perp), (b, perp.scale(Z(-1)))])
+    return rows
 
 
 def _fit(frames, statics, W, H, margin):
@@ -146,13 +184,16 @@ def _fit(frames, statics, W, H, margin):
     my = lambda z: round(margin + (z - zmin) * sc, 2)
     out = []
     for f in frames:
-        g = {k: f[k] for k in ("frame", "digest", "px", "py", "e2")}
+        g = {k: f.get(k) for k in ("frame", "digest", "px", "py", "e2")}
         g["balls"] = [{"x": mx(b["x"]), "y": my(b["y"]), "r": round(max(2, b["r"] * sc), 2),
                        "vx": round(b["vx"] * sc, 3), "vy": round(b["vy"] * sc, 3), "m": b["m"]}
                       for b in f["raw"]]
         if "contacts" in f:
             g["contacts"] = [{"x": mx(c["x"]), "y": my(c["y"]), "nx": c["nx"], "ny": c["ny"],
-                              "imp": round(c["imp"] * sc, 3), "i": c["i"], "j": c["j"]} for c in f["contacts"]]
+                              "imp": round(c["imp"] * sc, 3)} for c in f["contacts"]]
+        if "links" in f:
+            g["links"] = [{"ax": mx(l["ax"]), "ay": my(l["ay"]), "bx": mx(l["bx"]), "by": my(l["by"]),
+                           "type": l["type"]} for l in f["links"]]
         out.append(g)
     dstat = [{"x": mx(s["x"]), "y": my(s["z"]), "r": round(max(2, s["r"] * sc), 2)} for s in statics]
     return out, dstat
@@ -220,7 +261,7 @@ def _simulate_world(dyn, statics, steps, grav=0):
 
 
 def world_doc(path, steps=90, grav=0, W=460, H=280, margin=30):
-    dyn, statics = _load_world(path)
+    dyn, statics, joints = _load_world(path)
     if not dyn:
         # nothing to simulate — still emit a valid (single-frame) doc so the editor shows the statics
         _, dstat = _fit([{"raw": []}], statics, W, H, margin)
@@ -230,8 +271,55 @@ def world_doc(path, steps=90, grav=0, W=460, H=280, margin=30):
     frames, refused, used = _simulate_world(dyn, statics, steps, grav)
     dframes, dstat = _fit(frames, statics, W, H, margin)
     return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "lcp": used,
+            "has_joints": bool(joints),
             "note": "authored world — dynamic bodies collide against each other and statics via the exact LCP",
             "refused": refused, "frames": dframes, "chain": [f["digest"] for f in dframes]}
+
+
+# ---- joints: the exact equality (articulated) solve, with links + certificate --------
+def joints_doc(world_path=None, N=4, W=460, H=280, margin=30):
+    """Solve an articulated system's constraints exactly (velocity-level equality) and
+    certify J·v = 0 with a URDRJNT1 witness. From an authored URDR-WORLD-3 export (its
+    Inspector constraint list), or a built-in chain of N balls linked by rods with the left
+    end pushed. Iterated joint DYNAMICS overflow i64 in ~2 exact steps (the ℚ substrate
+    limit), so this is surfaced as a single CERTIFIED solve, not a time-stepped animation."""
+    if world_path and os.path.exists(world_path):
+        dyn, statics, joints = _load_world(world_path)
+        authored = True
+    else:
+        dyn = [{"id": k, "x": 60 + k * 60, "z": 140, "r": 20, "m": 1,
+                "vx": (4 if k == 0 else 0), "vz": 0} for k in range(N)]
+        statics = []
+        joints = [(k, k + 1, "rod") for k in range(N - 1)]
+        authored = False
+    nd, ns = len(dyn), len(statics)
+    if not joints:
+        _, dstat = _fit([{"raw": [{"x": d["x"], "y": d["z"], "r": d["r"], "vx": d["vx"], "vy": d["vz"], "m": d["m"]} for d in dyn]}],
+                        [{"x": s["x"], "z": s["z"], "r": s["r"]} for s in statics], W, H, margin)
+        return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "joints": False,
+                "note": "no constraints authored — add a hinge/rod/weld in the Inspector, or omit --world for the chain demo",
+                "refused": None, "frames": [], "chain": []}
+    pos = [[Q(d["x"]), Q(d["z"])] for d in dyn] + [[Q(s["x"]), Q(s["z"])] for s in statics]
+    vels = [Vec([Q(d["vx"]), Q(d["vz"])]) for d in dyn] + [Vec([Z(0), Z(0)]) for _ in statics]
+    invm = [Q(1, d["m"]) for d in dyn] + [Z(0) for _ in statics]
+    rows = _joint_rows(joints, pos)
+    refused, cert, jdig = None, False, ""
+    newv = vels
+    try:
+        newv, lam = jsolve(vels, invm, rows)
+        cert, jdig = satisfied(newv, rows), joint_digest(newv, lam)
+    except RationalError as e:
+        refused = {"after_frame": 0, "code": getattr(e, "code", "PHYS-REFUSE"), "message": str(e)}
+    raw = [{"x": _f(pos[i][0]), "y": _f(pos[i][1]), "r": float(dyn[i]["r"]),
+            "vx": _f(newv[i].c[0]), "vy": _f(newv[i].c[1]), "m": dyn[i]["m"]} for i in range(nd)]
+    links = [{"ax": _f(pos[a][0]), "ay": _f(pos[a][1]), "bx": _f(pos[b][0]), "by": _f(pos[b][1]), "type": t}
+             for (a, b, t) in joints]
+    frame = {"frame": 0, "digest": jdig or "n/a", "px": 0.0, "py": 0.0, "e2": 0.0, "raw": raw, "links": links}
+    dframes, dstat = _fit([frame], [{"x": s["x"], "z": s["z"], "r": s["r"]} for s in statics], W, H, margin)
+    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "joints": True,
+            "authored": authored, "certified": cert, "joint_digest": jdig,
+            "note": "articulated constraints — certified equality solve (URDRJNT1), J·v = 0",
+            "refused": refused, "frames": dframes, "chain": ([jdig] if jdig else [])}
 
 
 # ---- resting stack: the exact contact LCP, with per-contact λ surfaced ---------------
@@ -288,6 +376,19 @@ def main(argv):
         out_path = argv[3] if len(argv) > 3 else os.path.join(HERE, "urdr_replay.json")
         doc = stack_doc(n)
         label = "resting stack (N=%d)" % n
+    elif len(argv) > 1 and argv[1] == "--joints":
+        wp = None
+        if "--world" in argv:
+            wi = argv.index("--world")
+            if wi + 1 < len(argv):
+                wp = argv[wi + 1]
+        n = 4
+        for a in argv[2:]:
+            if a.lstrip("-").isdigit():
+                n = max(2, min(8, int(a)))
+        out_path = os.path.join(HERE, "urdr_replay.json")
+        doc = joints_doc(world_path=wp, N=n)
+        label = "joints (%s)" % ("authored world" if wp else "chain N=%d" % n)
     else:
         out_path = argv[1] if len(argv) > 1 else os.path.join(HERE, "urdr_replay.json")
         doc = cascade_doc()
@@ -309,6 +410,11 @@ def main(argv):
     if doc.get("lcp"):
         nct = sum(len(f.get("contacts", [])) for f in frames)
         print("contacts      : resolved simultaneously by the exact LCP (%d over the run)" % nct)
+    if doc.get("has_joints"):
+        print("note          : authored constraints present — run  --joints --world <file>  to solve them")
+    if doc.get("joints"):
+        print("joint links   :", len(frames[0].get("links", [])) if frames else 0)
+        print("J·v=0 certified:", doc.get("certified"), " URDRJNT1:", (doc.get("joint_digest") or "")[:24], "…")
     print("witness chain :", len(doc["chain"]), "digests")
     if doc["refused"]:
         print("engine        : REFUSED after frame %d — %s (exact, not approximate)"
