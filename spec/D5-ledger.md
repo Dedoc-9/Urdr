@@ -812,3 +812,10 @@ this is DETERMINISTIC + REPRODUCIBLE, not continuum-accurate; fixed-point ROUNDS
 Marangoni coupling (curvature → √) is a later, partly-boundary rung. No new glyph; kernel frozen; consumes
 rational, touches no core. `exact and real-time are at odds over iterated stencils; reproducibility bridges
 both — so the backend is an explicit knob` · `flux form conserves mass exactly even when the flux rounds`.
+**CONFIRMED — FIELDFP cross-placement MEASURED.** On Windows (`rustc` edition 2021) the recompiled
+`urdr_physics_rs` printed `URDR-PHYSICS-RS: ADMITTED` twice on **21 digests** (18 physics + 3 FIELDFP
+field) with the defect caught 21/21. The fixed-point advection-diffusion field is now bit-identical across
+two independent placements, joining state, motion, and frames — so a reactive fluid/heat field computes
+identically on every conforming host (the substrate the deterministic-lockstep gameplay direction needs).
+FIELDQ remains reference-only (exact, scoped-tiny). `the field is a cross-placement witness now — the same
+heat map on every machine, bit-for-bit`.
