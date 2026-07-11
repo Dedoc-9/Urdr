@@ -10,7 +10,7 @@ cross-placed renderer.
 |---|---|
 | `urdr_designer.html` | A browser CAD/world editor — no install, no dependencies, works offline. Draw objects in 2D or 3D, place them on a highway, export the scene. |
 | `load_world.py` | Renders an exported `urdr_world.json` through the **exact** perspective projector (`../render/perspective.py`) to a `URDRFB1` frame + digest + a viewable PGM image. Closes the loop from editor to engine. |
-| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Five modes: a built-in demo cascade, `--world urdr_world.json` (collide dynamic + static via the exact LCP; `--g N` for gravity), `--stack N` (an **N-ball resting stack**, exact contact LCP, certified **λ**), `--joints [--world file]` (an **articulated system** — the authored hinge/rod/weld/slider constraints — via the exact equality solver, certified `URDRJNT1`), or `--fp [bounce|stack|swing]` (**bounded Q32.32 fixed-point** time-stepping via `../physics/field.py` — a gravity+bounce box, a **settling stack** (the contact LCP ported to sequential-impulse), or a **swinging pendulum** (the articulated solve ported with squared-length Baumgarte) — animates for as long as you like **without overflowing**, the scenes exact-ℚ refuses). Load any of these in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
+| `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Five modes: a built-in demo cascade, `--world urdr_world.json` (collide dynamic + static via the exact LCP; `--g N` for gravity), `--stack N` (an **N-ball resting stack**, exact contact LCP, certified **λ**), `--joints [--world file]` (an **articulated system** — the authored hinge/rod/weld/slider constraints — via the exact equality solver, certified `URDRJNT1`), or `--fp [bounce|stack|swing|world file.json]` (**bounded Q32.32 fixed-point** time-stepping via `../physics/field.py` — a gravity+bounce box, a **settling stack** (contact LCP → sequential-impulse), a **swinging pendulum** (articulated → squared-length Baumgarte), or **your authored `--world` export run long** (general PGS collisions with un-normalized normals) — all animate for as long as you like **without overflowing**, where exact-ℚ refuses). Load any of these in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
 
 ## Grade — honest scope
 
@@ -174,6 +174,18 @@ both bounded, deterministic and reproducible, with no overflow and **no sqrt** (
 stabilizes on the *squared* length, so it never leaves i64). Exact remains the proof;
 fixed-point is the live animation.
 
+And you can run **your own authored scene** on the fixed-point substrate — the bounded long-run
+counterpart to the exact `--world`:
+
+```
+python3 replay.py --fp world urdr_world.json     # authored collisions, time-stepped without overflow
+```
+
+Same scene, same dynamic-vs-dynamic and dynamic-vs-static contacts (general 2D, resolved with
+**un-normalized normals** so there's no sqrt), but it runs as long as you like — where the exact
+LCP eventually refuses on i64 overflow, this stays bounded and deterministic. Exact for the
+proof, fixed-point for the endurance.
+
 ## Next rungs (declared)
 
 The **▷ Replay** spine is the first of the "expose the deterministic engine" additions:
@@ -184,13 +196,13 @@ witness chain, and the editor scrubs it. Natural follow-ons, in order:
   (`replay.py --world`) are *done* — **▷ Replay** now simulates your own scene
   deterministically (same witness chain on every machine). Next in the runtime: static
   colliders, joints/constraints, gravity, and per-material restitution;
-- the exact solvers are now **ported onto the fixed-point substrate**: `--fp stack` settles a
-  stack (PGS contacts + ground-up projection) and `--fp swing` swings a pendulum (articulated
-  distance constraint + squared-length Baumgarte), both bounded and deterministic — the
-  animated counterparts to the certified `--stack` / `--joints`. Next: drive the fixed-point
-  solvers from an **authored `--world` export** (watch a highway scene settle), add restitution
-  / elastic contacts and CCD, and fold the fixed-point stepper into a **gated rung** with
-  red-first tests + cross-placement;
+- the fixed-point substrate now runs the ported solvers **and authored worlds**: `--fp stack`
+  / `--fp swing` (settling / swinging) and `--fp world <export>` (your scene's collisions,
+  time-stepped long without overflow via un-normalized-normal PGS) — all bounded and
+  deterministic. Next: restitution / elastic contacts (bounce, not stick), continuous collision
+  (CCD), gravity + an implicit floor so authored scenes settle, and folding the fixed-point
+  stepper into a **gated rung** (red-first tests + a second-placement cross-check) to graduate
+  it from exploratory to MEASURED;
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
   road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
   scene stays byte-identical across peers.

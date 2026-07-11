@@ -509,6 +509,75 @@ def fp_swing_doc(steps=220, W=380, H=300):
             "refused": refused, "frames": frames, "chain": [f["digest"] for f in frames]}
 
 
+def fp_world_doc(path, steps=180, K=12, W=460, H=280, margin=30):
+    """An AUTHORED world (URDR-WORLD-3), time-stepped on the fixed-point substrate — the
+    bounded long-run counterpart to the exact `--world`. Dynamic instances collide against
+    each other and the static colliders via a general 2D fixed-point PGS using UN-NORMALIZED
+    normals (the `|d|` cancels via `d·d`, so no sqrt) + squared-penetration Baumgarte. Runs
+    velocity-driven (authored init velocities) as long as you like without overflow, where
+    the exact LCP would refuse. Deterministic; URDRFPW1 witness per frame."""
+    dyn, statics, _joints = _load_world(path)
+    sraw = [{"x": s["x"], "z": s["z"], "r": s["r"]} for s in statics]
+    if not dyn:
+        _, dstat = _fit([{"raw": []}], sraw, W, H, margin)
+        return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "fp": True,
+                "note": "no dynamic bodies — add a dynamic object with an initial velocity",
+                "refused": None, "frames": [], "chain": []}
+    nd, ns = len(dyn), len(statics)
+    px = [_FP.unit(b["x"], 1) for b in dyn] + [_FP.unit(s["x"], 1) for s in statics]
+    pz = [_FP.unit(b["z"], 1) for b in dyn] + [_FP.unit(s["z"], 1) for s in statics]
+    vx = [_FP.unit(b["vx"], 1) for b in dyn] + [0] * ns
+    vz = [_FP.unit(b["vz"], 1) for b in dyn] + [0] * ns
+    rad = [b["r"] for b in dyn] + [s["r"] for s in statics]
+    mass = [b["m"] for b in dyn] + [0] * ns                 # 0 marks static
+    fl = lambda a: round(a / _FPONE, 2)
+    frames, refused = [], None
+    for t in range(steps + 1):
+        raw = [{"x": fl(px[i]), "y": fl(pz[i]), "r": rad[i], "vx": fl(vx[i]), "vy": fl(vz[i]), "m": dyn[i]["m"]}
+               for i in range(nd)]
+        cacc = {}
+        try:
+            for i in range(nd):
+                px[i] = _FP.add(px[i], vx[i]); pz[i] = _FP.add(pz[i], vz[i])
+            for _ in range(K):
+                for i in range(nd):
+                    for j in range(i + 1, nd + ns):
+                        dx, dz = _FP.sub(px[j], px[i]), _FP.sub(pz[j], pz[i])
+                        dd = _FP.add(_fm(dx, dx), _fm(dz, dz))
+                        rr = rad[i] + rad[j]; rr2 = _FP.unit(rr * rr, 1)
+                        if dd < rr2:                            # penetrating contact (un-normalized normal d)
+                            vn = _FP.add(_fm(_FP.sub(vx[j], vx[i]), dx), _fm(_FP.sub(vz[j], vz[i]), dz))
+                            bias = _FP.mul_k(_FP.sub(rr2, dd), 1, 8)
+                            mi, mj = mass[i], mass[j]
+                            # imsum = 1/mi + 1/mj (static → 0); effmass = dd·imsum
+                            num, den = ((mj + mi), (mi * mj)) if (mi and mj) else ((1, mi) if mi else (1, mj))
+                            eff = _FP.mul_k(dd, num, den)
+                            if eff > 0:
+                                dl = _fdiv(_FP.sub(bias, vn), eff)
+                                if dl > 0:
+                                    cacc[(i, j)] = cacc.get((i, j), 0) + dl
+                                    if mi:
+                                        vx[i] = _FP.sub(vx[i], _FP.mul_k(_fm(dl, dx), 1, mi)); vz[i] = _FP.sub(vz[i], _FP.mul_k(_fm(dl, dz), 1, mi))
+                                    if mj:
+                                        vx[j] = _FP.add(vx[j], _FP.mul_k(_fm(dl, dx), 1, mj)); vz[j] = _FP.add(vz[j], _FP.mul_k(_fm(dl, dz), 1, mj))
+        except FieldError as e:
+            refused = {"after_frame": t, "code": getattr(e, "code", "FIELD-REFUSE"), "message": str(e)}
+            break
+        craw = []
+        for (i, j), l in cacc.items():
+            mx_, mz_ = fl(_FP.add(px[i], _FP.sub(px[j], px[i]) // 2)), fl(_FP.add(pz[i], _FP.sub(pz[j], pz[i]) // 2))
+            craw.append({"x": mx_, "y": mz_, "nx": 0, "ny": -1, "imp": abs(fl(l)) * (rad[i] + rad[j])})
+        f = {"frame": t, "digest": _fp_digest((px[:nd], pz[:nd], vx[:nd], vz[:nd]), b"URDRFPW1"),
+             "px": 0.0, "py": 0.0, "e2": 0.0, "raw": raw}
+        if craw:
+            f["contacts"] = craw
+        frames.append(f)
+    dframes, dstat = _fit(frames, sraw, W, H, margin)
+    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat, "fp": True,
+            "note": "authored world on the fixed-point substrate — bounded PGS collisions, deterministic (no overflow)",
+            "refused": refused, "frames": dframes, "chain": [f["digest"] for f in dframes]}
+
+
 def main(argv):
     if len(argv) > 1 and argv[1] == "--world":
         if len(argv) < 3:
@@ -549,21 +618,30 @@ def main(argv):
         doc = joints_doc(world_path=wp, N=n)
         label = "joints (%s)" % ("authored world" if wp else "chain N=%d" % n)
     elif len(argv) > 1 and argv[1] == "--fp":
-        scene, n = "bounce", None
-        out_path = os.path.join(HERE, "urdr_replay.json")
+        scene, n, jsons = "bounce", None, []
         for a in argv[2:]:
-            if a in ("bounce", "stack", "swing"):
+            if a in ("bounce", "stack", "swing", "world"):
                 scene = a
             elif a.endswith(".json"):
-                out_path = a
+                jsons.append(a)
             elif a.lstrip("-").isdigit():
                 n = int(a)
-        if scene == "stack":
-            doc = fp_stack_doc(N=max(2, min(6, n or 3)))
-        elif scene == "swing":
-            doc = fp_swing_doc()
+        out_path = os.path.join(HERE, "urdr_replay.json")
+        if scene == "world":
+            wp = jsons[0] if jsons else os.path.join(HERE, "urdr_world.json")
+            if not os.path.exists(wp):
+                print("no world file at %s — export one from urdr_designer.html (▸ Export world JSON)" % wp)
+                return 1
+            doc = fp_world_doc(wp)
         else:
-            doc = fp_bounce_doc(N=max(1, min(10, n or 4)))
+            if jsons:
+                out_path = jsons[0]
+            if scene == "stack":
+                doc = fp_stack_doc(N=max(2, min(6, n or 3)))
+            elif scene == "swing":
+                doc = fp_swing_doc()
+            else:
+                doc = fp_bounce_doc(N=max(1, min(10, n or 4)))
         label = "fixed-point %s" % scene
     else:
         out_path = argv[1] if len(argv) > 1 else os.path.join(HERE, "urdr_replay.json")
@@ -595,8 +673,11 @@ def main(argv):
         print("substrate     : Q32.32 fixed-point (bounded, frozen round-to-nearest) — %d ticks, no overflow"
               % (len(frames) - 1))
         if frames:
-            print("frame 0 digest:", frames[0]["digest"][:24], "…  (URDRFPB1)")
+            print("frame 0 digest:", frames[0]["digest"][:24], "…  (fixed-point)")
             print("frame N digest:", frames[-1]["digest"][:24], "…")
+        nct = sum(len(f.get("contacts", [])) for f in frames)
+        if nct:
+            print("contacts      : %d resolved (fixed-point PGS, un-normalized normals)" % nct)
     print("witness chain :", len(doc["chain"]), "digests")
     if doc["refused"]:
         print("engine        : REFUSED after frame %d — %s (exact, not approximate)"
