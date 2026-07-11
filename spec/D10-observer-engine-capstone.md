@@ -102,10 +102,16 @@ the strongest form of this project's claim.
 
 ## 5. What this does NOT show (and the honest next steps)
 
-- **General-n injectivity.** Only the square (`det≠0`) and axis-selection (`covers`) cases are
-  measured. The rectangular `rank[M₁;…;M_k]=n` case needs **exact integer `divmod`** →
-  fraction-free (Bareiss) elimination → rank. That is a genuine new capability (the core has
-  no division), noted as the one remaining real proof, not yet built.
+- **General-n injectivity — CLOSED (reference).** The rectangular `rank[M₁;…;M_k]=n` case is
+  now measured: `tools/intla/atlas_injective.py` certifies an over-determined atlas injective
+  iff its stacked matrix has **full column rank** (`rank==n`) via the frozen fraction-free
+  Bareiss `rank` (`urdr-math` v0.1, the "genuine new capability" this note called for — exact
+  integer `divmod` → Bareiss elimination), and returns an exact `nullspace` collision witness
+  `v` (`Mv=0`, `v≠0`, so states `0` and `v` are indistinguishable under every chart) when the
+  atlas is deficient. Gate stage `atlas_injective` (fullrank / collision / non-vacuity
+  self-test). Grade: **MEASURED (reference)** — this is a Python-reference certificate over
+  frozen exact math, *not* yet a both-placements result like the two rows in §2; a Rust
+  cross-placement of `urdr-math` (and hence this certificate) remains a separate DECLARED item.
 - **Reconstruction / inversion.** Recovering `x` from `Mx` needs rational arithmetic
   (matrix inverse); buildable on the fix substrate (`div` exists) but a substrate-heavy detour,
   not done here.

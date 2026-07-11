@@ -825,3 +825,21 @@ round-to-nearest-ties-away FixedPoint parameters, the conservative-flux-form ste
 boundary + CFL bound, the two backends, and the 4-scene corpus are immutable except through a versioned
 successor. Future field work (surface tension, adaptive/LOD grids) extends, never mutates — same ladder.
 `the scalar-transport bedrock is now an unmoving law of the repo`.
+
+**General-n observer-atlas injectivity certificate (Rigor) — MEASURED (reference).** Closes the last
+outstanding atlas-injectivity item: the linear-chart theorem (D10, corpus v9) only certified the SQUARE
+case via `det ≠ 0`; this lifts it to ANY rectangular (typically over-determined) atlas. An observer atlas
+is a family of linear charts `C_i` (each `k_i × n`); it recovers an n-dim state (is injective) iff the
+stacked matrix `M` (`Σk_i × n`) has trivial column kernel, i.e. **full COLUMN rank**: `injective ⟺
+rank(M) = n`. `tools/intla/atlas_injective.py` computes this with the **frozen** fraction-free Bareiss
+`rank` (urdr-math v0.1), exact over ℤ, i64-overflow refused. The non-injectivity certificate is exact and
+constructive: when the atlas is deficient, `urdr-math.nullspace(M)` returns a nonzero integer `v` with
+`M v = 0`, so the states `0` and `v` are **indistinguishable under every chart** (`M·0 = M·v`) — a
+witnessed COLLISION, not a guess. Two exact engines agree by construction (`rank==n ⟺ no nullspace
+witness`); a disagreement refuses the verdict. Gate stage `atlas_injective` (a 5×3 over-determined atlas is
+injective; a deficient atlas that never observes the z-axis collides with witness `v=[0,0,1]`) + red-first
+falsifiers in `tests/test_atlas_injective.py`, including the non-vacuity that adding the missing chart
+restores injectivity. Grade: **MEASURED (reference)** — the certificate is gate-tested and the underlying
+`rank`/`nullspace` are oracle-MEASURED urdr-math; a Rust cross-placement of urdr-math (and hence this
+certificate) is a separate DECLARED item. No new glyph; kernel frozen; consumes only the frozen exact-math
+primitives. `injective iff full column rank; the nullspace vector IS the collision — exact, at any n`.

@@ -807,6 +807,44 @@ class Gate:
                     "truncation diverges from round-to-nearest (gate can redden)"
                     if caught else "rounding not load-bearing — instrument vacuous")
 
+    # -- 2l. general-n observer-atlas injectivity certificate (exact, D10) -----
+    def atlas_injective(self):
+        """General-dimension atlas injectivity (D10, past the square/det case): a
+        full-COLUMN-rank rectangular atlas is injective (rank==n, no collision); a
+        DEFICIENT atlas yields an exact nullspace witness v (M v = 0, v!=0), so the
+        states 0 and v are indistinguishable under every chart — a real collision
+        (non-vacuity). Exact over Z via the frozen Bareiss rank / nullspace."""
+        idir = os.path.join(ROOT, "tools", "intla")
+        if idir not in sys.path:
+            sys.path.insert(0, idir)
+        try:
+            import atlas_injective as A
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("atlas-injective", False, f"import failed: {exc}")
+            return
+        n = 3
+        full = [[[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [1, 1, 0]], [[0, 1, 1]]]
+        defi = [[[1, 0, 0], [0, 1, 0]], [[1, 1, 0]]]      # z never observed
+        # full-rank rectangular (5x3): injective, rank==n, no collision
+        fr = A.injective(full, n) and A.rank(full) == n and A.collision_witness(full, n) is None
+        self.record("atlas-injective-fullrank", fr,
+                    "over-determined 5x3 atlas injective (rank=n, trivial kernel)"
+                    if fr else "full-rank atlas certificate FAILED")
+        # deficient: exact collision witness, states 0 and v indistinguishable
+        v = A.collision_witness(defi, n)
+        s = A.stack(defi)
+        coll = (not A.injective(defi, n) and v is not None and any(x != 0 for x in v)
+                and all(x == 0 for x in A.matvec(s, v))
+                and A.matvec(s, [0] * n) == A.matvec(s, v))
+        self.record("atlas-injective-collision", coll,
+                    "deficient atlas: exact witness v, states 0 and v collide"
+                    if coll else "collision certificate FAILED")
+        # non-vacuity: adding the missing chart restores injectivity
+        nv = (not A.injective(defi, n)) and A.injective(defi + [[[0, 0, 1]]], n)
+        self.record("atlas-injective-selftest", nv,
+                    "adding the z-chart restores injectivity (deficiency was real)"
+                    if nv else "deficiency not real — instrument vacuous")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -886,6 +924,7 @@ def main() -> int:
     gate.oracle()
     gate.oracle_generators()
     gate.modules()
+    gate.atlas_injective()
     gate.registry()
     gate.render()
     gate.render3d()
