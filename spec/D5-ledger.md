@@ -921,3 +921,25 @@ divergence 10/10; it had been de-risked by an independent Python mirror of the R
 + transcribed geometry) reproducing both goldens. Renderer rung 3 is therefore **MEASURED (cross-placed)** —
 perspective vanishing points are now bit-identical across two independent runtimes, and the render placement
 covers **10** frames. `the rails converge to the same pixel on every conforming machine`.
+
+**Marangoni surface-tension transport (Continuum) — MEASURED (reference).** The reactive-environment
+nonlinearity, built by *extending* the frozen `urdr-field` v0.1 (never mutating it). Where the frozen `step`
+advects with a *uniform* velocity, `tools/physics/marangoni.py` derives the velocity from the field itself:
+with a linear surface-tension law `σ(c)=c`, the Marangoni velocity across an edge is `v = κ·(σ[b]−σ[a]) =
+κ·(c[b]−c[a])`, dragging fluid toward higher surface tension; the advective flux `v·c_upwind` is applied
+**conservatively** (`+`/`−` across the edge), so **total mass is conserved EXACTLY even though the coupling
+is nonlinear (quadratic in c)** — the headline invariant. The nonlinear term needs a Q32.32 value×value
+multiply (`_fp_mul`, round-to-nearest ties-away, the frozen rule; i64 overflow → `FIELD-REFUSE`), on top of
+the frozen field's value×rational `mul_k`. Physically it is anti-diffusion: a concentration peak decays
+*slower* than under pure diffusion because κ transports mass back up-gradient toward the peak. Gate stage
+`marangoni` (3 frame digests `marangoni_sharpen`/`peak2d`/`ridge` reproduced twice vs goldens;
+`marangoni-conservation` = mass bit-exact + monotone + κ-keeps-peak-above-diffusion; `marangoni-selftest` =
+an over-bounded κ overshoots into **negative** concentration, still mass-conserving — the CFL bound is
+load-bearing) + red-first falsifiers in `tests/test_marangoni.py` (mass exact 1-D/2-D, up-gradient transport
+on a 2-cell pair, κ=0 non-vacuity, CFL monotonicity + overshoot, overflow refusal). Grade: **MEASURED
+(reference)** — reproduces the goldens in the gate on the frozen fixed-point substrate. Honest boundaries:
+mass is exact but the field *values* round (fixed-point); monotonicity holds only under the CFL bound; this
+is a Marangoni-TYPE scalar transport (linear σ, single field), not free-surface Navier–Stokes. Next
+(DECLARED): a Rust cross-placement of the 3 Marangoni frames, and field→body momentum coupling into the LCP.
+No new glyph; kernel and `urdr-field` v0.1 frozen; extends, never mutates. `the environment pushes back — the
+field flows up its own tension gradient, and not one unit of mass is lost doing it`.

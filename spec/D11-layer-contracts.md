@@ -349,6 +349,9 @@ reproduced, this contract stays `DECLARED`.
 | urdr-physics     | rung 4: exact articulated / joint constraints (rods, pins, skeletons) | `MEASURED` (reference) | `physics_joint` gate stage, `test_articulated.py`, `articulated.py` |
 | urdr-physics     | 2nd-placement physics digests (Rust, all 4 corpora) | `MEASURED` (Windows, rustc edition-2021) | `urdr_physics_rs/urdr_physics.rs` — ADMITTED 18/18 twice, defect caught 18/18 |
 | urdr-physics     | friction + rotation/shapes + sphere-sphere CCD | `DECLARED` | targets (§3.5) — the next rungs |
+| urdr-field       | v0.1: conservative advection-diffusion (Q32.32 fixed-point, mass-exact, FROZEN) | `MEASURED` (cross-placed) | `field` gate stage; `urdr_physics_rs` FIELDFP 3/3 |
+| urdr-field       | Marangoni surface-tension transport (nonlinear self-advection ∝ κ·∂σ, mass-exact, monotone under CFL) | `MEASURED` (reference) | `marangoni` gate stage, `test_marangoni.py`, `marangoni.py` |
+| urdr-field       | 2nd-placement Marangoni digests (Rust) + field→body momentum coupling | `DECLARED` | next: extend `urdr_physics_rs`; couple to LCP |
 | urdr-world       | weave / commit / history / regional     | `MEASURED`   | `world_host/`, corpus v12 |
 | urdr-render      | rung 1: 2D viewport/edge/fill/serialize/digest | `MEASURED` (reference) | `render` gate stage, `test_render.py`, `conformance.txt` |
 | urdr-render      | rung 2: exact 3D depth (z-buffer occlusion + near/far/screen clip) | `MEASURED` (reference) | `render3d` gate stage, `test_raster3d.py`, `raster3d.py` |

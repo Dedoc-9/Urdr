@@ -867,6 +867,61 @@ class Gate:
                     "truncation diverges from round-to-nearest (gate can redden)"
                     if caught else "rounding not load-bearing — instrument vacuous")
 
+    def marangoni(self):
+        """Marangoni surface-tension transport (continuum rung): the field advects
+        itself up its own surface-tension gradient (velocity ∝ κ·∂c), nonlinearly,
+        yet mass is conserved EXACTLY (conservative flux form). Each scene's digest
+        matches its golden; mass is bit-exact; κ>0 keeps a peak higher than pure
+        diffusion (κ=0 is the non-vacuity control); a bounded κ stays non-negative
+        while an over-bounded κ overshoots negative (the CFL bound is load-bearing).
+        Deterministic Q32.32; i64 overflow refuses. Extends the frozen field."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import marangoni as MZ
+            import marangoni_scenes
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("marangoni-frames", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(pdir, "conformance_marangoni.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        goldens[name] = dg
+        for name in sorted(marangoni_scenes.SCENES):
+            d1 = marangoni_scenes.SCENES[name]()
+            d2 = marangoni_scenes.SCENES[name]()
+            if d1 != d2:
+                self.record(f"marangoni:{name}", False, "NONDETERMINISTIC")
+                continue
+            if goldens.get(name) != d1:
+                self.record(f"marangoni:{name}", False,
+                            f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
+                continue
+            self.record(f"marangoni:{name}", True, d1[:16] + "…")
+        # mass exact (nonlinear) + Marangoni resists diffusion (κ=0 non-vacuity)
+        lo, hi = MZ.unit(1, 10), MZ.unit(1, 1)
+        grid = [lo, lo, hi, lo, lo]
+        m0 = MZ.mass(grid)
+        ev = MZ.run(list(grid), 5, 1, (1, 20), (1, 8), 12)
+        peak_k = MZ.run(list(grid), 5, 1, (1, 20), (1, 8), 5)[2]
+        peak_0 = MZ.run(list(grid), 5, 1, (1, 20), (0, 1), 5)[2]
+        cons = MZ.mass(ev) == m0 and min(ev) >= 0 and peak_k > peak_0
+        self.record("marangoni-conservation", cons,
+                    "surface-tension advection: mass exact + monotone; κ keeps the peak above diffusion"
+                    if cons else "mass/monotonicity/Marangoni-transport FAILED")
+        # non-vacuity: an over-bounded κ overshoots negative, mass still conserved
+        ov = MZ.run(list(grid), 5, 1, (0, 1), (3, 1), 8)
+        sv = min(ov) < 0 and MZ.mass(ov) == m0
+        self.record("marangoni-selftest", sv,
+                    "over-bound κ overshoots negative (CFL load-bearing) yet conserves mass (gate can redden)"
+                    if sv else "CFL bound not load-bearing — instrument vacuous")
+
     # -- 2l. general-n observer-atlas injectivity certificate (exact, D10) -----
     def atlas_injective(self):
         """General-dimension atlas injectivity (D10, past the square/det case): a
@@ -1093,6 +1148,7 @@ def main() -> int:
     gate.physics_joint()
     gate.physics_stress()
     gate.field()
+    gate.marangoni()
     gate.rejections()
     gate.tamper()
     return gate.report()

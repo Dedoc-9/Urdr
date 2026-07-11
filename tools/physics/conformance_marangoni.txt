@@ -1,0 +1,9 @@
+# Marangoni transport conformance (continuum rung). Surface-tension-gradient advection +
+# diffusion on the frozen Q32.32 FixedPoint backend, conservative flux form (mass exact).
+# An independent placement is ADMITTED iff it reproduces each URDRFLD1/FIELDFP frame digest
+# bit-for-bit; any mismatch = URDR-FIELD-DIVERGENCE. Digests are the Python reference
+# (tools/physics/marangoni_scenes.py). Regenerate: python3 marangoni_scenes.py
+# scene              digest
+marangoni_sharpen    2fee5cb62d9deab9f1ca6b8919369d0be46499a3040196aa6769637208822bb5
+marangoni_peak2d     162e0cd15df59c2928644c77101d73e008d259dd18704244918721c939e18019
+marangoni_ridge      5cf3d4f80016f1aa7d2fdc5aa913e4967314403fa62f7c05cf32b203d556194b
