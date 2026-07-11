@@ -27,7 +27,7 @@ implementations — of the kernel, the renderer, and the physics — reproduce t
 reference implementation's output digests **bit-for-bit** on fixed conformance
 corpora (36 kernel vectors, 8 frame digests including 3D depth, 18 physics
 digests, and 3 fixed-point field digests), twice each, with deliberately-defective
-builds caught. A 221-test verification gate enforces
+builds caught. A 232-test verification gate enforces
 determinism, golden agreement, an in-process oracle, and 45 typed rejection
 fixtures on every change. We are precise about scope: this demonstrates
 **agreement on stated corpora across two placements**, not universal
@@ -230,7 +230,7 @@ online build offline-reproducible.
 
 ### 5.3 Conformance corpus & gate
 
-The gate runs, deterministically: **221** unit falsifiers; **42** example programs
+The gate runs, deterministically: **232** unit falsifiers; **42** example programs
 checked for determinism (twice) and golden agreement; an in-process oracle
 (`compiled ≡ reference`) with a defect that must diverge; **45** rejection fixtures
 each producing an exact typed refusal code; and per-layer stages for the registry,
@@ -376,7 +376,7 @@ computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
 three independent Rust placements reproduce the reference's state, frame, and
-physics digests bit-for-bit on fixed corpora, behind a 221-test gate with typed
+physics digests bit-for-bit on fixed corpora, behind a 232-test gate with typed
 refusals and non-vacuity self-tests. The result is scoped to corpus agreement, not
 universal correctness. Future work follows a fixed ladder — prototype → reference
 proof → conformance corpus → independent second placement → admission → freeze —

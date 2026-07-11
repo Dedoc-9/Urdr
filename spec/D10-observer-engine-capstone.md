@@ -112,9 +112,17 @@ the strongest form of this project's claim.
   self-test). Grade: **MEASURED (reference)** — this is a Python-reference certificate over
   frozen exact math, *not* yet a both-placements result like the two rows in §2; a Rust
   cross-placement of `urdr-math` (and hence this certificate) remains a separate DECLARED item.
-- **Reconstruction / inversion.** Recovering `x` from `Mx` needs rational arithmetic
-  (matrix inverse); buildable on the fix substrate (`div` exists) but a substrate-heavy detour,
-  not done here.
+- **Reconstruction / inversion — CLOSED (reference).** Recovering `x` from `Mx` is now measured
+  as the constructive sibling of injectivity: `tools/intla/atlas_reconstruct.py` returns `x`
+  **exactly** (reduced rational `num/den`) via Cramer's rule over the frozen `determinant` on an
+  independent square subsystem (no matrix-inverse detour needed — the fraction-free determinant
+  suffices), with a self-checking witness `M·num = den·y`. Over-determination is the forgery
+  detector: the state solved from `n` rows is verified against **all** `Σk_i` rows, so an
+  observation off the column space is refused `INCONSISTENT` and a deficient atlas is refused
+  `NOT_INJECTIVE` (state not unique — the injectivity collision). Gate stage `atlas_reconstruct`.
+  Grade: **MEASURED (reference)** — a Python-reference certificate over frozen exact math, *not*
+  yet a both-placements result; a Rust cross-placement of `urdr-math` remains a separate DECLARED
+  item (same as the general-n injectivity certificate above).
 - **Perspective / curved / non-linear charts.** A perspective chart `(x,y,z,w) ↦ (x/z, y/z)`
   is a chart *swap* — measurable now that `div` is both-placements — but it adds no new
   *invariant*; it is a renderer feature, graded as such if built.

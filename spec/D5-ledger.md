@@ -843,3 +843,26 @@ restores injectivity. Grade: **MEASURED (reference)** — the certificate is gat
 `rank`/`nullspace` are oracle-MEASURED urdr-math; a Rust cross-placement of urdr-math (and hence this
 certificate) is a separate DECLARED item. No new glyph; kernel frozen; consumes only the frozen exact-math
 primitives. `injective iff full column rank; the nullspace vector IS the collision — exact, at any n`.
+
+**Observer-atlas reconstruction / inversion (Rigor) — MEASURED (reference).** The constructive sibling of
+the injectivity certificate: injectivity proves the atlas *can distinguish* states; this recovers the state
+itself. Given an observation `y = M x` under an injective atlas (`rank(M)=n`), `tools/intla/atlas_reconstruct.py`
+returns `x` **exactly** as a reduced rational `(num, den)`. Method, exact and division-free until the final
+rational: full column rank ⇒ some `n` rows of `M` form an invertible submatrix `S`, chosen deterministically
+by a greedy walk that keeps a row iff it raises the **frozen Bareiss `rank`**; solve `S x = y_S` by Cramer's
+rule over the **frozen `determinant`** (`x_j = det(S with col j ← y_S) / det(S)`), giving `x = N/D`,
+`D = det(S) ≠ 0`. The recovered pair is its own **witness**: `M·num = den·y`, `den > 0`, checkable by anyone
+without redoing the solve — the recover-direction analogue of the collision witness. The load-bearing move is
+**over-determination as a forgery detector**: a genuine observation satisfies *every* chart, so the state
+solved from `n` rows is verified against **all** `Σk_i` rows (exact integer identity `M N = D y`); an
+observation nudged off the column space fails a redundant row and is **refused `INCONSISTENT`** (an
+impossible/forged view), while a deficient atlas is **refused `NOT_INJECTIVE`** (the state is not unique —
+exactly the injectivity collision). Gate stage `atlas_reconstruct` (round-trip: an integer state recovers
+with `den=1`, a half-integer state recovers as the exact rational `[1,1]/2`, `den>1` — reconstruction, not
+rounding; witness; forgery-refused non-vacuity; deficient-refused) + red-first falsifiers in
+`tests/test_atlas_reconstruct.py`; a mutant that drops the all-rows consistency check reddens the forgery
+falsifier, proving over-determination is load-bearing. Grade: **MEASURED (reference)** — gate-tested over the
+oracle-MEASURED frozen `rank`/`determinant`; i64 overflow inside `determinant` propagates as a `REFUSE`. A
+Rust cross-placement of urdr-math (and hence this certificate) remains a separate DECLARED item. No new
+glyph; kernel frozen. `the atlas doesn't just tell states apart — it hands you the state, with a receipt, or
+refuses the forgery`.

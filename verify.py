@@ -845,6 +845,60 @@ class Gate:
                     "adding the z-chart restores injectivity (deficiency was real)"
                     if nv else "deficiency not real — instrument vacuous")
 
+    def atlas_reconstruct(self):
+        """Exact reconstruction (inversion): the constructive sibling of the
+        injectivity certificate. Over an injective atlas, recover the state from
+        its observation exactly (Cramer on an independent square subsystem via the
+        frozen determinant), witnessed by M·num == den·y. Over-determination is the
+        forgery detector: a genuine observation satisfies EVERY chart, so an
+        observation perturbed off the column space is refused (INCONSISTENT); a
+        deficient atlas refuses (NOT_INJECTIVE — the state is not unique)."""
+        idir = os.path.join(ROOT, "tools", "intla")
+        if idir not in sys.path:
+            sys.path.insert(0, idir)
+        try:
+            import atlas_reconstruct as R
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("atlas-reconstruct", False, f"import failed: {exc}")
+            return
+        n = 3
+        full = [[[1, 0, 0], [0, 1, 0]], [[0, 0, 1], [1, 1, 0]], [[0, 1, 1]]]  # injective 5x3
+        defi = [[[1, 0, 0], [0, 1, 0]], [[1, 1, 0]]]                          # z unobserved
+        half = [[[2, 0], [0, 2]], [[1, 1]]]                                   # det=2 subsystem
+        m = R.stack(full)
+        # round-trip: an integer state recovers exactly; a half-integer state
+        # recovers as the exact reduced rational (den>1) — reconstruction, not rounding.
+        x = [2, -3, 5]
+        rt_int = R.reconstruct(full, R.matvec(m, x), n) == (x, 1)
+        mh = R.stack(half)
+        yh = [v // 2 for v in R.matvec(mh, [1, 1])]                           # observation of [1,1]/2
+        rt_frac = R.reconstruct(half, yh, 2) == ([1, 1], 2)
+        self.record("reconstruct-roundtrip", rt_int and rt_frac,
+                    "integer state recovered exactly; half-integer state recovered as [1,1]/2"
+                    if (rt_int and rt_frac) else "round-trip FAILED")
+        # witness: M·num == den·y, den>0, independently checkable
+        y = R.matvec(m, [4, 4, -1])
+        st = R.reconstruct(full, y, n)
+        wok = st is not None and R.verifies(full, y, n, st)
+        self.record("reconstruct-witness", wok,
+                    "recovered state carries an independently-checkable witness M·num==den·y"
+                    if wok else "witness FAILED")
+        # non-vacuity: a forged observation (redundant row bumped off the column
+        # space) MUST be refused, while the genuine one is accepted.
+        good = R.matvec(m, [2, -3, 5])
+        forged = list(good); forged[4] += 1
+        fg = (R.is_genuine_observation(full, good, n)
+              and R.solve(full, forged, n)[0] == R.INCONSISTENT)
+        self.record("reconstruct-forgery-selftest", fg,
+                    "forged observation refused INCONSISTENT; genuine one accepted (gate can redden)"
+                    if fg else "forgery accepted — over-determination not load-bearing")
+        # deficient atlas: no unique state -> refuse
+        yd = R.matvec(R.stack(defi), [2, -3, 0])
+        dref = R.solve(defi, yd, n)[0] == R.NOT_INJECTIVE
+        self.record("reconstruct-deficient", dref,
+                    "deficient atlas refused NOT_INJECTIVE (state not unique)"
+                    if dref else "deficient atlas produced a state — unsound")
+
     # -- 2c. oracle generators: per-generator equivariance + localization -----
     def oracle_generators(self):
         """The differential oracle (D1 s14b) checked PER GENERATOR. Each probe in
@@ -925,6 +979,7 @@ def main() -> int:
     gate.oracle_generators()
     gate.modules()
     gate.atlas_injective()
+    gate.atlas_reconstruct()
     gate.registry()
     gate.render()
     gate.render3d()
