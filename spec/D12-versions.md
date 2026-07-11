@@ -19,7 +19,7 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-math`    | 0.1    | oracle-tested          | reference (+ witness cross-placement) | D5 |
 | `urdr-render`  | 1.0    | 8 frame digests (4 2D + 4 3D-depth) | reference + `urdr-render-rs` (ADMITTED 8/8) | D11 §4 |
 | `urdr-physics` | **1.0 (FROZEN)** | 18 scene digests (4 corpora) | reference + `urdr-physics-rs` | this doc |
-| `urdr-field`   | 0.1    | 4 field digests (3 FIELDFP + 1 FIELDQ) | reference + `urdr-physics-rs` (ADMITTED 3/3 FIELDFP; FIELDQ reference-only) | D5 |
+| `urdr-field`   | **0.1 (FROZEN)** | 4 field digests (3 FIELDFP + 1 FIELDQ) | reference + `urdr-physics-rs` (ADMITTED 3/3 FIELDFP; FIELDQ reference-only) | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
 `semver` = the public API/behaviour version; `corpus` = the pinned
@@ -58,6 +58,38 @@ major version, not an edit:
 6. **Conformance corpus (18 pinned digests).** `conformance.txt` (5),
    `conformance_nd.txt` (5), `conformance_lcp.txt` (4), `conformance_joint.txt`
    (4) — each reproduced by the reference and by `urdr-physics-rs`.
+
+## The urdr-field v0.1 frozen surface
+
+The scalar-transport bedrock is frozen the same way. Immutable under
+`urdr-field 0.1` except through a versioned successor:
+
+1. **Serialization grammar.** `Digest(Field) = SHA-256(canon)` where `canon` is
+   `[MAGIC "URDRFLD1"][BACKEND 8B "FIELDFP " | "FIELDQ  "][W u32 BE][H u32 BE]
+   [per-cell payload]`. The **backend tag is part of state identity** — `FIELDFP`
+   and `FIELDQ` are distinct computations and never share a digest. Cell payload:
+   `FIELDFP` = one i64 BE; `FIELDQ` = num i64 BE + den i64 BE (reduced, den > 0).
+2. **FixedPoint arithmetic parameters (FROZEN).** Radix **2³²** (Q32.32);
+   **round-to-nearest, ties away from zero** (`_rdiv`), applied to every coefficient
+   multiply — so every compiler/CPU truncates identically. `FIELD-REFUSE` on i64
+   overflow, never a wrap.
+3. **The step semantics.** A **conservative flux form** (each edge flux computed
+   once, applied +to one cell / −to its neighbor) so total mass is conserved
+   EXACTLY even in fixed-point; first-order **upwind** advection; **zero-flux**
+   (adiabatic, edge-clamped) boundary; the caller must respect the monotonicity/CFL
+   bound `4k + vx + vy ≤ 1` (an out-of-bound scene overflows and refuses).
+4. **Backends.** `FixedPoint` (bounded, rounds — the cross-placed real-time path)
+   and `Exact` (reuses the physics `Q`, exact, refuses when denominators grow — a
+   scoped-tiny, reference-only option). Both are deterministic and cross-placeable;
+   the choice trades exactness↔scale, never determinism.
+5. **Conformance corpus (4 digests).** `conformance_field.txt`:
+   `diffuse, advect, adv_diff` (FIELDFP, reproduced by `urdr-physics-rs`) + `exactq`
+   (FIELDQ, reference-only).
+
+Reproducibility (bit-identical across placements) is the invariant future field
+work may never compromise; exactness is *not* claimed for FIELDFP (it rounds,
+honestly). Surface-tension/Marangoni coupling and adaptive/LOD grids arrive as new
+versioned rungs, each down the same ladder.
 
 ## What may still change under 1.0
 

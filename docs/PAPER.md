@@ -25,8 +25,9 @@ I/O confined to a capability boundary.
 We report a concrete reproducibility result: three independent, single-file Rust
 implementations — of the kernel, the renderer, and the physics — reproduce the
 reference implementation's output digests **bit-for-bit** on fixed conformance
-corpora (36 kernel vectors, 4 frame digests, 18 physics digests), twice each,
-with deliberately-defective builds caught. A 208-test verification gate enforces
+corpora (36 kernel vectors, 8 frame digests including 3D depth, 18 physics
+digests, and 3 fixed-point field digests), twice each, with deliberately-defective
+builds caught. A 221-test verification gate enforces
 determinism, golden agreement, an in-process oracle, and 45 typed rejection
 fixtures on every change. We are precise about scope: this demonstrates
 **agreement on stated corpora across two placements**, not universal
@@ -209,14 +210,15 @@ defective build **caught** in every case:
 | placement | corpus | vectors | result |
 |-----------|--------|--------:|--------|
 | `urdr-core-rs`    | D8 kernel (canon→SHA-256, transitions, refusals) | **36** | ADMITTED ×2, defect caught |
-| `urdr-render-rs`  | frame digests (viewport, edge fns, top-left fill, serialize) | **4** | ADMITTED ×2, defect caught |
-| `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints | **18** | ADMITTED ×2, defect caught |
+| `urdr-render-rs`  | frame digests: 2D fill + **3D depth** (z-buffer occlusion, near/far/screen clip) | **8** | ADMITTED ×2, defect caught |
+| `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints (**18**) + fixed-point field transport (**3** FIELDFP) | **21** | ADMITTED ×2, defect caught |
 
 The three placements share no code, language, or SHA-256 implementation with the
 reference. This is the paper's central result: across the whole pipeline —
-**state, pixels, and motion** — a second, independent implementation computes the
-identical digest, so the digests are a property of the *specification*, not of one
-interpreter.
+**state, pixels, motion, and reactive fields** — a second, independent
+implementation computes the identical digest, so the digests are a property of the
+*specification*, not of one interpreter. (A fourth field digest, the exact-ℚ
+`FIELDQ` backend, is reference-only — see §6 on the exact-vs-scale tradeoff.)
 
 ### 5.2 Replay reproducibility
 
@@ -228,7 +230,7 @@ online build offline-reproducible.
 
 ### 5.3 Conformance corpus & gate
 
-The gate runs, deterministically: **208** unit falsifiers; **42** example programs
+The gate runs, deterministically: **221** unit falsifiers; **42** example programs
 checked for determinism (twice) and golden agreement; an in-process oracle
 (`compiled ≡ reference`) with a defect that must diverge; **45** rejection fixtures
 each producing an exact typed refusal code; and per-layer stages for the registry,
@@ -292,6 +294,50 @@ an explicit refusal rather than silent overflow, but a production engine would n
 bounded-precision strategies or a wider exact type, plus the algorithmic work in
 §5.6.
 
+### 6.1 Application to interactive multiplayer (what the architecture enables — and what it does not)
+
+A natural target is deterministic multiplayer. We separate what the *measured*
+result enables from what remains an unbuilt design direction, because the two are
+easy to conflate.
+
+**What bit-identical cross-placement genuinely enables.** Deterministic-lockstep
+and *rollback* netcode require that every peer computes the identical next state
+from the identical inputs. Floating-point engines cannot guarantee this across
+hardware; Urðr's fixed-point/exact substrate does, on the tested corpora. Three
+consequences follow directly and are the real strengths: (a) rollback
+re-simulation is exact — snap to the last confirmed state digest, re-run the ticks,
+and the result matches bit-for-bit, so there is no rounding drift; (b) a frame or
+state digest is a *checkable* witness — a peer can verify another's claimed state
+against the recorded inputs, making a divergence *detectable* (a mismatch is a
+provable fork); (c) the `weave` schedule orders proposals by content, so network
+arrival order cannot warp the canonical state. Regional isolation already exists in
+the reference (`regional_rigidity`, and the atlas/observer split of D10): a
+region-confined computation is certified in `O(region)`, not `O(world)`.
+
+**What is a design direction, not a delivered result.** The following are
+*plausible because the substrate is deterministic*, but are **not built, not
+measured, and gated `DECLARED`**: spatial partitioning into simulation islands;
+client-side prediction with rollback; an asymmetric profile (a fast Q32.32
+game-loop path plus the exact kernel as a *selective auditing oracle* for disputed
+transitions); and interest-managed / level-of-detail field streaming. Each must
+follow the same admission ladder as any feature.
+
+**The honest caveats that bound the ambition.** (1) *Performance.* The reference is
+Python and the LCP solver is exponential active-set enumeration (§5.6); real-time
+at FPS/MMO scale needs the algorithmic and engineering work (Lemke pivoting,
+broad-phase, islands, SIMD) that is entirely future. Determinism is not speed. (2)
+*Security scope.* Determinism makes cross-peer divergence *detectable* (a digest
+mismatch), which is a real anti-cheat primitive — but it is **not** a complete
+trustless system: Sybil resistance, input authentication, collusion, and the
+consensus protocol itself are separate, unsolved problems. "Serverless zero-trust
+MMO" is a direction the reproducibility spine *enables*, not a property this work
+delivers. (3) *Visual security.* A reproducible frame digest lets a canonical frame
+be *audited* against authoritative state; it does not by itself prevent a malicious
+client from rendering differently on its own screen. The claim is *auditability*,
+not *impossibility of exploits*. Stated plainly: the contribution is a deterministic,
+certifiable foundation on which such a system *could* be built — the game runtime is
+future work (roadmap step 9), each rung measured before it is trusted.
+
 ---
 
 ## 7. Related work
@@ -330,7 +376,7 @@ computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
 three independent Rust placements reproduce the reference's state, frame, and
-physics digests bit-for-bit on fixed corpora, behind a 208-test gate with typed
+physics digests bit-for-bit on fixed corpora, behind a 221-test gate with typed
 refusals and non-vacuity self-tests. The result is scoped to corpus agreement, not
 universal correctness. Future work follows a fixed ladder — prototype → reference
 proof → conformance corpus → independent second placement → admission → freeze —
@@ -393,7 +439,8 @@ rustc -O --edition 2021 -o urdr_physics.exe tools/physics/urdr_physics_rs/urdr_p
 ```
 
 Corpora: `tools/foreign_placement/conformance.txt` (36), `tools/render/conformance.txt`
-(4), `tools/physics/conformance{,_nd,_lcp,_joint}.txt` (18). Contracts: `spec/D11`
++ `conformance3d.txt` (4 + 4), `tools/physics/conformance{,_nd,_lcp,_joint}.txt` (18)
++ `conformance_field.txt` (3 FIELDFP + 1 reference-only FIELDQ). Contracts: `spec/D11`
 (layers), `spec/D12` (versions/freeze), `spec/D8` (portable kernel). `admitted ≠
 trusted` — a green gate certifies these tests on this code, never that a name means
 what it says.

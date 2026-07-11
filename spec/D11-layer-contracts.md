@@ -260,12 +260,14 @@ See §4 — this is the concrete centerpiece of the spec.
   `tests/test_render.py`. **Scope (honest):** this is *implementation-agreement on a stated corpus
   and refusal set, within the reference placement* — it does **not** yet demonstrate a *second
   independent* rasterizer agreeing (the D8 cross-placement step), nor GPU determinism (there is no
-  GPU), nor completeness for all scenes. Those, plus depth/blend/perspective, remain `DECLARED`
-  (§4). **Rung 2 (cross-placement) is now `MEASURED`:** an independent Rust rasterizer
-  (`urdr_render_rs/urdr_render.rs`, std-only, own SHA-256) reproduced all four frame digests
-  bit-for-bit, twice, with a defect caught 4/4 on a Windows host — so `State_t ⟹ Framebuffer_t`
-  is bit-identical across two independent placements for this corpus. Depth/blend/perspective and
-  a wider corpus remain the DECLARED work.
+  GPU), nor completeness for all scenes. Those, plus blend/perspective, remain `DECLARED`
+  (§4). **Cross-placement is now `MEASURED`:** an independent Rust rasterizer
+  (`urdr_render_rs/urdr_render.rs`, std-only, own SHA-256) reproduced all **eight** frame digests
+  (4 2D + 4 3D depth) bit-for-bit, twice, with the defect caught 8/8 on a Windows host — so
+  `State_t ⟹ Framebuffer_t` is bit-identical across two independent placements for this corpus.
+  Exact **3D depth** (z-buffer occlusion + near/far/screen clip) is MEASURED both placements;
+  perspective-correct interpolation, blending, and geometric Sutherland-Hodgman clip remain the
+  DECLARED work.
 
 ### 3.8 applications
 

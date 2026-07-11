@@ -819,3 +819,9 @@ two independent placements, joining state, motion, and frames — so a reactive 
 identically on every conforming host (the substrate the deterministic-lockstep gameplay direction needs).
 FIELDQ remains reference-only (exact, scoped-tiny). `the field is a cross-placement witness now — the same
 heat map on every machine, bit-for-bit`.
+**FROZEN — urdr-field v0.1.** With the reference MEASURED and FIELDFP cross-placed, the field is frozen
+under `spec/D12`: the `URDRFLD1` serialization grammar (with the backend tag in identity), the radix-2³²
+round-to-nearest-ties-away FixedPoint parameters, the conservative-flux-form step semantics + zero-flux
+boundary + CFL bound, the two backends, and the 4-scene corpus are immutable except through a versioned
+successor. Future field work (surface tension, adaptive/LOD grids) extends, never mutates — same ladder.
+`the scalar-transport bedrock is now an unmoving law of the repo`.
