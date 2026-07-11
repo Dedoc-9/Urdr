@@ -8,3 +8,5 @@ __pycache__/
 .idea/
 Thumbs.db
 .DS_Store
+tools/intla/urdr_math_rs/*.exe
+tools/intla/urdr_math_rs/*.pdb
