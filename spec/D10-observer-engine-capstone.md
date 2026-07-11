@@ -102,16 +102,17 @@ the strongest form of this project's claim.
 
 ## 5. What this does NOT show (and the honest next steps)
 
-- **General-n injectivity — CLOSED (reference).** The rectangular `rank[M₁;…;M_k]=n` case is
+- **General-n injectivity — CLOSED (cross-placed).** The rectangular `rank[M₁;…;M_k]=n` case is
   now measured: `tools/intla/atlas_injective.py` certifies an over-determined atlas injective
   iff its stacked matrix has **full column rank** (`rank==n`) via the frozen fraction-free
   Bareiss `rank` (`urdr-math` v0.1, the "genuine new capability" this note called for — exact
   integer `divmod` → Bareiss elimination), and returns an exact `nullspace` collision witness
   `v` (`Mv=0`, `v≠0`, so states `0` and `v` are indistinguishable under every chart) when the
   atlas is deficient. Gate stage `atlas_injective` (fullrank / collision / non-vacuity
-  self-test). Grade: **MEASURED (reference)** — this is a Python-reference certificate over
-  frozen exact math, *not* yet a both-placements result like the two rows in §2; a Rust
-  cross-placement of `urdr-math` (and hence this certificate) remains a separate DECLARED item.
+  self-test). Grade: **MEASURED (cross-placed)** — the independent Rust placement
+  `tools/intla/urdr_math_rs/` reproduces the injectivity digests (verdict + exact nullspace
+  collision witness) bit-for-bit on a named host (`URDR-MATH-RS: ADMITTED (20/20)` twice + defect
+  caught), so the general-n verdict and its witness are agreed by two independent runtimes.
 - **Reconstruction / inversion — CLOSED (reference).** Recovering `x` from `Mx` is now measured
   as the constructive sibling of injectivity: `tools/intla/atlas_reconstruct.py` returns `x`
   **exactly** (reduced rational `num/den`) via Cramer's rule over the frozen `determinant` on an
@@ -120,9 +121,10 @@ the strongest form of this project's claim.
   detector: the state solved from `n` rows is verified against **all** `Σk_i` rows, so an
   observation off the column space is refused `INCONSISTENT` and a deficient atlas is refused
   `NOT_INJECTIVE` (state not unique — the injectivity collision). Gate stage `atlas_reconstruct`.
-  Grade: **MEASURED (reference)** — a Python-reference certificate over frozen exact math, *not*
-  yet a both-placements result; a Rust cross-placement of `urdr-math` remains a separate DECLARED
-  item (same as the general-n injectivity certificate above).
+  Grade: **MEASURED (cross-placed)** — the independent Rust placement `tools/intla/urdr_math_rs/`
+  reproduces the reconstruction digests (state / typed refusal) bit-for-bit on a named host
+  (`URDR-MATH-RS: ADMITTED (20/20)` twice + defect caught), so recovery is now a two-runtime law,
+  not a single-interpreter property.
 - **Perspective / curved / non-linear charts.** A perspective chart `(x,y,z,w) ↦ (x/z, y/z)`
   is a chart *swap* — measurable now that `div` is both-placements — but it adds no new
   *invariant*; it is a renderer feature, graded as such if built.

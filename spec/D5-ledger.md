@@ -867,8 +867,8 @@ Rust cross-placement of urdr-math (and hence this certificate) remains a separat
 glyph; kernel frozen. `the atlas doesn't just tell states apart — it hands you the state, with a receipt, or
 refuses the forgery`.
 
-**urdr-math cross-placement — corpus MEASURED; Rust placement SPECULATIVE (pending host admission).** The
-lift that turns both atlas certificates above from reference-proven into *bit-for-bit-across-two-runtimes*.
+**urdr-math cross-placement — MEASURED (cross-placed).** The lift that turns both atlas certificates above
+from reference-proven into *bit-for-bit-across-two-runtimes*.
 A new standalone conformance corpus, `tools/intla/conformance_math.txt` (20 scenes), serializes the RESULT
 of every exact-integer primitive and both certificates to a SHA-256 digest: `rank`, `determinant`,
 `floor_divmod` (each with its i64-overflow/`b=0` REFUSE encoded in the result as a status byte), the
@@ -879,11 +879,16 @@ self-test (a wrong rank diverges from its pin). An independent single-file `std`
 `tools/intla/urdr_math_rs/urdr_math.rs` (hand-rolled SHA-256, i64-bounded i128 arithmetic, fraction-free
 Bareiss rank/det, exact-rational RREF nullspace, Cramer reconstruction), reproduces the same 20 digests and
 refuses the same cases; `--defect` corrupts the digest MAGIC so every scene must diverge (red-first).
-**Grades, split honestly:** the *corpus + gate pin* is **MEASURED** (green in the gate now); the *Rust
-placement* is **SPECULATIVE** — written and de-risked by an independent Python re-implementation (reusing
-none of urdr-math/atlas) that reproduces all 20 goldens and diverges under the corrupt-magic defect, but
-**not yet compiled/run on a host**. On a named host printing `URDR-MATH-RS: ADMITTED (20/20)` twice + defect
-caught, this flips to **MEASURED (cross-placed)**, and with it the **general-n injectivity certificate** and
-**exact reconstruction solver** flip from reference to cross-placement MEASURED — the mathematical spine
-verified across two independent runtimes. No new glyph; kernel frozen; consumes only the frozen exact-math
-surface. `the last reference-only rungs of the math spine now have a second runtime waiting at the door`.
+**CONFIRMED on host.** On Windows (`rustc -O`, single file, no crates) `urdr_math.exe` printed
+`URDR-MATH-RS: ADMITTED (20/20 digests)` **twice** and `defect caught (20/20 diverged)` under `--defect` —
+the independent Rust placement reproduces every exact-math digest bit-for-bit and the corrupt-magic defect is
+caught. It compiled clean on the first pass; it had been de-risked beforehand by an independent Python
+re-implementation (reusing none of urdr-math/atlas) that already reproduced all 20 goldens and diverged under
+the defect. **Grades now:** the *corpus + gate pin* is **MEASURED** (green in the gate) and the *Rust
+placement* is **MEASURED (cross-placed)** on this host. With it, the **general-n injectivity certificate** and
+the **exact reconstruction solver** are lifted from reference to **cross-placement MEASURED** — the
+mathematical spine (rank, determinant, floor_divmod, the injectivity verdict + exact nullspace collision
+witness, and Cramer reconstruction with its witness) is now verified across two independent runtimes. No new
+glyph; kernel frozen; consumes only the frozen exact-math surface. This makes **four** independent Rust
+placements (core, render, physics, math). `the math spine is no longer a property of one interpreter — it is
+a law two runtimes agree on, bit for bit`.

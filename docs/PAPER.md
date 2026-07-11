@@ -22,12 +22,14 @@ across five layers: a sealed kernel, an exact-integer math library, a
 certified-physics layer, a deterministic rasterizer, and a world runtime, with
 I/O confined to a capability boundary.
 
-We report a concrete reproducibility result: three independent, single-file Rust
-implementations — of the kernel, the renderer, and the physics — reproduce the
-reference implementation's output digests **bit-for-bit** on fixed conformance
-corpora (36 kernel vectors, 8 frame digests including 3D depth, 18 physics
-digests, and 3 fixed-point field digests), twice each, with deliberately-defective
-builds caught. A 232-test verification gate enforces
+We report a concrete reproducibility result: four independent, single-file Rust
+implementations — of the kernel, the renderer, the physics, and the exact-integer
+math spine — reproduce the reference implementation's output digests **bit-for-bit**
+on fixed conformance corpora (36 kernel vectors, 8 frame digests including 3D depth,
+18 physics digests, 3 fixed-point field digests, and 20 exact-math digests —
+rank/determinant/floor_divmod plus the atlas injectivity and reconstruction
+certificates), twice each, with deliberately-defective builds caught. A 232-test
+verification gate enforces
 determinism, golden agreement, an in-process oracle, and 45 typed rejection
 fixtures on every change. We are precise about scope: this demonstrates
 **agreement on stated corpora across two placements**, not universal
@@ -188,7 +190,7 @@ path.
 **Cross-placement method.** Independence is established at two tiers. (a) An
 *in-process oracle*: the reference runs each example through a second execution
 path (`--via compiled`) and a deliberately-defective path, requiring the compiled
-path to agree and the defect path to diverge. (b) *External placements*: the three
+path to agree and the defect path to diverge. (b) *External placements*: the four
 Rust files reproduce the reference digests on a host with a toolchain. Both tiers
 include **non-vacuity self-tests** — a defect that the harness must catch —
 because a gate that cannot go red proves nothing.
@@ -203,7 +205,7 @@ edition 2021). The gate is the project's CI: every change must leave it green.
 
 ### 5.1 Cross-implementation agreement
 
-Three independent single-file Rust implementations reproduce the reference output
+Four independent single-file Rust implementations reproduce the reference output
 digests **bit-for-bit**, each run **twice identically**, with a deliberately
 defective build **caught** in every case:
 
@@ -212,8 +214,9 @@ defective build **caught** in every case:
 | `urdr-core-rs`    | D8 kernel (canon→SHA-256, transitions, refusals) | **36** | ADMITTED ×2, defect caught |
 | `urdr-render-rs`  | frame digests: 2D fill + **3D depth** (z-buffer occlusion, near/far/screen clip) | **8** | ADMITTED ×2, defect caught |
 | `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints (**18**) + fixed-point field transport (**3** FIELDFP) | **21** | ADMITTED ×2, defect caught |
+| `urdr-math-rs`    | exact-integer spine: rank/determinant/floor_divmod + atlas injectivity (verdict + nullspace witness) + reconstruction (state/refusal) | **20** | ADMITTED ×2, defect caught |
 
-The three placements share no code, language, or SHA-256 implementation with the
+The four placements share no code, language, or SHA-256 implementation with the
 reference. This is the paper's central result: across the whole pipeline —
 **state, pixels, motion, and reactive fields** — a second, independent
 implementation computes the identical digest, so the digests are a property of the
@@ -375,8 +378,8 @@ Urðr demonstrates that a single discipline — content-addressed identity, exac
 computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
-three independent Rust placements reproduce the reference's state, frame, and
-physics digests bit-for-bit on fixed corpora, behind a 232-test gate with typed
+four independent Rust placements reproduce the reference's state, frame, physics,
+and exact-math digests bit-for-bit on fixed corpora, behind a 232-test gate with typed
 refusals and non-vacuity self-tests. The result is scoped to corpus agreement, not
 universal correctness. Future work follows a fixed ladder — prototype → reference
 proof → conformance corpus → independent second placement → admission → freeze —
@@ -415,12 +418,12 @@ The pipeline could be consolidated without changing any admitted digest:
 - **One physics facade.** `dynamics`, `dynamics_nd`, `contact_lcp`, `articulated`
   export a common shape (build → solve/certify → digest); a single `urdr-physics`
   package interface would present them uniformly.
-- **One placement core.** The three Rust files re-implement the same `Q`/`Vec` and
+- **One placement core.** The four Rust files re-implement the same `Q`/`Vec` and
   SHA-256; a shared `std`-only core module would cut ~40% of the Rust surface.
 
 These are refactors that must preserve every conformance digest (they are *format*
 frozen, not *file-layout* frozen), and each would be validated by re-running the
-gate and the three placements — i.e., they follow the same admission discipline as
+gate and the four placements — i.e., they follow the same admission discipline as
 a feature.
 
 ## Appendix C — Reproducibility package
@@ -433,14 +436,17 @@ PYTHONHASHSEED=0 python3 verify.py            # expect: GATE PASSED
 rustc -O --edition 2021 -o urdr_core.exe    tools/urdr_core_rs/urdr_core.rs
 rustc -O --edition 2021 -o urdr_render.exe  tools/render/urdr_render_rs/urdr_render.rs
 rustc -O --edition 2021 -o urdr_physics.exe tools/physics/urdr_physics_rs/urdr_physics.rs
+rustc -O -o urdr_math.exe                   tools/intla/urdr_math_rs/urdr_math.rs
 ./urdr_core.exe conformance . --defect ; ./urdr_core.exe conformance . ; ./urdr_core.exe conformance .
 ./urdr_render.exe --defect  ; ./urdr_render.exe  ; ./urdr_render.exe
 ./urdr_physics.exe --defect ; ./urdr_physics.exe ; ./urdr_physics.exe
+./urdr_math.exe --defect    ; ./urdr_math.exe    ; ./urdr_math.exe
 ```
 
 Corpora: `tools/foreign_placement/conformance.txt` (36), `tools/render/conformance.txt`
 + `conformance3d.txt` (4 + 4), `tools/physics/conformance{,_nd,_lcp,_joint}.txt` (18)
-+ `conformance_field.txt` (3 FIELDFP + 1 reference-only FIELDQ). Contracts: `spec/D11`
++ `conformance_field.txt` (3 FIELDFP + 1 reference-only FIELDQ),
+`tools/intla/conformance_math.txt` (20 exact-math). Contracts: `spec/D11`
 (layers), `spec/D12` (versions/freeze), `spec/D8` (portable kernel). `admitted ≠
 trusted` — a green gate certifies these tests on this code, never that a name means
 what it says.
