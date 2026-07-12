@@ -11,3 +11,6 @@ Thumbs.db
 tools/intla/urdr_math_rs/*.exe
 tools/intla/urdr_math_rs/*.pdb
 tools/editor/urdr_replay.json
+tools/editor/runA.json
+tools/editor/runB.json
+tools/editor/wB.json

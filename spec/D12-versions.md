@@ -328,6 +328,7 @@ corpus tools/netcode/conformance_auth.txt 2
 corpus tools/netcode/conformance_world.txt 1
 corpus tools/netcode/conformance_worldpeer.txt 3
 corpus tools/editor/conformance_editor.txt 1
+corpus tools/tracer/conformance_tracer.txt 1
 format URDR-WORLD-3 demo/world_highway.json
 ```
 

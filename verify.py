@@ -1778,6 +1778,68 @@ class Gate:
                     "canonical trace (gate can redden)" if nv
                     else "the defect converged — the composed invariant is vacuous")
 
+    # -- 2m2. photo_trace: the tracer's canon-law identity (CLI ≡ editor) -------
+    def photo_trace(self):
+        """photo_trace mints design identity by the SAME URDROBJ2 canon the browser
+        editor uses — pinned to the browser-produced golden (square_canon). The decode is
+        deterministic and refuses JPEG/blank/corrupt typed; the edge-normalization defect
+        (raw unsorted edges) MUST diverge from the golden (non-vacuity)."""
+        tdir = os.path.join(ROOT, "tools", "tracer")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import photo_trace as PT
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("photo-trace", False, f"import failed: {exc}")
+            return
+        golden = None
+        conf = os.path.join(tdir, "conformance_tracer.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dig = ln.split()
+                        if name == "square_canon":
+                            golden = dig
+        if golden is None:
+            self.record("photo-trace", False, "missing golden square_canon")
+            return
+        verts = [(0, 0, 0), (40, 0, 0), (40, 24, 0), (0, 24, 0)]
+        edges = [(0, 1), (1, 2), (2, 3), (3, 0)]
+        got = PT.design_digest(verts, edges)
+        self.record("photo-trace:square_canon", got == golden,
+                    got[:16] + "… (CLI ≡ editor URDROBJ2)" if got == golden
+                    else f"canon {got[:12]}… ≠ browser golden {golden[:12]}…")
+        # order-invariance: scrambled edges → same digest
+        scrambled = PT.design_digest(verts, [(3, 0), (2, 3), (0, 1), (1, 2)])
+        self.record("photo-trace-normalized", scrambled == golden,
+                    "edge order-invariant (min-first + sort)" if scrambled == golden
+                    else "canon not order-invariant")
+        # non-vacuity: the un-normalized defect canon MUST diverge
+        defect = PT.design_digest_defect_raw_edges(verts, [(1, 0), (2, 1), (3, 2), (0, 3)])
+        self.record("photo-trace-selftest", defect != golden,
+                    "un-normalized-edge canon diverges (normalization load-bearing; gate can redden)"
+                    if defect != golden else "the defect matched the golden — canon vacuous")
+        # decode + refusal spine: PGM round-trips; JPEG magic refuses typed
+        try:
+            grid = [[20 if 4 <= x < 12 and 4 <= y < 12 else 240 for x in range(16)]
+                    for y in range(16)]
+            pgm = ("P5\n16 16\n255\n").encode("ascii") + bytes(v for r in grid for v in r)
+            img = PT.decode_bytes(pgm)
+            ok_decode = img.w == 16 and img.h == 16
+            code = None
+            try:
+                PT.decode_bytes(b"\xff\xd8\xff\xe0" + b"\x00" * 16)
+            except PT.TraceError as exc:
+                code = exc.code
+            ok = ok_decode and code == "TRACE-REFUSE"
+            self.record("photo-trace-decode", ok,
+                        "PGM decodes; JPEG TRACE-REFUSEd" if ok
+                        else f"decode wrong: decode={ok_decode} jpeg={code}")
+        except Exception as exc:
+            self.record("photo-trace-decode", False, f"errored: {exc}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -1852,6 +1914,7 @@ def main() -> int:
     gate.netcode_auth()
     gate.netcode_world()
     gate.netcode_worldpeer()
+    gate.photo_trace()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

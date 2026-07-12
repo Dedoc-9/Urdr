@@ -1,0 +1,8 @@
+# photo_trace — the cross-tool identity golden.
+# square_canon: SHA-256 of the URDROBJ2 canon for a fixed reference square
+#   (verts [0,0][40,0][40,24][0,24], closed loop) — computed by the tracer's
+#   design_digest AND by the browser editor's canonBytes (urdr_designer.html),
+#   verified byte-identical. A drift in EITHER canon reddens the gate. This is the
+#   load-bearing claim: a CLI-traced design and the editor agree on identity.
+# name  digest
+square_canon dc086bf1ae439d08ed267f4b45b605c629ddf294efc56b9b339f12311bddf696

@@ -1410,3 +1410,28 @@ compares recorded strings and re-simulates NOTHING — chains in, pixels out. Ho
 positions are display-fit coordinates (comparable for same-scene runs; the chains, not the pixels, are
 the authority — stated on-panel); the strip visualizes what N1–N5 already prove. `two runs walk in; the
 first lie between them gets a timestamp`.
+
+**photo_trace — photo/still → wireframe design tracer — deterministic core MEASURED; aesthetics not
+claimed.** `tools/tracer/photo_trace.py` turns a silhouette in an image into a content-addressed
+`URDROBJ2` design the browser editor opens directly (⤒ Open). Stdlib-only, no dependencies: PNG is
+decoded FROM SCRATCH via `zlib` (IHDR/IDAT/IEND chunks, all five scanline filters, grayscale/RGB/RGBA
+8-bit), netpbm (PGM/PPM) by hand; a format the stdlib cannot decode (JPEG needs a DCT, GIF needs LZW)
+is a typed `TRACE-REFUSE` — refuse, never a silent dependency (the project's stdlib discipline held
+under direct pressure: the request was "based on a photo", photos are JPEG, and the answer was still
+refuse-and-convert). Pipeline, every step deterministic: decode → Otsu threshold → largest 8-connected
+component → Moore boundary trace → Ramer–Douglas–Peucker simplify (deterministic ε binary-search to a
+target vertex count) → integer snap. **The load-bearing, gate-checked invariant:** identity is minted
+by the SAME canon the editor uses — `SHA-256("URDROBJ2|v{n}|x,y,z|…|e{m}|a-b|…")`, edges min-first +
+lex-sorted — pinned to the digest the ACTUAL browser `canonBytes` produces (computed in node,
+`square_canon dc086bf1…`, `conformance_tracer.txt`), so a CLI-traced design and the editor agree
+bit-for-bit. Gate stage `photo_trace` (4 rows): the browser-canon match, edge order-invariance, a
+decode+refusal spine (PGM round-trips, JPEG magic `TRACE-REFUSE`d), and the non-vacuity defect (an
+un-normalized-edge canon MUST diverge — the min-sort is load-bearing). Red-first:
+`tests/test_photo_trace.py` (9 falsifiers, incl. a synthesized-PNG decode exercising the from-scratch
+zlib path) went RED (`ModuleNotFoundError: photo_trace`). Unit falsifiers 330 → 339. **Grade:** the
+DETERMINISTIC CORE (decode, canon-law identity, refusals, integer output) is MEASURED; the AESTHETIC
+QUALITY of a trace is NOT gate-able and is NOT claimed — the tool is an authoring aid, SPECULATIVE like
+the editor it feeds. Honest scope: single image → one design (multi-frame/animation is a declared
+extension); the trace is a silhouette outline, not interior structure. `the stdlib draws the outline
+the photo already had; identity is minted the one lawful way, so the tool and the editor never disagree
+about what they made`.
