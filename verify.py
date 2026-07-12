@@ -1913,6 +1913,75 @@ class Gate:
         except Exception as exc:
             self.record("frontend-contract-selftest", False, f"errored: {exc}")
 
+    # -- 2m4. SVG importer: first front end admitted under D14 -----------------
+    def svg_import(self):
+        """SVG → canonical: three SVG constructs of one square reproduce the shared D14
+        `square` golden (one canonical object), a cubic-bezier path flattens deterministically
+        to its pinned `arch` golden, and out-of-subset constructs (arc, transform, circle,
+        malformed) are typed SVG-REFUSE (non-vacuity: the refusal path can redden)."""
+        fdir = os.path.join(ROOT, "tools", "frontend")
+        if fdir not in sys.path:
+            sys.path.insert(0, fdir)
+        try:
+            import svg_import as SVG
+            import canon_ref as CR  # noqa: F401  (shared law, imported for parity)
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("svg-import", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        for path, key in ((os.path.join(fdir, "conformance_frontend.txt"), "square"),
+                          (os.path.join(fdir, "conformance_svg.txt"), "arch")):
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as fh:
+                    for ln in fh:
+                        ln = ln.strip()
+                        if ln and not ln.startswith("#"):
+                            name, dig = ln.split()
+                            goldens[name] = dig
+        if "square" not in goldens or "arch" not in goldens:
+            self.record("svg-import", False, "missing goldens (square/arch)")
+            return
+        squares = ['<svg><polygon points="0,0 40,0 40,24 0,24"/></svg>',
+                   '<svg><rect x="0" y="0" width="40" height="24"/></svg>',
+                   '<svg><path d="M0 0 H40 V24 H0 Z"/></svg>']
+        try:
+            digs = {SVG.import_design(s, name="q")["digest"] for s in squares}
+            conv = digs == {goldens["square"]}
+        except Exception as exc:
+            conv, digs = False, str(exc)
+        self.record("svg-import:square", conv,
+                    "polygon ≡ rect ≡ path → one URDROBJ2 object (D14 square golden)"
+                    if conv else f"SVG square constructs disagreed: {digs}")
+        arch_svg = '<svg><path d="M0 0 C 20 -40 60 -40 80 0 L 80 30 L 0 30 Z"/></svg>'
+        try:
+            a1 = SVG.import_design(arch_svg, name="a")["digest"]
+            a2 = SVG.import_design(arch_svg, name="a")["digest"]
+            arch_ok = a1 == a2 == goldens["arch"]
+        except Exception as exc:
+            arch_ok, a1 = False, str(exc)
+        self.record("svg-import:arch", arch_ok,
+                    a1[:16] + "… (cubic flatten, fixed tolerance)" if arch_ok
+                    else f"arch flatten drift: {a1}")
+        refusals = {
+            "arc": '<svg><path d="M0 0 A 30 30 0 0 1 60 0 Z"/></svg>',
+            "transform": '<svg><polygon transform="rotate(30)" points="0,0 40,0 40,24"/></svg>',
+            "circle": '<svg><circle cx="20" cy="20" r="18"/></svg>',
+            "malformed": '<svg><path d="M0 0 L zzz"/></svg>',
+        }
+        got = {}
+        for k, s in refusals.items():
+            try:
+                SVG.import_design(s, name="x")
+                got[k] = "ACCEPTED"
+            except SVG.SvgError as exc:
+                got[k] = exc.code
+            except Exception as exc:
+                got[k] = f"ERR:{exc}"
+        ref_ok = all(v == "SVG-REFUSE" for v in got.values())
+        self.record("svg-import-selftest", ref_ok,
+                    "arc / transform / circle / malformed each SVG-REFUSEd (gate can redden)"
+                    if ref_ok else f"refusals wrong: {got}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -1989,6 +2058,7 @@ def main() -> int:
     gate.netcode_worldpeer()
     gate.photo_trace()
     gate.frontend_contract()
+    gate.svg_import()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

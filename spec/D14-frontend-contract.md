@@ -73,7 +73,7 @@ Steps 1–5 are mandatory for any modality that claims to produce first-class as
 |---|---|---|---|
 | **Designer** (`urdr_designer.html`, incl. procedural primitives: N-gon, rounded barrier) | mouse / draw | canon = `canonBytes` | `MEASURED` (it defines the golden the others match) |
 | **Photo tracer** (`tools/tracer/photo_trace.py`) | PNG / PGM / PPM still | Otsu → Moore → RDP → snap → canon | `MEASURED` (deterministic core; aesthetics out of scope) |
-| **SVG importer** | `.svg` vector paths | *declared next* — parse → flatten under a fixed tolerance → snap → canon | `DECLARED` |
+| **SVG importer** (`tools/frontend/svg_import.py`) | `.svg` vector paths (declared subset) | parse → flatten cubics at a fixed tolerance → snap → canon | `MEASURED` — three SVG constructs of one square reproduce the shared canon; cubic flatten pinned; out-of-subset → `SVG-REFUSE` |
 | CAD / DXF importer | `.dxf` | declared | `DECLARED` |
 | Procedural generator | seed + params | declared (reproducible seed) | `DECLARED` |
 | Heightmap / point-cloud / multi-view / video-tracked | various | declared, deterministic-where-possible | `DECLARED` |

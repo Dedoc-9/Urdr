@@ -30,6 +30,10 @@ The admission ladder any new front end follows (D14 §obligations):
   6. cross-place if the front end becomes load-bearing;
   7. admit.
 
+Admitted front ends today: the designer (`urdr_designer.html`), the photo tracer
+(`tools/tracer/photo_trace.py`), and the SVG importer (`svg_import.py`) — each an
+independent implementation reproducing this canon.
+
 GRADE: the contract's checkable core is MEASURED (`frontend_contract` gate stage,
 `tests/test_frontend_contract.py`) — reference ≡ browser goldens, tracer ≡ reference
 independently, provenance-independence, the integer obligation, and a non-vacuity

@@ -1458,3 +1458,25 @@ the designer's procedural primitives are internal to it; SVG/CAD/procedural impo
 each to arrive down this ladder. `any modality that deterministically normalizes to the canon is a
 first-class asset source, inheriting physics, rendering, replay, and witnesses without touching the
 engine — the importer is interchangeable; the object is not`.
+
+**SVG → canonical — the first front end admitted down the D14 ladder — MEASURED (deterministic core).**
+`tools/frontend/svg_import.py` imports a declared SVG subset — `<line>/<polyline>/<polygon>/<rect>` and
+`<path>` with `M/L/H/V/Z` + cubic `C` — to a canonical `URDROBJ2` design the editor opens (⤒ Open),
+using the shared `canon_ref` law so CLI ≡ editor identity. SVG is the ideal first exercise of the
+contract because it is MORE deterministic than the photo tracer: vector paths are already
+integer-snappable polylines, so there is no threshold/contour/aesthetic step — only stdlib
+`xml.etree` parsing, fixed-tolerance cubic flattening (`FLATTEN_SEGS=16`, a frozen part of the format,
+not a runtime knob), integer snap, and the canon. **Gated** (`svg_import`, 3 rows): **three SVG
+constructs of one square** (`<polygon>`, `<rect>`, `<path M/L/H/V/Z Z>`) reproduce the shared D14
+`square` golden — one canonical object from three inputs, the convergence made literal at the SVG
+level; a cubic-bezier arch path flattens deterministically to its pinned `arch` golden
+(`conformance_svg.txt`); and the four out-of-subset constructs (arc `A`, element `transform`, the
+`<circle>` primitive, a malformed path) are each typed `SVG-REFUSE` — refuse, never approximate (D14
+obligation 4). Red-first: `tests/test_svg_import.py` (10 falsifiers) went RED
+(`ModuleNotFoundError: svg_import`); staging caught one honest spec point — a `<polyline>` is OPEN by
+SVG semantics (n verts, n−1 edges), so it is NOT closed-by-guess (my first test wrongly expected a
+loop; corrected to match SVG, not convenience). Unit falsifiers 345 → 355. **Grade: MEASURED** for the
+deterministic core; D14's aesthetic-quality exclusion applies. The importer entered as a pure consumer
+under the contract — **the first proof that the D14 ladder works: a new authoring modality became a
+first-class asset source without touching the engine, the canon, or any other front end.** `SVG says
+square four ways; the canon says square once`.

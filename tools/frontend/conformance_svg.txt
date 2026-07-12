@@ -1,0 +1,10 @@
+# SVG importer — flatten + canon goldens (admitted under D14).
+# arch: a cubic-bezier arch path (M C L L Z) flattened at the FROZEN tolerance
+#   (FLATTEN_SEGS=16), integer-snapped, canon'd via canon_ref. Pins the flattening
+#   law: same tolerance → same polyline → same URDROBJ2 digest on every host. A change
+#   to FLATTEN_SEGS or the subdivision reddens here.
+# (The straight-line shapes — polygon/rect/path M/L/H/V/Z of the reference square —
+#  all reproduce the D14 `square` golden dc086bf1…, checked in the gate stage: three
+#  SVG constructs, one canonical object.)
+# name  digest
+arch 286f9f0f962b4ce41500580bce4ee56763fc9f1f658e65cccdc7e6cfc1436779

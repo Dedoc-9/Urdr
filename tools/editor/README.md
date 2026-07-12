@@ -100,6 +100,15 @@ Editor (double-click the file, or open it in any browser):
   `local` transform relative to that parent). Backward-compatible — it keeps
   `ground_x` / `ground_z` / `rot_deg`, so `load_world.py` still renders it.
 
+Import geometry from a photo or an SVG (both mint the same `URDROBJ2` identity the
+designer does — D14):
+
+```
+python3 ../tracer/photo_trace.py object.png --verts 32   # PNG/PGM/PPM silhouette → design
+python3 ../frontend/svg_import.py object.svg             # SVG vector paths → design
+# each writes a URDR-PROJECT-1; open it via ⤒ Open and the wireframe is in the palette
+```
+
 Render an exported world through the exact engine:
 
 ```
