@@ -1840,6 +1840,79 @@ class Gate:
         except Exception as exc:
             self.record("photo-trace-decode", False, f"errored: {exc}")
 
+    # -- 2m3. D14 front-end contract: modalities converge on one identity law --
+    def frontend_contract(self):
+        """D14 — the front-end admission contract, made a law: the reference canon
+        (canon_ref.py) reproduces the BROWSER goldens over a multi-shape corpus, the photo
+        tracer's INDEPENDENT canon reproduces the same, provenance never enters identity
+        (downstream can't tell which front end made an object), non-integer geometry is
+        CONTRACT-REFUSEd, and a provenance-folding defect MUST diverge (non-vacuity)."""
+        fdir = os.path.join(ROOT, "tools", "frontend")
+        tdir = os.path.join(ROOT, "tools", "tracer")
+        for d in (fdir, tdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import canon_ref as CR
+            import photo_trace as PT
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("frontend-contract", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(fdir, "conformance_frontend.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dig = ln.split()
+                        goldens[name] = dig
+
+        def loop(n):
+            return [(i, (i + 1) % n) for i in range(n)]
+        shapes = {
+            "square": ([(0, 0), (40, 0), (40, 24), (0, 24)], loop(4)),
+            "tri": ([(0, 0), (30, 0), (15, 20)], loop(3)),
+            "penta": ([(0, -20), (19, -6), (12, 16), (-12, 16), (-19, -6)], loop(5)),
+            "hex6": ([(-30, 0), (-15, -12), (15, -12), (30, 0), (15, 12), (-15, 12)], loop(6)),
+        }
+        if any(k not in goldens for k in shapes):
+            self.record("frontend-contract", False, "missing corpus goldens")
+            return
+        ref_ok = all(CR.canon(v, e) == goldens[n] for n, (v, e) in shapes.items())
+        self.record("frontend-contract:reference", ref_ok,
+                    "reference canon ≡ browser goldens (4 shapes)" if ref_ok
+                    else "reference canon diverged from a browser golden")
+        tr_ok = all(PT.design_digest([(x, y, 0) for (x, y) in v], e) == goldens[n]
+                    for n, (v, e) in shapes.items())
+        self.record("frontend-contract:tracer", tr_ok,
+                    "tracer's independent canon ≡ the shared law (4 shapes)" if tr_ok
+                    else "tracer canon diverged from the reference")
+        v, e = shapes["square"]
+        base = {"verts": [{"x": x, "y": y, "z": 0} for (x, y) in v], "edges": [list(x) for x in e]}
+        a = dict(base); a["provenance"] = {"tool": "designer"}
+        b = dict(base); b["provenance"] = {"tool": "photo_trace", "source": "x.png"}
+        prov_ok = (CR.design_digest(a) == CR.design_digest(b) == goldens["square"])
+        self.record("frontend-contract-provenance", prov_ok,
+                    "identity is geometry-only — provenance never distinguishes a front end"
+                    if prov_ok else "provenance leaked into identity")
+        try:
+            bad = {"verts": [{"x": 0, "y": 0, "z": 0}, {"x": 40.5, "y": 0, "z": 0},
+                             {"x": 40, "y": 24, "z": 0}], "edges": [[0, 1], [1, 2], [2, 0]]}
+            code = None
+            try:
+                CR.check_design(bad)
+            except CR.ContractError as exc:
+                code = exc.code
+            defect = CR.design_digest_defect_with_provenance(a)
+            ok = code == "CONTRACT-REFUSE" and defect != goldens["square"]
+            self.record("frontend-contract-selftest", ok,
+                        "non-integer geometry CONTRACT-REFUSEd; provenance-folding defect "
+                        "diverges (gate can redden)" if ok
+                        else f"obligation wrong: integer={code} defect_diverges={defect != goldens['square']}")
+        except Exception as exc:
+            self.record("frontend-contract-selftest", False, f"errored: {exc}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -1915,6 +1988,7 @@ def main() -> int:
     gate.netcode_world()
     gate.netcode_worldpeer()
     gate.photo_trace()
+    gate.frontend_contract()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

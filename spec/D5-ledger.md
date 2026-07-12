@@ -1435,3 +1435,26 @@ the editor it feeds. Honest scope: single image → one design (multi-frame/anim
 extension); the trace is a silhouette outline, not interior structure. `the stdlib draws the outline
 the photo already had; identity is minted the one lawful way, so the tool and the editor never disagree
 about what they made`.
+
+**D14 — the front-end admission contract — MEASURED (the checkable core).** When multiple independent
+authoring modalities converge on one authoritative representation, the convergence itself becomes a
+law. `spec/D14-frontend-contract.md` states the single admission criterion — deterministic
+normalization → reproduce the `URDROBJ2` canon through the front end's OWN implementation →
+integer-snapped geometry → typed refusals → **provenance is metadata, not identity** — with a 7-step
+admission ladder (the placement discipline, D8, applied to front ends). `tools/frontend/canon_ref.py`
+is the executable form: the reference canon + the integer/`CONTRACT-REFUSE` obligation + the
+geometry-only identity extractor. **Gated** (`frontend-contract`, 4 rows): the reference canon
+reproduces the BROWSER goldens over a four-shape corpus (`conformance_frontend.txt`
+square/tri/penta/hex6, each cut from the actual designer `canonBytes` in node); the photo tracer's
+INDEPENDENT `design_digest` reproduces the same corpus (three implementations — browser, reference,
+tracer — one identity law); **provenance-independence** — identical geometry with differing provenance
+yields the identical digest, so downstream physics/render/replay/netcode cannot tell which front end
+made an object; and the non-vacuity defect (a provenance-folding canon MUST diverge; non-integer
+geometry MUST `CONTRACT-REFUSE`). Red-first: `tests/test_frontend_contract.py` (6 falsifiers) went RED
+(`ModuleNotFoundError: canon_ref`). Unit falsifiers 339 → 345. **Grade: MEASURED** for the identity
+law and the admission obligations; the AESTHETIC quality of any front end's extraction is out of scope
+and not claimed. The two admitted modalities today (designer + tracer) are honestly two, not more —
+the designer's procedural primitives are internal to it; SVG/CAD/procedural importers are `DECLARED`,
+each to arrive down this ladder. `any modality that deterministically normalizes to the canon is a
+first-class asset source, inheriting physics, rendering, replay, and witnesses without touching the
+engine — the importer is interchangeable; the object is not`.

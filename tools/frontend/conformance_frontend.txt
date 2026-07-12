@@ -1,0 +1,11 @@
+# D14 front-end contract — the shared canon corpus (the one identity law).
+# Each digest is the URDROBJ2 canon of a fixed shape, computed by the browser editor's
+# own canonBytes (urdr_designer.html) AND reproduced by the reference (canon_ref.py)
+# AND by the photo tracer's independent design_digest. Three implementations, one law;
+# a drift in ANY reddens the gate. This is what makes "every authoring modality
+# converges on the same authoritative object" a checked property, not a slogan.
+# name  digest
+square dc086bf1ae439d08ed267f4b45b605c629ddf294efc56b9b339f12311bddf696
+tri 383dba593edd00ecd469d1e83dcccf2f85c989db13e12e1049206a1f5cfdd17e
+penta 0b31d6b46cefbd19af53d6cfa979dd491ba94da9da3b6a5ccd83b7dc70d44aba
+hex6 241e247e26d96b0e24fc2c53a56b58bb54b59b3ec6b5e220207cd010118a2811
