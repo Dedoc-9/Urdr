@@ -1169,6 +1169,14 @@ falsifiers 290 → 299. **Grade: MEASURED (reference).** **Honest scope:** the g
 verification gates admission — on fixture keys from PUBLISHED seeds (deterministic on purpose);
 operational key secrecy, key distribution, and cross-session replay protection are OUT of scope and not
 claimed; envelopes are large (8 KB sig / 16 KB pubkey — the price of hash-based signatures, irrelevant at
-gate scale, stated). Cross-placement DECLARED; the envelope/roster contracts freeze in D12 only after an
-independent placement reproduces both goldens + the defect probe on a named host. `who may speak is a
-hash question now; what happens next never was one`.
+gate scale, stated). **Second placement — written + C-cross-checked, SPECULATIVE pending host.**
+`tools/netcode/authinput_rs/authinput.rs` (std-only Rust, hand-rolled SHA-256; scope stated in its header:
+it pins the AUTH surfaces — keygen/pubkey/roster/sign/verify laws, eligibility gating, four refusal
+shapes, the first-byte defect — while the transcript law it feeds is the already-cross-placed N1/N2
+machinery). Its logic was cross-checked **bit-identical by an independent C99 port** (`__int128`, own
+SHA-256, clean `-Wall -Wextra`): roster root `847292e2…` ×2, signed chain `fea3b967…` ×2, refusals
+`bitflip=1 stolen=1 rogue_pubkey=1 genuine_ok=1`, and the deterministic tail-collision forge landing at
+**dvx offset 423** with real=refuse / defect=accept — a value the Rust must reproduce exactly, giving the
+placements a shared anchor even on the forgery. Only a host `rustc` run separates it from admission; the
+envelope/roster contracts freeze in D12 only after that `ADMITTED`. `who may speak is a hash question
+now; what happens next never was one`.
