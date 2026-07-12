@@ -1314,3 +1314,18 @@ head) diverging to **exactly `d5bc484b…`** — the same divergent digest as th
 implementations agree on the composed contract's success AND its failure mode. A host `rustc` run is
 the admission; the D12 freeze follows it. `five rungs, one sentence: your world, your signed inputs,
 one history — or a refusal that says its name`.
+
+**N5 admission + freeze — MEASURED (both placements); `urdr-netcode-worldpeer 0.1` FROZEN — the first
+rung completed under rule 11 after rule 11 was written.** **CONFIRMED on host:** on Windows
+(`rustc -O worldpeer.rs`) `worldpeer.exe` printed `URDR-WORLDPEER-RS: ADMITTED` — pin `8c4fe8d4…`,
+roster `d30e7279…`, converged late+signed trace `e72e75c3…` at K=4 (×2) and K=8, all five refusal flags
+true — and `--defect` diverged to exactly `d5bc484b…`, matching the Python reference and the C99 port:
+three implementations agree on the composed contract's success and its failure mode (commit `1ad5034`).
+D12 accordingly freezes `urdr-netcode-worldpeer 0.1`: the URDRWPN1 world-pin law; the verify-then-admit
+order (authentication strictly before the authority, world identity strictly before authentication's
+first delivery); the inherited snapshot/rewind/replay and refusal laws (named, not restated); no new
+witness serialization; `conformance_worldpeer.txt` (3 vectors) joins the mechanically-checked manifest.
+By rule 11's own definition N5 is COMPLETE: transcript frozen, refusals specified, corpus exists,
+independently reproduced. The netcode stack closes at five two-placement rungs; the platform sentence —
+authored world, authenticated transcript, one witnessed history or a named refusal — is now a frozen,
+machine-checked, cross-placed property of this repository rather than a description of it.

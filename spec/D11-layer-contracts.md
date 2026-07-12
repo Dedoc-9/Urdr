@@ -463,6 +463,7 @@ rows.
 | urdr-netcode     | N2: rollback (canonical snapshots, late-input rewind+replay, typed refusals) | `MEASURED` (both placements) | §3.9; `netcode_rollback` gate stage, `test_rollback.py`; `rollback_rs` ADMITTED (Windows, rustc; C99 agrees on golden + defect) |
 | urdr-netcode     | N3: authenticated inputs (Lamport OTS envelope gates admission; roster pins) | `MEASURED` (both placements) | §3.9; `netcode_auth` gate stage, `test_authinput.py`; `authinput_rs` ADMITTED (Windows, rustc; C99 agrees incl. forge anchor dvx+423) |
 | urdr-netcode     | N4: authored URDR-WORLD-3 worlds in the loop (typed boundary, static AABBs, N1-equivalence pin) | `MEASURED` (both placements) | `netcode_world` gate stage, `test_worldstep.py`; `worldstep_rs` ADMITTED (Windows, rustc; C99 agrees incl. defect anchor 9c0ad7c5) |
+| urdr-netcode     | N5: the composed contract (world pin → Lamport admission → rollback → the N4 tick; converges or refuses, typed) | `MEASURED` (both placements) | `netcode_worldpeer` gate stage, `test_worldpeer.py`; `worldpeer_rs` ADMITTED (Windows, rustc; C99 agrees on all five anchors incl. defect d5bc484b) |
 | spec freeze      | D12 manifest ↔ code, checked mechanically (§4b) | `MEASURED` | `spec-freeze` gate stage, `tools/specfreeze/freeze_check.py`, `tests/test_spec_freeze.py` |
 | network (live)   | real socket at the runner tier          | `SPECULATIVE`| host capability; not gated |
 

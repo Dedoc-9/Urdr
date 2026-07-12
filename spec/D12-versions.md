@@ -25,7 +25,8 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-netcode` (N1) | **0.1 (FROZEN)** | 1 URDRLSTT trace digest | reference + `lockstep_rs` (ADMITTED, Windows/rustc; C99-cross-checked) | this doc |
 | `urdr-netcode-rollback` (N2) | **0.1 (FROZEN)** | 1 converged URDRLSTT trace digest | reference + `rollback_rs` (ADMITTED, Windows/rustc; C99 port agrees on golden AND defect digest) | this doc |
 | `urdr-netcode-auth` (N3) | **0.1 (FROZEN)** | roster root + signed-chain digest | reference + `authinput_rs` (ADMITTED, Windows/rustc; C99 port agrees on goldens, refusals, AND the forge anchor dvx+423) | this doc |
-| `urdr-netcode-world` (N4) | **0.2** (0.1 surface FROZEN; 0.2 adds `simulate_trace`, additive + digest-preserving) | 1 highway trace digest + arena equivalence | reference + `worldstep_rs` (ADMITTED, Windows/rustc; C99 port agrees incl. the defect anchor 9c0ad7c5) | this doc |
+| `urdr-netcode-world` (N4) | **0.2** (0.1 surface FROZEN; 0.2 adds `simulate_trace`, additive + digest-preserving; 0.3 adds `step_tick`, additive) | 1 highway trace digest + arena equivalence | reference + `worldstep_rs` (ADMITTED, Windows/rustc; C99 port agrees incl. the defect anchor 9c0ad7c5) | this doc |
+| `urdr-netcode-worldpeer` (N5) | **0.1 (FROZEN)** | world pin + roster root + converged late+signed trace | reference + `worldpeer_rs` (ADMITTED, Windows/rustc; C99 port agrees on all five anchors incl. the defect d5bc484b) | this doc |
 | `URDR-WORLD-3` (authored-world format) | **3 (FROZEN as consumed)** | tag-checked canonical scene | consumed by `replay.py --world` / `--fp world` / `load_world.py` | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
@@ -249,6 +250,33 @@ and by gate: every 0.1 vector (highway golden, arena equivalence, defect) is
 byte-identical, and a falsifier pins `simulate_trace`'s frames equal to
 `simulate`'s. The 0.1 frozen surface is untouched.
 
+## The urdr-netcode-worldpeer v0.1 frozen surface (N5 — the composed contract)
+
+Immutable under `urdr-netcode-worldpeer 0.1` except through a versioned successor:
+
+1. **The contract itself.** Given the same authored world, the same authenticated
+   input transcript, and the same initial snapshot, every conforming implementation
+   either converges to the identical witness chain or produces the same typed
+   refusal; no intermediate divergence silently persists.
+2. **The world pin (URDRWPN1 — N5's one new law).** `SHA-256("URDRWPN1" | n |
+   per-body pos, vel (Q32.32 words) | radii | statics count + AABBs | floor, ceil,
+   left, right | grav n,d | e n,d | T — each signed i64 BE)`. Everything the tick
+   reads is covered. A pin mismatch is `WORLD-REFUSE`, raised BEFORE any tick runs.
+3. **The order of gates.** World identity before anything; then per-envelope Lamport
+   verification (`AUTH-REFUSE`, whole) strictly before admission; then the N2
+   identity/time law (`ROLLBACK-CONFLICT` / `ROLLBACK-REFUSE`, chain untouched);
+   then the N4 tick. Authentication decides who; the authority decides what;
+   witnesses prove what happened.
+4. **Inherited laws, named not restated.** Snapshots/rewind/replay per
+   `urdr-netcode-rollback 0.1`; envelopes/roster per `urdr-netcode-auth 0.1`; the
+   tick and loader per `urdr-netcode-world`; witnesses per `urdr-netcode 0.1`.
+   No new witness serialization.
+5. **Conformance corpus (3 digests).** `conformance_worldpeer.txt`: `world_pin`,
+   `roster_world`, `highway_late3_signed` (= the N4 highway golden by construction)
+   — reproduced by the reference and by `worldpeer_rs` (ADMITTED on Windows/rustc),
+   with the verified apply-at-head defect diverging to the same digest
+   (`d5bc484b…`) in Python, Rust, and the C99 cross-check.
+
 ## The URDR-WORLD-3 authored-world format (frozen as consumed)
 
 The editor→runtime world serialization, frozen at the keys the deterministic runtime
@@ -298,6 +326,7 @@ corpus tools/netcode/conformance_netcode.txt 1
 corpus tools/netcode/conformance_rollback.txt 1
 corpus tools/netcode/conformance_auth.txt 2
 corpus tools/netcode/conformance_world.txt 1
+corpus tools/netcode/conformance_worldpeer.txt 3
 format URDR-WORLD-3 demo/world_highway.json
 ```
 

@@ -29,11 +29,14 @@ rungs and adds exactly one law:
     convergence oracle is `worldstep.simulate` — on the canonical scenario the
     converged golden IS the N4 highway golden.
 
-GRADE (honest, D5): MEASURED (reference) once the `netcode_worldpeer` gate stage is
-green. Honest scope inherited whole: fixture keys from published seeds (mechanism,
-not key secrecy); regime B rounding; N4's inert mass; K/H operational. Cross-
-placement DECLARED; the composed contract freezes in D12 only after an independent
-placement reproduces the converged golden + the defect on a named host."""
+GRADE (honest, D5): MEASURED (both placements) — the `netcode_worldpeer` gate stage
+pins the world pin, roster root, convergence at two cadences, refusals, and the
+verified apply-at-head defect; the std-only Rust placement (worldpeer_rs/, ADMITTED
+on Windows/rustc) reproduces all five anchors including the defect's exact divergent
+digest (d5bc484b…, shared with the C99 cross-check). Contracts FROZEN at
+urdr-netcode-worldpeer 0.1 (spec/D12) — complete by AGENTS rule 11. Honest scope
+inherited whole: fixture keys from published seeds (mechanism, not key secrecy);
+regime B rounding; N4's inert mass; K/H operational."""
 import hashlib
 import os as _os
 import sys as _sys
