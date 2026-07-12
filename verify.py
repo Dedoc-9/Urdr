@@ -1333,6 +1333,37 @@ class Gate:
             ("defect localized by %d generator(s)" % localized) if localized
             else "defect broke no generator -- the instrument is vacuous")
 
+    # -- 2n. the D12 freeze manifest: docs must match reality -------------------
+    def spec_freeze(self):
+        """The D12 freeze, checked mechanically: every frozen digest law is re-derived
+        from the grammar DECLARED in spec/D12-versions.md by an independent serializer
+        (tools/specfreeze/freeze_check.py) and compared byte-for-byte against the live
+        code; every declared corpus must hold exactly its declared vector count; the
+        canonical world export must carry its declared format tag. Non-vacuity: a
+        corrupted declared magic MUST be caught (the checker can redden)."""
+        for d in ("specfreeze", "physics", "netcode"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import freeze_check as FC
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("spec-freeze", False, f"import failed: {exc}")
+            return
+        try:
+            manifest = FC.parse_manifest(FC.read_manifest_block(ROOT))
+        except Exception as exc:
+            self.record("spec-freeze", False, f"manifest unreadable: {exc}")
+            return
+        rows = FC.check_all(ROOT, manifest)
+        if not rows:
+            self.record("spec-freeze", False, "empty freeze manifest (vacuous)")
+            return
+        for (name, ok, detail) in rows:
+            self.record(name, ok, detail)
+        ok, detail = FC.selftest(ROOT, manifest)
+        self.record("spec-freeze-selftest", ok, detail)
+
     # -- report ----------------------------------------------------------------
     def report(self) -> int:
         sys.stdout.write("\n" + "=" * 72 + "\n")
@@ -1376,6 +1407,7 @@ def main() -> int:
     gate.marangoni()
     gate.field_coupling()
     gate.field_body_loop()
+    gate.spec_freeze()
     gate.rejections()
     gate.tamper()
     return gate.report()

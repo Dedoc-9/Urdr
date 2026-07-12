@@ -1058,3 +1058,33 @@ and `--defect` was caught, so N1 is now **MEASURED (both placements)** — the l
 across Python and Rust. `two languages, one witness chain: the same inputs make the same digests on both`.
 No new glyph; kernel frozen; consumes the frozen substrate; extends, never mutates. `peers trade inputs, not
 state; the same inputs make the same witnesses, and a corrupted one is named by the first tick it breaks`.
+
+**D11 §4b + D12 freeze — the exact/bounded boundary contract, and the freeze made mechanical — MEASURED.**
+Phase-1 of the authority-layer freeze. Two spec moves + one enforcement mechanism, all gate-backed. (1) **D11
+§4b** states the *normative* boundary contract: two admitted numeric regimes — **E, exact ℚ**
+(uniqueness-by-certificate: LCP `λ`, joints, collisions, rigidity, urdr-math, FIELDQ) and **B, bounded Q32.32**
+(reproducibility-by-frozen-rounding: fields/Marangoni, rung-5 dynamics, lockstep, raster arithmetic) — plus
+five boundary rules: exact where affordable; bounded where durational/irrational (with the two standing
+precedents: the sqrt-free nD response stays in E, sphere–sphere TOI refuses E); crossing only at the stated
+ingress (`FP.unit`) with regimes never mixed in one digest; overflow is a typed refusal in both regimes;
+determinism is never traded. **D11 §3.9** adds the urdr-netcode layer contract (MEASURED, both placements).
+(2) **D12** freezes the remaining admitted surfaces as v0.1: `urdr-fp-dynamics` (URDRFPD1/URDRFPT1 grammar,
+the frozen substrate arithmetic, the stepper constants pinned by the trace goldens), `urdr-netcode` (the
+6-tuple event, the canonical dedup+(peer,seq) merge, URDRLST1/URDRLSTT, the `first_desync` law, `digest ≠
+MAC` scope), Marangoni+loop (URDRLOOP), and `URDR-WORLD-3` *as consumed* (envelope keys, the float-authoring
+→ integer-snap boundary as part of the contract; a consumed-key change is WORLD-4). (3) **The freeze is
+enforced, not trusted**: a machine-readable ```freeze-manifest``` block in D12 declares every frozen magic
+(6), corpus (9, 31 vectors), and format tag; `tools/specfreeze/freeze_check.py` re-derives each digest law
+from the *declared* grammar with its own independent serializers (own i64-BE, own SHA-256) and compares
+byte-for-byte against the live code on canonical fixtures — so drift in either the doc or the code reddens
+the gate. New gate stage `spec_freeze` (18 rows: magics-distinct + 6 laws + 9 corpus counts + world tag) +
+`spec-freeze-selftest` (a corrupted declared magic MUST be caught; baseline must be green first). Red-first:
+`tests/test_spec_freeze.py` (9 falsifiers) was written before checker or manifest existed and went RED
+(ModuleNotFoundError), and the checker's first run reddened on a real fixture-shape defect (Vec vs list in
+the URDRLOOP law) before going green — the detector bites. Unit falsifiers 272 → 281. Also fixed (rule 10):
+`lockstep.py`'s stale docstring grade (DECLARED → MEASURED both placements, matching the N1 admission).
+**Grade: MEASURED** (gate-enforced; Linux sandbox run ×2; the Windows working-tree gate run accompanies the
+commit). **Honest scope:** the freeze certifies the *stated* surfaces — magics, byte grammars on canonical
+fixtures, corpus vector counts, the world format tag — not every consumer's use of them, and a byte-grammar
+check on a fixture is not a proof of the stepper's semantics (those stay pinned by the trace goldens).
+`a frozen interface nobody checks is prose; the manifest makes the doc a falsifiable claim about the code`.

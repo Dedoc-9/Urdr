@@ -20,6 +20,10 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-render`  | 1.0    | 8 frame digests (4 2D + 4 3D-depth) | reference + `urdr-render-rs` (ADMITTED 8/8) | D11 §4 |
 | `urdr-physics` | **1.0 (FROZEN)** | 18 scene digests (4 corpora) | reference + `urdr-physics-rs` | this doc |
 | `urdr-field`   | **0.1 (FROZEN)** | 4 field digests (3 FIELDFP + 1 FIELDQ) | reference + `urdr-physics-rs` (ADMITTED 3/3 FIELDFP; FIELDQ reference-only) | this doc |
+| `urdr-field` (Marangoni + loop) | **0.1 (FROZEN)** | 3 Marangoni digests + 3 URDRLOOP digests | reference + `urdr-physics-rs` (ADMITTED 27/27) | this doc |
+| `urdr-fp-dynamics` (rung 5) | **0.1 (FROZEN)** | 2 URDRFPT1 trace digests | reference + `fp_dynamics_rs` (ADMITTED, Windows/rustc) | this doc |
+| `urdr-netcode` (N1) | **0.1 (FROZEN)** | 1 URDRLSTT trace digest | reference + `lockstep_rs` (ADMITTED, Windows/rustc; C99-cross-checked) | this doc |
+| `URDR-WORLD-3` (authored-world format) | **3 (FROZEN as consumed)** | tag-checked canonical scene | consumed by `replay.py --world` / `--fp world` / `load_world.py` | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
 `semver` = the public API/behaviour version; `corpus` = the pinned
@@ -90,6 +94,104 @@ Reproducibility (bit-identical across placements) is the invariant future field
 work may never compromise; exactness is *not* claimed for FIELDFP (it rounds,
 honestly). Surface-tension/Marangoni coupling and adaptive/LOD grids arrive as new
 versioned rungs, each down the same ladder.
+
+## The urdr-fp-dynamics v0.1 frozen surface (rung 5 — bounded fixed-point dynamics)
+
+Immutable under `urdr-fp-dynamics 0.1` except through a versioned successor:
+
+1. **Serialization grammar.** `URDRFPD1` state: `magic | each column's Q32.32 words as
+   signed i64 big-endian, columns in call order` (`fp_dynamics.state_digest`).
+   `URDRFPT1` trace: `SHA-256(magic | the ORDERED per-tick hex digests as UTF-8 text)`
+   (`fp_dynamics.trace_digest`) — the hex *strings* are hashed, not raw bytes; this is
+   pinned mechanically (see the freeze manifest below).
+2. **Arithmetic.** The frozen `FixedPoint` substrate (D9, `field.py`): radix 2³²
+   (Q32.32), round-to-nearest ties-away-from-zero (`_rdiv`) on every rational-coefficient
+   multiply, `FIELD-REFUSE` on i64 overflow — never a wrap or saturate.
+3. **Step semantics.** The goldens pin the whole stepper — bounded PGS contact passes +
+   ground-up projection + the sleep clamp (`stack3`), and the Baumgarte feedback on the
+   *squared* rod length, sqrt-free (`swing`). Constants (gravity/tick, sleep threshold,
+   Baumgarte gain, iteration counts) are part of the frozen behavior: changing any is a
+   version bump, because the trace digests change.
+4. **Conformance corpus (2 trace digests).** `conformance_fp.txt`: `stack3`, `swing` —
+   reproduced by the reference and by `fp_dynamics_rs` (ADMITTED on Windows/rustc).
+
+**Honest scope:** bounded and deterministic, *not* exact — the substrate rounds (stated
+in D9). Exactness lives in the certified solvers; this surface trades exactness for
+unbounded duration, and refuses on overflow instead of wrapping.
+
+## The urdr-netcode v0.1 frozen surface (N1 — deterministic lockstep)
+
+Immutable under `urdr-netcode 0.1` except through a versioned successor:
+
+1. **The input event.** A 6-tuple of ints `(tick, peer, seq, body, dvx, dvy)`; `(peer,
+   seq)` is unique in a valid log and is the identity a receiver dedups on; `dvx/dvy`
+   are an additive control impulse in whole Q32.32 units.
+2. **The canonical merge.** Exact-duplicate deliveries are DEDUPED (load-bearing);
+   each tick's events apply in `(peer, seq)` order. Honest scope: for these *additive*
+   impulses order-independence follows from commutativity — the canonical sort is
+   hygiene; only dedup is load-bearing. Reorder/duplicate delivery is absorbed;
+   a dropped/modified/tick-moved event is a desync.
+3. **Serialization grammar.** `URDRLST1` per-tick witness: `magic | per body pos.x,
+   pos.y, vel.x, vel.y as Q32.32 signed i64 big-endian` (`lockstep._digest`).
+   `URDRLSTT` whole-run trace: `SHA-256(magic | the ORDERED per-tick hex digests as
+   UTF-8 text)` (`lockstep.trace_digest`).
+4. **The desync law.** `first_desync(a, b)` = the index of the first mismatching
+   witness (a length mismatch desyncs at the shorter length; identical chains → none).
+   A desync is DETECTED and LOCALIZED, never silent.
+5. **Refusal semantics.** The substrate's `FIELD-REFUSE` on overflow — a peer refuses
+   rather than wraps. `digest ≠ MAC`: witnesses catch *accidental* divergence, not a
+   signing adversary; authenticated inputs arrive as an additive, versioned successor.
+6. **Conformance corpus (1 trace digest).** `conformance_netcode.txt`: `arena3` —
+   reproduced by the reference and by `lockstep_rs` (ADMITTED on Windows/rustc; port
+   logic independently C99-cross-checked).
+
+## The URDR-WORLD-3 authored-world format (frozen as consumed)
+
+The editor→runtime world serialization, frozen at the keys the deterministic runtime
+*consumes* (a consumed-key change is `URDR-WORLD-4`, never an edit):
+
+1. **Envelope.** JSON, `"format": "URDR-WORLD-3"`. `objects[]`: `{digest, verts:
+   [[x,y](,z)…], edges?}` with integer vertices. `instances[]`: `{id, object → an
+   object digest, ground_x, ground_z, scale, rot_deg?, body: "dynamic"|"static",
+   mass, vel: {x, z}, parent?, local?}`.
+2. **The authoring boundary (part of the contract).** Scene composition (float
+   place/rotate/scale) is *float authoring* whose result is **snapped to the integer
+   grid**; everything the deterministic runtime consumes is integer after the snap.
+   Given the integer world, the witness chain / frame digest is the scene's
+   deterministic identity on every conforming host.
+3. **Consumers.** `replay.py --world` (exact ℚ dynamics), `replay.py --fp world`
+   (bounded fixed-point runtime), `load_world.py` (exact perspective projection).
+   Unknown keys are inert to the runtime (authoring conveniences), and the format is
+   backward-compatible with its consumers as pinned by the canonical scene.
+4. **Canonical instance.** `demo/world_highway.json` — its tag is checked mechanically.
+
+## The freeze manifest (checked by the gate)
+
+The declarations above are enforced, not trusted: `tools/specfreeze/freeze_check.py`
+re-derives every frozen digest law from the grammar declared here with its own
+independent serializers and compares byte-for-byte against the live code
+(`spec-freeze` gate stage + `tests/test_spec_freeze.py`), so drift in either the doc
+or the code reddens the gate. A corrupted-manifest selftest proves the checker can
+redden. One block, machine-readable:
+
+```freeze-manifest
+magic URDRFPD1 fp_dynamics state
+magic URDRFPT1 fp_dynamics trace
+magic URDRLST1 lockstep state
+magic URDRLSTT lockstep trace
+magic URDRLOOP loop_scenes loop
+magic URDRFLD1 field field
+corpus tools/physics/conformance.txt 5
+corpus tools/physics/conformance_nd.txt 5
+corpus tools/physics/conformance_lcp.txt 4
+corpus tools/physics/conformance_joint.txt 4
+corpus tools/physics/conformance_fp.txt 2
+corpus tools/physics/conformance_field.txt 4
+corpus tools/physics/conformance_marangoni.txt 3
+corpus tools/physics/conformance_loop.txt 3
+corpus tools/netcode/conformance_netcode.txt 1
+format URDR-WORLD-3 demo/world_highway.json
+```
 
 ## What may still change under 1.0
 

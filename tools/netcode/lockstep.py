@@ -30,12 +30,13 @@ Determinism is the whole point: no float, no clock, no RNG. State lives on the f
 substrate (`../physics/field.py`), so every peer/compiler/CPU rounds identically; the scene
 is BOUNDED and REFUSES (FIELD-REFUSE) rather than wrap.
 
-GRADE (honest, D5): the reproducibility of the lockstep chain is MEASURED (deterministic,
-gated against a frozen URDRLSTT golden with a non-vacuous desync self-test). This is
-reproducibility-by-frozen-rounding on top of the already cross-placed FixedPoint substrate;
-a second-language placement of THIS loop is not yet done, so its cross-placement is DECLARED.
-`digest != MAC`: the witnesses catch accidental divergence, not a signing adversary --
-authenticated inputs are a separate, declared piece."""
+GRADE (honest, D5): MEASURED (both placements) -- deterministic, gated against a frozen
+URDRLSTT golden with a non-vacuous desync self-test, and reproduced bit-for-bit by the
+std-only Rust placement (lockstep_rs/, ADMITTED on Windows/rustc; port logic independently
+C99-cross-checked). Formats FROZEN at urdr-netcode 0.1 (spec/D12, checked mechanically by
+the spec-freeze gate stage). This is reproducibility-by-frozen-rounding on top of the
+already cross-placed FixedPoint substrate. `digest != MAC`: the witnesses catch accidental
+divergence, not a signing adversary -- authenticated inputs are a separate, declared piece."""
 import hashlib
 
 from field import FixedPoint as FP, ONE  # noqa: F401  frozen Q32.32 substrate

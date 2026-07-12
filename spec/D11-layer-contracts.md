@@ -276,6 +276,32 @@ See §4 — this is the concrete centerpiece of the spec.
 - **MAY-ASSUME.** Each layer's stated guarantees, and nothing below what they import directly.
 - **GRADE.** n/a.
 
+### 3.9 urdr-netcode (N1 — deterministic lockstep)
+
+- **GUARANTEES.** Peers exchange **inputs only, never state**. A delivered input log is
+  canonicalized (exact-duplicate deliveries DEDUPED — load-bearing; per-tick order `(peer, seq)`),
+  so any arrival permutation of one logical log yields ONE application order; the deterministic
+  step then reproduces one per-tick witness chain (`URDRLST1`) and one whole-run trace
+  (`URDRLSTT`) on every peer. A DROPPED / MODIFIED / TICK-MOVED event changes the logical log, so
+  the chains diverge — and `first_desync` LOCALIZES the desync to the first mismatching tick
+  (detected + explained, never silent). Honest scope: for these *additive* impulses,
+  order-independence follows from commutativity; the canonical sort is hygiene, and only dedup is
+  load-bearing.
+- **REQUIRES.** The frozen Q32.32 substrate (`urdr-field`'s `FixedPoint`, D9/D12) for all state.
+- **MAY-ASSUME.** The substrate's frozen rounding (round-to-nearest, ties away from zero) and its
+  overflow refusal — so every peer/compiler/CPU rounds identically.
+- **REFUSES.** The substrate's `FIELD-REFUSE` on i64 overflow — a peer refuses rather than wraps.
+  `digest ≠ MAC`: witnesses catch *accidental* divergence, not a signing adversary; authenticated
+  inputs are a DECLARED, additive successor.
+- **DETERMINISM.** No float, no clock, no RNG; same canonical world + same logical log → the same
+  witness chain on every host.
+- **GRADE.** `MEASURED` (both placements) — `netcode_lockstep` gate stage (trace golden
+  `conformance_netcode.txt`, peers-agree invariant, desync non-vacuity self-test); falsifiers
+  `tests/test_lockstep.py`; runnable proof `demo/lockstep_demo.py`; std-only Rust placement
+  `tools/netcode/lockstep_rs/` ADMITTED on Windows/rustc (port logic independently
+  C99-cross-checked). Formats FROZEN at `urdr-netcode 0.1` (D12). Rollback, interest management,
+  and authenticated inputs are `DECLARED` successors.
+
 ## 4. The deterministic-renderer contract (the frame-digest law)
 
 This is a **stronger** property than deterministic simulation, and it is the milestone that would
@@ -319,6 +345,64 @@ iff, on a shared corpus of `(state → expected-frame-digest)` vectors, it repro
 digest **twice, bit-identically**, and a deliberately-defective rasterizer (e.g. wrong fill rule,
 float depth) is **caught** on at least one vector (non-vacuity). Until that corpus exists and is
 reproduced, this contract stays `DECLARED`.
+
+## 4b. The exact/bounded boundary contract (where exactness ends)
+
+The engine has exactly **two admitted numeric regimes** plus refusal. This section is the
+normative contract for which computations live where — the boundary is an active constraint on
+every rung, not a description after the fact.
+
+**Regime E — exact ℚ (uniqueness-by-certificate).** Gcd-reduced rationals over ℤ, i64-bounded.
+Home of the certified single solves: collision response (1D/nD), the n-contact LCP (`λ` with the
+complementarity certificate), articulated joints (`Jv_new = 0`, `rank(A)` uniqueness), CCD
+time-of-impact vs planes, rigidity/stress/superstability, `urdr-math`, and the exact field
+backend (`FIELDQ`). Guarantee: an admitted result is **exact and certificate-carrying**; anything
+else is a typed refusal. Witness magics: `URDRPH1`, `URDRPN1`, `URDRLCP1`, `URDRJNT1`,
+`URDRLOOP`, `FIELDQ`.
+
+**Regime B — bounded Q32.32 (reproducibility-by-frozen-rounding).** The frozen fixed-point
+substrate (D9, D12): radix 2³², round-to-nearest ties-away-from-zero on every rational-coefficient
+multiply, `FIELD-REFUSE` on i64 overflow. Home of everything that must run for **duration**:
+scalar fields and Marangoni transport (`FIELDFP`), bounded dynamics (rung 5: `URDRFPD1`/
+`URDRFPT1`), lockstep netcode (`URDRLST1`/`URDRLSTT`), and the rasterizer's arithmetic
+(`RENDER-REFUSE` on overflow). Guarantee: **bit-identical across placements and hosts** — it
+ROUNDS, honestly, and never wraps.
+
+**The boundary rules (normative):**
+
+1. **Exact where affordable.** A computation whose exact result is rational and representable in
+   i64 uses regime E, and carries a certificate wherever uniqueness or conservation is claimed.
+2. **Bounded where durational.** A computation that iterates indefinitely (denominator growth
+   would overflow any bound) or whose exact result is **irrational** (sphere–sphere TOI solves a
+   quadratic; a normalized direction needs a square root) must NOT silently approximate inside
+   regime E. It either moves to regime B with its rounding declared, or refuses. The two
+   standing examples are load-bearing precedents: nD collision response *avoids* the square root
+   algebraically (the `|d|` factors cancel — still regime E); sphere–sphere CCD *refuses* exact
+   TOI and uses discrete overlap + exact response instead.
+3. **Crossing is explicit, one-way per value, at a stated ingress.** Exact/integer quantities
+   enter regime B only through the frozen conversion (`FP.unit` — round-to-nearest), and a digest
+   never mixes regimes: backend tags and distinct magics keep the two identities apart
+   (`FIELDFP` vs `FIELDQ` is the canonical case — same field, different computation, never one
+   digest).
+4. **Refusal is the third value.** i64 overflow in EITHER regime is a typed refusal
+   (`PHYS-REFUSE`, `FIELD-REFUSE`, `RENDER-REFUSE`, `'REFUSE'`) — never a wrap, saturate, or
+   silent fallback. Surfacing the boundary is part of the contract; hiding it is a breach.
+5. **Determinism is not traded.** Neither regime may touch float, clock, RNG, or
+   iteration/hash/pointer order on the authority path. The regimes trade **exactness ↔
+   duration**, never determinism.
+
+**The two-column story, as a contract.** Exact where affordable: certified single solves — a
+cryptographic witness or a typed refusal, never a guess. Bounded where you need duration: the
+frozen Q32.32 path animates indefinitely, deterministic, and refuses on overflow.
+Uniqueness-by-certificate ↔ reproducibility-by-frozen-rounding.
+
+**GRADE.** `MEASURED` for every row above — each is enforced by an existing gate stage
+(`physics*`, `physics-lcp`, `physics-joint`, `physics-fp`, `netcode-lockstep`, `field*`,
+`render*`, the rejection fixtures for the refusal codes) and the D12 freeze manifest is checked
+mechanically (`spec-freeze` stage: the declared digest grammars are re-derived independently and
+compared byte-for-byte, with a corrupted-manifest self-test). Boundary claims about undelivered
+work (rollback, authenticated inputs, perspective-correct interpolation) remain `DECLARED` in
+their own rows.
 
 ## 5. Conformance & versioning
 
@@ -365,6 +449,9 @@ reproduced, this contract stays `DECLARED`.
 | urdr-render      | 2nd-placement frame digests (Rust): 3D depth | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs` — ADMITTED 8/8 (4 2D + 4 3D) twice, defect caught |
 | urdr-render      | 2nd-placement frame digests (Rust): perspective | `MEASURED` (Windows, rustc edition-2021) | `urdr_render_rs` — ADMITTED 10/10 (4 2D + 4 3D + 2 persp) twice, defect caught |
 | urdr-render      | perspective-correct interp + blending + geometric clip | `DECLARED` | targets (§4) |
+| urdr-physics     | rung 5: bounded fixed-point dynamics (settling stacks, Baumgarte swings) | `MEASURED` (both placements) | `physics_fp` gate stage, `conformance_fp.txt`; `fp_dynamics_rs` ADMITTED (Windows, rustc) |
+| urdr-netcode     | N1: deterministic lockstep (inputs-only, canonical merge, desync localization) | `MEASURED` (both placements) | §3.9; `netcode_lockstep` gate stage, `test_lockstep.py`; `lockstep_rs` ADMITTED (Windows, rustc; C99-cross-checked) |
+| spec freeze      | D12 manifest ↔ code, checked mechanically (§4b) | `MEASURED` | `spec-freeze` gate stage, `tools/specfreeze/freeze_check.py`, `tests/test_spec_freeze.py` |
 | network (live)   | real socket at the runner tier          | `SPECULATIVE`| host capability; not gated |
 
 ## 7. Recommended order of work
