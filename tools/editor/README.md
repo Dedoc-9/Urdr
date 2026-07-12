@@ -72,6 +72,17 @@ Editor (double-click the file, or open it in any browser):
   engine's recorded state (velocity, mass, and the exact Δv it applied), never recomputed.
   For a `--stack` replay, the **LCP λ** overlay shows the exact contact LCP's certified
   per-contact forces (larger toward the bottom of the stack).
+- **⨀ Walk** — a first-person preview: click to capture the mouse, then WASD + mouselook
+  through your authored world (silhouettes standing on the road, `load_world.py` convention)
+  or — with a replay loaded — through the **engine's witnessed frames**, bodies drawn at their
+  recorded positions with the frame's URDR digest on the HUD (R plays, `[` `]` step). Eye
+  height, move speed, focal (FOV), and replay scale are sliders; Shift runs, Q/E fly, wheel
+  scales speed. Honest scope, on-screen and here: this is a **float projection** in the same
+  pinhole family as the exact renderer — it edits nothing, simulates nothing, and the
+  deterministic runtime + witness chain remain the sole authority. Concept-merge note: the
+  first-person/"text is authority; render is its projection" ideas arrive from the Weltwerk
+  workbench demos; what crossed over is the *discipline-compatible* part (a view over recorded
+  authority), not the rendering tech.
 - **⤓ Save / ⤒ Open** — persist the whole project (objects + world) to a JSON file.
 - **▸ Export world JSON** (World mode) — writes `urdr_world.json` (`URDR-WORLD-3`): objects
   by digest + instances carrying their full physical state and hierarchy (`parent` + a

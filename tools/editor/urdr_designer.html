@@ -89,6 +89,7 @@
       <button id="mDesign" class="on" onclick="setMode('design')">◇ Object</button>
       <button id="mWorld" onclick="setMode('world')">⛰ World</button>
       <button id="mReplay" onclick="setMode('replay')">▷ Replay</button>
+      <button id="mWalk" onclick="setMode('walk')" title="first-person preview of the authored world (float view; witnesses stay the authority)">⨀ Walk</button>
     </div>
     <div class="seg">
       <button id="v2d" class="on" onclick="setView('2d')">▦ 2D</button>
@@ -137,6 +138,9 @@ const SNAP=12, VR=4;
 let undo=[], redo=[];
 let replay=null, rframe=0, rplaying=false, rtimer=null;   // deterministic replay playback (engine-authored state)
 const rov={mom:false, com:false, con:false, lam:false};    // replay overlays: momentum, COM, contacts/impulses, LCP λ
+// ⨀ Walk (first-person preview) — a FLOAT view over authored/replayed authority; never simulates
+const fcam={x:0,y:56,z:-240,yaw:0,pitch:0,eye:56,speed:3.0,run:2.4,wscale:2.0};
+let wkeys={}, walkRAF=null, wlast=0, wlocked=false;
 
 // ---------------- helpers ----------------
 const pos=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
@@ -218,6 +222,7 @@ function label(p,i){ if(!set.labels)return; ctx.fillStyle=CSS('--dim'); ctx.font
   ctx.fillText(i+' ('+Math.round(p.x)+','+Math.round(p.y)+(view==='3d'?','+Math.round(p.z||0):'')+')',p.sx?p.sx+6:p.x+6,(p.sy?p.sy:p.y)-6); }
 
 function draw(){ ctx.clearRect(0,0,W,H);
+  if(mode==='walk'){ drawWalk(); return; }
   if(mode==='replay'){ drawReplay(); return; }
   if(mode==='design'){ view==='2d'?drawObj2d():drawObj3d(); }
   else { view==='2d'?drawWorld2d():drawWorld3d(); } }
@@ -401,6 +406,101 @@ function drawReplay(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
     ctx.fillText('⊘ engine REFUSED after frame '+replay.refused.after_frame+' — '+replay.refused.code+' (exact, not approximate)',ox,ty); }
 }
 
+// ---------------- ⨀ Walk: first-person preview -------------------------------------
+// A FLOAT view (same pinhole family as the exact projector: sx = cx + f·x/z). It draws
+// the authored world standing on the road (load_world.py convention: base at ymax) and,
+// when a replay is loaded, the ENGINE-RECORDED bodies at their witnessed positions.
+// It never simulates; the witness chain on the HUD is the authority.
+function projFP(P,cx,cy){ const x=P.x-fcam.x, y=P.y-fcam.y, z=P.z-fcam.z;
+  const cw=Math.cos(fcam.yaw), sw=Math.sin(fcam.yaw);
+  const x1=x*cw - z*sw, z1=x*sw + z*cw;
+  const cp=Math.cos(fcam.pitch), sp=Math.sin(fcam.pitch);
+  const y2=y*cp - z1*sp, z2=y*sp + z1*cp;
+  if(z2<0.6) return null;
+  return {sx:cx+wcam.focal*x1/z2, sy:cy-wcam.focal*y2/z2, depth:z2}; }
+function fpSeg(a,b){ const A=projFP(a,W/2,H/2), B=projFP(b,W/2,H/2);
+  if(!A||!B) return; ctx.moveTo(A.sx,A.sy); ctx.lineTo(B.sx,B.sy); }
+function drawWalk(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
+  const cx=W/2, cy=H/2, g=112;
+  // ground grid (y=0), local window around the camera
+  ctx.strokeStyle=CSS('--grid'); ctx.lineWidth=1; ctx.beginPath();
+  const gx0=Math.floor((fcam.x-1400)/g)*g, gz0=Math.floor((fcam.z-200)/g)*g;
+  for(let x=gx0;x<=gx0+2800;x+=g) fpSeg({x,y:0,z:gz0},{x,y:0,z:gz0+2800});
+  for(let z=gz0;z<=gz0+2800;z+=g) fpSeg({x:gx0,y:0,z},{x:gx0+2800,y:0,z});
+  ctx.stroke();
+  if(replay&&replay.frames&&replay.frames.length&&replay.frames[0].balls){
+    // -------- replayed authority: arena box + statics + witnessed bodies ----------
+    const rw=replay.w||380, rh=replay.h||240, k=fcam.wscale;
+    const G=(x,y)=>({gx:(x-rw/2)*k, gz:(rh-y)*k});
+    ctx.strokeStyle=CSS('--dash'); ctx.lineWidth=1.6; ctx.beginPath();
+    const c00=G(0,0),c10=G(rw,0),c11=G(rw,rh),c01=G(0,rh);
+    fpSeg({x:c00.gx,y:0,z:c00.gz},{x:c10.gx,y:0,z:c10.gz}); fpSeg({x:c10.gx,y:0,z:c10.gz},{x:c11.gx,y:0,z:c11.gz});
+    fpSeg({x:c11.gx,y:0,z:c11.gz},{x:c01.gx,y:0,z:c01.gz}); fpSeg({x:c01.gx,y:0,z:c01.gz},{x:c00.gx,y:0,z:c00.gz});
+    ctx.stroke();
+    const ball=(bx,by,br,fill,alpha)=>{ const q=G(bx,by), r3=br*k,
+        P=projFP({x:q.gx,y:r3,z:q.gz},cx,cy); if(!P)return;
+      const rr=Math.max(2, wcam.focal*r3/P.depth);
+      ctx.beginPath(); ctx.arc(P.sx,P.sy,rr,0,7); ctx.globalAlpha=alpha; ctx.fillStyle=fill; ctx.fill();
+      ctx.globalAlpha=1; ctx.strokeStyle=CSS('--ink'); ctx.lineWidth=1; ctx.stroke(); };
+    (replay.statics||[]).forEach(s=>ball(s.x,s.y,s.r,'#2a2f30',0.8));
+    const rc=Math.min(Math.max(rframe,0),replay.frames.length-1), fr=replay.frames[rc];
+    fr.balls.forEach((b,i)=>ball(b.x,b.y,b.r,i===0?CSS('--amber'):CSS('--rust'),1));
+    ctx.fillStyle=CSS('--acid'); ctx.font='11px monospace';
+    ctx.fillText('frame '+rc+'/'+(replay.frames.length-1)+(rplaying?' ▶':'')+'   '+fr.digest.slice(0,28)+'…  (witness — the authority)',12,H-46);
+    if(replay.refused) { ctx.fillStyle=CSS('--rust');
+      ctx.fillText('⊘ engine REFUSED after frame '+replay.refused.after_frame+' — '+replay.refused.code,12,H-62); }
+  } else {
+    // -------- authored world: silhouettes standing on the road --------------------
+    const list=world.map(inst=>({inst,g:groundOf(inst)}))
+      .sort((a,b)=>((b.g.gx-fcam.x)**2+(b.g.gz-fcam.z)**2)-((a.g.gx-fcam.x)**2+(a.g.gz-fcam.z)**2));
+    list.forEach(({inst,g})=>{ const d=designs.find(x=>x.id===inst.designId);
+      if(!d||inst.visible===false||!d.verts.length)return;
+      const ocx=avg(d.verts,'x'), ymax=Math.max(...d.verts.map(p=>p.y)),
+            S=wcam.scale*(inst.scale||1), c=Math.cos(inst.rot), s=Math.sin(inst.rot);
+      const pts=d.verts.map(p=>{ const lx=(p.x-ocx)*S, up=(ymax-p.y)*S, lz=(p.z||0)*S;
+        const wx=lx*c-lz*s, wz=lx*s+lz*c;
+        return projFP({x:g.gx+wx, y:up, z:g.gz+wz}, cx, cy); });
+      ctx.strokeStyle=inst.body==='static'?CSS('--dim'):CSS('--rust'); ctx.lineWidth=1.8; ctx.beginPath();
+      d.edges.forEach(e=>{const a=pts[e[0]],b=pts[e[1]]; if(a&&b){ctx.moveTo(a.sx,a.sy);ctx.lineTo(b.sx,b.sy);}});
+      ctx.stroke(); });
+    if(!world.length){ ctx.fillStyle=CSS('--dim'); ctx.font='12px monospace';
+      ctx.fillText('No placed objects — build a world in ⛰ World, or load a replay to walk a witnessed run.',12,64); }
+  }
+  // crosshair + HUD
+  ctx.strokeStyle=CSS('--sel'); ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx-5,cy); ctx.lineTo(cx+5,cy); ctx.moveTo(cx,cy-5); ctx.lineTo(cx,cy+5); ctx.stroke();
+  ctx.fillStyle=CSS('--dim'); ctx.font='11px monospace';
+  ctx.fillText((wlocked?'WASD move · Shift run · Q/E eye · wheel speed · R replay ▶ · [ ] step · Esc release'
+                       :'click to capture the mouse — then WASD + mouselook'),12,H-28);
+  ctx.fillText('⨀ float preview — the deterministic runtime & witness chain remain the authority'
+               +'   ·   x '+Math.round(fcam.x)+'  z '+Math.round(fcam.z)+'  eye '+Math.round(fcam.y),12,H-12); }
+function walkStep(t){ if(mode!=='walk'){walkRAF=null;return;}
+  const dt=Math.min(50, t-(wlast||t)); wlast=t;
+  const run=(wkeys['ShiftLeft']||wkeys['ShiftRight'])?fcam.run:1, v=fcam.speed*run*(dt/16.7);
+  const fx=Math.sin(fcam.yaw), fz=Math.cos(fcam.yaw), rx=Math.cos(fcam.yaw), rz=-Math.sin(fcam.yaw);
+  if(wkeys['KeyW']){fcam.x+=fx*v; fcam.z+=fz*v;} if(wkeys['KeyS']){fcam.x-=fx*v; fcam.z-=fz*v;}
+  if(wkeys['KeyA']){fcam.x-=rx*v; fcam.z-=rz*v;} if(wkeys['KeyD']){fcam.x+=rx*v; fcam.z+=rz*v;}
+  if(wkeys['KeyQ'])fcam.y=clamp(fcam.y-v*1.4,8,600); if(wkeys['KeyE'])fcam.y=clamp(fcam.y+v*1.4,8,600);
+  draw(); walkRAF=requestAnimationFrame(walkStep); }
+function walkSet(k,v){ v=+v;
+  if(k==='eye'){fcam.eye=v; fcam.y=v;} else if(k==='speed')fcam.speed=v;
+  else if(k==='wscale')fcam.wscale=v; else if(k==='focal')wcam.focal=v; draw(); }
+document.addEventListener('pointerlockchange',()=>{ wlocked=document.pointerLockElement===cv; });
+cv.addEventListener('click',()=>{ if(mode==='walk'&&!wlocked) cv.requestPointerLock(); });
+document.addEventListener('mousemove',e=>{ if(mode!=='walk'||!wlocked)return;
+  fcam.yaw+=e.movementX*0.0032; fcam.pitch=clamp(fcam.pitch-e.movementY*0.0032,-1.45,1.45); });
+addEventListener('keydown',e=>{ if(mode!=='walk')return;
+  if(document.activeElement&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
+  wkeys[e.code]=true;
+  if(e.code==='KeyR'&&replay){ playReplay(); }
+  if(e.code==='BracketLeft'&&replay){ stepFrame(-1); }
+  if(e.code==='BracketRight'&&replay){ stepFrame(1); }
+  if(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','Space'].includes(e.code)) e.preventDefault(); });
+addEventListener('keyup',e=>{ wkeys[e.code]=false; });
+cv.addEventListener('wheel',e=>{ if(mode!=='walk')return; e.preventDefault();
+  fcam.speed=clamp(fcam.speed*(e.deltaY<0?1.12:0.9),0.4,40);
+  const sp=document.getElementById('wSpd'); if(sp)sp.value=fcam.speed; },{passive:false});
+
 // ---------------- 3D editing math (screen-parallel vertex drag; ground unproject) ----
 function screenToWorldDelta(zz,ddx,ddy){                    // object-orbit camera; verified vs proj3
   const cw=Math.cos(ocam.yaw),sw=Math.sin(ocam.yaw),cp=Math.cos(ocam.pitch),sp=Math.sin(ocam.pitch);
@@ -425,11 +525,11 @@ function unprojGround(sx,sy){                               // world camera: scr
 const groundToXY=g=>({x:g.gx/wcam.depth+W/2, y:H-g.gz/wcam.depth});
 
 // ---------------- interaction ----------------
-cv.addEventListener('pointerdown',e=>{ if(mode==='replay')return; cv.setPointerCapture(e.pointerId); const p=pos(e);
+cv.addEventListener('pointerdown',e=>{ if(mode==='replay'||mode==='walk')return; cv.setPointerCapture(e.pointerId); const p=pos(e);
   if(mode==='design'){ view==='2d'?d2Down(p):d3Down(p); } else { view==='2d'?w2Down(p):w3Down(p);} draw();});
-cv.addEventListener('pointermove',e=>{ if(mode==='replay')return; const p=pos(e); onMove(p); draw();});
-cv.addEventListener('pointerup',e=>{ if(mode==='replay')return; const p=pos(e); onUp(p); draw(); refresh();});
-cv.addEventListener('wheel',e=>{ if(mode==='replay')return; e.preventDefault();
+cv.addEventListener('pointermove',e=>{ if(mode==='replay'||mode==='walk')return; const p=pos(e); onMove(p); draw();});
+cv.addEventListener('pointerup',e=>{ if(mode==='replay'||mode==='walk')return; const p=pos(e); onUp(p); draw(); refresh();});
+cv.addEventListener('wheel',e=>{ if(mode==='replay'||mode==='walk')return; e.preventDefault();
   if(mode==='design'&&view==='3d') ocam.dist=clamp(ocam.dist*(1+Math.sign(e.deltaY)*0.08),150,2600);
   else if(mode==='world'&&view==='3d') wcam.back=clamp(wcam.back+Math.sign(e.deltaY)*20,20,900);
   syncCam(); draw();},{passive:false});
@@ -636,6 +736,22 @@ function thumb(d){const c=document.createElement('canvas');c.width=40;c.height=3
 function sliderRow(lbl,id,min,max,val,step){ return `<div class="sld"><span>${lbl}</span>
   <input type="range" id="${id}" min="${min}" max="${max}" step="${step||1}" value="${val}"><b id="${id}v">${val}</b></div>`; }
 function renderSide(){ const side=document.getElementById('side'); let h='';
+  if(mode==='walk'){
+    h+=`<h3>⨀ First-person (float preview)</h3>
+      <p class="note">A projection of the authored world — or, with a replay loaded, of the
+      engine's witnessed frames. Same pinhole family as the exact renderer; edits nothing;
+      simulates nothing. <b>The witness chain is the authority.</b></p>
+      <div class="ins"><span>eye height</span><input id="wEye" type="range" min="8" max="400" step="1" value="${Math.round(fcam.y)}" oninput="walkSet('eye',this.value)"></div>
+      <div class="ins"><span>move speed</span><input id="wSpd" type="range" min="0.4" max="40" step="0.2" value="${fcam.speed}" oninput="walkSet('speed',this.value)"></div>
+      <div class="ins"><span>focal (fov)</span><input id="wFoc" type="range" min="180" max="1400" step="10" value="${Math.round(wcam.focal)}" oninput="walkSet('focal',this.value)"></div>
+      <div class="ins"><span>replay scale</span><input id="wWS" type="range" min="0.5" max="8" step="0.1" value="${fcam.wscale}" oninput="walkSet('wscale',this.value)"></div>`;
+    if(replay) h+=`<h3>Replay</h3><p class="note">${replay.frames.length} frames loaded ·
+      R play/pause · [ ] step · the HUD digest is the URDR witness of the frame you are standing in.</p>`;
+    else h+=`<p class="note">No replay loaded — walking the authored ⛰ World layout.
+      Generate one with replay.py (--world / --net / --fp) and ▷ load it, then Walk it.</p>`;
+    h+=`<h3>Keys</h3><p class="note">click = capture mouse · WASD move · Shift run ·
+      Q/E eye up/down · wheel = speed · Esc = release</p>`;
+    side.innerHTML=h; return; }
   if(mode==='design'){
     h+=`<h3>Tools</h3><div class="tools">
       <button class="${tool==='line'?'on':''}" onclick="setTool('line')">╱ Line</button>
@@ -807,12 +923,19 @@ function pick(id){ if(mode==='design')loadDesign(id); else{placeSel=(placeSel===
 function setMode(m){ mode=m; drag=null; worldSel=null; selV=-1; selE=-1; stopPlay();
   document.getElementById('mDesign').classList.toggle('on',m==='design');
   document.getElementById('mWorld').classList.toggle('on',m==='world');
-  document.getElementById('mReplay').classList.toggle('on',m==='replay'); updHint(); renderSide(); refresh(); }
+  document.getElementById('mReplay').classList.toggle('on',m==='replay');
+  document.getElementById('mWalk').classList.toggle('on',m==='walk');
+  if(m==='walk'){ wlast=0; if(!walkRAF) walkRAF=requestAnimationFrame(walkStep); }
+  else { if(walkRAF){cancelAnimationFrame(walkRAF); walkRAF=null;}
+         if(document.pointerLockElement===cv) document.exitPointerLock(); }
+  updHint(); renderSide(); refresh(); }
 function setView(v){ view=v; drag=null;
   document.getElementById('v2d').classList.toggle('on',v==='2d');
   document.getElementById('v3d').classList.toggle('on',v==='3d'); updHint(); renderSide(); draw(); }
 function setTool(t){ tool=t; cv.style.cursor=t==='move'?'grab':t==='erase'?'not-allowed':'crosshair'; renderSide(); }
-function updHint(){ const h=mode==='replay'
+function updHint(){ const h=mode==='walk'
+    ? 'First-person preview (float) — click to capture the mouse · WASD + look · the witnesses stay the authority'
+    : mode==='replay'
     ? 'Deterministic replay — scrub the timeline; each frame is an exact state restored by its digest'
     : mode==='design'
     ? (view==='2d'?'Drag to draw lines · start on a point to continue · Move/Erase in Tools':'Orbit the model · click a point then set depth Z')
@@ -822,6 +945,13 @@ function updHint(){ const h=mode==='replay'
 function msg(s){document.getElementById('fMsg').textContent=s;}
 let digTimer=null;
 async function refresh(){
+  if(mode==='walk'){ document.getElementById('fMode').textContent='walk';
+    document.getElementById('fView').textContent='fp';
+    document.getElementById('fV').textContent=world.length;
+    document.getElementById('fE').textContent=replay?replay.frames.length:0;
+    document.getElementById('fSel').textContent=replay?'replay loaded':'authored world';
+    document.getElementById('fDig').textContent=replay&&replay.frames[rframe]?replay.frames[rframe].digest.slice(0,16)+'…':'—';
+    renderSide(); draw(); return; }
   if(mode==='replay'){ document.getElementById('fMode').textContent='replay';
     document.getElementById('fView').textContent='—';
     document.getElementById('fV').textContent=replay?rframe:0;

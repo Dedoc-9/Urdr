@@ -1366,3 +1366,17 @@ real judgment refuses — the detector bites. Unit falsifiers 318 → 327. **Hon
 isolates multiplicity + branch splitting only — no functions, no data flow, no borrows; the Urðr
 binder generalization, the affine-vs-linear decision, and an independent placement are §20 review
 work, gated on D13's triggers, which remain unfired. `the bar did not move; the runway to it did`.
+
+**Editor ⨀ Walk mode — SPECULATIVE / exploratory (no gate claim; the editor layer as ever).** A
+first-person preview in `urdr_designer.html`: pointer-lock WASD+mouselook over the authored world
+(silhouettes standing on the road, the `load_world.py` base-at-ymax convention) or, with a replay
+loaded, over the ENGINE'S WITNESSED FRAMES — bodies drawn at recorded positions, the frame's URDR
+digest on the HUD, R/[ ] transport. Eye height / speed / focal / replay-scale sliders (the "scaling"
+surface); same pinhole family as the exact projector; input guards keep Walk from touching the
+editing handlers. Honest scope stated on-screen, in the README, and here: a FLOAT projection that
+edits nothing and simulates nothing — the deterministic runtime and witness chain remain the sole
+authority. Concept provenance: the first-person/"render is a projection of authority" ideas from the
+Weltwerk workbench demos, admitted only in their discipline-compatible form; splat rendering and the
+manifold panels stayed where they were (renderer gloss — the standing guardrail). Verified: the walk
+block parses standalone (node --check); interactive behavior is the exploratory layer's to confirm in
+a browser — claimed accordingly, which is to say: not.
