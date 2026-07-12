@@ -10,3 +10,4 @@ Thumbs.db
 .DS_Store
 tools/intla/urdr_math_rs/*.exe
 tools/intla/urdr_math_rs/*.pdb
+tools/editor/urdr_replay.json
