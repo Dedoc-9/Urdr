@@ -1329,3 +1329,20 @@ By rule 11's own definition N5 is COMPLETE: transcript frozen, refusals specifie
 independently reproduced. The netcode stack closes at five two-placement rungs; the platform sentence —
 authored world, authenticated transcript, one witnessed history or a named refusal — is now a frozen,
 machine-checked, cross-placed property of this repository rather than a description of it.
+
+**D13 — the glyph probe — REVIEW RECORD (asserts no grade above REVIEW; adds no syntax).** A
+first-principles D6-method sweep of sixteen primitive candidates from the engine and the recurring
+irreducibles of adjacent fields (linear logic, separation logic, LTL/TLA+, CRDTs, algebraic effects,
+dependent types, ACID durability, interval numerics, lenses, quotient types, and the rest), each tested
+against five admission criteria — new semantic law, verifier change, new refusal/witness/capability
+class, cross-placement necessity, earned pressure — with the sealed kernel as the null hypothesis.
+**Outcome: zero admissions.** One deferral with teeth: C4 linearity (use-exactly-once), the only
+candidate passing tests 1–4, deferred on test 5 with pre-registered re-open triggers (Phase-4 capability
+hand-off, or a second consumer distorted by dynamic enforcement) and pre-registered falsifiers
+(`URDR-LINEAR` static refusal naming use sites; linearity as a property of the canon; a cross-placed
+accept/refuse program corpus with a miscounting checker caught). Two rejections recorded as
+load-bearing absences: catchable refusals (C2) and effect handlers (C10) would each launder the
+no-inflation and līmes laws. Empirical anchor: N2–N5 plus a full signature scheme entered the system
+this week as pure consumers of existing law — the strongest available evidence the alphabet is
+sufficient for everything the gate currently proves. `the probe earned no glyph, deferred one honestly,
+and wrote down the conditions under which it would change its mind`.
