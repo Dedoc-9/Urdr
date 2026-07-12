@@ -27,11 +27,11 @@ GRADE (honest, D5): the REPRODUCIBILITY of these steppers is MEASURED -- each sc
 digest is reproduced bit-for-bit and gated against a frozen golden (`conformance_fp.txt`),
 with a NON-VACUOUS defect self-test (a wrong step -- no sleep clamp / no Baumgarte -- reddens
 the gate). The FixedPoint SUBSTRATE these consume is already cross-placed (FIELDFP in
-`urdr-physics-rs`). A SECOND independent placement of THESE STEPPERS now exists —
-`fp_dynamics_rs/fp_dynamics.rs` (std-only Rust, hand-rolled SHA-256, same frozen `frdiv`),
-its integer logic cross-checked bit-for-bit against a C port (identical state stream) — but the
-steppers' own cross-placement is MEASURED only once that Rust prints ADMITTED on a host;
-until then it is single-placement reproducibility. This is the honest complement to the exact rungs:
+`urdr-physics-rs`). A SECOND independent placement of THESE STEPPERS — `fp_dynamics_rs/
+fp_dynamics.rs` (std-only Rust, hand-rolled SHA-256, same frozen `frdiv`) — reproduced BOTH
+URDRFPT1 goldens ADMITTED 2/2 (twice identically, `--defect` caught) on Windows/`rustc`, so the
+steppers' cross-placement is now MEASURED: two independent placements, one on a named host
+(integer logic also C-cross-checked bit-for-bit). This is the honest complement to the exact rungs:
 uniqueness-by-certificate is replaced by reproducibility-by-frozen-rounding."""
 import hashlib
 

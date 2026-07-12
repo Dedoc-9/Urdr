@@ -208,9 +208,11 @@ witness chain, and the editor scrubs it. Natural follow-ons, in order:
   `../physics/fp_dynamics.py` (rung 5) with a frozen `URDRFPT1` golden, a `verify.py`
   `physics_fp` stage (determinism + settle + non-vacuous defect self-test) and
   `tests/test_fp_dynamics.py` — **reproducibility MEASURED** (this editor's `replay.py` is the
-  exploratory consumer of the same approach). Next: a SECOND placement (Rust) to make the
-  stepper's *cross-placement* MEASURED, plus continuous collision (CCD) and Coulomb friction
-  (so piles rest without the damping stand-in);
+  exploratory consumer of the same approach). The independent Rust placement
+  `../physics/fp_dynamics_rs/fp_dynamics.rs` reproduced both `URDRFPT1` goldens ADMITTED 2/2 on
+  Windows/`rustc`, so the stepper's **cross-placement is now MEASURED** (two placements). Next:
+  continuous collision (CCD) for fast / thin bodies and Coulomb friction (so piles rest without
+  the damping stand-in);
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
   road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
   scene stays byte-identical across peers.
