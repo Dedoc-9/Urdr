@@ -1333,6 +1333,121 @@ class Gate:
             ("defect localized by %d generator(s)" % localized) if localized
             else "defect broke no generator -- the instrument is vacuous")
 
+    # -- 2j3. urdr-netcode N2: rollback as deterministic replay -----------------
+    def netcode_rollback(self):
+        """urdr-netcode N2 — ROLLBACK: late-but-valid inputs rewind to a canonical snapshot
+        and re-simulate, and the witness chain CONVERGES bit-for-bit to the canonical timeline
+        (the N1 oracle), at every snapshot cadence; an input beyond the horizon and a
+        conflicting (peer,seq) identity are TYPED refusals; and the apply-at-head defect MUST
+        diverge (non-vacuity — the convergence invariant can redden)."""
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import lockstep as L
+            import rollback as R
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("netcode-rollback", False, f"import failed: {exc}")
+            return
+        golden = None
+        conf = os.path.join(ndir, "conformance_rollback.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dig = ln.split()
+                        if name == "arena3_late3":
+                            golden = dig
+        if golden is None:
+            self.record("netcode-rollback", False, "missing golden arena3_late3")
+            return
+
+        def run_late(K):
+            w = L.world()
+            log = L.sample_log()
+            sched = sorted(((min(e[0] + 3, w["T"] - 1), i, e) for i, e in enumerate(log)),
+                           key=lambda x: (x[0], x[1]))
+            peer = R.Peer(w, K=K, H=64)
+            idx = 0
+            for t in range(w["T"]):
+                while idx < len(sched) and sched[idx][0] <= t:
+                    peer.deliver(sched[idx][2])
+                    idx += 1
+                peer.advance(t + 1)
+            return peer
+
+        t1, t2 = run_late(4).trace(), run_late(4).trace()
+        if t1 != t2:
+            self.record("netcode-rollback:arena3_late3", False, "NONDETERMINISTIC")
+        elif t1 != golden:
+            self.record("netcode-rollback:arena3_late3", False,
+                        f"trace {t1[:12]}… ≠ golden {golden[:12]}…")
+        else:
+            self.record("netcode-rollback:arena3_late3", True, t1[:16] + "…")
+        # invariant: convergence to the N1 oracle, cadence-invariant
+        oracle = L.sample_trace()
+        t8 = run_late(8).trace()
+        conv = t1 == oracle and t8 == oracle
+        self.record("netcode-rollback-converges", conv,
+                    "late delivery converges to the N1 canonical trace at K=4 and K=8"
+                    if conv else "rollback did not converge to the canonical timeline")
+        # invariant: snapshots restore exactly (each reproduces the pinned witness)
+        peer = run_late(4)
+        w = L.world()
+        frames_oracle, _ = L.simulate(w, L.sample_log())
+        snap_ok = bool(peer.snapshots) and all(
+            L._digest(p, v, w["n"]) == frames_oracle[t] for (t, p, v) in peer.snapshots)
+        self.record("netcode-rollback-snapshots", snap_ok,
+                    "every retained snapshot reproduces its pinned URDRLST1 witness"
+                    if snap_ok else "a snapshot failed to reproduce its pinned witness")
+        # typed refusals: beyond-horizon and identity conflict
+        try:
+            tiny = R.Peer(L.world(), K=4, H=2)
+            log = L.sample_log()
+            for e in log:
+                if e[0] != 2:
+                    tiny.deliver(e)
+            tiny.advance(60)
+            before = tiny.chain()
+            code_h = code_c = None
+            try:
+                tiny.deliver(L.event(2, 0, 0, 0, 4, -6))
+            except R.RollbackError as exc:
+                code_h = exc.code
+            untouched = tiny.chain() == before
+            full = R.Peer(L.world(), K=4, H=64)
+            full.deliver(L.event(2, 0, 0, 0, 4, -6))
+            try:
+                full.deliver(L.event(2, 0, 0, 0, 9, -6))
+            except R.RollbackError as exc:
+                code_c = exc.code
+            ref_ok = code_h == "ROLLBACK-REFUSE" and code_c == "ROLLBACK-CONFLICT" and untouched
+            self.record("netcode-rollback-refusals", ref_ok,
+                        "beyond-horizon REFUSED + identity conflict REFUSED, chain untouched"
+                        if ref_ok else f"refusals wrong: horizon={code_h} conflict={code_c} "
+                                       f"untouched={untouched}")
+        except Exception as exc:
+            self.record("netcode-rollback-refusals", False, f"errored: {exc}")
+        # non-vacuity: the apply-at-head defect MUST diverge from the oracle
+        w = L.world()
+        log = L.sample_log()
+        late = log[2]
+        bad = R.Peer(w, K=4, H=64)
+        for e in log:
+            if e != late:
+                bad.deliver(e)
+        bad.advance(10)
+        bad.deliver_defect_apply_at_head(late)
+        bad.advance(w["T"])
+        nv = bad.trace() != oracle
+        self.record("netcode-rollback-selftest", nv,
+                    "the apply-at-head defect diverges from the canonical trace "
+                    "(gate can redden)" if nv
+                    else "the defect converged — the convergence invariant is vacuous")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -1403,6 +1518,7 @@ def main() -> int:
     gate.physics_stress()
     gate.physics_fp()
     gate.netcode_lockstep()
+    gate.netcode_rollback()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

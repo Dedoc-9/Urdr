@@ -1088,3 +1088,41 @@ commit). **Honest scope:** the freeze certifies the *stated* surfaces — magics
 fixtures, corpus vector counts, the world format tag — not every consumer's use of them, and a byte-grammar
 check on a fixture is not a proof of the stepper's semantics (those stay pinned by the trace goldens).
 `a frozen interface nobody checks is prose; the manifest makes the doc a falsifiable claim about the code`.
+
+**urdr-netcode N2 — ROLLBACK as a deterministic replay primitive — MEASURED (reference); cross-placement
+DECLARED.** `tools/netcode/rollback.py` removes N1's honest limitation (a late input could only desync)
+without touching the frozen module. A `Peer` keeps **canonical snapshots** of its Q32.32 state every `K`
+ticks (retaining the last `H`); a **late-but-valid** input rewinds to the newest snapshot at-or-before its
+tick, re-simulates to the present with the enlarged input set, and the witness chain **CONVERGES bit-for-bit
+to the canonical timeline** — `lockstep.simulate` over the full log is the oracle, and the gate pins the
+converged `URDRLSTT` trace EQUAL to N1's `arena3` golden (`fea3b967…`, `conformance_rollback.txt`), at
+`K=4` and `K=8` (**cadence-invariance**: K/H are operational, not semantic — only the refusal horizon
+moves). Everything else is typed: `ROLLBACK-REFUSE` (input older than the oldest retained snapshot; the
+event is rejected WHOLE, the chain untouched) and `ROLLBACK-CONFLICT` (a second event with the same
+`(peer, seq)` identity but different payload — a forgery or tick-moved replay — refused naming the
+identity; an EXACT duplicate is absorbed, as in N1). An input that never arrives still desyncs against the
+canonical chain, localized by `first_desync`. **Design ruling (freeze-respecting):** `lockstep.py` (frozen
+0.1) is consumed — `_digest`/`trace_digest`/`event`/`first_desync` — never edited; the per-tick physics is
+reimplemented, and the oracle-equality invariant doubles as the anti-drift detector between the two ticks
+(any divergence reds every vector). **Snapshot contract:** every retained snapshot must reproduce the
+`URDRLST1` witness pinned at its tick (restore is exact — gated). Gate stage `netcode_rollback` (5 rows):
+golden ×2, converges (K=4/K=8 ≡ oracle), snapshots-exact, refusals (both codes, chain untouched), and the
+**apply-at-head defect** (the classic wrong implementation) MUST diverge — non-vacuity. Red-first:
+`tests/test_rollback.py` (9 falsifiers) went RED (`ModuleNotFoundError: rollback`) before the module
+existed; the late-input falsifier additionally requires the PROVISIONAL chain to differ from the oracle
+before delivery (rollback demonstrably rewrote history — convergence is not vacuous). Unit falsifiers
+281 → 290. **Grade: MEASURED (reference)** — convergence, cadence-invariance, snapshot exactness, both
+refusals, localization, and the caught defect are gate-enforced. **Honest scope:** this is rollback as a
+*replay primitive* over the frozen transcript — not prediction/rollforward UX, not interest management;
+`digest ≠ MAC` still (identity conflicts are detected; signatures are not claimed; authenticated inputs
+remain a declared successor). **Second placement — written + C-cross-checked, SPECULATIVE pending host.**
+`tools/netcode/rollback_rs/rollback.rs` (std-only Rust, hand-rolled SHA-256, no crates; `i128`
+intermediates; mirrors the admitted N1 placement's arithmetic) implements the full rollback peer —
+snapshots every K (retain H), rewind + replay on late delivery, both typed refusals, the apply-at-head
+defect — against the pinned late-delivery schedule (each event gated tick+3). Its logic was cross-checked
+**bit-identical by an independent C99 port** (`__int128`, its own SHA-256, clean `-Wall -Wextra` compile)
+in the sandbox: golden `fea3b967…` reproduced at K=4 (×2) and K=8, `horizon=-2 untouched=1 duplicate=0
+conflict=-1`, and `--defect` diverging (`39326ff9…`) — the port logic is validated; only a host `rustc`
+run separates it from admission. Per the admission ladder the rollback/snapshot contracts freeze in D12
+only after that `ADMITTED`. `history is rewritten only by rewinding it: a late truth replays to the same
+chain, and everything else is named — too old, or a lie`.

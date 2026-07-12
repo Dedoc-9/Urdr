@@ -1,0 +1,7 @@
+# urdr-netcode N2 — rollback: frozen converged-trace golden (URDRLSTT).
+# The canonical arena3 log delivered LATE (each event +3 ticks, the pinned schedule),
+# rewound to snapshots and re-simulated, MUST converge to the SAME whole-run trace as
+# N1's on-time lockstep (conformance_netcode.txt arena3) — identical by construction:
+# rollback replays the canonical timeline, it never invents one. Cadence-invariant
+# (same digest for every snapshot K). name  trace_digest
+arena3_late3 fea3b967db1995bef2f21e3339577eaa44b8021576e2ed2c99626a4018e0cb41
