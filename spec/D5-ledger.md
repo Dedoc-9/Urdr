@@ -1235,3 +1235,19 @@ language), highway `e72e75c3…` ×2, and `--defect` diverging to **exactly `9c0
 divergent digest as the Python reference, a three-way anchor on the failure mode itself. Only a host
 `rustc` run separates it from admission and the D12 freeze. `the editor draws a world; the loop makes it
 law: same scene, same inputs, same witnesses, on every machine`.
+
+**N4 admission + freeze — MEASURED (both placements); `urdr-netcode-world 0.1` FROZEN.** **CONFIRMED on
+host:** on Windows (`rustc -O worldstep.rs`) `worldstep.exe` printed `URDR-WORLD-RS: ADMITTED` — arena
+equivalence `fea3b967…` (the N4 tick reproduces the FROZEN N1 chain on a third host/second language),
+highway `e72e75c3…` ×2 — and `--defect` diverged to exactly `9c0ad7c5…`, matching the Python reference
+and the C99 port: a three-way anchor on the failure mode (commit `20ae01c`). D12 accordingly freezes
+`urdr-netcode-world 0.1`: no new witness serialization (URDRLST1/URDRLSTT reused — contractual); the
+loader mapping law (dynamics → bodies at (ground_x, ground_z) with (vel.x, vel.z), radius =
+scale·max|coord|; statics → AABBs; 640×360/margin-24 box; top-down gravity; e=3/4; T=120); the typed
+authoring boundary (`WORLD-REFUSE` on non-integer coordinates — never a silent round); instance file
+order as world identity; and the static-AABB least-penetration resolution law (fixed tie order, clamp +
+toward-guarded reflection) — immutable except through a versioned successor; `conformance_world.txt`
+joins the mechanically-checked manifest. **Honest scope unchanged:** runtime cross-placed on the mapped
+scene; the JSON loader itself is reference-gated (Python); mass inert until body-body contact arrives.
+Netcode now runs four two-placement rungs deep: `the transcript is law (N1), late truth replays into it
+(N2), only the entitled write it (N3), and the world it governs is yours to draw (N4)`.

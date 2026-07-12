@@ -35,12 +35,16 @@ max|y|); arena box 640x360 with margin 24; gravity (0,1) — authored scenes are
 top-down; restitution 3/4; T=120. Mass is loaded but INERT until body-body contact
 arrives (DECLARED — stated, not hidden).
 
-GRADE (honest, D5): MEASURED (reference) once the `netcode_world` gate stage is
-green — arena equivalence, the highway golden, statics-load-bearing, order-is-
-content, typed authoring refusal, peers-agree + desync localization on authored
-state, and a no-statics defect the gate must catch. Bounded regime B: rounds
-honestly, refuses on overflow (FIELD-REFUSE). Cross-placement DECLARED; freeze after
-admission, per the ladder."""
+GRADE (honest, D5): MEASURED (both placements) — the `netcode_world` gate stage pins
+arena equivalence, the highway golden, statics-load-bearing, order-is-content, the
+typed authoring refusal, peers-agree + desync localization, and the no-statics
+defect; the std-only Rust placement (worldstep_rs/, ADMITTED on Windows/rustc)
+reproduces the arena-equivalence chain, the highway golden 2/2, and the defect's
+exact divergent digest (9c0ad7c5…, shared with the C99 cross-check). Contracts
+FROZEN at urdr-netcode-world 0.1 (spec/D12). Bounded regime B: rounds honestly,
+refuses on overflow (FIELD-REFUSE). The runtime is cross-placed on the mapped
+canonical scene; the JSON loader is reference-gated; mass stays inert until
+body-body contact arrives as a versioned successor."""
 import os as _os
 import sys as _sys
 

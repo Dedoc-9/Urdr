@@ -25,6 +25,7 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-netcode` (N1) | **0.1 (FROZEN)** | 1 URDRLSTT trace digest | reference + `lockstep_rs` (ADMITTED, Windows/rustc; C99-cross-checked) | this doc |
 | `urdr-netcode-rollback` (N2) | **0.1 (FROZEN)** | 1 converged URDRLSTT trace digest | reference + `rollback_rs` (ADMITTED, Windows/rustc; C99 port agrees on golden AND defect digest) | this doc |
 | `urdr-netcode-auth` (N3) | **0.1 (FROZEN)** | roster root + signed-chain digest | reference + `authinput_rs` (ADMITTED, Windows/rustc; C99 port agrees on goldens, refusals, AND the forge anchor dvx+423) | this doc |
+| `urdr-netcode-world` (N4) | **0.1 (FROZEN)** | 1 highway trace digest + arena equivalence | reference + `worldstep_rs` (ADMITTED, Windows/rustc; C99 port agrees incl. the defect anchor 9c0ad7c5) | this doc |
 | `URDR-WORLD-3` (authored-world format) | **3 (FROZEN as consumed)** | tag-checked canonical scene | consumed by `replay.py --world` / `--fp world` / `load_world.py` | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
@@ -210,6 +211,37 @@ Immutable under `urdr-netcode-auth 0.1` except through a versioned successor:
 **Honest scope:** the freeze covers the mechanism — verification gates admission —
 not operational key secrecy, distribution, or cross-session replay protection.
 
+## The urdr-netcode-world v0.1 frozen surface (N4 — authored worlds in the loop)
+
+Immutable under `urdr-netcode-world 0.1` except through a versioned successor:
+
+1. **No new witness serialization — contractually.** N4 reuses the frozen `URDRLST1`
+   and `URDRLSTT` laws and the N1 canonical merge unchanged.
+2. **The loader mapping law.** Dynamic instance → body at `(ground_x, ground_z)`
+   with velocity `(vel.x, vel.z)`, radius = `scale · max|coord|` over its object's
+   verts; static instance → AABB with half-extents `scale · (max|x|, max|y|)`;
+   arena box 640×360 with margin 24; top-down gravity `(0, 1)`; restitution `3/4`;
+   `T = 120`. Instance FILE ORDER fixes body indexing — order is world identity.
+3. **The typed authoring boundary.** A non-integer coordinate in the export is
+   `WORLD-REFUSE`, rejected whole — the runtime never rounds authored input
+   (D11 §4b operational).
+4. **The static resolution law.** Penetration iff strictly inside the AABB expanded
+   by the body radius on both axes; resolve the face of LEAST penetration (fixed tie
+   order: top, bottom, left, right), clamp position to the face, reflect the
+   velocity component with restitution only if moving toward the face. Exact
+   FP-word comparisons throughout.
+5. **The equivalence pin (contractual).** With no statics on the canonical arena,
+   the N4 tick reproduces the frozen N1 chain bit-for-bit — gated, and reproduced by
+   both placements. Statics are a pure extension.
+6. **Conformance corpus (1 trace digest).** `conformance_world.txt`: `highway` —
+   reproduced by the reference and by `worldstep_rs` (ADMITTED on Windows/rustc),
+   with the no-statics defect diverging to the same digest in Python, Rust, and the
+   C99 cross-check.
+
+**Honest scope:** the runtime is cross-placed on the mapped canonical scene; the
+JSON loader is reference-gated; instance mass is loaded but inert until body-body
+contact arrives as a versioned successor.
+
 ## The URDR-WORLD-3 authored-world format (frozen as consumed)
 
 The editor→runtime world serialization, frozen at the keys the deterministic runtime
@@ -225,7 +257,8 @@ The editor→runtime world serialization, frozen at the keys the deterministic r
    Given the integer world, the witness chain / frame digest is the scene's
    deterministic identity on every conforming host.
 3. **Consumers.** `replay.py --world` (exact ℚ dynamics), `replay.py --fp world`
-   (bounded fixed-point runtime), `load_world.py` (exact perspective projection).
+   (bounded fixed-point runtime), `load_world.py` (exact perspective projection),
+   `worldstep.py` (the N4 deterministic netcode runtime).
    Unknown keys are inert to the runtime (authoring conveniences), and the format is
    backward-compatible with its consumers as pinned by the canonical scene.
 4. **Canonical instance.** `demo/world_highway.json` — its tag is checked mechanically.
@@ -257,6 +290,7 @@ corpus tools/physics/conformance_loop.txt 3
 corpus tools/netcode/conformance_netcode.txt 1
 corpus tools/netcode/conformance_rollback.txt 1
 corpus tools/netcode/conformance_auth.txt 2
+corpus tools/netcode/conformance_world.txt 1
 format URDR-WORLD-3 demo/world_highway.json
 ```
 
