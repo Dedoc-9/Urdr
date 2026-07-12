@@ -1045,8 +1045,14 @@ arrival orders AGREE; and a `netcode-desync-selftest` requires a dropped input t
 run is not (non-vacuity — the detector can redden, confirmed by a blind-detector probe). Falsifiers in
 `tests/test_lockstep.py` (6). Runnable proof: `demo/lockstep_demo.py`. **Grade: MEASURED** — the lockstep
 chain's reproducibility is gated on the *already cross-placed* FixedPoint substrate. **Honest scope:** this is
-reproducibility-by-frozen-rounding (fixed-point ROUNDS, not exact); a SECOND-LANGUAGE placement of THIS loop is
-**DECLARED** (so the loop's own cross-placement is not yet MEASURED); and `digest ≠ MAC` — the witnesses catch
+reproducibility-by-frozen-rounding (fixed-point ROUNDS, not exact); and `digest ≠ MAC` — the witnesses catch
 *accidental* divergence, not a signing adversary, so **authenticated inputs are a separate, declared piece**.
+**Second placement — written + C-cross-checked, SPECULATIVE pending host.** `tools/netcode/lockstep_rs/
+lockstep.rs` (std-only Rust, hand-rolled SHA-256, no crates; `i128` intermediates so `2p+d`/`a·kn` never
+overflow before the final `_g` check) reproduces the `arena3` `URDRLSTT` golden 2/2 and diverges under
+`--defect` (a dropped input). Its integer logic + byte layout were cross-checked **bit-identical by an
+independent C99 port** (`__int128`, its own SHA-256) that prints `fea3b967…` twice + a divergent defect
+(`31ca3029…`) in the sandbox — so the port logic is validated; grade **SPECULATIVE** until a named host runs
+`rustc -O lockstep.rs` and prints `URDR-NETCODE-RS: ADMITTED`, which flips N1 to **MEASURED (both placements)**.
 No new glyph; kernel frozen; consumes the frozen substrate; extends, never mutates. `peers trade inputs, not
 state; the same inputs make the same witnesses, and a corrupted one is named by the first tick it breaks`.
