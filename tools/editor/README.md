@@ -3,12 +3,12 @@
 # `tools/editor/` — Urðr Designer (an authoring front-end)
 
 A small, self-contained editor for the deterministic pipeline: draw wireframe
-objects, place them in a post-apocalyptic world, and hand the result to the exact,
-cross-placed renderer.
+objects, place them on a plain ground grid, and hand the result to the exact,
+cross-placed renderer and the gated netcode runtime.
 
 | File | What it is |
 |---|---|
-| `urdr_designer.html` | A browser CAD/world editor — no install, no dependencies, works offline. Draw objects in 2D or 3D, place them on a highway, export the scene. |
+| `urdr_designer.html` | A browser CAD/world editor — no install, no dependencies, works offline. Draw objects in 2D or 3D, place them on the ground grid, fly the world first-person, export the scene. |
 | `load_world.py` | Renders an exported `urdr_world.json` through the **exact** perspective projector (`../render/perspective.py`) to a `URDRFB1` frame + digest + a viewable PGM image. Closes the loop from editor to engine. |
 | `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Five modes: a built-in demo cascade, `--world urdr_world.json` (collide dynamic + static via the exact LCP; `--g N` for gravity), `--stack N` (an **N-ball resting stack**, exact contact LCP, certified **λ**), `--joints [--world file]` (an **articulated system** — the authored hinge/rod/weld/slider constraints — via the exact equality solver, certified `URDRJNT1`), or `--fp [bounce|stack|swing|world file.json]` (**bounded Q32.32 fixed-point** time-stepping via `../physics/field.py` — a gravity+bounce box, a **settling stack** (contact LCP → sequential-impulse), a **swinging pendulum** (articulated → squared-length Baumgarte), or **your authored `--world` export run long** (general PGS collisions with un-normalized normals + restitution `--e` + optional `--g` gravity that **settles** the scene in an implicit box) — all animate for as long as you like **without overflowing**, where exact-ℚ refuses). Load any of these in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
 
@@ -51,15 +51,17 @@ Editor (double-click the file, or open it in any browser):
   keys** — Shift = 10, Alt = ½ — in either 2D or 3D. **Transform** rotates about X/Y/Z in
   ½°/1° steps; **Scale · flip**; **Primitives** add round N-gons and rounded barriers.
   Select a point to set its **depth Z**.
-- **⛰ World** — pick an object, click the highway to place it, drag to move (children
+- **⛰ World** — pick an object, click the ground to place it, drag to move (children
   follow), the amber handle to rotate. The **Hierarchy** tree shows parent/child nesting
   with per-row show/hide and lock; the **Inspector** edits each placed object's physical
   state — body (static / dynamic / kinematic), collider, mass, restitution / friction,
   parent, tags, capabilities, visibility, lock, and constraints / joints to other objects.
   All of it serializes into the canonical world JSON; **no engine logic runs in the
   browser** — these are authored *intent*, which the runtime/engine validates for
-  admissibility downstream. Toggle **◈ 3D** for a perspective preview down the road — where
-  you can now drag whole objects on the ground plane too (children follow). Click the road
+  admissibility downstream. Toggle **◈ 3D** for a **free-fly first-person editing view**
+  (WASD fly · Q/E vertical · Shift fast · drag = look · wheel = fly speed) over a plain
+  ground grid — over, around, and through the scene; the placement/export mapping is
+  unchanged (view only). You can drag whole objects on the ground plane (children follow). Click the ground
   to drop more copies, **⧉ Duplicate** (Ctrl+D) the selected object, **＋ New object** to
   draw a fresh one, and **nudge the selected object with the arrow keys** (children follow).
 - **▷ Replay** — load a `urdr_replay.json` (made by `replay.py`) and scrub the timeline
@@ -73,7 +75,7 @@ Editor (double-click the file, or open it in any browser):
   For a `--stack` replay, the **LCP λ** overlay shows the exact contact LCP's certified
   per-contact forces (larger toward the bottom of the stack).
 - **⨀ Walk** — a first-person preview: click to capture the mouse, then WASD + mouselook
-  through your authored world (silhouettes standing on the road, `load_world.py` convention)
+  through your authored world (silhouettes standing base-on-ground, `load_world.py` convention)
   or — with a replay loaded — through the **engine's witnessed frames**, bodies drawn at their
   recorded positions with the frame's URDR digest on the HUD (R plays, `[` `]` step). Eye
   height, move speed, focal (FOV), and replay scale are sliders; Shift runs, Q/E fly, wheel

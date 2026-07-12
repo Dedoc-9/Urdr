@@ -6,7 +6,7 @@ projector — closing the loop from the browser editor to the deterministic engi
 
 `tools/editor/urdr_designer.html` (▸ Export world JSON) writes a content-addressed
 scene: objects by SHA-256 digest + instances placed on the ground. This loader
-stands each object up on the highway and projects it with `tools/render/perspective.py`
+stands each object up on the ground plane and projects it with `tools/render/perspective.py`
 — the same pinhole law `px = cx + floor(f·x/z)` that is cross-placed bit-for-bit in
 Rust — into a `URDRFB1` framebuffer, then prints the frame's digest and writes a
 viewable PGM image.
