@@ -49,6 +49,7 @@ Each layer depends only on the layer beneath it and may assume only that layer's
    urdr-render             deterministic fixed-point rasterizer + 3D depth    [tools/render/]
         │
    urdr-physics            exact dynamics + n-contact LCP + articulated joints [tools/physics/]
+                           + BOUNDED fixed-point dynamics (the real-time path)  [tools/physics/fp_dynamics.py]
         │
    urdr-rigidity           exact structural certificates (Connelly)           [tools/intla/, tools/physics/]
         │
@@ -65,7 +66,8 @@ Reference implementation is **Python** (chosen for auditability, not speed).
 Independent second placements are **single-file, `std`-only Rust** with hand-rolled
 SHA-256 (no crates, no cargo): `tools/urdr_core_rs/`, `tools/render/urdr_render_rs/`,
 `tools/physics/urdr_physics_rs/`, `tools/intla/urdr_math_rs/` (the exact-integer
-linear-algebra spine + atlas certificates). The math spine additionally has a
+linear-algebra spine + atlas certificates), and `tools/physics/fp_dynamics_rs/` (the
+bounded fixed-point steppers — rung 5). The math spine additionally has a
 **third-runtime C99 placement** `tools/intla/urdr_math_c/` (single file, std-only,
 `__int128`) — three languages, two OSes, one digest.
 
@@ -116,10 +118,13 @@ These are non-negotiable. Every rung in this repo was built under them.
    Prefer exact integer/rational arithmetic. Where exactness is unaffordable or
    impossible (iterated fields overflow; `sin/cos`, curvature, and continuous
    curved collision are irrational), use the **Q32.32 fixed-point** substrate —
-   which is *deterministic and reproducible but rounds* — and say so. **Surface the
-   boundary; never silently approximate.** i64 overflow is a **refusal**, not a
-   wrap. (Bignum only if a real consumer actually hits the ceiling — not
-   speculatively.)
+   which is *deterministic and reproducible but rounds* — and say so. The worked
+   example is **rung 5, bounded fixed-point dynamics** (`tools/physics/fp_dynamics.py`):
+   where the exact ℚ rungs refuse on long sims, it time-steps a settling stack and a
+   swinging pendulum for as long as you like (uniqueness-by-certificate → reproducibility-
+   by-frozen-rounding). **Surface the boundary; never silently approximate.** i64
+   overflow is a **refusal**, not a wrap. (Bignum only if a real consumer actually hits
+   the ceiling — not speculatively.)
 
 5. **The admission ladder.** Every capability goes:
    `prototype → reference proof → conformance corpus → independent second
@@ -191,9 +196,10 @@ These are non-negotiable. Every rung in this repo was built under them.
 | `examples/` | `.urdr` programs (42) with `.digest` goldens; `examples/rejected/` (45 typed-refusal fixtures) |
 | `tests/` | Python falsifiers discovered by the gate's unit stage |
 | `tools/intla/` | `urdr-math` (exact integer linear algebra), `urdr-rigidity` |
-| `tools/physics/` | dynamics, LCP, joints, `field.py`; the `Q`/`Vec` exact substrate |
+| `tools/physics/` | exact dynamics, LCP, joints, `field.py`; the `Q`/`Vec` exact substrate; **`fp_dynamics.py`** bounded fixed-point steppers (rung 5) |
 | `tools/render/` | fixed-point rasterizer (`raster.py`) + 3D depth (`raster3d.py`) |
-| `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics) |
+| `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics) |
+| `tools/editor/` | browser authoring + deterministic-replay front-end (`urdr_designer.html`, `replay.py`, `load_world.py`) — **exploratory** consumer; the `--fp` stepping it demos is the gated rung 5 |
 | `tools/world_host/` | multi-actor world runtime (weave, history, regional) |
 | `spec/` | **normative**: D1 language, D5 ledger, D7 execution geometry, D8 portable kernel, D9 numeric substrate, D10 observer, D11 layer contracts, D12 versions/freeze |
 | `docs/` | narrative: `PAPER.md` (OSDI-style systems paper), `network_bridge.md`, roadmap, transcripts |

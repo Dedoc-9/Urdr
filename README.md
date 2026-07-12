@@ -16,13 +16,15 @@ determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.
 
 The language is the kernel of a larger system: a **deterministic, certified execution
 pipeline** — an exact-integer math spine (Bareiss rank/determinant, atlas injectivity +
-reconstruction), physics (dynamics, n-contact LCP, articulated joints), a fixed-point
-renderer (2D fill → 3D depth → exact perspective), and a reactive continuum (advection-
-diffusion, Marangoni surface tension, a two-way field↔body coupling loop) — in which every
-admitted output is either bit-identical across independent implementations or explicitly
-refused. **Four** single-file Rust placements (core / render / physics / math) reproduce the
-reference's kernel, frame, physics, field, and exact-math digests bit-for-bit on fixed
-corpora, behind a 261-test gate — and the math spine has a **third**, C99 placement, so
+reconstruction), **exact** physics (dynamics, n-contact LCP, articulated joints), a **bounded
+fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and swings
+pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
+→ exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
+a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
+across independent implementations or explicitly refused. **Five** single-file Rust placements
+(core / render / physics / math / fixed-point dynamics) reproduce the reference's kernel, frame,
+physics, field, exact-math, and fixed-point-dynamics digests bit-for-bit on fixed corpora,
+behind a **266-test gate** — and the math spine has a **third**, C99 placement, so
 rank/determinant/injectivity/reconstruction agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
@@ -266,6 +268,7 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | P2 | **Deterministic renderer** (`tools/render/`): rung 1 2D fill (top-left rule) → rung 2 exact **3D depth** (z-buffer occlusion, near/far/screen clip) → rung 3 exact **perspective** (floor-div pixel grid, vanishing point) | `IMPLEMENTED / MEASURED (cross-placed, 10 frames)` |
 | P3 | **urdr-math cross-placement** (`tools/intla/urdr_math_rs/`): exact rank/determinant/floor_divmod + the **general-*n* injectivity certificate** and **exact reconstruction** solver, bit-identical in Rust | `IMPLEMENTED / MEASURED (cross-placed, 20 digests)` |
 | P4 | **Reactive continuum** (`tools/physics/`): `urdr-field` advection-diffusion (mass exact) → **Marangoni** surface-tension transport → **two-way field↔body loop** (force → LCP → reaction reservoir; total momentum exact) | `IMPLEMENTED / MEASURED (cross-placed)` — `urdr-physics-rs` now 27 digests |
+| P5 | **Bounded fixed-point dynamics** (`tools/physics/fp_dynamics.py`): where the exact rungs **refuse** on long/iterated sims (ℚ overflows i64 in a handful of steps), a frozen **Q32.32** stepper time-steps a contact stack until it *settles* and a pendulum until it *swings* — bounded (refuses, never wraps), deterministic, per-tick `URDRFPD1` states summarized by a `URDRFPT1` trace golden; gated with a non-vacuous defect self-test (drop the sleep clamp / the squared-length Baumgarte → the gate reddens) | `IMPLEMENTED / MEASURED (both placements)` — Rust `fp_dynamics_rs/` ADMITTED 2/2 + defect caught on Windows/`rustc` |
 
 ## Honest boundaries (§9, in our own words)
 
@@ -295,39 +298,74 @@ Each main-tree folder carries its own README with the detail.
 | [`spec/`](spec/) | Normative specs D1–D12 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone, **layer contracts D11**, **versions/freeze D12**), the D5 graded ledger, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
 | [`examples/`](examples/) | The corpus the gate runs: accepted `.urdr` fixtures + golden `.digest`, `rejected/` must-die programs + `MANIFEST.txt`, `must_fail/` the tamper self-test, `vendor/` import-by-digest modules | [`examples/README.md`](examples/README.md) |
 | [`tests/`](tests/) | Unit falsifiers (pytest / unittest), one per subsystem — each designed to be able to go red | [`tests/README.md`](tests/README.md) |
-| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `world_host/` (runtime reference), `editor/` (a browser CAD/world authoring front-end + a `load_world.py` that renders an exported scene through the exact `perspective.py`; exploratory, not gated), plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
+| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (exact dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`; **bounded fixed-point dynamics** `fp_dynamics.py` + `fp_dynamics_rs/`, the deterministic real-time path — rung 5, cross-placed), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `world_host/` (runtime reference), `editor/` (a browser **authoring + deterministic-replay** front-end — draw wireframe objects, populate a 3D world with full physical state (mass/collider/material/velocity/joints), and a ▷ **Replay** mode that scrubs a run witness-by-witness with contacts/impulses/momentum/λ overlays *read from the recorded witnesses*; `replay.py` drives the exact solvers and the bounded `--fp` path, `load_world.py` renders an exported scene through the exact `perspective.py`; **exploratory** as a whole, but the fixed-point stepping it demos is the gated rung 5), plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
 | [`docs/`](docs/) | Design briefs and session transcripts (narrative, not normative) | [`docs/README.md`](docs/README.md) |
 | `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
 | `verify.py` | The gate: unit falsifiers + examples (×2) + oracle + modules + rejections + tamper self-test | — |
 | [`LESSONS.md`](LESSONS.md) | The 12 inherited discipline laws, each with where it is enforced | — |
 
-## Use cases
+## What the manifold / engine can do — and what it's for
 
-Urðr is a research language and a worked example of a discipline, now carrying a full deterministic
-execution pipeline; these are the shapes it fits.
+Two properties are unusual in combination, and everything below follows from them: **the whole
+pipeline is bit-reproducible across independent implementations** (five Rust placements + a C99
+one agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
+at the type level** (over-grading does not typecheck; `MEASURED` is minted only by a verifier).
+The "manifold" is the observer/atlas layer (D7–D10) — the theorem `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) =
+{0}` made computable and data-parameterized (nD is a data choice) — sitting under a physics + render
++ field engine that all shares one digest-addressed authority.
 
-- **Honest capability / claim tracking.** The epistemic type system (`𒀭⟨maturity, evidence⟩` + the
-  no-inflation ladder + the ᛞ verify mint) is a reusable pattern for any system where *a claim must
-  not outrun its evidence* — audit ledgers, provenance chains, grant/report pipelines.
-- **Deterministic, cross-platform simulation.** The Q32.32 substrate (D9) plus the exact-rational
-  physics (dynamics, n-contact LCP, articulated joints) reproduce bit-for-bit on every host and
-  placement — the property deterministic-lockstep and *rollback* netcode need and that IEEE floats
-  cannot promise across CPUs/GPUs. Four independent Rust placements (core / render / physics / math)
-  agree on a stated corpus, so the reproducibility is itself checkable.
+### What you can do with it today
+
+- **Author** wireframe objects and a 3D world — vehicles, barriers, a highway — each object a
+  content-addressed vertex/edge list with a physical inspector (mass, collider, material, velocity,
+  parenting, joints) and a scene hierarchy, exported as a canonical scene
+  ([`tools/editor/`](tools/editor/)). The browser is an *authoring and visualization client* only;
+  it never becomes a second physics engine.
+- **Simulate it exactly** where exactness is affordable: an n-contact stack resolves to a *certified*
+  contact-force vector λ (complementarity-proven), an articulated linkage to `J·v = 0`
+  (uniqueness-by-certificate), a collision to an exact momentum/energy witness. Each single solve
+  carries a cryptographic witness — or a **typed refusal** (`PHYS-REFUSE`) instead of a wrong answer.
+- **Animate it bounded** where exactness would overflow: the frozen Q32.32 fixed-point path (`--fp`,
+  rung 5) time-steps a stack until it *settles* under gravity, a pendulum until it *swings*, an
+  authored world until its bodies collide, bounce (restitution), and come to rest — for as long as you
+  like, deterministically, refusing rather than wrapping. Exact and bounded are the same engine's two
+  columns: *exact where affordable, deterministic-bounded where you need duration.*
+- **Replay it by digest.** Every frame is an exact state addressed by its own hash; scrubbing a replay
+  (`replay.py` → ▷ Replay in the editor) restores that state bit-for-bit, and the witness chain is
+  identical on every conforming machine. The debug overlays (contacts, impulses, momentum, centre of
+  mass, a resting stack's λ) are *read from the recorded witnesses*, never recomputed in the client.
+- **Check that it reproduces.** `verify.py` re-derives every golden twice in isolated subprocesses,
+  and the independent Rust/C placements reproduce the kernel, frame, physics, field, math, and
+  fixed-point-dynamics digests bit-for-bit with a deliberate defect caught. The reproducibility is
+  itself a checkable artifact, not a promise.
+
+### What it's for
+
+- **Deterministic-lockstep and rollback netcode.** The one property IEEE floats cannot promise across
+  CPUs/GPUs/compilers — bit-identical simulation on every machine — is this engine's design center.
+  The exact solvers give certified single steps; the Q32.32 path gives the long, rounding-but-*shared*
+  duration that lockstep and rollback actually run on. Peers exchange inputs, not state, and a digest
+  mismatch is a caught desync rather than a silent divergence.
+- **Verification-first engine architecture (many views, one authority).** The atlas/observer theorem
+  (cross-placed general-*n* injectivity + exact reconstruction) + `world_host` demonstrate a design
+  where *many renderers share one authoritative, cross-checked state*: the kernel owns authority, an
+  admissible observer is a *covering* atlas, a frame is admitted iff it reconstructs to the authority,
+  and a laundered or forked view is **refused, not repaired**. Multiplayer consensus, spectator/AI
+  views, scientific visualization, and deterministic replay are all the same shape.
 - **Reactive environments that stay reproducible.** `urdr-field` (advection-diffusion) + Marangoni
-  surface-tension transport + the two-way field↔body coupling loop are a deterministic
-  reactive-fluid substrate: a scalar environment flows up its own tension gradient, pushes bodies,
-  resolves their contacts through the exact LCP, and gets stirred back — mass exact, total momentum
-  exact, every unit accounted. A sandbox that reacts to perturbations *identically on every machine*.
-- **Verification-first engine architecture.** The atlas/observer theorem (now with a **cross-placed**
-  general-*n* injectivity certificate and exact reconstruction) + `world_host` demonstrate a design
-  where *many renderers share one authoritative, cross-checked state* — multiplayer consensus,
-  scientific visualization, spectator/AI views, deterministic replay: the kernel owns authority, the
-  renderer (2D fill → 3D depth → exact perspective) owns appearance, and a laundered or forked view is
-  refused, not repaired.
-- **A template for reproducible research claims.** Red-first, prototype-first, two-placement,
-  honestly-graded — every result here is a small case study in making a verifiable claim about code.
-- **Teaching.** A small language whose entire point is that over-claiming does not typecheck.
+  surface-tension transport + the two-way field↔body loop are a deterministic reactive substrate: a
+  scalar environment flows up its own tension gradient, pushes bodies, resolves their contacts through
+  the exact LCP, and is stirred back — mass exact, total momentum exact, every unit accounted. A
+  sandbox that reacts to perturbations *identically on every machine*.
+- **Honest capability / claim tracking.** The epistemic type system (`𒀭⟨maturity, evidence⟩` + the
+  no-inflation ladder + the ᛞ verify mint + `⟿` transition witnesses) is a reusable pattern for any
+  system where *a claim must not outrun its evidence* — audit ledgers, provenance chains, grant/report
+  pipelines, model/eval scorecards.
+- **A substrate for reproducible research and teaching.** Red-first, prototype-first, two-placement,
+  honestly-graded — every result here is a case study in making a verifiable claim about code, and the
+  bit-reproducible physics/field layers are a platform for experiments that must replay identically
+  years later. Pedagogically: a small language whose entire point is that over-claiming does not
+  typecheck, wired to an engine that refuses rather than approximates.
 
 ## Further development
 
