@@ -115,10 +115,14 @@ and checks the three things a lockstep netcode lives or dies on:
    **explained by the first mismatching witness** (which tick, and the two differing digests)
    rather than silently diverging.
 
-This is the gated rung **N1** ([`tools/netcode/lockstep.py`](../tools/netcode/lockstep.py)).
-Honest scope: reproducibility is `MEASURED` on the cross-placed fixed-point substrate; a
-second-language placement of the loop and *authenticated* inputs (`digest ≠ MAC`) are the
-declared next pieces — today the witnesses catch accidental divergence, not a signing adversary.
+This is the gated rung **N1** ([`tools/netcode/lockstep.py`](../tools/netcode/lockstep.py)),
+`MEASURED (both placements)` — the Rust placement reproduces the transcript bit-for-bit — and it
+is the floor of a four-rung stack, all both-placements and frozen in `spec/D12`: **N2** rollback
+(a late-but-valid input rewinds to a canonical snapshot and *converges to this same chain*),
+**N3** authenticated inputs (a Lamport-OTS envelope must verify before an input may enter the
+transcript — `digest ≠ MAC` is answered with an actual signature), and **N4** authored worlds
+(the `world_highway.json` scene below runs in this very loop). See
+[`tools/netcode/README.md`](../tools/netcode/README.md) for the stack.
 
 ## Files
 

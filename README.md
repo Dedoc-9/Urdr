@@ -30,7 +30,7 @@ rank/determinant/injectivity/reconstruction agree across **three languages on tw
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R5 + §18–§20; tag v0.7.1)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P5 · N1–N4)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -269,7 +269,10 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | P3 | **urdr-math cross-placement** (`tools/intla/urdr_math_rs/`): exact rank/determinant/floor_divmod + the **general-*n* injectivity certificate** and **exact reconstruction** solver, bit-identical in Rust | `IMPLEMENTED / MEASURED (cross-placed, 20 digests)` |
 | P4 | **Reactive continuum** (`tools/physics/`): `urdr-field` advection-diffusion (mass exact) → **Marangoni** surface-tension transport → **two-way field↔body loop** (force → LCP → reaction reservoir; total momentum exact) | `IMPLEMENTED / MEASURED (cross-placed)` — `urdr-physics-rs` now 27 digests |
 | P5 | **Bounded fixed-point dynamics** (`tools/physics/fp_dynamics.py`): where the exact rungs **refuse** on long/iterated sims (ℚ overflows i64 in a handful of steps), a frozen **Q32.32** stepper time-steps a contact stack until it *settles* and a pendulum until it *swings* — bounded (refuses, never wraps), deterministic, per-tick `URDRFPD1` states summarized by a `URDRFPT1` trace golden; gated with a non-vacuous defect self-test (drop the sleep clamp / the squared-length Baumgarte → the gate reddens) | `IMPLEMENTED / MEASURED (both placements)` — Rust `fp_dynamics_rs/` ADMITTED 2/2 + defect caught on Windows/`rustc` |
-| N1 | **Deterministic lockstep spine** (`tools/netcode/lockstep.py`): two peers exchange **inputs only, never state**, and reproduce one per-tick witness chain (`URDRLST1`); reordered/duplicated **delivery** is absorbed (dedup + additive-impulse commutativity), while a dropped/modified/tick-moved input **desyncs and is localized** to the first mismatching tick; gated (`arena3` `URDRLSTT` golden + peers-agree + a `netcode-desync-selftest`) | `IMPLEMENTED / MEASURED (both placements)` — Rust `lockstep_rs/` ADMITTED 2/2 + defect caught on Windows/`rustc` (integer logic C-cross-checked bit-identical); authenticated inputs (`digest ≠ MAC`) `DECLARED` |
+| N1 | **Deterministic lockstep spine** (`tools/netcode/lockstep.py`): two peers exchange **inputs only, never state**, and reproduce one per-tick witness chain (`URDRLST1`); reordered/duplicated **delivery** is absorbed (dedup + additive-impulse commutativity), while a dropped/modified/tick-moved input **desyncs and is localized** to the first mismatching tick; gated (`arena3` `URDRLSTT` golden + peers-agree + a `netcode-desync-selftest`) | `IMPLEMENTED / MEASURED (both placements)` — Rust `lockstep_rs/` ADMITTED 2/2 + defect caught on Windows/`rustc` (integer logic C-cross-checked bit-identical); **FROZEN** `urdr-netcode 0.1` (D12) |
+| N2 | **Rollback as a deterministic replay primitive** (`tools/netcode/rollback.py`): canonical snapshots every `K` ticks (retain `H`); a **late-but-valid** input rewinds to the newest snapshot at-or-before its tick, replays, and **converges bit-for-bit to the canonical timeline** (the converged golden IS the N1 golden — `K`/`H` are operational, never semantic); beyond the horizon → `ROLLBACK-REFUSE` (rejected whole), a same-`(peer,seq)`-different-payload forgery → `ROLLBACK-CONFLICT`; the apply-at-head defect must diverge (gated) | `IMPLEMENTED / MEASURED (both placements)` — Rust `rollback_rs/` ADMITTED on Windows/`rustc`; the C99 cross-check agrees on the golden **and** the defect's exact divergent digest; **FROZEN** `urdr-netcode-rollback 0.1` (D12) |
+| N3 | **Authenticated inputs** (`tools/netcode/authinput.py`): a **Lamport one-time signature** (pure SHA-256 — an actual signature, so a forging *peer* is caught, not just an outsider) must verify against a pre-committed roster pin before an event enters the transcript; four forgery shapes each `AUTH-REFUSE`; the fully signed log reproduces the N1 golden unchanged — *authentication decides eligibility, never state law*; the OTS one-time rule is enforced structurally by N2's identity law | `IMPLEMENTED / MEASURED (both placements)` — Rust `authinput_rs/` ADMITTED on Windows/`rustc`; C99 agrees on goldens, refusals, and the forge anchor; **FROZEN** `urdr-netcode-auth 0.1` (D12). Honest scope: mechanism, not key secrecy |
+| N4 | **Authored worlds in the loop** (`tools/netcode/worldstep.py`): a frozen `URDR-WORLD-3` editor export becomes the initial state of the same deterministic loop — static AABB obstacles (least-penetration law), a **typed authoring boundary** (`WORLD-REFUSE` on non-integer coordinates, never a silent round), instance file order as world identity, and the anti-drift theorem: with no statics, the N4 tick reproduces the frozen N1 chain **bit-for-bit** (gated) | `IMPLEMENTED / MEASURED (both placements)` — Rust `worldstep_rs/` ADMITTED on Windows/`rustc`; C99 agrees incl. the no-statics defect anchor; **FROZEN** `urdr-netcode-world 0.1` (D12). Loader reference-gated; mass inert until body-body contact |
 
 ## Honest boundaries (§9, in our own words)
 
@@ -344,19 +347,23 @@ catch every injected desync at the first mismatching tick. Walkthrough: [`demo/`
   identical on every conforming machine. The debug overlays (contacts, impulses, momentum, centre of
   mass, a resting stack's λ) are *read from the recorded witnesses*, never recomputed in the client.
 - **Check that it reproduces.** `verify.py` re-derives every golden twice in isolated subprocesses,
-  and the independent Rust/C placements reproduce the kernel, frame, physics, field, math, and
-  fixed-point-dynamics digests bit-for-bit with a deliberate defect caught. The reproducibility is
-  itself a checkable artifact, not a promise.
+  and the independent Rust/C placements reproduce the kernel, frame, physics, field, math,
+  fixed-point-dynamics, netcode-transcript, signed-input, and authored-world digests bit-for-bit
+  with a deliberate defect caught — in the netcode stack, the placements agree on the *failure*
+  digests too. The reproducibility is itself a checkable artifact, not a promise.
 
 ### What it's for
 
-- **Deterministic-lockstep and rollback netcode.** The one property IEEE floats cannot promise across
-  CPUs/GPUs/compilers — bit-identical simulation on every machine — is this engine's design center.
-  The exact solvers give certified single steps; the Q32.32 path gives the long, rounding-but-*shared*
-  duration that lockstep and rollback actually run on. This now has a **gated spine**
-  ([`tools/netcode/lockstep.py`](tools/netcode/lockstep.py), rung N1; `python3 demo/lockstep_demo.py`):
-  two peers exchange inputs, not state, reproduce one witness chain, and a digest mismatch is a *caught,
-  localized* desync (named by the first mismatching tick) rather than a silent divergence.
+- **Deterministic netcode, four rungs deep and frozen.** The one property IEEE floats cannot promise
+  across CPUs/GPUs/compilers — bit-identical simulation on every machine — is this engine's design
+  center, and it is now a **measured stack**, not a direction ([`tools/netcode/`](tools/netcode/),
+  rungs N1–N4, all both-placements, all frozen in D12): peers exchange inputs, never state, and
+  reproduce one witness chain (**N1** lockstep); a late-but-valid input rewinds to a canonical
+  snapshot and replays to the *same* chain (**N2** rollback); only an input whose Lamport envelope
+  verifies against a pre-committed roster may enter the transcript at all (**N3** authenticated
+  inputs); and the world the loop governs can be a user-authored `URDR-WORLD-3` scene (**N4**).
+  A digest mismatch is a *caught, localized, typed* event — desync, refusal, or conflict — never a
+  silent divergence. `python3 demo/lockstep_demo.py` shows the spine in one second.
 - **Verification-first engine architecture (many views, one authority).** The atlas/observer theorem
   (cross-placed general-*n* injectivity + exact reconstruction) + `world_host` demonstrate a design
   where *many renderers share one authoritative, cross-checked state*: the kernel owns authority, an
@@ -392,8 +399,13 @@ field↔body coupling loop (Continuum, cross-placed / reference). See [`spec/D5-
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles —
   the renderer rung beyond wireframe.
-- **World-host Rust port (Steps 4–5)** + the large systems surfaces (networking, persistence,
-  replication, spatial streaming) — graded by integration tests, not the URDR gate.
+- **World-host Rust port (Steps 4–5)** + the remaining large systems surfaces (persistence,
+  replication, spatial streaming, interest management) — the netcode trust boundary itself
+  (lockstep/rollback/auth/authored worlds) is now gated and frozen; what remains here is scale-out,
+  graded by integration tests, not the URDR gate.
+- **Netcode composition rungs** — N2/N3 over authored worlds (mechanical, since `worldstep` shares
+  the `simulate(w, log)` contract, but unclaimed until gated) and body-body contact in the authored
+  runtime (unlocks the currently-inert instance mass).
 - **Bignum substrate** — *only if* a real consumer hits the i64 ceiling (iterated exact-ℚ fields
   overflow, refusing ~step 24–31); deliberately not built speculatively.
 - **Metatheory** (progress/preservation, no-inflation soundness, lens laws) is `CONJECTURED`; the

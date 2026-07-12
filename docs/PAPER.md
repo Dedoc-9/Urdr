@@ -22,13 +22,16 @@ across five layers: a sealed kernel, an exact-integer math library, a
 certified-physics layer, a deterministic rasterizer, and a world runtime, with
 I/O confined to a capability boundary.
 
-We report a concrete reproducibility result: four independent, single-file Rust
-implementations — of the kernel, the renderer, the physics, and the exact-integer
-math spine — reproduce the reference implementation's output digests **bit-for-bit**
-on fixed conformance corpora (36 kernel vectors, 10 frame digests including 3D depth and perspective,
-18 physics digests, 3 fixed-point field + 3 Marangoni + 3 coupling-loop digests, and 20 exact-math digests —
-rank/determinant/floor_divmod plus the atlas injectivity and reconstruction
-certificates), twice each, with deliberately-defective builds caught. A 261-test
+We report a concrete reproducibility result: nine independent, single-file Rust
+implementations — of the kernel, the renderer, the physics, the exact-integer math
+spine, the bounded fixed-point dynamics, and the four-rung netcode stack (lockstep,
+rollback, authenticated inputs, authored worlds) — reproduce the reference
+implementation's output digests **bit-for-bit** on fixed conformance corpora
+(36 kernel vectors, 10 frame digests including 3D depth and perspective, 18 physics
+digests, 3 fixed-point field + 3 Marangoni + 3 coupling-loop digests, 20 exact-math
+digests, 2 fixed-point-dynamics traces, and the netcode transcript/roster/signed-chain
+and authored-world goldens), twice each, with deliberately-defective builds caught —
+in the netcode stack the placements agree on the *defect* digests as well. A 306-test
 verification gate enforces
 determinism, golden agreement, an in-process oracle, and 45 typed rejection
 fixtures on every change. We are precise about scope: this demonstrates
@@ -216,12 +219,19 @@ defective build **caught** in every case:
 | `urdr-physics-rs` | 1D + 2D/3D dynamics + n-contact LCP + joints (**18**) + field transport (**3** FIELDFP) + **Marangoni** (**3**) + two-way field↔body **loop** (**3**) | **27** | ADMITTED ×2, defect caught |
 | `urdr-math-rs`    | exact-integer spine: rank/determinant/floor_divmod + atlas injectivity (verdict + nullspace witness) + reconstruction (state/refusal) | **20** | ADMITTED ×2, defect caught |
 | `urdr-math-c` (C99) | the **same 20** exact-math digests — a THIRD independent runtime | **20** | ADMITTED ×2, defect caught (Linux/gcc — 3 languages, 2 OSes) |
+| `fp-dynamics-rs`  | bounded fixed-point dynamics (rung 5): settling stack + Baumgarte swing trace goldens (`URDRFPT1`) | **2** | ADMITTED ×2, defect caught |
+| `lockstep-rs`     | netcode N1: the `arena3` lockstep transcript (`URDRLSTT`) | **1** | ADMITTED ×2, defect caught |
+| `rollback-rs`     | netcode N2: late-delivery convergence to the canonical transcript at two snapshot cadences + typed refusals | **1** | ADMITTED; defect diverges to the **same digest** as an independent C99 port |
+| `authinput-rs`    | netcode N3: Lamport-OTS roster root + fully-signed chain; four forgery shapes refused | **2** | ADMITTED ×2; the C99 port finds the identical tail-collision forgery |
+| `worldstep-rs`    | netcode N4: authored-world runtime — arena equivalence with frozen N1 + the `highway` scene | **1**(+equiv) | ADMITTED; no-statics defect at the shared three-language anchor |
 
-The four placements share no code, language, or SHA-256 implementation with the
+The nine placements share no code, language, or SHA-256 implementation with the
 reference. This is the paper's central result: across the whole pipeline —
-**state, pixels, motion, and reactive fields** — a second, independent
-implementation computes the identical digest, so the digests are a property of the
-*specification*, not of one interpreter. (A fourth field digest, the exact-ℚ
+**state, pixels, motion, reactive fields, and the networked transcript** — a
+second, independent implementation computes the identical digest, so the digests
+are a property of the *specification*, not of one interpreter. In the netcode
+stack the placements also agree on the *defect* digests — the failure modes are
+cross-placed, not just the successes. (A fourth field digest, the exact-ℚ
 `FIELDQ` backend, is reference-only — see §6 on the exact-vs-scale tradeoff.)
 
 ### 5.2 Replay reproducibility
@@ -234,12 +244,15 @@ online build offline-reproducible.
 
 ### 5.3 Conformance corpus & gate
 
-The gate runs, deterministically: **261** unit falsifiers; **42** example programs
+The gate runs, deterministically: **306** unit falsifiers; **42** example programs
 checked for determinism (twice) and golden agreement; an in-process oracle
 (`compiled ≡ reference`) with a defect that must diverge; **45** rejection fixtures
-each producing an exact typed refusal code; and per-layer stages for the registry,
-renderer, and the four physics rungs, each with a non-vacuity self-test. A final
-`tamper-selftest` corrupts a golden and requires the mismatch to be detected.
+each producing an exact typed refusal code; per-layer stages for the registry,
+renderer, physics, fields, fixed-point dynamics, and the four netcode rungs, each
+with a non-vacuity self-test; and a `spec-freeze` stage that re-derives every
+frozen digest law declared in the versions document with independent serializers
+and compares byte-for-byte — documentation drift reddens the gate mechanically. A
+final `tamper-selftest` corrupts a golden and requires the mismatch to be detected.
 
 ### 5.4 Adversarial / property coverage
 
@@ -379,6 +392,8 @@ Urðr demonstrates that a single discipline — content-addressed identity, exac
 computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
-four independent Rust placements reproduce the reference's state, frame, physics,
-and exact-math digests bit-for-bit on fixed corpora, behind a 261-test gate with typed
+nine independent Rust placements reproduce the reference's state, frame, physics,
+exact-math, fixed-point-dynamics, and netcode-stack digests — including the
+lockstep/rollback transcript, signed-input admission, and an authored world —
+bit-for-bit on fixed corpora, behind a 306-test gate with typed
 refusa

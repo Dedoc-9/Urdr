@@ -8,4 +8,7 @@ a brief and a spec disagree, the spec wins.
 
 | Path | What it is |
 |---|---|
-| `PAPER.md` | **OSDI-style systems paper** for the deterministic execution pipeline — problem, layered design, implementation, and the cross-implementation reproducibility evaluation (4 independent Rust placements reproducing 36 kernel + 10 frame + 18 physics + 3 field + 3 Marangoni + 20 exact-math digests, behind a 261-test gate). Scoped to corpus agreement, not universal correctness. 
+| `PAPER.md` | **OSDI-style systems paper** for the deterministic execution pipeline — problem, layered design, implementation, and the cross-implementation reproducibility evaluation (nine independent Rust placements + a C99 third runtime on the math spine, reproducing the kernel, frame, physics, field/Marangoni/loop, exact-math, fixed-point-dynamics, and netcode-stack digests behind a 306-test gate; current totals live in `spec/D5-ledger.md`). Scoped to corpus agreement, not universal correctness. |
+| `roadmap_engine.md` | The architectural compass for the engine ambition — a **design contract written to bound the promise, not inflate it**; nothing in it is `MEASURED`, and where it and a spec disagree, the spec wins. |
+| `network_bridge.md` | How capabilities meet the internet: a network response as a recorded input whose provenance is a URL (the R4 līmes extended to sockets, runner-tier). |
+| `manifold-engine-brief.md` | The deep-reasoning build brief (directive prompt) for the manifold-engine track — mission framing for a continuing dev-partner; process material, graded by nothing. |
