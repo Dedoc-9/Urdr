@@ -42,8 +42,9 @@ the apply-at-head defect; the std-only Rust placement (rollback_rs/, ADMITTED on
 Windows/rustc) reproduces the converged golden at K=4 and K=8 with both refusals typed,
 and its --defect diverges to the SAME digest as the independent C99 cross-check.
 Contracts FROZEN at urdr-netcode-rollback 0.1 (spec/D12, in the mechanically-checked
-freeze manifest). `digest != MAC` still: identity conflicts are detected; signatures
-are not claimed — authenticated inputs are the declared successor."""
+freeze manifest). `digest != MAC` is answered upstream: N3 (authinput.py, MEASURED both
+placements, frozen at urdr-netcode-auth 0.1) gates admission with Lamport signatures;
+this module still detects identity conflicts on its own."""
 import sys as _sys
 import os as _os
 

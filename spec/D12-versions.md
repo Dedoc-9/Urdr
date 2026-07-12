@@ -24,6 +24,7 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-fp-dynamics` (rung 5) | **0.1 (FROZEN)** | 2 URDRFPT1 trace digests | reference + `fp_dynamics_rs` (ADMITTED, Windows/rustc) | this doc |
 | `urdr-netcode` (N1) | **0.1 (FROZEN)** | 1 URDRLSTT trace digest | reference + `lockstep_rs` (ADMITTED, Windows/rustc; C99-cross-checked) | this doc |
 | `urdr-netcode-rollback` (N2) | **0.1 (FROZEN)** | 1 converged URDRLSTT trace digest | reference + `rollback_rs` (ADMITTED, Windows/rustc; C99 port agrees on golden AND defect digest) | this doc |
+| `urdr-netcode-auth` (N3) | **0.1 (FROZEN)** | roster root + signed-chain digest | reference + `authinput_rs` (ADMITTED, Windows/rustc; C99 port agrees on goldens, refusals, AND the forge anchor dvx+423) | this doc |
 | `URDR-WORLD-3` (authored-world format) | **3 (FROZEN as consumed)** | tag-checked canonical scene | consumed by `replay.py --world` / `--fp world` / `load_world.py` | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
@@ -175,6 +176,40 @@ Immutable under `urdr-netcode-rollback 0.1` except through a versioned successor
    reference and by `rollback_rs` (ADMITTED on Windows/rustc), with the apply-at-head
    defect diverging to the same digest (`39326ff9…`) in Rust and the C99 cross-check.
 
+## The urdr-netcode-auth v0.1 frozen surface (N3 — authenticated inputs, Lamport OTS)
+
+Immutable under `urdr-netcode-auth 0.1` except through a versioned successor:
+
+1. **The message-digest law.** `d = SHA-256("URDRAIN1" | tick, peer, seq, body, dvx,
+   dvy as signed i64 BE)` — the signature binds the exact payload. Bit indexing over
+   `d` is **MSB-first within each byte** (bit *i* = bit `7−(i mod 8)` of byte
+   `⌊i/8⌋`).
+2. **Key and roster laws.** Pubkey: `"URDRPUB1" | H(x_i,0) | H(x_i,1)` for
+   `i = 0..255` (16,392 bytes). Roster pin: `SHA-256(pubkey)`, committed BEFORE the
+   session. Roster root: `SHA-256("URDRROS1" | per identity in (peer, seq) order:
+   i64BE(peer) | i64BE(seq) | pin)`. Seeded derivation
+   (`x_i,b = SHA-256("URDRKEY1" | seed | u32BE(i) | u8(b))`,
+   `seed = SHA-256("URDRSEED" | i64BE(peer) | i64BE(seq) | session)`) is normative
+   for deterministic keys; operationally secret keys need only produce a conforming
+   pubkey/pin.
+3. **Sign / verify semantics.** Sign reveals one 32-byte preimage per digest bit
+   (8,192 bytes); verify requires the pubkey to hash to the pin, then all 256
+   revealed preimages to hash to the committed values selected by `d`'s bits.
+   Verification is total and pure.
+4. **Refusal + the one-time rule.** A failed verification is `AUTH-REFUSE`, rejected
+   WHOLE — nothing reaches the authority, the chain untouched. One keypair per
+   `(peer, seq)`: reuse leaks preimages, and the rule is enforced structurally at
+   admission by N2's identity-uniqueness law. Authentication decides WHO may submit;
+   the deterministic authority decides WHAT results; witnesses prove what happened.
+5. **Conformance corpus (2 digests).** `conformance_auth.txt`: `roster3` (pins
+   keygen, pubkey serialization, pin, and roster ordering) and `arena3_signed` (the
+   fully signed canonical log's chain — identical to the N1 golden by construction).
+   The auth laws are pinned **behaviorally** by these digests: any change to keygen,
+   serialization, bit indexing, or verify moves them and reds the gate.
+
+**Honest scope:** the freeze covers the mechanism — verification gates admission —
+not operational key secrecy, distribution, or cross-session replay protection.
+
 ## The URDR-WORLD-3 authored-world format (frozen as consumed)
 
 The editor→runtime world serialization, frozen at the keys the deterministic runtime
@@ -221,6 +256,7 @@ corpus tools/physics/conformance_marangoni.txt 3
 corpus tools/physics/conformance_loop.txt 3
 corpus tools/netcode/conformance_netcode.txt 1
 corpus tools/netcode/conformance_rollback.txt 1
+corpus tools/netcode/conformance_auth.txt 2
 format URDR-WORLD-3 demo/world_highway.json
 ```
 

@@ -36,7 +36,8 @@ std-only Rust placement (lockstep_rs/, ADMITTED on Windows/rustc; port logic ind
 C99-cross-checked). Formats FROZEN at urdr-netcode 0.1 (spec/D12, checked mechanically by
 the spec-freeze gate stage). This is reproducibility-by-frozen-rounding on top of the
 already cross-placed FixedPoint substrate. `digest != MAC`: the witnesses catch accidental
-divergence, not a signing adversary -- authenticated inputs are a separate, declared piece."""
+divergence, not a signing adversary -- authenticated inputs are DELIVERED as N3
+(tools/netcode/authinput.py, MEASURED both placements, frozen at urdr-netcode-auth 0.1)."""
 import hashlib
 
 from field import FixedPoint as FP, ONE  # noqa: F401  frozen Q32.32 substrate

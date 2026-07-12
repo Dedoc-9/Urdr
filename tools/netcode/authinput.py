@@ -36,12 +36,15 @@ admission by N2's identity-uniqueness law — a second distinct envelope under a
 (peer, seq) is ROLLBACK-CONFLICT — so one keypair per (peer, seq) is structural, not
 advisory.
 
-GRADE (honest, D5): MEASURED (reference) once the `netcode_auth` gate stage is green.
-Honest scope: the gate pins the MECHANISM — verification gates admission — on fixture
-keys derived from PUBLISHED seeds (deterministic on purpose). Operational key secrecy,
-key distribution, and replay-across-sessions are OUT of scope and never claimed.
-Cross-placement is DECLARED until an independent placement reproduces the goldens on a
-named host; the envelope/roster contracts freeze in D12 only after that admission."""
+GRADE (honest, D5): MEASURED (both placements) — the `netcode_auth` gate stage pins the
+goldens, refusals, and the first-byte defect probe; the std-only Rust placement
+(authinput_rs/, ADMITTED on Windows/rustc) reproduces the roster root and signed chain
+2/2 with all refusal shapes typed, and its --defect finds the SAME tail-collision
+forgery (dvx offset 423) as the independent C99 cross-check. Contracts FROZEN at
+urdr-netcode-auth 0.1 (spec/D12). Honest scope: the gate pins the MECHANISM —
+verification gates admission — on fixture keys derived from PUBLISHED seeds
+(deterministic on purpose). Operational key secrecy, key distribution, and
+replay-across-sessions are OUT of scope and never claimed."""
 import hashlib
 import os as _os
 import sys as _sys

@@ -1180,3 +1180,20 @@ SHA-256, clean `-Wall -Wextra`): roster root `847292e2…` ×2, signed chain `fe
 placements a shared anchor even on the forgery. Only a host `rustc` run separates it from admission; the
 envelope/roster contracts freeze in D12 only after that `ADMITTED`. `who may speak is a hash question
 now; what happens next never was one`.
+
+**N3 admission + freeze — MEASURED (both placements); `urdr-netcode-auth 0.1` FROZEN.** **CONFIRMED on
+host:** on Windows (`rustc -O authinput.rs`) `authinput.exe` printed `URDR-AUTH-RS: ADMITTED` — roster
+root `847292e2…` ×2, signed chain `fea3b967…` ×2, refusals `bitflip/stolen/rogue_pubkey/genuine` all
+correct — and `--defect` found the tail-collision forgery at **dvx offset 423**, the SAME value the
+independent C99 port found, with real=refuse / defect=accept in both: the placements agree on the
+goldens, the refusal shapes, AND the exact forgery (commit `8018473`). D12 accordingly freezes
+`urdr-netcode-auth 0.1`: the message-digest law (`URDRAIN1`), pubkey serialization (`URDRPUB1`), roster
+pin + root laws (`URDRROS1`), the MSB-first bit-indexing, sign/verify semantics, seeded key derivation
+(`URDRKEY1`/`URDRSEED`, normative for deterministic keys), `AUTH-REFUSE` whole-rejection, and the
+structural one-time rule — immutable except through a versioned successor; `conformance_auth.txt` (2
+vectors) joins the mechanically-checked manifest (the auth laws are pinned BEHAVIORALLY by
+`roster3`/`arena3_signed` — a keygen, serialization, indexing, or verify change moves those digests and
+reds the gate). Rule-10 combing: the `digest ≠ MAC` "declared successor" notes in `lockstep.py`,
+`rollback.py`, and D11 flip to delivered. The netcode story is now complete through its trust boundary:
+`N1 proves the same inputs make the same history; N2 proves a late truth replays into it; N3 proves only
+the entitled may write it — and all three are two-placement laws`.

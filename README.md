@@ -21,9 +21,9 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **Seven** single-file Rust placements
-(core / render / physics / math / fixed-point dynamics / lockstep / rollback) reproduce the reference's kernel,
-frame, physics, field, exact-math, fixed-point-dynamics, and lockstep/rollback-transcript digests bit-for-bit
+across independent implementations or explicitly refused. **Eight** single-file Rust placements
+(core / render / physics / math / fixed-point dynamics / lockstep / rollback / auth) reproduce the reference's kernel,
+frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, and signed-input digests bit-for-bit
 on fixed corpora, behind a **299-test gate** — and the math spine has a **third**, C99 placement, so
 rank/determinant/injectivity/reconstruction agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; the layer contracts are in
