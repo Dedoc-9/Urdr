@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **Five** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics) reproduce the reference's kernel, frame,
 physics, field, exact-math, and fixed-point-dynamics digests bit-for-bit on fixed corpora,
-behind a **266-test gate** — and the math spine has a **third**, C99 placement, so
+behind a **272-test gate** — and the math spine has a **third**, C99 placement, so
 rank/determinant/injectivity/reconstruction agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
@@ -269,6 +269,7 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | P3 | **urdr-math cross-placement** (`tools/intla/urdr_math_rs/`): exact rank/determinant/floor_divmod + the **general-*n* injectivity certificate** and **exact reconstruction** solver, bit-identical in Rust | `IMPLEMENTED / MEASURED (cross-placed, 20 digests)` |
 | P4 | **Reactive continuum** (`tools/physics/`): `urdr-field` advection-diffusion (mass exact) → **Marangoni** surface-tension transport → **two-way field↔body loop** (force → LCP → reaction reservoir; total momentum exact) | `IMPLEMENTED / MEASURED (cross-placed)` — `urdr-physics-rs` now 27 digests |
 | P5 | **Bounded fixed-point dynamics** (`tools/physics/fp_dynamics.py`): where the exact rungs **refuse** on long/iterated sims (ℚ overflows i64 in a handful of steps), a frozen **Q32.32** stepper time-steps a contact stack until it *settles* and a pendulum until it *swings* — bounded (refuses, never wraps), deterministic, per-tick `URDRFPD1` states summarized by a `URDRFPT1` trace golden; gated with a non-vacuous defect self-test (drop the sleep clamp / the squared-length Baumgarte → the gate reddens) | `IMPLEMENTED / MEASURED (both placements)` — Rust `fp_dynamics_rs/` ADMITTED 2/2 + defect caught on Windows/`rustc` |
+| N1 | **Deterministic lockstep spine** (`tools/netcode/lockstep.py`): two peers exchange **inputs only, never state**, and reproduce one per-tick witness chain (`URDRLST1`); reordered/duplicated **delivery** is absorbed (dedup + additive-impulse commutativity), while a dropped/modified/tick-moved input **desyncs and is localized** to the first mismatching tick; gated (`arena3` `URDRLSTT` golden + peers-agree + a `netcode-desync-selftest`) | `IMPLEMENTED / MEASURED (reproducibility, single placement)` — on the cross-placed fixed-point substrate; second-language placement + authenticated inputs (`digest ≠ MAC`) `DECLARED` |
 
 ## Honest boundaries (§9, in our own words)
 
@@ -298,8 +299,8 @@ Each main-tree folder carries its own README with the detail.
 | [`spec/`](spec/) | Normative specs D1–D12 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone, **layer contracts D11**, **versions/freeze D12**), the D5 graded ledger, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
 | [`examples/`](examples/) | The corpus the gate runs: accepted `.urdr` fixtures + golden `.digest`, `rejected/` must-die programs + `MANIFEST.txt`, `must_fail/` the tamper self-test, `vendor/` import-by-digest modules | [`examples/README.md`](examples/README.md) |
 | [`tests/`](tests/) | Unit falsifiers (pytest / unittest), one per subsystem — each designed to be able to go red | [`tests/README.md`](tests/README.md) |
-| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (exact dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`; **bounded fixed-point dynamics** `fp_dynamics.py` + `fp_dynamics_rs/`, the deterministic real-time path — rung 5, cross-placed), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `world_host/` (runtime reference), `editor/` (a browser **authoring + deterministic-replay** front-end — draw wireframe objects, populate a 3D world with full physical state (mass/collider/material/velocity/joints), and a ▷ **Replay** mode that scrubs a run witness-by-witness with contacts/impulses/momentum/λ overlays *read from the recorded witnesses*; `replay.py` drives the exact solvers and the bounded `--fp` path, `load_world.py` renders an exported scene through the exact `perspective.py`; **exploratory** as a whole, but the fixed-point stepping it demos is the gated rung 5), plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
-| [`demo/`](demo/) | **`prove_it.py`** — a one-command, self-checking proof that the authoritative simulation reproduces bit-for-bit (gated goldens + an authored world's witness chain + exact certified solves), plus `world_highway.json`, a tiny authored scene | [`demo/README.md`](demo/README.md) |
+| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (exact dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`; **bounded fixed-point dynamics** `fp_dynamics.py` + `fp_dynamics_rs/`, the deterministic real-time path — rung 5, cross-placed), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `netcode/` (**`lockstep.py`** — the deterministic lockstep spine, rung N1: peers exchange inputs only, one witness chain, desyncs detected + localized), `world_host/` (runtime reference), `editor/` (a browser **authoring + deterministic-replay** front-end — draw wireframe objects, populate a 3D world with full physical state (mass/collider/material/velocity/joints), and a ▷ **Replay** mode that scrubs a run witness-by-witness with contacts/impulses/momentum/λ overlays *read from the recorded witnesses*; `replay.py` drives the exact solvers and the bounded `--fp` path, `load_world.py` renders an exported scene through the exact `perspective.py`; **exploratory** as a whole, but the fixed-point stepping it demos is the gated rung 5), plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
+| [`demo/`](demo/) | **`prove_it.py`** — a one-command, self-checking proof that the authoritative simulation reproduces bit-for-bit (gated goldens + an authored world's witness chain + exact certified solves); **`lockstep_demo.py`** — two peers exchange inputs only, agree on one witness chain, and catch every injected desync; plus `world_highway.json` | [`demo/README.md`](demo/README.md) |
 | [`docs/`](docs/) | Design briefs and session transcripts (narrative, not normative) | [`docs/README.md`](docs/README.md) |
 | `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
 | `verify.py` | The gate: unit falsifiers + examples (×2) + oracle + modules + rejections + tamper self-test | — |
@@ -318,7 +319,9 @@ The "manifold" is the observer/atlas layer (D7–D10) — the theorem `Recoverab
 **See it in ~1 second:** `python3 demo/prove_it.py` runs the authoritative simulation and
 *checks* that it reproduces bit-for-bit — the gated fixed-point goldens (cross-host +
 cross-language), an authored highway world's per-tick witness chain (author → export →
-replay), and the exact certified solves (`λ=[3,2,1]`, `J·v=0`). Walkthrough: [`demo/`](demo/).
+replay), and the exact certified solves (`λ=[3,2,1]`, `J·v=0`). And `python3 demo/lockstep_demo.py`
+stages **two peers that exchange inputs only, never state**, agree on one witness chain, and
+catch every injected desync at the first mismatching tick. Walkthrough: [`demo/`](demo/).
 
 ### What you can do with it today
 
@@ -350,8 +353,10 @@ replay), and the exact certified solves (`λ=[3,2,1]`, `J·v=0`). Walkthrough: [
 - **Deterministic-lockstep and rollback netcode.** The one property IEEE floats cannot promise across
   CPUs/GPUs/compilers — bit-identical simulation on every machine — is this engine's design center.
   The exact solvers give certified single steps; the Q32.32 path gives the long, rounding-but-*shared*
-  duration that lockstep and rollback actually run on. Peers exchange inputs, not state, and a digest
-  mismatch is a caught desync rather than a silent divergence.
+  duration that lockstep and rollback actually run on. This now has a **gated spine**
+  ([`tools/netcode/lockstep.py`](tools/netcode/lockstep.py), rung N1; `python3 demo/lockstep_demo.py`):
+  two peers exchange inputs, not state, reproduce one witness chain, and a digest mismatch is a *caught,
+  localized* desync (named by the first mismatching tick) rather than a silent divergence.
 - **Verification-first engine architecture (many views, one authority).** The atlas/observer theorem
   (cross-placed general-*n* injectivity + exact reconstruction) + `world_host` demonstrate a design
   where *many renderers share one authoritative, cross-checked state*: the kernel owns authority, an

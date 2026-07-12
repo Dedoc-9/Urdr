@@ -1026,3 +1026,27 @@ digests including `loop/{push2,wall,chain3}`, with `--defect` catching divergenc
 field↔body loop — force → exact LCP contact resolve → reaction reservoir — is now bit-identical across two
 independent runtimes; the physics placement covers 27 digests (18 physics + 3 FIELDFP + 3 Marangoni + 3
 loop). `the reactive loop is a two-runtime law now: same push, same contact, same books, on every machine`.
+
+**urdr-netcode — the deterministic LOCKSTEP spine — MEASURED (reproducibility, single placement).**
+`tools/netcode/lockstep.py` is the smallest honest demonstration of the architecture's one unusual
+advantage: two peers that begin from the same canonical world and exchange ONLY timestamped input events
+(never state) independently reproduce the same per-tick witness chain (`URDRLST1`) and final state digest.
+`simulate(world, log)` steps the frozen Q32.32 substrate (`../physics/field.py`); each tick applies that
+tick's inputs (additive control impulses) in a canonical `(peer, seq)` order, then integrates under gravity
+in an elastic box. Two load-bearing behaviours, split honestly: (a) **delivery is robust** — the same logical
+log delivered REORDERED or DUPLICATED yields the same chain, because exact-duplicate deliveries are DEDUPED
+(load-bearing) and additive impulses COMMUTE (so per-tick order is irrelevant; the canonical sort is a
+canonical-form nicety here, not the property relied on — stated, not overclaimed); (b) **corruption diverges
+detectably** — a DROPPED, MODIFIED, or TICK-MOVED event changes the log, so the chains diverge, and
+`first_desync` LOCALIZES it to the first mismatching tick (the desync is detected + explained, never silent).
+Gated (`verify.py` stage `netcode_lockstep`): the canonical `arena3` trace reproduces twice and matches its
+frozen golden (`conformance_netcode.txt` `URDRLSTT`); two peers assembling the input union in different
+arrival orders AGREE; and a `netcode-desync-selftest` requires a dropped input to be caught while the clean
+run is not (non-vacuity — the detector can redden, confirmed by a blind-detector probe). Falsifiers in
+`tests/test_lockstep.py` (6). Runnable proof: `demo/lockstep_demo.py`. **Grade: MEASURED** — the lockstep
+chain's reproducibility is gated on the *already cross-placed* FixedPoint substrate. **Honest scope:** this is
+reproducibility-by-frozen-rounding (fixed-point ROUNDS, not exact); a SECOND-LANGUAGE placement of THIS loop is
+**DECLARED** (so the loop's own cross-placement is not yet MEASURED); and `digest ≠ MAC` — the witnesses catch
+*accidental* divergence, not a signing adversary, so **authenticated inputs are a separate, declared piece**.
+No new glyph; kernel frozen; consumes the frozen substrate; extends, never mutates. `peers trade inputs, not
+state; the same inputs make the same witnesses, and a corrupted one is named by the first tick it breaks`.

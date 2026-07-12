@@ -1,0 +1,4 @@
+# urdr-netcode rung — deterministic lockstep: frozen whole-run trace golden (URDRLSTT).
+# Reproduced bit-for-bit on every conforming host (frozen Q32.32 round-to-nearest +
+# canonical input merge (dedup + (peer,seq) order) + SHA-256). name  trace_digest
+arena3 fea3b967db1995bef2f21e3339577eaa44b8021576e2ed2c99626a4018e0cb41

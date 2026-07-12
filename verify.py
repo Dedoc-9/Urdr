@@ -855,6 +855,65 @@ class Gate:
                     "a wrong step (no sleep / no Baumgarte) diverges from the golden (gate can redden)"
                     if nv else "defect matched golden — gate cannot redden")
 
+    # -- 2j2. urdr-netcode: deterministic lockstep spine -----------------------
+    def netcode_lockstep(self):
+        """urdr-netcode: the deterministic LOCKSTEP spine — peers exchange INPUTS, never STATE.
+        The canonical arena's TRACE digest is reproduced twice and matches its golden; two peers
+        assembling the same input UNION in different arrival orders AGREE (one witness chain, no
+        desync); and a DROPPED input MUST desync + be localized to the first mismatching tick
+        while the clean run does NOT (non-vacuity — the desync detector can redden).
+        Reproducibility MEASURED on the cross-placed FixedPoint substrate (single placement of
+        this loop; a second-language placement is DECLARED). digest ≠ MAC — catches accidental
+        divergence, not a signing adversary; authenticated inputs are a separate declared piece."""
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import lockstep as L
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("netcode-lockstep", False, f"import failed: {exc}")
+            return
+        golden = None
+        conf = os.path.join(ndir, "conformance_netcode.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dg = ln.split()
+                        if name == "arena3":
+                            golden = dg
+        w = L.world()
+        log = L.sample_log()
+        t1 = L.trace_digest(L.simulate(w, log)[0])
+        t2 = L.trace_digest(L.simulate(w, log)[0])
+        if t1 != t2:
+            self.record("netcode-lockstep:arena3", False, "NONDETERMINISTIC")
+        elif golden != t1:
+            self.record("netcode-lockstep:arena3", False,
+                        f"trace {t1[:12]}… ≠ golden {str(golden)[:12]}…")
+        else:
+            self.record("netcode-lockstep:arena3", True, t1[:16] + "…")
+        # invariant: two peers, same inputs, different arrival order -> one identical chain
+        a_view = [e for e in log if e[1] == 0] + [e for e in log if e[1] == 1]
+        b_view = [e for e in log if e[1] == 1] + [e for e in log if e[1] == 0]
+        ca = L.simulate(w, a_view)[0]
+        cb = L.simulate(w, b_view)[0]
+        agree = (ca == cb) and (L.first_desync(ca, cb) is None)
+        self.record("netcode-peers-agree", agree,
+                    "two peers exchange inputs only and reproduce one witness chain"
+                    if agree else "peers disagree on identical inputs (lockstep broken)")
+        # non-vacuity: a DROPPED input MUST desync + localize; the clean run must NOT
+        clean_ok = L.first_desync(ca, L.simulate(w, a_view)[0]) is None
+        dropped = L.simulate(w, L.drop_event(a_view, 1))[0]
+        d = L.first_desync(ca, dropped)
+        nv = clean_ok and (dropped != ca) and (d is not None)
+        self.record("netcode-desync-selftest", nv,
+                    f"a dropped input desyncs, localized to tick {d} (clean run does not; gate can redden)"
+                    if nv else "a dropped input was not detected — gate cannot redden")
+
     # -- 2k. urdr-field: deterministic scalar-field transport ------------------
     def field(self):
         """urdr-field: deterministic scalar transport (advection-diffusion) over a
@@ -1312,6 +1371,7 @@ def main() -> int:
     gate.physics_joint()
     gate.physics_stress()
     gate.physics_fp()
+    gate.netcode_lockstep()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

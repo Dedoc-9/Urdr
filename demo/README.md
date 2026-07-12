@@ -95,9 +95,35 @@ fixed-point and exact rows) agreement with a frozen golden that a second languag
 second OS also reproduce. The witnesses are what you diff — the decimals in the replay file
 are for drawing only.
 
+## Deterministic lockstep — `lockstep_demo.py`
+
+```bash
+python3 demo/lockstep_demo.py
+```
+
+The architecture's one unusual advantage, made executable. It stages a **two-peer** session
+and checks the three things a lockstep netcode lives or dies on:
+
+1. **Agreement.** Peer A and Peer B start from the same canonical world and exchange *only*
+   their timestamped inputs — never state. Each assembles the input union in a *different*
+   arrival order, steps the deterministic authority, and emits a witness chain. Identical
+   inputs → identical per-tick witnesses and an identical final digest.
+2. **Delivery robustness.** The same inputs delivered reordered or duplicated produce the
+   same chain (exact-duplicate dedup + additive-impulse commutativity) — a lossy/reordering
+   network is not a desync. A genuinely *new* input still changes the chain (dedup is real).
+3. **Fault detection.** A dropped, modified, or mis-timed input desyncs, and the desync is
+   **explained by the first mismatching witness** (which tick, and the two differing digests)
+   rather than silently diverging.
+
+This is the gated rung **N1** ([`tools/netcode/lockstep.py`](../tools/netcode/lockstep.py)).
+Honest scope: reproducibility is `MEASURED` on the cross-placed fixed-point substrate; a
+second-language placement of the loop and *authenticated* inputs (`digest ≠ MAC`) are the
+declared next pieces — today the witnesses catch accidental divergence, not a signing adversary.
+
 ## Files
 
-- [`prove_it.py`](prove_it.py) — the runnable, self-checking proof (≈1 s, stdlib only).
+- [`prove_it.py`](prove_it.py) — the runnable, self-checking reproducibility proof (≈1 s, stdlib only).
+- [`lockstep_demo.py`](lockstep_demo.py) — the two-peer deterministic-lockstep demonstration.
 - [`world_highway.json`](world_highway.json) — a tiny authored `URDR-WORLD-3` scene (two
   vehicles closing on a static median), the kind [`urdr_designer.html`](../tools/editor/urdr_designer.html)
   exports.

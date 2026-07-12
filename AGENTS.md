@@ -42,6 +42,8 @@ Each layer depends only on the layer beneath it and may assume only that layer's
 ```
    applications            (games, sims, tools) — consumers
         │
+   urdr-netcode            deterministic lockstep — peers exchange INPUTS, one witness chain  [tools/netcode/]
+        │
    urdr-world              multi-actor deterministic world (weave, history)
         │
    urdr-field              reactive scalar transport (advection-diffusion)   [tools/physics/field.py]
@@ -199,6 +201,7 @@ These are non-negotiable. Every rung in this repo was built under them.
 | `tools/physics/` | exact dynamics, LCP, joints, `field.py`; the `Q`/`Vec` exact substrate; **`fp_dynamics.py`** bounded fixed-point steppers (rung 5) |
 | `tools/render/` | fixed-point rasterizer (`raster.py`) + 3D depth (`raster3d.py`) |
 | `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics) |
+| `tools/netcode/` | **`lockstep.py`** — deterministic lockstep spine (rung N1): peers exchange inputs only, one `URDRLST1` witness chain, desyncs detected + localized; `conformance_netcode.txt` golden |
 | `tools/editor/` | browser authoring + deterministic-replay front-end (`urdr_designer.html`, `replay.py`, `load_world.py`) — **exploratory** consumer; the `--fp` stepping it demos is the gated rung 5 |
 | `tools/world_host/` | multi-actor world runtime (weave, history, regional) |
 | `spec/` | **normative**: D1 language, D5 ledger, D7 execution geometry, D8 portable kernel, D9 numeric substrate, D10 observer, D11 layer contracts, D12 versions/freeze |
