@@ -1302,5 +1302,15 @@ rollback's alone) MUST diverge. Red-first: `tests/test_worldpeer.py` (11 falsifi
 specified, its corpus exists, and an independent implementation reproduces it. **Honest scope:**
 inherited whole from N1–N4 (published fixture seeds — mechanism, not key secrecy; regime B rounding;
 inert mass; K/H operational); cross-placement DECLARED — the composed contract freezes in D12 only
-after an independent placement reproduces the converged golden + the defect on a named host. `five
-rungs, one sentence: your world, your signed inputs, one history — or a refusal that says its name`.
+after an independent placement reproduces the converged golden + the defect on a named host. **Second
+placement — written + C-cross-checked, SPECULATIVE pending host.** `tools/netcode/worldpeer_rs/
+worldpeer.rs` (std-only Rust; machinery composed from the four ADMITTED placements — SHA-256/Q32.32
+from all, Lamport from `authinput_rs`, the N4 tick + highway constants from `worldstep_rs`, the
+snapshot/rewind peer from `rollback_rs`; only the URDRWPN1 pin is new). Cross-checked **bit-identical by
+an independent C99 port** (`__int128`, own SHA-256, clean `-Wall -Wextra`): pin `8c4fe8d4…`, roster
+root `d30e7279…`, converged late+signed trace `e72e75c3…` at K=4 (×2) and K=8, refusals
+`world/auth/horizon/untouched/conflict` all typed, and `--defect` (a VERIFIED envelope applied at the
+head) diverging to **exactly `d5bc484b…`** — the same divergent digest as the Python reference: three
+implementations agree on the composed contract's success AND its failure mode. A host `rustc` run is
+the admission; the D12 freeze follows it. `five rungs, one sentence: your world, your signed inputs,
+one history — or a refusal that says its name`.
