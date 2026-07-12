@@ -134,6 +134,15 @@ def simulate(w, log, defect_no_statics=False):
     """Deterministic authored-world run. Returns the witness chain (URDRLST1 law);
     `defect_no_statics` is THE DEFECT for the gate — skipping static resolution must
     diverge from the golden."""
+    frames, _states = simulate_trace(w, log, defect_no_statics)
+    return frames
+
+
+def simulate_trace(w, log, defect_no_statics=False):
+    """The 0.2 ADDITIVE surface: identical frames to `simulate` (digest-preserving —
+    gated), plus one (pos, vel) state snapshot per frame for DISPLAY-ONLY consumers
+    (the editor's ▷ Replay). The states are copies of the Q32.32 words; nothing here
+    feeds back into the tick. Returns (frames, states)."""
     n = w["n"]
     pos = [[c for c in p] for p in w["pos"]]
     vel = [[c for c in v] for v in w["vel"]]
@@ -145,6 +154,7 @@ def simulate(w, log, defect_no_statics=False):
     boxes = [tuple(FP.unit(c, 1) for c in b) for b in w["statics"]]
     ev = L.canon(log)                                      # the frozen canonical merge
     frames = [L._digest(pos, vel, n)]                      # the frozen URDRLST1 law
+    states = [([list(p) for p in pos], [list(v) for v in vel])]
     for t in range(w["T"]):
         for (_, _, _, b, dvx, dvy) in ev.get(t, []):
             if 0 <= b < n:
@@ -198,7 +208,8 @@ def simulate(w, log, defect_no_statics=False):
                     if vel[i][0] < 0:
                         vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
         frames.append(L._digest(pos, vel, n))
-    return frames
+        states.append(([list(p) for p in pos], [list(v) for v in vel]))
+    return frames, states
 
 
 def trace(frames):

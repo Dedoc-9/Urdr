@@ -38,7 +38,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "physics"))
 from rational import Q, Z, RationalError                 # noqa: E402
 from vecq import Vec                                     # noqa: E402
 from dynamics_nd import Ball, step, state_digest, momentum, two_kinetic  # noqa: E402
-from contact_lcp import Contact, delassus, solve_lcp, complementary, lcp_digest  # noqa: E402
+from contact_lcp import Contact, delassus, solve_lcp, complementary, lcp_digest, resolve  # noqa: E402
 from articulated import distance_row, pin_rows, solve as jsolve, satisfied, joint_digest  # noqa: E402
 from field import FixedPoint as _FP, ONE as _FPONE, FieldError, _rdiv as _rd  # noqa: E402  frozen Q32.32 substrate
 
@@ -638,8 +638,59 @@ def fp_world_doc(path, steps=200, K=14, e_pct=50, grav=0, W=460, H=280, margin=3
             "refused": refused, "frames": dframes, "chain": [f["digest"] for f in dframes]}
 
 
+def net_world_doc(path, W=460, H=280, margin=30):
+    """The authored world through the GATED N4 netcode runtime
+    (tools/netcode/worldstep.py): URDRLST1 witnesses, one URDRLSTT trace,
+    deterministic ×2 self-checked in-process. Display floats derive from the Q32.32
+    words (display only — the digests are the authority). Honest scope: N4 mass is
+    inert, so bodies carry display mass 1 and no momentum/energy overlay fields are
+    emitted; the witness chain is what this doc certifies."""
+    sys.path.insert(0, os.path.join(HERE, "..", "netcode"))
+    import worldstep as WS
+    with open(path, "r", encoding="utf-8") as fh:
+        doc = json.load(fh)
+    frames1, states = WS.simulate_trace(WS.world_from_export(doc), [])
+    frames2, _ = WS.simulate_trace(WS.world_from_export(doc), [])
+    det = frames1 == frames2
+    w = WS.world_from_export(doc)
+    onef = float(1 << 32)
+    raws = []
+    for k, (pos, vel) in enumerate(states):
+        raws.append({"frame": k, "digest": frames1[k],
+                     "raw": [{"x": pos[i][0] / onef, "y": pos[i][1] / onef,
+                              "r": w["rs"][i], "vx": vel[i][0] / onef,
+                              "vy": vel[i][1] / onef, "m": 1}
+                             for i in range(w["n"])]})
+    dstat_src = [{"x": (x0 + x1) / 2, "z": (y0 + y1) / 2,
+                  "r": max(x1 - x0, y1 - y0) / 2}
+                 for (x0, y0, x1, y1) in w["statics"]]
+    dframes, dstat = _fit(raws, dstat_src, W, H, margin)
+    return {"format": "URDR-REPLAY-1", "w": W, "h": H, "rail": False, "statics": dstat,
+            "fp": True, "net": True, "trace": WS.trace(frames1),
+            "deterministic_x2": det,
+            "note": "authored world in the GATED N4 netcode runtime (worldstep) — "
+                    "URDRLST1 witnesses; display mass=1 (N4 mass inert); overlays "
+                    "display-only, the witness chain is the authority",
+            "refused": None, "frames": dframes, "chain": [f["digest"] for f in dframes]}
+
+
 def main(argv):
-    if len(argv) > 1 and argv[1] == "--world":
+    if len(argv) > 1 and argv[1] == "--net":
+        wp = None
+        for a in argv[2:]:
+            if a.endswith(".json"):
+                wp = wp or a
+        wp = wp or os.path.join(HERE, "urdr_world.json")
+        if not os.path.exists(wp):
+            print("no world file at %s — export one from urdr_designer.html (▸ Export world JSON)" % wp)
+            return 1
+        out_path = os.path.join(HERE, "urdr_replay.json")
+        for a in argv[2:]:
+            if a.endswith(".json") and a != wp:
+                out_path = a
+        doc = net_world_doc(wp)
+        label = "authored world — N4 netcode runtime (gated worldstep)"
+    elif len(argv) > 1 and argv[1] == "--world":
         if len(argv) < 3:
             print("usage: python3 replay.py --world urdr_world.json [out.json]")
             return 2
@@ -726,6 +777,12 @@ def main(argv):
     if doc.get("stack"):
         print("contact λ     :", [c["lam"] for c in frames[0]["contacts"]], "(bottom → top)")
         print("LCP certified :", doc["certified"], " URDRLCP1:", doc["lcp_digest"][:24], "…")
+    elif doc.get("net"):
+        if frames:
+            print("frame 0 digest:", frames[0]["digest"][:24], "…  (URDRLST1, gated N4 runtime)")
+            print("frame N digest:", frames[-1]["digest"][:24], "…")
+        print("URDRLSTT trace:", doc["trace"][:24], "…")
+        print("deterministic :", "×2 identical" if doc.get("deterministic_x2") else "DIVERGED — bug, do not trust this doc")
     elif frames:
         print("frame 0 digest:", frames[0]["digest"][:24], "…")
         print("frame N digest:", frames[-1]["digest"][:24], "…")

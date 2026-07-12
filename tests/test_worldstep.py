@@ -121,6 +121,21 @@ class AuthoredHighway(unittest.TestCase):
         self.assertEqual(d, self.log[0][0] + 1, "desync not localized")
         self.assertIsNone(L.first_desync(W.simulate(w, list(self.log)), ca))
 
+    def test_simulate_trace_is_digest_preserving(self):
+        """0.2 additive surface: `simulate_trace` returns (frames, states) where frames
+        are BYTE-IDENTICAL to `simulate`'s (the 0.1 frozen surface is untouched) and
+        states carry one (pos, vel) snapshot per frame for display-only consumers."""
+        w = W.world_from_export(self.doc)
+        frames_old = W.simulate(W.world_from_export(self.doc), self.log)
+        frames_new, states = W.simulate_trace(w, self.log)
+        self.assertEqual(frames_new, frames_old,
+                         "simulate_trace drifted from simulate — the additive claim is false")
+        self.assertEqual(len(states), len(frames_new),
+                         "one state snapshot per frame, including the initial frame")
+        n = w["n"]
+        for (pos, vel) in (states[0], states[-1]):
+            self.assertEqual((len(pos), len(vel)), (n, n))
+
     def test_defect_ignoring_statics_diverges(self):
         """The gate's defect: a step that skips static collision MUST diverge from
         the golden (if it converges, the highway golden is vacuous)."""

@@ -1251,3 +1251,29 @@ joins the mechanically-checked manifest. **Honest scope unchanged:** runtime cro
 scene; the JSON loader itself is reference-gated (Python); mass inert until body-body contact arrives.
 Netcode now runs four two-placement rungs deep: `the transcript is law (N1), late truth replays into it
 (N2), only the entitled write it (N3), and the world it governs is yours to draw (N4)`.
+
+**Front-end OODA pass — the editor meets the gated runtime — worldstep 0.2 (additive) MEASURED; editor
+layer SPECULATIVE as ever.** One explicit Observe–Orient–Decide–Act cycle over `tools/editor/` under
+YAGNI + the no-gloss guardrail, kills stated: input/scenario-track authoring KILLED (no gated consumer of
+a scenario format yet — earns its rung when one exists); all renderer/shader gloss KILLED on sight.
+Three increments survived adversarial review, all landed red-first where gate-able. (1) **The known
+`replay.py --world` bug is dead** — the handoff's `resolve()` NameError was a missing import of the
+FROZEN `contact_lcp.resolve` (the λ→velocity mapping it feared was already built and cross-placed at
+rung 3); fixed one-line, verified live: the canonical highway export runs 91 exact frames, momentum
+conserved, 2 LCP contacts resolved, chain deterministic ×2. (2) **`worldstep 0.1 → 0.2` (additive,
+minor):** `simulate_trace` returns the identical frames plus display-only per-frame `(pos, vel)`
+snapshots; digest-preservation proven the strong way — every 0.1 gate vector (highway golden, arena
+equivalence, defect) byte-identical, plus a new falsifier pinning `simulate_trace ≡ simulate`
+(red-first: `AttributeError` before implementation; unit falsifiers 306 → 307). (3) **`replay.py
+--net <export>`** runs the authored scene in the GATED N4 runtime and emits a `URDR-REPLAY-1` doc the
+editor scrubs — URDRLST1 witnesses, the URDRLSTT trace printed, deterministic ×2 self-checked
+in-process; display floats derive from the Q32.32 words (drawing only), display mass 1 with the
+momentum overlays explicitly disclaimed — the witness chain is the authority. (4) **The authoring
+boundary closed at the source:** the designer exported `scale` as a 3-decimal float — the one
+runtime-consumed field that escaped `Math.round` — so a scaled object produced exports the N4 loader
+correctly `WORLD-REFUSE`d; the export now integer-snaps `scale` like every other consumed field and
+says so in its export message (authoring snaps; the runtime never rounds — D11 §4b, both sides).
+**Grades:** worldstep 0.2 additive `MEASURED` (gate 307/0 ×2, byte-identical runs); `replay.py --net` /
+designer changes remain `SPECULATIVE`/exploratory (the editor is a consumer, not a rung — its value is
+that what it *feeds* and *reads* is now the measured runtime). `the front end earns nothing; it borrows
+everything from the gate — and now it borrows from the right engine`.

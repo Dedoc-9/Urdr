@@ -174,6 +174,21 @@ both bounded, deterministic and reproducible, with no overflow and **no sqrt** (
 stabilizes on the *squared* length, so it never leaves i64). Exact remains the proof;
 fixed-point is the live animation.
 
+Run your authored scene in the **gated N4 netcode runtime** — the same `worldstep` engine the
+netcode stack certifies (URDRLST1 witnesses, one URDRLSTT trace, cross-placed in Rust):
+
+```
+python3 replay.py --net urdr_world.json    # authored world, GATED runtime, witness chain + trace
+```
+
+The doc it writes scrubs in **▷ Replay** like any other; the printout includes the URDRLSTT
+trace digest and an in-process deterministic-×2 self-check. Honest scope: display floats are
+derived from the Q32.32 words for drawing only; N4 mass is inert, so bodies carry display mass
+1 and the momentum/energy overlays are not meaningful in this mode — **the witness chain is the
+authority**. Export note: the designer integer-snaps every runtime-consumed field (including
+`scale`) at export, because the N4 loader `WORLD-REFUSE`s non-integers — authoring snaps, the
+runtime never rounds.
+
 And you can run **your own authored scene** on the fixed-point substrate — the bounded long-run
 counterpart to the exact `--world`:
 
@@ -213,6 +228,10 @@ witness chain, and the editor scrubs it. Natural follow-ons, in order:
   Windows/`rustc`, so the stepper's **cross-placement is now MEASURED** (two placements). Next:
   continuous collision (CCD) for fast / thin bodies and Coulomb friction (so piles rest without
   the damping stand-in);
+- the deterministic net of authored scenes is now REAL and gated — rung **N4**
+  (`tools/netcode/worldstep.py`, `MEASURED` both placements, frozen in D12): an exported
+  `URDR-WORLD-3` scene runs in the same loop as lockstep/rollback/authenticated inputs, and
+  `replay.py --net` surfaces its witness chain here. Next in that line: N2/N3 composition over
+  authored scenes and body-body contact (unlocks the inert instance mass);
 - 3D preview of the object through `perspective.py` (WYSIWYG with the engine); terrain /
-  road-spline "landscape" mode; a deterministic net of `urdr-world` instances so a shared
-  scene stays byte-identical across peers.
+  road-spline "landscape" mode.

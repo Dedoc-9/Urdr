@@ -25,7 +25,7 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-netcode` (N1) | **0.1 (FROZEN)** | 1 URDRLSTT trace digest | reference + `lockstep_rs` (ADMITTED, Windows/rustc; C99-cross-checked) | this doc |
 | `urdr-netcode-rollback` (N2) | **0.1 (FROZEN)** | 1 converged URDRLSTT trace digest | reference + `rollback_rs` (ADMITTED, Windows/rustc; C99 port agrees on golden AND defect digest) | this doc |
 | `urdr-netcode-auth` (N3) | **0.1 (FROZEN)** | roster root + signed-chain digest | reference + `authinput_rs` (ADMITTED, Windows/rustc; C99 port agrees on goldens, refusals, AND the forge anchor dvx+423) | this doc |
-| `urdr-netcode-world` (N4) | **0.1 (FROZEN)** | 1 highway trace digest + arena equivalence | reference + `worldstep_rs` (ADMITTED, Windows/rustc; C99 port agrees incl. the defect anchor 9c0ad7c5) | this doc |
+| `urdr-netcode-world` (N4) | **0.2** (0.1 surface FROZEN; 0.2 adds `simulate_trace`, additive + digest-preserving) | 1 highway trace digest + arena equivalence | reference + `worldstep_rs` (ADMITTED, Windows/rustc; C99 port agrees incl. the defect anchor 9c0ad7c5) | this doc |
 | `URDR-WORLD-3` (authored-world format) | **3 (FROZEN as consumed)** | tag-checked canonical scene | consumed by `replay.py --world` / `--fp world` / `load_world.py` | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
@@ -241,6 +241,13 @@ Immutable under `urdr-netcode-world 0.1` except through a versioned successor:
 **Honest scope:** the runtime is cross-placed on the mapped canonical scene; the
 JSON loader is reference-gated; instance mass is loaded but inert until body-body
 contact arrives as a versioned successor.
+
+**0.2 (additive, minor).** `simulate_trace(w, log)` returns the identical frames
+plus one display-only `(pos, vel)` snapshot per frame, for view-layer consumers
+(the editor's ▷ Replay via `replay.py --net`). Digest-preserving by construction
+and by gate: every 0.1 vector (highway golden, arena equivalence, defect) is
+byte-identical, and a falsifier pins `simulate_trace`'s frames equal to
+`simulate`'s. The 0.1 frozen surface is untouched.
 
 ## The URDR-WORLD-3 authored-world format (frozen as consumed)
 

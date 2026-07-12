@@ -616,7 +616,7 @@ function exportWorld(){
       return{ id:w.id, object:d?d.digest:null, name:w.name, parent:(w.parent!=null?w.parent:null),
         ground_x:Math.round(g.gx), ground_z:Math.round(g.gz), rot_deg:Math.round(w.rot*180/Math.PI),
         local:{x:Math.round(lx), z:Math.round(lz), rot_deg:Math.round(lrot*180/Math.PI)},
-        scale:+(w.scale||1).toFixed(3),
+        scale:Math.round(w.scale||1), /* integer-snapped: the N4 runtime WORLD-REFUSEs floats (authoring snaps; the runtime never rounds) */
         body:w.body, mass:w.mass, collider:w.collider,
         material:{restitution:+(+w.material.restitution).toFixed(3), friction:+(+w.material.friction).toFixed(3)},
         vel:{x:Math.round(w.vel.x), z:Math.round(w.vel.z)},
@@ -624,7 +624,7 @@ function exportWorld(){
         visible:w.visible!==false, locked:!!w.locked,
         constraints:(w.constraints||[]).map(c=>({type:c.type, to:c.to})) };})};
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
-  a.download='urdr_world.json'; a.click(); msg('exported urdr_world.json ('+world.length+' instances, URDR-WORLD-3)'); }
+  a.download='urdr_world.json'; a.click(); msg('exported urdr_world.json ('+world.length+' instances, URDR-WORLD-3, integer-snapped for the deterministic runtime)'); }
 function thumb(d){const c=document.createElement('canvas');c.width=40;c.height=30;const g=c.getContext('2d');
   if(!d.verts.length)return c; let mnx=1e9,mny=1e9,mxx=-1e9,mxy=-1e9;
   d.verts.forEach(p=>{mnx=Math.min(mnx,p.x);mny=Math.min(mny,p.y);mxx=Math.max(mxx,p.x);mxy=Math.max(mxy,p.y);});
