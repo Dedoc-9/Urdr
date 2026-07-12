@@ -1052,7 +1052,9 @@ lockstep.rs` (std-only Rust, hand-rolled SHA-256, no crates; `i128` intermediate
 overflow before the final `_g` check) reproduces the `arena3` `URDRLSTT` golden 2/2 and diverges under
 `--defect` (a dropped input). Its integer logic + byte layout were cross-checked **bit-identical by an
 independent C99 port** (`__int128`, its own SHA-256) that prints `fea3b967…` twice + a divergent defect
-(`31ca3029…`) in the sandbox — so the port logic is validated; grade **SPECULATIVE** until a named host runs
-`rustc -O lockstep.rs` and prints `URDR-NETCODE-RS: ADMITTED`, which flips N1 to **MEASURED (both placements)**.
+(`31ca3029…`) in the sandbox — so the port logic is validated. **CONFIRMED on host:** on Windows
+(`rustc -O lockstep.rs`) `lockstep.exe` printed `URDR-NETCODE-RS: ADMITTED` (arena3 reproduced 2/2, bit-for-bit)
+and `--defect` was caught, so N1 is now **MEASURED (both placements)** — the lockstep transcript is bit-identical
+across Python and Rust. `two languages, one witness chain: the same inputs make the same digests on both`.
 No new glyph; kernel frozen; consumes the frozen substrate; extends, never mutates. `peers trade inputs, not
 state; the same inputs make the same witnesses, and a corrupted one is named by the first tick it breaks`.

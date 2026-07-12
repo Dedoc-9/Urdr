@@ -35,11 +35,10 @@ golden; two peers assembling the input union in different arrival orders agree; 
 (non-vacuity — the detector can redden). Falsifiers: [`../../tests/test_lockstep.py`](../../tests/test_lockstep.py).
 Runnable: [`../../demo/lockstep_demo.py`](../../demo/lockstep_demo.py).
 
-**Grade: `IMPLEMENTED / MEASURED`** (reproducibility, on the already cross-placed FixedPoint
-substrate). **Second placement — written + C-cross-checked, `SPECULATIVE` pending host:**
-[`lockstep_rs/lockstep.rs`](lockstep_rs/lockstep.rs) (std-only Rust, hand-rolled SHA-256,
-`i128` intermediates) reproduces the `arena3` `URDRLSTT` golden and diverges under `--defect`;
-its logic was cross-checked bit-identical by an independent C99 port (`__int128`, own SHA-256).
-Build `rustc -O lockstep.rs` and run — `URDR-NETCODE-RS: ADMITTED` flips N1 to **MEASURED (both
-placements)**. **Declared:** *authenticated* inputs — `digest ≠ MAC`, so the witnesses catch
+**Grade: `IMPLEMENTED / MEASURED (both placements)`.** [`lockstep_rs/lockstep.rs`](lockstep_rs/lockstep.rs)
+(std-only Rust, hand-rolled SHA-256, `i128` intermediates) reproduces the `arena3` `URDRLSTT` golden
+and diverges under `--defect`; its logic was cross-checked bit-identical by an independent C99 port
+(`__int128`, own SHA-256), and **CONFIRMED on host** — on Windows (`rustc -O lockstep.rs`) it printed
+`URDR-NETCODE-RS: ADMITTED` (2/2) + `--defect` caught. So the lockstep transcript is bit-identical
+across Python and Rust. **Declared:** *authenticated* inputs — `digest ≠ MAC`, so the witnesses catch
 accidental divergence, not a signing adversary.

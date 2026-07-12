@@ -21,10 +21,10 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **Five** single-file Rust placements
-(core / render / physics / math / fixed-point dynamics) reproduce the reference's kernel, frame,
-physics, field, exact-math, and fixed-point-dynamics digests bit-for-bit on fixed corpora,
-behind a **272-test gate** — and the math spine has a **third**, C99 placement, so
+across independent implementations or explicitly refused. **Six** single-file Rust placements
+(core / render / physics / math / fixed-point dynamics / lockstep) reproduce the reference's kernel,
+frame, physics, field, exact-math, fixed-point-dynamics, and lockstep-transcript digests bit-for-bit
+on fixed corpora, behind a **272-test gate** — and the math spine has a **third**, C99 placement, so
 rank/determinant/injectivity/reconstruction agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
@@ -269,7 +269,7 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | P3 | **urdr-math cross-placement** (`tools/intla/urdr_math_rs/`): exact rank/determinant/floor_divmod + the **general-*n* injectivity certificate** and **exact reconstruction** solver, bit-identical in Rust | `IMPLEMENTED / MEASURED (cross-placed, 20 digests)` |
 | P4 | **Reactive continuum** (`tools/physics/`): `urdr-field` advection-diffusion (mass exact) → **Marangoni** surface-tension transport → **two-way field↔body loop** (force → LCP → reaction reservoir; total momentum exact) | `IMPLEMENTED / MEASURED (cross-placed)` — `urdr-physics-rs` now 27 digests |
 | P5 | **Bounded fixed-point dynamics** (`tools/physics/fp_dynamics.py`): where the exact rungs **refuse** on long/iterated sims (ℚ overflows i64 in a handful of steps), a frozen **Q32.32** stepper time-steps a contact stack until it *settles* and a pendulum until it *swings* — bounded (refuses, never wraps), deterministic, per-tick `URDRFPD1` states summarized by a `URDRFPT1` trace golden; gated with a non-vacuous defect self-test (drop the sleep clamp / the squared-length Baumgarte → the gate reddens) | `IMPLEMENTED / MEASURED (both placements)` — Rust `fp_dynamics_rs/` ADMITTED 2/2 + defect caught on Windows/`rustc` |
-| N1 | **Deterministic lockstep spine** (`tools/netcode/lockstep.py`): two peers exchange **inputs only, never state**, and reproduce one per-tick witness chain (`URDRLST1`); reordered/duplicated **delivery** is absorbed (dedup + additive-impulse commutativity), while a dropped/modified/tick-moved input **desyncs and is localized** to the first mismatching tick; gated (`arena3` `URDRLSTT` golden + peers-agree + a `netcode-desync-selftest`) | `IMPLEMENTED / MEASURED (reproducibility)` — on the cross-placed fixed-point substrate; a **second Rust placement** (`lockstep_rs/`) is written + C-cross-checked bit-identical, `SPECULATIVE` pending `rustc` ADMITTED (→ both placements); authenticated inputs (`digest ≠ MAC`) `DECLARED` |
+| N1 | **Deterministic lockstep spine** (`tools/netcode/lockstep.py`): two peers exchange **inputs only, never state**, and reproduce one per-tick witness chain (`URDRLST1`); reordered/duplicated **delivery** is absorbed (dedup + additive-impulse commutativity), while a dropped/modified/tick-moved input **desyncs and is localized** to the first mismatching tick; gated (`arena3` `URDRLSTT` golden + peers-agree + a `netcode-desync-selftest`) | `IMPLEMENTED / MEASURED (both placements)` — Rust `lockstep_rs/` ADMITTED 2/2 + defect caught on Windows/`rustc` (integer logic C-cross-checked bit-identical); authenticated inputs (`digest ≠ MAC`) `DECLARED` |
 
 ## Honest boundaries (§9, in our own words)
 
