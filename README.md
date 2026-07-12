@@ -299,6 +299,7 @@ Each main-tree folder carries its own README with the detail.
 | [`examples/`](examples/) | The corpus the gate runs: accepted `.urdr` fixtures + golden `.digest`, `rejected/` must-die programs + `MANIFEST.txt`, `must_fail/` the tamper self-test, `vendor/` import-by-digest modules | [`examples/README.md`](examples/README.md) |
 | [`tests/`](tests/) | Unit falsifiers (pytest / unittest), one per subsystem — each designed to be able to go red | [`tests/README.md`](tests/README.md) |
 | [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (exact dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`; **bounded fixed-point dynamics** `fp_dynamics.py` + `fp_dynamics_rs/`, the deterministic real-time path — rung 5, cross-placed), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `world_host/` (runtime reference), `editor/` (a browser **authoring + deterministic-replay** front-end — draw wireframe objects, populate a 3D world with full physical state (mass/collider/material/velocity/joints), and a ▷ **Replay** mode that scrubs a run witness-by-witness with contacts/impulses/momentum/λ overlays *read from the recorded witnesses*; `replay.py` drives the exact solvers and the bounded `--fp` path, `load_world.py` renders an exported scene through the exact `perspective.py`; **exploratory** as a whole, but the fixed-point stepping it demos is the gated rung 5), plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
+| [`demo/`](demo/) | **`prove_it.py`** — a one-command, self-checking proof that the authoritative simulation reproduces bit-for-bit (gated goldens + an authored world's witness chain + exact certified solves), plus `world_highway.json`, a tiny authored scene | [`demo/README.md`](demo/README.md) |
 | [`docs/`](docs/) | Design briefs and session transcripts (narrative, not normative) | [`docs/README.md`](docs/README.md) |
 | `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
 | `verify.py` | The gate: unit falsifiers + examples (×2) + oracle + modules + rejections + tamper self-test | — |
@@ -313,6 +314,11 @@ at the type level** (over-grading does not typecheck; `MEASURED` is minted only 
 The "manifold" is the observer/atlas layer (D7–D10) — the theorem `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) =
 {0}` made computable and data-parameterized (nD is a data choice) — sitting under a physics + render
 + field engine that all shares one digest-addressed authority.
+
+**See it in ~1 second:** `python3 demo/prove_it.py` runs the authoritative simulation and
+*checks* that it reproduces bit-for-bit — the gated fixed-point goldens (cross-host +
+cross-language), an authored highway world's per-tick witness chain (author → export →
+replay), and the exact certified solves (`λ=[3,2,1]`, `J·v=0`). Walkthrough: [`demo/`](demo/).
 
 ### What you can do with it today
 

@@ -1,0 +1,13 @@
+{
+  "format": "URDR-WORLD-3",
+  "note": "authored in urdr_designer.html — two vehicles closing on a barrier",
+  "objects": [
+    {"digest": "veh", "verts": [[-24,-12],[24,-12],[24,12],[-24,12]]},
+    {"digest": "barrier", "verts": [[-14,-14],[14,-14],[14,14],[-14,14]]}
+  ],
+  "instances": [
+    {"id": "car_west", "object": "veh", "ground_x": 60,  "ground_z": 140, "scale": 1, "body": "dynamic", "mass": 2, "vel": {"x": 6, "z": 0}},
+    {"id": "car_east", "object": "veh", "ground_x": 400, "ground_z": 140, "scale": 1, "body": "dynamic", "mass": 2, "vel": {"x": -6, "z": 0}},
+    {"id": "median",   "object": "barrier", "ground_x": 230, "ground_z": 140, "scale": 1, "body": "static"}
+  ]
+}
