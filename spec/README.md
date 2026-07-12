@@ -26,10 +26,11 @@ laws were written, not a table of contents.)
 
 ## Reading order
 
-New to the repo: [`D5-ledger.md`](D5-ledger.md) tail (what is true right now, graded), then
-[`D11-layer-contracts.md`](D11-layer-contracts.md) (what each layer promises), then
-[`D12-versions.md`](D12-versions.md) (what is frozen and how the freeze is enforced). The
-deep-dive documents (D1, D7–D10) are reference material behind those three.
+New to the repo: [`../docs/THEOREMS.md`](../docs/THEOREMS.md) (the one-page map of what is
+proved vs planned, evidence-cited), then [`D5-ledger.md`](D5-ledger.md) tail (what is true
+right now, graded), then [`D11-layer-contracts.md`](D11-layer-contracts.md) (what each layer
+promises), then [`D12-versions.md`](D12-versions.md) (what is frozen and how the freeze is
+enforced). The deep-dive documents (D1, D7–D10) are reference material behind those three.
 
 ## Digest quick-reference
 
