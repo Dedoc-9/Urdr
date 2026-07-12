@@ -1,0 +1,19 @@
+# C4 staging corpus (D13 §3) — pinned verdicts for the linear-core judgment.
+# NOT a glyph corpus: the Urðr kernel is sealed and C4 remains deferred. These are
+# the accept/refuse programs an independent placement must reproduce IF a D13
+# trigger ever fires and the §20 review convenes. Format:
+#   name | mode | expected_verdict | program
+exactly_once      | linear | ACCEPT      | NEW k ; USE k ; END
+double_use        | linear | URDR-LINEAR | NEW k ; USE k ; USE k ; END
+unbound_use       | linear | URDR-LINEAR | USE k ; END
+unconsumed_linear | linear | URDR-LINEAR | NEW k ; END
+unconsumed_affine | affine | ACCEPT      | NEW k ; END
+explicit_drop     | linear | ACCEPT      | NEW k ; DROP k ; END
+drop_then_use     | linear | URDR-LINEAR | NEW k ; DROP k ; USE k ; END
+dup_linear        | linear | URDR-LINEAR | NEW k ; DUP k j ; END
+dup_affine        | affine | URDR-LINEAR | NEW k ; DUP k j ; END
+branch_mismatch   | linear | URDR-LINEAR | NEW k ; IF ( USE k ) ( SKIP ) ; END
+branch_match      | linear | ACCEPT      | NEW k ; IF ( USE k ) ( USE k ) ; END
+two_resources     | linear | ACCEPT      | NEW a ; NEW b ; USE b ; USE a ; END
+rebind_live       | linear | URDR-LINEAR | NEW k ; NEW k ; USE k ; END
+branch_then_end   | affine | ACCEPT      | NEW k ; IF ( USE k ) ( DROP k ) ; END

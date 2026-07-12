@@ -246,6 +246,26 @@ accept/refuse verdicts over a pinned corpus of programs, twice, with a
 deliberately-miscounting checker caught. Until a trigger fires, the dynamic law
 stands and is sufficient — `admitted ≠ trusted`, and *wanted ≠ needed*.
 
+**STATUS — apparatus DONE (the glyph is NOT).** The staging package this section
+pre-registered has been built and gated: `tools/linear/linear_core.py` (the
+reference multiplicity judgment over a minimal linear core — its own term language,
+zero Urðr syntax), `tools/linear/corpus_linear.txt` (14 programs, verdicts pinned,
+both modes), and `tests/test_linear_core.py` (9 falsifiers, red-first). Every
+pre-registered falsifier is realized and green: double-use refuses **statically**
+naming both sites; exactly-once accepts; the affine/linear fork is falsified in
+both directions (unconsumed-at-END refuses linear / accepts affine; explicit DROP
+satisfies linear); DUP refuses in both modes (no-cloning); IF branch-consistency
+compares consumption status, not site provenance (a real defect caught during
+staging — the naive comparison over-refused matching arms); linearity is a canon
+property (case/whitespace noise quotients to one digest, one verdict); and the
+miscounting defect checker accepts what the real judgment refuses (the detector
+bites). What remains for the eventual §20 review, exactly as before: a fired
+trigger, generalization to Urðr's binder structure, the affine-vs-linear DECISION
+(both stay falsified until then), and an independent placement reproducing the
+corpus verdicts twice with the defect caught. **C4's verdict is unchanged:
+deferred.** The apparatus existing does not lower the bar; it removes the excuse
+that the bar was too expensive to approach.
+
 ## 4. Standing conclusions
 
 1. **The seal is holding under load.** Five netcode rungs, a signature scheme, an

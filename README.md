@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **Ten** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / lockstep / rollback / auth / world / worldpeer) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, and composed end-to-end digests bit-for-bit
-on fixed corpora, behind a **318-test gate** — and the math spine has a **third**, C99 placement, so
+on fixed corpora, behind a **327-test gate** — and the math spine has a **third**, C99 placement, so
 rank/determinant/injectivity/reconstruction agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -407,6 +407,16 @@ field↔body coupling loop (Continuum, cross-placed / reference). See [`spec/D5-
 - **Netcode composition rungs** — N2/N3 over authored worlds (mechanical, since `worldstep` shares
   the `simulate(w, log)` contract, but unclaimed until gated) and body-body contact in the authored
   runtime (unlocks the currently-inert instance mass).
+- **The language stays sealed — reviewed, not assumed.** [`spec/D13`](spec/D13-glyph-probe.md) ran a
+  first-principles review of sixteen primitive candidates against five admission tests: **zero
+  admissions**, two load-bearing rejections (catchable refusals, effect handlers), and one deferral
+  with teeth — **C4 linearity** (use-exactly-once), the only candidate passing four of five tests.
+  Its review apparatus is **built and gated ahead of need** (`tools/linear/` — a reference
+  multiplicity judgment over a minimal core with a 14-program pinned-verdict corpus, static
+  `URDR-LINEAR` refusals that name both use sites, the affine/linear fork falsified both ways, and a
+  miscounting-defect probe), so if a D13 trigger ever fires (Phase-4 capability hand-off), the §20
+  review starts from a measured floor. The glyph itself remains **unadmitted**: the apparatus raises
+  readiness, never the verdict.
 - **Bignum substrate** — *only if* a real consumer hits the i64 ceiling (iterated exact-ℚ fields
   overflow, refusing ~step 24–31); deliberately not built speculatively.
 - **Metatheory** (progress/preservation, no-inflation soundness, lens laws) is `CONJECTURED`; the

@@ -1346,3 +1346,23 @@ no-inflation and līmes laws. Empirical anchor: N2–N5 plus a full signature sc
 this week as pure consumers of existing law — the strongest available evidence the alphabet is
 sufficient for everything the gate currently proves. `the probe earned no glyph, deferred one honestly,
 and wrote down the conditions under which it would change its mind`.
+
+**C4 staging apparatus (D13 §3) — IMPLEMENTED / MEASURED as a staging study; the glyph remains
+UNADMITTED and ungraded.** Built ahead of need so a fired trigger meets a measured floor, and
+explicitly NOT an admission — the request to "create the glyph" was refused per D13's own
+pre-registered triggers (unfired) and the §20 law; what was created is the review instrument.
+`tools/linear/linear_core.py`: the reference multiplicity judgment over a deliberately minimal core
+(NEW/USE/DROP/DUP/IF/SKIP/END — its own term language, zero Urðr syntax, kernel untouched), with
+static `URDR-LINEAR` refusals that NAME their sites, the affine/linear fork implemented as a mode so
+both directions stay falsified until the review decides, canon-quotiented program identity
+(`URDRLIN1` digest law; case/whitespace noise → one digest, one verdict), and deterministic
+first-refusal-wins walking. `corpus_linear.txt`: 14 programs, verdicts pinned across both modes.
+Red-first: `tests/test_linear_core.py` (9 falsifiers) went RED (`ModuleNotFoundError: linear_core`)
+before the module existed — and the staging itself caught a real law defect: the naive IF
+branch-consistency comparison over-refused matching arms by comparing site provenance instead of
+consumption status (two corpus programs reddened; the law was corrected to status-multiset equality
+with canonical arm-A merge). The miscounting defect probe (counts only first use) accepts what the
+real judgment refuses — the detector bites. Unit falsifiers 318 → 327. **Honest scope:** this core
+isolates multiplicity + branch splitting only — no functions, no data flow, no borrows; the Urðr
+binder generalization, the affine-vs-linear decision, and an independent placement are §20 review
+work, gated on D13's triggers, which remain unfired. `the bar did not move; the runway to it did`.
