@@ -40,16 +40,18 @@ ZBASE = 60         # push the nearest ground point to z > znear
 SCALE = 0.55       # object world scale
 
 
-def compose_instance(obj, inst):
+def compose_instance(obj, inst, ox=0):
     """Stand an object up on the ground at its instance transform; return INTEGER
     world vertices (X across, Y up from the road, Z into the scene). Float rotation
-    is snapped to the integer grid — the authoring step; projection stays exact."""
+    is snapped to the integer grid — the authoring step; projection stays exact.
+    `ox` is the integer scene-centering offset (see render): the camera looks down
+    x = 0, so the scene's ground centroid is translated onto the optical axis."""
     verts = obj["verts"]
     xs = [v[0] for v in verts]
     ys = [v[1] for v in verts]
     ocx = sum(xs) / len(xs)
     ymax = max(ys)                                        # base of the silhouette sits on the road
-    gx, gz = inst["ground_x"], inst["ground_z"]
+    gx, gz = inst["ground_x"] - ox, inst["ground_z"]
     th = math.radians(inst.get("rot_deg", 0))
     c, s = math.cos(th), math.sin(th)
     out = []
@@ -68,12 +70,22 @@ def render(world):
     order, far to near). Edges that cross behind the near plane are dropped."""
     objs = {o["digest"]: o for o in world.get("objects", [])}
     fb = Framebuffer(W, H)
-    for inst in sorted(world.get("instances", []), key=lambda i: -i.get("ground_z", 0)):
+    insts = world.get("instances", [])
+    # scene centering (integer, deterministic): the fixed camera looks down x = 0;
+    # translate the scene's ground centroid onto the optical axis so every placed
+    # instance is actually in frame. Found by the seam smoke test: the canonical
+    # scene's median and east car rendered off-screen under the uncentered camera.
+    ox = round(sum(i.get("ground_x", 0) for i in insts) / len(insts)) if insts else 0
+    for inst in sorted(insts, key=lambda i: -i.get("ground_z", 0)):
         obj = objs.get(inst.get("object"))
         if not obj:
             continue
-        wv = compose_instance(obj, inst)
-        for a, b in obj["edges"]:
+        wv = compose_instance(obj, inst, ox)
+        # edges are OPTIONAL in URDR-WORLD-3 (D12): a hand-authored hull without them
+        # renders as its closed vertex loop — a stated default, not a silent guess.
+        n = len(obj["verts"])
+        edges = obj.get("edges") or ([[i, (i + 1) % n] for i in range(n)] if n >= 2 else [])
+        for a, b in edges:
             try:
                 ax, ay = project(wv[a], FOCAL, CX, CY, ZNEAR)
                 bx, by = project(wv[b], FOCAL, CX, CY, ZNEAR)

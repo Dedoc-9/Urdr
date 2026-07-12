@@ -1,0 +1,9 @@
+# The editor→exact-render seam: frozen URDRFB1 frame golden.
+# highway_frame: demo/world_highway.json (the canonical URDR-WORLD-3 export)
+#   composed by load_world.py (float authoring snapped to integers; the canonical
+#   scene carries NO rotations, so composition is bit-deterministic IEEE-double
+#   add/multiply/round) and projected by the EXACT floor-division perspective
+#   projector into a URDRFB1 framebuffer. Falsifiers: tests/test_load_world.py
+#   (golden x2 + moved-instance and perturbed-vertex divergence probes).
+# name  frame_digest
+highway_frame 162a62040e0ff2c548da6aceeb5d95ef2e5d74d7422f34baa6ba152485d7d157

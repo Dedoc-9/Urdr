@@ -1380,3 +1380,21 @@ Weltwerk workbench demos, admitted only in their discipline-compatible form; spl
 manifold panels stayed where they were (renderer gloss — the standing guardrail). Verified: the walk
 block parses standalone (node --check); interactive behavior is the exploratory layer's to confirm in
 a browser — claimed accordingly, which is to say: not.
+
+**Editor→exact-render seam — the consumer-side smoke test — MEASURED.** The last unwatched seam in
+the authoring pipeline, now a gate row: the canonical `URDR-WORLD-3` export (`demo/world_highway.json`)
+rendered through `load_world.render` (float authoring snapped to integers — the canonical scene has NO
+rotations, so composition is bit-deterministic IEEE add/multiply/round) and the EXACT floor-division
+projector must reproduce its pinned `URDRFB1` digest ×2 (`highway_frame 162a6204…`,
+`tools/editor/conformance_editor.txt`, in the D12 freeze manifest — 14 corpora). Red-first paid twice
+before the golden existed: (1) `load_world.render` **crashed on the canonical scene**
+(`KeyError: 'edges'` — hand-authored hulls carry no edges, which D12 marks optional; fixed with a
+stated default, the closed vertex loop — never a silent guess); (2) the moved-median divergence probe
+exposed that the **uncentered camera rendered the median and east car off-screen** — the pin could not
+see two-thirds of the scene it certified (fixed: integer scene-centering onto the optical axis;
+rehearsal now shows every instance's movement diverges the digest). Falsifiers:
+`tests/test_load_world.py` (3 — golden ×2, moved-instance divergence, perturbed-vertex divergence).
+Unit falsifiers 327 → 330. **Honest scope:** certifies the PIPELINE on the canonical export; the
+browser editor stays SPECULATIVE; scenes WITH rotations bring float trig into composition and are not
+covered by this pin. `an unwatched seam broke twice on first watching — which is the whole argument
+for watching`.
