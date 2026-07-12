@@ -146,70 +146,80 @@ def simulate_trace(w, log, defect_no_statics=False):
     n = w["n"]
     pos = [[c for c in p] for p in w["pos"]]
     vel = [[c for c in v] for v in w["vel"]]
+    ev = L.canon(log)                                      # the frozen canonical merge
+    frames = [L._digest(pos, vel, n)]                      # the frozen URDRLST1 law
+    states = [([list(p) for p in pos], [list(v) for v in vel])]
+    for t in range(w["T"]):
+        step_tick(w, pos, vel, ev.get(t, []), defect_no_statics)
+        frames.append(L._digest(pos, vel, n))
+        states.append(([list(p) for p in pos], [list(v) for v in vel]))
+    return frames, states
+
+
+def step_tick(w, pos, vel, events, defect_no_statics=False):
+    """One deterministic N4 tick over caller-owned state (the 0.3 additive surface;
+    the SAME law `simulate`/`simulate_trace` step — digest-preservation is gated by
+    every existing vector). `events` is this tick's canonically-ordered event list;
+    mutates pos/vel in place. Incremental consumers (the N5 world peer) step with
+    this; batch consumers keep using simulate/simulate_trace."""
+    n = w["n"]
     Rf = [FP.unit(r, 1) for r in w["rs"]]
     floorf, ceilf, leftf, rightf = (FP.unit(w[k], 1)
                                     for k in ("floor", "ceil", "left", "right"))
     GDT = FP.unit(*w["grav"])
     en, ed = w["e"]
     boxes = [tuple(FP.unit(c, 1) for c in b) for b in w["statics"]]
-    ev = L.canon(log)                                      # the frozen canonical merge
-    frames = [L._digest(pos, vel, n)]                      # the frozen URDRLST1 law
-    states = [([list(p) for p in pos], [list(v) for v in vel])]
-    for t in range(w["T"]):
-        for (_, _, _, b, dvx, dvy) in ev.get(t, []):
-            if 0 <= b < n:
-                vel[b][0] = FP.add(vel[b][0], FP.unit(dvx, 1))
-                vel[b][1] = FP.add(vel[b][1], FP.unit(dvy, 1))
-        for i in range(n):
-            vel[i][1] = FP.add(vel[i][1], GDT)
-            pos[i][0] = FP.add(pos[i][0], vel[i][0])
-            pos[i][1] = FP.add(pos[i][1], vel[i][1])
-            if pos[i][1] + Rf[i] > floorf and vel[i][1] > 0:
-                pos[i][1] = FP.sub(floorf, Rf[i])
-                vel[i][1] = FP.mul_k(vel[i][1], -en, ed)
-            if pos[i][1] - Rf[i] < ceilf and vel[i][1] < 0:
-                pos[i][1] = FP.add(ceilf, Rf[i])
-                vel[i][1] = FP.mul_k(vel[i][1], -en, ed)
-            if pos[i][0] + Rf[i] > rightf and vel[i][0] > 0:
-                pos[i][0] = FP.sub(rightf, Rf[i])
-                vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
-            if pos[i][0] - Rf[i] < leftf and vel[i][0] < 0:
-                pos[i][0] = FP.add(leftf, Rf[i])
-                vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
-            if defect_no_statics:
-                continue                                   # THE DEFECT: barriers vanish
-            for (x0, y0, x1, y1) in boxes:                 # list order (deterministic)
-                inside_x = pos[i][0] > x0 - Rf[i] and pos[i][0] < x1 + Rf[i]
-                inside_y = pos[i][1] > y0 - Rf[i] and pos[i][1] < y1 + Rf[i]
-                if not (inside_x and inside_y):
-                    continue
-                pen = (pos[i][1] - (y0 - Rf[i]),           # top    (tie order fixed)
-                       (y1 + Rf[i]) - pos[i][1],           # bottom
-                       pos[i][0] - (x0 - Rf[i]),           # left
-                       (x1 + Rf[i]) - pos[i][0])           # right
-                face = 0
-                for k in (1, 2, 3):
-                    if pen[k] < pen[face]:
-                        face = k
-                if face == 0:
-                    pos[i][1] = FP.sub(y0, Rf[i])
-                    if vel[i][1] > 0:
-                        vel[i][1] = FP.mul_k(vel[i][1], -en, ed)
-                elif face == 1:
-                    pos[i][1] = FP.add(y1, Rf[i])
-                    if vel[i][1] < 0:
-                        vel[i][1] = FP.mul_k(vel[i][1], -en, ed)
-                elif face == 2:
-                    pos[i][0] = FP.sub(x0, Rf[i])
-                    if vel[i][0] > 0:
-                        vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
-                else:
-                    pos[i][0] = FP.add(x1, Rf[i])
-                    if vel[i][0] < 0:
-                        vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
-        frames.append(L._digest(pos, vel, n))
-        states.append(([list(p) for p in pos], [list(v) for v in vel]))
-    return frames, states
+    for (_, _, _, b, dvx, dvy) in events:
+        if 0 <= b < n:
+            vel[b][0] = FP.add(vel[b][0], FP.unit(dvx, 1))
+            vel[b][1] = FP.add(vel[b][1], FP.unit(dvy, 1))
+    for i in range(n):
+        vel[i][1] = FP.add(vel[i][1], GDT)
+        pos[i][0] = FP.add(pos[i][0], vel[i][0])
+        pos[i][1] = FP.add(pos[i][1], vel[i][1])
+        if pos[i][1] + Rf[i] > floorf and vel[i][1] > 0:
+            pos[i][1] = FP.sub(floorf, Rf[i])
+            vel[i][1] = FP.mul_k(vel[i][1], -en, ed)
+        if pos[i][1] - Rf[i] < ceilf and vel[i][1] < 0:
+            pos[i][1] = FP.add(ceilf, Rf[i])
+            vel[i][1] = FP.mul_k(vel[i][1], -en, ed)
+        if pos[i][0] + Rf[i] > rightf and vel[i][0] > 0:
+            pos[i][0] = FP.sub(rightf, Rf[i])
+            vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
+        if pos[i][0] - Rf[i] < leftf and vel[i][0] < 0:
+            pos[i][0] = FP.add(leftf, Rf[i])
+            vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
+        if defect_no_statics:
+            continue                                       # THE DEFECT: barriers vanish
+        for (x0, y0, x1, y1) in boxes:                     # list order (deterministic)
+            inside_x = pos[i][0] > x0 - Rf[i] and pos[i][0] < x1 + Rf[i]
+            inside_y = pos[i][1] > y0 - Rf[i] and pos[i][1] < y1 + Rf[i]
+            if not (inside_x and inside_y):
+                continue
+            pen = (pos[i][1] - (y0 - Rf[i]),               # top    (tie order fixed)
+                   (y1 + Rf[i]) - pos[i][1],               # bottom
+                   pos[i][0] - (x0 - Rf[i]),               # left
+                   (x1 + Rf[i]) - pos[i][0])               # right
+            face = 0
+            for k in (1, 2, 3):
+                if pen[k] < pen[face]:
+                    face = k
+            if face == 0:
+                pos[i][1] = FP.sub(y0, Rf[i])
+                if vel[i][1] > 0:
+                    vel[i][1] = FP.mul_k(vel[i][1], -en, ed)
+            elif face == 1:
+                pos[i][1] = FP.add(y1, Rf[i])
+                if vel[i][1] < 0:
+                    vel[i][1] = FP.mul_k(vel[i][1], -en, ed)
+            elif face == 2:
+                pos[i][0] = FP.sub(x0, Rf[i])
+                if vel[i][0] > 0:
+                    vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
+            else:
+                pos[i][0] = FP.add(x1, Rf[i])
+                if vel[i][0] < 0:
+                    vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
 
 
 def trace(frames):

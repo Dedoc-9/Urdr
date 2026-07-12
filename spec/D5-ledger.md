@@ -1277,3 +1277,30 @@ says so in its export message (authoring snaps; the runtime never rounds — D11
 designer changes remain `SPECULATIVE`/exploratory (the editor is a consumer, not a rung — its value is
 that what it *feeds* and *reads* is now the measured runtime). `the front end earns nothing; it borrows
 everything from the gate — and now it borrows from the right engine`.
+
+**urdr-netcode N5 — AUTHENTICATED ROLLBACK OVER AUTHORED WORLDS — MEASURED (reference);
+cross-placement DECLARED.** The platform sentence, composed and gated: *given the same authored world,
+the same authenticated input transcript, and the same initial snapshot, every conforming implementation
+either converges to the identical witness chain or produces the same typed refusal — no intermediate
+divergence silently persists.* `tools/netcode/worldpeer.py` builds nothing below the interface line — it
+COMPOSES the four admitted rungs, importing their laws rather than restating them (N2's `RollbackError`
+type, N3's `verify`, N4's tick via `worldstep.step_tick`, N1's witness laws), and adds exactly ONE new
+law: the **world pin** (`URDRWPN1` — SHA-256 over the canonical runtime world: bodies, radii, statics,
+bounds, gravity, restitution, T), because "wrong world refuses BEFORE simulation" needs identity coverage
+`frames[0]` cannot give (two worlds differing only in a static share their initial witness — the
+falsifier proves the pin distinguishes them). **worldstep 0.2 → 0.3 (additive):** `step_tick` extracts
+the one tick law for incremental consumers; digest-preservation proven by every existing vector passing
+byte-identical. **Gated** (`netcode_worldpeer`, 6 rows): world pin `8c4fe8d4…` + scenario roster root
+`d30e7279…` pinned (`conformance_worldpeer.txt`); the late+signed canonical scenario converges to
+**the N4 highway golden `e72e75c3…`** at K=4 (×2) and K=8 — authentication decides eligibility, rollback
+replays the canonical timeline, neither touches state law; refusals row (wrong-pin `WORLD-REFUSE` before
+any tick, tampered envelope `AUTH-REFUSE`, beyond-horizon `ROLLBACK-REFUSE` with the chain untouched);
+and the defect: a **verified** late envelope applied at the head (auth passes — the failure is
+rollback's alone) MUST diverge. Red-first: `tests/test_worldpeer.py` (11 falsifiers) went RED
+(`ModuleNotFoundError: worldpeer`); unit falsifiers 307 → 318. Also adopted this rung, AGENTS.md rule
+11 — **the completion rule**: no capability is complete until its transcript is frozen, its refusals
+specified, its corpus exists, and an independent implementation reproduces it. **Honest scope:**
+inherited whole from N1–N4 (published fixture seeds — mechanism, not key secrecy; regime B rounding;
+inert mass; K/H operational); cross-placement DECLARED — the composed contract freezes in D12 only
+after an independent placement reproduces the converged golden + the defect on a named host. `five
+rungs, one sentence: your world, your signed inputs, one history — or a refusal that says its name`.

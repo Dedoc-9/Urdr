@@ -1,0 +1,13 @@
+# urdr-netcode N5 — authenticated rollback over authored worlds: frozen goldens.
+# world_pin: URDRWPN1 over the canonical highway runtime world (bodies, statics,
+#   bounds, constants) — the identity a peer checks BEFORE any simulation.
+# roster_world: URDRROS1 root over the 6 canonical scenario identities (published
+#   fixture seeds — pins keygen/pubkey/roster laws on this scenario).
+# highway_late3_signed: the canonical scenario delivered LATE (tick+3 gates), every
+#   envelope Lamport-verified before admission, rewound + replayed — MUST equal the
+#   N4 highway golden (conformance_world.txt): authentication decides eligibility,
+#   rollback replays the canonical timeline, neither touches state law.
+# name  digest
+world_pin 8c4fe8d4f3002d0db7e7c4bdfc7a7d29fe4e01cafc1c8df6693d5deee9e4e2c2
+roster_world d30e7279e86909ec588409aef061493a6d6b9531e681aaed8c71883d6c33b041
+highway_late3_signed e72e75c37282c4e954698f6de9c8c97e4c864d25de6e2a82f1a065ffc936bec4

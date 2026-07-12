@@ -1638,6 +1638,146 @@ class Gate:
                     "(clean run does not; gate can redden)" if nv
                     else f"selftest failed: defect_diverges={tno != golden} desync={d} clean={clean}")
 
+    # -- 2j6. urdr-netcode N5: authenticated rollback over authored worlds ------
+    def netcode_worldpeer(self):
+        """urdr-netcode N5 — the composed end-to-end contract: same authored world + same
+        authenticated transcript -> the identical witness chain (the N4 oracle) or the same
+        typed refusal. World pin gates entry; Lamport verification gates admission; the N2
+        snapshot law handles lateness; the N4 tick is the authority; the verified-envelope
+        apply-at-head defect MUST diverge (non-vacuity)."""
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import json
+            import lockstep as L
+            import worldstep as W
+            import authinput as A
+            import worldpeer as WP
+            from rollback import RollbackError
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("netcode-worldpeer", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(ndir, "conformance_worldpeer.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dig = ln.split()
+                        goldens[name] = dig
+        need = ("world_pin", "roster_world", "highway_late3_signed")
+        if any(k not in goldens for k in need):
+            self.record("netcode-worldpeer", False, "missing goldens %s" % (need,))
+            return
+        with open(os.path.join(ROOT, "demo", "world_highway.json"), encoding="utf-8") as fh:
+            doc = json.load(fh)
+        log = W.sample_world_log()
+        keys, roster = {}, {}
+        for e in log:
+            ident = (e[1], e[2])
+            keys[ident] = A.keygen(A.fixture_seed(*ident))
+            roster[ident] = A.roster_pin(A.pubkey_bytes(keys[ident]))
+        w = W.world_from_export(doc)
+        pin = WP.world_pin(w)
+        ok_pin = pin == goldens["world_pin"]
+        self.record("netcode-worldpeer:world_pin", ok_pin,
+                    pin[:16] + "…" if ok_pin
+                    else f"pin {pin[:12]}… ≠ golden {goldens['world_pin'][:12]}…")
+        rr = A.roster_root(roster)
+        ok_rr = rr == goldens["roster_world"]
+        self.record("netcode-worldpeer:roster_world", ok_rr,
+                    rr[:16] + "…" if ok_rr
+                    else f"root {rr[:12]}… ≠ golden {goldens['roster_world'][:12]}…")
+
+        def run_late(K):
+            peer = WP.WorldPeer(W.world_from_export(doc), roster, pin, K=K, H=64)
+            sched = sorted(((min(e[0] + 3, w["T"] - 1), i, e) for i, e in enumerate(log)),
+                           key=lambda x: (x[0], x[1]))
+            idx = 0
+            for t in range(w["T"]):
+                while idx < len(sched) and sched[idx][0] <= t:
+                    ev = sched[idx][2]
+                    peer.deliver_envelope(A.envelope(ev, keys[(ev[1], ev[2])]))
+                    idx += 1
+                peer.advance(t + 1)
+            return peer
+
+        t1, t2 = run_late(4).trace(), run_late(4).trace()
+        if t1 != t2:
+            self.record("netcode-worldpeer:highway_late3_signed", False, "NONDETERMINISTIC")
+        elif t1 != goldens["highway_late3_signed"]:
+            self.record("netcode-worldpeer:highway_late3_signed", False,
+                        f"trace {t1[:12]}… ≠ golden {goldens['highway_late3_signed'][:12]}…")
+        else:
+            self.record("netcode-worldpeer:highway_late3_signed", True, t1[:16] + "…")
+        oracle = W.trace(W.simulate(W.world_from_export(doc), log))
+        t8 = run_late(8).trace()
+        conv = t1 == oracle and t8 == oracle
+        self.record("netcode-worldpeer-converges", conv,
+                    "signed late delivery over the authored world converges to the N4 "
+                    "oracle at K=4 and K=8" if conv
+                    else "the composed pipeline did not converge to the canonical timeline")
+        # typed refusals: wrong world pin (before simulation), tampered packet, horizon
+        try:
+            codes = {}
+            moved = json.loads(json.dumps(doc))
+            for i in moved["instances"]:
+                if i.get("body") == "static":
+                    i["ground_x"] += 40
+            try:
+                WP.WorldPeer(W.world_from_export(moved), roster, pin, K=4, H=64)
+                codes["world"] = "ACCEPTED"
+            except W.WorldError as exc:
+                codes["world"] = exc.code
+            peer = WP.WorldPeer(W.world_from_export(doc), roster, pin, K=4, H=64)
+            e0 = log[0]
+            ev, pub, sig = A.envelope(e0, keys[(e0[1], e0[2])])
+            bad = bytearray(sig)
+            bad[5] ^= 0x01
+            try:
+                peer.deliver_envelope((ev, pub, bytes(bad)))
+                codes["auth"] = "ACCEPTED"
+            except A.AuthError as exc:
+                codes["auth"] = exc.code
+            tiny = WP.WorldPeer(W.world_from_export(doc), roster, pin, K=4, H=2)
+            for e in log:
+                if e[0] != 3:
+                    tiny.deliver_envelope(A.envelope(e, keys[(e[1], e[2])]))
+            tiny.advance(80)
+            before = tiny.chain()
+            try:
+                tiny.deliver_envelope(A.envelope(log[0], keys[(log[0][1], log[0][2])]))
+                codes["horizon"] = "ACCEPTED"
+            except RollbackError as exc:
+                codes["horizon"] = exc.code
+            untouched = tiny.chain() == before
+            ok = (codes.get("world") == "WORLD-REFUSE" and codes.get("auth") == "AUTH-REFUSE"
+                  and codes.get("horizon") == "ROLLBACK-REFUSE" and untouched)
+            self.record("netcode-worldpeer-refusals", ok,
+                        "wrong-pin WORLD-REFUSE before simulation; tamper AUTH-REFUSE; "
+                        "beyond-horizon ROLLBACK-REFUSE, chain untouched" if ok
+                        else f"refusals wrong: {codes} untouched={untouched}")
+        except Exception as exc:
+            self.record("netcode-worldpeer-refusals", False, f"errored: {exc}")
+        # non-vacuity: a VERIFIED late envelope applied at the head MUST diverge
+        late = log[2]
+        badp = WP.WorldPeer(W.world_from_export(doc), roster, pin, K=4, H=64)
+        for e in log:
+            if e != late:
+                badp.deliver_envelope(A.envelope(e, keys[(e[1], e[2])]))
+        badp.advance(30)
+        badp.deliver_envelope_defect_apply_at_head(A.envelope(late, keys[(late[1], late[2])]))
+        badp.advance(w["T"])
+        nv = badp.trace() != oracle
+        self.record("netcode-worldpeer-selftest", nv,
+                    "a verified late envelope applied at the head diverges from the "
+                    "canonical trace (gate can redden)" if nv
+                    else "the defect converged — the composed invariant is vacuous")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -1711,6 +1851,7 @@ def main() -> int:
     gate.netcode_rollback()
     gate.netcode_auth()
     gate.netcode_world()
+    gate.netcode_worldpeer()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

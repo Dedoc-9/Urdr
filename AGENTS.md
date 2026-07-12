@@ -168,6 +168,14 @@ These are non-negotiable. Every rung in this repo was built under them.
     ledger, `spec/D11` the layer contracts, `spec/D12` the versions/freeze. A doc
     that overstates is a bug — file it (or fix it).
 
+11. **The completion rule.** No capability is COMPLETE until its transcript is
+    frozen, its refusals are specified, its corpus exists, and an independent
+    implementation reproduces it. Passing tests is a milestone, not completion;
+    every subsystem eventually earns the same status as the kernel — not just
+    "works", but "can be independently reproduced and mechanically checked."
+    Until then its grade says exactly where it stands on the ladder, and no doc
+    calls it done.
+
 ---
 
 ## 5. How to add a rung (concrete workflow)

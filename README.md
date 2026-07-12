@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **Nine** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / lockstep / rollback / auth / world) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, and authored-world digests bit-for-bit
-on fixed corpora, behind a **307-test gate** — and the math spine has a **third**, C99 placement, so
+on fixed corpora, behind a **318-test gate** — and the math spine has a **third**, C99 placement, so
 rank/determinant/injectivity/reconstruction agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
