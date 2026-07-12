@@ -85,6 +85,15 @@ Editor (double-click the file, or open it in any browser):
   first-person/"text is authority; render is its projection" ideas arrive from the Weltwerk
   workbench demos; what crossed over is the *discipline-compatible* part (a view over recorded
   authority), not the rendering tech.
+- **Compare (A/B)** — in ▷ Replay, load a **second** replay doc as run B: a strip under the
+  arena turns green where the two recorded witness chains agree and rust where they diverge,
+  the **first desync** is marked with a jump button, B's bodies ghost over A's, and the
+  current frame shows both digests side by side (≡ A / ≠ A). This is `first_desync` — the
+  frozen netcode localization law — made visible; the browser compares recorded chains as
+  strings and re-simulates nothing. Try it: generate run A from the canonical export, copy
+  the world, move the median, generate run B — the strip stays green until a car reaches
+  where the barrier used to be, then goes rust forever. That edge is the physics divergence,
+  localized to the tick.
 - **⤓ Save / ⤒ Open** — persist the whole project (objects + world) to a JSON file.
 - **▸ Export world JSON** (World mode) — writes `urdr_world.json` (`URDR-WORLD-3`): objects
   by digest + instances carrying their full physical state and hierarchy (`parent` + a

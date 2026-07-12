@@ -1398,3 +1398,15 @@ Unit falsifiers 327 → 330. **Honest scope:** certifies the PIPELINE on the can
 browser editor stays SPECULATIVE; scenes WITH rotations bring float trig into composition and are not
 covered by this pin. `an unwatched seam broke twice on first watching — which is the whole argument
 for watching`.
+
+**Observability rung 1 — A/B replay compare in the editor — SPECULATIVE / exploratory (the editor
+layer as ever; no gate claim).** ▷ Replay gains a second slot: load run B beside run A and the
+first-desync law becomes visible — a per-frame divergence strip (green ≡ / rust ≠ over the RECORDED
+chains), the first-desync tick marked with a jump-to button, B's bodies ghosted over A's, and both
+witness digests side by side at the scrubbed frame. The browser's comparison mirrors
+`lockstep.first_desync` exactly and was behaviorally spot-checked against the reference semantics
+(identical → none; first differing index; length mismatch → shorter length) under node; the display
+compares recorded strings and re-simulates NOTHING — chains in, pixels out. Honest scope: ghost
+positions are display-fit coordinates (comparable for same-scene runs; the chains, not the pixels, are
+the authority — stated on-panel); the strip visualizes what N1–N5 already prove. `two runs walk in; the
+first lie between them gets a timestamp`.
