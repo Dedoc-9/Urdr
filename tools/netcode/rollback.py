@@ -36,12 +36,14 @@ Design rulings (freeze-respecting, drift-guarded):
   * Determinism: no float, no clock, no RNG; the frozen Q32.32 substrate rounds
     identically everywhere and REFUSES (FIELD-REFUSE) on overflow.
 
-GRADE (honest, D5): MEASURED (reference) once the `netcode_rollback` gate stage is
-green — convergence, K-invariance, snapshot exactness, both refusals, desync
-localization, and an apply-at-head defect the gate must catch. Cross-placement is
-DECLARED until an independent placement reproduces the replay digests on a named
-host; the rollback/snapshot contracts freeze in D12 only after that admission.
-`digest != MAC` still: identity conflicts are detected; signatures are not claimed."""
+GRADE (honest, D5): MEASURED (both placements) — the `netcode_rollback` gate stage pins
+convergence, K-invariance, snapshot exactness, both refusals, desync localization, and
+the apply-at-head defect; the std-only Rust placement (rollback_rs/, ADMITTED on
+Windows/rustc) reproduces the converged golden at K=4 and K=8 with both refusals typed,
+and its --defect diverges to the SAME digest as the independent C99 cross-check.
+Contracts FROZEN at urdr-netcode-rollback 0.1 (spec/D12, in the mechanically-checked
+freeze manifest). `digest != MAC` still: identity conflicts are detected; signatures
+are not claimed — authenticated inputs are the declared successor."""
 import sys as _sys
 import os as _os
 

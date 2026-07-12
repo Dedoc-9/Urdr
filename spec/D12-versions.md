@@ -23,6 +23,7 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-field` (Marangoni + loop) | **0.1 (FROZEN)** | 3 Marangoni digests + 3 URDRLOOP digests | reference + `urdr-physics-rs` (ADMITTED 27/27) | this doc |
 | `urdr-fp-dynamics` (rung 5) | **0.1 (FROZEN)** | 2 URDRFPT1 trace digests | reference + `fp_dynamics_rs` (ADMITTED, Windows/rustc) | this doc |
 | `urdr-netcode` (N1) | **0.1 (FROZEN)** | 1 URDRLSTT trace digest | reference + `lockstep_rs` (ADMITTED, Windows/rustc; C99-cross-checked) | this doc |
+| `urdr-netcode-rollback` (N2) | **0.1 (FROZEN)** | 1 converged URDRLSTT trace digest | reference + `rollback_rs` (ADMITTED, Windows/rustc; C99 port agrees on golden AND defect digest) | this doc |
 | `URDR-WORLD-3` (authored-world format) | **3 (FROZEN as consumed)** | tag-checked canonical scene | consumed by `replay.py --world` / `--fp world` / `load_world.py` | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
@@ -145,6 +146,35 @@ Immutable under `urdr-netcode 0.1` except through a versioned successor:
    reproduced by the reference and by `lockstep_rs` (ADMITTED on Windows/rustc; port
    logic independently C99-cross-checked).
 
+## The urdr-netcode-rollback v0.1 frozen surface (N2 — rollback as deterministic replay)
+
+Immutable under `urdr-netcode-rollback 0.1` except through a versioned successor:
+
+1. **No new serialization — contractually.** N2 reuses the frozen `URDRLST1` per-tick
+   witness and `URDRLSTT` trace laws unchanged. A rollback implementation that needs a
+   new wire format is not this version.
+2. **The snapshot contract.** A snapshot is the complete Q32.32 state at a tick
+   boundary; a restored snapshot MUST reproduce the `URDRLST1` witness pinned at its
+   tick (restore is exact, gate-checked). Snapshot cadence `K` and retention `H` are
+   **operational parameters, not semantics**: the admitted chain is identical for every
+   `K, H` — only the refusal horizon moves.
+3. **The rollback law.** A late-but-valid input (tick < head, identity fresh) rewinds
+   to the NEWEST retained snapshot at-or-before its tick, voids the provisional
+   suffix (frames and newer snapshots), and re-simulates to the present with the
+   enlarged input set. The converged chain equals the canonical timeline — the N1
+   lockstep oracle over the full log — bit-for-bit; the converged trace golden IS the
+   N1 golden by construction.
+4. **Refusal semantics.** `ROLLBACK-REFUSE`: the input is older than the oldest
+   retained snapshot — rejected WHOLE, the chain untouched. `ROLLBACK-CONFLICT`: a
+   second event with the same `(peer, seq)` identity but a different payload (forgery
+   or tick-moved replay) — refused naming the identity. An EXACT duplicate is
+   absorbed. `digest ≠ MAC` still: identity conflicts are detected; signatures are a
+   declared, additive successor.
+5. **Conformance corpus (1 converged trace).** `conformance_rollback.txt`:
+   `arena3_late3` (the pinned tick+3 late-delivery schedule) — reproduced by the
+   reference and by `rollback_rs` (ADMITTED on Windows/rustc), with the apply-at-head
+   defect diverging to the same digest (`39326ff9…`) in Rust and the C99 cross-check.
+
 ## The URDR-WORLD-3 authored-world format (frozen as consumed)
 
 The editor→runtime world serialization, frozen at the keys the deterministic runtime
@@ -190,6 +220,7 @@ corpus tools/physics/conformance_field.txt 4
 corpus tools/physics/conformance_marangoni.txt 3
 corpus tools/physics/conformance_loop.txt 3
 corpus tools/netcode/conformance_netcode.txt 1
+corpus tools/netcode/conformance_rollback.txt 1
 format URDR-WORLD-3 demo/world_highway.json
 ```
 

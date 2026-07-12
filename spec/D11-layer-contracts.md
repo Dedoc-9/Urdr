@@ -299,8 +299,12 @@ See §4 — this is the concrete centerpiece of the spec.
   `conformance_netcode.txt`, peers-agree invariant, desync non-vacuity self-test); falsifiers
   `tests/test_lockstep.py`; runnable proof `demo/lockstep_demo.py`; std-only Rust placement
   `tools/netcode/lockstep_rs/` ADMITTED on Windows/rustc (port logic independently
-  C99-cross-checked). Formats FROZEN at `urdr-netcode 0.1` (D12). Rollback, interest management,
-  and authenticated inputs are `DECLARED` successors.
+  C99-cross-checked). Formats FROZEN at `urdr-netcode 0.1` (D12). **Rollback (N2) is `MEASURED`
+  (both placements)**: `tools/netcode/rollback.py` + `rollback_rs` (ADMITTED on Windows/rustc;
+  the C99 cross-check agrees on the golden AND the defect digest), frozen at
+  `urdr-netcode-rollback 0.1` (D12) — late-but-valid inputs rewind to canonical snapshots and
+  converge bit-for-bit to the N1 timeline; beyond-horizon and identity-conflict inputs are typed
+  refusals. Interest management and authenticated inputs remain `DECLARED` successors.
 
 ## 4. The deterministic-renderer contract (the frame-digest law)
 
@@ -401,8 +405,8 @@ Uniqueness-by-certificate ↔ reproducibility-by-frozen-rounding.
 `render*`, the rejection fixtures for the refusal codes) and the D12 freeze manifest is checked
 mechanically (`spec-freeze` stage: the declared digest grammars are re-derived independently and
 compared byte-for-byte, with a corrupted-manifest self-test). Boundary claims about undelivered
-work (rollback, authenticated inputs, perspective-correct interpolation) remain `DECLARED` in
-their own rows.
+work (authenticated inputs, perspective-correct interpolation) remain `DECLARED` in their own
+rows.
 
 ## 5. Conformance & versioning
 
@@ -451,6 +455,7 @@ their own rows.
 | urdr-render      | perspective-correct interp + blending + geometric clip | `DECLARED` | targets (§4) |
 | urdr-physics     | rung 5: bounded fixed-point dynamics (settling stacks, Baumgarte swings) | `MEASURED` (both placements) | `physics_fp` gate stage, `conformance_fp.txt`; `fp_dynamics_rs` ADMITTED (Windows, rustc) |
 | urdr-netcode     | N1: deterministic lockstep (inputs-only, canonical merge, desync localization) | `MEASURED` (both placements) | §3.9; `netcode_lockstep` gate stage, `test_lockstep.py`; `lockstep_rs` ADMITTED (Windows, rustc; C99-cross-checked) |
+| urdr-netcode     | N2: rollback (canonical snapshots, late-input rewind+replay, typed refusals) | `MEASURED` (both placements) | §3.9; `netcode_rollback` gate stage, `test_rollback.py`; `rollback_rs` ADMITTED (Windows, rustc; C99 agrees on golden + defect) |
 | spec freeze      | D12 manifest ↔ code, checked mechanically (§4b) | `MEASURED` | `spec-freeze` gate stage, `tools/specfreeze/freeze_check.py`, `tests/test_spec_freeze.py` |
 | network (live)   | real socket at the runner tier          | `SPECULATIVE`| host capability; not gated |
 

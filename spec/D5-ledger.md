@@ -1126,3 +1126,19 @@ conflict=-1`, and `--defect` diverging (`39326ff9…`) — the port logic is val
 run separates it from admission. Per the admission ladder the rollback/snapshot contracts freeze in D12
 only after that `ADMITTED`. `history is rewritten only by rewinding it: a late truth replays to the same
 chain, and everything else is named — too old, or a lie`.
+
+**N2 admission + freeze — MEASURED (both placements); `urdr-netcode-rollback 0.1` FROZEN.** **CONFIRMED on
+host:** on Windows (`rustc -O rollback.rs`) `rollback.exe` printed `URDR-ROLLBACK-RS: ADMITTED` — the
+golden `fea3b967…` reproduced at K=4 (×2) and K=8, refusals typed (`ROLLBACK-REFUSE` with the chain
+untouched; exact duplicate absorbed; `ROLLBACK-CONFLICT`) — and `--defect` diverged at `39326ff9…`, the
+SAME divergent digest the independent C99 port produced in the sandbox: **three implementations agree on
+the canonical chain AND on the defect's exact divergence.** The Windows gate reproduced 290/0 with all
+five rollback rows green (commits `7ece2c8`, `7226891`). D12 accordingly freezes `urdr-netcode-rollback
+0.1`: N2 introduces **no new serialization** (URDRLST1/URDRLSTT reused — itself contractual); the
+snapshot contract (a restored snapshot reproduces the pinned URDRLST1 witness; K/H are operational, only
+the refusal horizon moves), the rollback law (rewind to the newest snapshot at-or-before the input's
+tick, replay, converge to the N1 canonical timeline), and both refusal codes are immutable except through
+a versioned successor; `conformance_rollback.txt` joins the mechanically-checked freeze manifest. D11
+§3.9/§4b updated (rollback leaves the DECLARED lists — rule 10). Honest scope unchanged: a replay
+primitive over the frozen transcript; `digest ≠ MAC`; authenticated inputs remain the declared next piece.
+`three languages, one history: rewound, replayed, and named the same everywhere`.
