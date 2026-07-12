@@ -1142,3 +1142,33 @@ a versioned successor; `conformance_rollback.txt` joins the mechanically-checked
 §3.9/§4b updated (rollback leaves the DECLARED lists — rule 10). Honest scope unchanged: a replay
 primitive over the frozen transcript; `digest ≠ MAC`; authenticated inputs remain the declared next piece.
 `three languages, one history: rewound, replayed, and named the same everywhere`.
+
+**urdr-netcode N3 — AUTHENTICATED INPUTS (Lamport one-time signatures) — MEASURED (reference);
+cross-placement DECLARED.** `tools/netcode/authinput.py` answers `digest ≠ MAC` with an actual signature
+built from the ONLY primitive every placement already hand-rolls (SHA-256) — no new dependency, no new
+crypto primitive. The structural separation is enforced by composition: `AuthedPeer` wraps the N2
+authority, and an event reaches `rollback.Peer.deliver` ONLY after its envelope verifies — authentication
+decides WHO may submit; the deterministic authority decides WHAT results; witnesses prove what happened.
+**The scheme:** message digest `SHA-256("URDRAIN1" | six signed i64 BE)`; keypair = 256 preimage pairs
+`sk[i][b] = SHA-256("URDRKEY1"|seed|u32BE(i)|u8(b))`; pubkey `"URDRPUB1" | 256 hash pairs` (16,392 B);
+roster pin = `SHA-256(pubkey)` committed pre-session; sign = reveal one preimage per digest bit
+(MSB-first — the frozen indexing law); verify = pubkey-hashes-to-pin, then 256 hash comparisons. Why a
+SIGNATURE and not a MAC: the verifier holds only hashes, so no verifier — including a malicious fellow
+peer — can forge. The OTS one-time rule (reuse leaks preimages) is enforced STRUCTURALLY at admission by
+N2's identity-uniqueness law: one keypair per `(peer, seq)`, a second distinct envelope is refused.
+**Gated** (`netcode_auth`, 4 rows): the fully signed canonical log reproduces the N1 golden `fea3b967…`
+×2 (authentication changes eligibility, never state law — the strongest single check in the stage); the
+roster root reproduces its pin `847292e2…` ×2 (pins keygen + pubkey serialization + ordering,
+`conformance_auth.txt`); four forgery shapes — bit-flipped signature, stolen signature on an altered
+payload, unregistered identity, rogue self-consistent pubkey — each a typed `AUTH-REFUSE`, rejected
+whole; and non-vacuity: a defect verifier checking only the FIRST digest byte ACCEPTS a deterministic
+tail-collision forgery the real verifier refuses (all 256 bits are load-bearing). Red-first:
+`tests/test_authinput.py` (9 falsifiers) went RED (`ModuleNotFoundError: authinput`) before the module
+existed; also gated: a late SIGNED envelope still rewinds and converges (N3 composes with N2). Unit
+falsifiers 290 → 299. **Grade: MEASURED (reference).** **Honest scope:** the gate pins the MECHANISM —
+verification gates admission — on fixture keys from PUBLISHED seeds (deterministic on purpose);
+operational key secrecy, key distribution, and cross-session replay protection are OUT of scope and not
+claimed; envelopes are large (8 KB sig / 16 KB pubkey — the price of hash-based signatures, irrelevant at
+gate scale, stated). Cross-placement DECLARED; the envelope/roster contracts freeze in D12 only after an
+independent placement reproduces both goldens + the defect probe on a named host. `who may speak is a
+hash question now; what happens next never was one`.

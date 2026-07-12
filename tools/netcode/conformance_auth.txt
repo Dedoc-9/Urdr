@@ -1,0 +1,8 @@
+# urdr-netcode N3 — authenticated inputs (Lamport OTS): frozen goldens.
+# roster3: the canonical 8-identity roster root (URDRROS1 law) over the PUBLISHED
+#   fixture seeds — pins keygen, pubkey serialization, pin, and roster ordering.
+# arena3_signed: the chain a fully SIGNED canonical log produces — IDENTICAL to the
+#   N1/N2 golden by construction: authentication decides eligibility, never state law.
+# name  digest
+roster3 847292e26954459a44f1587659f06b89d4cf4ecd81c62f9b9464032d1bc31b9f
+arena3_signed fea3b967db1995bef2f21e3339577eaa44b8021576e2ed2c99626a4018e0cb41

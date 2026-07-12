@@ -1448,6 +1448,111 @@ class Gate:
                     "(gate can redden)" if nv
                     else "the defect converged — the convergence invariant is vacuous")
 
+    # -- 2j4. urdr-netcode N3: authenticated inputs (Lamport OTS) ---------------
+    def netcode_auth(self):
+        """urdr-netcode N3 — AUTHENTICATED INPUTS: only a VERIFIED envelope enters the
+        transcript. The canonical signed log reproduces the N1 golden (authentication changes
+        eligibility, never state law); the roster root reproduces its pin; four forgery shapes
+        are each a typed AUTH-REFUSE; and a first-byte defect verifier MUST accept a
+        tail-collision forgery the real verifier refuses (non-vacuity)."""
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import lockstep as L
+            import authinput as A
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("netcode-auth", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(ndir, "conformance_auth.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dig = ln.split()
+                        goldens[name] = dig
+        if "roster3" not in goldens or "arena3_signed" not in goldens:
+            self.record("netcode-auth", False, "missing goldens (roster3 / arena3_signed)")
+            return
+        log = L.sample_log()
+        keys = {}
+        roster = {}
+        for e in log:
+            ident = (e[1], e[2])
+            keys[ident] = A.keygen(A.fixture_seed(*ident))
+            roster[ident] = A.roster_pin(A.pubkey_bytes(keys[ident]))
+        # roster root: deterministic twice + matches its pin
+        r1, r2 = A.roster_root(roster), A.roster_root(dict(roster))
+        if r1 != r2:
+            self.record("netcode-auth:roster3", False, "NONDETERMINISTIC")
+        elif r1 != goldens["roster3"]:
+            self.record("netcode-auth:roster3", False,
+                        f"root {r1[:12]}… ≠ golden {goldens['roster3'][:12]}…")
+        else:
+            self.record("netcode-auth:roster3", True, r1[:16] + "…")
+
+        def run_signed():
+            peer = A.AuthedPeer(L.world(), roster, K=4, H=64)
+            for e in log:
+                peer.deliver_envelope(A.envelope(e, keys[(e[1], e[2])]))
+            peer.advance(L.world()["T"])
+            return peer.trace()
+
+        t1, t2 = run_signed(), run_signed()
+        if t1 != t2:
+            self.record("netcode-auth:arena3_signed", False, "NONDETERMINISTIC")
+        elif t1 != goldens["arena3_signed"]:
+            self.record("netcode-auth:arena3_signed", False,
+                        f"trace {t1[:12]}… ≠ golden {goldens['arena3_signed'][:12]}…")
+        else:
+            self.record("netcode-auth:arena3_signed", True, t1[:16] + "…")
+        # typed refusals: four forgery shapes, each rejected whole
+        try:
+            e = log[0]
+            ident = (e[1], e[2])
+            ev, pub, sig = A.envelope(e, keys[ident])
+            codes = []
+            peer = A.AuthedPeer(L.world(), roster, K=4, H=64)
+            bad = bytearray(sig)
+            bad[7] ^= 0x01
+            for env in (
+                (ev, pub, bytes(bad)),                       # bit-flipped signature
+                ((ev[0], ev[1], ev[2], ev[3], ev[4] + 5, ev[5]), pub, sig),  # stolen sig
+                A.envelope(L.event(3, 7, 0, 0, 1, -1), A.keygen(A.fixture_seed(7, 0))),  # ghost
+                (ev,) + A.envelope(e, A.keygen(A.fixture_seed(99, 99)))[1:],  # rogue pubkey
+            ):
+                try:
+                    peer.deliver_envelope(env)
+                    codes.append("ACCEPTED")
+                except A.AuthError as exc:
+                    codes.append(exc.code)
+            genuine = A.verify((ev, pub, sig), roster[ident])
+            ok = codes == ["AUTH-REFUSE"] * 4 and genuine
+            self.record("netcode-auth-refusals", ok,
+                        "bit-flip / stolen-sig / unregistered / rogue-pubkey each "
+                        "AUTH-REFUSE; genuine verifies" if ok
+                        else f"refusals wrong: {codes}, genuine={genuine}")
+        except Exception as exc:
+            self.record("netcode-auth-refusals", False, f"errored: {exc}")
+        # non-vacuity: the first-byte defect verifier accepts what the real one refuses
+        try:
+            e = log[0]
+            ident = (e[1], e[2])
+            forged = A.forge_tail_collision(e, keys[ident])
+            real = A.verify(forged, roster[ident])
+            defect = A.verify_defect_first_byte(forged, roster[ident])
+            nv = (not real) and defect
+            self.record("netcode-auth-selftest", nv,
+                        "the real verifier refuses the tail-collision forgery the "
+                        "first-byte defect accepts (gate can redden)" if nv
+                        else f"probe failed: real={real} defect={defect}")
+        except Exception as exc:
+            self.record("netcode-auth-selftest", False, f"errored: {exc}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -1519,6 +1624,7 @@ def main() -> int:
     gate.physics_fp()
     gate.netcode_lockstep()
     gate.netcode_rollback()
+    gate.netcode_auth()
     gate.field()
     gate.marangoni()
     gate.field_coupling()
