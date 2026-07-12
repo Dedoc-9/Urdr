@@ -1224,5 +1224,14 @@ the clean run does not). Red-first: `tests/test_worldstep.py` (7 falsifiers) wen
 MEASURED (reference).** **Honest scope:** regime B (rounds honestly, refuses on overflow); body-body
 contact and rollback/auth composition over authored worlds are the natural next slices (the runtime
 shares `simulate(w, log)` shape with N1, so N2/N3 composition is mechanical, but it is NOT claimed until
-gated); cross-placement DECLARED — freeze after admission, per the ladder. `the editor draws a world;
-the loop makes it law: same scene, same inputs, same witnesses, on every machine`.
+gated); cross-placement DECLARED — freeze after admission, per the ladder. **Second placement — written +
+C-cross-checked, SPECULATIVE pending host.** `tools/netcode/worldstep_rs/worldstep.rs` (std-only Rust,
+hand-rolled SHA-256; honest scope in its header: it pins the RUNTIME — the N4 tick, the static-AABB
+least-penetration law, the frozen witness laws — on the mapped canonical scene; the JSON loader's mapping
+law stays reference-gated, its mapped output being exactly the constants the placement embeds). Its logic
+was cross-checked **bit-identical by an independent C99 port** (`__int128`, own SHA-256, clean
+`-Wall -Wextra`): arena equivalence `fea3b967…` (the N4 tick reproduces the FROZEN N1 chain in a third
+language), highway `e72e75c3…` ×2, and `--defect` diverging to **exactly `9c0ad7c5…`** — the same
+divergent digest as the Python reference, a three-way anchor on the failure mode itself. Only a host
+`rustc` run separates it from admission and the D12 freeze. `the editor draws a world; the loop makes it
+law: same scene, same inputs, same witnesses, on every machine`.
