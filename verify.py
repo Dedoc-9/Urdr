@@ -1553,6 +1553,91 @@ class Gate:
         except Exception as exc:
             self.record("netcode-auth-selftest", False, f"errored: {exc}")
 
+    # -- 2j5. urdr-netcode N4: authored worlds in the deterministic loop --------
+    def netcode_world(self):
+        """urdr-netcode N4 — AUTHORED WORLDS: the canonical URDR-WORLD-3 export runs in the
+        deterministic input-driven runtime under the frozen witness laws. The highway golden
+        reproduces twice; the no-statics arena chain EQUALS frozen lockstep's bit-for-bit
+        (anti-drift); the authoring boundary refuses floats typed; instance order is content;
+        peers agree on authored state; and the no-statics defect + a dropped input MUST both
+        be caught (non-vacuity)."""
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import json
+            import lockstep as L
+            import worldstep as W
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("netcode-world", False, f"import failed: {exc}")
+            return
+        try:
+            golden = W.golden("highway")
+        except Exception as exc:
+            self.record("netcode-world", False, f"missing golden: {exc}")
+            return
+        with open(os.path.join(ROOT, "demo", "world_highway.json"), encoding="utf-8") as fh:
+            doc = json.load(fh)
+        log = W.sample_world_log()
+        t1 = W.trace(W.simulate(W.world_from_export(doc), log))
+        t2 = W.trace(W.simulate(W.world_from_export(doc), log))
+        if t1 != t2:
+            self.record("netcode-world:highway", False, "NONDETERMINISTIC")
+        elif t1 != golden:
+            self.record("netcode-world:highway", False,
+                        f"trace {t1[:12]}… ≠ golden {golden[:12]}…")
+        else:
+            self.record("netcode-world:highway", True, t1[:16] + "…")
+        # anti-drift: no statics + canonical arena == the FROZEN N1 chain
+        fl, _ = L.simulate(L.world(), L.sample_log())
+        fw = W.simulate(W.arena_world(), L.sample_log())
+        eq = fw == fl
+        self.record("netcode-world-equivalence", eq,
+                    "worldstep ≡ frozen lockstep on the canonical arena (bit-for-bit)"
+                    if eq else "worldstep's tick DRIFTED from the frozen N1 tick")
+        # the typed authoring boundary + order-is-content
+        try:
+            bad = json.loads(json.dumps(doc))
+            bad["instances"][0]["ground_x"] = 60.5
+            code = None
+            try:
+                W.world_from_export(bad)
+            except W.WorldError as exc:
+                code = exc.code
+            swapped = json.loads(json.dumps(doc))
+            dyn = [i for i in swapped["instances"] if i.get("body") == "dynamic"]
+            rest = [i for i in swapped["instances"] if i.get("body") != "dynamic"]
+            swapped["instances"] = [dyn[1], dyn[0]] + rest
+            order_matters = W.simulate(W.world_from_export(swapped), log) != W.simulate(
+                W.world_from_export(doc), log)
+            ok = code == "WORLD-REFUSE" and order_matters
+            self.record("netcode-world-boundary", ok,
+                        "float authoring WORLD-REFUSEd; instance order is content"
+                        if ok else f"boundary wrong: refuse={code} order_matters={order_matters}")
+        except Exception as exc:
+            self.record("netcode-world-boundary", False, f"errored: {exc}")
+        # peers agree on authored state
+        w = W.world_from_export(doc)
+        a_view = [e for e in log if e[1] == 0] + [e for e in log if e[1] == 1]
+        b_view = [e for e in log if e[1] == 1] + [e for e in log if e[1] == 0]
+        ca, cb = W.simulate(w, a_view), W.simulate(w, b_view)
+        agree = ca == cb
+        self.record("netcode-world-peers-agree", agree,
+                    "two peers reproduce one witness chain on the authored scene"
+                    if agree else "peers disagree on identical authored-world inputs")
+        # non-vacuity: the no-statics defect diverges AND a dropped input localizes
+        tno = W.trace(W.simulate(w, log, defect_no_statics=True))
+        dropped = W.simulate(w, log[1:])
+        d = L.first_desync(dropped, ca)
+        clean = L.first_desync(W.simulate(w, list(log)), ca) is None
+        nv = tno != golden and d == log[0][0] + 1 and clean
+        self.record("netcode-world-selftest", nv,
+                    f"no-statics defect diverges; dropped input desyncs at tick {d} "
+                    "(clean run does not; gate can redden)" if nv
+                    else f"selftest failed: defect_diverges={tno != golden} desync={d} clean={clean}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -1625,6 +1710,7 @@ def main() -> int:
     gate.netcode_lockstep()
     gate.netcode_rollback()
     gate.netcode_auth()
+    gate.netcode_world()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

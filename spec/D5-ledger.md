@@ -1197,3 +1197,32 @@ reds the gate). Rule-10 combing: the `digest ≠ MAC` "declared successor" notes
 `rollback.py`, and D11 flip to delivered. The netcode story is now complete through its trust boundary:
 `N1 proves the same inputs make the same history; N2 proves a late truth replays into it; N3 proves only
 the entitled may write it — and all three are two-placement laws`.
+
+**urdr-netcode N4 — AUTHORED WORLDS in the deterministic netcode loop — MEASURED (reference);
+cross-placement DECLARED.** `tools/netcode/worldstep.py` takes the architecture from deterministic demos
+to user-authored deterministic scenes with ZERO authority semantics changed: a frozen `URDR-WORLD-3`
+export becomes the initial state of an input-driven bounded fixed-point runtime whose chains obey the
+frozen laws unchanged (`URDRLST1` witnesses via `lockstep._digest`, `URDRLSTT` traces via
+`lockstep.trace_digest`, the N1 canonical merge via `lockstep.canon`) — new capability as a new CONSUMER.
+**The anti-drift pin is an equivalence theorem, gated:** on the canonical arena (same bodies, box,
+gravity, restitution, no statics) `worldstep.simulate` reproduces `lockstep.simulate`'s chain
+**bit-for-bit** over the canonical log — the N4 tick mirrors the frozen N1 tick exactly, and statics are
+a pure extension proven inert where absent. **What N4 adds:** static AABB obstacles (authored medians/
+walls) with a deterministic least-penetration face resolution (fixed tie order top/bottom/left/right,
+position clamp + toward-guarded restitution reflection, exact FP-word comparisons); a **typed authoring
+boundary** — a non-integer coordinate in the export is `WORLD-REFUSE`, never a silent round (D11 §4b
+made operational); and the stated law that **instance file order is content** (it fixes body indexing —
+reordering is a different world, gated). Loader mapping law pinned in the docstring: dynamics →
+(ground_x, ground_z) bodies with (vel.x, vel.z), radius = scale·max|coord|; statics → AABBs; 640×360
+box, margin 24, top-down gravity (0,1), e=3/4, T=120; mass loaded but INERT until body-body contact
+arrives (DECLARED, stated). **Gated** (`netcode_world`, 5 rows): the `highway` golden `e72e75c3…` ×2
+(`conformance_world.txt`; the no-statics defect run diverges to `9c0ad7c5…` — the median is
+load-bearing); the equivalence pin; the boundary row (float refused + order matters); peers-agree on
+authored state; and the selftest (no-statics defect diverges AND a dropped input desyncs localized while
+the clean run does not). Red-first: `tests/test_worldstep.py` (7 falsifiers) went RED
+(`ModuleNotFoundError: worldstep`) before the module existed. Unit falsifiers 299 → 306. **Grade:
+MEASURED (reference).** **Honest scope:** regime B (rounds honestly, refuses on overflow); body-body
+contact and rollback/auth composition over authored worlds are the natural next slices (the runtime
+shares `simulate(w, log)` shape with N1, so N2/N3 composition is mechanical, but it is NOT claimed until
+gated); cross-placement DECLARED — freeze after admission, per the ladder. `the editor draws a world;
+the loop makes it law: same scene, same inputs, same witnesses, on every machine`.

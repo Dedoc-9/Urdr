@@ -1,0 +1,8 @@
+# urdr-netcode N4 — authored worlds in the deterministic netcode loop: frozen golden.
+# highway: demo/world_highway.json (the canonical URDR-WORLD-3 export — two closing
+#   vehicles, one static median) driven by the pinned two-peer input log
+#   (worldstep.sample_world_log) through the worldstep runtime — URDRLSTT trace over
+#   URDRLST1 witnesses, both laws frozen and unchanged. The no-statics defect run
+#   diverges (9c0ad7c5…), so the median is load-bearing in this golden.
+# name  trace_digest
+highway e72e75c37282c4e954698f6de9c8c97e4c864d25de6e2a82f1a065ffc936bec4
