@@ -470,16 +470,20 @@ function drawWalk(){ ctx.fillStyle='#0b0d0e'; ctx.fillRect(0,0,W,H);
   ctx.strokeStyle=CSS('--sel'); ctx.lineWidth=1;
   ctx.beginPath(); ctx.moveTo(cx-5,cy); ctx.lineTo(cx+5,cy); ctx.moveTo(cx,cy-5); ctx.lineTo(cx,cy+5); ctx.stroke();
   ctx.fillStyle=CSS('--dim'); ctx.font='11px monospace';
-  ctx.fillText((wlocked?'WASD move · Shift run · Q/E eye · wheel speed · R replay ▶ · [ ] step · Esc release'
-                       :'click to capture the mouse — then WASD + mouselook'),12,H-28);
+  const held=Object.keys(wkeys).filter(k=>wkeys[k]).join(' ');
+  ctx.fillText((wlocked?'WASD/arrows move · Shift run · Q/E eye · wheel speed · R replay ▶ · [ ] step · Esc release'
+                       :'click to capture the mouse — WASD/arrows move even without capture'),12,H-28);
   ctx.fillText('⨀ float preview — the deterministic runtime & witness chain remain the authority'
-               +'   ·   x '+Math.round(fcam.x)+'  z '+Math.round(fcam.z)+'  eye '+Math.round(fcam.y),12,H-12); }
+               +'   ·   x '+Math.round(fcam.x)+'  z '+Math.round(fcam.z)+'  eye '+Math.round(fcam.y)
+               +(held?('   ·   held: '+held):''),12,H-12); }
 function walkStep(t){ if(mode!=='walk'){walkRAF=null;return;}
   const dt=Math.min(50, t-(wlast||t)); wlast=t;
   const run=(wkeys['ShiftLeft']||wkeys['ShiftRight'])?fcam.run:1, v=fcam.speed*run*(dt/16.7);
   const fx=Math.sin(fcam.yaw), fz=Math.cos(fcam.yaw), rx=Math.cos(fcam.yaw), rz=-Math.sin(fcam.yaw);
-  if(wkeys['KeyW']){fcam.x+=fx*v; fcam.z+=fz*v;} if(wkeys['KeyS']){fcam.x-=fx*v; fcam.z-=fz*v;}
-  if(wkeys['KeyA']){fcam.x-=rx*v; fcam.z-=rz*v;} if(wkeys['KeyD']){fcam.x+=rx*v; fcam.z+=rz*v;}
+  const kF=wkeys['KeyW']||wkeys['ArrowUp'], kB=wkeys['KeyS']||wkeys['ArrowDown'],
+        kL=wkeys['KeyA']||wkeys['ArrowLeft'], kR=wkeys['KeyD']||wkeys['ArrowRight'];
+  if(kF){fcam.x+=fx*v; fcam.z+=fz*v;} if(kB){fcam.x-=fx*v; fcam.z-=fz*v;}
+  if(kL){fcam.x-=rx*v; fcam.z-=rz*v;} if(kR){fcam.x+=rx*v; fcam.z+=rz*v;}
   if(wkeys['KeyQ'])fcam.y=clamp(fcam.y-v*1.4,8,600); if(wkeys['KeyE'])fcam.y=clamp(fcam.y+v*1.4,8,600);
   draw(); walkRAF=requestAnimationFrame(walkStep); }
 function walkSet(k,v){ v=+v;
@@ -489,13 +493,29 @@ document.addEventListener('pointerlockchange',()=>{ wlocked=document.pointerLock
 cv.addEventListener('click',()=>{ if(mode==='walk'&&!wlocked) cv.requestPointerLock(); });
 document.addEventListener('mousemove',e=>{ if(mode!=='walk'||!wlocked)return;
   fcam.yaw+=e.movementX*0.0032; fcam.pitch=clamp(fcam.pitch-e.movementY*0.0032,-1.45,1.45); });
-addEventListener('keydown',e=>{ if(mode!=='walk')return;
-  if(document.activeElement&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName))return;
+addEventListener('keydown',e=>{
+  const typing=document.activeElement&&/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName);
+  // World/3D editing view: fly the dolly rig with the same keys (W/S dolly, A/D yaw,
+  // Q/E height; arrows too when no object is selected — selected objects keep nudge).
+  if(mode==='world'&&view==='3d'&&!typing){
+    const st=e.shiftKey?3:1; let hit=true;
+    const fwd=()=>wcam.back=clamp(wcam.back-14*st,20,900), back=()=>wcam.back=clamp(wcam.back+14*st,20,900);
+    const yl=()=>wcam.yaw-=0.045*st, yr=()=>wcam.yaw+=0.045*st;
+    const up=()=>wcam.height=clamp(wcam.height+10*st,20,600), dn=()=>wcam.height=clamp(wcam.height-10*st,20,600);
+    if(e.code==='KeyW')fwd(); else if(e.code==='KeyS')back();
+    else if(e.code==='KeyA')yl(); else if(e.code==='KeyD')yr();
+    else if(e.code==='KeyQ')dn(); else if(e.code==='KeyE')up();
+    else if(worldSel==null&&e.code==='ArrowUp')fwd(); else if(worldSel==null&&e.code==='ArrowDown')back();
+    else if(worldSel==null&&e.code==='ArrowLeft')yl(); else if(worldSel==null&&e.code==='ArrowRight')yr();
+    else hit=false;
+    if(hit){ e.preventDefault(); draw(); renderSide(); return; } }
+  if(mode!=='walk')return;
+  if(typing)return;
   wkeys[e.code]=true;
   if(e.code==='KeyR'&&replay){ playReplay(); }
   if(e.code==='BracketLeft'&&replay){ stepFrame(-1); }
   if(e.code==='BracketRight'&&replay){ stepFrame(1); }
-  if(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','Space'].includes(e.code)) e.preventDefault(); });
+  if(['KeyW','KeyA','KeyS','KeyD','KeyQ','KeyE','Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) e.preventDefault(); });
 addEventListener('keyup',e=>{ wkeys[e.code]=false; });
 cv.addEventListener('wheel',e=>{ if(mode!=='walk')return; e.preventDefault();
   fcam.speed=clamp(fcam.speed*(e.deltaY<0?1.12:0.9),0.4,40);
@@ -925,7 +945,8 @@ function setMode(m){ mode=m; drag=null; worldSel=null; selV=-1; selE=-1; stopPla
   document.getElementById('mWorld').classList.toggle('on',m==='world');
   document.getElementById('mReplay').classList.toggle('on',m==='replay');
   document.getElementById('mWalk').classList.toggle('on',m==='walk');
-  if(m==='walk'){ wlast=0; if(!walkRAF) walkRAF=requestAnimationFrame(walkStep); }
+  if(m==='walk'){ wlast=0; if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
+    if(!walkRAF) walkRAF=requestAnimationFrame(walkStep); }
   else { if(walkRAF){cancelAnimationFrame(walkRAF); walkRAF=null;}
          if(document.pointerLockElement===cv) document.exitPointerLock(); }
   updHint(); renderSide(); refresh(); }
@@ -939,7 +960,7 @@ function updHint(){ const h=mode==='walk'
     ? 'Deterministic replay — scrub the timeline; each frame is an exact state restored by its digest'
     : mode==='design'
     ? (view==='2d'?'Drag to draw lines · start on a point to continue · Move/Erase in Tools':'Orbit the model · click a point then set depth Z')
-    : (view==='2d'?'Pick a design, click the road to place · drag to move · handle to rotate':'3D preview — drag to orbit · dolly with wheel · edit in 2D');
+    : (view==='2d'?'Pick a design, click the road to place · drag to move · handle to rotate':'3D preview — drag orbit · wheel dolly · WASD fly (A/D yaw · Q/E height · Shift fast) · edit in 2D');
   document.getElementById('hint').textContent=h;
   cv.style.cursor = (mode==='design'&&view==='2d')?'crosshair':'default'; }
 function msg(s){document.getElementById('fMsg').textContent=s;}
