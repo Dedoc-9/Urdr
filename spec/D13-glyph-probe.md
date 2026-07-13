@@ -158,6 +158,19 @@ be syntax in search of a law. **Verdict: reject as premature**; re-open only aft
 the D-series regional-authority contract exists and its library realization has been
 measured against it.
 
+**Update (post-D16): the precondition is now met, and the result REFUTES the glyph.** The
+D-series contract exists (D16, `spec/D16-regional-authority.md`), is FROZEN
+(`urdr-netcode-region 0.1`), and is reproduced by three independent placements (Python,
+C99, Rust). Its answer to this section's exact question — *do regional witnesses compose to
+the global witness, needing a new witness class?* — is **no: composition is the frozen
+`URDRLST1`/`URDRLSTT` law recomputed over reunified interiors, with no new class.** The
+strongest motivation for C8 (that regional authority might *require* a primitive) was
+therefore tested and refuted, so C8 stays parked on *stronger* grounds than before. The
+accumulating evidence, and the designed workloads that could still re-open it (dynamic
+repartitioning, migration, distributed authority), are tracked in **D5 § "Evidence Against
+C8."** The re-open bar is unchanged: a measured workload that cannot be expressed without
+duplicating authority semantics or stating a witness composition the current laws cannot.
+
 ### C9 — Error-bounded numerics (interval arithmetic)
 Applies: physics regime B. Intervals answer "how wrong can the rounded value be?" —
 a scientific question. The engine's question is "is the rounded value *identical

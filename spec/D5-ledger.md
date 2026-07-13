@@ -1673,3 +1673,39 @@ latency) that repeatedly cannot be expressed without duplicating or weakening an
 standing discipline holds: every consumer that composes cleanly on the existing laws is one more datum
 against C8. `the milestone is closed by three placements agreeing to the last bit; the glyph is refused by
 the same evidence that froze the contract`.
+
+## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
+
+C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred
+feature but as a **falsifiable hypothesis**: *the existing witness algebra (`URDRLST1` state,
+`URDRLSTT` trace) can express every composition the engine needs without a new witness class.* Each
+subsystem that composes cleanly on the frozen laws is one datum against admitting the glyph, and the
+seal grows *empirically* stronger with each — additions become rarer because the core keeps absorbing
+new domains unchanged. This section is the running evidence; new subsystems append one honest line.
+
+The precise claim under test is narrow: not "nothing new was ever added" (N3 added cryptography, N5
+added an identity digest), but **"no new WITNESS class / composition algebra was ever required."** That
+is the thing C8 would introduce, and the thing that has not been needed.
+
+- **N2 (rollback):** late delivery + rewind/replay composed on `URDRLST1`/`URDRLSTT` unchanged; no new witness class.
+- **N3 (auth):** added Lamport-OTS signatures + a roster (an authentication layer), but the witness chain law was untouched — auth decides *who*, not *what is witnessed*.
+- **N5 (worldpeer):** added one identity law (`URDRWPN1` world pin, an entry gate), yet witness COMPOSITION stayed the frozen `URDRLSTT` — no composite-witness algebra.
+- **N4.1 (contact):** body-body contact reused the witness laws entirely; only the tick grew.
+- **D14 (front-end contract):** every authoring modality became a consumer of the `URDROBJ2` canon; identity is geometry-only, no new law.
+- **D15 (view contract):** the view frame CARRIES the authoritative witness as a bound reference; presentation moves a separate `VIEW` digest, the authority witness class is unchanged.
+- **D16 (regional authority):** the direct test of C8's own question — regional composition reproduces the monolithic `URDRLST1`/`URDRLSTT` bit-for-bit with **no new witness class**, across three placements (Python + C99 + Rust). C8's hypothesis (*regional witnesses may need a new class*) was tested and **refuted**.
+
+**Designed falsification attempts (open).** Each is a genuine try to BREAK D16, valuable precisely
+because it is expected to compose — a clean pass is more evidence for the seal, a genuine failure is the
+only thing that re-opens C8:
+
+1. **Dynamic repartitioning** — regions split/merge mid-simulation; the witness must stay identical across a re-partition on a live tick (today's partition-invariance is proven only across *static* seams).
+2. **Interest-management migration** — thousands of bodies migrating authority every few ticks.
+3. **Distributed authority graph** — regions on different machines, delayed ghost updates, boundary conditions still deterministic.
+
+**Re-open bar.** Not "a glyph would be cleaner," but a measured workload that produces a stated
+inexpressibility — *"there is no way to express this without duplicating authority semantics,"* *"the
+same invariant now exists in two incompatible forms,"* or *"witness composition cannot be stated on
+`URDRLST1`/`URDRLSTT`."* **Verdict to date: no language pressure observed** — every composition the
+engine has needed has been expressible on the frozen alphabet. `the burden of proof to admit C8 rises
+with each clean composition recorded here; the seal is not an assumption but an accumulating measurement`.
