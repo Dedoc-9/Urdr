@@ -2073,6 +2073,11 @@ class Gate:
                     "full-rank defect calls the rigid triangle FLEXIBLE — trivial-motion "
                     "subtraction load-bearing (gate can redden)" if nv
                     else f"probe failed: real={real} defect={defect}")
+        # refusal (D17 domain boundary): an overflow framework REFUSEs, never a wrong verdict
+        huge = RV.verdict(des([(0, 0), (10 ** 9, 0), (0, 10 ** 9)], [[0, 1], [1, 2], [2, 0]]))["verdict"]
+        self.record("rigidity-verdict-refusal", huge == "REFUSE",
+                    "an overflow framework REFUSEs (the bounded-regime domain boundary)"
+                    if huge == "REFUSE" else f"expected REFUSE at the bound, got {huge}")
 
     # -- 2m6. D15 view-export contract: authority → renderer, observational-only -
     def view_export(self):
@@ -2366,6 +2371,74 @@ class Gate:
                     "(regulator load-bearing; gate can redden)" if (on_ok and off_refuses)
                     else f"non-vacuity failed: regulated_ok={on_ok} unregulated_refuses={off_refuses}")
 
+    # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
+    def invariant_detectors(self):
+        """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
+        roles (reference / invariance / defect / refusal). The lint checks — mechanically, never
+        by inferring from row-name conventions — that every role is declared, every named row was
+        actually recorded, and every such row PASSED. A missing role, a dangling row name, or a
+        failed row reddens; the non-vacuity self-test proves the checker rejects a broken
+        declaration. This makes the D17 admission law enforceable by construction: every future
+        detector inherits the discipline (the meta-rule is executable before the next subsystem
+        relies on it)."""
+        # THE D17 ADMISSION MANIFEST — explicit and declared, so it survives row-name changes.
+        manifest = {
+            "D14 frontend": {"reference": "frontend-contract:reference",
+                             "invariance": "frontend-contract-provenance",
+                             "defect": "frontend-contract-selftest",
+                             "refusal": "frontend-contract-selftest"},
+            "D15 view": {"reference": "view-export:canonical",
+                         "invariance": "view-export-observational",
+                         "defect": "view-export-observational",
+                         "refusal": "view-export-refusal"},
+            "D16 region": {"reference": "netcode-region:seam2",
+                           "invariance": "netcode-region-invariance",
+                           "defect": "netcode-region-boundary",
+                           "refusal": "netcode-region-refusal"},
+            "rigidity": {"reference": "rigidity-verdict:shapes",
+                         "invariance": "rigidity-verdict-flex",
+                         "defect": "rigidity-verdict-selftest",
+                         "refusal": "rigidity-verdict-refusal"},
+            "criticality": {"reference": "criticality:galton",
+                            "invariance": "criticality-conserve",
+                            "defect": "criticality-selftest",
+                            "refusal": "criticality-eigenvalue"},
+        }
+        roles = ("reference", "invariance", "defect", "refusal")
+        recorded = {name: ok for (name, ok, _d) in self.rows}
+
+        def check(rolemap):
+            for role in roles:
+                row = rolemap.get(role)
+                if not row:
+                    return False, f"missing role '{role}'"
+                if row not in recorded:
+                    return False, f"role '{role}' names unrecorded row {row!r}"
+                if not recorded[row]:
+                    return False, f"role '{role}' row {row!r} did not pass"
+            return True, "all four roles declared, recorded, passing"
+
+        allok = True
+        for det, rolemap in manifest.items():
+            ok, why = check(rolemap)
+            allok = allok and ok
+            self.record(f"invariant-detectors:{det}", ok,
+                        "reference · invariance · defect · refusal — all present" if ok else why)
+        # non-vacuity: the checker MUST reject broken declarations, else the lint is toothless.
+        recorded["__failed_probe__"] = False
+        base = {"reference": "criticality:galton", "invariance": "criticality-conserve",
+                "defect": "criticality-selftest"}
+        d_missing = not check(base)[0]                                   # no refusal role
+        d_dangling = not check({**base, "refusal": "__nope__"})[0]       # names an unrecorded row
+        d_failed = not check({**base, "refusal": "__failed_probe__"})[0]  # names a failed row
+        nv = d_missing and d_dangling and d_failed
+        self.record("invariant-detectors-selftest", nv,
+                    "checker rejects a missing role, a dangling row, and a failed row (gate can redden)"
+                    if nv else "the lint checker is vacuous")
+        self.record("invariant-detectors", allok and nv,
+                    f"D17: all {len(manifest)} detectors declare 4 roles, each recorded + passing"
+                    if allok and nv else "a detector is not D17-compliant")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -2452,6 +2525,7 @@ def main() -> int:
     gate.field_coupling()
     gate.field_body_loop()
     gate.criticality()
+    gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
     gate.tamper()

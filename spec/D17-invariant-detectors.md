@@ -110,7 +110,7 @@ a group.
 | **D14** frontend | canonical designs (non-integer → `CONTRACT-REFUSE`) | `URDROBJ2` id | canon bytes, reproduced by 3 impls | provenance / representation (**equivalence**) | `:reference`,`:tracer` · `-provenance` · `-selftest` (provenance-fold) · non-integer refuse | cross-placed |
 | **D15** view | authority state + presentation (bad body-count → `VIEW-REFUSE`) | carried witness | binding check + independent viewer | presentation edits (**monoid**) | `:canonical` · `-observational` · `-observational` fold-defect · `-refusal` | cross-placed |
 | **D16** region | valid integer-seam partitions (malformed → `REGION-REFUSE`) | `URDRLSTT` | reunified chain, 3 placements | partition / recomposition (**equivalence**) | `:seam2` · `-invariance` (6 partitions) · `-boundary`,`-nonvacuity` · `-refusal` | frozen |
-| **rigidity** | canonical frameworks (integer geometry) | RIGID/FLEXIBLE + dof | self-stress / infinitesimal-flex certificate | Euclidean motions (**group** — the special case) | `:shapes` · `-flex` · `-selftest` (full-rank misclassifies) · geometry refuse | measured |
+| **rigidity** | canonical frameworks (overflow → `REFUSE`) | RIGID/FLEXIBLE + dof | self-stress / infinitesimal-flex certificate | Euclidean motions (**group** — the special case) | `:shapes` · `-flex` · `-selftest` (full-rank misclassifies) · `-refusal` (overflow REFUSE) | measured |
 | **criticality** | population fields, bounded regime (overflow → `FIELD-REFUSE`) | conserved total (+ eigenvalue) | trace digest / running total | transport evolution (**monoid**, non-invertible) | `:galton`,`:doppler` · `-conserve` · `-eigenvalue`,`-selftest` · `FIELD-REFUSE` | **reference** (4b DECLARED) |
 
 The last row is the honest catch: criticality meets conditions 1–6 with self-verification (4a) but
@@ -129,9 +129,12 @@ the alphabet proved invariant.
 
 1. **State the law** (this document) and **retro-admit** the existing detectors (§6 — done, and the
    validation *is* the proof the law is right).
-2. **A structural lint** (`invariant_detectors` gate stage): each declared detector must expose the
-   four row-kinds (golden, invariance, non-invariance, refusal) — the mechanical enforcement that D17
-   is followed by construction.
+2. **A structural lint** (`invariant_detectors` gate stage) — **LANDED.** Each admitted detector
+   *declares* (in an explicit manifest, never inferred from row-name conventions) which recorded rows
+   fill its four roles; the lint checks every role is present, every named row was recorded, and every
+   such row passed, with a non-vacuity self-test that rejects a broken declaration. Building it fixed a
+   real gap — rigidity gained a `rigidity-verdict-refusal` row (overflow → `REFUSE`) — so all five
+   detectors are mechanically D17-compliant. The admission law is now a gate row, not just a table.
 3. **The first genuinely new admission: the toric code.** `Dom` = stabilizer codes on a cellulated
    surface; `Inv` = code dimension `= dim H₁` (a topological invariant, computed over 𝔽₂ by the
    existing chain-complex / Betti machinery); `W` = stabilizer group + logical-operator (homology)

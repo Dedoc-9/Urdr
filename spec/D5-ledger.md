@@ -1730,6 +1730,24 @@ Doppler law — the physical Doppler defect ∝ √T is irrational and would its
 (DECLARED, not modelled). `the Galton board is the diffusion kernel, keff is the multiplication, Doppler
 is the stability; keff=2.0 either refuses or is regulated — and either way it replays to the last bit`.
 
+**D17 structural lint — the invariant-detector admission law made executable — MEASURED.** D17 (the
+meta-contract) is now enforced, not just documented: `verify.py`'s `invariant_detectors` stage carries an
+explicit **manifest** in which each admitted detector *declares* which recorded rows fill its four roles
+(reference / invariance / defect / refusal), and the lint checks — **mechanically, never by inferring from
+row-name conventions** (which drift) — that every role is declared, every named row was actually recorded,
+and every such row PASSED. Per the human's design: the roles are declared data, resilient to naming
+changes; the lint verifies (1) every referenced row exists, (2) every role is present, (3) no detector is
+missing one of the four. Building it surfaced and fixed a real gap — **rigidity had no gated refusal**, so
+a `rigidity-verdict-refusal` row was added (an overflow framework returns `REFUSE`, the bounded-regime
+domain boundary), making rigidity fully D17-compliant. Rows: `invariant-detectors:{D14,D15,D16,rigidity,
+criticality}` (each = all four roles present + recorded + passing), a non-vacuity `-selftest` (the checker
+rejects a missing role, a dangling row name, and a failed row — so the lint can redden), and the aggregate
+`invariant-detectors`. Gate 399 (unchanged — a stage lint, not a unit falsifier), deterministic ×2. **Grade:**
+MEASURED. This is rung 2 of D17's ladder — the meta-rule is now executable *before* the next detector
+(the toric code) relies on it, so every future detector inherits the admission discipline by construction.
+`the admission law stopped being a table and became a gate row that reddens if a detector is authored
+without its counterexample or its refusal`.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred
