@@ -68,6 +68,26 @@ undecidable (deciding orbit-equality can be harder than computing the invariant)
 — and never a free label. Complete detectors are terminal for their `~`: every weaker detector on
 the same domain **factors through** them.
 
+## 3a. Maturity — two orthogonal axes (reproduction × separation)
+
+A detector's maturity is **two independent axes**, not one ladder; conflating them overstates what a
+detector guarantees.
+
+- **Axis A — reproduction (witness independence):** `REFERENCE` (condition 4a — the witness self-verifies
+  the value on the corpus) → `CROSS-PLACED` (4b — an *independent* implementation reproduces it
+  byte-for-byte, the D8 move) → *frozen* (cross-placed + an immutable surface, D12).
+- **Axis B — separation (completeness):** `PARTIAL` (`~ ⊆ ker(Inv)` — sound: never distinguishes
+  equivalent objects, but may merge inequivalent ones) → `COMPLETE` (`ker(Inv) = ~` — separates exactly;
+  graded measured-vs-proven, often undecidable).
+
+The axes are **orthogonal**: a cross-placed detector can be partial (criticality's conserved total is
+cross-placeable yet does not separate transport orbits), and a reference detector could be complete on
+its corpus without a second placement. **Most detectors are, and will remain, `PARTIAL` — and that is
+fine;** many important invariants admit no practical completeness result. Keeping Axis B separate is what
+stops "exact" or "cross-placed" from silently implying "complete." Current state: D14/D15/D16/rigidity are
+`CROSS-PLACED` (D16 frozen); criticality and toric are `REFERENCE` (cross-placement declared); completeness
+is **unclaimed (`PARTIAL`) for all** — the honest default, upgraded only with evidence.
+
 ## 4. The lattice of detectors
 
 Order detectors by their induced kernel: a finer kernel distinguishes more. If `~₁ ⊆ ~₂` then
@@ -148,6 +168,28 @@ the alphabet proved invariant.
    representation/character detector, a conserved-quantity detector) is a plugin answering the one
    question, and the C8 discipline governs whether any of them ever needs a new *primitive* rather
    than a new *detector*.
+
+## 9. Coverage — the boundary of what is claimed exact
+
+The library's value is not only what it computes but *where it stops*. Each admitted invariant carries an
+explicit exactness boundary, and as the catalog grows the interesting questions become ones of **coverage**,
+not implementation: *which mathematical domains admit exact, witnessed detectors; which require
+approximation; which are provably undecidable or intractable on general inputs and therefore must carry a
+narrow domain or a typed refusal.* Every detector falls into one of:
+
+- **Exact on all of `Dom`** — computed exactly for every admitted object (toric `k = dim H₁`; the rigidity
+  verdict; conservation totals; the witness digests).
+- **Exact only on a narrow domain because the general problem is hard** — admitted on a structured
+  sub-family and `REFUSE`d elsewhere rather than approximated (toric *distance*: exact `= L` for the L×L
+  torus, `TORIC-REFUSE` in general — minimum distance is NP-hard).
+- **Bounded regime** — exact until a declared bound, then a typed refusal, never a wrap (criticality
+  `FIELD-REFUSE`; rigidity overflow `REFUSE`; the Q32.32 substrate).
+- **Refuse-general / undecidable** — no exact detector exists on arbitrary input; admitted only on a
+  decidable sub-domain, everything else refused.
+
+A catalog organized this way documents not just what Urðr computes, but the precise frontier of what it
+claims to compute *exactly* — the honest complement to *"what survives?"*: **where can we still answer at
+all?**
 
 ## See also
 
