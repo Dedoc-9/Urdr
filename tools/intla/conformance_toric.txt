@@ -1,0 +1,6 @@
+# urdr-toric — the toric-code / surface-code detector (𝔽₂ homology of a cellulated surface).
+# torus3: the boundary-matrix witness digest (URDRTOR1) of the 3×3 square torus. Its code
+#   dimension is k = dim H₁ = 2 (two logical qubits, distance 3); k tracks genus and is
+#   independent of the cellulation (2×2, 3×3, 4×4 all give k=2). A sphere gives k=0.
+# name   digest
+torus3 391e49e500d2afdf06908109e3431884469b64554b47edaee2c10f2788e4ee83

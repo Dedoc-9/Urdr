@@ -1748,6 +1748,30 @@ MEASURED. This is rung 2 of D17's ladder — the meta-rule is now executable *be
 `the admission law stopped being a table and became a gate row that reddens if a detector is authored
 without its counterexample or its refusal`.
 
+**Toric code — the first NEW detector admitted under D17; D17 held UNCHANGED — MEASURED (reference).**
+The test of whether D17 is a genuine abstraction or a post-hoc description: admit a detector from a
+domain the project had never touched, under the *same* six conditions. `tools/intla/toric.py` (with a
+new exact substrate `tools/intla/gf2.py` — 𝔽₂ linear algebra by mod-2 elimination, the cleanest exact
+arithmetic in the repo: bits, no overflow, no bound) computes the **𝔽₂ homology** of a cellulated
+surface: a closed surface is a chain complex `C₂ →∂₂ C₁ →∂₁ C₀` over 𝔽₂ with `∂₁∂₂ = 0`, and Kitaev's
+toric/surface code on it has `n = |E|` physical qubits and `k = dim H₁ = |E| − rank ∂₁ − rank ∂₂`
+logical qubits (`= 2·genus`). **The invariant is `k`** — a topological invariant: it depends only on the
+genus, not the cellulation. This pressured D17 in three fresh directions at once — an ALGEBRAIC (not
+geometric) invariant, a NEW exact substrate (𝔽₂, not ℤ / Q32.32), and a MULTI-PART topological witness
+(boundary matrices → ranks → `dim H₁`) — and **D17 admitted it with no flex**: the `invariant_detectors`
+lint demanded its four roles and it supplied them; the manifest now enforces **6 detectors**. **Red-first:**
+`tests/test_toric.py` (7 falsifiers). **Gate stage `toric` (4 D17 roles):** `toric:torus3` — the 3×3 torus
+is `k=2` (two logical qubits) with the pinned boundary witness `391e49e5…` (`conformance_toric.txt`);
+`toric-genus` (invariance) — `k` tracks genus not the mesh: torus 2×2/3×3/4×4 all `k=2`, the sphere
+(octahedron) `k=0`; `toric-selftest` (non-invariance) — a wrong homology that forgets to subtract
+`rank ∂₂` reports `dim ker ∂₁ = 10 ≠ 2` (misclassifies); `toric-refusal` — a non-chain-complex
+(`∂₁∂₂ ≠ 0`) is `TORIC-REFUSE`d. Unit falsifiers 399 → 406. **Grade:** MEASURED (reference); cross-placement
+DECLARED; the invariant is exact over 𝔽₂. **Honest scope:** `k` (code dimension) is always exact and cheap;
+the code DISTANCE is exact only for the toric family (`L×L → L`) and `TORIC-REFUSE`s otherwise, because the
+general minimum-distance problem is NP-hard — a clean D17 domain boundary, not an approximation. `a domain
+the engine had never seen — quantum error correction — entered under the same admission law as rigidity and
+a highway, which is the strongest evidence yet that the law is real`.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred

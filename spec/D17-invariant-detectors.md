@@ -135,11 +135,15 @@ the alphabet proved invariant.
    such row passed, with a non-vacuity self-test that rejects a broken declaration. Building it fixed a
    real gap — rigidity gained a `rigidity-verdict-refusal` row (overflow → `REFUSE`) — so all five
    detectors are mechanically D17-compliant. The admission law is now a gate row, not just a table.
-3. **The first genuinely new admission: the toric code.** `Dom` = stabilizer codes on a cellulated
-   surface; `Inv` = code dimension `= dim H₁` (a topological invariant, computed over 𝔽₂ by the
-   existing chain-complex / Betti machinery); `W` = stabilizer group + logical-operator (homology)
-   representatives; `~` = local stabilizer-preserving operations; `R` = ill-formed / non-CSS input
-   refused. Admitted by the *same* six conditions as everything else — "no special treatment."
+3. **The first genuinely new admission: the toric code — LANDED, and D17 held unchanged.**
+   `tools/intla/toric.py` (+ the new 𝔽₂ substrate `gf2.py`): `Dom` = a cellulated surface as 𝔽₂
+   boundary maps with `∂₁∂₂ = 0` (a non-complex → `TORIC-REFUSE`); `Inv` = code dimension
+   `k = dim H₁ = |E| − rank ∂₁ − rank ∂₂` (`= 2·genus`); `W` = boundary matrices → ranks → the H₁
+   dimension, with digest `391e49e5…`; `~` = cellulation refinement / stabilizer-preserving ops (k is
+   genus-invariant). It was admitted by the *same* six conditions — a new exact substrate (𝔽₂), an
+   algebraic invariant, and a multi-part witness, with **no flex to the contract**. The
+   `invariant_detectors` lint now enforces all six detectors. This was the real test of D17: a domain
+   the project had never touched (quantum error correction) entered under the admission law unchanged.
 4. Thereafter, every new domain (a symmetry-group detector, a persistent-homology detector, a
    representation/character detector, a conserved-quantity detector) is a plugin answering the one
    question, and the C8 discipline governs whether any of them ever needs a new *primitive* rather

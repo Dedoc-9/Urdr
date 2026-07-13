@@ -2371,6 +2371,53 @@ class Gate:
                     "(regulator load-bearing; gate can redden)" if (on_ok and off_refuses)
                     else f"non-vacuity failed: regulated_ok={on_ok} unregulated_refuses={off_refuses}")
 
+    # -- 2p2. toric code — the first NEW detector admitted under D17 -------------
+    def toric(self):
+        """The toric-code / surface-code detector — the first NEW admission under D17. Inv = code
+        dimension k = dim H₁ over 𝔽₂ (logical qubits = 2·genus). The four D17 roles: reference
+        (3×3 torus k=2 + boundary witness), invariance (k tracks genus not the mesh — torus 2/3/4
+        all k=2, sphere k=0), defect (a wrong homology misclassifies k), refusal (a non-chain-
+        complex TORIC-REFUSEs). Exercises a new exact substrate (GF(2)) and an algebraic invariant —
+        D17 admitted it unchanged."""
+        idir = os.path.join(ROOT, "tools", "intla")
+        if idir not in sys.path:
+            sys.path.insert(0, idir)
+        try:
+            import toric as T
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("toric", False, f"import failed: {exc}")
+            return
+        try:
+            g = T.golden("torus3")
+        except Exception as exc:
+            self.record("toric", False, f"missing golden: {exc}")
+            return
+        cx = T.torus(3)
+        dig = T.boundary_digest(cx)
+        ref_ok = T.code_dimension(cx) == 2 and dig == g and T.boundary_digest(T.torus(3)) == g
+        self.record("toric:torus3", ref_ok,
+                    f"3×3 torus: k=dim H₁=2 (2 logical qubits), witness {dig[:12]}…" if ref_ok
+                    else f"k={T.code_dimension(cx)} digest {dig[:12]}… ≠ golden {g[:12]}…")
+        meshes = [T.code_dimension(T.torus(L)) for L in (2, 3, 4)]
+        sph = T.code_dimension(T.sphere())
+        inv_ok = meshes == [2, 2, 2] and sph == 0
+        self.record("toric-genus", inv_ok,
+                    "k = dim H₁ tracks genus: torus 2/3/4 all k=2, sphere k=0 (mesh-independent)"
+                    if inv_ok else f"k not genus-invariant: torus meshes {meshes}, sphere {sph}")
+        defect = T.code_dimension_defect(cx)
+        self.record("toric-selftest", defect != 2,
+                    f"wrong homology (no rank ∂₂ subtraction) gives k={defect} ≠ 2 (gate can redden)"
+                    if defect != 2 else "the defect did not misclassify")
+        bad = T.torus(3); bad["d2"] = [r[:] for r in bad["d2"]]; bad["d2"][0][0] ^= 1
+        code = None
+        try:
+            T.code_dimension(bad)
+        except T.ToricError as exc:
+            code = exc.code
+        self.record("toric-refusal", code == "TORIC-REFUSE",
+                    "a broken complex (∂₁∂₂ ≠ 0) TORIC-REFUSEd" if code == "TORIC-REFUSE"
+                    else f"refusal wrong: {code}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -2403,6 +2450,10 @@ class Gate:
                             "invariance": "criticality-conserve",
                             "defect": "criticality-selftest",
                             "refusal": "criticality-eigenvalue"},
+            "toric": {"reference": "toric:torus3",
+                      "invariance": "toric-genus",
+                      "defect": "toric-selftest",
+                      "refusal": "toric-refusal"},
         }
         roles = ("reference", "invariance", "defect", "refusal")
         recorded = {name: ok for (name, ok, _d) in self.rows}
@@ -2525,6 +2576,7 @@ def main() -> int:
     gate.field_coupling()
     gate.field_body_loop()
     gate.criticality()
+    gate.toric()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
