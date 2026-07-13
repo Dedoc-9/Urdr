@@ -1,11 +1,12 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 
-# `tools/netcode/` — the deterministic netcode stack (rungs N1–N4)
+# `tools/netcode/` — the deterministic netcode stack (rungs N1–N5 + N4.1; D16 regional authority)
 
 The property IEEE floats cannot promise across CPUs/GPUs/compilers, and the one this
 engine is built to have: **peers that begin from the same canonical world and exchange
 only inputs — never state — independently reproduce the same simulation, witness for
-witness.** Four rungs deep, every one `MEASURED (both placements)` and frozen in
+witness.** Five rungs deep (plus N4.1 body-body contact and the D16 regional-authority
+contract), every one `MEASURED` — cross-placed and frozen in
 [`spec/D12`](../../spec/D12-versions.md); every claim below is a gate stage, not prose.
 
 ## The stack
@@ -16,6 +17,9 @@ witness.** Four rungs deep, every one `MEASURED (both placements)` and frozen in
 | **N2** rollback | [`rollback.py`](rollback.py) | Canonical snapshots every `K` ticks (retain `H`); a late-but-valid input rewinds to the newest snapshot at-or-before its tick, replays, and **converges bit-for-bit to the canonical timeline** — the converged golden IS the N1 golden. Beyond the horizon: `ROLLBACK-REFUSE`, rejected whole. Same `(peer, seq)` with a different payload: `ROLLBACK-CONFLICT`. `K`/`H` are operational, never semantic. | `netcode_rollback` |
 | **N3** authenticated inputs | [`authinput.py`](authinput.py) | A **Lamport one-time signature** (built from the same SHA-256 every placement hand-rolls) must verify against a pre-committed roster pin before an event enters the transcript — an actual signature, so a forging *peer* is caught, not just an outsider. Four forgery shapes each `AUTH-REFUSE`; the fully signed log reproduces the N1 golden unchanged (authentication decides *eligibility*, never state law). One keypair per `(peer, seq)` — the OTS one-time rule — is enforced structurally by N2's identity law. | `netcode_auth` |
 | **N4** authored worlds | [`worldstep.py`](worldstep.py) | A frozen [`URDR-WORLD-3`](../../spec/D12-versions.md) export becomes the initial state of the same loop: static AABB obstacles (least-penetration resolution, fixed tie order), a **typed authoring boundary** (`WORLD-REFUSE` on non-integer coordinates — never a silent round), instance file order as world identity, and the anti-drift theorem: with no statics on the canonical arena, the N4 tick reproduces the frozen N1 chain **bit-for-bit**. | `netcode_world` |
+| **N4.1** body-body contact | [`worldstep.py`](worldstep.py) | Opt-in (`contact: True`): a **sqrt-free Q32.32 impulse** — the exact `d/\|d\|` cancellation in fixed point — collides authored dynamic bodies. x-momentum conserved *exactly*, closing velocity reverses (restitution), and the frozen 0.1 surface runs contact-OFF **byte-identical**; the asymmetric-impulse defect breaks momentum. Cross-placed (C99 + Rust reproduce the `seam2` monolith). | `netcode_world` (`…-contact:collide2`) |
+| **N5** composed contract | [`worldpeer.py`](worldpeer.py) | Authored world + authenticated transcript + snapshot → the *identical* witness chain or the *same* typed refusal. A new `URDRWPN1` **world pin** covers everything the tick reads (statics included) and gates entry before any tick (`WORLD-REFUSE`); auth (who) precedes the N2 time law precedes the N4 authority (what). | `netcode_worldpeer` |
+| **D16** regional authority | [`worldregion.py`](worldregion.py) | One simulation cut by integer x-seams into regions; each region steps the frozen N4.1 tick from **admitted read-only ghosts alone** and writes only what it owns; deterministic reunification reproduces the monolith `URDRLST1`/`URDRLSTT` **bit-for-bit** (the **Seam Composition Theorem**), with **no new witness class**. Malformed partition → `REGION-REFUSE`. Three placements agree. | `netcode_region` |
 
 ## The separation (structural, not advisory)
 

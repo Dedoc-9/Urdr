@@ -37,39 +37,45 @@ a third language; they are not repo placements.
 | T12 | **Authored worlds run under the same laws (N4).** A frozen URDR-WORLD-3 export becomes deterministic netcode state; the runtime's tick with no statics reproduces frozen N1's chain bit-for-bit (the equivalence pin); the authoring boundary is typed (WORLD-REFUSE, never a silent round); instance order is world identity. | Highway golden + arena equivalence; `worldstep_rs` ADMITTED (Windows/rustc); three-language defect anchor (`9c0ad7c5…`). JSON loader reference-gated. Frozen: `urdr-netcode-world 0.1` (+0.2/0.3 additive, digest-preserving). |
 | T13 | **World identity law (N5).** URDRWPN1 pins the complete runtime world — including statics an initial witness cannot see — and a pin mismatch refuses before any tick runs. | `world_pin` golden; falsifier proves two worlds differing only in a static share frames[0] but not the pin; both placements reproduce the pin. Frozen: `urdr-netcode-worldpeer 0.1`. |
 | T14 | **The composed end-to-end contract (N5).** Same authored world + same authenticated transcript + same initial snapshot → the identical witness chain or the same typed refusal; no intermediate divergence silently persists. | Converged late+signed golden ≡ the N4 golden at two cadences; `worldpeer_rs` ADMITTED (Windows/rustc); Python/Rust/C99 agree on all five anchors including the defect (`d5bc484b…`). Complete per AGENTS rule 11. |
-| T15 | **The freeze is machine-checked.** Every frozen digest law, corpus count, and format tag declared in D12 is re-derived independently and compared byte-for-byte on every gate run; doc↔code drift reddens the gate. | `spec-freeze` stage: 6 digest laws + 13 corpora + 1 format tag + a corrupted-manifest selftest; `tests/test_spec_freeze.py`. |
+| T15 | **The freeze is machine-checked.** Every frozen digest law, corpus count, and format tag declared in D12 is re-derived independently and compared byte-for-byte on every gate run; doc↔code drift reddens the gate. | `spec-freeze` stage: 6 digest laws + 20 corpora + 1 format tag + a corrupted-manifest selftest; `tests/test_spec_freeze.py`. |
 | T16 | **Weave schedule-invariance.** Commuting proposals produce one world digest across any permuted arrival schedule; forks are refused, conflicts isolated. | `world_host` corpus v12; `actors_one_digest`, `structural_history` examples; regional verdict ≡ global verdict (locality result). |
 | T17 | **Observer recoverability.** `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) = {0}`, computed as a data-parameterized certificate with exact reconstruction or typed refusal. | D10; injectivity + reconstruction digests inside the 20-vector math corpus (T2), cross-placed three-runtime. |
+| T18 | **Body-body contact stays deterministic and conservative (N4.1).** An opt-in **sqrt-free Q32.32 impulse** (the exact `d/\|d\|` cancellation) collides authored dynamic bodies: x-momentum conserved *exactly*, closing velocity reverses (restitution), and the frozen contact-OFF surface is byte-identical. | `netcode-world-contact` (`collide2` golden); asymmetric-impulse defect breaks momentum; **cross-placed** — C99 `worldregion_c` + Rust `worldregion_rs` reproduce the `seam2` monolith bit-for-bit. |
+| T19 | **Regional composition = the monolith witness (D16 — the Seam Composition Theorem).** For any valid partition by integer x-seams, each region evolving its interior by the frozen N4.1 tick from admitted read-only ghosts alone, the deterministic reunification reproduces the monolithic `URDRLST1`/`URDRLSTT` witness **bit-for-bit** — with **no new witness class**. | `netcode_region`: `seam2` golden == monolith, partition-invariance over 6 partitions, dropped-boundary divergence localized to the contact tick, malformed-partition `REGION-REFUSE`. **FROZEN** `urdr-netcode-region 0.1`; three placements (Python + C99 + Rust) agree incl. the failure mode. Answers D13 §C8 (no glyph needed). |
 
-The gate enforcing all of the above: **318 unit falsifiers + per-layer conformance
+The gate enforcing all of the above: **384 unit falsifiers + per-layer conformance
 stages, each with a non-vacuity self-test, + 45 typed rejection fixtures + the
 tamper self-test** — `PYTHONHASHSEED=0 python verify.py` → `GATE PASSED`, ×2,
-on Windows and Linux. Ten std-only Rust placements, one C99 third runtime.
+on Windows and Linux. Ten std-only Rust placements, two C99 runtimes.
 
 ## Design targets (not theorems — do not cite as proved)
 
 Full frame law (blending, perspective-correct interpolation) · Coulomb friction,
-rotation, convex shapes, sphere-sphere CCD · body-body contact in the authored
-runtime (N4.1 — instance mass is loaded and inert) · N2/N3 composition falsifiers
+rotation, convex shapes, sphere-sphere CCD · N2/N3 composition falsifiers
 beyond the N5 canonical scenario · operational key management and cross-session
-replay protection · interest management and regional authority · gameplay scripting
-· metatheory (progress/preservation, no-inflation soundness) remains CONJECTURED.
+replay protection · the D16 scale-out falsification workloads — **dynamic
+repartitioning** (seams that move on a live tick), **interest-management / authority
+migration**, and a **distributed authority graph** (regions on separate hosts,
+delayed ghosts) · gameplay scripting · metatheory (progress/preservation,
+no-inflation soundness) remains CONJECTURED. *(Body-body contact (N4.1) and the
+regional-authority contract (D16) have graduated to theorems T18/T19 above.)*
 
 ## The development path (agreed, in order)
 
-1. **Phase 1 — close simulation capability: N4.1 body-body contact.** No
-   architectural content; a capability rung on the established ladder. Wakes the
-   inert instance mass.
-2. **Phase 2 — observability: the debugger reads authority.** Witness-chain
-   timeline, first-desync visualization, λ/impulse inspection, momentum/energy
-   accounting, rollback visualization, digest diffing, refusal explanation — all
-   *surfacing recorded authoritative state*, never reconstructing it. The editor
-   remains a consumer; it inherits guarantees, it does not create them.
-3. **Phase 3 — world scale, contract first.** The regional-authority contract
-   (regional witnesses that compose to the global witness, or refusal) must be
-   written and falsifiable **before** streaming/large-world implementation begins.
-   If the invariant cannot be stated precisely, the implementation waits. Seed:
-   the measured regional-locality result (T16).
+1. **Phase 1 — close simulation capability: N4.1 body-body contact. ✓ DONE** (T18,
+   cross-placed, contact-OFF surface byte-identical). Woke the inert instance mass.
+2. **Phase 2 — observability: the debugger reads authority.** *Partly landed* (A/B
+   replay compare with first-desync visualization; recorded rigidity-verdict badges).
+   Remaining: λ/impulse inspection, momentum/energy accounting, rollback
+   visualization, digest diffing, refusal explanation — all *surfacing recorded
+   authoritative state*, never reconstructing it. The editor remains a consumer.
+3. **Phase 3 — world scale, contract first. ✓ CONTRACT LANDED (D16, FROZEN, T19).**
+   The regional-authority contract was written, falsifiable, and *measured* before any
+   large-world implementation — and answered its own question: regional witnesses
+   compose to the global witness with no new witness class (three placements agree).
+   What remains is the *scale-out implementation* pursued as falsification of the seal
+   (dynamic repartitioning → migration → distributed authority), each recorded in
+   D5 § "Evidence Against C8." Seed: the measured regional-locality result (T16).
 4. **Phase 4 — gameplay as admitted consumers.** Scripting that bypasses the
    deterministic authority would make every guarantee beneath it conditional;
    scripting admitted into the same deterministic/refusal framework strengthens

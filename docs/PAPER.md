@@ -22,7 +22,7 @@ across five layers: a sealed kernel, an exact-integer math library, a
 certified-physics layer, a deterministic rasterizer, and a world runtime, with
 I/O confined to a capability boundary.
 
-We report a concrete reproducibility result: nine independent, single-file Rust
+We report a concrete reproducibility result: eleven independent, single-file Rust
 implementations — of the kernel, the renderer, the physics, the exact-integer math
 spine, the bounded fixed-point dynamics, and the four-rung netcode stack (lockstep,
 rollback, authenticated inputs, authored worlds) — reproduce the reference
@@ -31,7 +31,7 @@ implementation's output digests **bit-for-bit** on fixed conformance corpora
 digests, 3 fixed-point field + 3 Marangoni + 3 coupling-loop digests, 20 exact-math
 digests, 2 fixed-point-dynamics traces, and the netcode transcript/roster/signed-chain
 and authored-world goldens), twice each, with deliberately-defective builds caught —
-in the netcode stack the placements agree on the *defect* digests as well. A 306-test
+in the netcode stack the placements agree on the *defect* digests as well. A 384-test
 verification gate enforces
 determinism, golden agreement, an in-process oracle, and 45 typed rejection
 fixtures on every change. We are precise about scope: this demonstrates
@@ -224,8 +224,10 @@ defective build **caught** in every case:
 | `rollback-rs`     | netcode N2: late-delivery convergence to the canonical transcript at two snapshot cadences + typed refusals | **1** | ADMITTED; defect diverges to the **same digest** as an independent C99 port |
 | `authinput-rs`    | netcode N3: Lamport-OTS roster root + fully-signed chain; four forgery shapes refused | **2** | ADMITTED ×2; the C99 port finds the identical tail-collision forgery |
 | `worldstep-rs`    | netcode N4: authored-world runtime — arena equivalence with frozen N1 + the `highway` scene | **1**(+equiv) | ADMITTED; no-statics defect at the shared three-language anchor |
+| `worldpeer-rs`    | netcode N5: the composed contract — world pin + roster root + converged late+signed trace | **3** | ADMITTED ×2; C99 port agrees on all five anchors incl. the defect (`d5bc484b`) |
+| `worldregion-rs` / `worldregion-c` (C99) | **N4.1 + D16**: the `seam2` composed regional trace **==** the monolith (Seam Composition Theorem) + the tick-11 dropped-boundary divergence | **1** | ADMITTED — Rust (Windows/`rustc`) **and** C99 (Linux/gcc) reproduce the monolith, the composed trace, and the failure mode bit-for-bit |
 
-The nine placements share no code, language, or SHA-256 implementation with the
+The eleven Rust and two C99 placements share no code, language, or SHA-256 implementation with the
 reference. This is the paper's central result: across the whole pipeline —
 **state, pixels, motion, reactive fields, and the networked transcript** — a
 second, independent implementation computes the identical digest, so the digests
@@ -244,7 +246,7 @@ online build offline-reproducible.
 
 ### 5.3 Conformance corpus & gate
 
-The gate runs, deterministically: **306** unit falsifiers; **42** example programs
+The gate runs, deterministically: **384** unit falsifiers; **42** example programs
 checked for determinism (twice) and golden agreement; an in-process oracle
 (`compiled ≡ reference`) with a defect that must diverge; **45** rejection fixtures
 each producing an exact typed refusal code; per-layer stages for the registry,
@@ -392,8 +394,9 @@ Urðr demonstrates that a single discipline — content-addressed identity, exac
 computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
-nine independent Rust placements reproduce the reference's state, frame, physics,
+eleven independent Rust placements (and two C99 runtimes) reproduce the reference's state, frame, physics,
 exact-math, fixed-point-dynamics, and netcode-stack digests — including the
-lockstep/rollback transcript, signed-input admission, and an authored world —
-bit-for-bit on fixed corpora, behind a 306-test gate with typed
+lockstep/rollback transcript, signed-input admission, an authored world with
+body-body contact, and a regionally-partitioned simulation that recomposes to the
+same witness — bit-for-bit on fixed corpora, behind a 384-test gate with typed
 refusa

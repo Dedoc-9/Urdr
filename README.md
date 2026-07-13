@@ -31,7 +31,7 @@ rank/determinant/injectivity/reconstruction agree across **three languages on tw
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P5 · N1–N4)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P5 · N1–N5 · N4.1 · D14–D16)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -273,7 +273,10 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | N1 | **Deterministic lockstep spine** (`tools/netcode/lockstep.py`): two peers exchange **inputs only, never state**, and reproduce one per-tick witness chain (`URDRLST1`); reordered/duplicated **delivery** is absorbed (dedup + additive-impulse commutativity), while a dropped/modified/tick-moved input **desyncs and is localized** to the first mismatching tick; gated (`arena3` `URDRLSTT` golden + peers-agree + a `netcode-desync-selftest`) | `IMPLEMENTED / MEASURED (both placements)` — Rust `lockstep_rs/` ADMITTED 2/2 + defect caught on Windows/`rustc` (integer logic C-cross-checked bit-identical); **FROZEN** `urdr-netcode 0.1` (D12) |
 | N2 | **Rollback as a deterministic replay primitive** (`tools/netcode/rollback.py`): canonical snapshots every `K` ticks (retain `H`); a **late-but-valid** input rewinds to the newest snapshot at-or-before its tick, replays, and **converges bit-for-bit to the canonical timeline** (the converged golden IS the N1 golden — `K`/`H` are operational, never semantic); beyond the horizon → `ROLLBACK-REFUSE` (rejected whole), a same-`(peer,seq)`-different-payload forgery → `ROLLBACK-CONFLICT`; the apply-at-head defect must diverge (gated) | `IMPLEMENTED / MEASURED (both placements)` — Rust `rollback_rs/` ADMITTED on Windows/`rustc`; the C99 cross-check agrees on the golden **and** the defect's exact divergent digest; **FROZEN** `urdr-netcode-rollback 0.1` (D12) |
 | N3 | **Authenticated inputs** (`tools/netcode/authinput.py`): a **Lamport one-time signature** (pure SHA-256 — an actual signature, so a forging *peer* is caught, not just an outsider) must verify against a pre-committed roster pin before an event enters the transcript; four forgery shapes each `AUTH-REFUSE`; the fully signed log reproduces the N1 golden unchanged — *authentication decides eligibility, never state law*; the OTS one-time rule is enforced structurally by N2's identity law | `IMPLEMENTED / MEASURED (both placements)` — Rust `authinput_rs/` ADMITTED on Windows/`rustc`; C99 agrees on goldens, refusals, and the forge anchor; **FROZEN** `urdr-netcode-auth 0.1` (D12). Honest scope: mechanism, not key secrecy |
-| N4 | **Authored worlds in the loop** (`tools/netcode/worldstep.py`): a frozen `URDR-WORLD-3` editor export becomes the initial state of the same deterministic loop — static AABB obstacles (least-penetration law), a **typed authoring boundary** (`WORLD-REFUSE` on non-integer coordinates, never a silent round), instance file order as world identity, and the anti-drift theorem: with no statics, the N4 tick reproduces the frozen N1 chain **bit-for-bit** (gated) | `IMPLEMENTED / MEASURED (both placements)` — Rust `worldstep_rs/` ADMITTED on Windows/`rustc`; C99 agrees incl. the no-statics defect anchor; **FROZEN** `urdr-netcode-world 0.1` (D12). Loader reference-gated; mass inert until body-body contact |
+| N4 | **Authored worlds in the loop** (`tools/netcode/worldstep.py`): a frozen `URDR-WORLD-3` editor export becomes the initial state of the same deterministic loop — static AABB obstacles (least-penetration law), a **typed authoring boundary** (`WORLD-REFUSE` on non-integer coordinates, never a silent round), instance file order as world identity, and the anti-drift theorem: with no statics, the N4 tick reproduces the frozen N1 chain **bit-for-bit** (gated) | `IMPLEMENTED / MEASURED (both placements)` — Rust `worldstep_rs/` ADMITTED on Windows/`rustc`; C99 agrees incl. the no-statics defect anchor; **FROZEN** `urdr-netcode-world 0.1` (D12). Loader reference-gated; mass was inert until **N4.1** (below) |
+| N4.1 | **Body-body contact in the authored runtime** (`worldstep.py`, opt-in): a **sqrt-free Q32.32 impulse** — the exact `d/\|d\|` cancellation ported to fixed point — resolves collisions between authored dynamic bodies; x-momentum conserved *exactly*, restitution correct, and the frozen 0.1 surface runs contact-OFF **byte-identical**; the asymmetric-impulse defect breaks momentum (gated, `netcode-world-contact`, `collide2` golden) | `IMPLEMENTED / MEASURED` — **cross-placed**: C99 `worldregion_c/` + Rust `worldregion_rs/` reproduce the seam2 monolith (which uses N4.1 contact) bit-for-bit. Pays the N4 "mass inert" debt |
+| N5 | **Authenticated rollback over authored worlds** (`tools/netcode/worldpeer.py`): the composed end-to-end contract — same authored world + same authenticated transcript + same snapshot → the *identical* witness chain or the *same* typed refusal; a new `URDRWPN1` **world pin** covers everything the tick reads (statics included) and gates entry (mismatch `WORLD-REFUSE` before any tick); the verified-envelope apply-at-head defect diverges (gated) | `IMPLEMENTED / MEASURED (both placements)` — Rust `worldpeer_rs/` ADMITTED on Windows/`rustc`; C99 agrees on all five anchors incl. the defect `d5bc484b`; **FROZEN** `urdr-netcode-worldpeer 0.1` (D12) |
+| D16 | **Regional authority — one simulation, partitioned in space** (`tools/netcode/worldregion.py`): a world cut by integer x-seams into regions, each advancing its interior by the frozen N4.1 tick from **admitted read-only ghosts alone** (never a neighbour's interior); the deterministic reunification reproduces the monolithic `URDRLST1`/`URDRLSTT` witness **bit-for-bit** — the **Seam Composition Theorem**, with **no new witness class** | `IMPLEMENTED / MEASURED` — `netcode_region` (seam2 golden, partition-invariance over 6 partitions, dropped-boundary divergence localized to the contact tick, malformed-partition `REGION-REFUSE`); **FROZEN** `urdr-netcode-region 0.1`; **three placements** (Python + C99/gcc + Rust/Windows) agree incl. the failure mode. Answers D13 §C8 — the glyph stays parked |
 
 ## Honest boundaries (§9, in our own words)
 
@@ -355,16 +358,27 @@ catch every injected desync at the first mismatching tick. Walkthrough: [`demo/`
 
 ### What it's for
 
-- **Deterministic netcode, four rungs deep and frozen.** The one property IEEE floats cannot promise
+- **Deterministic netcode, the full stack frozen.** The one property IEEE floats cannot promise
   across CPUs/GPUs/compilers — bit-identical simulation on every machine — is this engine's design
   center, and it is now a **measured stack**, not a direction ([`tools/netcode/`](tools/netcode/),
-  rungs N1–N4, all both-placements, all frozen in D12): peers exchange inputs, never state, and
+  rungs N1–N5 + N4.1, all cross-placed, all frozen in D12): peers exchange inputs, never state, and
   reproduce one witness chain (**N1** lockstep); a late-but-valid input rewinds to a canonical
   snapshot and replays to the *same* chain (**N2** rollback); only an input whose Lamport envelope
   verifies against a pre-committed roster may enter the transcript at all (**N3** authenticated
-  inputs); and the world the loop governs can be a user-authored `URDR-WORLD-3` scene (**N4**).
-  A digest mismatch is a *caught, localized, typed* event — desync, refusal, or conflict — never a
-  silent divergence. `python3 demo/lockstep_demo.py` shows the spine in one second.
+  inputs); the world the loop governs can be a user-authored `URDR-WORLD-3` scene (**N4**) whose
+  bodies now physically collide (**N4.1** sqrt-free contact); and the composed contract (**N5**)
+  proves the whole path — authored world + authenticated transcript → one witness or one typed
+  refusal. A digest mismatch is a *caught, localized, typed* event — desync, refusal, or conflict —
+  never a silent divergence. `python3 demo/lockstep_demo.py` shows the spine in one second.
+- **Three one-way boundaries — the engine's notion of truth never fragments.** The architecture is
+  three provably one-way contracts, each conformance-tested, each frozen: **D14** converges many
+  authoring modalities (designer, photo tracer, SVG) to one canonical `URDROBJ2` object; **D15** fans
+  one authoritative state to many interchangeable renderers (a view frame *carries* the witness, never
+  feeds back); and **D16** splits one authoritative simulation into spatial **regions** that
+  deterministically **recompose to the identical witness** (the Seam Composition Theorem — reproduced
+  by three placements, no new witness class). The engine never knows which tool authored an object,
+  which renderer draws it, or which region computed a body — *and that ignorance is the guarantee*.
+  This is the shape multiplayer authority, spectator/AI views, and scale-out all share.
 - **Verification-first engine architecture (many views, one authority).** The atlas/observer theorem
   (cross-placed general-*n* injectivity + exact reconstruction) + `world_host` demonstrate a design
   where *many renderers share one authoritative, cross-checked state*: the kernel owns authority, an
@@ -389,10 +403,13 @@ catch every injected desync at the first mismatching tick. Walkthrough: [`demo/`
 ## Further development
 
 Graded honestly — what is *not* yet done, and what kind of work each is. Several items from earlier
-revisions are now **MEASURED** and have moved into the pipeline above: the general-*n* injectivity
-certificate and reconstruction/inversion (both **cross-placed** via `urdr-math-rs`), exact perspective
-projection (renderer rung 3, cross-placed), and Marangoni surface-tension transport with the two-way
-field↔body coupling loop (Continuum, cross-placed / reference). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
+revisions are now **MEASURED** and have moved into the pipeline above: **N5** (authenticated rollback
+over authored worlds, both placements, frozen), **N4.1** (body-body contact — the "inert mass" debt is
+paid, cross-placed C99 + Rust), **D15** (the view-export contract, frozen, independent viewer admitted),
+**D16** (regional authority — frozen, three placements), the general-*n* injectivity certificate and
+reconstruction/inversion (both **cross-placed** via `urdr-math-rs`), exact perspective projection
+(renderer rung 3, cross-placed), and Marangoni surface-tension transport with the two-way field↔body
+coupling loop (Continuum, cross-placed / reference). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
 
 - **Third-language placements of the remaining layers.** The math spine is now **three-runtime**
   (Python + Rust + a C99 placement, `tools/intla/urdr_math_c/`, measured on Linux/gcc — two OSes);
@@ -400,13 +417,18 @@ field↔body coupling loop (Continuum, cross-placed / reference). See [`spec/D5-
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles —
   the renderer rung beyond wireframe.
-- **World-host Rust port (Steps 4–5)** + the remaining large systems surfaces (persistence,
-  replication, spatial streaming, interest management) — the netcode trust boundary itself
-  (lockstep/rollback/auth/authored worlds) is now gated and frozen; what remains here is scale-out,
-  graded by integration tests, not the URDR gate.
-- **Netcode composition rungs** — N2/N3 over authored worlds (mechanical, since `worldstep` shares
-  the `simulate(w, log)` contract, but unclaimed until gated) and body-body contact in the authored
-  runtime (unlocks the currently-inert instance mass).
+- **Scale-out as falsification of the sealed model (D16 → the next workloads).** Regional authority
+  (**D16**) landed the first scale-out rung: one simulation partitioned into regions that recompose to
+  the identical witness, frozen and three-placed. The next surfaces — **dynamic repartitioning** (seams
+  that move / regions that split & merge on a live tick), **interest-management / authority migration**
+  (thousands of bodies changing owner every few ticks), and a **distributed authority graph** (regions
+  on different machines, delayed ghost updates) — are pursued deliberately as *attempts to break the
+  model*: each is expected to compose on the existing witness laws, and a clean pass is one more datum
+  in **D5 § "Evidence Against C8."** They are graded by integration tests and, where a witness is
+  involved, by the same bit-for-bit composition discipline as D16 — not by inventing a new primitive.
+- **Third-language placements of the remaining layers.** The math spine and the whole netcode stack are
+  now multi-runtime (Python + Rust + C99, two OSes); the frontier is extending a third runtime to the
+  kernel / render / physics corpora. (`worldregion_c` + `worldregion_rs` already cross-place N4.1 + D16.)
 - **The language stays sealed — reviewed, not assumed.** [`spec/D13`](spec/D13-glyph-probe.md) ran a
   first-principles review of sixteen primitive candidates against five admission tests: **zero
   admissions**, two load-bearing rejections (catchable refusals, effect handlers), and one deferral
@@ -416,7 +438,12 @@ field↔body coupling loop (Continuum, cross-placed / reference). See [`spec/D5-
   `URDR-LINEAR` refusals that name both use sites, the affine/linear fork falsified both ways, and a
   miscounting-defect probe), so if a D13 trigger ever fires (Phase-4 capability hand-off), the §20
   review starts from a measured floor. The glyph itself remains **unadmitted**: the apparatus raises
-  readiness, never the verdict.
+  readiness, never the verdict. The seal is now tracked as a **falsifiable hypothesis**, not an
+  assumption: D13 §C8 ("region-scoped authority") was its live test, and **D16 refuted it** — regional
+  authority proved expressible with *no new witness class*, so the strongest motivation for a primitive
+  was tested and failed. Every subsystem that composes cleanly on the frozen laws is logged in **D5 §
+  "Evidence Against C8"**; the bar to admit a glyph is a *measured* workload that cannot be expressed
+  without duplicating authority semantics — and the burden rises with each clean composition.
 - **Bignum substrate** — *only if* a real consumer hits the i64 ceiling (iterated exact-ℚ fields
   overflow, refusing ~step 24–31); deliberately not built speculatively.
 - **Metatheory** (progress/preservation, no-inflation soundness, lens laws) is `CONJECTURED`; the

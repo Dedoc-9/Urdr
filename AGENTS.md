@@ -42,7 +42,7 @@ Each layer depends only on the layer beneath it and may assume only that layer's
 ```
    applications            (games, sims, tools) — consumers
         │
-   urdr-netcode            N1–N4: lockstep · rollback · authenticated inputs · authored worlds  [tools/netcode/]
+   urdr-netcode            N1–N5 + N4.1: lockstep · rollback · authenticated inputs · authored worlds · body-body contact · authenticated rollback over worlds; D16 regional authority (partition→one witness)  [tools/netcode/]
         │
    urdr-world              multi-actor deterministic world (weave, history)
         │
@@ -69,8 +69,9 @@ Independent second placements are **single-file, `std`-only Rust** with hand-rol
 SHA-256 (no crates, no cargo): `tools/urdr_core_rs/`, `tools/render/urdr_render_rs/`,
 `tools/physics/urdr_physics_rs/`, `tools/intla/urdr_math_rs/` (the exact-integer
 linear-algebra spine + atlas certificates), `tools/physics/fp_dynamics_rs/` (the
-bounded fixed-point steppers — rung 5), and the four netcode placements
-`tools/netcode/{lockstep,rollback,authinput,worldstep}_rs/` (rungs N1–N4 — each
+bounded fixed-point steppers — rung 5), and the netcode placements
+`tools/netcode/{lockstep,rollback,authinput,worldstep,worldpeer}_rs/` (rungs N1–N5) plus
+`tools/netcode/worldregion_{rs,c}/` (D16 regional authority + N4.1 contact) — each
 ADMITTED on Windows/`rustc`, MEASURED both placements, with its port logic first
 validated by an independent C99 `__int128` cross-check that agrees on the golden
 AND the defect digests). The math spine additionally has a **third-runtime C99
@@ -213,7 +214,7 @@ These are non-negotiable. Every rung in this repo was built under them.
 | `tools/physics/` | exact dynamics, LCP, joints, `field.py`; the `Q`/`Vec` exact substrate; **`fp_dynamics.py`** bounded fixed-point steppers (rung 5) |
 | `tools/render/` | fixed-point rasterizer (`raster.py`) + 3D depth (`raster3d.py`) |
 | `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics) |
-| `tools/netcode/` | The N1–N4 stack: **`lockstep.py`** (peers exchange inputs only, one `URDRLST1` witness chain, desyncs localized), **`rollback.py`** (canonical snapshots; late inputs rewind + replay and converge to the N1 chain; `ROLLBACK-REFUSE`/`ROLLBACK-CONFLICT`), **`authinput.py`** (Lamport-OTS envelopes gate admission; `AUTH-REFUSE`), **`worldstep.py`** (authored `URDR-WORLD-3` scenes in the loop; `WORLD-REFUSE`); four corpora + four Rust placements; all frozen at 0.1 in D12 |
+| `tools/netcode/` | The N1–N5 stack: **`lockstep.py`** (peers exchange inputs only, one `URDRLST1` witness chain, desyncs localized), **`rollback.py`** (canonical snapshots; late inputs rewind + replay and converge to the N1 chain; `ROLLBACK-REFUSE`/`ROLLBACK-CONFLICT`), **`authinput.py`** (Lamport-OTS envelopes gate admission; `AUTH-REFUSE`), **`worldstep.py`** (authored `URDR-WORLD-3` scenes in the loop; `WORLD-REFUSE`; **N4.1** opt-in sqrt-free body-body contact), **`worldpeer.py`** (N5 — the composed contract: authored world + authenticated transcript → one witness or one typed refusal; `URDRWPN1` world pin), and **`worldregion.py`** (**D16** regional authority: partition by integer x-seams → deterministic reunification reproduces the monolith witness, `REGION-REFUSE`); six corpora + Rust placements `{lockstep,rollback,authinput,worldstep,worldpeer}_rs` + `worldregion_{rs,c}`; all frozen at 0.1 in D12 |
 | `tools/editor/` | browser authoring + deterministic-replay front-end (`urdr_designer.html`, `replay.py`, `load_world.py`) — **exploratory** consumer; the `--fp` stepping it demos is the gated rung 5 |
 | `tools/world_host/` | multi-actor world runtime (weave, history, regional) |
 | `spec/` | **normative**: D1 language, D5 ledger, D7 execution geometry, D8 portable kernel, D9 numeric substrate, D10 observer, D11 layer contracts, D12 versions/freeze |
