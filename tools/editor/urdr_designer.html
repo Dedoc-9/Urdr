@@ -918,7 +918,14 @@ function renderSide(){ const side=document.getElementById('side'); let h='';
     const div=document.createElement('div'); div.className='item'+(on?' on':''); div.title=d.digest;
     div.onclick=()=>pick(d.id); div.appendChild(thumb(d));
     const m=document.createElement('span'); m.className='meta';
-    m.innerHTML=`<div class="nm">${escapeHtml(d.name)}</div><div class="dg">${d.digest.slice(0,10)}…</div>`;
+    // recorded rigidity verdict (from rigidity_verdict.py — authority computes, we DISPLAY)
+    let rig='';
+    if(d.rigidity&&d.rigidity.verdict){ const rv=d.rigidity.verdict;
+      const c=rv==='RIGID'?'--acid':rv==='FLEXIBLE'?'--amber':rv==='REFUSE'?'--rust':'--dim';
+      const dot=rv==='RIGID'?'●':rv==='FLEXIBLE'?'◍':rv==='REFUSE'?'⊘':'·';
+      const dof=(rv==='FLEXIBLE'&&d.rigidity.dof)?(' dof '+d.rigidity.dof):'';
+      rig=`<div class="dg" style="color:var(--${c})" title="exact rigidity certificate — reproducible on every host${d.rigidity.moving_verts&&d.rigidity.moving_verts.length?'; moves verts '+d.rigidity.moving_verts.join(','):''}">${dot} ${rv.toLowerCase()}${dof}</div>`; }
+    m.innerHTML=`<div class="nm">${escapeHtml(d.name)}</div><div class="dg">${d.digest.slice(0,10)}…</div>${rig}`;
     div.appendChild(m);
     if(mode==='design'){ const x=document.createElement('span'); x.textContent='✕'; x.title='delete object';
       x.style.cssText='margin-left:auto;color:var(--dim);cursor:pointer;padding:0 5px;font-size:14px';

@@ -1982,6 +1982,68 @@ class Gate:
                     "arc / transform / circle / malformed each SVG-REFUSEd (gate can redden)"
                     if ref_ok else f"refusals wrong: {got}")
 
+    # -- 2m5. rigidity verdict: exact observability of canonical objects -------
+    def rigidity_verdict(self):
+        """The rigidity verdict is authority, not a display float: a canonical object is a 2D
+        framework, and the exact-integer rigidity layer classifies it RIGID/FLEXIBLE with an
+        exact rank + dof + the moving vertices. The classic frameworks match pinned goldens; a
+        FLEXIBLE verdict names moving vertices; a full-rank defect misclassifies the rigid
+        triangle (non-vacuity — the trivial-motion subtraction is load-bearing)."""
+        fdir = os.path.join(ROOT, "tools", "frontend")
+        idir = os.path.join(ROOT, "tools", "intla")
+        for d in (fdir, idir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import rigidity_verdict as RV
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("rigidity-verdict", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(fdir, "conformance_rigidity.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, verd, rank, dof = ln.split()
+                        goldens[name] = (verd, int(rank), int(dof))
+
+        def loop(n):
+            return [[i, (i + 1) % n] for i in range(n)]
+
+        def des(cs, es):
+            return {"verts": [{"x": x, "y": y, "z": 0} for (x, y) in cs],
+                    "edges": [list(e) for e in es]}
+        shapes = {
+            "triangle": des([(0, 0), (30, 0), (15, 20)], [[0, 1], [1, 2], [2, 0]]),
+            "square": des([(0, 0), (40, 0), (40, 24), (0, 24)], loop(4)),
+            "square_diag": des([(0, 0), (40, 0), (40, 24), (0, 24)], loop(4) + [[0, 2]]),
+            "square_2diag": des([(0, 0), (40, 0), (40, 24), (0, 24)], loop(4) + [[0, 2], [1, 3]]),
+        }
+        if any(k not in goldens for k in shapes):
+            self.record("rigidity-verdict", False, "missing goldens")
+            return
+        bad = []
+        for name, design in shapes.items():
+            v = RV.verdict(design)
+            if (v["verdict"], v["rank"], v["dof"]) != goldens[name]:
+                bad.append(f"{name}:{v['verdict']}/{v['rank']}/{v['dof']}")
+        self.record("rigidity-verdict:shapes", not bad,
+                    "triangle/square/±diagonals classify to pinned certificates"
+                    if not bad else f"verdict drift: {bad}")
+        sqm = RV.verdict(shapes["square"])["moving_verts"]
+        self.record("rigidity-verdict-flex", bool(sqm) and all(0 <= i < 4 for i in sqm),
+                    "the shearing square names its moving vertices %s" % sqm
+                    if sqm else "a FLEXIBLE verdict named no vertices")
+        real = RV.verdict(shapes["triangle"])["verdict"]
+        defect = RV.verdict_defect_full_rank(shapes["triangle"])["verdict"]
+        nv = real == "RIGID" and defect != "RIGID"
+        self.record("rigidity-verdict-selftest", nv,
+                    "full-rank defect calls the rigid triangle FLEXIBLE — trivial-motion "
+                    "subtraction load-bearing (gate can redden)" if nv
+                    else f"probe failed: real={real} defect={defect}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -2059,6 +2121,7 @@ def main() -> int:
     gate.photo_trace()
     gate.frontend_contract()
     gate.svg_import()
+    gate.rigidity_verdict()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

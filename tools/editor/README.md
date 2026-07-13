@@ -109,6 +109,14 @@ python3 ../frontend/svg_import.py object.svg             # SVG vector paths → 
 # each writes a URDR-PROJECT-1; open it via ⤒ Open and the wireframe is in the palette
 ```
 
+Annotate a project with **exact rigidity verdicts** (authority computes; the editor displays):
+
+```
+python3 ../frontend/rigidity_verdict.py urdr_project.json urdr_project_rigid.json
+# prints ● rigid / ◍ flexible (dof, moving vertices) / ⊘ refuse per design — a CERTIFICATE
+# over ℤ, reproducible on every host — and writes recorded verdicts the palette shows as badges.
+```
+
 Render an exported world through the exact engine:
 
 ```

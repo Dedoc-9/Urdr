@@ -1480,3 +1480,24 @@ deterministic core; D14's aesthetic-quality exclusion applies. The importer ente
 under the contract — **the first proof that the D14 ladder works: a new authoring modality became a
 first-class asset source without touching the engine, the canon, or any other front end.** `SVG says
 square four ways; the canon says square once`.
+
+**Observability — rigidity verdict for canonical objects — MEASURED (and it IS authority, not a display
+float).** Phase-2 observability, the increment the architecture makes uniquely cheap: every canonical
+`URDROBJ2` object is a 2D rigidity framework `(n, d=2, edges, coords)`, so `tools/frontend/
+rigidity_verdict.py` answers — over ℤ, exactly — *is this structure RIGID or does it FLEX, by how many
+degrees of freedom, and which vertices move?* It consumes the exact-integer rigidity layer
+(`tools/intla/rigidity`, cross-placed via urdr-math), so the verdict is a CERTIFICATE reproducible on
+every conforming host — unlike the replay overlays, which draw float projections of Q32.32 words, this
+is authoritative. **Gated** (`rigidity_verdict`, 3 rows): the classic frameworks classify to pinned
+certificates (`conformance_rigidity.txt`) — triangle RIGID (dof 0), bare square FLEXIBLE (dof 1, the
+shear mode), square+diagonal RIGID, square+2-diagonals RIGID (over-braced, rank saturates at 5 with a
+self-stress); a FLEXIBLE verdict NAMES its moving vertices (the internal-flex vector); and the
+non-vacuity defect — a checker comparing rank to the FULL dimension `d·n` instead of the rigid rank
+`d·n − d(d+1)/2` misclassifies the rigid triangle, proving the trivial-motion subtraction is
+load-bearing. Red-first: `tests/test_rigidity_verdict.py` (7 falsifiers) went RED
+(`ModuleNotFoundError: rigidity_verdict`). Unit falsifiers 355 → 362. **The architecture's law held on
+the display side too:** the AUTHORITY computes (Python, exact, gated), the editor DISPLAYS — a
+recorded verdict badge (● rigid / ◍ flexible+dof / ⊘ refuse) in the designs palette, read from a
+`rigidity` field the CLI's `annotate` writes, never recomputed in browser float. **Grade: MEASURED**;
+the verdict inherits urdr-math's overflow `REFUSE`. `the engine already knew which structures hold and
+which shear — observability just asked it out loud, and it answered with a certificate`.

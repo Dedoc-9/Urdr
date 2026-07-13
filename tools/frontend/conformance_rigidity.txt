@@ -1,0 +1,10 @@
+# Rigidity verdict — exact certificates for canonical objects (over ℤ).
+# The classic frameworks, classified by the exact-integer rigidity layer
+# (tools/intla/rigidity, cross-placed via urdr-math): a triangle is rigid, a bare
+# square shears (dof 1), one diagonal braces it rigid, two diagonals over-brace it.
+# These are certificates, not display floats — reproducible on every conforming host.
+# name  verdict  rank  dof
+triangle RIGID 3 0
+square FLEXIBLE 4 1
+square_diag RIGID 5 0
+square_2diag RIGID 5 0
