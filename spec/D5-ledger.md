@@ -1701,6 +1701,35 @@ consumer (reads recorded state, writes nothing — D15 observational-only); the 
 it is layer-3 follow-on. `the debugger names the field, and the exact substrate makes the name a proof
 of where to look — an input or a placement, never a rounded number`.
 
+**urdr-criticality — a deterministic branching-diffusion (reactor-kinetics) field — MEASURED
+(reference); bounded regime; cross-placement DECLARED; not frozen.** The reactor-physics reading of
+*"keff = 2.0 × Galton board + Doppler"*, built on the frozen `field.FixedPoint` in the urdr-field family.
+Three coupled operators (`tools/physics/criticality.py`): **transport** — the Galton board's binomial
+left/right peg step IS a discrete diffusion kernel, implemented in EXACT-CONSERVATIVE FLUX FORM (per
+edge `f = ¼(n_i − n_{i+1})`, `n_i −= f; n_{i+1} += f`), so total population is conserved bit-for-bit
+regardless of rounding (vacuum boundaries leak — leakage is part of criticality); **multiplication** —
+each generation × keff, where `keff > 1` is SUPERCRITICAL and, under the bounded substrate, RAISES
+`FIELD-REFUSE` at the i64 ceiling rather than wrapping; **Doppler** — the reactor negative-temperature
+feedback `k_eff = k0·n_ref/(n_ref + n)`, driving `k_eff → 1` as density rises, so a supercritical `k0`
+self-limits to a bounded steady state `n* = (k0−1)·n_ref`. **The physical punchline (and why the three
+pieces are one experiment):** `keff = 2.0` alone explodes and honestly refuses at the bound; the Doppler
+module is *exactly* the feedback that tames it into a stable, witnessed critical state — reactor
+stability, deterministic and reproducible. **Red-first:** `tests/test_criticality.py` (9 falsifiers).
+**What the gate pins** (`criticality` stage, 5 rows): `criticality:galton` — a point source under pure
+transport reproduces the pinned binomial-spread trace `064f7cfc…` (`conformance_criticality.txt`),
+deterministically twice; `criticality:doppler` — supercritical `k0 = 2.0` WITH Doppler reproduces the
+regulated-steady-state trace `8439d5a6…` and the tail totals are constant (converged); `criticality-conserve`
+— flux-form transport conserves total population EXACTLY over 50 generations of a non-round IC (reflecting);
+`criticality-eigenvalue` — `keff = 1` stationary, `keff < 1` decays, `keff = 2` with no regulator
+`FIELD-REFUSE`s at the bound; `criticality-selftest` (non-vacuity) — the same supercritical start stays
+bounded WITH Doppler and explodes to `FIELD-REFUSE` WITHOUT it, so the regulator is load-bearing. Unit
+falsifiers 390 → 399. **Grade:** MEASURED reference, **bounded regime B** (rounds honestly, refuses on
+overflow, never wraps), deterministic; **cross-placement DECLARED** (a Rust/C99 placement, as for the
+other field modules, is the follow-on); **not frozen**. Honest scope: 1D, one-group, and a RATIONAL
+Doppler law — the physical Doppler defect ∝ √T is irrational and would itself live in the refuse regime
+(DECLARED, not modelled). `the Galton board is the diffusion kernel, keff is the multiplication, Doppler
+is the stability; keff=2.0 either refuses or is regulated — and either way it replays to the last bit`.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred

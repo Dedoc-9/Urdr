@@ -1,0 +1,9 @@
+# urdr-criticality — deterministic branching-diffusion (reactor kinetics) trace goldens.
+# galton : a point source under PURE transport (keff=1, vacuum leakage) — the deterministic
+#   Galton/binomial distribution spreading from an incident spike, 12 generations.
+# doppler: SUPERCRITICAL keff0=2.0 regulated by Doppler feedback (reflecting) — the population
+#   self-limits to a BOUNDED steady critical state, 120 generations. Without Doppler the same
+#   start explodes and FIELD-REFUSEs at the i64 ceiling (the non-vacuity defect).
+# name  trace_digest
+galton 064f7cfc1f5bf7c0d11daa730b1bd0c1ba192ea698e5ac596ac59034d784221b
+doppler 8439d5a69063233436049f3b6bbcd96a0e3a2a26f405c25a384ab2c4e59f4fdc

@@ -2297,6 +2297,75 @@ class Gate:
                     "(the velocity scan is load-bearing; gate can redden)" if nv
                     else "position-only scan did not slip later — the velocity scan is vacuous")
 
+    # -- 2p. urdr-criticality: branching-diffusion (reactor kinetics) field -----
+    def criticality(self):
+        """urdr-criticality — keff=2.0 × Galton board + Doppler: a deterministic
+        branching-diffusion field on the frozen Q32.32 backend. Pins the Galton-distribution
+        golden and the Doppler-regulated steady-state golden; proves the flux-form transport
+        conserves EXACTLY, the eigenvalue behaviour (k=1 stationary / k<1 decays / k=2 with no
+        regulator REFUSES at the bound), and the non-vacuity defect: dropping Doppler makes the
+        same supercritical start explode to FIELD-REFUSE (the regulator is load-bearing)."""
+        pdir = os.path.join(ROOT, "tools", "physics")
+        if pdir not in sys.path:
+            sys.path.insert(0, pdir)
+        try:
+            import criticality as C
+            from field import FieldError, FixedPoint as FP
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("criticality", False, f"import failed: {exc}")
+            return
+        try:
+            gg = C.golden("galton"); dg = C.golden("doppler")
+        except Exception as exc:
+            self.record("criticality", False, f"missing golden: {exc}")
+            return
+        g1 = C.run_trace(C.galton_scene()); g2 = C.run_trace(C.galton_scene())
+        gok = g1 == g2 and g1 == gg
+        self.record("criticality:galton", gok,
+                    g1[:16] + "… (point source → binomial spread)" if gok
+                    else f"galton {g1[:12]}… ≠ golden {gg[:12]}…")
+        d1 = C.run_trace(C.regulated_scene()); d2 = C.run_trace(C.regulated_scene())
+        states, _ = C.simulate(**C.regulated_scene())
+        tail = set(C.total(s) for s in states[-6:])
+        dok = d1 == d2 and d1 == dg and len(tail) == 1
+        self.record("criticality:doppler", dok,
+                    d1[:16] + "… (keff0=2.0 regulated to a bounded steady state)" if dok
+                    else f"doppler {d1[:12]}… ≠ golden {dg[:12]}… (or not steady)")
+        n = [FP.unit(v, 7) for v in (3, 11, 29, 101, 7, 5, 88, 2, 50, 13, 64)]
+        t0 = C.total(n)
+        for _ in range(50):
+            n = C.transport(n, reflect=True)
+        self.record("criticality-conserve", C.total(n) == t0,
+                    "flux-form Galton transport conserves total population exactly (reflecting)"
+                    if C.total(n) == t0 else "transport did not conserve exactly")
+        s1, _ = C.simulate(w=21, gens=40, k0n=1, k0d=1, reflect=True)
+        sd, _ = C.simulate(w=21, gens=20, k0n=1, k0d=2, reflect=True)
+        stationary = C.total(s1[-1]) == C.total(s1[0])
+        decays = C.total(sd[-1]) < C.total(sd[0])
+        refused = False
+        try:
+            C.simulate(**C.unregulated_scene())
+        except FieldError:
+            refused = True
+        eig_ok = stationary and decays and refused
+        self.record("criticality-eigenvalue", eig_ok,
+                    "keff=1 stationary; keff<1 decays; keff=2 unregulated FIELD-REFUSEs at the bound"
+                    if eig_ok else f"eigenvalue wrong: stationary={stationary} decays={decays} refuses={refused}")
+        on_ok = True
+        try:
+            C.run_trace(C.regulated_scene())
+        except FieldError:
+            on_ok = False
+        off_refuses = False
+        try:
+            C.run_trace(C.unregulated_scene())
+        except FieldError:
+            off_refuses = True
+        self.record("criticality-selftest", on_ok and off_refuses,
+                    "Doppler regulates the keff=2.0 explosion (bounded); removing it FIELD-REFUSEs "
+                    "(regulator load-bearing; gate can redden)" if (on_ok and off_refuses)
+                    else f"non-vacuity failed: regulated_ok={on_ok} unregulated_refuses={off_refuses}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -2382,6 +2451,7 @@ def main() -> int:
     gate.marangoni()
     gate.field_coupling()
     gate.field_body_loop()
+    gate.criticality()
     gate.spec_freeze()
     gate.rejections()
     gate.tamper()
