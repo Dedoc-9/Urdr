@@ -81,12 +81,24 @@ detector guarantees.
   graded measured-vs-proven, often undecidable).
 
 The axes are **orthogonal**: a cross-placed detector can be partial (criticality's conserved total is
-cross-placeable yet does not separate transport orbits), and a reference detector could be complete on
-its corpus without a second placement. **Most detectors are, and will remain, `PARTIAL` — and that is
-fine;** many important invariants admit no practical completeness result. Keeping Axis B separate is what
-stops "exact" or "cross-placed" from silently implying "complete." Current state: D14/D15/D16/rigidity are
-`CROSS-PLACED` (D16 frozen); criticality and toric are `REFERENCE` (cross-placement declared); completeness
-is **unclaimed (`PARTIAL`) for all** — the honest default, upgraded only with evidence.
+cross-placeable yet does not separate transport orbits), and a reference detector can be complete without a
+second placement. Keeping Axis B separate is what stops "exact" or "cross-placed" from silently implying
+"complete." Completeness is not a blanket default in either direction — it is claimed only where justified,
+and *withheld* where it does not hold. The current maturity map (the embryonic detector atlas):
+
+| Detector | A · reproduction | B · separation |
+|---|---|---|
+| **D14** canon | cross-placed | **COMPLETE** by construction — a canonical form is the complete invariant of the equivalence it canonicalizes |
+| **D15** view | cross-placed | **COMPLETE** by construction — the invariant *is* authoritative identity (modulo digest collision-resistance) |
+| **D16** region | cross-placed · frozen | **MEASURED-complete** on the static-partition corpus; a dynamic-repartition `~` is untested |
+| **rigidity** | cross-placed | **PARTIAL** — the verdict does not determine a framework up to congruence |
+| **criticality** | reference | **PARTIAL** — many transport histories share one conserved total |
+| **toric** `k` | reference | **COMPLETE** for surface homeomorphism (genus classifies closed orientable surfaces); deliberately *not* a complete *code* invariant (distance is separate, NP-hard) |
+
+The toric row is the discipline in miniature: complete with respect to its own invariant, refusing to claim
+more than it computes. As the catalog grows past ~20 detectors this table becomes the **map of the project**
+— the eight-column form `(Domain, Invariant, Witness, Relation, Coverage, Reproduction, Separation)` is the
+natural expansion.
 
 ## 4. The lattice of detectors
 
