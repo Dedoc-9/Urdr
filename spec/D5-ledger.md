@@ -1786,6 +1786,14 @@ declared; exact over 𝔽₂. Scope: the equivalence checked is exact barcode eq
 (bottleneck distance) is a separate theorem, not claimed here; the detector certifies a given complex's
 barcode and is not wired into any tick loop.
 
+**Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
+independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
+boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and
+self-verified in-session (`cc -O2 -std=c99`, gcc 11.4). `tools/intla/toric_rs/toric.rs` is the Rust mirror
+(SHA-256 reused verbatim from `worldstep_rs`) for admission on the Windows/rustc host. So the toric
+detector is now **CROSS-PLACED** on D17's reproduction axis (Axis B / separation unchanged: COMPLETE for
+surface homeomorphism). This is Phase IV item 2 — trust from independent reproduction, before the atlas.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred
