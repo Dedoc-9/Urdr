@@ -1655,3 +1655,21 @@ MEASURED; **FREEZE at `urdr-netcode-region 0.1` upon the Windows/rustc admission
 cross-placed but not frozen, and the D13 §C8 glyph stays parked. `two placements on two toolchains agree
 on seam2 to the last bit; the third, on the house host, is what flips the freeze bit — and the ledger
 will not flip it early`.
+
+**D16 FROZEN — `urdr-netcode-region 0.1`; the Rust placement ADMITTED on Windows.** The freeze
+vehicle landed: `worldregion_rs` (`rustc -O`, Windows) reproduced the `seam2` monolith, the composed
+trace, and the dropped-boundary divergence at tick 11 — bit-for-bit, printing `URDR-REGION-RS: ADMITTED`
+(commit `39baacc`). Three independent placements on three toolchains — Python (the gate), C99 (gcc 11.4,
+self-verified in-session), and Rust (Windows/rustc) — now agree on every `seam2` digit AND on the failure
+mode. Per the D8 named-host discipline the schema, partition/boundary law, and composition law are frozen
+at `urdr-netcode-region 0.1` (D12); D16 status flips MEASURED → **FROZEN**. This closes the Phase-3
+milestone D13 §C8 opened: the contract was stated, a library was measured against it, and the realization
+is independently reproduced — and the answer to *do regional witnesses compose to the global witness?* is
+**yes, with no new witness class**, which is precisely why the C8 glyph STAYS parked. The result did not
+weaken the seal; it strengthened it — the strongest argument for a primitive (that regional authority
+might need one) was tested and refuted. What re-opens C8 is not another theorem but a *workload* — a real
+consumer (interest management, authority migration, streaming chunks, sleeping regions, distributed
+latency) that repeatedly cannot be expressed without duplicating or weakening an invariant. Until then the
+standing discipline holds: every consumer that composes cleanly on the existing laws is one more datum
+against C8. `the milestone is closed by three placements agreeing to the last bit; the glyph is refused by
+the same evidence that froze the contract`.

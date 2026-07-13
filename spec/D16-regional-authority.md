@@ -2,17 +2,27 @@
 
 # D16 — The regional-authority contract (one simulation, partitioned in space)
 
-Status: **MEASURED (reference); cross-placed (C99, self-verified); FREEZE pending the
-Windows/rustc admission of the Rust placement.** The checkable core is gate-enforced
-(`netcode_region`, five rows). A **second, independent placement** now exists and agrees:
-`tools/netcode/worldregion_c/worldregion.c` — its own Q32.32 backend, its own SHA-256, the
-N4/N4.1 tick, and the partition — was compiled and run in-session (`cc -O2 -std=c99`, gcc
-11.4) and reproduces the `seam2` monolith, the `seam2` composed trace, and the
-dropped-boundary divergence **bit-for-bit**. That single scene cross-places both N4.1
-contact and D16 composition. `tools/netcode/worldregion_rs/worldregion.rs` is the Rust
-placement (FP + SHA-256 reused verbatim from the admitted `worldstep_rs`); it is authored
-and awaits admission on the named Windows host — the freeze vehicle. Until that lands the
-contract is measured and cross-placed but **not frozen**, and the D13 §C8 glyph stays parked.
+Status: **FROZEN** (`urdr-netcode-region 0.1`, D12). The checkable core is gate-enforced
+(`netcode_region`, five rows), and the contract is reproduced by **three independent
+placements on three toolchains**, agreeing on `seam2` bit-for-bit — including the failure
+mode:
+
+- the **Python reference** (`worldregion.py`, the gate);
+- a **C99 placement** (`worldregion_c/worldregion.c`) — its own Q32.32 backend, its own
+  SHA-256, the N4/N4.1 tick, and the partition — compiled and run with `cc -O2 -std=c99`
+  (gcc 11.4, Linux), reproducing the `seam2` monolith, the composed trace, and the
+  dropped-boundary divergence;
+- a **Rust placement** (`worldregion_rs/worldregion.rs`, FP + SHA-256 reused verbatim from
+  the admitted `worldstep_rs`) — **ADMITTED on the named Windows host** (`rustc -O`),
+  reproducing all three of the same digests.
+
+That single `seam2` scene cross-places **both** N4.1 body-body contact and D16 composition;
+the D13 §C8 precondition (contract stated, then library realization *measured* against it,
+now *reproduced independently*) is fully discharged, and per the D8 named-host discipline
+the schema, boundary-condition law, and composition law are frozen at `urdr-netcode-region
+0.1` — immutable except through a versioned successor. The C8 glyph stays parked: the
+result *strengthens* the seal, because regional authority proved expressible with **no new
+witness class**.
 
 D13 §C8 ("region-scoped authority") was **rejected as premature** with a standing
 condition: *re-open only after the D-series regional-authority contract exists and its

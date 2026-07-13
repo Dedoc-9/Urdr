@@ -25,8 +25,9 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-netcode` (N1) | **0.1 (FROZEN)** | 1 URDRLSTT trace digest | reference + `lockstep_rs` (ADMITTED, Windows/rustc; C99-cross-checked) | this doc |
 | `urdr-netcode-rollback` (N2) | **0.1 (FROZEN)** | 1 converged URDRLSTT trace digest | reference + `rollback_rs` (ADMITTED, Windows/rustc; C99 port agrees on golden AND defect digest) | this doc |
 | `urdr-netcode-auth` (N3) | **0.1 (FROZEN)** | roster root + signed-chain digest | reference + `authinput_rs` (ADMITTED, Windows/rustc; C99 port agrees on goldens, refusals, AND the forge anchor dvx+423) | this doc |
-| `urdr-netcode-world` (N4) | **0.2** (0.1 surface FROZEN; 0.2 adds `simulate_trace`, additive + digest-preserving; 0.3 adds `step_tick`, additive) | 1 highway trace digest + arena equivalence | reference + `worldstep_rs` (ADMITTED, Windows/rustc; C99 port agrees incl. the defect anchor 9c0ad7c5) | this doc |
+| `urdr-netcode-world` (N4) | **0.2** (0.1 surface FROZEN; 0.2 adds `simulate_trace`, additive + digest-preserving; 0.3 adds `step_tick`, additive; **N4.1** opt-in body-body contact, additive — contact OFF is byte-identical) | 1 highway trace digest + arena equivalence + `collide2` (N4.1) | reference + `worldstep_rs` (ADMITTED, Windows/rustc; C99 port agrees incl. the defect anchor 9c0ad7c5); **N4.1 contact cross-placed via `worldregion_c`/`worldregion_rs` (seam2 monolith reproduced bit-for-bit)** | this doc |
 | `urdr-netcode-worldpeer` (N5) | **0.1 (FROZEN)** | world pin + roster root + converged late+signed trace | reference + `worldpeer_rs` (ADMITTED, Windows/rustc; C99 port agrees on all five anchors incl. the defect d5bc484b) | this doc |
+| `urdr-netcode-region` (D16) | **0.1 (FROZEN)** | 1 composed URDRLSTT trace (`seam2` 6d6f6ee3) == monolith + dropped-boundary divergence @ tick 11 | reference `worldregion.py` + `worldregion_c` (self-verified, gcc 11.4) + `worldregion_rs` (ADMITTED, Windows/rustc) — three placements agree on the golden AND the failure mode | this doc |
 | `URDR-WORLD-3` (authored-world format) | **3 (FROZEN as consumed)** | tag-checked canonical scene | consumed by `replay.py --world` / `--fp world` / `load_world.py` | this doc |
 | `urdr-view` (D15 view contract) | **1 (FROZEN)** | 1 view digest golden + doc round-trip | reference `view_export.py` + `view_viewer.html` (ADMITTED on Windows: 121/121 frames verified, 0 refused, independent hand-rolled SHA-256) | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
@@ -277,6 +278,29 @@ Immutable under `urdr-netcode-worldpeer 0.1` except through a versioned successo
    — reproduced by the reference and by `worldpeer_rs` (ADMITTED on Windows/rustc),
    with the verified apply-at-head defect diverging to the same digest
    (`d5bc484b…`) in Python, Rust, and the C99 cross-check.
+
+## The urdr-netcode-region v0.1 frozen surface (D16 — regional authority)
+
+Immutable under `urdr-netcode-region 0.1` except through a versioned successor:
+
+1. **The Seam Composition Theorem.** For any valid partition of a world by integer
+   x-seams, each region advancing its interior by the frozen N4/N4.1 tick from its
+   admitted boundary conditions alone, the deterministic reunification reproduces the
+   monolithic `URDRLST1`/`URDRLSTT` witness bit-for-bit — or the failure is a typed
+   refusal / a divergence localized to the tick the boundary failed.
+2. **The partition + boundary law.** Ownership by centre-x (`< cut` goes left; a total,
+   disjoint cover); the boundary condition is the read-only ghost set (a conservative,
+   exact-integer superset of the contact set); a region writes only owned bodies; a
+   cross-seam pair is resolved by both regions computing the identical Q32.32 impulse.
+   Malformed partitions (float / non-monotone / non-integer seams) are `REGION-REFUSE`d
+   before any tick runs.
+3. **No new witness serialization.** Composition is the frozen state law recomputed over
+   the reunified interiors — `URDRLST1`/`URDRLSTT`, unchanged. Reusing existing laws is
+   the point: the alphabet stayed sealed.
+4. **Conformance corpus (1 digest).** `conformance_region.txt`: `seam2` (`6d6f6ee3…`) —
+   the composed trace equals the monolith, reproduced by the reference, by `worldregion_c`
+   (self-verified, gcc 11.4), and by `worldregion_rs` (ADMITTED on Windows/rustc), with the
+   dropped-boundary defect diverging at the same contact tick (11) in all three.
 
 ## The urdr-view v1 frozen surface (D15 — the view-export contract)
 
