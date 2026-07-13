@@ -2235,6 +2235,68 @@ class Gate:
                     "collision straddles the seam at contact + a body hands off across it"
                     if straddle and handoff else f"vacuous: straddle={straddle} handoff={handoff}")
 
+    # -- 2m2. urdr-netcode observability: field-level desync localization --------
+    def netcode_field_desync(self):
+        """The exact-word divergence localizer (observability, Phase-2): given two per-tick
+        state chains, name the first (body, field) that differs — in URDRLST1 serialization
+        order, so it agrees with `first_desync` on the tick and pinpoints the field. Gated on
+        the D16 seam2 dropped-ghost divergence (tick 11, body 0, vel.x), proven general on a
+        worldstep dropped-input divergence, with a non-vacuity defect (a position-only scan
+        detects the divergence a tick late — the velocity scan is load-bearing)."""
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import lockstep as L
+            import worldstep as W
+            import worldregion as R
+            from observe import first_field_desync
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("netcode-field-desync", False, f"import failed: {exc}")
+            return
+        w, log, seams = R.seam2_world(), R.seam2_log(), R.seam2_seam()
+        cf, cst = R.region_simulate_trace(w, log, seams, defect_drop_ghost=False)
+        df, dst = R.region_simulate_trace(w, log, seams, defect_drop_ghost=True)
+        # seam2 golden: the dropped-ghost divergence localizes to (11, 0, vel.x)
+        fd = first_field_desync(cst, dst)
+        want = (11, 0, "vel", 0, 6979321856, 25769803776)
+        tick_agrees = fd is not None and fd[0] == L.first_desync(cf, df)
+        self.record("field-desync:seam2", fd == want and tick_agrees,
+                    f"dropped ghost localized to tick {fd[0]}, body {fd[1]}, vel.x (agrees with first_desync)"
+                    if fd == want and tick_agrees
+                    else f"field-desync {fd} ≠ golden {want} (or tick disagrees)")
+        # identity: identical chains -> None (no false positive)
+        idn = first_field_desync(cst, cst) is None
+        self.record("field-desync-identity", idn,
+                    "identical state chains localize to None (no false positive)"
+                    if idn else "false positive on identical chains")
+        # general: a worldstep dropped-input divergence localizes, tick agrees with first_desync
+        aw = W.arena_world()
+        ff = W.simulate_trace(aw, L.sample_log())
+        dd = W.simulate_trace(aw, L.sample_log()[1:])
+        gd = first_field_desync(ff[1], dd[1])
+        gen_ok = gd is not None and gd[0] == L.first_desync(ff[0], dd[0])
+        self.record("field-desync-general", gen_ok,
+                    f"a worldstep dropped input localizes to tick {gd[0]} (agrees with first_desync)"
+                    if gen_ok else "field-desync did not generalize beyond seam2")
+        # non-vacuity: a position-only scan misses the velocity divergence's true tick
+        def pos_only(a, b):
+            for t in range(min(len(a), len(b))):
+                pa, _ = a[t]; pb, _ = b[t]
+                for i in range(min(len(pa), len(pb))):
+                    for ax in (0, 1):
+                        if pa[i][ax] != pb[i][ax]:
+                            return t
+            return None
+        po = pos_only(cst, dst)
+        nv = fd is not None and fd[2] == "vel" and po is not None and fd[0] < po
+        self.record("field-desync-selftest", nv,
+                    f"velocity scan localizes tick {fd[0]}; a position-only scan slips to {po} "
+                    "(the velocity scan is load-bearing; gate can redden)" if nv
+                    else "position-only scan did not slip later — the velocity scan is vacuous")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -2310,6 +2372,7 @@ def main() -> int:
     gate.netcode_world()
     gate.netcode_worldpeer()
     gate.netcode_region()
+    gate.netcode_field_desync()
     gate.photo_trace()
     gate.frontend_contract()
     gate.svg_import()

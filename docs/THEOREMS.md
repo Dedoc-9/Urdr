@@ -43,7 +43,7 @@ a third language; they are not repo placements.
 | T18 | **Body-body contact stays deterministic and conservative (N4.1).** An opt-in **sqrt-free Q32.32 impulse** (the exact `d/\|d\|` cancellation) collides authored dynamic bodies: x-momentum conserved *exactly*, closing velocity reverses (restitution), and the frozen contact-OFF surface is byte-identical. | `netcode-world-contact` (`collide2` golden); asymmetric-impulse defect breaks momentum; **cross-placed** — C99 `worldregion_c` + Rust `worldregion_rs` reproduce the `seam2` monolith bit-for-bit. |
 | T19 | **Regional composition = the monolith witness (D16 — the Seam Composition Theorem).** For any valid partition by integer x-seams, each region evolving its interior by the frozen N4.1 tick from admitted read-only ghosts alone, the deterministic reunification reproduces the monolithic `URDRLST1`/`URDRLSTT` witness **bit-for-bit** — with **no new witness class**. | `netcode_region`: `seam2` golden == monolith, partition-invariance over 6 partitions, dropped-boundary divergence localized to the contact tick, malformed-partition `REGION-REFUSE`. **FROZEN** `urdr-netcode-region 0.1`; three placements (Python + C99 + Rust) agree incl. the failure mode. Answers D13 §C8 (no glyph needed). |
 
-The gate enforcing all of the above: **384 unit falsifiers + per-layer conformance
+The gate enforcing all of the above: **390 unit falsifiers + per-layer conformance
 stages, each with a non-vacuity self-test, + 45 typed rejection fixtures + the
 tamper self-test** — `PYTHONHASHSEED=0 python verify.py` → `GATE PASSED`, ×2,
 on Windows and Linux. Ten std-only Rust placements, two C99 runtimes.
@@ -64,11 +64,15 @@ regional-authority contract (D16) have graduated to theorems T18/T19 above.)*
 
 1. **Phase 1 — close simulation capability: N4.1 body-body contact. ✓ DONE** (T18,
    cross-placed, contact-OFF surface byte-identical). Woke the inert instance mass.
-2. **Phase 2 — observability: the debugger reads authority.** *Partly landed* (A/B
-   replay compare with first-desync visualization; recorded rigidity-verdict badges).
-   Remaining: λ/impulse inspection, momentum/energy accounting, rollback
-   visualization, digest diffing, refusal explanation — all *surfacing recorded
-   authoritative state*, never reconstructing it. The editor remains a consumer.
+2. **Phase 2 — observability: the debugger reads authority.** *Partly landed* — A/B
+   replay compare with first-desync visualization; recorded rigidity-verdict badges;
+   and the **field-level desync localizer** (`observe.first_field_desync`, gated
+   `netcode_field_desync`): names the exact body+field of a divergence in witness order,
+   with the honest diagnostic that in an exact deterministic engine the cause is an
+   upstream input or a non-conforming placement, never rounding. Remaining: λ/impulse
+   inspection, momentum/energy accounting, rollback visualization, refusal explanation,
+   and the editor *view* over the field localizer — all *surfacing recorded authoritative
+   state*, never reconstructing it. The editor remains a consumer.
 3. **Phase 3 — world scale, contract first. ✓ CONTRACT LANDED (D16, FROZEN, T19).**
    The regional-authority contract was written, falsifiable, and *measured* before any
    large-world implementation — and answered its own question: regional witnesses

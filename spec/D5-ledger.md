@@ -1674,6 +1674,33 @@ standing discipline holds: every consumer that composes cleanly on the existing 
 against C8. `the milestone is closed by three placements agreeing to the last bit; the glyph is refused by
 the same evidence that froze the contract`.
 
+**Observability (Phase 2) — field-level desync localization — MEASURED (reference); observational-only.**
+`lockstep.first_desync` names the first mismatching TICK from two witness (digest) chains;
+`tools/netcode/observe.py`'s `first_field_desync` goes one level finer — given the two per-tick STATE
+chains, it names the exact **body and field** at which they first disagree, scanned in `URDRLST1`
+serialization order (`pos.x, pos.y, vel.x, vel.y` per body). Because that order IS the witness byte
+order, the field it returns is byte-for-byte the cause of the first digest divergence, so the two
+diagnostics agree on the tick by construction and this one adds the field. To feed it, `worldregion`
+gained `region_simulate_trace` — the **additive, digest-preserving** surface (mirrors
+`worldstep.simulate_trace`): identical frames to `region_simulate` (gated — the seam2 golden
+`6d6f6ee3…` is unchanged) plus the reunified `(pos, vel)` state per tick for display-only consumers;
+nothing feeds back. **The honest diagnostic (the load-bearing correction to a gamedev assumption):**
+the authority tick is exact integer arithmetic and deterministic, so there is NO float accumulation in
+the witnessed state and two chains cannot "drift." A field divergence is therefore a *proof* that
+exactly one of two things happened upstream — a differing admitted input, or a non-conforming
+placement — and *never* rounding; `describe()` says so instead of guessing a source line. **Red-first:**
+`tests/test_field_desync.py` (6 falsifiers). **What the gate pins** (dedicated stage `netcode_field_desync`,
+4 rows): `field-desync:seam2` — the D16 dropped-ghost divergence localizes to **(tick 11, body 0, vel.x)**
+and that tick equals `first_desync`; `field-desync-identity` — identical chains → `None` (no false
+positive); `field-desync-general` — a plain worldstep dropped-input divergence localizes too (tick 3),
+proving it is not seam2-specific; `field-desync-selftest` — a position-only scan slips to tick 12 while
+the full scan catches tick 11 (the velocity scan is load-bearing; gate can redden). Also proved:
+`region_simulate_trace`'s reunified states equal the monolith's — composition holds at *field*
+granularity, not only the digest. Unit falsifiers 384 → 390. **Grade:** MEASURED reference; pure
+consumer (reads recorded state, writes nothing — D15 observational-only); the editor view that consumes
+it is layer-3 follow-on. `the debugger names the field, and the exact substrate makes the name a proof
+of where to look — an input or a placement, never a rounded number`.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred

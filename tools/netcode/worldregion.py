@@ -111,6 +111,16 @@ def region_simulate(w, log, seams, defect_drop_ghost=False):
     its owned results; the reunification takes every body from its owner. `defect_drop_ghost`
     is THE DEFECT for the gate: it admits NO ghosts, so cross-seam contact is silently
     missed and the chain diverges at the first coupled tick."""
+    frames, _states = region_simulate_trace(w, log, seams, defect_drop_ghost)
+    return frames
+
+
+def region_simulate_trace(w, log, seams, defect_drop_ghost=False):
+    """The ADDITIVE, digest-preserving surface (mirrors `worldstep.simulate_trace`):
+    identical frames to `region_simulate` — gated — plus one reunified (pos, vel) state
+    snapshot per frame for DISPLAY-ONLY consumers (the field-level desync inspector,
+    `tools/netcode/observe.py`). The states are copies of the Q32.32 words; nothing here
+    feeds back into the tick. Returns (frames, states)."""
     validate_partition(seams)
     n = w["n"]; T = w["T"]; radii = w["rs"]
     pos = [[c for c in p] for p in w["pos"]]
@@ -118,6 +128,7 @@ def region_simulate(w, log, seams, defect_drop_ghost=False):
     seam_words = [FP.unit(s, 1) for s in seams]
     ev = L.canon(log)
     frames = [L._digest(pos, vel, n)]
+    states = [([list(p) for p in pos], [list(v) for v in vel])]
     for t in range(T):
         own = [owner(pos[b][0], seam_words) for b in range(n)]
         R = len(seams) + 1
@@ -148,7 +159,8 @@ def region_simulate(w, log, seams, defect_drop_ghost=False):
         pos = [list(p) for p in newpos]
         vel = [list(v) for v in newvel]
         frames.append(L._digest(pos, vel, n))
-    return frames
+        states.append(([list(p) for p in pos], [list(v) for v in vel]))
+    return frames, states
 
 
 def compose(w, log, seams, defect_drop_ghost=False):
