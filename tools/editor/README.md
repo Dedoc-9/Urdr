@@ -109,6 +109,14 @@ python3 ../frontend/svg_import.py object.svg             # SVG vector paths → 
 # each writes a URDR-PROJECT-1; open it via ⤒ Open and the wireframe is in the palette
 ```
 
+Export authoritative state to any renderer via the **D15 view contract**, then view it:
+
+```
+python3 ../frontend/view_export.py urdr_replay.json out_view.json   # URDR-VIEW-1 doc
+# open ../frontend/view_viewer.html and ▷ Load it — a three.js viewer that verifies every
+# frame's witness binding + recomputed digest before rendering, and refuses mismatches.
+```
+
 Annotate a project with **exact rigidity verdicts** (authority computes; the editor displays):
 
 ```

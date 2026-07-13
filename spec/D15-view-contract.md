@@ -88,7 +88,21 @@ never recomputed from presentation.
    interchangeable client of the frozen contract; upgrading or replacing the renderer
    never changes gameplay or replay validity.
 
-We are at step 1 (measured) → step 2 (next). The schema is not frozen until step 3.
+**Step 2 landed:** `tools/frontend/view_viewer.html` is the independent consumer — a
+three.js viewer that loads a `URDR-VIEW-1` document, **recomputes each frame's
+`view_digest` with its own JS** (byte-identical to `view_export.py`, confirmed in node
+over a multi-frame document), verifies the witness binding, and **refuses to render any
+document with an unverified frame**. It emits a verification report (contract version,
+frame count, witnesses verified, frames refused, export digest, viewer version) — so
+the viewer is a participant in the verification story, not merely a display. It is
+observational-only by construction: it never writes back to authority, and three.js (a
+layer-3 presentation library) is used precisely *because* D15 proves this viewer cannot
+leak upward — the authority layer stays offline and dependency-free.
+
+We are at step 2 (an independent placement exists and reproduces the digest in node).
+**Step 3 — freeze — waits for the browser viewer to report all-frames-verified on a
+host** (the D8 discipline: a placement is admitted when it reproduces on a named host).
+Until then the schema is MEASURED, not frozen.
 
 ## 5. Honest scope
 

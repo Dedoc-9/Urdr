@@ -1,0 +1,164 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- Urðr View Viewer — the D15 reference PRESENTATION consumer, and an independent -->
+<!-- PLACEMENT of the view contract. It loads a URDR-VIEW-1 doc, RECOMPUTES each -->
+<!-- frame's view_digest with its own JS (byte-identical to view_export.py, confirmed -->
+<!-- in node), verifies the witness binding, REFUSES any frame whose recomputed digest -->
+<!-- disagrees, renders flat-colour meshes, and emits a verification report. -->
+<!-- It is observational-only by construction: it never writes back to authority. -->
+<!-- three.js (a layer-3 presentation library) is used precisely because D15 proves -->
+<!-- this viewer cannot leak upward — the authority layer stays offline/zero-dep. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Urðr · View Viewer</title>
+<style>
+  :root{ --bg:#0d0f10; --panel:#15191b; --line:#2a3033; --ink:#c9d1cf; --dim:#7d8a86;
+    --acid:#8fb45a; --rust:#b6603a; --amber:#e0a458; --sel:#f0c26a; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font:12.5px/1.45 ui-monospace,Menlo,Consolas,monospace;overflow:hidden}
+  #app{display:grid;grid-template-columns:320px 1fr;height:100%}
+  aside{background:var(--panel);border-right:1px solid var(--line);padding:14px;overflow:auto}
+  main{position:relative}
+  canvas{display:block;width:100%;height:100%}
+  h1{font-size:13px;margin:0 0 4px} h3{font-size:11px;color:var(--dim);margin:14px 0 6px;
+    text-transform:uppercase;letter-spacing:.06em}
+  .note{color:var(--dim);font-size:11px;margin:4px 0}
+  button{background:#0f1213;border:1px solid var(--line);color:var(--ink);border-radius:5px;
+    padding:6px 9px;cursor:pointer;font:inherit} button:hover{border-color:var(--amber)}
+  .row{display:flex;gap:6px;margin:6px 0;flex-wrap:wrap}
+  .rep{border:1px solid var(--line);border-radius:6px;padding:9px;background:#0f1213}
+  .rep div{display:flex;justify-content:space-between;gap:10px;padding:1px 0}
+  .k{color:var(--dim)} .v{color:var(--ink)} .ok{color:var(--acid)} .bad{color:var(--rust)}
+  input[type=range]{width:100%}
+  code{color:var(--acid);word-break:break-all;font-size:10px}
+</style>
+</head>
+<body>
+<div id="app">
+  <aside>
+    <h1>Urðr · View Viewer</h1>
+    <div class="note">D15 reference consumer · an independent placement of the view contract.
+      Loads <b>URDR-VIEW-1</b>, verifies every frame, refuses mismatches, and reports.</div>
+    <div class="row"><button onclick="document.getElementById('f').click()">▷ Load URDR-VIEW-1</button></div>
+    <input id="f" type="file" accept=".json,application/json" style="display:none">
+    <div class="note">Make one: <code>python3 view_export.py urdr_replay.json out_view.json</code></div>
+
+    <h3>Verification report</h3>
+    <div class="rep" id="report"><div class="note">no document loaded</div></div>
+
+    <h3>Timeline</h3>
+    <input type="range" id="tl" min="0" max="0" value="0" oninput="setFrame(+this.value)">
+    <div class="row"><button onclick="step(-1)">◀</button><button id="play" onclick="toggle()">▶ play</button><button onclick="step(1)">▶</button></div>
+    <div class="note" id="frameinfo">—</div>
+
+    <h3>Bound witness</h3>
+    <div class="note"><code id="witness">—</code></div>
+    <div class="note">drag = orbit · wheel = zoom · the viewer draws recorded state; it never simulates.</div>
+  </aside>
+  <main><canvas id="c"></canvas></main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+"use strict";
+// ---- the view-contract digest, reimplemented independently (byte-identical to
+//      tools/frontend/view_export.py — confirmed in node). THIS is the placement. ----
+function canonJSON(v){                       // == Python json.dumps(sort_keys=True, separators=(',',':'))
+  if(Array.isArray(v)) return '['+v.map(canonJSON).join(',')+']';
+  if(v&&typeof v==='object'){ const ks=Object.keys(v).sort();
+    return '{'+ks.map(k=>JSON.stringify(k)+':'+canonJSON(v[k])).join(',')+'}'; }
+  return JSON.stringify(v);
+}
+function viewCanon(vf){
+  const p=['URDR-VIEW-1','w'+vf.witness,'t'+vf.tick,'b'+vf.bodies.length];
+  vf.bodies.forEach(b=>p.push(`${b.obj},${b.material},${b.x},${b.y}`));
+  p.push('L'+canonJSON(vf.lights)); p.push('C'+canonJSON(vf.cameras));
+  return p.join('|');
+}
+async function sha256hex(s){ const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join(''); }
+const VIEWER_VERSION="urdr-view-viewer/1";
+const isHex64=w=>typeof w==='string'&&/^[0-9a-f]{64}$/.test(w);
+
+let doc=null, frame=0, playing=false, timer=null;
+const MAT={ steel:0x9aa4ad, chrome:0xd8e0e6, rubber:0x2a2f33, glass:0x8fd0e0,
+  brass:0xc7a24a, matte:0x6a6f73, default:0xb6603a };
+
+// ---- three.js scene ----
+const cv=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0b0d0e);
+const cam=new THREE.PerspectiveCamera(55,1,0.1,5000); cam.position.set(0,180,420);
+let camYaw=0, camPitch=0.5, camDist=460;
+scene.add(new THREE.HemisphereLight(0xbcd3e6,0x202018,0.9));
+const sun=new THREE.DirectionalLight(0xffffff,0.8); sun.position.set(1,2,1); scene.add(sun);
+const grid=new THREE.GridHelper(1600,32,0x2a3033,0x1b2023); scene.add(grid);
+let meshes=[];
+function resize(){ const r=cv.getBoundingClientRect(); renderer.setSize(r.width,r.height,false);
+  cam.aspect=r.width/r.height; cam.updateProjectionMatrix(); }
+addEventListener('resize',resize);
+function orbit(){ cam.position.set(Math.sin(camYaw)*Math.cos(camPitch)*camDist,
+  Math.sin(camPitch)*camDist+40, Math.cos(camYaw)*Math.cos(camPitch)*camDist);
+  cam.lookAt(0,0,0); }
+cv.addEventListener('pointerdown',e=>{ const sx=e.clientX,sy=e.clientY,y0=camYaw,p0=camPitch;
+  const mv=ev=>{ camYaw=y0-(ev.clientX-sx)*0.006; camPitch=Math.max(0.05,Math.min(1.4,p0+(ev.clientY-sy)*0.005)); orbit(); };
+  const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);};
+  addEventListener('pointermove',mv); addEventListener('pointerup',up); });
+cv.addEventListener('wheel',e=>{ e.preventDefault(); camDist=Math.max(120,Math.min(1600,camDist*(e.deltaY<0?0.9:1.1))); orbit(); },{passive:false});
+
+function clearMeshes(){ meshes.forEach(m=>scene.remove(m)); meshes=[]; }
+function drawFrame(k){ if(!doc||!doc.frames[k])return; const vf=doc.frames[k];
+  clearMeshes();
+  vf.bodies.forEach(b=>{ const col=MAT[b.material]!=null?MAT[b.material]:MAT.default;
+    const g=new THREE.SphereGeometry(16,20,16);
+    const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:col,roughness:0.6,metalness:b.material==='chrome'||b.material==='steel'||b.material==='brass'?0.7:0.1}));
+    m.position.set((b.x-230), 20, (b.y-140)); scene.add(m); meshes.push(m); });
+  document.getElementById('witness').textContent=vf.witness;
+  document.getElementById('frameinfo').textContent='frame '+k+' / '+(doc.count-1)+' · tick '+vf.tick+' · '+vf.bodies.length+' bodies';
+  document.getElementById('tl').value=k; }
+function setFrame(k){ frame=Math.max(0,Math.min(doc?doc.count-1:0,k|0)); drawFrame(frame); }
+function step(d){ stop(); setFrame(frame+d); }
+function toggle(){ if(playing){stop();} else { playing=true; document.getElementById('play').textContent='❚❚ pause';
+  timer=setInterval(()=>{ frame=(frame+1)%doc.count; drawFrame(frame); },60); } }
+function stop(){ playing=false; if(timer){clearInterval(timer);timer=null;} document.getElementById('play').textContent='▶ play'; }
+(function loop(){ requestAnimationFrame(loop); renderer.render(scene,cam); })(); orbit(); resize();
+
+// ---- load + VERIFY (the placement's report) ----
+document.getElementById('f').addEventListener('change',e=>{ const file=e.target.files[0]; if(!file)return;
+  const r=new FileReader(); r.onload=async()=>{ let d; try{ d=JSON.parse(r.result); }catch(_){ return report(null,'not JSON'); }
+    if(d.format!=='URDR-VIEW-1'||!Array.isArray(d.frames)) return report(null,'not a URDR-VIEW-1 document');
+    // VERIFY every frame: witness well-formed + recomputed view_digest matches the recorded one
+    let verified=0, refused=0; const refusedFrames=[];
+    for(let i=0;i<d.frames.length;i++){ const vf=d.frames[i];
+      const bound=isHex64(vf.witness);
+      const recomputed=await sha256hex(viewCanon(vf));
+      const consistent = vf.view_digest ? (recomputed===vf.view_digest) : true;
+      if(bound&&consistent) verified++; else { refused++; refusedFrames.push(i); } }
+    if(refused>0){ // REFUSE to display an unverified document — the viewer is a checker
+      doc=null; clearMeshes(); return report({format:d.format,view_version:d.view_version,
+        count:d.frames.length,verified,refused,refusedFrames}, 'REFUSED — '+refused+' frame(s) failed verification'); }
+    doc=d; frame=0; document.getElementById('tl').max=d.count-1; setFrame(0);
+    const exportDigest=await sha256hex(d.frames.map(f=>f.view_digest||'').join('|'));
+    report({format:d.format,view_version:d.view_version,count:d.count,verified,refused,
+      exportDigest, viewer:VIEWER_VERSION}, null);
+  }; r.readAsText(file); e.target.value=''; });
+
+function report(rep,err){ const el=document.getElementById('report');
+  if(err&&!rep){ el.innerHTML='<div class="bad">'+err+'</div>'; return; }
+  const line=(k,v,cls)=>`<div><span class="k">${k}</span><span class="v ${cls||''}">${v}</span></div>`;
+  let h='';
+  h+=line('contract', rep.format+' v'+rep.view_version);
+  h+=line('frames', rep.count);
+  h+=line('witnesses verified', rep.verified, rep.refused===0?'ok':'');
+  h+=line('frames refused', rep.refused, rep.refused===0?'ok':'bad');
+  if(rep.exportDigest) h+=line('export digest', rep.exportDigest.slice(0,16)+'…');
+  if(rep.viewer) h+=line('viewer', rep.viewer);
+  if(err) h+='<div class="bad" style="margin-top:6px">'+err+'</div>';
+  else h+='<div class="ok" style="margin-top:6px">✓ all frames bound &amp; consistent — safe to render</div>';
+  el.innerHTML=h; }
+</script>
+</body>
+</html>

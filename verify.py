@@ -2116,6 +2116,20 @@ class Gate:
                         else f"refusal wrong: {code}")
         except Exception as exc:
             self.record("view-export-refusal", False, f"errored: {exc}")
+        # the viewer-loadable doc: every frame's recorded view_digest recomputes (the
+        # independent viewer's placement claim runs against this same round-trip)
+        try:
+            afs = [{"digest": "a" * 64, "tick": 0, "bodies": [{"x": 100, "y": 200}, {"x": 300, "y": 150}]},
+                   {"digest": "c" * 64, "tick": 1, "bodies": [{"x": 106, "y": 203}, {"x": 294, "y": 151}]}]
+            doc = VE.export_doc(afs, scene())
+            rt = all(f["view_digest"] == VE.view_digest({k: v for k, v in f.items()
+                                                         if k != "view_digest"}) for f in doc["frames"])
+            ok = doc["format"] == "URDR-VIEW-1" and doc["count"] == 2 and rt
+            self.record("view-export-doc", ok,
+                        "URDR-VIEW-1 doc: every frame's recorded view_digest recomputes"
+                        if ok else "doc round-trip failed (a viewer could not verify it)")
+        except Exception as exc:
+            self.record("view-export-doc", False, f"errored: {exc}")
 
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
