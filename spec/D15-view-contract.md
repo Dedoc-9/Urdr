@@ -89,15 +89,19 @@ never recomputed from presentation.
    never changes gameplay or replay validity.
 
 **Step 2 landed:** `tools/frontend/view_viewer.html` is the independent consumer — a
-three.js viewer that loads a `URDR-VIEW-1` document, **recomputes each frame's
-`view_digest` with its own JS** (byte-identical to `view_export.py`, confirmed in node
-over a multi-frame document), verifies the witness binding, and **refuses to render any
-document with an unverified frame**. It emits a verification report (contract version,
-frame count, witnesses verified, frames refused, export digest, viewer version) — so
-the viewer is a participant in the verification story, not merely a display. It is
-observational-only by construction: it never writes back to authority, and three.js (a
-layer-3 presentation library) is used precisely *because* D15 proves this viewer cannot
-leak upward — the authority layer stays offline and dependency-free.
+**self-contained** viewer (no CDN, no Web Crypto — it **hand-rolls SHA-256** exactly
+like the Rust/C placements, and renders on a plain canvas, so it runs from a
+double-clicked `file://`). It loads a `URDR-VIEW-1` document, **recomputes each frame's
+`view_digest` with its own code** (byte-identical to `view_export.py`, confirmed in
+node over the real 121-frame highway export), verifies the witness binding, and
+**refuses to render any document with an unverified frame**. It emits a verification
+report (contract version, frame count, witnesses verified, frames refused, export
+digest, viewer version) — a participant in the verification story, not merely a display.
+It is observational-only by construction: it never writes back to authority. The
+reference viewer is deliberately dependency-free, matching the whole repo; the heavy
+layer-3 renderers the contract *enables* (three.js, Unreal, Godot, Vulkan, offline
+Blender) are downstream clients of the same `URDR-VIEW-1` documents — and D15 is what
+makes them safe, since none of them can leak upward.
 
 We are at step 2 (an independent placement exists and reproduces the digest in node).
 **Step 3 — freeze — waits for the browser viewer to report all-frames-verified on a

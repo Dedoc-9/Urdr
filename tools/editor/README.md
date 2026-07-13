@@ -113,8 +113,9 @@ Export authoritative state to any renderer via the **D15 view contract**, then v
 
 ```
 python3 ../frontend/view_export.py urdr_replay.json out_view.json   # URDR-VIEW-1 doc
-# open ../frontend/view_viewer.html and ▷ Load it — a three.js viewer that verifies every
-# frame's witness binding + recomputed digest before rendering, and refuses mismatches.
+# open ../frontend/view_viewer.html and ▷ Load it — a self-contained viewer (no CDN, works
+# from file://) that verifies every frame's witness binding + recomputed digest before
+# rendering, and refuses mismatches.
 ```
 
 Annotate a project with **exact rigidity verdicts** (authority computes; the editor displays):

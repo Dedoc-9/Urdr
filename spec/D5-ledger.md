@@ -1526,14 +1526,18 @@ source of truth`.
 
 **D15 step 2 — the independent viewer (a placement of the view contract) — reproduces the export.**
 `tools/frontend/view_viewer.html` is the reference presentation consumer AND an independent placement:
-a three.js viewer that loads a `URDR-VIEW-1` document, **recomputes each frame's `view_digest` with its
-own JS canonical serializer** (byte-identical to `view_export.py`'s — confirmed in node: JS ≡ Python
-over every frame of a multi-frame doc, `c18d947d…`/`e2abcb22…`/`564e6e76…`), verifies the witness
-binding, and REFUSES to render any document with an unverified frame — turning the viewer into a
-participant in the verification story (its report emits contract version / frame count / witnesses
-verified / frames refused / export digest / viewer version, the human's "viewer-as-placement" idea).
-Observational-only by construction: it never writes back, and three.js is used precisely because D15
-proves it cannot leak upward — the authority layer stays offline/zero-dep. `view_export.py` gained
+a **self-contained** viewer (no CDN, no Web Crypto — it **hand-rolls SHA-256** like the Rust/C
+placements and renders on a plain canvas, so it runs from a double-clicked `file://`) that loads a
+`URDR-VIEW-1` document, **recomputes each frame's `view_digest` with its own code** (byte-identical to
+`view_export.py`'s — confirmed in node over every frame of the real 121-frame highway export, all 121
+verified / 0 refused), verifies the witness binding, and REFUSES to render any document with an
+unverified frame — turning the viewer into a participant in the verification story (its report emits
+contract version / frame count / witnesses verified / frames refused / export digest / viewer version,
+the human's "viewer-as-placement" idea). Observational-only by construction: it never writes back. The
+reference viewer is dependency-free like the whole repo; heavy renderers (three.js/Unreal/Godot/Vulkan)
+are downstream clients of the same documents, made safe precisely because D15 proves none can leak
+upward. (First cut used a CDN three.js + Web Crypto and silently failed on `file://` — both hazards
+removed; the self-contained rewrite is the disciplined, offline-consistent form.) `view_export.py` gained
 `export_doc` (per-frame `view_digest`, gated: `view-export-doc` round-trip) + a `--doc` CLI. Unit
 falsifiers 368 → 369. **D15 is at step 2** (an independent placement reproduces the digest in node);
 per the ladder and the human's step 3, **the freeze waits for the browser viewer to report
