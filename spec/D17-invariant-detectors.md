@@ -90,10 +90,11 @@ and *withheld* where it does not hold. The current maturity map (the embryonic d
 |---|---|---|
 | **D14** canon | cross-placed | **COMPLETE** by construction — a canonical form is the complete invariant of the equivalence it canonicalizes |
 | **D15** view | cross-placed | **COMPLETE** by construction — the invariant *is* authoritative identity (modulo digest collision-resistance) |
-| **D16** region | cross-placed · frozen | **MEASURED-complete** on the static-partition corpus; a dynamic-repartition `~` is untested |
+| **D16** region | cross-placed · frozen | **SCOPED-complete** — complete for the *declared* static-partition `~` by construction (modulo digest collision-resistance); the `~` is itself narrow, and completeness for a broader (dynamic-repartition) `~` would require a theorem, not corpus evidence |
 | **rigidity** | cross-placed | **PARTIAL** — the verdict does not determine a framework up to congruence |
 | **criticality** | reference | **PARTIAL** — many transport histories share one conserved total |
 | **toric** `k` | reference | **COMPLETE** for surface homeomorphism (genus classifies closed orientable surfaces); deliberately *not* a complete *code* invariant (distance is separate, NP-hard) |
+| **persim** barcode | reference | **PARTIAL** — distinct filtered complexes can share a barcode; the barcode does not recover the complex |
 
 The toric row is the discipline in miniature: complete with respect to its own invariant, refusing to claim
 more than it computes. As the catalog grows past ~20 detectors this table becomes the **map of the project**

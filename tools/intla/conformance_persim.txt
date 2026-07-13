@@ -1,0 +1,5 @@
+# urdr-persim — persistent homology barcodes over F2.
+# circle: a 4-cycle (4 vertices at t=0, 4 edges at t=1). Barcode: H0 = one infinite bar + three
+#   [0,1) bars; H1 = one infinite bar (the loop is never filled). Digest is over the sorted barcode.
+# name  digest
+circle bb17a756843a13ec97d9bfab4a22062a0796281aeffd39ca8ef433a002cb0541

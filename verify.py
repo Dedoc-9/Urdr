@@ -2418,6 +2418,52 @@ class Gate:
                     "a broken complex (∂₁∂₂ ≠ 0) TORIC-REFUSEd" if code == "TORIC-REFUSE"
                     else f"refusal wrong: {code}")
 
+    # -- 2p3. persim — persistent homology (a D17 detector) ---------------------
+    def persim(self):
+        """Persistent homology: the barcode of a filtered simplicial complex over 𝔽₂. Four D17
+        roles: reference (the circle's barcode digest + Betti), invariance (reordering simplices
+        within one filtration value gives the same barcode; the disk is distinguished), defect
+        (the un-reduced pairing misclassifies), refusal (a non-monotone filtration is PH-REFUSEd)."""
+        idir = os.path.join(ROOT, "tools", "intla")
+        if idir not in sys.path:
+            sys.path.insert(0, idir)
+        try:
+            import persim as P
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("persim", False, f"import failed: {exc}")
+            return
+        try:
+            g = P.golden("circle")
+        except Exception as exc:
+            self.record("persim", False, f"missing golden: {exc}")
+            return
+        bars = P.persistence(P.circle())
+        dig = P.barcode_digest(bars)
+        ref_ok = (dig == g and P.barcode_digest(P.persistence(P.circle())) == g
+                  and P.betti(bars) == {0: 1, 1: 1})
+        self.record("persim:circle", ref_ok,
+                    f"circle barcode {dig[:12]}… (b0=1, b1=1)" if ref_ok
+                    else f"barcode {dig[:12]}… ≠ golden {g[:12]}…")
+        c = P.circle()
+        reordered = c[:4] + [c[7], c[5], c[4], c[6]]
+        inv_ok = (P.persistence(reordered) == bars
+                  and P.barcode_digest(P.persistence(P.disk())) != dig)
+        self.record("persim-invariance", inv_ok,
+                    "barcode invariant under simplex reorder within a filtration value; disk distinguished"
+                    if inv_ok else "reorder changed the barcode (or disk not distinguished)")
+        defect_ok = P.persistence_defect(c) != bars
+        self.record("persim-selftest", defect_ok,
+                    "the un-reduced pairing gives a wrong barcode (gate can redden)" if defect_ok
+                    else "the defect did not misclassify")
+        code = None
+        try:
+            P.persistence([(1, 0, [0, 1]), (0, 0, []), (0, 0, [])])
+        except P.PersimError as exc:
+            code = exc.code
+        self.record("persim-refusal", code == "PH-REFUSE",
+                    "a non-monotone filtration PH-REFUSEd" if code == "PH-REFUSE"
+                    else f"refusal wrong: {code}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -2454,6 +2500,10 @@ class Gate:
                       "invariance": "toric-genus",
                       "defect": "toric-selftest",
                       "refusal": "toric-refusal"},
+            "persim": {"reference": "persim:circle",
+                       "invariance": "persim-invariance",
+                       "defect": "persim-selftest",
+                       "refusal": "persim-refusal"},
         }
         roles = ("reference", "invariance", "defect", "refusal")
         recorded = {name: ok for (name, ok, _d) in self.rows}
@@ -2577,6 +2627,7 @@ def main() -> int:
     gate.field_body_loop()
     gate.criticality()
     gate.toric()
+    gate.persim()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

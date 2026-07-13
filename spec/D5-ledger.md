@@ -1772,6 +1772,20 @@ general minimum-distance problem is NP-hard — a clean D17 domain boundary, not
 the engine had never seen — quantum error correction — entered under the same admission law as rigidity and
 a highway, which is the strongest evidence yet that the law is real`.
 
+**Persistent homology (persim) — a D17 detector — MEASURED (reference).** `tools/intla/persim.py`
+computes the persistence barcode of a filtered simplicial complex over 𝔽₂ by the standard
+boundary-matrix reduction, reusing the 𝔽₂ substrate (`gf2`). The invariant is the barcode. Gate stage
+`persim`, four D17 roles: reference — the circle (4 vertices at t=0, 4 edges at t=1) reproduces the
+pinned barcode digest `bb17a756…` (`conformance_persim.txt`) with Betti `b0=1, b1=1`; invariance —
+reordering simplices within one filtration value gives the same barcode, and the disk (a filled
+triangle, whose H₁ loop is killed at t=2) is distinguished from the circle; defect — the un-reduced
+pairing (colliding lows left unresolved) misclassifies the barcode; refusal — a non-monotone filtration
+is `PH-REFUSE`d. Red-first `tests/test_persim.py` (6 falsifiers). The `invariant_detectors` lint now
+enforces **7 detectors**. Unit falsifiers 406 → 412. Grade: MEASURED (reference); cross-placement
+declared; exact over 𝔽₂. Scope: the equivalence checked is exact barcode equality — metric stability
+(bottleneck distance) is a separate theorem, not claimed here; the detector certifies a given complex's
+barcode and is not wired into any tick loop.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred
