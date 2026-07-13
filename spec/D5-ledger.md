@@ -1631,3 +1631,27 @@ asynchronous regional clocks, and a composite/frame witness that verifies a regi
 reunifying are declared successors. `the input side converges many tools to one object (D14); the
 output side fans one authority to many renderers (D15); the authority side itself now splits into
 many regions that recompose to the one witness (D16) — and none of the three boundaries can leak`.
+
+**D16 second placement (C99) — ADMITTED, self-verified; Rust authored for the Windows host; N4.1
+cross-placement UPGRADED.** The freeze precondition (D13 §C8 / the human's step 1) is an independent
+placement reproducing `seam2`. `tools/netcode/worldregion_c/worldregion.c` is a self-contained C99
+build — its OWN Q32.32 backend, its OWN SHA-256, the N4/N4.1 tick, and the region partition — with no
+dependency on the Python. Compiled and run IN THIS SESSION (`cc -O2 -std=c99`, gcc 11.4, Ubuntu 22.04)
+it reproduces, **bit-for-bit**: the `seam2` MONOLITH trace == golden `6d6f6ee3…` (an independent build
+of N4.1 body-body contact), the `seam2` COMPOSED regional trace == monolith == golden (an independent
+build of D16 composition), and the DROPPED-BOUNDARY divergence localized to the same contact tick (11).
+Two independent placements (Python reference + C99) now agree on every `seam2` digit — a real
+cross-placement, not an assertion, and on a DIFFERENT host and toolchain than the Python gate.
+**Consequence for N4.1:** its cross-placement was DECLARED; the C99 `seam2` monolith reproduces the
+N4.1 contact impulse bit-for-bit, so **N4.1 body-body contact is now cross-placed (C99), MEASURED** (a
+Rust `worldstep_rs` contact extension is still the third-placement follow-on, but the DECLARED debt is
+paid). `tools/netcode/worldregion_rs/worldregion.rs` is the Rust placement — the frozen Q32.32 backend
+and hand-rolled SHA-256 are reused **verbatim** from the already-admitted `worldstep_rs`; only the
+contact pass and the partition are new. It is **authored, not yet run here** (no `rustc` in the session)
+— per the D8 discipline it awaits ADMISSION on the named Windows host (`rustc -O worldregion.rs`), which
+is the human's stated freeze vehicle. **D16 status:** cross-placed (C99, self-verified) and reference-
+MEASURED; **FREEZE at `urdr-netcode-region 0.1` upon the Windows/rustc admission of the Rust placement**
+— exactly as D15 waited for its named-host report before freezing. Until then D16 is measured and
+cross-placed but not frozen, and the D13 §C8 glyph stays parked. `two placements on two toolchains agree
+on seam2 to the last bit; the third, on the house host, is what flips the freeze bit — and the ledger
+will not flip it early`.

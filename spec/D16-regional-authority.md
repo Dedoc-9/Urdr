@@ -2,10 +2,17 @@
 
 # D16 — The regional-authority contract (one simulation, partitioned in space)
 
-Status: **MEASURED (reference); cross-placement DECLARED.** The checkable core is
-gate-enforced (`netcode_region`, five rows); a second placement is not yet built, so the
-contract is **not frozen** — it is stated, falsifiable, and reference-measured, which is
-exactly what D13 §C8 required before this milestone could be opened at all.
+Status: **MEASURED (reference); cross-placed (C99, self-verified); FREEZE pending the
+Windows/rustc admission of the Rust placement.** The checkable core is gate-enforced
+(`netcode_region`, five rows). A **second, independent placement** now exists and agrees:
+`tools/netcode/worldregion_c/worldregion.c` — its own Q32.32 backend, its own SHA-256, the
+N4/N4.1 tick, and the partition — was compiled and run in-session (`cc -O2 -std=c99`, gcc
+11.4) and reproduces the `seam2` monolith, the `seam2` composed trace, and the
+dropped-boundary divergence **bit-for-bit**. That single scene cross-places both N4.1
+contact and D16 composition. `tools/netcode/worldregion_rs/worldregion.rs` is the Rust
+placement (FP + SHA-256 reused verbatim from the admitted `worldstep_rs`); it is authored
+and awaits admission on the named Windows host — the freeze vehicle. Until that lands the
+contract is measured and cross-placed but **not frozen**, and the D13 §C8 glyph stays parked.
 
 D13 §C8 ("region-scoped authority") was **rejected as premature** with a standing
 condition: *re-open only after the D-series regional-authority contract exists and its
@@ -98,13 +105,15 @@ the seam carries physics, not just bookkeeping.
 1. **State the falsifiable contract** (this document) — the standing D13 §C8 precondition. ✔
 2. **Reference library measured against it** (`worldregion.py`, the `netcode_region`
    stage). ✔ — this is the "library realization measured" that D13 §C8 waited for.
-3. **A second, independent placement** (Rust/C99 reproducing the seam2 composed digest and
-   the dropped-boundary divergence) — **not yet done**. Until it lands, D16 stays MEASURED
-   (reference), not frozen, and the C8 glyph stays parked.
-4. **Freeze** the partition, boundary-condition, and composition laws once the second
-   placement agrees, then generalize (multi-axis seams, multi-pair seam ordering,
-   asynchronous regional advance with the composite/frame witness class D13 §C8 anticipated
-   — introduced only if a test shows `URDRLST1` cannot carry the law).
+3. **A second, independent placement** — **the C99 placement landed and self-verified**
+   (`worldregion_c/`, gcc 11.4, in-session): its own FP + SHA-256 reproduce the seam2
+   monolith, the seam2 composed digest, and the dropped-boundary divergence bit-for-bit.
+   Python + C99 now agree on every seam2 digit, on two toolchains. The Rust placement
+   (`worldregion_rs/`) is authored and awaits admission on the named Windows host.
+4. **Freeze** the partition, boundary-condition, and composition laws once the Windows/rustc
+   placement agrees (the house named-host admission), then generalize (multi-axis seams,
+   multi-pair seam ordering, asynchronous regional advance with the composite/frame witness
+   class D13 §C8 anticipated — introduced only if a test shows `URDRLST1` cannot carry the law).
 
 ## 5. Honest scope
 
