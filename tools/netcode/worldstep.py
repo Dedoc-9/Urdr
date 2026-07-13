@@ -51,7 +51,7 @@ import sys as _sys
 _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
                                   "..", "physics"))
 
-from field import FixedPoint as FP                         # noqa: E402  frozen Q32.32
+from field import FixedPoint as FP, ONE as _FPONE          # noqa: E402  frozen Q32.32
 import lockstep as L                                       # noqa: E402  frozen N1 laws
 
 _HERE = _os.path.dirname(_os.path.abspath(__file__))
@@ -130,15 +130,15 @@ def arena_world():
 
 
 # ---- the tick (mirrors the frozen N1 tick; statics extend it) -----------------------
-def simulate(w, log, defect_no_statics=False):
+def simulate(w, log, defect_no_statics=False, contact_defect=False):
     """Deterministic authored-world run. Returns the witness chain (URDRLST1 law);
     `defect_no_statics` is THE DEFECT for the gate — skipping static resolution must
-    diverge from the golden."""
-    frames, _states = simulate_trace(w, log, defect_no_statics)
+    diverge from the golden. `contact_defect` breaks body-body momentum (N4.1 defect)."""
+    frames, _states = simulate_trace(w, log, defect_no_statics, contact_defect)
     return frames
 
 
-def simulate_trace(w, log, defect_no_statics=False):
+def simulate_trace(w, log, defect_no_statics=False, contact_defect=False):
     """The 0.2 ADDITIVE surface: identical frames to `simulate` (digest-preserving —
     gated), plus one (pos, vel) state snapshot per frame for DISPLAY-ONLY consumers
     (the editor's ▷ Replay). The states are copies of the Q32.32 words; nothing here
@@ -150,13 +150,13 @@ def simulate_trace(w, log, defect_no_statics=False):
     frames = [L._digest(pos, vel, n)]                      # the frozen URDRLST1 law
     states = [([list(p) for p in pos], [list(v) for v in vel])]
     for t in range(w["T"]):
-        step_tick(w, pos, vel, ev.get(t, []), defect_no_statics)
+        step_tick(w, pos, vel, ev.get(t, []), defect_no_statics, contact_defect)
         frames.append(L._digest(pos, vel, n))
         states.append(([list(p) for p in pos], [list(v) for v in vel]))
     return frames, states
 
 
-def step_tick(w, pos, vel, events, defect_no_statics=False):
+def step_tick(w, pos, vel, events, defect_no_statics=False, contact_defect=False):
     """One deterministic N4 tick over caller-owned state (the 0.3 additive surface;
     the SAME law `simulate`/`simulate_trace` step — digest-preservation is gated by
     every existing vector). `events` is this tick's canonically-ordered event list;
@@ -220,11 +220,65 @@ def step_tick(w, pos, vel, events, defect_no_statics=False):
                 pos[i][0] = FP.add(x1, Rf[i])
                 if vel[i][0] < 0:
                     vel[i][0] = FP.mul_k(vel[i][0], -en, ed)
+    # ---- N4.1: body-body contact (OPT-IN — additive; the frozen 0.1 tick runs with
+    #      contact OFF, byte-identical). Sqrt-free Q32.32 impulse: the un-normalized
+    #      normal d cancels its own |d| (the exact `d/|d|` trick, ported to fixed point).
+    #      Equal-mass dynamic bodies; one deterministic pass in canonical (i<j) order.
+    if w.get("contact") and not defect_no_statics:
+        for i in range(n):
+            for j in range(i + 1, n):
+                dx = FP.sub(pos[j][0], pos[i][0]); dy = FP.sub(pos[j][1], pos[i][1])
+                dd = FP.add(_fp_mul(dx, dx), _fp_mul(dy, dy))
+                if dd <= 0:
+                    continue                                    # coincident centers
+                rr = Rf[i] + Rf[j]
+                if dd >= _fp_mul(rr, rr):
+                    continue                                    # not overlapping
+                rvx = FP.sub(vel[j][0], vel[i][0]); rvy = FP.sub(vel[j][1], vel[i][1])
+                vn = FP.add(_fp_mul(rvx, dx), _fp_mul(rvy, dy))
+                if vn >= 0:
+                    continue                                    # separating / resting
+                # s = -(1+e)·vn / (dd · (inv_i + inv_j));  equal unit mass → inv sum = 2
+                num = FP.mul_k(vn, -(en + ed), ed)              # -(1+e)·vn
+                s = _fp_div(num, FP.add(dd, dd))                # / (2·dd)
+                px = _fp_mul(dx, s); py = _fp_mul(dy, s)
+                vel[i][0] = FP.sub(vel[i][0], px); vel[i][1] = FP.sub(vel[i][1], py)
+                if contact_defect:
+                    continue                                    # DEFECT: asymmetric — breaks momentum
+                vel[j][0] = FP.add(vel[j][0], px); vel[j][1] = FP.add(vel[j][1], py)
+
+
+def _fp_mul(a, b):
+    """Q32.32 product a·b = round(a·b / ONE) — via the frozen mul_k (kn=b, kd=ONE)."""
+    return FP.mul_k(a, b, _FPONE)
+
+
+def _fp_div(a, b):
+    """Q32.32 quotient a/b = round(a·ONE / b) — via the frozen mul_k (kn=ONE, kd=b)."""
+    return FP.mul_k(a, _FPONE, b)
 
 
 def trace(frames):
     """The frozen URDRLSTT trace law, unchanged."""
     return L.trace_digest(frames)
+
+
+# ---- N4.1 body-body contact scenario (pinned by the gate) ---------------------------
+def collide_world(contact=True):
+    """Two equal bodies on a wide, gravity-free arena, set to close head-on. Bounds are
+    far off so a single clean body-body collision is isolated (no wall interference).
+    `contact=True` resolves it; False lets them pass through (the capability's difference)."""
+    return {"n": 2,
+            "pos": [[FP.unit(120, 1), FP.unit(150, 1)], [FP.unit(220, 1), FP.unit(150, 1)]],
+            "vel": [[0, 0], [0, 0]],
+            "rs": [20, 20], "statics": [],
+            "floor": 100000, "ceil": -100000, "left": -100000, "right": 100000,
+            "grav": (0, 1), "e": (3, 4), "T": 40, "contact": contact}
+
+
+def collide_log():
+    """Peer 0 drives body 0 right, peer 1 drives body 1 left — they meet in the middle."""
+    return [L.event(2, 0, 0, 0, 5, 0), L.event(2, 1, 0, 1, -5, 0)]
 
 
 # ---- the canonical authored scenario (pinned by the gate) ---------------------------

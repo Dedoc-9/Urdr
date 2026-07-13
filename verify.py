@@ -1637,6 +1637,36 @@ class Gate:
                     f"no-statics defect diverges; dropped input desyncs at tick {d} "
                     "(clean run does not; gate can redden)" if nv
                     else f"selftest failed: defect_diverges={tno != golden} desync={d} clean={clean}")
+        # -- N4.1: body-body contact (OPT-IN; the frozen highway/arena rows above prove
+        #    the frozen surface is untouched — contact defaults off). ----------------
+        try:
+            cg = W.golden("collide2")
+        except Exception:
+            cg = None
+        if cg is None:
+            self.record("netcode-world-contact", False, "missing collide2 golden")
+        else:
+            c1 = W.trace(W.simulate(W.collide_world(contact=True), W.collide_log()))
+            c2 = W.trace(W.simulate(W.collide_world(contact=True), W.collide_log()))
+            coff = W.trace(W.simulate(W.collide_world(contact=False), W.collide_log()))
+            det_ok = c1 == c2 and c1 == cg
+            self.record("netcode-world-contact:collide2", det_ok,
+                        c1[:16] + "… (body-body impulse, Q32.32)" if det_ok
+                        else f"trace {c1[:12]}… ≠ golden {cg[:12]}…")
+            self.record("netcode-world-contact-loadbearing", c1 != coff,
+                        "contact on/off diverge — body-body pass is load-bearing"
+                        if c1 != coff else "contact changed nothing (vacuous)")
+            _, st = W.simulate_trace(W.collide_world(contact=True), W.collide_log())
+            psum = set(v[0][0] + v[1][0] for (p, v) in st)
+            closing = [v[0][0] - v[1][0] for (p, v) in st]
+            phys_ok = psum == {0} and max(closing) > 0 and min(closing) < 0
+            _, std = W.simulate_trace(W.collide_world(contact=True), W.collide_log(), contact_defect=True)
+            defect_breaks = set(v[0][0] + v[1][0] for (p, v) in std) != {0}
+            self.record("netcode-world-contact-momentum", phys_ok and defect_breaks,
+                        "x-momentum conserved + closing reverses; asymmetric defect breaks it "
+                        "(gate can redden)" if (phys_ok and defect_breaks)
+                        else f"physics wrong: conserved={psum=={0}} reverses={max(closing)>0 and min(closing)<0} "
+                             f"defect_breaks={defect_breaks}")
 
     # -- 2j6. urdr-netcode N5: authenticated rollback over authored worlds ------
     def netcode_worldpeer(self):

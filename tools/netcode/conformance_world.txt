@@ -4,5 +4,10 @@
 #   (worldstep.sample_world_log) through the worldstep runtime — URDRLSTT trace over
 #   URDRLST1 witnesses, both laws frozen and unchanged. The no-statics defect run
 #   diverges (9c0ad7c5…), so the median is load-bearing in this golden.
+# collide2 (N4.1): two equal bodies driven head-on with body-body contact ENABLED —
+#   a sqrt-free Q32.32 impulse resolves the collision; x-momentum is conserved exactly
+#   and the closing velocity reverses to -e·v (e=3/4). Contact is OPT-IN (worlds set
+#   `contact: True`); the frozen highway/arena goldens above run contact-OFF, untouched.
 # name  trace_digest
 highway e72e75c37282c4e954698f6de9c8c97e4c864d25de6e2a82f1a065ffc936bec4
+collide2 04bdeec432c93a7d5a021ced36a2e1526a6e826fcaf8bf24e0251983355e935d

@@ -355,7 +355,7 @@ corpus tools/physics/conformance_loop.txt 3
 corpus tools/netcode/conformance_netcode.txt 1
 corpus tools/netcode/conformance_rollback.txt 1
 corpus tools/netcode/conformance_auth.txt 2
-corpus tools/netcode/conformance_world.txt 1
+corpus tools/netcode/conformance_world.txt 2
 corpus tools/netcode/conformance_worldpeer.txt 3
 corpus tools/editor/conformance_editor.txt 1
 corpus tools/tracer/conformance_tracer.txt 1

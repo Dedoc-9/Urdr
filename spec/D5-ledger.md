@@ -1556,3 +1556,32 @@ per the ladder and the human's step 3, **the freeze waits for the browser viewer
 all-frames-verified on a host** — the D8 named-host admission, applied to the view layer. `the input
 side converges many tools to one object (D14); the output side fans one authority to many renderers
 (D15) — and the first renderer proved it can only ever read`.
+
+**N4.1 — body-body contact in the authored runtime — MEASURED (reference); cross-placement DECLARED.**
+N4 shipped authored worlds with one honest debt, stated in its own grade: dynamic bodies collided with
+static AABBs but NOT with each other, so instance mass was inert (DECLARED, not hidden). N4.1 pays that
+debt down as an **opt-in, additive** capability — worlds set `contact: True`; everything already frozen
+runs contact-OFF, byte-identical. The resolution is a **sqrt-free Q32.32 impulse**: the un-normalized
+normal `d` cancels its own `|d|` (the exact `d/|d|` trick ported from `dynamics_nd.resolve_spheres` into
+fixed point), so no square root is ever taken and the whole pass is exact integer arithmetic over the
+frozen `field.FixedPoint`. One deterministic pass in canonical `(i<j)` order; equal unit mass ⇒ the
+inverse-mass sum is 2, folded into the divisor. **Red-first:** `tests/test_worldstep_contact.py` (6
+falsifiers) went RED before the pass existed. **What the gate pins** (`netcode_world`, 3 new rows):
+`netcode-world-contact:collide2` reproduces the pinned trace golden `04bdeec4…`
+(`conformance_world.txt`, now 2 vectors) deterministically; `netcode-world-contact-loadbearing` shows
+contact-ON and contact-OFF diverge (the pass is load-bearing, not decorative);
+`netcode-world-contact-momentum` is the **physics witness** — over the wall-free `collide2` scene
+x-momentum `v0.x + v1.x` is conserved EXACTLY (`{0}`) while the closing velocity reverses sign (a real
+collision, restitution e=3/4), **and** the asymmetric-impulse defect (impulse applied to one body only)
+BREAKS momentum, proving the witness is not vacuous. **Frozen surface preserved and gate-proven:** the
+arena-equivalence pin (`worldstep ≡ frozen lockstep`, bit-for-bit) and the highway golden
+`e72e75c3…` are unchanged — contact defaults off, so the frozen 0.1 tick is byte-identical, and the
+`test_highway_golden_unchanged` falsifier asserts the authored world never silently enables it. Unit
+falsifiers 368 → 374; full gate GREEN, deterministic ×2 (byte-identical modulo wall-clock). **Grade:**
+the Python reference is MEASURED (the impulse law, its determinism, momentum conservation, and the
+non-vacuity defect are all gate-checked); **cross-placement is DECLARED, not yet done** — the Rust/C99
+placements still run the frozen N4 tick without contact, so `urdr-netcode-world` stays FROZEN at 0.1
+(the opt-in pass is a reference-only successor pending its second placement). Honest scope: equal-mass,
+discrete (per-tick overlap test, no continuous CCD), one pass per tick — enough to make authored worlds
+physically interactive, not yet a general contact solver. `the debt N4 named out loud is now paid in the
+reference and witnessed by the gate; it is not yet cross-placed, and the ledger says so`.
