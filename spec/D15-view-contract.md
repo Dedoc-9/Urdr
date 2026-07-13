@@ -2,9 +2,12 @@
 
 # D15 — The view-export contract (authority → renderer)
 
-Status: **MEASURED** (checkable core gate-enforced); **NOT yet frozen** — the contract
-freezes once an independent consumer (a three.js reference viewer) reproduces the
-exported state, per the admission ladder.
+Status: **FROZEN** (`urdr-view 1`, D12). The checkable core is gate-enforced, and the
+contract graduated from "specified and reference-tested" to "demonstrated as an
+interoperability contract": an independent consumer (`view_viewer.html`, a
+dependency-free viewer with its own hand-rolled SHA-256) reproduced the exported state
+on a named host — **121/121 frames verified, 0 refused** on Windows. That is the D8
+named-host admission, applied to the view layer.
 
 The engine is three layers, one-way:
 
@@ -103,10 +106,12 @@ layer-3 renderers the contract *enables* (three.js, Unreal, Godot, Vulkan, offli
 Blender) are downstream clients of the same `URDR-VIEW-1` documents — and D15 is what
 makes them safe, since none of them can leak upward.
 
-We are at step 2 (an independent placement exists and reproduces the digest in node).
-**Step 3 — freeze — waits for the browser viewer to report all-frames-verified on a
-host** (the D8 discipline: a placement is admitted when it reproduces on a named host).
-Until then the schema is MEASURED, not frozen.
+**Step 3 — FROZEN.** The browser viewer reported all-frames-verified on a host
+(Windows, 121/121, 0 refused), reproducing the exported state through its own
+independent code. Per the ladder, the schema, serialization, binding, and
+observational-only laws are now frozen at `urdr-view 1` (D12). Every future renderer is
+an interchangeable client of the frozen contract; upgrading or replacing the renderer
+never changes gameplay or replay validity.
 
 ## 5. Honest scope
 

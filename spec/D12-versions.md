@@ -28,6 +28,7 @@ behavior. `a frozen interface is the precondition for a second implementation`
 | `urdr-netcode-world` (N4) | **0.2** (0.1 surface FROZEN; 0.2 adds `simulate_trace`, additive + digest-preserving; 0.3 adds `step_tick`, additive) | 1 highway trace digest + arena equivalence | reference + `worldstep_rs` (ADMITTED, Windows/rustc; C99 port agrees incl. the defect anchor 9c0ad7c5) | this doc |
 | `urdr-netcode-worldpeer` (N5) | **0.1 (FROZEN)** | world pin + roster root + converged late+signed trace | reference + `worldpeer_rs` (ADMITTED, Windows/rustc; C99 port agrees on all five anchors incl. the defect d5bc484b) | this doc |
 | `URDR-WORLD-3` (authored-world format) | **3 (FROZEN as consumed)** | tag-checked canonical scene | consumed by `replay.py --world` / `--fp world` / `load_world.py` | this doc |
+| `urdr-view` (D15 view contract) | **1 (FROZEN)** | 1 view digest golden + doc round-trip | reference `view_export.py` + `view_viewer.html` (ADMITTED on Windows: 121/121 frames verified, 0 refused, independent hand-rolled SHA-256) | this doc |
 | capabilities R4 | 1.0   | network_read + registry | reference | `network_bridge` |
 
 `semver` = the public API/behaviour version; `corpus` = the pinned
@@ -276,6 +277,35 @@ Immutable under `urdr-netcode-worldpeer 0.1` except through a versioned successo
    — reproduced by the reference and by `worldpeer_rs` (ADMITTED on Windows/rustc),
    with the verified apply-at-head defect diverging to the same digest
    (`d5bc484b…`) in Python, Rust, and the C99 cross-check.
+
+## The urdr-view v1 frozen surface (D15 — the view-export contract)
+
+Immutable under `urdr-view 1` except through a versioned successor:
+
+1. **The view-frame schema (`URDR-VIEW-1`).** Per frame: `witness` (the authoritative
+   frame's digest — binds the view), `tick`, `bodies` (`[{obj, material, x, y}]` — the
+   transform READ from authority), `lights`, `cameras` (declared presentation).
+2. **The canonical serialization + digest.** `SHA-256("URDR-VIEW-1|w{witness}|t{tick}|
+   b{n}|{obj},{material},{x},{y}|…|L{canonJSON(lights)}|C{canonJSON(cameras)}")`, where
+   `canonJSON` is key-sorted, space-free JSON (byte-identical to Python
+   `json.dumps(sort_keys=True, separators=(",",":"))`). Reproduced by the reference
+   (`view_export.py`) and by the independent viewer (`view_viewer.html`, hand-rolled
+   SHA-256) bit-for-bit.
+3. **The binding law.** A view frame's `witness` equals the authoritative frame's
+   digest; a consumer verifies it and refuses (`VIEW-REFUSE`) a frame it is not bound
+   to, or a scene whose body count differs from the authoritative frame.
+4. **The observational-only invariant.** Presentation fields (material, light, camera)
+   move the VIEW digest but NEVER the carried witness; the authoritative digest is a
+   function of authoritative state alone. Any gameplay-affecting data must re-enter the
+   authority layer as explicit inputs or be recomputed there — presentation cannot
+   touch authority.
+5. **Conformance.** `conformance_view.txt` (`canonical` golden) + the `view-export` and
+   `view-export-doc` gate stages; admitted by an independent placement (the viewer)
+   reproducing the exported state on a named host (Windows, 121/121, 0 refused).
+
+Heavy layer-3 renderers (three.js, Unreal, Godot, Vulkan, offline Blender) are
+downstream clients of `URDR-VIEW-1` documents; they may be added or replaced freely
+without a version change, because none can leak upward.
 
 ## The URDR-WORLD-3 authored-world format (frozen as consumed)
 

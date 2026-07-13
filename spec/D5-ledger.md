@@ -1537,7 +1537,19 @@ the human's "viewer-as-placement" idea). Observational-only by construction: it 
 reference viewer is dependency-free like the whole repo; heavy renderers (three.js/Unreal/Godot/Vulkan)
 are downstream clients of the same documents, made safe precisely because D15 proves none can leak
 upward. (First cut used a CDN three.js + Web Crypto and silently failed on `file://` — both hazards
-removed; the self-contained rewrite is the disciplined, offline-consistent form.) `view_export.py` gained
+removed; the self-contained rewrite is the disciplined, offline-consistent form.)
+
+**D15 admission + freeze — CONFIRMED on host; `urdr-view 1` FROZEN.** The independent viewer reported
+**121/121 frames verified, 0 refused** on Windows, reproducing the exported state through its own
+hand-rolled SHA-256 and canonical serializer — the D8 named-host admission applied to the view layer,
+and the human's "viewer-as-placement" idea realized: the consumer is a checker, not a display. D12
+accordingly freezes `urdr-view 1`: the `URDR-VIEW-1` schema, the canonical serialization + digest, the
+binding law (`VIEW-REFUSE`), and the observational-only invariant — immutable except through a
+versioned successor. The symmetry is now complete and both boundaries are provably one-way: **D14
+converges many authoring modalities to one canonical object; D15 fans one authoritative state to many
+interchangeable renderers** — the input side and the output side of an engine whose notion of truth
+never fragments regardless of which tools or renderers are plugged in. `the engine never knows which
+tool authored an object or which renderer draws it — and that ignorance is the guarantee`. `view_export.py` gained
 `export_doc` (per-frame `view_digest`, gated: `view-export-doc` round-trip) + a `--doc` CLI. Unit
 falsifiers 368 → 369. **D15 is at step 2** (an independent placement reproduces the digest in node);
 per the ladder and the human's step 3, **the freeze waits for the browser viewer to report
