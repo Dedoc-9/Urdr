@@ -332,6 +332,7 @@ corpus tools/tracer/conformance_tracer.txt 1
 corpus tools/frontend/conformance_frontend.txt 4
 corpus tools/frontend/conformance_svg.txt 1
 corpus tools/frontend/conformance_rigidity.txt 4
+corpus tools/frontend/conformance_view.txt 1
 format URDR-WORLD-3 demo/world_highway.json
 ```
 

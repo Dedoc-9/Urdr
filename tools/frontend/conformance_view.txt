@@ -1,0 +1,9 @@
+# D15 view-export — the canonical view-frame digest golden.
+# canonical: the URDR-VIEW-1 digest of a fixed (authoritative frame, scene) pair
+#   (2 bodies at authoritative positions, one sun light, one camera, steel material).
+#   Deterministic and cross-host reproducible: same authority + same presentation →
+#   same view frame. Presentation IS visible in this digest (a material change moves
+#   it) — but the witness the frame CARRIES is the authority digest, invariant to
+#   presentation (the observational-only law, checked in the gate stage).
+# name  digest
+canonical 28f821fe040d4575fed4b28979c77653ab6c22693fd96af6dda62c677f49c4c1

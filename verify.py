@@ -2044,6 +2044,79 @@ class Gate:
                     "subtraction load-bearing (gate can redden)" if nv
                     else f"probe failed: real={real} defect={defect}")
 
+    # -- 2m6. D15 view-export contract: authority → renderer, observational-only -
+    def view_export(self):
+        """D15 — the view-export contract: a view frame is derived from authoritative state
+        + declared presentation metadata and CARRIES the authoritative witness (bound,
+        subordinate). Deterministic to a pinned golden; a material change moves the VIEW digest
+        but NOT the witness (observational-only); a defect that folds presentation INTO the
+        witness is caught (non-vacuity); a body-count mismatch is VIEW-REFUSE."""
+        fdir = os.path.join(ROOT, "tools", "frontend")
+        if fdir not in sys.path:
+            sys.path.insert(0, fdir)
+        try:
+            import view_export as VE
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("view-export", False, f"import failed: {exc}")
+            return
+        golden = None
+        conf = os.path.join(fdir, "conformance_view.txt")
+        if os.path.exists(conf):
+            with open(conf, "r", encoding="utf-8") as fh:
+                for ln in fh:
+                    ln = ln.strip()
+                    if ln and not ln.startswith("#"):
+                        name, dig = ln.split()
+                        if name == "canonical":
+                            golden = dig
+        if golden is None:
+            self.record("view-export", False, "missing golden canonical")
+            return
+        auth = {"digest": "a" * 64, "tick": 5,
+                "bodies": [{"x": 100, "y": 200}, {"x": 300, "y": 150}]}
+
+        def scene(m0="steel"):
+            return {"bodies": [{"obj": "veh", "material": m0}, {"obj": "veh", "material": "steel"}],
+                    "lights": [{"kind": "sun", "dir": [0, -1, 0]}],
+                    "cameras": [{"pos": [0, 60, -240], "yaw": 0}]}
+        d1 = VE.view_digest(VE.view_frame(auth, scene()))
+        d2 = VE.view_digest(VE.view_frame(auth, scene()))
+        det_ok = d1 == d2 and d1 == golden
+        self.record("view-export:canonical", det_ok,
+                    d1[:16] + "… (deterministic, pinned)" if det_ok
+                    else f"view digest {d1[:12]}… ≠ golden {golden[:12]}…")
+        vf = VE.view_frame(auth, scene())
+        bind_ok = vf["witness"] == auth["digest"] and VE.verify_binding(vf, auth) \
+            and not VE.verify_binding(vf, {"digest": "b" * 64})
+        self.record("view-export-binding", bind_ok,
+                    "the view carries + is bound to the authoritative witness" if bind_ok
+                    else "view/authority binding broken")
+        va = VE.view_frame(auth, scene("steel"))
+        vb = VE.view_frame(auth, scene("chrome"))
+        view_moves = VE.view_digest(va) != VE.view_digest(vb)
+        witness_still = va["witness"] == vb["witness"] == auth["digest"]
+        wa = VE.view_frame_defect_fold_material(auth, scene("steel"))["witness"]
+        wb = VE.view_frame_defect_fold_material(auth, scene("chrome"))["witness"]
+        defect_leaks = wa != wb
+        ok = view_moves and witness_still and defect_leaks
+        self.record("view-export-observational", ok,
+                    "material moves the VIEW, never the witness; the fold-into-witness "
+                    "defect leaks (gate can redden)" if ok
+                    else f"invariant wrong: view_moves={view_moves} witness_still={witness_still} "
+                         f"defect_leaks={defect_leaks}")
+        try:
+            bad = scene(); bad["bodies"] = bad["bodies"][:1]
+            code = None
+            try:
+                VE.view_frame(auth, bad)
+            except VE.ViewError as exc:
+                code = exc.code
+            self.record("view-export-refusal", code == "VIEW-REFUSE",
+                        "body-count mismatch VIEW-REFUSEd" if code == "VIEW-REFUSE"
+                        else f"refusal wrong: {code}")
+        except Exception as exc:
+            self.record("view-export-refusal", False, f"errored: {exc}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -2122,6 +2195,7 @@ def main() -> int:
     gate.frontend_contract()
     gate.svg_import()
     gate.rigidity_verdict()
+    gate.view_export()
     gate.field()
     gate.marangoni()
     gate.field_coupling()

@@ -1501,3 +1501,25 @@ recorded verdict badge (● rigid / ◍ flexible+dof / ⊘ refuse) in the design
 `rigidity` field the CLI's `annotate` writes, never recomputed in browser float. **Grade: MEASURED**;
 the verdict inherits urdr-math's overflow `REFUSE`. `the engine already knew which structures hold and
 which shear — observability just asked it out loud, and it answered with a certificate`.
+
+**D15 — the view-export contract (authority → renderer) — MEASURED (checkable core); NOT frozen.**
+Layer 2 of the three-layer split (Authority / View contract / replaceable Presentation renderer): the
+bridge that lets photorealism live entirely in layer 3 without touching the moat. `tools/frontend/
+view_export.py` derives a `URDR-VIEW-1` frame from an authoritative frame + declared static scene
+metadata (obj/material/light/camera), and the frame CARRIES the authoritative witness — the view is
+bound to, and subordinate to, the authority it depicts; body transforms are READ from authority (a
+scene cannot relocate a body the authority placed) and a body-count mismatch is `VIEW-REFUSE`. **The
+load-bearing invariant, now a checked law:** *presentation outputs are observational only* — encoded
+as a falsifier (`view-export-observational`): a material change moves the VIEW digest (presentation is
+visible to renderers) but leaves the carried witness UNCHANGED (presentation cannot touch authority),
+and the non-vacuity defect — an exporter that folds material INTO the witness — is detectably
+different. **Gated** (`view_export`, 4 rows): deterministic export to a pinned golden
+(`conformance_view.txt canonical 28f821fe…`), the binding (a view claiming a different authoritative
+frame fails), the observational-only invariant + defect, and the refusal. Red-first:
+`tests/test_view_export.py` (6 falsifiers) went RED (`ModuleNotFoundError: view_export`). Unit
+falsifiers 362 → 368. **Grade: MEASURED** for the contract's core; **NOT frozen** — per the ladder
+(and the human's step 3) the schema freezes only once an INDEPENDENT consumer (a three.js reference
+viewer) reproduces the exported state. Renderer quality (PBR/HDR/GI/RT) is layer 3, out of scope; D15
+says WHAT to draw and binds it, never how well. The distinctive, gate-provable property: `replacing or
+upgrading the renderer never changes gameplay or replay validity — because the renderer was never a
+source of truth`.
