@@ -1,0 +1,7 @@
+# urdr-netcode-region D16 — regional authority: the reunified regional witness equals
+#   the monolithic witness, bit-for-bit. seam2: two equal bodies collide ACROSS an
+#   integer seam (resolved by admitted read-only ghosts, momentum exchanged per N4.1),
+#   then one body hands off across it. The digest is the composed URDRLSTT trace, which
+#   equals worldstep.simulate on the unpartitioned scene (the Seam Composition Theorem).
+# name  trace_digest
+seam2 6d6f6ee39c2ace23a779954d8b8dbdb87b5b6b850acc94ad7c394967180f8cb1

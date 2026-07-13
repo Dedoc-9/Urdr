@@ -1585,3 +1585,49 @@ placements still run the frozen N4 tick without contact, so `urdr-netcode-world`
 discrete (per-tick overlap test, no continuous CCD), one pass per tick — enough to make authored worlds
 physically interactive, not yet a general contact solver. `the debt N4 named out loud is now paid in the
 reference and witnessed by the gate; it is not yet cross-placed, and the ledger says so`.
+
+**D16 — the regional-authority contract (one simulation, partitioned in space) — MEASURED
+(reference); cross-placement DECLARED; NOT frozen.** The Phase-3 milestone D13 §C8 parked
+until "the D-series regional-authority contract exists and its library realization has been
+measured against it." N4.1 was the precondition: only once authored worlds had COMPLETE
+physical interaction (body-body contact) was there a complete authoritative simulation to
+partition. `spec/D16-regional-authority.md` states the contract; `tools/netcode/worldregion.py`
+is the reference; the `netcode_region` gate stage is the measurement. **The law (Seam
+Composition Theorem):** for ANY valid partition of a world into spatial regions cut by
+integer x-seams, if each region evolves its interior by the FROZEN N4.1 tick from its
+admitted boundary conditions alone (read-only ghosts — the neighbour bodies close enough to
+touch an owned body this tick), then the deterministic reunification of the regional
+interiors reproduces the monolithic URDRLST1/URDRLSTT witness BIT-FOR-BIT. **No new witness
+class is minted** (the human's call, and the disciplined one): composition is the frozen
+state law recomputed over the reunified interiors — the standing "reuse existing laws unless
+one is demonstrably unable to carry the law" rule, and it carried. A region is a **one-way
+consumer of its boundary** — the spatial mirror of D14 (authoring→canon) and D15
+(authority→view); it reads ghosts, never a neighbour's interior, and writes only what it
+owns (a cross-seam pair is resolved by both regions computing the IDENTICAL Q32.32 impulse
+and each applying it to its own body — the monolith's single symmetric update, reproduced).
+The engine's stated principle made executable: *admissible boundary conditions determine the
+evolution of the interior state; internal computation is the deterministic response to
+boundary conditions.* **Red-first:** `tests/test_worldregion.py` (10 falsifiers). **What the
+gate pins** (`netcode_region`, 5 rows): `netcode-region:seam2` — the composed trace equals
+the monolith AND the pinned golden `6d6f6ee3…` (`conformance_region.txt`), deterministically
+twice; `netcode-region-invariance` — six different valid partitions (trivial one region, four
+single-seam cuts, one three-region cut) all compose to the ONE monolithic witness (the cut's
+LOCATION is not content); `netcode-region-boundary` — dropping the ghost exchange makes
+cross-seam contact silently vanish, so the chain DIVERGES localized to the exact contact tick
+(11) — the boundary is load-bearing; `netcode-region-refusal` — a float / non-monotone / bool
+seam is REGION-REFUSEd before a single tick runs, a valid partition accepted;
+`netcode-region-nonvacuity` — the seam2 scene really straddles the seam at contact AND a body
+really hands off across it (both the ghost-contact and the handoff exercised). The `seam2`
+scene: body 0 (fast) catches body 1 (slow), they collide ACROSS the seam at x=191 (momentum
+exchanged per N4.1), then body 0 hands off. Unit falsifiers 374 → 384; full gate GREEN,
+deterministic ×2. **Grade:** the Python reference is MEASURED (composition, partition-
+invariance, the localized dropped-boundary divergence, and the malformed-partition refusal
+are all gate-checked); **cross-placement is DECLARED, not done** — a second placement (Rust/C99
+reproducing the seam2 composed digest and the dropped-boundary divergence) has not been built,
+so D16 is **not frozen** and the D13 §C8 glyph stays parked. Honest scope: synchronous (regions
+advance in lockstep, reunify each tick), single-axis (integer x-seams), exact for one cross-seam
+contact pair per region per tick (the 2-body scene); multi-pair seam ordering, multi-axis seams,
+asynchronous regional clocks, and a composite/frame witness that verifies a region WITHOUT
+reunifying are declared successors. `the input side converges many tools to one object (D14); the
+output side fans one authority to many renderers (D15); the authority side itself now splits into
+many regions that recompose to the one witness (D16) — and none of the three boundaries can leak`.

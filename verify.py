@@ -2161,6 +2161,80 @@ class Gate:
         except Exception as exc:
             self.record("view-export-doc", False, f"errored: {exc}")
 
+    # -- 2m. urdr-netcode-region (D16): regional authority, one witness ----------
+    def netcode_region(self):
+        """D16 — regional authority: one authoritative simulation, partitioned in space,
+        must compose back to the SAME witness. Each region advances its interior by the
+        frozen N4.1 tick from an admitted boundary (read-only ghosts) and writes only what
+        it owns; the reunified chain must equal the monolith bit-for-bit. Falsifiable four
+        ways: composition == monolith (pinned golden), partition-invariance over several
+        valid seams, the dropped-boundary defect diverges localized to the contact tick,
+        and a malformed partition is REGION-REFUSEd before stepping (non-vacuity: the scene
+        straddles the seam at contact and a body hands off across it)."""
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import lockstep as L
+            import worldstep as W
+            import worldregion as R
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("netcode-region", False, f"import failed: {exc}")
+            return
+        try:
+            g = R.golden("seam2")
+        except Exception as exc:
+            self.record("netcode-region", False, f"missing golden: {exc}")
+            return
+        w, log, seams = R.seam2_world(), R.seam2_log(), R.seam2_seam()
+        mono = W.simulate(w, log)
+        c1 = R.region_simulate(w, log, seams)
+        c2 = R.region_simulate(w, log, seams)
+        det_ok = c1 == c2 and c1 == mono and L.trace_digest(c1) == g
+        self.record("netcode-region:seam2", det_ok,
+                    L.trace_digest(c1)[:16] + "… (reunify == monolith)" if det_ok
+                    else f"compose {L.trace_digest(c1)[:12]}… ≠ golden {g[:12]}…")
+        # partition invariance: several DIFFERENT valid partitions -> one witness
+        parts = ([], [176], [185], [195], [206], [185, 205])
+        inv = all(R.region_simulate(w, log, s) == mono for s in parts)
+        self.record("netcode-region-invariance", inv,
+                    f"{len(parts)} partitions (1..3 regions) all compose to the monolith"
+                    if inv else "a valid partition diverged from the monolith")
+        # boundary is load-bearing: drop the ghost -> diverge, localized to the contact tick
+        _, states = W.simulate_trace(w, log)
+        rr = w["rs"][0] + w["rs"][1]
+        ct = next((t for t, (p, v) in enumerate(states)
+                   if (((p[1][0] - p[0][0]) / (1 << 32)) ** 2
+                       + ((p[1][1] - p[0][1]) / (1 << 32)) ** 2) ** 0.5 < rr), None)
+        defect = R.region_simulate(w, log, seams, defect_drop_ghost=True)
+        bd_ok = defect != mono and L.first_desync(defect, mono) == ct
+        self.record("netcode-region-boundary", bd_ok,
+                    f"dropped ghost diverges, localized to contact tick {ct} (gate can redden)"
+                    if bd_ok else "dropped-boundary defect not caught at the contact tick")
+        # malformed partitions REGION-REFUSE before stepping; a valid one is accepted
+        def code(s):
+            try:
+                R.region_simulate(w, log, s); return None
+            except R.RegionError as exc:
+                return exc.code
+        ref_ok = (code([191.5]) == "REGION-REFUSE" and code([200, 150]) == "REGION-REFUSE"
+                  and code([True]) == "REGION-REFUSE" and code([191]) is None)
+        self.record("netcode-region-refusal", ref_ok,
+                    "float / non-monotone / bool seam REGION-REFUSEd; valid accepted"
+                    if ref_ok else "a malformed partition was not refused (or a valid one rejected)")
+        # non-vacuity: the collision really straddles the seam AND a body hands off
+        sw = [W.FP.unit(s, 1) for s in seams]
+        p_ct, _v = states[ct]
+        straddle = R.owner(p_ct[0][0], sw) != R.owner(p_ct[1][0], sw)
+        owners = [[R.owner(p[b][0], sw) for b in range(w["n"])] for (p, _v2) in states]
+        handoff = any(owners[t][b] != owners[t - 1][b]
+                      for t in range(1, len(owners)) for b in range(w["n"]))
+        self.record("netcode-region-nonvacuity", straddle and handoff,
+                    "collision straddles the seam at contact + a body hands off across it"
+                    if straddle and handoff else f"vacuous: straddle={straddle} handoff={handoff}")
+
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
         """The D12 freeze, checked mechanically: every frozen digest law is re-derived
@@ -2235,6 +2309,7 @@ def main() -> int:
     gate.netcode_auth()
     gate.netcode_world()
     gate.netcode_worldpeer()
+    gate.netcode_region()
     gate.photo_trace()
     gate.frontend_contract()
     gate.svg_import()
