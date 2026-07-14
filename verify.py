@@ -2103,6 +2103,74 @@ class Gate:
         self.record("frontfps-refusals", canaries == 5,
                     f"{canaries}/5 obligations FPSW-REFUSE typed and total")
 
+    # -- frontfps_quat: the Q32.32 rotation substrate (Stage 2, URDRFPQ1) ------
+    def frontfps_quat(self):
+        """URDRFPQ1 — quaternion ops on the frozen FIELDFP laws (tools/frontfps/
+        fpquat.py): battery golden ×2 (determinism), the rsqrt inequality law
+        (r²·x ≤ 2^96 < (r+2)²·x — proof, not sample), normalize/rotate bounds on
+        the pinned corpus, refusal canaries, and BOTH defects (truncdiv, wrap64)
+        diverging (gate can redden)."""
+        for d in ("frontfps", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import fpquat as FQ
+            from field import ONE as FONE
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("frontfps-quat", False, f"import failed: {exc}")
+            return
+        golden = None
+        conf = os.path.join(ROOT, "tools", "frontfps", "conformance_fpquat.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        name, dig = line.split()
+                        if name == "battery":
+                            golden = dig
+        except Exception as exc:
+            self.record("frontfps-quat", False, f"corpus unreadable: {exc}")
+            return
+        if golden is None:
+            self.record("frontfps-quat", False, "battery vector missing")
+            return
+        d1, d2 = FQ.battery_digest(), FQ.battery_digest()
+        ok = d1 == d2 == golden
+        self.record("fpquat:battery", ok,
+                    d1[:16] + "… (66 rows, ×2)" if ok
+                    else f"{d1[:12]}…/{d2[:12]}… ≠ golden {golden[:12]}…")
+        law = all(r * r * x <= (1 << 96) < (r + 2) * (r + 2) * x
+                  for x, r in ((x, FQ.rsqrt(x)) for x in FQ.RSQRT_IN))
+        self.record("fpquat-rsqrt-law", law,
+                    "r²·x ≤ 2^96 < (r+2)²·x on all battery inputs" if law
+                    else "rsqrt inequality violated")
+        units = [FQ.qnormalize(q) for q in FQ.QUATS]
+        unit_ok = all(abs(FQ.qnorm2(u) - FONE) <= 4 for u in units)
+        rt_ok = all(max(abs(a - b) for a, b in
+                        zip(v, FQ.vrotate(FQ.qconj(u), FQ.vrotate(u, v)))) <= 16
+                    for u in units for v in FQ.VECS)
+        self.record("fpquat-rotate", unit_ok and rt_ok,
+                    "unit ≤4 ulp; conj roundtrip ≤16 ulp (corpus bounds)"
+                    if unit_ok and rt_ok else f"unit_ok={unit_ok} roundtrip_ok={rt_ok}")
+        canaries = 0
+        for fn in (lambda: FQ.rsqrt(0), lambda: FQ.rsqrt(-1),
+                   lambda: FQ.fqmul(FQ.COMP_MAX + 1, FONE),
+                   lambda: FQ.qnormalize((0, 0, 0, 0)),
+                   lambda: FQ.qnlerp(FQ.QUATS[0], FQ.QUATS[1], FONE + 1)):
+            try:
+                fn()
+            except FQ.FpqError:
+                canaries += 1
+        self.record("fpquat-refusals", canaries == 5,
+                    f"{canaries}/5 FPQ-REFUSE typed and total")
+        t_div = FQ.battery_digest_defect_truncdiv() != golden
+        wrap = FQ.battery_digest_defect_wrap64() != golden
+        self.record("fpquat-selftest", t_div and wrap,
+                    "truncdiv AND wrap64 defects diverge (gate can redden)"
+                    if t_div and wrap else f"truncdiv={t_div} wrap64={wrap}")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -2726,6 +2794,7 @@ def main() -> int:
     gate.frontend_contract()
     gate.svg_import()
     gate.frontfps()
+    gate.frontfps_quat()
     gate.rigidity_verdict()
     gate.view_export()
     gate.field()

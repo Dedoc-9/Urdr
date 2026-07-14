@@ -1,0 +1,9 @@
+# URDRFPQ1 rotation-substrate corpus (frontfps Stage 2) — 1 vector, declared 1.
+# battery = SHA-256 over MAGIC + 66 ordered (tag, Q32.32-BE words) rows produced
+# by fpquat._battery(): 10 rsqrt, 4 norm2, 16 qmul, 4 normalize, 16 rotate,
+# 16 nlerp — on the frozen FIELDFP laws (ONE=2^32, _rdiv round-to-nearest
+# ties-away). Reference placement: Linux/CPython 3.10, PYTHONHASHSEED=0.
+# Every placement (C99, Rust, or anyone else's) must reproduce this digest
+# bit-for-bit AND diverge on both shipped defects (truncdiv, wrap64).
+# name  digest
+battery 3f4aa0d172713a4bf26433c19e211fbd52e474bbae603ce0c665d145412b7e7a

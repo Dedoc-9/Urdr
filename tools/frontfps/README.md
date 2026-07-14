@@ -61,12 +61,50 @@ integers (accumulates the exact ambiguity quaternions exist to kill).
 `tests/test_frontfps.py`, the `frontfps` gate stage, this report. Pivots + LLM notes
 for the whole ladder are §5's rightmost columns — each stage re-reads them at open.
 
+## 2b. Stage 2 — SHIPPED. OODA-2 report
+
+**Observe.** `fpquat.py` on the frozen FIELDFP laws (ONE = 2^32, `_rdiv`
+round-to-nearest ties-away, i64 refusal ceiling — imported, not reinvented).
+Battery: 66 rows, digest `3f4aa0d1…`, ×2 per gate run; gate now 452 unit
+falsifiers + 340 rows. The rsqrt law is an inequality proof per input
+(r²·x ≤ 2^96 < (r+2)²·x), not a sample. Corpus bounds measured then pinned with
+~2× headroom: unit-norm ≤2 ulp (pinned 4), conj roundtrip ≤8 (pinned 16),
+composition ≤15 (pinned 32), rotate norm² drift ≤39 (pinned 64). **C99 placement
+ADMITTED** (sandbox host, gcc 11.4, `-std=c99 -Wall -Wextra` clean): battery
+digest bit-for-bit, twice, refusals total, AND the wrap64 defect digest agrees
+with the reference defect (`5c965ff8…`) — golden *and* defect parity, the
+rigidity-precedent bar. **Rust placement authored** (334 lines, std-only,
+hand-rolled SHA-256): SPECULATIVE until a named host prints ADMITTED twice with
+the defect caught.
+
+**Orient.** Rotation now exists on the frozen substrate with two agreeing
+placements; nlerp gives Stage 3 its interpolant without trigonometry. One
+first-hand datum for the LLM-affordance thesis: the C placement was written
+same-session *from the module docstring's op recipes* and matched the golden on
+first compile — the machine-checkable-spec loop (§5) held in practice, once
+(`one datum ≠ a law`). The vacuity lesson of the day: the first isqrt defect
+candidate (skip final adjustment) was *provably unreachable* for this Newton stop
+rule — a defect that cannot bite proves nothing, so it was replaced by the wrap64
+defect this repo has actually been bitten by. Check your defects against theory
+before shipping them.
+
+**Decide.** Stage 3 (URDR-CLIP-1 pose/clip canon) opens once the Rust placement
+is ADMITTED on the Windows host (the ladder's own law: cross-placed before Stage
+3 opens; Python+C99 already satisfies two-placement agreement — the Rust run adds
+the named-host tier). The dual-quaternion pivot stays open and is weighed at
+Stage-3 open on op-count, not elegance.
+
+**Act.** Shipped: `fpquat.py`, `conformance_fpquat.txt` (1 vector, 66 rows),
+`tests/test_fpquat.py` (16 falsifiers), gate stage `frontfps_quat` (5 rows),
+`fpquat_c/fpquat.c` (ADMITTED here), `fpquat_rs/fpquat.rs` (pending your rustc),
+this report.
+
 ## 3. The staged ladder (each stage ends in its OODA loop)
 
 | Stage | Deliverable | Gate exit (Observe) | Pioneering pivot to weigh (Orient) | LLM / auto affordance (Decide ahead) |
 |---|---|---|---|---|
 | **1. World canon** — DONE | URDR-FPSW-1 + `auto_capsule` | `frontfps` rows green ×2 | — | refusal-guided repair loop (§7) |
-| **2. Rotation substrate** | Q32.32 quaternion ops + Newton–Raphson rsqrt as a **versioned D9 extension** (D12 successor, never a mutation) | op corpus + property falsifiers (unit norm bound, composition assoc. within rounding, rsqrt error bound vs exact ℚ) ×2; cross-placed before Stage 3 opens | fixed-point **dual quaternions** (one type for rotation+translation) vs quat+vec — decide on op count under the 240 Hz budget, not elegance | the op spec is machine-checkable: an LLM-written placement is admitted by digest agreement alone — ports become cheap, trust stays in the gate |
+| **2. Rotation substrate** — DONE (Rust run pending) | Q32.32 quaternion ops + integer-Newton rsqrt on the frozen FIELDFP laws (`fpquat.py` + C99 + Rust placements) | `frontfps_quat` rows green ×2; C99 golden+defect parity; Rust ADMITTED on a named host | fixed-point **dual quaternions** (one type for rotation+translation) vs quat+vec — decide on op count under the 240 Hz budget, not elegance | held once in practice: the C placement was written from the docstring spec and matched on first compile — ports are cheap, trust stays in the gate |
 | **3. Pose & clip canon** | URDR-CLIP-1: keyframes on Q32.32 time, deterministic sampling, state machine with sorted transition priorities | clip playback digests ×2; permuted-authoring invariance; ambiguous-transition refusal; defect: unsorted priorities diverge | blend **graph** vs blend **tree**; sub-tick sampling now or at netcode M3 | `auto_blend` candidates: propose transitions, admit only those passing the same determinism rows — auto proposes, the gate disposes |
 | **4. Posed hitboxes + IK seam** | per-bone `auto_capsule` over posed skeletons; **one-tick-late IK contract** (reads T−1 contacts, writes T transforms, lag IS in the witness) | containment certificates over a posed corpus + floor defect; IK lag visible in `first_field_desync` fixtures | hitbox LOD (fewer capsules far away) — only if it never touches authority | artist-facing "why is my hitbox this size": the witness vertex, surfaced |
 | **5. View stream** | URDR-FPSW-VIEW-2: binary, delta-framed successor of `to_view` for the native renderer (D15 successor version) | view recompute law; structural no-feedback test (renderer inputs can't reach canon); bandwidth measured per authored scene | share the compact-witness encoding with netcode replay (one format, two consumers) | `auto_lod` proposals for view meshes — presentation-only, so admissible on visual review, not witness proof |
@@ -133,14 +171,26 @@ numbers will be born circular.
 |---|---|---|---|
 | URDR-FPSW-1 world canon: one identity law over meshes/rigs/hitboxes/actors/spawns/seams; provenance-excluded; order laws tested both sides; FPSW-REFUSE total; no digest for an inadmissible world | IMPLEMENTED | MEASURED | `frontfps` gate stage; `tests/test_frontfps.py` |
 | `auto_capsule` — deterministic capsule derivation with witness + containment certificate; ceiling radius load-bearing | IMPLEMENTED | MEASURED | `frontfps-auto-capsule` row; floor-radius defect |
-| frontfps cross-placement (any second implementation) | SPECULATIVE | N/A | none yet — the corpus is the target |
-| Stages 2–7 (rotation, clips, posed hitboxes, view stream, LLM loop, native bench) | SPECULATIVE | N/A | this README §3 |
+| frontfps (world canon) cross-placement | SPECULATIVE | N/A | none yet — the corpus is the target |
+| `fpquat` Q32.32 rotation substrate: qmul/norm2/rsqrt/normalize/rotate/nlerp on frozen FIELDFP laws; rsqrt inequality law; FPQ-REFUSE total | IMPLEMENTED | MEASURED | `frontfps_quat` gate stage; `tests/test_fpquat.py` |
+| `fpquat` C99 placement (own SHA-256, own i128 Bareiss-note-compliant arithmetic) — battery digest AND wrap64 defect digest agree with reference, twice | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fpquat_c/fpquat.c` self-verify + `--defect` |
+| `fpquat` Rust placement | SPECULATIVE | N/A | flips to MEASURED when a named host prints `URDR-FPQUAT-RS: ADMITTED` twice + `--defect` caught |
+| Stages 3–7 (clips, posed hitboxes, view stream, LLM loop, native bench) | SPECULATIVE | N/A | this README §3 |
 
 ## 8. Run it
 
 ```
 PYTHONHASHSEED=0 python tools/frontfps/frontfps.py     # prints the two corpus digests
-PYTHONHASHSEED=0 python verify.py                      # the gate (frontfps rows inside)
+PYTHONHASHSEED=0 python tools/frontfps/fpquat.py       # battery digest + defect checks
+PYTHONHASHSEED=0 python verify.py                      # the gate (frontfps + fpquat rows)
+
+# C99 placement (any gcc host):
+cc -O2 -std=c99 tools/frontfps/fpquat_c/fpquat.c -o fpquat && ./fpquat && ./fpquat --defect
+
+# Rust placement (Windows/rustc, the named-host run that flips its grade):
+rustc -O tools\frontfps\fpquat_rs\fpquat.rs -o fpquat_rs.exe
+.\fpquat_rs.exe            # expect: URDR-FPQUAT-RS: ADMITTED (…)  — run TWICE
+.\fpquat_rs.exe --defect   # expect: DEFECT CAUGHT
 ```
 
 Falsifier for this whole document: any claim above whose named gate row does not
