@@ -1,0 +1,10 @@
+# URDRPSE1 posed-transform corpus (frontfps Stage 4) — 1 digest + 1 count, declared 2.
+# posed_biped = posed_digest(biped rig, demo_walk @ _rdiv(ONE,3), RADII):
+#   world quats + world joints + capsule set, hierarchy-composed with
+#   normalize-per-compose (drift cannot accumulate down a chain).
+# pose_ops = exact frozen-division count for one world-transform pass
+#   (5-bone biped: 5 + 4x18 = 77) — the budget proxy, host-independent.
+# Reference placement: Linux/CPython 3.10, PYTHONHASHSEED=0.
+# name  value
+posed_biped fee3c118e2788ef72eb200ef2f6d4da691246324fec8e8018e29b69ff3101959
+pose_ops 77

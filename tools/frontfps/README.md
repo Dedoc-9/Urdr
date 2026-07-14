@@ -142,6 +142,37 @@ the authored-order defect trace agrees with the reference defect digest
 authored (319 lines, std-only), SPECULATIVE until the owner's host prints
 ADMITTED twice with `--defect` caught — that run opens Stage 4.
 
+## 2d. Stage 4 (authority core) — SHIPPED. OODA-4 report
+
+**Observe.** Since OODA-3: fpclip Rust ADMITTED ×2 + defect caught on the owner's
+host (pose/trace/defect digests bit-for-bit) — **fpclip: three placements, two
+OSes, golden+defect parity**, Stage 4 opened lawfully. Stage 4's authority core:
+`fppose.py` (URDRPSE1) — pose × rig → world transforms by hierarchy composition
+with normalize-per-compose (drift cannot accumulate down a chain), and posed
+segment capsules with an EXACT integer point-in-capsule certificate (boundary
+tested to one ulp). Gate 474 unit falsifiers + 351 rows, ×2. Corpus:
+`posed_biped fee3c118…`, 77 ops per world-transform pass pinned. Two defects,
+both armed the hard way: swapped compose order (quaternions do not commute) and
+local-offset capsules — which are BYTE-IDENTICAL to the truth at the rest pose
+(a test documents this) and fail coverage only on the reach pose built to move.
+
+**Orient.** Two of my own scale bugs died at the gate before shipping: rig
+offsets used as raw Q32.32 (microscopic skeleton, giant capsules — a vacuously
+true certificate) and walk-pose rotations too subtle to arm the defect. The
+authoring-grid→Q32.32 boundary is now ONE conversion in ONE stated place
+(`_off3`). Third session lesson of the same shape: certificates and defects must
+be armed against theory, not against the first fixture that comes to mind.
+
+**Decide.** The one-tick-late IK contract stays DECLARED (pinned in the fppose
+docstring: reads T−1 resolved contacts, writes T transforms, lag in the witness)
+— red-first implementation waits for the physics wiring, where its falsifier
+(same-tick vs lagged divergence, visible to `first_field_desync`) can exist.
+Stage 5 (view stream) gates on fppose cross-placement, same law as before.
+
+**Act.** Shipped: `fppose.py`, `conformance_fppose.txt` (1 digest + 1 count),
+`tests/test_fppose.py` (8 falsifiers), gate stage `frontfps_pose` (5 rows),
+this report.
+
 ## 3. The staged ladder (each stage ends in its OODA loop)
 
 | Stage | Deliverable | Gate exit (Observe) | Pioneering pivot to weigh (Orient) | LLM / auto affordance (Decide ahead) |
@@ -221,7 +252,10 @@ numbers will be born circular.
 | `fpclip` pose & clip canon: URDRCLP1 sampling laws, canonical transitions, ambiguity/typo refusals, absolute tick time, 55-op pinned budget proxy | IMPLEMENTED | MEASURED | `frontfps_clip` gate stage; `tests/test_fpclip.py` |
 | `auto_loopable` seam certificate (witness + w-only defect) | IMPLEMENTED | MEASURED | `fpclip-auto-loop` row |
 | `fpclip` C99 placement — pose, trace, op count AND authored-order defect digest (`1e6b480c…`) agree with reference, twice | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fpclip_c/fpclip.c` self-verify + `--defect` |
-| `fpclip` Rust placement | SPECULATIVE | N/A | flips to MEASURED when the owner's host prints `URDR-FPCLIP-RS: ADMITTED` twice + `--defect` caught — gates Stage 4 |
+| `fpclip` Rust placement — ADMITTED ×2 + defect caught (pose/trace/defect digests bit-for-bit) | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fpclip_rs/fpclip.rs` self-verify + `--defect` |
+| `fppose` posed transforms + capsules: hierarchy composition (normalize-per-compose), exact point-in-capsule certificate, 77-op pinned proxy | IMPLEMENTED | MEASURED | `frontfps_pose` gate stage; `tests/test_fppose.py` |
+| One-tick-late IK contract (reads T−1 contacts, writes T transforms, lag in witness) | SCOPED | DECLARED | fppose docstring; red-first fixture waits on physics wiring |
+| `fppose` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued — gates Stage 5 |
 | Stages 4–7 (posed hitboxes, view stream, LLM loop, native bench) | SPECULATIVE | N/A | this README §3 |
 
 ## 8. Run it
@@ -230,6 +264,7 @@ numbers will be born circular.
 PYTHONHASHSEED=0 python tools/frontfps/frontfps.py     # prints the two corpus digests
 PYTHONHASHSEED=0 python tools/frontfps/fpquat.py       # battery digest + defect checks
 PYTHONHASHSEED=0 python tools/frontfps/fpclip.py       # pose/trace digests + op count
+PYTHONHASHSEED=0 python tools/frontfps/fppose.py       # posed digest + coverage + defects
 PYTHONHASHSEED=0 python verify.py                      # the gate (frontfps + fpquat rows)
 
 # C99 placements (any gcc host):

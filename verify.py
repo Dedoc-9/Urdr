@@ -2259,6 +2259,80 @@ class Gate:
                     f"{ops} frozen divisions per biped pose sample (pinned budget proxy)"
                     if ok else f"{ops} ≠ pinned {goldens['pose_ops']}")
 
+    # -- frontfps_pose: posed transforms & capsules (Stage 4, URDRPSE1) --------
+    def frontfps_pose(self):
+        """URDRPSE1 — pose × rig → world transforms + hitbox capsules
+        (tools/frontfps/fppose.py): posed golden ×2, the coverage certificate on
+        walk AND reach poses, BOTH defects (swapped compose order; local-offset
+        capsules failing coverage exactly when the skeleton really moves),
+        refusal canaries, and the pinned 77-op budget proxy."""
+        for d in ("frontfps", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import fppose as FP
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("frontfps-pose", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(ROOT, "tools", "frontfps", "conformance_fppose.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        k, v = line.split()
+                        goldens[k] = v
+        except Exception as exc:
+            self.record("frontfps-pose", False, f"corpus unreadable: {exc}")
+            return
+        rig, pose = FP.demo_rig(), FP.demo_pose()
+        d1 = FP.posed_digest(rig, pose, FP.RADII)
+        d2 = FP.posed_digest(FP.demo_rig(), FP.demo_pose(), FP.RADII)
+        ok = d1 == d2 == goldens.get("posed_biped")
+        self.record("fppose:posed_biped", ok, d1[:16] + "… (×2)" if ok
+                    else f"{d1[:12]}…/{d2[:12]}… ≠ golden {goldens.get('posed_biped','?')[:12]}…")
+        cover = True
+        for p_ in (FP.demo_pose(), FP.demo_pose_reach()):
+            _, wp = FP.pose_world(rig, p_)
+            cover = cover and FP.capsules_cover_joints(
+                wp, FP.posed_capsules(rig, wp, FP.RADII))
+        self.record("fppose-coverage", cover,
+                    "world capsules cover every joint (walk + reach poses)"
+                    if cover else "coverage violated")
+        swapped = FP._pose_world_defect_swapped_compose(rig, pose) != FP.pose_world(rig, pose)
+        _, wpr = FP.pose_world(rig, FP.demo_pose_reach())
+        local_bites = not FP.capsules_cover_joints(
+            wpr, FP._posed_capsules_defect_local_offsets(rig, FP.RADII))
+        self.record("fppose-selftest", swapped and local_bites,
+                    "swapped-compose diverges; local-offset defect fails coverage on reach (gate can redden)"
+                    if swapped and local_bites else f"swapped={swapped} local_bites={local_bites}")
+        canaries = 0
+        checks = [lambda: FP.pose_world(rig, FP.demo_pose()[:3])]
+        def c2():
+            _, wp = FP.pose_world(rig, FP.demo_pose())
+            r = dict(FP.RADII); r.pop("head")
+            FP.posed_capsules(rig, wp, r)
+        checks.append(c2)
+        def c3():
+            _, wp = FP.pose_world(rig, FP.demo_pose())
+            r = dict(FP.RADII); r["head"] = 0
+            FP.posed_capsules(rig, wp, r)
+        checks.append(c3)
+        for fn in checks:
+            try:
+                fn()
+            except FP.PoseError:
+                canaries += 1
+        self.record("fppose-refusals", canaries == 3,
+                    f"{canaries}/3 PSE-REFUSE typed and total")
+        ops = FP.count_pose_world_ops(rig, pose)
+        ok = ops == int(goldens.get("pose_ops", -1))
+        self.record("fppose-ops", ok,
+                    f"{ops} frozen divisions per world-transform pass (pinned budget proxy)"
+                    if ok else f"{ops} ≠ pinned {goldens.get('pose_ops')}")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -2884,6 +2958,7 @@ def main() -> int:
     gate.frontfps()
     gate.frontfps_quat()
     gate.frontfps_clip()
+    gate.frontfps_pose()
     gate.rigidity_verdict()
     gate.view_export()
     gate.field()
