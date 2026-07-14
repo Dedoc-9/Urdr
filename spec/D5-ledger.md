@@ -1794,6 +1794,19 @@ self-verified in-session (`cc -O2 -std=c99`, gcc 11.4). `tools/intla/toric_rs/to
 detector is now **CROSS-PLACED** on D17's reproduction axis (Axis B / separation unchanged: COMPLETE for
 surface homeomorphism). This is Phase IV item 2 — trust from independent reproduction, before the atlas.
 
+**Rigidity detector cross-placed end-to-end — Phase IV item 3.** Rigidity's rank engine (`urdr_math`)
+was already cross-placed, but the detector's own matrix assembly + verdict was not independently built.
+`tools/intla/rigidity_c/rigidity.c` is a dedicated C99 placement — its own i128 Bareiss rank and its own
+rigidity-matrix construction — that reproduces all four pinned certificates (triangle RIGID 3/0, square
+FLEXIBLE 4/1, square_diag RIGID 5/0, square_2diag RIGID 5/0) and the 1e9-coordinate `REFUSE` bit-for-bit;
+compiled and self-verified in-session (`cc -O2 -std=c99`, gcc 11.4). `tools/intla/rigidity_rs/rigidity.rs`
+is the Rust mirror for the Windows/rustc host. So rigidity's CROSS-PLACED grade (D17 Axis A) is now earned
+end-to-end, not only through the shared rank engine. **Port note (the trap avoided):** the reference's
+bound law checks each Bareiss *product* against the i64 ceiling (`_mul = _fit(a*b)`), and two i64 operands
+give a product up to ~2^126 — so the placements compute it in **i128** and then compare to i64. A naive
+i64 multiply would *wrap before the check* and silently diverge exactly on the overflow-`REFUSE` case;
+i128 (sufficient, since operands ≤ i64) makes the placement refuse identically.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred
