@@ -1,0 +1,9 @@
+# URDR-FPSW-1 canon corpus (frontfps Stage 1) — 2 vectors, declared 2.
+# Each digest is the world_digest of the named deterministic builder in
+# frontfps.py, pinned on the reference placement (Linux/CPython 3.10,
+# PYTHONHASHSEED=0) and re-earned by the `frontfps` gate stage twice per run.
+# Any independent front end (editor, importer, LLM emitter) claiming URDR-FPSW-1
+# must reproduce these bit-for-bit through its OWN implementation (D14 ladder).
+# name  digest
+crate_solo 6c4c807f7ca1edda4f425063c534f9478c4a70f90ec6f06bfc9d917972565bfa
+arena_duel 0c9ec33ae450c8bbf4e50bbc72c211ce50b7ca1a80ce18271c44a6cfc2cad354

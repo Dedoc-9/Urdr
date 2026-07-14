@@ -203,3 +203,45 @@ output on the repaired tree (§1). This document added at `docs/directive_review
 | Directive perf budgets currently unfalsifiable | MEASURED (absence) | show me a timing harness in-tree and this row dies |
 | §3's five-step cycle is the right order | SPECULATIVE | it is a proposal; the OODA reports it produces are its test |
 | Corruption cause = interrupted sync/flush | SPECULATIVE | mtime + signature circumstantial; no process identified |
+
+---
+
+## Addendum (2026-07-13, later the same session) — the cause was found, and §0 needs reframing
+
+While extending the gate, the same truncation signature reproduced **live, in a
+file grown seconds earlier**: the Cowork session's sandbox mount serves reads of
+files changed *outside the session* clipped (or NUL-padded) to a **stale cached
+size**. Everything in §0 reconciles under this single mechanism:
+
+- the 19 "truncations" were files the Jul-12 commits had **grown** natively; the
+  mount clipped each read at its previously-cached (smaller) size;
+- `persim.py`'s "369 trailing NULs" was the reverse: a stale **larger** cached size
+  (a pre-commit draft) padding a smaller native file;
+- `.gitignore`'s "possible edit" was a stale pre-edit size — the user's 3 added
+  lines were real and native; nothing was ever ambiguous on disk;
+- the owner's Windows-side evidence (clean `git status --porcelain`, `git fsck`
+  clean, `GATE PASSED` with digests bit-identical to the sandbox run) is exactly
+  what a **never-damaged** working tree looks like.
+
+**Corrected claims.** "The working tree was corrupted" → downgraded: the *session's
+view* of the working tree was corrupted; the disk was in all likelihood never
+damaged, and the §0 restorations were byte-level no-ops that refreshed the stale
+cache (MEASURED for every file the owner's gate run exercised; the WIP-loss risk
+flagged for `persim.py` is correspondingly withdrawn to negligible). The
+"interrupted sync/flush" speculation is **retired** in favor of a mechanism that
+was directly observed (MEASURED: a file grown via the session's file API
+immediately re-read 40,800 bytes short through the session's shell mount, tail cut
+mid-string at the exact pre-edit byte length).
+
+**What does NOT change.** The vacuous-green hazard was demonstrated end-to-end and
+is layer-independent: a truncated `verify.py` — wherever the truncation lives —
+parses, runs nothing, and exits 0. The §3.1 guardrail (row floor + tamper-row
+presence + CI grep of the literal tail line) is now implemented, and its red-first
+falsifier (`tests/test_gate_guard.py`) caught a stale-mount artifact in the wild on
+its first day. `exit-0 ≠ ran` was never about the disk.
+
+**Operational rule for future sessions in this repo.** Trust the file-tool layer
+and the owner's native runs; treat shell-mount reads of files modified outside or
+grown inside the session as suspect; verify any suspicious truncation against
+`git show HEAD:<file>` (the object store's content-addressing survives every cache
+layer — L1 doing its job).

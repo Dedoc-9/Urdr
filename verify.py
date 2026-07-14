@@ -31,6 +31,13 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 PY = sys.executable
 CLI = os.path.join(ROOT, "urdr.py")
 
+# Vacuity floor (incident 2026-07-13): a sync-truncated verify.py happened to end on
+# a syntactically valid line, parsed cleanly, ran ZERO checks, and exited 0 — a
+# vacuously green gate. The floor is a deliberate underestimate of the live row count
+# (329 at pinning); shrinking the gate below it must be a conscious edit here, never
+# an accident. `exit-0 ≠ ran`.
+ROWS_FLOOR = 300
+
 
 def _utf8_stdio() -> None:
     for stream in (sys.stdout, sys.stderr):
@@ -2012,6 +2019,90 @@ class Gate:
                     "arc / transform / circle / malformed each SVG-REFUSEd (gate can redden)"
                     if ref_ok else f"refusals wrong: {got}")
 
+    # -- frontfps: the FPS/MMO authoring canon (URDR-FPSW-1, Stage 1) ----------
+    def frontfps(self):
+        """URDR-FPSW-1 — the consolidated FPS/MMO authoring canon (tools/frontfps/):
+        one world-identity law (meshes + rigs + capsule hitboxes + actors + spawns +
+        D16 seams; provenance excluded), total FPSW-REFUSE obligations, and the first
+        auto-affordance (auto_capsule) carrying a containment certificate. Rows:
+        goldens ×2 (determinism), the two-sided order law (declared invariance AND
+        declared sensitivity), the provenance-folding defect (non-vacuity), the
+        auto-capsule certificate + its floor-radius defect, and refusal canaries."""
+        fdir = os.path.join(ROOT, "tools", "frontfps")
+        if fdir not in sys.path:
+            sys.path.insert(0, fdir)
+        try:
+            import frontfps as FW
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("frontfps", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(fdir, "conformance_frontfps.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        name, dig = line.split()
+                        goldens[name] = dig
+        except Exception as exc:
+            self.record("frontfps", False, f"corpus unreadable: {exc}")
+            return
+        builders = {"crate_solo": FW.demo_crate_solo, "arena_duel": FW.demo_arena_duel}
+        if sorted(goldens) != sorted(builders):
+            self.record("frontfps", False, f"corpus/builders mismatch: {sorted(goldens)}")
+            return
+        for name in sorted(goldens):
+            d1 = FW.world_digest(builders[name]())
+            d2 = FW.world_digest(builders[name]())
+            ok = d1 == d2 == goldens[name]
+            self.record(f"frontfps:{name}", ok,
+                        d1[:16] + "…" if ok else
+                        f"{d1[:12]}…/{d2[:12]}… ≠ golden {goldens[name][:12]}…")
+        base_dig = FW.world_digest(FW.demo_arena_duel())
+        inv = FW.world_digest(
+            FW.scramble_noncontent_order(FW.demo_arena_duel())) == base_dig
+        swapped = FW.demo_arena_duel()
+        swapped["actors"] = list(reversed(swapped["actors"]))
+        sens = FW.world_digest(swapped) != base_dig
+        self.record("frontfps-order-law", inv and sens,
+                    "map order never moves identity; actor order IS content"
+                    if inv and sens else f"invariance={inv} sensitivity={sens}")
+        tagged = FW.demo_arena_duel()
+        tagged["provenance"] = {"tool": "gate", "model": "none"}
+        same = FW.world_digest(tagged) == base_dig
+        diverges = FW.world_digest_defect_folding_provenance(tagged) != base_dig
+        self.record("frontfps-selftest", same and diverges,
+                    "provenance-free identity; folding defect diverges (gate can redden)"
+                    if same and diverges else f"provfree={same} defect_diverges={diverges}")
+        cloud = [{"x": 0, "y": 0, "z": 0}, {"x": 100, "y": 0, "z": 0},
+                 {"x": 50, "y": 2, "z": 1}, {"x": 25, "y": -2, "z": -1}]
+        good = FW.auto_capsule(cloud)
+        held = FW.capsule_contains_all(cloud, good)
+        bad = FW.auto_capsule_defect_floor_radius(cloud)
+        bit = not FW.capsule_contains_all(cloud, bad)
+        self.record("frontfps-auto-capsule", held and bit,
+                    f"containment certified (r={good['r']}, witness v{good['witness']}); "
+                    f"floor-radius defect violates it (gate can redden)"
+                    if held and bit else f"held={held} defect_bit={bit}")
+        canaries = 0
+        for mutate in (
+            lambda w: w["meshes"]["crate"]["verts"].__setitem__(
+                0, {"x": 1.5, "y": 0, "z": 0}),
+            lambda w: w["rigs"]["biped"]["bones"][1].__setitem__("parent", 4),
+            lambda w: w["hitboxes"]["biped_torso"].__setitem__("r", 0),
+            lambda w: w.__setitem__("regions", [0, 0]),
+            lambda w: w["actors"][0].__setitem__("yaw", 360000),
+        ):
+            w = FW.demo_arena_duel()
+            mutate(w)
+            try:
+                FW.check_world(w)
+            except FW.FpswError:
+                canaries += 1
+        self.record("frontfps-refusals", canaries == 5,
+                    f"{canaries}/5 obligations FPSW-REFUSE typed and total")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -2578,6 +2669,21 @@ class Gate:
             mark = "PASS" if ok else "FAIL"
             sys.stdout.write(f"[{mark}] {name:<34} {detail}\n")
         sys.stdout.write("=" * 72 + "\n")
+        # Vacuity guard (incident 2026-07-13): the gate must prove it RAN, not
+        # merely that nothing failed. A truncated verify.py once parsed cleanly,
+        # ran zero checks, and exited 0; these two refusals make that impossible
+        # from inside, and the CI grep for the literal tail line makes it
+        # impossible from outside. `exit-0 ≠ ran`.
+        if len(self.rows) < ROWS_FLOOR:
+            sys.stdout.write(
+                f"GATE FAILED (vacuity guard: {len(self.rows)} rows < floor "
+                f"{ROWS_FLOOR} — a truncated or partial gate must not pass)\n")
+            return 1
+        if not any(name == "tamper-selftest" for name, _ok, _detail in self.rows):
+            sys.stdout.write(
+                "GATE FAILED (vacuity guard: tamper-selftest row missing — "
+                "the gate's tail never ran)\n")
+            return 1
         if self.failed:
             sys.stdout.write("GATE FAILED\n")
             return 1
@@ -2619,6 +2725,7 @@ def main() -> int:
     gate.photo_trace()
     gate.frontend_contract()
     gate.svg_import()
+    gate.frontfps()
     gate.rigidity_verdict()
     gate.view_export()
     gate.field()

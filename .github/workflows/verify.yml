@@ -25,4 +25,12 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Run the gate (stdlib only, no installs — offline by construction)
-        run: python verify.py
+        # Assert the literal tail line, never the exit code alone: a truncated
+        # verify.py once parsed cleanly and exited 0 while checking NOTHING
+        # (incident 2026-07-13). pipefail keeps the exit-code semantics AND the
+        # grep adds the "it actually ran to the end" proof. `exit-0 ≠ ran`.
+        shell: bash
+        run: |
+          set -o pipefail
+          python verify.py | tee gate.log
+          grep -q "^GATE PASSED$" gate.log
