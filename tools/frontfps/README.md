@@ -388,7 +388,8 @@ numbers will be born circular.
 | `frontfps_text` Rust placement — same four properties bit-for-bit (incl. fuzz totality `e57dfaea…`) | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `frontfps_text_rs/frontfps_text.rs` self-verify + `--defect` |
 | `frontbench` work accounting: URDR-FPSW-BENCH-1 sim-tick division count (100 bipeds = 13200), composition cross-check (model == instrumented execution == module proxies), drop-animation defect, budget-honesty gate | IMPLEMENTED | MEASURED (work only; host-independent) | `frontbench` gate stage; `tests/test_frontbench.py` |
 | `frontbench_c` / `frontbench_rs` native sim-tick placement — per biped sample→pose ×100; posed digest `fee3c118` + 13200 divisions bit-for-bit | IMPLEMENTED | MEASURED (C99 self-verified; correctness) | `frontbench_c/frontbench.c` self-verify; `frontbench_rs/frontbench.rs` on the owner host |
-| Native sim-tick milliseconds (`--measure`) | DECLARED | NOT_MEASURED | `bench_protocol.md` §3 on the Ally X (sandbox datum ~0.125 ms/tick median — informational, ~70× under the Python reference) |
+| Native sim-tick milliseconds — **~0.073 ms/tick** (100 bipeds), ~41× under the 3 ms budget | MEASURED (named host: ROG Ally X, cold+soak) | MEASURED | `bench_protocol.md` §4b (host log); `frontbench_rs --measure` |
+| End-to-end input→photon latency (and all fps / 1080–1440p / BF6) | DECLARED | NOT_MEASURED | needs the layer-3 renderer + capture (unbuilt); `bench_protocol.md` §3 |
 | Stage 7 performance (ms / fps / 1080–1440p / BF6 visuals) | DECLARED | NOT_MEASURED | `docs/bench_protocol.md` §3 on the named host (ROG Ally X) |
 
 ## 8. Run it

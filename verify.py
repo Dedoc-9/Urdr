@@ -2514,10 +2514,10 @@ class Gate:
         self.record("frontbench-selftest", defect,
                     "drop-animation defect underestimates the tick (gate can redden)"
                     if defect else "defect did not diverge")
-        honest = (FB.no_perf_is_measured()
-                  and not FB.no_perf_is_measured(FB.budget_defect_claims_measured()))
+        honest = (FB.budget_is_honest()
+                  and not FB.budget_is_honest(FB.budget_defect_unlogged_measured()))
         self.record("frontbench-budget", honest,
-                    "every ms/fps budget entry NOT_MEASURED/DECLARED; a MEASURED-without-a-log manifest is caught (gate can redden)"
+                    "MEASURED perf entries carry a host-log ref (sim-tick §4b); a MEASURED-without-a-log manifest is caught (gate can redden)"
                     if honest else "honesty boundary broken")
 
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------

@@ -1914,10 +1914,13 @@ NOT_MEASURED for the target**: only the `bench_protocol.md` §3 run on the ROG A
 grade. Correctness is cross-placed; performance still waits on the named host. **First native Ally reading**
 (2026-07-14, cold, `frontbench_rs --measure`, Turbo-35W): sim tick **~0.072 ms median** (100 bipeds,
 p95 0.076 / max 0.111) — ~41× under the 3 ms budget, ~130× under the Python reference on the same
-hardware. A real native reading on the named host, still **NOT_MEASURED**: cold-only (§3 needs a soak
-re-run, `cold ≠ sustained`) and scoped to the sim-tick component (input→photon needs the renderer). See
-`bench_protocol.md` §4b; when the soak lands, the sim-tick row graduates to MEASURED and the
-`frontbench-budget` gate evolves to require a host-log reference for any MEASURED perf entry.
+hardware. Cold + soak both recorded (median 0.0723 / 0.0730 ms — cold ≈ sustained; the tail widens to max 0.34 ms
+sustained, still ~9× under budget), so the **sim-tick budget row is now MEASURED (named host)** — this
+project's first performance grade, carrying `bench_protocol.md` §4b as its host log. The
+`frontbench-budget` gate row evolved with it: from *no perf MEASURED* to *no perf MEASURED without a
+host-log reference* — an unlogged MEASURED still reddens. Scope held: this is the **sim-tick component
+only** — the end-to-end input→photon budget (and all fps / 1080–1440p / BF6) stays **NOT_MEASURED** until
+the layer-3 renderer + capture exist.
 
 The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
 derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;

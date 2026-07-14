@@ -54,13 +54,14 @@ class DefectBites(unittest.TestCase):
 
 
 class HonestyBoundary(unittest.TestCase):
-    def test_no_perf_number_is_measured(self):
-        self.assertTrue(FB.no_perf_is_measured())
+    def test_measured_entries_carry_a_host_log(self):
+        """The sim tick is MEASURED (named-host §4b log); the real manifest is honest."""
+        self.assertTrue(FB.budget_is_honest())
 
-    def test_dishonest_manifest_is_caught(self):
-        """A manifest claiming a MEASURED perf number without a host log MUST fail
-        the honesty check (the gate can redden)."""
-        self.assertFalse(FB.no_perf_is_measured(FB.budget_defect_claims_measured()))
+    def test_unlogged_measured_is_caught(self):
+        """A perf number claimed MEASURED without a host log MUST fail the honesty
+        check (the gate can redden)."""
+        self.assertFalse(FB.budget_is_honest(FB.budget_defect_unlogged_measured()))
 
 
 if __name__ == "__main__":

@@ -97,26 +97,27 @@ methodology and showing that the **native placement, not more watts, is the budg
 lever**. A native sim-tick placement is the next step; input→photon still needs
 the layer-3 renderer.
 
-## 4b. First native reading (Ally X, cold — sim-tick component only)
+## 4b. Native sim-tick reading — MEASURED (Ally X, cold + soak)
 
-Run 2026-07-14, `frontbench_rs.exe --measure` (native Rust, 200 reps, 100 bipeds,
-13 200 frozen divisions/tick) on `ROG-Ally-X-Z2-Extreme · Turbo-35W · AC`, COLD:
+`frontbench_rs.exe --measure` (native Rust, 200 reps, 100 bipeds, 13 200 frozen
+divisions/tick) on `ROG-Ally-X-Z2-Extreme · Turbo-35W · AC`, 2026-07-14:
 
-| Metric | median | p95 | max |
-|---|---|---|---|
-| ns / frozen-division | 5.48 | 5.74 | 8.40 |
-| sim-tick ms (100 bipeds) | **0.0723** | 0.0758 | 0.1109 |
+| Metric | cold (median / p95 / max) | sustained (median / p95 / max) |
+|---|---|---|
+| ns / frozen-division | 5.48 / 5.74 / 8.40 | 5.53 / 5.77 / 25.70 |
+| sim-tick ms (100 bipeds) | 0.0723 / 0.0758 / 0.1109 | **0.0730** / 0.0761 / 0.3393 |
 
-Reading: the native sim tick costs **~0.072 ms** on the named host — ~41× under
-the 3 ms sim budget, and ~130× under the Python reference's ~9.4 ms on the same
-hardware. This is a real NATIVE reading on the named host — the datum the sim-tick
-budget row has waited for — but it is **not yet MEASURED**, for two honest reasons:
-(1) it is COLD only; §3 requires a 10-minute Turbo soak re-run reported alongside
-(`cold ≠ sustained`); (2) it is the sim-tick component alone — the end-to-end
-input→photon budget stays NOT_MEASURED until the layer-3 renderer and capture
-exist. When the soak run lands, the **sim-tick** row (not the full latency) can
-graduate to MEASURED (named host), and the `frontbench-budget` gate evolves from
-"no perf MEASURED" to "no perf MEASURED *without a host-log reference*."
+Reading: the native sim tick is **~0.073 ms** on the named host — median and p95
+rock-stable cold→sustained (no thermal regression), the tail widening under
+sustained Turbo (max 0.11 → 0.34 ms, expected jitter) yet even the worst case is
+~9× under the 3 ms sim budget. Cold ≈ sustained where it counts, so the **sim-tick
+budget row graduates to MEASURED (named host)** — this project's first performance
+grade, carrying this section as its host log. Two boundaries hold firm: the
+graduation is the **sim-tick component only** — the end-to-end input→photon budget
+stays NOT_MEASURED until the layer-3 renderer + capture exist — and the
+`frontbench-budget` gate now enforces that any MEASURED perf entry cite a host log
+like this one (an unlogged MEASURED still reddens). ~130× under the Python
+reference on the same hardware: watts didn't buy it, the native placement did.
 
 ## 5. Two corrections to the owner's guide (graded, so they don't propagate)
 

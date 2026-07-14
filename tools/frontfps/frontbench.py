@@ -81,27 +81,33 @@ def sim_tick_divisions_defect_drop_clip(n=BENCH_BIPEDS):
     return n * FP.count_pose_world_ops(FP.demo_rig(), FP.demo_pose())
 
 
-# ---- the budget manifest (every perf entry NOT_MEASURED until a host log) --------------
-# (component, grade, declared_ms) — grade in {DECLARED, NOT_MEASURED}; never MEASURED here.
+# ---- the budget manifest (a MEASURED perf entry MUST carry a host-log reference) -------
+# (component, grade, ms, host_log) — grade in {DECLARED, NOT_MEASURED, MEASURED}; a MEASURED
+# entry without a host_log is the dishonesty the gate forbids. The sim tick graduated to
+# MEASURED on 2026-07-14 (native placement, ROG Ally X, cold+soak — bench_protocol.md §4b);
+# everything downstream of it still waits on the layer-3 renderer + capture.
 BUDGET = [
-    ("input_capture",      "DECLARED",     1.5),
-    ("sim_tick",           "NOT_MEASURED", None),   # target 3.0 — proxy pinned, ms needs the host
-    ("view_export",        "DECLARED",     0.5),
-    ("gpu_render",         "DECLARED",     5.0),
-    ("display_refresh",    "DECLARED",     8.3),
-    ("display_processing", "DECLARED",     5.0),
+    ("input_capture",      "DECLARED",     1.5,   ""),
+    ("sim_tick",           "MEASURED",     0.073, "bench_protocol.md §4b (Ally X, cold+soak, 2026-07-14)"),
+    ("view_export",        "DECLARED",     0.5,   ""),
+    ("gpu_render",         "DECLARED",     5.0,   ""),
+    ("display_refresh",    "DECLARED",     8.3,   ""),
+    ("display_processing", "DECLARED",     5.0,   ""),
 ]
 
 
-def no_perf_is_measured(budget=BUDGET):
-    """The honesty boundary: no ms/fps entry may read MEASURED without a host log."""
-    return all(g != "MEASURED" for _, g, _ in budget)
+def budget_is_honest(budget=BUDGET):
+    """The honesty boundary: every MEASURED perf entry carries a host-log reference;
+    DECLARED / NOT_MEASURED entries need none. A MEASURED number without a log is the
+    dishonesty the gate forbids."""
+    return all(log != "" for _c, g, _ms, log in budget if g == "MEASURED")
 
 
-def budget_defect_claims_measured():
-    """A manifest that marks the sim tick MEASURED with no host log — dishonest;
-    the honesty check MUST reject it (gate can redden)."""
-    return [(c, "MEASURED" if c == "sim_tick" else g, v) for c, g, v in BUDGET]
+def budget_defect_unlogged_measured():
+    """A perf number claimed MEASURED with NO host log (here: view_export) — the
+    original dishonesty; `budget_is_honest` MUST reject it (gate can redden)."""
+    return [(c, "MEASURED", ms, "") if c == "view_export" else (c, g, ms, log)
+            for c, g, ms, log in BUDGET]
 
 
 def measure_samples(n=BENCH_BIPEDS, reps=200):
@@ -145,5 +151,5 @@ if __name__ == "__main__":
         print("counted == model:", counted_sim_tick(BENCH_BIPEDS) == sim_tick_divisions())
         print("drop-clip defect diverges:",
               sim_tick_divisions_defect_drop_clip() != sim_tick_divisions())
-        print("no perf MEASURED:", no_perf_is_measured())
-        print("defect manifest caught:", not no_perf_is_measured(budget_defect_claims_measured()))
+        print("budget honest (MEASURED entries logged):", budget_is_honest())
+        print("unlogged-MEASURED caught:", not budget_is_honest(budget_defect_unlogged_measured()))
