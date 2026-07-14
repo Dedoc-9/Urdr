@@ -2171,6 +2171,94 @@ class Gate:
                     "truncdiv AND wrap64 defects diverge (gate can redden)"
                     if t_div and wrap else f"truncdiv={t_div} wrap64={wrap}")
 
+    # -- frontfps_clip: pose & clip canon (Stage 3, URDRCLP1) ------------------
+    def frontfps_clip(self):
+        """URDRCLP1 — keyframed rotation tracks on Q32.32 time + a canonical
+        state machine (tools/frontfps/fpclip.py): pose + 96-tick trace goldens
+        ×2, the two-sided order law (rule scramble invariant; the authored-order
+        defect diverges), refusal canaries, the auto_loopable certificate with
+        its w-only defect mis-grading the armed clip, and the PINNED op count
+        (the 3 ms budget's host-independent proxy)."""
+        import hashlib as _hl
+        for d in ("frontfps", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import fpclip as FC
+            from field import ONE as FONE, _rdiv as _frd
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("frontfps-clip", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(ROOT, "tools", "frontfps", "conformance_fpclip.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        k, v = line.split()
+                        goldens[k] = v
+        except Exception as exc:
+            self.record("frontfps-clip", False, f"corpus unreadable: {exc}")
+            return
+        if sorted(goldens) != ["arena_trace", "pose_ops", "walk_pose"]:
+            self.record("frontfps-clip", False, f"corpus keys unexpected: {sorted(goldens)}")
+            return
+        pose = FC.sample_pose(FC.demo_walk(), _frd(FONE, 3))
+        pd = _hl.sha256(FC.MAGIC + FC.pose_bytes(pose)).hexdigest()
+        ok = pd == goldens["walk_pose"]
+        self.record("fpclip:walk_pose", ok, pd[:16] + "…" if ok
+                    else f"{pd[:12]}… ≠ golden {goldens['walk_pose'][:12]}…")
+        m = FC.demo_machine()
+        t1 = FC.trace_digest(m, FC.TICKS, FC.HZ, FC.SCRIPT)
+        t2 = FC.trace_digest(FC.demo_machine(), FC.TICKS, FC.HZ, FC.SCRIPT)
+        ok = t1 == t2 == goldens["arena_trace"]
+        self.record("fpclip:arena_trace", ok,
+                    t1[:16] + "… (96 ticks @ 240Hz, ×2)" if ok
+                    else f"{t1[:12]}…/{t2[:12]}… ≠ golden {goldens['arena_trace'][:12]}…")
+        m2 = FC.demo_machine()
+        m2["rules"] = list(reversed(m2["rules"]))
+        inv = FC.trace_digest(m2, FC.TICKS, FC.HZ, FC.SCRIPT) == t1
+        defect = FC.trace_digest_defect_authored_order(
+            FC.demo_machine(), FC.TICKS, FC.HZ, FC.SCRIPT) != t1
+        self.record("fpclip-order-law", inv and defect,
+                    "rule order never moves the trace; authored-order defect diverges"
+                    if inv and defect else f"invariance={inv} defect_diverges={defect}")
+        canaries = 0
+        checks = []
+        def c1():
+            c = FC.demo_twist()
+            c["tracks"]["root"] = [[FONE, (FONE, 0, 0, 0)], [0, (FONE, 0, 0, 0)]]
+            FC.check_clip(c)
+        checks.append(c1)
+        checks.append(lambda: FC.sample_pose(FC.demo_twist(), FONE + 1))
+        checks.append(lambda: FC.step(FC.demo_machine(), "idle", "teleport"))
+        def c4():
+            mm = FC.demo_machine()
+            mm["rules"].append({"from": "idle", "to": "idle", "event": "go", "priority": 0})
+            FC.check_machine(mm)
+        checks.append(c4)
+        checks.append(lambda: FC.run_trace(FC.demo_machine(), 10, 240, [[5, "go"], [5, "stop"]]))
+        for fn in checks:
+            try:
+                fn()
+            except FC.ClipError:
+                canaries += 1
+        self.record("fpclip-refusals", canaries == 5,
+                    f"{canaries}/5 CLIP-REFUSE typed and total")
+        good = FC.auto_loopable(FC.demo_idle(), 4)["loopable"] and \
+            not FC.auto_loopable(FC.demo_twist(), 4)["loopable"]
+        bit = FC.auto_loopable_defect_w_only(FC.demo_twist(), 4)["loopable"]
+        self.record("fpclip-auto-loop", good and bit,
+                    "seam certificate grades idle/twist correctly; w-only defect mis-grades (gate can redden)"
+                    if good and bit else f"verdicts_ok={good} defect_bit={bit}")
+        ops = FC.count_pose_ops(FC.demo_walk(), _frd(FONE, 3))
+        ok = ops == int(goldens["pose_ops"])
+        self.record("fpclip-ops", ok,
+                    f"{ops} frozen divisions per biped pose sample (pinned budget proxy)"
+                    if ok else f"{ops} ≠ pinned {goldens['pose_ops']}")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -2795,6 +2883,7 @@ def main() -> int:
     gate.svg_import()
     gate.frontfps()
     gate.frontfps_quat()
+    gate.frontfps_clip()
     gate.rigidity_verdict()
     gate.view_export()
     gate.field()

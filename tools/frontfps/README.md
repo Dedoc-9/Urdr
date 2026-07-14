@@ -99,13 +99,49 @@ Stage-3 open on op-count, not elegance.
 `fpquat_c/fpquat.c` (ADMITTED here), `fpquat_rs/fpquat.rs` (pending your rustc),
 this report.
 
+## 2c. Stage 3 — SHIPPED. OODA-3 report
+
+**Observe.** Since OODA-2: the Rust fpquat placement printed **ADMITTED twice
+with the wrap64 defect caught on the owner's Windows host** (golden `3f4aa0d1…`,
+defect `5c965ff8…`) — fpquat is now **three placements, two OSes, golden+defect
+parity**; its grade row below is flipped. Stage 3 itself: `fpclip.py` (URDRCLP1)
+— keyframed rotation tracks sampled by binary search + one Stage-2 `qnlerp` per
+bone; a state machine whose transition choice is canonical minimum-priority with
+ambiguity refused at admission. Gate now 466 unit falsifiers + 346 rows, ×2
+bit-identical. Corpus: `walk_pose 73b763f8…`, `arena_trace 823a7746…` (96 ticks
+@ 240 Hz through go/sprint/stop, the sprint tick arming the authored-order
+defect), and the pinned budget proxy: **55 frozen divisions per biped pose
+sample** (`fpclip-ops`). Tick times are computed absolutely (`_rdiv(i·ONE, HZ)`)
+so rounding never accumulates across a match.
+
+**Orient.** The owner's hardware guide became the pinned bench protocol
+(`docs/bench_protocol.md`): named host, display segregation as law (built-in
+120 Hz = performance surface; LG 75 Hz = workstation, latency-invalid), budgets
+DECLARED until the protocol runs, plus two scope corrections (witness chains
+prove state integrity, not input legitimacy; hit registration is exact at tick
+quantization, sub-tick is netcode M3, unbuilt). The op-count row is the honest
+bridge between this repo and the 3 ms tick budget: counts are host-independent
+facts; milliseconds wait for the named-host run. Vacuity lesson recurred: the
+first w-only defect arming failed because normalization moves w — re-armed with
+an equal-norm axis rotation. Two defects in two stages died on theory before
+shipping; the check-your-defect step is now standing practice.
+
+**Decide.** Stage 4 (posed hitboxes + one-tick-late IK contract) opens after
+fpclip cross-placement (C99 first, sandbox-verifiable; Rust on the owner's
+host) — same law as Stage 2→3. The blend-graph-vs-tree pivot stays open; nlerp
+composition data from Stage 4's posed corpus will decide it.
+
+**Act.** Shipped: `fpclip.py`, `conformance_fpclip.txt` (2 digests + 1 count),
+`tests/test_fpclip.py` (14 falsifiers), gate stage `frontfps_clip` (6 rows),
+`docs/bench_protocol.md`, this report.
+
 ## 3. The staged ladder (each stage ends in its OODA loop)
 
 | Stage | Deliverable | Gate exit (Observe) | Pioneering pivot to weigh (Orient) | LLM / auto affordance (Decide ahead) |
 |---|---|---|---|---|
 | **1. World canon** — DONE | URDR-FPSW-1 + `auto_capsule` | `frontfps` rows green ×2 | — | refusal-guided repair loop (§7) |
-| **2. Rotation substrate** — DONE (Rust run pending) | Q32.32 quaternion ops + integer-Newton rsqrt on the frozen FIELDFP laws (`fpquat.py` + C99 + Rust placements) | `frontfps_quat` rows green ×2; C99 golden+defect parity; Rust ADMITTED on a named host | fixed-point **dual quaternions** (one type for rotation+translation) vs quat+vec — decide on op count under the 240 Hz budget, not elegance | held once in practice: the C placement was written from the docstring spec and matched on first compile — ports are cheap, trust stays in the gate |
-| **3. Pose & clip canon** | URDR-CLIP-1: keyframes on Q32.32 time, deterministic sampling, state machine with sorted transition priorities | clip playback digests ×2; permuted-authoring invariance; ambiguous-transition refusal; defect: unsorted priorities diverge | blend **graph** vs blend **tree**; sub-tick sampling now or at netcode M3 | `auto_blend` candidates: propose transitions, admit only those passing the same determinism rows — auto proposes, the gate disposes |
+| **2. Rotation substrate** — DONE (3 placements, 2 OSes) | Q32.32 quaternion ops + integer-Newton rsqrt on the frozen FIELDFP laws (`fpquat.py` + C99 + Rust placements) | `frontfps_quat` rows green ×2; C99 golden+defect parity; Rust ADMITTED on a named host | fixed-point **dual quaternions** (one type for rotation+translation) vs quat+vec — decide on op count under the 240 Hz budget, not elegance | held once in practice: the C placement was written from the docstring spec and matched on first compile — ports are cheap, trust stays in the gate |
+| **3. Pose & clip canon** — DONE (reference) | URDRCLP1: keyframed rotation tracks on Q32.32 time, binary-search + `qnlerp` sampling, canonical minimum-priority state machine (`fpclip.py`) | `frontfps_clip` rows green ×2: goldens, rule-order invariance + authored-order defect, ambiguity/typo refusals, `auto_loopable` + w-only defect, pinned 55-op budget proxy | blend **graph** vs blend **tree** — decided by Stage-4 posed-corpus data; sub-tick sampling deferred to netcode M3 | `auto_loopable` shipped under the §4 law (witness + certificate + defect); `auto_blend` proposals queued for Stage 4 |
 | **4. Posed hitboxes + IK seam** | per-bone `auto_capsule` over posed skeletons; **one-tick-late IK contract** (reads T−1 contacts, writes T transforms, lag IS in the witness) | containment certificates over a posed corpus + floor defect; IK lag visible in `first_field_desync` fixtures | hitbox LOD (fewer capsules far away) — only if it never touches authority | artist-facing "why is my hitbox this size": the witness vertex, surfaced |
 | **5. View stream** | URDR-FPSW-VIEW-2: binary, delta-framed successor of `to_view` for the native renderer (D15 successor version) | view recompute law; structural no-feedback test (renderer inputs can't reach canon); bandwidth measured per authored scene | share the compact-witness encoding with netcode replay (one format, two consumers) | `auto_lod` proposals for view meshes — presentation-only, so admissible on visual review, not witness proof |
 | **6. LLM authoring surface** | line-oriented text form of the canon + the repair loop; `auto_arena` / `auto_rig` candidates under §4's law | an LLM-emitted world admitted with **zero human edits** on a pinned scenario set; adversarial fuzz: refusals stay total under random/hostile emissions | prompt→world as a *pipeline of admissions*, never one leap; each auto keeps its witness | this stage IS the affordance; its falsifier is the fuzz corpus |
@@ -174,14 +210,18 @@ numbers will be born circular.
 | frontfps (world canon) cross-placement | SPECULATIVE | N/A | none yet — the corpus is the target |
 | `fpquat` Q32.32 rotation substrate: qmul/norm2/rsqrt/normalize/rotate/nlerp on frozen FIELDFP laws; rsqrt inequality law; FPQ-REFUSE total | IMPLEMENTED | MEASURED | `frontfps_quat` gate stage; `tests/test_fpquat.py` |
 | `fpquat` C99 placement (own SHA-256, own i128 Bareiss-note-compliant arithmetic) — battery digest AND wrap64 defect digest agree with reference, twice | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fpquat_c/fpquat.c` self-verify + `--defect` |
-| `fpquat` Rust placement | SPECULATIVE | N/A | flips to MEASURED when a named host prints `URDR-FPQUAT-RS: ADMITTED` twice + `--defect` caught |
-| Stages 3–7 (clips, posed hitboxes, view stream, LLM loop, native bench) | SPECULATIVE | N/A | this README §3 |
+| `fpquat` Rust placement — ADMITTED ×2 + defect caught, golden `3f4aa0d1…` and defect `5c965ff8…` bit-for-bit | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fpquat_rs/fpquat.rs` self-verify + `--defect` |
+| `fpclip` pose & clip canon: URDRCLP1 sampling laws, canonical transitions, ambiguity/typo refusals, absolute tick time, 55-op pinned budget proxy | IMPLEMENTED | MEASURED | `frontfps_clip` gate stage; `tests/test_fpclip.py` |
+| `auto_loopable` seam certificate (witness + w-only defect) | IMPLEMENTED | MEASURED | `fpclip-auto-loop` row |
+| `fpclip` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued — gates Stage 4 |
+| Stages 4–7 (posed hitboxes, view stream, LLM loop, native bench) | SPECULATIVE | N/A | this README §3 |
 
 ## 8. Run it
 
 ```
 PYTHONHASHSEED=0 python tools/frontfps/frontfps.py     # prints the two corpus digests
 PYTHONHASHSEED=0 python tools/frontfps/fpquat.py       # battery digest + defect checks
+PYTHONHASHSEED=0 python tools/frontfps/fpclip.py       # pose/trace digests + op count
 PYTHONHASHSEED=0 python verify.py                      # the gate (frontfps + fpquat rows)
 
 # C99 placement (any gcc host):

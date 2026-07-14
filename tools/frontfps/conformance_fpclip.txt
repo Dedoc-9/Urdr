@@ -1,0 +1,13 @@
+# URDRCLP1 pose & clip corpus (frontfps Stage 3) — 2 vectors + 1 count, declared 3.
+# walk_pose  = SHA-256(MAGIC + pose bytes) of demo_walk sampled at _rdiv(ONE,3).
+# arena_trace = trace digest of demo_machine over 96 ticks @ 240 Hz under
+#   SCRIPT [[24,go],[48,sprint],[72,stop]] — the sprint tick arms the
+#   authored-order defect (canonical minimum-priority stays in walk; the
+#   defect leaves to idle; the traces MUST diverge).
+# pose_ops   = EXACT frozen-division count for one biped pose sample — the
+#   host-independent budget proxy for the 3 ms tick target (bench protocol).
+# Reference placement: Linux/CPython 3.10, PYTHONHASHSEED=0.
+# name  value
+walk_pose 73b763f88474cb0a3f02fee3e4e3624c42d7ab4ee62b3d6ae52f2fd59b5c4886
+arena_trace 823a7746c286213065c5dd50b2765cb5f66680872cd376fca26e305d9c764fd3
+pose_ops 55
