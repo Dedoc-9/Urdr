@@ -22,7 +22,7 @@ across five layers: a sealed kernel, an exact-integer math library, a
 certified-physics layer, a deterministic rasterizer, and a world runtime, with
 I/O confined to a capability boundary.
 
-We report a concrete reproducibility result: eleven independent, single-file Rust
+We report a concrete reproducibility result: thirteen independent, single-file Rust
 implementations — of the kernel, the renderer, the physics, the exact-integer math
 spine, the bounded fixed-point dynamics, and the four-rung netcode stack (lockstep,
 rollback, authenticated inputs, authored worlds) — reproduce the reference
@@ -226,8 +226,10 @@ defective build **caught** in every case:
 | `worldstep-rs`    | netcode N4: authored-world runtime — arena equivalence with frozen N1 + the `highway` scene | **1**(+equiv) | ADMITTED; no-statics defect at the shared three-language anchor |
 | `worldpeer-rs`    | netcode N5: the composed contract — world pin + roster root + converged late+signed trace | **3** | ADMITTED ×2; C99 port agrees on all five anchors incl. the defect (`d5bc484b`) |
 | `worldregion-rs` / `worldregion-c` (C99) | **N4.1 + D16**: the `seam2` composed regional trace **==** the monolith (Seam Composition Theorem) + the tick-11 dropped-boundary divergence | **1** | ADMITTED — Rust (Windows/`rustc`) **and** C99 (Linux/gcc) reproduce the monolith, the composed trace, and the failure mode bit-for-bit |
+| `toric-rs` / `toric-c` (C99) | **D17 detector**: GF(2) homology — the `torus3` boundary digest + `k = dim H1` (torus 2/3/4 → 2, sphere → 0) | **1** | ADMITTED — Rust (Windows) + C99 (Linux) reproduce the digest and code dimension bit-for-bit |
+| `rigidity-rs` / `rigidity-c` (C99) | **D17 detector**: exact i128-Bareiss rank — four rigidity certificates + the overflow `REFUSE` | **4**(+refuse) | ADMITTED — Rust (Windows) + C99 (Linux) reproduce all verdicts/ranks/dofs and the refusal bit-for-bit |
 
-The eleven Rust and two C99 placements share no code, language, or SHA-256 implementation with the
+The 13 Rust and 4 C99 placements share no code, language, or SHA-256 implementation with the
 reference. This is the paper's central result: across the whole pipeline —
 **state, pixels, motion, reactive fields, and the networked transcript** — a
 second, independent implementation computes the identical digest, so the digests
@@ -394,9 +396,10 @@ Urðr demonstrates that a single discipline — content-addressed identity, exac
 computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
-eleven independent Rust placements (and two C99 runtimes) reproduce the reference's state, frame, physics,
+thirteen independent Rust placements (and four C99 runtimes) reproduce the reference's state, frame, physics,
 exact-math, fixed-point-dynamics, and netcode-stack digests — including the
 lockstep/rollback transcript, signed-input admission, an authored world with
-body-body contact, and a regionally-partitioned simulation that recomposes to the
-same witness — bit-for-bit on fixed corpora, behind a 384-test gate with typed
+body-body contact, a regionally-partitioned simulation that recomposes to the
+same witness, and two invariant detectors (the toric code and the rigidity verdict) —
+bit-for-bit on fixed corpora, behind a 412-test gate with typed
 refusa

@@ -70,12 +70,13 @@ SHA-256 (no crates, no cargo): `tools/urdr_core_rs/`, `tools/render/urdr_render_
 `tools/physics/urdr_physics_rs/`, `tools/intla/urdr_math_rs/` (the exact-integer
 linear-algebra spine + atlas certificates), `tools/physics/fp_dynamics_rs/` (the
 bounded fixed-point steppers — rung 5), and the netcode placements
-`tools/netcode/{lockstep,rollback,authinput,worldstep,worldpeer}_rs/` (rungs N1–N5) plus
-`tools/netcode/worldregion_{rs,c}/` (D16 regional authority + N4.1 contact) — each
-ADMITTED on Windows/`rustc`, MEASURED both placements, with its port logic first
-validated by an independent C99 `__int128` cross-check that agrees on the golden
-AND the defect digests). The math spine additionally has a **third-runtime C99
-placement** `tools/intla/urdr_math_c/` (single file, std-only, `__int128`) — three
+`tools/netcode/{lockstep,rollback,authinput,worldstep,worldpeer}_rs/` (rungs N1–N5),
+`tools/netcode/worldregion_{rs,c}/` (D16 regional authority + N4.1 contact), and the two
+invariant detectors `tools/intla/{toric,rigidity}_{rs,c}/` (the toric-code dimension and
+the rigidity verdict) — each ADMITTED on Windows/`rustc`, MEASURED both placements, with
+its port logic first validated by an independent C99 cross-check that agrees on the golden
+AND the defect digests. Counting the math spine's `tools/intla/urdr_math_c/` (std-only,
+`__int128`), that is **thirteen Rust placements and four C99 runtimes** — three
 languages, two OSes, one digest.
 
 ---
@@ -210,10 +211,10 @@ These are non-negotiable. Every rung in this repo was built under them.
 | `verify.py` | **the gate** (CI) — run `PYTHONHASHSEED=0 python3 verify.py` |
 | `examples/` | `.urdr` programs (42) with `.digest` goldens; `examples/rejected/` (45 typed-refusal fixtures) |
 | `tests/` | Python falsifiers discovered by the gate's unit stage |
-| `tools/intla/` | `urdr-math` (exact integer linear algebra), `urdr-rigidity` |
+| `tools/intla/` | `urdr-math` (exact integer linear algebra), `urdr-rigidity`, and the D17 invariant-detector library (`gf2` exact 𝔽₂ substrate, `toric` code dimension, `persim` persistence barcode) |
 | `tools/physics/` | exact dynamics, LCP, joints, `field.py`; the `Q`/`Vec` exact substrate; **`fp_dynamics.py`** bounded fixed-point steppers (rung 5) |
 | `tools/render/` | fixed-point rasterizer (`raster.py`) + 3D depth (`raster3d.py`) |
-| `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics) |
+| `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics, the N1–N5 netcode stack, D16 regional authority, and the toric/rigidity detectors) |
 | `tools/netcode/` | The N1–N5 stack: **`lockstep.py`** (peers exchange inputs only, one `URDRLST1` witness chain, desyncs localized), **`rollback.py`** (canonical snapshots; late inputs rewind + replay and converge to the N1 chain; `ROLLBACK-REFUSE`/`ROLLBACK-CONFLICT`), **`authinput.py`** (Lamport-OTS envelopes gate admission; `AUTH-REFUSE`), **`worldstep.py`** (authored `URDR-WORLD-3` scenes in the loop; `WORLD-REFUSE`; **N4.1** opt-in sqrt-free body-body contact), **`worldpeer.py`** (N5 — the composed contract: authored world + authenticated transcript → one witness or one typed refusal; `URDRWPN1` world pin), and **`worldregion.py`** (**D16** regional authority: partition by integer x-seams → deterministic reunification reproduces the monolith witness, `REGION-REFUSE`); six corpora + Rust placements `{lockstep,rollback,authinput,worldstep,worldpeer}_rs` + `worldregion_{rs,c}`; all frozen at 0.1 in D12 |
 | `tools/editor/` | browser authoring + deterministic-replay front-end (`urdr_designer.html`, `replay.py`, `load_world.py`) — **exploratory** consumer; the `--fp` stepping it demos is the gated rung 5 |
 | `tools/world_host/` | multi-actor world runtime (weave, history, regional) |

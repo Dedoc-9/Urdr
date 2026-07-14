@@ -21,17 +21,17 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **Ten** single-file Rust placements
-(core / render / physics / math / fixed-point dynamics / lockstep / rollback / auth / world / worldpeer) reproduce the reference's kernel,
-frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, and composed end-to-end digests bit-for-bit
-on fixed corpora, behind a **412-test gate** — and the math spine has a **third**, C99 placement, so
-rank/determinant/injectivity/reconstruction agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
+across independent implementations or explicitly refused. **Thirteen** single-file Rust placements
+(core / render / physics / math / fixed-point dynamics / lockstep / rollback / auth / world / worldpeer / worldregion / toric / rigidity) reproduce the reference's kernel,
+frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, and two invariant-detector digests bit-for-bit
+on fixed corpora, behind a **412-test gate** — and the math spine plus the toric and rigidity detectors carry **four** C99 placements, so
+rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P5 · N1–N5 · N4.1 · D14–D16)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 + the invariant-detector library)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -407,32 +407,36 @@ catch every injected desync at the first mismatching tick. Walkthrough: [`demo/`
 ## Further development
 
 Graded honestly — what is *not* yet done, and what kind of work each is. Several items from earlier
-revisions are now **MEASURED** and have moved into the pipeline above: **N5** (authenticated rollback
-over authored worlds, both placements, frozen), **N4.1** (body-body contact — the "inert mass" debt is
-paid, cross-placed C99 + Rust), **D15** (the view-export contract, frozen, independent viewer admitted),
-**D16** (regional authority — frozen, three placements), the general-*n* injectivity certificate and
-reconstruction/inversion (both **cross-placed** via `urdr-math-rs`), exact perspective projection
-(renderer rung 3, cross-placed), and Marangoni surface-tension transport with the two-way field↔body
-coupling loop (Continuum, cross-placed / reference). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
+revisions are now **MEASURED** and have moved into the pipeline above: **N5** (authenticated rollback,
+frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contract, frozen), **D16**
+(regional authority — frozen, three placements), **D17** (the invariant-detector admission law — a
+*meta-contract* that names the pattern D14/D15/D16 already share; mechanically enforced by the
+`invariant_detectors` lint), a **seven-detector library** admitted under it (D14, D15, D16, rigidity,
+criticality, toric code, persistent homology), **criticality** (P6, reactor-kinetics field), and
+**field-level desync localization** (Phase-2 observability). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
 
-- **Third-language placements of the remaining layers.** The math spine is now **three-runtime**
-  (Python + Rust + a C99 placement, `tools/intla/urdr_math_c/`, measured on Linux/gcc — two OSes);
-  extending a third runtime to the kernel / render / physics corpora widens the frontier further.
+- **Phase IV — coverage over architecture (the current direction).** With D17 written and enforced, the
+  organizing question is no longer "what subsystem?" but "what invariant deserves admission?" Each new
+  detector comes from a qualitatively different mathematical family and must admit under the *same* six
+  conditions unchanged; the first that forces D17 to flex would be the informative one. Next candidates,
+  ranked: **matroid rank** (combinatorial independence), **SAT/UNSAT certificates** (proof objects, not
+  algebraic witnesses), then a searchable **detector atlas**. Deliberately *not* pursued: new D-series
+  meta-contracts, new primitive alphabets, or automatic detector discovery — D17 is young and the
+  strongest evidence now comes from admitting diverse detectors, not adding architecture.
+- **Cross-placement of the reference detectors.** D17's Axis A (reproduction) separates `REFERENCE` from
+  `CROSS-PLACED`. Toric and rigidity are now cross-placed (C99 self-verified + Rust admitted on Windows);
+  **criticality** and **persim** remain reference-only and are the next cross-placement targets.
+- **Scale-out as falsification of the sealed model (D16 → the next workloads).** The next surfaces —
+  **dynamic repartitioning** (seams that move / regions that split & merge on a live tick),
+  **interest-management / authority migration**, and a **distributed authority graph** — are pursued as
+  *attempts to break the model*: each is expected to compose on the existing witness laws, and a clean
+  pass is one more datum in **D5 § "Evidence Against C8."** Graded by integration tests and, where a
+  witness is involved, by the same bit-for-bit composition discipline as D16 — not a new primitive.
+- **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and two
+  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **13 Rust + 4 C99
+  placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
-- **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles —
-  the renderer rung beyond wireframe.
-- **Scale-out as falsification of the sealed model (D16 → the next workloads).** Regional authority
-  (**D16**) landed the first scale-out rung: one simulation partitioned into regions that recompose to
-  the identical witness, frozen and three-placed. The next surfaces — **dynamic repartitioning** (seams
-  that move / regions that split & merge on a live tick), **interest-management / authority migration**
-  (thousands of bodies changing owner every few ticks), and a **distributed authority graph** (regions
-  on different machines, delayed ghost updates) — are pursued deliberately as *attempts to break the
-  model*: each is expected to compose on the existing witness laws, and a clean pass is one more datum
-  in **D5 § "Evidence Against C8."** They are graded by integration tests and, where a witness is
-  involved, by the same bit-for-bit composition discipline as D16 — not by inventing a new primitive.
-- **Third-language placements of the remaining layers.** The math spine and the whole netcode stack are
-  now multi-runtime (Python + Rust + C99, two OSes); the frontier is extending a third runtime to the
-  kernel / render / physics corpora. (`worldregion_c` + `worldregion_rs` already cross-place N4.1 + D16.)
+- **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles.
 - **The language stays sealed — reviewed, not assumed.** [`spec/D13`](spec/D13-glyph-probe.md) ran a
   first-principles review of sixteen primitive candidates against five admission tests: **zero
   admissions**, two load-bearing rejections (catchable refusals, effect handlers), and one deferral

@@ -179,8 +179,10 @@ the alphabet proved invariant.
    the project had never touched (quantum error correction) entered under the admission law unchanged.
 4. Thereafter, every new domain (a symmetry-group detector, a persistent-homology detector, a
    representation/character detector, a conserved-quantity detector) is a plugin answering the one
-   question, and the C8 discipline governs whether any of them ever needs a new *primitive* rather
-   than a new *detector*.
+   question. The **persistent-homology detector has since landed** (`tools/intla/persim.py` — a
+   barcode over 𝔽₂, the first diagram-valued rather than scalar invariant), admitted under the
+   *same* six conditions; the lint now enforces **seven detectors**. The C8 discipline governs
+   whether any of them ever needs a new *primitive* rather than a new *detector*.
 
 ## 9. Coverage — the boundary of what is claimed exact
 
