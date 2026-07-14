@@ -1881,6 +1881,21 @@ are a *name-keyed map* (a repeat overwrites), and the C initially appended; the 
 input 96 of 257. Every functional stage of the frontfps ladder (1–6) is now cross-placed on the
 reproduction axis — C99 self-verified, Rust owner-attested as each run lands.
 
+**Stage 7 opened — work accounting MEASURED, performance NOT_MEASURED by law.** `frontbench.py`
+(URDR-FPSW-BENCH-1) composes the measured per-module proxies into the exact frozen-division count for the
+canonical 100-biped sim tick — `sim_tick_divisions(100) = 100 × (fpclip 55 + fppose 77) = 13200` — pinned
+and cross-checked against real instrumented execution (the model equals the work), with a drop-animation
+defect that underestimates the tick. The bench protocol's host-independent bridge (`docs/bench_protocol.md`
+§4) is now the composed count, not a single proxy: multiply 13200 by a once-measured cost-per-frozen-division
+on the named host and the 3 ms sim budget becomes an audit. **The honesty boundary is a gate row:**
+`frontbench-budget` asserts that no ms/fps entry in the budget manifest reads MEASURED without a §3 host log,
+and that a manifest claiming one is caught — so no performance number can silently graduate. Grade: work
+accounting **MEASURED** (exact, host-independent, gated); all performance (ms / fps / 1080–1440p / BF6)
+**NOT_MEASURED** with the named-host precondition. Gate stage `frontbench` (4 rows) +
+`tests/test_frontbench.py` (7 falsifiers) → gate **504 / 367**. The wall-clock `--measure` runs on any host
+but its output is labelled NOT_MEASURED; only the `bench_protocol.md` §3 run on the ROG Ally X turns the
+pinned counts into milliseconds — and that run, not this module, is what would move the perf grades.
+
 The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
 derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;
 automation proposes, the gate disposes, nothing enters authority ungated. Performance/visual targets

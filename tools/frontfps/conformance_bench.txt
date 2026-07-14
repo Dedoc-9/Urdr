@@ -1,0 +1,9 @@
+# URDR-FPSW-BENCH-1 work-accounting corpus (frontfps Stage 7) — 2 counts, declared 2.
+# bench_sim_tick = 100 bipeds x (fpclip 55 pose-sample + fppose 77 world-transform) frozen
+#   divisions per sim tick. Host-independent; x measured cost-per-division on the named host
+#   = the ms audit (docs/bench_protocol.md sec 4). Performance itself is NOT_MEASURED by law.
+# bench_per_biped = 55 + 77 = 132.
+# Reference placement: Linux/CPython 3.10, PYTHONHASHSEED=0.
+# name  value
+bench_sim_tick 13200
+bench_per_biped 132

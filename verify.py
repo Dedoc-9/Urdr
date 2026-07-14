@@ -2466,6 +2466,60 @@ class Gate:
                     f"{canaries}/4 malformed emissions typed-refused (TEXT/FPSW)"
                     if canaries == 4 else f"only {canaries}/4 refused")
 
+    # -- frontbench: Stage-7 host-independent work accounting (URDR-FPSW-BENCH-1) --
+    def frontbench(self):
+        """URDR-FPSW-BENCH-1 — the exact per-tick work model (tools/frontfps/
+        frontbench.py): the pinned 100-biped sim-tick division count ×2, the
+        composition cross-check (model == instrumented execution == the fpclip +
+        fppose proxies), the drop-animation defect, and the honesty boundary — no
+        ms/fps budget entry may read MEASURED without a named-host log (a manifest
+        that claims one is caught). Performance itself stays NOT_MEASURED."""
+        for d in ("frontfps", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import fpclip as FC
+            import fppose as FP
+            import frontbench as FB
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("frontbench", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(ROOT, "tools", "frontfps", "conformance_bench.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        k, v = line.split()
+                        goldens[k] = v
+        except Exception as exc:
+            self.record("frontbench", False, f"corpus unreadable: {exc}")
+            return
+        w1 = FB.sim_tick_divisions(100)
+        w2 = FB.sim_tick_divisions(100)
+        ok = w1 == w2 == int(goldens.get("bench_sim_tick", -1))
+        self.record("frontbench:work", ok,
+                    f"{w1} frozen divisions / 100-biped sim tick (×2, pinned)" if ok
+                    else f"{w1}/{w2} ≠ pinned {goldens.get('bench_sim_tick')}")
+        clip = FC.count_pose_ops(FC.demo_walk(), FB._T)
+        pose = FP.count_pose_world_ops(FP.demo_rig(), FP.demo_pose())
+        comp = (FB.counted_sim_tick(100) == w1
+                and FB.per_biped_divisions() == clip + pose == int(goldens.get("bench_per_biped", -1)))
+        self.record("frontbench-composition", comp,
+                    f"model == instrumented execution == {clip}+{pose} per biped (bridge faithful)"
+                    if comp else "composition mismatch")
+        defect = FB.sim_tick_divisions_defect_drop_clip() != w1
+        self.record("frontbench-selftest", defect,
+                    "drop-animation defect underestimates the tick (gate can redden)"
+                    if defect else "defect did not diverge")
+        honest = (FB.no_perf_is_measured()
+                  and not FB.no_perf_is_measured(FB.budget_defect_claims_measured()))
+        self.record("frontbench-budget", honest,
+                    "every ms/fps budget entry NOT_MEASURED/DECLARED; a MEASURED-without-a-log manifest is caught (gate can redden)"
+                    if honest else "honesty boundary broken")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -3094,6 +3148,7 @@ def main() -> int:
     gate.frontfps_pose()
     gate.frontfps_view()
     gate.frontfps_text()
+    gate.frontbench()
     gate.rigidity_verdict()
     gate.view_export()
     gate.field()
