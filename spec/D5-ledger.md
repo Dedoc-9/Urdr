@@ -1837,8 +1837,9 @@ Scene); (3) *bandwidth* — bytes per authored scene are host-independent, pinne
 opening on a delta — is `VIEW-REFUSE`d. Gate stage `frontfps_view` (5 rows) + `tests/test_frontfps_view.py`
 (11 falsifiers) → gate **485 unit falsifiers / 356 rows**. Cross-placed: `fpview_c/frontfps_view.c` self-verified in-session (`-Wall -Wextra`, golden `bc60023…` ×2,
 332 bytes, decode 4 frames, 3 VIEW-REFUSE, fold-defect `d5ea65e…` parity) → **MEASURED (C99)**;
-`fpview_rs/frontfps_view.rs` authored → **SPECULATIVE** until the owner's Windows run. The native
-layer-3 renderer stays outside the gate by its own law (frontfps README §6 / roadmap §4).
+`fpview_rs/frontfps_view.rs` **ADMITTED ×2 + `--defect` caught on the owner's Windows host** (rustc -O,
+2026-07-13) → **MEASURED**. The native layer-3 renderer stays outside the gate by its own law
+(frontfps README §6 / roadmap §4).
 
 **Stage 6 — the LLM authoring surface (`frontfps_text.py`, URDR-FPSW-TEXT-1), MEASURED (reference).**
 A line-oriented ASCII form of the URDR-FPSW-1 canon — the surface a model emits and edits as plain text —
@@ -1853,6 +1854,17 @@ certified; an asymmetric defect violates it). Gate stage `frontfps_text` (7 rows
 (12 falsifiers) → gate **497 unit falsifiers / 363 rows**. Cross-placement SPECULATIVE. `does_not_show`:
 that any particular model emits valid worlds — that is a model property, not a gate property; the gate proves
 the surface is total, typed, round-tripping, and repair-signalling.
+
+**Stage 1 world canon cross-placed — the foundation reaches the 2-OS parity bar.** The URDR-FPSW-1 world
+canon (`frontfps.py`, the identity law under everything above) previously had no second placement. It now
+does: `frontcanon_c/frontcanon.c` is a generic serializer (name-keyed maps sorted, edge lists normalized
+min-first then sorted, authored sequences kept in order) that builds the canon from hardcoded world DATA —
+not a pre-baked string — and reproduces `world_digest(crate_solo)=6c4c807f…` and
+`world_digest(arena_duel)=0c9ec33a…` bit-for-bit ×2, plus the provenance-folding defect
+(`6464df51…` / `259094eb…`), self-verified in-session (`cc -O2 -std=c99 -Wall -Wextra`) → **MEASURED (C99)**;
+`frontcanon_rs/frontcanon.rs` authored → **SPECULATIVE** until the owner's Windows run. This unblocks a
+faithful `frontfps_text` cross-placement (its fuzz-outcome digest hashes admitted worlds' `world_digest`,
+which now has an independent implementation to agree with).
 
 The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
 derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;
