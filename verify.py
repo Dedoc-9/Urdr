@@ -2333,6 +2333,65 @@ class Gate:
                     f"{ops} frozen divisions per world-transform pass (pinned budget proxy)"
                     if ok else f"{ops} ≠ pinned {goldens.get('pose_ops')}")
 
+    # -- frontfps_view: the display-only view stream (Stage 5, URDR-FPSW-VIEW-2) --
+    def frontfps_view(self):
+        """URDR-FPSW-VIEW-2 — the delta-framed view stream (tools/frontfps/
+        frontfps_view.py): stream digest ×2, the recompute law, the no-feedback
+        law (authority witness ⟂ presentation + the fold defect + the lossy
+        display projection), the three VIEW-REFUSE canaries, and the pinned
+        per-scene byte count (bandwidth proxy, never fps)."""
+        p = os.path.join(ROOT, "tools", "frontfps")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import frontfps_view as FV
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("frontfps-view", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(ROOT, "tools", "frontfps", "conformance_view2.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        k, v = line.split()
+                        goldens[k] = v
+        except Exception as exc:
+            self.record("frontfps-view", False, f"corpus unreadable: {exc}")
+            return
+        d1 = FV.stream_digest()
+        d2 = FV.stream_digest()
+        ok = d1 == d2 == goldens.get("view_stream")
+        self.record("fpview:stream", ok, d1[:16] + "… (×2)" if ok
+                    else f"{d1[:12]}…/{d2[:12]}… ≠ golden {goldens.get('view_stream','?')[:12]}…")
+        rc = FV.recompute_matches()
+        self.record("fpview-recompute", rc,
+                    "decode∘encode reproduces the display seq; bound witness recomputes"
+                    if rc else "recompute mismatch")
+        inv = FV.witness_invariant_under_presentation()
+        fold = FV.defect_folds_presentation_into_witness()
+        lossy = FV.display_is_lossy()
+        self.record("fpview-nofeedback", inv and fold and lossy,
+                    "authority witness ⟂ presentation; fold defect moves it; display lossy (gate can redden)"
+                    if inv and fold and lossy else f"inv={inv} fold={fold} lossy={lossy}")
+        canaries = 0
+        for fn in (FV.demo_stream_missing_base, FV.demo_stream_delta_first,
+                   FV.demo_stream_bad_magic):
+            try:
+                FV.decode_stream(fn())
+            except FV.ViewError:
+                canaries += 1
+        valid = len(FV.decode_stream(FV.encode_stream(FV.demo_trajectory(), FV.CANON_SHIFT))) == 4
+        self.record("fpview-refusal", canaries == 3 and valid,
+                    f"{canaries}/3 VIEW-REFUSE typed + valid stream decodes"
+                    if canaries == 3 and valid else f"canaries={canaries} valid={valid}")
+        nb = FV.stream_bytes()
+        okb = nb == int(goldens.get("view_bytes", -1))
+        self.record("fpview-bytes", okb,
+                    f"{nb} bytes per authored scene (pinned bandwidth proxy)"
+                    if okb else f"{nb} ≠ pinned {goldens.get('view_bytes')}")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -2959,6 +3018,7 @@ def main() -> int:
     gate.frontfps_quat()
     gate.frontfps_clip()
     gate.frontfps_pose()
+    gate.frontfps_view()
     gate.rigidity_verdict()
     gate.view_export()
     gate.field()

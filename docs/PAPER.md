@@ -31,7 +31,7 @@ implementation's output digests **bit-for-bit** on fixed conformance corpora
 digests, 3 fixed-point field + 3 Marangoni + 3 coupling-loop digests, 20 exact-math
 digests, 2 fixed-point-dynamics traces, and the netcode transcript/roster/signed-chain
 and authored-world goldens), twice each, with deliberately-defective builds caught —
-in the netcode stack the placements agree on the *defect* digests as well. A 474-test
+in the netcode stack the placements agree on the *defect* digests as well. A 485-test
 verification gate enforces
 determinism, golden agreement, an in-process oracle, and 45 typed rejection
 fixtures on every change. We are precise about scope: this demonstrates
@@ -248,7 +248,7 @@ online build offline-reproducible.
 
 ### 5.3 Conformance corpus & gate
 
-The gate runs, deterministically: **474** unit falsifiers; **42** example programs
+The gate runs, deterministically: **485** unit falsifiers; **42** example programs
 checked for determinism (twice) and golden agreement; an in-process oracle
 (`compiled ≡ reference`) with a defect that must diverge; **45** rejection fixtures
 each producing an exact typed refusal code; per-layer stages for the registry,
@@ -401,5 +401,5 @@ exact-math, fixed-point-dynamics, and netcode-stack digests — including the
 lockstep/rollback transcript, signed-input admission, an authored world with
 body-body contact, a regionally-partitioned simulation that recomposes to the
 same witness, and two invariant detectors (the toric code and the rigidity verdict) —
-bit-for-bit on fixed corpora, behind a 474-test gate with typed
+bit-for-bit on fixed corpora, behind a 485-test gate with typed
 refusa

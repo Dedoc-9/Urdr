@@ -1,0 +1,8 @@
+# URDR-FPSW-VIEW-2 view-stream corpus (frontfps Stage 5) — 1 digest + 1 byte count, declared 2.
+# view_stream = sha256(encode_stream(demo_trajectory, shift=4)): one keyframe + three delta
+#   frames, each carrying the bound AUTHORITY witness (raw state) + the quantized display rows.
+# view_bytes = len(that stream) — the host-independent bandwidth proxy (never fps).
+# Reference placement: Linux/CPython 3.10, PYTHONHASHSEED=0.
+# name  value
+view_stream bc60023403a95b82f807704c41e7998eb365bc1195d024f87f99226b99dd3cae
+view_bytes 332

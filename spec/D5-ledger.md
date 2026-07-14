@@ -1810,9 +1810,9 @@ i128 (sufficient, since operands ≤ i64) makes the placement refuse identically
 **frontfps — the consolidated FPS/MMO authoring front end (Stages 1–4), graded.** `tools/frontfps/` is one
 consolidated module line carrying the authority-side authoring surface of a shooter/MMO: world canon
 (`frontfps.py`, URDR-FPSW-1), the Q32.32 rotation substrate (`fpquat.py`, URDRFPQ1), the pose/clip canon
-(`fpclip.py`, URDRCLP1), and posed transforms + hitbox capsules (`fppose.py`, URDRPSE1). Each is
+(`fpclip.py`, URDRCLP1), and posed transforms + hitbox capsules (`fppose.py`, URDRPSE1), and the display-only view stream (`frontfps_view.py`, URDR-FPSW-VIEW-2). Each is
 **MEASURED (reference)** via its own gate stage (`frontfps`, `frontfps_quat`, `frontfps_clip`,
-`frontfps_pose`) with red-first falsifiers; the substrate reuses the frozen FIELDFP laws (ONE = 2³²,
+`frontfps_pose`, `frontfps_view`) with red-first falsifiers; the substrate reuses the frozen FIELDFP laws (ONE = 2³²,
 `_rdiv` round-to-nearest ties-away, i64 refusal ceiling) — nothing reinvented. Cross-placement (Axis A):
 `fpquat` and `fpclip` are three placements each (Python + C99 self-verified in-session, gcc 11.4 + Rust
 owner-attested on Windows/rustc), golden AND defect digest parity. **`fppose` is now cross-placed:**
@@ -1823,6 +1823,20 @@ coverage defect both bite, 77-op budget proxy, refusals total → **MEASURED (C9
 defect `04f23abe…`) → **MEASURED**. So fppose is three placements, two OSes, golden AND defect parity. The
 interior point-in-capsule test multiplies two ~2⁸⁰ integers, so the placements carry a small u256
 mul/add/compare (i128 tops out at 2¹²⁷); all operands are non-negative on that branch.
+
+**Stage 5 — the display-only view stream (`frontfps_view.py`, URDR-FPSW-VIEW-2), MEASURED (reference).**
+A binary, delta-framed successor of D15's `to_view`: one keyframe then delta frames encoding only the
+actors whose quantized transform changed since a named base. Three laws, each a gate row that can redden:
+(1) *recompute* — encode is byte-identical twice and decode∘encode reproduces the display sequence with the
+bound witness recomputed; (2) *no-feedback* — the bound authority witness is invariant under presentation
+(the LOD shift), a fold defect that binds the witness to the quantized display MUST move it, and the decoded
+display is a proven **lossy** projection (two distinct authority states collapse to one display, so there is
+no inverse back to authority — the firewall is structural, the decoder returns a display frame, never a
+Scene); (3) *bandwidth* — bytes per authored scene are host-independent, pinned (`view_stream bc60023…`,
+`view_bytes 332`) like the op-count proxies, never fps. A delta referencing a base never sent — or a stream
+opening on a delta — is `VIEW-REFUSE`d. Gate stage `frontfps_view` (5 rows) + `tests/test_frontfps_view.py`
+(11 falsifiers) → gate **485 unit falsifiers / 356 rows**. Cross-placement SPECULATIVE (queued). The native
+layer-3 renderer stays outside the gate by its own law (frontfps README §6 / roadmap §4).
 
 The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
 derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;
