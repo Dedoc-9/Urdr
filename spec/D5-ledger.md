@@ -1835,7 +1835,9 @@ no inverse back to authority — the firewall is structural, the decoder returns
 Scene); (3) *bandwidth* — bytes per authored scene are host-independent, pinned (`view_stream bc60023…`,
 `view_bytes 332`) like the op-count proxies, never fps. A delta referencing a base never sent — or a stream
 opening on a delta — is `VIEW-REFUSE`d. Gate stage `frontfps_view` (5 rows) + `tests/test_frontfps_view.py`
-(11 falsifiers) → gate **485 unit falsifiers / 356 rows**. Cross-placement SPECULATIVE (queued). The native
+(11 falsifiers) → gate **485 unit falsifiers / 356 rows**. Cross-placed: `fpview_c/frontfps_view.c` self-verified in-session (`-Wall -Wextra`, golden `bc60023…` ×2,
+332 bytes, decode 4 frames, 3 VIEW-REFUSE, fold-defect `d5ea65e…` parity) → **MEASURED (C99)**;
+`fpview_rs/frontfps_view.rs` authored → **SPECULATIVE** until the owner's Windows run. The native
 layer-3 renderer stays outside the gate by its own law (frontfps README §6 / roadmap §4).
 
 **Stage 6 — the LLM authoring surface (`frontfps_text.py`, URDR-FPSW-TEXT-1), MEASURED (reference).**

@@ -222,8 +222,14 @@ pinned as the bandwidth proxy. The no-feedback law is non-vacuous: the fold
 defect makes the bound authority witness presentation-dependent (the gate
 reddens), and the decoded display is a proven lossy projection — two distinct
 authority states collapse to one display, so there is no inverse back to
-authority. Cross-placement (C99/Rust) is SPECULATIVE, queued. The native
-layer-3 renderer stays outside the gate by its own law (§6).
+authority. The native layer-3 renderer stays outside the gate by its own law (§6).
+
+**Act, addendum (cross-placement).** `fpview_c/frontfps_view.c` ADMITTED on the
+sandbox gcc-11.4 host (`-Wall -Wextra` clean, first compile): stream golden
+`bc60023…` bit-for-bit ×2, 332 bytes, decode 4 frames, 3 VIEW-REFUSE, and the
+fold-defect digest `d5ea65e…` matches the reference AND diverges from the golden —
+golden AND defect parity. `fpview_rs/` authored (std-only, own SHA-256),
+SPECULATIVE until the owner's host prints ADMITTED ×2 with `--defect`.
 
 ## 2f. Stage 6 (LLM authoring surface) — SHIPPED. OODA-6 report
 
@@ -341,7 +347,8 @@ numbers will be born circular.
 | `fppose` C99 placement — posed golden `fee3c118…` ×2, coverage walk+reach, swapped-compose defect `04f23abe…` + local-offset defect both bite, 77 ops, refusals total | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fppose_c/fppose.c` self-verify + `--defect` |
 | `fppose` Rust placement — ADMITTED ×2 + defect caught, golden `fee3c118…` and defect `04f23abe…` bit-for-bit | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fppose_rs/fppose.rs` self-verify + `--defect` |
 | `frontfps_view` view stream: URDR-FPSW-VIEW-2 delta framing; recompute law; no-feedback (witness ⟂ presentation, fold defect, lossy display); VIEW-REFUSE canaries; pinned per-scene byte count | IMPLEMENTED | MEASURED | `frontfps_view` gate stage; `tests/test_frontfps_view.py` |
-| `frontfps_view` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued |
+| `frontfps_view` C99 placement — stream golden `bc60023…` ×2, 332 bytes, decode 4 frames, 3 VIEW-REFUSE, fold-defect `d5ea65e…` parity | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fpview_c/frontfps_view.c` self-verify + `--defect` |
+| `frontfps_view` Rust placement — ADMITTED ×2 + fold-defect caught | IMPLEMENTED | SPECULATIVE (owner's Windows host, pending run) | `fpview_rs/frontfps_view.rs` self-verify + `--defect` |
 | `frontfps_text` LLM authoring surface: URDR-FPSW-TEXT-1 line canon; round-trip + identity; adversarial fuzz totality; repair-signal loop; `auto_arena` (§4 law) | IMPLEMENTED | MEASURED | `frontfps_text` gate stage; `tests/test_frontfps_text.py` |
 | `frontfps_text` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued |
 | Stage 7 (native bench) | SPECULATIVE | N/A | this README §3 |
