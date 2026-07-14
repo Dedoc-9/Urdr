@@ -1862,9 +1862,24 @@ min-first then sorted, authored sequences kept in order) that builds the canon f
 not a pre-baked string — and reproduces `world_digest(crate_solo)=6c4c807f…` and
 `world_digest(arena_duel)=0c9ec33a…` bit-for-bit ×2, plus the provenance-folding defect
 (`6464df51…` / `259094eb…`), self-verified in-session (`cc -O2 -std=c99 -Wall -Wextra`) → **MEASURED (C99)**;
-`frontcanon_rs/frontcanon.rs` authored → **SPECULATIVE** until the owner's Windows run. This unblocks a
+`frontcanon_rs/frontcanon.rs` **ADMITTED ×2 + fold defect caught on the owner's Windows host** (rustc -O,
+2026-07-13) → **MEASURED**. This unblocks a
 faithful `frontfps_text` cross-placement (its fuzz-outcome digest hashes admitted worlds' `world_digest`,
 which now has an independent implementation to agree with).
+
+**Stage 6 cross-placed end-to-end — the LLM authoring surface holds across two languages.** With the world
+canon placed, `frontfps_text_c/frontfps_text.c` (an independent parser + checker + canon + emitter + the
+seeded fuzz harness) reproduces, bit-for-bit: `text_canon` (`2718c63e…`), round-trip parity on both demo
+worlds, the four refusal canaries' TEXT-REFUSE / FPSW-REFUSE classification, AND the **full fuzz-outcome
+digest** (`e57dfaea…`) — every one of 257 seeded adversarial inputs classifying identically (74 admit /
+85 FPSW / 98 TEXT), self-verified in-session (`cc -O2 -std=c99 -Wall -Wextra`) → **MEASURED (C99)**;
+`frontfps_text_rs/frontfps_text.rs` **ADMITTED on the owner's Windows host** (rustc -O, 2026-07-13),
+reproducing the full fuzz-outcome digest `e57dfaea…` + defect → **MEASURED**; so the 257-input fuzz
+classification now agrees across THREE implementations (Python + C99 + Rust) and two OSes. A porting
+lesson worth keeping: the one classification that first diverged was a duplicated `hitbox` line — hitboxes
+are a *name-keyed map* (a repeat overwrites), and the C initially appended; the fuzz digest caught it on
+input 96 of 257. Every functional stage of the frontfps ladder (1–6) is now cross-placed on the
+reproduction axis — C99 self-verified, Rust owner-attested as each run lands.
 
 The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
 derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;

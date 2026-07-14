@@ -335,7 +335,7 @@ numbers will be born circular.
 | URDR-FPSW-1 world canon: one identity law over meshes/rigs/hitboxes/actors/spawns/seams; provenance-excluded; order laws tested both sides; FPSW-REFUSE total; no digest for an inadmissible world | IMPLEMENTED | MEASURED | `frontfps` gate stage; `tests/test_frontfps.py` |
 | `auto_capsule` — deterministic capsule derivation with witness + containment certificate; ceiling radius load-bearing | IMPLEMENTED | MEASURED | `frontfps-auto-capsule` row; floor-radius defect |
 | `frontcanon` C99 placement — `world_digest` of both demo worlds bit-for-bit ×2 (`6c4c807f…`, `0c9ec33a…`), provenance-fold defect parity | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `frontcanon_c/frontcanon.c` self-verify + `--defect` |
-| `frontcanon` Rust placement — both goldens ×2 + fold-defect caught | IMPLEMENTED | SPECULATIVE (owner's Windows host, pending run) | `frontcanon_rs/frontcanon.rs` self-verify + `--defect` |
+| `frontcanon` Rust placement — both goldens ×2 + fold-defect caught | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `frontcanon_rs/frontcanon.rs` self-verify + `--defect` |
 | `fpquat` Q32.32 rotation substrate: qmul/norm2/rsqrt/normalize/rotate/nlerp on frozen FIELDFP laws; rsqrt inequality law; FPQ-REFUSE total | IMPLEMENTED | MEASURED | `frontfps_quat` gate stage; `tests/test_fpquat.py` |
 | `fpquat` C99 placement (own SHA-256, own i128 Bareiss-note-compliant arithmetic) — battery digest AND wrap64 defect digest agree with reference, twice | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fpquat_c/fpquat.c` self-verify + `--defect` |
 | `fpquat` Rust placement — ADMITTED ×2 + defect caught, golden `3f4aa0d1…` and defect `5c965ff8…` bit-for-bit | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fpquat_rs/fpquat.rs` self-verify + `--defect` |
@@ -351,7 +351,8 @@ numbers will be born circular.
 | `frontfps_view` C99 placement — stream golden `bc60023…` ×2, 332 bytes, decode 4 frames, 3 VIEW-REFUSE, fold-defect `d5ea65e…` parity | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fpview_c/frontfps_view.c` self-verify + `--defect` |
 | `frontfps_view` Rust placement — ADMITTED ×2 + fold-defect caught | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fpview_rs/frontfps_view.rs` self-verify + `--defect` |
 | `frontfps_text` LLM authoring surface: URDR-FPSW-TEXT-1 line canon; round-trip + identity; adversarial fuzz totality; repair-signal loop; `auto_arena` (§4 law) | IMPLEMENTED | MEASURED | `frontfps_text` gate stage; `tests/test_frontfps_text.py` |
-| `frontfps_text` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued |
+| `frontfps_text` C99 placement — text_canon `2718c63e…` + round-trip both worlds + 4 canaries + **fuzz totality `e57dfaea…`** (257-input TEXT/FPSW/ADMIT classification), prov-fold defect | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `frontfps_text_c/frontfps_text.c` self-verify + `--defect` |
+| `frontfps_text` Rust placement — same four properties bit-for-bit (incl. fuzz totality `e57dfaea…`) | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `frontfps_text_rs/frontfps_text.rs` self-verify + `--defect` |
 | Stage 7 (native bench) | SPECULATIVE | N/A | this README §3 |
 
 ## 8. Run it
