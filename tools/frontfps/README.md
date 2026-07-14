@@ -387,6 +387,8 @@ numbers will be born circular.
 | `frontfps_text` C99 placement — text_canon `2718c63e…` + round-trip both worlds + 4 canaries + **fuzz totality `e57dfaea…`** (257-input TEXT/FPSW/ADMIT classification), prov-fold defect | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `frontfps_text_c/frontfps_text.c` self-verify + `--defect` |
 | `frontfps_text` Rust placement — same four properties bit-for-bit (incl. fuzz totality `e57dfaea…`) | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `frontfps_text_rs/frontfps_text.rs` self-verify + `--defect` |
 | `frontbench` work accounting: URDR-FPSW-BENCH-1 sim-tick division count (100 bipeds = 13200), composition cross-check (model == instrumented execution == module proxies), drop-animation defect, budget-honesty gate | IMPLEMENTED | MEASURED (work only; host-independent) | `frontbench` gate stage; `tests/test_frontbench.py` |
+| `frontbench_c` / `frontbench_rs` native sim-tick placement — per biped sample→pose ×100; posed digest `fee3c118` + 13200 divisions bit-for-bit | IMPLEMENTED | MEASURED (C99 self-verified; correctness) | `frontbench_c/frontbench.c` self-verify; `frontbench_rs/frontbench.rs` on the owner host |
+| Native sim-tick milliseconds (`--measure`) | DECLARED | NOT_MEASURED | `bench_protocol.md` §3 on the Ally X (sandbox datum ~0.125 ms/tick median — informational, ~70× under the Python reference) |
 | Stage 7 performance (ms / fps / 1080–1440p / BF6 visuals) | DECLARED | NOT_MEASURED | `docs/bench_protocol.md` §3 on the named host (ROG Ally X) |
 
 ## 8. Run it

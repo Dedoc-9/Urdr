@@ -1895,6 +1895,23 @@ accounting **MEASURED** (exact, host-independent, gated); all performance (ms / 
 `tests/test_frontbench.py` (7 falsifiers) → gate **504 / 367**. The wall-clock `--measure` runs on any host
 but its output is labelled NOT_MEASURED; only the `bench_protocol.md` §3 run on the ROG Ally X turns the
 pinned counts into milliseconds — and that run, not this module, is what would move the perf grades.
+First reference reading (2026-07-14, `ROG-Ally-X-Z2-Extreme`, Turbo 17→35 W floating): median
+**~715 ns/frozen-division (~9.4 ms/tick)**, wattage-insensitive; p95 ≤11.4 ms; max 16.2 ms sustained —
+an informational upper bound (Python reference), **NOT_MEASURED** for the native target
+(`bench_protocol.md` §4a). The median's power-insensitivity says the native placement, not more watts,
+is the budget lever.
+
+**Native sim-tick placement — the Python upper bound falls ~70× natively (sandbox datum, still
+NOT_MEASURED for the target).** `frontbench_c/frontbench.c` runs the canonical tick natively — per biped:
+fpclip sample → fppose pose, merging the already-cross-placed Q32.32 substrate + sampler + poser —
+self-verified in-session (`cc -O2 -std=c99 -Wall -Wextra`): `sim_tick_digest == fee3c118` (the fppose
+posed golden — sample→pose reproduces it) ×2 and `sim_tick_count(100) == 13200` frozen divisions →
+**MEASURED (C99, correctness)**; `frontbench_rs/frontbench.rs` mirrors it for the Windows host (owner-run).
+Its `--measure` on the Linux sandbox reports ~0.125 ms/tick median (100 bipeds) — ~70× under the Python
+reference's ~9.4 ms and well inside the 3 ms budget — but that is a **sandbox datum, NOT the Ally and
+NOT_MEASURED for the target**: only the `bench_protocol.md` §3 run on the ROG Ally X
+(`frontbench_rs --measure`, cold + soak) turns it into a native millisecond that could move the sim-tick
+grade. Correctness is cross-placed; performance still waits on the named host.
 
 The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
 derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;

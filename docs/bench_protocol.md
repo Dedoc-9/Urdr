@@ -70,11 +70,32 @@ The reference placement cannot earn milliseconds (roadmap §4), but it can pin
 |---|---|---|
 | Frozen divisions per biped pose sample (5 bones, nlerp) | **55** | `fpclip-ops` gate row + `conformance_fpclip.txt` |
 | Sampling complexity | O(bones · log keyframes) + 11 divisions/bone | `fpclip.py` (recipe is the spec) |
+| Frozen divisions per 100-biped sim tick (sample + pose) | **13 200** | `frontbench:work` gate row + `conformance_bench.txt` |
 
 Budgeting use: measure your host's cost-per-frozen-division once (native
 placement, §3 conditions), multiply by the pinned counts, and the 3 ms sim
 budget becomes an audit, not a hope. When the native Stage-7 placement exists,
 the count row is the cross-check that the port didn't change the work.
+
+## 4a. First reference reading (informational — NOT_MEASURED)
+
+Run 2026-07-14, `frontbench.py --measure` (200 reps, 100 bipeds, 13 200 frozen
+divisions/tick) on `ROG-Ally-X-Z2-Extreme · Turbo floating 17→35 W · AC`:
+
+| Power | ns/frozen-division (median / p95 / max) | sim-tick ms (median / p95 / max) |
+|---|---|---|
+| 17 W | 714 | 9.42 |
+| 35 W (4 runs) | 716–719 / 769–865 / 818–1229 | 9.45–9.50 / 10.2–11.4 / 11.0–16.2 |
+
+Reading: the **median is wattage-insensitive** (~715 ns/div, ~9.4 ms) — this
+reference workload is interpreter/dispatch-bound, not power-bound; TDP moves only
+the tail (max spiked to 16.2 ms on one sustained run — `cold ≠ sustained` in
+action). This is the **Python reference upper bound**, NOT the native ≤3 ms
+target: it earns no perf grade (the `frontbench-budget` gate forbids one without a
+§3 native + renderer log), and its only honest uses are confirming the soak/jitter
+methodology and showing that the **native placement, not more watts, is the budget
+lever**. A native sim-tick placement is the next step; input→photon still needs
+the layer-3 renderer.
 
 ## 5. Two corrections to the owner's guide (graded, so they don't propagate)
 

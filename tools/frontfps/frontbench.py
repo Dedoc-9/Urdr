@@ -104,25 +104,41 @@ def budget_defect_claims_measured():
     return [(c, "MEASURED" if c == "sim_tick" else g, v) for c, g, v in BUDGET]
 
 
-def measure_ns_per_division(n=BENCH_BIPEDS, reps=50):
-    """OWNER-ONLY wall clock. NOT gated, NOT_MEASURED — a convenience to turn the
-    pinned count into an ms estimate on the named host. The gate never sees this."""
-    t0 = time.perf_counter_ns()
+def measure_samples(n=BENCH_BIPEDS, reps=200):
+    """OWNER-ONLY wall clock. Returns per-rep ns/frozen-division samples for the
+    REFERENCE (Python) sim tick on THIS host — an upper bound and a thermal-soak
+    check, NOT the native target and NOT_MEASURED for the ≤3 ms sim budget. The
+    gate never sees this."""
+    divs = sim_tick_divisions(n)
+    out = []
     for _ in range(reps):
+        t0 = time.perf_counter_ns()
         run_sim_tick(n, _rdiv)
-    dt = time.perf_counter_ns() - t0
-    return dt / (sim_tick_divisions(n) * reps)
+        out.append((time.perf_counter_ns() - t0) / divs)
+    return out
+
+
+def quantiles(xs):
+    """median, p95, max — never one scalar (`panel != scalar`)."""
+    s = sorted(xs)
+    k = len(s)
+    return s[k // 2], s[min(k - 1, int(0.95 * k))], s[-1]
 
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--measure":
-        ns = measure_ns_per_division()
-        tick_ms = ns * sim_tick_divisions() / 1e6
-        print("[NOT_MEASURED - reference host, NOT the named Ally X; informational only]")
-        print("  ns/frozen-division ~= %.2f" % ns)
-        print("  sim tick (%d bipeds, %d divisions) ~= %.3f ms"
-              % (BENCH_BIPEDS, sim_tick_divisions(), tick_ms))
-        print("  a real budget audit requires the section-3 protocol on the named host")
+        reps = 200
+        divs = sim_tick_divisions()
+        med, p95, mx = quantiles(measure_samples(reps=reps))
+        print("[NOT_MEASURED - REFERENCE (Python) sim tick on THIS host; NOT the native <=3ms target]")
+        print("  %d reps, %d bipeds, %d frozen divisions / tick  (panel, never one scalar):"
+              % (reps, BENCH_BIPEDS, divs))
+        print("  ns / division    median %.1f | p95 %.1f | max %.1f" % (med, p95, mx))
+        print("  sim tick (ms)    median %.3f | p95 %.3f | max %.3f"
+              % (med * divs / 1e6, p95 * divs / 1e6, mx * divs / 1e6))
+        print("  run once COLD, then again after a 10-min Turbo soak; report BOTH (cold != sustained).")
+        print("  this is the Python reference (an upper bound); the native <=3ms audit needs the")
+        print("  native sim-tick placement, and input->photon latency needs the layer-3 renderer.")
     else:
         print("per_biped_divisions:", per_biped_divisions())
         print("sim_tick_divisions(100):", sim_tick_divisions())
