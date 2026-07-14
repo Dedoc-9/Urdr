@@ -1838,6 +1838,20 @@ opening on a delta — is `VIEW-REFUSE`d. Gate stage `frontfps_view` (5 rows) + 
 (11 falsifiers) → gate **485 unit falsifiers / 356 rows**. Cross-placement SPECULATIVE (queued). The native
 layer-3 renderer stays outside the gate by its own law (frontfps README §6 / roadmap §4).
 
+**Stage 6 — the LLM authoring surface (`frontfps_text.py`, URDR-FPSW-TEXT-1), MEASURED (reference).**
+A line-oriented ASCII form of the URDR-FPSW-1 canon — the surface a model emits and edits as plain text —
+with the authoring loop as a gate property (emit → `admit_text` → typed refusal reason → re-emit). It is a
+surface, not a new identity: a parsed world's digest is exactly the frontfps `world_digest`, provenance
+still excluded. Four laws, each a gate row: round-trip (canonical / idempotent / digest-preserving),
+identity (parsed == frontfps digest; a `prov` model tag never moves it), **totality** (a seeded adversarial
+fuzz corpus of 257 inputs — every one typed-admits or typed-refuses, never a bare exception or a silent
+half-admit; outcome digest `e57dfaea…`, 74 admit / 183 refuse), and repair (a refusal names its 1-based
+line; dropping it re-admits — the loop closes). `auto_arena` joins the §4 auto family (mirror symmetry
+certified; an asymmetric defect violates it). Gate stage `frontfps_text` (7 rows) + `tests/test_frontfps_text.py`
+(12 falsifiers) → gate **497 unit falsifiers / 363 rows**. Cross-placement SPECULATIVE. `does_not_show`:
+that any particular model emits valid worlds — that is a model property, not a gate property; the gate proves
+the surface is total, typed, round-tripping, and repair-signalling.
+
 The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
 derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;
 automation proposes, the gate disposes, nothing enters authority ungated. Performance/visual targets

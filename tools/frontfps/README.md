@@ -225,6 +225,37 @@ authority states collapse to one display, so there is no inverse back to
 authority. Cross-placement (C99/Rust) is SPECULATIVE, queued. The native
 layer-3 renderer stays outside the gate by its own law (§6).
 
+## 2f. Stage 6 (LLM authoring surface) — SHIPPED. OODA-6 report
+
+**Observe.** Stages 1–5 give a world identity, motion, poses, hitboxes, and a
+display stream. What was missing is a surface a *model* can author against
+directly. At Stage-6 entry the gate stood at 485 unit falsifiers / 356 rows.
+
+**Orient.** The authority canon is already the right shape (plain dicts, a closed
+name alphabet, total typed refusals). Stage 6 gives it a line-oriented ASCII form
+(URDR-FPSW-TEXT-1) so a model emits/edits plain text, and makes the authoring
+LOOP a gate property: emit → `admit_text` → on refusal feed the exact reason back
+→ re-emit. It is a SURFACE, not a new identity — a parsed world's digest is
+exactly the frontfps `world_digest`, provenance still excluded. The binding risk
+is a parser that half-admits or crashes on hostile input; the answer is totality.
+
+**Decide.** Four laws became the rows: round-trip (canonical, idempotent,
+digest-preserving), identity (parsed == frontfps digest; a `prov` model tag never
+moves it), **totality** (a seeded adversarial fuzz corpus — every input either
+typed-admits or typed-refuses, never a bare Python exception, never a silent
+half-admit), and repair (a refusal names its line; dropping it re-admits — the
+loop provably closes). `auto_arena` joins the §4 auto family (mirror symmetry
+certified; an asymmetric defect violates it). Deferred: `auto_rig`, and any claim
+that a *particular* model emits valid worlds (a model property, not a gate one).
+
+**Act.** Shipped: `frontfps_text.py` (URDR-FPSW-TEXT-1), `conformance_text.txt`
+(2 digests), `tests/test_frontfps_text.py` (12 falsifiers), the `frontfps_text`
+gate stage (7 rows), this report. Gate **497 unit falsifiers / 363 rows**, ×2
+bit-identical. Fuzz: **74 admit / 183 refuse over 257 adversarial inputs**, all
+typed — outcome digest pinned (`e57dfaea…`). Cross-placement SPECULATIVE, queued.
+The model itself is not in the loop under test — the gate proves the surface it
+would author against is total, typed, round-tripping, and repair-signalling.
+
 ## 3. The staged ladder (each stage ends in its OODA loop)
 
 | Stage | Deliverable | Gate exit (Observe) | Pioneering pivot to weigh (Orient) | LLM / auto affordance (Decide ahead) |
@@ -234,7 +265,7 @@ layer-3 renderer stays outside the gate by its own law (§6).
 | **3. Pose & clip canon** — DONE (reference) | URDRCLP1: keyframed rotation tracks on Q32.32 time, binary-search + `qnlerp` sampling, canonical minimum-priority state machine (`fpclip.py`) | `frontfps_clip` rows green ×2: goldens, rule-order invariance + authored-order defect, ambiguity/typo refusals, `auto_loopable` + w-only defect, pinned 55-op budget proxy | blend **graph** vs blend **tree** — decided by Stage-4 posed-corpus data; sub-tick sampling deferred to netcode M3 | `auto_loopable` shipped under the §4 law (witness + certificate + defect); `auto_blend` proposals queued for Stage 4 |
 | **4. Posed hitboxes + IK seam** — posed core DONE (3 placements, 2 OSes); IK DECLARED | per-bone `auto_capsule` over posed skeletons; **one-tick-late IK contract** (reads T−1 contacts, writes T transforms, lag IS in the witness) | containment certificates over a posed corpus + floor defect; IK lag visible in `first_field_desync` fixtures | hitbox LOD (fewer capsules far away) — only if it never touches authority | artist-facing "why is my hitbox this size": the witness vertex, surfaced |
 | **5. View stream** — DONE (reference, §2e) | URDR-FPSW-VIEW-2: binary, delta-framed successor of `to_view` for the native renderer (D15 successor version) | view recompute law; structural no-feedback test (renderer inputs can't reach canon); bandwidth measured per authored scene | share the compact-witness encoding with netcode replay (one format, two consumers) | `auto_lod` proposals for view meshes — presentation-only, so admissible on visual review, not witness proof |
-| **6. LLM authoring surface** | line-oriented text form of the canon + the repair loop; `auto_arena` / `auto_rig` candidates under §4's law | an LLM-emitted world admitted with **zero human edits** on a pinned scenario set; adversarial fuzz: refusals stay total under random/hostile emissions | prompt→world as a *pipeline of admissions*, never one leap; each auto keeps its witness | this stage IS the affordance; its falsifier is the fuzz corpus |
+| **6. LLM authoring surface** — DONE (reference, §2f) | line-oriented text form of the canon + the repair loop; `auto_arena` / `auto_rig` candidates under §4's law | an LLM-emitted world admitted with **zero human edits** on a pinned scenario set; adversarial fuzz: refusals stay total under random/hostile emissions | prompt→world as a *pipeline of admissions*, never one leap; each auto keeps its witness | this stage IS the affordance; its falsifier is the fuzz corpus |
 | **7. Native scale-out** | SOA layout + bench protocol on a named host; streaming-editor integration | the §6 budgets become MEASURED-or-refuted on real silicon | volunteer-region hosting (directive §10) — only after D16 dynamic seams | auto-tuning loops audited like any self-improving system (Ursprung `m_novel` lesson) |
 
 Stages 2–7 are `SPECULATIVE / N/A` until their rows exist. The ladder is re-ordered
@@ -311,7 +342,9 @@ numbers will be born circular.
 | `fppose` Rust placement — ADMITTED ×2 + defect caught, golden `fee3c118…` and defect `04f23abe…` bit-for-bit | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fppose_rs/fppose.rs` self-verify + `--defect` |
 | `frontfps_view` view stream: URDR-FPSW-VIEW-2 delta framing; recompute law; no-feedback (witness ⟂ presentation, fold defect, lossy display); VIEW-REFUSE canaries; pinned per-scene byte count | IMPLEMENTED | MEASURED | `frontfps_view` gate stage; `tests/test_frontfps_view.py` |
 | `frontfps_view` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued |
-| Stages 6–7 (LLM authoring loop, native bench) | SPECULATIVE | N/A | this README §3 |
+| `frontfps_text` LLM authoring surface: URDR-FPSW-TEXT-1 line canon; round-trip + identity; adversarial fuzz totality; repair-signal loop; `auto_arena` (§4 law) | IMPLEMENTED | MEASURED | `frontfps_text` gate stage; `tests/test_frontfps_text.py` |
+| `frontfps_text` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued |
+| Stage 7 (native bench) | SPECULATIVE | N/A | this README §3 |
 
 ## 8. Run it
 

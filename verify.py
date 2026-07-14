@@ -2392,6 +2392,80 @@ class Gate:
                     f"{nb} bytes per authored scene (pinned bandwidth proxy)"
                     if okb else f"{nb} ≠ pinned {goldens.get('view_bytes')}")
 
+    # -- frontfps_text: the LLM authoring surface (Stage 6, URDR-FPSW-TEXT-1) ---
+    def frontfps_text(self):
+        """URDR-FPSW-TEXT-1 — the line-oriented authoring surface (tools/frontfps/
+        frontfps_text.py): canonical text digest ×2, round-trip + identity laws,
+        adversarial fuzz totality (every input typed-admits or typed-refuses,
+        never crashes), the repair-signal loop, auto_arena under the §4 law, and
+        the typed refusal canaries."""
+        import hashlib as _h
+        p = os.path.join(ROOT, "tools", "frontfps")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import frontfps as FW
+            import frontfps_text as FT
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("frontfps-text", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(ROOT, "tools", "frontfps", "conformance_text.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        k, v = line.split()
+                        goldens[k] = v
+        except Exception as exc:
+            self.record("frontfps-text", False, f"corpus unreadable: {exc}")
+            return
+        crate, arena = FW.demo_crate_solo(), FW.demo_arena_duel()
+        d1 = _h.sha256((FT.to_text(crate) + FT.to_text(arena)).encode()).hexdigest()
+        d2 = _h.sha256((FT.to_text(crate) + FT.to_text(arena)).encode()).hexdigest()
+        ok = d1 == d2 == goldens.get("text_canon")
+        self.record("fptext:canon", ok, d1[:16] + "… (×2)" if ok
+                    else f"{d1[:12]}… ≠ golden {goldens.get('text_canon','?')[:12]}…")
+        rt = (FT.roundtrip_preserves_digest(crate) and FT.roundtrip_preserves_digest(arena)
+              and FT.to_text_idempotent(crate) and FT.to_text_idempotent(arena))
+        self.record("fptext-roundtrip", rt,
+                    "parse∘to_text preserves world_digest; to_text idempotent"
+                    if rt else "round-trip broken")
+        ident = (FT.admit_text(FT.to_text(arena))[0] == FW.world_digest(arena)
+                 and FT.prov_line_does_not_move_identity(arena))
+        self.record("fptext-identity", ident,
+                    "parsed digest == frontfps world_digest; prov line ⟂ identity"
+                    if ident else "identity not preserved")
+        fd = FT.fuzz_digest()
+        tags, admits, refuses = FT.fuzz_outcomes()
+        okf = fd == goldens.get("fuzz_outcomes") and admits >= 1 and refuses >= 1
+        self.record("fptext-fuzz", okf,
+                    f"{admits} admit / {refuses} refuse over {len(tags)} adversarial inputs, all typed (gate can redden)"
+                    if okf else f"fuzz {fd[:12]}… or vacuous (a={admits} r={refuses})")
+        rp = FT.repair_roundtrip()
+        self.record("fptext-repair", rp,
+                    "refusal names its line; dropping it re-admits (loop closes)"
+                    if rp else "repair signal broken")
+        sym = FT.arena_is_mirror_symmetric(FT.auto_arena(3)[0])
+        broke = not FT.arena_is_mirror_symmetric(FT.auto_arena_defect_asymmetric(3))
+        self.record("fptext-auto-arena", sym and broke,
+                    "mirror-symmetry certified; asymmetric defect violates it (gate can redden)"
+                    if sym and broke else f"sym={sym} defect_breaks={broke}")
+        canaries = 0
+        cases = ["vert CRATE 0 0 0\nvert CRATE 1 1 1\n",
+                 "vert crate 0 0 0\nvert crate 1 1 1\nactor a crate - 0 0 0 999999\n",
+                 "vert crate 0 0 0\nvert crate 1 1 1\nregion 5\nregion 5\n",
+                 "florb 1 2 3\n"]
+        for c in cases:
+            try:
+                FT.admit_text(c)
+            except (FT.TextError, FW.FpswError):
+                canaries += 1
+        self.record("fptext-refusals", canaries == 4,
+                    f"{canaries}/4 malformed emissions typed-refused (TEXT/FPSW)"
+                    if canaries == 4 else f"only {canaries}/4 refused")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -3019,6 +3093,7 @@ def main() -> int:
     gate.frontfps_clip()
     gate.frontfps_pose()
     gate.frontfps_view()
+    gate.frontfps_text()
     gate.rigidity_verdict()
     gate.view_export()
     gate.field()

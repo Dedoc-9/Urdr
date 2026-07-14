@@ -1,0 +1,10 @@
+# URDR-FPSW-TEXT-1 authoring-surface corpus (frontfps Stage 6) — 2 digests, declared 2.
+# text_canon = sha256(to_text(crate_solo) + to_text(arena_duel)): the canonical, identity-only
+#   line-oriented text of the two Stage-1 corpus worlds.
+# fuzz_outcomes = sha256 over the outcome-tag sequence of 257 inputs (the clean base +
+#   256 seeded adversarial mutations, seed=1): each tag is ADMIT:<dig8> or a typed refusal
+#   code (TEXT-REFUSE / FPSW-REFUSE) — the totality proof (no input crashes or half-admits).
+# Reference placement: Linux/CPython 3.10, PYTHONHASHSEED=0.
+# name  value
+text_canon 2718c63ec6557d38a400cad9c16e51fa43ae1e898a32048c2092a98c97f91c8b
+fuzz_outcomes e57dfaeaffaf950014da56e7a85952be73401d0bbff45094f93577f2a76d42da
