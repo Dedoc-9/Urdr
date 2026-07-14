@@ -1911,7 +1911,13 @@ Its `--measure` on the Linux sandbox reports ~0.125 ms/tick median (100 bipeds) 
 reference's ~9.4 ms and well inside the 3 ms budget — but that is a **sandbox datum, NOT the Ally and
 NOT_MEASURED for the target**: only the `bench_protocol.md` §3 run on the ROG Ally X
 (`frontbench_rs --measure`, cold + soak) turns it into a native millisecond that could move the sim-tick
-grade. Correctness is cross-placed; performance still waits on the named host.
+grade. Correctness is cross-placed; performance still waits on the named host. **First native Ally reading**
+(2026-07-14, cold, `frontbench_rs --measure`, Turbo-35W): sim tick **~0.072 ms median** (100 bipeds,
+p95 0.076 / max 0.111) — ~41× under the 3 ms budget, ~130× under the Python reference on the same
+hardware. A real native reading on the named host, still **NOT_MEASURED**: cold-only (§3 needs a soak
+re-run, `cold ≠ sustained`) and scoped to the sim-tick component (input→photon needs the renderer). See
+`bench_protocol.md` §4b; when the soak lands, the sim-tick row graduates to MEASURED and the
+`frontbench-budget` gate evolves to require a host-log reference for any MEASURED perf entry.
 
 The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
 derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;
