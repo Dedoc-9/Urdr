@@ -173,6 +173,49 @@ Stage 5 (view stream) gates on fppose cross-placement, same law as before.
 `tests/test_fppose.py` (8 falsifiers), gate stage `frontfps_pose` (5 rows),
 this report.
 
+**Act, addendum (cross-placement).** `fppose_c/fppose.c` ADMITTED on the sandbox
+gcc-11.4 host (`-Wall -Wextra` clean, first compile): posed golden `fee3c118…`
+bit-for-bit ×2, coverage certificate on walk AND reach, the swapped-compose defect
+(`04f23abe…`) and the local-offset coverage defect both bite, 77 ops, refusals
+total — golden AND defect parity, the third rung in a row. `fppose_rs/` (std-only,
+own SHA-256, i128, plus a u256 for the interior point-in-capsule test) **ADMITTED
+×2 with `--defect` caught on the owner's Windows host** (rustc -O, 2026-07-13;
+golden `fee3c118…`, defect `04f23abe…`) — fppose is now **three placements, two
+OSes, golden+defect parity**. Stage 4 is closed on its own exit law; Stage 5 opens.
+
+## 2e. Stage 5 (view stream) — OPEN. OODA-5 report
+
+**Observe.** fppose is cross-placed — C99 self-verified in-session, Rust ADMITTED
+×2 + defect caught on the owner's Windows host (three placements, two OSes,
+golden+defect parity); Stage 4 closed lawfully. The gate is unchanged at **474 unit falsifiers / 351 rows** —
+placements are compiled and run outside `verify.py`, so they add trust without
+adding gate rows. Everything a shooter needs to run deterministically at the
+authority layer now exists and is measured: canon, rotation, clips, posed hitboxes.
+
+**Orient.** Stage 5 is URDR-FPSW-VIEW-2: a binary, delta-framed, display-only
+successor of `to_view` (the D15 view law, versioned up). It CARRIES the
+authoritative witness as a bound reference and moves a separate VIEW digest —
+presentation, never authority. Three laws make it honest: (1) *recompute* — a view
+frame is a pure function of authority state, recomputed identically twice;
+(2) *structural no-feedback* — the renderer's inputs cannot reach canon, enforced
+by signature not by comment (a frame that tries to carry a value back into
+authority is unconstructible, not merely rejected); (3) *bandwidth as a
+host-independent fact* — bytes per authored scene, pinned like the op-count
+proxies, never fps. The binding risk is the membrane inversion D15 already
+refuses: presentation leaking into authority.
+
+**Decide.** First increment: the view-frame canon + the recompute law + the
+structural no-feedback falsifier + a delta-framing defect (a delta frame that
+references a base it never sent MUST be refused, `VIEW-REFUSE`), gated as
+`frontfps_view` with a pinned per-scene byte count. Deferred by their own law: the
+native layer-3 renderer (not gate-able — §6), and sharing the compact-witness
+encoding with netcode replay (one format, two consumers) until both consumers
+exist. Rejected: starting with the renderer (presentation before the stream
+inverts the membrane).
+
+**Act.** SPECULATIVE until its rows exist — the `frontfps_view` stage is the next
+build. This report opens the stage; it does not claim it.
+
 ## 3. The staged ladder (each stage ends in its OODA loop)
 
 | Stage | Deliverable | Gate exit (Observe) | Pioneering pivot to weigh (Orient) | LLM / auto affordance (Decide ahead) |
@@ -180,8 +223,8 @@ this report.
 | **1. World canon** — DONE | URDR-FPSW-1 + `auto_capsule` | `frontfps` rows green ×2 | — | refusal-guided repair loop (§7) |
 | **2. Rotation substrate** — DONE (3 placements, 2 OSes) | Q32.32 quaternion ops + integer-Newton rsqrt on the frozen FIELDFP laws (`fpquat.py` + C99 + Rust placements) | `frontfps_quat` rows green ×2; C99 golden+defect parity; Rust ADMITTED on a named host | fixed-point **dual quaternions** (one type for rotation+translation) vs quat+vec — decide on op count under the 240 Hz budget, not elegance | held once in practice: the C placement was written from the docstring spec and matched on first compile — ports are cheap, trust stays in the gate |
 | **3. Pose & clip canon** — DONE (reference) | URDRCLP1: keyframed rotation tracks on Q32.32 time, binary-search + `qnlerp` sampling, canonical minimum-priority state machine (`fpclip.py`) | `frontfps_clip` rows green ×2: goldens, rule-order invariance + authored-order defect, ambiguity/typo refusals, `auto_loopable` + w-only defect, pinned 55-op budget proxy | blend **graph** vs blend **tree** — decided by Stage-4 posed-corpus data; sub-tick sampling deferred to netcode M3 | `auto_loopable` shipped under the §4 law (witness + certificate + defect); `auto_blend` proposals queued for Stage 4 |
-| **4. Posed hitboxes + IK seam** | per-bone `auto_capsule` over posed skeletons; **one-tick-late IK contract** (reads T−1 contacts, writes T transforms, lag IS in the witness) | containment certificates over a posed corpus + floor defect; IK lag visible in `first_field_desync` fixtures | hitbox LOD (fewer capsules far away) — only if it never touches authority | artist-facing "why is my hitbox this size": the witness vertex, surfaced |
-| **5. View stream** | URDR-FPSW-VIEW-2: binary, delta-framed successor of `to_view` for the native renderer (D15 successor version) | view recompute law; structural no-feedback test (renderer inputs can't reach canon); bandwidth measured per authored scene | share the compact-witness encoding with netcode replay (one format, two consumers) | `auto_lod` proposals for view meshes — presentation-only, so admissible on visual review, not witness proof |
+| **4. Posed hitboxes + IK seam** — posed core DONE (3 placements, 2 OSes); IK DECLARED | per-bone `auto_capsule` over posed skeletons; **one-tick-late IK contract** (reads T−1 contacts, writes T transforms, lag IS in the witness) | containment certificates over a posed corpus + floor defect; IK lag visible in `first_field_desync` fixtures | hitbox LOD (fewer capsules far away) — only if it never touches authority | artist-facing "why is my hitbox this size": the witness vertex, surfaced |
+| **5. View stream** — OPEN (§2e OODA-5) | URDR-FPSW-VIEW-2: binary, delta-framed successor of `to_view` for the native renderer (D15 successor version) | view recompute law; structural no-feedback test (renderer inputs can't reach canon); bandwidth measured per authored scene | share the compact-witness encoding with netcode replay (one format, two consumers) | `auto_lod` proposals for view meshes — presentation-only, so admissible on visual review, not witness proof |
 | **6. LLM authoring surface** | line-oriented text form of the canon + the repair loop; `auto_arena` / `auto_rig` candidates under §4's law | an LLM-emitted world admitted with **zero human edits** on a pinned scenario set; adversarial fuzz: refusals stay total under random/hostile emissions | prompt→world as a *pipeline of admissions*, never one leap; each auto keeps its witness | this stage IS the affordance; its falsifier is the fuzz corpus |
 | **7. Native scale-out** | SOA layout + bench protocol on a named host; streaming-editor integration | the §6 budgets become MEASURED-or-refuted on real silicon | volunteer-region hosting (directive §10) — only after D16 dynamic seams | auto-tuning loops audited like any self-improving system (Ursprung `m_novel` lesson) |
 
@@ -239,7 +282,7 @@ No number in this table may be quoted as a capability. The bench protocol (named
 host, equal budget, sealed metric) must exist BEFORE optimization starts, or the
 numbers will be born circular.
 
-## 7. Proposed D5 ledger rows (pending Architecture-Office sign-off)
+## 7. D5 ledger rows (recorded in `spec/D5-ledger.md`)
 
 | Capability | Maturity | Evidence | Where falsified |
 |---|---|---|---|
@@ -255,8 +298,9 @@ numbers will be born circular.
 | `fpclip` Rust placement — ADMITTED ×2 + defect caught (pose/trace/defect digests bit-for-bit) | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fpclip_rs/fpclip.rs` self-verify + `--defect` |
 | `fppose` posed transforms + capsules: hierarchy composition (normalize-per-compose), exact point-in-capsule certificate, 77-op pinned proxy | IMPLEMENTED | MEASURED | `frontfps_pose` gate stage; `tests/test_fppose.py` |
 | One-tick-late IK contract (reads T−1 contacts, writes T transforms, lag in witness) | SCOPED | DECLARED | fppose docstring; red-first fixture waits on physics wiring |
-| `fppose` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued — gates Stage 5 |
-| Stages 4–7 (posed hitboxes, view stream, LLM loop, native bench) | SPECULATIVE | N/A | this README §3 |
+| `fppose` C99 placement — posed golden `fee3c118…` ×2, coverage walk+reach, swapped-compose defect `04f23abe…` + local-offset defect both bite, 77 ops, refusals total | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fppose_c/fppose.c` self-verify + `--defect` |
+| `fppose` Rust placement — ADMITTED ×2 + defect caught, golden `fee3c118…` and defect `04f23abe…` bit-for-bit | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fppose_rs/fppose.rs` self-verify + `--defect` |
+| Stages 5–7 (view stream, LLM loop, native bench) | SPECULATIVE | N/A | this README §3 |
 
 ## 8. Run it
 

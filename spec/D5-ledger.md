@@ -1807,6 +1807,40 @@ give a product up to ~2^126 — so the placements compute it in **i128** and the
 i64 multiply would *wrap before the check* and silently diverge exactly on the overflow-`REFUSE` case;
 i128 (sufficient, since operands ≤ i64) makes the placement refuse identically.
 
+**frontfps — the consolidated FPS/MMO authoring front end (Stages 1–4), graded.** `tools/frontfps/` is one
+consolidated module line carrying the authority-side authoring surface of a shooter/MMO: world canon
+(`frontfps.py`, URDR-FPSW-1), the Q32.32 rotation substrate (`fpquat.py`, URDRFPQ1), the pose/clip canon
+(`fpclip.py`, URDRCLP1), and posed transforms + hitbox capsules (`fppose.py`, URDRPSE1). Each is
+**MEASURED (reference)** via its own gate stage (`frontfps`, `frontfps_quat`, `frontfps_clip`,
+`frontfps_pose`) with red-first falsifiers; the substrate reuses the frozen FIELDFP laws (ONE = 2³²,
+`_rdiv` round-to-nearest ties-away, i64 refusal ceiling) — nothing reinvented. Cross-placement (Axis A):
+`fpquat` and `fpclip` are three placements each (Python + C99 self-verified in-session, gcc 11.4 + Rust
+owner-attested on Windows/rustc), golden AND defect digest parity. **`fppose` is now cross-placed:**
+`fppose_c/fppose.c` self-verified in-session (`cc -O2 -std=c99 -Wall -Wextra` clean) — posed golden
+`fee3c118…` ×2, coverage on walk + reach, the swapped-compose defect `04f23abe…` and the local-offset
+coverage defect both bite, 77-op budget proxy, refusals total → **MEASURED (C99)**; `fppose_rs/fppose.rs`
+**ADMITTED ×2 + `--defect` caught on the owner's Windows host** (rustc -O, 2026-07-13; golden `fee3c118…`,
+defect `04f23abe…`) → **MEASURED**. So fppose is three placements, two OSes, golden AND defect parity. The
+interior point-in-capsule test multiplies two ~2⁸⁰ integers, so the placements carry a small u256
+mul/add/compare (i128 tops out at 2¹²⁷); all operands are non-negative on that branch.
+
+The auto-affordance admission law (`auto_capsule`, `auto_loopable`) requires every `auto_*` to ship
+derivation + witness + certificate + a defect that MUST violate the certificate — the same shape as D17;
+automation proposes, the gate disposes, nothing enters authority ungated. Performance/visual targets
+(competitive-FPS latency, 1080/1440p at 60–140 fps, BF6-class fidelity) are **NOT_MEASURED** and, for
+visuals, never gate-provable: the renderer is a layer-3 consumer downstream of D15 that cannot feed
+authority, so its bench needs the sealed protocol (`docs/bench_protocol.md`, named host) before any number
+is quoted. The one-tick-late IK contract is **DECLARED** (fppose docstring); its red-first fixture waits
+on physics wiring.
+
+**The gate vacuity guard (incident 2026-07-13).** A sync-truncated `verify.py` once parsed cleanly, ran
+zero checks, and exited 0 — a vacuously green gate. `report()` now refuses below a pinned row floor
+(`ROWS_FLOOR = 300`, a deliberate underestimate of the live count) and refuses if the terminal
+`tamper-selftest` row never ran; CI greps the literal `^GATE PASSED$` line, never the exit code alone
+(`exit-0 ≠ ran`). `tests/test_gate_guard.py` proves the guard red-first by truncating a scratch copy of
+`verify.py` at `def main(` and confirming it silently exits 0 with no tail line — the exact failure the
+CI grep now catches.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred
@@ -1827,6 +1861,7 @@ is the thing C8 would introduce, and the thing that has not been needed.
 - **D14 (front-end contract):** every authoring modality became a consumer of the `URDROBJ2` canon; identity is geometry-only, no new law.
 - **D15 (view contract):** the view frame CARRIES the authoritative witness as a bound reference; presentation moves a separate `VIEW` digest, the authority witness class is unchanged.
 - **D16 (regional authority):** the direct test of C8's own question — regional composition reproduces the monolithic `URDRLST1`/`URDRLSTT` bit-for-bit with **no new witness class**, across three placements (Python + C99 + Rust). C8's hypothesis (*regional witnesses may need a new class*) was tested and **refuted**.
+- **frontfps (Stages 1–4):** the consolidated FPS/MMO authoring surface reused the `URDROBJ2`/geometry-identity canon, the D15 view law, and D16 seams unchanged; motion added a numeric substrate (quaternions on the frozen FIELDFP laws), not a new witness class. Authoring, animation, and hitboxes composed on the frozen alphabet — one more datum, no language pressure.
 
 **Designed falsification attempts (open).** Each is a genuine try to BREAK D16, valuable precisely
 because it is expected to compose — a clean pass is more evidence for the seal, a genuine failure is the
