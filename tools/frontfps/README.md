@@ -135,6 +135,13 @@ composition data from Stage 4's posed corpus will decide it.
 `tests/test_fpclip.py` (14 falsifiers), gate stage `frontfps_clip` (6 rows),
 `docs/bench_protocol.md`, this report.
 
+**Act, addendum (cross-placement).** `fpclip_c/fpclip.c` ADMITTED on the sandbox
+gcc-11.4 host: pose + 96-tick trace bit-for-bit ×2, 55 ops, refusals total, and
+the authored-order defect trace agrees with the reference defect digest
+(`1e6b480c…`) — golden AND defect parity, second rung in a row. `fpclip_rs/`
+authored (319 lines, std-only), SPECULATIVE until the owner's host prints
+ADMITTED twice with `--defect` caught — that run opens Stage 4.
+
 ## 3. The staged ladder (each stage ends in its OODA loop)
 
 | Stage | Deliverable | Gate exit (Observe) | Pioneering pivot to weigh (Orient) | LLM / auto affordance (Decide ahead) |
@@ -213,7 +220,8 @@ numbers will be born circular.
 | `fpquat` Rust placement — ADMITTED ×2 + defect caught, golden `3f4aa0d1…` and defect `5c965ff8…` bit-for-bit | IMPLEMENTED | MEASURED (owner's Windows host, rustc -O, 2026-07-13) | `fpquat_rs/fpquat.rs` self-verify + `--defect` |
 | `fpclip` pose & clip canon: URDRCLP1 sampling laws, canonical transitions, ambiguity/typo refusals, absolute tick time, 55-op pinned budget proxy | IMPLEMENTED | MEASURED | `frontfps_clip` gate stage; `tests/test_fpclip.py` |
 | `auto_loopable` seam certificate (witness + w-only defect) | IMPLEMENTED | MEASURED | `fpclip-auto-loop` row |
-| `fpclip` cross-placement (C99/Rust) | SPECULATIVE | N/A | queued — gates Stage 4 |
+| `fpclip` C99 placement — pose, trace, op count AND authored-order defect digest (`1e6b480c…`) agree with reference, twice | IMPLEMENTED | MEASURED (sandbox host, gcc 11.4) | `fpclip_c/fpclip.c` self-verify + `--defect` |
+| `fpclip` Rust placement | SPECULATIVE | N/A | flips to MEASURED when the owner's host prints `URDR-FPCLIP-RS: ADMITTED` twice + `--defect` caught — gates Stage 4 |
 | Stages 4–7 (posed hitboxes, view stream, LLM loop, native bench) | SPECULATIVE | N/A | this README §3 |
 
 ## 8. Run it
@@ -224,13 +232,15 @@ PYTHONHASHSEED=0 python tools/frontfps/fpquat.py       # battery digest + defect
 PYTHONHASHSEED=0 python tools/frontfps/fpclip.py       # pose/trace digests + op count
 PYTHONHASHSEED=0 python verify.py                      # the gate (frontfps + fpquat rows)
 
-# C99 placement (any gcc host):
+# C99 placements (any gcc host):
 cc -O2 -std=c99 tools/frontfps/fpquat_c/fpquat.c -o fpquat && ./fpquat && ./fpquat --defect
+cc -O2 -std=c99 tools/frontfps/fpclip_c/fpclip.c -o fpclip && ./fpclip && ./fpclip --defect
 
-# Rust placement (Windows/rustc, the named-host run that flips its grade):
-rustc -O tools\frontfps\fpquat_rs\fpquat.rs -o fpquat_rs.exe
-.\fpquat_rs.exe            # expect: URDR-FPQUAT-RS: ADMITTED (…)  — run TWICE
-.\fpquat_rs.exe --defect   # expect: DEFECT CAUGHT
+# Rust placements (Windows/rustc, the named-host runs that flip their grades):
+rustc -O tools\frontfps\fpquat_rs\fpquat.rs -o fpquat_rs.exe   # ADMITTED 2026-07-13
+rustc -O tools\frontfps\fpclip_rs\fpclip.rs -o fpclip_rs.exe
+.\fpclip_rs.exe            # expect: URDR-FPCLIP-RS: ADMITTED (…)  — run TWICE
+.\fpclip_rs.exe --defect   # expect: DEFECT CAUGHT
 ```
 
 Falsifier for this whole document: any claim above whose named gate row does not
