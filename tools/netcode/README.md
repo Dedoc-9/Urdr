@@ -21,6 +21,16 @@ contract), every one `MEASURED` — cross-placed and frozen in
 | **N5** composed contract | [`worldpeer.py`](worldpeer.py) | Authored world + authenticated transcript + snapshot → the *identical* witness chain or the *same* typed refusal. A new `URDRWPN1` **world pin** covers everything the tick reads (statics included) and gates entry before any tick (`WORLD-REFUSE`); auth (who) precedes the N2 time law precedes the N4 authority (what). | `netcode_worldpeer` |
 | **D16** regional authority | [`worldregion.py`](worldregion.py) | One simulation cut by integer x-seams into regions; each region steps the frozen N4.1 tick from **admitted read-only ghosts alone** and writes only what it owns; deterministic reunification reproduces the monolith `URDRLST1`/`URDRLSTT` **bit-for-bit** (the **Seam Composition Theorem**), with **no new witness class**. Malformed partition → `REGION-REFUSE`. Three placements agree. | `netcode_region` |
 
+**Verification (`fraud.py`, `docs/fraud_proof.md`).** Optimistic fraud proofs *over* the witness
+chain: a dispute between two `URDRLSTT` chains is settled by re-executing the **single** tick where
+they first diverge — never the run — reusing `step_tick` + `_digest` + `first_desync` (no new
+witness class). The honest chain wins regardless of role; a fabricated pre-state is `FRAUD-REFUSE`d;
+the referee runs exactly one tick. Gate stage `netcode_fraud` (4 rows) + `tests/test_fraud.py`.
+Mechanism established (optimistic rollups / verification games — Arbitrum, Optimism, Truebit,
+Canetti–Riva–Rothblum); the novel part is the real-time game-tick application — **first-ness
+DECLARED, not MEASURED**, and it is *not* anti-aimbot (`integrity ≠ truth`). Increment 1; O(log T)
+Merkle-bisection + C99/Rust placements are next.
+
 ## The separation (structural, not advisory)
 
 **Authentication decides who may submit** (`AuthedPeer` — only a verified envelope

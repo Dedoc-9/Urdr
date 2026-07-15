@@ -1,0 +1,10 @@
+# urdr-netcode fraud-proof corpus (tools/netcode/fraud.py, docs/fraud_proof.md) — 2 goldens.
+# The single-round referee scenario: arena_world + sample_world_log, an honest run, doctored at
+# frame T/2. The referee re-executes exactly ONE tick to name the honest chain.
+#   fraud_trace    = trace_digest of the honest arena run (the frozen scenario).
+#   fraud_disputed = the tick under dispute when frame 60 is doctored (frames[k] is the state
+#                    after tick k-1, so first_desync = 60 -> tick 59).
+# Reference placement: Linux/CPython 3.10, PYTHONHASHSEED=0.
+# name  value
+fraud_trace c90de76759b6f8755b9ee3f86b24169b5862646e2cf0379c523d73ba282ea191
+fraud_disputed 59

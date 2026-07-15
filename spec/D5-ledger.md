@@ -2003,6 +2003,33 @@ bold-split `**519** unit falsifiers`), which drove the reconciliation to the liv
 OODA reports) keep their point-in-time counts by design. "Remember to update the docs" is now a
 falsifier, not a hope — the same anti-rot move as `spec_freeze`, applied to counts instead of digests.
 
+**Optimistic verification — a witness-chain dispute settled by re-executing ONE tick
+(`tools/netcode/fraud.py`), MEASURED (reference).** The reference for `docs/fraud_proof.md`'s core
+law: a light referee adjudicates a dispute between two `URDRLSTT` chains over a fixed world + input
+log by re-executing exactly the single tick where they first diverge — never the whole run. It
+reuses the frozen surface entirely (`worldstep.step_tick`, `lockstep._digest` / `first_desync` /
+`canon`); the only new logic is the adjudicator and the no-fabrication (pre-state digest) check —
+so **no new witness class** (one more datum for C8: a protocol *over* the frozen `URDRLST1`/
+`URDRLSTT`, not a new authority law). Four gate rows: **verdicts** (the honest chain wins both role
+orders; identical → no dispute; two liars → NEITHER; scenario pinned to `fraud_trace c90de767…`);
+**one-tick** (the load-bearing property — the referee re-executes `step_tick` exactly ONCE, not the
+T-tick run, proven by a call counter); **refusal** (a fabricated pre-state that does not hash to the
+agreed frame is FRAUD-REFUSEd before any re-execution); **selftest** (the dispute localizes to the
+first divergence, agreeing with `first_desync`; identical → None, non-vacuity). Red-first: dropping
+the pre-state bind OR the re-execution each reddens a falsifier. Gate stage `netcode_fraud` (4 rows)
++ `tests/test_fraud.py` (8 falsifiers) → gate **532 unit falsifiers / 378 rows** — and the
+`doc-currency` guard caught the stale counts on this very increment and forced the reconciliation
+(the anti-rot tool policing the build that grew it). **Novelty (graded):** the mechanism is
+established (optimistic rollups — Arbitrum, Optimism; verification games — Truebit, Canetti–Riva–
+Rothblum); the novel part is the real-time deterministic game-tick application, possible only
+because the tick is exact-integer + hash-committed. No known shipping-FPS prior art, but first-ness
+is **DECLARED, not MEASURED** (a first is unprovable without a prior-art survey). Honest scope:
+settles COMPUTATION correctness given an agreed input log; input legitimacy (aimbots) is out by law
+(`integrity ≠ truth`); the fraud path's performance is `NOT_MEASURED` — the 0.073 ms is the native
+*sim*-tick, a different tick. This is increment 1 (the single-round referee); the O(log T)
+Merkle-bisection data-efficiency layer and the C99/Rust cross-placement are the stated next
+increments. `does_not_show`: input legitimacy, zero-knowledge, performance.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred

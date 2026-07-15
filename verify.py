@@ -2599,6 +2599,76 @@ class Gate:
                     "i64 sq-dist overflow + spawn-in-solid both raise TOPOLOGY-REFUSE"
                     if refuse else "a refusal did not fire")
 
+    def netcode_fraud(self):
+        """docs/fraud_proof.md — the optimistic-verification referee (tools/netcode/fraud.py):
+        a witness-chain dispute is settled by re-executing the SINGLE tick where the chains first
+        diverge, never the whole run. The honest chain wins regardless of role; a fabricated
+        pre-state is FRAUD-REFUSEd; the referee runs exactly one tick; the dispute localizes to
+        first_desync. Reuses the frozen N1/N4 surface (step_tick, _digest, first_desync)."""
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import fraud as FR
+            import lockstep as LK
+            import worldstep as WS
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("netcode-fraud", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(ndir, "conformance_fraud.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        k, v = line.split()
+                        goldens[k] = v
+        except Exception as exc:
+            self.record("netcode-fraud", False, f"corpus unreadable: {exc}")
+            return
+        w, log, honest, bad, pre, m = FR.demo_dispute()
+        verdicts = (LK.trace_digest(honest) == goldens.get("fraud_trace")
+                    and FR.adjudicate(w, log, bad, honest, pre) == "B"
+                    and FR.adjudicate(w, log, honest, bad, pre) == "A"
+                    and FR.adjudicate(w, log, honest, list(honest), pre) == "IDENTICAL"
+                    and FR.adjudicate(w, log, bad, FR.doctor(bad, m, forged="1" * 64), pre) == "NEITHER")
+        self.record("netcode-fraud:verdicts", verdicts,
+                    "honest chain wins both role orders; identical→no-dispute; two liars→NEITHER (scenario pinned)"
+                    if verdicts else "verdict / scenario mismatch")
+        calls = [0]
+        real = WS.step_tick
+
+        def _counting(*a, **k):
+            calls[0] += 1
+            return real(*a, **k)
+        WS.step_tick = _counting
+        try:
+            FR.adjudicate(w, log, honest, bad, pre)
+        finally:
+            WS.step_tick = real
+        one = (calls[0] == 1)
+        self.record("netcode-fraud-one-tick", one,
+                    "the referee re-executes exactly ONE tick, not the run (light verifier)"
+                    if one else f"referee ran {calls[0]} ticks")
+        wrong = WS.simulate_trace(w, log)[1][m]
+        try:
+            FR.adjudicate(w, log, honest, bad, wrong)
+            refused = False
+        except FR.FraudError as e:
+            refused = (e.code == "FRAUD-REFUSE")
+        self.record("netcode-fraud-refusal", refused,
+                    "a fabricated pre-state is FRAUD-REFUSEd before any re-execution"
+                    if refused else "fabricated pre-state not refused")
+        loc = (FR.disputed_tick(honest, bad) == LK.first_desync(honest, bad) - 1
+               == int(goldens.get("fraud_disputed", -99))
+               and FR.disputed_tick(honest, list(honest)) is None)
+        self.record("netcode-fraud-selftest", loc,
+                    "dispute localizes to the first divergence (agrees with first_desync); identical→None (non-vacuity)"
+                    if loc else "localization broke")
+
     def doc_currency(self):
         """The tracked docs must quote the LIVE counts — docs must match reality
         (tools/specfreeze/doc_currency.py, the count-sibling of spec_freeze). Placement
@@ -3252,6 +3322,7 @@ def main() -> int:
     gate.netcode_worldpeer()
     gate.netcode_region()
     gate.netcode_field_desync()
+    gate.netcode_fraud()
     gate.photo_trace()
     gate.frontend_contract()
     gate.svg_import()

@@ -117,6 +117,31 @@ commitments, which a float engine can never offer. That is the open door, not an
 Honest sequencing: build the fraud-proof rung, learn whether the demand (thin clients,
 settlement) is real, and only then weigh the STARK.
 
+## Novelty (graded — DECLARED, not MEASURED)
+
+The **mechanism is established, not new**: optimistic fraud proofs that settle a disputed
+computation by re-executing a single step over a hash-committed trace are the core of optimistic
+rollups (**Arbitrum**, **Optimism**), refereed delegation / verification games (**Truebit**;
+**Canetti–Riva–Rothblum**), and interactive proof systems generally. This rung borrows that
+machinery wholesale — it invents no cryptography.
+
+What is **arguably new is the application**: putting that machinery under a real-time,
+deterministic *game tick* (competitive-FPS / MMO netcode). It is possible *only* because the
+tick is exact integer + hash-committed — a float engine cannot re-execute one tick bit-identically
+across hosts, so it cannot have this rung at all. We are not aware of a shipping competitive FPS
+that verifies tick transitions with cryptographic fraud proofs; that space uses heuristics
+(kernel-level anti-cheat, signature scanning). But **"not aware of" is a `DECLARED` claim about
+the state of the art, not a `MEASURED` one** — a first cannot be proven without a prior-art
+survey, and even a survey shows "not found," never "does not exist." Honest grade: **established
+mechanism, novel application, first-ness DECLARED (unverified), never MEASURED.**
+
+Two guards on the excitement. It is **not anti-aimbot** (`integrity ≠ truth`; input legitimacy is
+the separate SPECULATIVE layer). And the tempting "cryptographically auditable at 0.073 ms/tick"
+line **conflates two different ticks**: 0.073 ms is the MEASURED *native sim-tick* (`frontbench_rs`,
+100 bipeds, Ally X, §4b); the fraud referee re-executes one *worldstep* tick in the Python
+reference — a different tick, `NOT_MEASURED`. The real, defensible claim is architectural: the
+referee re-executes **one** tick, not the run.
+
 ## Provenance
 
 This note grades an externally-proposed "zk-STARK trajectory verification" rung. Three
