@@ -1,15 +1,87 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 
-# `tools/` — separate tools (not the language core)
+# `tools/` — the execution pipeline, authoring surfaces, and cross-placements
 
-Each of these is its own thing, with its own runner and its own README where warranted. None of
-them is part of the sealed language; several are graded outside the URDR gate on purpose.
+Everything that is *not* the sealed language kernel (`urdr/`). Each subfolder is its own
+module with its own runner and its own README; most carry a reference (Python) plus one
+or more independent placements (`*_c` C99, `*_rs` Rust) that must reproduce the reference
+bit-for-bit. Several tools are graded *outside* the URDR gate on purpose — that is stated
+in each one's README and grade line.
 
-| Tool | What it does | README |
-|---|---|---|
-| [`fixpoint_proto/`](fixpoint_proto/) | Faithful Python **prototypes** of the Q32.32 ops (`mul`/`div`/`floor_int`/`sqrt`) — the proven targets the Urðr encodings must reproduce. `algorithm proven ≠ measured`. | [`fixpoint_proto/README.md`](fixpoint_proto/README.md) |
-| [`foreign_placement/`](foreign_placement/) | The **differential-oracle harness**: a foreign implementation is admitted as another placement iff its digest = the ☉ reference, else `URDR-PLACEMENT-DIVERGENCE`. Cargo-free; trusts no foreign code, only agreement. | [`foreign_placement/README.md`](foreign_placement/README.md) |
-| [`urdr_core_rs/`](urdr_core_rs/) | The **independent Rust kernel** — one std-only file, hand-rolled SHA-256, no crates — ADMITTED against the D8 conformance corpus (29/29, twice, defect caught). | [`urdr_core_rs/README.md`](urdr_core_rs/README.md) |
-| [`world_host/`](world_host/) | The **shared-world runtime reference** (Milestone 7, host track, Python): static views → transition history → deterministic scheduler. Consumes the measured invariants; graded by its own integration tests, not the URDR gate. | [`world_host/README.md`](world_host/README.md) |
-| [`voi_gate/`](voi_gate/) | A **Value-of-Information decision gate** — a *separate* float tool (not the integer core). It *proposes* claims and never mints them; its "improves outcomes" claim is `SPECULATIVE`. | [`voi_gate/README.md`](voi_gate/README.md) |
-| `glyph_review.py` | The **glyph review** (D1 §20): checks the five mechanical criteria under which a glyph is *earned* as a lossless alias, or refused `URDR-GLYPH-NOT-EARNED`. | — |
+## Index
+
+**Deterministic execution pipeline**
+
+- [`intla/`](intla/) — exact-integer linear algebra (`urdr-math`), atlas
+  injectivity/reconstruction, and two invariant detectors (**rigidity**, **toric**);
+  cross-placed via `urdr_math_c/`, `urdr_math_rs/`, `rigidity_{c,rs}/`, `toric_{c,rs}/`.
+- [`physics/`](physics/) — exact dynamics, LCP, joints, `field`, `marangoni`, coupling,
+  `criticality`; **`fp_dynamics`** is the bounded fixed-point real-time path (rung 5).
+  Placements: `urdr_physics_rs/`, `fp_dynamics_rs/`.
+- [`render/`](render/) — deterministic fixed-point rasterizer, 3D depth, `perspective`;
+  placement `urdr_render_rs/`.
+- [`netcode/`](netcode/) — the deterministic netcode stack: **N1** lockstep, **N2**
+  rollback, **N3** authenticated input, **N4/N4.1** authored worlds + body-body contact,
+  **N5** authenticated rollback over worlds, **D16** regional authority. Seven Rust
+  placements + `worldregion_c`.
+
+**Authoring surfaces & front-ends**
+
+- [`frontfps/`](frontfps/) — the seven-stage **FPS/MMO authoring ladder** (world canon →
+  Q32.32 rotation → pose/clip → posed hitboxes → view stream → LLM text surface → native
+  bench), each stage cross-placed C99 + Rust (14 placement dirs).
+- [`homology/`](homology/) — **`URDRPD1`**: division-free 𝔽₂ persistent homology + a
+  topological OOB / anti-cheat witness; three placements (`homology_c/`, `homology_rs/`).
+- [`frontend/`](frontend/) — the D14 admission canon (`canon_ref`), D15 view contract
+  (`view_export` + `view_viewer.html`), SVG importer, and the exact rigidity certificate.
+- [`editor/`](editor/) — Urðr Designer: a browser authoring + deterministic-replay
+  front-end (draw wireframes, populate a physical world, scrub a run witness-by-witness).
+- [`tracer/`](tracer/) — photo/still → wireframe design tracer (a D14 authoring modality).
+
+**Kernel, infrastructure & studies**
+
+- [`urdr_core_rs/`](urdr_core_rs/) — the independent std-only Rust **kernel** placement (D8).
+- [`world_host/`](world_host/) — the shared-world runtime reference (Milestone 7).
+- [`registry/`](registry/) — name→digest module registry + fetch-and-pin (R4).
+- [`specfreeze/`](specfreeze/) — the **D12** freeze manifest, mechanically re-derived and
+  byte-checked so docs and code cannot drift apart.
+- [`linear/`](linear/) — the **D13 C4** linearity staging study (a multiplicity checker
+  built ahead of need; the glyph stays unadmitted).
+- [`foreign_placement/`](foreign_placement/) — the differential-oracle harness (R6a): a
+  foreign implementation is admitted iff its digest equals the reference.
+- [`fixpoint_proto/`](fixpoint_proto/) — faithful Q32.32 numeric prototypes (the proven
+  targets the encodings must reproduce).
+- [`voi_gate/`](voi_gate/) — a Value-of-Information decision gate (a *separate* float
+  tool; its "improves outcomes" claim is `SPECULATIVE`).
+- `glyph_review.py` — the D1 §20 glyph review: the five mechanical criteria under which a
+  glyph is *earned* as a lossless alias, else `URDR-GLYPH-NOT-EARNED`.
+
+## Whitepaper
+
+The pipeline's contribution is *authority*: a deterministic, exactly-reproducible
+simulation whose every state transition is content-addressed and cross-checkable. Two
+disciplines make the tree trustworthy. **Cross-placement** (the `*_c`/`*_rs` twins) is the
+reproduction axis — a claim is real only when an independent implementation reproduces its
+golden *and* defect digests bit-for-bit, across three languages and two OSes. **Honest
+grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
+`DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
+in particular, stay `NOT_MEASURED` until run under the sealed protocol
+(`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
+(`../verify.py`): **519 unit falsifiers / 372 rows**, run twice, bit-identical.
+
+The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
+(D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
+through the D14 admission canon (identity is geometry, provenance excluded) or *depict* it
+through the view contract, but can never feed themselves back into it.
+
+## Dev notes
+
+- Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
+  (expect `GATE PASSED`, 519/372). Each module's README documents running it standalone.
+- **Placements must stay in lockstep with their reference.** If you change a reference
+  module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
+  is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc).
+- Determinism is the floor: set `PYTHONHASHSEED=0`; on Windows redirect output with
+  `PYTHONUTF8=1`. A number is not a result until it carries its host (`bench_protocol.md`).
+- Tools graded outside the gate (`voi_gate`, `world_host`, `editor`) say so in their own
+  READMEs — do not cite them as `MEASURED` engine capabilities.

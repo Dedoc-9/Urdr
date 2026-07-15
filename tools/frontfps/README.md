@@ -262,7 +262,7 @@ typed — outcome digest pinned (`e57dfaea…`). Cross-placement SPECULATIVE, qu
 The model itself is not in the loop under test — the gate proves the surface it
 would author against is total, typed, round-tripping, and repair-signalling.
 
-## 2g. Stage 7 (native scale-out / bench) — OPEN. OODA-7 report
+## 2g. Stage 7 (native scale-out / bench) — SHIPPED. OODA-7 report
 
 **Observe.** All six functional stages are cross-placed (Python + C99 + Rust, two
 OSes, golden+defect parity). The per-module work proxies are pinned: fpclip 55
@@ -290,10 +290,13 @@ streaming-editor integration, and every ms/fps number.
 
 **Act.** Shipped: `frontbench.py`, `conformance_bench.txt` (2 counts),
 `tests/test_frontbench.py` (7 falsifiers), the `frontbench` gate stage (4 rows),
-this report. Gate **504 unit falsifiers / 367 rows**, ×2 bit-identical. The
-`--measure` mode runs on the reference host for convenience but prints its output
-tagged NOT_MEASURED — a real audit is the §3 protocol on the named host, and until
-that log exists every performance target remains a design constraint, not a claim.
+this report; then the native placements (`frontbench_c` self-verified, `frontbench_rs`
+owner-attested) and the ROG-Ally-X cold+soak run that **graduated the sim-tick budget row to
+MEASURED (named host, ~0.073 ms/tick, `docs/bench_protocol.md` §4b)** — this project's first
+performance grade. Gate at Stage-7 completion **504 / 367**; now **519 / 372** with the
+`tools/homology` sibling (URDRPD1). Scope held: only the **sim-tick component** is MEASURED —
+end-to-end input→photon, fps, and 1080–1440p / BF6 stay NOT_MEASURED until the §3 protocol runs
+with the (unbuilt) layer-3 renderer + capture.
 
 ## 3. The staged ladder (each stage ends in its OODA loop)
 
@@ -305,7 +308,7 @@ that log exists every performance target remains a design constraint, not a clai
 | **4. Posed hitboxes + IK seam** — posed core DONE (3 placements, 2 OSes); IK DECLARED | per-bone `auto_capsule` over posed skeletons; **one-tick-late IK contract** (reads T−1 contacts, writes T transforms, lag IS in the witness) | containment certificates over a posed corpus + floor defect; IK lag visible in `first_field_desync` fixtures | hitbox LOD (fewer capsules far away) — only if it never touches authority | artist-facing "why is my hitbox this size": the witness vertex, surfaced |
 | **5. View stream** — DONE (reference, §2e) | URDR-FPSW-VIEW-2: binary, delta-framed successor of `to_view` for the native renderer (D15 successor version) | view recompute law; structural no-feedback test (renderer inputs can't reach canon); bandwidth measured per authored scene | share the compact-witness encoding with netcode replay (one format, two consumers) | `auto_lod` proposals for view meshes — presentation-only, so admissible on visual review, not witness proof |
 | **6. LLM authoring surface** — DONE (reference, §2f) | line-oriented text form of the canon + the repair loop; `auto_arena` / `auto_rig` candidates under §4's law | an LLM-emitted world admitted with **zero human edits** on a pinned scenario set; adversarial fuzz: refusals stay total under random/hostile emissions | prompt→world as a *pipeline of admissions*, never one leap; each auto keeps its witness | this stage IS the affordance; its falsifier is the fuzz corpus |
-| **7. Native scale-out** — OPEN (§2g): work accounting MEASURED, performance NOT_MEASURED | SOA layout + bench protocol on a named host; streaming-editor integration | the §6 budgets become MEASURED-or-refuted on real silicon | volunteer-region hosting (directive §10) — only after D16 dynamic seams | auto-tuning loops audited like any self-improving system (Ursprung `m_novel` lesson) |
+| **7. Native scale-out** — SHIPPED (§2g): work accounting + native sim-tick MEASURED (named host ~0.073 ms, §4b); end-to-end fps / input→photon NOT_MEASURED | SOA layout + bench protocol on a named host; streaming-editor integration | the §6 budgets become MEASURED-or-refuted on real silicon | volunteer-region hosting (directive §10) — only after D16 dynamic seams | auto-tuning loops audited like any self-improving system (Ursprung `m_novel` lesson) |
 
 Stages 2–7 are `SPECULATIVE / N/A` until their rows exist. The ladder is re-ordered
 only by an OODA report, never by enthusiasm.
@@ -351,7 +354,7 @@ fidelity bounded by GPU engineering, integrity bounded by nothing the renderer d
 | Target | Value | Grade | Precondition |
 |---|---|---|---|
 | Authoring admission latency | interactive (<50 ms/world at editor scale) | NOT_MEASURED | Stage-7 bench protocol |
-| Sim tick (authority, native placement) | ≤3 ms @ 240 Hz, 100→500 bodies | NOT_MEASURED | native placement + protocol (work proxy pinned: 13200 frozen divisions / 100-biped tick via `frontbench`; ms needs the host) |
+| Sim tick (authority, native placement) | ≤3 ms @ 240 Hz, 100→500 bodies | **MEASURED** (100-biped, named host ~0.073 ms, §4b); 500-body SOA NOT_MEASURED | native placement + protocol pinned: 13200 frozen divisions / 100-biped tick via `frontbench`; the 100-biped ms is now logged (§4b) |
 | Render frame (native, 1080p) | 60 / 120–144 fps | NOT_MEASURED | layer-3 renderer exists |
 | Render frame (native, 1440p) | 60 / 120 fps | NOT_MEASURED | layer-3 renderer exists |
 | End-to-end input→photon | competitive-FPS class (<~25 ms @ 144 Hz) | NOT_MEASURED | all of the above |

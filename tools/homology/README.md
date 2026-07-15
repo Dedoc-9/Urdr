@@ -9,7 +9,17 @@ leave {0,1}, there is zero coefficient growth, and the reduction is bit-identica
 across CPython / C99 / Rust. A field-tagged SHA-256 witness (`URDRPD1`) seals each
 diagram.
 
-## Why 𝔽₂ and not integer SNF
+## Index
+
+- `urdr_homology.py` — the Python **reference**: 𝔽₂ Betti, Rips persistence, `URDRPD1`
+  witness, and the OOB layer (`label_free_space` / `locate` / `oob_witness` /
+  `occupancy_signature`).
+- `conformance_homology.txt` — the ten pinned goldens (betti tuples + witness digests).
+- [`homology_c/`](homology_c/) — independent C99 placement (self-verified) → MEASURED.
+- [`homology_rs/`](homology_rs/) — std-only Rust placement (owner-attested on Windows) → MEASURED.
+- Falsifiers: `../../tests/test_homology.py` (15); gate stage `homology` in `../../verify.py` (5 rows).
+
+## Whitepaper — why 𝔽₂ and not integer SNF
 
 Betti numbers are ranks over a field; 𝔽₂ gives them with no division and no
 coefficient explosion. Smith Normal Form over ℤ is needed only for **torsion**, which

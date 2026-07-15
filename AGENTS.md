@@ -76,7 +76,7 @@ invariant detectors `tools/intla/{toric,rigidity}_{rs,c}/` (the toric-code dimen
 the rigidity verdict) — each ADMITTED on Windows/`rustc`, MEASURED both placements, with
 its port logic first validated by an independent C99 cross-check that agrees on the golden
 AND the defect digests. Counting the math spine's `tools/intla/urdr_math_c/` (std-only,
-`__int128`), that is **thirteen Rust placements and four C99 runtimes** — three
+`__int128`), that is **twenty-one Rust placements and twelve C99 runtimes** — three
 languages, two OSes, one digest.
 
 ---
@@ -214,28 +214,8 @@ These are non-negotiable. Every rung in this repo was built under them.
 | `tools/intla/` | `urdr-math` (exact integer linear algebra), `urdr-rigidity`, and the D17 invariant-detector library (`gf2` exact 𝔽₂ substrate, `toric` code dimension, `persim` persistence barcode) |
 | `tools/physics/` | exact dynamics, LCP, joints, `field.py`; the `Q`/`Vec` exact substrate; **`fp_dynamics.py`** bounded fixed-point steppers (rung 5) |
 | `tools/render/` | fixed-point rasterizer (`raster.py`) + 3D depth (`raster3d.py`) |
-| `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics, the N1–N5 netcode stack, D16 regional authority, and the toric/rigidity detectors) |
+| `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics, the N1–N5 netcode stack, D16 regional authority, the seven-stage frontfps ladder, the URDRPD1 persistent-homology / OOB witness, and the toric/rigidity detectors) |
 | `tools/netcode/` | The N1–N5 stack: **`lockstep.py`** (peers exchange inputs only, one `URDRLST1` witness chain, desyncs localized), **`rollback.py`** (canonical snapshots; late inputs rewind + replay and converge to the N1 chain; `ROLLBACK-REFUSE`/`ROLLBACK-CONFLICT`), **`authinput.py`** (Lamport-OTS envelopes gate admission; `AUTH-REFUSE`), **`worldstep.py`** (authored `URDR-WORLD-3` scenes in the loop; `WORLD-REFUSE`; **N4.1** opt-in sqrt-free body-body contact), **`worldpeer.py`** (N5 — the composed contract: authored world + authenticated transcript → one witness or one typed refusal; `URDRWPN1` world pin), and **`worldregion.py`** (**D16** regional authority: partition by integer x-seams → deterministic reunification reproduces the monolith witness, `REGION-REFUSE`); six corpora + Rust placements `{lockstep,rollback,authinput,worldstep,worldpeer}_rs` + `worldregion_{rs,c}`; all frozen at 0.1 in D12 |
 | `tools/editor/` | browser authoring + deterministic-replay front-end (`urdr_designer.html`, `replay.py`, `load_world.py`) — **exploratory** consumer; the `--fp` stepping it demos is the gated rung 5 |
 | `tools/frontfps/` | **`frontfps.py`** — the consolidated FPS/MMO authoring canon (**URDR-FPSW-1**, Stage 1): meshes + rigs + capsule hitboxes + actors + spawns + D16 seams under ONE world-identity law (provenance excluded, `FPSW-REFUSE` total, no digest for an inadmissible world), plus the first auto-affordance (`auto_capsule`, containment-certified, defect-checked) and **`fpquat.py`** — the Stage-2 Q32.32 rotation substrate (URDRFPQ1: qmul/norm2/rsqrt/normalize/rotate/nlerp on the frozen FIELDFP laws; C99 placement `fpquat_c/` golden+defect parity; Rust `fpquat_rs/` ADMITTED on the owner's Windows host — three placements, two OSes) and **`fpclip.py`** — the Stage-3 pose & clip canon (URDRCLP1: keyframed Q32.32 rotation tracks, canonical minimum-priority state machine, `auto_loopable` seam certificate, pinned 55-op pose budget proxy; bench protocol in `docs/bench_protocol.md`) and **`fppose.py`** — Stage-4 posed world transforms + hitbox capsules (URDRPSE1: normalize-per-compose hierarchy, exact point-in-capsule coverage certificate, one-tick-late IK contract DECLARED). Staged FPS/MMO plan + OODA reports in its README |
-| `tools/world_host/` | multi-actor world runtime (weave, history, regional) |
-| `spec/` | **normative**: D1 language, D5 ledger, D7 execution geometry, D8 portable kernel, D9 numeric substrate, D10 observer, D11 layer contracts, D12 versions/freeze |
-| `docs/` | narrative: `PAPER.md` (OSDI-style systems paper), `network_bridge.md`, roadmap, transcripts |
-| `LESSONS.md` | ported laws / hard-won rules |
-
----
-
-## 7. Grading vocabulary (quick reference)
-
-- **`MEASURED`** — the gate (or a named host's cross-placement run) proves it *now*.
-- **`DECLARED`** — a written target/contract; not yet demonstrated.
-- **`SPECULATIVE`** — plausible, unmeasured (e.g. a Rust placement before compile).
-- **`cross-placement`** — a second, independent implementation reproduces the
-  digests bit-for-bit (the strongest evidence tier).
-- **reproducible ≠ exact** — fixed-point layers are deterministic and
-  cross-placeable but *round*; say which you mean.
-- **corpus agreement ≠ universal correctness** — the gate certifies agreement on a
-  *stated corpus*, not all inputs.
-
-If you remember one thing: **claim exactly what the corpus shows, and make the gate
-able to prove you wrong.**
+| `tools/world_host/` | multi-actor world
