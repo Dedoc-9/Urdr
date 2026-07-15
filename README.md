@@ -21,10 +21,10 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **Twenty-one** single-file Rust placements
+across independent implementations or explicitly refused. **21** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **519-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **twelve** C99 placements, so
+on fixed corpora, behind a **524-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **12** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -433,7 +433,7 @@ criticality, toric code, persistent homology), **criticality** (P6, reactor-kine
   pass is one more datum in **D5 § "Evidence Against C8."** Graded by integration tests and, where a
   witness is involved, by the same bit-for-bit composition discipline as D16 — not a new primitive.
 - **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and two
-  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **13 Rust + 4 C99
+  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **21 Rust + 12 C99
   placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles.
@@ -470,15 +470,4 @@ is [`LESSONS.md`](LESSONS.md); the normative language rules are [`spec/D1-spec.m
 3. **Grade every claim** on the maturity × evidence ladder; evidence never exceeds maturity; record it
    in [`spec/D5-ledger.md`](spec/D5-ledger.md). No inflation (L2, L6).
 4. **Gate twice.** `python verify.py` green, deterministically, in isolated subprocesses (L3).
-5. **Cross-placement.** A numeric / observer result earns *both placements* only once `urdr-core-rs`
-   reproduces it in the D8 conformance corpus — two kernels agreeing on the accept/reject frontier.
-6. **No glyph without a review.** New *operations* arrive as ASCII prelude functions; a glyph is
-   *earned* later as a lossless alias via `tools/glyph_review.py` (§20), or never (design law 5).
-7. **Determinism is an environment:** `PYTHONHASHSEED=0`, `PYTHONUTF8=1` on redirected output; no
-   clock, RNG, float, or iteration-order dependence in the core (L3, L4, L8).
-8. **Keep the sayings honest:** `signum ≠ rēs`, `declared ≠ verified`, `digest ≠ MAC`,
-   `Grounded ≠ true`, `typeable ≠ renderable`, `cited ≠ implemented`.
-
-## License
-
-AGPL-3.0-only. Copyright (C) 2026 Daniel J. Dillberg.
+5. 

@@ -76,7 +76,7 @@ invariant detectors `tools/intla/{toric,rigidity}_{rs,c}/` (the toric-code dimen
 the rigidity verdict) — each ADMITTED on Windows/`rustc`, MEASURED both placements, with
 its port logic first validated by an independent C99 cross-check that agrees on the golden
 AND the defect digests. Counting the math spine's `tools/intla/urdr_math_c/` (std-only,
-`__int128`), that is **twenty-one Rust placements and twelve C99 runtimes** — three
+`__int128`), that is **21 Rust placements and 12 C99 runtimes** — three
 languages, two OSes, one digest.
 
 ---

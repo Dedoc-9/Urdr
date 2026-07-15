@@ -115,6 +115,7 @@ class Gate:
         suite = loader.discover(os.path.join(ROOT, "tests"), top_level_dir=ROOT)
         result = unittest.TextTestRunner(verbosity=1, stream=sys.stdout).run(suite)
         n_bad = len(result.failures) + len(result.errors)
+        self.n_falsifiers = result.testsRun  # single source for the doc-currency check
         self.record(
             "unit-falsifiers",
             result.testsRun > 0 and n_bad == 0,
@@ -2598,6 +2599,40 @@ class Gate:
                     "i64 sq-dist overflow + spawn-in-solid both raise TOPOLOGY-REFUSE"
                     if refuse else "a refusal did not fire")
 
+    def doc_currency(self):
+        """The tracked docs must quote the LIVE counts — docs must match reality
+        (tools/specfreeze/doc_currency.py, the count-sibling of spec_freeze). Placement
+        counts come from the filesystem, the unit-falsifier count from THIS run's own
+        testsRun, the row total from the live gate; any README/paper quoting a different
+        number reddens the gate. Runs last so the row total is final; a planted stale count
+        is caught (non-vacuity)."""
+        sdir = os.path.join(ROOT, "tools", "specfreeze")
+        if sdir not in sys.path:
+            sys.path.insert(0, sdir)
+        try:
+            import doc_currency as DC
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("doc-currency", False, f"import failed: {exc}")
+            self.record("doc-currency-selftest", False, "checker did not load")
+            return
+        N_OWN = 2  # rows THIS method records below — keep == the record() count
+        live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
+                              len(self.rows) + N_OWN)
+        probs = DC.problems(ROOT, live)
+        ok = (not probs) and live["fals"] >= 0
+        if ok:
+            detail = ("docs quote live counts: %d Rust / %d C99 placements, "
+                      "%d unit falsifiers, %d rows"
+                      % (live["rust"], live["c"], live["fals"], live["rows"]))
+        else:
+            detail = "stale: " + "; ".join(
+                "%s says %s=%d (live %d)" % (d, k, g, e) for d, k, g, e in probs[:5])
+        self.record("doc-currency", ok, detail)
+        caught = DC.defect_is_caught(live)
+        self.record("doc-currency-selftest", caught,
+                    "a planted stale count is caught (gate can redden)"
+                    if caught else "self-defect not caught")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -3241,6 +3276,7 @@ def main() -> int:
     gate.spec_freeze()
     gate.rejections()
     gate.tamper()
+    gate.doc_currency()
     return gate.report()
 
 

@@ -293,7 +293,7 @@ streaming-editor integration, and every ms/fps number.
 this report; then the native placements (`frontbench_c` self-verified, `frontbench_rs`
 owner-attested) and the ROG-Ally-X cold+soak run that **graduated the sim-tick budget row to
 MEASURED (named host, ~0.073 ms/tick, `docs/bench_protocol.md` §4b)** — this project's first
-performance grade. Gate at Stage-7 completion **504 / 367**; now **519 / 372** with the
+performance grade. Gate at Stage-7 completion **504 / 367**; now **524 / 374** (homology + doc-currency added) with the
 `tools/homology` sibling (URDRPD1). Scope held: only the **sim-tick component** is MEASURED —
 end-to-end input→photon, fps, and 1080–1440p / BF6 stay NOT_MEASURED until the §3 protocol runs
 with the (unbuilt) layer-3 renderer + capture.

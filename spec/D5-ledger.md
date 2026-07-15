@@ -1988,6 +1988,21 @@ is three placements (Python + C99 + Rust), two OSes, golden AND defect parity �
 cross-placement bar, now met by the first post-frontfps module. The pinned set is golden AND defect
 (`oob_defect`, `occ_clip`, the `--defect` betti), so parity is proven on both sides of each falsifier.
 
+**doc-currency — the headline counts must match reality (mechanical enforcement), MEASURED.**
+`tools/specfreeze/doc_currency.py` (the count-sibling of `freeze_check`) re-derives the project's
+headline numbers from ground truth — placement counts from the filesystem (`tools/**/*_rs` = 21,
+`*_c` = 12), the unit-falsifier count from the gate's OWN runtime `testsRun`, and the row total from
+the live gate — and the `doc-currency` gate row reddens if any tracked README/paper quotes a
+different number. Markdown emphasis is stripped before scanning, so a bold `**519**` cannot hide a
+stale count, and a planted stale number is caught (`doc-currency-selftest`); the stage runs last so
+the row total is final. On introduction it immediately earned its keep — it caught stale counts a
+hand comb had missed (`13 Rust + 4 C99` deep in the root README and `docs/PAPER.md`, plus a
+bold-split `**519** unit falsifiers`), which drove the reconciliation to the live totals. Gate stage
+`doc-currency` (2 rows) + `tests/test_doc_currency.py` (5 falsifiers) → gate **524 unit falsifiers /
+374 rows**. Scope: only current-state docs are enforced; historical ledgers (this file, the frontfps
+OODA reports) keep their point-in-time counts by design. "Remember to update the docs" is now a
+falsifier, not a hope — the same anti-rot move as `spec_freeze`, applied to counts instead of digests.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred
