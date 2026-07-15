@@ -23,6 +23,7 @@ SHA-256 collision), re-executes the one disputed tick from it, and whichever cha
 matches the true re-execution is honest. This works only because the tick is bit-exact
 reproducible — the same exactness the gate already proves.
 """
+import hashlib
 import os
 import sys
 
@@ -91,6 +92,85 @@ def adjudicate(w, log, chain_a, chain_b, pre_state):
     if b_ok and not a_ok:
         return "B"
     return "NEITHER"
+
+
+# ---- Merkle commitment + O(log T) bisection (increment 2: data-minimal disputes) --------
+# The flat URDRLSTT trace_digest binds the whole chain but is NOT position-openable. A Merkle
+# root over the per-tick frames lets a party reveal ONE frame with an O(log T) inclusion proof;
+# the bisection game then narrows a dispute to the first divergent frame revealing only O(log T)
+# states, each cryptographically bound to the committed root — the no-fabrication law made
+# cryptographic, without revealing the full chain. Bisection needs MONOTONE divergence (a real
+# mis-simulation: agree up to k, disagree from k on), not a single-frame flip.
+def _h2(a, b):
+    return hashlib.sha256((a + b).encode()).hexdigest()
+
+
+def merkle_root(frames):
+    """Merkle root over the per-tick frame digests (an odd node duplicates the last — standard)."""
+    if not frames:
+        return hashlib.sha256(b"").hexdigest()
+    layer = list(frames)
+    while len(layer) > 1:
+        layer = [_h2(layer[k], layer[k + 1] if k + 1 < len(layer) else layer[k])
+                 for k in range(0, len(layer), 2)]
+    return layer[0]
+
+
+def merkle_proof(frames, idx):
+    """The bottom-up sibling-hash inclusion proof for leaf `idx`."""
+    layer = list(frames)
+    proof = []
+    i = idx
+    while len(layer) > 1:
+        j = i ^ 1
+        proof.append(layer[j] if j < len(layer) else layer[i])
+        layer = [_h2(layer[k], layer[k + 1] if k + 1 < len(layer) else layer[k])
+                 for k in range(0, len(layer), 2)]
+        i //= 2
+    return proof
+
+
+def verify_leaf(root, idx, leaf, proof):
+    """True iff `leaf` is at position `idx` under `root`. Position is bound by `idx` (the side at
+    each level is idx's bit), so a proof for one leaf cannot be replayed at another position."""
+    h = leaf
+    i = idx
+    for sib in proof:
+        h = _h2(h, sib) if i % 2 == 0 else _h2(sib, h)
+        i //= 2
+    return h == root
+
+
+def bisect(frames_a, frames_b):
+    """The verification game over two equal-length chains with MONOTONE divergence: narrow to the
+    first divergent frame by comparing midpoints. Returns (disputed_tick, frames_revealed) — the
+    reveal count is O(log T), vs len(frames) for the single-round referee."""
+    n = len(frames_a)
+    lo, hi = 0, n - 1
+    if frames_a[lo] != frames_b[lo]:
+        return -1, 2                          # initial-state dispute
+    if frames_a[hi] == frames_b[hi]:
+        return None, 2                        # endpoints agree -> no propagated dispute
+    revealed = {lo, hi}
+    while hi - lo > 1:
+        mid = (lo + hi) // 2
+        revealed.add(mid)
+        if frames_a[mid] == frames_b[mid]:
+            lo = mid
+        else:
+            hi = mid
+    return hi - 1, len(revealed)              # frame hi is the first divergence -> tick hi-1
+
+
+def demo_bisect():
+    """A PROPAGATED-divergence dispute (collide world, honest vs contact_defect) — the monotone
+    divergence bisection needs. Returns (w, log, honest, defect, k, pre_state)."""
+    w = W.collide_world()
+    log = W.collide_log()
+    honest, states = W.simulate_trace(w, log)
+    defect, _ = W.simulate_trace(w, log, contact_defect=True)
+    k = L.first_desync(honest, defect)
+    return w, log, honest, defect, k, states[k - 1]
 
 
 # ---- demo scenario + dispute builders (validity, not outcome) ------------------------

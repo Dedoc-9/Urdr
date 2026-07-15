@@ -8,3 +8,9 @@
 # name  value
 fraud_trace c90de76759b6f8755b9ee3f86b24169b5862646e2cf0379c523d73ba282ea191
 fraud_disputed 59
+# increment 2 (Merkle commitment + O(log T) bisection) — the PROPAGATED-divergence collide
+# scenario (honest vs contact_defect), monotone divergence at tick 8.
+#   fraud_merkle      = Merkle root over the honest collide run's per-tick frames.
+#   fraud_bisect_tick = the disputed tick the bisection converges to (first_desync 9 -> tick 8).
+fraud_merkle 8e5d341bc3ad4b9f5dda30a11b16d6d8f160001fc663af34db2ae151b42c94d6
+fraud_bisect_tick 8

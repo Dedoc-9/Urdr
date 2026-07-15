@@ -28,8 +28,9 @@ witness class). The honest chain wins regardless of role; a fabricated pre-state
 the referee runs exactly one tick. Gate stage `netcode_fraud` (4 rows) + `tests/test_fraud.py`.
 Mechanism established (optimistic rollups / verification games — Arbitrum, Optimism, Truebit,
 Canetti–Riva–Rothblum); the novel part is the real-time game-tick application — **first-ness
-DECLARED, not MEASURED**, and it is *not* anti-aimbot (`integrity ≠ truth`). Increment 1; O(log T)
-Merkle-bisection + C99/Rust placements are next.
+DECLARED, not MEASURED**, and it is *not* anti-aimbot (`integrity ≠ truth`). Increments 1–2 built
+(single-round referee + Merkle commitment / O(log T) bisection — a dispute settled revealing 8 of 41
+frames); the C99/Rust cross-placement is next.
 
 ## The separation (structural, not advisory)
 

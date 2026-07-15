@@ -2668,6 +2668,26 @@ class Gate:
         self.record("netcode-fraud-selftest", loc,
                     "dispute localizes to the first divergence (agrees with first_desync); identical→None (non-vacuity)"
                     if loc else "localization broke")
+        # increment 2: Merkle commitment + O(log T) bisection (docs/fraud_proof.md §3)
+        wb, lb, hb, db, kb, pb = FR.demo_bisect()
+        root = FR.merkle_root(hb)
+        prf = FR.merkle_proof(hb, kb)
+        merkle_ok = (root == goldens.get("fraud_merkle")
+                     and FR.verify_leaf(root, kb, hb[kb], prf)
+                     and not FR.verify_leaf(root, kb, "0" * 64, prf)
+                     and not FR.verify_leaf(root, kb + 1, hb[kb], prf))
+        self.record("netcode-fraud-merkle", merkle_ok,
+                    "Merkle inclusion binds leaf + position (forged leaf / sibling / position rejected); root pinned"
+                    if merkle_ok else "merkle commitment broken")
+        import math as _math
+        btick, brev = FR.bisect(hb, db)
+        bisect_ok = (btick == kb - 1 == int(goldens.get("fraud_bisect_tick", -99))
+                     and brev < len(hb) and brev <= _math.ceil(_math.log2(len(hb))) + 2
+                     and FR.adjudicate(wb, lb, hb, db, pb) == "A"
+                     and FR.bisect(hb, list(hb))[0] is None)
+        self.record("netcode-fraud-bisect", bisect_ok,
+                    "bisection converges to the first divergence revealing %d of %d frames (O(log T)), then adjudicates to honest"
+                    % (brev, len(hb)) if bisect_ok else "bisection broke")
 
     def doc_currency(self):
         """The tracked docs must quote the LIVE counts — docs must match reality

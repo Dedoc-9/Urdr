@@ -2016,8 +2016,8 @@ orders; identical → no dispute; two liars → NEITHER; scenario pinned to `fra
 T-tick run, proven by a call counter); **refusal** (a fabricated pre-state that does not hash to the
 agreed frame is FRAUD-REFUSEd before any re-execution); **selftest** (the dispute localizes to the
 first divergence, agreeing with `first_desync`; identical → None, non-vacuity). Red-first: dropping
-the pre-state bind OR the re-execution each reddens a falsifier. Gate stage `netcode_fraud` (4 rows)
-+ `tests/test_fraud.py` (8 falsifiers) → gate **532 unit falsifiers / 378 rows** — and the
+the pre-state bind OR the re-execution each reddens a falsifier. Gate stage `netcode_fraud` (6 rows)
++ `tests/test_fraud.py` (13 falsifiers) → gate **537 unit falsifiers / 380 rows** — and the
 `doc-currency` guard caught the stale counts on this very increment and forced the reconciliation
 (the anti-rot tool policing the build that grew it). **Novelty (graded):** the mechanism is
 established (optimistic rollups — Arbitrum, Optimism; verification games — Truebit, Canetti–Riva–
@@ -2026,9 +2026,12 @@ because the tick is exact-integer + hash-committed. No known shipping-FPS prior 
 is **DECLARED, not MEASURED** (a first is unprovable without a prior-art survey). Honest scope:
 settles COMPUTATION correctness given an agreed input log; input legitimacy (aimbots) is out by law
 (`integrity ≠ truth`); the fraud path's performance is `NOT_MEASURED` — the 0.073 ms is the native
-*sim*-tick, a different tick. This is increment 1 (the single-round referee); the O(log T)
-Merkle-bisection data-efficiency layer and the C99/Rust cross-placement are the stated next
-increments. `does_not_show`: input legitimacy, zero-knowledge, performance.
+*sim*-tick, a different tick. Increments 1 (single-round referee) and 2 (Merkle commitment +
+O(log T) bisection — a propagated-divergence dispute settled by revealing **8 of 41 frames**
+instead of the full chain, each cryptographically bound to the committed root via inclusion proofs;
+`netcode-fraud-merkle` + `netcode-fraud-bisect` rows) are both built and gated; the C99/Rust
+cross-placement is the stated next increment. `does_not_show`: input legitimacy, zero-knowledge,
+performance.
 
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 

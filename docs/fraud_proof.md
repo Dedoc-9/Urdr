@@ -2,9 +2,12 @@
 
 # Optimistic verification of the witness chain — the fraud-proof rung (DECLARED design)
 
-**Grade: `DECLARED`.** Nothing here is built, gated, or measured. This is the
-statable + falsifiable contract for a *light* "verify a run without re-executing it" rung,
-built on machinery that already exists and is already gated. Its far-horizon successor
+**Grade: this note is the `DECLARED` contract; its increments 1 + 2 are now BUILT and gated**
+as `tools/netcode/fraud.py` (`netcode_fraud`, MEASURED reference) — the single-round referee and
+the Merkle-commitment + O(log T) bisection (§3). The C99/Rust cross-placement and any thin-client /
+on-chain *deployment* remain `DECLARED` / unbuilt. This is the statable + falsifiable contract for a
+*light* "verify a run without re-executing it" rung, built on machinery that already exists and is
+already gated. Its far-horizon successor
 (zk-STARK validity proofs) is named in §7 with the honest reason it stays out of scope.
 Where this note and a spec or `spec/D5-ledger.md` disagree, the spec and D5 win.
 

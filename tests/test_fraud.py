@@ -92,5 +92,39 @@ class Localize(unittest.TestCase):
         self.assertIsNone(F.disputed_tick(honest, list(honest)))
 
 
+class Bisection(unittest.TestCase):
+    """Increment 2: Merkle commitment + O(log T) bisection over a PROPAGATED-divergence dispute
+    (collide world, honest vs contact_defect — monotone divergence, which bisection needs)."""
+
+    def setUp(self):
+        self.w, self.log, self.honest, self.defect, self.k, self.pre = F.demo_bisect()
+
+    def test_merkle_root_pinned(self):
+        self.assertEqual(F.merkle_root(self.honest), _corpus()["fraud_merkle"])
+
+    def test_inclusion_proof_binds_leaf_and_position(self):
+        root = F.merkle_root(self.honest)
+        i = self.k
+        proof = F.merkle_proof(self.honest, i)
+        self.assertTrue(F.verify_leaf(root, i, self.honest[i], proof))                 # genuine
+        self.assertFalse(F.verify_leaf(root, i, "0" * 64, proof))                      # forged leaf
+        self.assertFalse(F.verify_leaf(root, i, self.honest[i], proof[:-1] + ["0" * 64]))  # forged sibling
+        self.assertFalse(F.verify_leaf(root, i + 1, self.honest[i], proof))            # wrong position
+
+    def test_bisection_converges_in_log_data(self):
+        import math
+        tick, reveals = F.bisect(self.honest, self.defect)
+        self.assertEqual(tick, self.k - 1)
+        self.assertEqual(tick, int(_corpus()["fraud_bisect_tick"]))
+        self.assertLess(reveals, len(self.honest))                                     # data-minimal
+        self.assertLessEqual(reveals, math.ceil(math.log2(len(self.honest))) + 2)
+
+    def test_bisected_dispute_adjudicates_to_honest(self):
+        self.assertEqual(F.adjudicate(self.w, self.log, self.honest, self.defect, self.pre), "A")
+
+    def test_identical_chains_no_bisect_dispute(self):
+        self.assertIsNone(F.bisect(self.honest, list(self.honest))[0])
+
+
 if __name__ == "__main__":
     unittest.main()
