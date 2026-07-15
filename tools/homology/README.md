@@ -58,5 +58,9 @@ python tools/homology/urdr_homology.py             # demo: known-answer betti + 
 
 **MEASURED (reference)** — validity against known-answer topology (S¹, disk, S², two
 components), two independent Betti computations that must agree, red-first falsifiers.
-Cross-placement (C99 self-verify + Rust owner-attest) is the **next step**, SPECULATIVE
-until run. `does_not_show`: torsion, performance, sub-tick timing.
+
+**Cross-placed:** `homology_c/homology.c` (own 𝔽₂ reduction + persistence + flood
+decomposition + own SHA-256) reproduces all ten pinned goldens bit-for-bit, self-verified
+`cc -O2 -std=c99 -Wall -Wextra` (zero warnings), `--defect` diverges → **MEASURED (C99)**.
+`homology_rs/homology.rs` is the std-only Rust mirror (`rustc -O homology.rs`) → **owner-attest
+pending**. `does_not_show`: torsion, performance, sub-tick timing.
