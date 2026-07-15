@@ -2029,9 +2029,16 @@ settles COMPUTATION correctness given an agreed input log; input legitimacy (aim
 *sim*-tick, a different tick. Increments 1 (single-round referee) and 2 (Merkle commitment +
 O(log T) bisection — a propagated-divergence dispute settled by revealing **8 of 41 frames**
 instead of the full chain, each cryptographically bound to the committed root via inclusion proofs;
-`netcode-fraud-merkle` + `netcode-fraud-bisect` rows) are both built and gated; the C99/Rust
-cross-placement is the stated next increment. `does_not_show`: input legitimacy, zero-knowledge,
-performance.
+`netcode-fraud-merkle` + `netcode-fraud-bisect` rows) are both built and gated. **Cross-placed
+(increment 3):** `fraud_c/fraud.c` self-verified (`cc -O2 -std=c99 -Wall -Wextra`, own SHA-256) and
+`fraud_rs/fraud.rs` (std-only, owner-attest) reproduce the NEW crypto layer bit-for-bit over the
+reference's collide chains — Merkle root `fraud_merkle 8e5d341b…`, the O(log T) bisection
+`fraud_bisect_tick 8` (8 of 41 frames), and the inclusion-proof accept / forged-leaf-sibling-position
+reject — each with its own SHA-256. The **simulation beneath** is already cross-placed
+(`worldstep_rs` / `worldregion_c` / `lockstep_rs`), so the rung is reproducible across three
+languages / two OSes **by composition** (sim placement + crypto placement) rather than by re-placing
+the sim. So the fraud placement count rises to 22 Rust / 13 C99. `does_not_show`: input legitimacy,
+zero-knowledge, performance.
 
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 

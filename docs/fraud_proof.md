@@ -4,8 +4,10 @@
 
 **Grade: this note is the `DECLARED` contract; its increments 1 + 2 are now BUILT and gated**
 as `tools/netcode/fraud.py` (`netcode_fraud`, MEASURED reference) — the single-round referee and
-the Merkle-commitment + O(log T) bisection (§3). The C99/Rust cross-placement and any thin-client /
-on-chain *deployment* remain `DECLARED` / unbuilt. This is the statable + falsifiable contract for a
+the Merkle-commitment + O(log T) bisection (§3). The C99 + Rust cross-placement of the
+crypto layer (Merkle + bisection + inclusion proofs, own SHA-256) is now built — `fraud_c` (self-
+verified) + `fraud_rs` (owner-attest), the sim beneath already placed in `worldstep_rs`/
+`worldregion_c`. Only a thin-client / on-chain *deployment* remains `DECLARED` / unbuilt. This is the statable + falsifiable contract for a
 *light* "verify a run without re-executing it" rung, built on machinery that already exists and is
 already gated. Its far-horizon successor
 (zk-STARK validity proofs) is named in §7 with the honest reason it stays out of scope.
