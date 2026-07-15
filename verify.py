@@ -2520,6 +2520,84 @@ class Gate:
                     "MEASURED perf entries carry a host-log ref (sim-tick §4b); a MEASURED-without-a-log manifest is caught (gate can redden)"
                     if honest else "honesty boundary broken")
 
+    def homology(self):
+        """URDRPD1 — division-free 𝔽₂ persistent homology (tools/homology/
+        urdr_homology.py) and its anti-cheat / OOB witness. Known-answer Betti of
+        S^1/disk/S^2/two-components (validity, not outcome) checked two ways (rank ==
+        persistence essential count); the fundamental lemma ∂^2=0; the field-tagged
+        persistence witness; and the topological OOB layer — the static free-space
+        decomposition witness and the per-tick occupancy signature, each with a defect
+        that diverges (a punched wall / a clipped body). All integer + XOR: no
+        division, no coefficient growth, no overflow surface of its own."""
+        hdir = os.path.join(ROOT, "tools", "homology")
+        if hdir not in sys.path:
+            sys.path.insert(0, hdir)
+        try:
+            import urdr_homology as H
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("homology", False, f"import failed: {exc}")
+            return
+        goldens = {}
+        conf = os.path.join(hdir, "conformance_homology.txt")
+        try:
+            with open(conf, encoding="utf-8") as fh:
+                for line in fh:
+                    line = line.strip()
+                    if line and not line.startswith("#"):
+                        k, v = line.split()
+                        goldens[k] = v
+        except Exception as exc:
+            self.record("homology", False, f"corpus unreadable: {exc}")
+            return
+        ka = all("".join(map(str, H.betti(fn()))) == goldens.get("betti_" + name)
+                 and H.boundary_squared_is_zero(fn())
+                 for name, (fn, _e) in H.KNOWN.items())
+        self.record("homology:known-answer", ka,
+                    "β of S^1/disk/S^2/2-comp match textbook + pinned; ∂^2=0 (validity)"
+                    if ka else "known-answer topology mismatch")
+        pts = H.demo_points()
+        rankb = H.betti(H.final_complex(pts))
+        persb = H.betti_from_diagram(H.diagram(pts))
+        two = rankb == persb == [int(x) for x in goldens.get("betti_square", "")]
+        self.record("homology:two-counts", two,
+                    f"rank β == persistence-essential β == {persb} (non-vacuity)"
+                    if two else f"{rankb} != {persb}")
+        w1, w2 = H.witness(H.diagram(pts)), H.witness(H.diagram(pts))
+        wok = (w1 == w2 == goldens.get("pd_square")
+               and H.witness(H.diagram(pts), field=b"GF3") != w1)
+        self.record("homology:witness", wok,
+                    "URDRPD1 persistence witness pinned ×2; field GF2 recorded (retag diverges)"
+                    if wok else "witness unstable / unpinned / field not recorded")
+        g = H.demo_arena()
+        L, M, A = H.label_free_space(g, H.DEMO_SPAWN)
+        verdicts = (H.locate(g, L, M, A, (3, 3)) == H.OK
+                    and H.locate(g, L, M, A, (5, 5)) == H.CLIP_POCKET
+                    and H.locate(g, L, M, A, (2, 2)) == H.CLIP_WALL
+                    and H.locate(g, L, M, A, (0, 0)) == H.OOB)
+        oobw = H.oob_witness(g, H.DEMO_SPAWN)
+        oobd = H.oob_witness(H.demo_arena_defect_open_pocket(), H.DEMO_SPAWN)
+        occ_ok = H.occupancy_signature(g, H.DEMO_SPAWN, H.demo_bodies_ok())
+        occ_cl = H.occupancy_signature(g, H.DEMO_SPAWN, H.demo_bodies_clip())
+        oob = (verdicts
+               and oobw == goldens.get("oob_arena") and oobd == goldens.get("oob_defect")
+               and oobw != oobd
+               and occ_ok == goldens.get("occ_ok") and occ_cl == goldens.get("occ_clip")
+               and occ_ok != occ_cl)
+        self.record("homology:oob", oob,
+                    "OK/CLIP/OOB verdicts correct; a punched wall + a clipped body each diverge the witness (TOPOLOGY-DESYNC)"
+                    if oob else "OOB verdict or desync witness broke")
+        def _ref(fn):
+            try:
+                fn()
+                return False
+            except H.TopologyError as e:
+                return e.code == "TOPOLOGY-REFUSE"
+        refuse = (_ref(lambda: H.sq_dist((0, 0), (1 << 40, 0)))
+                  and _ref(lambda: H.label_free_space(H.demo_arena(), (2, 2))))
+        self.record("homology:refuse", refuse,
+                    "i64 sq-dist overflow + spawn-in-solid both raise TOPOLOGY-REFUSE"
+                    if refuse else "a refusal did not fire")
+
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):
         """The rigidity verdict is authority, not a display float: a canonical object is a 2D
@@ -3149,6 +3227,7 @@ def main() -> int:
     gate.frontfps_view()
     gate.frontfps_text()
     gate.frontbench()
+    gate.homology()
     gate.rigidity_verdict()
     gate.view_export()
     gate.field()

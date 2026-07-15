@@ -1,0 +1,24 @@
+# URDRPD1 division-free 𝔽₂ persistent-homology corpus (tools/homology) — 10 goldens.
+# betti_* = concatenated Betti numbers [b0 b1 b2] over GF(2), computed by RANK; each
+#   is cross-checked against the persistence essential-class count (two-counts-agree)
+#   and against textbook topology (validity, not outcome):
+#     circle = hollow triangle ~ S^1 (110); disk = filled triangle (100);
+#     sphere = tetrahedron boundary ~ S^2 (101, the beta2 void); two = 2 components (200).
+# betti_square = final Betti of the 4-point square Rips filtration (S^2, 101).
+# pd_square   = SHA-256 URDRPD1 witness of the square persistence diagram (field GF2).
+# oob_arena   = URDROOB1 static free-space decomposition of demo_arena (3 components).
+# oob_defect  = same after a wall is punched (pocket merges -> beta0 3->2): MUST differ.
+# occ_ok      = URDROCC1 per-tick occupancy signature, all bodies authorized.
+# occ_clip    = same with one body teleported into the sealed pocket: MUST differ.
+# Reference placement: Linux/CPython 3.10, PYTHONHASHSEED=0. Field: GF(2), RECORDED.
+# name  value
+betti_circle 110
+betti_disk 100
+betti_sphere 101
+betti_two 200
+betti_square 101
+pd_square befa487a9df0cf67e2519c9ba5eddc2aa7d571c2cf2a6c076b059690e252ad3d
+oob_arena 4446089637050828704945438d5c3fe6980d920373b7b2f48ff623edbcf38308
+oob_defect 9d35647590c8018fcbbb8c38194bec0a89dc99f483405fd3dbd8ce8c8557580d
+occ_ok 6cc3d5e56c229b890a5b149eb6f01ff329d6b2df71b1942927a48b821a92be23
+occ_clip efe6e2db07c8ef5867f4684e4709bb68258e28fc3faef277989a4ac2926fd196

@@ -1939,6 +1939,43 @@ zero checks, and exited 0 — a vacuously green gate. `report()` now refuses bel
 `verify.py` at `def main(` and confirming it silently exits 0 with no tail line — the exact failure the
 CI grep now catches.
 
+**urdr-homology — a division-free 𝔽₂ persistent-homology witness + a topological OOB / anti-cheat
+layer (URDRPD1), MEASURED (reference).** `tools/homology/urdr_homology.py` computes Betti numbers (β0
+components, β1 tunnels, β2 voids) and a persistence diagram over a Vietoris–Rips filtration built from
+EXACT integer squared distances (no square root, no division), reducing the boundary matrices over 𝔽₂ —
+XOR only, entries never leave {0,1}, zero coefficient growth, so the reduction is bit-identical across
+silicon with no overflow surface of its own. It is deliberately **NOT** integer Smith Normal Form: Betti
+numbers are ranks over a field, and 𝔽₂ delivers them without division or coefficient explosion; SNF over ℤ
+is needed only for TORSION, which no use case here asks for, so it is absent (an honest omission, stated
+not hidden). Betti numbers are field-dependent (ℝP² reads β1=1 over 𝔽₂, 0 over ℚ), so the witness RECORDS
+its field — an untagged diagram is unfalsifiable, the way an un-hosted latency number is. Five gate rows,
+each red-first: **known-answer** (β of hollow-triangle S¹ `[1,1,0]`, disk `[1,0,0]`, tetrahedron-boundary
+S² `[1,0,1]` with its β2 void, two components `[2,0,0]` — all match textbook, validity not outcome — and
+the fundamental lemma ∂²=0 on each); **two-counts** (rank-β equals the persistence essential-class count
+on the square filtration, `[1,0,1]` — two independent computations of the same invariant, non-vacuity);
+**witness** (the URDRPD1 persistence digest pinned ×2, a retagged field diverges); plus **oob** and
+**refuse**. The overflow/refuse surface is relocated honestly: 𝔽₂ cannot overflow, but the squared-distance
+arithmetic can and the Rips simplex count explodes combinatorially, so both hit a hard `TOPOLOGY-REFUSE`
+at the i64 ceiling / a simplex cap (field.py's FIELD-REFUSE precedent), never a silent wrap. Grade:
+**MEASURED (reference)**; cross-placement (C99 self-verify + Rust owner-attest) is the stated next step,
+**SPECULATIVE** until run. `does_not_show`: torsion, performance, sub-tick timing.
+
+**The anti-cheat / OOB tailoring — topology builds the map, a cheap parity read uses it.** Persistent
+homology is the WRONG tool for per-frame clip detection (≈O(simplices³), and it does not localize the
+offending frame — a per-frame parity test is O(faces) and does), so the module does NOT compute homology
+of a trajectory per frame. Instead it computes ONCE the connected-component / void decomposition of the
+static free space (β0 of the complement), labelling every cell authorized / sealed-pocket / exterior; per
+frame it is an O(1) `locate` — a body in the authorized component is `OK`, in a bounded pocket a
+`CLIP-IN-POCKET` (teleported inside closed geometry), on a border-touching component `OOB`. The engine's
+own law, applied: the topological boundary is the ACTIVE CONSTRAINT, the per-frame verdict the interior's
+deterministic response. Net defense reuses the frozen *peers-agree-or-localize* pattern, not a new
+composition algebra: each peer recomputes the static-decomposition witness (`URDROOB1` — an altered map
+yields a different digest = `TOPOLOGY-DESYNC`) and a per-tick occupancy signature (`URDROCC1` over the
+bodies' component ids — a clipped body flips it, localizing the id). The `homology:oob` row pins all four
+verdicts and both defect divergences (a punched wall merges the pocket, β0 3→2; a body teleported into the
+pocket flips the signature). Gate stage `homology` (5 rows) + `tests/test_homology.py` (15 falsifiers) →
+gate **519 unit falsifiers / 372 rows**.
+
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
 C8 (D13 §C8, "region-scoped authority / the frame rule") is PARKED, and treated not as a deferred
@@ -1960,6 +1997,7 @@ is the thing C8 would introduce, and the thing that has not been needed.
 - **D15 (view contract):** the view frame CARRIES the authoritative witness as a bound reference; presentation moves a separate `VIEW` digest, the authority witness class is unchanged.
 - **D16 (regional authority):** the direct test of C8's own question — regional composition reproduces the monolithic `URDRLST1`/`URDRLSTT` bit-for-bit with **no new witness class**, across three placements (Python + C99 + Rust). C8's hypothesis (*regional witnesses may need a new class*) was tested and **refuted**.
 - **frontfps (Stages 1–4):** the consolidated FPS/MMO authoring surface reused the `URDROBJ2`/geometry-identity canon, the D15 view law, and D16 seams unchanged; motion added a numeric substrate (quaternions on the frozen FIELDFP laws), not a new witness class. Authoring, animation, and hitboxes composed on the frozen alphabet — one more datum, no language pressure.
+- **urdr-homology (topological analysis + OOB defense):** the honest split. It DOES mint new witness classes — `URDRPD1` (persistence diagram), `URDROOB1`/`URDROCC1` (static decomposition + occupancy) — for a genuinely new quantity, the topological structure of geometry. But, exactly like D15's VIEW digest, these are *downstream, non-authority* observables: the OOB net-defense reuses the frozen *peers-agree-or-localize* pattern over the new digest, and the `URDRLST1`/`URDRLSTT` authority composition algebra is untouched. So this is transparent counter-evidence on the WIDE reading ("nothing new was ever added") and one more datum FOR the seal on the NARROW claim under test (no new AUTHORITY-composition class) — a new observable, not a new authority language.
 
 **Designed falsification attempts (open).** Each is a genuine try to BREAK D16, valuable precisely
 because it is expected to compose — a clean pass is more evidence for the seal, a genuine failure is the
