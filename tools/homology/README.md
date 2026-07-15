@@ -62,5 +62,7 @@ components), two independent Betti computations that must agree, red-first falsi
 **Cross-placed:** `homology_c/homology.c` (own 𝔽₂ reduction + persistence + flood
 decomposition + own SHA-256) reproduces all ten pinned goldens bit-for-bit, self-verified
 `cc -O2 -std=c99 -Wall -Wextra` (zero warnings), `--defect` diverges → **MEASURED (C99)**.
-`homology_rs/homology.rs` is the std-only Rust mirror (`rustc -O homology.rs`) → **owner-attest
-pending**. `does_not_show`: torsion, performance, sub-tick timing.
+`homology_rs/homology.rs` is the std-only Rust mirror (`rustc -O homology.rs`) → **MEASURED**
+(ADMITTED on Windows/rustc, 2026-07-14: 10/10 goldens + `--defect` diverges). So the module is
+three placements (Python + C99 + Rust), two OSes, golden AND defect parity. `does_not_show`:
+torsion, performance, sub-tick timing.

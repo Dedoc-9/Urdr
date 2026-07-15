@@ -1976,15 +1976,17 @@ verdicts and both defect divergences (a punched wall merges the pocket, β0 3→
 pocket flips the signature). Gate stage `homology` (5 rows) + `tests/test_homology.py` (15 falsifiers) →
 gate **519 unit falsifiers / 372 rows**.
 
-**Cross-placed (C99 self-verified; Rust authored, owner-attest pending).** `homology_c/homology.c` is an
+**Cross-placed — three placements, two OSes (C99 self-verified; Rust owner-attested).** `homology_c/homology.c` is an
 independent placement — its own 𝔽₂ XOR reduction, square-Rips persistence, and free-space flood
 decomposition, own SHA-256 — reproducing all ten pinned goldens bit-for-bit (betti 110/100/101/200,
 betti_square 101, `pd_square befa487a…`, `oob_arena 44460896…`, `oob_defect 9d356475…`, `occ_ok 6cc3d5e5…`,
 `occ_clip efe6e2db…`), self-verified in-session (`cc -O2 -std=c99 -Wall -Wextra`, zero warnings), with
 `--defect` diverging (sphere β2 goes wrong when the rank-∂2 subtraction is dropped) → **MEASURED (C99)**.
-`homology_rs/homology.rs` is the std-only Rust mirror (same ten goldens + `--defect`), authored for the
-owner's Windows/rustc host → **owner-attest pending**. The pinned set is golden AND defect (`oob_defect`,
-`occ_clip`, the `--defect` betti), so parity is proven on both sides of each falsifier.
+`homology_rs/homology.rs` **ADMITTED on the owner's Windows host** (std-only Rust, rustc -O, 2026-07-14):
+10/10 goldens reproduced and `--defect` diverges (disk 111, sphere 134) → **MEASURED**. So urdr-homology
+is three placements (Python + C99 + Rust), two OSes, golden AND defect parity — the frontfps ladder's
+cross-placement bar, now met by the first post-frontfps module. The pinned set is golden AND defect
+(`oob_defect`, `occ_clip`, the `--defect` betti), so parity is proven on both sides of each falsifier.
 
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
