@@ -201,7 +201,7 @@ then only for candidates in Dom.
 | 1878 / 1903 | C. S. Peirce | abduction (retroduction) named as the inference that *proposes* | the word, and the floor grade |
 | 1918 | E. Noether | differentiable symmetry ⇒ conservation law | a candidate future detector family — no code exists |
 | 1948 | C. Loewner, *Annals of Mathematics* | interlacing-operator curves of smooth periodic functions wind non-negatively about every off-curve point | the W1 corpus |
-| 1952 | B. D. H. Tellegen, *Philips Research Reports* | network topology alone forces ⟨v, i⟩ = 0 for **any** two admissible flow assignments — a constraint above every constitutive law | a candidate future detector family — no code exists |
+| 1952 | B. D. H. Tellegen, *Philips Research Reports* | network topology alone forces ⟨v, i⟩ = 0 for **any** two admissible flow assignments — a constraint above every constitutive law | the second constraint instrument — LANDED as the 9th detector (`tools/intla/tellegen.py`, THEOREMS T24) |
 | 1958 | N. R. Hanson, *Patterns of Discovery* | philosophy of science studied the finished research report; the finding of hypotheses has a logic of its own (d. 1967) | the PROPOSE/VERIFY split as a *boundary*, not a blur |
 | 1977 | I. Prigogine (Nobel, chemistry) | order arises from non-equilibrium dissipation | framing for "structure that survives filtration" — DECLARED, not machinery |
 | 1977 | M. Serres, *La Naissance de la physique* | structure emerges from flow; mediation (the angel figure is his later *Hermes* / *Angels* period) | framing only — DECLARED |
@@ -223,10 +223,11 @@ witness.
 ## 7. Honest scope — what exists on the day this was written
 
 Zero proposer modules. Zero recorded batches. No `ABDUCT-REFUSE` anywhere, kernel or layer.
-**W1 is the one thing that now exists**: `tools/intla/winding.py`, gated (`winding`, the 8th
+**W1 and the Tellegen detector are the two things that now exist**: `tools/intla/winding.py`, gated (`winding`, the 8th
 D17 detector), graded MEASURED (reference) in D5, THEOREMS T23 — a constraint instrument,
-measured as a detector; its green rows say nothing about the pipeline above it. The Tellegen
-and Noether rows above remain names, not designs. The "`calculationViz` becomes an explorer"
+measured as a detector; its green rows say nothing about the pipeline above it. The Noether row above remains a name,
+not a design; Tellegen landed 2026-07-16 as the 9th detector (THEOREMS T24) — a constraint
+instrument, measured as a detector, changing nothing above §5. The "`calculationViz` becomes an explorer"
 scenario remains a consumer sketch (`DECLARED`), not an obligation of this contract. The
 pipeline contract (§1–§4) earns `MEASURED` status the way D14 did — when a gate stage
 enforces its checkable core (the recorded-batch boundary, the floor grade, `ABDUCT-REFUSE`) —

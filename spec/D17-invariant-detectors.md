@@ -96,6 +96,7 @@ and *withheld* where it does not hold. The current maturity map (the embryonic d
 | **toric** `k` | cross-placed (C99 self-verified; Rust for Windows) | **COMPLETE** for surface homeomorphism (genus classifies closed orientable surfaces); deliberately *not* a complete *code* invariant (distance is separate, NP-hard) |
 | **persim** barcode | reference | **PARTIAL** — distinct filtered complexes can share a barcode; the barcode does not recover the complex |
 | **winding** `w` | cross-placed (Rust ADMITTED ×2, Linux host; Windows owner ritual pending) | **PARTIAL** — many curves share a winding number about a probe; `w` does not recover the curve (reversal covariance `w → −w` documented, not in `~`) |
+| **tellegen** `S` | reference | **PARTIAL** by theorem — `S ≡ 0` on all of Dom (Tellegen 1952), the maximally partial separator; the discriminating power is the boundary: a leaky flow is refused naming its node |
 
 The toric row is the discipline in miniature: complete with respect to its own invariant, refusing to claim
 more than it computes. As the catalog grows past ~20 detectors this table becomes the **map of the project**
@@ -185,7 +186,10 @@ the alphabet proved invariant.
    *same* six conditions — and the **winding-number detector** after it (`tools/intla/winding.py`,
    the W1 rung of `spec/D19-abductive-gauntlet.md` §5, the first detector whose corpus is
    theorem-backed: pinned Loewner-1948 curves wind non-negatively at every pinned probe); the
-   lint now enforces **eight detectors**. The C8 discipline governs
+   lint now enforces **eight detectors** — and the **Tellegen-orthogonality detector**
+   (`tools/intla/tellegen.py`, D19's second constraint instrument, the first graph-theoretic
+   domain: network flows) followed under the same six conditions, making **nine**. The C8
+   discipline governs
    whether any of them ever needs a new *primitive* rather than a new *detector*.
 
 ## 9. Coverage — the boundary of what is claimed exact

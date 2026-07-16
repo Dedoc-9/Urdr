@@ -1828,6 +1828,29 @@ output on a Linux sandbox host (rustc 1.95). Placement count rises to 23 Rust / 
 Windows/rustc owner attestation pending → the Windows column stays DECLARED. Unit
 falsifiers 549 → 550. `does_not_show`: unchanged from the W1 entry above.
 
+**Tellegen orthogonality (tellegen) — a D17 detector; D19's second constraint instrument —
+MEASURED (reference).** `tools/intla/tellegen.py` pairs an integer potential against a
+conservative integer flow on a shared directed multigraph: `S = Σ vₖ·iₖ` with
+`vₖ = p[head] − p[tail]`; Tellegen (Philips Research Reports, 1952) forces `S = 0` on all of
+Dom — ANY admissible pair, independent of constitutive laws (the one-line reason: the sum
+regroups to `Σₙ p[n]·(inflow − outflow)`, zero exactly when KCL holds). Gate stage
+`tellegen`, four D17 roles: reference — `bridge6`/`bridge6_alt`/`cycle5`/`parallel_loop` pin
+`(S = 0, digest)` ×2 with recounting per-edge product witnesses (parallel edges and
+self-loops admitted and documented: a self-loop has `v = 0`); invariance — gauge shift,
+simultaneous (edges, flow) permutation, reorientation-with-negation; defect — the
+orientation-blind (min-first) pairing is nonzero on all four pinned scenes; refusal —
+`TELL-REFUSE` total, a leaky flow refused NAMING its first violating node and exact net
+imbalance. Plus the theorem-backed property row: the 3×3 any-potential ×
+any-conservative-flow grid on the bridge topology pairs to zero 9/9 — corpus-scoped; the
+1952 theorem is provenance, not a gate claim. Red-first `tests/test_tellegen.py`
+(11 falsifiers). The `invariant_detectors` lint now enforces **9 detectors**. Unit
+falsifiers 551 → 562. Grade: MEASURED (reference); cross-placement not claimed.
+`does_not_show`: constitutive behavior (no component laws exist here); flow FEASIBILITY
+under fixed boundary conditions (the Hoffman-cut candidate is a session note, not code);
+any "map the codebase's pipelines to circuits" consumer story — DECLARED at best; and the
+D19 pipeline itself, unchanged and SPECULATIVE (no proposer, no recorded batch, no
+`ABDUCT-REFUSE`).
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and

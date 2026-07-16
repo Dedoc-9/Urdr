@@ -3270,6 +3270,84 @@ class Gate:
                     "4/4 WIND-REFUSE typed and total (short / degenerate / float / on-trace)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    # -- 2p5. tellegen — Tellegen orthogonality (D19's second constraint instrument) ----
+    def tellegen(self):
+        """Tellegen orthogonality: on a shared digraph, ANY integer potential against ANY
+        conservative integer flow pairs to S = Σ vₖ·iₖ = 0 exactly (Tellegen 1952) — the
+        universal constraint above every constitutive law, vs KCL's one-assignment check.
+        Four D17 roles: reference (four pinned scenes reproduce (S=0, digest) ×2, witnesses
+        recount), invariance (gauge shift + simultaneous (edges, flow) permutation +
+        reorientation-with-negation preserve S), defect (the orientation-blind min-first
+        pairing is nonzero on every pinned scene), refusal (leaky flow named at its node;
+        bad index / bool / length mismatch — TELL-REFUSE total). Plus the theorem-backed
+        property row: the 3×3 any-p × any-i grid on the bridge topology is all zeros."""
+        idir = os.path.join(ROOT, "tools", "intla")
+        if idir not in sys.path:
+            sys.path.insert(0, idir)
+        try:
+            import tellegen as TL
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("tellegen", False, f"import failed: {exc}")
+            return
+        try:
+            ref_ok = True
+            for name, builder in TL.SCENES.items():
+                n, edges, p, i = builder()
+                gs, gd = TL.golden(name)
+                good = (gs == 0 and TL.pairing(n, edges, p, i) == 0
+                        and TL.witness_digest(n, edges, p, i) == gd
+                        and TL.witness_digest(n, edges, p, i) == gd
+                        and TL.check_witness(n, edges, p, i, TL.products(n, edges, p, i)))
+                ref_ok = ref_ok and good
+        except Exception as exc:
+            self.record("tellegen:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("tellegen:scenes", ref_ok,
+                    "4 scenes (bridge ×2, cycle5, parallel/self-loop) pin S=0 + digests ×2, witnesses recount"
+                    if ref_ok else "a scene drifted from its pinned (S, digest)")
+        n, edges, ps, iis = TL.universality_grid()
+        uni_ok = all(TL.pairing(n, edges, p, i) == 0 for p in ps for i in iis)
+        self.record("tellegen-universality", uni_ok,
+                    "3 potentials × 3 conservative flows on one topology: 9/9 cross-pairings zero "
+                    "(any-p × any-i — the constraint above constitutive laws)" if uni_ok
+                    else "a cross-pairing is nonzero (the theorem or the domain check broke)")
+        n, edges, p, i = TL.bridge6()
+        inv_ok = all(TL.pairing(n, edges, tuple(x + c for x in p), i) == 0 for c in (1, -13, 40000))
+        order = [3, 0, 5, 2, 4, 1]
+        inv_ok = inv_ok and TL.pairing(n, tuple(edges[k] for k in order), p,
+                                       tuple(i[k] for k in order)) == 0
+        re, ri = list(edges), list(i)
+        t, h = re[2]
+        re[2] = (h, t)
+        ri[2] = -ri[2]
+        inv_ok = inv_ok and TL.pairing(n, tuple(re), p, tuple(ri)) == 0
+        self.record("tellegen-invariance", inv_ok,
+                    "gauge shift + (edges, flow) permutation + reorientation-with-negation preserve S"
+                    if inv_ok else "a ~-transformation moved the pairing")
+        defect_ok = all(TL.pairing_defect(*TL.SCENES[nm]()) != 0 for nm in TL.SCENES)
+        self.record("tellegen-selftest", defect_ok,
+                    "the orientation-blind pairing is nonzero on all 4 pinned scenes (gate can redden)"
+                    if defect_ok else "the orientation defect did not misclassify")
+        codes = []
+        leaky = list(i)
+        leaky[3] += 1
+        named = False
+        for case in ((n, edges, p, tuple(leaky)),
+                     (n, edges, p, i[:-1]),
+                     (n, edges + ((0, 9),), p, i + (0,)),
+                     (n, edges, (7, 3, -2, True), i)):
+            try:
+                TL.pairing(*case)
+                codes.append(None)
+            except TL.TellegenError as exc:
+                codes.append(exc.code)
+                if "node 1" in str(exc):
+                    named = True
+        ref_total = all(c == "TELL-REFUSE" for c in codes) and named
+        self.record("tellegen-refusal", ref_total,
+                    "4/4 TELL-REFUSE typed and total; the leak names its node and imbalance"
+                    if ref_total else f"refusals wrong: {codes} (leak named: {named})")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -3314,6 +3392,10 @@ class Gate:
                         "invariance": "winding-invariance",
                         "defect": "winding-selftest",
                         "refusal": "winding-refusal"},
+            "tellegen": {"reference": "tellegen:scenes",
+                         "invariance": "tellegen-invariance",
+                         "defect": "tellegen-selftest",
+                         "refusal": "tellegen-refusal"},
         }
         roles = ("reference", "invariance", "defect", "refusal")
         recorded = {name: ok for (name, ok, _d) in self.rows}
@@ -3463,6 +3545,7 @@ def main() -> int:
     gate.toric()
     gate.persim()
     gate.winding()
+    gate.tellegen()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

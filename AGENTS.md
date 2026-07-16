@@ -211,7 +211,7 @@ These are non-negotiable. Every rung in this repo was built under them.
 | `verify.py` | **the gate** (CI) — run `PYTHONHASHSEED=0 python3 verify.py` |
 | `examples/` | `.urdr` programs (42) with `.digest` goldens; `examples/rejected/` (45 typed-refusal fixtures) |
 | `tests/` | Python falsifiers discovered by the gate's unit stage |
-| `tools/intla/` | `urdr-math` (exact integer linear algebra), `urdr-rigidity`, and the D17 invariant-detector library (`gf2` exact 𝔽₂ substrate, `toric` code dimension, `persim` persistence barcode, `winding` winding number — the W1 rung of D19) |
+| `tools/intla/` | `urdr-math` (exact integer linear algebra), `urdr-rigidity`, and the D17 invariant-detector library (`gf2` exact 𝔽₂ substrate, `toric` code dimension, `persim` persistence barcode, `winding` winding number — the W1 rung of D19, `tellegen` Tellegen orthogonality) |
 | `tools/physics/` | exact dynamics, LCP, joints, `field.py`; the `Q`/`Vec` exact substrate; **`fp_dynamics.py`** bounded fixed-point steppers (rung 5) |
 | `tools/render/` | fixed-point rasterizer (`raster.py`) + 3D depth (`raster3d.py`) |
 | `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics, the N1–N5 netcode stack, D16 regional authority, the seven-stage frontfps ladder, the URDRPD1 persistent-homology / OOB witness, and the toric/rigidity detectors) |

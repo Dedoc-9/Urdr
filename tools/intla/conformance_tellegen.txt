@@ -1,0 +1,8 @@
+# urdr-tellegen — Tellegen orthogonality: S = sum(v_k * i_k) over a shared digraph.
+# Every Dom scene pins S = 0 (the 1952 theorem); the digest binds the whole object +
+#   per-edge product witness. See the builders' docstrings for the flows' construction.
+# name  S  digest
+bridge6 0 986941329b3c9c777f437fe9c7e894ee12c0d9ac73a17dfeb67e060bb3c2d6a4
+bridge6_alt 0 138288c68bdb429bfbca206d988c6e17395aedbf98b9e49a28bd6aee2b9f0d47
+cycle5 0 c4e4916c5da3eae9f653093687491ce403e7a6e2235dd0472d051e3b047fb726
+parallel_loop 0 0fa3098301091c4d17e5108c49a7d454393dda870edcbb3058463638684a1fce
