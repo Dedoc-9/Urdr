@@ -12,6 +12,14 @@ cross-placed renderer and the gated netcode runtime.
 | `load_world.py` | Renders an exported `urdr_world.json` through the **exact** perspective projector (`../render/perspective.py`) to a `URDRFB1` frame + digest + a viewable PGM image. Closes the loop from editor to engine. |
 | `replay.py` | Runs the **exact** dynamics (`../physics/dynamics_nd.py`) forward and writes `urdr_replay.json` — a per-tick chain of canonical `URDRPN1` **state digests** (the deterministic replay witness) plus momentum/energy invariants and draw positions. Five modes: a built-in demo cascade, `--world urdr_world.json` (collide dynamic + static via the exact LCP; `--g N` for gravity), `--stack N` (an **N-ball resting stack**, exact contact LCP, certified **λ**), `--joints [--world file]` (an **articulated system** — the authored hinge/rod/weld/slider constraints — via the exact equality solver, certified `URDRJNT1`), or `--fp [bounce|stack|swing|world file.json]` (**bounded Q32.32 fixed-point** time-stepping via `../physics/field.py` — a gravity+bounce box, a **settling stack** (contact LCP → sequential-impulse), a **swinging pendulum** (articulated → squared-length Baumgarte), or **your authored `--world` export run long** (general PGS collisions with un-normalized normals + restitution `--e` + optional `--g` gravity that **settles** the scene in an implicit box) — all animate for as long as you like **without overflowing**, where exact-ℚ refuses). Load any of these in **▷ Replay** to scrub it. The engine is the sole authority; the browser only draws what it recorded. |
 
+**Authoring objects in the Machine Shop.** Wireframe objects designed in the
+[`calculationViz` Machine Shop kit](../calculationViz/machineshop/machineshop.html) can be
+bridged into this Designer as `URDR-WORLD-3` objects — **auto-grounded to the floor**
+(`--rest-face` to sit flat on a face) and integer-snapped — via
+[`../calculationViz/bridge_to_world.py`](../calculationViz/bridge_to_world.py), then rendered
+with `load_world.py`. The bridge carries **geometry + placement only**; topology (Betti/witness)
+stays off-gate behind `verify.py`.
+
 ## Grade — honest scope
 
 **`SPECULATIVE` / exploratory. This is NOT a gate-tested Urðr rung.** The editor is a

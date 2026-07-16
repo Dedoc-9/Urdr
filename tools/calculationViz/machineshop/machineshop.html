@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- Copyright (C) 2026 Daniel J. Dillberg -->
+<!--
+  Urðr Machine Shop - a dedicated machine-shop authoring kit, welded to the game
+  frontend through the VERIFIED BRIDGE (not by fusing code). It reuses the same
+  engine as calculationViz (single source of truth): a launcher + the author ->
+  export -> bridge -> Designer workflow. Presentation / off-gate; the game
+  authority stays behind verify.py.
+
+  Launcher (not an embed) on purpose: browsers block file:// iframes of local
+  files, so the editor opens in its own tab. If you serve this folder over a local
+  http server, the editor embeds fine - but the launcher works with no server.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Urðr Machine Shop</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#131a24; --panel2:#0f151d; --ink:#d6dee8; --muted:#8a97a8;
+    --line:#26303d; --accent:#5cc8ff; --ok:#57d38c; --warn:#ffcf5c; --accent2:#b48cff;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.55}
+  a{color:var(--accent)}
+  code{font-family:var(--mono)}
+  .bar{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,#171f2b,#131a24);position:sticky;top:0}
+  .bar h1{margin:0;font-size:15px;letter-spacing:.3px}
+  .bar h1 span{color:var(--muted);font-weight:400}
+  .tag{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+  .bar .sp{flex:1}
+  .btn{background:var(--accent);color:#04121c;border:none;border-radius:6px;padding:8px 13px;font-weight:600;cursor:pointer;font-size:13px;text-decoration:none;display:inline-block}
+  .btn.big{font-size:15px;padding:13px 20px}
+  .wrap{max-width:900px;margin:0 auto;padding:26px 20px 60px}
+  .launch{display:flex;align-items:center;gap:16px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:22px}
+  .launch .grow{flex:1}
+  .launch h2{margin:0 0 4px;font-size:16px}
+  .launch p{margin:0;color:var(--muted);font-size:13px}
+  h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:26px 0 10px;border-top:1px solid var(--line);padding-top:16px}
+  ol{margin:6px 0 10px 20px;padding:0}
+  li{margin:6px 0}
+  pre{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:12px;overflow:auto;color:var(--ink)}
+  .note{color:var(--muted);font-size:12.5px}
+  .grade{font-family:var(--mono);font-size:11.5px;color:var(--warn);margin-top:10px}
+</style>
+</head>
+<body>
+<div class="bar">
+  <h1>Urðr Machine&nbsp;Shop <span>— author → ground → bridge → game</span></h1>
+  <span class="tag">PRESENTATION</span>
+  <span class="tag">OFF-GATE</span>
+  <span class="sp"></span>
+  <a class="btn" href="../calculation_viz.html#machineshop" target="_blank" rel="noopener">launch editor ↗</a>
+</div>
+
+<div class="wrap">
+  <div class="launch">
+    <div class="grow">
+      <h2>Launch the Machine Shop editor</h2>
+      <p>Opens the CAD editor in machine-shop mode (the Topology tab) in a new tab. No install, no
+      server — it reuses the same verified engine as <code>calculationViz</code>.</p>
+    </div>
+    <a class="btn big" href="../calculation_viz.html#machineshop" target="_blank" rel="noopener">Open editor →</a>
+  </div>
+
+  <h2 class="sec">The kit</h2>
+  <p>A dedicated machine-shop authoring surface: build a wireframe object (grid snap, exact
+  coordinate editor, mirror for symmetry, live edge-length + bounding-box measurements, multiple
+  objects into one file), then <b>bridge it into the game frontend</b> — the Urðr Designer —
+  through the verified admission bridge. It reuses one engine (no duplication), so nothing here
+  re-implements the CAD or the bridge; it just focuses them for shop work.</p>
+
+  <h2 class="sec">Author → game, in four steps</h2>
+  <ol>
+    <li>Build/measure the object in the editor (grid snap + the coordinate editor for exact,
+      symmetric layouts).</li>
+    <li><b>Save JSON</b> → <code>complex.urdr.json</code> (a <code>URDR-COMPLEX-1</code>). Or use the
+      in-editor <b>“Export → game world (grounded)”</b> button, which does the bridge step in-browser
+      (byte-identical geometry to the script).</li>
+    <li>Bridge it to a game object, grounded to the floor:
+      <pre>python3 tools/calculationViz/bridge_to_world.py complex.urdr.json world.json --rest-face</pre>
+      <span class="note">Grounding: default is lowest-point; <code>--rest-face</code> sits it flat on a
+      stable face. Coordinates are integer-snapped at this authoring boundary — a float in the export
+      is <code>WORLD-REFUSE</code>; the runtime never rounds.</span></li>
+    <li>Open it in the Designer / gated netcode:
+      <pre>python3 tools/editor/load_world.py world.json frame.pgm     # Designer renders it (URDRFB1)
+# or feed a --body dynamic world to worldstep.world_from_export (gated N4)</pre></li>
+  </ol>
+
+  <h2 class="sec">Honest boundary</h2>
+  <p class="note">The kit is presentation (browser float, off-gate). The bridge carries
+  <b>geometry + placement</b> only — the object's shape and where it stands. It does <b>not</b>
+  carry topology: Betti / witness do not travel into the game world; that stays behind
+  <code>verify.py</code>. “Welded to the frontend” means joined by the <i>verified bridge</i>, not
+  fused code — one engine, one source of truth.</p>
+  <div class="grade">grade: PREVIEW / NOT_MEASURED · off-gate · the game authority is verify.py + worldstep</div>
+
+  <h2 class="sec">Embedding (optional)</h2>
+  <p class="note">This page launches the editor in its own tab because browsers block
+  <code>file://</code> iframes of local files. If you serve this folder over a local http server
+  (e.g. <code>python3 -m http.server</code> from the repo root, then open
+  <code>/tools/calculationViz/machineshop/machineshop.html</code>), the editor can be embedded
+  inline instead — but the launcher needs no server.</p>
+</div>
+</body>
+</html>

@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- Copyright (C) 2026 Daniel J. Dillberg -->
+<!--
+  calculationViz - exploratory math visualizer (PRESENTATION LAYER, OFF-GATE).
+
+  This page is presentation, not authority. It renders in browser IEEE double
+  (float) and is NEVER a MEASURED result. The engine's authority is exact
+  integer / fixed-point math that lives in tools/<module> behind verify.py
+  (the D15 view contract: presentation != authority; one-way firewall).
+
+  The ONE place this tool honors the engine's admission discipline is the
+  equation entry: user expressions pass through a bounded grammar that either
+  ADMITS or emits a typed VIZ-REFUSE with a reason - it never silently
+  approximates or accepts out-of-scope input. That grammar (the "scoped bounds")
+  is pure and deterministic; a node harness re-runs its self-check cases so the
+  bounds themselves are testable even though the rendering is not gate-provable.
+
+  Adaptable-first: every "kind of math" is one entry in the DOMAINS registry.
+  Adding a new area (fluid/Marangoni, soft-body, ...) = push one object.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>calculationViz - exploratory math visualizer (off-gate)</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#131a24; --panel2:#0f151d; --ink:#d6dee8; --muted:#8a97a8;
+    --line:#26303d; --accent:#5cc8ff; --accent2:#b48cff;
+    --ok:#57d38c; --warn:#ffcf5c; --bad:#ff6b6b;
+    --auth:#57d38c; --pocket:#ffcf5c; --ext:#ff6b6b; --wall:#2b3442;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45}
+  a{color:var(--accent)}
+  code,kbd{font-family:var(--mono)}
+  .banner{background:linear-gradient(90deg,#171f2b,#131a24);border-bottom:1px solid var(--line);padding:12px 18px}
+  .banner h1{margin:0 0 3px;font-size:16px;letter-spacing:.2px}
+  .banner .tag{display:inline-block;font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:4px;border:1px solid var(--line);color:var(--muted);margin-right:6px}
+  .banner p{margin:6px 0 0;color:var(--muted);font-size:12.5px;max-width:1000px}
+  .wrap{display:grid;grid-template-columns:380px 1fr;gap:0;min-height:calc(100vh - 74px)}
+  @media(max-width:860px){.wrap{grid-template-columns:1fr}}
+  .controls{background:var(--panel);border-right:1px solid var(--line);padding:16px;overflow:auto}
+  .stage{padding:16px;overflow:auto}
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+  select,input[type=text],input[type=number]{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 9px;font-family:var(--mono);font-size:13px}
+  select:focus,input:focus{outline:none;border-color:var(--accent)}
+  .row{display:flex;gap:8px}
+  .row .field{flex:1}
+  input[type=range]{width:100%}
+  .verdict{font-family:var(--mono);font-size:12px;margin-top:5px;padding:6px 8px;border-radius:5px;border:1px solid var(--line)}
+  .verdict.ok{color:var(--ok);border-color:#1e3a2b;background:#0f1a14}
+  .verdict.bad{color:var(--bad);border-color:#3a2020;background:#1a0f0f}
+  .btn{background:var(--accent);color:#04121c;border:none;border-radius:6px;padding:9px 12px;font-weight:600;cursor:pointer;font-size:13px}
+  .btn:hover{filter:brightness(1.08)}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:6px}
+  .grammar{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:9px;margin-top:6px;white-space:pre-wrap;word-break:break-word}
+  .section-title{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:18px 0 8px;border-top:1px solid var(--line);padding-top:12px}
+  canvas{background:var(--panel2);border:1px solid var(--line);border-radius:8px;max-width:100%}
+  .selfcheck{font-family:var(--mono);font-size:12px;margin-top:8px}
+  .selfcheck .head{display:flex;align-items:center;gap:8px;cursor:pointer}
+  .pill{font-family:var(--mono);font-size:11px;padding:2px 7px;border-radius:10px}
+  .pill.ok{background:#0f1a14;color:var(--ok);border:1px solid #1e3a2b}
+  .pill.bad{background:#1a0f0f;color:var(--bad);border:1px solid #3a2020}
+  .sc-rows{display:none;margin-top:8px;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .sc-rows.open{display:block}
+  .sc-row{display:grid;grid-template-columns:16px 1fr 60px;gap:6px;padding:4px 8px;border-top:1px solid var(--line);font-size:11px;align-items:center}
+  .sc-row:first-child{border-top:none}
+  .sc-row .g{color:var(--muted)}
+  .provenance{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:12.5px}
+  .provenance h3{margin:0 0 6px;font-size:13px;color:var(--accent2)}
+  .provenance .hash{font-family:var(--mono);font-size:11px;color:var(--muted);word-break:break-all}
+  .grade{font-family:var(--mono);font-size:11px;color:var(--warn)}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:var(--muted);margin-top:8px}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .sw{width:12px;height:12px;border-radius:3px;display:inline-block;border:1px solid var(--line)}
+  table.data{border-collapse:collapse;font-family:var(--mono);font-size:12px;margin-top:6px}
+  table.data th,table.data td{border:1px solid var(--line);padding:4px 9px;text-align:center}
+  table.data th{color:var(--muted);font-weight:500}
+  .foot{color:var(--muted);font-size:11px;padding:10px 18px;border-top:1px solid var(--line)}
+  #modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.62);z-index:50;align-items:center;justify-content:center;padding:20px}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:660px;width:100%;max-height:82vh;overflow:auto;padding:18px}
+  .modal h3{margin:0 0 8px;font-size:15px}
+  .modal p{color:var(--muted);font-size:12.5px;margin:0 0 10px}
+  .modal pre{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:10px;font-size:11px;line-height:1.4;overflow:auto;max-height:42vh;color:var(--ink)}
+  .modal .vres{font-family:var(--mono);font-size:13px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:9px 11px}
+  .provenance .vres2{font-family:var(--mono);font-size:12px;color:var(--ink);margin-top:4px}
+</style>
+</head>
+<body>
+<div class="banner">
+  <h1>calculationViz <span style="color:var(--muted);font-weight:400">- exploratory math visualizer</span></h1>
+  <div>
+    <span class="tag">PRESENTATION LAYER</span>
+    <span class="tag">OFF-GATE</span>
+    <span class="tag">never MEASURED</span>
+    <span class="tag">D15 view contract</span>
+  </div>
+  <p>
+    Rendering here is <b>browser float</b> (IEEE double) - exploratory, non-authoritative, and
+    <b>never</b> a MEASURED result. The engine's authority is exact integer / fixed-point math in
+    <code>tools/&lt;module&gt;</code> behind <code>verify.py</code>; this page <i>depicts</i>, it never
+    <i>feeds</i>. The one disciplined piece is equation entry: a <b>bounded grammar</b> that admits or
+    emits a typed <code>VIZ-REFUSE</code> - it never silently approximates out-of-scope input.
+  </p>
+</div>
+
+<div class="wrap">
+  <!-- ==================== CONTROLS ==================== -->
+  <div class="controls">
+    <div class="field">
+      <label>Kind of math</label>
+      <select id="domain"></select>
+      <div class="hint" id="domain-note"></div>
+    </div>
+
+    <div id="inputs"></div>
+
+    <div id="ranges"></div>
+
+    <div id="extra"></div>
+
+    <button class="btn" id="render-btn" style="width:100%;margin-top:6px">Render</button>
+
+    <div class="section-title">Scoped bounds (admission grammar)</div>
+    <div class="grammar" id="grammar"></div>
+    <div class="hint">
+      Admission is <i>syntactic + scope</i> only. A well-formed expression that evaluates to
+      &infin;/NaN at some sample (e.g. <code>1/x</code> at 0) is still admitted; the plotter just
+      shows a gap there. Refusal is reserved for what is out of the declared bounds.
+    </div>
+
+    <div class="section-title">Parser self-check <span class="hint">(presentation test, not the gate)</span></div>
+    <div class="selfcheck" id="selfcheck"></div>
+  </div>
+
+  <!-- ==================== STAGE ==================== -->
+  <div class="stage">
+    <canvas id="cv" width="760" height="540"></canvas>
+    <div id="info"></div>
+  </div>
+</div>
+
+<div class="foot">
+  calculationViz &middot; off-gate presentation tool &middot; adds 0 gate rows / 0 falsifiers / 0 placements.
+  Authority + grades live in <code>spec/D5-ledger.md</code>; the gate is <code>verify.py</code>.
+</div>
+
+<!-- =======================================================================
+     PURE CORE - no DOM. Runs identically in the browser and under node.
+     A node harness extracts everything between the two markers below and
+     re-runs runSelfCheck(), so the "scoped bounds" are deterministically
+     testable. Do not reference window/document between the markers.
+     ======================================================================= -->
+<script>
+//==CALCVIZ-CORE-START==
+var CalcVizCore = (function () {
+  "use strict";
+
+  // The declared bounds. Out-of-bounds input is REFUSED, never approximated.
+  var BOUNDS = { MAX_LEN: 512, MAX_DEPTH: 48, MAX_NODES: 2000 };
+
+  var CONSTS = { pi: Math.PI, e: Math.E, tau: 2 * Math.PI };
+
+  // Allowed functions and their exact arity (wrong arity => VIZ-REFUSE).
+  var FUNCS = {
+    sin:1, cos:1, tan:1, asin:1, acos:1, atan:1, sinh:1, cosh:1, tanh:1,
+    exp:1, log:1, ln:1, log10:1, log2:1, sqrt:1, cbrt:1, abs:1, sign:1,
+    floor:1, ceil:1, round:1, atan2:2, pow:2, mod:2, hypot:2, min:2, max:2
+  };
+  var FN_IMPL = {
+    sin:Math.sin, cos:Math.cos, tan:Math.tan, asin:Math.asin, acos:Math.acos,
+    atan:Math.atan, sinh:Math.sinh, cosh:Math.cosh, tanh:Math.tanh, exp:Math.exp,
+    log:Math.log, ln:Math.log,
+    log10:function(x){return Math.log(x)/Math.LN10;},
+    log2:function(x){return Math.log(x)/Math.LN2;},
+    sqrt:Math.sqrt,
+    cbrt:(Math.cbrt||function(x){return (x<0?-1:1)*Math.pow(Math.abs(x),1/3);}),
+    abs:Math.abs, sign:Math.sign, floor:Math.floor, ceil:Math.ceil, round:Math.round,
+    atan2:Math.atan2, pow:Math.pow,
+    mod:function(a,b){return a-b*Math.floor(a/b);},
+    hypot:(Math.hypot||function(a,b){return Math.sqrt(a*a+b*b);}),
+    min:Math.min, max:Math.max
+  };
+  var DOMAIN_VARS = { x:1, y:1, z:1, t:1 }; // the universe of spatial/time variables
+
+  function refuse(reason, at){
+    var e = new Error(reason);
+    e.code = "VIZ-REFUSE"; e.reason = reason; e.at = (at==null?0:at);
+    return e;
+  }
+
+  function tokenize(src){
+    var toks = [], i = 0, n = src.length;
+    function isDigit(c){ return c>="0" && c<="9"; }
+    function isAlpha(c){ return (c>="a"&&c<="z")||(c>="A"&&c<="Z")||c==="_"; }
+    function isAlnum(c){ return isAlpha(c)||isDigit(c); }
+    while (i < n){
+      var c = src.charAt(i);
+      if (c===" "||c==="\t"||c==="\n"||c==="\r"){ i++; continue; }
+      if (isDigit(c) || (c==="." && isDigit(src.charAt(i+1)))){
+        var j=i, seenDot=false, seenExp=false;
+        while (j<n){
+          var d=src.charAt(j);
+          if (isDigit(d)){ j++; }
+          else if (d==="." && !seenDot && !seenExp){ seenDot=true; j++; }
+          else if ((d==="e"||d==="E") && !seenExp && j>i){
+            var k=j+1;
+            if (src.charAt(k)==="+"||src.charAt(k)==="-") k++;
+            if (!(src.charAt(k)>="0"&&src.charAt(k)<="9")) break; // 'e' is not an exponent here
+            seenExp=true; j=k;
+          } else break;
+        }
+        toks.push({t:"num", v:parseFloat(src.slice(i,j)), at:i}); i=j; continue;
+      }
+      if (isAlpha(c)){
+        var a=i; while (a<n && isAlnum(src.charAt(a))) a++;
+        toks.push({t:"name", v:src.slice(i,a), at:i}); i=a; continue;
+      }
+      if (c==="*" && src.charAt(i+1)==="*"){ toks.push({t:"op", v:"^", at:i}); i+=2; continue; }
+      if ("+-*/%^(),".indexOf(c) >= 0){ toks.push({t:"op", v:c, at:i}); i++; continue; }
+      throw refuse("illegal character '"+c+"'", i);
+    }
+    toks.push({t:"end", v:"", at:n});
+    return toks;
+  }
+
+  // Recursive descent. Precedence (low->high):
+  //   expr: + -   term: * / %   unary: prefix +/-   power: ^ (right-assoc)   atom
+  // Power binds tighter than unary so -x^2 == -(x^2); exponent parses a unary so 2^-3 is fine.
+  function parse(src, allowedVars){
+    if (src == null || String(src).trim() === "") throw refuse("empty expression", 0);
+    src = String(src);
+    if (src.length > BOUNDS.MAX_LEN) throw refuse("expression too long (> "+BOUNDS.MAX_LEN+" chars)", 0);
+    var toks = tokenize(src), pos = 0, depth = 0, nodes = 0;
+    var allowed = {}; (allowedVars||[]).forEach(function(v){ allowed[v]=true; });
+
+    function peek(){ return toks[pos]; }
+    function next(){ return toks[pos++]; }
+    function expect(op){ var tk=peek(); if (tk.t==="op"&&tk.v===op) return next(); throw refuse("expected '"+op+"'", tk.at); }
+    function bump(){ nodes++; if (nodes>BOUNDS.MAX_NODES) throw refuse("expression too complex (> "+BOUNDS.MAX_NODES+" nodes)", 0); }
+
+    function parseExpr(){
+      var left = parseTerm();
+      while (peek().t==="op" && (peek().v==="+"||peek().v==="-")){
+        var op = next().v, right = parseTerm(); bump();
+        left = (function(l,r,o){ return o==="+"
+          ? function(env){ return l(env)+r(env); }
+          : function(env){ return l(env)-r(env); }; })(left,right,op);
+      }
+      return left;
+    }
+    function parseTerm(){
+      var left = parseUnary();
+      while (peek().t==="op" && (peek().v==="*"||peek().v==="/"||peek().v==="%")){
+        var op = next().v, right = parseUnary(); bump();
+        left = (function(l,r,o){
+          if (o==="*") return function(env){ return l(env)*r(env); };
+          if (o==="/") return function(env){ return l(env)/r(env); };
+          return function(env){ var a=l(env),b=r(env); return a-b*Math.floor(a/b); };
+        })(left,right,op);
+      }
+      return left;
+    }
+    function parseUnary(){
+      if (peek().t==="op" && (peek().v==="+"||peek().v==="-")){
+        var op = next().v, u = parseUnary(); bump();
+        if (op==="-") return function(env){ return -u(env); };
+        return u;
+      }
+      return parsePower();
+    }
+    function parsePower(){
+      var base = parseAtom();
+      if (peek().t==="op" && peek().v==="^"){
+        next(); var exp = parseUnary(); bump();
+        return (function(b,e){ return function(env){ return Math.pow(b(env),e(env)); }; })(base,exp);
+      }
+      return base;
+    }
+    function parseAtom(){
+      var tk = peek();
+      if (tk.t==="num"){ next(); bump(); var val=tk.v; return function(){ return val; }; }
+      if (tk.t==="op" && tk.v==="("){
+        depth++; if (depth>BOUNDS.MAX_DEPTH) throw refuse("nesting too deep (> "+BOUNDS.MAX_DEPTH+")", tk.at);
+        next(); var e=parseExpr(); expect(")"); depth--; return e;
+      }
+      if (tk.t==="name"){
+        next(); var nm = tk.v;
+        if (peek().t==="op" && peek().v==="("){          // function call
+          if (!FUNCS.hasOwnProperty(nm)) throw refuse("unknown function '"+nm+"'", tk.at);
+          depth++; if (depth>BOUNDS.MAX_DEPTH) throw refuse("nesting too deep (> "+BOUNDS.MAX_DEPTH+")", tk.at);
+          next(); var args=[];
+          if (!(peek().t==="op"&&peek().v===")")){
+            args.push(parseExpr());
+            while (peek().t==="op"&&peek().v===","){ next(); args.push(parseExpr()); }
+          }
+          expect(")"); depth--;
+          var need = FUNCS[nm];
+          if (args.length!==need) throw refuse("function '"+nm+"' takes "+need+" argument"+(need===1?"":"s")+", got "+args.length, tk.at);
+          bump();
+          var impl = FN_IMPL[nm];
+          if (need===1) return (function(a){ return function(env){ return impl(a(env)); }; })(args[0]);
+          return (function(a,b){ return function(env){ return impl(a(env),b(env)); }; })(args[0],args[1]);
+        }
+        if (CONSTS.hasOwnProperty(nm)){ bump(); var cv=CONSTS[nm]; return function(){ return cv; }; }
+        if (allowed[nm]){ bump(); return function(env){ return env[nm]; }; }
+        if (DOMAIN_VARS[nm]) throw refuse("variable '"+nm+"' is not in scope here (allowed: "+((allowedVars&&allowedVars.length)?allowedVars.join(", "):"none")+")", tk.at);
+        throw refuse("unknown name '"+nm+"'", tk.at);
+      }
+      throw refuse(tk.t==="end" ? "unexpected end of expression" : "unexpected '"+tk.v+"'", tk.at);
+    }
+
+    var fn = parseExpr();
+    if (peek().t!=="end") throw refuse("unexpected '"+peek().v+"'", peek().at);
+    return fn;
+  }
+
+  // Public: compile(src, allowedVars) -> {ok:true, eval} | {ok:false, code, reason, at}
+  function compile(src, allowedVars){
+    try { return { ok:true, eval: parse(src, allowedVars||[]) }; }
+    catch (err){
+      if (err && err.code==="VIZ-REFUSE") return { ok:false, code:"VIZ-REFUSE", reason:err.reason, at:err.at };
+      throw err;
+    }
+  }
+
+  // ---- deterministic self-check of the bounds (admit / typed-refuse) ----
+  function buildDeep(nOpen){ var s=""; var i; for(i=0;i<nOpen;i++) s+="("; s+="x"; for(i=0;i<nOpen;i++) s+=")"; return s; }
+  function buildLong(nTerms){ var s="1"; for(var i=0;i<nTerms;i++) s+="+1"; return s; }
+
+  var SELF_CHECK = [
+    { src:"sin(x)",              vars:["x"],      expect:"admit" },
+    { src:"x^2 - 3*x + 2",       vars:["x"],      expect:"admit" },
+    { src:"exp(-x*x/8)",         vars:["x"],      expect:"admit" },
+    { src:"sqrt(abs(x))",        vars:["x"],      expect:"admit" },
+    { src:"y*cos(x) + x*sin(y)", vars:["x","y"],  expect:"admit" },
+    { src:"cos(t)*(1 + t/10)",   vars:["t"],      expect:"admit" },
+    { src:"pi*e - tau",          vars:[],         expect:"admit" },
+    { src:"2**3 + 2^3",          vars:[],         expect:"admit" },
+    { src:"atan2(y, x)",         vars:["x","y"],  expect:"admit" },
+    { src:"-x^2",                vars:["x"],      expect:"admit" },
+    { src:"2^-3",                vars:["x"],      expect:"admit" },
+    { src:"",            vars:["x"],     expect:"refuse", contains:"empty" },
+    { src:"x +",         vars:["x"],     expect:"refuse", contains:"end of expression" },
+    { src:"(x",          vars:["x"],     expect:"refuse", contains:"expected ')'" },
+    { src:"sin[x]",      vars:["x"],     expect:"refuse", contains:"illegal character" },
+    { src:"foo(x)",      vars:["x"],     expect:"refuse", contains:"unknown function" },
+    { src:"y",           vars:["x"],     expect:"refuse", contains:"not in scope" },
+    { src:"w",           vars:["x"],     expect:"refuse", contains:"unknown name" },
+    { src:"sin(x, y)",   vars:["x","y"], expect:"refuse", contains:"takes 1 argument" },
+    { src:"atan2(x)",    vars:["x"],     expect:"refuse", contains:"takes 2 arguments" },
+    { src:"x = 2",       vars:["x"],     expect:"refuse", contains:"illegal character" },
+    { src:"2 3",         vars:["x"],     expect:"refuse", contains:"unexpected" },
+    { src:buildDeep(BOUNDS.MAX_DEPTH+4), vars:["x"], expect:"refuse", contains:"nesting too deep" },
+    { src:buildLong(BOUNDS.MAX_LEN),     vars:["x"], expect:"refuse", contains:"too long" }
+  ];
+
+  function runSelfCheck(){
+    var pass=0, fail=0, results=[];
+    for (var i=0;i<SELF_CHECK.length;i++){
+      var c=SELF_CHECK[i], r=compile(c.src, c.vars);
+      var got = r.ok ? "admit" : "refuse";
+      var ok = (got===c.expect);
+      if (ok && c.expect==="refuse" && c.contains){ ok = ((r.reason||"").indexOf(c.contains) >= 0); }
+      var label = c.src.length>34 ? (c.src.slice(0,31)+"...") : (c.src===""?"(empty)":c.src);
+      results.push({ src:label, expect:c.expect, got:got, reason:r.reason||"", ok:ok });
+      if (ok) pass++; else fail++;
+    }
+    return { pass:pass, fail:fail, total:SELF_CHECK.length, results:results };
+  }
+
+  return {
+    BOUNDS:BOUNDS, CONSTS:CONSTS, FUNCS:FUNCS, DOMAIN_VARS:DOMAIN_VARS,
+    tokenize:tokenize, compile:compile, SELF_CHECK:SELF_CHECK, runSelfCheck:runSelfCheck
+  };
+})();
+if (typeof globalThis !== "undefined") globalThis.CalcVizCore = CalcVizCore;
+if (typeof module !== "undefined" && module.exports) module.exports = CalcVizCore;
+//==CALCVIZ-CORE-END==
+</script>
+
+<!-- =======================================================================
+     VERIFIED HOMOLOGY GOLDENS - baked verbatim from
+       PYTHONHASHSEED=0 PYTHONUTF8=1 python3 tools/homology/urdr_homology.py
+     Reproduced by homology_c (C99) + homology_rs (Rust); gate stage `homology`.
+     This page DISPLAYS these values; it does not recompute them.
+     ======================================================================= -->
+<script>
+var HOM = {
+  known: [
+    { name:"circle (hollow triangle ~ S1)", verts:3, edges:[[0,1],[1,2],[0,2]], faces:[],                 betti:[1,1,0] },
+    { name:"disk (filled triangle)",         verts:3, edges:[[0,1],[1,2],[0,2]], faces:[[0,1,2]],          betti:[1,0,0] },
+    { name:"sphere (tetra boundary ~ S2)",   verts:4, edges:[[0,1],[0,2],[0,3],[1,2],[1,3],[2,3]],
+                                             faces:[[0,1,2],[0,1,3],[0,2,3],[1,2,3]],                      betti:[1,0,1] },
+    { name:"two arcs (disjoint edges)",      verts:4, edges:[[0,1],[2,3]], faces:[],                       betti:[2,0,0] }
+  ],
+  square: {
+    points: [[0,0],[10,0],[10,10],[0,10]],
+    // (dim, birth, death); death=null => essential (lives to the end)
+    diagram: [ [0,0,null],[0,0,100],[0,0,100],[0,0,100],[1,100,200],[1,200,200],[1,200,200],[2,200,null] ],
+    betti: [1,0,1],
+    witness: "befa487a9df0cf67e2519c9ba5eddc2aa7d571c2cf2a6c076b059690e252ad3d"
+  },
+  arena: {
+    // solid=1 free=0 (11 wide x 9 tall)
+    grid: ["00000000000","00000000000","00111111100","00100000100","00101110100",
+           "00101010100","00101110100","00100000100","00111111100"],
+    // per-cell class from the module: W wall, A authorized, P pocket, X exterior
+    cls:  ["XXXXXXXXXXX","XXXXXXXXXXX","XXWWWWWWWXX","XXWAAAAAWXX","XXWAWWWAWXX",
+           "XXWAWPWAWXX","XXWAWWWAWXX","XXWAAAAAWXX","XXWWWWWWWXX"],
+    spawn: [3,3],
+    probes: [ {pos:[3,3],verdict:"OK"}, {pos:[5,5],verdict:"CLIP-IN-POCKET"},
+              {pos:[2,2],verdict:"CLIP-IN-WALL"}, {pos:[0,0],verdict:"OOB"} ],
+    components: 3, authorized: 1,
+    oob_witness:        "4446089637050828704945438d5c3fe6980d920373b7b2f48ff623edbcf38308",
+    oob_witness_defect: "9d35647590c8018fcbbb8c38194bec0a89dc99f483405fd3dbd8ce8c8557580d",
+    occ_ok:             "6cc3d5e56c229b890a5b149eb6f01ff329d6b2df71b1942927a48b821a92be23",
+    occ_clipped:        "efe6e2db07c8ef5867f4684e4709bb68258e28fc3faef277989a4ac2926fd196"
+  }
+};
+</script>
+
+<!-- =======================================================================
+     UI + RENDERERS. Uses CalcVizCore for all admission. Each "kind of math"
+     is one entry in DOMAINS - adaptable-first: add a math area = push one obj.
+     ======================================================================= -->
+<script>
+(function(){
+  "use strict";
+  var C = CalcVizCore;
+  var cv = document.getElementById("cv"), ctx = cv.getContext("2d");
+  var css = getComputedStyle(document.documentElement);
+  function col(v){ return css.getPropertyValue(v).trim(); }
+
+  // ---------- small 2D world->pixel plotter ----------
+  function Plot(bx){
+    var pad=36, W=cv.width, H=cv.height;
+    var sx = (W-2*pad)/(bx.xmax-bx.xmin), sy=(H-2*pad)/(bx.ymax-bx.ymin);
+    function px(x){ return pad + (x-bx.xmin)*sx; }
+    function py(y){ return H-pad - (y-bx.ymin)*sy; }
+    return {W:W,H:H,pad:pad,px:px,py:py,bx:bx};
+  }
+  function clear(){ ctx.clearRect(0,0,cv.width,cv.height); ctx.fillStyle=col("--panel2"); ctx.fillRect(0,0,cv.width,cv.height); }
+  function grid2d(P){
+    var i, x, y;
+    ctx.strokeStyle=col("--line"); ctx.lineWidth=1; ctx.fillStyle=col("--muted"); ctx.font="10px monospace";
+    var stepx=niceStep(P.bx.xmax-P.bx.xmin), stepy=niceStep(P.bx.ymax-P.bx.ymin);
+    for(x=Math.ceil(P.bx.xmin/stepx)*stepx; x<=P.bx.xmax+1e-9; x+=stepx){
+      ctx.globalAlpha=0.35; ctx.beginPath(); ctx.moveTo(P.px(x),P.pad); ctx.lineTo(P.px(x),P.H-P.pad); ctx.stroke(); ctx.globalAlpha=1;
+    }
+    for(y=Math.ceil(P.bx.ymin/stepy)*stepy; y<=P.bx.ymax+1e-9; y+=stepy){
+      ctx.globalAlpha=0.35; ctx.beginPath(); ctx.moveTo(P.pad,P.py(y)); ctx.lineTo(P.W-P.pad,P.py(y)); ctx.stroke(); ctx.globalAlpha=1;
+    }
+    // axes
+    ctx.strokeStyle=col("--muted"); ctx.globalAlpha=0.7; ctx.lineWidth=1.2;
+    if(P.bx.ymin<0&&P.bx.ymax>0){ ctx.beginPath(); ctx.moveTo(P.pad,P.py(0)); ctx.lineTo(P.W-P.pad,P.py(0)); ctx.stroke(); }
+    if(P.bx.xmin<0&&P.bx.xmax>0){ ctx.beginPath(); ctx.moveTo(P.px(0),P.pad); ctx.lineTo(P.px(0),P.H-P.pad); ctx.stroke(); }
+    ctx.globalAlpha=1;
+  }
+  function niceStep(range){ var raw=range/8, m=Math.pow(10,Math.floor(Math.log(raw)/Math.LN10)); var r=raw/m; var s=r<1.5?1:r<3?2:r<7?5:10; return s*m; }
+
+  // ---------- pure orbit-camera math (perspective, free-fly) ----------
+  // Extracted + unit-tested under node (markers below). No DOM refs: given a
+  // camera {yaw,pitch,dist,tx,ty,tz,fov}, a world-space center, and the view
+  // size, it yields an orthonormal basis and a perspective projection. This is
+  // presentation math (float) - it is NOT gate authority.
+  //==CALCVIZ-CAM-START==
+  var CAM = {
+    clamp:function(v,a,b){ return v<a?a:(v>b?b:v); },
+    // Orbit basis about `center` (+ pan offset). worldUp = (0,0,1); right =
+    // normalize(fwd x up), guarded at the poles; up = right x fwd.
+    basis:function(cam, center, viewW, viewH){
+      var tx=center[0]+(cam.tx||0), ty=center[1]+(cam.ty||0), tz=center[2]+(cam.tz||0);
+      var cp=Math.cos(cam.pitch), sp=Math.sin(cam.pitch), cy=Math.cos(cam.yaw), sy=Math.sin(cam.yaw);
+      var camPos=[ tx+cam.dist*cp*cy, ty+cam.dist*cp*sy, tz+cam.dist*sp ];
+      var fx=tx-camPos[0], fy=ty-camPos[1], fz=tz-camPos[2];
+      var fl=Math.sqrt(fx*fx+fy*fy+fz*fz)||1; fx/=fl; fy/=fl; fz/=fl;   // forward
+      var rx=fy, ry=-fx, rz=0, rl=Math.sqrt(rx*rx+ry*ry+rz*rz);          // fwd x (0,0,1)
+      if(rl<1e-6){ rx=1; ry=0; rz=0; rl=1; }                            // pole guard
+      rx/=rl; ry/=rl; rz/=rl;
+      var ux=ry*fz-rz*fy, uy=rz*fx-rx*fz, uz=rx*fy-ry*fx;               // right x fwd
+      var foc=(viewH/2)/Math.tan((cam.fov||0.95)/2);
+      return { camPos:camPos, fwd:[fx,fy,fz], right:[rx,ry,rz], up:[ux,uy,uz], foc:foc, target:[tx,ty,tz] };
+    },
+    // Perspective-project a world point; null if at/behind the near plane.
+    project:function(B, w, viewW, viewH){
+      var rx=w[0]-B.camPos[0], ry=w[1]-B.camPos[1], rz=w[2]-B.camPos[2];
+      var dz=rx*B.fwd[0]+ry*B.fwd[1]+rz*B.fwd[2];
+      if(!(dz>0.06)) return null;
+      var sx=rx*B.right[0]+ry*B.right[1]+rz*B.right[2];
+      var sy=rx*B.up[0]+ry*B.up[1]+rz*B.up[2];
+      return { X:viewW/2 + B.foc*sx/dz, Y:viewH/2 - B.foc*sy/dz, depth:dz };
+    }
+  };
+  if(typeof module!=="undefined" && module.exports){ module.exports.CAM=CAM; }
+  //==CALCVIZ-CAM-END==
+
+  // ---------- pure topology: exact division-free 𝔽₂ Betti (PREVIEW) ----------
+  // Reimplements urdr_homology.py's algorithm in JS: close_faces + 𝔽₂ boundary
+  // rank by XOR on BigInt bitmasks — EXACT integer/boolean logic (no float, no
+  // division), so it reproduces the reference bit-for-bit. Verified equal to the
+  // module under node. It is still graded PREVIEW: JS is not a gated placement;
+  // the authority is urdr_homology.py under verify.py.
+  //==CALCVIZ-TOPO-START==
+  var TOPO = {
+    _key:function(s){ return s.join(","); },
+    _faces:function(s){ var o=[],i; for(i=0;i<s.length;i++) o.push(s.slice(0,i).concat(s.slice(i+1))); return o; },
+    _bitlen:function(x){ var n=0; while(x>0n){ x>>=1n; n++; } return n; },
+    // canonicalize maximal simplices: sort verts, dedup, drop any simplex
+    // contained in a larger one (identity = combinatorics; coordinates excluded).
+    canonical:function(maximal){
+      var self=this, norm=maximal.map(function(s){ return s.slice().sort(function(a,b){return a-b;}); });
+      var seen={}, uniq=[]; norm.forEach(function(s){ var k=self._key(s); if(!seen[k]){ seen[k]=1; uniq.push(s); } });
+      var out=uniq.filter(function(s){
+        return !uniq.some(function(t){ return t!==s && t.length>s.length && s.every(function(v){ return t.indexOf(v)>=0; }); });
+      });
+      out.sort(function(a,b){ return a.length-b.length || (self._key(a)<self._key(b)?-1:1); });
+      return out;
+    },
+    close:function(maximal){
+      var self=this, seen=new Map(), stack=maximal.map(function(s){ return s.slice().sort(function(a,b){return a-b;}); });
+      while(stack.length){ var s=stack.pop(), k=self._key(s); if(seen.has(k)) continue; seen.set(k,s); if(s.length>1) self._faces(s).forEach(function(f){ stack.push(f); }); }
+      return Array.from(seen.values());
+    },
+    byDim:function(complex){
+      var self=this, dims={}; complex.forEach(function(s){ var d=s.length-1; (dims[d]=dims[d]||[]).push(s); });
+      Object.keys(dims).forEach(function(d){ dims[d].sort(function(a,b){ var ka=self._key(a),kb=self._key(b); return ka<kb?-1:(ka>kb?1:0); }); });
+      return dims;
+    },
+    _cols:function(dims,k){
+      var self=this; if(k<=0||!dims[k]) return [];
+      var lower={}; (dims[k-1]||[]).forEach(function(s,i){ lower[self._key(s)]=i; });
+      return dims[k].map(function(s){ var c=0n; self._faces(s).forEach(function(f){ c ^= (1n << BigInt(lower[self._key(f)])); }); return c; });
+    },
+    _rank:function(cols){
+      var self=this, piv={}, r=0;
+      cols.forEach(function(col){ var c=col; while(c>0n){ var h=self._bitlen(c)-1; if(piv[h]!==undefined){ c ^= piv[h]; } else { piv[h]=c; r++; break; } } });
+      return r;
+    },
+    // exact 𝔽₂ Betti [b0,b1,b2] from a list of maximal simplices
+    betti:function(maximal, maxdim){
+      maxdim=maxdim||2;
+      var complex=this.close(maximal), dims=this.byDim(complex), ranks={0:0}, k;
+      for(k=1;k<=maxdim+1;k++){ var cols=this._cols(dims,k); ranks[k]=cols.length?this._rank(cols):0; }
+      var out=[]; for(var d=0;d<=maxdim;d++){ out.push((dims[d]?dims[d].length:0)-(ranks[d]||0)-(ranks[d+1]||0)); }
+      return out;
+    },
+    // exact counts + Euler characteristic of the closed complex
+    stats:function(maximal){
+      var complex=this.close(maximal), dims=this.byDim(complex), chi=0;
+      Object.keys(dims).forEach(function(d){ chi += ((+d)%2 ? -1:1)*dims[d].length; });
+      return { V:(dims[0]||[]).length, E:(dims[1]||[]).length, F:(dims[2]||[]).length, chi:chi };
+    }
+  };
+  if(typeof module!=="undefined" && module.exports){ module.exports.TOPO=TOPO; }
+  //==CALCVIZ-TOPO-END==
+
+  // ---------- pure geometry measurements (machine-shop aids, float presentation) ----------
+  // Lengths / bounding box / grid snap over the (float) coordinates. These are DESIGN aids,
+  // not authority: coordinates are browser float, so lengths are presentation numbers.
+  //==CALCVIZ-MEAS-START==
+  var MEAS = {
+    dist:function(a,b){ var dx=a[0]-b[0],dy=a[1]-b[1],dz=a[2]-b[2]; return Math.sqrt(dx*dx+dy*dy+dz*dz); },
+    lengths:function(verts,edges){ var self=this; return (edges||[]).map(function(e){ return { e:e.slice(), len:(verts[e[0]]&&verts[e[1]])?self.dist(verts[e[0]],verts[e[1]]):0 }; }); },
+    bbox:function(verts){
+      if(!verts||!verts.length) return { min:[0,0,0], max:[0,0,0], size:[0,0,0] };
+      var mn=[Infinity,Infinity,Infinity], mx=[-Infinity,-Infinity,-Infinity];
+      verts.forEach(function(v){ for(var k=0;k<3;k++){ if(v[k]<mn[k])mn[k]=v[k]; if(v[k]>mx[k])mx[k]=v[k]; } });
+      return { min:mn, max:mx, size:[mx[0]-mn[0],mx[1]-mn[1],mx[2]-mn[2]] };
+    },
+    snap:function(v,step){ return (step>0) ? [Math.round(v[0]/step)*step, Math.round(v[1]/step)*step, Math.round(v[2]/step)*step] : v.slice(); }
+  };
+  if(typeof module!=="undefined" && module.exports){ module.exports.MEAS=MEAS; }
+  //==CALCVIZ-MEAS-END==
+
+  // ---------- bridge: URDR-COMPLEX-1 geometry -> URDR-WORLD-3 game object ----------
+  // Mirrors bridge_to_world.py: project to a game object (3D verts + edges), AUTO-GROUND
+  // (lowest source point -> base-on-floor via local_y = up_max - up), integer authoring
+  // snap. Geometry/placement only — topology (Betti/witness) does NOT travel; that stays
+  // behind verify.py. The Python script is the reference (verified against load_world.py +
+  // worldstep); this in-app path is the one-click convenience.
+  //==CALCVIZ-WORLD-START==
+  var WORLD = {
+    _fnv1a:function(s){ var h=0x811c9dc5>>>0; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return ("0000000"+h.toString(16)).slice(-8); },
+    _edgesFromMaximal:function(maximal){
+      var seen={}, out=[]; (maximal||[]).forEach(function(s){ var t=s.map(Number).sort(function(a,b){return a-b;});
+        for(var i=0;i<t.length;i++) for(var j=i+1;j<t.length;j++){ var k=t[i]+","+t[j]; if(!seen[k]){ seen[k]=1; out.push([t[i],t[j]]); } } });
+      out.sort(function(a,b){ return a[0]-b[0]||a[1]-b[1]; }); return out;
+    },
+    build:function(geo, opts){
+      opts=opts||{}; var AX={x:0,y:1,z:2}, up=opts.up||"z", scale=(opts.scale||20), body=opts.body||"static";
+      var gx=(opts.ground_x==null?320:opts.ground_x), gz=(opts.ground_z==null?180:opts.ground_z), ident=opts.id||"topo_obj";
+      var verts=geo.verts||[]; if(!verts.length) return null;
+      var upi=AX[up], rest=[0,1,2].filter(function(k){ return k!==upi; }), ai=rest[0], di=rest[1];
+      var upmax=verts.reduce(function(m,v){ return v[upi]>m?v[upi]:m; }, -Infinity);
+      var ov=verts.map(function(v){ return [ Math.round(v[ai]*scale), Math.round((upmax-v[upi])*scale), Math.round(v[di]*scale) ]; });  // integer authoring snap
+      var edges=(geo.edges&&geo.edges.length)? geo.edges.map(function(e){ return [e[0]|0,e[1]|0]; }) : this._edgesFromMaximal(geo.maximal);
+      var ec=edges.map(function(e){ return e.slice().sort(function(a,b){return a-b;}); }).sort(function(a,b){ return a[0]-b[0]||a[1]-b[1]; });
+      var digest="topo_"+this._fnv1a(JSON.stringify({edges:ec, verts:ov}));
+      var inst={ id:ident, object:digest, ground_x:gx|0, ground_z:gz|0, scale:1, body:body, rot_deg:0 };
+      if(body==="dynamic"){ inst.mass=1; inst.vel={x:0,z:0}; }
+      var ys=ov.map(function(v){ return v[1]; });
+      return { world:{ format:"URDR-WORLD-3",
+        note:"bridged from URDR-COMPLEX-1 in calculationViz (Export->game world); auto-grounded base-on-floor; geometry/placement only - topology stays behind verify.py",
+        objects:[{ digest:digest, verts:ov, edges:edges }], instances:[inst] },
+        height: Math.max.apply(null,ys)-Math.min.apply(null,ys), verts:ov.length, edges:edges.length };
+    }
+  };
+  if(typeof module!=="undefined" && module.exports){ module.exports.WORLD=WORLD; }
+  //==CALCVIZ-WORLD-END==
+
+  // ---------- domain registry (adaptable-first) ----------
+  var DOMAINS = [
+    {
+      id:"function2d", label:"2D function  y = f(x)", note:"Enter y as a function of x.",
+      inputs:[ {key:"fx", label:"y = f(x)", vars:["x"], def:"sin(x) * exp(-x*x/12)"} ],
+      bounds:{xmin:-8,xmax:8,ymin:-1.5,ymax:1.5},
+      render:function(comp){
+        var P=Plot(this.bounds); grid2d(P);
+        var f=comp.fx.eval, N=Math.floor(P.W-2*P.pad), started=false;
+        ctx.strokeStyle=col("--accent"); ctx.lineWidth=2; ctx.beginPath();
+        for(var i=0;i<=N;i++){
+          var x=P.bx.xmin+(P.bx.xmax-P.bx.xmin)*i/N, y=f({x:x});
+          if(!isFinite(y)||y>1e6||y<-1e6){ started=false; continue; }
+          var Y=Math.max(P.bx.ymin-10,Math.min(P.bx.ymax+10,y));
+          if(!started){ ctx.moveTo(P.px(x),P.py(Y)); started=true; } else ctx.lineTo(P.px(x),P.py(Y));
+        }
+        ctx.stroke();
+        return "Plotted y = f(x) over x &isin; ["+this.bounds.xmin+", "+this.bounds.xmax+"]. Browser float; gaps = non-finite samples.";
+      }
+    },
+    {
+      id:"vectorfield2d", label:"2D vector field  (Fx, Fy)", note:"A flow field F(x,y). Arrows are normalized; color = magnitude.",
+      inputs:[ {key:"fx", label:"Fx(x, y)", vars:["x","y"], def:"-y"},
+               {key:"fy", label:"Fy(x, y)", vars:["x","y"], def:"x"} ],
+      bounds:{xmin:-5,xmax:5,ymin:-5,ymax:5},
+      render:function(comp){
+        var P=Plot(this.bounds); grid2d(P);
+        var fx=comp.fx.eval, fy=comp.fy.eval, NX=22, NY=22, maxm=1e-9, i,j,vals=[];
+        for(i=0;i<NX;i++)for(j=0;j<NY;j++){
+          var x=P.bx.xmin+(P.bx.xmax-P.bx.xmin)*(i+0.5)/NX, y=P.bx.ymin+(P.bx.ymax-P.bx.ymin)*(j+0.5)/NY;
+          var u=fx({x:x,y:y}), v=fy({x:x,y:y}); if(!isFinite(u)||!isFinite(v)){vals.push(null);continue;}
+          var m=Math.sqrt(u*u+v*v); if(m>maxm)maxm=m; vals.push({x:x,y:y,u:u,v:v,m:m});
+        }
+        var cell=Math.min((P.W-2*P.pad)/NX,(P.H-2*P.pad)/NY), k=0;
+        for(i=0;i<NX;i++)for(j=0;j<NY;j++){
+          var a=vals[k++]; if(!a) continue;
+          var nx=a.u/(a.m||1), ny=a.v/(a.m||1), L=cell*0.42;
+          var x0=P.px(a.x), y0=P.py(a.y), x1=x0+nx*L, y1=y0-ny*L;
+          var t=Math.min(1,a.m/maxm);
+          ctx.strokeStyle="hsl("+(210-150*t)+",80%,"+(45+25*t)+"%)"; ctx.lineWidth=1.4;
+          ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+          var ang=Math.atan2(y1-y0,x1-x0), hl=4;
+          ctx.beginPath(); ctx.moveTo(x1,y1);
+          ctx.lineTo(x1-hl*Math.cos(ang-0.4),y1-hl*Math.sin(ang-0.4));
+          ctx.lineTo(x1-hl*Math.cos(ang+0.4),y1-hl*Math.sin(ang+0.4)); ctx.closePath();
+          ctx.fillStyle=ctx.strokeStyle; ctx.fill();
+        }
+        return "Flow field F(x,y), 22&times;22 samples. Arrows normalized, hue by |F|. Browser float.";
+      }
+    },
+    {
+      id:"parametric2d", label:"2D parametric  (x(t), y(t))", note:"A curve traced by t.",
+      inputs:[ {key:"px", label:"x(t)", vars:["t"], def:"sin(3*t)"},
+               {key:"py", label:"y(t)", vars:["t"], def:"sin(4*t)"} ],
+      bounds:{xmin:-1.3,xmax:1.3,ymin:-1.3,ymax:1.3}, tmin:0, tmax:6.2832,
+      render:function(comp){
+        var P=Plot(this.bounds); grid2d(P);
+        var fx=comp.px.eval, fy=comp.py.eval, N=2400, started=false;
+        ctx.strokeStyle=col("--accent2"); ctx.lineWidth=2; ctx.beginPath();
+        for(var i=0;i<=N;i++){
+          var t=this.tmin+(this.tmax-this.tmin)*i/N, x=fx({t:t}), y=fy({t:t});
+          if(!isFinite(x)||!isFinite(y)){ started=false; continue; }
+          if(!started){ ctx.moveTo(P.px(x),P.py(y)); started=true; } else ctx.lineTo(P.px(x),P.py(y));
+        }
+        ctx.stroke();
+        return "Parametric curve, t &isin; ["+this.tmin.toFixed(2)+", "+this.tmax.toFixed(2)+"], 2400 steps. Browser float.";
+      }
+    },
+    {
+      id:"surface3d", label:"3D surface  z = f(x, y)",
+      note:"A height field with a free-fly orbit camera: drag to orbit, wheel to zoom, shift-drag to pan, double-click to reset.",
+      inputs:[ {key:"fz", label:"z = f(x, y)", vars:["x","y"], def:"cos(sqrt(x*x + y*y))"} ],
+      bounds:{xmin:-6,xmax:6,ymin:-6,ymax:6},
+      detail:44, wire:true, amp:3.4,
+      cam:{ yaw:0.85, pitch:0.62, dist:30, tx:0, ty:0, tz:0, fov:0.95 },
+      camDefault:{ yaw:0.85, pitch:0.62, dist:30, tx:0, ty:0, tz:0, fov:0.95 },
+      center:function(){ var b=this.bounds; return [ (b.xmin+b.xmax)/2, (b.ymin+b.ymax)/2, 0 ]; },
+      render:function(comp){
+        clear();
+        var self=this, f=comp.fz.eval, N=this.detail|0, i, j, pts=[], zmax=1e-9;
+        for(i=0;i<=N;i++){ pts[i]=[]; for(j=0;j<=N;j++){
+          var x=this.bounds.xmin+(this.bounds.xmax-this.bounds.xmin)*i/N,
+              y=this.bounds.ymin+(this.bounds.ymax-this.bounds.ymin)*j/N,
+              z=f({x:x,y:y}); if(!isFinite(z))z=NaN; else zmax=Math.max(zmax,Math.abs(z));
+          pts[i][j]={x:x,y:y,z:z};
+        }}
+        var c=this.center(), zs=this.amp/Math.max(zmax,1e-6);
+        function world(p){ return [ p.x-c[0], p.y-c[1], (isFinite(p.z)?p.z*zs:NaN) ]; }
+        var B=CAM.basis(this.cam, c, cv.width, cv.height);
+        // project the whole grid once
+        var proj=[]; for(i=0;i<=N;i++){ proj[i]=[]; for(j=0;j<=N;j++){ proj[i][j]=CAM.project(B, world(pts[i][j]), cv.width, cv.height); } }
+        // fixed world-space light; two-sided so the surface reads from any side
+        var L=[0.40,0.32,0.86], Ln=Math.sqrt(L[0]*L[0]+L[1]*L[1]+L[2]*L[2]); L=[L[0]/Ln,L[1]/Ln,L[2]/Ln];
+        var quads=[];
+        for(i=0;i<N;i++)for(j=0;j<N;j++){
+          var p00=pts[i][j],p10=pts[i+1][j],p11=pts[i+1][j+1],p01=pts[i][j+1];
+          if(!(isFinite(p00.z)&&isFinite(p10.z)&&isFinite(p11.z)&&isFinite(p01.z))) continue;
+          var s00=proj[i][j],s10=proj[i+1][j],s11=proj[i+1][j+1],s01=proj[i][j+1];
+          if(!(s00&&s10&&s11&&s01)) continue;
+          var w00=world(p00),w11=world(p11),w10=world(p10),w01=world(p01);
+          var ux=w11[0]-w00[0],uy=w11[1]-w00[1],uz=w11[2]-w00[2];
+          var vx=w01[0]-w10[0],vy=w01[1]-w10[1],vz=w01[2]-w10[2];
+          var nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+          var nl=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;
+          var diff=Math.abs((nx*L[0]+ny*L[1]+nz*L[2])/nl);
+          quads.push({ s:[s00,s10,s11,s01],
+                       shade:0.26+0.74*diff,
+                       h:(p00.z+p10.z+p11.z+p01.z)/4,
+                       depth:(s00.depth+s10.depth+s11.depth+s01.depth)/4 });
+        }
+        quads.sort(function(a,b){ return b.depth-a.depth; });   // painter's: far first
+        var hspan=Math.max(zmax,1e-6);
+        for(var q=0;q<quads.length;q++){
+          var Q=quads[q], t=Math.max(0,Math.min(1,(Q.h/hspan+1)/2));
+          ctx.fillStyle="hsl("+(248-224*t)+",72%,"+Math.round(13+54*Q.shade)+"%)";
+          ctx.beginPath(); ctx.moveTo(Q.s[0].X,Q.s[0].Y); ctx.lineTo(Q.s[1].X,Q.s[1].Y);
+          ctx.lineTo(Q.s[2].X,Q.s[2].Y); ctx.lineTo(Q.s[3].X,Q.s[3].Y); ctx.closePath(); ctx.fill();
+          if(self.wire){ ctx.strokeStyle="rgba(9,14,22,0.38)"; ctx.lineWidth=0.6; ctx.stroke(); }
+        }
+        var cam=this.cam;
+        ctx.fillStyle="rgba(0,0,0,0.34)"; ctx.fillRect(10,cv.height-48,332,38);
+        ctx.fillStyle=col("--muted"); ctx.font="11px monospace";
+        ctx.fillText("yaw "+cam.yaw.toFixed(2)+"   pitch "+cam.pitch.toFixed(2)+"   dist "+cam.dist.toFixed(1), 18, cv.height-31);
+        ctx.fillText("drag orbit / wheel zoom / shift-drag pan / dbl-click reset", 18, cv.height-17);
+        if(!quads.length){ ctx.fillStyle=col("--warn"); ctx.font="13px monospace"; ctx.textAlign="center";
+          ctx.fillText("no finite facets in view (function undefined here, or camera past the surface)", cv.width/2, cv.height/2); ctx.textAlign="left"; }
+        return "Surface z=f(x,y), "+N+"&times;"+N+" facets, perspective orbit (yaw "+cam.yaw.toFixed(2)+
+               ", pitch "+cam.pitch.toFixed(2)+", dist "+cam.dist.toFixed(1)+"). Depth-sorted + shaded. Browser float.";
+      }
+    },
+    {
+      id:"topology", label:"Topology  wireframe editor (author → authority)", kind:"editor",
+      note:"Build a simplicial complex; drag vertices in 3D; save/load JSON in urdr_homology's format. Live χ + Betti preview (exact 𝔽₂, browser) — the gated witness comes from the module.",
+      verts:[], edges:[], faces:[], mode:"move", pending:[], sel:-1, grid:0, append:false,
+      cam:{ yaw:0.9, pitch:0.5, dist:9, tx:0, ty:0, tz:0, fov:0.95 },
+      camDefault:{ yaw:0.9, pitch:0.5, dist:9, tx:0, ty:0, tz:0, fov:0.95 },
+      center:function(){ return [0,0,0]; },
+      render:function(){ return renderTopology(this); }
+    },
+    {
+      id:"homology", label:"Persistent homology  (URDRPD1) - verified", kind:"verified",
+      note:"A window onto the gated topology module. Values are the module's verified output (reproduced C99 + Rust), displayed here - not recomputed in the browser.",
+      render:function(){ return renderHomology(); }
+    }
+  ];
+
+  // ---------- verified homology window ----------
+  function renderHomology(){
+    clear();
+    var pad=18, W=cv.width;
+    ctx.fillStyle=col("--ink"); ctx.font="13px sans-serif";
+    ctx.fillText("Known-answer Betti numbers  (validity, not outcome)", pad, 24);
+    // four mini-complexes across the top
+    var slotW=(W-2*pad)/4, cyr=95, R=34;
+    HOM.known.forEach(function(k,idx){
+      var ox=pad+slotW*idx+slotW/2;
+      var pos=[];
+      if(k.verts===3){ for(var a=0;a<3;a++){ var ang=-Math.PI/2+a*2*Math.PI/3; pos.push([ox+R*Math.cos(ang),cyr+R*Math.sin(ang)]); } }
+      else if(k.name.indexOf("two")===0){ pos=[[ox-30,cyr-14],[ox-8,cyr+18],[ox+8,cyr-18],[ox+30,cyr+14]]; }
+      else { // tetra: outer triangle + center
+        for(var b=0;b<3;b++){ var an=-Math.PI/2+b*2*Math.PI/3; pos.push([ox+R*Math.cos(an),cyr+R*Math.sin(an)]); }
+        pos.push([ox,cyr+6]);
+      }
+      // faces (translucent)
+      ctx.fillStyle="rgba(92,200,255,0.16)";
+      k.faces.forEach(function(f){ ctx.beginPath(); ctx.moveTo(pos[f[0]][0],pos[f[0]][1]); ctx.lineTo(pos[f[1]][0],pos[f[1]][1]); ctx.lineTo(pos[f[2]][0],pos[f[2]][1]); ctx.closePath(); ctx.fill(); });
+      // edges
+      ctx.strokeStyle=col("--accent"); ctx.lineWidth=1.6;
+      k.edges.forEach(function(e){ ctx.beginPath(); ctx.moveTo(pos[e[0]][0],pos[e[0]][1]); ctx.lineTo(pos[e[1]][0],pos[e[1]][1]); ctx.stroke(); });
+      // verts
+      ctx.fillStyle=col("--ink"); pos.forEach(function(p){ ctx.beginPath(); ctx.arc(p[0],p[1],3.2,0,7); ctx.fill(); });
+      ctx.fillStyle=col("--muted"); ctx.font="10px monospace"; ctx.textAlign="center";
+      ctx.fillText(k.name.split(" (")[0], ox, cyr+58);
+      ctx.fillStyle=col("--warn"); ctx.fillText("beta = ["+k.betti.join(",")+"]", ox, cyr+72);
+      ctx.textAlign="left"; ctx.font="13px sans-serif";
+    });
+
+    // persistence diagram (left) + arena (right), lower half
+    var topY=190;
+    // ---- persistence diagram ----
+    var dx=pad, dy=topY, dw=300, dh=300, mx=250;
+    ctx.fillStyle=col("--ink"); ctx.fillText("Square Rips - persistence diagram", dx, dy-8);
+    ctx.strokeStyle=col("--line"); ctx.strokeRect(dx,dy,dw,dh);
+    function PX(v){ return dx+18+(dw-30)*v/mx; }
+    function PY(v){ return dy+dh-18-(dh-30)*v/mx; }
+    ctx.strokeStyle=col("--muted"); ctx.globalAlpha=0.6; ctx.beginPath(); ctx.moveTo(PX(0),PY(0)); ctx.lineTo(PX(mx),PY(mx)); ctx.stroke(); ctx.globalAlpha=1;
+    ctx.fillStyle=col("--muted"); ctx.font="10px monospace";
+    ctx.fillText("birth (sq.dist)", dx+dw/2-32, dy+dh+2);
+    ctx.save(); ctx.translate(dx-4,dy+dh/2+22); ctx.rotate(-Math.PI/2); ctx.fillText("death", 0,0); ctx.restore();
+    var dimc=[col("--accent"),col("--ok"),col("--warn")];
+    HOM.square.diagram.forEach(function(p){
+      var dim=p[0], b=p[1], d=p[2]; ctx.fillStyle=dimc[dim]||col("--ink");
+      if(d===null){ // essential -> triangle at top band
+        var xx=PX(b), yy=PY(mx)-2; ctx.beginPath(); ctx.moveTo(xx,yy-5); ctx.lineTo(xx-5,yy+4); ctx.lineTo(xx+5,yy+4); ctx.closePath(); ctx.fill();
+      } else { ctx.beginPath(); ctx.arc(PX(b),PY(d),4.5,0,7); ctx.fill(); }
+    });
+    ctx.fillStyle=col("--muted"); ctx.font="10px monospace";
+    ctx.fillText("triangle = essential (lives to end)", dx+18, dy+16);
+    ctx.fillStyle=dimc[0]; ctx.fillText("* H0", dx+18, dy+30); ctx.fillStyle=dimc[1]; ctx.fillText("* H1", dx+58, dy+30); ctx.fillStyle=dimc[2]; ctx.fillText("* H2", dx+98, dy+30);
+
+    // ---- arena OOB decomposition ----
+    var ax=pad+330, ay=topY, cells=11, rows=9, cw=Math.min((W-ax-pad)/cells, (dh)/rows);
+    ctx.fillStyle=col("--ink"); ctx.font="13px sans-serif"; ctx.fillText("Anti-cheat / OOB - free-space decomposition", ax, ay-8);
+    var cmap={W:col("--wall"),A:col("--auth"),P:col("--pocket"),X:col("--ext")};
+    for(var r=0;r<rows;r++)for(var cc=0;cc<cells;cc++){
+      var ch=HOM.arena.cls[r].charAt(cc);
+      ctx.fillStyle=cmap[ch]||col("--wall"); ctx.globalAlpha=(ch==="X"?0.5:0.85);
+      ctx.fillRect(ax+cc*cw, ay+r*cw, cw-1, cw-1); ctx.globalAlpha=1;
+    }
+    // probes
+    HOM.arena.probes.forEach(function(p){
+      var gx=ax+p.pos[0]*cw+cw/2, gy=ay+p.pos[1]*cw+cw/2;
+      ctx.strokeStyle=col("--ink"); ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(gx,gy,cw*0.32,0,7); ctx.stroke();
+    });
+    ctx.font="10px monospace"; ctx.fillStyle=col("--ink"); ctx.textAlign="left";
+    var ly=ay+rows*cw+16;
+    ctx.fillText("(3,3) OK   (5,5) CLIP-IN-POCKET", ax, ly);
+    ctx.fillText("(2,2) CLIP-IN-WALL   (0,0) OOB", ax, ly+14);
+
+    return "verified";
+  }
+
+  // ---------- topology wireframe editor (authoring surface -> authority) ----------
+  function topoMaximal(dom){
+    var m=[]; dom.verts.forEach(function(_,i){ m.push([i]); });
+    dom.edges.forEach(function(e){ m.push(e.slice()); });
+    dom.faces.forEach(function(f){ m.push(f.slice()); });
+    return TOPO.canonical(m);
+  }
+  function topoStatsBetti(dom){ var m=topoMaximal(dom); var s=TOPO.stats(m); s.betti=TOPO.betti(m); return s; }
+
+  function renderTopology(dom){
+    clear();
+    var W=cv.width, H=cv.height, B=CAM.basis(dom.cam,[0,0,0],W,H);
+    var L=[0.40,0.32,0.86], Ln=Math.sqrt(L[0]*L[0]+L[1]*L[1]+L[2]*L[2]); L=[L[0]/Ln,L[1]/Ln,L[2]/Ln];
+    // faces: depth-sorted translucent shaded triangles
+    var tris=[];
+    dom.faces.forEach(function(f){
+      var a=dom.verts[f[0]],b=dom.verts[f[1]],c=dom.verts[f[2]]; if(!a||!b||!c) return;
+      var pa=CAM.project(B,a,W,H),pb=CAM.project(B,b,W,H),pc=CAM.project(B,c,W,H); if(!pa||!pb||!pc) return;
+      var ux=b[0]-a[0],uy=b[1]-a[1],uz=b[2]-a[2], vx=c[0]-a[0],vy=c[1]-a[1],vz=c[2]-a[2];
+      var nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx, nl=Math.sqrt(nx*nx+ny*ny+nz*nz)||1;
+      tris.push({ p:[pa,pb,pc], depth:(pa.depth+pb.depth+pc.depth)/3, shade:0.3+0.7*Math.abs((nx*L[0]+ny*L[1]+nz*L[2])/nl) });
+    });
+    tris.sort(function(a,b){ return b.depth-a.depth; });
+    tris.forEach(function(t){
+      ctx.fillStyle="hsla("+Math.round(188+44*t.shade)+",70%,"+Math.round(38+26*t.shade)+"%,0.48)";
+      ctx.beginPath(); ctx.moveTo(t.p[0].X,t.p[0].Y); ctx.lineTo(t.p[1].X,t.p[1].Y); ctx.lineTo(t.p[2].X,t.p[2].Y); ctx.closePath(); ctx.fill();
+    });
+    // edges
+    ctx.strokeStyle=col("--accent"); ctx.lineWidth=1.6;
+    dom.edges.forEach(function(e){
+      var a=dom.verts[e[0]],b=dom.verts[e[1]]; if(!a||!b) return;
+      var pa=CAM.project(B,a,W,H),pb=CAM.project(B,b,W,H); if(!pa||!pb) return;
+      ctx.beginPath(); ctx.moveTo(pa.X,pa.Y); ctx.lineTo(pb.X,pb.Y); ctx.stroke();
+    });
+    // vertices (pending picks highlighted)
+    dom.verts.forEach(function(v,i){
+      var p=CAM.project(B,v,W,H); if(!p) return;
+      var pend=dom.pending.indexOf(i)>=0;
+      ctx.fillStyle=pend?col("--warn"):col("--ink");
+      ctx.beginPath(); ctx.arc(p.X,p.Y,pend?6:4,0,7); ctx.fill();
+      if(pend){ ctx.strokeStyle=col("--warn"); ctx.lineWidth=1.5; ctx.beginPath(); ctx.arc(p.X,p.Y,9,0,7); ctx.stroke(); }
+      ctx.fillStyle=col("--muted"); ctx.font="9px monospace"; ctx.fillText(String(i), p.X+7, p.Y-6);
+    });
+    // readout overlay (PREVIEW)
+    var sb=topoStatsBetti(dom);
+    ctx.fillStyle="rgba(0,0,0,0.42)"; ctx.fillRect(10,10,256,90);
+    ctx.fillStyle=col("--warn"); ctx.font="bold 11px monospace"; ctx.fillText("PREVIEW - not the gated witness", 18, 27);
+    ctx.fillStyle=col("--ink"); ctx.font="12px monospace";
+    ctx.fillText("V="+sb.V+"  E="+sb.E+"  F="+sb.F+"   χ="+sb.chi, 18, 47);
+    ctx.fillText("β = ["+sb.betti.join(", ")+"]   (exact 𝔽₂)", 18, 65);
+    ctx.fillStyle=col("--muted"); ctx.font="10px monospace"; ctx.fillText("coords are browser float, not Q32.32", 18, 84);
+    ctx.fillStyle="rgba(0,0,0,0.34)"; ctx.fillRect(10,H-34,372,24);
+    ctx.fillStyle=col("--muted"); ctx.font="11px monospace";
+    ctx.fillText("mode: "+dom.mode+"    drag empty = orbit / wheel = zoom / dbl-click = reset", 18, H-18);
+    return sb;
+  }
+
+  function topoJSON(dom){
+    var m=topoMaximal(dom), s=TOPO.stats(m), b=TOPO.betti(m);
+    function r6(x){ return Math.round(x*1e6)/1e6; }
+    return {
+      format:"URDR-COMPLEX-1",
+      note:"calculationViz authoring surface. `maximal` is the authoritative combinatorial identity (feed to urdr_homology.py); `vertices` are browser-float presentation coordinates, NOT Q32.32.",
+      vertices: dom.verts.map(function(v){ return [r6(v[0]),r6(v[1]),r6(v[2])]; }),
+      maximal: m,
+      edges: dom.edges.map(function(e){ return e.slice(); }),
+      faces: dom.faces.map(function(f){ return f.slice(); }),
+      preview: { V:s.V, E:s.E, F:s.F, chi:s.chi, betti:b, grade:"PREVIEW-NOT-GATED",
+                 authority:"betti(close_faces(maximal)) in tools/homology/urdr_homology.py under verify.py" }
+    };
+  }
+  function topoDownload(dom){
+    var blob=new Blob([JSON.stringify(topoJSON(dom),null,2)],{type:"application/json"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="complex.urdr.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); },1500);
+  }
+  function topoExportWorld(dom){
+    var r=WORLD.build({ verts:dom.verts, edges:dom.edges, maximal:topoMaximal(dom) }, { up:"z", scale:20, body:"static" });
+    if(!r){ alert("BRIDGE-REFUSE: no geometry to export"); return; }
+    var blob=new Blob([JSON.stringify(r.world,null,2)],{type:"application/json"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="world.urdr-world-3.json";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){ URL.revokeObjectURL(a.href); },1500);
+    var ov=r.world.objects[0].verts, xs=ov.map(function(v){return v[0];}), zs=ov.map(function(v){return v[2];});
+    var msg="Exported URDR-WORLD-3 (auto-grounded, base-on-floor): "+r.verts+" verts, "+r.edges+" edges, height "+r.height+
+      " (integer authoring snap). Render it in the designer:\n\n  python3 tools/editor/load_world.py world.urdr-world-3.json frame.pgm\n\n"+
+      "Geometry/placement only — topology (Betti/witness) does not travel; that stays behind verify.py.";
+    alert(msg);
+  }
+  function topoLoad(dom,text){
+    var j; try{ j=JSON.parse(text); }catch(e){ alert("VIZ-REFUSE: not valid JSON"); return false; }
+    if(!j||!Array.isArray(j.vertices)){ alert("VIZ-REFUSE: missing vertices[]"); return false; }
+    dom.verts=j.vertices.map(function(v){ return [(+v[0])||0,(+v[1])||0,(+v[2])||0]; });
+    dom.edges=Array.isArray(j.edges)? j.edges.map(function(e){ return [e[0]|0,e[1]|0]; }) : [];
+    dom.faces=Array.isArray(j.faces)? j.faces.map(function(f){ return [f[0]|0,f[1]|0,f[2]|0]; }) : [];
+    if(!dom.edges.length && !dom.faces.length && Array.isArray(j.maximal)){
+      j.maximal.forEach(function(s){ if(s.length===2) dom.edges.push([s[0]|0,s[1]|0]); else if(s.length===3) dom.faces.push([s[0]|0,s[1]|0,s[2]|0]); });
+    }
+    dom.pending=[]; return true;
+  }
+  // starter complexes — Betti/χ verified against urdr_homology.py before baking
+  function seedData(name){
+    switch(name){
+      case "tetra":      return { verts:[[0,2,0],[1.9,-1,1.1],[-1.9,-1,1.1],[0,-1,-2.2]], edges:[], faces:[[0,1,2],[0,1,3],[0,2,3],[1,2,3]] };                                  // S²  [1,0,1]
+      case "triangle":   return { verts:[[0,2,0],[1.9,-1.1,0],[-1.9,-1.1,0]], edges:[[0,1],[1,2],[0,2]], faces:[] };                                                            // S¹  [1,1,0]
+      case "two":        return { verts:[[-2.6,1,0],[-2.6,-1,0],[2.6,1,0],[2.6,-1,0]], edges:[[0,1],[2,3]], faces:[] };                                                          // [2,0,0]
+      case "figure8":    return { verts:[[-3,1.6,0],[-3,-1.6,0],[0,0,0],[3,1.6,0],[3,-1.6,0]], edges:[[0,1],[1,2],[0,2],[2,3],[3,4],[2,4]], faces:[] };                          // [1,2,0]
+      case "octahedron": return { verts:[[2,0,0],[-2,0,0],[0,2,0],[0,-2,0],[0,0,2],[0,0,-2]], edges:[], faces:[[4,0,2],[4,2,1],[4,1,3],[4,3,0],[5,0,2],[5,2,1],[5,1,3],[5,3,0]] }; // S²  [1,0,1]
+      case "cylinder":   return { verts:[[2,0,-1.4],[-1,1.7,-1.4],[-1,-1.7,-1.4],[2,0,1.4],[-1,1.7,1.4],[-1,-1.7,1.4]], edges:[], faces:[[0,1,4],[0,4,3],[1,2,5],[1,5,4],[2,0,3],[2,3,5]] }; // annulus [1,1,0]
+      case "torus":      return { verts:[[3.55,0,0],[2.5,0,1.05],[1.45,0,0],[2.5,0,-1.05],[0,3.55,0],[0,2.5,1.05],[0,1.45,0],[0,2.5,-1.05],[-3.55,0,0],[-2.5,0,1.05],[-1.45,0,0],[-2.5,0,-1.05],[0,-3.55,0],[0,-2.5,1.05],[0,-1.45,0],[0,-2.5,-1.05]], edges:[], faces:[[0,4,5],[0,5,1],[1,5,6],[1,6,2],[2,6,7],[2,7,3],[3,7,4],[3,4,0],[4,8,9],[4,9,5],[5,9,10],[5,10,6],[6,10,11],[6,11,7],[7,11,8],[7,8,4],[8,12,13],[8,13,9],[9,13,14],[9,14,10],[10,14,15],[10,15,11],[11,15,12],[11,12,8],[12,0,1],[12,1,13],[13,1,2],[13,2,14],[14,2,3],[14,3,15],[15,3,0],[15,0,12]] }; // T²  [1,2,1]
+      case "rp2":        return { verts:[[0,1,1.618],[1,1.618,0],[1.618,0,1],[0,1,-1.618],[1,-1.618,0],[-1.618,0,1]], edges:[], faces:[[0,1,2],[0,1,4],[0,2,3],[0,3,5],[0,4,5],[1,2,5],[1,3,4],[1,3,5],[2,3,4],[2,4,5]] }; // RP² 𝔽₂ [1,1,1]
+      default: return null;
+    }
+  }
+  function topoAppend(dom, verts, edges, faces, off){
+    var n=dom.verts.length;
+    verts.forEach(function(v){ dom.verts.push([v[0]+off[0], v[1]+off[1], v[2]+off[2]]); });
+    (edges||[]).forEach(function(e){ dom.edges.push([e[0]+n, e[1]+n]); });
+    (faces||[]).forEach(function(f){ dom.faces.push([f[0]+n, f[1]+n, f[2]+n]); });
+  }
+  function applySeed(dom, name, append){
+    var d=seedData(name); if(!d) return;
+    if(append && dom.verts.length){
+      var bb=MEAS.bbox(dom.verts), sb=MEAS.bbox(d.verts), off=[ bb.max[0]-sb.min[0]+1.5, 0, 0 ];
+      topoAppend(dom, d.verts, d.edges, d.faces, off);
+    } else {
+      dom.verts=d.verts.map(function(v){ return v.slice(); });
+      dom.edges=(d.edges||[]).map(function(e){ return e.slice(); });
+      dom.faces=(d.faces||[]).map(function(f){ return f.slice(); });
+    }
+    dom.pending=[]; dom.sel=-1;
+  }
+  function topoSeed(dom,name){ applySeed(dom,name,false); }
+  function topoMirror(dom, ax){
+    var n=dom.verts.length, i;
+    for(i=0;i<n;i++){ var w=dom.verts[i].slice(); w[ax]=-w[ax]; dom.verts.push(w); }
+    var ne=dom.edges.length; for(i=0;i<ne;i++){ dom.edges.push([dom.edges[i][0]+n, dom.edges[i][1]+n]); }
+    var nf=dom.faces.length; for(i=0;i<nf;i++){ var t=dom.faces[i]; dom.faces.push([t[0]+n, t[2]+n, t[1]+n]); }  // reversed winding
+    dom.pending=[]; dom.sel=-1;
+  }
+  function snapAll(dom){ if(dom.grid>0) dom.verts=dom.verts.map(function(v){ return MEAS.snap(v, dom.grid); }); }
+  function topoDeleteVertex(dom,vi){
+    dom.verts.splice(vi,1);
+    dom.edges=dom.edges.filter(function(e){ return e.indexOf(vi)<0; }).map(function(e){ return e.map(function(x){ return x>vi?x-1:x; }); });
+    dom.faces=dom.faces.filter(function(f){ return f.indexOf(vi)<0; }).map(function(f){ return f.map(function(x){ return x>vi?x-1:x; }); });
+    dom.pending=[]; dom.sel=-1;
+  }
+  function mouseCanvas(e){ var r=cv.getBoundingClientRect(); return { x:(e.clientX-r.left)*(cv.width/r.width), y:(e.clientY-r.top)*(cv.height/r.height) }; }
+  function pickVertex(dom,mx,my){
+    var B=CAM.basis(dom.cam,[0,0,0],cv.width,cv.height), best=-1, bd=13*13, i;
+    for(i=0;i<dom.verts.length;i++){ var p=CAM.project(B,dom.verts[i],cv.width,cv.height); if(!p) continue; var dx=p.X-mx,dy=p.Y-my,d=dx*dx+dy*dy; if(d<bd){ bd=d; best=i; } }
+    return best;
+  }
+  function topoAddVertex(dom,mx,my){
+    var B=CAM.basis(dom.cam,[0,0,0],cv.width,cv.height), k=dom.cam.dist/B.foc;
+    var ax=(mx-cv.width/2)*k, ay=-(my-cv.height/2)*k;
+    var w=[ B.target[0]+B.right[0]*ax+B.up[0]*ay, B.target[1]+B.right[1]*ax+B.up[1]*ay, B.target[2]+B.right[2]*ax+B.up[2]*ay ];
+    if(dom.grid>0) w=MEAS.snap(w, dom.grid);
+    dom.verts.push(w); dom.sel=dom.verts.length-1;
+  }
+  function topoVerifyModal(dom){
+    var m=topoMaximal(dom), s=TOPO.stats(m), b=TOPO.betti(m), bstr="["+b.join(", ")+"]";
+    var j=JSON.stringify(topoJSON(dom),null,2), ov=document.getElementById("modal-overlay");
+    ov.innerHTML='<div class="modal"><h3>Verify — in-browser exact 𝔽₂ <span style="color:var(--warn)">(PREVIEW; MEASURED = verify.py)</span></h3>'+
+      '<p>The browser recomputed the topology with the module\'s own <b>division-free 𝔽₂ XOR</b> (verified under node to '+
+      'reproduce <code>urdr_homology.py</code> bit-for-bit). Exact — but <b>PREVIEW</b>, not a gated placement. The MEASURED '+
+      'verdict comes from the reference module under <code>verify.py</code>.</p>'+
+      '<div class="vres">β = <b>'+bstr+'</b> &nbsp;·&nbsp; χ = <b>'+s.chi+'</b> &nbsp;·&nbsp; V/E/F = '+s.V+'/'+s.E+'/'+s.F+'</div>'+
+      '<p style="margin-top:12px">Run the <b>gated authority</b> on the saved JSON — the real bridge this button stands in for:</p>'+
+      '<pre>PYTHONHASHSEED=0 PYTHONUTF8=1 python3 tools/calculationViz/verify_complex.py complex.urdr.json</pre>'+
+      '<p>Paste the module\'s <code>betti</code> line back to confirm agreement:</p>'+
+      '<div style="display:flex;gap:8px"><input id="vpaste" type="text" placeholder="e.g. betti = [1, 2, 1]" style="flex:1">'+
+      '<button class="btn" id="vcheck">check</button></div><div id="vout" class="vres" style="margin-top:8px;display:none"></div>'+
+      '<details style="margin-top:10px"><summary style="cursor:pointer;color:var(--muted)">show URDR-COMPLEX-1 JSON</summary><pre>'+escapeHtml(j)+'</pre></details>'+
+      '<div style="text-align:right;margin-top:10px"><button class="btn" id="vsave">save JSON</button> <button class="btn" id="modal-close">close</button></div></div>';
+    ov.style.display="flex";
+    document.getElementById("modal-close").addEventListener("click", function(){ ov.style.display="none"; });
+    document.getElementById("vsave").addEventListener("click", function(){ topoDownload(dom); });
+    document.getElementById("vcheck").addEventListener("click", function(){
+      var nums=(document.getElementById("vpaste").value.match(/-?\d+/g)||[]).map(Number), out=document.getElementById("vout");
+      out.style.display="block";
+      if(!nums.length){ out.innerHTML='<span style="color:var(--warn)">paste the module\'s betti, e.g. [1, 2, 1]</span>'; return; }
+      var same=nums.length===b.length && nums.every(function(x,i){ return x===b[i]; });
+      out.innerHTML = same
+        ? '<span style="color:var(--ok)">✓ AGREE — engine ['+nums.join(", ")+'] == browser '+bstr+'. Engine run is MEASURED; browser is PREVIEW.</span>'
+        : '<span style="color:var(--bad)">✗ DISAGREE — engine ['+nums.join(", ")+'] ≠ browser '+bstr+'. Re-check the JSON / module.</span>';
+    });
+  }
+  function topoInfoPanel(sb, dom){
+    function f(x){ return Math.round(x*1000)/1000; }
+    var bb=MEAS.bbox(dom.verts);
+    var allE=TOPO.close(topoMaximal(dom)).filter(function(s){ return s.length===2; });
+    var L=MEAS.lengths(dom.verts, allE);
+    var meas='<div class="provenance" style="margin-top:12px"><h3>Measurements <span style="color:var(--muted);font-weight:400">(float design aids)</span></h3>'+
+      '<div class="vres2">bounding box &nbsp; W='+f(bb.size[0])+' &nbsp; H='+f(bb.size[1])+' &nbsp; D='+f(bb.size[2])+'</div>';
+    if(L.length){
+      var lens=L.map(function(x){ return x.len; }), mn=Math.min.apply(null,lens), mx=Math.max.apply(null,lens);
+      var avg=lens.reduce(function(a,b){ return a+b; },0)/lens.length;
+      meas+='<div class="vres2">edges '+L.length+' &nbsp;·&nbsp; min '+f(mn)+' &nbsp; max '+f(mx)+' &nbsp; mean '+f(avg)+'</div>'+
+        '<div style="max-height:150px;overflow:auto;margin-top:6px"><table class="data"><tr><th>edge</th><th>length</th></tr>'+
+        L.map(function(x){ return '<tr><td>'+x.e[0]+'–'+x.e[1]+'</td><td>'+f(x.len)+'</td></tr>'; }).join("")+'</table></div>';
+    } else { meas+='<div class="hint">no edges yet — add edges/faces to measure lengths.</div>'; }
+    meas+='<div class="hint" style="margin-top:6px">Lengths are <b>browser float</b> (presentation), from the same float coordinates flagged below — use grid snap + the coordinate editor for exact, symmetric machine-shop layouts.</div></div>';
+    return '<div class="provenance"><h3>Topology preview <span style="color:var(--warn)">(PREVIEW — not the gated witness)</span></h3>'+
+      'A D14-style <b>authoring surface</b>: you build the complex; the gated authority '+
+      '<code>tools/homology/urdr_homology.py</code> computes the certified Betti/witness. The readout is exact 𝔽₂ '+
+      '(division-free XOR — reproduces the module bit-for-bit, verified under node) but is <b>not</b> a gated placement.'+
+      '<table class="data"><tr><th>V</th><th>E</th><th>F</th><th>&chi;</th><th>&beta;0</th><th>&beta;1</th><th>&beta;2</th></tr>'+
+      '<tr><td>'+sb.V+'</td><td>'+sb.E+'</td><td>'+sb.F+'</td><td>'+sb.chi+'</td><td>'+sb.betti[0]+'</td><td>'+sb.betti[1]+'</td><td>'+sb.betti[2]+'</td></tr></table>'+
+      '<div class="hint" style="margin-top:6px">Vertex coordinates are <b>browser float</b>, not Q32.32 — they do not affect combinatorial &beta; (which is exact) but matter for the geometry/persistence path and the eventual engine conversion.</div>'+
+      '<div class="hint">JSON <code>maximal</code> = the authoritative combinatorial identity. The same authoring→authority pattern extends to the game formats (authored worlds <code>URDR-WORLD-3</code> / OOB arena) — a future editor export mode.</div>'+
+      '<div class="grade" style="margin-top:8px">grade: PREVIEW / NOT_MEASURED. Off-gate. The witness comes from verify.py.</div></div>' + meas;
+  }
+  var selInX=null, selInY=null, selInZ=null, selLbl=null;
+  function syncSelFields(){
+    if(!selInX) return; var d=current;
+    if(d && d.sel>=0 && d.verts[d.sel]){
+      var v=d.verts[d.sel]; selLbl.textContent="vertex "+d.sel;
+      selInX.disabled=selInY.disabled=selInZ.disabled=false;
+      if(document.activeElement!==selInX) selInX.value=Math.round(v[0]*1e6)/1e6;
+      if(document.activeElement!==selInY) selInY.value=Math.round(v[1]*1e6)/1e6;
+      if(document.activeElement!==selInZ) selInZ.value=Math.round(v[2]*1e6)/1e6;
+    } else {
+      selLbl.textContent="(none — click a vertex in Move mode)";
+      selInX.value=selInY.value=selInZ.value=""; selInX.disabled=selInY.disabled=selInZ.disabled=true;
+    }
+  }
+  function buildEditorControls(){
+    var d=current;
+    var modes=[["move","Move / drag"],["vertex","+ Vertex"],["edge","+ Edge"],["face","+ Face"],["delete","Delete"]];
+    var mb=document.createElement("div"); mb.className="field"; mb.innerHTML='<label>edit mode</label>';
+    var grid=document.createElement("div"); grid.style.display="grid"; grid.style.gridTemplateColumns="1fr 1fr"; grid.style.gap="6px";
+    modes.forEach(function(mm){
+      var btn=document.createElement("button"); btn.className="btn"; btn.textContent=mm[1];
+      btn.style.background=(d.mode===mm[0])?"var(--accent)":"var(--panel2)";
+      btn.style.color=(d.mode===mm[0])?"#04121c":"var(--ink)"; btn.style.border="1px solid var(--line)";
+      btn.addEventListener("click", function(){ d.mode=mm[0]; d.pending=[]; buildControls(); render(); });
+      grid.appendChild(btn);
+    });
+    mb.appendChild(grid); elInputs.appendChild(mb);
+    // add shape (replace or append/merge) — multiple objects into one file
+    var sd=document.createElement("div"); sd.className="field"; sd.innerHTML='<label>add shape</label>';
+    var ssel=document.createElement("select");
+    [["","(choose a shape)"],["tetra","tetrahedron → S²"],["octahedron","octahedron → S²"],["triangle","triangle → S¹"],
+     ["cylinder","cylinder → annulus"],["torus","torus → T²"],["rp2","projective plane → RP² (𝔽₂)"],["two","two edges"],["figure8","figure-8"]]
+     .forEach(function(o){ var op=document.createElement("option"); op.value=o[0]; op.textContent=o[1]; ssel.appendChild(op); });
+    ssel.addEventListener("change", function(){ if(ssel.value){ applySeed(d,ssel.value,d.append); ssel.value=""; buildControls(); render(); } });
+    sd.appendChild(ssel);
+    var apl=document.createElement("label"); apl.style.cssText="text-transform:none;display:flex;align-items:center;gap:7px;color:var(--ink);letter-spacing:0;margin-top:6px";
+    var apc=document.createElement("input"); apc.type="checkbox"; apc.checked=!!d.append; apc.style.width="auto";
+    apc.addEventListener("change", function(){ d.append=apc.checked; });
+    apl.appendChild(apc); apl.appendChild(document.createTextNode(" append (merge into current, keep it)"));
+    sd.appendChild(apl); elInputs.appendChild(sd);
+    // selected-vertex coordinate editor (precision placement)
+    var ce=document.createElement("div"); ce.className="field"; ce.innerHTML='<label>selected vertex — exact coords</label>';
+    selLbl=document.createElement("div"); selLbl.className="hint"; selLbl.style.marginBottom="4px"; ce.appendChild(selLbl);
+    var crow=document.createElement("div"); crow.style.display="grid"; crow.style.gridTemplateColumns="1fr 1fr 1fr"; crow.style.gap="6px";
+    function coordIn(axis){ var ip=document.createElement("input"); ip.type="number"; ip.step="any"; ip.placeholder="xyz".charAt(axis);
+      ip.addEventListener("input", function(){ if(d.sel<0||!d.verts[d.sel]) return; var val=parseFloat(ip.value); if(isFinite(val)){ d.verts[d.sel][axis]=val; render(); } }); return ip; }
+    selInX=coordIn(0); selInY=coordIn(1); selInZ=coordIn(2);
+    crow.appendChild(selInX); crow.appendChild(selInY); crow.appendChild(selInZ); ce.appendChild(crow); elInputs.appendChild(ce);
+    syncSelFields();
+    // machine-shop: grid snap + mirror
+    var gs=document.createElement("div"); gs.className="field"; gs.innerHTML='<label>grid snap (0 = off)</label>';
+    var gin=document.createElement("input"); gin.type="number"; gin.step="any"; gin.min="0"; gin.value=String(d.grid||0);
+    gin.addEventListener("input", function(){ var v=parseFloat(gin.value); d.grid=(isFinite(v)&&v>0)?v:0; });
+    gs.appendChild(gin); elExtra.appendChild(gs);
+    function actBtn(label,fn,bg){ var b=document.createElement("button"); b.className="btn"; b.textContent=label; b.style.width="100%"; b.style.marginBottom="8px"; if(bg) b.style.background=bg; b.addEventListener("click",fn); elExtra.appendChild(b); }
+    actBtn("snap all to grid", function(){ snapAll(d); render(); });
+    var mrow=document.createElement("div"); mrow.className="field"; mrow.innerHTML='<label>mirror (symmetry)</label>';
+    var mg=document.createElement("div"); mg.style.display="grid"; mg.style.gridTemplateColumns="1fr 1fr 1fr"; mg.style.gap="6px";
+    [["X",0],["Y",1],["Z",2]].forEach(function(a){ var b=document.createElement("button"); b.className="btn"; b.textContent="mirror "+a[0];
+      b.style.background="var(--panel2)"; b.style.color="var(--ink)"; b.style.border="1px solid var(--line)";
+      b.addEventListener("click", function(){ topoMirror(d,a[1]); buildControls(); render(); }); mg.appendChild(b); });
+    mrow.appendChild(mg); elExtra.appendChild(mrow);
+    actBtn("reset view", function(){ resetCam(); render(); });
+    actBtn("clear complex", function(){ d.verts=[]; d.edges=[]; d.faces=[]; d.pending=[]; d.sel=-1; buildControls(); render(); });
+    actBtn("save JSON (one file)", function(){ topoDownload(d); });
+    actBtn("Export → game world (grounded)", function(){ topoExportWorld(d); }, "var(--ok)");
+    var fi=document.createElement("input"); fi.type="file"; fi.accept=".json,application/json"; fi.style.display="none";
+    fi.addEventListener("change", function(){ var f=fi.files[0]; if(!f) return; var rd=new FileReader(); rd.onload=function(){ if(topoLoad(d,rd.result)){ buildControls(); render(); } }; rd.readAsText(f); });
+    elExtra.appendChild(fi);
+    actBtn("load JSON", function(){ fi.click(); });
+    actBtn("Verify (𝔽₂ + engine bridge)", function(){ topoVerifyModal(d); }, "var(--accent2)");
+  }
+
+  // ---------- controls ----------
+  var elDomain=document.getElementById("domain"), elInputs=document.getElementById("inputs"),
+      elRanges=document.getElementById("ranges"), elExtra=document.getElementById("extra"),
+      elNote=document.getElementById("domain-note"), elGrammar=document.getElementById("grammar"),
+      elInfo=document.getElementById("info");
+  var current=DOMAINS[0], inputEls={};
+
+  DOMAINS.forEach(function(d,i){ var o=document.createElement("option"); o.value=d.id; o.textContent=d.label; elDomain.appendChild(o); });
+
+  elGrammar.textContent =
+    "numbers   1  3.14  6.02e23\n"+
+    "operators + - * / %  ^ (or **)   (right-assoc power)\n"+
+    "constants pi  e  tau\n"+
+    "functions sin cos tan asin acos atan atan2 sinh cosh tanh\n"+
+    "          exp log ln log10 log2 sqrt cbrt abs sign\n"+
+    "          floor ceil round min max pow mod hypot\n"+
+    "variables depend on the kind (shown per field)\n"+
+    "bounds    <= "+C.BOUNDS.MAX_LEN+" chars, <= "+C.BOUNDS.MAX_DEPTH+" deep, <= "+C.BOUNDS.MAX_NODES+" nodes\n"+
+    "anything else -> typed VIZ-REFUSE (never approximated)";
+
+  function buildControls(){
+    inputEls={}; elInputs.innerHTML=""; elRanges.innerHTML=""; elExtra.innerHTML="";
+    elNote.textContent=current.note||"";
+    cv.style.cursor = (current.cam) ? "grab" : "default";
+    if(current.kind==="verified"){
+      elInputs.innerHTML='<div class="verdict ok" style="line-height:1.5">This kind is a read-only window onto a <b>gated</b> module. '+
+        'No equation entry - the values are the module\'s verified output.</div>';
+      return;
+    }
+    if(current.kind==="editor"){ buildEditorControls(); return; }
+    (current.inputs||[]).forEach(function(inp){
+      var wrap=document.createElement("div"); wrap.className="field";
+      var lab=document.createElement("label"); lab.textContent=inp.label+"   (vars: "+inp.vars.join(", ")+")";
+      var ip=document.createElement("input"); ip.type="text"; ip.value=inp.def; ip.spellcheck=false;
+      var vd=document.createElement("div"); vd.className="verdict";
+      wrap.appendChild(lab); wrap.appendChild(ip); wrap.appendChild(vd);
+      elInputs.appendChild(wrap);
+      inputEls[inp.key]={el:ip,vd:vd,vars:inp.vars};
+      ip.addEventListener("input", function(){ liveVerdict(inp.key); debounceRender(); });
+      liveVerdict(inp.key);
+    });
+    // ranges
+    if(current.bounds){
+      var b=current.bounds; ["xmin","xmax","ymin","ymax"].forEach(function(kk){ if(b[kk]===undefined) return; addNum(elRanges,kk,b[kk],function(v){ current.bounds[kk]=v; }); });
+    }
+    if(current.id==="parametric2d"){ addNum(elExtra,"tmin",current.tmin,function(v){current.tmin=v;}); addNum(elExtra,"tmax",current.tmax,function(v){current.tmax=v;}); }
+    if(current.id==="surface3d"){
+      var help=document.createElement("div"); help.className="field";
+      help.innerHTML='<label>3D camera</label><div class="hint">drag = orbit &middot; wheel = zoom &middot; '+
+        'shift-drag = pan &middot; double-click = reset</div>';
+      elExtra.appendChild(help);
+      var rbtn=document.createElement("button"); rbtn.className="btn"; rbtn.textContent="reset view";
+      rbtn.style.width="100%"; rbtn.style.marginBottom="12px";
+      rbtn.addEventListener("click", function(){ resetCam(); render(); });
+      elExtra.appendChild(rbtn);
+      var wf=document.createElement("div"); wf.className="field";
+      var lw=document.createElement("label"); lw.style.textTransform="none"; lw.style.display="flex";
+      lw.style.alignItems="center"; lw.style.gap="7px"; lw.style.color="var(--ink)"; lw.style.letterSpacing="0";
+      var cb=document.createElement("input"); cb.type="checkbox"; cb.checked=!!current.wire; cb.style.width="auto";
+      cb.addEventListener("change", function(){ current.wire=cb.checked; render(); });
+      lw.appendChild(cb); lw.appendChild(document.createTextNode(" wireframe on facets"));
+      wf.appendChild(lw); elExtra.appendChild(wf);
+      var dt=document.createElement("div"); dt.className="field"; dt.innerHTML='<label>detail (grid)</label>';
+      var sel=document.createElement("select");
+      [[32,"coarse (fast)"],[44,"medium"],[64,"fine"],[88,"very fine"]].forEach(function(o){
+        var op=document.createElement("option"); op.value=String(o[0]); op.textContent=o[1];
+        if(o[0]===current.detail) op.selected=true; sel.appendChild(op);
+      });
+      sel.addEventListener("change", function(){ current.detail=+sel.value; render(); });
+      dt.appendChild(sel); elExtra.appendChild(dt);
+    }
+  }
+  function addNum(parent,key,val,onset){
+    var w=document.createElement("div"); w.className="field"; var half=true;
+    var lab=document.createElement("label"); lab.textContent=key;
+    var ip=document.createElement("input"); ip.type="number"; ip.step="any"; ip.value=String(val);
+    ip.addEventListener("input",function(){ var v=parseFloat(ip.value); if(isFinite(v)){ onset(v); debounceRender(); } });
+    w.appendChild(lab); w.appendChild(ip); parent.appendChild(w);
+  }
+
+  function liveVerdict(key){
+    var rec=inputEls[key]; if(!rec) return;
+    var r=C.compile(rec.el.value, rec.vars);
+    if(r.ok){ rec.vd.className="verdict ok"; rec.vd.textContent="ADMIT  ->  in scope { "+rec.vars.join(", ")+" }"; }
+    else { rec.vd.className="verdict bad"; rec.vd.textContent="VIZ-REFUSE: "+r.reason; }
+    return r;
+  }
+
+  function compileAll(){
+    var comp={}, ok=true;
+    (current.inputs||[]).forEach(function(inp){
+      var r=liveVerdict(inp.key); comp[inp.key]=r; if(!r.ok) ok=false;
+    });
+    return ok?comp:null;
+  }
+
+  var infoBaseVerified =
+    '<div class="provenance"><h3>Provenance &amp; grade</h3>'+
+    'Baked verbatim from <code>PYTHONHASHSEED=0 PYTHONUTF8=1 python3 tools/homology/urdr_homology.py</code>, '+
+    'reproduced by <code>homology_c</code> (C99) + <code>homology_rs</code> (Rust); gate stage <code>homology</code>. '+
+    'This window <b>displays</b> the module\'s verified output; it does <b>not</b> recompute it in the browser.'+
+    '<table class="data"><tr><th>shape</th><th>&beta;0</th><th>&beta;1</th><th>&beta;2</th></tr>'+
+    HOM.known.map(function(k){return "<tr><td style=text-align:left>"+k.name.split(" (")[0]+"</td><td>"+k.betti[0]+"</td><td>"+k.betti[1]+"</td><td>"+k.betti[2]+"</td></tr>";}).join("")+
+    '<tr><td style=text-align:left>square Rips (final)</td><td>'+HOM.square.betti[0]+'</td><td>'+HOM.square.betti[1]+'</td><td>'+HOM.square.betti[2]+'</td></tr></table>'+
+    '<div style="margin-top:8px" class="hash">persistence witness (URDRPD1): '+HOM.square.witness+'</div>'+
+    '<div class="hash">OOB static witness (URDROOB1): '+HOM.arena.oob_witness+'</div>'+
+    '<div class="hash">&nbsp;&nbsp;&mdash; map-edit defect (pocket opened): '+HOM.arena.oob_witness_defect+'</div>'+
+    '<div class="hash">occupancy sig, all-OK (URDROCC1): '+HOM.arena.occ_ok+'</div>'+
+    '<div class="hash">&nbsp;&nbsp;&mdash; body clipped into pocket: '+HOM.arena.occ_clipped+'</div>'+
+    '<div class="legend"><span><i class="sw" style="background:var(--auth)"></i>authorized</span>'+
+    '<span><i class="sw" style="background:var(--pocket)"></i>sealed pocket (CLIP)</span>'+
+    '<span><i class="sw" style="background:var(--ext);opacity:.6"></i>exterior (OOB)</span>'+
+    '<span><i class="sw" style="background:var(--wall)"></i>wall</span></div>'+
+    '<div class="grade" style="margin-top:8px">grade: verified reference, cross-placed. This page = presentation (D15); presentation &ne; authority.</div></div>';
+
+  function render(){
+    if(current.kind==="verified"){ renderHomology(); elInfo.innerHTML=infoBaseVerified; return; }
+    if(current.kind==="editor"){ var sb=current.render(); syncSelFields(); elInfo.innerHTML=topoInfoPanel(sb, current); return; }
+    var comp=compileAll();
+    clear();
+    if(!comp){
+      ctx.fillStyle=col("--bad"); ctx.font="14px monospace"; ctx.textAlign="center";
+      ctx.fillText("VIZ-REFUSE - fix the flagged expression to render", cv.width/2, cv.height/2); ctx.textAlign="left";
+      elInfo.innerHTML='<div class="provenance"><h3>Refused</h3>One or more expressions are out of the scoped bounds. '+
+        'The parser will not approximate; correct the field(s) marked <span style="color:var(--bad)">VIZ-REFUSE</span>.</div>';
+      return;
+    }
+    var msg=current.render(comp);
+    elInfo.innerHTML='<div class="provenance"><h3>Rendered (presentation / float)</h3>'+msg+
+      '<div class="grade" style="margin-top:8px">grade: NOT MEASURED. Browser IEEE-double evaluation, off-gate. '+
+      'The exact, gate-proven authority lives in <code>tools/&lt;module&gt;</code> + <code>verify.py</code>.</div></div>';
+  }
+
+  var dbT=null; function debounceRender(){ clearTimeout(dbT); dbT=setTimeout(render,160); }
+
+  elDomain.addEventListener("change", function(){ current=DOMAINS.filter(function(d){return d.id===elDomain.value;})[0]; buildControls(); render(); });
+  document.getElementById("render-btn").addEventListener("click", render);
+
+  // ---------- self-check panel ----------
+  (function(){
+    var sc=C.runSelfCheck(), box=document.getElementById("selfcheck");
+    var head=document.createElement("div"); head.className="head";
+    var pill=document.createElement("span"); pill.className="pill "+(sc.fail===0?"ok":"bad");
+    pill.textContent=(sc.fail===0?"PASS":"FAIL")+" "+sc.pass+"/"+sc.total;
+    var lbl=document.createElement("span"); lbl.style.color="var(--muted)"; lbl.textContent="admission cases (click to expand)";
+    head.appendChild(pill); head.appendChild(lbl); box.appendChild(head);
+    var rows=document.createElement("div"); rows.className="sc-rows";
+    sc.results.forEach(function(r){
+      var row=document.createElement("div"); row.className="sc-row";
+      row.innerHTML='<span style="color:'+(r.ok?"var(--ok)":"var(--bad)")+'">'+(r.ok?"OK":"X")+'</span>'+
+        '<span class="g">'+escapeHtml(r.src)+(r.expect==="refuse"?'  <span style="color:var(--muted)">&rarr; '+escapeHtml(r.reason||"")+'</span>':'')+'</span>'+
+        '<span style="color:var(--muted);text-align:right">'+r.expect+'</span>';
+      rows.appendChild(row);
+    });
+    box.appendChild(rows);
+    head.addEventListener("click", function(){ rows.classList.toggle("open"); });
+  })();
+  function escapeHtml(s){ return String(s).replace(/[&<>]/g,function(c){return c==="&"?"&amp;":c==="<"?"&lt;":"&gt;";}); }
+
+  // ---------- 3D interaction: orbit camera (surface3d + topology) + wireframe editing ----------
+  function resetCam(){ var d=current.camDefault; if(!d) return;
+    current.cam={ yaw:d.yaw, pitch:d.pitch, dist:d.dist, tx:d.tx, ty:d.ty, tz:d.tz, fov:d.fov }; }
+  var rafPending=false;
+  function scheduleRender(){ if(rafPending) return; rafPending=true;
+    requestAnimationFrame(function(){ rafPending=false; render(); }); }
+  var drag=null, lastc=null;
+  function hasCam(){ return current && current.cam; }
+  function isTopo(){ return current && current.id==="topology"; }
+  cv.addEventListener("pointerdown", function(e){ if(!hasCam()) return;
+    var m=mouseCanvas(e); lastc=m;
+    if(isTopo()){
+      var d=current, vi=pickVertex(d,m.x,m.y);
+      if(d.mode==="vertex"){ topoAddVertex(d,m.x,m.y); buildControls(); render(); return; }
+      if(d.mode==="delete"){ if(vi>=0){ topoDeleteVertex(d,vi); buildControls(); render(); } return; }
+      if(d.mode==="edge"){ if(vi>=0){ d.pending.push(vi); if(d.pending.length===2){ if(d.pending[0]!==d.pending[1]) d.edges.push([d.pending[0],d.pending[1]]); d.pending=[]; } render(); } return; }
+      if(d.mode==="face"){ if(vi>=0){ d.pending.push(vi); if(d.pending.length===3){ var s=d.pending.slice(); if(s[0]!==s[1]&&s[1]!==s[2]&&s[0]!==s[2]) d.faces.push(s); d.pending=[]; } render(); } return; }
+      if(vi>=0){ d.sel=vi; drag={ kind:"vertex", vi:vi }; try{ cv.setPointerCapture(e.pointerId); }catch(_){}; cv.style.cursor="grabbing"; render(); e.preventDefault(); return; }
+      if(d.sel!==-1){ d.sel=-1; render(); }
+    }
+    drag={ kind:(e.shiftKey||e.button===1||e.button===2)?"pan":"orbit", x:e.clientX, y:e.clientY };
+    try{ cv.setPointerCapture(e.pointerId); }catch(_){}; cv.style.cursor="grabbing"; e.preventDefault();
+  });
+  cv.addEventListener("pointermove", function(e){ if(!drag||!hasCam()) return; var cam=current.cam;
+    if(drag.kind==="vertex"){
+      var m=mouseCanvas(e), dcx=m.x-lastc.x, dcy=m.y-lastc.y; lastc=m;
+      var B=CAM.basis(cam,[0,0,0],cv.width,cv.height), p=CAM.project(B,current.verts[drag.vi],cv.width,cv.height);
+      var k=(p?p.depth:cam.dist)/B.foc, v=current.verts[drag.vi];
+      v[0]+= B.right[0]*dcx*k - B.up[0]*dcy*k; v[1]+= B.right[1]*dcx*k - B.up[1]*dcy*k; v[2]+= B.right[2]*dcx*k - B.up[2]*dcy*k;
+      if(current.grid>0) current.verts[drag.vi]=MEAS.snap(v, current.grid);
+      scheduleRender(); e.preventDefault(); return;
+    }
+    var dx=e.clientX-drag.x, dy=e.clientY-drag.y; drag.x=e.clientX; drag.y=e.clientY;
+    if(drag.kind==="pan"){
+      var Bp=CAM.basis(cam, current.center(), cv.width, cv.height), s=cam.dist/Bp.foc;
+      cam.tx += (-Bp.right[0]*dx + Bp.up[0]*dy)*s;
+      cam.ty += (-Bp.right[1]*dx + Bp.up[1]*dy)*s;
+      cam.tz += (-Bp.right[2]*dx + Bp.up[2]*dy)*s;
+    } else { cam.yaw -= dx*0.01; cam.pitch = CAM.clamp(cam.pitch + dy*0.01, -1.5, 1.5); }
+    scheduleRender(); e.preventDefault();
+  });
+  window.addEventListener("pointerup", function(){ if(drag){ drag=null; cv.style.cursor=hasCam()?"grab":"default"; } });
+  cv.addEventListener("wheel", function(e){ if(!hasCam()) return; e.preventDefault();
+    current.cam.dist = CAM.clamp(current.cam.dist*Math.exp(e.deltaY*0.0012), 3, 300); scheduleRender(); }, {passive:false});
+  cv.addEventListener("dblclick", function(e){ if(!hasCam()) return; resetCam(); render(); });
+  cv.addEventListener("contextmenu", function(e){ if(hasCam()) e.preventDefault(); });
+
+  // ---------- boot ----------
+  (function(){ var td=DOMAINS.filter(function(d){ return d.id==="topology"; })[0]; if(td) topoSeed(td,"tetra"); })();
+  // dedicated deep-link: #machineshop or #<domain-id> opens that tab (the Machine Shop kit uses #machineshop)
+  (function(){ var h=(location.hash||"").replace(/^#/,"").toLowerCase(); var alias={machineshop:"topology"}; var id=alias[h]||h;
+    var d=DOMAINS.filter(function(x){ return x.id===id; })[0]; if(d){ current=d; if(elDomain) elDomain.value=d.id; } })();
+  buildControls(); render();
+})();
+</script>
+<div id="modal-overlay"></div>
+</body>
+</html>
