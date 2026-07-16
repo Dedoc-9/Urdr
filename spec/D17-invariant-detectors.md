@@ -95,7 +95,7 @@ and *withheld* where it does not hold. The current maturity map (the embryonic d
 | **criticality** | reference | **PARTIAL** — many transport histories share one conserved total |
 | **toric** `k` | cross-placed (C99 self-verified; Rust for Windows) | **COMPLETE** for surface homeomorphism (genus classifies closed orientable surfaces); deliberately *not* a complete *code* invariant (distance is separate, NP-hard) |
 | **persim** barcode | reference | **PARTIAL** — distinct filtered complexes can share a barcode; the barcode does not recover the complex |
-| **winding** `w` | reference | **PARTIAL** — many curves share a winding number about a probe; `w` does not recover the curve (reversal covariance `w → −w` documented, not in `~`) |
+| **winding** `w` | cross-placed (Rust ADMITTED ×2, Linux host; Windows owner ritual pending) | **PARTIAL** — many curves share a winding number about a probe; `w` does not recover the curve (reversal covariance `w → −w` documented, not in `~`) |
 
 The toric row is the discipline in miniature: complete with respect to its own invariant, refusing to claim
 more than it computes. As the catalog grows past ~20 detectors this table becomes the **map of the project**

@@ -3198,7 +3198,7 @@ class Gate:
         try:
             ref_ok = True
             detail = []
-            for name in ("loewner_wave", "loewner_second"):
+            for name in ("loewner_wave", "loewner_second", "loewner_cubic"):
                 poly, probe = WD.SCENES[name]()
                 gw, gd = WD.golden(name)
                 w = WD.winding_number(poly, probe)
@@ -3246,7 +3246,7 @@ class Gate:
                 n_probes += 1
                 prop_ok = prop_ok and WD.winding_number(p2, pr) >= 0
         self.record("winding-loewner", prop_ok,
-                    f"all {n_probes} pinned probes on both Loewner scenes have w ≥ 0 "
+                    f"all {n_probes} pinned probes across the Loewner scenes have w ≥ 0 "
                     "(corpus-scoped; the smooth theorem is provenance, not a claim)" if prop_ok
                     else "a pinned Loewner probe wound negatively")
         cwp, cwpr = WD.cw_square()

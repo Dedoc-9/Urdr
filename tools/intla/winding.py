@@ -182,9 +182,13 @@ def loewner_wave():
 
 
 def loewner_wave_probes():
-    """The pinned probe grid for the non-negativity property row (interior and exterior)."""
+    """The pinned probe grid for the non-negativity property row (interior and exterior;
+    the last two are ADVERSARIAL near-curve probes — vertex + (13, 7), 15 units off the
+    trace, admitted at authoring by exact off-trace check + dual-method + 10× dense
+    agreement — Slice-3 expansion, 2026-07-16)."""
     return [(0, 0), (0, 4000), (0, -4000), (3000, 2000), (-3000, 2000),
-            (12000, 0), (0, 11000), (-12000, -11000)]
+            (12000, 0), (0, 11000), (-12000, -11000),
+            (7013, 2007), (3014, 4361)]
 
 
 def loewner_second():
@@ -204,9 +208,44 @@ def loewner_second():
 
 
 def loewner_second_probes():
-    """The pinned probe grid for the non-negativity property row (includes the w = 2 region)."""
+    """The pinned probe grid for the non-negativity property row (includes the w = 2 region;
+    the last two are near-curve probes as in `loewner_wave_probes` — Slice-3 expansion)."""
     return [(0, 0), (2000, 0), (-2000, 0), (0, 3000), (0, -3000),
-            (6000, 4000), (-6000, -4000), (14000, 0), (0, 10000)]
+            (6000, 4000), (-6000, -4000), (14000, 0), (0, 10000),
+            (13, 9007), (-12617, 6813)]
+
+
+def loewner_cubic():
+    """Loewner case for the first HIGHER-DEGREE interlacing pair — P(x) = x³ − x (roots
+    −1, 0, 1), Q(x) = x² − ¼ (roots ±½), strictly interlaced, both monic, deg P = deg Q + 1:
+    γ(t) = (f‴ − f′, f″ − f/4). PROVENANCE (authored offline, 2026-07-16, Slice 3):
+    f(t) = 6·sin t + 2·cos 2t + sin 3t, N = 48, S = 1000, snapped; audited as the other
+    Loewner scenes (independent float angle-sum + 10× dense resample, all probes agreeing).
+    The pinned probe (0, 0) sits in the DOUBLY-wound core: w = +2 — the entire inner region
+    of this curve winds twice, so the golden separates the cubic family from both simple
+    loops and exteriors."""
+    poly = [(-42000, -8500), (-34437, -12729), (-22804, -15843), (-8425, -17426),
+            (6928, -17250), (21279, -15312), (32728, -11844), (39730, -7290),
+            (41321, -2245), (37266, 2621), (28107, 6658), (15091, 9320),
+            (0, 10250), (-15091, 9320), (-28107, 6658), (-37266, 2621),
+            (-41321, -2245), (-39730, -7290), (-32728, -11844), (-21279, -15312),
+            (-6928, -17250), (8425, -17426), (22804, -15843), (34437, -12729),
+            (42000, -8500), (44790, -3692), (42804, 1121), (36709, 5406),
+            (27713, 8750), (17358, 10912), (7272, 11844), (-1093, 11690),
+            (-6679, 10745), (-8982, 9400), (-8107, 8065), (-4738, 7100),
+            (0, 6750), (4738, 7100), (8107, 8065), (8982, 9400),
+            (6679, 10745), (1093, 11690), (-7272, 11844), (-17358, 10912),
+            (-27713, 8750), (-36709, 5406), (-42804, 1121), (-44790, -3692)]
+    return poly, (0, 0)
+
+
+def loewner_cubic_probes():
+    """The pinned probe grid for the cubic family: the doubly-wound core (w = 2), exterior
+    zeros, and two near-curve probes at w = 1 on the outer shoulder (vertex + (13, 7))."""
+    return [(0, 0), (2000, 0), (-2000, 0), (0, 2000), (0, -2000),
+            (8000, 5000), (-8000, -5000), (8000, -5000), (-8000, 5000),
+            (45000, 0), (0, 30000), (-45000, -30000),
+            (-41987, -8493), (-8412, -17419)]
 
 
 SCENES = {
@@ -215,11 +254,13 @@ SCENES = {
     "figure_eight": figure_eight,
     "loewner_wave": loewner_wave,
     "loewner_second": loewner_second,
+    "loewner_cubic": loewner_cubic,
 }
 
 LOEWNER = {
     "loewner_wave": (loewner_wave, loewner_wave_probes),
     "loewner_second": (loewner_second, loewner_second_probes),
+    "loewner_cubic": (loewner_cubic, loewner_cubic_probes),
 }
 
 

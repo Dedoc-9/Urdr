@@ -49,6 +49,16 @@ class Winding(unittest.TestCase):
         poly, _ = W.ccw_square()
         self.assertEqual(W.winding_number(poly, (9, 9)), 0, "exterior probe must read 0")
 
+    def test_loewner_cubic_golden_w2_core(self):
+        poly, probe = W.loewner_cubic()
+        w, dig = W.golden("loewner_cubic")
+        self.assertEqual(w, 2, "the cubic family's core must be doubly wound")
+        self.assertEqual(W.winding_number(poly, probe), w, "loewner_cubic invariant drifted")
+        self.assertEqual(W.witness_digest(poly, probe), dig, "loewner_cubic witness drifted")
+        for p in ((-41987, -8493), (-8412, -17419)):        # the near-curve shoulder probes
+            self.assertEqual(W.winding_number(poly, p), 1,
+                             f"near-curve probe {p} must read w=1 on the outer shoulder")
+
     def test_loewner_nonnegative_property(self):
         for name, (builder, probes) in W.LOEWNER.items():
             poly, _ = builder()

@@ -124,6 +124,14 @@ selftest and refusal rows, registered in the D17 lint — **8 detectors**. THEOR
 MEASURED (reference) in D5. The specification below is retained as the record of what the
 landing was required to satisfy.
 
+*Slice-3 expansion + placement (2026-07-16, same day):* the cubic interlacing family
+`(f‴ − f′, f″ − f/4)` (P = x³ − x, Q = x² − ¼) landed with a doubly-wound-core golden
+(w = +2); adversarial near-curve probes joined all three grids (35 pinned probes, all
+w ≥ 0, the five pre-existing goldens byte-identical); and `winding_rs/` — the std-only
+Rust placement, own SHA-256 — reproduced GOLDEN AND DEFECT (all six `(w, digest)` pairs
+plus the parity defect's wrong answer), ADMITTED ×2 bit-identically on a Linux host.
+Axis A: reference → **cross-placed** (Windows owner attestation pending).
+
     𝒟_W1 = (Dom, Inv, W, ~, R)
 
 - **Dom** — closed polylines with integer vertices (≥ 3, consecutive vertices distinct — the

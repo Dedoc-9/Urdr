@@ -1812,6 +1812,22 @@ which is why samples are pinned rather than derived at gate time); metric robust
 pipeline behavior — the abductive contract itself remains SPECULATIVE, with no proposer, no
 recorded batch, and no `ABDUCT-REFUSE` anywhere in the tree.
 
+**W1 Slice-3 expansion + cross-placement — Axis A: REFERENCE → CROSS-PLACED (Linux).** The
+first higher-degree interlacing family (P = x³ − x, Q = x² − ¼, strictly interlaced monic;
+f = 6·sin t + 2·cos 2t + sin 3t, N = 48, S = 1000) pins a doubly-wound core —
+`loewner_cubic` w = +2, golden `2176649b…` — and adversarial near-curve probes
+(vertex + (13, 7), ≈15 units off the trace, each admitted at authoring by exact off-trace
+check + dual-method + 10× dense agreement) join all three grids: 35 pinned probes, all
+w ≥ 0, with the five pre-existing goldens byte-identical (the frozen-surface check ran at
+regeneration). `tools/intla/winding_rs/winding.rs` (std-only Rust, own SHA-256 verbatim
+from worldstep_rs, checked i64 with typed overflow refusal — the placement's bounded
+domain is the documented difference from the reference's bigint Dom) reproduces GOLDEN
+AND DEFECT: all six `(w, digest)` pairs bit-for-bit, 35/35 grid probes non-negative, and
+the parity defect's wrong answer on the clockwise square; ADMITTED ×2 with bit-identical
+output on a Linux sandbox host (rustc 1.95). Placement count rises to 23 Rust / 13 C99.
+Windows/rustc owner attestation pending → the Windows column stays DECLARED. Unit
+falsifiers 549 → 550. `does_not_show`: unchanged from the W1 entry above.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and
