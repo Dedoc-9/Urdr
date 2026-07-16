@@ -37,6 +37,16 @@ in each one's README and grade line.
 - [`editor/`](editor/) — Urðr Designer: a browser authoring + deterministic-replay
   front-end (draw wireframes, populate a physical world, scrub a run witness-by-witness).
 - [`tracer/`](tracer/) — photo/still → wireframe design tracer (a D14 authoring modality).
+- [`calculationViz/`](calculationViz/) — an exploratory math visualizer **and machine shop**
+  (presentation, **off-gate**): a dropdown of math kinds with user equations admitted through a
+  bounded, typed-refusing grammar (`VIZ-REFUSE`); a read-only window onto the verified `URDRPD1`
+  homology goldens; and a **Topology CAD** (free-fly wireframe editor, grid snap, exact
+  coordinates, mirror, measurements, corner fillets) with an exact 𝔽₂ β preview. It bridges
+  authored objects into the game frontend across the admission boundary — `bridge_to_world.py`
+  (`URDR-WORLD-3`, auto-grounded / `--rest-face`, integer-snapped, rendered by the Designer) and
+  `bridge_to_arena.py` (an OOB anti-cheat arena, self-verified against `urdr_homology`). The
+  [`machineshop/`](calculationViz/machineshop/) kit launches it. Graded `NOT_MEASURED`; carries
+  *geometry*, not topology; adds no gate rows, falsifiers, or placements.
 
 **Kernel, infrastructure & studies**
 

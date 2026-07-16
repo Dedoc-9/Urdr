@@ -338,6 +338,14 @@ catch every injected desync at the first mismatching tick. Walkthrough: [`demo/`
   parenting, joints) and a scene hierarchy, exported as a canonical scene
   ([`tools/editor/`](tools/editor/)). The browser is an *authoring and visualization client* only;
   it never becomes a second physics engine.
+- **Shape and bridge props** in the off-gate [`calculationViz`](tools/calculationViz/) machine shop:
+  a browser 3D-wireframe CAD (free-fly camera, grid snap, exact coordinates, mirror, live
+  measurements, corner fillets) with an exact 𝔽₂ topology preview, that hands an authored object to
+  the gated pipeline across the admission boundary — an auto-grounded `URDR-WORLD-3` object the
+  Designer renders (`bridge_to_world.py`, `--rest-face` to sit it flat) or an OOB anti-cheat *arena*
+  the homology module decomposes (`bridge_to_arena.py`, self-verified against `label_free_space` /
+  `oob_witness`). Presentation only (`NOT_MEASURED`): the object's *shape* crosses the boundary,
+  its *topology* does not — the witness stays behind `verify.py`.
 - **Simulate it exactly** where exactness is affordable: an n-contact stack resolves to a *certified*
   contact-force vector λ (complementarity-proven), an articulated linkage to `J·v = 0`
   (uniqueness-by-certificate), a collision to an exact momentum/energy witness. Each single solve
