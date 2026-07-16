@@ -30,6 +30,12 @@ class StaleIsCaught(unittest.TestCase):
         hits = list(DC.scan("%d independent Rust placements" % (_LIVE["rust"] - 1)))
         self.assertTrue(any(k == "rust" and v != _LIVE["rust"] for k, v in hits))
 
+    def test_comma_hidden_count_flagged(self):
+        # The 2026-07-16 escape: "N independent, single-file Rust" — the comma must not hide it.
+        hits = list(DC.scan("%d independent, single-file Rust placements" % (_LIVE["rust"] - 1)))
+        self.assertTrue(any(k == "rust" and v != _LIVE["rust"] for k, v in hits),
+                        "the comma-hidden placement count escaped the idiom again")
+
     def test_self_defect_is_caught(self):
         # The in-gate non-vacuity helper: a planted stale count is always caught.
         self.assertTrue(DC.defect_is_caught(_LIVE))

@@ -18,6 +18,11 @@ gate if any tracked doc quotes a different number:
 (the live gate + filesystem); this proves the docs equal it. Scope is deliberately narrow —
 only the count IDIOMS below are checked, so ordinary numbers in prose are never touched, and
 a doc absent from `DOCS` is not checked (add it here to bring it under enforcement).
+
+Intermediate words in the Rust idiom tolerate a trailing comma: on 2026-07-16 the PAPER
+abstract's "21 independent, single-file Rust placements" sat stale through two count bumps
+because the comma broke the word matcher. The pattern now catches it, and the self-defect
+plants exactly that shape so the escape can never silently reopen.
 """
 import os
 import re
@@ -37,7 +42,7 @@ _PATTERNS = [
     (re.compile(r"(\d+)-test gate"), "fals"),
     (re.compile(r"\d+\s+unit falsifiers\s*/\s*(\d+)\s+rows"), "rows"),
     (re.compile(r"\b\d+\s*/\s*(\d+)\s+rows"), "rows"),
-    (re.compile(r"(\d+)\s+(?:[\w-]+\s+){0,3}Rust\b"), "rust"),
+    (re.compile(r"(\d+)\s+(?:[\w-]+,?\s+){0,3}Rust\b"), "rust"),
     (re.compile(r"(\d+)\s+C99"), "c"),
 ]
 
@@ -95,6 +100,14 @@ def defect_text(live):
     return "Placeholder: the gate stands at %d unit falsifiers today." % (live["fals"] + 1)
 
 
+def comma_defect_text(live):
+    """The 2026-07-16 escape shape: a comma-hidden WRONG placement count — must be flagged."""
+    return "Measured across %d independent, single-file Rust placements." % (live["rust"] + 1)
+
+
 def defect_is_caught(live):
-    """True iff `scan` flags the planted stale count (the non-vacuity of the checker)."""
-    return any(key == "fals" and got != live["fals"] for key, got in scan(defect_text(live)))
+    """True iff `scan` flags BOTH planted stale counts (plain + comma-hidden) — the
+    non-vacuity of the checker, covering the word-boundary escape."""
+    plain = any(key == "fals" and got != live["fals"] for key, got in scan(defect_text(live)))
+    comma = any(key == "rust" and got != live["rust"] for key, got in scan(comma_defect_text(live)))
+    return plain and comma
