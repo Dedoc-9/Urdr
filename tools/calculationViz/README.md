@@ -14,7 +14,8 @@ D5 wins.
 |---|---|
 | [`calculation_viz.html`](calculation_viz.html) | A single-file, dependency-free page. A dropdown of "kinds of math"; user-entered equations passed through a **bounded admission grammar** (typed `VIZ-REFUSE`, never a silent approximation); 2D/3D rendering on a canvas; a read-only **window onto the verified topology module** (`URDRPD1`); and a **topology wireframe editor** (build/drag/save complexes). Opens straight in a browser — no server, no build, no backend. |
 | [`verify_complex.py`](verify_complex.py) | The **real authority bridge**: reads a `URDR-COMPLEX-1` JSON saved by the editor and runs the **gated** module (`urdr_homology.betti ∘ close_faces`) to print the authoritative Betti/χ, and whether the browser PREVIEW agreed. This is the MEASURED path the in-app "Verify" button stands in for. |
-| [`bridge_to_world.py`](bridge_to_world.py) | The **game-designer bridge**: reads a `URDR-COMPLEX-1` object and emits a `URDR-WORLD-3` authored world for the **Urðr Designer** (`tools/editor/load_world.py`) and the gated netcode (`tools/netcode/worldstep.py`). Carries the 3D wireframe (verts + edges), **auto-grounds** it base-on-the-floor, and does the integer authoring snap the format requires. Verified end-to-end: the output both renders in the designer and loads in `worldstep` with no `WORLD-REFUSE`. |
+| [`bridge_to_world.py`](bridge_to_world.py) | The **game-designer bridge**: reads a `URDR-COMPLEX-1` object and emits a `URDR-WORLD-3` authored world for the **Urðr Designer** (`tools/editor/load_world.py`) and the gated netcode (`tools/netcode/worldstep.py`). Carries the 3D wireframe (verts + edges), **auto-grounds** it base-on-the-floor (`--rest-face` sits it flat on a face), and does the integer authoring snap the format requires. Verified end-to-end: the output both renders in the designer and loads in `worldstep` with no `WORLD-REFUSE`. |
+| [`bridge_to_arena.py`](bridge_to_arena.py) | The **OOB anti-cheat arena bridge**: rasterizes the object's footprint into a solid/free occupancy grid inside a walled arena (`URDR-ARENA-1`) and **self-verifies against the gated OOB module** — `urdr_homology.label_free_space` (free-space components) + `oob_witness` (the `URDROOB1` digest). The object's wireframe becomes interior obstacles that carve an authorized interior, sealed CLIP pockets, and exterior OOB. Prints the decomposition + witness; passes for tetra/octahedron. |
 
 The page has three kinds of "domain":
 
@@ -186,7 +187,24 @@ that emits them (not a direct reinterpretation of `maximal`) is the next bridge 
   loads in `worldstep` (dynamic). The in-app button's `WORLD` block (`//==CALCVIZ-WORLD-…==`,
   node-tested) produces **byte-identical geometry** to the script at the same `--scale`
   (digests differ only in scheme: FNV in-browser vs SHA-256 in the script — both are internal
-  object ids). The OOB anti-cheat arena (a solid/free grid) remains a separate future export.
+  object ids).
+- **OOB anti-cheat arena bridge (`bridge_to_arena.py`).** The other game format. Rasterizes the
+  object footprint into a solid/free grid inside a walled arena (`URDR-ARENA-1`) and
+  **self-verifies against the gated OOB module**: it runs `urdr_homology.label_free_space` +
+  `oob_witness` on the grid it built and prints the decomposition (authorized interior, sealed
+  CLIP pockets, exterior OOB) + the `URDROOB1` digest. Passes for tetra/octahedron; the object's
+  wireframe becomes the interior obstacles. `python3 tools/calculationViz/bridge_to_arena.py
+  complex.urdr.json arena.json`.
+- **Corner rounding / fillet (`//==CALCVIZ-FILLET-…==`, node-tested).** Select a **degree-2**
+  vertex, then *round corner*: it replaces the sharp corner with a quadratic-Bézier arc tangent to
+  both edges (radius = setback, clamped below the edge lengths). **Typed refusal** (never a wrong
+  fillet) on ambiguous hubs (degree ≠ 2) or a vertex that belongs to a face.
+- **Optimization — combinatorial β cache.** `β/χ` and the closed-complex edge list depend only on
+  the *simplices*, never on coordinates, so `topoStatsBetti` caches them against a cheap
+  combinatorial signature (`verts.length | edges | faces`). A vertex **drag** reuses the cache
+  instead of re-running the O(simplices³) BigInt 𝔽₂ reduction every frame; only the geometry
+  (bbox, edge lengths, the canvas) recomputes per frame. Correct by construction: the signature
+  changes iff the complex does.
 - **Add a math area (the registry contract).** Append one object to `DOMAINS`:
   `{ id, label, note, inputs:[{key,label,vars,def}], bounds:{xmin,xmax,ymin,ymax},
   render(compiled) }`, where `compiled[key].eval(env)` is the admitted evaluator (or
