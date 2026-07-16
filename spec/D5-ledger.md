@@ -2037,8 +2037,20 @@ reference's collide chains — Merkle root `fraud_merkle 8e5d341b…`, the O(log
 reject — each with its own SHA-256. The **simulation beneath** is already cross-placed
 (`worldstep_rs` / `worldregion_c` / `lockstep_rs`), so the rung is reproducible across three
 languages / two OSes **by composition** (sim placement + crypto placement) rather than by re-placing
-the sim. So the fraud placement count rises to 22 Rust / 13 C99. `does_not_show`: input legitimacy,
-zero-knowledge, performance.
+the sim. So the fraud placement count rises to 22 Rust / 13 C99.
+
+**The referee itself is reproducible by composition — an inheritance argument, not a fourth
+placement.** Its `adjudicate` is exactly `first_desync` (locate the divergence) + `worldstep.step_tick`
+(re-execute one tick) + `lockstep._digest` (compare) over the cross-placed crypto layer — every
+primitive it touches is already placed in C99 + Rust, and it adds no un-cross-placed computation, so a
+dedicated native referee would be redundant. That reproducibility is therefore **`DECLARED`** (an
+inheritance argument), NOT a bit-for-bit native re-run. The referee's own wall-clock stays
+**`NOT_MEASURED`**: it is off the competitive path (dispute settlement runs on-challenge, not
+per-frame) and has no dedicated bench. The competitive path is the *sim* tick, already MEASURED at
+~0.073 ms — but that is `frontbench_rs` (the frontfps sim tick), a *different* tick than the referee's;
+`worldstep_rs` cross-places the worldstep tick's *correctness*, not that number. The layer-3 renderer
+remains unbuilt, which is what keeps the full input→photon latency stack `NOT_MEASURED`. `does_not_show`:
+input legitimacy, zero-knowledge, performance.
 
 ## Evidence Against C8 — the sealed-alphabet hypothesis, tracked
 
