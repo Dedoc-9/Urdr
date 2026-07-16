@@ -1,0 +1,9 @@
+# urdr-winding (W1) — winding number of a closed integer polyline about a probe point.
+# Loewner scenes: pinned integer samples of (f', f) and (f''-f, f') — see the builders'
+#   provenance docstrings. Digest is over MAGIC | vertices | probe | w | crossing list.
+# name  w  digest
+ccw_square 1 843d01ecdb9bc10dbb02339818b3d5c81b9f1a9a76fdae64d23000a9a0195154
+cw_square -1 06abd52d23b8a8d3d862260daf08311138e48d2244778b718832eea019fd39e6
+figure_eight -1 2f90de181e69bdd1663598bed6f95d29c7a047b6de023cd6b49c713501eccd80
+loewner_wave 1 bc12f7472d598834e7214610b5bcac30ae9f2b24a201a1652561696c6e34ca1a
+loewner_second 2 87e14cf424c7ee4aadffe73fde3b5df0219b8f9985b82c0d468ee0e40f32ec32

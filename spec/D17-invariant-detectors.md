@@ -95,6 +95,7 @@ and *withheld* where it does not hold. The current maturity map (the embryonic d
 | **criticality** | reference | **PARTIAL** — many transport histories share one conserved total |
 | **toric** `k` | cross-placed (C99 self-verified; Rust for Windows) | **COMPLETE** for surface homeomorphism (genus classifies closed orientable surfaces); deliberately *not* a complete *code* invariant (distance is separate, NP-hard) |
 | **persim** barcode | reference | **PARTIAL** — distinct filtered complexes can share a barcode; the barcode does not recover the complex |
+| **winding** `w` | reference | **PARTIAL** — many curves share a winding number about a probe; `w` does not recover the curve (reversal covariance `w → −w` documented, not in `~`) |
 
 The toric row is the discipline in miniature: complete with respect to its own invariant, refusing to claim
 more than it computes. As the catalog grows past ~20 detectors this table becomes the **map of the project**
@@ -181,7 +182,10 @@ the alphabet proved invariant.
    representation/character detector, a conserved-quantity detector) is a plugin answering the one
    question. The **persistent-homology detector has since landed** (`tools/intla/persim.py` — a
    barcode over 𝔽₂, the first diagram-valued rather than scalar invariant), admitted under the
-   *same* six conditions; the lint now enforces **seven detectors**. The C8 discipline governs
+   *same* six conditions — and the **winding-number detector** after it (`tools/intla/winding.py`,
+   the W1 rung of `spec/D19-abductive-gauntlet.md` §5, the first detector whose corpus is
+   theorem-backed: pinned Loewner-1948 curves wind non-negatively at every pinned probe); the
+   lint now enforces **eight detectors**. The C8 discipline governs
    whether any of them ever needs a new *primitive* rather than a new *detector*.
 
 ## 9. Coverage — the boundary of what is claimed exact

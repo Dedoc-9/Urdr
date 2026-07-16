@@ -1786,6 +1786,32 @@ declared; exact over 𝔽₂. Scope: the equivalence checked is exact barcode eq
 (bottleneck distance) is a separate theorem, not claimed here; the detector certifies a given complex's
 barcode and is not wired into any tick loop.
 
+**Winding number (winding) — a D17 detector; the W1 rung of D19 — MEASURED (reference).**
+`tools/intla/winding.py` computes the winding number of a closed integer polyline about an
+off-curve probe by the exact signed crossing count (half-open rule, orientation determinants —
+the classical algorithm; nothing here is novel except the gate). The invariant is `w ∈ ℤ`; the
+witness is the crossing list, which recounts to `w` and re-derives independently
+(`check_witness`). Gate stage `winding`, four D17 roles: reference — both Loewner scenes
+reproduce pinned `(w, digest)` ×2 (`loewner_wave` w=+1; `loewner_second` w=+2 — the golden
+separates 1 from 2, not merely sign), plus three sign controls (ccw +1 / cw −1 / figure-eight
+lobe −1, exterior probe 0); invariance — cyclic rotation + integer collinear subdivision
+preserve `w`, orientation reversal NEGATES it (the documented covariance); defect — the
+unsigned parity count misreads every negatively-wound curve; refusal — 4/4 `WIND-REFUSE` typed
+and total (short / degenerate / non-integer incl. bool / probe-on-trace). Plus the
+theorem-backed corpus property: all 17 pinned probes on both Loewner scenes wind
+non-negatively — Loewner (Annals of Mathematics 1948; revived by Albers–Tabachnikov,
+arXiv:2109.03051, Math. Intelligencer 2021: curves `(P(d/dt)f, Q(d/dt)f)` with monic
+interlacing P, Q wind non-negatively about every off-curve point); the corpus pins integer
+samples of `(f′, f)` and `(f″−f, f′)`, authored OFFLINE and audited (independent float
+angle-sum + 10× dense resample, all probes agreeing) before pinning — the pinned integers are
+the object, the formula is provenance. Red-first `tests/test_winding.py` (12 falsifiers). The
+`invariant_detectors` lint now enforces **8 detectors**. Unit falsifiers 537 → 549. Grade:
+MEASURED (reference); cross-placement not claimed. `does_not_show`: the smooth theorem (the
+corpus is corpus-scoped — a coarse sampling can break the discrete↔smooth correspondence,
+which is why samples are pinned rather than derived at gate time); metric robustness; any D19
+pipeline behavior — the abductive contract itself remains SPECULATIVE, with no proposer, no
+recorded batch, and no `ABDUCT-REFUSE` anywhere in the tree.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and

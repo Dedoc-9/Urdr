@@ -45,8 +45,9 @@ a third language; they are not repo placements.
 | T20 | **Criticality is deterministic, conservative, and self-limiting (urdr-criticality).** A branching-diffusion field (Galton-board flux-form transport, keff multiplication, Doppler feedback): transport conserves population EXACTLY; keff=1 stationary / keff<1 decays / keff=2 unregulated `FIELD-REFUSE`s at the bound; and Doppler feedback regulates a supercritical `k0=2.0` to a bounded steady state — reactor stability, reproducibly. | `criticality`: Galton golden `064f7cfc…` + Doppler steady-state golden `8439d5a6…`; exact-conservation over 50 gens; the non-vacuity defect (drop Doppler → explode → `FIELD-REFUSE`). MEASURED reference; bounded regime; cross-placement DECLARED. Honest scope: 1D, one-group, rational Doppler (physical √T Doppler is irrational → refuse regime). |
 | T21 | **The admission law is a real abstraction, not a description (D17 + toric code).** Every gated detector satisfies one meta-contract — `(Dom, Inv, W, ~, R)` with a decidable domain, exact witnessed invariant, invariance on a declared equivalence class, and total typed REFUSE — enforced mechanically by the `invariant_detectors` lint (declared roles, not name-inferred). Its truth-test: admit a detector from a domain the project never touched under the *same* six conditions. The toric code (`k = dim H₁` over 𝔽₂ = logical qubits = 2·genus) was admitted with **no flex** to the contract. | `invariant_detectors` (7 detectors, each 4 roles, + a non-vacuity selftest); `toric` (`torus3` k=2 witness `391e49e5…`, genus-invariance, wrong-homology defect, non-complex `TORIC-REFUSE`). New exact substrate GF(2) (`gf2.py`); toric + rigidity cross-placed (C99 + Rust). MEASURED. Honest scope: `k` exact always; distance exact only for the toric family (general min-distance is NP-hard → REFUSE). |
 | T22 | **A diagram-valued invariant admits unchanged (persistent homology).** The persistence barcode of a filtered simplicial complex over 𝔽₂ (standard boundary-matrix reduction) is exact and admits under D17 as the first NON-scalar invariant — no flex to the contract. The equivalence checked is exact barcode equality; metric stability (bottleneck distance) is a separate theorem, not claimed. | `persim`: circle barcode `bb17a756…` (b₀=1, b₁=1), reorder-invariance + the disk (filled H₁) distinguished, un-reduced-pairing defect, non-monotone `PH-REFUSE`. MEASURED (reference). |
+| T23 | **A classical winding invariant admits unchanged, with a theorem-backed corpus (W1, D19 §5).** The winding number of a closed integer polyline about an off-curve probe — exact signed ray-crossing count (half-open rule, orientation determinants), a crossing-list witness that recounts to the invariant, cyclic-rotation + integer-subdivision `~`-invariance with orientation reversal as a documented covariance, total `WIND-REFUSE` — admits under D17 as the 8th detector with no flex to the contract. Its corpus is the first THEOREM-BACKED one: pinned integer samples of Loewner-1948 curves (`(f′, f)` and `(f″−f, f′)`) wind non-negatively at all 17 pinned probes, and the `(f″−f, f′)` golden pins `w = 2` (separating 1 from 2, not merely sign). | `winding`: 5 scene goldens ×2 (`conformance_winding.txt`), the 17-probe non-negativity row, parity-defect selftest (gate can redden), 4/4 typed refusals; `tests/test_winding.py` (12 falsifiers). MEASURED (reference). Honest scope: corpus-scoped facts about frozen integer objects — the smooth theorem is provenance, not a gate claim; cross-placement not claimed. |
 
-The gate enforcing all of the above: **537 unit falsifiers + per-layer conformance
+The gate enforcing all of the above: **549 unit falsifiers + per-layer conformance
 stages, each with a non-vacuity self-test, + 45 typed rejection fixtures + the
 tamper self-test** — `PYTHONHASHSEED=0 python verify.py` → `GATE PASSED`, ×2,
 on Windows and Linux. 22 std-only Rust placements, 13 C99 runtimes.
@@ -59,7 +60,12 @@ beyond the N5 canonical scenario · operational key management and cross-session
 replay protection · the D16 scale-out falsification workloads — **dynamic
 repartitioning** (seams that move on a live tick), **interest-management / authority
 migration**, and a **distributed authority graph** (regions on separate hosts,
-delayed ghosts) · gameplay scripting · metatheory (progress/preservation,
+delayed ghosts) · gameplay scripting · the **D19
+abductive-gauntlet contract** (the hypothesis boundary: proposals recorded at the līmes,
+elimination only by admitted D17 detectors, survival confers no grade — the PIPELINE remains
+a written contract with no proposer, no recorded batch, and no `ABDUCT-REFUSE` in the tree;
+its first rung, the `W1` winding detector, has graduated to theorem T23 above) ·
+metatheory (progress/preservation,
 no-inflation soundness) remains CONJECTURED. *(Body-body contact (N4.1) and the
 regional-authority contract (D16) have graduated to theorems T18/T19 above.)*
 

@@ -3175,6 +3175,101 @@ class Gate:
                     "a non-monotone filtration PH-REFUSEd" if code == "PH-REFUSE"
                     else f"refusal wrong: {code}")
 
+    # -- 2p4. winding — the W1 winding-number detector (D19 §5; an ordinary D17 detector) --
+    def winding(self):
+        """The winding number of a closed integer polyline about an off-curve probe — W1, the
+        first rung of the D19 abductive-gauntlet contract, admitted as an ordinary D17 detector.
+        Four roles: reference (both Loewner scenes + the three sign controls reproduce their
+        pinned (w, digest) ×2, witnesses recount), invariance (cyclic rotation + integer
+        collinear subdivision preserve w; reversal NEGATES it — the documented covariance),
+        defect (the unsigned parity count misreads every negatively-wound curve), refusal
+        (short/degenerate/non-integer input and a probe on the trace WIND-REFUSE). Plus the
+        theorem-backed corpus property: every pinned probe on both Loewner scenes has w ≥ 0 —
+        a fact about the FROZEN integer objects, never a proof of the smooth 1948 theorem
+        (D19 §5 honest scope)."""
+        idir = os.path.join(ROOT, "tools", "intla")
+        if idir not in sys.path:
+            sys.path.insert(0, idir)
+        try:
+            import winding as WD
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("winding", False, f"import failed: {exc}")
+            return
+        try:
+            ref_ok = True
+            detail = []
+            for name in ("loewner_wave", "loewner_second"):
+                poly, probe = WD.SCENES[name]()
+                gw, gd = WD.golden(name)
+                w = WD.winding_number(poly, probe)
+                good = (w == gw and WD.witness_digest(poly, probe) == gd
+                        and WD.witness_digest(poly, probe) == gd
+                        and WD.check_witness(poly, probe, WD.crossings(poly, probe)))
+                ref_ok = ref_ok and good
+                detail.append(f"{name} w={w:+d}")
+        except Exception as exc:
+            self.record("winding:loewner", False, f"reference failed: {exc}")
+            return
+        self.record("winding:loewner", ref_ok,
+                    f"{', '.join(detail)} — pinned digests ×2, witnesses recount" if ref_ok
+                    else "a Loewner scene drifted from its pinned (w, digest)")
+        ctl_ok = True
+        for name, expect in (("ccw_square", 1), ("cw_square", -1), ("figure_eight", -1)):
+            poly, probe = WD.SCENES[name]()
+            gw, gd = WD.golden(name)
+            ctl_ok = ctl_ok and (gw == expect
+                                 and WD.winding_number(poly, probe) == expect
+                                 and WD.witness_digest(poly, probe) == gd)
+        sq, _ = WD.ccw_square()
+        ctl_ok = ctl_ok and WD.winding_number(sq, (9, 9)) == 0
+        self.record("winding:controls", ctl_ok,
+                    "ccw +1 / cw −1 / figure-eight lobe −1 pinned; exterior probe 0" if ctl_ok
+                    else "a sign control drifted")
+        poly, probe = WD.ccw_square()
+        w0 = WD.winding_number(poly, probe)
+        inv_ok = all(WD.winding_number(poly[k:] + poly[:k], probe) == w0 for k in (1, 2, 3))
+        a, b = poly[0], poly[1]
+        mid = ((a[0] + b[0]) // 2, (a[1] + b[1]) // 2)
+        inv_ok = inv_ok and WD.winding_number([poly[0], mid] + poly[1:], probe) == w0
+        lp, lpr = WD.loewner_wave()
+        lw = WD.winding_number(lp, lpr)
+        inv_ok = inv_ok and all(WD.winding_number(lp[k:] + lp[:k], lpr) == lw
+                                for k in (1, 20, 39))
+        inv_ok = inv_ok and WD.winding_number(list(reversed(poly)), probe) == -w0
+        self.record("winding-invariance", inv_ok,
+                    "cyclic rotation + integer subdivision preserve w; reversal negates (covariance)"
+                    if inv_ok else "a ~-transformation moved the invariant")
+        prop_ok, n_probes = True, 0
+        for _name, (builder, probes) in WD.LOEWNER.items():
+            p2, _pr = builder()
+            for pr in probes():
+                n_probes += 1
+                prop_ok = prop_ok and WD.winding_number(p2, pr) >= 0
+        self.record("winding-loewner", prop_ok,
+                    f"all {n_probes} pinned probes on both Loewner scenes have w ≥ 0 "
+                    "(corpus-scoped; the smooth theorem is provenance, not a claim)" if prop_ok
+                    else "a pinned Loewner probe wound negatively")
+        cwp, cwpr = WD.cw_square()
+        defect_ok = (WD.winding_number(cwp, cwpr) == -1
+                     and WD.winding_defect(cwp, cwpr) == 1)
+        self.record("winding-selftest", defect_ok,
+                    "the unsigned parity count misreads cw −1 as +1 (gate can redden)" if defect_ok
+                    else "the parity defect did not misclassify")
+        codes = []
+        for bad_poly, bad_probe in (([(0, 0), (4, 0)], (1, 1)),
+                                    ([(0, 0), (4, 0), (4, 0), (0, 4)], (1, 1)),
+                                    ([(0, 0), (4.0, 0), (0, 4)], (1, 1)),
+                                    ([(0, 0), (4, 0), (0, 4)], (2, 0))):
+            try:
+                WD.winding_number(bad_poly, bad_probe)
+                codes.append(None)
+            except WD.WindingError as exc:
+                codes.append(exc.code)
+        ref_total = all(c == "WIND-REFUSE" for c in codes)
+        self.record("winding-refusal", ref_total,
+                    "4/4 WIND-REFUSE typed and total (short / degenerate / float / on-trace)"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -3215,6 +3310,10 @@ class Gate:
                        "invariance": "persim-invariance",
                        "defect": "persim-selftest",
                        "refusal": "persim-refusal"},
+            "winding": {"reference": "winding:loewner",
+                        "invariance": "winding-invariance",
+                        "defect": "winding-selftest",
+                        "refusal": "winding-refusal"},
         }
         roles = ("reference", "invariance", "defect", "refusal")
         recorded = {name: ok for (name, ok, _d) in self.rows}
@@ -3363,6 +3462,7 @@ def main() -> int:
     gate.criticality()
     gate.toric()
     gate.persim()
+    gate.winding()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
