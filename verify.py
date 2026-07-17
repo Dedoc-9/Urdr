@@ -2731,13 +2731,13 @@ class Gate:
             return
         N_OWN = 2  # rows THIS method records below — keep == the record() count
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
-                              len(self.rows) + N_OWN)
+                              len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
         ok = (not probs) and live["fals"] >= 0
         if ok:
             detail = ("docs quote live counts: %d Rust / %d C99 placements, "
-                      "%d unit falsifiers, %d rows"
-                      % (live["rust"], live["c"], live["fals"], live["rows"]))
+                      "%d unit falsifiers, %d rows, %d detectors"
+                      % (live["rust"], live["c"], live["fals"], live["rows"], live["det"]))
         else:
             detail = "stale: " + "; ".join(
                 "%s says %s=%d (live %d)" % (d, k, g, e) for d, k, g, e in probs[:5])
@@ -4072,6 +4072,7 @@ class Gate:
                                    "defect": "reconstruct-forgery-selftest",
                                    "refusal": "reconstruct-deficient"},
         }
+        self.n_detectors = len(manifest)  # single source for the doc-currency detector-count check
         roles = ("reference", "invariance", "defect", "refusal")
         recorded = {name: ok for (name, ok, _d) in self.rows}
 

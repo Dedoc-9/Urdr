@@ -188,7 +188,7 @@ the alphabet proved invariant.
    theorem-backed: pinned Loewner-1948 curves wind non-negatively at every pinned probe); the
    lint now enforces **eight detectors** — and the **Tellegen-orthogonality detector**
    (`tools/intla/tellegen.py`, D19's second constraint instrument, the first graph-theoretic
-   domain: network flows) followed under the same six conditions, making **nine**. The C8
+   domain: network flows) followed under the same six conditions, making **nine**; and the **reconstructibility detector** (`tools/intla/atlas_reconstruct.py`, D17's information-security reading — exact recovery of a state from its over-determined observation, or a typed refusal) after that, making **ten**. The C8
    discipline governs
    whether any of them ever needs a new *primitive* rather than a new *detector*.
 

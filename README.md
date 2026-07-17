@@ -464,7 +464,7 @@ revisions are now **MEASURED** and have moved into the pipeline above: **N5** (a
 frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contract, frozen), **D16**
 (regional authority — frozen, three placements), **D17** (the invariant-detector admission law — a
 *meta-contract* that names the pattern D14/D15/D16 already share; mechanically enforced by the
-`invariant_detectors` lint), a **ten-detector library** admitted under it (D14, D15, D16, rigidity, criticality, toric code, persistent homology, winding number, Tellegen orthogonality, reconstructibility), **criticality** (P6, reactor-kinetics field), and
+`invariant_detectors` lint), a **10-detector library** admitted under it (D14, D15, D16, rigidity, criticality, toric code, persistent homology, winding number, Tellegen orthogonality, reconstructibility), **criticality** (P6, reactor-kinetics field), and
 **field-level desync localization** (Phase-2 observability). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
 
 - **Phase IV — coverage over architecture (the current direction).** With D17 written and enforced, the

@@ -87,10 +87,10 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED`, 605/416). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 636 unit falsifiers / 432 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
-  is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc).
+  is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.
 - Determinism is the floor: set `PYTHONHASHSEED=0`; on Windows redirect output with
   `PYTHONUTF8=1`. A number is not a result until it carries its host (`bench_protocol.md`).
 - Tools graded outside the gate (`voi_gate`, `world_host`, `editor`) say so in their own

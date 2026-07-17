@@ -44,6 +44,8 @@ _PATTERNS = [
     (re.compile(r"\b\d+\s*/\s*(\d+)\s+rows"), "rows"),
     (re.compile(r"(\d+)\s+(?:[\w-]+,?\s+){0,3}Rust\b"), "rust"),
     (re.compile(r"(\d+)\s+C99"), "c"),
+    # detector-library count — anchored so "D17 detector" (the spec name) is NOT read as "17".
+    (re.compile(r"\b(\d+)[\s-]detector"), "det"),
 ]
 
 
@@ -59,10 +61,11 @@ def count_placements(root):
     return rs, c
 
 
-def live_counts(root, falsifiers, rows):
-    """The single source of truth: placements from disk, falsifiers + rows from the gate."""
+def live_counts(root, falsifiers, rows, detectors=-1):
+    """The single source of truth: placements from disk; falsifiers, rows, and the admitted-
+    detector count from the gate (detectors == len of the D17 `invariant_detectors` manifest)."""
     rs, c = count_placements(root)
-    return {"rust": rs, "c": c, "fals": int(falsifiers), "rows": int(rows)}
+    return {"rust": rs, "c": c, "fals": int(falsifiers), "rows": int(rows), "det": int(detectors)}
 
 
 def scan(text):
@@ -105,9 +108,17 @@ def comma_defect_text(live):
     return "Measured across %d independent, single-file Rust placements." % (live["rust"] + 1)
 
 
+def det_defect_text(live):
+    """A synthetic snippet quoting a WRONG admitted-detector count — the checker must flag it.
+    Guards the idiom that silently drifted 7 -> 10 while it was written only in word form."""
+    return "The invariant_detectors lint now enforces %d detectors." % (live["det"] + 1)
+
+
 def defect_is_caught(live):
-    """True iff `scan` flags BOTH planted stale counts (plain + comma-hidden) — the
-    non-vacuity of the checker, covering the word-boundary escape."""
+    """True iff `scan` flags ALL THREE planted stale counts (plain falsifier + comma-hidden
+    placement + detector) — the non-vacuity of the checker, covering the word-boundary escape
+    and the detector idiom."""
     plain = any(key == "fals" and got != live["fals"] for key, got in scan(defect_text(live)))
     comma = any(key == "rust" and got != live["rust"] for key, got in scan(comma_defect_text(live)))
-    return plain and comma
+    det = any(key == "det" and got != live["det"] for key, got in scan(det_defect_text(live)))
+    return plain and comma and det

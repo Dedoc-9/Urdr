@@ -17,7 +17,7 @@ if _SPEC not in sys.path:
 
 import doc_currency as DC  # noqa: E402
 
-_LIVE = {"rust": 21, "c": 12, "fals": 519, "rows": 374}
+_LIVE = {"rust": 21, "c": 12, "fals": 519, "rows": 374, "det": 7}
 
 
 class StaleIsCaught(unittest.TestCase):
