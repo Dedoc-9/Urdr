@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- Copyright (C) 2026 Daniel J. Dillberg -->
+<!-- T3.3 — the WebGL2 wave-seam view (v2, presentation overhaul). DECLARED, off-gate, browser
+     float, NOT measured. Dependency-free raw WebGL2. The DATA is certified authority (URDRHF1
+     island heightfield + URDRWAV1 wave components); the GPU renders a float Gerstner sea from the
+     SAME wave parameters — same model, two grades. Improvements over v1: depth-correct water
+     (deep=dark, shallow=bright, was inverted), calm waves + shoreline/crest foam + depth
+     transparency, a solid subdivided TERRAIN SLAB (grounds the island), a sky gradient, distance
+     fog, and ACES tone mapping. Idle law: rAF only while animating. -->
+<html lang="en"><head><meta charset="utf-8"><title>Urðr — wave-seam view (T3.3)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}
+body{margin:0;background:#06060a;color:#e8e8ef;font:13px/1.5 ui-sans-serif,system-ui,sans-serif;display:flex;min-height:100vh;overflow:hidden}
+#stage{flex:1;position:relative}canvas{width:100%;height:100vh;display:block;cursor:grab}canvas:active{cursor:grabbing}
+#err{position:absolute;top:12px;left:12px;right:12px;background:#3a0f14;color:#ffb0b8;border:1px solid #6a1c28;border-radius:6px;padding:12px;font-family:ui-monospace,monospace;font-size:11px;white-space:pre-wrap;display:none;z-index:9}
+#panel{width:310px;padding:20px;background:#101016;border-left:1px solid #22222c;overflow-y:auto;height:100vh}
+h1{font-size:15px;margin:0 0 2px}.sub{color:#8a8a99;font-size:11px;margin-bottom:16px}
+.grade{display:inline-block;font-size:9.5px;padding:2px 7px;border-radius:4px;font-weight:600;letter-spacing:.02em}
+.measured{background:#0f3320;color:#5fe0a0;border:1px solid #1c5a38}.declared{background:#332a0f;color:#e0c05f;border:1px solid #5a4a1c}
+.wit{font-family:ui-monospace,monospace;font-size:9.5px;word-break:break-all;background:#0b0b11;padding:7px;border-radius:4px;border:1px solid #22222c;margin:5px 0 2px}
+.wit.hf{color:#7fb4ff}.wit.wv{color:#7fe0c0}
+label{display:block;margin:15px 0 3px;color:#b8b8c4;font-size:11px}.rowv{float:right;color:#8a8a99;font-family:ui-monospace,monospace;font-size:10px}
+input[type=range]{width:100%}button{background:#1a2a44;color:#cfe0ff;border:1px solid #2c4468;border-radius:5px;padding:7px 12px;font-size:12px;cursor:pointer;margin-right:6px}button:hover{background:#22355a}
+.sect{margin-top:18px;padding-top:14px;border-top:1px solid #22222c}.note{font-size:10px;color:#6a6a78;margin-top:12px;line-height:1.5}
+#vd{font-family:ui-monospace,monospace;font-size:9.5px;color:#c0a0e0;word-break:break-all}.stat{font-family:ui-monospace,monospace}#frames{color:#5fe0a0}#anim{color:#e0c05f}
+</style></head><body>
+<div id="stage"><canvas id="c"></canvas><div id="err"></div></div>
+<div id="panel">
+<h1>Wave-seam view</h1><div class="sub">T3.3 · the boundary, in 3D</div>
+<div><span class="grade measured">AUTHORITY · MEASURED</span></div>
+<div style="margin:8px 0 2px;color:#8a8a99;font-size:11px">island heightfield — URDRHF1</div><div class="wit hf" id="whf"></div>
+<div style="margin:8px 0 2px;color:#8a8a99;font-size:11px">wave field, swell@0 — URDRWAV1 (exact integer, division-free)</div><div class="wit wv" id="wwv"></div>
+<div class="note">The water renders a float <b>Gerstner sea</b> from the SAME (amplitude, direction,
+period, speed) the exact integer field uses. Colour is depth (deep→dark, shallow→bright), with
+shoreline foam — all presentation. Same model, two grades.</div>
+<div style="margin:14px 0 2px"><span class="grade declared">PRESENTATION · DECLARED</span></div>
+<label>Wave height <span class="rowv" id="wavev"></span></label><input type="range" id="wave" min="0" max="220" value="100">
+<label>Sun elevation <span class="rowv" id="sunv"></span></label><input type="range" id="sun" min="8" max="88" value="42">
+<label>Exposure <span class="rowv" id="expv"></span></label><input type="range" id="exp" min="60" max="150" value="100">
+<div class="sect"><button id="play">▶ Animate</button><button id="reset">Reset view</button>
+<div style="margin-top:12px" class="note">Drag to orbit · wheel to zoom.</div>
+<div style="margin-top:10px"><span style="color:#8a8a99">view digest (presentation)</span><div id="vd"></div></div>
+<div style="margin-top:10px"><span style="color:#8a8a99">frames drawn</span> <span class="stat" id="frames">0</span> · animating <span class="stat" id="anim">no</span></div>
+<div class="note">Idle law: a frame is drawn on input, and continuously only while animating. Stop and
+orbit nothing — the counter holds. <b>Semel</b> the authority is measured; <b>et iterum</b> this
+render is declared; <b>idem</b> the boundary never moves.</div></div></div>
+<script>
+const D = {"w":64,"h":64,"hscale":420,"sealevel":130,"heights":[0,12,23,33,43,51,60,68,77,85,93,101,109,115,121,124,127,129,133,138,144,150,155,157,158,158,157,155,153,150,148,147,147,147,147,148,150,153,156,161,166,170,174,177,179,179,178,176,173,169,163,156,147,136,123,110,96,81,67,53,40,27,13,0,12,23,35,45,54,62,70,79,88,96,104,112,120,126,132,135,137,140,143,148,154,160,165,168,168,168,167,164,162,159,157,156,155,155,155,157,159,162,167,171,177,182,187,189,192,193,192,190,187,184,178,171,163,152,139,125,111,96,82,68,54,41,27,13,23,35,46,56,65,73,81,89,98,107,115,123,130,136,142,145,148,150,153,157,163,168,172,174,174,174,173,171,168,165,163,162,162,162,162,163,166,170,175,180,185,191,196,199,202,203,202,201,199,195,191,185,176,166,154,140,125,110,95,81,67,54,40,26,33,45,55,65,74,83,91,100,109,118,126,134,141,147,152,155,158,158,161,165,169,172,175,176,176,175,174,172,169,166,164,163,163,163,164,166,170,174,179,185,191,197,202,206,208,209,209,208,205,203,199,194,187,178,166,153,138,123,108,94,79,66,52,38,42,53,64,74,83,92,102,110,119,128,137,144,151,157,162,165,167,168,170,171,173,174,176,175,171,168,165,162,160,157,156,155,155,156,157,159,164,169,176,184,193,199,205,207,209,210,210,209,208,206,204,200,195,187,177,164,150,135,120,105,90,76,62,49,50,60,71,81,91,101,111,120,130,138,147,155,161,167,171,174,175,177,176,177,176,172,168,164,160,157,154,151,150,148,148,147,147,148,149,151,156,161,168,176,184,193,200,206,208,208,207,207,207,205,204,203,200,194,186,173,160,145,130,115,100,85,72,59,57,67,78,88,99,109,120,130,140,148,156,164,170,176,180,183,184,185,184,179,173,166,160,155,151,147,144,142,141,140,140,140,140,140,141,144,148,154,160,167,175,183,190,195,200,204,204,203,203,202,202,203,201,198,191,181,168,154,139,124,108,94,80,67,64,74,84,95,106,117,128,139,148,157,165,173,179,184,189,191,192,189,184,177,170,163,156,150,145,141,138,135,134,134,134,134,134,134,135,138,142,147,153,159,166,173,179,184,187,191,195,198,199,198,200,201,201,200,195,186,174,160,147,132,116,102,88,75,71,81,91,102,114,125,135,146,156,165,173,181,187,193,196,197,193,189,183,177,169,161,154,148,142,138,134,131,130,129,129,129,129,129,130,133,137,141,146,152,158,164,169,173,176,179,182,187,192,193,196,198,200,200,197,188,178,165,152,138,123,109,96,83,78,88,98,109,120,131,142,153,162,171,180,188,194,200,200,197,193,188,183,176,169,161,153,146,140,135,131,128,126,125,125,125,125,125,126,128,132,136,140,145,150,155,159,162,165,167,170,174,179,185,190,193,197,198,196,189,180,169,156,143,129,115,102,90,85,95,105,116,127,138,149,159,169,178,187,195,202,203,200,197,193,189,184,177,169,161,152,145,139,133,129,126,124,123,122,122,122,123,123,125,128,131,135,138,143,147,150,153,155,156,159,163,168,173,181,188,191,193,191,186,177,168,157,145,132,120,107,95,92,102,112,122,134,144,155,165,175,184,194,202,204,203,202,199,195,191,186,179,170,162,153,146,139,133,128,125,123,122,122,122,122,122,122,123,125,127,130,133,136,140,143,145,146,148,151,154,159,164,170,177,183,184,183,178,171,163,154,144,133,122,111,99,100,110,119,130,140,151,161,171,182,191,200,204,205,205,203,201,197,193,188,181,172,163,154,147,140,133,128,125,123,122,122,122,122,122,123,123,124,125,127,129,131,134,137,139,140,142,145,148,152,156,161,166,171,174,171,167,161,155,148,140,132,123,113,103,106,116,126,137,147,156,167,177,187,196,201,203,205,205,205,203,199,195,190,183,174,165,156,148,140,134,129,126,124,123,124,124,124,124,124,123,123,124,124,126,127,130,132,134,136,138,140,143,147,150,153,156,158,159,159,154,150,144,139,134,128,122,113,104,112,122,132,142,151,161,171,180,190,197,199,202,204,205,205,203,200,196,191,184,175,165,156,148,141,134,129,126,125,124,124,125,125,125,124,124,123,122,122,123,124,126,128,130,132,134,136,139,142,145,147,147,146,145,145,143,139,134,131,128,124,119,113,104,116,126,136,145,154,164,173,183,192,194,196,199,202,203,203,202,199,195,190,183,174,165,156,147,140,134,129,126,124,124,124,125,125,125,124,123,122,121,121,121,122,123,125,126,128,130,132,134,137,139,140,139,136,134,133,133,130,127,124,122,119,116,110,103,118,128,138,147,156,165,175,184,188,190,193,195,198,200,200,199,196,193,188,181,172,163,154,146,139,133,128,125,123,123,123,124,124,124,123,122,121,120,119,119,120,121,122,123,124,126,127,129,131,133,133,131,128,125,123,123,124,120,118,116,115,112,108,101,121,130,139,148,157,166,175,182,184,186,189,192,195,197,197,196,193,190,186,179,170,161,152,144,137,131,126,123,122,122,122,122,122,122,122,121,119,118,117,117,118,118,119,120,121,122,123,124,126,127,126,124,120,117,114,114,115,114,112,111,110,108,104,97,123,132,141,150,159,168,177,180,182,184,187,190,193,195,195,194,192,189,184,177,168,158,149,141,134,128,124,121,120,120,121,121,121,121,121,120,119,117,117,116,116,117,117,118,118,119,120,121,122,123,122,118,114,110,107,106,107,108,107,106,105,104,100,95,125,135,144,152,162,171,177,179,182,184,187,190,192,194,194,193,191,188,183,175,165,154,145,137,130,125,121,119,118,119,120,120,120,120,120,119,119,118,118,117,117,117,117,118,119,120,121,121,122,122,120,116,110,105,101,99,100,101,101,101,101,100,98,93,128,137,146,156,165,174,178,180,183,186,189,191,193,194,194,193,191,188,182,174,162,151,140,132,127,122,119,117,118,119,120,121,121,121,121,121,121,121,120,120,119,119,119,120,121,123,124,124,124,124,121,116,109,102,97,94,94,95,96,97,98,98,96,91,131,140,150,158,169,176,178,181,185,188,190,193,194,195,194,193,191,188,182,173,160,148,137,129,124,121,118,118,119,121,123,124,124,124,124,125,125,126,126,125,124,123,123,124,125,127,129,129,129,128,124,118,110,101,95,91,90,90,93,95,96,96,95,90,132,142,151,160,170,175,178,181,185,189,192,194,195,195,195,193,191,189,183,172,160,146,136,128,125,122,121,122,124,126,129,130,130,130,131,131,132,133,133,132,130,129,128,129,131,133,135,135,134,133,129,121,112,102,94,90,88,88,89,92,94,95,93,90,132,141,151,160,170,172,176,180,184,188,191,194,195,195,194,193,191,189,183,173,160,147,137,131,128,127,127,129,132,135,138,139,139,139,140,141,142,143,142,141,139,136,135,136,138,140,141,141,140,138,133,125,115,104,95,90,87,86,87,91,93,94,93,89,131,140,149,158,166,169,172,177,181,186,190,192,194,194,194,193,191,189,183,173,161,149,140,135,134,134,135,138,142,146,149,151,151,151,152,152,153,153,153,151,148,145,143,144,145,146,147,147,145,143,138,129,118,107,97,91,88,86,86,90,93,93,92,88,129,138,147,156,161,164,168,173,178,183,187,190,192,193,193,192,191,188,183,174,162,152,144,140,140,142,145,148,153,158,161,162,163,163,163,164,165,165,164,161,158,154,152,151,152,153,154,153,151,149,143,134,123,111,101,94,90,87,87,90,93,94,92,89,127,135,143,151,155,158,162,166,172,177,182,186,188,190,190,189,188,186,181,173,164,155,150,148,149,152,156,160,165,169,172,173,174,174,174,175,176,176,175,172,168,164,161,160,160,161,161,160,158,155,150,141,129,118,108,100,95,92,91,93,96,96,94,90,124,132,138,146,147,148,152,156,162,168,173,177,181,183,183,183,182,180,176,171,165,160,157,158,161,164,168,172,176,179,181,182,183,183,183,185,186,187,186,183,178,174,171,169,169,169,169,168,166,163,157,149,138,128,118,110,105,101,99,99,102,100,97,92,120,127,134,139,138,138,140,144,150,156,162,167,171,174,175,175,174,172,170,168,166,165,166,169,173,177,181,184,187,188,189,189,189,189,191,193,195,196,195,193,188,183,179,177,177,177,176,175,173,170,165,158,148,139,130,123,117,112,109,108,109,106,101,96,117,124,130,132,130,128,129,132,138,145,151,157,161,165,167,167,166,165,164,165,167,170,174,179,184,189,192,194,195,195,194,194,194,194,195,198,201,203,203,200,196,190,186,184,183,183,182,181,179,176,171,165,157,149,141,134,129,123,119,117,116,111,105,100,115,122,126,128,123,120,120,123,129,136,142,149,154,158,160,161,160,159,159,162,167,174,180,186,192,197,200,201,201,199,197,196,196,196,198,201,205,208,208,206,201,195,191,189,188,187,187,185,183,180,176,170,164,157,150,143,137,132,127,124,121,116,109,102,113,120,125,125,120,117,116,119,125,132,138,145,150,155,157,158,157,156,157,161,168,175,183,190,195,201,204,205,203,201,199,197,197,197,199,203,207,210,210,208,203,198,193,191,190,189,189,187,184,182,178,173,167,161,154,147,141,136,131,127,124,118,110,104,113,120,124,125,120,116,115,118,124,131,137,144,150,154,157,157,156,155,157,161,168,176,184,190,196,201,205,205,204,201,199,197,197,198,200,203,207,210,211,208,203,198,194,191,190,190,189,187,185,182,178,173,168,161,155,148,142,137,132,128,125,119,110,104,113,120,125,125,120,117,116,119,125,132,138,145,150,154,156,157,156,155,156,161,167,175,183,190,196,201,204,205,203,201,199,198,197,198,199,203,207,210,210,208,203,198,193,191,190,189,188,187,184,181,178,173,167,161,155,148,142,137,132,128,125,117,110,104,114,121,126,127,123,121,121,124,130,136,142,147,152,155,156,156,155,154,155,159,165,173,180,186,192,197,201,202,202,200,198,197,197,198,199,202,206,208,208,206,201,196,191,189,187,186,185,183,181,178,175,171,166,161,155,149,143,137,132,128,124,117,110,102,115,122,128,132,130,129,130,134,140,145,150,153,155,155,155,154,153,152,153,156,161,167,174,180,185,190,194,196,197,197,197,197,197,197,198,200,203,204,204,201,197,192,188,184,182,180,179,177,174,172,169,167,164,160,156,150,144,139,133,128,124,115,107,100,117,124,132,139,139,141,144,148,153,157,160,161,159,156,153,151,150,149,149,151,155,160,165,170,175,180,184,188,191,193,194,195,195,195,196,197,198,198,197,195,191,186,182,179,176,173,171,168,166,164,162,161,161,160,157,152,147,141,135,129,124,114,106,98,121,129,137,146,151,154,158,163,167,170,171,168,163,157,151,148,146,145,145,146,149,152,156,160,164,168,173,178,183,187,190,191,191,191,191,192,192,191,190,187,184,180,177,173,169,166,163,160,158,156,156,157,159,160,159,155,150,144,137,131,124,113,104,96,126,134,144,155,162,167,172,176,179,181,179,174,166,157,149,145,143,142,141,142,143,145,148,151,154,157,162,168,174,179,183,185,185,185,185,184,184,183,181,179,177,175,172,168,165,161,158,155,153,151,152,155,158,161,162,159,153,147,140,133,123,112,102,94,132,141,151,163,174,179,183,186,187,188,184,177,166,156,147,142,140,139,138,138,138,139,141,143,145,148,152,157,164,170,174,176,176,176,176,176,175,174,173,172,171,170,168,166,162,159,156,154,152,151,152,155,160,164,165,163,157,150,143,136,125,113,103,95,139,148,159,171,184,188,191,192,192,191,186,177,165,154,144,139,137,136,135,135,135,135,136,137,138,140,143,148,154,159,164,166,166,166,166,166,165,165,166,166,166,167,166,165,163,160,158,156,154,153,155,159,164,168,170,167,161,155,148,140,127,114,104,95,145,155,166,177,190,196,198,198,196,193,187,177,164,152,142,137,135,134,133,132,132,132,132,132,132,133,135,139,145,150,153,155,156,156,156,156,156,157,158,159,161,163,164,164,163,162,161,159,158,158,160,164,169,173,174,172,166,159,152,142,128,115,105,97,147,159,170,182,195,203,204,203,199,195,187,177,164,151,142,137,135,134,133,133,132,132,131,130,130,130,131,134,138,142,145,147,147,147,147,147,147,147,149,151,154,158,161,163,164,165,166,165,165,165,166,170,175,178,179,176,170,163,156,143,129,116,105,96,148,159,170,183,196,207,208,206,201,196,188,177,164,153,144,139,138,137,136,136,135,135,134,133,132,131,131,133,135,138,141,142,142,142,141,140,138,138,139,142,146,151,156,161,166,170,173,174,174,174,176,178,181,183,182,178,172,166,157,142,127,114,103,94,146,156,169,181,194,206,211,208,202,195,187,177,165,155,147,143,142,141,141,141,141,141,140,139,137,135,134,135,136,137,139,139,140,139,138,134,131,129,129,132,137,143,150,159,168,176,181,184,185,186,187,188,188,188,185,181,175,168,156,140,125,111,99,90,140,151,163,176,190,201,211,207,201,194,186,176,166,157,151,147,146,145,145,146,146,147,146,145,143,141,139,138,138,138,138,139,139,138,136,131,125,121,120,123,129,136,145,157,170,181,190,194,196,197,198,198,196,193,189,183,177,171,155,139,123,109,97,88,134,145,157,169,183,195,205,206,199,192,184,175,166,158,152,149,148,148,148,149,150,151,151,149,147,145,142,141,139,139,138,138,138,138,134,128,121,115,113,116,122,130,142,156,171,186,197,203,206,207,208,206,203,199,193,187,182,171,155,138,122,108,96,87,126,137,148,162,175,187,196,201,196,189,181,172,164,157,152,149,148,148,148,149,151,152,152,151,148,146,143,141,139,138,137,137,137,136,133,126,118,111,109,112,119,127,140,155,173,189,201,209,212,214,215,214,210,205,199,194,186,173,157,140,124,109,96,87,118,129,140,153,166,178,187,192,193,185,177,169,160,154,149,146,146,145,146,147,149,150,150,149,146,144,141,139,138,136,136,135,135,134,131,124,116,109,107,110,117,127,139,156,174,191,204,212,216,219,221,220,216,212,206,201,189,175,160,143,126,111,99,89,110,121,132,144,157,168,177,182,185,181,173,165,157,150,145,143,142,142,143,144,146,147,147,146,143,141,138,136,135,134,133,133,133,132,129,122,114,108,105,109,116,126,139,156,174,192,206,215,219,223,225,225,222,218,213,204,191,177,162,145,129,114,101,91,103,113,124,136,148,159,168,173,174,174,169,161,153,146,141,139,138,138,139,139,140,140,140,138,136,134,132,131,131,131,131,131,131,131,127,121,113,107,105,108,116,126,139,156,174,191,204,214,219,223,226,226,225,222,215,202,190,176,162,147,131,116,103,93,95,106,116,127,139,149,157,162,164,164,163,156,148,141,136,134,133,133,133,133,132,131,129,127,125,123,122,123,124,127,129,130,130,129,126,120,113,107,105,109,117,127,139,155,171,186,199,208,214,219,223,224,223,220,209,197,185,174,160,145,132,118,106,95,88,98,107,118,129,138,146,150,153,153,152,150,143,135,131,128,128,128,127,125,122,119,115,113,110,109,109,112,117,122,126,128,129,128,125,119,113,108,106,110,118,127,139,152,166,179,190,199,205,211,215,218,217,208,199,190,179,168,156,144,132,120,109,97,80,89,99,109,119,127,134,139,141,142,141,138,136,130,125,122,122,122,120,116,112,106,102,98,96,95,96,102,109,117,124,127,128,127,124,119,113,108,107,110,118,127,137,148,159,170,180,188,195,201,206,208,203,197,189,181,172,162,152,142,132,121,110,99,71,80,89,99,108,116,123,127,130,130,130,128,125,122,119,117,116,116,114,109,103,96,90,86,84,83,86,93,103,114,122,126,126,126,123,118,112,107,106,109,116,124,133,142,151,160,169,176,184,190,193,192,188,184,178,172,164,156,148,139,130,120,110,98,61,70,79,88,96,104,111,115,118,119,120,118,115,112,111,112,112,111,109,104,96,89,83,79,77,76,80,88,99,111,120,124,125,125,122,117,110,105,104,106,112,119,127,135,143,151,159,166,174,177,178,177,175,172,168,163,157,150,143,136,127,118,106,94,52,60,69,77,85,93,99,104,107,109,109,108,106,104,103,104,106,107,105,100,92,85,79,75,74,73,77,85,97,109,118,123,124,123,120,115,108,103,100,101,107,113,120,127,135,142,150,157,160,163,163,164,163,161,158,155,150,144,138,131,123,113,101,88,43,51,59,67,75,82,88,93,97,99,100,99,97,95,94,96,98,101,101,96,89,82,77,73,72,72,75,84,95,107,116,121,122,121,118,113,106,99,96,97,101,106,113,119,126,134,138,142,145,148,150,151,151,150,149,146,143,138,132,125,117,107,95,81,35,42,50,57,65,72,78,83,86,89,91,90,89,87,87,88,91,94,94,92,87,81,76,73,72,72,76,84,94,105,113,117,118,117,114,109,101,95,91,91,94,99,105,111,117,122,127,132,135,138,139,141,141,141,140,139,136,132,126,119,110,99,86,72,27,34,42,49,56,63,69,74,78,80,82,82,81,80,80,82,85,87,88,86,83,80,78,76,75,75,78,84,92,101,107,110,111,110,108,102,96,89,85,85,87,91,95,101,107,113,120,124,127,130,132,134,134,135,134,133,130,126,120,112,103,91,77,61,20,27,34,41,48,54,60,65,69,72,74,75,75,74,74,75,78,81,82,83,81,79,78,77,78,79,81,86,91,96,100,102,103,102,100,95,89,82,78,76,77,79,84,91,99,108,115,120,123,125,126,128,128,129,128,127,124,119,112,104,93,80,65,49,13,20,27,34,40,47,52,57,62,65,67,68,68,68,68,70,72,76,77,78,78,78,78,78,79,80,81,83,86,88,90,92,92,90,88,84,78,73,68,68,67,69,75,82,93,102,111,117,119,121,122,122,123,122,121,119,116,110,103,93,81,67,51,34,6,13,20,27,33,39,45,50,54,58,60,62,62,62,63,65,67,70,72,74,75,76,77,77,78,79,80,80,80,81,81,81,81,80,78,75,70,65,62,60,60,62,67,76,87,97,107,111,114,115,115,115,115,114,112,109,105,99,90,79,67,52,35,17,0,6,13,20,26,32,38,43,47,51,54,55,56,57,57,60,62,65,67,69,71,72,73,74,75,76,76,76,75,74,74,74,74,73,72,68,64,60,56,55,55,56,62,70,81,92,100,105,107,107,107,106,105,103,101,97,92,85,75,64,50,35,18,0],"waves":[{"amp":24,"dir":[1.0,0.0],"period":8,"freq":0.7853981633974483,"speed":1,"steep":0.6},{"amp":16,"dir":[0.0,1.0],"period":8,"freq":0.7853981633974483,"speed":1,"steep":0.6},{"amp":8,"dir":[0.7071067811865475,0.7071067811865475],"period":8,"freq":0.7853981633974483,"speed":2,"steep":0.6}],"hf_witness":"7243652eb97adf557f336d7417ed19a769ea60764e1354f68f29e8b7b55cb222","wave_witness":"31be244d80332b72e56005dfca78ed9ab606b768403d54f8d1f70cf4859a049e"};
+const cv=document.getElementById("c");
+function fail(m){const e=document.getElementById("err");e.style.display="block";e.textContent=m;console.error(m);}
+const gl=cv.getContext("webgl2",{antialias:true});
+if(!gl) fail("WebGL2 is not available here. The view is declared presentation; the certified data is unaffected.");
+function mMul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s;}return o;}
+function mPersp(f,a,n,fr){const t=1/Math.tan(f/2),o=new Float32Array(16);o[0]=t/a;o[5]=t;o[10]=(fr+n)/(n-fr);o[11]=-1;o[14]=2*fr*n/(n-fr);return o;}
+function vs(a,b){return[a[0]-b[0],a[1]-b[1],a[2]-b[2]];}
+function vn(a){const l=Math.hypot(a[0],a[1],a[2])||1;return[a[0]/l,a[1]/l,a[2]/l];}
+function vc(a,b){return[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];}
+function mLook(e,c,u){const f=vn(vs(c,e)),s=vn(vc(f,u)),v=vc(s,f),o=new Float32Array(16);
+  o[0]=s[0];o[4]=s[1];o[8]=s[2];o[1]=v[0];o[5]=v[1];o[9]=v[2];o[2]=-f[0];o[6]=-f[1];o[10]=-f[2];o[15]=1;
+  o[12]=-(s[0]*e[0]+s[1]*e[1]+s[2]*e[2]);o[13]=-(v[0]*e[0]+v[1]*e[1]+v[2]*e[2]);o[14]=(f[0]*e[0]+f[1]*e[1]+f[2]*e[2]);return o;}
+function sh(t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){fail("shader:\n"+gl.getShaderInfoLog(s));return null;}return s;}
+function prog(v,f){const p=gl.createProgram();gl.attachShader(p,sh(gl.VERTEX_SHADER,v));gl.attachShader(p,sh(gl.FRAGMENT_SHADER,f));gl.linkProgram(p);if(!gl.getProgramParameter(p,gl.LINK_STATUS)){fail("link:\n"+gl.getProgramInfoLog(p));return null;}return p;}
+
+const YS=0.06, SEAY=D.sealevel*YS, BASE=-6, N=D.w, M=D.h;
+function terra(h){const t=h/D.hscale,S=[[0,[74,116,72]],[.30,[130,176,92]],[.52,[201,193,120]],[.74,[150,120,82]],[1,[236,236,240]]];
+  for(let i=1;i<S.length;i++){if(t<=S[i][0]){const a=S[i-1],b=S[i],f=(t-a[0])/(b[0]-a[0]);return[a[1][0]+(b[1][0]-a[1][0])*f,a[1][1]+(b[1][1]-a[1][1])*f,a[1][2]+(b[1][2]-a[1][2])*f].map(v=>v/255);}}return S[4][1].map(v=>v/255);}
+function hB(fx,fz){fx=Math.max(0,Math.min(N-1,fx));fz=Math.max(0,Math.min(M-1,fz));
+  const x0=Math.floor(fx),z0=Math.floor(fz),tx=fx-x0,tz=fz-z0,x1=Math.min(N-1,x0+1),z1=Math.min(M-1,z0+1);
+  const a=D.heights[z0*N+x0],b=D.heights[z0*N+x1],c=D.heights[z1*N+x0],d=D.heights[z1*N+x1];
+  return (a*(1-tx)+b*tx)*(1-tz)+(c*(1-tx)+d*tx)*tz;}
+
+// ---- terrain SLAB: smooth subdivided top + skirt walls + bottom (grounds the island) ----
+function buildTerrain(){const S=120,pos=[],nrm=[],col=[],idx=[],dark=[0.13,0.11,0.10],e=(N-1)/S;
+  function pv(x,y,z,nx,ny,nz,r,g,b){pos.push(x,y,z);nrm.push(nx,ny,nz);col.push(r,g,b);return pos.length/3-1;}
+  const grid=[];
+  for(let j=0;j<=S;j++){const row=[];for(let i=0;i<=S;i++){const fx=i*e,fz=j*e,h=hB(fx,fz);
+    const hx=hB(fx+e,fz)-hB(fx-e,fz),hz=hB(fx,fz+e)-hB(fx,fz-e),n=vn([-hx*YS,2*e,-hz*YS]),c=terra(h);
+    row.push(pv(fx,h*YS,fz,n[0],n[1],n[2],c[0],c[1],c[2]));}grid.push(row);}
+  for(let j=0;j<S;j++)for(let i=0;i<S;i++){const a=grid[j][i],b=grid[j][i+1],c=grid[j+1][i],d=grid[j+1][i+1];idx.push(a,c,b,b,c,d);}
+  function wall(pts,nx,nz){for(let k=0;k<pts.length-1;k++){const p0=pts[k],p1=pts[k+1];
+    const t0=pv(p0[0],p0[1],p0[2],nx,0,nz,dark[0],dark[1],dark[2]),t1=pv(p1[0],p1[1],p1[2],nx,0,nz,dark[0],dark[1],dark[2]),
+          b0=pv(p0[0],BASE,p0[2],nx,0,nz,dark[0],dark[1],dark[2]),b1=pv(p1[0],BASE,p1[2],nx,0,nz,dark[0],dark[1],dark[2]);
+    idx.push(t0,b0,t1,t1,b0,b1);}}
+  const eW=[],eE=[],eN=[],eS=[];
+  for(let j=0;j<=S;j++){const fz=j*e;eW.push([0,hB(0,fz)*YS,fz]);eE.push([N-1,hB(N-1,fz)*YS,fz]);}
+  for(let i=0;i<=S;i++){const fx=i*e;eN.push([fx,hB(fx,0)*YS,0]);eS.push([fx,hB(fx,M-1)*YS,M-1]);}
+  wall(eW,-1,0);wall(eE,1,0);wall(eN,0,-1);wall(eS,0,1);
+  const b=[pv(0,BASE,0,0,-1,0,dark[0],dark[1],dark[2]),pv(N-1,BASE,0,0,-1,0,dark[0],dark[1],dark[2]),
+           pv(0,BASE,M-1,0,-1,0,dark[0],dark[1],dark[2]),pv(N-1,BASE,M-1,0,-1,0,dark[0],dark[1],dark[2])];
+  idx.push(b[0],b[1],b[2],b[2],b[1],b[3]);
+  return {pos:new Float32Array(pos),nrm:new Float32Array(nrm),col:new Float32Array(col),idx:new Uint32Array(idx)};}
+function buildWater(){const K=150,pos=[],dep=[],idx=[],sx=(N-1)/K,sz=(M-1)/K;
+  for(let j=0;j<=K;j++)for(let i=0;i<=K;i++){const x=i*sx,z=j*sz;pos.push(x,z);dep.push(D.sealevel-hB(x,z));}
+  for(let j=0;j<K;j++)for(let i=0;i<K;i++){const a=j*(K+1)+i,b=a+1,c=a+(K+1),d=c+1;idx.push(a,c,b,b,c,d);}
+  return {pos:new Float32Array(pos),dep:new Float32Array(dep),idx:new Uint32Array(idx)};}
+function bufA(d){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);return b;}
+function bufE(d){const b=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,b);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,d,gl.STATIC_DRAW);return b;}
+
+let skyP,terrP,watP,skyVAO,terrVAO,watVAO,terrN,watN;
+const ACES=`vec3 aces(vec3 x){return clamp((x*(2.51*x+0.03))/(x*(2.43*x+0.59)+0.14),0.0,1.0);}`;
+function initGL(){ if(!gl) return;
+  skyP=prog(`#version 300 es
+    precision highp float; in vec2 aP; out vec2 vUV; void main(){vUV=aP*0.5+0.5;gl_Position=vec4(aP,1.0,1.0);}`,
+    `#version 300 es
+    precision highp float; in vec2 vUV; out vec4 o;
+    void main(){vec3 hz=vec3(0.80,0.87,0.94),ze=vec3(0.30,0.52,0.83);o=vec4(mix(hz,ze,pow(vUV.y,0.85)),1.0);}`);
+  terrP=prog(`#version 300 es
+    precision highp float; in vec3 aPos; in vec3 aNormal; in vec3 aColor;
+    uniform mat4 uMVP; uniform vec3 uCam; out vec3 vC; out vec3 vN; out float vD;
+    void main(){vN=aNormal;vC=aColor;vD=length(uCam-aPos);gl_Position=uMVP*vec4(aPos,1.0);}`,
+    `#version 300 es
+    precision highp float; in vec3 vC; in vec3 vN; in float vD; out vec4 o;
+    uniform vec3 uSun; uniform float uExp; ${ACES}
+    void main(){float d=max(dot(normalize(vN),normalize(uSun)),0.0);
+      vec3 c=vC*(0.32+0.85*d)+vC*0.16;
+      float fog=1.0-exp(-max(vD-45.0,0.0)*0.0055); c=mix(c,vec3(0.76,0.84,0.92),fog);
+      o=vec4(aces(c*uExp),1.0);}`);
+  watP=prog(`#version 300 es
+    precision highp float; in vec2 aXZ; in float aDepth;
+    uniform mat4 uMVP; uniform vec3 uCam; uniform float uTime; uniform float uWave; uniform float uSeaY;
+    uniform vec2 uDir[3]; uniform float uFreq[3]; uniform float uSpeed[3]; uniform float uAmp[3]; uniform float uSteep[3];
+    out vec3 vW; out vec3 vN; out float vDepth; out float vCrest; out float vDist;
+    void main(){vec3 p=vec3(aXZ.x,uSeaY,aXZ.y);vec3 T=vec3(1.0,0.0,0.0);vec3 B=vec3(0.0,0.0,1.0);
+      for(int i=0;i<3;i++){float ph=uFreq[i]*dot(uDir[i],aXZ)-uSpeed[i]*uTime;float a=uAmp[i]*uWave;
+        float s=sin(ph),c=cos(ph),Q=uSteep[i];
+        p.x+=Q*a*uDir[i].x*c;p.z+=Q*a*uDir[i].y*c;p.y+=a*s;float WA=uFreq[i]*a;
+        T+=vec3(-Q*uDir[i].x*uDir[i].x*WA*s,uDir[i].x*WA*c,-Q*uDir[i].x*uDir[i].y*WA*s);
+        B+=vec3(-Q*uDir[i].x*uDir[i].y*WA*s,uDir[i].y*WA*c,-Q*uDir[i].y*uDir[i].y*WA*s);}
+      vN=normalize(cross(B,T));vW=p;vDepth=aDepth;vCrest=p.y-uSeaY;vDist=length(uCam-p);
+      gl_Position=uMVP*vec4(p,1.0);}`,
+    `#version 300 es
+    precision highp float; in vec3 vW; in vec3 vN; in float vDepth; in float vCrest; in float vDist; out vec4 o;
+    uniform vec3 uCam; uniform vec3 uSun; uniform float uExp; ${ACES}
+    void main(){ if(vDepth<=0.0) discard;
+      vec3 Nn=normalize(vN),V=normalize(uCam-vW),L=normalize(uSun);
+      float fres=0.02+0.98*pow(1.0-max(dot(Nn,V),0.0),5.0);
+      float t=clamp(vDepth/70.0,0.0,1.0);
+      vec3 water=mix(vec3(0.22,0.72,0.76),vec3(0.01,0.09,0.26),t);
+      vec3 col=mix(water,vec3(0.62,0.76,0.95),fres*0.5);
+      float foam=pow(1.0-smoothstep(1.5,8.0,vDepth),1.4);
+      float crest=smoothstep(0.16,0.42,vCrest);
+      col=mix(col,vec3(0.93,0.97,1.0),clamp(max(foam*0.85,crest*0.5),0.0,1.0));
+      vec3 Hh=normalize(L+V); col+=vec3(1.0,0.96,0.85)*pow(max(dot(Nn,Hh),0.0),140.0)*1.0;
+      col*=(0.55+0.55*max(dot(Nn,L),0.0));
+      float fog=1.0-exp(-max(vDist-45.0,0.0)*0.0055); col=mix(col,vec3(0.76,0.84,0.92),fog);
+      float alpha=max(mix(0.55,0.96,t),foam);
+      o=vec4(aces(col*uExp),alpha);}`);
+  if(!skyP||!terrP||!watP) return;
+  skyVAO=gl.createVertexArray();gl.bindVertexArray(skyVAO);
+  bufA(new Float32Array([-1,-1,1,-1,1,1,-1,-1,1,1,-1,1]));
+  {const l=gl.getAttribLocation(skyP,"aP");gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,2,gl.FLOAT,false,0,0);}
+  const T=buildTerrain();terrN=T.idx.length;terrVAO=gl.createVertexArray();gl.bindVertexArray(terrVAO);
+  const ba=(p,nm,d,sz)=>{bufA(d);const l=gl.getAttribLocation(p,nm);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,sz,gl.FLOAT,false,0,0);};
+  ba(terrP,"aPos",T.pos,3);ba(terrP,"aNormal",T.nrm,3);ba(terrP,"aColor",T.col,3);bufE(T.idx);
+  const W=buildWater();watN=W.idx.length;watVAO=gl.createVertexArray();gl.bindVertexArray(watVAO);
+  ba(watP,"aXZ",W.pos,2);ba(watP,"aDepth",W.dep,1);bufE(W.idx);
+  gl.bindVertexArray(null);gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+}
+let yaw=0.7,pitch=0.42,dist=105,time=0,frames=0,animating=false,raf=0;
+const tgt=[(N-1)/2,4.5,(M-1)/2];
+function eye(){return[tgt[0]+dist*Math.cos(pitch)*Math.cos(yaw),tgt[1]+dist*Math.sin(pitch),tgt[2]+dist*Math.cos(pitch)*Math.sin(yaw)];}
+function sun(){const el=(+document.getElementById("sun").value)*Math.PI/180;return vn([Math.cos(el)*0.6,Math.sin(el),Math.cos(el)*0.42]);}
+function resize(){const d=Math.min(2,window.devicePixelRatio||1),w=cv.clientWidth*d,h=cv.clientHeight*d;if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}}
+function render(){ if(!gl||!terrP) return;
+  resize();frames++;document.getElementById("frames").textContent=frames;
+  const e=eye(),mvp=mMul(mPersp(1.02,cv.width/cv.height,0.5,600),mLook(e,tgt,[0,1,0])),ex=(+document.getElementById("exp").value)/100,S=sun();
+  gl.viewport(0,0,cv.width,cv.height);gl.clearColor(0.80,0.87,0.94,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  gl.disable(gl.DEPTH_TEST);gl.depthMask(false);gl.useProgram(skyP);gl.bindVertexArray(skyVAO);gl.drawArrays(gl.TRIANGLES,0,6);
+  gl.enable(gl.DEPTH_TEST);gl.depthMask(true);
+  gl.useProgram(terrP);gl.uniformMatrix4fv(gl.getUniformLocation(terrP,"uMVP"),false,mvp);
+  gl.uniform3fv(gl.getUniformLocation(terrP,"uCam"),e);gl.uniform3fv(gl.getUniformLocation(terrP,"uSun"),S);gl.uniform1f(gl.getUniformLocation(terrP,"uExp"),ex);
+  gl.bindVertexArray(terrVAO);gl.drawElements(gl.TRIANGLES,terrN,gl.UNSIGNED_INT,0);
+  gl.useProgram(watP);gl.uniformMatrix4fv(gl.getUniformLocation(watP,"uMVP"),false,mvp);
+  gl.uniform3fv(gl.getUniformLocation(watP,"uCam"),e);gl.uniform3fv(gl.getUniformLocation(watP,"uSun"),S);gl.uniform1f(gl.getUniformLocation(watP,"uExp"),ex);
+  gl.uniform1f(gl.getUniformLocation(watP,"uTime"),time);gl.uniform1f(gl.getUniformLocation(watP,"uWave"),(+document.getElementById("wave").value)/100);gl.uniform1f(gl.getUniformLocation(watP,"uSeaY"),SEAY);
+  gl.uniform2fv(gl.getUniformLocation(watP,"uDir"),new Float32Array(D.waves.flatMap(w=>w.dir)));
+  gl.uniform1fv(gl.getUniformLocation(watP,"uFreq"),new Float32Array(D.waves.map(w=>w.freq)));
+  gl.uniform1fv(gl.getUniformLocation(watP,"uSpeed"),new Float32Array(D.waves.map(w=>w.speed*0.5)));
+  gl.uniform1fv(gl.getUniformLocation(watP,"uAmp"),new Float32Array(D.waves.map(w=>w.amp*YS*0.16)));
+  gl.uniform1fv(gl.getUniformLocation(watP,"uSteep"),new Float32Array(D.waves.map(()=>0.22)));
+  gl.bindVertexArray(watVAO);gl.drawElements(gl.TRIANGLES,watN,gl.UNSIGNED_INT,0);gl.bindVertexArray(null);
+  document.getElementById("wavev").textContent=((+document.getElementById("wave").value)/100).toFixed(2)+"×";
+  document.getElementById("sunv").textContent=document.getElementById("sun").value+"°";
+  document.getElementById("expv").textContent=ex.toFixed(2);updateVD();}
+let vt=0;function updateVD(){if(vt)return;vt=1;setTimeout(()=>{vt=0;
+  const p=`cam=${yaw.toFixed(3)},${pitch.toFixed(3)},${dist.toFixed(1)}|wave=${document.getElementById("wave").value}|sun=${document.getElementById("sun").value}|exp=${document.getElementById("exp").value}`;
+  crypto.subtle.digest("SHA-256",new TextEncoder().encode("URDRTVW1|w:"+D.wave_witness+"|p:"+p)).then(h=>{document.getElementById("vd").textContent=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join("");});},30);}
+let drag=false,lx=0,ly=0;
+cv.addEventListener("pointerdown",e=>{drag=true;lx=e.clientX;ly=e.clientY;cv.setPointerCapture(e.pointerId);});
+cv.addEventListener("pointerup",()=>drag=false);
+cv.addEventListener("pointermove",e=>{if(!drag)return;yaw+=(e.clientX-lx)*0.008;pitch=Math.max(0.06,Math.min(1.45,pitch+(e.clientY-ly)*0.008));lx=e.clientX;ly=e.clientY;if(!animating)render();});
+cv.addEventListener("wheel",e=>{e.preventDefault();dist=Math.max(35,Math.min(260,dist*(1+Math.sign(e.deltaY)*0.08)));if(!animating)render();},{passive:false});
+for(const id of ["wave","sun","exp"])document.getElementById(id).addEventListener("input",()=>{if(!animating)render();});
+document.getElementById("reset").addEventListener("click",()=>{yaw=0.7;pitch=0.42;dist=105;if(!animating)render();});
+function loop(){if(!animating)return;time+=1/60;render();raf=requestAnimationFrame(loop);}
+document.getElementById("play").addEventListener("click",()=>{animating=!animating;document.getElementById("play").textContent=animating?"⏸ Pause":"▶ Animate";document.getElementById("anim").textContent=animating?"yes":"no";if(animating)loop();else cancelAnimationFrame(raf);});
+window.addEventListener("resize",()=>{if(!animating)render();});
+document.getElementById("whf").textContent=D.hf_witness;document.getElementById("wwv").textContent=D.wave_witness;
+initGL();render();
+</script></body></html>
