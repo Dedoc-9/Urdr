@@ -1,0 +1,11 @@
+# urdr-terrain (T3.15) — URDRFACE1 fixed-point facing-seam canon: the exact-integer terrain facing lifts
+#   into the fpquat Q32.32 rotation regime. `cardinals` pins the EXACT embedding (the 4 cardinal facings
+#   rotate the forward vector onto their exact direction vectors, 0 ulp, and the E->N->W->S->E cyclic
+#   group permutes exactly — even though the 90° quaternion carries a rounded sqrt(2)/2 built trig-free
+#   from fpquat.rsqrt). `mouselook` pins the CONTINUOUS regime: an E->N nlerp sweep whose interior points
+#   ROUND (not cardinal axes), plus the accumulation-drift witness (a bounded, deterministic, non-zero
+#   divergence after a full turn — exactness holds only on the cardinal lattice). Same host, same bytes;
+#   reproducibility-by-frozen-rounding (this is the FIRST terrain canon that is not division-free).
+# name  digest
+cardinals b86ace9b884c43cb6cdf9719ebe9d624181be3763b6623c005b4483e29b8d0e5
+mouselook c3adb31ec6ccbd1409ab24485f014e0ee9c22bf545f4386c1adf85001bffabc3

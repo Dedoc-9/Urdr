@@ -4405,6 +4405,75 @@ class Gate:
                     "itself is deterministic and desyncs on corruption"
                     if scope else "the non-commutativity / non-vacuity / N1-self-consistency scope did not hold")
 
+    def fpface(self):
+        """The FIXED-POINT facing seam (T3.15, Slice 4a of FPS-over-terrain): the exact-integer terrain
+        facing lifts into the fpquat Q32.32 rotation regime — EXACTLY at the cardinals, rounding between
+        them. The FIRST terrain stage that deliberately leaves the division-free regime (it consumes
+        fpquat's _rdiv rounding on purpose — the regime change the FPS arc has built toward). MEASURED:
+        the cardinal lift + cyclic-group exactness are exact (0 ulp, a defect diverges); the mouse-look
+        intermediate is reproducible but DECLARED-continuous (it rounds). Rows: scenes (cardinals +
+        mouselook reproduce URDRFACE1 digests ×2), exact (all 4 cardinal facings lift to their exact
+        direction vectors and the E→N→W→S→E group permutes exactly, over drive's own facing map),
+        boundary (mouse-look interior rounds but is deterministic, accumulation drifts by a bounded
+        non-zero ulp count, and the √2/2 is the trig-free frozen isqrt), refusal (non-cardinal → typed
+        FACE-REFUSE)."""
+        for p in (os.path.join(ROOT, "tools", "terrain"), os.path.join(ROOT, "tools", "frontfps"),
+                  os.path.join(ROOT, "tools", "physics")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import fpface as FF
+            import fpquat as FQ
+            import drive as DR
+            import stance as ST
+            from field import ONE as _ONE
+        except Exception as exc:
+            self.record("fpface", False, f"import failed (fpquat / field): {exc}")
+            return
+
+        try:
+            ref_ok = True
+            for name in FF.SCENES:
+                d = FF.scene_result(name)
+                ref_ok = ref_ok and (d == FF.golden(name) and FF.scene_result(name) == d)
+        except Exception as exc:
+            self.record("fpface:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("fpface:scenes", ref_ok,
+                    "cardinals + mouselook reproduce URDRFACE1 seam digests ×2"
+                    if ref_ok else "an fpface scene drifted from its digest")
+
+        exact = (FF.lift_is_exact() and FF.cyclic_is_exact() and FF._FACE == DR._FACE
+                 and all((FF.facing_vec(i)[0] // _ONE, FF.facing_vec(i)[2] // _ONE) == ST.DIRS[l]
+                         for l, i in FF._FACE.items()))
+        self.record("fpface-exact", exact,
+                    "the 4 cardinal facings lift to their exact direction vectors (0 ulp) and the "
+                    "E→N→W→S→E group permutes exactly, over drive's facing map — the exact embedding"
+                    if exact else "the exact cardinal embedding did not hold")
+
+        mid = FF.look(_ONE // 2)
+        rounds = (FF.look(0) == (_ONE, 0, 0) and FF.look(_ONE) == (0, 0, -_ONE)
+                  and mid not in [FF.facing_vec(i) for i in range(4)]
+                  and any(c not in (0, _ONE, -_ONE) for c in mid) and FF.look(_ONE // 2) == mid)
+        drift = FF.compose_drift()
+        boundary = rounds and drift != (0, 0, 0) and FF.compose_drift() == drift and FF.R2 == FQ.rsqrt(2 * _ONE)
+        self.record("fpface-boundary", boundary,
+                    "mouse-look interior rounds (continuous, not a cardinal axis) yet is deterministic; "
+                    "accumulation drifts a bounded non-zero ulp count; √2/2 is the trig-free frozen isqrt"
+                    if boundary else "the mouse-look rounding / drift / trig-free boundary did not bind")
+
+        codes = []
+        for bad in (9, -1, True, "N", 1.0):
+            try:
+                FF.lift(bad)
+                codes.append(None)
+            except FF.FaceError as exc:
+                codes.append(exc.code)
+        ref_total = all(c == "FACE-REFUSE" for c in codes)
+        self.record("fpface-refusal", ref_total,
+                    "5/5 FACE-REFUSE typed and total (out-of-range · negative · bool · str · float facing)"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4703,6 +4772,7 @@ def main() -> int:
     gate.traj()
     gate.kernel_crosscheck()
     gate.lockstep_crosscheck()
+    gate.fpface()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

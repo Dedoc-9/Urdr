@@ -2271,6 +2271,46 @@ re-expressing N1's `simulate` as a generic fold parameterized by the step, so dr
 it and the folds equate by construction) would upgrade this from contract-conformance toward law-identity —
 a deliberate later refactor, not claimed here.
 
+**Fixed-point facing seam (URDRFACE1) — T3.15, Slice 4a of FPS-over-terrain — MEASURED (the exact
+cardinal embedding), DECLARED (continuous mouse-look).** `tools/terrain/fpface.py` + gate stage `fpface`:
+the regime change the whole FPS arc has built toward. Where every prior terrain module is exact-integer
+and division-free, this is the FIRST that deliberately leaves that regime — it lifts the discrete terrain
+facing (`stance`/`drive`/`traj`/`gaze`'s pose axis `facing ∈ {N,E,S,W}`) into the frozen fixed-point
+ROTATION regime (`fpquat`, frontfps Stage 2 — Hamilton products + `vrotate` on the FIELDFP `_rdiv`
+rounding), consuming rounding on purpose. THE EXACT EMBEDDING (MEASURED, the keystone): the four cardinal
+facings lift to cardinal yaw quaternions built with NO trigonometry — the 90°/270° component is
+`fpquat.rsqrt(2·ONE)` (√2/2 from the frozen integer isqrt, the value 3037000499, NOT the math-trig
+3037000500) — and rotating the reference forward `(ONE,0,0)` by each lands on the EXACT cardinal direction
+vector with ZERO ulp error, even though the quaternion carries a rounded √2/2. The whole cyclic facing
+group E→N→W→S→E permutes exactly under a 90° yaw. So the exact-integer facing is an EXACT SUB-LATTICE of
+the fixed-point rotation: the two arcs (terrain movement + frontfps rotation) meet with NO loss at the
+cardinals, and the exactness is ROBUST — it does not depend on the precise √2/2 (a cardinal axis yawed 90°
+snaps to the permuted axis; the 1-ulp isqrt-vs-trig difference does not disturb it). The seam uses drive's
+OWN facing map, and its lifted `(x,z)` directions equal `stance.DIRS` — it connects to the terrain stack,
+not a private convention. THE HONEST BOUNDARY (`mouselook` scene): BETWEEN cardinals the rotation ROUNDS —
+an interior `qnlerp` orientation (trig-free) rotates forward to a continuous, rounded direction
+(`look(½)` = `(3037000501, 0, -3037000498)`, a non-symmetric non-cardinal value), NOT a `±ONE` axis; it is
+deterministic and bit-reproducible (MEASURED-reproducible) but NO LONGER exact-integer; and under
+ACCUMULATION rounding DRIFTS — a non-cardinal (~45°) rotation composed through a full turn leaves the
+forward vector `(0,0,8)` off exact (bounded, deterministic, non-zero — the `q90^4` full turn is exact only
+because 90° composes through 180° exactly; a non-cardinal step does not). That drift is why `fppose`
+renormalizes per compose. Three-plus rows: `fpface:scenes` (cardinals + mouselook reproduce URDRFACE1
+digests ×2), `fpface-exact` (the 4 lifts + cyclic group exact, over drive's facing map), `fpface-boundary`
+(mouse-look rounds yet is deterministic; accumulation drifts a bounded non-zero ulp count; √2/2 is the
+trig-free frozen isqrt), `fpface-refusal` (5/5 typed `FACE-REFUSE`). Red-first `tests/test_fpface.py`
+(9 falsifiers incl. a wrong-quaternion defect that moves the `cardinals` digest). Unit falsifiers
+690 → 699; rows 454 → 458. GRADE: the cardinal lift + cyclic-group exactness are MEASURED (exact, 0 ulp, a
+defect diverges); the mouse-look intermediate is MEASURED-reproducible but DECLARED-continuous (it rounds).
+Adds NO new placement — it consumes the already-cross-placed `fpquat` (C99 twin `fpquat_c`; Rust
+`fpquat_rs`), so the Rust/C99 counts are unchanged. `does_not_show`: exactness under ACCUMULATION
+(composition drifts — bounded, normalize-managed, NOT claimed exact — the fixed-point regime's defining
+limit); trigonometry / angles (the seam is trig-free, on `rsqrt`/`qnlerp` — `fpquat`'s own no-angle law);
+the continuous capsule POSE (continuous position + capsule-vs-terrain collision — the `fppose` seam, the
+natural Slice 4b, landing on this same substrate and on `fppose`'s exact integer point-to-segment coverage
+certificate); any real-time / animation claim. This is the honest first step INTO the fixed-point regime:
+the exact-integer world does not vanish at the boundary — it survives EXACTLY on the cardinal lattice, and
+the rounding is quarantined to the continuous in-between, graded as such.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **690-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **699-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -155,6 +155,7 @@ it by **content-addressed digest**, not by mutable reference.
 | `gaze.py` (the observer) | digests identical → gate stays green | changing the pose or the admit law reddens `gaze:scenes`; weakening the digest check reddens `gaze-selftest` (it would launder a forged or stale view); diverging from the kernel's admit law reddens `crosscheck:gaze` |
 | `drive.py` (the transcript) | digests identical → gate stays green | changing the gait or the movement law reddens `drive:scenes`; weakening the per-cell step gate reddens `drive-selftest` (a sprint would vault a wall); a forged/replayed/reordered command reddens `drive:scenes` (the transcript digest moves) |
 | `traj.py` (the horizon observer) | digests identical → gate stays green | changing the innovation law or the witnesses reddens `traj:scenes`; weakening the tick-binding reddens `traj-selftest` (a replayed content-valid frame would be admitted, or a non-covering sequence would be refused); diverging from the kernel's admit law reddens `crosscheck:traj` |
+| `fpface.py` (the fixed-point seam) | digests identical → gate stays green | changing a cardinal quaternion breaks the exact lift and reddens `fpface-exact` + `fpface:scenes`; this is the first terrain module that **rounds**, so its identity is the pinned frozen-rounding digest, not division-free structure — a changed rounding rule (or a non-`_rdiv` port) diverges |
 
 The gate is the rollback mechanism: canon drift cannot reach a user, because every layer that depends
 on the changed authority reddens on commit. A cosmetic edit — reformat, re-comment, restructure —
@@ -187,12 +188,20 @@ it). This one is honestly weaker — *contract* conformance, not law-identity: `
 step and N1 a Q32.32 physics step over a different world, so it is "drive satisfies N1's lockstep contract,"
 and the scope is pinned (drive's positional commands are non-commutative — a reorder is a real desync, so
 N1's additive-impulse robustness deliberately does not transfer). With both, the whole terrain stack —
-observation law and movement protocol — answers to the kernel. The one piece still ahead is the
-**fixed-point regime** (Slice 4) —
-`fpquat` mouse-look + `fppose` capsule, continuous rotation and position in Q32.32 — an *enrichment of Φ*,
-landing on this *proven, kernel-verified* transcript + reconstruction + horizon-observability gate rather
-than a hoped-for one; the innovation law is measured on the cleanest exact-integer substrate first, so free
-movement extends the dynamics without compromising the observation law.
+observation law and movement protocol — answers to the kernel. And the **fixed-point regime is now
+entered** (Slice 4a): `fpface` lifts the discrete terrain facing into the `fpquat` Q32.32 rotation, and
+the result is the cleanest possible boundary — the four cardinal facings lift to their exact direction
+vectors with **zero rounding error** (the exact-integer facing is an exact sub-lattice of the fixed-point
+rotation, even though the 90° quaternion carries a rounded √2/2 built trig-free from the frozen isqrt),
+while **mouse-look between cardinals rounds** and, under accumulation, drifts a bounded non-zero amount
+(the `q90^4` full turn is exact; a non-cardinal composition is not). It is the first terrain module that
+deliberately leaves the division-free regime, and it is graded exactly so: the cardinal embedding is
+MEASURED-exact, the continuous in-between is MEASURED-reproducible but DECLARED-continuous. The
+exact-integer world does not vanish at the boundary — it survives *exactly* on the cardinal lattice, and
+the rounding is quarantined to the continuous in-between. Still ahead is the rest of Slice 4: `fppose`'s
+continuous **capsule** pose (position + capsule-vs-terrain collision, landing on `fppose`'s exact integer
+point-to-segment coverage certificate) — the same seam, at the *position* level rather than the facing
+level.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 
