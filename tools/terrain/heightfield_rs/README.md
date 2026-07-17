@@ -36,6 +36,6 @@ rustc -O heightfield.rs -o heightfield && ./heightfield
 ```
 
 prints `name digest` for the three scenes; compare against `../conformance_terrain.txt`. Verified
-in-session on `rustc 1.95.0` (all three digests match). The gate does not run this binary — the
+in-session on `rustc 1.95.0` (all three digests match). The `heightfield-placement` gate stage now RE-VERIFIES this binary LIVE each run — it recompiles and asserts the output still matches the current conformance goldens (a mutated port must diverge), so re-pinning the Python canon forces this port to keep up or the gate reddens. The
 count-sibling `doc-currency` counts the placement directory, and the reproduction is recorded in
 `spec/D5-ledger.md` as CROSS-PLACED (trust from independent reproduction, D17 Axis A).

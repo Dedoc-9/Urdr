@@ -2057,7 +2057,7 @@ value-noise interpolation `(v10 − v00)·u // FRAC` has a NEGATIVE numerator on
 edges, where Python `//` floors and Rust `/` truncates toward zero — a `floordiv` restores the
 floor so the placements agree (the exact negative-operand divergence the division-free
 discipline avoids by construction elsewhere, met head-on and matched here). The 24th std-only
-Rust placement; `doc-currency` Rust 23 → 24. Trust from independent reproduction (D17 Axis A) —
+Rust placement; `doc-currency` Rust 23 → 24. RE-VERIFIED LIVE: the `heightfield-placement` gate stage recompiles this port each run and asserts it reproduces the CURRENT conformance goldens (a mutated port — floordiv → truncating `/` — must diverge), so re-pinning the Python canon forces the Rust to keep up or the gate reddens — closing the in-session-only staleness gap (rows → 432). Trust from independent reproduction (D17 Axis A) —
 the winding_rs recipe applied to the terrain canon. The URDROBJ2 bridge (`island_obj` /
 `blank_obj`) is a separate canon, a clean next cross-placement.
 

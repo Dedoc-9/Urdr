@@ -89,6 +89,44 @@ rank/determinant/injectivity/reconstruction and the detector verdicts agree acro
   mutual information in bits) that *proposes* claims and never mints them. The engine is
   tested; the claim it *improves outcomes* is `SPECULATIVE` behind a calibration ledger.
 
+## The terrain & wave studio — a certified engine you can recursively edit
+
+`tools/terrain/` is a worked example of the whole thesis: a graphics engine whose **fundamentals are
+measured** and whose **look is declared**, the two grades never conflated. It runs from a
+deterministic canon up to a browser render, and — the point of this section — you can edit any layer
+surgically without silently breaking the ones above it, because every layer pins the authority below
+it by **content-addressed digest**, not by mutable reference.
+
+**The layers.**
+
+- **Authority (MEASURED, EXACT).** `heightfield.py` (`URDRHF1` — seeded lattice noise, Q16 quintic
+  FBM, sqrt-free island falloff) and `wavefield.py` (`URDRWAV1` — an exact integer traveling-wave
+  field, division-free so cross-placement parity is *structural*). Same inputs → same bytes on every
+  host; `heightfield_rs` cross-places the terrain canon to std-only Rust, re-verified live each gate
+  run.
+- **Consumers (MEASURED).** `buoyancy.py` (a raft's exact integer waterline on the field) and
+  `crossing.py` (a moving agent's exact first-overtopping tick). They *read* the certified field and
+  produce reproducible, witnessed results — the field certifiably *does something*.
+- **Presentation (DECLARED).** `terrain_view3d.html` — a dependency-free WebGL2 render with a studio
+  panel of knobs. Its pixels are never measured; the boundary never moves.
+- **The firewall (MEASURED citation).** `view_witness.py` proves the declared view honestly *cites*
+  the measured authority — its embedded digests must equal the live ones — and that its knobs are a
+  namespace disjoint from the witness. The render is declared; the *citation* is measured.
+
+**What you can recursively edit, and why it is safe.**
+
+| You edit… | A cosmetic change (comment, refactor) | A canon change (a constant, a formula) |
+| --- | --- | --- |
+| `heightfield.py` / `wavefield.py` | digests identical → gate stays green | digests change → reddens the `*:scenes` row **and** `view-witness:cite`; a wave change also reddens `buoyancy` + `crossing` |
+| `terrain_view3d.html` (the look) | declared — cannot reach the authority; only the view digest moves | still declared; if it forges an embedded witness, `view-witness:cite` reddens |
+| `heightfield_rs` (the Rust port) | must still reproduce the live goldens or `heightfield-placement` reddens | must be brought current with the Python canon, or the gate reddens |
+
+The gate is the rollback mechanism: canon drift cannot reach a user, because every layer that depends
+on the changed authority reddens on commit. A cosmetic edit — reformat, re-comment, restructure —
+passes through untouched, because identity is *content*, not shape. To add a new fidelity overlay,
+drop it in the `VIEWS` list and it inherits the same forgery-proof citation contract; to change the
+canon, re-pin the conformance and the live cross-placement stage forces the Rust port to keep up.
+
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 
 Beyond the language core, the repo now carries a **measured theorem map** for a deterministic,

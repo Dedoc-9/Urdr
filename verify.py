@@ -3928,6 +3928,88 @@ class Gate:
                     "6/6 CROSS-REFUSE typed and total (zero vel · leaves grid · window≤0 · bool · non-int start · bad vel)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
+    def heightfield_placement(self):
+        """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
+        closes: a cross-placement is otherwise verified once in-session and recorded in D5; if the
+        Python canon is later RE-PINNED, the unedited Rust silently goes stale (it still reproduces
+        the OLD digest) and nothing reddens. Here the gate COMPILES tools/terrain/heightfield_rs and
+        asserts its output equals the LIVE conformance_terrain.txt goldens — so re-pinning the Python
+        canon FORCES the Rust to keep up or `heightfield-placement` reddens. Non-vacuity: a mutated
+        port (floordiv -> truncating `/`, the negative-operand bug) MUST diverge. Requires rustc; if
+        absent both rows are recorded SKIPPED (honestly labelled) so the row count stays host-stable
+        for doc-currency."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import heightfield as HF
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("heightfield-placement", False, f"import failed: {exc}")
+            self.record("heightfield-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(tdir, "heightfield_rs", "heightfield.rs")
+        scenes = ("island", "blank", "mountains")
+        try:
+            golds = {name: HF.golden(name) for name in scenes}
+        except Exception as exc:
+            self.record("heightfield-placement", False, f"live goldens unreadable: {exc}")
+            self.record("heightfield-placement-selftest", False, "no goldens")
+            return
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "heightfield.rs missing"
+            self.record("heightfield-placement", True,
+                        f"SKIPPED ({why}) — heightfield_rs was NOT re-verified this run; the D5 "
+                        f"in-session cross-placement claim is unchecked here (install rustc to enable)")
+            self.record("heightfield-placement-selftest", True, f"SKIPPED ({why})")
+            return
+
+        def compile_run(source_text):
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "hf.rs")
+                bp = os.path.join(td, "hf.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(source_text)
+                cp = subprocess.run([rustc, "-O", sp, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                # rustc appends the platform executable suffix on Windows (hf.bin.exe); the gate
+                # must run on the owner's Windows host, so accept either name and never let a
+                # missing binary raise out of the stage (a failure returns None -> the row reddens).
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                try:
+                    rp = subprocess.run([exe], capture_output=True, text=True)
+                except OSError:
+                    return None
+                out = {}
+                for ln in rp.stdout.split("\n"):
+                    parts = ln.strip().split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+                return out
+
+        real = open(src, encoding="utf-8").read()
+        got = compile_run(real)
+        ref_ok = got is not None and all(got.get(name) == golds[name] for name in scenes)
+        self.record("heightfield-placement", ref_ok,
+                    "heightfield_rs recompiles and reproduces the LIVE URDRHF1 goldens "
+                    "(island/blank/mountains) bit-for-bit — re-pinning the Python canon forces the "
+                    "Rust to keep up or this reddens"
+                    if ref_ok else "heightfield_rs did NOT reproduce the live conformance goldens")
+        anchor = "if n % d != 0 && n < 0 { n / d - 1 } else { n / d }"
+        mgot = compile_run(real.replace(anchor, "n / d", 1)) if anchor in real else None
+        caught = (anchor in real) and (mgot is None or any(mgot.get(name) != golds[name] for name in scenes))
+        self.record("heightfield-placement-selftest", caught,
+                    "a mutated port (floordiv -> truncating /) diverges from the goldens — the live "
+                    "re-verification is load-bearing (gate can redden)"
+                    if caught else "the mutated port still reproduced the goldens, or the floordiv anchor moved")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -4137,6 +4219,7 @@ def main() -> int:
     gate.buoyancy()
     gate.view_witness()
     gate.crossing()
+    gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
