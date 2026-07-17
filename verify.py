@@ -4185,6 +4185,87 @@ class Gate:
                     "neg step · bool · non-int start)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    def traj(self):
+        """The certified TRAJECTORY OBSERVER (T3.12, Slice 3b of FPS-over-terrain): a SEQUENCE of partial
+        views is admitted iff every frame reconstructs to the pose the exact-integer dynamics predict at
+        that tick (innovation ν = y − H·Φ·x̂ is the zero vector), else refused. Φ is drive.step (T3.11); H
+        is gaze's axis-selection atlas. MEASURED (the reconstruction, the exact innovation verdict, the
+        replay/teleport discrimination, facing-from-motion, determinism); the linear Kálmán observability
+        MATRIX is DECLARED (the dynamics are input-driven + terrain-gated, not LTI). Rows: reference (the
+        4 witnesses reproduce URDRTRAJ1 digests ×2), properties (reconstruction is the Φ-fold; honest full
+        + position-only sequences admit; facing recovered from motion, None when blocked), selftest (the
+        discriminators: a replayed content-valid frame is REFUSED where a snapshot would admit; gaze
+        refuses each non-covering frame the horizon admits; a teleport is refused), refusal (bad inputs /
+        malformed witness → TRAJ-REFUSE)."""
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import traj as TR
+            import gaze as GZ
+            import drive as DR
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("traj", False, f"import failed: {exc}")
+            return
+
+        try:
+            ref_ok = True
+            for name in TR.SCENES:
+                _v, _c, d = TR.scene_result(name)
+                ref_ok = ref_ok and (d == TR.golden(name) and TR.scene_result(name)[2] == d)
+        except Exception as exc:
+            self.record("traj:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("traj:scenes", ref_ok,
+                    "honest_full + honest_partial + replay + teleport reproduce URDRTRAJ1 verdict digests ×2"
+                    if ref_ok else "a traj witness drifted from its digest")
+
+        H = TR._heights(TR._HF_SCENE)
+        st, cm, ms = TR._START, TR._CMDS, TR._MS
+        traj = DR.drive(H, st, cm, ms)
+        recon_ok = TR.reconstruct(H, st, cm, ms) == traj
+        admit_ok = TR.observe(H, st, cm, ms, TR.honest_full()[4]) == ("ADMIT", "TRAJ-OK") \
+            and TR.observe(H, st, cm, ms, TR.honest_partial()[4]) == ("ADMIT", "TRAJ-OK")
+        face_ok = all(TR.facing_from_motion(traj[k - 1][:2], traj[k][:2]) == traj[k][3]
+                      for k in range(1, len(traj)))
+        bt = DR.drive(((0, 0), (0, 9)), (0, 1), "e", 4)             # blocked: stays put
+        blind_ok = TR.facing_from_motion(bt[0][:2], bt[1][:2]) is None
+        props = recon_ok and admit_ok and face_ok and blind_ok
+        self.record("traj-properties", props,
+                    "reconstruction is the Φ-fold; honest full + position-only sequences admit; facing "
+                    "recovered from motion (None when blocked)"
+                    if props else "a traj property failed (reconstruction / admit / facing-coupling)")
+
+        rframes = TR.replay()[4]
+        replay_refused = TR.observe(H, st, cm, ms, rframes) == ("REFUSE", "TRAJ-INNOVATE")
+        replay_content_valid = all(TR.content_valid(a, i, traj) for a, i in rframes)   # a snapshot would admit
+        gaze_refuses_partial = all(
+            GZ.admit(GZ.Authority(traj[k]), TR._atlas(axes), image)[1] == "GAZE-NONCOVER"
+            for k, (axes, image) in enumerate(TR.honest_partial()[4]))
+        teleport_refused = TR.observe(H, st, cm, ms, TR.teleport()[4]) == ("REFUSE", "TRAJ-INNOVATE")
+        sel = replay_refused and replay_content_valid and gaze_refuses_partial and teleport_refused
+        self.record("traj-selftest", sel,
+                    "a replayed content-valid frame is REFUSED (a snapshot would admit); gaze refuses each "
+                    "non-covering frame the horizon admits; a teleport is refused"
+                    if sel else "the replay / observability discriminator did not bind")
+
+        good = tuple(TR.frame_of(p, (0, 1, 2, 3)) for p in traj)
+        codes = []
+        for start, cmds, mstep, frames in [((-1, 0), "eeee", 16, good), (st, "", 16, good),
+                                           (st, "eeee", -1, good), (st, "eeee", 16, good[:-1]),
+                                           (st, "eeee", 16, good[:-1] + (((0, 1), (1, True)),)),
+                                           (st, "eeee", 16, good[:-1] + (((0, 9), (1, 2)),))]:
+            try:
+                TR.observe(H, start, cmds, mstep, frames)
+                codes.append(None)
+            except TR.TrajError as exc:
+                codes.append(exc.code)
+        ref_total = all(c == "TRAJ-REFUSE" for c in codes)
+        self.record("traj-refusal", ref_total,
+                    "6/6 TRAJ-REFUSE typed and total (off-grid · empty log · neg step · short witness · "
+                    "bool image · axis out of range)"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4480,6 +4561,7 @@ def main() -> int:
     gate.stance()
     gate.gaze()
     gate.drive()
+    gate.traj()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

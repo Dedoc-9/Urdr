@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **666-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **678-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -132,6 +132,18 @@ it by **content-addressed digest**, not by mutable reference.
   the tick into the observed pose is what closes the temporal-replay gap `gaze` named. Sprint is a *derived
   gait in the input*, not a pose axis and not a fixed-point velocity. The trajectory is measured;
   continuous position and fixed-point rotation are the declared next regime.
+- **The horizon observer (MEASURED sequence-admission).** `traj.py` promotes `gaze` from a *snapshot* to
+  a *sequence* observer: where `gaze` demands a covering frame (`rank = n`) at a single instant, this
+  couples the dynamics Φ (`drive.step`) with the observation H (`gaze`'s atlas) across *n* steps and admits
+  a whole witness iff every frame reconstructs to the pose the dynamics predict there — the innovation
+  ν = *image* − H·Φ·*trajectory* is the zero vector, decided in exact integers. Two things `gaze` cannot
+  do: *position-only* frames (non-covering) are **admitted**, because over the horizon ground is a pure
+  function of position and facing is the direction of motion (`gaze` refuses each such frame); and a
+  covering frame **replayed at the wrong tick** — a faithful view of a pose the actor genuinely held
+  elsewhere, which a tickless snapshot would admit — is **refused**, because Φ predicts a different pose
+  and ν ≠ 0. That closes the same-where-different-**when** gap `gaze` deferred to "a sequence": the sequence
+  is Φ. The reconstruction + innovation verdict are measured; the general linear Kálmán observability
+  *matrix* is declared (the dynamics are input-driven, not LTI).
 
 **What you can recursively edit, and why it is safe.**
 
@@ -142,6 +154,7 @@ it by **content-addressed digest**, not by mutable reference.
 | `heightfield_rs` (the Rust port) | must still reproduce the live goldens or `heightfield-placement` reddens | must be brought current with the Python canon, or the gate reddens |
 | `gaze.py` (the observer) | digests identical → gate stays green | changing the pose or the admit law reddens `gaze:scenes`; weakening the digest check reddens `gaze-selftest` (it would launder a forged or stale view) |
 | `drive.py` (the transcript) | digests identical → gate stays green | changing the gait or the movement law reddens `drive:scenes`; weakening the per-cell step gate reddens `drive-selftest` (a sprint would vault a wall); a forged/replayed/reordered command reddens `drive:scenes` (the transcript digest moves) |
+| `traj.py` (the horizon observer) | digests identical → gate stays green | changing the innovation law or the witnesses reddens `traj:scenes`; weakening the tick-binding reddens `traj-selftest` (a replayed content-valid frame would be admitted, or a non-covering sequence would be refused) |
 
 The gate is the rollback mechanism: canon drift cannot reach a user, because every layer that depends
 on the changed authority reddens on commit. A cosmetic edit — reformat, re-comment, restructure —
@@ -150,19 +163,22 @@ drop it in the `VIEWS` list and it inherits the same forgery-proof citation cont
 canon, re-pin the conformance and the live cross-placement stage forces the Rust port to keep up.
 
 **Where this is going — FPS movement over the certified terrain.** `stance` earns the actor's
-*trajectory* (Slice 1); `gaze` certifies a *view* of it (Slice 2); `drive` earns the authoritative
-*transcript* that derives the trajectory from an input log — with **sprint** as a derived gait (Slice 3a).
-Together `gaze` and `drive` are **where** and **when**: exact-integer **Kálmán observability** (a pose is
-recoverable iff its observation charts have full column rank, `rank(M) = n`, and a frame is *admitted iff
-it reconstructs to the authority*) over a *deterministic, tamper-evident* derivation of the pose it must
-reconstruct to. A laundered, forged, or *stale* view is **refused, not reconciled** (the exact-arithmetic
-answer to server-authoritative movement: no float drift to reconcile, so a non-reconstructing frame is a
-genuine forgery; *replay* is caught because the anchor is the **current** pose, which the `stale` scene
-pins, and binding the tick into the transcript closes the temporal gap outright). The kernel `world_host`
-runs the same admit-or-refuse law on the kernel state; cross-checking `gaze`'s and `drive`'s verdicts
-against it is a clean next step. The one piece still ahead is the **fixed-point regime** — `fpquat`
-mouse-look + `fppose` capsule, continuous rotation and position in Q32.32 — landing on this *proven*
-transcript + reconstruction gate rather than a hoped-for one.
+*trajectory* (Slice 1); `gaze` certifies a snapshot *view* of it (Slice 2); `drive` earns the authoritative
+*transcript* that derives the trajectory from an input log, with **sprint** a derived gait (Slice 3a); and
+`traj` certifies a whole *sequence* of views reconstructs to the dynamics-predicted trajectory (Slice 3b) —
+**where and when in one observer.** This is exact-integer **Kálmán observability** carried across a horizon:
+a pose is recoverable iff the observation charts, propagated through the dynamics Φ, span the state
+(`rank = n`), and a witness is *admitted iff every frame reconstructs to the pose Φ predicts there* — the
+innovation ν = *image* − H·Φ·*trajectory* is the zero vector or it is not. A laundered, forged, replayed, or
+*stale* view is **refused, not reconciled** (the exact-arithmetic answer to server-authoritative movement:
+no float drift to reconcile, so a non-reconstructing sequence is a genuine forgery; temporal replay of a
+spatially-identical pose — which `gaze` alone admits — is refused because Φ predicts a different pose at
+that tick). The kernel `world_host` runs the same admit-or-refuse law on the kernel state; cross-checking
+these verdicts against it is a clean next step. The one piece still ahead is the **fixed-point regime**
+(Slice 4) — `fpquat` mouse-look + `fppose` capsule, continuous rotation and position in Q32.32 — an
+*enrichment of Φ*, landing on this *proven* transcript + reconstruction + horizon-observability gate rather
+than a hoped-for one; the innovation law is measured on the cleanest exact-integer substrate first, so free
+movement extends the dynamics without compromising the observation law.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 

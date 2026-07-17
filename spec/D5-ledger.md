@@ -2154,6 +2154,53 @@ lockstep cross-check (verdicts agree with the kernel N1 spine where the `urdr` p
 clean next step). NEXT: the fixed-point regime (`fpquat` mouse-look + `fppose` capsule) lands on this proven
 transcript + the proven reconstruction gate.
 
+**Certified trajectory observer (URDRTRAJ1) — T3.12, Slice 3b of FPS-over-terrain — MEASURED (the
+reconstruction + the innovation verdict + the discrimination), DECLARED (the linear observability
+matrix).** `tools/terrain/traj.py`: where `gaze` (Slice 2) is a SNAPSHOT observer — one covering frame,
+`rank = n` at a single instant — this is a HORIZON observer, coupling the deterministic dynamics
+Φ = `drive.step` (T3.11) with the axis-selection observation H = `gaze`'s Chart/Atlas across n steps. The
+observer reconstructs the authoritative trajectory LOCALLY (the Φ-fold of the lockstep inputs from the
+start — the same law the authority runs, `drive.drive`, so the frame is checked against a locally-derived
+truth, not a trusted one), and for each tick forms the INNOVATION ν(k) = image(k) − H(k)·trajectory(k) in
+exact integers: the witness ADMITS iff every ν is the zero vector, else the first nonzero tick is a typed
+`TRAJ-INNOVATE`. Two capabilities the snapshot cannot express, both MEASURED here: (1) PARTIAL COVERAGE —
+a position-only frame schedule (axes 0,1, NON-covering) is ADMITTED, because over the horizon ground is a
+pure function of position (`heightfield[y][x]`) and facing is the direction of the position delta when the
+actor moves; `gaze` REFUSES each such frame (`GAZE-NONCOVER`), the horizon observer admits the sequence
+(the gate's `traj-selftest` asserts BOTH sides). (2) TEMPORAL REPLAY — a covering frame replayed at the
+wrong tick, a faithful view of a pose the actor GENUINELY HELD at another tick (every frame `content_valid`
+— reconstructs to a pose in the trajectory, so a tickless snapshot would ADMIT), is REFUSED because the
+dynamics predict a different pose there and ν ≠ 0. This closes the same-where-different-WHEN gap `gaze`'s
+own `does_not_show` deferred to "a sequence, which the netcode N1/N2 lockstep binds" — the sequence is Φ.
+Four pinned witnesses: `honest_full` (covering frames of the true pose → ADMIT, the non-vacuity control),
+`honest_partial` (position-only → ADMIT, the observability claim), `replay` (tick 2 replays pose[0] →
+REFUSE, content-valid yet temporally wrong), `teleport` (an unreachable pose → REFUSE, and content-INVALID
+— caught even by a snapshot, the contrast that isolates what ONLY the horizon catches). Division-free (no
+`/`, `//`, `%` — tokenizer-asserted). Gate stage `traj` (4 rows: scenes [the 4 witnesses reproduce
+URDRTRAJ1 digests ×2] / properties [reconstruction is the Φ-fold; honest full + position-only admit;
+facing recovered from motion, None when blocked] / selftest [the replay/observability discriminators bind]
+/ refusal [6/6 typed `TRAJ-REFUSE`]). Red-first `tests/test_traj.py` (12 falsifiers incl. the no-division
+tokenizer). Unit falsifiers 666 → 678; rows 444 → 448. THE GRADE, split honestly: the operational
+reconstruction, the exact innovation verdict, the replay/teleport discrimination, facing-from-motion, and
+determinism are MEASURED (exact, reproducible, a defect diverges). The general linear Kálmán observability
+MATRIX O = [H; H·Φ; H·Φ²; …; H·Φⁿ⁻¹] and its rank test are DECLARED — `drive.step` is input-driven and
+terrain-gated (facing is set by the command, `climb ≤ MAX_STEP` is a piecewise nonlinearity), NOT an LTI
+operator, so the horizon observability is computed OPERATIONALLY on this dynamics and the linear matrix is
+the MODEL, not the measured object (`signum ≠ rēs`). Carries a terrain-local `URDRTRAJ1` canon. THE D7–D10
+ARC, closed: `stance` earns the trajectory (WHERE, Slice 1), `gaze` certifies a snapshot view of it (Slice
+2), `drive` earns the authoritative transcript (WHEN, Slice 3a), and `traj` certifies a SEQUENCE of views
+reconstructs to the dynamics-predicted trajectory — WHERE-AND-WHEN in one observer, the exact-integer answer
+to server-authoritative movement (a non-reconstructing sequence is a genuine forgery, refused not
+reconciled). `does_not_show`: facing UNOBSERVABLE-from-position when the actor is BLOCKED (a stationary
+step — needs the facing axis observed, or the input; `traj-properties` pins the None); input INFERENCE (the
+inputs are lockstep-known, N1, not inferred from the frames); visual localization (recovering the pose from
+the terrain *seen* is a nonlinear field inversion — the `gaze` barrier); continuous / fixed-point Φ (the
+Q32.32 regime, `fpquat`/`fppose`, is the Slice-4 enrichment of the dynamics — the innovation law is proven
+here on the cleanest exact-integer substrate FIRST, so free movement enriches Φ rather than compromising
+the observation law); the kernel `world_host` cross-check (verdicts agree with the kernel observer where
+the `urdr` package is importable — a clean next step). This IS the graded theoretical foundation for the
+horizon observer, locked before the fixed-point regime.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

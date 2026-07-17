@@ -1,0 +1,12 @@
+# urdr-terrain (T3.12) — URDRTRAJ1 trajectory-observer canon: a SEQUENCE of partial views is admitted
+#   iff every frame reconstructs to the pose the dynamics predict at that tick (innovation ν = y − HΦx̂
+#   is the zero vector), else refused. Φ is drive.step (exact-integer, T3.11); H is gaze's axis-selection
+#   atlas. Partial (non-covering) frames are admissible — the horizon reconstructs the unobserved axes;
+#   a covering frame replayed at the wrong tick (content-valid but temporally wrong) is REFUSED, closing
+#   gaze's same-where-different-WHEN gap. The digest binds (name, verdict, code, every frame). Division-
+#   free; same (start, inputs, witness) -> same bytes on every host. See the observer's docstring.
+# name  digest
+honest_full 43c49f70f47c9a38c4fef8b1550aa6a090ae6c86afcf0efc3d098163569415cd
+honest_partial c34760a402277446673f07e26ffe7bf71653f8bc74b348f48ff0359413eb4a14
+replay 07f29ec9d5082c29889f51940abe4bf18048ba5cd3f3514c6a877498b2005090
+teleport ba7943b60da8583be367045dcd0b51e5e985264789d6f89625d481d85da5be94

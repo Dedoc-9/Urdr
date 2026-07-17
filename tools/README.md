@@ -31,9 +31,13 @@ in each one's README and grade line.
   **observer** (a view is admitted iff it reconstructs to the current pose, else refused — replay and
   forgery caught), the `drive` movement **transcript** (the authoritative trajectory is a deterministic,
   tamper-evident fold of an input log over the field, each command a direction + gait with **sprint**
-  derived — `gaze` certifies *where* a frame is, `drive` *when*), a declared-but-cited WebGL2 view behind
-  `view_witness`, and the `heightfield_rs` cross-placement re-verified live. The observer + transcript are
-  the foundation of FPS movement over the certified field.
+  derived — `gaze` certifies *where* a frame is, `drive` *when*), the `traj` **horizon observer** (a whole
+  *sequence* of partial views is admitted iff every frame reconstructs to the pose the dynamics predict
+  there — innovation ν = 0 in exact integers; position-only frames are admitted where `gaze` refuses them,
+  and a replay at the wrong tick is refused where a snapshot would admit — *where and when in one
+  observer*), a declared-but-cited WebGL2 view behind `view_witness`, and the `heightfield_rs`
+  cross-placement re-verified live. The observer + transcript + horizon observer are the foundation of FPS
+  movement over the certified field.
 
 **Authoring surfaces & front-ends**
 
@@ -87,7 +91,7 @@ grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
 `DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
 in particular, stay `NOT_MEASURED` until run under the sealed protocol
 (`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
-(`../verify.py`): **666 unit falsifiers / 444 rows**, run twice, bit-identical.
+(`../verify.py`): **678 unit falsifiers / 448 rows**, run twice, bit-identical.
 
 The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
 (D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
@@ -97,7 +101,7 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED` — 666 unit falsifiers / 444 rows). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 678 unit falsifiers / 448 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
   is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.
