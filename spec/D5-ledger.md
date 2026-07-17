@@ -2082,6 +2082,41 @@ a laundered or forged view is REFUSED, not reconciled (the exact-arithmetic answ
 authoritative movement — no float drift to reconcile). `stance` earns the trajectory; the certified
 gaze that watches it is the observer slice.
 
+**Certified first-person observer (URDRGAZE1) — T3.10, Slice 2 of FPS-over-terrain — MEASURED (the
+admission), DECLARED (the render).** `tools/terrain/gaze.py`: the observer that watches the `stance`
+trajectory. It is the D7–D10 observability construct — exact-integer Kálmán observability, `rank = n`
+⇔ recoverable — specialized to the terrain pose `[x, y, ground_height, facing]`. An axis-selection
+chart observes a subset of the pose; an atlas is COVERING iff every axis is seen; a covering atlas
+RECONSTRUCTS the pose from a frame, and `admit(authority, atlas, image)` ADMITS iff the atlas covers
+AND the reconstruction's digest equals the CURRENT authority's, else a typed REFUSE — never repaired.
+Four pinned scenes: `genuine` (an honest covering frame of the current pose → ADMIT, also the
+non-vacuity control), `noncover` (a frame omitting the facing axis → REFUSE `GAZE-NONCOVER`), `forged`
+(a covering frame carrying a fabricated/substituted pose → REFUSE `GAZE-LAUNDER`), `stale` (a
+once-valid frame replayed after the authority advanced `pose[3] → pose[8]` → REFUSE `GAZE-LAUNDER`).
+THE REPLAY question, answered by construction: the anchor is the CURRENT pose, so a stale frame
+reconstructs to an old digest ≠ the current one and is refused — and the `stale` scene PINS it by
+showing the SAME frame ADMITS at `Authority(pose[3])` and REFUSES at `Authority(pose[8])` (if a wiring
+bug ever anchored on a stale pose, this reddens). The MEMBRANE is a gate property: `admit` never
+mutates the authority or the frame (presentation cannot feed the authority). The digest check is
+load-bearing: an admitter that reconstructs but SKIPS the digest comparison would launder the forged
+frame — the selftest pins it. The digest binds (scene, verdict, code, frame image). Division-free (no
+`/`, `//`, `%` — tokenizer-asserted). Gate stage `gaze` (4 rows: scenes / properties [genuine admits ·
+a covering atlas reconstructs exactly · the membrane holds] / selftest [the advancing-authority flip ·
+the digest check load-bearing] / refusal [4/4 typed]). Red-first `tests/test_gaze.py` (10 falsifiers).
+Unit falsifiers 646 → 656; rows 436 → 440. Grade: the admission is MEASURED (exact, digest-bound, a
+defect launders); the RENDER is DECLARED (this certifies the view→pose binding, not the picture); the
+pose authority is `stance`'s (measured). Carries a terrain-local `URDRGAZE1` canon, exactly as
+buoyancy/crossing/stance carry a terrain-local canon rather than the kernel's.
+`does_not_show`: VISUAL LOCALIZATION (recovering the pose from the *terrain seen* is a nonlinear
+inversion of the field — this linear observer does not and must not claim it); a true perspective
+projection (axis-selection charts only — an exact-integer projective observer is a graded follow-on);
+TEMPORAL replay of a *spatially identical* pose (identity is content: an identical pose is a valid
+current frame — catching same-where-different-WHEN needs a sequence, which the netcode N1/N2 lockstep
+binds; gaze certifies WHERE, composing with lockstep certifies WHERE AND WHEN); the kernel `world_host`
+cross-check (verdicts agree with the kernel observer where the `urdr` package is importable — a clean
+next step). NEXT: free movement (`fpquat` mouse-look + gait/sprint + `fppose` capsule) lands on this
+proven reconstruction gate.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **646-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **656-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -115,6 +115,12 @@ it by **content-addressed digest**, not by mutable reference.
 - **The firewall (MEASURED citation).** `view_witness.py` proves the declared view honestly *cites*
   the measured authority — its embedded digests must equal the live ones — and that its knobs are a
   namespace disjoint from the witness. The render is declared; the *citation* is measured.
+- **The observer (MEASURED admission).** `gaze.py` is the D7–D10 observer pointed at the walking actor:
+  a view frame is *admitted iff it reconstructs to the current authoritative pose* `[x, y, ground,
+  facing]`, else a typed refuse — a non-covering frame (`GAZE-NONCOVER`), a substituted pose, or a
+  *stale* one replayed after the authority advanced (`GAZE-LAUNDER`). Exact-integer Kálmán observability
+  (covering atlas ⇔ full column rank ⇔ reconstructible), and `admit` never mutates the authority (the
+  membrane). The render is declared; the *view→pose binding* is measured.
 
 **What you can recursively edit, and why it is safe.**
 
@@ -123,6 +129,7 @@ it by **content-addressed digest**, not by mutable reference.
 | `heightfield.py` / `wavefield.py` | digests identical → gate stays green | digests change → reddens the `*:scenes` row **and** `view-witness:cite`; a heightfield change also reddens `stance`, a wave change `buoyancy` + `crossing` |
 | `terrain_view3d.html` (the look) | declared — cannot reach the authority; only the view digest moves | still declared; if it forges an embedded witness, `view-witness:cite` reddens |
 | `heightfield_rs` (the Rust port) | must still reproduce the live goldens or `heightfield-placement` reddens | must be brought current with the Python canon, or the gate reddens |
+| `gaze.py` (the observer) | digests identical → gate stays green | changing the pose or the admit law reddens `gaze:scenes`; weakening the digest check reddens `gaze-selftest` (it would launder a forged or stale view) |
 
 The gate is the rollback mechanism: canon drift cannot reach a user, because every layer that depends
 on the changed authority reddens on commit. A cosmetic edit — reformat, re-comment, restructure —
@@ -131,14 +138,15 @@ drop it in the `VIEWS` list and it inherits the same forgery-proof citation cont
 canon, re-pin the conformance and the live cross-placement stage forces the Rust port to keep up.
 
 **Where this is going — FPS movement over the certified terrain.** `stance` earns the actor's
-*trajectory* — its authoritative pose over time — as a measured fact. The observer/atlas engine below
-(D7–D10) is exact-integer **Kálmán observability**: a state is recoverable from observations iff its
-observation charts have full column rank (`rank(M) = n`), and a frame is *admitted iff it reconstructs
-to the authority* (`world_host`). Pointed at a moving first-person camera, that turns the FPS view
-into a **certified observer** — a laundered or forged view is *refused, not reconciled* (the exact-
-arithmetic answer to server-authoritative movement: no float drift to reconcile, so a non-reconstructing
-frame is a genuine forgery). Slice 1 (this `stance`) is the ground you walk; the certified gaze that
-watches you is the next slice.
+*trajectory* (Slice 1); `gaze` certifies a *view* of it (Slice 2). Together they are exact-integer
+**Kálmán observability**: a pose is recoverable iff its observation charts have full column rank
+(`rank(M) = n`), and a frame is *admitted iff it reconstructs to the authority* — a laundered, forged,
+or *stale* view is **refused, not reconciled** (the exact-arithmetic answer to server-authoritative
+movement: no float drift to reconcile, so a non-reconstructing frame is a genuine forgery, and *replay*
+is caught because the anchor is the **current** pose, which the `stale` scene pins). The kernel
+`world_host` runs the same admit-or-refuse law on the kernel state; cross-checking `gaze`'s verdicts
+against it is a clean next step. Still ahead: **free movement** — `fpquat` mouse-look + gait (walk /
+sprint) + `fppose` capsule — landing on this *proven* reconstruction gate rather than a hoped-for one.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 

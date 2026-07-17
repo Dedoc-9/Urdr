@@ -1,0 +1,10 @@
+# urdr-terrain (T3.10) — URDRGAZE1 gaze canon: the certified first-person OBSERVER. A view is
+#   ADMITTED iff it reconstructs to the CURRENT authoritative pose [x, y, ground_height, facing],
+#   else a typed REFUSE (GAZE-NONCOVER a non-covering atlas / GAZE-LAUNDER a substituted or stale
+#   pose). The digest binds (scene, verdict, code, frame image); same host -> same bytes. See the
+#   builder's provenance docstring; the D7-D10 observability construct specialized to the terrain pose.
+# name  digest
+genuine 881d6e23af9ea6e50be966f98447e4a71af7f7b7045c0458d82d4a0e88cd34bf
+noncover 7fdd4d9ba27c1473e6c468b1c79492aa6d25d8e21ef068318e06b2ab485e891e
+forged 8022455f69c48f891c9cce40b4d1a7db4a5d17b9438dfe9e2d5bf8c80f4ff424
+stale 2e8ce3d98dc834dcde9202d36e122a28e3da89a435927abda7dfb512fcbd855c

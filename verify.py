@@ -4025,6 +4025,83 @@ class Gate:
                     "neg step · non-positive actor · empty path · bool · non-int start)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    def gaze(self):
+        """The certified first-person OBSERVER over the terrain (T3.10, Slice 2 of FPS-over-terrain): a
+        view of the walking actor is ADMITTED iff it reconstructs to the CURRENT authoritative pose
+        [x,y,ground,facing], else a typed REFUSE. The D7–D10 observability construct (covering atlas ⇔
+        full column rank ⇔ reconstructible) specialized to the terrain pose; MEASURED (the admit/refuse
+        is exact + digest-bound, a digest-skipping admitter launders); the render stays DECLARED. Replay
+        is caught by construction — the anchor is the CURRENT pose — and the `stale` scene pins it. Rows:
+        reference (the 4 scenes reproduce URDRGAZE1 verdict digests ×2), properties (genuine ADMITS; a
+        covering atlas reconstructs the pose exactly; the membrane holds — admit never mutates the
+        authority or the frame), selftest (advancing-authority load-bearing — the same once-valid frame
+        admits at its own pose and refuses at the advanced one; the digest check is what refuses a
+        forgery), refusal (non-covering / substitution / replay / malformed pose typed and total)."""
+        import copy as _copy
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import gaze as GZ
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("gaze", False, f"import failed: {exc}")
+            return
+        try:
+            ref_ok = True
+            for name in GZ.SCENES:
+                v, c, d = GZ.scene_verdict(name)
+                ref_ok = ref_ok and (d == GZ.golden(name) and GZ.scene_verdict(name)[2] == d)
+        except Exception as exc:
+            self.record("gaze:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("gaze:scenes", ref_ok,
+                    "genuine + noncover + forged + stale reproduce URDRGAZE1 verdict digests ×2"
+                    if ref_ok else "a gaze scene drifted from its digest")
+        t = GZ.trajectory("ridge_clear")
+        genuine_ok = GZ.scene_verdict("genuine")[:2] == ("ADMIT", "GAZE-OK")
+        recon_ok = all(GZ.full_atlas().recon(GZ.full_atlas().image(p), GZ.POSE_N) == p
+                       for p in (t[0], t[5], t[8])) \
+            and GZ.blind_atlas().recon(GZ.blind_atlas().image(t[8]), GZ.POSE_N) is None
+        a = GZ.Authority(t[8])
+        before = (a.pose, a.anchor)
+        membrane_ok = True
+        for atlas, im in [(GZ.full_atlas(), GZ.full_atlas().image(t[8])),
+                          (GZ.blind_atlas(), GZ.blind_atlas().image(t[8])),
+                          (GZ.full_atlas(), GZ.full_atlas().image(t[3]))]:
+            snap = _copy.deepcopy(im)
+            GZ.admit(a, atlas, im)
+            membrane_ok = membrane_ok and (a.pose, a.anchor) == before and im == snap
+        props = genuine_ok and recon_ok and membrane_ok
+        self.record("gaze-properties", props,
+                    "genuine ADMITS; a covering atlas reconstructs the pose exactly; the membrane holds "
+                    "(admit never mutates the authority or the frame)"
+                    if props else "a gaze property failed (genuine / reconstruct / membrane)")
+        frame_j = GZ.full_atlas().image(t[3])
+        flip = (GZ.admit(GZ.Authority(t[3]), GZ.full_atlas(), frame_j)[0] == "ADMIT") and \
+               (GZ.admit(GZ.Authority(t[8]), GZ.full_atlas(), frame_j) == ("REFUSE", "GAZE-LAUNDER"))
+        fa, fat, fim = GZ.forged()
+        launder_caught = (GZ.admit(fa, fat, fim)[0] == "REFUSE") and fat.covers(GZ.POSE_N) \
+            and fat.recon(fim, GZ.POSE_N) is not None            # covering+reconstructable → only the digest refuses it
+        sel = flip and launder_caught
+        self.record("gaze-selftest", sel,
+                    "advancing authority load-bearing — the same once-valid frame admits at its own pose "
+                    "and refuses at the advanced one (replay); the digest check is what refuses a forgery"
+                    if sel else "the advancing-authority / digest-check selftest did not bind")
+        v1, c1 = GZ.admit(*GZ.noncover())
+        v2, c2 = GZ.admit(*GZ.forged())
+        v3, c3 = GZ.admit(*GZ.stale())
+        try:
+            GZ.Authority((1, 2, 3))
+            bad = None
+        except GZ.GazeError as exc:
+            bad = exc.code
+        ref_total = [c1, c2, c3] == ["GAZE-NONCOVER", "GAZE-LAUNDER", "GAZE-LAUNDER"] \
+            and (v1, v2, v3) == ("REFUSE", "REFUSE", "REFUSE") and bad == "GAZE-REFUSE"
+        self.record("gaze-refusal", ref_total,
+                    "4/4 typed refusals total (non-covering GAZE-NONCOVER · substitution + replay "
+                    "GAZE-LAUNDER · malformed pose GAZE-REFUSE)"
+                    if ref_total else f"refusals wrong: {[c1, c2, c3]} bad={bad}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4318,6 +4395,7 @@ def main() -> int:
     gate.view_witness()
     gate.crossing()
     gate.stance()
+    gate.gaze()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
