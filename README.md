@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **699-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **708-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -156,6 +156,7 @@ it by **content-addressed digest**, not by mutable reference.
 | `drive.py` (the transcript) | digests identical → gate stays green | changing the gait or the movement law reddens `drive:scenes`; weakening the per-cell step gate reddens `drive-selftest` (a sprint would vault a wall); a forged/replayed/reordered command reddens `drive:scenes` (the transcript digest moves) |
 | `traj.py` (the horizon observer) | digests identical → gate stays green | changing the innovation law or the witnesses reddens `traj:scenes`; weakening the tick-binding reddens `traj-selftest` (a replayed content-valid frame would be admitted, or a non-covering sequence would be refused); diverging from the kernel's admit law reddens `crosscheck:traj` |
 | `fpface.py` (the fixed-point seam) | digests identical → gate stays green | changing a cardinal quaternion breaks the exact lift and reddens `fpface-exact` + `fpface:scenes`; this is the first terrain module that **rounds**, so its identity is the pinned frozen-rounding digest, not division-free structure — a changed rounding rule (or a non-`_rdiv` port) diverges |
+| `fpcap.py` (the capsule body) | digests identical → gate stays green | changing the capsule geometry or the reused collision test reddens `fpcap-collision`/`fpcap:scenes`; the *collision* is exact division-free (`fppose._in_capsule`) so a rounding there would diverge, while the *pose* path rounds — only the mouse-look posing carries frozen-rounding identity |
 
 The gate is the rollback mechanism: canon drift cannot reach a user, because every layer that depends
 on the changed authority reddens on commit. A cosmetic edit — reformat, re-comment, restructure —
@@ -198,10 +199,20 @@ while **mouse-look between cardinals rounds** and, under accumulation, drifts a 
 deliberately leaves the division-free regime, and it is graded exactly so: the cardinal embedding is
 MEASURED-exact, the continuous in-between is MEASURED-reproducible but DECLARED-continuous. The
 exact-integer world does not vanish at the boundary — it survives *exactly* on the cardinal lattice, and
-the rounding is quarantined to the continuous in-between. Still ahead is the rest of Slice 4: `fppose`'s
-continuous **capsule** pose (position + capsule-vs-terrain collision, landing on `fppose`'s exact integer
-point-to-segment coverage certificate) — the same seam, at the *position* level rather than the facing
-level.
+the rounding is quarantined to the continuous in-between. And the arc **closes** with `fpcap` (Slice 4b):
+the actor's **capsule body** over the terrain. Here the fixed-point regime shows its hand — and folds: the
+capsule *collision* reuses `fppose`'s exact integer point-to-segment certificate (`ap²·d·d − (ap·d)² ≤
+r²·d·d`, cross-multiplication), so it is **division-free and never rounds**, even in fixed-point. The
+capsule rests foot at the exact ground and respects `stance`'s step law (a rise > `MAX_STEP` is a wall the
+body cannot enter); the *only* rounding is posing the capsule by a continuous mouse-look pitch, exactly as
+for facing. So the body is exact and the continuous orientation is the declared part — the rounding never
+reaches the collision. The arc is complete: an FPS actor over the certified terrain now has a **position**
+(`drive`/`traj`, exact-integer, kernel-cross-checked), a **facing** (`fpface`, exact on the cardinal
+lattice), an observed **view** (`gaze`/`traj`, kernel-verified), and a **body** (`fpcap`, exact
+collision) — and the one regime change it required left exactness intact everywhere it mattered (position,
+collision, cardinal orientation), quarantining rounding to continuous mouse-look, graded honestly at every
+step. The named-but-unclaimed next enrichments are contact *response* (this is the collision predicate,
+not a solver), swept/continuous-time collision, and a fixed-point-native drive over continuous positions.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 

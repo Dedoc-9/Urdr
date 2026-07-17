@@ -1,0 +1,12 @@
+# urdr-terrain (T3.16) — URDRCAP1 capsule/body-seam canon (the FPS arc's close): the actor's capsule
+#   stands on the certified terrain, and its collision is EXACT even in the fixed-point regime. `collision`
+#   pins the division-free integer certificate (fppose._in_capsule): the capsule covers its foot/head/mid
+#   joints, a point just inside the radius is covered and one just outside is not — never rounds. `terrain`
+#   pins the actor resting foot at the exact heightfield ground and stance's step law biting (a ridge cell
+#   at max_step 4: E/S neighbours are walls, N/W walkable). `pose` pins the mouse-look boundary: the head
+#   offset upright and at a 90° cardinal pitch is exact, and a ~45° mouse-look pitch ROUNDS (the rounding
+#   is confined to continuous orientation, never the body). Same host, same bytes.
+# name  digest
+collision 7c2acdee2ee5d98eaebd7c24b17080e760d591cb895343ba327be54d132b8220
+terrain e93a0843cdaf65136efd89235fb1c9d7ce3b3098cbed1f1bc1d26a63eb39c440
+pose 0da4ae65083cbc04f48ac5c0693952d0c2833666c797d8935d1d320d9688eb7f

@@ -2311,6 +2311,43 @@ certificate); any real-time / animation claim. This is the honest first step INT
 the exact-integer world does not vanish at the boundary — it survives EXACTLY on the cardinal lattice, and
 the rounding is quarantined to the continuous in-between, graded as such.
 
+**Capsule / body seam (URDRCAP1) — T3.16, Slice 4b of FPS-over-terrain, the ARC'S CLOSE — MEASURED (the
+body / collision is exact), DECLARED (continuous mouse-look posing).** `tools/terrain/fpcap.py` + gate
+stage `fpcap`: the position/body half of the fixed-point seam `fpface` opened for facing, and the close of
+the whole FPS-over-terrain arc (stance → gaze → drive → traj → kernel/dynamics cross-checks → fpface →
+fpcap). The actor is a vertical capsule (foot → head, radius r) resting on the exact heightfield ground;
+its position lifts the integer grid coordinates into fixed-point world space EXACTLY (× ONE), and its
+COLLISION reuses `fppose`'s certified `_in_capsule` — an EXACT-INTEGER, DIVISION-FREE point-to-segment
+test (`ap²·d·d − (ap·d)² ≤ r²·d·d`, cross-multiplication, no rounding). THE PUNCHLINE, and why this is the
+right close: the fixed-point regime does NOT force rounding onto the body. The collision stays exact —
+the capsule covers its foot/mid/head joints, a point just inside the radius is covered and one just
+outside is not (the certificate is load-bearing and never rounds, verified to BE `fppose._in_capsule`, not
+a copy). The actor rests foot at the EXACT ground (`heightfield[y][x]·ONE`), and the terrain step law is
+`stance`'s: at a ridge cell (max_step 4) the E/S neighbours are WALLS (rise > MAX_STEP) and N/W are
+walkable, at the exact boundary (rise == MAX_STEP is not a wall) — the capsule respects the certified
+terrain, exactly. THE ONLY ROUNDING (inherited from `fpface`): POSING the capsule — pitching the head
+offset by an `fpquat` rotation for mouse-look — is exact upright and at a 90° cardinal pitch (the head
+lands on an exact axis, `sorted|v| = [0,0,4·ONE]`) and ROUNDS for a non-cardinal (~45°) mouse-look pitch.
+So the body is exact and the continuous orientation is the declared, reproducible-but-rounding part; the
+rounding never reaches the collision. Four rows: `fpcap:scenes` (collision + terrain + pose reproduce
+URDRCAP1 digests ×2), `fpcap-collision` (coverage + load-bearing certificate + reuses fppose + a shrunk
+radius uncovers), `fpcap-terrain` (rest on exact ground + stance's step law bites at the boundary),
+`fpcap-pose` (cardinal exact / mouse-look rounds; 5/5 typed `CAP-REFUSE`). Red-first `tests/test_fpcap.py`
+(9 falsifiers). Unit falsifiers 699 → 708; rows 458 → 462. Adds NO placement — it consumes the
+already-cross-placed `fppose` / `fpquat` (Rust/C99 counts unchanged). GRADE: the capsule collision +
+coverage certificate + terrain rest/step law are MEASURED (exact, division-free, a defect diverges); the
+posed head offset is MEASURED-exact at the cardinals and MEASURED-reproducible-but-DECLARED-continuous off
+them. `does_not_show`: contact RESPONSE / resolution (this is the collision PREDICATE, not the solver — a
+rise > MAX_STEP is refused, not slid along); a swept / continuous-time capsule (the test is per-tick
+static); ragdoll / IK / animation; exactness of a non-cardinal posed capsule (it rounds — the same
+bounded, normalize-managed drift `fpface` names); any real-time claim. THE ARC, CLOSED: an FPS actor over
+the certified terrain now has a position (`drive`/`traj`, exact-integer, kernel-cross-checked), a facing
+(`fpface`, exact on the cardinal lattice), an observed view (`gaze`/`traj`, kernel-verified), and a BODY
+(`fpcap`, exact collision) — and the one regime change the arc required (exact-integer → fixed-point) left
+the exactness intact everywhere it mattered (position, collision, cardinal orientation) and quarantined
+rounding to continuous mouse-look, graded honestly at every step. The next enrichments (contact response,
+swept collision, a fixed-point-native drive over continuous positions) are named here and NOT claimed.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

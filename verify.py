@@ -4474,6 +4474,90 @@ class Gate:
                     "5/5 FACE-REFUSE typed and total (out-of-range · negative · bool · str · float facing)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    def fpcap(self):
+        """The CAPSULE / body seam (T3.16, Slice 4b — the close of the FPS arc): the actor's capsule
+        stands on the certified terrain, its collision is EXACT even in the fixed-point regime, and
+        rounding is confined to continuous mouse-look POSING (never the body). MEASURED: the capsule
+        collision + coverage certificate (reusing fppose's DIVISION-FREE integer point-to-segment test)
+        and the terrain rest/step law are exact (a defect diverges); the posed head offset is exact at
+        the cardinals and reproducible-but-rounding off them. Rows: scenes (collision + terrain + pose
+        reproduce URDRCAP1 digests ×2), collision (covers foot/mid/head; inside-r covered, outside-r not;
+        `covers` IS fppose._in_capsule, and a shrunk radius uncovers a covered point), terrain (foot rests
+        at the exact ground · ONE; stance's step law bites — a ridge cell's E/S neighbours are walls, N/W
+        walkable, at the exact rise>MAX_STEP boundary), pose (upright + 90° cardinal pitch exact, ~45°
+        mouse-look pitch rounds; 5/5 typed CAP-REFUSE)."""
+        for p in (os.path.join(ROOT, "tools", "terrain"), os.path.join(ROOT, "tools", "frontfps"),
+                  os.path.join(ROOT, "tools", "physics")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import fpcap as CP
+            import fppose as PS
+            import stance as ST
+            from field import ONE as _ONE
+        except Exception as exc:
+            self.record("fpcap", False, f"import failed (fppose / fpquat / field): {exc}")
+            return
+
+        try:
+            ref_ok = True
+            for name in CP.SCENES:
+                d = CP.scene_result(name)
+                ref_ok = ref_ok and (d == CP.golden(name) and CP.scene_result(name) == d)
+        except Exception as exc:
+            self.record("fpcap:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("fpcap:scenes", ref_ok,
+                    "collision + terrain + pose reproduce URDRCAP1 seam digests ×2"
+                    if ref_ok else "an fpcap scene drifted from its digest")
+
+        Hb = CP._heights("blank")
+        cap = CP.stand(Hb, 2, 8, 4, 1)
+        g = CP.ground_at(Hb, 2, 8)
+        mid = (2 * _ONE, (g + 2) * _ONE, 8 * _ONE)
+        inside = (2 * _ONE, (g + 2) * _ONE, 8 * _ONE + (_ONE - 1))
+        outside = (2 * _ONE, (g + 2) * _ONE, 8 * _ONE + (_ONE + 1))
+        coll = (CP.covers(cap, cap["a"]) and CP.covers(cap, cap["b"]) and CP.covers(cap, mid)
+                and CP.covers(cap, inside) and not CP.covers(cap, outside)
+                and CP.covers(cap, mid) == PS._in_capsule(mid, cap)            # reuses fppose's certificate
+                and not CP.covers(dict(cap, r=cap["r"] // 2), inside))         # shrunk radius uncovers
+        self.record("fpcap-collision", coll,
+                    "the capsule covers its joints; a point just inside the radius is covered and one just "
+                    "outside is not (fppose's exact division-free certificate); a shrunk radius uncovers it"
+                    if coll else "the capsule collision / load-bearing certificate did not bind")
+
+        Hm = CP._heights("mountains")
+        rest_ok = CP.stand(Hm, 2, 1, 4, 1)["a"][1] == CP.ground_at(Hm, 2, 1) * _ONE
+        walls = {d: CP.wall_between(Hm, 2, 1, 2 + ST.DIRS[d][0], 1 + ST.DIRS[d][1], 4) for d in "NESW"}
+        bnd = ((0, 0, 0), (0, 10, 0), (0, 0, 0))
+        law_ok = (not CP.wall_between(bnd, 0, 1, 1, 1, 10)) and CP.wall_between(bnd, 0, 1, 1, 1, 9)
+        terr = rest_ok and walls["E"] and walls["S"] and not walls["N"] and not walls["W"] and law_ok
+        self.record("fpcap-terrain", terr,
+                    "the foot rests at the exact ground · ONE; stance's step law bites (E/S walls, N/W "
+                    "walkable at a ridge cell) at the exact rise > MAX_STEP boundary"
+                    if terr else "the terrain rest / step-law binding did not hold")
+
+        up = CP.head_offset(4, (_ONE, 0, 0, 0))
+        card = CP.head_offset(4, CP._FQ.qnormalize((CP._R2, CP._R2, 0, 0)))
+        mouse = CP.head_offset(4, CP.pitch_quat(_ONE // 2))
+        pose_ok = (up == (0, 4 * _ONE, 0) and sorted(abs(v) for v in card) == [0, 0, 4 * _ONE]
+                   and mouse not in [(0, 4 * _ONE, 0), (0, 0, 4 * _ONE), (0, 0, -4 * _ONE)]
+                   and CP.head_offset(4, CP.pitch_quat(_ONE // 2)) == mouse)
+        codes = []
+        for fn in (lambda: CP.stand(Hb, 99, 0, 4, 1), lambda: CP.capsule(2, 8, 5, 0, 1),
+                   lambda: CP.capsule(2, 8, 5, 4, 0), lambda: CP.capsule(2, 8, 5, 4, True),
+                   lambda: CP.wall_between(Hb, 2, 8, 3, 8, -1)):
+            try:
+                fn()
+                codes.append(None)
+            except CP.CapError as exc:
+                codes.append(exc.code)
+        pose = pose_ok and all(c == "CAP-REFUSE" for c in codes)
+        self.record("fpcap-pose", pose,
+                    "upright + 90° cardinal pitch exact, ~45° mouse-look pitch rounds (the boundary); "
+                    "5/5 typed CAP-REFUSE (off-grid · height<1 · radius<1 · bool · neg step)"
+                    if pose else f"pose exactness / rounding / refusal did not bind: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4773,6 +4857,7 @@ def main() -> int:
     gate.kernel_crosscheck()
     gate.lockstep_crosscheck()
     gate.fpface()
+    gate.fpcap()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
