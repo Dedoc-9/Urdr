@@ -3532,6 +3532,41 @@ class Gate:
         self.record("sea-refusal", ref_total,
                     "4/4 typed: empty sea / drop on land / bool depth TERRAIN-REFUSE; grid/mask mismatch FIELD-REFUSE"
                     if ref_total else f"refusals wrong: {codes}")
+        try:
+            sc = SEA.SEA_SCENE_WIDE
+            maskW, gridW = SEA.sea_from_terrain(FP, p, *sc["depth"],
+                                                scene_sea_level=sc["scene_sea_level"])
+            gW0 = SEA.drop(FP, gridW, maskW, p["w"], *sc["drop_xy"], *sc["drop"])
+            gW = gW0
+            wide_neg = 0
+            for _t in range(sc["ticks"]):
+                gW = SEA.step_marangoni_masked(gW, maskW, p["w"], p["h"], sc["k"], sc["kappa"])
+                if min(gW) < 0:
+                    wide_neg += 1
+            dW = digest(FP, gW, p["w"], p["h"])
+            gW2 = SEA.evolve_marangoni(gW0, maskW, p["w"], p["h"], sc["k"], sc["kappa"], sc["ticks"])
+            wide_ok = dW == SEA.golden("island_sea_wide") and digest(FP, gW2, p["w"], p["h"]) == dW
+        except Exception as exc:
+            self.record("sea:wide", False, f"wide scene failed: {exc}")
+            return
+        self.record("sea:wide", wide_ok,
+                    "the wide sea (scene level 130 by rule, 37% water) reproduces its Marangoni golden ×2"
+                    if wide_ok else "the wide-sea scene drifted from its golden")
+        gWD = SEA.evolve(FP, gW0, maskW, p["w"], p["h"], sc["k"], sc["ticks"])
+        dryW = all(FP.is_zero(gW[i]) for i in range(len(maskW)) if not maskW[i])
+        mar_ok = (mass(FP, gW0) == mass(FP, gW) and wide_neg == 0
+                  and max(gW) > max(gWD) and dryW)
+        self.record("sea-marangoni", mar_ok,
+                    "mass EXACT + monotone 30/30 ticks (audited, not estimated) + the peak persists "
+                    "above pure diffusion + land dry — surface tension on the masked domain" if mar_ok
+                    else "a Marangoni property failed (mass/monotonicity/peak/coast)")
+        gWB = SEA.evolve_marangoni(gW0, maskW, p["w"], p["h"], sc["k"],
+                                   sc["defect_kappa"], sc["defect_ticks"])
+        mar_def = min(gWB) < 0 and mass(FP, gWB) == mass(FP, gW0)
+        self.record("sea-marangoni-selftest", mar_def,
+                    "the over-bound κ overshoots negative yet conserves mass — the CFL bound is "
+                    "load-bearing (gate can redden)" if mar_def
+                    else "the over-bound κ did not overshoot (vacuous bound)")
 
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):

@@ -3,3 +3,6 @@
 #   Digest law: the frozen URDRFLD1 (FIELDFP backend) — no new witness class.
 # name  digest
 island_sea 51202572fbcf213e4c7d0ac6f322c56197ed0ba6578ad7953e101ee72b274584
+# S2: the wide sea (scene level 130 by rule, depth 1/64, kappa 1/16 audited monotone,
+#   30 marangoni+diffusion ticks; defect kappa 1/1 x4 goes negative yet conserves)
+island_sea_wide dd520201c38b518c7513dfd153e9556537a2c850aa64e341f992a0b7a0b56f2c

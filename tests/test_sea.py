@@ -102,5 +102,55 @@ class Sea(unittest.TestCase):
         self.assertEqual(cm.exception.code, "FIELD-REFUSE")
 
 
+class SeaMarangoni(unittest.TestCase):
+    def _wide(self):
+        p = HF.SCENES[SEA.SEA_SCENE_WIDE["terrain"]]()
+        sc = SEA.SEA_SCENE_WIDE
+        mask, grid = SEA.sea_from_terrain(FP, p, *sc["depth"],
+                                          scene_sea_level=sc["scene_sea_level"])
+        g0 = SEA.drop(FP, grid, mask, p["w"], *sc["drop_xy"], *sc["drop"])
+        return p, sc, mask, g0
+
+    def test_wide_sea_golden(self):
+        p, sc, mask, g0 = self._wide()
+        gN = SEA.evolve_marangoni(g0, mask, p["w"], p["h"], sc["k"], sc["kappa"], sc["ticks"])
+        d1 = digest(FP, gN, p["w"], p["h"])
+        self.assertEqual(d1, SEA.golden("island_sea_wide"), "the wide-sea scene drifted")
+        gN2 = SEA.evolve_marangoni(g0, mask, p["w"], p["h"], sc["k"], sc["kappa"], sc["ticks"])
+        self.assertEqual(digest(FP, gN2, p["w"], p["h"]), d1, "nondeterministic")
+
+    def test_marangoni_mass_monotone_and_peak(self):
+        p, sc, mask, g0 = self._wide()
+        m0 = mass(FP, g0)
+        g = g0
+        for t in range(sc["ticks"]):
+            g = SEA.step_marangoni_masked(g, mask, p["w"], p["h"], sc["k"], sc["kappa"])
+            self.assertGreaterEqual(min(g), 0,
+                                    f"tick {t}: negative cell — the pinned kappa left the monotone regime")
+        self.assertEqual(mass(FP, g), m0, "Marangoni transport must conserve mass EXACTLY")
+        gD = SEA.evolve(FP, g0, mask, p["w"], p["h"], sc["k"], sc["ticks"])
+        self.assertGreater(max(g), max(gD),
+                           "kappa must keep the peak above pure diffusion (the Marangoni content)")
+        for i in range(len(mask)):
+            if not mask[i]:
+                self.assertTrue(FP.is_zero(g[i]), "Marangoni water came ashore")
+
+    def test_overbound_kappa_defect(self):
+        p, sc, mask, g0 = self._wide()
+        gB = SEA.evolve_marangoni(g0, mask, p["w"], p["h"], sc["k"],
+                                  sc["defect_kappa"], sc["defect_ticks"])
+        self.assertLess(min(gB), 0,
+                        "the over-bound kappa did not overshoot negative (the CFL bound is vacuous)")
+        self.assertEqual(mass(FP, gB), mass(FP, g0),
+                         "even the unphysical overshoot must conserve mass (flux form)")
+
+    def test_scene_sea_level_refusals(self):
+        p = HF.SCENES["island"]()
+        for bad in (0, True, p["height_scale"] + 1):
+            with self.assertRaises(HF.TerrainError) as cm:
+                SEA.sea_from_terrain(FP, p, scene_sea_level=bad)
+            self.assertEqual(cm.exception.code, "TERRAIN-REFUSE", f"wrong code for {bad!r}")
+
+
 if __name__ == "__main__":
     unittest.main()

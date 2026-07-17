@@ -1909,6 +1909,27 @@ certifies the law, not ocean aesthetics. Grade: MEASURED (reference). `does_not_
 Marangoni surface tension and body coupling on this domain (S2); anything rendered (T3,
 idle law); waves, tides, erosion (names); cross-placement.
 
+**The Marangoni sea (S2) — surface tension on the coastline domain — MEASURED
+(reference).** `sea.py` gains `step_marangoni_masked` (the house `marangoni_step` law —
+diffusion `k·Δc` plus the nonlinear up-gradient flux `κ·Δc·c_upwind`, flux-form, mass
+exact — gated on both-endpoints-sea) and the adapter gains `scene_sea_level`: a SCENE may
+pin its own water line as authority-side scene structure while the terrain field and its
+canon stay untouched (checked by the T1 law, not assumed). The pinned wide-sea scene:
+scene level 130 by the documented rule (first of 100..140 giving 30–60% sea → 37%), depth
+scaled 1/64, drop at the deepest cell, 30 Marangoni+diffusion ticks. HONESTY NOTE, paid
+for in the authoring audit: the naive CFL estimate UNDERESTIMATES — Marangoni
+self-amplifies (the sharpening peak grows its own gradients) and κ = 1/4 went negative
+mid-run; the pinned κ = 1/16 was verified monotone TICK-BY-TICK across all 30 ticks, and
+the gate re-verifies that audit on every run (the audit, not the estimate, is the law).
+Gate rows: `sea:wide` (Marangoni golden ×2), `sea-marangoni` (mass EXACT + monotone 30/30
++ the peak persists above pure diffusion — the Marangoni content — + land dry),
+`sea-marangoni-selftest` (the over-bound κ = 1/1 overshoots negative in 4 ticks yet
+conserves mass — the CFL bound is load-bearing). Red-first additions in `tests/test_sea.py`
+(12 falsifiers total). Unit falsifiers 586 → 590. Grade: MEASURED (reference).
+`does_not_show`: field↔body coupling on this domain (still open); waves/tides (names);
+full free-surface Navier–Stokes (the house Marangoni honesty boundary, inherited);
+anything rendered (T3, idle law); cross-placement.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and

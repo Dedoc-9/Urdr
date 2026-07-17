@@ -2,7 +2,7 @@
 
 # Terrain studio brief — the zyfod goal, inserted surgically (T-ladder)
 
-Status: **T1 + T2 + S1 LANDED (stages `terrain` + `sea`: canon, URDROBJ2 bridge, and the masked-transport sea — all MEASURED at reference); the view panel (T3, idle law) and T4 remain PLAN.** The sea slice was renamed W → S to avoid the W1 winding-rung collision; its design verdict: not a detector, not bare reuse — an adapter plus a masked ADDITIVE step over the untouched frozen field substrate, digesting under the frozen URDRFLD1 law (no new witness class — a C8 datum). Authored 2026-07-16 against `terrains.zyfod.dev`
+Status: **T1 + T2 + S1 + S2 LANDED (stages `terrain` + `sea`: canon, URDROBJ2 bridge, masked transport, and the Marangoni wide-sea scene — all MEASURED at reference); the view panel (T3, idle law) and T4 remain PLAN.** The sea slice was renamed W → S to avoid the W1 winding-rung collision; its design verdict: not a detector, not bare reuse — an adapter plus a masked ADDITIVE step over the untouched frozen field substrate, digesting under the frozen URDRFLD1 law (no new witness class — a C8 datum). Authored 2026-07-16 against `terrains.zyfod.dev`
 v0.20.0 (feature surface taken from operator screenshots; the site is a client-side JS
 shell, so its internals are INFERRED, not read — stated where it matters). Written while
 the desktop bridge was offline: the D14/D15/D16/D17 contracts this plan anchors on were
