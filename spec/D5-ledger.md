@@ -1973,10 +1973,79 @@ speed / bool / bad dims → `WAVE-REFUSE`, refuse never round). Red-first `tests
 (9 falsifiers — one TOKENIZES the source and asserts no division/modulo operator exists, so
 the placement guarantee is enforced structurally). Unit falsifiers 596 → 605. Grade: MEASURED
 (reference) — EXACT (not bounded), and division-free.
-`does_not_show`: the presentation half (the WebGL2 3D Gerstner-shaded view is T3.2, declared,
-unbuilt); a gameplay consumer of the field (buoyancy/wave-crossing — named, not built); ocean
-realism (the parabolic profile is deterministic authority, not a physical spectrum);
-cross-placement (a clean next step — exact integers, the winding_rs recipe).
+`does_not_show`: the presentation half (the WebGL2 3D Gerstner-shaded view, T3.2/T3.3 — now
+BUILT: `terrain_view3d.html`, declared, off-gate, its citation certified by T3.6 view-witness);
+a gameplay consumer of the field (buoyancy/wave-crossing — now BUILT: T3.5 URDRBUOY1 + T3.7
+URDRCROSS1); ocean realism (the parabolic profile is deterministic authority, not a physical
+spectrum); cross-placement (a clean next step — exact integers, the winding_rs recipe).
+
+**Wave-field buoyancy (URDRBUOY1) — T3.5, the first MEASURED consumer of the wave seam.**
+`tools/terrain/buoyancy.py`: the consumer half the wavefield entry named and did not build. A
+rigid raft floats on the exact traveling field; each tick it settles to the integer waterline
+`z*` where displaced depth balances weight (a discrete Archimedes) — `Δ(z) = Σ max(0, h(x,y,t) −
+z)`, `z*` the largest `z` with `Δ(z) ≥ weight`, so `Δ(z*) ≥ weight > Δ(z*+1)`. `Δ` is
+non-increasing, so `z*` is found by DIVISION-FREE integer bisection (`<<`, `>>`, midpoint `lo +
+((hi−lo) >> 1)`), EXACT and cross-placeable (no `/`, `//`, `%` — tokenizer-asserted). The digest
+binds `z*` AND the wetted per-cell profile. Gate stage `buoyancy`: reference (`raft_swell` +
+`raft_still` reproduce URDRBUOY1 digests ×2 at every pinned tick), properties (the exact
+Archimedes bracket holds; `Δ` is monotone; the raft heaves on the swell and rests dead-flat on
+the zero-speed still), selftest (the UNCLAMPED-displacement defect — a hull that sucks itself
+down where it should be dry — diverges; the `max(0,·)` clamp is load-bearing), refusal
+(empty/out-of-grid/duplicate footprint, weight ≤ 0 or heavier than the raft can displace, bool →
+`BUOY-REFUSE`). Red-first `tests/test_buoyancy.py` (10 falsifiers incl. the no-division tokenizer
+assertion). Unit falsifiers 605 → 615. Grade: the COMPUTATION is MEASURED (exact, reproducible,
+a defect diverges); the flotation LAW is a DECLARED model (a discrete Archimedes, not real
+hydrostatics) — the field it reads is authority, the law is a model, the reproducible `z*` is
+measured, exactly as the D20–D23 budgets are declared models walled from this ledger.
+`does_not_show`: real hydrostatics (the buoyancy law is a declared model); more than one pinned
+raft geometry; cross-placement (a clean next step — exact integers, the winding_rs recipe).
+
+**View-witness citation contract (T3.6) — the declared view must honestly CITE the measured
+authority — MEASURED (the citation, never the render).** `tools/terrain/view_witness.py`: the
+DECLARED WebGL2 studio view (`terrain_view3d.html`, 15 knobs, off the exact gate) embeds two
+authority digests it claims to display (`hf_witness` = URDRHF1 island, `wave_witness` = URDRWAV1
+swell@0). We do NOT measure its pixels — that boundary never moves. But nothing stopped a
+careless or dishonest edit from printing a FORGED digest there and staying green. This stage
+certifies the CITATION: the embedded digests must equal the LIVE digests recomputed from the
+modules (`heightfield.py`, `wavefield.py`); and the FIREWALL: the declared knob ids are a
+namespace disjoint from the authority fields, and the presentation `view_digest` is anchored on
+the authority witness — so a knob moves the view, never the witness. The dual of
+`terrain-view-observational` / D15: the view cannot contaminate the authority, and now cannot
+MISQUOTE it. Gate stage `view-witness`: cite (`terrain_view3d.html` cites the live island +
+swell@0 digests ×2), firewall (knobs disjoint; view anchored on the witness), selftest (a
+one-hex-flip forgery of a cited witness fails the citation check — load-bearing), refusal (no
+authority blob / non-hex or wrong-length witness / missing citation → `VIEW-REFUSE`). Red-first
+`tests/test_view_witness.py` (9 falsifiers). Unit falsifiers 615 → 624. `VIEWS` is a list, so
+every future fidelity overlay inherits the guarantee (versioned overlays). Grade: MEASURED — the
+CITATION is an exact digest equality (a forgery reddens it); NO claim is made that the render is
+measured (it stays declared).
+`does_not_show`: the render (pixels are declared, never measured); a dynamic knob sweep (the
+firewall is a structural namespace + anchor proof, not a runtime sweep); views beyond
+`terrain_view3d.html` (the contract is a list, currently one entry).
+
+**Wave-crossing timing (URDRCROSS1) — T3.7, the second MEASURED consumer.**
+`tools/terrain/crossing.py`: where buoyancy reads a FIXED cell over time, this reads a MOVING
+trajectory through the traveling field — the other consumer the wavefield entry named. A
+straight-line constant-velocity agent crosses; at tick `t` it is at `(x0+vx·t, y0+vy·t)` and the
+exact height there at THAT tick is `h`; riding at a fixed `clearance`, `result` is the first `t`
+with `h > clearance`, else `T` (cleared). Because both the agent AND the wave move, the event is
+a joint space-time reading — freeze the wave (every tick at `t=0`) and the first-overtopping tick
+moves, so wave TRAVEL (not just profile) is load-bearing. Exact integers (multiply/compare + the
+division-free wavefield), so `result` reproduces bit-for-bit and cross-placement is a clean next
+step (no `/`, `//`, `%` — tokenizer-asserted). The digest binds `result` AND the per-tick height
+trace. Gate stage `crossing`: reference (`ferry_clear` + `ferry_swamped` + `swimmer_north`
+reproduce URDRCROSS1 digests ×2), properties (the trace is `wavefield.height` at the moving cell
+AND moving tick; `result` is the FIRST overtop; clearance is load-bearing — `ferry_clear` and
+`ferry_swamped` share ONE path and only the clearance differs, so one clears and one is swamped),
+selftest (the frozen-wave defect diverges — travel is load-bearing), refusal (zero velocity /
+path leaves the grid / non-positive window / bool / non-integer → `CROSS-REFUSE`). Red-first
+`tests/test_crossing.py` (10 falsifiers incl. the no-division tokenizer assertion). Unit
+falsifiers 624 → 634. Grade: the COMPUTATION is MEASURED; the crossing LAW (a crest above
+clearance overtops a straight-line constant-velocity agent) is a DECLARED model, like the
+buoyancy law.
+`does_not_show`: fluid dynamics (the crossing law is a declared model); curved or accelerating
+paths (straight-line constant-velocity only); more than three pinned scenes; cross-placement (a
+clean next step — the winding_rs recipe).
 
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
