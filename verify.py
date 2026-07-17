@@ -3785,6 +3785,62 @@ class Gate:
                     "6/6 BUOY-REFUSE typed and total (empty · out-of-grid · duplicate · weight≤0 · bool · non-int cell)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    # -- 2p4. view-witness: the declared view must honestly cite the authority ----
+    def view_witness(self):
+        """The declared studio view must honestly CITE the measured authority (T3.6). Not a pixel
+        check — a CITATION check: the digests terrain_view3d.html prints as measured (hf_witness,
+        wave_witness) must equal the LIVE URDRHF1 island + URDRWAV1 swell@0 digests recomputed from
+        the modules; the declared knobs are a namespace disjoint from the authority and the
+        presentation digest is anchored on the witness (observational-only); a one-hex-flip forgery
+        reddens the citation; malformed citations are VIEW-REFUSE. The dual of
+        terrain-view-observational — the view can't contaminate the authority, and now can't misquote
+        it either. The render stays DECLARED; only the citation is measured."""
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import view_witness as VW
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("view-witness", False, f"import failed: {exc}")
+            return
+        try:
+            cite_ok = True
+            for name, required in VW.VIEWS:
+                html = VW.read_view(name)
+                cite_ok = cite_ok and VW.citation_ok(html, required) and VW.citation_ok(html, required)
+        except Exception as exc:
+            self.record("view-witness:cite", False, f"citation failed: {exc}")
+            return
+        self.record("view-witness:cite", cite_ok,
+                    "terrain_view3d.html cites the live URDRHF1 island + URDRWAV1 swell@0 digests ×2 "
+                    "(the citation is measured; the render stays declared)"
+                    if cite_ok else "a view cites a digest that is not the live authority")
+        html0 = VW.read_view(VW.VIEWS[0][0])
+        fw_ok = VW.firewall_ok(html0)
+        self.record("view-witness-firewall", fw_ok,
+                    "declared knobs are a namespace disjoint from the authority; the presentation digest is "
+                    "anchored on the witness (a knob moves the view, never the witness)"
+                    if fw_ok else "the declared/authority firewall is broken")
+        forged = VW.forge_citation(html0)
+        def_ok = (not VW.citation_ok(forged)) and VW.citation_ok(html0)
+        self.record("view-witness-selftest", def_ok,
+                    "a one-hex-flip forgery of the cited witness fails the citation check; the genuine view "
+                    "passes (citation load-bearing; gate can redden)"
+                    if def_ok else "the forgery was not caught")
+        codes = []
+        for bad in ("<html>no authority blob</html>",
+                    'x const D = {"hf_witness":"NOTHEXNOTHEX","wave_witness":"%s"}; y' % ("b" * 64),
+                    'x const D = {"hf_witness":"%s"}; y' % ("a" * 64)):
+            try:
+                VW.citation_ok(bad)
+                codes.append(None)
+            except VW.ViewError as exc:
+                codes.append(exc.code)
+        ref_ok = all(c == "VIEW-REFUSE" for c in codes)
+        self.record("view-witness-refusal", ref_ok,
+                    "3/3 VIEW-REFUSE typed (no authority blob / non-hex witness / missing citation)"
+                    if ref_ok else f"refusals wrong: {codes}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -3988,6 +4044,7 @@ def main() -> int:
     gate.terrain_view()
     gate.wavefield()
     gate.buoyancy()
+    gate.view_witness()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
