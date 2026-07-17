@@ -2,7 +2,7 @@
 
 # Terrain studio brief — the zyfod goal, inserted surgically (T-ladder)
 
-Status: **T1 LANDED (gate stage `terrain`, URDRHF1 canon MEASURED at reference); T2–T4 remain PLAN.** Authored 2026-07-16 against `terrains.zyfod.dev`
+Status: **T1 + T2 LANDED (gate stage `terrain`: URDRHF1 canon + the URDROBJ2 bridge, both MEASURED at reference); T3–T4 remain PLAN.** Authored 2026-07-16 against `terrains.zyfod.dev`
 v0.20.0 (feature surface taken from operator screenshots; the site is a client-side JS
 shell, so its internals are INFERRED, not read — stated where it matters). Written while
 the desktop bridge was offline: the D14/D15/D16/D17 contracts this plan anchors on were

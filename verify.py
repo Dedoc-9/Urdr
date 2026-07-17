@@ -3364,6 +3364,9 @@ class Gate:
         tdir = os.path.join(ROOT, "tools", "terrain")
         if tdir not in sys.path:
             sys.path.insert(0, tdir)
+        fdir = os.path.join(ROOT, "tools", "frontend")
+        if fdir not in sys.path:
+            sys.path.insert(0, fdir)
         try:
             import heightfield as HF
         except Exception as exc:  # pragma: no cover - import guard
@@ -3404,8 +3407,45 @@ class Gate:
         self.record("terrain-selftest", defect_ok,
                     "the linear-fade defect diverges from all 3 goldens while staying bounded (gate can redden)"
                     if defect_ok else "the defect did not misclassify")
+        try:
+            import terrain_bridge as TBR
+            import canon_ref as CR
+            obj_ok = True
+            for name, (scene, stride, xy, zn, zd) in TBR.BRIDGES.items():
+                p = HF.SCENES[scene]()
+                verts, edges, dig, design = TBR.bridge_scene(p, stride, xy, zn, zd)
+                obj_ok = obj_ok and (dig == HF.golden(name)
+                                     and dig == CR.canon(verts, edges)
+                                     and dig == TBR.own_canon(verts, edges)
+                                     and CR.check_design(design) == "ADMIT")
+        except Exception as exc:
+            self.record("terrain:object", False, f"bridge failed: {exc}")
+            return
+        self.record("terrain:object", obj_ok,
+                    "island/blank bridge to pinned URDROBJ2 goldens ×2; OWN canon ≡ canon_ref; D14 ADMIT"
+                    if obj_ok else "the bridge drifted from the shared identity law")
+        p = HF.SCENES["blank"]()
+        _v, _e, d1, _ = TBR.bridge_scene(p, 5, 32, provenance={"tool": "terrain"})
+        _v, _e, d2, _ = TBR.bridge_scene(p, 5, 32, provenance={"author": "someone else"})
+        self.record("terrain-object-provenance", d1 == d2,
+                    "identical geometry with differing provenance yields one URDROBJ2 identity (D14 clause 5)"
+                    if d1 == d2 else "provenance leaked into the object identity")
+        pi = HF.SCENES["island"]()
+        verts, edges, dig, _ = TBR.bridge_scene(pi, 9, 8)
+        obj_defect = TBR.own_canon_defect(verts, edges) != dig
+        self.record("terrain-object-selftest", obj_defect,
+                    "the max-first edge-normalization defect diverges from the golden (gate can redden)"
+                    if obj_defect else "the canon defect did not misclassify")
+        hts_b = HF.generate(p["w"], p["h"], p["seed"], p["height_scale"], p["sea_level"],
+                            p["layers"], p["falloff"], p["falloff_width"])
         base = HF.blank()
         codes = []
+        for bad_args in ((hts_b, 4, 32), (hts_b, 5, 0)):
+            try:
+                TBR.to_object(*bad_args)
+                codes.append(None)
+            except HF.TerrainError as exc:
+                codes.append(exc.code)
         for bad in (dict(base, w=3), dict(base, seed=True),
                     dict(base, layers=tuple((8, 1) for _ in range(13))),
                     dict(base, falloff="ridge")):
@@ -3416,7 +3456,7 @@ class Gate:
                 codes.append(exc.code)
         ref_total = all(c == "TERRAIN-REFUSE" for c in codes)
         self.record("terrain-refusal", ref_total,
-                    "4/4 TERRAIN-REFUSE typed and total (dims / bool seed / stack cap / falloff) — refuse, never clamp"
+                    "6/6 TERRAIN-REFUSE typed and total (stride remainder / zero scale / dims / bool seed / stack cap / falloff) — refuse, never clamp"
                     if ref_total else f"refusals wrong: {codes}")
 
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -

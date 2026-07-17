@@ -1871,6 +1871,24 @@ URDROBJ2 admission (rung T2 — D14 §3 steps 3–5 remain the obligation); anyt
 (T3, under the idle law: an idle view draws zero frames); erosion / splines / tiles (T4
 names); cross-placement. Plan of record: `docs/terrain_studio_brief.md`.
 
+**Terrain → URDROBJ2 bridge (T2) — the D14 admission completed — MEASURED (reference).**
+`tools/terrain/terrain_bridge.py`: a URDRHF1 heightfield becomes an integer wireframe grid
+under the ONE identity law every front end shares — height on z, x/y scaled exactly,
+decimation EXACT (the stride must divide dim−1 so the border is included, or
+`TERRAIN-REFUSE`; never a silently dropped edge). D14 clause 2 discharged the strong way:
+`own_canon` re-implements the URDROBJ2 string law without importing the referee, and the
+gate checks OWN ≡ `canon_ref.canon` on every pinned grid (island 8×8 / 64 verts / 112
+edges, golden `3caa092a…`; blank 4×4, golden `77910ea7…`) plus `check_design` → ADMIT.
+Clause 5 checked, not assumed: differing provenance dicts yield one identity, and the
+max-first edge-normalization defect diverges (gate can redden). Gate rows
+`terrain:object` / `terrain-object-provenance` / `terrain-object-selftest`; refusal row now
+6/6. Red-first additions in `tests/test_terrain.py` (16 falsifiers total). Unit falsifiers
+573 → 578. Grade: MEASURED (reference) — the D14 §4 procedural row is now MEASURED on both
+halves; cross-placement (§3 step 6) escalates with importance. `does_not_show`: anything
+rendered or world-loaded (the editor consumes URDROBJ2 objects by the existing measured
+machinery, but no terrain object has been walked through the editor yet — T3); water,
+biomes, tiles (T3/T4); the smooth-terrain aesthetics of any decimation choice.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and

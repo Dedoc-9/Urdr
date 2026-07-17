@@ -19,9 +19,14 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _p = os.path.join(_ROOT, "tools", "terrain")
 if _p not in sys.path:
     sys.path.insert(0, _p)
+_f = os.path.join(_ROOT, "tools", "frontend")
+if _f not in sys.path:
+    sys.path.insert(0, _f)
 
 import unittest
 import heightfield as HF                                    # noqa: E402
+import terrain_bridge as TBR                                # noqa: E402
+import canon_ref as CR                                      # noqa: E402
 
 
 class Terrain(unittest.TestCase):
@@ -117,6 +122,49 @@ class Terrain(unittest.TestCase):
         h2 = HF.generate(p["w"], p["h"], p["seed"], p["height_scale"], p["sea_level"],
                          p["layers"], p["falloff"], p["falloff_width"])
         self.assertEqual(h1, h2, "independent caches produced different fields")
+
+
+class TerrainBridge(unittest.TestCase):
+    def test_object_goldens_and_referee_agreement(self):
+        for name, (scene, stride, xy, zn, zd) in TBR.BRIDGES.items():
+            p = HF.SCENES[scene]()
+            verts, edges, dig, design = TBR.bridge_scene(p, stride, xy, zn, zd)
+            self.assertEqual(dig, HF.golden(name), f"{name}: object golden drifted")
+            self.assertEqual(dig, CR.canon(verts, edges),
+                             f"{name}: own canon disagrees with the D14 reference")
+            self.assertEqual(dig, TBR.own_canon(verts, edges), f"{name}: nondeterministic")
+            self.assertEqual(CR.check_design(design), "ADMIT", f"{name}: D14 obligations failed")
+
+    def test_object_provenance_inert(self):
+        p = HF.SCENES["blank"]()
+        _, _, d1, _ = TBR.bridge_scene(p, 5, 32, provenance={"tool": "terrain"})
+        _, _, d2, _ = TBR.bridge_scene(p, 5, 32, provenance={"author": "someone else"})
+        self.assertEqual(d1, d2, "provenance moved the object identity")
+
+    def test_object_defect_diverges(self):
+        for name, (scene, stride, xy, zn, zd) in TBR.BRIDGES.items():
+            p = HF.SCENES[scene]()
+            verts, edges, dig, _ = TBR.bridge_scene(p, stride, xy, zn, zd)
+            self.assertNotEqual(TBR.own_canon_defect(verts, edges), dig,
+                                f"{name}: the max-first canon defect did not diverge")
+
+    def test_object_grid_coverage(self):
+        p = HF.SCENES["island"]()
+        verts, edges, _, _ = TBR.bridge_scene(p, 9, 8)
+        self.assertEqual(len(verts), 64, "63/9 must give an 8x8 grid — border included")
+        self.assertEqual(len(edges), 112)
+        self.assertEqual((verts[0][0], verts[0][1]), (0, 0))
+        self.assertEqual((verts[-1][0], verts[-1][1]), (504, 504),
+                         "the last sample must sit exactly on the far border")
+
+    def test_object_refusals_typed(self):
+        p = HF.SCENES["blank"]()
+        hts = HF.generate(p["w"], p["h"], p["seed"], p["height_scale"], p["sea_level"],
+                          p["layers"], p["falloff"], p["falloff_width"])
+        for args in ((hts, 4, 32), (hts, 5, 0), (hts, True, 32)):
+            with self.assertRaises(HF.TerrainError) as cm:
+                TBR.to_object(*args)
+            self.assertEqual(cm.exception.code, "TERRAIN-REFUSE", f"wrong code for {args[1:]}")
 
 
 if __name__ == "__main__":
