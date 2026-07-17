@@ -355,8 +355,7 @@ Each main-tree folder carries its own README with the detail.
 ## What the manifold / engine can do — and what it's for
 
 Two properties are unusual in combination, and everything below follows from them: **the whole
-pipeline is bit-reproducible across independent implementations** (five Rust placements + a C99
-one agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
+pipeline is bit-reproducible across independent implementations** (24 Rust placements + 13 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
 at the type level** (over-grading does not typecheck; `MEASURED` is minted only by a verifier).
 The "manifold" is the observer/atlas layer (D7–D10) — the theorem `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) =
 {0}` made computable and data-parameterized (nD is a data choice) — sitting under a physics + render
@@ -402,6 +401,14 @@ catch every injected desync at the first mismatching tick. Walkthrough: [`demo/`
   fixed-point-dynamics, netcode-transcript, signed-input, and authored-world digests bit-for-bit
   with a deliberate defect caught — in the netcode stack, the placements agree on the *failure*
   digests too. The reproducibility is itself a checkable artifact, not a promise.
+- **Sculpt and read a certified terrain/wave world.** [`tools/terrain/`](tools/terrain/) is a
+  deterministic graphics engine built to the thesis — *fundamentals measured, look declared*: an exact
+  seeded heightfield (`URDRHF1`, cross-placed to std-only Rust and re-verified live each gate run) and an
+  exact division-free traveling-wave field (`URDRWAV1`) are read by **measured consumers** — a raft's exact
+  integer waterline (`buoyancy`) and a moving agent's first-overtopping tick (`crossing`) — and drawn by a
+  dependency-free WebGL2 view whose pixels are *declared* while its embedded digests must **cite** the
+  measured field or the gate reddens (`view_witness`). Edit any layer surgically: canon drift, a stale port,
+  or a forged citation each redden on commit (full detail in the studio section above).
 
 ### What it's for
 
@@ -457,8 +464,7 @@ revisions are now **MEASURED** and have moved into the pipeline above: **N5** (a
 frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contract, frozen), **D16**
 (regional authority — frozen, three placements), **D17** (the invariant-detector admission law — a
 *meta-contract* that names the pattern D14/D15/D16 already share; mechanically enforced by the
-`invariant_detectors` lint), a **seven-detector library** admitted under it (D14, D15, D16, rigidity,
-criticality, toric code, persistent homology), **criticality** (P6, reactor-kinetics field), and
+`invariant_detectors` lint), a **ten-detector library** admitted under it (D14, D15, D16, rigidity, criticality, toric code, persistent homology, winding number, Tellegen orthogonality, reconstructibility), **criticality** (P6, reactor-kinetics field), and
 **field-level desync localization** (Phase-2 observability). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
 
 - **Phase IV — coverage over architecture (the current direction).** With D17 written and enforced, the
@@ -472,6 +478,18 @@ criticality, toric code, persistent homology), **criticality** (P6, reactor-kine
 - **Cross-placement of the reference detectors.** D17's Axis A (reproduction) separates `REFERENCE` from
   `CROSS-PLACED`. Toric and rigidity are now cross-placed (C99 self-verified + Rust admitted on Windows);
   **criticality** and **persim** remain reference-only and are the next cross-placement targets.
+- **Live re-verification of every placement (generalize `heightfield-placement`).** The terrain port is
+  now recompiled and re-checked against its live goldens each gate run, so a re-pinned canon cannot leave a
+  stale Rust port green. The same stage generalizes to the rest of the library — `winding_rs`, `toric`/
+  `rigidity` (Rust + C99), and the math/netcode C99+Rust runtimes are currently *attested in-session*;
+  bringing each under live re-verification turns the whole cross-placement library from historical
+  attestation into continuous enforcement. The only cost is build time per gate run.
+- **The terrain/wave studio's own roadmap.** Presentation-side (all `DECLARED`, never touching the
+  authority): a sun-lit sea floor + caustics where shallow water reveals bathymetry, and a soft shoreline
+  to smooth the wave/land seam. Contract-side (`MEASURED`): a no-CDN assertion proving the view fetches
+  nothing third-party, and auto-discovery of view files into the `view_witness` `VIEWS` list so a new
+  fidelity overlay inherits the forgery-proof citation contract by construction. Canon-side: a second wave
+  placement (`URDRWAV1` → Rust) and the `URDROBJ2` terrain-bridge port.
 - **Scale-out as falsification of the sealed model (D16 → the next workloads).** The next surfaces —
   **dynamic repartitioning** (seams that move / regions that split & merge on a live tick),
   **interest-management / authority migration**, and a **distributed authority graph** — are pursued as
@@ -516,4 +534,29 @@ is [`LESSONS.md`](LESSONS.md); the normative language rules are [`spec/D1-spec.m
 3. **Grade every claim** on the maturity × evidence ladder; evidence never exceeds maturity; record it
    in [`spec/D5-ledger.md`](spec/D5-ledger.md). No inflation (L2, L6).
 4. **Gate twice.** `python verify.py` green, deterministically, in isolated subprocesses (L3).
-5. 
+5. **Cross-placement.** A numeric / observer result earns *both placements* only once an independent
+   toolchain reproduces its pinned digest — two kernels agreeing on the accept/reject frontier. Where
+   the gate can compile the port (`heightfield-placement`), that cross-placement is **re-verified live
+   every run**, not merely attested once (D17 Axis A).
+6. **No glyph without a review.** New *operations* arrive as ASCII prelude functions; a glyph is
+   *earned* later as a lossless alias via `tools/glyph_review.py` (§20), or never (design law 5).
+7. **Determinism is an environment:** `PYTHONHASHSEED=0`, `PYTHONUTF8=1` on redirected output; no
+   clock, RNG, float, or iteration-order dependence in the core (L3, L4, L8). The gate's own certified
+   stdout is byte-identical run-to-run — even the test runner's wall-clock line is kept off it — so
+   “run twice and diff” needs no normalization.
+8. **Keep the sayings honest:** `signum ≠ rēs`, `declared ≠ verified`, `digest ≠ MAC`,
+   `Grounded ≠ true`, `typeable ≠ renderable`, `cited ≠ implemented`.
+
+**The discipline now has teeth — the load-bearing rules are enforced by the gate, not by vigilance.**
+For the terrain/wave studio, the three ways a certified graphics engine could silently rot are each a
+red row on commit, not a convention: **canon drift** — edit a heightfield/wavefield constant and the
+dependent `*:scenes` rows *and* `view-witness:cite` redden; **a stale port** — re-pin the Python canon
+and `heightfield-placement` reddens until the Rust port is brought current, because the port is
+recompiled and re-checked against the live goldens every run; **a forged citation** — the declared
+view's embedded digests must equal the live measured ones or `view-witness:cite` reddens (the D15
+firewall). Canon drift, stale ports, and forged citations are caught by the gate itself: the discipline
+above is how the code got here, but it is no longer what keeps it honest.
+
+## License
+
+AGPL-3.0-only. Copyright (C) 2026 Daniel J. Dillberg.

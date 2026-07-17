@@ -20,6 +20,7 @@ Checks, in order (all sorted, all deterministic):
 
 Exit 0 iff every check passes. Output ends with 'GATE PASSED' or 'GATE FAILED'.
 """
+import io
 import os
 import shutil
 import subprocess
@@ -113,8 +114,16 @@ class Gate:
     def unit_tests(self):
         loader = unittest.TestLoader()
         suite = loader.discover(os.path.join(ROOT, "tests"), top_level_dir=ROOT)
-        result = unittest.TextTestRunner(verbosity=1, stream=sys.stdout).run(suite)
+        # Route the runner through a buffer so the gate's CERTIFIED stdout is byte-reproducible:
+        # unittest emits a wall-clock line ("Ran N tests in X.XXXs") that varies run-to-run and is
+        # part of no digest. On RED the buffer (dot-line + tracebacks + failing names) is written so
+        # nothing is hidden; on GREEN only the deterministic `unit-falsifiers` row remains, so two
+        # gate runs are byte-identical without post-hoc normalization.
+        buf = io.StringIO()
+        result = unittest.TextTestRunner(verbosity=1, stream=buf).run(suite)
         n_bad = len(result.failures) + len(result.errors)
+        if n_bad:
+            sys.stdout.write(buf.getvalue())
         self.n_falsifiers = result.testsRun  # single source for the doc-currency check
         self.record(
             "unit-falsifiers",
