@@ -2047,6 +2047,41 @@ buoyancy law.
 paths (straight-line constant-velocity only); more than three pinned scenes; cross-placement (a
 clean next step — the winding_rs recipe).
 
+**Grounded stance / first-person walk (URDRSTANCE1) — T3.9, the third MEASURED consumer + the
+foundation of FPS movement over the terrain.** `tools/terrain/stance.py`: where buoyancy and crossing
+read the WAVE field, this reads the solid `heightfield.py` (URDRHF1). A first-person actor STANDS at a
+grid cell — feet at the exact ground height `g = heights[y][x]`, capsule `[g, g+PLAYER_HEIGHT]`
+(standing IS reading the field, not a model of it) — and walks a declared cardinal path (N/S/E/W). A
+step A→B is TRAVERSABLE iff the climb `heights[B] − heights[A] ≤ MAX_STEP`: the integer collapse of a
+character controller's step-offset (max climbable rise) and slope-limit (max walkable angle), which on
+a unit grid are the SAME comparison (a per-cell "slope" IS a rise). `result` = the first step walled by
+an unclimbable rise, else the path length (cleared) — the solid-ground mirror of crossing's first-
+overtop tick. MAX_STEP is load-bearing: `ridge_clear` and `ridge_blocked` share ONE mountains path and
+differ only in MAX_STEP, so one walks the whole ridge (result 12) and one is walled after eight cells
+(result 8) by a 21-high face — the terrain, not the model, decides where the walk ends. Exact integers
+over the frozen heightfield (no `/`, `//`, `%` — tokenizer-asserted), so `result` + the ground profile
+reproduce bit-for-bit; cross-placement is a clean next step. Gate stage `stance`: reference (`plain_walk`
++ `ridge_clear` + `ridge_blocked` reproduce URDRSTANCE1 digests ×2), properties (the profile is the
+exact ground under the path; `result` is the FIRST wall; MAX_STEP load-bearing), selftest (a walk-
+through-walls defect — ignore the step gate — changes where a walled walk ends), refusal (off-grid
+start / path leaves the grid / unknown move / negative step / non-positive actor / empty path / bool →
+`STANCE-REFUSE`). Red-first `tests/test_stance.py` (10 falsifiers incl. the no-division tokenizer
+assertion). Unit falsifiers 636 → 646; rows 432 → 436. Research provenance (2026-07): the step gate is
+the integer form of a character controller's step-offset/slope-limit; determinism by EXACT integer
+(refuse on overflow, never fixed-point-with-wrap) is the industry path to bit-identical movement taken
+to its exactness limit. Grade: the COMPUTATION is MEASURED (exact, reproducible, a defect diverges);
+the movement LAW (an actor climbs a rise of at most MAX_STEP, walls otherwise) is a DECLARED model,
+like the buoyancy and crossing laws.
+`does_not_show`: continuous capsule-vs-mesh collision (grid-walking only); diagonal moves (no exact
+integer length); ceilings / headroom (a heightfield has no overhangs); cross-placement (a clean next
+step). The D7–D10 SEAM (the next slice): the walk is a state TRAJECTORY, and the observer/atlas engine
+(`world_host` / `atlas_*`) is exact-integer Kálmán observability — a state is recoverable iff its
+observation charts have full column rank (`rank(M) = n`), and a frame is admitted iff it reconstructs
+to the authority. Pointed at a moving first-person camera that makes the FPS view a certified observer:
+a laundered or forged view is REFUSED, not reconciled (the exact-arithmetic answer to server-
+authoritative movement — no float drift to reconcile). `stance` earns the trajectory; the certified
+gaze that watches it is the observer slice.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

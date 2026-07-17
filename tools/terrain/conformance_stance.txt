@@ -1,0 +1,8 @@
+# urdr-terrain (T3.9) — URDRSTANCE1 stance canon: exact integer grounded walk over the
+#   URDRHF1 heightfield. result = first step blocked by a rise > MAX_STEP, else path length;
+#   the digest binds result + the ground profile the actor stood on. Division-free; same
+#   (scene, path, MAX_STEP) -> same bytes on every host. See the builder's provenance docstring.
+# name  digest
+plain_walk ea1a4c54e76668daf2fd05c8eb245099f99f50bc65ee07f246b448891e9e42ba
+ridge_clear 4976d9b9583bc130803330d188df7347f1c13ec7f0cea21d31e8a48d4a729864
+ridge_blocked 520570e0d28d1815224b7055f5a05c25082c2715dbca4a2616096d624f18cb41

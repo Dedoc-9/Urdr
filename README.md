@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **636-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **646-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -104,9 +104,12 @@ it by **content-addressed digest**, not by mutable reference.
   field, division-free so cross-placement parity is *structural*). Same inputs → same bytes on every
   host; `heightfield_rs` cross-places the terrain canon to std-only Rust, re-verified live each gate
   run.
-- **Consumers (MEASURED).** `buoyancy.py` (a raft's exact integer waterline on the field) and
-  `crossing.py` (a moving agent's exact first-overtopping tick). They *read* the certified field and
-  produce reproducible, witnessed results — the field certifiably *does something*.
+- **Consumers (MEASURED).** `buoyancy.py` (a raft's exact integer waterline on the wave field),
+  `crossing.py` (a moving agent's exact first-overtopping tick), and `stance.py` (a first-person
+  actor's exact grounded walk over the heightfield — the solid-ground sibling and the foundation of
+  FPS movement: feet at the exact ground height, a step walled when its rise exceeds `MAX_STEP`, the
+  integer collapse of a character controller's step-offset + slope-limit). They *read* the certified
+  field and produce reproducible, witnessed results — the field certifiably *does something*.
 - **Presentation (DECLARED).** `terrain_view3d.html` — a dependency-free WebGL2 render with a studio
   panel of knobs. Its pixels are never measured; the boundary never moves.
 - **The firewall (MEASURED citation).** `view_witness.py` proves the declared view honestly *cites*
@@ -117,7 +120,7 @@ it by **content-addressed digest**, not by mutable reference.
 
 | You edit… | A cosmetic change (comment, refactor) | A canon change (a constant, a formula) |
 | --- | --- | --- |
-| `heightfield.py` / `wavefield.py` | digests identical → gate stays green | digests change → reddens the `*:scenes` row **and** `view-witness:cite`; a wave change also reddens `buoyancy` + `crossing` |
+| `heightfield.py` / `wavefield.py` | digests identical → gate stays green | digests change → reddens the `*:scenes` row **and** `view-witness:cite`; a heightfield change also reddens `stance`, a wave change `buoyancy` + `crossing` |
 | `terrain_view3d.html` (the look) | declared — cannot reach the authority; only the view digest moves | still declared; if it forges an embedded witness, `view-witness:cite` reddens |
 | `heightfield_rs` (the Rust port) | must still reproduce the live goldens or `heightfield-placement` reddens | must be brought current with the Python canon, or the gate reddens |
 
@@ -126,6 +129,16 @@ on the changed authority reddens on commit. A cosmetic edit — reformat, re-com
 passes through untouched, because identity is *content*, not shape. To add a new fidelity overlay,
 drop it in the `VIEWS` list and it inherits the same forgery-proof citation contract; to change the
 canon, re-pin the conformance and the live cross-placement stage forces the Rust port to keep up.
+
+**Where this is going — FPS movement over the certified terrain.** `stance` earns the actor's
+*trajectory* — its authoritative pose over time — as a measured fact. The observer/atlas engine below
+(D7–D10) is exact-integer **Kálmán observability**: a state is recoverable from observations iff its
+observation charts have full column rank (`rank(M) = n`), and a frame is *admitted iff it reconstructs
+to the authority* (`world_host`). Pointed at a moving first-person camera, that turns the FPS view
+into a **certified observer** — a laundered or forged view is *refused, not reconciled* (the exact-
+arithmetic answer to server-authoritative movement: no float drift to reconcile, so a non-reconstructing
+frame is a genuine forgery). Slice 1 (this `stance`) is the ground you walk; the certified gaze that
+watches you is the next slice.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 

@@ -3937,6 +3937,94 @@ class Gate:
                     "6/6 CROSS-REFUSE typed and total (zero vel · leaves grid · window≤0 · bool · non-int start · bad vel)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    def stance(self):
+        """The MEASURED foundation of first-person movement over the terrain (T3.9): an exact,
+        integer, grounded walk across the certified heightfield. An actor stands at a grid cell (feet
+        at the exact ground height) and walks a declared cardinal path; a step is walled when its rise
+        exceeds MAX_STEP (the integer collapse of a character controller's step-offset + slope-limit).
+        The result is the first walled step, else the path length — the solid-ground sibling of
+        buoyancy/crossing, and the state trajectory a future observer (D7–D10) will certify a view of.
+        MEASURED (result + ground profile exact + reproducible, a defect diverges); the movement law
+        is DECLARED. Rows: reference (pinned walks reproduce URDRSTANCE1 digests ×2), properties (the
+        profile is the exact ground under the path; the result is the FIRST wall; MAX_STEP is
+        load-bearing — one path clears high and walls low), selftest (a walk-through-walls defect
+        changes where a walled walk ends), refusal (off-grid start / path leaves grid / unknown move /
+        negative step / bool → STANCE-REFUSE)."""
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import stance as ST
+            import heightfield as HF
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("stance", False, f"import failed: {exc}")
+            return
+
+        def heights(scene):
+            return HF.scene_digest(HF.SCENES[scene]())[1]
+
+        try:
+            ref_ok = True
+            for name in ST.SCENES:
+                r, d = ST.scene_result(name)
+                ref_ok = ref_ok and (d == ST.golden(name) and ST.scene_result(name)[1] == d)
+        except Exception as exc:
+            self.record("stance:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("stance:scenes", ref_ok,
+                    "plain_walk + ridge_clear + ridge_blocked reproduce URDRSTANCE1 digests ×2 (exact wall step + ground profile)"
+                    if ref_ok else "a stance scene drifted from its digest")
+        grounded_ok = first_ok = True
+        for name in ST.SCENES:
+            scene, start, moves, ms, ph = ST.SCENES[name]()
+            H = heights(scene)
+            r, prof = ST.walk_trace(H, start, moves, ms, ph)
+            x, y = start
+            exp = [H[y][x]]
+            for m in moves:
+                dx, dy = ST.DIRS[m]
+                x += dx
+                y += dy
+                exp.append(H[y][x])
+            grounded_ok = grounded_ok and prof == tuple(exp)
+            first_ok = first_ok and all(prof[i + 1] - prof[i] <= ms for i in range(r)) \
+                and (r == len(moves) or prof[r + 1] - prof[r] > ms)
+        rsc, rst, rmv, _rms, rph = ST.ridge_clear()               # ridge_clear + ridge_blocked share this path
+        Hr = heights(rsc)
+        step_ok = (ST.walk(Hr, rst, rmv, 40, rph) == len(rmv)) and (ST.walk(Hr, rst, rmv, 20, rph) < len(rmv))
+        props = grounded_ok and first_ok and step_ok
+        self.record("stance-properties", props,
+                    "the profile is the exact ground under the path; result is the FIRST wall; "
+                    "MAX_STEP load-bearing (one path clears high, walls low)"
+                    if props else "a stance property failed (grounded / first / max_step)")
+        bsc, bst, bmv, bms, bph = ST.ridge_blocked()
+        Hb = heights(bsc)
+        real = ST.walk(Hb, bst, bmv, bms, bph)
+        blind = ST.walk(Hb, bst, bmv, bms, bph, blind=True)
+        psc, pst, pmv, pms, pph = ST.plain_walk()
+        clears = ST.walk(heights(psc), pst, pmv, pms, pph) == len(pmv)  # control: plain_walk truly clears
+        def_ok = (real != blind) and clears
+        self.record("stance-selftest", def_ok,
+                    "a walk-through-walls defect (ignore the step gate) changes where a walled walk ends — "
+                    "the terrain gate is load-bearing (gate can redden)"
+                    if def_ok else "the blind defect did not diverge")
+        Hk = heights("blank")
+        codes = []
+        cases = [((-1, 0), "EE", 8, 1), ((2, 8), "E" * 16, 8, 1), ((2, 8), "EX", 8, 1),
+                 ((2, 8), "EE", -1, 1), ((2, 8), "EE", 8, 0), ((2, 8), "", 8, 1),
+                 ((2, 8), "EE", True, 1), ((0.0, 8), "EE", 8, 1)]
+        for start, moves, ms, ph in cases:
+            try:
+                ST.walk(Hk, start, moves, ms, ph)
+                codes.append(None)
+            except ST.StanceError as exc:
+                codes.append(exc.code)
+        ref_total = all(c == "STANCE-REFUSE" for c in codes)
+        self.record("stance-refusal", ref_total,
+                    "8/8 STANCE-REFUSE typed and total (off-grid start · leaves grid · unknown move · "
+                    "neg step · non-positive actor · empty path · bool · non-int start)"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4229,6 +4317,7 @@ def main() -> int:
     gate.buoyancy()
     gate.view_witness()
     gate.crossing()
+    gate.stance()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

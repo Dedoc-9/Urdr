@@ -165,10 +165,30 @@ These are non-negotiable. Every rung in this repo was built under them.
    (`phys_scenes`, `nd_scenes`, `lcp_scenes`, `joint_scenes`, `scenes3d`,
    `field_scenes`, …).
 
-10. **Docs must match reality.** When counts change, comb the docs (`README.md`,
-    `docs/PAPER.md`, `spec/D*`) and fix stale numbers. `spec/D5` is the graded
-    ledger, `spec/D11` the layer contracts, `spec/D12` the versions/freeze. A doc
-    that overstates is a bug — file it (or fix it).
+10. **Docs must match reality — and the gate enforces it (`doc-currency`).** Five
+    live counts are checked MECHANICALLY against the seven tracked docs —
+    `README.md`, `AGENTS.md`, `docs/PAPER.md`, `docs/THEOREMS.md`, `docs/README.md`,
+    `tools/README.md`, `tests/README.md` — on every run; a doc quoting a stale number
+    reddens `doc-currency`. Each count has ONE source of truth, never a re-count:
+    **unit falsifiers** = the gate's own `testsRun` (add a `tests/test_*.py` method and
+    it rises); **gate rows** = the live row total (add a `self.record(...)` and it
+    rises); **Rust / C99 placements** = the count of `*_rs` / `*_c` directories under
+    `tools/` (the filesystem itself); **detectors** = the length of `verify.py`'s
+    `invariant_detectors` manifest (admit a D17 detector and it rises). The idioms are
+    DIGIT-form only: `<n> unit falsifiers`, `<n>-test gate`, `<n> unit falsifiers / <m>
+    rows`, `<n> … Rust`, `<n> C99`, `<n> detectors` / `<n>-detector`. Markdown emphasis
+    is stripped first, so a bolded count cannot hide. THE GOTCHA, learned the hard way:
+    a count written in WORDS (a spelled-out detector or placement count) is INVISIBLE to
+    the checker and silently rots — it has happened twice. Write every count you want
+    protected in DIGITS. Workflow when you add tests, rows, placements, or a detector:
+    run the gate, read the `doc-currency` refusal (it NAMES each stale doc and count),
+    and fix EVERY tracked doc; the non-vacuity selftest proves the checker catches a
+    planted stale count, so a green `doc-currency` means the docs are current, not that
+    the check was skipped. Deliberately NOT tracked (they carry historical or
+    forward-looking numbers the idiom would wrongly read as live counts): `spec/D5` (the
+    graded ledger — it records `x → y` count steps) and `spec/D17` (it names a future
+    catalog size). `spec/D11` is the layer contracts, `spec/D12` the versions/freeze. A
+    doc that overstates is a bug — the gate now files it for you.
 
 11. **The completion rule.** No capability is COMPLETE until its transcript is
     frozen, its refusals are specified, its corpus exists, and an independent
