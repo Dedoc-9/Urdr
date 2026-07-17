@@ -1,0 +1,9 @@
+# urdr-wave (T3.3 authority) — URDRWAV1 exact integer traveling-wave field: periodic
+#   parabolic profile (P² | 8A), floor-mod phase, superposition — same (components, t) →
+#   same bytes on every host, EXACT (no rounding). name = scene@tick.
+# name  digest
+swell@0 31be244d80332b72e56005dfca78ed9ab606b768403d54f8d1f70cf4859a049e
+swell@3 07088ff63250db41e91d01710c6c887306fc0c406fe9a2f62fe46f6d5a6c9718
+swell@7 278dcce5c1e4e77317c8d38cc009616d0bf80df312ac6f6df74db6205bfac72e
+still@0 31d49e482e77a1aaf8c8f682704b78743dd3f6b59f0c03eff0721666e32e713d
+still@5 7551ae89306c3f35c3d20d5c962fbc96b5e6c8249d7c059c5857816e19058394

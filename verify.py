@@ -3624,6 +3624,85 @@ class Gate:
                     "4/4 VIEW-REFUSE typed and total (non-hex witness / wrong length / empty / undeclared knob)"
                     if ref_ok else f"refusals wrong: {codes}")
 
+    # -- 2p9. wavefield — T3.3 authority: the exact integer traveling-wave field -------
+    def wavefield(self):
+        """The measurable core of the wave seam (docs/POSITIONING.md §6): an EXACT integer
+        traveling-wave field (periodic parabolic profile, P²|8A, floor-mod phase,
+        superposition) — the authority the GPU's declared Gerstner sinusoid draws from. Rows:
+        reference (the pinned scenes reproduce URDRWAV1 digests ×2 at every pinned tick),
+        properties (every cell within the exact amplitude bound; a moving field travels, a
+        zero-speed field is static; superposition is EXACT — field(Σcomp)==Σfield(comp), the
+        no-rounding flex), selftest (the reversed-travel defect matches t=0 and diverges at
+        t≥1 — travel is load-bearing), refusal (non-exact (A,P) / odd period / zero dir /
+        negative speed / bool / bad dims → WAVE-REFUSE)."""
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import wavefield as WF
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("wavefield", False, f"import failed: {exc}")
+            return
+        W = HH = 24
+        try:
+            ref_ok = True
+            for name, builder in WF.SCENES.items():
+                comps = builder()
+                for t in WF.SCENE_TICKS[name]:
+                    g = WF.field(W, HH, t, comps)
+                    d = WF.wave_digest(W, HH, t, g)
+                    ref_ok = ref_ok and (d == WF.golden(name, t)
+                                         and WF.wave_digest(W, HH, t, WF.field(W, HH, t, comps)) == d)
+        except Exception as exc:
+            self.record("wavefield:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("wavefield:scenes", ref_ok,
+                    "swell + still reproduce URDRWAV1 digests ×2 at every pinned tick (exact — same bytes any host)"
+                    if ref_ok else "a wave scene drifted from its pinned digest")
+        sw = WF.swell()
+        st = WF.still()
+        bound_ok = True
+        for name, builder in WF.SCENES.items():
+            comps = builder()
+            b = WF.amplitude_bound(comps)
+            for t in WF.SCENE_TICKS[name]:
+                bound_ok = bound_ok and all(abs(v) <= b for row in WF.field(W, HH, t, comps) for v in row)
+        travel_ok = (WF.field(W, HH, 0, sw) != WF.field(W, HH, 1, sw)
+                     and WF.field(W, HH, 0, st) == WF.field(W, HH, 9, st))
+        combined = WF.field(W, HH, 3, sw)
+        summed = None
+        for c in sw:
+            part = WF.field(W, HH, 3, (c,))
+            summed = part if summed is None else tuple(
+                tuple(x + y for x, y in zip(ra, rb)) for ra, rb in zip(summed, part))
+        super_ok = combined == summed
+        self.record("wavefield-properties", bound_ok and travel_ok and super_ok,
+                    "cells within Σ|A|; swell travels + still is static; superposition EXACT "
+                    "(field(Σcomp)==Σfield(comp), no rounding)" if bound_ok and travel_ok and super_ok
+                    else "a wave property failed (bound / travel / superposition)")
+        def_ok = (WF.field_defect(W, HH, 0, sw) == WF.field(W, HH, 0, sw)
+                  and WF.field_defect(W, HH, 3, sw) != WF.field(W, HH, 3, sw))
+        self.record("wavefield-selftest", def_ok,
+                    "the reversed-travel defect matches t=0 and diverges at t=3 (travel load-bearing; gate can redden)"
+                    if def_ok else "the reversed-travel defect did not diverge")
+        codes = []
+        for comps in (((12, (1, 0), 8, 1),), ((24, (1, 0), 7, 1),), ((24, (0, 0), 8, 1),),
+                      ((24, (1, 0), 8, -1),), ((True, (1, 0), 8, 1),)):
+            try:
+                WF.field(W, HH, 0, comps)
+                codes.append(None)
+            except WF.WaveError as exc:
+                codes.append(exc.code)
+        try:
+            WF.field(1, HH, 0, sw)
+            codes.append(None)
+        except WF.WaveError as exc:
+            codes.append(exc.code)
+        ref_total = all(c == "WAVE-REFUSE" for c in codes)
+        self.record("wavefield-refusal", ref_total,
+                    "6/6 WAVE-REFUSE typed and total (non-exact A/P · odd period · zero dir · neg speed · bool · dims)"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -3825,6 +3904,7 @@ def main() -> int:
     gate.terrain()
     gate.sea()
     gate.terrain_view()
+    gate.wavefield()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

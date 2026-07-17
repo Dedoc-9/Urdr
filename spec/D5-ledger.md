@@ -1949,6 +1949,35 @@ never in this ledger as physics); the visual gap (T3.1–T3.4). The boundary nev
 `semel` the authority is measured, `et iterum` the presentation is declared, `idem` the
 boundary is fixed.
 
+**The wave-seam authority (T3.3) — an EXACT integer traveling-wave field — MEASURED
+(reference).** `tools/terrain/wavefield.py`: the measurable core of the OODA-picked wave seam
+(`docs/POSITIONING.md` §6). A stronger choice than the roadmap's first sketch: a true Gerstner
+surface needs `sin`/`cos` (irrational → the bounded Q32.32 regime + a fixed-point-trig
+sub-slice), so instead the field is built from a **periodic parabolic profile in pure
+integers** — `profile(p) = A − (8A/P²)·(p mod P)·(P − p mod P)` with `P² | 8A` — making it
+EXACT (no rounding), trig-free, DIVISION-FREE (no `/`, `//`, or `%` operator anywhere — the
+phase wrap and the exact curvature `8A/P²` use shift-based DOUBLING, so cross-placement parity
+is STRUCTURAL, not a documented caveat about negative-operand `/`/`%` divergence; a
+rounding Q16-reciprocal `>>16` is deliberately NOT used, as it could not claim EXACT), and
+trivially cross-placeable, the stronger grade in the
+`exact where affordable` spirit. It is NOT a sinusoid; the sinusoidal *look* is the GPU's
+declared job (two grades, never conflated). Height superposes the components' profiles; phase
+uses documented FLOOR MOD so a truncating-`%` placement agrees; same (components, tick) → same
+bytes on every host. Gate stage `wavefield`: reference (swell + still reproduce URDRWAV1
+digests ×2 at every pinned tick), properties (every cell within the exact amplitude bound
+Σ|A|; a moving field travels while a zero-speed field is static across ticks; superposition is
+EXACT — `field(Σcomp) == Σ field(comp)`, the no-rounding flex that a bounded sinusoid could not
+claim), selftest (the reversed-travel defect matches t=0 and diverges at t≥1 — travel is
+load-bearing), refusal (non-exact `(A,P)` / odd or sub-2 period / zero direction / negative
+speed / bool / bad dims → `WAVE-REFUSE`, refuse never round). Red-first `tests/test_wavefield.py`
+(9 falsifiers — one TOKENIZES the source and asserts no division/modulo operator exists, so
+the placement guarantee is enforced structurally). Unit falsifiers 596 → 605. Grade: MEASURED
+(reference) — EXACT (not bounded), and division-free.
+`does_not_show`: the presentation half (the WebGL2 3D Gerstner-shaded view is T3.2, declared,
+unbuilt); a gameplay consumer of the field (buoyancy/wave-crossing — named, not built); ocean
+realism (the parabolic profile is deterministic authority, not a physical spectrum);
+cross-placement (a clean next step — exact integers, the winding_rs recipe).
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and
