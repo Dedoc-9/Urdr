@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **684-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **690-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -179,7 +179,16 @@ admit-or-refuse law on `urdr.canon.digest` — the very digest the reference ker
 Rust placement already agree on (D8). Over *different content-addressing* (terrain hashlib vs kernel canon)
 the verdict is identical, so the terrain law is certified to be the kernel's law, not a divergent copy; and
 the horizon observer is shown to *extend* the kernel snapshot (it admits non-covering sequences the kernel
-refuses), rather than contradict it. The one piece still ahead is the **fixed-point regime** (Slice 4) —
+refuses), rather than contradict it. The *dynamics* answer to the kernel too (Slice 3d): `drive`'s
+transcript is cross-checked against the kernel netcode's **lockstep witness protocol** (N1) using the
+kernel's own `first_desync` / `trace_digest` — deterministic, tamper-evident, and a corruption *localized*
+to its exact tick (the step past textbook lockstep, which detects a desync per-frame but does not locate
+it). This one is honestly weaker — *contract* conformance, not law-identity: `drive` folds an exact-integer
+step and N1 a Q32.32 physics step over a different world, so it is "drive satisfies N1's lockstep contract,"
+and the scope is pinned (drive's positional commands are non-commutative — a reorder is a real desync, so
+N1's additive-impulse robustness deliberately does not transfer). With both, the whole terrain stack —
+observation law and movement protocol — answers to the kernel. The one piece still ahead is the
+**fixed-point regime** (Slice 4) —
 `fpquat` mouse-look + `fppose` capsule, continuous rotation and position in Q32.32 — an *enrichment of Φ*,
 landing on this *proven, kernel-verified* transcript + reconstruction + horizon-observability gate rather
 than a hoped-for one; the innovation law is measured on the cleanest exact-integer substrate first, so free

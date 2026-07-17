@@ -2232,6 +2232,45 @@ canonicalizations — only the VERDICTS are cross-checked, which is the law-leve
 the `urdr` package importable (always true when the full gate runs — the kernel tests, oracle, and examples
 already depend on it).
 
+**Dynamics cross-check — `drive` conforms to the kernel netcode lockstep witness protocol (T3.14) —
+MEASURED (CONTRACT conformance, explicitly NOT law-identity).** `tests/test_lockstep_crosscheck.py` + gate
+stage `lockstep_crosscheck`: the symmetric completion of T3.13 — where the observer cross-check certified
+`gaze`/`traj` run the kernel's admit LAW, this certifies `drive`'s movement transcript conforms to the
+kernel netcode's lockstep witness PROTOCOL (N1, `tools/netcode/lockstep.py`), verified with N1's OWN
+`first_desync` / `trace_digest` — not a reimplementation of them. HONEST GRADE, stated up front: this is
+WEAKER than the observer cross-check and must not be sold as equal. `drive` folds an EXACT-INTEGER terrain
+step; N1 folds a Q32.32 PHYSICS step (`../physics/field.py`) over a different world (bodies under gravity
+in a box). They are different lockstep INSTANCES — there is NO shared state to equate, so this is not
+"same verdict over different bytes" (T3.13) but "drive satisfies the same lockstep CONTRACT." What the
+contract is, and what is measured: (1) DETERMINISM — drive's per-tick witness chain (a digest of each pose,
+the analogue of N1's per-tick state witness `frames[k]`) replayed yields NO desync under the kernel's
+`first_desync` and a stable `trace_digest`; (2) LOCALIZED TAMPER-EVIDENCE — a forged command makes the
+chain diverge and the KERNEL's `first_desync` localizes it to the exact tick the command feeds (cmd 2 →
+tick 3), `trace_digest` moving; (3) AGREEMENT — drive's OWN `transcript_digest` tamper-evidence moves IFF
+the kernel `trace_digest` moves, across forge / drop / reorder — drive's ad-hoc witness agrees with the
+kernel protocol, not just with itself. Three rows: `crosscheck:lockstep` (conformance — determinism +
+localized tamper-evidence), `crosscheck:lockstep-agree` (drive's tamper-evidence ≡ N1's trace across
+forge/drop/reorder), `crosscheck:lockstep-scope` (the honest boundary, below). Red-first
+`tests/test_lockstep_crosscheck.py` (6 falsifiers). Unit falsifiers 684 → 690; rows 451 → 454. RESEARCH
+NOTE (web, 2026-07): textbook deterministic lockstep (Fiedler, *Deterministic Lockstep*; SnapNet,
+*Netcode Architectures Part 1*) checksums the whole state PER FRAME to DETECT a desync, but neither details
+LOCALIZATION — which tick first diverged. N1's `first_desync` provides exactly that localization, and this
+cross-check certifies `drive` INHERITS it: a corruption is not merely detected but placed at its tick — a
+capability past the textbook. `does_not_show` / HONEST SCOPE: NOT state-equality (the two fold different
+steps over different substrates — each is verified deterministic separately, not against each other's
+state); NOT input-commutativity — N1's additive impulses commute and exact-duplicate deliveries are deduped
+(`canon`), but drive's commands are POSITIONAL, so a reorder is a REAL desync (correctly: a different
+command order is a different path). N1's delivery-robustness therefore does NOT transfer to drive, and
+`crosscheck:lockstep-scope` PINS that it must not be claimed (the reorder desyncs; the localizer is
+non-vacuous — None on identical, the right index on differing; N1 itself is deterministic and desyncs on a
+modified event). Requires the kernel netcode spine (`lockstep` → `field` → `rational`) importable — always
+true when the full gate runs (the netcode conformance stages already depend on it). With T3.13 (observers)
+and T3.14 (dynamics) the WHOLE terrain stack — observation law AND movement protocol — now answers to the
+kernel before the fixed-point regime (Slice 4) enriches Φ. STILL OPEN: a stronger drive↔N1 tie (e.g.
+re-expressing N1's `simulate` as a generic fold parameterized by the step, so drive.step could instantiate
+it and the folds equate by construction) would upgrade this from contract-conformance toward law-identity —
+a deliberate later refactor, not claimed here.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

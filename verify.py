@@ -4338,6 +4338,73 @@ class Gate:
                     "a shifted kernel anchor refuses the same frame (binding load-bearing)"
                     if sel else "the content-addressing / anchor-binding selftest did not bind")
 
+    def lockstep_crosscheck(self):
+        """The DYNAMICS cross-check (T3.14): `drive`'s movement transcript CONFORMS to the kernel netcode's
+        lockstep witness protocol (N1, `tools/netcode/lockstep.py`), verified with N1's OWN `first_desync`
+        / `trace_digest` — not a reimplementation. HONEST SCOPE: this is CONTRACT conformance, NOT the
+        law-identity of the observer cross-check — `drive` folds an exact-integer terrain step, N1 a Q32.32
+        physics step over a different world, so there is no shared state; what is shared is the lockstep
+        WITNESS PROTOCOL (deterministic fold + tamper-evident per-tick chain + first-desync LOCALIZATION,
+        the step past textbook per-frame desync detection). Rows: lockstep (drive's chain is deterministic
+        under N1's first_desync, and a forged command is localized to the exact tick with trace_digest
+        moving), agree (drive's own transcript_digest tamper-evidence moves IFF N1's trace_digest moves,
+        across forge/drop/reorder), scope (drive's positional commands are non-commutative — a reorder is a
+        REAL desync, N1's additive-impulse robustness does NOT transfer; the localizer is non-vacuous; N1
+        itself is self-consistent)."""
+        import hashlib as _hl
+        for p in (ROOT, os.path.join(ROOT, "tools", "terrain"),
+                  os.path.join(ROOT, "tools", "netcode"), os.path.join(ROOT, "tools", "physics")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import drive as DR
+            import lockstep as N1
+        except Exception as exc:
+            self.record("crosscheck:lockstep", False, f"import failed (kernel lockstep / field): {exc}")
+            return
+
+        H = DR._HF.scene_digest(DR._HF.SCENES["blank"]())[1]
+
+        def chain(cmds):
+            traj = DR.drive(H, (2, 8), cmds, 16)
+            return [_hl.sha256(("URDRDRVW1|" + ",".join(str(int(v)) for v in p)).encode()).hexdigest()
+                    for p in traj]
+
+        def tamper(cmds):
+            return DR.transcript_digest("x", (2, 8), cmds, DR.drive(H, (2, 8), cmds, 16))
+
+        honest = chain("eeee")
+        determ = (N1.first_desync(honest, chain("eeee")) is None
+                  and N1.trace_digest(honest) == N1.trace_digest(chain("eeee")))
+        localized = (N1.first_desync(honest, chain("eeNe")) == 3
+                     and N1.trace_digest(honest) != N1.trace_digest(chain("eeNe")))
+        conforms = determ and localized
+        self.record("crosscheck:lockstep", conforms,
+                    "drive's per-tick witness chain is deterministic under the kernel first_desync, and a "
+                    "forged command is localized to the exact tick (trace_digest moves)"
+                    if conforms else "drive's transcript did not conform to the N1 lockstep witness protocol")
+
+        base_t, base_x = N1.trace_digest(honest), tamper("eeee")
+        agree = all((N1.trace_digest(chain(c)) != base_t) == (tamper(c) != base_x) and (tamper(c) != base_x)
+                    for c in ("eeNe", "eee", "enee"))
+        self.record("crosscheck:lockstep-agree", agree,
+                    "drive's own transcript_digest tamper-evidence moves IFF the kernel trace_digest moves "
+                    "(forge / drop / reorder) — the ad-hoc witness agrees with the kernel protocol"
+                    if agree else "drive's tamper-evidence disagreed with the kernel trace")
+
+        noncommute = N1.first_desync(chain("enee"), chain("neee")) is not None
+        nonvacuous = N1.first_desync(honest, honest) is None and N1.first_desync(honest, chain("eeeN")) == 4
+        w = N1.world()
+        n1_self = (N1.first_desync(N1.simulate(w, N1.sample_log())[0], N1.simulate(w, N1.sample_log())[0]) is None
+                   and N1.first_desync(N1.simulate(w, N1.sample_log())[0],
+                                       N1.simulate(w, N1.modify_event(N1.sample_log(), 0))[0]) is not None)
+        scope = noncommute and nonvacuous and n1_self
+        self.record("crosscheck:lockstep-scope", scope,
+                    "honest scope: drive's positional commands are non-commutative (a reorder is a real "
+                    "desync, N1's additive robustness does not transfer); the localizer is non-vacuous; N1 "
+                    "itself is deterministic and desyncs on corruption"
+                    if scope else "the non-commutativity / non-vacuity / N1-self-consistency scope did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4635,6 +4702,7 @@ def main() -> int:
     gate.drive()
     gate.traj()
     gate.kernel_crosscheck()
+    gate.lockstep_crosscheck()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
