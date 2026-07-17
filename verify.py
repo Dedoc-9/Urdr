@@ -3459,6 +3459,80 @@ class Gate:
                     "6/6 TERRAIN-REFUSE typed and total (stride remainder / zero scale / dims / bool seed / stack cap / falloff) — refuse, never clamp"
                     if ref_total else f"refusals wrong: {codes}")
 
+    # -- 2p7. sea — S1: the terrain sea as certified field state (masked transport) ----
+    def sea(self):
+        """The island's sea evolving on the frozen urdr-field substrate over a
+        coastline-shaped domain: the bathymetry adapter (URDRHF1 heights + declared sea
+        level → mask + depth field) and the masked flux-form step (an edge carries flux
+        only if BOTH endpoints are sea — the coastline is boundary, as the grid edge
+        already is). Rows: reference (the pinned scene reproduces its URDRFLD1 digest ×2
+        — no new witness class), conservation (total mass EXACT across 40 masked ticks),
+        coast (land identically zero at init and after; an all-sea mask reproduces the
+        frozen step bit-for-bit, advection included), selftest (the UNMASKED evolution
+        wets land and diverges — the mask is load-bearing), refusal (empty sea / drop on
+        land / bool params TERRAIN-REFUSE; grid/mask mismatch FIELD-REFUSE)."""
+        for d in ("terrain", "physics"):
+            dd = os.path.join(ROOT, "tools", d)
+            if dd not in sys.path:
+                sys.path.insert(0, dd)
+        try:
+            import heightfield as HF
+            import sea as SEA
+            from field import FixedPoint as FP, FieldError as FE, step as fstep, mass, digest
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("sea", False, f"import failed: {exc}")
+            return
+        try:
+            p = HF.SCENES[SEA.SEA_SCENE["terrain"]]()
+            mask, grid = SEA.sea_from_terrain(FP, p)
+            x, y = SEA.SEA_SCENE["drop_xy"]
+            g0 = SEA.drop(FP, grid, mask, p["w"], x, y, *SEA.SEA_SCENE["drop"])
+            gN = SEA.evolve(FP, g0, mask, p["w"], p["h"], SEA.SEA_SCENE["k"], SEA.SEA_SCENE["ticks"])
+            d1 = digest(FP, gN, p["w"], p["h"])
+            gN2 = SEA.evolve(FP, g0, mask, p["w"], p["h"], SEA.SEA_SCENE["k"], SEA.SEA_SCENE["ticks"])
+            ref_ok = d1 == SEA.golden("island_sea") and digest(FP, gN2, p["w"], p["h"]) == d1
+        except Exception as exc:
+            self.record("sea:island", False, f"reference failed: {exc}")
+            return
+        self.record("sea:island", ref_ok,
+                    "the pinned island sea reproduces its URDRFLD1 digest ×2 (frozen law — no new witness class)"
+                    if ref_ok else "the sea scene drifted from its golden")
+        cons_ok = mass(FP, g0) == mass(FP, gN) and g0 != gN
+        self.record("sea-conservation", cons_ok,
+                    "total mass EXACT across 40 masked ticks (and the field genuinely moved)"
+                    if cons_ok else "mass drifted (or the scene is vacuous)")
+        dry = all(FP.is_zero(gN[i]) and FP.is_zero(g0[i]) for i in range(len(mask)) if not mask[i])
+        allmask = [True] * 256
+        gf = [FP.unit(3, 1)] * 256
+        gf[40] = FP.unit(9, 1)
+        equiv = SEA.step_masked(FP, gf, allmask, 16, 16, (1, 8), (1, 16), (0, 1)) == \
+            fstep(FP, gf, 16, 16, (1, 8), (1, 16), (0, 1))
+        self.record("sea-coast", dry and equiv,
+                    "land identically zero at init + after evolution; all-sea mask ≡ the frozen step bit-for-bit"
+                    if dry and equiv else "the coastline leaked (or the masked law drifted from the frozen law)")
+        gU = g0
+        for _ in range(SEA.SEA_SCENE["ticks"]):
+            gU = fstep(FP, gU, p["w"], p["h"], SEA.SEA_SCENE["k"], (0, 1), (0, 1))
+        leaked = sum(1 for i in range(len(mask)) if not mask[i] and not FP.is_zero(gU[i]))
+        def_ok = leaked > 0 and digest(FP, gU, p["w"], p["h"]) != d1
+        self.record("sea-selftest", def_ok,
+                    f"the UNMASKED evolution wets {leaked} land cells and diverges (the mask is load-bearing; gate can redden)"
+                    if def_ok else "the unmasked defect did not leak or diverge")
+        codes = []
+        for fn, ET in ((lambda: SEA.sea_from_terrain(FP, dict(p, sea_level=0)), HF.TerrainError),
+                       (lambda: SEA.drop(FP, g0, mask, p["w"], 32, 32, 1, 1), HF.TerrainError),
+                       (lambda: SEA.sea_from_terrain(FP, p, depth_num=True), HF.TerrainError),
+                       (lambda: SEA.step_masked(FP, g0[:-1], mask, p["w"], p["h"], (1, 8), (0, 1), (0, 1)), FE)):
+            try:
+                fn()
+                codes.append(None)
+            except ET as exc:
+                codes.append(exc.code)
+        ref_total = codes == ["TERRAIN-REFUSE", "TERRAIN-REFUSE", "TERRAIN-REFUSE", "FIELD-REFUSE"]
+        self.record("sea-refusal", ref_total,
+                    "4/4 typed: empty sea / drop on land / bool depth TERRAIN-REFUSE; grid/mask mismatch FIELD-REFUSE"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -3658,6 +3732,7 @@ def main() -> int:
     gate.winding()
     gate.tellegen()
     gate.terrain()
+    gate.sea()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

@@ -1889,6 +1889,26 @@ rendered or world-loaded (the editor consumes URDROBJ2 objects by the existing m
 machinery, but no terrain object has been walked through the editor yet — T3); water,
 biomes, tiles (T3/T4); the smooth-terrain aesthetics of any decimation choice.
 
+**The terrain sea (S1) — certified field state over a coastline domain — MEASURED
+(reference).** `tools/terrain/sea.py`: the bathymetry adapter (URDRHF1 heights + the
+declared sea level → sea mask + exact depth field; empty seas `TERRAIN-REFUSE`) and the
+masked flux-form step — the frozen `field.py` law with ONE addition: an edge carries flux
+only if both endpoints are sea, so the coastline is boundary exactly as the grid edge
+already is. `urdr-field 0.1` is untouched (imported, not edited) and the evolved state
+digests under the frozen `URDRFLD1` law — NO new witness class (a C8 datum). Gate stage
+`sea`: the pinned island sea (drop at the deepest sea cell (0,0) — a documented selection
+rule — 40 masked diffusion ticks at k=1/8) reproduces its digest ×2; total mass EXACT
+across the evolution and the field genuinely moves; land identically zero at init and
+after; an all-sea mask reproduces the frozen step BIT-FOR-BIT, advection included (the
+masked law is the frozen law plus a boundary, nothing more); the UNMASKED evolution wets
+2449 land cells and diverges (the mask is load-bearing); refusals split and typed —
+adapter/scene `TERRAIN-REFUSE`, structural/overflow `FIELD-REFUSE`. Red-first
+`tests/test_sea.py` (8 falsifiers). Unit falsifiers 578 → 586. Honest bathymetry note:
+the island's declared sea level yields a coastal-ring sea (4% of cells) — the scene
+certifies the law, not ocean aesthetics. Grade: MEASURED (reference). `does_not_show`:
+Marangoni surface tension and body coupling on this domain (S2); anything rendered (T3,
+idle law); waves, tides, erosion (names); cross-placement.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and

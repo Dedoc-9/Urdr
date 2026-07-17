@@ -1,0 +1,5 @@
+# urdr-sea (S1) — the island's sea as certified field state: bathymetry adapter +
+#   masked flux-form diffusion (40 ticks, k=1/8, drop at the deepest sea cell (0,0)).
+#   Digest law: the frozen URDRFLD1 (FIELDFP backend) — no new witness class.
+# name  digest
+island_sea 51202572fbcf213e4c7d0ac6f322c56197ed0ba6578ad7953e101ee72b274584
