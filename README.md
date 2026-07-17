@@ -21,7 +21,7 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **23** single-file Rust placements
+across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
 on fixed corpora, behind a **634-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
@@ -441,7 +441,7 @@ criticality, toric code, persistent homology), **criticality** (P6, reactor-kine
   pass is one more datum in **D5 § "Evidence Against C8."** Graded by integration tests and, where a
   witness is involved, by the same bit-for-bit composition discipline as D16 — not a new primitive.
 - **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and two
-  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **23 Rust + 13 C99
+  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **24 Rust + 13 C99
   placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles.

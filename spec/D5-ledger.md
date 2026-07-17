@@ -2047,6 +2047,20 @@ buoyancy law.
 paths (straight-line constant-velocity only); more than three pinned scenes; cross-placement (a
 clean next step — the winding_rs recipe).
 
+**Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
+`tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
+hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,
+own sqrt-free island falloff — no shared code with `heightfield.py`) that reproduces the three
+pinned URDRHF1 scene digests — `island 7243652e…`, `blank 7cc67f67…`, `mountains c57c56be…` —
+bit-for-bit, verified in-session on `rustc 1.95.0`. The hazard the port had to EARN: the
+value-noise interpolation `(v10 − v00)·u // FRAC` has a NEGATIVE numerator on ~half the lattice
+edges, where Python `//` floors and Rust `/` truncates toward zero — a `floordiv` restores the
+floor so the placements agree (the exact negative-operand divergence the division-free
+discipline avoids by construction elsewhere, met head-on and matched here). The 24th std-only
+Rust placement; `doc-currency` Rust 23 → 24. Trust from independent reproduction (D17 Axis A) —
+the winding_rs recipe applied to the terrain canon. The URDROBJ2 bridge (`island_obj` /
+`blank_obj`) is a separate canon, a clean next cross-placement.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and
