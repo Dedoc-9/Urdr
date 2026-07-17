@@ -2201,6 +2201,37 @@ the observation law); the kernel `world_host` cross-check (verdicts agree with t
 the `urdr` package is importable — a clean next step). This IS the graded theoretical foundation for the
 horizon observer, locked before the fixed-point regime.
 
+**Kernel cross-check of the terrain observers (T3.13) — MEASURED (verdict agreement), the observers
+promoted from terrain-verified to KERNEL-verified.** `tests/test_kernel_crosscheck.py` + gate stage
+`crosscheck`: the terrain-local observers (`gaze`, `traj`) carry a terrain-local canon (URDRGAZE1/URDRTRAJ1
+over a hashlib SHA-256) so they run standalone; the kernel `tools/world_host` runs the SAME snapshot
+admit-or-refuse law (covering atlas + reconstruct-to-anchor) anchored on `urdr.canon.digest` — the very
+digest the reference kernel and the `urdr-core-rs` Rust placement already agree on (D8 conformance). This
+stage proves the terrain law is NOT a divergent reimplementation: on every scene the terrain verdict equals
+the kernel verdict, over DIFFERENT content-addressing. Three rows: `crosscheck:gaze` (the four gaze scenes —
+genuine ADMIT, noncover/forged/stale REFUSE — get the same verdict from `world_host.admit` as from
+`gaze.admit`); `crosscheck:traj` (every COVERING frame of a traj witness — honest_full / replay / teleport —
+agrees with the kernel snapshot, AND a non-covering position-only witness is ADMITTED by the horizon where
+the kernel snapshot REFUSES every frame: the horizon EXTENDS the kernel law, it does not diverge from it);
+`crosscheck:selftest` (the terrain digest ≠ the kernel digest for the same pose — `gaze.pose_digest` hex vs
+`urdr.canon.digest` bytes — yet the verdict is identical, so the shared object is the LAW not the bytes; and
+a SHIFTED kernel anchor REFUSES the same frame its own anchor admits — the digest binding is load-bearing,
+non-vacuity). Red-first `tests/test_kernel_crosscheck.py` (6 falsifiers). Unit falsifiers 678 → 684; rows
+448 → 451. GRADE: the verdict agreement is MEASURED (exact, reproducible, a shifted anchor diverges). This
+CLOSES the `does_not_show` that `gaze`/`drive`/`traj` each carried — "the kernel `world_host` cross-check
+(verdicts agree with the kernel observer where the `urdr` package is importable — a clean next step)" — and
+ELEVATES their evidence: the terrain observation law is now certified to be the kernel's law over the
+D8-conformance digest, not merely a terrain-local canon that happens to be internally consistent. SEQUENCING
+(user-directed, and correct): the cross-check is low-risk (it reuses the existing `world_host.admit`; no new
+arithmetic regime) and validates the observer on the cleanest exact-integer substrate FIRST — so the
+fixed-point regime (Slice 4, `fpquat`/`fppose`) enriches Φ on a KERNEL-verified foundation, not just a
+terrain-verified one. `does_not_show`: `drive`'s dynamics cross-check against the kernel netcode lockstep
+(N1) — a separate subsystem (`tools/netcode`), a heavier and distinct cross-check, still open; the kernel
+digest BYTES themselves are not asserted equal to the terrain bytes (they are deliberately different
+canonicalizations — only the VERDICTS are cross-checked, which is the law-level claim); the stage requires
+the `urdr` package importable (always true when the full gate runs — the kernel tests, oracle, and examples
+already depend on it).
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

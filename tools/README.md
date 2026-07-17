@@ -37,7 +37,8 @@ in each one's README and grade line.
   and a replay at the wrong tick is refused where a snapshot would admit — *where and when in one
   observer*), a declared-but-cited WebGL2 view behind `view_witness`, and the `heightfield_rs`
   cross-placement re-verified live. The observer + transcript + horizon observer are the foundation of FPS
-  movement over the certified field.
+  movement over the certified field — and `gaze`/`traj` are **kernel-cross-checked** (their verdicts equal
+  the kernel `world_host`'s, so the terrain observability law is certified to be the kernel's, not a copy).
 
 **Authoring surfaces & front-ends**
 
@@ -65,7 +66,11 @@ in each one's README and grade line.
 **Kernel, infrastructure & studies**
 
 - [`urdr_core_rs/`](urdr_core_rs/) — the independent std-only Rust **kernel** placement (D8).
-- [`world_host/`](world_host/) — the shared-world runtime reference (Milestone 7).
+- [`world_host/`](world_host/) — the shared-world runtime reference (Milestone 7); its snapshot
+  admit-or-refuse law (covering atlas + reconstruct-to-`urdr.canon.digest`) is the kernel the terrain
+  observers are **cross-checked against** — the gate's `crosscheck` stage asserts `gaze`/`traj` verdicts
+  equal `world_host`'s over different content-addressing, so the terrain observability law is certified to
+  be the kernel's law.
 - [`registry/`](registry/) — name→digest module registry + fetch-and-pin (R4).
 - [`specfreeze/`](specfreeze/) — the **D12** freeze manifest, mechanically re-derived and
   byte-checked so docs and code cannot drift apart.
@@ -91,7 +96,7 @@ grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
 `DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
 in particular, stay `NOT_MEASURED` until run under the sealed protocol
 (`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
-(`../verify.py`): **678 unit falsifiers / 448 rows**, run twice, bit-identical.
+(`../verify.py`): **684 unit falsifiers / 451 rows**, run twice, bit-identical.
 
 The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
 (D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
@@ -101,7 +106,7 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED` — 678 unit falsifiers / 448 rows). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 684 unit falsifiers / 451 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
   is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.

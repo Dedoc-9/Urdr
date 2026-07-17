@@ -4266,6 +4266,78 @@ class Gate:
                     "bool image · axis out of range)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    def kernel_crosscheck(self):
+        """The KERNEL CROSS-CHECK (T3.13): the terrain-local observers (`gaze`, `traj`) run the SAME
+        admit-or-refuse law the kernel `tools/world_host` runs on `urdr.canon.digest` — the very digest
+        the reference kernel and the urdr-core-rs Rust placement already agree on (D8). Closes the
+        does_not_show gaze/drive/traj carried: the terrain observability law is certified to be the
+        KERNEL's law, not a divergent reimplementation, so the observer is kernel-verified BEFORE free
+        movement enriches Φ. MEASURED (verdict agreement is exact + reproducible; a shifted anchor
+        diverges). Rows: gaze (the 4 gaze scenes get the same verdict from world_host as from gaze), traj
+        (every covering frame of a traj witness agrees with the kernel snapshot; a non-covering witness is
+        ADMITTED by the horizon where the kernel snapshot REFUSES — an extension, not a divergence),
+        selftest (different content-addressing yields the same verdict, and a shifted kernel anchor refuses
+        the same frame — the digest binding is load-bearing)."""
+        for p in (ROOT, os.path.join(ROOT, "tools", "terrain"), os.path.join(ROOT, "tools", "world_host")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import gaze as GZ
+            import traj as TR
+            import drive as DR
+            import world_host as WH
+        except Exception as exc:
+            self.record("crosscheck", False, f"import failed (kernel world_host / urdr): {exc}")
+            return
+
+        def kv(pose, axes_list, image):
+            host = WH.WorldHost(list(pose))
+            atlas = WH.Atlas([WH.Chart(list(ax)) for ax in axes_list])
+            return host.admit(atlas, list(image))[0]
+
+        try:
+            gaze_ok = True
+            for name in GZ.SCENES:
+                authority, atlas, image = GZ.SCENES[name]()
+                gaze_ok = gaze_ok and (GZ.admit(authority, atlas, image)[0]
+                                       == kv(authority.pose, [ch.axes for ch in atlas.charts], image))
+        except Exception as exc:
+            self.record("crosscheck:gaze", False, f"failed: {exc}")
+            return
+        self.record("crosscheck:gaze", gaze_ok,
+                    "gaze verdicts equal world_host verdicts on all 4 scenes (terrain law == kernel law)"
+                    if gaze_ok else "a gaze verdict diverged from the kernel world_host")
+
+        true = DR.drive(TR._heights(TR._HF_SCENE), TR._START, TR._CMDS, TR._MS)
+        cover_ok = True
+        for scene in ("honest_full", "replay", "teleport"):
+            for k, (axes, image) in enumerate(TR.SCENES[scene]()[4]):
+                if not TR.covers(axes):
+                    continue
+                traj_v = "ADMIT" if tuple(image) == tuple(true[k][i] for i in axes) else "REFUSE"
+                cover_ok = cover_ok and (traj_v == kv(true[k], [axes], image))
+        partial = TR.honest_partial()[4]
+        extends = TR.observe(TR._heights(TR._HF_SCENE), TR._START, TR._CMDS, TR._MS, partial)[0] == "ADMIT" \
+            and {kv(true[k], [axes], image) for k, (axes, image) in enumerate(partial)} == {"REFUSE"}
+        traj_ok = cover_ok and extends
+        self.record("crosscheck:traj", traj_ok,
+                    "traj covering-frame verdicts equal the kernel snapshot; the horizon admits a "
+                    "non-covering witness the kernel snapshot refuses (extension, not divergence)"
+                    if traj_ok else "a traj verdict diverged from the kernel / the extension did not hold")
+
+        pose = GZ.trajectory("ridge_clear")[8]
+        image = [pose[i] for i in (0, 1, 2, 3)]
+        diff_bytes = GZ.pose_digest(pose) != WH.digest(list(pose)).hex()
+        same_verdict = (GZ.admit(GZ.Authority(pose), GZ.full_atlas(), image)[0]
+                        == kv(pose, [(0, 1, 2, 3)], image))
+        anchor_binds = (kv(pose, [(0, 1, 2, 3)], image) == "ADMIT"
+                        and kv((pose[0] + 1,) + tuple(pose[1:]), [(0, 1, 2, 3)], image) == "REFUSE")
+        sel = diff_bytes and same_verdict and anchor_binds
+        self.record("crosscheck:selftest", sel,
+                    "different content-addressing (terrain hashlib ≠ kernel canon) yields the same verdict; "
+                    "a shifted kernel anchor refuses the same frame (binding load-bearing)"
+                    if sel else "the content-addressing / anchor-binding selftest did not bind")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4562,6 +4634,7 @@ def main() -> int:
     gate.gaze()
     gate.drive()
     gate.traj()
+    gate.kernel_crosscheck()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

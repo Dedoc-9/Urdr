@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **678-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **684-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -152,9 +152,9 @@ it by **content-addressed digest**, not by mutable reference.
 | `heightfield.py` / `wavefield.py` | digests identical → gate stays green | digests change → reddens the `*:scenes` row **and** `view-witness:cite`; a heightfield change also reddens `stance`, a wave change `buoyancy` + `crossing` |
 | `terrain_view3d.html` (the look) | declared — cannot reach the authority; only the view digest moves | still declared; if it forges an embedded witness, `view-witness:cite` reddens |
 | `heightfield_rs` (the Rust port) | must still reproduce the live goldens or `heightfield-placement` reddens | must be brought current with the Python canon, or the gate reddens |
-| `gaze.py` (the observer) | digests identical → gate stays green | changing the pose or the admit law reddens `gaze:scenes`; weakening the digest check reddens `gaze-selftest` (it would launder a forged or stale view) |
+| `gaze.py` (the observer) | digests identical → gate stays green | changing the pose or the admit law reddens `gaze:scenes`; weakening the digest check reddens `gaze-selftest` (it would launder a forged or stale view); diverging from the kernel's admit law reddens `crosscheck:gaze` |
 | `drive.py` (the transcript) | digests identical → gate stays green | changing the gait or the movement law reddens `drive:scenes`; weakening the per-cell step gate reddens `drive-selftest` (a sprint would vault a wall); a forged/replayed/reordered command reddens `drive:scenes` (the transcript digest moves) |
-| `traj.py` (the horizon observer) | digests identical → gate stays green | changing the innovation law or the witnesses reddens `traj:scenes`; weakening the tick-binding reddens `traj-selftest` (a replayed content-valid frame would be admitted, or a non-covering sequence would be refused) |
+| `traj.py` (the horizon observer) | digests identical → gate stays green | changing the innovation law or the witnesses reddens `traj:scenes`; weakening the tick-binding reddens `traj-selftest` (a replayed content-valid frame would be admitted, or a non-covering sequence would be refused); diverging from the kernel's admit law reddens `crosscheck:traj` |
 
 The gate is the rollback mechanism: canon drift cannot reach a user, because every layer that depends
 on the changed authority reddens on commit. A cosmetic edit — reformat, re-comment, restructure —
@@ -173,10 +173,15 @@ innovation ν = *image* − H·Φ·*trajectory* is the zero vector or it is not.
 *stale* view is **refused, not reconciled** (the exact-arithmetic answer to server-authoritative movement:
 no float drift to reconcile, so a non-reconstructing sequence is a genuine forgery; temporal replay of a
 spatially-identical pose — which `gaze` alone admits — is refused because Φ predicts a different pose at
-that tick). The kernel `world_host` runs the same admit-or-refuse law on the kernel state; cross-checking
-these verdicts against it is a clean next step. The one piece still ahead is the **fixed-point regime**
-(Slice 4) — `fpquat` mouse-look + `fppose` capsule, continuous rotation and position in Q32.32 — an
-*enrichment of Φ*, landing on this *proven* transcript + reconstruction + horizon-observability gate rather
+that tick). And the observers are now **kernel-verified, not merely terrain-verified** (Slice 3c): the gate
+cross-checks every `gaze` and `traj` verdict against the kernel `world_host`, which runs the same
+admit-or-refuse law on `urdr.canon.digest` — the very digest the reference kernel and the `urdr-core-rs`
+Rust placement already agree on (D8). Over *different content-addressing* (terrain hashlib vs kernel canon)
+the verdict is identical, so the terrain law is certified to be the kernel's law, not a divergent copy; and
+the horizon observer is shown to *extend* the kernel snapshot (it admits non-covering sequences the kernel
+refuses), rather than contradict it. The one piece still ahead is the **fixed-point regime** (Slice 4) —
+`fpquat` mouse-look + `fppose` capsule, continuous rotation and position in Q32.32 — an *enrichment of Φ*,
+landing on this *proven, kernel-verified* transcript + reconstruction + horizon-observability gate rather
 than a hoped-for one; the innovation law is measured on the cleanest exact-integer substrate first, so free
 movement extends the dynamics without compromising the observation law.
 
