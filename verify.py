@@ -3703,6 +3703,88 @@ class Gate:
                     "6/6 WAVE-REFUSE typed and total (non-exact A/P · odd period · zero dir · neg speed · bool · dims)"
                     if ref_total else f"refusals wrong: {codes}")
 
+    # -- 2p3. buoyancy: the MEASURED consumer of the wave seam -------------------
+    def buoyancy(self):
+        """The MEASURED consumer half of the wave seam (T3.5): a rigid raft floats on the certified
+        wave field and settles to the exact integer waterline z* where displaced depth balances
+        weight (discrete Archimedes), by division-free bisection. The flotation LAW is a DECLARED
+        model; the computed z* is MEASURED — reproducible bit-for-bit, and a defect diverges. Rows:
+        reference (the pinned raft scenes reproduce URDRBUOY1 digests ×2 at every tick), properties
+        (the exact Archimedes bracket Δ(z*)≥W>Δ(z*+1) holds; Δ is monotone; the raft heaves on the
+        swell and rests on the still), selftest (the unclamped-displacement defect diverges — the
+        max(0,·) clamp is load-bearing), refusal (empty/oob/duplicate footprint, weight≤0 or
+        too-heavy, bool → BUOY-REFUSE)."""
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import buoyancy as BU
+            import wavefield as WF
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("buoyancy", False, f"import failed: {exc}")
+            return
+        W = HH = 24
+        try:
+            ref_ok = True
+            for name in BU.SCENES:
+                for t in BU.SCENE_TICKS[name]:
+                    z, d = BU.scene_state(name, t)
+                    z2, d2 = BU.scene_state(name, t)
+                    ref_ok = ref_ok and (d == BU.golden(name, t) and d2 == d)
+        except Exception as exc:
+            self.record("buoyancy:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("buoyancy:scenes", ref_ok,
+                    "raft_swell + raft_still reproduce URDRBUOY1 digests ×2 at every pinned tick "
+                    "(exact z* + wetted profile)" if ref_ok else "a buoyancy scene drifted from its digest")
+        bracket_ok = True
+        mono_ok = True
+        for name in BU.SCENES:
+            comps, fp, wt = BU.SCENES[name]()
+            for t in BU.SCENE_TICKS[name]:
+                field = WF.field(W, HH, t, comps)
+                z = BU.waterline(W, HH, t, comps, fp, wt)
+                bracket_ok = bracket_ok and (
+                    BU._displacement(field, fp, z) >= wt > BU._displacement(field, fp, z + 1))
+            f0 = WF.field(W, HH, 0, comps)
+            lo, hi = BU._bounds(f0, fp)
+            prev = None
+            for z in range(lo, hi + 2):
+                dd = BU._displacement(f0, fp, z)
+                if prev is not None and dd > prev:
+                    mono_ok = False
+                prev = dd
+        heave_sw = BU.heave(W, HH, range(0, 8), *BU.raft_swell())
+        heave_st = BU.heave(W, HH, range(0, 8), *BU.raft_still())
+        move_ok = len(set(heave_sw)) > 1 and len(set(heave_st)) == 1
+        props = bracket_ok and mono_ok and move_ok
+        self.record("buoyancy-properties", props,
+                    "exact Archimedes bracket Δ(z*)≥W>Δ(z*+1); Δ monotone; raft heaves on swell, rests on still"
+                    if props else "a buoyancy property failed (bracket / monotone / heave-rest)")
+        comps, fp, wt = BU.raft_swell()
+        correct = BU.heave(W, HH, range(0, 8), comps, fp, wt)
+        defect = BU.heave(W, HH, range(0, 8), comps, fp, wt, disp=BU._displacement_defect)
+        def_ok = defect != correct and len(set(heave_st)) == 1
+        self.record("buoyancy-selftest", def_ok,
+                    "the unclamped-displacement defect diverges from the heave; the still raft rests "
+                    "(clamp load-bearing; gate can redden)" if def_ok else "the unclamped defect did not diverge")
+        raft = BU.raft()
+        cases = [((), 100), (((99, 0),), 100), ((raft[0], raft[0]), 100),
+                 (raft, 0), (raft, True), (((10, 10.0),), 100)]
+        codes = []
+        for fpc, wtc in cases:
+            try:
+                BU.waterline(W, HH, 0, WF.swell(), fpc, wtc)
+                codes.append(None)
+            except BU.BuoyError as exc:
+                codes.append(exc.code)
+            except WF.WaveError as exc:
+                codes.append("WAVE:" + exc.code)
+        ref_total = all(c == "BUOY-REFUSE" for c in codes)
+        self.record("buoyancy-refusal", ref_total,
+                    "6/6 BUOY-REFUSE typed and total (empty · out-of-grid · duplicate · weight≤0 · bool · non-int cell)"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -3905,6 +3987,7 @@ def main() -> int:
     gate.sea()
     gate.terrain_view()
     gate.wavefield()
+    gate.buoyancy()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

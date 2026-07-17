@@ -1,0 +1,11 @@
+# urdr-buoyancy (T3.5 MEASURED consumer) — URDRBUOY1 exact integer flotation on the certified
+#   wave field. A 5x5 raft (25 cells at 10..14 x 10..14, weight 100) settles to the integer
+#   waterline z* where displaced depth balances weight (discrete Archimedes), by division-free
+#   bisection. Digest binds z* AND the per-cell submerged profile. name = scene@tick.
+#   The buoyancy LAW is a declared model; the computed z* is measured (exact, reproducible).
+# name  digest
+raft_swell@0 38943499a11f15c687787c71c5b77be25bafc34b39ddea91a67ca7bd833d0ea0
+raft_swell@3 d875ffa4a7e31876f1f8c9b5ce76a9a6a0e5806c9ce2cd3c09b2c93c712281c4
+raft_swell@7 610774de084f2fa3850bc0459678b2624b7cf54dd92daf5cedb4424816d0c681
+raft_still@0 44f9ae98f12969afe877b746d958d490469762a554032b5d6937465b6105e244
+raft_still@5 3872df0451aa5e97b87b03542bf55b68560db6c6fee4d752d5472559eb97fdd4
