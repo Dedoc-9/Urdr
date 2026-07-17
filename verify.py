@@ -3841,6 +3841,78 @@ class Gate:
                     "3/3 VIEW-REFUSE typed (no authority blob / non-hex witness / missing citation)"
                     if ref_ok else f"refusals wrong: {codes}")
 
+    # -- 2p5. crossing: exact wave-crossing timing (2nd measured consumer) --------
+    def crossing(self):
+        """The second MEASURED consumer of the wave seam (T3.7): exact wave-crossing timing. A
+        straight-line constant-velocity agent crosses the certified sea; the result is the first
+        integer tick a crest exceeds its clearance (or T if it clears). Both the agent AND the wave
+        move, so the event is a joint space-time reading of the travelling field. MEASURED (the tick
+        is exact + reproducible, a defect diverges); the crossing law is a DECLARED model. Rows:
+        reference (pinned crossings reproduce URDRCROSS1 digests ×2), properties (the trace is
+        wavefield.height at the moving cell+tick; the result is the FIRST overtop; clearance is
+        load-bearing — one path clears high and is swamped low), selftest (freezing the wave changes
+        WHEN the agent is overtopped — travel is load-bearing), refusal (zero velocity / path leaves
+        the grid / non-positive window / bool → CROSS-REFUSE)."""
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import crossing as CR
+            import wavefield as WF
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("crossing", False, f"import failed: {exc}")
+            return
+        W = HH = 24
+        T = 12
+        try:
+            ref_ok = True
+            for name in CR.SCENES:
+                r, d = CR.scene_result(name)
+                ref_ok = ref_ok and (d == CR.golden(name) and CR.scene_result(name)[1] == d)
+        except Exception as exc:
+            self.record("crossing:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("crossing:scenes", ref_ok,
+                    "ferry_clear + ferry_swamped + swimmer_north reproduce URDRCROSS1 digests ×2 (exact event tick + trace)"
+                    if ref_ok else "a crossing scene drifted from its digest")
+        comps, s, v, clr = CR.swimmer_north()
+        _r, tr = CR.crossing_trace(W, HH, T, comps, s, v, clr)
+        moving_ok = tr == tuple(WF.height(s[0] + v[0] * t, s[1] + v[1] * t, t, comps) for t in range(T))
+        first_ok = True
+        for name in CR.SCENES:
+            cc, ss, vv, cl = CR.SCENES[name]()
+            rr, ttr = CR.crossing_trace(W, HH, T, cc, ss, vv, cl)
+            first_ok = first_ok and all(hh <= cl for hh in ttr[:rr]) and (rr == T or ttr[rr] > cl)
+        fc, fs, fv, _ = CR.ferry_clear()
+        clr_ok = (CR.crossing(W, HH, T, fc, fs, fv, 48) == T) and (CR.crossing(W, HH, T, fc, fs, fv, 27) < T)
+        props = moving_ok and first_ok and clr_ok
+        self.record("crossing-properties", props,
+                    "the trace is wavefield.height at the moving cell+tick; result is the FIRST overtop; "
+                    "clearance load-bearing (one path clears high, swamps low)"
+                    if props else "a crossing property failed (moving / first / clearance)")
+        cc, ss, vv, cl = CR.ferry_swamped()
+        real = CR.crossing(W, HH, T, cc, ss, vv, cl)
+        frozen = CR.crossing(W, HH, T, cc, ss, vv, cl, frozen=True)
+        def_ok = real != frozen and CR.crossing(W, HH, T, *CR.ferry_clear()) == T
+        self.record("crossing-selftest", def_ok,
+                    "freezing the wave (every tick at t=0) changes when the agent is overtopped — travel "
+                    "load-bearing (gate can redden)" if def_ok else "the frozen-wave defect did not diverge")
+        codes = []
+        cases = [(T, (5, 5), (0, 0), 10), (T, (20, 12), (2, 0), 10), (0, (0, 12), (2, 0), 10),
+                 (T, (0, 12), (2, 0), True), (T, (0.0, 12), (2, 0), 10), (T, (0, 12), (2,), 10)]
+        for ticks, start, vel, cl in cases:
+            try:
+                CR.crossing(W, HH, ticks, WF.swell(), start, vel, cl)
+                codes.append(None)
+            except CR.CrossError as exc:
+                codes.append(exc.code)
+            except WF.WaveError as exc:
+                codes.append("WAVE:" + exc.code)
+        ref_total = all(c == "CROSS-REFUSE" for c in codes)
+        self.record("crossing-refusal", ref_total,
+                    "6/6 CROSS-REFUSE typed and total (zero vel · leaves grid · window≤0 · bool · non-int start · bad vel)"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -4045,6 +4117,7 @@ def main() -> int:
     gate.wavefield()
     gate.buoyancy()
     gate.view_witness()
+    gate.crossing()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

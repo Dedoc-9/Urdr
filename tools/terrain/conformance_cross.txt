@@ -1,0 +1,9 @@
+# urdr-crossing (T3.7 MEASURED consumer) — URDRCROSS1 exact wave-crossing timing on the certified
+#   wave field. A straight-line constant-velocity agent crosses; result = the first tick a crest
+#   exceeds its clearance, else T (cleared). The digest binds result + the per-tick height trace.
+#   Division-free (multiply/compare + the division-free wavefield). The crossing LAW is a declared
+#   model; the computed event tick is measured (exact, reproducible). name = scene.
+# name  digest
+ferry_clear 664436c55fd2c9f6feacc1b53ff2d6e1597f8c94debb2c133014e8733d1f72d0
+ferry_swamped 488f963fbd8c3e799bc08b3ee45cab57cf8615a5a84221703fa9d07170c5cebc
+swimmer_north 9fa612ca54f9c5461f2be5afade122bb0861bfd11f0b40cc7c403836001f5d46
