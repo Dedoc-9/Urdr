@@ -1244,6 +1244,21 @@ class Gate:
         self.record("reconstruct-deficient", dref,
                     "deficient atlas refused NOT_INJECTIVE (state not unique)"
                     if dref else "deficient atlas produced a state — unsound")
+        # invariance (the D17 ~ role for the reconstructibility detector): reordering the
+        # observations — permuting the rows of M and y TOGETHER — leaves BOTH the recovered state
+        # and the injectivity verdict unchanged (a state does not depend on the order it was
+        # measured in). Non-vacuity: a MISPAIRED reorder (rows moved, y left behind) breaks it.
+        yi = R.matvec(m, [4, 4, -1])
+        perm = [4, 1, 3, 0, 2]
+        rows_p = [m[i] for i in perm]
+        yi_p = [yi[i] for i in perm]
+        inv_ok = (R.reconstruct([rows_p], yi_p, n) == R.reconstruct(full, yi, n)
+                  and R.solve([rows_p], yi_p, n)[0] == R.solve(full, yi, n)[0]
+                  and R.reconstruct([rows_p], yi, n) != R.reconstruct(full, yi, n))
+        self.record("reconstruct-invariance", inv_ok,
+                    "reordering the observations preserves the recovered state and the injectivity "
+                    "verdict; a mispaired reorder breaks it (order is not content; gate can redden)"
+                    if inv_ok else "reconstruction is not reorder-invariant")
 
     def math_conformance(self):
         """urdr-math cross-placement corpus (D8): the exact-integer linear-algebra
@@ -3961,6 +3976,10 @@ class Gate:
                          "invariance": "tellegen-invariance",
                          "defect": "tellegen-selftest",
                          "refusal": "tellegen-refusal"},
+            "reconstructibility": {"reference": "reconstruct-roundtrip",
+                                   "invariance": "reconstruct-invariance",
+                                   "defect": "reconstruct-forgery-selftest",
+                                   "refusal": "reconstruct-deficient"},
         }
         roles = ("reference", "invariance", "defect", "refusal")
         recorded = {name: ok for (name, ok, _d) in self.rows}

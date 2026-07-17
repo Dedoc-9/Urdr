@@ -2061,6 +2061,29 @@ Rust placement; `doc-currency` Rust 23 → 24. Trust from independent reproducti
 the winding_rs recipe applied to the terrain canon. The URDROBJ2 bridge (`island_obj` /
 `blank_obj`) is a separate canon, a clean next cross-placement.
 
+**Reconstructibility — the 10th D17 detector (information-security).** The exact-reconstruction
+machinery (`tools/intla/atlas_reconstruct.py`) is admitted as a certified invariant-detector under
+the UNCHANGED D17 admission law (Dom, Inv, W, ~, R): Domain = an observation atlas (charts of
+integer rows) + an observation `y`; Invariant = UNIQUE RECONSTRUCTIBILITY — the hidden state is
+recoverable exactly iff the stacked M is injective (full column rank); Witness = the reduced
+rational `(num, den)` with `M·num == den·y`, independently checkable; ~ = reordering the
+observations (permuting the rows of M and y TOGETHER — order is not content); R = typed refusal
+(`NOT_INJECTIVE` when the state is not unique, `INCONSISTENT` when `y` leaves the column space).
+The information-security reading: a system whose state is NOT reconstructible from its public
+observations HIDES a private component (the firewall holds); one that IS reconstructible LEAKS it.
+The four roles map to gate rows recorded by `atlas_reconstruct`: reference = `reconstruct-roundtrip`
+(integer states recover exactly; a half-integer state recovers as the exact reduced rational —
+reconstruction, not rounding), invariance = `reconstruct-invariance` (NEW: reorder preserves the
+recovered state AND the injectivity verdict; a MISPAIRED reorder breaks it — non-vacuity), defect =
+`reconstruct-forgery-selftest` (an observation bumped off the column space is refused INCONSISTENT
+while the genuine one is accepted), refusal = `reconstruct-deficient` (a deficient atlas refuses
+NOT_INJECTIVE). Red-first `tests/test_atlas_reconstruct.py` gains the reorder-invariance pair (+2
+falsifiers). doc-currency 634 → 636 unit falsifiers / 428 → 430 rows; D17 now 9 → 10 detectors,
+each declaring 4 roles, every role recorded + passing. Grade: MEASURED — the detector admits the
+existing machinery under the D17 lint; no new witness class, no field mutated. The ambitious pivot
+the architecture promised: information-security enters the detector library under the same
+admission law as rigidity, toric, winding, and tellegen.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and

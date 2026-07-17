@@ -105,5 +105,35 @@ class DeficientRefused(unittest.TestCase):
         self.assertIsNone(state)
 
 
+class ReorderInvariant(unittest.TestCase):
+    # The D17 ~ (equivalence) role for the reconstructibility detector: a state does not depend on
+    # the ORDER it was measured in. Reordering the observations -- permuting the rows of M and the
+    # observation y TOGETHER -- must leave both the recovered state and the injectivity verdict
+    # unchanged; a MISPAIRED reorder must break it (non-vacuity).
+    def test_reordering_observations_preserves_state_and_verdict(self):
+        m = R.stack(_FULL)
+        y = R.matvec(m, [4, 4, -1])
+        base_state = R.reconstruct(_FULL, y, _N)
+        base_status = R.solve(_FULL, y, _N)[0]
+        self.assertIsNotNone(base_state)
+        for perm in ([4, 1, 3, 0, 2], [2, 0, 4, 3, 1], [1, 2, 3, 4, 0]):
+            rows_p = [m[i] for i in perm]
+            y_p = [y[i] for i in perm]
+            self.assertEqual(R.reconstruct([rows_p], y_p, _N), base_state,
+                             f"reorder {perm} moved the recovered state")
+            self.assertEqual(R.solve([rows_p], y_p, _N)[0], base_status,
+                             f"reorder {perm} moved the injectivity verdict")
+
+    def test_mispaired_reorder_breaks_it_non_vacuity(self):
+        # control: move the rows but NOT the observation -> the answer changes, so the invariance
+        # above is a real preservation, not a vacuous identity.
+        m = R.stack(_FULL)
+        y = R.matvec(m, [4, 4, -1])
+        base_state = R.reconstruct(_FULL, y, _N)
+        rows_p = [m[i] for i in [4, 1, 3, 0, 2]]
+        self.assertNotEqual(R.reconstruct([rows_p], y, _N), base_state,
+                            "a mispaired reorder did not change the answer (invariance is vacuous)")
+
+
 if __name__ == "__main__":
     unittest.main()
