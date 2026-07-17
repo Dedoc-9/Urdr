@@ -3568,6 +3568,62 @@ class Gate:
                     "load-bearing (gate can redden)" if mar_def
                     else "the over-bound κ did not overshoot (vacuous bound)")
 
+    # -- 2p8. terrain_view — T3.0: the view-export firewall (the measurable half of T3) --
+    def terrain_view(self):
+        """The one measurable thing about the presentation layer (docs/presentation_doctrine.md
+        §4): not the pixels, not the budget — that the budget cannot touch the truth. D15's
+        view contract applied to a certified terrain/sea state; mints no new authority class
+        (the view_digest is a presentation digest). Rows: bind (the descriptor carries the
+        recorded island_sea_wide witness verbatim), observational (every declared knob moves
+        the view_digest and leaves the carried witness byte-identical), selftest (the
+        fold-into-witness defect diverges — the firewall is load-bearing), refusal (non-hex
+        witness / malformed presentation VIEW-REFUSE)."""
+        for d in ("terrain", "physics"):
+            dd = os.path.join(ROOT, "tools", d)
+            if dd not in sys.path:
+                sys.path.insert(0, dd)
+        try:
+            import terrain_view as TV
+            import sea as SEA
+            w = SEA.golden("island_sea_wide")
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("terrain_view", False, f"import failed: {exc}")
+            return
+        base = TV.export_view(w, TV.BASE_PRESENTATION)
+        bind_ok = (base["carried_witness"] == w and TV.carried_witness_matches(base, w)
+                   and not TV.carried_witness_matches(base, "0" * 64))
+        self.record("terrain-view:bind", bind_ok,
+                    "the view carries the recorded island_sea_wide witness verbatim (bound, subordinate)"
+                    if bind_ok else "the view failed to carry authority verbatim")
+        obs_ok = True
+        for knob, alt in (("exposure", 120), ("palette", "realistic"), ("sea_alpha", 255),
+                          ("lod_stride", 3), ("wave_amp", 40), ("frame_rate", 60)):
+            v = TV.export_view(w, dict(TV.BASE_PRESENTATION, **{knob: alt}))
+            obs_ok = obs_ok and v["view_digest"] != base["view_digest"] and v["carried_witness"] == w
+        order_ok = TV.view_digest(w, {"exposure": 100, "palette": "x"}) == \
+            TV.view_digest(w, {"palette": "x", "exposure": 100})
+        self.record("terrain-view-observational", obs_ok and order_ok,
+                    "6/6 declared knobs move the view digest, none moves the witness; knob order inert "
+                    "(presentation is observational only — the boundary)" if obs_ok and order_ok
+                    else "a presentation knob leaked into the witness (or knob order was not inert)")
+        defect = TV.view_digest_defect(w, dict(TV.BASE_PRESENTATION, exposure=133))
+        def_ok = defect["carried_witness"] != w
+        self.record("terrain-view-selftest", def_ok,
+                    "the fold-into-witness defect diverges from the true witness (firewall load-bearing; gate can redden)"
+                    if def_ok else "the fold defect did not move the witness (firewall vacuous)")
+        codes = []
+        for wit, pres in (("nothex" + "0" * 58, TV.BASE_PRESENTATION), (w[:-1], TV.BASE_PRESENTATION),
+                          (w, {}), (w, {"not_a_knob": 1})):
+            try:
+                TV.export_view(wit, pres)
+                codes.append(None)
+            except TV.ViewError as exc:
+                codes.append(exc.code)
+        ref_ok = all(c == "VIEW-REFUSE" for c in codes)
+        self.record("terrain-view-refusal", ref_ok,
+                    "4/4 VIEW-REFUSE typed and total (non-hex witness / wrong length / empty / undeclared knob)"
+                    if ref_ok else f"refusals wrong: {codes}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -3768,6 +3824,7 @@ def main() -> int:
     gate.tellegen()
     gate.terrain()
     gate.sea()
+    gate.terrain_view()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

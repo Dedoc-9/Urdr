@@ -1930,6 +1930,25 @@ conserves mass — the CFL bound is load-bearing). Red-first additions in `tests
 full free-surface Navier–Stokes (the house Marangoni honesty boundary, inherited);
 anything rendered (T3, idle law); cross-placement.
 
+**The terrain view-export firewall (T3.0) — the measurable half of the presentation layer —
+MEASURED (reference).** `tools/terrain/terrain_view.py`: D15's view contract applied to a
+certified terrain/sea state, minting NO new authority class (the `view_digest` is a
+presentation digest). A view descriptor carries the recorded `island_sea_wide` witness as a
+bound, subordinate field and a `view_digest` over the witness + declared presentation knobs.
+Gate stage `terrain_view`: bind (the view carries the authority digest verbatim),
+observational (all 6 declared knobs move the view digest and NONE moves the witness; knob
+order inert — presentation is observational only), selftest (the fold-into-witness defect
+diverges — the firewall is load-bearing), refusal (non-hex witness / malformed presentation
+`VIEW-REFUSE`). Red-first `tests/test_terrain_view.py` (6 falsifiers). Unit falsifiers
+590 → 596. The elegant inversion (see `docs/presentation_doctrine.md` §4): we do not measure
+the pixels and we do not measure the budget — we measure that the budget cannot touch the
+truth. Grade: MEASURED (reference) for the FIREWALL only. `does_not_show`: anything the
+`terrain_view.html` renderer draws (presentation — declared, off-gate, browser float, NOT
+measured, and unmeasurable in principle); the budget laws D20–D23 (declared weighting models,
+never in this ledger as physics); the visual gap (T3.1–T3.4). The boundary never moves:
+`semel` the authority is measured, `et iterum` the presentation is declared, `idem` the
+boundary is fixed.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and
