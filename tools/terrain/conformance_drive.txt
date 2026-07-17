@@ -1,0 +1,9 @@
+# urdr-terrain (T3.11) — URDRDRIVE1 movement-transcript canon: the authoritative trajectory is a pure
+#   exact-integer function of (initial pose, input log) over the terrain. Each input is a direction +
+#   gait (lower = walk 1 cell, UPPER = sprint 2 cells); each cell gated by stance's climb <= MAX_STEP.
+#   The digest binds (start, input log, trajectory), so any forged/replayed/reordered command moves it.
+#   Division-free; same (start, log, MAX_STEP) -> same bytes on every host. See the builder's docstring.
+# name  digest
+stroll c777a20b83c29d87c546f0ca2501e227d6ff3af3eb7ba15497c48bb6173d32bd
+sprint_run 78b40c65ec4e701d9ad892945011b8090c016b4f23870fd3409840a9dd04bcc7
+sprint_wall 0aa67e244bdcfa1509b5d9443cc51e07efc0273fbdfce33fefe7c5d87844ebf8

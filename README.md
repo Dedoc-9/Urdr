@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **656-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **666-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -121,6 +121,17 @@ it by **content-addressed digest**, not by mutable reference.
   *stale* one replayed after the authority advanced (`GAZE-LAUNDER`). Exact-integer Kálmán observability
   (covering atlas ⇔ full column rank ⇔ reconstructible), and `admit` never mutates the authority (the
   membrane). The render is declared; the *view→pose binding* is measured.
+- **The transcript (MEASURED derivation).** `drive.py` is the certified movement *transcript* — the
+  netcode lockstep spine (N1) specialized to terrain: the authoritative trajectory is a pure exact-integer
+  fold of an input log over the field, each command a direction with a **gait** (lowercase = walk, 1 cell;
+  UPPERCASE = **sprint**, 2 cells), each cell gated by `stance`'s step law (a rise > `MAX_STEP` stops the
+  actor, sprint included — it does not vault a wall). Two facts are measured: *determinism* (replaying the
+  same start + input log reproduces the trajectory bit-for-bit — the lockstep witness, on terrain) and
+  *tamper-evidence* (the `URDRDRIVE1` digest binds start · log · trajectory, so a forged, replayed, or
+  reordered command moves it). `gaze` certifies **where** a frame is; `drive` certifies **when** — binding
+  the tick into the observed pose is what closes the temporal-replay gap `gaze` named. Sprint is a *derived
+  gait in the input*, not a pose axis and not a fixed-point velocity. The trajectory is measured;
+  continuous position and fixed-point rotation are the declared next regime.
 
 **What you can recursively edit, and why it is safe.**
 
@@ -130,6 +141,7 @@ it by **content-addressed digest**, not by mutable reference.
 | `terrain_view3d.html` (the look) | declared — cannot reach the authority; only the view digest moves | still declared; if it forges an embedded witness, `view-witness:cite` reddens |
 | `heightfield_rs` (the Rust port) | must still reproduce the live goldens or `heightfield-placement` reddens | must be brought current with the Python canon, or the gate reddens |
 | `gaze.py` (the observer) | digests identical → gate stays green | changing the pose or the admit law reddens `gaze:scenes`; weakening the digest check reddens `gaze-selftest` (it would launder a forged or stale view) |
+| `drive.py` (the transcript) | digests identical → gate stays green | changing the gait or the movement law reddens `drive:scenes`; weakening the per-cell step gate reddens `drive-selftest` (a sprint would vault a wall); a forged/replayed/reordered command reddens `drive:scenes` (the transcript digest moves) |
 
 The gate is the rollback mechanism: canon drift cannot reach a user, because every layer that depends
 on the changed authority reddens on commit. A cosmetic edit — reformat, re-comment, restructure —
@@ -138,15 +150,19 @@ drop it in the `VIEWS` list and it inherits the same forgery-proof citation cont
 canon, re-pin the conformance and the live cross-placement stage forces the Rust port to keep up.
 
 **Where this is going — FPS movement over the certified terrain.** `stance` earns the actor's
-*trajectory* (Slice 1); `gaze` certifies a *view* of it (Slice 2). Together they are exact-integer
-**Kálmán observability**: a pose is recoverable iff its observation charts have full column rank
-(`rank(M) = n`), and a frame is *admitted iff it reconstructs to the authority* — a laundered, forged,
-or *stale* view is **refused, not reconciled** (the exact-arithmetic answer to server-authoritative
-movement: no float drift to reconcile, so a non-reconstructing frame is a genuine forgery, and *replay*
-is caught because the anchor is the **current** pose, which the `stale` scene pins). The kernel
-`world_host` runs the same admit-or-refuse law on the kernel state; cross-checking `gaze`'s verdicts
-against it is a clean next step. Still ahead: **free movement** — `fpquat` mouse-look + gait (walk /
-sprint) + `fppose` capsule — landing on this *proven* reconstruction gate rather than a hoped-for one.
+*trajectory* (Slice 1); `gaze` certifies a *view* of it (Slice 2); `drive` earns the authoritative
+*transcript* that derives the trajectory from an input log — with **sprint** as a derived gait (Slice 3a).
+Together `gaze` and `drive` are **where** and **when**: exact-integer **Kálmán observability** (a pose is
+recoverable iff its observation charts have full column rank, `rank(M) = n`, and a frame is *admitted iff
+it reconstructs to the authority*) over a *deterministic, tamper-evident* derivation of the pose it must
+reconstruct to. A laundered, forged, or *stale* view is **refused, not reconciled** (the exact-arithmetic
+answer to server-authoritative movement: no float drift to reconcile, so a non-reconstructing frame is a
+genuine forgery; *replay* is caught because the anchor is the **current** pose, which the `stale` scene
+pins, and binding the tick into the transcript closes the temporal gap outright). The kernel `world_host`
+runs the same admit-or-refuse law on the kernel state; cross-checking `gaze`'s and `drive`'s verdicts
+against it is a clean next step. The one piece still ahead is the **fixed-point regime** — `fpquat`
+mouse-look + `fppose` capsule, continuous rotation and position in Q32.32 — landing on this *proven*
+transcript + reconstruction gate rather than a hoped-for one.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 

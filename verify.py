@@ -4102,6 +4102,89 @@ class Gate:
                     "GAZE-LAUNDER · malformed pose GAZE-REFUSE)"
                     if ref_total else f"refusals wrong: {[c1, c2, c3]} bad={bad}")
 
+    def drive(self):
+        """The certified movement TRANSCRIPT (T3.11, Slice 3a of FPS-over-terrain): the authoritative
+        trajectory is a pure exact-integer function of (initial pose, input log) over the terrain — the
+        netcode lockstep witness specialized to movement. Each input is a direction + gait (walk = 1
+        cell, sprint = 2), each cell gated by stance's climb ≤ MAX_STEP; a blocked cell stops the actor.
+        MEASURED (the trajectory + its determinism + tamper-evidence are exact + reproducible, a defect
+        diverges); the movement law is DECLARED. Sprint is a DERIVED gait in the input, not a pose axis.
+        Rows: reference (the 3 transcripts reproduce URDRDRIVE1 digests ×2), properties (drive is the
+        pure fold of step; replay is deterministic; gait load-bearing — sprint covers 2× walk; the step
+        law boundary climb ≤ MAX_STEP holds), selftest (sprint is gated — a stride whose 2nd cell is a
+        wall moves one cell and stops; a tampered command moves the transcript digest), refusal (unknown
+        command / empty log / off-grid / negative step / bool → DRIVE-REFUSE)."""
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import drive as DR
+            import heightfield as HF
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("drive", False, f"import failed: {exc}")
+            return
+
+        def heights(scene):
+            return HF.scene_digest(HF.SCENES[scene]())[1]
+
+        try:
+            ref_ok = True
+            for name in DR.SCENES:
+                _f, d = DR.scene_result(name)
+                ref_ok = ref_ok and (d == DR.golden(name) and DR.scene_result(name)[1] == d)
+        except Exception as exc:
+            self.record("drive:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("drive:scenes", ref_ok,
+                    "stroll + sprint_run + sprint_wall reproduce URDRDRIVE1 transcript digests ×2"
+                    if ref_ok else "a drive scene drifted from its digest")
+        ssc, sst, scm, sms = DR.stroll()
+        Hs = heights(ssc)
+        traj = DR.drive(Hs, sst, scm, sms)
+        pose = (sst[0], sst[1], Hs[sst[1]][sst[0]], DR._FACE[DR._parse(scm[0])[0]])
+        exp = [pose]
+        for c in scm:
+            pose = DR.step(Hs, pose, c, sms)
+            exp.append(pose)
+        fold_ok = traj == tuple(exp)
+        det_ok = DR.drive(Hs, sst, scm, sms) == traj
+        gait_ok = (DR.drive(Hs, sst, "EEEE", sms)[-1][0] - sst[0]) \
+            == 2 * (DR.drive(Hs, sst, "eeee", sms)[-1][0] - sst[0])
+        bnd = ((0, 0, 0), (0, 10, 0), (0, 0, 0))
+        law_ok = DR.drive(bnd, (0, 1), "e", 10)[-1][:2] == (1, 1) \
+            and DR.drive(bnd, (0, 1), "e", 9)[-1][:2] == (0, 1)
+        props = fold_ok and det_ok and gait_ok and law_ok
+        self.record("drive-properties", props,
+                    "drive is the pure fold of step; replay is deterministic; sprint covers 2× walk; a "
+                    "cell is entered iff its rise ≤ MAX_STEP (stance's law)"
+                    if props else "a drive property failed (fold / determinism / gait / step-law)")
+        wsc, wst, wcm, wms = DR.sprint_wall()
+        Hw = heights(wsc)
+        wt = DR.drive(Hw, wst, wcm, wms)
+        dist = [abs(wt[i + 1][0] - wt[i][0]) + abs(wt[i + 1][1] - wt[i][1]) for i in range(len(wcm))]
+        gated = (1 in dist) and (0 in dist) and all(d <= 2 for d in dist)   # partial stride + full stop, never > 2
+        tamper = DR.transcript_digest("s", sst, "enen", DR.drive(Hs, sst, "enen", sms)) \
+            != DR.transcript_digest("s", sst, "enEn", DR.drive(Hs, sst, "enEn", sms))
+        sel = gated and tamper
+        self.record("drive-selftest", sel,
+                    "sprint is gated by the terrain (a stride whose 2nd cell is a wall moves one cell and "
+                    "stops); a tampered command moves the transcript digest"
+                    if sel else "the sprint-gate / tamper-evidence selftest did not bind")
+        Hk = heights("blank")
+        codes = []
+        for start, cmds, ms in [((2, 8), "eeXe", 16), ((2, 8), "", 16), ((-1, 0), "ee", 16),
+                                ((2, 8), "ee", -1), ((2, 8), "ee", True), ((0.0, 8), "ee", 16)]:
+            try:
+                DR.drive(Hk, start, cmds, ms)
+                codes.append(None)
+            except DR.DriveError as exc:
+                codes.append(exc.code)
+        ref_total = all(c == "DRIVE-REFUSE" for c in codes)
+        self.record("drive-refusal", ref_total,
+                    "6/6 DRIVE-REFUSE typed and total (unknown command · empty log · off-grid start · "
+                    "neg step · bool · non-int start)"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4396,6 +4479,7 @@ def main() -> int:
     gate.crossing()
     gate.stance()
     gate.gaze()
+    gate.drive()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

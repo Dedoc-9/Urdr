@@ -2117,6 +2117,43 @@ cross-check (verdicts agree with the kernel observer where the `urdr` package is
 next step). NEXT: free movement (`fpquat` mouse-look + gait/sprint + `fppose` capsule) lands on this
 proven reconstruction gate.
 
+**Certified movement transcript (URDRDRIVE1) — T3.11, Slice 3a of FPS-over-terrain — MEASURED (the
+trajectory + its determinism + tamper-evidence), DECLARED (the movement model).** `tools/terrain/drive.py`:
+where `stance` walks a single DECLARED path, this DRIVES the actor from an input log — the netcode
+lockstep spine (N1) specialized to terrain movement. The authoritative trajectory is a pure, exact-integer
+fold of the log over the certified field: each command is a direction with a GAIT (lowercase = walk, 1
+cell; UPPERCASE = **sprint**, 2 cells); the actor turns to face the command (free), then advances `gait`
+cells, each cell gated by `stance`'s step law (`climb = heights[B] − heights[A] ≤ MAX_STEP`); an off-grid
+or too-high cell STOPS the actor at the last good footing (facing still turns). Three pinned scenes:
+`stroll` (walk east across `blank` — the plain transcript), `sprint_run` (the SAME directions at sprint —
+twice the ground per command, so gait is load-bearing: the only change is lowercase→UPPERCASE), `sprint_wall`
+(a northward sprint into the `mountains` 21-high ridge, stride distances `[2,2,2,1,0,0]` — three full
+sprints, then a PARTIAL stride where the second cell is a wall so the actor stops mid-stride, then walled:
+the per-cell gate applies under sprint, sprint does not vault a wall). TWO exact facts, both bit-reproducible
+on every host: DETERMINISM (replaying the same start + log reproduces the trajectory bit-for-bit — the
+lockstep witness, on terrain: state is a pure fold over the input) and TAMPER-EVIDENCE (the `URDRDRIVE1`
+digest binds start · input log · trajectory, so a forged, replayed, or reordered command moves it — input
+integrity is a digest equality, not a promise). THE SPRINT QUESTION, answered: sprint is a DERIVED gait in
+the INPUT (walk 1 / sprint 2 cells), not a pose axis and not a fixed-point velocity — the exact-integer grid
+stays exact. Division-free (no `/`, `//`, `%` — tokenizer-asserted). Gate stage `drive` (4 rows: scenes [the
+3 transcripts reproduce URDRDRIVE1 digests ×2] / properties [drive is the pure fold of `step`; replay is
+deterministic; sprint covers 2× walk; a cell is entered iff its rise ≤ MAX_STEP] / selftest [sprint is gated
+— a stride whose 2nd cell is a wall moves one cell and stops; a tampered command moves the transcript digest]
+/ refusal [6/6 typed `DRIVE-REFUSE`: unknown command · empty log · off-grid start · negative step · bool ·
+non-int]). Red-first `tests/test_drive.py` (10 falsifiers incl. the no-division tokenizer). Unit falsifiers
+656 → 666; rows 440 → 444. Grade: the trajectory + its determinism + tamper-evidence are MEASURED (exact,
+reproducible, a defect diverges); the movement MODEL (turn-then-advance-gait-cells, a rise > MAX_STEP walls)
+is DECLARED, like buoyancy/crossing/stance. Carries a terrain-local `URDRDRIVE1` canon rather than the
+kernel's. THE D7–D10 SEAM: each trajectory pose is `[x, y, ground_height, facing]` — exactly what `gaze`
+observes; `gaze` certifies a *view* reconstructs to `trajectory[k]` (WHERE), this certifies `trajectory[k]`
+is the correct derivation from the pinned input at tick k (WHEN). Together they close the temporal-replay gap
+`gaze` named: binding the tick into the observed pose makes a spatially-identical-but-stale frame refusable
+by content. `does_not_show`: CONTINUOUS position / fixed-point ROTATION (mouse-look is the Q32.32 regime —
+`fpquat`/`fppose` — NOT this exact-integer grid); diagonal moves (the four axis directions only); the kernel
+lockstep cross-check (verdicts agree with the kernel N1 spine where the `urdr` package is importable — a
+clean next step). NEXT: the fixed-point regime (`fpquat` mouse-look + `fppose` capsule) lands on this proven
+transcript + the proven reconstruction gate.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,
