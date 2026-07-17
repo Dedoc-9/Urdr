@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 <!-- Copyright (C) 2026 Daniel J. Dillberg -->
-<!-- T3.3 — the WebGL2 wave-seam view (v3, lattice + shoreline fix). DECLARED, off-gate, browser
+<!-- T3.3 — the WebGL2 wave-seam view (v4, depth-shoaled waves + studio controls). DECLARED, off-gate, browser
      float, NOT measured. Dependency-free raw WebGL2. The DATA is certified authority (URDRHF1
      island heightfield + URDRWAV1 wave components); the GPU renders a float Gerstner sea. Two
      GRADES, structurally separated: the 3 CERTIFIED swell components (the authority the field
@@ -12,7 +12,10 @@
      recedes instead of gluing foam to the waterline. Retained from v2: depth-correct water
      (deep=dark), a solid subdivided TERRAIN SLAB, sky gradient, distance fog, ACES tone mapping.
      Idle law: rAF only while animating. The boundary never moves — the look is declared, the field
-     behind it is measured. -->
+     behind it is measured. v4: waves SHOAL with depth (amplitude → 0 at the shoreline) and the
+     surface is hard-clamped above the seabed, so shallow water and canals no longer expose the bed;
+     plus a grouped studio control array (sea level, clarity, water colours, foam, choppiness, wave
+     speed, detail intensity, sun azimuth, fog) — every knob DECLARED and observational. -->
 <html lang="en"><head><meta charset="utf-8"><title>Urðr — wave-seam view (T3.3)</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
@@ -28,7 +31,7 @@ h1{font-size:15px;margin:0 0 2px}.sub{color:#8a8a99;font-size:11px;margin-bottom
 .wit.hf{color:#7fb4ff}.wit.wv{color:#7fe0c0}
 label{display:block;margin:15px 0 3px;color:#b8b8c4;font-size:11px}.rowv{float:right;color:#8a8a99;font-family:ui-monospace,monospace;font-size:10px}
 input[type=range]{width:100%}button{background:#1a2a44;color:#cfe0ff;border:1px solid #2c4468;border-radius:5px;padding:7px 12px;font-size:12px;cursor:pointer;margin-right:6px}button:hover{background:#22355a}
-.sect{margin-top:18px;padding-top:14px;border-top:1px solid #22222c}.note{font-size:10px;color:#6a6a78;margin-top:12px;line-height:1.5}
+.sect{margin-top:18px;padding-top:14px;border-top:1px solid #22222c}.note{font-size:10px;color:#6a6a78;margin-top:12px;line-height:1.5}.gh{margin:16px 0 3px;color:#9a9ab0;font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}input[type=color]{width:100%;height:26px;padding:0;border:1px solid #2c4468;border-radius:5px;background:#0b0b11;cursor:pointer}
 #vd{font-family:ui-monospace,monospace;font-size:9.5px;color:#c0a0e0;word-break:break-all}.stat{font-family:ui-monospace,monospace}#frames{color:#5fe0a0}#anim{color:#e0c05f}
 </style></head><body>
 <div id="stage"><canvas id="c"></canvas><div id="err"></div></div>
@@ -38,15 +41,30 @@ input[type=range]{width:100%}button{background:#1a2a44;color:#cfe0ff;border:1px 
 <div style="margin:8px 0 2px;color:#8a8a99;font-size:11px">island heightfield — URDRHF1</div><div class="wit hf" id="whf"></div>
 <div style="margin:8px 0 2px;color:#8a8a99;font-size:11px">wave field, swell@0 — URDRWAV1 (exact integer, division-free)</div><div class="wit wv" id="wwv"></div>
 <div class="note">The surface is <b>displaced</b> by the 3 <b>certified</b> swell components (URDRWAV1) <i>plus</i> 3
-<b>declared</b> detail ripples at incommensurate periods that break the period-8 lattice; whitecaps,
-micro-ripple and tide-driven shoreline surf are added <b>presentation shading</b> (procedural noise).
-Only the certified swell is authority — the detail waves, foam and shading are declared. Same seam,
-two grades; the boundary never moves.</div>
-<div style="margin:14px 0 2px"><span class="grade declared">PRESENTATION · DECLARED</span></div>
+<b>declared</b> detail ripples at incommensurate periods that break the period-8 lattice; the waves
+<b>shoal with depth</b> (amplitude → 0 at the shore) and the surface is clamped above the seabed, so
+shallow water never exposes the bed. Whitecaps, micro-ripple and tide-driven surf are presentation
+shading. Only the certified swell is authority; every control below is <b>declared and observational</b>
+— it moves the view, never the witness. Same seam, two grades; the boundary never moves.</div>
+<div style="margin:14px 0 6px"><span class="grade declared">PRESENTATION · DECLARED</span></div>
+<div class="gh">Water</div>
+<label>Sea level <span class="rowv" id="seav"></span></label><input type="range" id="sea" min="70" max="200" value="130">
+<label>Clarity (depth fade) <span class="rowv" id="clarv"></span></label><input type="range" id="clar" min="20" max="140" value="70">
+<label>Shallow tint <span class="rowv" id="shalv">#33b3bd</span></label><input type="color" id="shal" value="#33b3bd">
+<label>Deep tint <span class="rowv" id="deepv">#031440</span></label><input type="color" id="deep" value="#031440">
+<label>Foam amount <span class="rowv" id="foamv"></span></label><input type="range" id="foam" min="0" max="250" value="100">
+<div class="gh">Waves</div>
 <label>Wave height <span class="rowv" id="wavev"></span></label><input type="range" id="wave" min="0" max="220" value="100">
+<label>Choppiness <span class="rowv" id="chopv"></span></label><input type="range" id="chop" min="0" max="200" value="100">
+<label>Wave speed <span class="rowv" id="spdv"></span></label><input type="range" id="spd" min="0" max="250" value="100">
+<label>Detail intensity <span class="rowv" id="detv"></span></label><input type="range" id="det" min="0" max="250" value="100">
+<div class="gh">Lighting</div>
 <label>Sun elevation <span class="rowv" id="sunv"></span></label><input type="range" id="sun" min="8" max="88" value="42">
+<label>Sun azimuth <span class="rowv" id="azv"></span></label><input type="range" id="az" min="0" max="360" value="35">
 <label>Exposure <span class="rowv" id="expv"></span></label><input type="range" id="exp" min="60" max="150" value="100">
-<div class="sect"><button id="play">▶ Animate</button><button id="reset">Reset view</button>
+<div class="gh">Atmosphere</div>
+<label>Fog density <span class="rowv" id="fogv"></span></label><input type="range" id="fog" min="0" max="40" value="11">
+<div class="sect"><button id="play">▶ Animate</button><button id="reset">Reset view</button><button id="defaults">Defaults</button>
 <div style="margin-top:12px" class="note">Drag to orbit · wheel to zoom.</div>
 <div style="margin-top:10px"><span style="color:#8a8a99">view digest (presentation)</span><div id="vd"></div></div>
 <div style="margin-top:10px"><span style="color:#8a8a99">frames drawn</span> <span class="stat" id="frames">0</span> · animating <span class="stat" id="anim">no</span></div>
@@ -64,6 +82,8 @@ D.detail=[
   {dir:[0.6820,-0.7314],freq:6.2831853/12.9,speed:0.90,amp:0.08,steep:0.09}  // λ≈12.9,-47° medium diagonal
 ];
 const cv=document.getElementById("c");
+const V=id=>document.getElementById(id).value;
+function hexRGB(h){return new Float32Array([parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255]);}
 function fail(m){const e=document.getElementById("err");e.style.display="block";e.textContent=m;console.error(m);}
 const gl=cv.getContext("webgl2",{antialias:true});
 if(!gl) fail("WebGL2 is not available here. The view is declared presentation; the certified data is unaffected.");
@@ -106,10 +126,10 @@ function buildTerrain(){const S=120,pos=[],nrm=[],col=[],idx=[],dark=[0.13,0.11,
            pv(0,BASE,M-1,0,-1,0,dark[0],dark[1],dark[2]),pv(N-1,BASE,M-1,0,-1,0,dark[0],dark[1],dark[2])];
   idx.push(b[0],b[1],b[2],b[2],b[1],b[3]);
   return {pos:new Float32Array(pos),nrm:new Float32Array(nrm),col:new Float32Array(col),idx:new Uint32Array(idx)};}
-function buildWater(){const K=150,pos=[],dep=[],idx=[],sx=(N-1)/K,sz=(M-1)/K;
-  for(let j=0;j<=K;j++)for(let i=0;i<=K;i++){const x=i*sx,z=j*sz;pos.push(x,z);dep.push(D.sealevel-hB(x,z));}
+function buildWater(){const K=150,pos=[],bed=[],idx=[],sx=(N-1)/K,sz=(M-1)/K;
+  for(let j=0;j<=K;j++)for(let i=0;i<=K;i++){const x=i*sx,z=j*sz;pos.push(x,z);bed.push(hB(x,z));}
   for(let j=0;j<K;j++)for(let i=0;i<K;i++){const a=j*(K+1)+i,b=a+1,c=a+(K+1),d=c+1;idx.push(a,c,b,b,c,d);}
-  return {pos:new Float32Array(pos),dep:new Float32Array(dep),idx:new Uint32Array(idx)};}
+  return {pos:new Float32Array(pos),bed:new Float32Array(bed),idx:new Uint32Array(idx)};}
 function bufA(d){const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,d,gl.STATIC_DRAW);return b;}
 function bufE(d){const b=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,b);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,d,gl.STATIC_DRAW);return b;}
 
@@ -133,48 +153,53 @@ function initGL(){ if(!gl) return;
       float fog=1.0-exp(-max(vD-45.0,0.0)*0.0055); c=mix(c,vec3(0.76,0.84,0.92),fog);
       o=vec4(aces(c*uExp),1.0);}`);
   watP=prog(`#version 300 es
-    precision highp float; in vec2 aXZ; in float aDepth;
-    uniform mat4 uMVP; uniform vec3 uCam; uniform float uTime; uniform float uWave; uniform float uSeaY;
+    precision highp float; in vec2 aXZ; in float aBed;
+    uniform mat4 uMVP; uniform vec3 uCam; uniform float uTime; uniform float uWave; uniform float uChop;
+    uniform float uDetail; uniform float uSeaLevel; uniform float uYS; uniform float uShoal;
     uniform vec2 uDir[3]; uniform float uFreq[3]; uniform float uSpeed[3]; uniform float uAmp[3]; uniform float uSteep[3];
     uniform vec2 uDDir[3]; uniform float uDFreq[3]; uniform float uDSpeed[3]; uniform float uDAmp[3]; uniform float uDSteep[3]; // DECLARED detail
-    out vec3 vW; out vec3 vN; out float vDepth; out float vCrest; out float vDist;
-    void main(){vec3 p=vec3(aXZ.x,uSeaY,aXZ.y);vec3 T=vec3(1.0,0.0,0.0);vec3 B=vec3(0.0,0.0,1.0);
-      for(int i=0;i<3;i++){float ph=uFreq[i]*dot(uDir[i],aXZ)-uSpeed[i]*uTime;float a=uAmp[i]*uWave;
-        float s=sin(ph),c=cos(ph),Q=uSteep[i];
+    out vec3 vW; out vec3 vN; out float vDepth; out float vCrest; out float vDist; out float vShore;
+    void main(){float depth=uSeaLevel-aBed; float seaY=uSeaLevel*uYS;
+      float att=smoothstep(0.0,uShoal,depth);            // shoaling: amplitude -> 0 toward the shore
+      vec3 p=vec3(aXZ.x,seaY,aXZ.y);vec3 T=vec3(1.0,0.0,0.0);vec3 B=vec3(0.0,0.0,1.0);
+      for(int i=0;i<3;i++){float ph=uFreq[i]*dot(uDir[i],aXZ)-uSpeed[i]*uTime;float a=uAmp[i]*uWave*att;
+        float s=sin(ph),c=cos(ph),Q=uSteep[i]*uChop;
         p.x+=Q*a*uDir[i].x*c;p.z+=Q*a*uDir[i].y*c;p.y+=a*s;float WA=uFreq[i]*a;
         T+=vec3(-Q*uDir[i].x*uDir[i].x*WA*s,uDir[i].x*WA*c,-Q*uDir[i].x*uDir[i].y*WA*s);
         B+=vec3(-Q*uDir[i].x*uDir[i].y*WA*s,uDir[i].y*WA*c,-Q*uDir[i].y*uDir[i].y*WA*s);}
       // DECLARED detail ripples — presentation only; incommensurate with the certified swell so the
-      // lattice never tiles. Same Gerstner form, same analytic-normal accumulation, never measured.
-      for(int i=0;i<3;i++){float ph=uDFreq[i]*dot(uDDir[i],aXZ)-uDSpeed[i]*uTime;float a=uDAmp[i]*uWave;
-        float s=sin(ph),c=cos(ph),Q=uDSteep[i];
+      // lattice never tiles. Same Gerstner form + analytic-normal accumulation, shoaled the same way.
+      for(int i=0;i<3;i++){float ph=uDFreq[i]*dot(uDDir[i],aXZ)-uDSpeed[i]*uTime;float a=uDAmp[i]*uWave*uDetail*att;
+        float s=sin(ph),c=cos(ph),Q=uDSteep[i]*uChop;
         p.x+=Q*a*uDDir[i].x*c;p.z+=Q*a*uDDir[i].y*c;p.y+=a*s;float WA=uDFreq[i]*a;
         T+=vec3(-Q*uDDir[i].x*uDDir[i].x*WA*s,uDDir[i].x*WA*c,-Q*uDDir[i].x*uDDir[i].y*WA*s);
         B+=vec3(-Q*uDDir[i].x*uDDir[i].y*WA*s,uDDir[i].y*WA*c,-Q*uDDir[i].y*uDDir[i].y*WA*s);}
-      vN=normalize(cross(B,T));vW=p;vDepth=aDepth;vCrest=p.y-uSeaY;vDist=length(uCam-p);
+      float bedY=aBed*uYS; p.y=max(p.y,bedY+0.02);        // hard guarantee: surface never sinks below the seabed
+      vN=normalize(cross(B,T));vW=p;vDepth=depth;vCrest=p.y-seaY;vShore=att;vDist=length(uCam-p);
       gl_Position=uMVP*vec4(p,1.0);}`,
     `#version 300 es
-    precision highp float; in vec3 vW; in vec3 vN; in float vDepth; in float vCrest; in float vDist; out vec4 o;
-    uniform vec3 uCam; uniform vec3 uSun; uniform float uExp; uniform float uTime; uniform vec2 uDir[3]; ${ACES}
+    precision highp float; in vec3 vW; in vec3 vN; in float vDepth; in float vCrest; in float vDist; in float vShore; out vec4 o;
+    uniform vec3 uCam; uniform vec3 uSun; uniform float uExp; uniform float uTime; uniform vec2 uDir[3];
+    uniform float uFoam; uniform float uClarity; uniform float uFog; uniform vec3 uShallow; uniform vec3 uDeep; ${ACES}
     float hash(vec2 p){p=fract(p*vec2(123.34,345.45));p+=dot(p,p+34.345);return fract(p.x*p.y);}
     float vnoise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
     float fbm(vec2 p){return 0.6*vnoise(p)+0.3*vnoise(p*2.1+1.7)+0.15*vnoise(p*4.3+3.1);}
     void main(){ if(vDepth<=0.0) discard; vec2 wp=vW.xz;
       vec3 Nn=normalize(vN+vec3((fbm(wp*1.6+uTime*0.25)-0.5),0.0,(fbm(wp*1.6+9.0-uTime*0.2)-0.5))*0.45);
-      vec3 V=normalize(uCam-vW),L=normalize(uSun);
-      float fres=0.02+0.98*pow(1.0-max(dot(Nn,V),0.0),5.0);
-      float t=clamp(vDepth/70.0,0.0,1.0);
-      vec3 water=mix(vec3(0.20,0.70,0.74),vec3(0.01,0.08,0.25),t)*(0.9+0.2*fbm(wp*0.5));
+      vec3 Vv=normalize(uCam-vW),L=normalize(uSun);
+      float fres=0.02+0.98*pow(1.0-max(dot(Nn,Vv),0.0),5.0);
+      float t=clamp(vDepth/uClarity,0.0,1.0);
+      vec3 water=mix(uShallow,uDeep,t)*(0.9+0.2*fbm(wp*0.5));
       vec3 col=mix(water,vec3(0.60,0.75,0.95),fres*0.5);
       float wc=smoothstep(0.20,0.40,vCrest)*smoothstep(0.55,0.85,fbm(wp*0.7+uTime*0.5));
       float tide=0.5+0.5*sin(uTime*0.5);
-      float band=1.0-smoothstep(1.0+tide*2.0,6.0+tide*3.5,vDepth);
+      float band=(1.0-smoothstep(1.0+tide*2.0,6.0+tide*3.5,vDepth))*smoothstep(0.0,0.15,vShore);
       float surf=band*(0.4+0.6*sin(dot(normalize(uDir[0]),wp)*0.55-uTime*1.7))*(0.55+0.6*fbm(wp*0.8+3.0));
-      float foam=clamp(max(wc,max(surf,0.0)*0.95),0.0,1.0);
+      float foam=clamp(max(wc,max(surf,0.0)*0.95)*uFoam,0.0,1.0);
       col=mix(col,vec3(0.95,0.98,1.0),foam);
-      vec3 Hh=normalize(L+V); col+=vec3(1.0,0.96,0.85)*pow(max(dot(Nn,Hh),0.0),120.0)*0.9;
+      vec3 Hh=normalize(L+Vv); col+=vec3(1.0,0.96,0.85)*pow(max(dot(Nn,Hh),0.0),120.0)*0.9;
       col*=(0.55+0.55*max(dot(Nn,L),0.0));
-      float fog=1.0-exp(-max(vDist-45.0,0.0)*0.0055); col=mix(col,vec3(0.76,0.84,0.92),fog);
+      float fog=1.0-exp(-max(vDist-45.0,0.0)*uFog); col=mix(col,vec3(0.76,0.84,0.92),fog);
       float alpha=max(mix(0.55,0.96,t),foam*0.9);
       o=vec4(aces(col*uExp),alpha);}`);
   if(!skyP||!terrP||!watP) return;
@@ -185,13 +210,13 @@ function initGL(){ if(!gl) return;
   const ba=(p,nm,d,sz)=>{bufA(d);const l=gl.getAttribLocation(p,nm);gl.enableVertexAttribArray(l);gl.vertexAttribPointer(l,sz,gl.FLOAT,false,0,0);};
   ba(terrP,"aPos",T.pos,3);ba(terrP,"aNormal",T.nrm,3);ba(terrP,"aColor",T.col,3);bufE(T.idx);
   const W=buildWater();watN=W.idx.length;watVAO=gl.createVertexArray();gl.bindVertexArray(watVAO);
-  ba(watP,"aXZ",W.pos,2);ba(watP,"aDepth",W.dep,1);bufE(W.idx);
+  ba(watP,"aXZ",W.pos,2);ba(watP,"aBed",W.bed,1);bufE(W.idx);
   gl.bindVertexArray(null);gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
 }
 let yaw=0.7,pitch=0.42,dist=105,time=0,frames=0,animating=false,raf=0;
 const tgt=[(N-1)/2,4.5,(M-1)/2];
 function eye(){return[tgt[0]+dist*Math.cos(pitch)*Math.cos(yaw),tgt[1]+dist*Math.sin(pitch),tgt[2]+dist*Math.cos(pitch)*Math.sin(yaw)];}
-function sun(){const el=(+document.getElementById("sun").value)*Math.PI/180;return vn([Math.cos(el)*0.6,Math.sin(el),Math.cos(el)*0.42]);}
+function sun(){const el=(+V("sun"))*Math.PI/180,az=(+V("az"))*Math.PI/180,ce=Math.cos(el);return vn([ce*Math.cos(az),Math.sin(el),ce*Math.sin(az)]);}
 function resize(){const d=Math.min(2,window.devicePixelRatio||1),w=cv.clientWidth*d,h=cv.clientHeight*d;if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h;}}
 function render(){ if(!gl||!terrP) return;
   resize();frames++;document.getElementById("frames").textContent=frames;
@@ -204,7 +229,18 @@ function render(){ if(!gl||!terrP) return;
   gl.bindVertexArray(terrVAO);gl.drawElements(gl.TRIANGLES,terrN,gl.UNSIGNED_INT,0);
   gl.useProgram(watP);gl.uniformMatrix4fv(gl.getUniformLocation(watP,"uMVP"),false,mvp);
   gl.uniform3fv(gl.getUniformLocation(watP,"uCam"),e);gl.uniform3fv(gl.getUniformLocation(watP,"uSun"),S);gl.uniform1f(gl.getUniformLocation(watP,"uExp"),ex);
-  gl.uniform1f(gl.getUniformLocation(watP,"uTime"),time);gl.uniform1f(gl.getUniformLocation(watP,"uWave"),(+document.getElementById("wave").value)/100);gl.uniform1f(gl.getUniformLocation(watP,"uSeaY"),SEAY);
+  gl.uniform1f(gl.getUniformLocation(watP,"uTime"),time);
+  gl.uniform1f(gl.getUniformLocation(watP,"uWave"),(+V("wave"))/100);
+  gl.uniform1f(gl.getUniformLocation(watP,"uChop"),(+V("chop"))/100);
+  gl.uniform1f(gl.getUniformLocation(watP,"uDetail"),(+V("det"))/100);
+  gl.uniform1f(gl.getUniformLocation(watP,"uSeaLevel"),+V("sea"));
+  gl.uniform1f(gl.getUniformLocation(watP,"uYS"),YS);
+  gl.uniform1f(gl.getUniformLocation(watP,"uShoal"),14.0);
+  gl.uniform1f(gl.getUniformLocation(watP,"uFoam"),(+V("foam"))/100);
+  gl.uniform1f(gl.getUniformLocation(watP,"uClarity"),+V("clar"));
+  gl.uniform1f(gl.getUniformLocation(watP,"uFog"),(+V("fog"))*0.0005);
+  gl.uniform3fv(gl.getUniformLocation(watP,"uShallow"),hexRGB(V("shal")));
+  gl.uniform3fv(gl.getUniformLocation(watP,"uDeep"),hexRGB(V("deep")));
   gl.uniform2fv(gl.getUniformLocation(watP,"uDir"),new Float32Array(D.waves.flatMap(w=>w.dir)));
   gl.uniform1fv(gl.getUniformLocation(watP,"uFreq"),new Float32Array(D.waves.map(w=>w.freq)));
   gl.uniform1fv(gl.getUniformLocation(watP,"uSpeed"),new Float32Array(D.waves.map(w=>w.speed*0.5)));
@@ -216,20 +252,32 @@ function render(){ if(!gl||!terrP) return;
   gl.uniform1fv(gl.getUniformLocation(watP,"uDAmp"),new Float32Array(D.detail.map(w=>w.amp)));
   gl.uniform1fv(gl.getUniformLocation(watP,"uDSteep"),new Float32Array(D.detail.map(w=>w.steep)));
   gl.bindVertexArray(watVAO);gl.drawElements(gl.TRIANGLES,watN,gl.UNSIGNED_INT,0);gl.bindVertexArray(null);
-  document.getElementById("wavev").textContent=((+document.getElementById("wave").value)/100).toFixed(2)+"×";
-  document.getElementById("sunv").textContent=document.getElementById("sun").value+"°";
-  document.getElementById("expv").textContent=ex.toFixed(2);updateVD();}
+  document.getElementById("wavev").textContent=((+V("wave"))/100).toFixed(2)+"×";
+  document.getElementById("sunv").textContent=V("sun")+"°";
+  document.getElementById("azv").textContent=V("az")+"°";
+  document.getElementById("expv").textContent=ex.toFixed(2);
+  document.getElementById("seav").textContent=V("sea");
+  document.getElementById("clarv").textContent=V("clar");
+  document.getElementById("shalv").textContent=V("shal");
+  document.getElementById("deepv").textContent=V("deep");
+  document.getElementById("foamv").textContent=((+V("foam"))/100).toFixed(2)+"×";
+  document.getElementById("chopv").textContent=((+V("chop"))/100).toFixed(2)+"×";
+  document.getElementById("spdv").textContent=((+V("spd"))/100).toFixed(2)+"×";
+  document.getElementById("detv").textContent=((+V("det"))/100).toFixed(2)+"×";
+  document.getElementById("fogv").textContent=V("fog");
+  updateVD();}
 let vt=0;function updateVD(){if(vt)return;vt=1;setTimeout(()=>{vt=0;
-  const p=`cam=${yaw.toFixed(3)},${pitch.toFixed(3)},${dist.toFixed(1)}|wave=${document.getElementById("wave").value}|sun=${document.getElementById("sun").value}|exp=${document.getElementById("exp").value}`;
+  const p=`cam=${yaw.toFixed(3)},${pitch.toFixed(3)},${dist.toFixed(1)}|sea=${V("sea")}|clar=${V("clar")}|shal=${V("shal")}|deep=${V("deep")}|foam=${V("foam")}|wave=${V("wave")}|chop=${V("chop")}|spd=${V("spd")}|det=${V("det")}|sun=${V("sun")}|az=${V("az")}|exp=${V("exp")}|fog=${V("fog")}`;
   crypto.subtle.digest("SHA-256",new TextEncoder().encode("URDRTVW1|w:"+D.wave_witness+"|p:"+p)).then(h=>{document.getElementById("vd").textContent=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,"0")).join("");});},30);}
 let drag=false,lx=0,ly=0;
 cv.addEventListener("pointerdown",e=>{drag=true;lx=e.clientX;ly=e.clientY;cv.setPointerCapture(e.pointerId);});
 cv.addEventListener("pointerup",()=>drag=false);
 cv.addEventListener("pointermove",e=>{if(!drag)return;yaw+=(e.clientX-lx)*0.008;pitch=Math.max(0.06,Math.min(1.45,pitch+(e.clientY-ly)*0.008));lx=e.clientX;ly=e.clientY;if(!animating)render();});
 cv.addEventListener("wheel",e=>{e.preventDefault();dist=Math.max(35,Math.min(260,dist*(1+Math.sign(e.deltaY)*0.08)));if(!animating)render();},{passive:false});
-for(const id of ["wave","sun","exp"])document.getElementById(id).addEventListener("input",()=>{if(!animating)render();});
+for(const id of ["sea","clar","shal","deep","foam","wave","chop","spd","det","sun","az","exp","fog"])document.getElementById(id).addEventListener("input",()=>{if(!animating)render();});
 document.getElementById("reset").addEventListener("click",()=>{yaw=0.7;pitch=0.42;dist=105;if(!animating)render();});
-function loop(){if(!animating)return;time+=1/60;render();raf=requestAnimationFrame(loop);}
+document.getElementById("defaults").addEventListener("click",()=>{const D0={sea:130,clar:70,foam:100,wave:100,chop:100,spd:100,det:100,sun:42,az:35,exp:100,fog:11};for(const k in D0)document.getElementById(k).value=D0[k];document.getElementById("shal").value="#33b3bd";document.getElementById("deep").value="#031440";if(!animating)render();});
+function loop(){if(!animating)return;time+=(1/60)*((+V("spd"))/100);render();raf=requestAnimationFrame(loop);}
 document.getElementById("play").addEventListener("click",()=>{animating=!animating;document.getElementById("play").textContent=animating?"⏸ Pause":"▶ Animate";document.getElementById("anim").textContent=animating?"yes":"no";if(animating)loop();else cancelAnimationFrame(raf);});
 window.addEventListener("resize",()=>{if(!animating)render();});
 document.getElementById("whf").textContent=D.hf_witness;document.getElementById("wwv").textContent=D.wave_witness;
