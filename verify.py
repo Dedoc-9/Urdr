@@ -3348,6 +3348,77 @@ class Gate:
                     "4/4 TELL-REFUSE typed and total; the leak names its node and imbalance"
                     if ref_total else f"refusals wrong: {codes} (leak named: {named})")
 
+    # -- 2p6. terrain — the URDRHF1 heightfield canon (T1; a D14 procedural modality) ----
+    def terrain(self):
+        """The deterministic integer heightfield generator — the D14 §4 'procedural
+        generator' modality, built out (a GENERATOR under the front-end admission
+        contract, deliberately NOT in the D17 detector manifest: it authors assets, it
+        detects nothing). SHA-seeded lattice noise, Q16 quintic interpolation with floor
+        rounding, exact FBM rescale, sqrt-free island falloff. Rows: reference (three
+        preset scenes reproduce pinned URDRHF1 digests ×2 — same seed, same bytes, any
+        host), validity (heights bounded; island corners exactly zero; the mask never
+        raises a height; sea level moves the canon, never the field), defect (the
+        linear-fade variant diverges from every golden while staying bounded), refusal
+        (dims/layers/params outside the bounded regime are TERRAIN-REFUSE, never a
+        clamp)."""
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import heightfield as HF
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("terrain", False, f"import failed: {exc}")
+            return
+        try:
+            ref_ok = True
+            fields = {}
+            for name, builder in HF.SCENES.items():
+                p = builder()
+                d1, hts = HF.scene_digest(p)
+                d2, _ = HF.scene_digest(p)
+                fields[name] = (p, hts)
+                ref_ok = ref_ok and (d1 == HF.golden(name) and d2 == d1)
+        except Exception as exc:
+            self.record("terrain:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("terrain:scenes", ref_ok,
+                    "island/blank/mountains reproduce pinned URDRHF1 digests ×2 (same seed → same bytes)"
+                    if ref_ok else "a preset drifted from its pinned digest")
+        val_ok = True
+        for name, (p, hts) in fields.items():
+            val_ok = val_ok and all(0 <= v <= p["height_scale"] for row in hts for v in row)
+        ip, ih = fields["island"]
+        val_ok = val_ok and all(v == 0 for v in (ih[0][0], ih[0][-1], ih[-1][0], ih[-1][-1]))
+        _, flat = HF.scene_digest(dict(ip, falloff="none", falloff_width=0))
+        val_ok = val_ok and all(mv <= fv for mr, fr in zip(ih, flat) for mv, fv in zip(mr, fr))
+        d_sl, h_sl = HF.scene_digest(dict(ip, sea_level=ip["sea_level"] + 1))
+        val_ok = val_ok and h_sl == ih and d_sl != HF.golden("island")
+        self.record("terrain-bounds", val_ok,
+                    "heights ∈ [0, scale]; island corners 0; mask never raises; sea level moves canon, never field"
+                    if val_ok else "a validity property failed")
+        defect_ok = True
+        for name, (p, _hts) in fields.items():
+            dd, dh = HF.scene_digest(p, fade=lambda t: t)
+            defect_ok = defect_ok and dd != HF.golden(name)
+            defect_ok = defect_ok and all(0 <= v <= p["height_scale"] for row in dh for v in row)
+        self.record("terrain-selftest", defect_ok,
+                    "the linear-fade defect diverges from all 3 goldens while staying bounded (gate can redden)"
+                    if defect_ok else "the defect did not misclassify")
+        base = HF.blank()
+        codes = []
+        for bad in (dict(base, w=3), dict(base, seed=True),
+                    dict(base, layers=tuple((8, 1) for _ in range(13))),
+                    dict(base, falloff="ridge")):
+            try:
+                HF.scene_digest(bad)
+                codes.append(None)
+            except HF.TerrainError as exc:
+                codes.append(exc.code)
+        ref_total = all(c == "TERRAIN-REFUSE" for c in codes)
+        self.record("terrain-refusal", ref_total,
+                    "4/4 TERRAIN-REFUSE typed and total (dims / bool seed / stack cap / falloff) — refuse, never clamp"
+                    if ref_total else f"refusals wrong: {codes}")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -3546,6 +3617,7 @@ def main() -> int:
     gate.persim()
     gate.winding()
     gate.tellegen()
+    gate.terrain()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

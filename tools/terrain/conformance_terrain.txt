@@ -1,0 +1,7 @@
+# urdr-terrain (T1) — URDRHF1 heightfield canon: SHA-seeded lattice noise, Q16 quintic
+#   interpolation, exact FBM rescale, sqrt-free island falloff. Same (seed, params) ->
+#   same bytes on every host. See the builders' provenance docstrings.
+# name  digest
+island 7243652eb97adf557f336d7417ed19a769ea60764e1354f68f29e8b7b55cb222
+blank 7cc67f6769959ff09356f20b6a0999d7c3c397b30e4fb4addbfc04c342faa83e
+mountains c57c56bee9650148b139b927aa1d036baca1f07d0a683982c01c4b17e1aa069e

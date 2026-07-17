@@ -1851,6 +1851,26 @@ any "map the codebase's pipelines to circuits" consumer story — DECLARED at be
 D19 pipeline itself, unchanged and SPECULATIVE (no proposer, no recorded batch, no
 `ABDUCT-REFUSE`).
 
+**Terrain heightfield canon (URDRHF1) — T1 of the terrain ladder; the D14 procedural
+modality — MEASURED (canon-level reference).** `tools/terrain/heightfield.py`: SHA-seeded
+lattice noise (`sha256(MAGIC|seed|layer|xi|yi)` — stateless, host-independent), Q16 quintic
+interpolation with floor rounding (the D9 discipline: deterministic, rounds, stated), an
+exact FBM rescale to `[0, height_scale]`, and a sqrt-free island falloff linear in d² —
+same (seed, params) → the SAME heightmap bytes on every host, the promise float-based
+studios cannot make. Gate stage `terrain`: three preset goldens ×2 (the island pins the
+operator's zyfod session parameters — seed 2920741843, 420/72, width 90/256 — as
+provenance, never identity), validity rows (heights bounded; island corners exactly zero;
+the mask never raises a height; sea level moves the CANON, never the FIELD — presentation
+can never alter terrain identity), the linear-fade defect diverging from all three goldens
+while staying bounded, and `TERRAIN-REFUSE` total — refuse, never clamp (dims 4..512,
+layers 1..12, Q8 falloff width). Red-first `tests/test_terrain.py` (11 falsifiers,
+including byte-level lattice pins). Unit falsifiers 562 → 573. Deliberately NOT a D17
+detector — a generator authors, it does not detect — so no `invariant_detectors` manifest
+entry. Grade: MEASURED (reference) for the URDRHF1 canon only. `does_not_show`: the
+URDROBJ2 admission (rung T2 — D14 §3 steps 3–5 remain the obligation); anything rendered
+(T3, under the idle law: an idle view draws zero frames); erosion / splines / tiles (T4
+names); cross-placement. Plan of record: `docs/terrain_studio_brief.md`.
+
 **Toric detector cross-placed — Axis A: REFERENCE → CROSS-PLACED.** `tools/intla/toric_c/toric.c` is an
 independent C99 build (own SHA-256, own GF(2) rank, own complex construction) that reproduces the `torus3`
 boundary digest `391e49e5…` and `k = dim H₁` (torus 2/3/4 → 2, sphere → 0) bit-for-bit; compiled and

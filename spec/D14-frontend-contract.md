@@ -75,7 +75,7 @@ Steps 1–5 are mandatory for any modality that claims to produce first-class as
 | **Photo tracer** (`tools/tracer/photo_trace.py`) | PNG / PGM / PPM still | Otsu → Moore → RDP → snap → canon | `MEASURED` (deterministic core; aesthetics out of scope) |
 | **SVG importer** (`tools/frontend/svg_import.py`) | `.svg` vector paths (declared subset) | parse → flatten cubics at a fixed tolerance → snap → canon | `MEASURED` — three SVG constructs of one square reproduce the shared canon; cubic flatten pinned; out-of-subset → `SVG-REFUSE` |
 | CAD / DXF importer | `.dxf` | declared | `DECLARED` |
-| Procedural generator | seed + params | declared (reproducible seed) | `DECLARED` |
+| Procedural generator — terrain (`tools/terrain/heightfield.py`) | seed + params | SHA-seeded lattice noise → Q16 quintic FBM → exact rescale; own canon `URDRHF1` gated (`terrain` stage: goldens ×2, validity, defect, `TERRAIN-REFUSE`) | `MEASURED` (URDRHF1 canon) / `DECLARED` (the URDROBJ2 admission — §3 steps 3–5 — is rung T2 of `docs/terrain_studio_brief.md`, not yet built) |
 | Heightmap / point-cloud / multi-view / video-tracked | various | declared, deterministic-where-possible | `DECLARED` |
 
 The reference (`canon_ref.py`) is the shared law; the browser and the tracer are two
