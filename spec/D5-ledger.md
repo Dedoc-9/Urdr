@@ -2384,6 +2384,39 @@ is Stage B); server authority, interest management, and cross-region handoff (St
 on-ramp: the reconstruct-or-refuse discipline extended from *verifying a recorded run* to *driving a live
 client loop*, graded to exactly what it earns and no more.
 
+**Continuous fixed-point movement (URDRGLIDE1) — T3.18, MMO Stage B opener — MEASURED (the refinement
+bridge).** `tools/terrain/glide.py` + gate stage `glide`: the second step toward an MMO-scale world — the
+actor stops SNAPPING between cells and GLIDES. Where `drive` folds an input log into whole-cell integer
+poses, `glide` folds the SAME log into Q32.32 sub-cell poses at a frozen subdivision `sub = 2^k ∈
+{1,2,4,8,16}`, division-free: one micro-step advances `ONE >> k` (an EXACT shift, never a `/`), so `sub`
+micro-steps sum to EXACTLY one cell; position floors to a cell by `fx >> 32`; the ground under the actor is
+the EXACT floor-sampled cell height `heights[fy>>32][fx>>32]`. THE KEYSTONE (MEASURED): the REFINEMENT
+BRIDGE — `glide`'s command-boundary poses, FLOORED to cells, reproduce `drive`'s certified trajectory
+BIT-FOR-BIT, for every input log and every subdivision. The continuous regime provably CONTAINS the
+certified discrete one (`drive ⊑ glide`): every certified fact about the grid transcript is inherited, and
+the sub-cell poses are the strictly-finer resolution BETWEEN drive's cells — never a cell drive did not
+visit (containment). At `sub = 1` glide IS `drive` lifted onto the fixed-point lattice (cell-aligned, zero
+sub-cell offset); at `sub = 2^k` it interpolates k levels finer. The SUB-CELL WALL is the load-bearing
+non-vacuity: a glide into the ridge stops one micro-step SHORT of the too-high cell — it cannot vault a
+wall the grid refused — and floors to `drive`'s wall stop. Three pinned scenes refine `drive`'s: `glide_stroll`
+⊒ `drive.stroll`, `glide_sprint` ⊒ `drive.sprint_run`, `glide_wall` ⊒ `drive.sprint_wall` (the sub-cell
+stop). Four rows: `glide:scenes` (the three URDRGLIDE1 digests), `glide-refinement` (floored glide cells ==
+drive over the whole log × subdivision grid), `glide-subcell` (the wall floors to drive's stop + a 16×-finer
+subdivision reaches no new cell), `glide-refusal` (a changed subdivision moves the digest — `sub` is bound —
++ 4/4 typed `GLIDE-REFUSE`). Red-first `tests/test_glide.py` (10 falsifiers, the bridge swept exhaustively).
+Unit falsifiers 717 → 727; rows 466 → 470. Adds NO placement (consumes `drive` + the frozen `field.ONE`
+radix; the cross-placement of the continuous mover is a named Stage-B follow-on). GRADE: the fixed-point
+trajectory, its determinism, its tamper-evidence, and the refinement bridge (`glide ⊒ drive`, exact) are
+MEASURED (exact, reproducible, a defect diverges). The movement MODEL (constant sub-cell speed,
+turn-then-advance, floor-sampled ground, a rise > MAX_STEP walls) is DECLARED, as `drive`/`stance`.
+`does_not_show`: **SMOOTH height interpolation** (bilinear over the four corner cells is the DECLARED
+presentation regime — the floor-sample is the measured authority here, and the two grades are never
+conflated); **continuous FACING** (mouse-look is the Q32.32 `fpquat`/`fpface` rotation, not this discrete
+turn); continuous PREDICTION reconcile (`glide ∘ predict` — reconciling on a continuous pose is the next
+slice); sub-cell START poses and diagonal movement; and **WALL-CLOCK / tick budget are `NOT_MEASURED`** —
+this module makes NO timing or scale claim. The continuous regime, earned as a strict refinement of the
+certified discrete one — nothing more asserted than the floor of it can prove.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

@@ -4638,6 +4638,85 @@ class Gate:
                     "PRED-REFUSE (window mismatch · empty window · bad transcript)"
                     if ref_total else f"the defect / refusal binding did not hold: {codes}")
 
+    def glide(self):
+        """Continuous fixed-point movement (T3.18, MMO Stage B opener): the sub-cell REFINEMENT of the
+        `drive` transcript. The SAME input log is folded into Q32.32 sub-cell poses at a frozen
+        subdivision sub = 2^k; one micro-step is `ONE >> k` (an exact shift), sub of them a cell; ground
+        is the exact floor-sampled cell height. MEASURED: the REFINEMENT BRIDGE — glide's command-boundary
+        poses, FLOORED to cells, reproduce `drive`'s certified trajectory bit-for-bit for every log and
+        every subdivision (the continuous regime CONTAINS the discrete one, drive ⊑ glide) — plus
+        determinism, tamper-evidence (the digest binds the subdivision), and the sub-cell wall (a glide
+        into the ridge stops one micro-step short and floors to drive's wall stop, never vaulting it).
+        Makes NO timing claim. Rows: scenes (stroll + sprint + wall reproduce URDRGLIDE1 digests),
+        refinement (floored glide cells == drive over a log × subdivision grid), subcell (the wall floors
+        to drive's stop and a finer subdivision reaches no new cell), refusal (a changed subdivision moves
+        the digest; unknown command / empty log / off-grid start / non-power-of-two sub → GLIDE-REFUSE)."""
+        import itertools as _it
+        for p in (os.path.join(ROOT, "tools", "terrain"), os.path.join(ROOT, "tools", "physics")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import glide as GL
+            import drive as DR
+        except Exception as exc:
+            self.record("glide", False, f"import failed (glide / drive): {exc}")
+            return
+
+        try:
+            ref_ok = True
+            for name in GL.SCENES:
+                _pose, d = GL.scene_result(name)
+                ref_ok = ref_ok and (d == GL.golden(name))
+        except Exception as exc:
+            self.record("glide:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("glide:scenes", ref_ok,
+                    "stroll + sprint + wall reproduce URDRGLIDE1 refinement digests"
+                    if ref_ok else "a glide scene drifted from its digest")
+
+        bridge = True
+        checked = 0
+        for scene, start, ms in (("blank", (2, 8), 16), ("mountains", (6, 24), 20)):
+            H = GL._heights(scene)
+            for combo in _it.product("eEnNsSwW", repeat=2):                 # 64 logs / field
+                log = "".join(combo)
+                drive_traj = DR.drive(H, start, log, ms)
+                for sub in GL.SUBDIV:
+                    bridge = bridge and (GL.floored(GL.glide_cells(H, start, log, ms, sub)) == drive_traj)
+                    checked += 1
+        self.record("glide-refinement", bridge,
+                    f"floored glide cell-samples == drive for all {checked} log×subdivision cases "
+                    "(the continuous regime contains the certified discrete one, drive ⊑ glide)"
+                    if bridge else "the refinement bridge did not hold")
+
+        scene, start, cmds, ms, sub = GL.SCENES["glide_wall"]()
+        H = GL._heights(scene)
+        wall_ok = GL.floored(GL.glide_cells(H, start, cmds, ms, sub)) == DR.drive(H, start, cmds, ms)
+        coarse = {GL.cell_of(*p[:2]) for p in GL.glide(H, start, cmds, ms, 1)}
+        contained = all(GL.cell_of(fx, fy) in coarse for fx, fy, _g, _f in GL.glide(H, start, cmds, ms, 16))
+        subcell = wall_ok and contained
+        self.record("glide-subcell", subcell,
+                    "the sub-cell wall floors to drive's stop (glide cannot vault a wall) and a 16×"
+                    "-finer subdivision reaches no cell the coarse traversal did not"
+                    if subcell else "the sub-cell wall / containment binding did not hold")
+
+        codes = []
+        Hb = GL._heights("blank")
+        for args in ((Hb, (2, 8), "eXe", 16, 4), (Hb, (2, 8), "", 16, 4),
+                     (Hb, (-1, 0), "ee", 16, 4), (Hb, (2, 8), "ee", 16, 3)):
+            try:
+                GL.glide(*args)
+                codes.append(None)
+            except GL.GlideError as exc:
+                codes.append(exc.code)
+        d4 = GL.glide_digest("s", (2, 8), "eeee", 4, GL.glide(Hb, (2, 8), "eeee", 16, 4))
+        d8 = GL.glide_digest("s", (2, 8), "eeee", 8, GL.glide(Hb, (2, 8), "eeee", 16, 8))
+        ref_total = (d4 != d8) and all(c == "GLIDE-REFUSE" for c in codes)
+        self.record("glide-refusal", ref_total,
+                    "a changed subdivision moves the digest (sub is bound); 4/4 typed GLIDE-REFUSE "
+                    "(unknown command · empty log · off-grid start · non-power-of-two subdivision)"
+                    if ref_total else f"the defect / refusal binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4939,6 +5018,7 @@ def main() -> int:
     gate.fpface()
     gate.fpcap()
     gate.predict()
+    gate.glide()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

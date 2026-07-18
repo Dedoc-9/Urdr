@@ -1,0 +1,13 @@
+# urdr-terrain (T3.18, MMO Stage B) — URDRGLIDE1 continuous fixed-point movement canon: the sub-cell
+#   REFINEMENT of the URDRDRIVE1 transcript. The SAME input log is folded into Q32.32 sub-cell poses at a
+#   frozen subdivision sub = 2^k ∈ {1,2,4,8,16}; one micro-step is ONE>>k (an EXACT shift), sub of them a
+#   cell. Ground is the exact floor-sampled cell height heights[fy>>32][fx>>32]; a micro-step into an
+#   off-grid or above-MAX_STEP cell stops the actor at the sub-cell boundary. Each digest binds (name,
+#   start, log, sub, full micro-trajectory). REFINEMENT BRIDGE (measured): glide's command-boundary poses,
+#   floored to cells, reproduce drive's certified trajectory bit-for-bit — glide_stroll ⊒ drive.stroll,
+#   glide_sprint ⊒ drive.sprint_run, glide_wall ⊒ drive.sprint_wall (a sub-cell stop at the ridge). Same
+#   host, same bytes; no float, no clock, no `/` `//` `%`.
+# name  digest
+glide_stroll 592393034fbc67310ee149d944e32130f1d91ab154b1e1f204f615103eeea6fc
+glide_sprint f9c8b72471173ba24197c91d462a90ef155340e2055c389e0bc06628273cf019
+glide_wall f9b20b1ba1c723b75d0872d9ba3a2abd0a2dfa0bdcde7e418aa0060fd85005d0

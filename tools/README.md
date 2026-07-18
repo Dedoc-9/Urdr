@@ -52,7 +52,13 @@ in each one's README and grade line.
   the agreed prefix is reused and only the tail is replayed by re-folding `drive.step`; the keystone is
   measured: `reconstruct` — rollback then replay — is byte-identical to a full re-simulation on the
   authority's commands for **every** prediction, so this is reconstruct-or-refuse, not predict-then-
-  reconcile-with-drift; the wire latency it buys stays `NOT_MEASURED` until a sealed bench). The observer + transcript + horizon observer are the
+  reconcile-with-drift; the wire latency it buys stays `NOT_MEASURED` until a sealed bench), and the
+  `glide` **continuous movement seam** that opens Stage B (the actor stops snapping between cells and folds
+  the same input log into Q32.32 *sub-cell* poses — one micro-step is `ONE>>k`, an exact shift, so `sub` of
+  them a cell; ground is the exact floor-sampled cell height; the keystone is measured: glide's cell-boundary
+  poses, *floored*, reproduce `drive`'s certified trajectory bit-for-bit at every subdivision, so the
+  continuous regime provably CONTAINS the discrete one — smooth interpolation and mouse-look facing stay
+  DECLARED, `does_not_show`). The observer + transcript + horizon observer are the
   foundation of FPS movement over the certified field — and `gaze`/`traj` are **kernel-cross-checked**
   (their verdicts equal the kernel `world_host`'s, so the terrain observability law is certified to be the
   kernel's, not a copy).
@@ -113,7 +119,7 @@ grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
 `DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
 in particular, stay `NOT_MEASURED` until run under the sealed protocol
 (`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
-(`../verify.py`): **717 unit falsifiers / 466 rows**, run twice, bit-identical.
+(`../verify.py`): **727 unit falsifiers / 470 rows**, run twice, bit-identical.
 
 The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
 (D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
@@ -123,7 +129,7 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED` — 717 unit falsifiers / 466 rows). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 727 unit falsifiers / 470 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
   is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.

@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **717-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **727-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -224,10 +224,16 @@ prediction. The client never drifts from the authority; it reconstructs, or a pr
 is refused — no float reconciliation, no drift to smooth. This is the reconstruct-or-refuse discipline
 carried from *verifying a recorded run* into *driving a live client loop*. It is graded to exactly what it
 earns: the equivalence is **MEASURED**; **latency and tick budget are `NOT_MEASURED`** and stay so until a
-sealed bench on a named host — this repo has never made a timing claim, and does not start now. The staged
-route from here (continuous fixed-point movement → deterministic interest management → seamless cross-region
-authority handoff → structural anti-cheat → live authoring → a modern depicting client → the benched
-performance promotion) is written down as goals, each to be earned slice by slice under the same gate.
+sealed bench on a named host — this repo has never made a timing claim, and does not start now. The second
+step, `glide` (MMO Stage B opener), lifts that live loop off the grid: the same input log folds into Q32.32
+**sub-cell** poses (one micro-step is `ONE>>k`, an exact shift, so `sub` of them a cell), and the keystone is
+a *refinement bridge* — glide's cell-boundary poses, *floored*, reproduce `drive`'s certified trajectory
+**bit-for-bit** at every subdivision, so the continuous regime provably CONTAINS the discrete one
+(`drive ⊑ glide`) and inherits its every certified fact. The actor glides where it used to snap; ground is
+the exact floor-sampled cell height, while smooth interpolation and mouse-look facing stay **DECLARED**. The
+staged route from here (deterministic interest management → seamless cross-region authority handoff →
+structural anti-cheat → live authoring → a modern depicting client → the benched performance promotion) is
+written down as goals, each to be earned slice by slice under the same gate.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 
