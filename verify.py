@@ -5548,6 +5548,72 @@ class Gate:
                     "work-budget law — refuse, never overrun)"
                     if budget_ok else f"the work-budget refusal did not hold: {codes}")
 
+    def govern(self):
+        """The per-tick work governor (T3.30, MMO Stage H, URDROPC2): the opcost envelope turned into LIVE
+        enforcement — admit a FIFO prefix within the tick op-budget, defer the rest, refuse a single
+        over-budget actor. Rows: scenes (fits_one/split_two/one_each schedules reproduce URDROPC2 digests),
+        never-overrun (every admitted tick's work <= budget across budgets — the live latency guarantee),
+        progress-wait (each tick admits >= 1, drain <= N ticks, wait_ticks FIFO non-decreasing <= N — no
+        deadlock, no starvation), refuse (a single over-budget actor is OPCOST-REFUSE; admitted + deferred ==
+        all, in-order — conservation)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import govern as GV
+            import opcost as OC
+        except Exception as exc:
+            self.record("govern", False, f"import failed (govern / opcost): {exc}")
+            return
+
+        try:
+            ref_ok = all(GV.scene_result(n) == GV.golden(n) for n in GV.SCENES)
+        except Exception as exc:
+            self.record("govern:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("govern:scenes", ref_ok,
+                    "fits_one (5,) + split_two (3,2) + one_each (1,1,1,1,1) schedules reproduce URDROPC2 digests"
+                    if ref_ok else "a govern schedule drifted from its digest")
+
+        fld = GV._flat16()
+        ms, sub = GV._MS, GV._SUB
+        starts, cmds = GV._STARTS, GV._CMDS
+        a = GV._actor_cost_flat()
+        never = True
+        for budget in (a, 2 * a, 3 * a, 5 * a, 100 * a):
+            q = starts
+            while q:
+                _adm, deferred, spent = GV.admit_tick(fld, q, cmds, ms, sub, budget)
+                if spent > budget:
+                    never = False
+                q = deferred
+        self.record("govern-never-overrun", never,
+                    "every admitted tick's work <= budget across budgets a..100a (the live latency guarantee: "
+                    "a tick never overruns its op-budget)"
+                    if never else "an admitted tick overran its budget")
+
+        counts = GV.drain(fld, starts, cmds, ms, sub, a)
+        w = GV.wait_ticks(fld, starts, cmds, ms, sub, 2 * a)
+        pw = (all(c >= 1 for c in counts) and len(counts) <= len(starts)
+              and list(w) == sorted(w) and max(w) <= len(starts) and len(w) == len(starts))
+        self.record("govern-progress-wait", pw,
+                    f"every tick admits >= 1 and drain is {len(counts)} <= N={len(starts)} ticks (progress); "
+                    f"wait_ticks {w} is FIFO non-decreasing and <= N (bounded-wait, no starvation)"
+                    if pw else "the progress / bounded-wait guarantee did not hold")
+
+        refused = False
+        try:
+            GV.admit_tick(fld, starts, cmds, ms, sub, a - 1)
+        except OC.OpcostError as exc:
+            refused = exc.code == "OPCOST-REFUSE"
+        adm, deferred, _ = GV.admit_tick(fld, starts, cmds, ms, sub, 2 * a)
+        conserve = (len(adm) + len(deferred) == len(starts)
+                    and adm == starts[:len(adm)] and deferred == starts[len(adm):])
+        ref_ok2 = refused and conserve
+        self.record("govern-refuse", ref_ok2,
+                    "a single actor bigger than the budget is OPCOST-REFUSE; admitted + deferred == all actors "
+                    "in-order (conservation — none lost, duplicated, or reordered)"
+                    if ref_ok2 else "the refuse / conservation binding did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5860,6 +5926,7 @@ def main() -> int:
     gate.dirward()
     gate.wardhom()
     gate.opcost()
+    gate.govern()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

@@ -1,0 +1,7 @@
+# URDROPC2 - govern: the per-tick work governor (T3.30, MMO Stage H). Turns the opcost envelope into LIVE
+# enforcement: admit a FIFO prefix within the tick op-budget, defer the rest, refuse a single over-budget
+# actor. SHA-256(MAGIC | name | budget | per-tick admitted counts | total spent). Per-actor cost = 20 on the
+# flat 'eeee' world; fits_one=(5,) split_two=(3,2) one_each=(1,1,1,1,1). Regenerate: scene_result(name).
+fits_one 7bf8d3893c8bf645b4e4ca97c67a06d4c27733e88e3d20a7c9e40295355995a9
+split_two 81c985b4688df8591181968f85dc57d92692ffb474b2dfb09c17dd928a552cde
+one_each 7171b04396d24ccb73dcf3951c56d7e3e42ad3eb6e959d36b61ee773d4fe5860
