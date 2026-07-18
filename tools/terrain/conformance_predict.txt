@@ -1,0 +1,12 @@
+# urdr-terrain (T3.17, MMO Stage A) — URDRPRED1 client-prediction reconcile canon: given the
+#   authoritative and predicted input transcripts over the same terrain, localize the first misprediction
+#   (kernel lockstep.first_desync over per-tick pose-digest chains) and reconstruct the authority by
+#   keeping the correct prefix and replaying the true suffix. Each row binds (name, mispredict_tick,
+#   reusable_prefix_len, reconstruct==authority). `correct` = perfect prediction (tick -1/None, full
+#   prefix). `mispredict` = diverges at pose tick 3 (prefix 3 kept, suffix replayed). `early` = first-tick
+#   misprediction (tick 0, empty prefix, full re-sim). In every case reconstruct == drive(authority)
+#   bit-for-bit (rollback-replay equivalence). Same host, same bytes; no float, no clock.
+# name  digest
+correct c9f7d2a19e9a190f1f447eef0430bfc5cc8cda91b809e19340a89c047e027a9a
+mispredict f1e78d7c81b89cc3aafac06c8ab481b974dfb70428d660d8a93a09810dadb282
+early ceda1cee57d714d0df0e05aebf8539102bed1cb31a18567844da3638a934aa09

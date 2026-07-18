@@ -4558,6 +4558,86 @@ class Gate:
                     "5/5 typed CAP-REFUSE (off-grid · height<1 · radius<1 · bool · neg step)"
                     if pose else f"pose exactness / rounding / refusal did not bind: {codes}")
 
+    def predict(self):
+        """The client-prediction RECONCILE primitive (T3.17, MMO Stage A opener): client-side prediction
+        made reconstruct-or-refuse. Given the authoritative and predicted transcripts, `reconcile` localizes
+        the first misprediction (via the kernel `lockstep.first_desync`) and `replay` reconstructs the
+        authority by keeping the correct prefix and re-simulating only the suffix. MEASURED: the
+        ROLLBACK-REPLAY EQUIVALENCE — reconstruct == the full authoritative re-sim `drive(auth)` bit-for-bit
+        for every prediction — plus reusable-prefix correctness and localization; a lazy reconcile that
+        over-claims the prefix diverges. Makes NO latency/timing claim (NOT_MEASURED until the Stage-H
+        bench). Rows: scenes (correct + mispredict + early reproduce URDRPRED1 digests ×2), equivalence
+        (reconstruct == drive(auth) over a prediction grid; the reusable prefix is authoritative), localize
+        (reconcile IS first_desync; a correct prediction needs no rollback; a different-input-same-pose
+        prediction needs none either — pose-level, not input-level), refusal (the lazy-reconcile defect
+        diverges; window mismatch / empty / bad transcript → PRED-REFUSE)."""
+        import itertools as _it
+        for p in (os.path.join(ROOT, "tools", "terrain"), os.path.join(ROOT, "tools", "netcode"),
+                  os.path.join(ROOT, "tools", "physics")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import predict as PR
+            import drive as DR
+            import lockstep as N1
+        except Exception as exc:
+            self.record("predict", False, f"import failed (drive / lockstep): {exc}")
+            return
+
+        try:
+            ref_ok = True
+            for name in PR.SCENES:
+                d = PR.scene_result(name)
+                ref_ok = ref_ok and (d == PR.golden(name) and PR.scene_result(name) == d)
+        except Exception as exc:
+            self.record("predict:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("predict:scenes", ref_ok,
+                    "correct + mispredict + early reproduce URDRPRED1 reconcile digests ×2"
+                    if ref_ok else "a predict scene drifted from its digest")
+
+        H = PR._heights(PR._HF_SCENE)
+        auth = "eeee"
+        auth_traj = DR.drive(H, PR._START, auth, PR._MS)
+        equiv = prefix_ok = True
+        for pred in ("".join(p) + "e" for p in _it.product("eEnNsw", repeat=3)):   # 216 predictions
+            equiv = equiv and (PR.reconstruct(H, PR._START, auth, pred, PR._MS) == auth_traj)
+            _k, reusable = PR.reconcile(H, PR._START, auth, pred, PR._MS)
+            prefix_ok = prefix_ok and (reusable == tuple(auth_traj[:len(reusable)]))
+        self.record("predict-equivalence", equiv and prefix_ok,
+                    "rollback-replay equivalence: reconstruct == drive(auth) for every prediction, and the "
+                    "reusable prefix is bit-identical to the authority (partial rollback == full re-sim)"
+                    if equiv and prefix_ok else "the rollback-replay equivalence did not hold")
+
+        k, _r = PR.reconcile(H, PR._START, auth, "eeNe", PR._MS)
+        is_fd = k == N1.first_desync(PR._chain(DR.drive(H, PR._START, "eeNe", PR._MS)),
+                                     PR._chain(DR.drive(H, PR._START, auth, PR._MS)))
+        correct_none = PR.reconcile(H, PR._START, auth, auth, PR._MS)[0] is None
+        wall = ((0, 0, 9), (0, 0, 9))
+        pose_level = (DR.drive(wall, (0, 0), "e", 4)[-1] == DR.drive(wall, (0, 0), "E", 4)[-1]
+                      and PR.reconcile(wall, (0, 0), "e", "E", 4)[0] is None)
+        loc = is_fd and correct_none and pose_level
+        self.record("predict-localize", loc,
+                    "reconcile IS lockstep.first_desync; a correct prediction needs no rollback; a "
+                    "different-input-same-pose prediction needs none either (pose-level, not input-level)"
+                    if loc else "the localization / pose-level binding did not hold")
+
+        kk, _rr = PR.reconcile(H, PR._START, auth, "eeNe", PR._MS)
+        lazy = tuple(DR.drive(H, PR._START, "eeNe", PR._MS)[:kk + 1])
+        defect = PR.replay(H, PR._START, lazy, auth, PR._MS) != auth_traj
+        codes = []
+        for a, pc in (("ee", "eee"), ("", ""), ("eXe", "eee")):
+            try:
+                PR.reconcile(H, PR._START, a, pc, PR._MS)
+                codes.append(None)
+            except PR.PredError as exc:
+                codes.append(exc.code)
+        ref_total = defect and all(c == "PRED-REFUSE" for c in codes)
+        self.record("predict-refusal", ref_total,
+                    "the lazy-reconcile defect (one mispredicted pose too many) diverges; 3/3 typed "
+                    "PRED-REFUSE (window mismatch · empty window · bad transcript)"
+                    if ref_total else f"the defect / refusal binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -4858,6 +4938,7 @@ def main() -> int:
     gate.lockstep_crosscheck()
     gate.fpface()
     gate.fpcap()
+    gate.predict()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

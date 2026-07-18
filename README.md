@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **708-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **717-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -213,6 +213,21 @@ collision) — and the one regime change it required left exactness intact every
 collision, cardinal orientation), quarantining rounding to continuous mouse-look, graded honestly at every
 step. The named-but-unclaimed next enrichments are contact *response* (this is the collision predicate,
 not a solver), swept/continuous-time collision, and a fixed-point-native drive over continuous positions.
+
+**Beyond the arc — the road to a real-latency, MMO-scale world begins.** The first step off the
+single-actor terrain is `predict` (MMO Stage A opener): client-side prediction made *reconstruct-or-refuse*.
+A client predicts inputs it has not yet heard the authority resolve and simulates locally with `drive`;
+when the true inputs arrive, `predict` localizes the first misprediction (with the kernel's own
+`lockstep.first_desync`) and proves **rollback-replay equivalence** — keeping the correctly-predicted prefix
+and replaying only the true suffix reproduces the authoritative trajectory **bit-for-bit**, for every
+prediction. The client never drifts from the authority; it reconstructs, or a prefix wrongly claimed correct
+is refused — no float reconciliation, no drift to smooth. This is the reconstruct-or-refuse discipline
+carried from *verifying a recorded run* into *driving a live client loop*. It is graded to exactly what it
+earns: the equivalence is **MEASURED**; **latency and tick budget are `NOT_MEASURED`** and stay so until a
+sealed bench on a named host — this repo has never made a timing claim, and does not start now. The staged
+route from here (continuous fixed-point movement → deterministic interest management → seamless cross-region
+authority handoff → structural anti-cheat → live authoring → a modern depicting client → the benched
+performance promotion) is written down as goals, each to be earned slice by slice under the same gate.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 

@@ -46,7 +46,13 @@ in each one's README and grade line.
   at the four cardinals, 0 ulp, and rounding for continuous mouse-look between them), and the `fpcap`
   **capsule body seam** that closes the arc (the actor's capsule over the terrain — its collision reuses
   `fppose`'s exact division-free point-to-segment certificate, so the *body* never rounds even in
-  fixed-point; only the mouse-look posing does). The observer + transcript + horizon observer are the
+  fixed-point; only the mouse-look posing does), and the `predict` **client-prediction reconcile** that
+  opens the MMO stage (the actor moves on its predicted commands, and when the authority's stream
+  disagrees the mispredict is localized to the exact tick by the *kernel's own* `N1.first_desync` — then
+  the agreed prefix is reused and only the tail is replayed by re-folding `drive.step`; the keystone is
+  measured: `reconstruct` — rollback then replay — is byte-identical to a full re-simulation on the
+  authority's commands for **every** prediction, so this is reconstruct-or-refuse, not predict-then-
+  reconcile-with-drift; the wire latency it buys stays `NOT_MEASURED` until a sealed bench). The observer + transcript + horizon observer are the
   foundation of FPS movement over the certified field — and `gaze`/`traj` are **kernel-cross-checked**
   (their verdicts equal the kernel `world_host`'s, so the terrain observability law is certified to be the
   kernel's, not a copy).
@@ -107,7 +113,7 @@ grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
 `DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
 in particular, stay `NOT_MEASURED` until run under the sealed protocol
 (`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
-(`../verify.py`): **708 unit falsifiers / 462 rows**, run twice, bit-identical.
+(`../verify.py`): **717 unit falsifiers / 466 rows**, run twice, bit-identical.
 
 The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
 (D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
@@ -117,7 +123,7 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED` — 708 unit falsifiers / 462 rows). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 717 unit falsifiers / 466 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
   is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.

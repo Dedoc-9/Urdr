@@ -2348,6 +2348,42 @@ the exactness intact everywhere it mattered (position, collision, cardinal orien
 rounding to continuous mouse-look, graded honestly at every step. The next enrichments (contact response,
 swept collision, a fixed-point-native drive over continuous positions) are named here and NOT claimed.
 
+**Client-prediction reconcile (URDRPRED1) — T3.17, MMO Stage A opener — MEASURED (the rollback-replay
+equivalence).** `tools/terrain/predict.py` + gate stage `predict`: the first step off the single-actor
+terrain toward a real-latency, MMO-scale world — client-side prediction made *reconstruct-or-refuse*. A
+modern shooter hides latency by predicting inputs it has not yet heard the authority resolve and
+simulating locally with `drive`; when the true inputs arrive, most of that work is correct and the client
+need only roll back to the first divergent tick and replay the suffix. This module certifies that partial
+rollback is EXACT. THE KEYSTONE (MEASURED): ROLLBACK-REPLAY EQUIVALENCE — for EVERY predicted transcript,
+`reconstruct` (keep the correctly-predicted prefix, replay the true suffix from the last agreed pose) equals
+the full authoritative re-simulation `drive(auth)` BIT-FOR-BIT. Proven exhaustively (all 6⁴ = 1296
+predictions over a 4-tick window in the gate; the test sweeps the full 8⁴ = 4096 grid): the client keeps its
+correct work, re-simulates only from the mispredict tick, and lands exactly on the authority — no float
+reconciliation, no drift to smooth (the exact-arithmetic answer to client prediction). MECHANISM, reused not
+reinvented: the first divergence is localized by the KERNEL netcode's own `lockstep.first_desync` over the
+two per-tick pose-digest chains — the same localizer T3.14 used — and `predict` asserts its tick IS that
+function's, not a private copy. RECONCILE IS POSE-LEVEL, not input-level: a client whose guessed inputs
+differ but whose POSES coincide (walk vs a wall-blocked sprint reaching the same cell) needs no rollback —
+its predicted state was already right (`k = None`). Three pinned scenes: `correct` (perfect prediction →
+no misprediction, full reusable prefix), `mispredict` (diverges at pose tick 3 → prefix 3 kept, suffix
+replayed), `early` (first-tick misprediction → `k = 0`, empty prefix, full re-sim still reconstructs).
+Four rows: `predict:scenes` (×2), `predict-equivalence` (reconstruct == drive(auth) over the grid + the
+reusable prefix is bit-identical to the authority), `predict-localize` (reconcile IS `first_desync`; a
+correct prediction and a same-pose prediction each need no rollback), `predict-refusal` (the LAZY-RECONCILE
+defect — keeping one mispredicted pose too many makes the replay diverge, non-vacuity — + 3/3 typed
+`PRED-REFUSE`). Red-first `tests/test_predict.py` (9 falsifiers). Unit falsifiers 708 → 717; rows 462 → 466.
+Adds NO placement (consumes `drive` + the kernel `lockstep`; the cross-placement of the reconcile hot path
+is a named Stage-A follow-on). GRADE: the localization, the reusable-prefix correctness, and the
+rollback-replay equivalence are MEASURED (exact, reproducible, a defect diverges). `does_not_show` — and
+this is the load-bearing honesty for an "MMO" claim: **network transport / jitter / loss** (the protocol,
+not this primitive); **WALL-CLOCK latency and tick budget are `NOT_MEASURED`** — this module makes NO
+timing or scale claim, and none may be made until the sealed bench protocol on a named host (Stage H); the
+input-PREDICTION policy (how a client guesses is a DECLARED heuristic — this certifies the reconcile is
+correct for ANY prediction); continuous positions (the exact-integer grid `drive`; the fixed-point regime
+is Stage B); server authority, interest management, and cross-region handoff (Stages C–D). This is the
+on-ramp: the reconstruct-or-refuse discipline extended from *verifying a recorded run* to *driving a live
+client loop*, graded to exactly what it earns and no more.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,
