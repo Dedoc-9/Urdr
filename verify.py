@@ -4717,6 +4717,91 @@ class Gate:
                     "(unknown command · empty log · off-grid start · non-power-of-two subdivision)"
                     if ref_total else f"the defect / refusal binding did not hold: {codes}")
 
+    def splice(self):
+        """Glide RESUMPTION (T3.19, MMO Stage B foundation): a glide is resumable from any command
+        boundary, because its future depends only on its current Q32.32 pose (`cx = fx >> 32`, the fold
+        invariant) — the memoryless property continuous rollback-replay is built on. `resume` folds glide
+        from an arbitrary `(fx, fy, facing)`; `splice` cuts a glide and re-glides the tail. MEASURED: the
+        SPLICE EQUIVALENCE — splice == glide_cells(full) bit-for-bit for every log, interior split, and
+        subdivision, and the sweep is NON-VACUOUS (it resumes from genuine SUB-CELL wall-stopped poses);
+        plus memorylessness (two histories reaching the same pose share their future), that the spliced
+        continuous trajectory still floors to `drive` (resumption composes with the refinement bridge),
+        and tamper-evidence. Makes NO timing claim. Rows: scenes (the three URDRSPLICE1 resumed digests),
+        equivalence (splice == glide over the grid, sub-cell boundaries exercised), memoryless (future
+        depends only on the pose; splice floors to drive), refusal (a moved split moves the digest; an
+        off-grid pose / bad facing / non-interior split → SPLICE-REFUSE)."""
+        import itertools as _it
+        for p in (os.path.join(ROOT, "tools", "terrain"), os.path.join(ROOT, "tools", "physics")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import splice as SP
+            import glide as GL
+            import drive as DR
+            ONE = GL.ONE
+        except Exception as exc:
+            self.record("splice", False, f"import failed (splice / glide / drive): {exc}")
+            return
+
+        try:
+            ref_ok = all(SP.scene_result(n) == SP.golden(n) for n in SP.SCENES)
+        except Exception as exc:
+            self.record("splice:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("splice:scenes", ref_ok,
+                    "stroll + sprint + sub-cell wall resume reproduce URDRSPLICE1 digests"
+                    if ref_ok else "a splice scene drifted from its digest")
+
+        equiv = True
+        checked = subcell = 0
+        for scene, start, ms in (("blank", (2, 8), 16), ("mountains", (2, 0), 20)):   # (2,0): east walls
+            H = GL._heights(scene)
+            for combo in _it.product("eEnNsSwW", repeat=3):                            # 512 logs / field
+                log = "".join(combo)
+                full = GL.glide_cells(H, start, log, ms, 4)
+                for at in (1, 2):
+                    equiv = equiv and (SP.splice(H, start, log, ms, 4, at) == full)
+                    b = SP.boundary(H, start, log, ms, 4, at)
+                    if b[0] % ONE or b[1] % ONE:
+                        subcell += 1
+                    checked += 1
+        self.record("splice-equivalence", equiv and subcell > 0,
+                    f"splice == glide_cells(full) over all {checked} log×split cases, incl. {subcell} "
+                    "resumes from genuine SUB-CELL wall-stopped poses (glide is command-boundary memoryless)"
+                    if equiv and subcell > 0 else "the splice equivalence / sub-cell non-vacuity did not hold")
+
+        H = GL._heights("blank")
+        p1 = GL.glide_cells(H, (2, 8), "ee", 16, 4)[-1]
+        p2 = GL.glide_cells(H, (0, 8), "eeee", 16, 4)[-1]                              # same pose, two paths
+        mem = (p1 == p2 and SP.resume(H, (p1[0], p1[1], p1[3]), "nw", 16, 4)
+               == SP.resume(H, (p2[0], p2[1], p2[3]), "nw", 16, 4))
+        floors = GL.floored(SP.splice(H, (2, 8), "eEnw", 16, 4, 2)) == DR.drive(H, (2, 8), "eEnw", 16)
+        self.record("splice-memoryless", mem and floors,
+                    "the future depends only on the pose (two histories → one future); the spliced "
+                    "continuous trajectory still floors to drive (resumption composes with the bridge)"
+                    if mem and floors else "the memoryless / floors-to-drive binding did not hold")
+
+        codes = []
+        for pose, cmds in (((-1, 0, 1), "ee"), ((0, 0, 9), "ee")):
+            try:
+                SP.resume(H, pose, cmds, 16, 4)
+                codes.append(None)
+            except SP.SpliceError as exc:
+                codes.append(exc.code)
+        for log, at in (("eeee", 0), ("eeee", 4)):
+            try:
+                SP.splice(H, (2, 8), log, 16, 4, at)
+                codes.append(None)
+            except SP.SpliceError as exc:
+                codes.append(exc.code)
+        d2 = SP.splice_digest("s", (2, 8), "eeee", 4, 2, SP.resume(H, (4 * ONE, 8 * ONE, 1), "ee", 16, 4))
+        d3 = SP.splice_digest("s", (2, 8), "eeee", 4, 3, SP.resume(H, (4 * ONE, 8 * ONE, 1), "ee", 16, 4))
+        ref_total = (d2 != d3) and all(c == "SPLICE-REFUSE" for c in codes)
+        self.record("splice-refusal", ref_total,
+                    "a moved split moves the digest; 4/4 typed SPLICE-REFUSE (off-grid pose · bad facing "
+                    "· split at 0 · split at len)"
+                    if ref_total else f"the defect / refusal binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5019,6 +5104,7 @@ def main() -> int:
     gate.fpcap()
     gate.predict()
     gate.glide()
+    gate.splice()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

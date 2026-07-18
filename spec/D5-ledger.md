@@ -2417,6 +2417,40 @@ slice); sub-cell START poses and diagonal movement; and **WALL-CLOCK / tick budg
 this module makes NO timing or scale claim. The continuous regime, earned as a strict refinement of the
 certified discrete one — nothing more asserted than the floor of it can prove.
 
+**Glide resumption (URDRSPLICE1) — T3.19, MMO Stage B foundation — MEASURED (the splice equivalence).**
+`tools/terrain/splice.py` + gate stage `splice`: the primitive that makes continuous movement
+ROLLBACK-ABLE. A rollback keeps the agreed prefix and re-simulates only the tail from the last agreed
+pose — which is only sound if the mover is MEMORYLESS: its future depends on the current pose alone, not
+the history that produced it. This certifies exactly that for `glide`. The enabling capability is a
+sub-cell START: `glide` was refactored (behavior-preserving — the URDRGLIDE1 digests and `test_glide` are
+unchanged) to expose `_fold_from`, which folds from an arbitrary Q32.32 pose `(fx, fy, facing)`, the
+current cell re-derived `cx = fx >> 32` (the fold's INVARIANT). `resume` exposes it; `splice` cuts a glide
+at a command boundary and re-glides the tail from the boundary pose. THE KEYSTONE (MEASURED): SPLICE
+EQUIVALENCE — for every log, every interior split `at`, and every subdivision, `splice` (glide the prefix
+`cmds[:at]`, resume the suffix `cmds[at:]` from the boundary pose) equals `glide_cells(full)` BIT-FOR-BIT.
+The glide is command-boundary memoryless: `glide(start, cmds) == glide(start, cmds[:at]) ++
+resume(boundary_at, cmds[at:])`. NON-VACUITY, load-bearing: the sweep exercises resumes from genuine
+SUB-CELL boundaries — a sprint EAST into a `mountains` wall stops 3/4 of a cell in (only +x/+y walls stop
+sub-cell, because `floor` rounds toward −∞; the earlier north-wall scene stopped cell-aligned and would
+have left the hard case untested), and resuming from that FRACTIONAL pose still reconstructs the whole; a
+gate row that only ever cut at cell-aligned boundaries would be a vacuous rollback proof, so the stage
+counts sub-cell boundaries and reddens if none appear. Two further facts: MEMORYLESS — two different
+histories that reach the SAME pose have the SAME future (the pose is the whole state); FLOORS TO DRIVE —
+the spliced continuous trajectory still floors to `drive` (resumption composes with the refinement bridge,
+so the certified discrete regime survives the cut). Three pinned scenes: `splice_stroll` / `splice_sprint`
+(cell-aligned resumes) and `splice_wall` (the sub-cell wall resume, the hard case). Four rows:
+`splice:scenes` (the three URDRSPLICE1 resumed-trajectory digests), `splice-equivalence` (splice == glide
+over the grid, sub-cell boundaries exercised), `splice-memoryless` (future depends only on the pose; splice
+floors to drive), `splice-refusal` (a moved split moves the digest + 4/4 typed `SPLICE-REFUSE`). Red-first
+`tests/test_splice.py` (9 falsifiers). Unit falsifiers 727 → 736; rows 470 → 474. Adds NO placement
+(consumes `glide`). GRADE: the splice equivalence, `resume`'s determinism, and its tamper-evidence are
+MEASURED (exact, reproducible, a defect diverges). `does_not_show`: the client-prediction RECONCILE itself
+— CHOOSING the rollback point (localizing the mispredict tick over continuous pose-digest chains) is
+`glide ∘ predict`, the next slice; this certifies only that a rollback, ONCE CHOSEN, reconstructs exactly;
+interpolation and continuous facing (glide's own `does_not_show`, unchanged); and **WALL-CLOCK / tick
+budget are `NOT_MEASURED`**. This is the foundation, cross-checked before the composition it enables — the
+same discipline as doing the kernel cross-check before enriching the dynamics.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

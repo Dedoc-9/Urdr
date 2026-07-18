@@ -113,17 +113,18 @@ def cell_of(fx, fy):
     return fx >> 32, fy >> 32
 
 
-def _fold(heights, start, cmds, max_step, sub):
-    """The shared fold. Returns (micro, cells): `micro` is the full sub-cell trajectory (every
-    micro-step pose), `cells` is one pose per command boundary (len == len(cmds) + 1) — the poses the
-    refinement bridge compares to `drive`. A pose is `[fx, fy, ground_height, facing]`, fx/fy in Q32.32."""
+def _fold_from(heights, fx, fy, facing, cmds, max_step, sub):
+    """The pose-start fold CORE: fold `cmds` from an arbitrary Q32.32 pose `(fx, fy, facing)`. The
+    current cell is re-derived `cx = fx >> 32` (the fold's INVARIANT: `cx == fx >> 32` always, because a
+    micro-step updates `cx` iff the floor changes) — so a mid-trajectory boundary pose fully determines
+    the future, which is what makes a glide RESUMABLE (`splice`). Returns (micro, cells): `micro` is
+    every micro-step pose, `cells` one pose per command boundary (len == len(cmds) + 1). A pose is
+    `[fx, fy, ground_height, facing]`, fx/fy in Q32.32. The integer-cell entry `_fold` is the special
+    case `fx = x·ONE, fy = y·ONE`, `facing` = the first command's direction."""
     k = _shift(sub)
     mstep = ONE >> k
     w, h = len(heights[0]), len(heights)
-    x0, y0 = start
-    fx, fy = x0 * ONE, y0 * ONE
-    cx, cy = x0, y0
-    facing = _FACE[_parse(cmds[0])[0]]                          # initial facing = first command's dir
+    cx, cy = fx >> 32, fy >> 32
     seed = (fx, fy, heights[cy][cx], facing)
     micro = [seed]
     cells = [seed]
@@ -145,6 +146,13 @@ def _fold(heights, start, cmds, max_step, sub):
             micro.append((fx, fy, heights[cy][cx], facing))
         cells.append((fx, fy, heights[cy][cx], facing))
     return tuple(micro), tuple(cells)
+
+
+def _fold(heights, start, cmds, max_step, sub):
+    """The shared fold from an integer-cell start (the certified entry). Initial facing = the first
+    command's direction; position is cell-aligned `x·ONE, y·ONE`. Delegates to `_fold_from`."""
+    x0, y0 = start
+    return _fold_from(heights, x0 * ONE, y0 * ONE, _FACE[_parse(cmds[0])[0]], cmds, max_step, sub)
 
 
 def glide(heights, start, cmds, max_step, sub):

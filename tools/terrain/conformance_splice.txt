@@ -1,0 +1,13 @@
+# urdr-terrain (T3.19, MMO Stage B foundation) — URDRSPLICE1 glide-resumption canon: a glide is RESUMABLE
+#   from any command boundary, because its future depends only on the current Q32.32 pose (cx = fx>>32, the
+#   fold invariant), not on the history that produced it. `resume` folds glide from an arbitrary (fx, fy,
+#   facing) pose; `splice` cuts a glide at a boundary and re-glides the tail from that pose. Each digest
+#   binds (name, start, log, sub, split, RESUMED sub-cell trajectory) — the new artifact is a glide that
+#   BEGAN mid-terrain. KEYSTONE (measured): SPLICE EQUIVALENCE — splice == glide_cells(full) bit-for-bit
+#   for every log, interior split, and subdivision, INCLUDING a resume from a sub-cell wall-stopped pose
+#   (splice_wall: a sprint EAST into the ridge stops 3/4 of a cell in; +x/+y walls stop sub-cell because
+#   floor rounds toward -inf). Same host, same bytes; no float, no clock, no `/` `//` `%`.
+# name  digest
+splice_stroll 9fc186e5f846f5a3038ef209a0bafb79153e06e7f1e65c33f8829eabcfa335f2
+splice_sprint da6d6e40e501f5d2de7e8015ae75c1bcfe40cf756ac18a88e1d53947488b1a37
+splice_wall 2a0c2627103ace79df17b0fd11a728e7a10627503d81631d88fccc418d961ff1
