@@ -2484,6 +2484,38 @@ transport / jitter / loss (the protocol, not this primitive); continuous FACING 
 scale claim, none until the sealed bench (Stage H). Stage A meets Stage B: the reconstruct-or-refuse
 discipline, now driving a continuous client loop and provably sharper than the grid it refines.
 
+**Area-of-Interest relevance (URDRAOI1) — T3.21, MMO Stage C opener — MEASURED (broad-phase soundness).**
+`tools/terrain/interest.py` + gate stage `interest`: the first step past a single shard. A world scales
+only if a peer receives the actors RELEVANT to it, not all N — and this certifies the *correctness* of that
+relevance filter while leaving its *speed* honestly `NOT_MEASURED`. Two phases, the classic broad/narrow
+split, both exact and division-free. NARROW (`aoi_radius`, the ground truth): B is relevant to observer A iff
+their Chebyshev distance max(|Δx|, |Δy|) ≤ R — exact integer arithmetic, the membership law COMPLETE (no
+in-range actor omitted) and SOUND (no out-of-range actor admitted). BROAD (`aoi_buckets`, the acceleration):
+the world tiles into buckets of side 2^k (`bucket = x >> k`, an EXACT shift, never a `/`), and B is a
+candidate iff its bucket is within the 3×3 neighborhood of A's — what an engine actually queries (O(local
+density), not O(N)). THE KEYSTONE (MEASURED): BROAD-PHASE SOUNDNESS — for any actor cloud and any R ≤ 2^k,
+`aoi_radius(R) ⊆ aoi_buckets(2^k)`, so the acceleration NEVER MISSES a relevant actor (a missed relevant
+actor is a desync bug; an extra candidate is only wasted bandwidth the narrow phase filters). NON-VACUITY:
+the sweep exercises clouds where the broad phase STRICTLY over-approximates (the two scenes share one cloud
+and differ by exactly `adj`, an actor in the observer's own bucket but at d=6 > R=4). LOAD-BEARING
+PRECONDITION: the `R ≤ 2^k` bound is not decorative — at R > 2^k a constructed cloud (observer at x=7, actor
+at x=16, side 8) puts a relevant actor two buckets away, and the broad phase misses it; the gate plants
+exactly that defect. Plus the narrow phase is SYMMETRIC (distance is symmetric), DETERMINISTIC (a pure
+function → a sorted relevance tuple), and TAMPER-EVIDENT (the digest binds cloud, parameter, and result).
+Two pinned scenes: `radius` (R=4 narrow), `bucket` (side=8 broad, the strict superset). Four rows:
+`interest:scenes`, `interest-exactness` (== brute-force + symmetric over a 150-cloud sweep),
+`interest-soundness` (broad ⊇ narrow for R ≤ 2^k over 1200 (cloud, side) cases + a strict witness),
+`interest-refusal` (the R > 2^k defect + 4/4 typed AOI-REFUSE). Red-first `tests/test_interest.py` (8
+falsifiers). Unit falsifiers 746 → 754; rows 478 → 482. Adds NO placement (pure integer geometry; the
+cross-placement of the hot bucket query is a named Stage-C follow-on). GRADE: the relevance filter's
+exactness, symmetry, and the broad-phase soundness are MEASURED (exact, reproducible, a defect diverges).
+`does_not_show`: the network DELIVERY itself (who sends what to whom — the transport, not this set-valued
+predicate); PREDICTIVE / dynamic AOI (leading an actor's motion) and priority / LOD tiers (DECLARED policy —
+this certifies a static radius filter); continuous sub-cell positions (a glide actor's Q32.32 pose floors
+into the same buckets, `pos >> 32 >> k` — a clean follow-on); and **THROUGHPUT / per-tick cost is
+`NOT_MEASURED`** — the O(local) claim is a design target until a sealed bench. The scale layer, graded to the
+one thing it earns: it never hides a relevant actor.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

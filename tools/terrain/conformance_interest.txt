@@ -1,0 +1,12 @@
+# urdr-terrain (T3.21, MMO Stage C) — URDRAOI1 Area-of-Interest relevance canon: which actors are relevant
+#   to an observer. NARROW phase `aoi_radius` (Chebyshev distance <= R, exact — the ground truth); BROAD
+#   phase `aoi_buckets` (a 3x3 neighborhood of side-2^k buckets, `bucket = x>>k`, division-free — the
+#   O(local) acceleration). Each digest binds (name, actor cloud, parameter, sorted relevance set). The two
+#   scenes share one fixed cloud: `radius` (R=4) is {diag, edge, near_e, near_n}; `bucket` (side=8) is that
+#   set PLUS `adj` (same bucket as obs, but d=6 > R) — a scene-level witness that the broad phase
+#   conservatively over-approximates, which the narrow phase then filters. KEYSTONE (measured): for R <= 2^k
+#   the broad phase CONTAINS the narrow phase, so the acceleration never misses a relevant actor. Same host,
+#   same bytes; no float, no `/` `//` `%`.
+# name  digest
+radius 33d71927f4ea1f645ce633032a2c76cf1a5444fe4aec58a4edc37c7818bd8621
+bucket 3e68d99aeb6e6b59b43b1bb31359ea09e7d23f1864d873c096bb96c350b8c11f

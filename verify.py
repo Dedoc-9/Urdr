@@ -4882,6 +4882,98 @@ class Gate:
                     "CPRED-REFUSE (window mismatch · empty window · bad transcript)"
                     if ref_total else f"the defect / refusal binding did not hold: {codes}")
 
+    def interest(self):
+        """Deterministic Area-of-Interest relevance (T3.21, MMO Stage C opener): which peers need to hear
+        about which actors — the primitive that lets a world scale past one shard. NARROW phase
+        `aoi_radius` (exact Chebyshev distance ≤ R, the ground truth); BROAD phase `aoi_buckets` (a 3×3
+        neighborhood of side-2^k buckets, `x >> k`, division-free — the O(local) acceleration). MEASURED:
+        (1) EXACTNESS — aoi_radius is exactly the within-R set (complete + sound) and SYMMETRIC; (2)
+        BROAD-PHASE SOUNDNESS (the keystone) — for R ≤ 2^k, aoi_radius(R) ⊆ aoi_buckets(2^k), so the
+        acceleration never misses a relevant actor (non-vacuous: it strictly over-approximates somewhere);
+        (3) the R ≤ 2^k PRECONDITION is load-bearing — at R > 2^k a constructed cloud misses a relevant
+        actor. The relevance CORRECTNESS is MEASURED; the O(local) THROUGHPUT is NOT_MEASURED (no bench).
+        Rows: scenes (radius + bucket reproduce URDRAOI1 digests), exactness (== brute-force + symmetric
+        over a deterministic cloud sweep), soundness (broad ⊇ narrow for R ≤ 2^k + a strict witness),
+        refusal (the R > 2^k defect misses someone + 4/4 typed AOI-REFUSE)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import interest as IN
+        except Exception as exc:
+            self.record("interest", False, f"import failed (interest): {exc}")
+            return
+
+        try:
+            ref_ok = all(IN.scene_result(n) == IN.golden(n) for n in IN.SCENES)
+        except Exception as exc:
+            self.record("interest:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("interest:scenes", ref_ok,
+                    "radius (narrow) + bucket (broad, strictly over-approximating by `adj`) reproduce "
+                    "URDRAOI1 digests" if ref_ok else "an interest scene drifted from its digest")
+
+        def _clouds(count, n, span, seed):                       # host-independent integer LCG (harness)
+            s = seed
+            for _ in range(count):
+                acts = [("o", 0, 0)]
+                for i in range(n):
+                    s = (s * 1103515245 + 12345) & 0x7fffffff
+                    x = (s % (2 * span + 1)) - span
+                    s = (s * 1103515245 + 12345) & 0x7fffffff
+                    y = (s % (2 * span + 1)) - span
+                    acts.append((f"a{i}", x, y))
+                yield tuple(acts)
+
+        def _brute(cl, obs, R):
+            pos = {a: (x, y) for a, x, y in cl}
+            ox, oy = pos[obs]
+            return tuple(sorted(a for a, x, y in cl
+                                if a != obs and max(abs(ox - x), abs(oy - y)) <= R))
+        exact = sym = True
+        for cl in _clouds(150, 12, 40, 7):
+            R = sum(abs(v) for a in cl for v in a[1:]) % 21       # deterministic R in 0..20
+            exact = exact and (IN.aoi_radius(cl, "o", R) == _brute(cl, "o", R))
+            for a, _x, _y in cl:
+                for b in IN.aoi_radius(cl, a, R):
+                    sym = sym and (a in IN.aoi_radius(cl, b, R))
+        self.record("interest-exactness", exact and sym,
+                    "aoi_radius == the brute-force within-R set (complete + sound) and symmetric over a "
+                    "150-cloud sweep" if exact and sym else "the exactness / symmetry law did not hold")
+
+        sound = True
+        strict = checked = 0
+        for cl in _clouds(300, 20, 60, 99):
+            for side in (4, 8, 16, 32):
+                narrow = set(IN.aoi_radius(cl, "o", side))       # R = side, the tightest R ≤ 2^k
+                broad = set(IN.aoi_buckets(cl, "o", side))
+                sound = sound and narrow.issubset(broad)
+                if narrow < broad:
+                    strict += 1
+                checked += 1
+        self.record("interest-soundness", sound and strict > 0,
+                    f"broad phase ⊇ narrow phase for R ≤ 2^k over all {checked} (cloud, side) cases; it "
+                    f"strictly over-approximates in {strict} (never misses a relevant actor)"
+                    if sound and strict > 0 else "the broad-phase soundness / non-vacuity did not hold")
+
+        cloud = (("obs", 7, 0), ("x", 16, 0))                    # d=9; side 8 → buckets 0 and 2 (2 apart)
+        defect = ("x" in IN.aoi_radius(cloud, "obs", 9)) and ("x" not in IN.aoi_buckets(cloud, "obs", 8))
+        codes = []
+        good = (("o", 0, 0), ("b", 1, 1))
+        for call in (lambda: IN.aoi_radius((("o", 0, 0), ("o", 1, 1)), "o", 4),
+                     lambda: IN.aoi_radius(good, "ghost", 4),
+                     lambda: IN.aoi_radius(good, "o", -1),
+                     lambda: IN.aoi_buckets(good, "o", 3)):
+            try:
+                call()
+                codes.append(None)
+            except IN.AoiError as exc:
+                codes.append(exc.code)
+        ref_total = defect and all(c == "AOI-REFUSE" for c in codes)
+        self.record("interest-refusal", ref_total,
+                    "at R=9 > side=8 the broad phase MISSES a relevant actor (the precondition bites); "
+                    "4/4 typed AOI-REFUSE (duplicate id · unknown observer · negative radius · bad side)"
+                    if ref_total else f"the defect / refusal binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5186,6 +5278,7 @@ def main() -> int:
     gate.glide()
     gate.splice()
     gate.cpredict()
+    gate.interest()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
