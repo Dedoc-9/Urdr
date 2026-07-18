@@ -1,0 +1,9 @@
+# urdr-terrain (T3.22) — URDRISPL1 Integer Scalar Potential Layer Theorem, CERTIFIED: the terrain studio's
+#   seven layers bound into one authority-rooted manifold over the `island` scalar potential Phi. The digest
+#   binds the measured layers (Authority heightfield, Firewall citation, Consumer stance, Observer gaze,
+#   Transcript drive, Horizon traj); Presentation is DECLARED (certified only by the firewall's citation).
+#   MEASURED cross-layer facts: SINGLE SOURCE (the declared terrain_view3d.html embeds exactly Phi's live
+#   digest), OUTWARD FLOW (a one-cell perturbation of Phi moves every downstream layer), MEMBRANE (no
+#   downstream op alters Phi; a forged citation is refused). Same host, same bytes.
+# name  digest
+island_manifold 36829b1064fb5a0c7a1d8446489c45e94945759b540606365e4c97f4633fbde6

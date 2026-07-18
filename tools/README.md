@@ -77,7 +77,14 @@ in each one's README and grade line.
   `NOT_MEASURED`). The observer + transcript + horizon observer are the
   foundation of FPS movement over the certified field — and `gaze`/`traj` are **kernel-cross-checked**
   (their verdicts equal the kernel `world_host`'s, so the terrain observability law is certified to be the
-  kernel's, not a copy).
+  kernel's, not a copy). The whole studio is bound by `layertheorem` (URDRISPL1) — the **Integer Scalar
+  Potential Layer Theorem, certified**: the seven layers are proved to be one authority-rooted manifold,
+  measured *cross-layer* where no single stage reaches — a SINGLE source of authority (the declared
+  `terrain_view3d.html` embeds exactly Φ's live digest), strict OUTWARD flow (a one-cell perturbation of the
+  scalar potential Φ moves every downstream layer, so each genuinely depends on it), and a MEMBRANE (no
+  downstream op alters Φ, a forged citation refused) — with the honest caveat, surfaced by the assessment,
+  that the manifold is division-free downstream but the authority's FBM keeps one exact-integer
+  normalization, so "entirely division-free" is graded down accordingly (see `docs/THEOREMS.md` T25).
 
 **Authoring surfaces & front-ends**
 
@@ -135,7 +142,7 @@ grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
 `DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
 in particular, stay `NOT_MEASURED` until run under the sealed protocol
 (`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
-(`../verify.py`): **754 unit falsifiers / 482 rows**, run twice, bit-identical.
+(`../verify.py`): **761 unit falsifiers / 486 rows**, run twice, bit-identical.
 
 The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
 (D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
@@ -145,7 +152,7 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED` — 754 unit falsifiers / 482 rows). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 761 unit falsifiers / 486 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
   is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.

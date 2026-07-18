@@ -2516,6 +2516,41 @@ into the same buckets, `pos >> 32 >> k` — a clean follow-on); and **THROUGHPUT
 `NOT_MEASURED`** — the O(local) claim is a design target until a sealed bench. The scale layer, graded to the
 one thing it earns: it never hides a relevant actor.
 
+**Integer Scalar Potential Layer Theorem, CERTIFIED (URDRISPL1) — T3.22 — MEASURED (the cross-layer
+conservation).** `tools/terrain/layertheorem.py` + gate stage `layertheorem`: the terrain studio's seven
+layers, proved to be ONE authority-rooted manifold rather than seven modules that happen to agree — the
+formal capstone of the D7–D10 arc, prompted by the operator's Integer Scalar Potential Layer Theorem and
+graded to exactly what the code earns. The seven strata over the `island` scalar potential Φ: Authority
+(`heightfield`, URDRHF1 — Φ: ℤ²→ℤ), Consumer (`stance`), Presentation (`terrain_view3d.html`, DECLARED),
+Firewall (`view_witness`), Observer (`gaze`), Transcript (`drive`), Horizon (`traj`). This does NOT
+re-certify each layer (their own stages do) — it measures the CROSS-LAYER properties no single stage checks.
+THREE MEASURED FACTS. SINGLE SOURCE: the declared `terrain_view3d.html` embeds EXACTLY Φ's live digest, so
+the presentation is bound — through the firewall — to the one Φ the observers and transcript consume; there
+is one source of authority. OUTWARD FLOW: a perturbation of Φ at a SINGLE cell moves EVERY downstream
+layer's digest (Consumer, Observer, Transcript, Horizon) — each genuinely depends on the authority; a
+Φ-independent layer would be caught here (the load-bearing non-vacuity). MEMBRANE (no feedback): running the
+full downstream pass leaves the authority field bit-identical, and a forged presentation (one flipped hex of
+the cited digest) is refused by the firewall, never reaching authority. The composite URDRISPL1 theorem
+digest binds the measured layers and reproduces deterministically. Four rows: `ispl:layers` (all six
+measured layers reproduce their canonical golden; Presentation declared), `ispl-single-source`,
+`ispl-outward-flow` (+ membrane), `ispl-conservation`. Red-first `tests/test_layertheorem.py` (7 falsifiers).
+Unit falsifiers 754 → 761; rows 482 → 486. Adds NO placement (composes the six layer modules). GRADE: the
+single-source binding, the outward-flow sensitivity, the membrane, and the composite determinism are
+MEASURED (exact, reproducible, a defect diverges). **HONEST SCOPE — the assessment's load-bearing finding:**
+the operator's theorem calls the manifold "entirely division-free," but the code earns a narrower claim. The
+manifold is exact-integer and DETERMINISTIC throughout, and every DOWNSTREAM layer is genuinely
+division-free (`//`-free, tokenizer-asserted across `drive`/`gaze`/`traj`/`stance`); the AUTHORITY, however,
+normalizes its FBM with one exact-integer division `raw*height_scale // rawmax` (rawmax = Σamp·65535, not a
+power of two) beside its Q16 shifts (`// 2^16`, which ARE bit shifts the theorem allows). So "entirely
+division-free" is graded down to "float-free, exact-integer, deterministic; shift-only and `//`-free
+downstream; one exact-integer normalization at the authority" — the theorem's conservation content holds; its
+division-free epilogue is corrected to what the authority literally does. `does_not_show`: the GENERAL
+theorem over an arbitrary integer manifold (this certifies the URDR terrain instantiation, T25 in
+`docs/THEOREMS.md`); the Presentation layer's pixels (DECLARED, certified only by citation); the wave-rooted
+sibling manifold (`buoyancy`/`crossing` over URDRWAV1 — a parallel instance, not bound here); and any claim
+beyond the seven bound layers. Authority computed once, propagated only through deterministic integer
+projections, observed and replayed indefinitely without modification — measured, and no more than measured.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

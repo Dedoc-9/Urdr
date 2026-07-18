@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **754-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **761-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -144,6 +144,18 @@ it by **content-addressed digest**, not by mutable reference.
   and ν ≠ 0. That closes the same-where-different-**when** gap `gaze` deferred to "a sequence": the sequence
   is Φ. The reconstruction + innovation verdict are measured; the general linear Kálmán observability
   *matrix* is declared (the dynamics are input-driven, not LTI).
+
+**The theorem that binds them.** These are not seven modules that happen to agree — `layertheorem.py`
+(`URDRISPL1`) certifies they are one *authority-rooted manifold*, the terrain instantiation of the **Integer
+Scalar Potential Layer Theorem** (`docs/THEOREMS.md` T25). It measures the cross-layer conservation no single
+stage checks: a **single source** of authority (the declared `terrain_view3d.html` embeds exactly the
+authority's live digest), strict **outward flow** (a one-cell perturbation of the scalar potential Φ moves
+every downstream layer, so each genuinely depends on it), and a **membrane** (no downstream op alters Φ; a
+forged citation is refused). Honest caveat from the assessment that produced it: the manifold is exact-integer
+and deterministic throughout and division-free *downstream*, but the authority's FBM keeps one exact-integer
+normalization (`raw·height_scale // rawmax`, not a shift), so the theorem's "entirely division-free" is graded
+down to "float-free, exact-integer, deterministic; shift-only and `//`-free downstream; one exact-integer
+normalization at the authority."
 
 **What you can recursively edit, and why it is safe.**
 

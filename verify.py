@@ -4974,6 +4974,66 @@ class Gate:
                     "4/4 typed AOI-REFUSE (duplicate id · unknown observer · negative radius · bad side)"
                     if ref_total else f"the defect / refusal binding did not hold: {codes}")
 
+    def layertheorem(self):
+        """The Integer Scalar Potential Layer Theorem, CERTIFIED (T3.22): the terrain studio's seven layers
+        bound into one authority-rooted manifold over the `island` scalar potential Φ. Measures the
+        CROSS-LAYER conservation no single layer's stage checks. MEASURED: (1) all seven strata present —
+        each of the six measured layers (Authority heightfield, Consumer stance, Firewall view_witness,
+        Observer gaze, Transcript drive, Horizon traj) reproduces its own canonical golden; Presentation is
+        DECLARED; (2) SINGLE SOURCE — the declared `terrain_view3d.html` embeds EXACTLY the authority's live
+        digest (one Φ, cited by the firewall, consumed by every observer); (3) OUTWARD FLOW — a one-cell
+        perturbation of Φ moves every downstream layer's digest (each genuinely depends on the authority),
+        while the authority field is bit-identical after the full downstream pass and a forged presentation
+        is refused (the membrane, no feedback); (4) CONSERVATION — the composite theorem digest reproduces
+        its URDRISPL1 pin. HONEST SCOPE: the manifold is exact-integer and deterministic throughout and
+        division-free DOWNSTREAM, but the authority's FBM uses one exact-integer normalization
+        (`raw*height_scale // rawmax`, not a shift), so 'entirely division-free' is narrowed accordingly (see
+        docs/THEOREMS.md). Rows: layers, single-source, outward-flow (+ membrane), conservation."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import layertheorem as LT
+        except Exception as exc:
+            self.record("layertheorem", False, f"import failed (layertheorem): {exc}")
+            return
+
+        try:
+            cert = LT.layer_certified()
+        except Exception as exc:
+            self.record("ispl:layers", False, f"layer certification failed: {exc}")
+            return
+        layers_ok = all(cert.values())
+        self.record("ispl:layers", layers_ok,
+                    "all 7 strata: Authority/Consumer/Firewall/Observer/Transcript/Horizon each reproduce "
+                    "their canonical digest; Presentation declared"
+                    if layers_ok else f"a layer failed to certify: {[k for k, v in cert.items() if not v]}")
+
+        self.record("ispl-single-source", LT.single_source(),
+                    "the declared terrain_view3d.html embeds exactly the authority's live digest — one Φ, "
+                    "cited by the firewall and consumed by every observer"
+                    if LT.single_source() else "the presentation does not cite the live authority")
+
+        _d, F = LT.authority()
+        base = LT.downstream_probes(F)
+        pert = LT.downstream_probes(LT.perturb(F, 4, 4, 1))
+        flow = all(base[k] != pert[k] for k in base)
+        membrane = (LT._field_digest(F) == _d) and LT.forgery_refused()
+        self.record("ispl-outward-flow", flow and membrane,
+                    "a one-cell perturbation of Φ moves all 4 downstream layers (each depends on the "
+                    "authority); the authority is unchanged after the pass and a forged citation is refused"
+                    if flow and membrane else "the outward-flow / membrane binding did not hold")
+
+        try:
+            LT.scene_result("no_such_manifold")
+            refcode = None
+        except LT.ISPLError as exc:
+            refcode = exc.code
+        conserved = (LT.scene_result("island_manifold") == LT.golden("island_manifold")) and refcode == "ISPL-REFUSE"
+        self.record("ispl-conservation", conserved,
+                    "the composite theorem digest reproduces its URDRISPL1 pin; an unknown manifold is a "
+                    "typed ISPL-REFUSE"
+                    if conserved else "the conservation digest / refusal binding did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5279,6 +5339,7 @@ def main() -> int:
     gate.splice()
     gate.cpredict()
     gate.interest()
+    gate.layertheorem()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
