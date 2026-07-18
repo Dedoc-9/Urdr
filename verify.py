@@ -5034,6 +5034,80 @@ class Gate:
                     "typed ISPL-REFUSE"
                     if conserved else "the conservation digest / refusal binding did not hold")
 
+    def hand(self):
+        """Seamless cross-region authority handoff (T3.23, MMO Stage D opener): an actor glides across a
+        region boundary and authority transfers ATOMICALLY between shards, as a two-field `splice` (prefix
+        glides over shard A, suffix resumes over shard B from the boundary pose). MEASURED: HANDOFF
+        EQUIVALENCE — the handoff equals `glide` over the merged world F_merged bit-for-bit (the seam is
+        invisible), at ONE point and MANY points (batch), and — LATENCY-INVARIANT — for every handoff tick
+        within the synced seam band, so the bridge survives handoff latency. Non-vacuity: shard B's terrain
+        east of the band really differs, so the handoff (resuming over B) diverges from a glide that stayed
+        on A; and a desynced seam or an out-of-band tick is refused. Correctness is measured; WALL-CLOCK
+        latency and batch THROUGHPUT are NOT_MEASURED (Stage H). Rows: scenes (one_point + many_points
+        reproduce URDRHAND1 digests), equivalence (handoff == merged_glide for every in-band latency tick),
+        batch (many actors all exact + B's terrain genuinely used), refusal (desync + out-of-band + typed
+        HAND-REFUSE)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import hand as HD
+            import glide as GL
+        except Exception as exc:
+            self.record("hand", False, f"import failed (hand / glide): {exc}")
+            return
+
+        fa, fb = HD._shards()
+        split, band, ms, sub = HD._SPLIT, HD._BAND, HD._MS, HD._SUB
+        start, cmds = HD._START, HD._CMDS
+        ref = HD.merged_glide(fa, fb, start, cmds, ms, sub, split)
+
+        try:
+            ref_ok = all(HD.scene_result(n) == HD.golden(n) for n in HD.SCENES)
+        except Exception as exc:
+            self.record("hand:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("hand:scenes", ref_ok,
+                    "one_point + many_points reproduce URDRHAND1 handoff digests"
+                    if ref_ok else "a handoff scene drifted from its digest")
+
+        equiv = True
+        inband = 0
+        for at in range(1, len(cmds)):
+            try:
+                h = HD.handoff(fa, fb, start, cmds, ms, sub, at, split, band)
+            except HD.HandError:
+                continue                                          # out-of-band ticks refuse
+            equiv = equiv and (h == ref)
+            inband += 1
+        self.record("hand-equivalence", equiv and inband > 1,
+                    f"handoff == glide over the merged world for all {inband} in-band latency ticks "
+                    "(the seam is invisible; the bridge survives handoff latency)"
+                    if equiv and inband > 1 else "the handoff / latency-invariance binding did not hold")
+
+        batch = HD.batch_handoff(fa, fb, HD._STARTS, cmds, ms, sub, 5, split, band)
+        batch_ok = all(batch[i] == HD.merged_glide(fa, fb, s, cmds, ms, sub, split)
+                       for i, s in enumerate(HD._STARTS))
+        uses_b = HD.handoff(fa, fb, start, cmds, ms, sub, 5, split, band) != GL.glide_cells(fa, start, cmds, ms, sub)
+        self.record("hand-batch", batch_ok and uses_b,
+                    f"a {len(HD._STARTS)}-actor batch each reconstructs the merged trajectory; the handoff "
+                    "resumes over shard B's terrain, not A's (non-vacuity)"
+                    if batch_ok and uses_b else "the batch / uses-B-terrain binding did not hold")
+
+        codes = []
+        desync = tuple(tuple(v + 1 if x == 7 else v for x, v in enumerate(row)) for row in fa)
+        for call in (lambda: HD.handoff(fa, desync, start, cmds, ms, sub, 5, split, band),
+                     lambda: HD.handoff(fa, fb, start, cmds, ms, sub, 1, split, band),
+                     lambda: HD.handoff(fa, fb[:-1], start, cmds, ms, sub, 5, split, band)):
+            try:
+                call()
+                codes.append(None)
+            except HD.HandError as exc:
+                codes.append(exc.code)
+        ref_total = all(c == "HAND-REFUSE" for c in codes)
+        self.record("hand-refusal", ref_total,
+                    "3/3 typed HAND-REFUSE (desynced seam · out-of-band handoff · mismatched shard sizes)"
+                    if ref_total else f"the refusal binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5340,6 +5414,7 @@ def main() -> int:
     gate.cpredict()
     gate.interest()
     gate.layertheorem()
+    gate.hand()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

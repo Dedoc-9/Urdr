@@ -2551,6 +2551,39 @@ sibling manifold (`buoyancy`/`crossing` over URDRWAV1 — a parallel instance, n
 beyond the seven bound layers. Authority computed once, propagated only through deterministic integer
 projections, observed and replayed indefinitely without modification — measured, and no more than measured.
 
+**Seamless cross-region authority handoff (URDRHAND1) — T3.23, MMO Stage D opener — MEASURED (handoff
+equivalence).** `tools/terrain/hand.py` + gate stage `hand`: an actor glides across a region boundary and
+authority transfers between shards WITHOUT a desync. The architecture was chosen by the project's law, not
+by taste: ATOMIC handoff, because a handoff is just a two-field `splice` — shard A glides the prefix, shard
+B RESUMES the suffix from the boundary pose (`splice.resume`, certified memoryless in URDRSPLICE1). It is
+seamless not because two authorities BLEND (blending exists in float engines to hide drift URDR does not
+have) but because the handoff pose is BIT-IDENTICAL to what a single authority over the merged world would
+produce — the overlapping/deterministic-resolution alternative was rejected: with byte-exact shards it
+degenerates to atomic, and without them it re-imports the drift the whole project refuses. THE MODEL: two
+shards hold fields `F_A`, `F_B` of one world, synced on a boundary BAND `[split-band, split+band)`; the
+canonical world is the merge (`F_A` west of `split`, `F_B` east), and an east-crossing actor is
+authoritative under A up to a handoff tick in the band, then under B. THE KEYSTONE (MEASURED): HANDOFF
+EQUIVALENCE — the handoff equals `glide` over the merged world F_merged BIT-FOR-BIT, proved across the two
+dimensions the operator asked for. ONE POINT and MANY POINTS: a single actor and a whole batch crossing
+together each reconstruct exactly (the scale case). LATENCY-INVARIANCE: the handoff is bit-identical for
+EVERY handoff tick within the band, so the bridge survives handoff latency — the actor may hand off early or
+late and lands on the same trajectory. NON-VACUITY: shard B's terrain east of the band really differs
+(bumped +3), so the handoff (resuming over B) diverges from a glide that stayed on A — B's terrain is
+genuinely used; and the SEAM AGREEMENT is load-bearing: a handoff across a band where `F_A ≠ F_B`, or at a
+tick outside the band, is a typed `HAND-REFUSE` (a desynced shard cannot hand off). Two pinned scenes:
+`one_point`, `many_points` (a 3-actor batch). Four rows: `hand:scenes`, `hand-equivalence` (handoff ==
+merged_glide over every in-band latency tick), `hand-batch` (many actors exact + uses-B-terrain),
+`hand-refusal` (desync + out-of-band + 3/3 typed HAND-REFUSE). Red-first `tests/test_hand.py` (10
+falsifiers). Unit falsifiers 761 → 771; rows 486 → 490. Adds NO placement (composes `glide` + `splice`).
+GRADE: the handoff equivalence (one point, many points, every in-band latency), the uses-B-terrain
+non-vacuity, and the seam-agreement refusal are MEASURED (exact, reproducible, a defect diverges).
+`does_not_show`: NON-MONOTONE boundary crossings (an actor recrossing west of the band mid-suffix — this
+certifies the east-crossing case); the network TRANSPORT of the handoff payload; overlapping/blended
+authority (rejected by construction); and **WALL-CLOCK latency and per-handoff / batch THROUGHPUT are
+`NOT_MEASURED`** until a sealed bench (Stage H). This is the seam made invisible by byte-exactness rather
+than hidden by blending — and, per the operator's note, the bridge is proved to hold across one point, many
+points, and the whole handoff-latency window, with only the wall-clock cost left honestly unmeasured.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

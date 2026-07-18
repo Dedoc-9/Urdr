@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **761-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **771-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -257,9 +257,17 @@ flooring to `drive(auth)`, refining the discrete reconcile without ever contradi
 Chebyshev-radius filter is the ground truth, and a division-free bucket grid (`bucket = x>>k`) is the
 O(local) broad phase, proven *conservative* — for a radius within the bucket side it never misses a relevant
 actor, so an engine queries the 3×3 bucket neighborhood instead of all N and loses nothing; its correctness
-is measured, its throughput stays `NOT_MEASURED`. The staged route from here (seamless cross-region authority
-handoff → structural anti-cheat → live authoring → a modern depicting client → the benched performance
-promotion) is written down as goals, each to be earned slice by slice under the same gate.
+is measured, its throughput stays `NOT_MEASURED`. Then `hand` opens **Stage D** — seamless cross-region
+authority handoff: an actor glides across a region boundary and authority transfers *atomically* between
+shards, as a two-field `splice` (shard A glides the prefix, shard B resumes the suffix from the boundary
+pose). It is seamless not by blending two authorities — that hides float drift URDR does not have — but
+because the handoff pose is **bit-identical** to a single authority over the merged world; overlapping
+authority was rejected as either atomic-in-disguise (byte-exact shards) or re-imported drift (desynced
+ones). The keystone is proved at **one point**, at **many points** (a batch), and across the whole
+**handoff-latency window** (bit-identical for every tick in the synced seam band), with a desynced seam
+refused — and the wall-clock latency and throughput left honestly `NOT_MEASURED`. The staged route from here
+(structural anti-cheat → live authoring → a modern depicting client → the benched performance promotion) is
+written down as goals, each to be earned slice by slice under the same gate.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 

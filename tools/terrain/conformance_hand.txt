@@ -1,0 +1,12 @@
+# urdr-terrain (T3.23, MMO Stage D) — URDRHAND1 seamless cross-region authority handoff canon: an actor
+#   glides across a region boundary and authority transfers ATOMICALLY from shard A to shard B — a two-field
+#   splice (prefix glides over F_A, suffix resumes over F_B from the boundary pose). Two shards of the
+#   `blank` world synced on the band [6,10) around split=8; shard B's terrain east of the band (cols >= 10)
+#   is bumped +3, so the merged world differs there and the handoff must use B's ground. Each digest binds
+#   the handed-off command-boundary trajectory. KEYSTONE (measured): HANDOFF EQUIVALENCE — handoff == glide
+#   over the merged world F_merged bit-for-bit, at ONE point and MANY points (batch), and for every in-band
+#   handoff tick (latency-invariant). Same host, same bytes; no float, no clock. Wall-clock latency /
+#   throughput NOT_MEASURED.
+# name  digest
+one_point 3164caeb886650fdc193159c8e1b68c61af5e350971ddaa4b3aadb2ac0a9ffd7
+many_points bef1dd0698d614844bc3d58a602ccb3477f3c86130e6dac8a6900c84b7f27e7b
