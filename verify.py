@@ -5108,6 +5108,74 @@ class Gate:
                     "3/3 typed HAND-REFUSE (desynced seam · out-of-band handoff · mismatched shard sizes)"
                     if ref_total else f"the refusal binding did not hold: {codes}")
 
+    def warden(self):
+        """Structural anti-cheat (T3.24, MMO Stage E opener): a claimed trajectory or position is ADMITTED
+        or a typed WARD-REFUSE — reconstruct-or-refuse turned against the cheater. Two exact certificates:
+        KINEMATIC (composes `glide` — an honest walk/glide admits; a step onto a wall is WARD-TUNNEL, a
+        >2-cell or diagonal jump is WARD-TELEPORT) and TOPOLOGICAL (composes the homology witness — the
+        walkable field's connected components are β₀ = rank H₀, the invariant URDRPD1 certifies, here taken
+        directly; a bare position in a different component is WARD-UNREACH, refused FROM THE FIELD ALONE with
+        no trajectory to inspect — the cheat a per-tick replay cannot cheaply catch). Non-vacuity: the
+        barrier world genuinely has β₀ = 3. Rows: scenes (honest + teleport_across reproduce URDRWARD1
+        digests), kinematic (honest walk + glide admit; tunnel + teleport refused), topological (β₀ = 3 and
+        the across-barrier position is unreachable — structural, no path), refusal (typed WARD-REFUSE
+        sub-codes + malformed)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import warden as WD
+            import glide as GL
+        except Exception as exc:
+            self.record("warden", False, f"import failed (warden / glide): {exc}")
+            return
+
+        fld = WD._barrier_field()
+        ms = WD._MS
+
+        try:
+            ref_ok = all(WD.scene_result(n) == WD.golden(n) for n in WD.SCENES)
+        except Exception as exc:
+            self.record("warden:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("warden:scenes", ref_ok,
+                    "honest + teleport_across reproduce URDRWARD1 digests"
+                    if ref_ok else "a warden scene drifted from its digest")
+
+        honest_walk = WD.admit_trajectory(fld, ((2, 8), (3, 8), (4, 8), (5, 8)), ms) == "WARD-OK"
+        gcells = tuple((p[0] >> 32, p[1] >> 32) for p in GL.glide_cells(fld, (2, 8), "eee", ms, 4))
+        honest_glide = WD.admit_trajectory(fld, gcells, ms) == "WARD-OK"
+        tunnel = WD.step_kind(fld, (7, 8), (8, 8), ms) == "WARD-TUNNEL"
+        teleport = WD.step_kind(fld, (2, 8), (5, 8), ms) == "WARD-TELEPORT"
+        kin = honest_walk and honest_glide and tunnel and teleport
+        self.record("warden-kinematic", kin,
+                    "an honest walk and an honest glide admit; a step onto the wall is WARD-TUNNEL and a "
+                    "3-cell jump is WARD-TELEPORT"
+                    if kin else "the kinematic admission / refusal did not hold")
+
+        b0 = WD.betti0(fld, ms)
+        unreachable = not WD.reachable(fld, (2, 8), (12, 8), ms)
+        same_side = WD.reachable(fld, (2, 8), (6, 8), ms)
+        topo = (b0 == 3) and unreachable and same_side
+        self.record("warden-topological", topo,
+                    f"β₀ = {b0} (the wall genuinely splits the world); a bare across-barrier position is "
+                    "unreachable, certified from the component structure alone — no trajectory"
+                    if topo else "the topological reachability certificate did not hold")
+
+        codes = []
+        for call in (lambda: WD.admit_trajectory(fld, ((7, 8), (8, 8)), ms),      # tunnel
+                     lambda: WD.admit_trajectory(fld, ((2, 8), (5, 8)), ms),       # teleport
+                     lambda: WD.admit_position(fld, (2, 8), (12, 8), ms),          # unreachable
+                     lambda: WD.admit_trajectory(fld, (), ms)):                    # malformed
+            try:
+                call()
+                codes.append(None)
+            except WD.WardError as exc:
+                codes.append(exc.sub if exc.code == "WARD-REFUSE" else "BADCODE")
+        ref_total = codes == ["WARD-TUNNEL", "WARD-TELEPORT", "WARD-UNREACH", "WARD-MALFORMED"]
+        self.record("warden-refusal", ref_total,
+                    "4/4 typed WARD-REFUSE sub-codes (tunnel · teleport · unreachable · malformed)"
+                    if ref_total else f"the refusal sub-code binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5415,6 +5483,7 @@ def main() -> int:
     gate.interest()
     gate.layertheorem()
     gate.hand()
+    gate.warden()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

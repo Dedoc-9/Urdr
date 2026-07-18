@@ -2584,6 +2584,37 @@ authority (rejected by construction); and **WALL-CLOCK latency and per-handoff /
 than hidden by blending — and, per the operator's note, the bridge is proved to hold across one point, many
 points, and the whole handoff-latency window, with only the wall-clock cost left honestly unmeasured.
 
+**Structural anti-cheat (URDRWARD1) — T3.24, MMO Stage E opener — MEASURED (kinematic + topological
+admission).** `tools/terrain/warden.py` + gate stage `warden`: reconstruct-or-refuse turned AGAINST the
+cheater. A claimed trajectory or position is ADMITTED or a typed `WARD-REFUSE` — a claim that could not have
+happened is a CERTIFIED refusal, not a heuristic flag or a probability. Two orthogonal certificates, both
+exact and division-free. KINEMATIC (composes the mover `glide`): each claimed step must be a legal move — a
+cardinal move of one or two cells (walk/sprint gait) whose every sub-step is enterable under the step law
+`Δground ≤ MAX_STEP`; a jump over two cells or a diagonal is `WARD-TELEPORT`, a step that climbs a wall is
+`WARD-TUNNEL`, and an honest `glide` trajectory always admits. TOPOLOGICAL (composes the homology witness):
+the walkable field decomposes into CONNECTED COMPONENTS — β₀ = rank H₀, the SAME topological invariant
+`URDRPD1` certifies as persistent homology, here taken directly over the walkable graph (an undirected edge
+joins adjacent cells iff the step is legal both ways) by exact integer union-find. A claimed position in a
+DIFFERENT component from the anchor is unreachable — `WARD-UNREACH` — CERTIFIED FROM THE FIELD ALONE, with no
+trajectory to inspect. THE HEADLINE: this is the cheat a per-tick replay cannot cheaply catch — a teleport
+asserted as a bare position, refused because β₀ ≥ 2 structurally separates it; the anti-cheat becomes a
+property of the terrain's topology, not of watching every frame. Non-vacuity: the barrier world (a flat 16×16
+split by an impassable wall column) genuinely has β₀ = 3 (west/wall/east), so the component structure has
+real separation to certify against; and the honest control admits. Two pinned scenes: `honest` (a walk
+within a component), `teleport_across` (a bare across-barrier claim, refused). Four rows: `warden:scenes`,
+`warden-kinematic` (honest walk + glide admit; tunnel + teleport refused), `warden-topological` (β₀ = 3 and
+the across-barrier position unreachable — structural, no path), `warden-refusal` (4/4 typed WARD-REFUSE
+sub-codes). Red-first `tests/test_warden.py` (9 falsifiers). Unit falsifiers 771 → 780; rows 490 → 494. Adds
+NO placement (composes `glide` + exact β₀). GRADE: the kinematic admission/refusal, the exact
+connected-components (β₀), the reachability refusal, and their determinism are MEASURED (exact, reproducible,
+a defect diverges). `does_not_show`: DIRECTED reachability (this uses UNDIRECTED mutual-reachability
+components — a one-way descent off a cliff is a strongly-connected-components refinement, a follow-on); gaits
+beyond sprint (moves > 2 cells/tick); the URDRPD1 homology CROSS-PLACEMENT (β₀ is computed directly here —
+wiring `homology_c`/`homology_rs` to the warden's reachability, and to the region boundaries from URDRHAND1,
+is the named follow-on the operator anticipated); and any WALL-CLOCK cost (`NOT_MEASURED`). The seam is now
+guarded: "the boundary is byte-exact" is joined by "and a crossing that could not have happened is a
+certified refusal" — anti-cheat as a theorem about the field, not a watchdog on the wire.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

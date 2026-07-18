@@ -1,0 +1,10 @@
+# urdr-terrain (T3.24, MMO Stage E) — URDRWARD1 structural anti-cheat canon: a claimed trajectory or
+#   position is ADMITTED or a typed WARD-REFUSE. A flat 16x16 world is split by an impassable wall column at
+#   x=8 (height 200) into beta0 = 3 walkable components (west / wall / east). KINEMATIC: an honest glide
+#   walk within a component admits; a step onto the wall is WARD-TUNNEL; a >2-cell or diagonal jump is
+#   WARD-TELEPORT. TOPOLOGICAL: a bare claim to a cell across the wall is WARD-UNREACH — refused from the
+#   field's connected-component structure (beta0 = rank H0, the invariant URDRPD1 certifies) alone, no
+#   trajectory needed. Each digest binds (name, beta0, verdict). Same host, same bytes; no float, no clock.
+# name  digest
+honest da5fb738568176783a323b0e34a76b0d00584c1e246130f892b9be61bd84004d
+teleport_across d986c35b1427379b7da0c709ab960335f456e4b541ab024441d62540dee22940

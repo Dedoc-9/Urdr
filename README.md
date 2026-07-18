@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **771-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **780-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -265,9 +265,15 @@ because the handoff pose is **bit-identical** to a single authority over the mer
 authority was rejected as either atomic-in-disguise (byte-exact shards) or re-imported drift (desynced
 ones). The keystone is proved at **one point**, at **many points** (a batch), and across the whole
 **handoff-latency window** (bit-identical for every tick in the synced seam band), with a desynced seam
-refused — and the wall-clock latency and throughput left honestly `NOT_MEASURED`. The staged route from here
-(structural anti-cheat → live authoring → a modern depicting client → the benched performance promotion) is
-written down as goals, each to be earned slice by slice under the same gate.
+refused — and the wall-clock latency and throughput left honestly `NOT_MEASURED`. Then `warden` opens
+**Stage E** — structural anti-cheat: a claimed trajectory or position is admitted or a *certified* refusal,
+reconstruct-or-refuse turned against the cheater. A wall tunnel or a teleport jump is caught kinematically by
+the `glide` step law; and — the structural part — a bare position across a barrier is caught *topologically*,
+because it lies in a different walkable component (β₀ = rank H₀, the invariant `URDRPD1` certifies), refused
+from the field's connected-component structure alone with no trajectory to inspect. Anti-cheat becomes a
+theorem about the terrain's topology rather than a watchdog on the wire. The staged route from here (live
+authoring → a modern depicting client → the benched performance promotion) is written down as goals, each to
+be earned slice by slice under the same gate.
 
 ## The manifold / observer engine (D7–D10) — a second arc, both placements
 

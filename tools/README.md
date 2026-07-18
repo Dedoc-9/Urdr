@@ -79,7 +79,12 @@ in each one's README and grade line.
   the prefix, shard B resumes the suffix from the boundary pose; the keystone is measured: the handoff
   equals a `glide` over the merged world bit-for-bit at ONE point and MANY points, and for every handoff
   tick in the synced seam band — so the bridge survives handoff *latency* — while a desynced seam is refused;
-  the wall-clock latency and throughput stay `NOT_MEASURED`). The observer + transcript + horizon observer are the
+  the wall-clock latency and throughput stay `NOT_MEASURED`), and the `warden` **structural anti-cheat**
+  that opens Stage E (a claimed trajectory or position is admitted or a typed refusal — a cheat that could
+  not have happened is *certified*, not flagged: a wall tunnel or a >2-cell teleport is caught kinematically
+  by the `glide` step law, and a bare position across a barrier is caught topologically — it lies in a
+  different walkable component, β₀ = rank H₀, the invariant `URDRPD1` certifies — refused from the field's
+  connected-component structure alone, no trajectory needed). The observer + transcript + horizon observer are the
   foundation of FPS movement over the certified field — and `gaze`/`traj` are **kernel-cross-checked**
   (their verdicts equal the kernel `world_host`'s, so the terrain observability law is certified to be the
   kernel's, not a copy). The whole studio is bound by `layertheorem` (URDRISPL1) — the **Integer Scalar
@@ -147,7 +152,7 @@ grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
 `DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
 in particular, stay `NOT_MEASURED` until run under the sealed protocol
 (`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
-(`../verify.py`): **771 unit falsifiers / 490 rows**, run twice, bit-identical.
+(`../verify.py`): **780 unit falsifiers / 494 rows**, run twice, bit-identical.
 
 The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
 (D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
@@ -157,7 +162,7 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED` — 771 unit falsifiers / 490 rows). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 780 unit falsifiers / 494 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
   is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.
