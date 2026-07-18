@@ -1,0 +1,8 @@
+# URDRLAT3 - clslo: the per-CLASS worst-case latency SLO (T3.34, MMO Stage H). class_worst_case_latency(p) =
+# ceil(N>=p / floor(budget/actor_cost)) + horizon — priogov's per-class drain, refining slo's uniform bound
+# into a per-tier promise. class_slo_admit refuses a config whose per-class worst-case exceeds that tier's own
+# target (CLSLO-REFUSE, by name). SHA-256(MAGIC | name | classes | budget | actor_cost | horizon | table |
+# verdict).
+tiered_admit de853ce8f873f1ad41e625ac62c2f33e66b1de3c61e219d3b4b86514ba88f670
+premium_refuse a746a489bcf320e7cf06a2a71912131a1787b2b21f61a8be8fb891e8ff5f8e03
+single_uniform 2c22c26017b76505aa6419007f848a206b42cd06379bbf6769da57e2a8c9f911

@@ -5771,6 +5771,69 @@ class Gate:
                     "a config whose worst-case latency exceeds its target is SLO-REFUSE (never over-promise)"
                     if refused else "the SLO refusal did not hold")
 
+    def clslo(self):
+        """The per-class worst-case latency SLO (T3.34, MMO Stage H, URDRLAT3): class_worst_case_latency(p) =
+        ceil(N>=p / floor(budget/cost)) + horizon, refining the composite slo's uniform bound into a per-tier
+        promise with a by-name CLSLO-REFUSE. Rows: scenes (tiered_admit / premium_refuse / single_uniform
+        reproduce URDRLAT3 digests), refinement (a higher priority carries a tighter-or-equal bound, premium
+        beats free; the one-class case == slo), soundness (the per-class bound EQUALS priogov's real per-class
+        drain over a config corpus — exact for equal-cost; a within-target tiered config admits), refuse (an
+        over-target tier is CLSLO-REFUSE, named)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import clslo as CL
+            import slo as SL
+        except Exception as exc:
+            self.record("clslo", False, f"import failed (clslo / slo): {exc}")
+            return
+        try:
+            ref_ok = all(CL.scene_result(n) == CL.golden(n) for n in CL.SCENES)
+        except Exception as exc:
+            self.record("clslo:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("clslo:scenes", ref_ok,
+                    "tiered_admit + premium_refuse + single_uniform reproduce URDRLAT3 digests"
+                    if ref_ok else "a clslo config drifted from its digest")
+        fld = CL._flat16()
+        c = CL._actor_cost()
+        classes = ((3, 2), (2, 3), (1, 4))
+        tbl = CL.class_table(classes, 3 * c, c, 2)
+        mono = all(tbl[i][1] <= tbl[i + 1][1] for i in range(len(tbl) - 1)) and tbl[0][1] < tbl[-1][1]
+        one_class = (CL.class_worst_case_latency(((1, 6),), 3 * c, c, 2, 1)
+                     == SL.worst_case_latency(6, 3 * c, c, 2))
+        self.record("clslo-refinement", mono and one_class,
+                    "a higher priority class carries a tighter-or-equal bound (premium beats free); the "
+                    "one-class case reduces to the composite slo's uniform number"
+                    if (mono and one_class) else "the per-class refinement did not hold")
+        corpus = (((3, 2), (2, 3), (1, 4)), ((5, 1), (3, 2), (1, 3)), ((2, 4), (1, 2)),
+                  ((7, 2), (5, 2), (3, 2), (1, 2)))
+        sound = True
+        for cfg in corpus:
+            for bmult in (1, 2, 3):
+                for age in (0, 1):
+                    if not CL.soundness_holds(fld, cfg, CL._CMDS, CL._MS, CL._SUB, bmult * c, age):
+                        sound = False
+        admits = False
+        try:
+            CL.class_slo_admit(classes, 3 * c, c, 2, ((3, 3), (2, 4), (1, 5)))
+            admits = True
+        except CL.ClsloError:
+            admits = False
+        self.record("clslo-soundness", sound and admits,
+                    "the per-class bound equals priogov's real per-class drain over the config corpus (exact "
+                    "for equal-cost); a within-target tiered config admits"
+                    if (sound and admits) else "the per-class soundness / admit did not hold")
+        refused = False
+        try:
+            CL.class_slo_admit(classes, 3 * c, c, 2, ((3, 2), (2, 4), (1, 5)))
+        except CL.ClsloError as exc:
+            refused = exc.code == "CLSLO-REFUSE" and exc.priority == 3
+        self.record("clslo-refuse", refused,
+                    "a tier whose worst-case latency exceeds its own target is CLSLO-REFUSE, named (premium p3 "
+                    "here)"
+                    if refused else "the per-class refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -6087,6 +6150,7 @@ def main() -> int:
     gate.priogov()
     gate.horizon()
     gate.slo()
+    gate.clslo()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
