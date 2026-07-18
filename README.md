@@ -21,10 +21,10 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **24** single-file Rust placements
+across independent implementations or explicitly refused. **25** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **800-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **808-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -271,7 +271,7 @@ reconstruct-or-refuse turned against the cheater. A wall tunnel or a teleport ju
 the `glide` step law; and — the structural part — a bare position across a barrier is caught *topologically*,
 because it lies in a different walkable component (β₀ = rank H₀, the invariant `URDRPD1` certifies), refused
 from the field's connected-component structure alone with no trajectory to inspect. Anti-cheat becomes a
-theorem about the terrain's topology rather than a watchdog on the wire. `crosswarden` then closes the Stage D+E synthesis: the handoff seam itself is made cheat-proof — a boundary crossing is certified against the *merged* authority (`F_A` west of the split, `F_B` east, the same world the handoff produces), so a shard-local warden checking only its own stale view is provably insufficient; the through-wall exploit that slips past shard A is refused by the merge. And `dirward` refines the topological check from undirected components to directed reachability, so a one-way cliff is honest: the undirected warden treats a cliff as a solid wall — false-refusing the legal descent and unable to tell a one-way drop from a wall — while directed reachability admits the descent and refuses only the climb-back (`WARD-ONEWAY`, distinct from a wall's `WARD-UNREACH`). The staged route from here (live
+theorem about the terrain's topology rather than a watchdog on the wire. `crosswarden` then closes the Stage D+E synthesis: the handoff seam itself is made cheat-proof — a boundary crossing is certified against the *merged* authority (`F_A` west of the split, `F_B` east, the same world the handoff produces), so a shard-local warden checking only its own stale view is provably insufficient; the through-wall exploit that slips past shard A is refused by the merge. And `dirward` refines the topological check from undirected components to directed reachability, so a one-way cliff is honest: the undirected warden treats a cliff as a solid wall — false-refusing the legal descent and unable to tell a one-way drop from a wall — while directed reachability admits the descent and refuses only the climb-back (`WARD-ONEWAY`, distinct from a wall's `WARD-UNREACH`). And `wardhom` closes the loop the three wardens left open: their β₀ — the component count the topological check rests on, computed directly by union-find — is proved equal to URDRPD1's 𝔽₂-homology rank H₀ and reproduced bit-for-bit in Python, C99, and Rust, so the anti-cheat's topological certificate is a genuinely cross-placed invariant rather than a single pass. The staged route from here (live
 authoring → a modern depicting client → the benched performance promotion) is written down as goals, each to
 be earned slice by slice under the same gate.
 
@@ -503,7 +503,7 @@ Each main-tree folder carries its own README with the detail.
 ## What the manifold / engine can do — and what it's for
 
 Two properties are unusual in combination, and everything below follows from them: **the whole
-pipeline is bit-reproducible across independent implementations** (24 Rust placements + 13 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
+pipeline is bit-reproducible across independent implementations** (25 Rust placements + 14 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
 at the type level** (over-grading does not typecheck; `MEASURED` is minted only by a verifier).
 The "manifold" is the observer/atlas layer (D7–D10) — the theorem `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) =
 {0}` made computable and data-parameterized (nD is a data choice) — sitting under a physics + render
@@ -645,7 +645,7 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   pass is one more datum in **D5 § "Evidence Against C8."** Graded by integration tests and, where a
   witness is involved, by the same bit-for-bit composition discipline as D16 — not a new primitive.
 - **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and two
-  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **24 Rust + 13 C99
+  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **25 Rust + 14 C99
   placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles.

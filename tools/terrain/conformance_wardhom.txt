@@ -1,0 +1,7 @@
+# URDRWARDH1 - wardhom: the warden's walkable-graph homology, cross-placed (Python + C99 + Rust).
+# SHA-256(MAGIC | name | n0 | n1 | rank(d1) | beta0 | beta1), each count 4-byte big-endian, on 8x8 worlds.
+# beta0 (= n0 - rank d1 over F2) EQUALS warden.betti0 (union-find). barrier8=3 / cliff8=2 / flat8=1.
+# Reproduced bit-for-bit by wardhom_c (cc -O2 -std=c99) and wardhom_rs (rustc -O). Regenerate: scene_result(name).
+barrier8 974212cb86fe1e47f3f09ad5634850583840d3af41bb4db83ba1dfd09ce2cb04
+cliff8 d26e7940c7d1d17cc8ee64e3706c2ff0d5120d4827012bdb51664dd10766b4af
+flat8 f3538a083c1aa3071da9e29e5ca71e8e453aec09cd97273173e057e808e12401

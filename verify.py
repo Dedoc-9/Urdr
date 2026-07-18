@@ -5358,6 +5358,108 @@ class Gate:
                     "UNREACH"
                     if insufficient else f"the undirected-insufficiency / refusal binding did not hold: {codes}")
 
+    def wardhom(self):
+        """The warden's walkable-graph homology, CROSS-PLACED (T3.27, MMO Stage E, URDRWARDH1): the anti-cheat's
+        beta0, computed directly by union-find in `warden`, IS the invariant URDRPD1 certifies as rank H0 over
+        F2 — and here it is reproduced in Python + C99 + Rust. Rows: scenes (barrier8/cliff8/flat8 reproduce
+        URDRWARDH1 digests), tie (warden.betti0 union-find == URDRPD1 F2-rank beta0 on every world incl the
+        16x16 barrier), betti (known-answer beta0 = 3/2/1, the beta0=n0-rank / beta1=n1-rank identity, beta1
+        cycles non-vacuous), placement (LIVE: cc / rustc recompile wardhom_c / wardhom_rs and reproduce the
+        goldens bit-for-bit, --defect diverges; SKIPPED and still one row where no toolchain is present, so the
+        row count stays host-stable for doc-currency)."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        if os.path.join(ROOT, "tools", "homology") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "homology"))
+        try:
+            import wardhom as WH
+            import warden as WD
+        except Exception as exc:
+            self.record("wardhom", False, f"import failed (wardhom / warden): {exc}")
+            return
+
+        try:
+            ref_ok = all(WH.scene_result(n) == WH.golden(n) for n in WH.SCENES)
+        except Exception as exc:
+            self.record("wardhom:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("wardhom:scenes", ref_ok,
+                    "barrier8 + cliff8 + flat8 reproduce URDRWARDH1 digests"
+                    if ref_ok else "a wardhom scene drifted from its digest")
+
+        worlds = [WH._barrier8(), WH._cliff8(), WH._flat8(), WD._barrier_field()]  # 8x8 pins + the 16x16 barrier
+        tie = all(WD.betti0(f, WH._MS) == WH.homology_betti0(f, WH._MS) for f in worlds)
+        self.record("wardhom-tie", tie,
+                    "warden.betti0 (union-find) == URDRPD1 F2-rank beta0 on every world, incl the 16x16 barrier"
+                    if tie else "the union-find / F2-rank beta0 agreement did not hold")
+
+        cb, cc_, cf = (WH.counts(WH._barrier8(), WH._MS), WH.counts(WH._cliff8(), WH._MS),
+                       WH.counts(WH._flat8(), WH._MS))
+        known = cb[3] == 3 and cc_[3] == 2 and cf[3] == 1
+        identity = all(c[0] == 64 and c[3] == c[0] - c[2] and c[4] == c[1] - c[2] for c in (cb, cc_, cf))
+        cycles = cf[4] > cb[4] > 0
+        betti_ok = known and identity and cycles
+        self.record("wardhom-betti", betti_ok,
+                    f"known-answer beta0 = 3/2/1; beta0=n0-rank & beta1=n1-rank identity; beta1 cycles "
+                    f"non-vacuous (barrier {cb[4]} < flat {cf[4]})"
+                    if betti_ok else "the known-answer betti / identity / cycle check did not hold")
+
+        # LIVE cross-placement re-verification (skip-aware, one row, host-stable count)
+        rustc = shutil.which("rustc")
+        ccbin = shutil.which("cc") or shutil.which("gcc")
+        golds = {n: WH.golden(n) for n in WH.SCENES}
+
+        def run_parse(exe, extra):
+            try:
+                rp = subprocess.run([exe] + extra, capture_output=True, text=True)
+            except OSError:
+                return None
+            out = {}
+            for ln in rp.stdout.split("\n"):
+                p = ln.strip().split()
+                if len(p) >= 2 and p[0] in golds:
+                    out[p[0]] = p[1]
+            return out
+
+        def build_run(compiler, args, src):
+            if not compiler or not os.path.exists(src):
+                return None
+            with tempfile.TemporaryDirectory() as td:
+                bp = os.path.join(td, "wh.bin")
+                cp = subprocess.run(compiler + args + [src, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                return run_parse(exe, []), run_parse(exe, ["--defect"])
+
+        placements = []
+        rs = build_run([rustc] if rustc else None, ["-O"], os.path.join(tdir, "wardhom_rs", "wardhom.rs"))
+        if rs is not None:
+            placements.append(("Rust", rs))
+        c99 = build_run([ccbin] if ccbin else None, ["-O2", "-std=c99"], os.path.join(tdir, "wardhom_c", "wardhom.c"))
+        if c99 is not None:
+            placements.append(("C99", c99))
+        if not placements:
+            self.record("wardhom-placement", True,
+                        "SKIPPED (no rustc / cc found) — wardhom_c / wardhom_rs were NOT re-verified this run; "
+                        "the in-session three-way parity claim is unchecked here (install rustc / cc to enable)")
+        else:
+            def good(pair):
+                got, defect = pair
+                return (got is not None and all(got.get(n) == golds[n] for n in golds)
+                        and (defect is None or any(defect.get(n) != golds[n] for n in golds)))
+            allok = all(good(p) for _n, p in placements)
+            names = " + ".join(n for n, _ in placements)
+            self.record("wardhom-placement", allok,
+                        f"{names} recompile and reproduce the URDRWARDH1 goldens bit-for-bit; --defect diverges"
+                        if allok else f"a live placement did not reproduce the goldens: {[n for n, _ in placements]}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5668,6 +5770,7 @@ def main() -> int:
     gate.warden()
     gate.crosswarden()
     gate.dirward()
+    gate.wardhom()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
