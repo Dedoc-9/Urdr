@@ -5176,6 +5176,99 @@ class Gate:
                     "4/4 typed WARD-REFUSE sub-codes (tunnel · teleport · unreachable · malformed)"
                     if ref_total else f"the refusal sub-code binding did not hold: {codes}")
 
+    def crosswarden(self):
+        """Cross-region structural anti-cheat (T3.25, MMO Stage E, the D+E synthesis): the seamless handoff
+        seam (`hand`) is made CHEAT-PROOF. A claimed crossing is certified against the MERGED authority
+        (`hand.merge` — F_A west of the split, F_B east), not against either shard's stale view. THE HEADLINE:
+        a shard-local warden on F_A ADMITS the boundary exploit (a through-wall sprint, a beyond-wall position)
+        that `crosswarden` REFUSES — only the merged warden carries B's wall. Rows: scenes (honest_cross +
+        seam_tunnel reproduce URDRWARD2 digests), kinematic (honest crossing admits; the through-wall sprint is
+        WARD-TUNNEL; an honest hand.handoff admits and equals merged_glide — the Stage D <-> E tie), topological
+        (merge == hand.merge; β₀ rises 1 -> 3 across the merge; a beyond-wall position is WARD-UNREACH),
+        insufficient (the shard-local warden admits both exploits crosswarden refuses; desync is WARD-SEAM;
+        typed WARD-REFUSE sub-codes)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import crosswarden as CW
+            import warden as WD
+            import hand as HD
+        except Exception as exc:
+            self.record("crosswarden", False, f"import failed (crosswarden / warden / hand): {exc}")
+            return
+
+        fa, fb = CW._shards()
+        ms, split, band = CW._MS, CW._SPLIT, CW._BAND
+
+        try:
+            ref_ok = all(CW.scene_result(n) == CW.golden(n) for n in CW.SCENES)
+        except Exception as exc:
+            self.record("crosswarden:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("crosswarden:scenes", ref_ok,
+                    "honest_cross + seam_tunnel reproduce URDRWARD2 digests"
+                    if ref_ok else "a crosswarden scene drifted from its digest")
+
+        honest = CW.admit_crossing(fa, fb, split, band, CW._HONEST_CELLS, ms) == "WARD-OK"
+        try:
+            CW.admit_crossing(fa, fb, split, band, CW._TUNNEL_CELLS, ms)
+            tunnel = False
+        except WD.WardError as exc:
+            tunnel = exc.sub == "WARD-TUNNEL"
+        start, cmds, sub, at = (2, 8), "eeeeeee", 4, 5
+        traj = HD.handoff(fa, fb, start, cmds, ms, sub, at, split, band)
+        hcells = tuple((p[0] >> 32, p[1] >> 32) for p in traj)
+        hoff_admits = CW.admit_crossing(fa, fb, split, band, hcells, ms) == "WARD-OK"
+        hoff_equals = traj == HD.merged_glide(fa, fb, start, cmds, ms, sub, split)
+        kin = honest and tunnel and hoff_admits and hoff_equals
+        self.record("crosswarden-kinematic", kin,
+                    "an honest seam crossing admits; a through-wall sprint is WARD-TUNNEL; an honest handoff "
+                    "admits and equals the merged glide (Stage D <-> E)"
+                    if kin else "the cross-region kinematic admission / refusal did not hold")
+
+        merge_ok = CW.merged_field(fa, fb, split) == HD.merge(fa, fb, split)
+        b0m = CW.cross_betti0(fa, fb, split, ms)
+        b0a = WD.betti0(fa, ms)
+        try:
+            CW.admit_crossing_position(fa, fb, split, band, CW._ANCHOR, CW._BEYOND, ms)
+            unreach = False
+        except WD.WardError as exc:
+            unreach = exc.sub == "WARD-UNREACH"
+        topo = merge_ok and (b0m == 3) and (b0a == 1) and (b0m > b0a) and unreach
+        self.record("crosswarden-topological", topo,
+                    f"merge == hand.merge; β₀ rises {b0a} -> {b0m} across the merge (B's wall); a beyond-wall "
+                    "position is WARD-UNREACH from the merged field alone"
+                    if topo else "the cross-region topological certificate did not hold")
+
+        # THE HEADLINE: a shard-local warden on F_A admits both exploits crosswarden refuses.
+        shard_admits_both = (CW.shard_admits_trajectory(fa, CW._TUNNEL_CELLS, ms)
+                             and CW.shard_admits_position(fa, CW._ANCHOR, CW._BEYOND, ms))
+        cross_refuses_both = True
+        for call in (lambda: CW.admit_crossing(fa, fb, split, band, CW._TUNNEL_CELLS, ms),
+                     lambda: CW.admit_crossing_position(fa, fb, split, band, CW._ANCHOR, CW._BEYOND, ms)):
+            try:
+                call()
+                cross_refuses_both = False
+            except WD.WardError:
+                pass
+        fad, fbd = CW._desynced_shards()
+        codes = []
+        for call in (lambda: CW.admit_crossing(fa, fb, split, band, CW._TUNNEL_CELLS, ms),                    # tunnel
+                     lambda: CW.admit_crossing_position(fa, fb, split, band, CW._ANCHOR, CW._BEYOND, ms),     # unreach
+                     lambda: CW.admit_crossing(fad, fbd, split, band, CW._HONEST_CELLS, ms),                  # desync
+                     lambda: CW.admit_crossing(fa, fb, split, band, (), ms)):                                 # malformed
+            try:
+                call()
+                codes.append(None)
+            except WD.WardError as exc:
+                codes.append(exc.sub if exc.code == "WARD-REFUSE" else "BADCODE")
+        typed = codes == ["WARD-TUNNEL", "WARD-UNREACH", "WARD-SEAM", "WARD-MALFORMED"]
+        insufficient = shard_admits_both and cross_refuses_both and typed
+        self.record("crosswarden-insufficient", insufficient,
+                    "a shard-local warden ADMITS both boundary exploits that crosswarden refuses; a desynced "
+                    "seam is WARD-SEAM; 4/4 typed WARD-REFUSE sub-codes"
+                    if insufficient else f"the shard-local-insufficiency / refusal binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5484,6 +5577,7 @@ def main() -> int:
     gate.layertheorem()
     gate.hand()
     gate.warden()
+    gate.crosswarden()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

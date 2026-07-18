@@ -1,0 +1,5 @@
+# URDRWARD2 - crosswarden: cross-region anti-cheat (T3.25, MMO Stage E, the D+E synthesis).
+# SHA-256(MAGIC | name | b0(merged) | seam-digest | verdict). Pinned on the flat-A / walled-B world
+# (split=8, band [6,10), B's wall at x=12). Regenerate: crosswarden.scene_result(name).
+honest_cross c6b97e342c42d68cbe6be7cf7fd134427884ab50bc41c0a08014afcc4ecfc73c
+seam_tunnel 9096ebba9e49e6921ee20bde1b65e9445b1f64a681363b06e2d45b45bc6fdf4b
