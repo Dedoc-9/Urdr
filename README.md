@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **790-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **800-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -271,7 +271,7 @@ reconstruct-or-refuse turned against the cheater. A wall tunnel or a teleport ju
 the `glide` step law; and — the structural part — a bare position across a barrier is caught *topologically*,
 because it lies in a different walkable component (β₀ = rank H₀, the invariant `URDRPD1` certifies), refused
 from the field's connected-component structure alone with no trajectory to inspect. Anti-cheat becomes a
-theorem about the terrain's topology rather than a watchdog on the wire. `crosswarden` then closes the Stage D+E synthesis: the handoff seam itself is made cheat-proof — a boundary crossing is certified against the *merged* authority (`F_A` west of the split, `F_B` east, the same world the handoff produces), so a shard-local warden checking only its own stale view is provably insufficient; the through-wall exploit that slips past shard A is refused by the merge. The staged route from here (live
+theorem about the terrain's topology rather than a watchdog on the wire. `crosswarden` then closes the Stage D+E synthesis: the handoff seam itself is made cheat-proof — a boundary crossing is certified against the *merged* authority (`F_A` west of the split, `F_B` east, the same world the handoff produces), so a shard-local warden checking only its own stale view is provably insufficient; the through-wall exploit that slips past shard A is refused by the merge. And `dirward` refines the topological check from undirected components to directed reachability, so a one-way cliff is honest: the undirected warden treats a cliff as a solid wall — false-refusing the legal descent and unable to tell a one-way drop from a wall — while directed reachability admits the descent and refuses only the climb-back (`WARD-ONEWAY`, distinct from a wall's `WARD-UNREACH`). The staged route from here (live
 authoring → a modern depicting client → the benched performance promotion) is written down as goals, each to
 be earned slice by slice under the same gate.
 

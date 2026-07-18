@@ -1,0 +1,5 @@
+# URDRWARD3 - dirward: directed-reachability anti-cheat (SCC / one-way terrain), T3.26, MMO Stage E.
+# SHA-256(MAGIC | name | nscc | asym | verdict). Pinned on the plateau-over-plain cliff world
+# (west x<8 at height 100, east x>=8 at height 0, MAX_STEP=40). Regenerate: dirward.scene_result(name).
+honest_descent 89ff33bb544033311405ab093375064d0dcaf32aad05dacad128643d748bca61
+climb_back 7273a8eb0ef29ef53bfce86a86b9e29108d836ee77bb68c32cb70680bb728711

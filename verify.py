@@ -5269,6 +5269,95 @@ class Gate:
                     "seam is WARD-SEAM; 4/4 typed WARD-REFUSE sub-codes"
                     if insufficient else f"the shard-local-insufficiency / refusal binding did not hold: {codes}")
 
+    def dirward(self):
+        """Directed-reachability structural anti-cheat (T3.26, MMO Stage E): the topological anti-cheat refined
+        from UNDIRECTED reachability (URDRWARD1/2) to DIRECTED, so a ONE-WAY cliff is modelled honestly. The
+        undirected warden treats a one-way cliff as a solid wall — it FALSE-REFUSES the legal descent and
+        returns the same WARD-UNREACH for a one-way climb and a genuine wall. dirward admits the descent and
+        refuses only the climb, WARD-ONEWAY (distinct from the wall's WARD-UNREACH). Rows: scenes
+        (honest_descent + climb_back reproduce URDRWARD3 digests), asymmetry (directed reach is asymmetric on
+        the cliff, reach_asymmetry > 0; flat collapses to 0 and num_scc == betti0), admission (descent WARD-OK;
+        climb WARD-ONEWAY; wall WARD-UNREACH; glide descent admits), insufficient (undirected false-refuses the
+        descent AND conflates one-way with wall; dirward fixes both; typed sub-codes)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import dirward as DW
+            import warden as WD
+            import glide as GL
+        except Exception as exc:
+            self.record("dirward", False, f"import failed (dirward / warden / glide): {exc}")
+            return
+
+        cliff = DW._cliff_field()
+        wall = DW._wall_field()
+        flat = tuple(tuple(0 for _ in range(16)) for _ in range(16))
+        ms = DW._MS
+        top, bottom = DW._TOP, DW._BOTTOM
+
+        try:
+            ref_ok = all(DW.scene_result(n) == DW.golden(n) for n in DW.SCENES)
+        except Exception as exc:
+            self.record("dirward:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("dirward:scenes", ref_ok,
+                    "honest_descent + climb_back reproduce URDRWARD3 digests"
+                    if ref_ok else "a dirward scene drifted from its digest")
+
+        asym = (DW.can_reach(cliff, top, bottom, ms) and not DW.can_reach(cliff, bottom, top, ms)
+                and DW.reach_asymmetry(cliff, ms) > 0
+                and DW.reach_asymmetry(flat, ms) == 0
+                and DW.num_scc(flat, ms) == WD.betti0(flat, ms))
+        self.record("dirward-asymmetry", asym,
+                    f"directed reach is asymmetric on the cliff (reach_asymmetry = {DW.reach_asymmetry(cliff, ms)}), "
+                    "and collapses to 0 with num_scc == betti0 on flat terrain"
+                    if asym else "the directed-reachability asymmetry / collapse did not hold")
+
+        descent = DW.admit_move(cliff, top, bottom, ms) == "WARD-OK"
+        try:
+            DW.admit_move(cliff, bottom, top, ms)
+            climb = False
+        except WD.WardError as exc:
+            climb = exc.sub == "WARD-ONEWAY"
+        try:
+            DW.admit_move(wall, (2, 8), (14, 8), ms)
+            walled = False
+        except WD.WardError as exc:
+            walled = exc.sub == "WARD-UNREACH"
+        gcells = tuple((p[0] >> 32, p[1] >> 32) for p in GL.glide_cells(cliff, top, "eeee", ms, 4))
+        glided = WD.admit_trajectory(cliff, gcells, ms) == "WARD-OK"
+        adm = descent and climb and walled and glided
+        self.record("dirward-admission", adm,
+                    "the descent admits; the climb-back is WARD-ONEWAY; a genuine wall is WARD-UNREACH; an "
+                    "honest glide descent admits kinematically"
+                    if adm else "the directed admission / refusal did not hold")
+
+        # THE HEADLINE: the undirected warden false-refuses the descent and conflates one-way with wall.
+        def undirected(anchor, claim, fld):
+            try:
+                return WD.admit_position(fld, anchor, claim, ms)
+            except WD.WardError as exc:
+                return exc.sub
+        false_refuse = (undirected(top, bottom, cliff) == "WARD-UNREACH"
+                        and DW.admit_move(cliff, top, bottom, ms) == "WARD-OK")
+        conflate = (undirected(bottom, top, cliff) == undirected((2, 8), (14, 8), wall) == "WARD-UNREACH")
+        codes = []
+        for call in (lambda: DW.admit_move(cliff, bottom, top, ms),        # one-way
+                     lambda: DW.admit_move(wall, (2, 8), (14, 8), ms),      # unreach
+                     lambda: DW.admit_move(cliff, bottom, (99, 99), ms)):   # malformed
+            try:
+                call()
+                codes.append(None)
+            except WD.WardError as exc:
+                codes.append(exc.sub if exc.code == "WARD-REFUSE" else "BADCODE")
+        typed = codes == ["WARD-ONEWAY", "WARD-UNREACH", "WARD-MALFORMED"]
+        insufficient = false_refuse and conflate and typed
+        self.record("dirward-insufficient", insufficient,
+                    "the undirected warden false-refuses the legal descent and returns one WARD-UNREACH for "
+                    "both a one-way cliff and a wall; dirward admits the descent and separates ONEWAY from "
+                    "UNREACH"
+                    if insufficient else f"the undirected-insufficiency / refusal binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5578,6 +5667,7 @@ def main() -> int:
     gate.hand()
     gate.warden()
     gate.crosswarden()
+    gate.dirward()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
