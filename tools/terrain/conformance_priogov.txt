@@ -1,0 +1,6 @@
+# URDROPC3 - priogov: the PRIORITY work governor (T3.31, MMO Stage H). Admit the highest-effective-priority
+# prefix within the tick op-budget (effective = base + age_step*wait, so aging prevents starvation).
+# SHA-256(MAGIC | name | budget | age_step | per-actor served ticks). 5 actors, base priorities 1..5.
+prio_two_per_tick f05a3802d5f189825f83f11e21edaf6b28f3e779fee95c661d4cd5f80eabbd6e
+prio_one_per_tick ae58b0f74d9c31398fd43e7a31ecd2257e6a5c3c6af442a80be62b2fd4d86e6b
+prio_no_aging 4c410882b6a1d3f261b0a02487fe3b30e3e4430c928621c36692580193bddee1

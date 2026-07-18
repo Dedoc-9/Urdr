@@ -5614,6 +5614,163 @@ class Gate:
                     "in-order (conservation — none lost, duplicated, or reordered)"
                     if ref_ok2 else "the refuse / conservation binding did not hold")
 
+    def priogov(self):
+        """The PRIORITY work governor (T3.31, MMO Stage H, URDROPC3): admit the highest-effective-priority
+        prefix within the tick op-budget, with aging so the lowest priority never starves. Rows: scenes (3
+        schedules reproduce URDROPC3 digests), never-overrun (every admitted tick <= budget), priority-fair
+        (fresh priority order: top priority served tick 1, lowest last; no starvation: all served <= N via
+        aging), refuse (a single over-budget actor is OPCOST-REFUSE)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import priogov as PG
+            import govern as GV
+            import opcost as OC
+        except Exception as exc:
+            self.record("priogov", False, f"import failed (priogov / govern): {exc}")
+            return
+        try:
+            ref_ok = all(PG.scene_result(n) == PG.golden(n) for n in PG.SCENES)
+        except Exception as exc:
+            self.record("priogov:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("priogov:scenes", ref_ok,
+                    "prio_two_per_tick + prio_one_per_tick + prio_no_aging reproduce URDROPC3 digests"
+                    if ref_ok else "a priogov schedule drifted from its digest")
+        fld = PG._flat16()
+        ms, sub, cmds = PG._MS, PG._SUB, PG._CMDS
+        actors = PG._ACTORS
+        a = GV.actor_cost(fld, actors[0][0], cmds, ms, sub)
+        never = True
+        for budget in (a, 2 * a, 3 * a, 5 * a):
+            rem = actors
+            while rem:
+                _adm, deferred, spent = PG.admit_tick_prio(fld, rem, cmds, ms, sub, budget)
+                if spent > budget:
+                    never = False
+                rem = tuple(rem[i] for i in deferred)
+        self.record("priogov-never-overrun", never,
+                    "every admitted priority tick's work <= budget across budgets a..5a"
+                    if never else "a priority tick overran its budget")
+        served = PG.drain_prio(fld, actors, cmds, ms, sub, a, 1)
+        fair = (served[4] == 1 and served[0] == len(actors)
+                and len(set(served)) == len(actors) and max(served) <= len(actors))
+        self.record("priogov-priority-fair", fair,
+                    f"fresh priority order (top priority served tick {served[4]}, lowest tick {served[0]}); no "
+                    f"starvation (all {len(actors)} served <= N ticks via aging)"
+                    if fair else f"the priority / no-starvation guarantee did not hold: {served}")
+        refused = False
+        try:
+            PG.drain_prio(fld, actors, cmds, ms, sub, a - 1, 1)
+        except OC.OpcostError as exc:
+            refused = exc.code == "OPCOST-REFUSE"
+        self.record("priogov-refuse", refused,
+                    "a single actor bigger than the budget is OPCOST-REFUSE"
+                    if refused else "the over-budget refusal did not hold")
+
+    def horizon(self):
+        """The rollback-horizon reconcile window (T3.32, MMO Stage H, URDRLAT1): a client correction ADMITS iff
+        its rollback depth is within the snapshot horizon H, else HORIZON-REFUSE; on admit the reconstruction
+        is byte-exact (delta = 0). Rows: scenes (correct/recent/deep reproduce URDRLAT1 digests), reconstruct
+        (rollback_depth 0 for a correct prediction; an admitted reconcile == the authoritative glide
+        bit-for-bit), bound (an admitted reconcile's depth <= horizon; worst_case_window == H), refuse (a
+        too-deep rollback is HORIZON-REFUSE)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import horizon as HZ
+            import glide as GL
+        except Exception as exc:
+            self.record("horizon", False, f"import failed (horizon / glide): {exc}")
+            return
+        try:
+            ref_ok = all(HZ.scene_result(n) == HZ.golden(n) for n in HZ.SCENES)
+        except Exception as exc:
+            self.record("horizon:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("horizon:scenes", ref_ok,
+                    "correct + recent + deep reproduce URDRLAT1 digests"
+                    if ref_ok else "a horizon scene drifted from its digest")
+        fld = HZ._flat16()
+        ms, sub, start = HZ._MS, HZ._SUB, HZ._START
+        depth0 = HZ.rollback_depth(fld, start, "eeee", "eeee", ms, sub) == 0
+        recon = HZ.admit_reconcile(fld, start, "eeee", "eeen", ms, sub, 5)
+        exact = recon == GL.glide_cells(fld, start, "eeee", ms, sub)
+        self.record("horizon-reconstruct", depth0 and exact,
+                    "rollback_depth 0 for a correct prediction; an admitted reconcile lands on the authority "
+                    "byte-for-byte (delta = 0)"
+                    if (depth0 and exact) else "the depth / byte-exact reconstruct did not hold")
+        d1 = HZ.rollback_depth(fld, start, "eeee", "eeen", ms, sub)
+        admitted_at_depth = True
+        try:
+            HZ.admit_reconcile(fld, start, "eeee", "eeen", ms, sub, d1)
+        except HZ.HorizonError:
+            admitted_at_depth = False
+        bound = admitted_at_depth and (d1 <= len("eeee") + 1) and HZ.worst_case_window(4) == 4
+        self.record("horizon-bound", bound,
+                    f"an admitted reconcile's depth ({d1}) <= horizon; the worst-case reconcile window == the "
+                    "horizon"
+                    if bound else "the rollback-depth bound did not hold")
+        refused = False
+        try:
+            HZ.admit_reconcile(fld, start, "eeee", "neee", ms, sub, 2)
+        except HZ.HorizonError as exc:
+            refused = exc.code == "HORIZON-REFUSE"
+        self.record("horizon-refuse", refused,
+                    "a rollback deeper than the horizon is HORIZON-REFUSE (a stale correction, not served late)"
+                    if refused else "the horizon refusal did not hold")
+
+    def slo(self):
+        """The composite worst-case latency SLO (T3.33, MMO Stage H, URDRLAT2): worst_case_latency =
+        admission_wait (governor) + horizon (rollback window), with SLO-REFUSE when a config exceeds its
+        target. Rows: scenes (meets/tight/fails reproduce URDRLAT2 digests), composition (worst-case ==
+        admission_wait + window), soundness (admission_wait upper-bounds the real governor drain over a config
+        corpus; a within-target config admits), refuse (an over-target config is SLO-REFUSE)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import slo as SL
+            import govern as GV
+            import horizon as HZ
+        except Exception as exc:
+            self.record("slo", False, f"import failed (slo / govern / horizon): {exc}")
+            return
+        try:
+            ref_ok = all(SL.scene_result(n) == SL.golden(n) for n in SL.SCENES)
+        except Exception as exc:
+            self.record("slo:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("slo:scenes", ref_ok,
+                    "meets + tight + fails reproduce URDRLAT2 digests"
+                    if ref_ok else "an slo config drifted from its digest")
+        c = SL._actor_cost()
+        comp = (SL.worst_case_latency(6, 3 * c, c, 2)
+                == SL.admission_wait(6, 3 * c, c) + HZ.worst_case_window(2))
+        self.record("slo-composition", comp,
+                    "worst-case latency == admission wait + rollback window (the two bounded parts)"
+                    if comp else "the composite latency identity did not hold")
+        fld = SL._flat16()
+        sound = True
+        for n in (1, 2, 3, 5, 6, 8, 12, 14):
+            for bmult in (1, 2, 3, 5):
+                starts = tuple((2, i) for i in range(n))
+                actual = len(GV.drain(fld, starts, "eeee", SL._MS, SL._SUB, bmult * c))
+                if actual > SL.admission_wait(n, bmult * c, c):
+                    sound = False
+        meets = SL.slo_admit(6, 3 * c, c, 2, 5) == 4
+        self.record("slo-soundness", sound and meets,
+                    "admission_wait upper-bounds the real governor drain over the config corpus; a within-target "
+                    "config admits with its certified worst-case latency"
+                    if (sound and meets) else "the SLO soundness / admit did not hold")
+        refused = False
+        try:
+            SL.slo_admit(12, 2 * c, c, 5, 8)
+        except SL.SloError as exc:
+            refused = exc.code == "SLO-REFUSE"
+        self.record("slo-refuse", refused,
+                    "a config whose worst-case latency exceeds its target is SLO-REFUSE (never over-promise)"
+                    if refused else "the SLO refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5927,6 +6084,9 @@ def main() -> int:
     gate.wardhom()
     gate.opcost()
     gate.govern()
+    gate.priogov()
+    gate.horizon()
+    gate.slo()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

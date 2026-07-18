@@ -1,0 +1,7 @@
+# URDRLAT2 - slo: the composite worst-case latency SLO (T3.33, MMO Stage H). worst_case_latency =
+# admission_wait (ceil(N / floor(budget/actor_cost)), governor) + horizon (rollback window). slo_admit
+# refuses a config whose worst-case exceeds the target (SLO-REFUSE). admission_wait is a SOUND upper bound
+# on the real governor drain. SHA-256(MAGIC | name | n | budget | actor_cost | horizon | latency | verdict).
+meets 94f910e9225e242852ed22e5e96df68f03b88a9d13a1d7b275cb6dfe6a4cd902
+tight df59133d761047c4901c072a41994bf00f753aa006b9eb69b93a1deab9357986
+fails a2c32635939f8c9471fe65484d25a9ec794472c753066a83805386cb86dfa1e8

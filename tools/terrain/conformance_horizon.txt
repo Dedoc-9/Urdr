@@ -1,0 +1,7 @@
+# URDRLAT1 - horizon: the rollback-horizon reconcile window (T3.32, MMO Stage H). A client correction is
+# ADMITTED iff its rollback depth (n - k, the boundaries replayed) is within the snapshot horizon H, else a
+# typed HORIZON-REFUSE. On admit, cpredict.reconstruct lands on the authority BYTE-EXACT (delta=0).
+# SHA-256(MAGIC | name | depth | verdict). correct=0/ADMIT recent=1/ADMIT deep=5/HORIZON-REFUSE(H=2).
+correct 31624edc1ea72d95923c73b63905d018638d205df03a3d6c28b83dccdce93c4a
+recent 69bc9458e89060cd1f5ff3cdc850d58980b388c7724afc21adb4c4afc5c768e5
+deep 279acacdf0087974f920899c13a251805887164682bb1f2064e835873b580fd3
