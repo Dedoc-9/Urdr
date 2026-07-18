@@ -38,7 +38,8 @@ import crosswarden as CW                                       # noqa: E402
 class WardHom(unittest.TestCase):
     def setUp(self):
         self.ms = WH._MS
-        self.worlds = {"barrier8": WH._barrier8(), "cliff8": WH._cliff8(), "flat8": WH._flat8()}
+        self.worlds = {"barrier8": WH._barrier8(), "cliff8": WH._cliff8(), "flat8": WH._flat8(),
+                       "merge8": WH._merge8()}
 
     def test_scene_goldens(self):
         for name in WH.SCENES:
@@ -102,6 +103,49 @@ class WardHom(unittest.TestCase):
         for fld in (D._cliff_field(), CW.merged_field(*CW._shards(), CW._SPLIT)):
             self.assertEqual(W.betti0(fld, self.ms), WH.homology_betti0(fld, self.ms),
                              "the union-find / F2-rank tie must hold on the other wardens' worlds")
+
+    # ---- URDRWARDH2: wired to the region-boundary (crosswarden) and directed (dirward) wardens ----
+    def test_merge8_is_crosswarden_merge(self):
+        fa = tuple(tuple(0 for x in range(8)) for _ in range(8))
+        fb = tuple(tuple(200 if x == 6 else 0 for x in range(8)) for _ in range(8))
+        self.assertEqual(WH._merge8(), CW.merged_field(fa, fb, 4), "merge8 must BE a crosswarden merge")
+        self.assertEqual(CW.cross_betti0(fa, fb, 4, self.ms), WH.homology_betti0(WH._merge8(), self.ms),
+                         "the crosswarden region-boundary beta0 must equal the cross-placed homology beta0")
+
+    def test_crosswarden_region_tie_16(self):
+        fa, fb = CW._shards()
+        merged = CW.merged_field(fa, fb, CW._SPLIT)
+        self.assertEqual(CW.cross_betti0(fa, fb, CW._SPLIT, CW._MS), WH.homology_betti0(merged, CW._MS),
+                         "the 16x16 crosswarden merge beta0 must equal the homology beta0")
+
+    def test_dirward_scc_bounded_by_betti0(self):
+        for f, m in ((D._cliff_field(), D._MS), (D._wall_field(), D._MS), (W._barrier_field(), W._MS)):
+            self.assertLessEqual(D.num_scc(f, m), WH.homology_betti0(f, m),
+                                 "directed num_scc must be <= the undirected homology beta0")
+
+    def test_dirmerge_strict_gap(self):
+        """The witness homology structurally cannot see: a directed cycle fuses two undirected components."""
+        dm, dms = WH._DIRMERGE, WH._DIRMERGE_MS
+        self.assertEqual(WH.homology_betti0(dm, dms), 2, "homology sees 2 undirected components")
+        self.assertEqual(D.num_scc(dm, dms), 1, "dirward sees 1 SCC (the directed cycle fuses them)")
+        self.assertLess(D.num_scc(dm, dms), WH.homology_betti0(dm, dms),
+                        "num_scc < beta0 strictly — the directed merge is invisible to F2 homology")
+
+    def test_scc_le_betti0_corpus(self):
+        def lcg(seed):
+            s = seed
+            while True:
+                s = (1103515245 * s + 12345) & 0x7fffffff
+                yield s
+        for seed in range(1, 120):
+            g = lcg(seed)
+            w = 2 + next(g) % 5
+            h = 2 + next(g) % 5
+            hi = 2 + next(g) % 250
+            m = 1 + next(g) % 110
+            fld = tuple(tuple(next(g) % hi for _ in range(w)) for _ in range(h))
+            self.assertLessEqual(D.num_scc(fld, m), WH.homology_betti0(fld, m),
+                                 f"seed {seed}: directed num_scc must never exceed undirected homology beta0")
 
 
 if __name__ == "__main__":

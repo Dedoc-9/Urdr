@@ -68,6 +68,7 @@ static int rankf2(uint64_t *cols,int n){
 static int height_of(const char*name,int x){
     if(strcmp(name,"barrier8")==0) return (x==4)?200:0;
     if(strcmp(name,"cliff8")==0)   return (x<4)?100:0;
+    if(strcmp(name,"merge8")==0)   return (x==6)?200:0;  /* a crosswarden MERGE: wall east of the seam */
     return 0;  /* flat8 */
 }
 static void wardhom(const char*name,int defect,char hex[65]){
@@ -92,22 +93,23 @@ static void wardhom(const char*name,int defect,char hex[65]){
 }
 
 /* ---- pinned goldens (from the URDRWARDH1 reference) -------------------------------- */
-static const struct { const char*name; const char*golden; } G[3]={
+static const struct { const char*name; const char*golden; } G[4]={
     {"barrier8","974212cb86fe1e47f3f09ad5634850583840d3af41bb4db83ba1dfd09ce2cb04"},
     {"cliff8",  "d26e7940c7d1d17cc8ee64e3706c2ff0d5120d4827012bdb51664dd10766b4af"},
     {"flat8",   "f3538a083c1aa3071da9e29e5ca71e8e453aec09cd97273173e057e808e12401"},
+    {"merge8",  "4fcf5a6534dfbda1c95027995b79b98b4d0c4d07965997fddddbc4a2c418c3f1"},
 };
 
 int main(int argc,char**argv){
     int defect = (argc>1 && strcmp(argv[1],"--defect")==0);
     int all=1;
-    for(int i=0;i<3;i++){
+    for(int i=0;i<4;i++){
         char hex[65]; wardhom(G[i].name,defect,hex);
         int m = strcmp(hex,G[i].golden)==0;
         if(!defect && !m) all=0;
         printf("%-9s %s %s\n", G[i].name, hex, defect?"(defect)":(m?"ok":"<-- MISMATCH"));
     }
     if(defect){ printf("--defect: digests intentionally diverge from the goldens\n"); return 0; }
-    printf(all?"ADMITTED: 3/3 URDRWARDH1 goldens reproduced\n":"FAILED\n");
+    printf(all?"ADMITTED: 4/4 URDRWARDH1/2 goldens reproduced\n":"FAILED\n");
     return all?0:1;
 }

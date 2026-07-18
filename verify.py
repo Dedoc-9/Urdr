@@ -5388,7 +5388,7 @@ class Gate:
             self.record("wardhom:scenes", False, f"reference failed: {exc}")
             return
         self.record("wardhom:scenes", ref_ok,
-                    "barrier8 + cliff8 + flat8 reproduce URDRWARDH1 digests"
+                    "barrier8 + cliff8 + flat8 + merge8 reproduce URDRWARDH1/2 digests"
                     if ref_ok else "a wardhom scene drifted from its digest")
 
         worlds = [WH._barrier8(), WH._cliff8(), WH._flat8(), WD._barrier_field()]  # 8x8 pins + the 16x16 barrier
@@ -5407,6 +5407,30 @@ class Gate:
                     f"known-answer beta0 = 3/2/1; beta0=n0-rank & beta1=n1-rank identity; beta1 cycles "
                     f"non-vacuous (barrier {cb[4]} < flat {cf[4]})"
                     if betti_ok else "the known-answer betti / identity / cycle check did not hold")
+
+        # URDRWARDH2: the homology beta0 wired to the region-boundary (crosswarden) and directed (dirward) wardens
+        try:
+            import crosswarden as CWD
+            import dirward as DW2
+            fa16, fb16 = CWD._shards()
+            region = (CWD.cross_betti0(fa16, fb16, CWD._SPLIT, CWD._MS)
+                      == WH.homology_betti0(CWD.merged_field(fa16, fb16, CWD._SPLIT), CWD._MS)
+                      == WH.homology_betti0(WH._merge8(), WH._MS) == 3)
+            bound = all(DW2.num_scc(f, m) <= WH.homology_betti0(f, m)
+                        for f, m in ((DW2._cliff_field(), DW2._MS), (DW2._wall_field(), DW2._MS),
+                                     (WD._barrier_field(), WD._MS)))
+            strict = (DW2.num_scc(WH._DIRMERGE, WH._DIRMERGE_MS) == 1
+                      and WH.homology_betti0(WH._DIRMERGE, WH._DIRMERGE_MS) == 2)
+            wardens = region and bound and strict
+        except Exception as exc:
+            wardens = False
+            self.record("wardhom-wardens", False, f"crosswarden / dirward wiring failed: {exc}")
+        else:
+            self.record("wardhom-wardens", wardens,
+                        "crosswarden region-boundary beta0 (merged authority) == homology beta0 = 3; dirward "
+                        "num_scc <= homology beta0, STRICT on the dirmerge witness (1 < 2 — the directed merge "
+                        "F2 homology cannot see)"
+                        if wardens else "the crosswarden / dirward homology wiring did not hold")
 
         # LIVE cross-placement re-verification (skip-aware, one row, host-stable count)
         rustc = shutil.which("rustc")
@@ -5457,7 +5481,7 @@ class Gate:
             allok = all(good(p) for _n, p in placements)
             names = " + ".join(n for n, _ in placements)
             self.record("wardhom-placement", allok,
-                        f"{names} recompile and reproduce the URDRWARDH1 goldens bit-for-bit; --defect diverges"
+                        f"{names} recompile and reproduce the URDRWARDH1/2 goldens bit-for-bit; --defect diverges"
                         if allok else f"a live placement did not reproduce the goldens: {[n for n, _ in placements]}")
 
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -

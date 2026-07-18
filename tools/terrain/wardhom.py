@@ -116,7 +116,20 @@ def _flat8():
     return tuple(tuple(0 for _x in range(8)) for _y in range(8))
 
 
-SCENES = {"barrier8": _barrier8, "cliff8": _cliff8, "flat8": _flat8}
+def _merge8():
+    """An 8x8 crosswarden MERGE: flat west of split=4, a wall (200) at x=6 east of the synced band [2,6) ->
+    beta0 = 3. This IS crosswarden.merged_field of a flat shard A and a walled shard B (asserted in the tests
+    and the gate) — so the region-boundary anti-cheat's beta0 is cross-placed here, not just a single field's."""
+    return tuple(tuple(200 if x == 6 else 0 for x in range(8)) for _y in range(8))
+
+
+SCENES = {"barrier8": _barrier8, "cliff8": _cliff8, "flat8": _flat8, "merge8": _merge8}
+
+# A 3x2 witness (Python-only, NOT a cross-placed scene): two UNDIRECTED components (homology beta0 = 2) that a
+# DIRECTED 6-cell cycle fuses into ONE strongly-connected component (dirward.num_scc = 1). It is the strict
+# num_scc < beta0 gap that F2 homology structurally cannot see — homology is undirected. max_step = 34.
+_DIRMERGE = ((66, 3, 32), (105, 82, 59))
+_DIRMERGE_MS = 34
 
 
 def scene_result(name):

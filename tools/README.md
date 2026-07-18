@@ -84,7 +84,7 @@ in each one's README and grade line.
   not have happened is *certified*, not flagged: a wall tunnel or a >2-cell teleport is caught kinematically
   by the `glide` step law, and a bare position across a barrier is caught topologically — it lies in a
   different walkable component, β₀ = rank H₀, the invariant `URDRPD1` certifies — refused from the field's
-  connected-component structure alone, no trajectory needed), and the `crosswarden` **cross-region anti-cheat** that closes the Stage D+E synthesis (a claimed crossing is certified against the MERGED authority — `F_A` west of the split, `F_B` east, the same merge the handoff produces — so a boundary exploit a shard-local warden ADMITS from its stale view is refused by the merge with `WARD-TUNNEL`/`WARD-UNREACH`; a shard-local warden is provably insufficient), and the `dirward` **directed-reachability** refinement (the undirected component map treats a one-way cliff as a solid wall — false-refusing the legal descent and conflating a one-way drop with an impassable wall; directed reachability admits the descent and refuses only the climb-back as `WARD-ONEWAY`, distinct from `WARD-UNREACH`), and the `wardhom` **homology cross-placement** (the wardens' β₀, computed directly by union-find, is proved equal to URDRPD1's 𝔽₂-rank H₀ and reproduced bit-for-bit by `wardhom_c` / `wardhom_rs` — the anti-cheat's component count is now a three-placed topological invariant, re-compiled live by the gate where a toolchain is present). The observer + transcript + horizon observer are the
+  connected-component structure alone, no trajectory needed), and the `crosswarden` **cross-region anti-cheat** that closes the Stage D+E synthesis (a claimed crossing is certified against the MERGED authority — `F_A` west of the split, `F_B` east, the same merge the handoff produces — so a boundary exploit a shard-local warden ADMITS from its stale view is refused by the merge with `WARD-TUNNEL`/`WARD-UNREACH`; a shard-local warden is provably insufficient), and the `dirward` **directed-reachability** refinement (the undirected component map treats a one-way cliff as a solid wall — false-refusing the legal descent and conflating a one-way drop with an impassable wall; directed reachability admits the descent and refuses only the climb-back as `WARD-ONEWAY`, distinct from `WARD-UNREACH`), and the `wardhom` **homology cross-placement** (the wardens' β₀, computed directly by union-find, is proved equal to URDRPD1's 𝔽₂-rank H₀ and reproduced bit-for-bit by `wardhom_c` / `wardhom_rs` — the anti-cheat's component count is now a three-placed topological invariant, re-compiled live by the gate where a toolchain is present; `merge8` extends the same cross-placement to crosswarden's merged region, and dirward's directed `num_scc` is bounded by the homology β₀ with a pinned strict-gap witness). The observer + transcript + horizon observer are the
   foundation of FPS movement over the certified field — and `gaze`/`traj` are **kernel-cross-checked**
   (their verdicts equal the kernel `world_host`'s, so the terrain observability law is certified to be the
   kernel's, not a copy). The whole studio is bound by `layertheorem` (URDRISPL1) — the **Integer Scalar
@@ -152,7 +152,7 @@ grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
 `DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
 in particular, stay `NOT_MEASURED` until run under the sealed protocol
 (`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
-(`../verify.py`): **808 unit falsifiers / 506 rows**, run twice, bit-identical.
+(`../verify.py`): **813 unit falsifiers / 507 rows**, run twice, bit-identical.
 
 The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
 (D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
@@ -162,7 +162,7 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED` — 808 unit falsifiers / 506 rows). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 813 unit falsifiers / 507 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
   is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.

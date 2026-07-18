@@ -94,6 +94,7 @@ fn height_of(name: &str, x: i64) -> i64 {
     match name {
         "barrier8" => if x == 4 { 200 } else { 0 },
         "cliff8"   => if x < 4 { 100 } else { 0 },
+        "merge8"   => if x == 6 { 200 } else { 0 }, // a crosswarden MERGE: wall east of the seam
         _          => 0, // flat8
     }
 }
@@ -134,6 +135,7 @@ fn main() {
         ("barrier8", "974212cb86fe1e47f3f09ad5634850583840d3af41bb4db83ba1dfd09ce2cb04"),
         ("cliff8",   "d26e7940c7d1d17cc8ee64e3706c2ff0d5120d4827012bdb51664dd10766b4af"),
         ("flat8",    "f3538a083c1aa3071da9e29e5ca71e8e453aec09cd97273173e057e808e12401"),
+        ("merge8",   "4fcf5a6534dfbda1c95027995b79b98b4d0c4d07965997fddddbc4a2c418c3f1"),
     ];
     let mut all = true;
     for (name, golden) in goldens.iter() {
@@ -144,6 +146,6 @@ fn main() {
         println!("{:<9} {} {}", name, hex, tag);
     }
     if defect { println!("--defect: digests intentionally diverge from the goldens"); return; }
-    println!("{}", if all { "ADMITTED: 3/3 URDRWARDH1 goldens reproduced" } else { "FAILED" });
+    println!("{}", if all { "ADMITTED: 4/4 URDRWARDH1/2 goldens reproduced" } else { "FAILED" });
     std::process::exit(if all { 0 } else { 1 });
 }
