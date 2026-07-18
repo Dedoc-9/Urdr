@@ -4802,6 +4802,86 @@ class Gate:
                     "· split at 0 · split at len)"
                     if ref_total else f"the defect / refusal binding did not hold: {codes}")
 
+    def cpredict(self):
+        """Continuous client-prediction reconcile (T3.20, MMO Stage A × Stage B): `predict` on `glide`,
+        rolling back via `splice`. Reconcile a client's guessed inputs against the authority on the
+        CONTINUOUS Q32.32 trajectory. MEASURED: (1) continuous ROLLBACK-REPLAY EQUIVALENCE — reconstruct
+        (keep the agreed prefix, resume the true suffix from the boundary pose) == glide_cells(auth)
+        bit-for-bit for every prediction; (2) REFINES the discrete reconcile — the continuous mispredict
+        tick precedes-or-equals `predict`'s, and is STRICTLY earlier on a sub-cell misprediction the grid
+        cannot see (a walk guessed where the authority sprinted into an east wall: same cell, different
+        sub-cell pose — non-vacuity witness); (3) FLOORS TO DRIVE — the floored reconstruction equals
+        drive(auth), the discrete answer predict already certified. Makes NO timing claim. Rows: scenes
+        (correct + mispredict + sub-cell witness reproduce URDRCPRED1 digests), equivalence (reconstruct ==
+        glide(auth) over the grid), refines (tick ≤ discrete over a grid + the sub-cell witness fires +
+        floors to drive), refusal (the lazy-reconcile defect diverges + 3/3 typed CPRED-REFUSE)."""
+        import itertools as _it
+        for p in (os.path.join(ROOT, "tools", "terrain"), os.path.join(ROOT, "tools", "physics"),
+                  os.path.join(ROOT, "tools", "netcode")):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import cpredict as CP
+            import glide as GL
+            import drive as DR
+            import predict as PR
+        except Exception as exc:
+            self.record("cpredict", False, f"import failed (cpredict / glide / predict): {exc}")
+            return
+
+        try:
+            ref_ok = all(CP.scene_result(n) == CP.golden(n) for n in CP.SCENES)
+        except Exception as exc:
+            self.record("cpredict:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("cpredict:scenes", ref_ok,
+                    "correct + mispredict + sub-cell witness reproduce URDRCPRED1 reconcile digests"
+                    if ref_ok else "a cpredict scene drifted from its digest")
+
+        Hb = GL._heights("blank")
+        auth = "eeee"
+        auth_traj = GL.glide_cells(Hb, (2, 8), auth, 16, 4)
+        equiv = True
+        for pred in ("".join(p) + "e" for p in _it.product("eEnNsw", repeat=3)):        # 216 predictions
+            equiv = equiv and (CP.reconstruct(Hb, (2, 8), auth, pred, 16, 4) == auth_traj)
+        self.record("cpredict-equivalence", equiv,
+                    "continuous rollback-replay equivalence: reconstruct == glide_cells(auth) for every "
+                    "prediction (the client resumes only the suffix and lands exactly on the authority)"
+                    if equiv else "the continuous rollback-replay equivalence did not hold")
+
+        def _le(kc, kd):
+            return True if kd is None else (kc is not None and kc <= kd)
+        ref = True
+        for pred in ("".join(p) for p in _it.product("eEnw", repeat=3)):                # 64 predictions
+            kc, _c = CP.reconcile(Hb, (2, 8), "eee", pred, 16, 4)
+            kd, _d = PR.reconcile(Hb, (2, 8), "eee", pred, 16)
+            ref = ref and _le(kc, kd)
+        Hm = GL._heights("mountains")
+        wk_c, _wc = CP.reconcile(Hm, (2, 0), "E", "e", 20, 4)
+        wk_d, _wd = PR.reconcile(Hm, (2, 0), "E", "e", 20)
+        witness = wk_c is not None and wk_d is None                                     # continuous > grid
+        floors = GL.floored(CP.reconstruct(Hb, (2, 8), auth, "eene", 16, 4)) == DR.drive(Hb, (2, 8), auth, 16)
+        self.record("cpredict-refines", ref and witness and floors,
+                    "the continuous tick ≤ the discrete tick over the grid; it STRICTLY refines on a "
+                    "sub-cell mispredict (continuous k=%s where drive sees none); floors to drive(auth)"
+                    % (wk_c,) if ref and witness and floors else "the refinement / commutation did not hold")
+
+        codes = []
+        for a, pc in (("ee", "eee"), ("", ""), ("eXe", "eee")):
+            try:
+                CP.reconcile(Hb, (2, 8), a, pc, 16, 4)
+                codes.append(None)
+            except CP.CPredError as exc:
+                codes.append(exc.code)
+        kk, _rr = CP.reconcile(Hb, (2, 8), auth, "eeNe", 16, 4)
+        lazy = tuple(GL.glide_cells(Hb, (2, 8), "eeNe", 16, 4)[:kk + 1])
+        defect = CP.replay(Hb, (2, 8), lazy, auth, 16, 4) != auth_traj
+        ref_total = defect and all(c == "CPRED-REFUSE" for c in codes)
+        self.record("cpredict-refusal", ref_total,
+                    "the lazy-reconcile defect (one mispredicted pose too many) diverges; 3/3 typed "
+                    "CPRED-REFUSE (window mismatch · empty window · bad transcript)"
+                    if ref_total else f"the defect / refusal binding did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5105,6 +5185,7 @@ def main() -> int:
     gate.predict()
     gate.glide()
     gate.splice()
+    gate.cpredict()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

@@ -1,0 +1,14 @@
+# urdr-terrain (T3.20, MMO Stage A × Stage B) — URDRCPRED1 continuous client-prediction reconcile canon:
+#   `predict` on `glide`. Reconcile a client's guessed inputs against the authority on the CONTINUOUS Q32.32
+#   trajectory (glide command boundaries), rolling back via `splice`'s resumption. Each digest binds (name,
+#   scene, auth, pred, sub, mispredict_tick, reconstructed trajectory). `correct` = perfect prediction (k
+#   None, no rollback). `mispredict` = a mid-window walk-vs-north divergence. `subcell` = THE REFINEMENT
+#   WITNESS: a walk guessed where the authority sprinted into an east wall — same CELL (drive: no
+#   mispredict, k None) but a different SUB-CELL pose (glide: k=1), so the continuous reconcile catches what
+#   the grid misses. In every case reconstruct == glide_cells(authority) bit-for-bit, and floors to
+#   drive(authority) — the continuous rollback refines the discrete one without contradicting it. Same host,
+#   same bytes; no float, no clock.
+# name  digest
+correct 47bc9b5de35f3ba07dfbef23f235f4e9edfb625b66cb489ab49c4001f5e047cf
+mispredict 39e6b70ef2139e9d306456edfa96a7837c97c1452dbda30788c6dac3e20b55aa
+subcell b4e03a041e8901149a63ff982b0f3f37aaf6814175fc2434d9aa42adb95328bf

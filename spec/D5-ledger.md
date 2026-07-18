@@ -2451,6 +2451,39 @@ interpolation and continuous facing (glide's own `does_not_show`, unchanged); an
 budget are `NOT_MEASURED`**. This is the foundation, cross-checked before the composition it enables — the
 same discipline as doing the kernel cross-check before enriching the dynamics.
 
+**Continuous client-prediction reconcile (URDRCPRED1) — T3.20, MMO Stage A × Stage B — MEASURED (the
+continuous equivalence + the refinement).** `tools/terrain/cpredict.py` + gate stage `cpredict`: the
+composition the last two slices were built for — `predict` (Stage A) run on `glide` (Stage B), rolling back
+with `splice` (the Stage B foundation). Where `predict` reconciles a client's guessed inputs against the
+authority on the exact-integer GRID (`drive`), this reconciles them on the CONTINUOUS Q32.32 sub-cell
+trajectory (`glide`), and reconstructs by keeping the agreed prefix and RESUMING the true suffix from the
+last agreed boundary pose (`splice.resume` — sound because splice certified the glide is memoryless). It is
+not a re-implementation: it stands on two already-measured facts, and its three keystones are the payoff of
+having built the foundation first. (1) CONTINUOUS ROLLBACK-REPLAY EQUIVALENCE — for every predicted
+transcript, `reconstruct` == the full continuous re-simulation `glide_cells(auth)` BIT-FOR-BIT (the client
+resumes only the suffix and lands exactly on the authority at sub-cell resolution). (2) REFINES THE DISCRETE
+RECONCILE — because floored glide == drive (the refinement bridge), the continuous localizer catches a
+divergence NO LATER than the discrete one: the continuous mispredict tick precedes-or-equals `predict`'s,
+and is STRICTLY earlier on a SUB-CELL misprediction the grid cannot see. THE WITNESS (non-vacuity, the
+headline result): a client guesses a WALK where the authority SPRINTED into an east wall — both land in the
+same CELL, so `drive` (and `predict`) see NO misprediction (`k = None`), but they land on different SUB-CELL
+poses, so `cpredict` catches it (`k = 1`) and rolls back. Continuous prediction is provably MORE PRECISE than
+grid prediction. (3) FLOORS TO DRIVE (the commutation) — the floored continuous reconstruction equals
+`drive(auth)`, the very answer `predict` certified; refining to sub-cell resolution never contradicts the
+grid, it only sharpens it. Three pinned scenes: `correct` (perfect guess, no rollback), `mispredict` (a
+mid-window divergence), `subcell` (the refinement witness). Four rows: `cpredict:scenes`, `cpredict-equivalence`
+(reconstruct == glide(auth) over a 216-prediction grid), `cpredict-refines` (tick ≤ discrete over a grid +
+the sub-cell witness fires + floors to drive), `cpredict-refusal` (the lazy-reconcile defect diverges + 3/3
+typed `CPRED-REFUSE`). Red-first `tests/test_cpredict.py` (10 falsifiers). Unit falsifiers 736 → 746; rows
+474 → 478. Adds NO placement (composes `glide`, `splice`, the kernel `lockstep`, and — for the refinement
+comparison — `predict`). GRADE: the continuous equivalence, the refinement (tick ≤ discrete with a sub-cell
+witness), and the commutation are MEASURED (exact, reproducible, a defect diverges). `does_not_show`: the
+input-PREDICTION policy (a DECLARED heuristic — this certifies the reconcile for ANY guess); network
+transport / jitter / loss (the protocol, not this primitive); continuous FACING and interpolation (glide's
+`does_not_show`, unchanged); and **WALL-CLOCK latency and tick budget are `NOT_MEASURED`** — no timing or
+scale claim, none until the sealed bench (Stage H). Stage A meets Stage B: the reconstruct-or-refuse
+discipline, now driving a continuous client loop and provably sharper than the grid it refines.
+
 **Terrain heightfield canon cross-placed (URDRHF1) — REFERENCE → CROSS-PLACED.**
 `tools/terrain/heightfield_rs/heightfield.rs` is an independent std-only Rust build (own
 hand-rolled SHA-256 verbatim from `worldstep_rs`, own seeded lattice noise, own Q16 quintic FBM,

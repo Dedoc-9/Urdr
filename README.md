@@ -24,7 +24,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **24** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **736-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
+on fixed corpora, behind a **746-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **13** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -234,9 +234,16 @@ the exact floor-sampled cell height, while smooth interpolation and mouse-look f
 foundation slice `splice` proves the glide is *memoryless* — resumable from any command boundary, because
 the future depends only on the current sub-cell pose (`cx = fx>>32`) — which is the primitive a continuous
 rollback stands on: keep the agreed prefix, re-glide only the tail, land on the same trajectory (verified
-even from a sub-cell wall-stopped pose, the hard case). It is the foundation cross-checked *before* the
-`glide ∘ predict` composition it enables. The staged route from here (deterministic interest management →
-seamless cross-region authority handoff →
+even from a sub-cell wall-stopped pose, the hard case). On that foundation, `cpredict` closes the Stage-A ×
+Stage-B loop: client prediction reconciled on the *continuous* trajectory — `reconstruct == glide(auth)`
+bit-for-bit — and provably **sharper** than the grid it refines. Because floored glide == drive, the
+continuous localizer catches a misprediction no later than the discrete `predict`, and *strictly* earlier on
+a sub-cell mispredict the grid cannot see: a walk guessed where the authority sprinted into a wall lands in
+the same cell but a different sub-cell pose, so `cpredict` rolls back where `drive` saw nothing — while still
+flooring to `drive(auth)`, refining the discrete reconcile without ever contradicting it. The staged route
+from here (deterministic interest management → seamless cross-region authority handoff →
+structural anti-cheat → live authoring → a modern depicting client → the benched performance promotion) is
+written down as goals, each to be earned slice by slice under the same gate.
 structural anti-cheat → live authoring → a modern depicting client → the benched performance promotion) is
 written down as goals, each to be earned slice by slice under the same gate.
 
