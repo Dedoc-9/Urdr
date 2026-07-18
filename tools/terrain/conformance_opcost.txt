@@ -1,0 +1,9 @@
+# URDROPC1 - opcost: the certified integer-work envelope (T3.29, MMO Stage H opener).
+# SHA-256(MAGIC | name | sorted op-count vector). The op-count is EXACT and DETERMINISTIC (gate-certified);
+# wall-clock is bench.py's job (MEASURED-on-named-host, never gated). glide micro-count <= no-wall bound;
+# warden edge-checks = (W-1)H + W(H-1); wardhom columns = n1; tick_envelope = per-tick integer work.
+glide_open 12217cef13fab46a5b271d80a322d3c737630ae68d24f08d67cffc2f24eeec09
+glide_wall 0b5b5d70cbf7d274dd19eb908707694a85000b581f095ea307bf65e90ef74f10
+warden_flat16 bdb1375dd76034c5474d4d72eb8d4c2c785b8268263d98c797be8a3e6fbd11ea
+wardhom_barrier8 0a794a9d9f59391f98b10ae250f2c8cd95a4687bc3e19f5c0b912e6d7581ea89
+tick3_flat16 0bbcb845f1818abe16c0e470f322e347e2081cc0943a2df02774b9f86638e769

@@ -5484,6 +5484,70 @@ class Gate:
                         f"{names} recompile and reproduce the URDRWARDH1/2 goldens bit-for-bit; --defect diverges"
                         if allok else f"a live placement did not reproduce the goldens: {[n for n, _ in placements]}")
 
+    def opcost(self):
+        """The certified integer-work envelope (T3.29, MMO Stage H opener, URDROPC1): the DETERMINISTIC, EXACT
+        op-count each core operation performs — the gate-certifiable half of a latency guarantee (wall-clock is
+        bench.py, MEASURED-on-named-host, never gated). Rows: scenes (5 op-count vectors reproduce URDROPC1
+        digests), exact (glide count == real micro-steps; warden edge-checks == (W-1)H+W(H-1) == actual
+        adjacencies; admit sub-steps and wardhom columns exact), bound (glide count <= no-wall bound, STRICT on
+        a wall scene), budget (within_budget admits at/under and OPCOST-REFUSEs over — the work-budget law)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        if os.path.join(ROOT, "tools", "homology") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "homology"))
+        try:
+            import opcost as OC
+            import glide as GL
+            import wardhom as WH
+        except Exception as exc:
+            self.record("opcost", False, f"import failed (opcost / glide / wardhom): {exc}")
+            return
+
+        try:
+            ref_ok = all(OC.scene_result(n) == OC.golden(n) for n in OC.SCENES)
+        except Exception as exc:
+            self.record("opcost:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("opcost:scenes", ref_ok,
+                    "5 op-count vectors (glide open/wall, warden, wardhom, tick3) reproduce URDROPC1 digests"
+                    if ref_ok else "an opcost scene drifted from its digest")
+
+        flat = OC._flat16()
+        ms, sub = OC._MS, OC._SUB
+        w = len(flat[0])
+        h = len(flat)
+        actual_edges = sum((1 if x + 1 < w else 0) + (1 if y + 1 < h else 0) for y in range(h) for x in range(w))
+        cells4 = ((2, 8), (3, 8), (4, 8), (5, 8))
+        exact = (OC.glide_micro_count(flat, (2, 8), "eeee", ms, sub)
+                 == len(GL.glide(flat, (2, 8), "eeee", ms, sub)) - 1
+                 and OC.warden_edge_checks(flat, ms) == (w - 1) * h + w * (h - 1) == actual_edges
+                 and OC.admit_substeps(cells4) == 3
+                 and OC.wardhom_columns(WH._barrier8(), WH._MS) == WH.counts(WH._barrier8(), WH._MS)[1])
+        self.record("opcost-exact", exact,
+                    "glide count == real micro-steps; warden edge-checks == (W-1)H+W(H-1) == actual "
+                    "adjacencies; admit sub-steps and wardhom columns exact"
+                    if exact else "an op-count did not match the real work")
+
+        og = OC.glide_micro_count(flat, (2, 8), "eeee", ms, sub)
+        wc = OC.glide_micro_count(OC._wall_scene(), (2, 8), "eeeeeeee", ms, sub)
+        bound = (og <= OC.glide_micro_bound("eeee", sub) and wc < OC.glide_micro_bound("eeeeeeee", sub))
+        self.record("opcost-bound", bound,
+                    f"glide count <= no-wall bound (open {og}/{OC.glide_micro_bound('eeee', sub)}); STRICT on "
+                    f"the wall scene ({wc} < {OC.glide_micro_bound('eeeeeeee', sub)})"
+                    if bound else "the glide work bound was vacuous or violated")
+
+        codes = []
+        for call in (lambda: OC.within_budget(500, 500), lambda: OC.within_budget(501, 500)):
+            try:
+                codes.append(call())
+            except OC.OpcostError as exc:
+                codes.append(exc.code)
+        budget_ok = codes == [True, "OPCOST-REFUSE"]
+        self.record("opcost-budget", budget_ok,
+                    "within_budget admits work at/under the ceiling and OPCOST-REFUSEs over it (the tick "
+                    "work-budget law — refuse, never overrun)"
+                    if budget_ok else f"the work-budget refusal did not hold: {codes}")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -5795,6 +5859,7 @@ def main() -> int:
     gate.crosswarden()
     gate.dirward()
     gate.wardhom()
+    gate.opcost()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
