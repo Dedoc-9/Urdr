@@ -15,6 +15,7 @@ contract), every one `MEASURED` — cross-placed and frozen in
 |---|---|---|---|
 | **N1** lockstep | [`lockstep.py`](lockstep.py) | Same canonical world + same logical input log → one `URDRLST1` witness chain, one `URDRLSTT` trace. Reordered/duplicated delivery absorbed (dedup + additive-impulse commutativity); a dropped/modified/tick-moved input desyncs and `first_desync` names the first mismatching tick. | `netcode_lockstep` |
 | **N2** rollback | [`rollback.py`](rollback.py) | Canonical snapshots every `K` ticks (retain `H`); a late-but-valid input rewinds to the newest snapshot at-or-before its tick, replays, and **converges bit-for-bit to the canonical timeline** — the converged golden IS the N1 golden. Beyond the horizon: `ROLLBACK-REFUSE`, rejected whole. Same `(peer, seq)` with a different payload: `ROLLBACK-CONFLICT`. `K`/`H` are operational, never semantic. | `netcode_rollback` |
+| **N2.5** rollstore | [`rollstore.py`](rollstore.py) | The **durable rollback window** — the N2/terrain window unification: snapshots + event log + binding manifest as content-addressed records (closed forms 52+32n / 47+48m / 95+40s); the log is the rewindable source, the saved window CHECKED EVIDENCE (an inconsistent snapshot refuses); restored == never-died; rollback crosses a REAL process death and converges; the horizon/conflict/K laws and the defect anchor survive; the window priced under `storecost`. | `rollstore` |
 | **N3** authenticated inputs | [`authinput.py`](authinput.py) | A **Lamport one-time signature** (built from the same SHA-256 every placement hand-rolls) must verify against a pre-committed roster pin before an event enters the transcript — an actual signature, so a forging *peer* is caught, not just an outsider. Four forgery shapes each `AUTH-REFUSE`; the fully signed log reproduces the N1 golden unchanged (authentication decides *eligibility*, never state law). One keypair per `(peer, seq)` — the OTS one-time rule — is enforced structurally by N2's identity law. | `netcode_auth` |
 | **N4** authored worlds | [`worldstep.py`](worldstep.py) | A frozen [`URDR-WORLD-3`](../../spec/D12-versions.md) export becomes the initial state of the same loop: static AABB obstacles (least-penetration resolution, fixed tie order), a **typed authoring boundary** (`WORLD-REFUSE` on non-integer coordinates — never a silent round), instance file order as world identity, and the anti-drift theorem: with no statics on the canonical arena, the N4 tick reproduces the frozen N1 chain **bit-for-bit**. | `netcode_world` |
 | **N4.1** body-body contact | [`worldstep.py`](worldstep.py) | Opt-in (`contact: True`): a **sqrt-free Q32.32 impulse** — the exact `d/\|d\|` cancellation in fixed point — collides authored dynamic bodies. x-momentum conserved *exactly*, closing velocity reverses (restitution), and the frozen 0.1 surface runs contact-OFF **byte-identical**; the asymmetric-impulse defect breaks momentum. Cross-placed (C99 + Rust reproduce the `seam2` monolith). | `netcode_world` (`…-contact:collide2`) |
@@ -76,8 +77,16 @@ N2/N3 composition over authored worlds LANDED as **N5** `worldpeer` — the comp
 contract, frozen at 0.1; interest management has its certified relevance rung in the
 terrain arc — `tools/terrain/interest.py`, URDRAOI1 — while interest-FILTERED wire
 replication remains `DECLARED`.) Remaining `DECLARED` at the netcode level: wire
-transport itself, interest-filtered replication, and the unification of N2's in-memory
-K/H snapshot window with the terrain arc's DURABLE window (`storecost` → `persist` →
-`resurrect`: byte-priced, content-addressed, through-death-recoverable; `chunkstate`
-cuts it per region under the D16 same-witness law) — that unification is a stated
-future rung (`resurrect`'s does_not_show), not begun.
+transport itself and interest-filtered replication. The unification of N2's in-memory
+K/H snapshot window with the terrain arc's DURABLE window — the stated future rung of
+`resurrect`'s does_not_show — LANDED as **N2.5** `rollstore` (`URDRRBS1`, gate stage
+`rollstore`): the window law (one digest = integrity + address + filename;
+restore-or-refuse; the priced window; the REAL death boundary) applied to N2's
+snapshots. The event log is the rewindable source; the saved window is CHECKED
+EVIDENCE (a crafted-but-digested snapshot whose physics disagrees with the replay
+refuses — integrity is not truth); restored == never-died in every observable;
+rollback CROSSES DEATH (a real successor process rewinds on a post-death late input
+and converges to the canonical N1 timeline); horizon/conflict/duplicate/K-invariance
+and the apply-at-head defect anchor all survive the round-trip; a disordered manifest
+refuses, never re-sorts; and the window is priced under `storecost`'s law — one window
+discipline, both layers of the repo.

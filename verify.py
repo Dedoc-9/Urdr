@@ -7213,6 +7213,182 @@ class Gate:
                     "holds under the budget law"
                     if refuse_ok else "the testament refusal did not hold")
 
+    def rollstore(self):
+        """The durable rollback window (N2.5 / T3.45, URDRRBS1): the N2-window/durable-window
+        unification — resurrect's recorded does_not_show, settled. The event log is the rewindable
+        source; the saved window is CHECKED EVIDENCE (a crafted-but-digested snapshot refuses);
+        restored == never-died; rollback crosses death via a REAL successor; horizon/conflict/
+        K-invariance and the apply-at-head defect anchor survive the round-trip; the window is
+        priced under storecost's law. Rows: scenes (mirror_window / phoenix_peer / crooked_window /
+        priced_window reproduce URDRRBS1 digests), death (the real successor rolls back across the
+        boundary, twice, bit-identical, == canonical), law (restored == never-died in every
+        observable + K-invariance + the surviving defect anchor), refuse (checked-evidence /
+        disorder-never-repair / substitution / horizon-and-conflict preservation / cost)."""
+        import tempfile
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        for d in (ndir, os.path.join(ROOT, "tools", "physics"), os.path.join(ROOT, "tools", "terrain")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import rollstore as RW
+            import rollback as R
+            import lockstep as L
+            import storecost as SC
+        except Exception as exc:
+            self.record("rollstore", False, f"import failed (rollstore / rollback / lockstep): {exc}")
+            return
+        try:
+            ref_ok = all(RW.scene_result(n) == RW.golden(n) for n in RW.SCENES)
+        except Exception as exc:
+            self.record("rollstore:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("rollstore:scenes", ref_ok,
+                    "mirror_window + phoenix_peer + crooked_window + priced_window reproduce "
+                    "URDRRBS1 digests" if ref_ok else "a rollstore config drifted from its digest")
+
+        def _sched(w, log):
+            return sorted(((min(e[0] + 3, w["T"] - 1), i, e) for i, e in enumerate(log)),
+                          key=lambda x: (x[0], x[1]))
+
+        def _drive(peer, sched, upto, idx=0):
+            for t in range(peer.head, upto):
+                while idx < len(sched) and sched[idx][0] <= t:
+                    peer.deliver(sched[idx][2])
+                    idx += 1
+                peer.advance(t + 1)
+            return idx
+
+        died = False
+        try:
+            w = L.world()
+            log = L.sample_log()
+            sched = _sched(w, log)
+            held = sched[-1]
+            peer = R.Peer(w, K=4, H=64)
+            for (_at, _i, e) in sched[:-1]:
+                peer.deliver(e)
+            peer.advance(w["T"])
+            want = L.trace_digest(L.simulate(w, log)[0])
+            env = dict(os.environ)
+            env["PYTHONHASHSEED"] = "0"
+            env["PYTHONUTF8"] = "1"
+            with tempfile.TemporaryDirectory(prefix="urdr_rollstore_gate_") as td:
+                man_addr = RW.save_peer(td, peer)
+                outs = []
+                for _ in range(2):
+                    proc = subprocess.run(
+                        [sys.executable, "-B", os.path.join(ndir, "rollstore.py"), td, man_addr]
+                        + [str(x) for x in held[2]],
+                        capture_output=True, text=True, env=env, timeout=120)
+                    outs.append(proc.stdout.strip() if proc.returncode == 0 else f"rc={proc.returncode}")
+                died = outs[0] == outs[1] == want
+        except Exception:
+            died = False
+        self.record("rollstore-death", died,
+                    "a REAL successor process — knowing only the store directory, the manifest "
+                    "address, and one post-death late input — restores, ROLLS BACK across the death "
+                    "boundary, and converges to the canonical N1 timeline, twice, bit-identically"
+                    if died else "the through-death rollback did not hold")
+        law_ok = kinv_ok = defect_ok = True
+        try:
+            peer = R.Peer(w, K=4, H=8)
+            idx = _drive(peer, sched, 60)
+            with tempfile.TemporaryDirectory(prefix="urdr_rollstore_gate_") as td:
+                revived = RW.restore_peer(td, RW.save_peer(td, peer), w)
+            for attr in ("head", "K", "H", "pos", "vel", "known", "snapshots", "frames"):
+                if getattr(revived, attr) != getattr(peer, attr):
+                    law_ok = False
+            _drive(peer, sched, w["T"], idx)
+            _drive(revived, sched, w["T"], idx)
+            law_ok = law_ok and revived.trace() == peer.trace() == want
+            traces = set()
+            for K in (4, 8):
+                p2 = R.Peer(w, K=K, H=64)
+                i2 = _drive(p2, sched, 60)
+                with tempfile.TemporaryDirectory(prefix="urdr_rollstore_gate_") as td:
+                    r2 = RW.restore_peer(td, RW.save_peer(td, p2), w)
+                _drive(r2, sched, w["T"], i2)
+                traces.add(r2.trace())
+            kinv_ok = traces == {want}
+            p3 = R.Peer(w, K=4, H=64)
+            for (_at, _i, e) in sched[:-1]:
+                p3.deliver(e)
+            p3.advance(w["T"])
+            with tempfile.TemporaryDirectory(prefix="urdr_rollstore_gate_") as td:
+                r3 = RW.restore_peer(td, RW.save_peer(td, p3), w)
+            r3.deliver_defect_apply_at_head(held[2])
+            defect_ok = r3.trace() != want
+        except Exception:
+            law_ok = False
+        self.record("rollstore-law", law_ok and kinv_ok and defect_ok,
+                    "restored == never-died in EVERY observable (state, head, chain, known set, "
+                    "window) and both finish to the canonical timeline; the admitted chain is "
+                    "K-invariant THROUGH the restore; and the apply-at-head defect still DIVERGES "
+                    "on a restored peer — the convergence invariant is not weakened by the "
+                    "round-trip"
+                    if (law_ok and kinv_ok and defect_ok) else "the unification law did not hold")
+        crooked = disorder = subst = horizon = conflict = dup = cost = False
+        try:
+            peer = R.Peer(w, K=4, H=8)
+            _drive(peer, sched, 60)
+            with tempfile.TemporaryDirectory(prefix="urdr_rollstore_gate_") as td:
+                man_addr = RW.save_peer(td, peer)
+                head, K, H, entries, la = RW.parse_window(RW._load(td, man_addr))
+                tick, pos, vel = peer.snapshots[-1]
+                forged = RW.snapshot_record(tick, pos, [[v[0], v[1] + 1] for v in vel])
+                open(os.path.join(td, RW.address_of(forged)), "wb").write(forged)
+                victim = entries[-1][1]
+                man2 = RW.window_manifest(head, K, H,
+                                          [(t, (RW.address_of(forged) if d == victim else d))
+                                           for (t, d) in entries], la)
+                open(os.path.join(td, RW.address_of(man2)), "wb").write(man2)
+                try:
+                    RW.restore_peer(td, RW.address_of(man2), w)
+                except RW.RollstoreError:
+                    crooked = True
+                man3 = RW.window_manifest(head, K, H, list(reversed(entries)), la)
+                open(os.path.join(td, RW.address_of(man3)), "wb").write(man3)
+                try:
+                    RW.restore_peer(td, RW.address_of(man3), w)
+                except RW.RollstoreError:
+                    disorder = True
+                open(os.path.join(td, man_addr), "wb").write(man3)
+                try:
+                    RW.restore_peer(td, man_addr, w)
+                except RW.RollstoreError:
+                    subst = True
+            p4 = R.Peer(w, K=4, H=2)
+            i4 = _drive(p4, sched, 60)
+            with tempfile.TemporaryDirectory(prefix="urdr_rollstore_gate_") as td:
+                r4 = RW.restore_peer(td, RW.save_peer(td, p4), w)
+            before = ([list(x) for x in r4.pos], r4.head)
+            try:
+                r4.deliver((1, 9, 999, 0, 1, 1))
+            except R.RollbackError as exc:
+                horizon = (exc.code == "ROLLBACK-REFUSE"
+                           and ([list(x) for x in r4.pos], r4.head) == before)
+            some = next(iter(r4.known.values()))
+            try:
+                r4.deliver((some[0], some[1], some[2], some[3], some[4] + 1, some[5]))
+            except R.RollbackError as exc:
+                conflict = exc.code == "ROLLBACK-CONFLICT"
+            dup = r4.deliver(some) == "duplicate"
+            s, m = len(peer.snapshots), len(peer.known)
+            cost = (RW.window_cost_bytes(w["n"], s, m)
+                    == s * RW.snapshot_bytes(w["n"]) + RW.log_bytes(m) + RW.window_bytes(s)
+                    and SC.within_storage_budget(RW.window_cost_bytes(w["n"], s, m), 10 ** 6) is True)
+        except Exception:
+            crooked = False
+        refuse_ok = crooked and disorder and subst and horizon and conflict and dup and cost
+        self.record("rollstore-refuse", refuse_ok,
+                    "a crafted-but-digested snapshot whose physics disagrees with the replay "
+                    "refuses (the window is checked evidence, never trusted state); a disordered "
+                    "manifest refuses, never re-sorts; a substituted intact object refuses; the "
+                    "horizon refuse (reject whole), the identity conflict, and duplicate absorption "
+                    "hold identically on the restored peer; the window cost closed form holds under "
+                    "storecost's budget law — one window law, both layers"
+                    if refuse_ok else "the rollstore refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -7887,6 +8063,7 @@ def main() -> int:
     gate.rannull()
     gate.lease()
     gate.testament()
+    gate.rollstore()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

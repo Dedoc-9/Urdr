@@ -25,7 +25,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **29** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **955-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
+on fixed corpora, behind a **965-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -654,9 +654,13 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   exactly-once free, speaking refusals, the substitution refuse, executor purity). The narrative arc
   so far: persistence proves replay, terraform proves locality, commutation proves semantic
   independence, chunkstate proves ownership, RAN-0 proves authority nullity, the lease proves the
-  interval, the testament proves intent through death. The declared arc ahead: the authority algebra
-  (difference/projection/closure), n-way nullity and lease scheduling, live authority migration; the
-  queued next rung is the N2-window/durable-window unification.
+  interval, the testament proves intent through death. The N2-window/durable-window unification —
+  the debt every storage rung deferred — is now SETTLED (`rollstore`, N2.5: the event log as the
+  rewindable source, the saved window as checked evidence, rollback crossing a real process death,
+  one window law on both layers of the repo). The declared arc ahead: the authority algebra
+  (difference/projection/closure), n-way nullity and lease scheduling, live authority migration;
+  the queued next rung is quintessence — the ID-0 representation theorem (every lawful authority
+  characterized by its five-axis evidence tuple: historical, spatial, semantic, temporal, identity).
 - **Cross-placement of the reference detectors.** D17's Axis A (reproduction) separates `REFERENCE` from
   `CROSS-PLACED`. Toric and rigidity are now cross-placed (C99 self-verified + Rust admitted on Windows);
   **criticality** and **persim** remain reference-only and are the next cross-placement targets.

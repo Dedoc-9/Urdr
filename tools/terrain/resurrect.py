@@ -42,8 +42,8 @@ the checkpoint cadence) is a DECLARED operational property inherited from `persi
 boundary. `does_not_show`: a crash DURING save (a torn write is DETECTED on load by `persist`, never
 prevented — the last completed window is the recovery point); window PROVENANCE (above); WALL-CLOCK of
 recovery (`bench.py` territory, MEASURED-on-named-host); CONCURRENT revivals racing one store; and the
-netcode-layer analog (N2 `rollback` keeps in-memory snapshots — unifying its window with this durable one is
-a future rung, stated not begun)."""
+netcode-layer analog (N2 `rollback` keeps in-memory snapshots — the unification of its window with this
+durable one LANDED as `tools/netcode/rollstore.py`, N2.5/URDRRBS1: the debt this line recorded, settled)."""
 import hashlib
 import os as _os
 import sys as _sys

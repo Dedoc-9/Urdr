@@ -1,0 +1,16 @@
+# URDRRBS1 - rollstore: the durable rollback window (N2.5 / T3.45). The N2-window/durable-window
+# UNIFICATION — the debt resurrect's does_not_show recorded, now settled: the terrain arc's window
+# law (one digest = integrity + address + filename; restore-or-refuse; the priced window; the real
+# death boundary) landed on N2's rollback window, so the repo's two window disciplines are ONE law.
+# The event log is the REWINDABLE SOURCE (restore replays it from the world's start); the saved
+# window is CHECKED EVIDENCE, never trusted state (a crafted-but-digested snapshot whose physics
+# disagrees with the replay refuses — integrity is not truth); restored == never-died in every
+# observable; rollback CROSSES DEATH (a real successor rewinds on a post-death late input and
+# converges to the canonical N1 timeline); horizon, conflict, duplicate-absorption, K-invariance,
+# and the apply-at-head defect anchor all survive the round-trip; a disordered manifest refuses,
+# never re-sorts; and the window is priced under storecost's law exactly as the terrain window was.
+# SHA-256(MAGIC | name | canonical-trace | manifest-or-witness | K | bytes | verdict).
+mirror_window 23367b48a635ae308cd37a000e9fb9a870a5fc688123dd4745f64427bdc258f2
+phoenix_peer a54aa2e86250809847c6e84c5bc0fc046c39e9deb1683a37b4c489b3dc721a47
+crooked_window b1ea9d712b4744efbd2005b77f16d7a01a9f7216c381398a64523cca2976eb7a
+priced_window 0145ff7ab947025f680e784e9f9e4dd400708eb48a263cf0ab79340997b1f0ed

@@ -4,7 +4,7 @@
 
 ## Index
 
-**109 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**110 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,
@@ -21,9 +21,11 @@
   `test_contact_lcp`, `test_articulated`, `test_field`, `test_field_coupling`,
   `test_field_body_loop`, `test_marangoni`, `test_fp_dynamics`.
 - **Render** — `test_render`, `test_raster3d`, `test_perspective`.
-- **Netcode (N1–N5 + N4.1 + D16)** — `test_lockstep`, `test_rollback`, `test_authinput`,
-  `test_worldstep`, `test_worldstep_contact`, `test_worldpeer`, `test_worldregion`,
-  `test_field_desync`, `test_fraud` (the optimistic-verification crypto layer).
+- **Netcode (N1–N5 + N4.1 + D16)** — `test_lockstep`, `test_rollback`, `test_rollstore` (the
+  durable rollback window — the N2/terrain window unification: checked-evidence restore,
+  through-death rollback, the surviving defect anchor), `test_authinput`, `test_worldstep`,
+  `test_worldstep_contact`, `test_worldpeer`, `test_worldregion`, `test_field_desync`,
+  `test_fraud` (the optimistic-verification crypto layer).
 - **Front-end / authoring (D14/D15)** — `test_frontend_contract`, `test_svg_import`,
   `test_photo_trace`, `test_view_export`, `test_load_world`.
 - **frontfps ladder (Stages 1–7)** — `test_frontfps`, `test_fpquat`, `test_fpclip`,
@@ -57,7 +59,7 @@
 Every test here is designed to be able to go **red**: a test that cannot fail proves nothing
 (LESSONS L5, *validity not outcome*). The suites are falsifiers, not demonstrations — many
 document a defect that was injected, caught, and reverted, which is the evidence the harness
-actually bites. Together they are the `unit-falsifiers` row of the gate: **955 unit falsifiers, 0 red**.
+actually bites. Together they are the `unit-falsifiers` row of the gate: **965 unit falsifiers, 0 red**.
 This is the layer that makes "the checker rejects X" or "the placement reproduces Y" a
 *measured* claim rather than a hope — the negative space (`examples/rejected/`,
 `must_fail/`) is exercised here too.
