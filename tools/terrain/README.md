@@ -52,6 +52,13 @@ parent or old-height mismatch is `TERRAFORM-REFUSE`, never a rebase; replaying t
 reproduces the head manifest bit-for-bit (order structural via the parent chain); the blast
 radius is certified by `chunkload`'s demand sets; `edit_cost_bytes` is a closed form under the
 `STORAGE-REFUSE` budget law, and a durable snapshot an edit has contradicted refuses on revive.
+`commute.py` — `URDRCMU1`, the commutation certificate: two sibling edits either carry a 233-byte
+content-addressed PROOF that order cannot matter (the diamond discharged constructively — both
+orders built and compared, field + manifest; rank 0 = cross-chunk parallel-certified, rank 1 =
+same-chunk order-free-but-serialized) or refuse `COMMUTE-REFUSE`; `predict` decides the rank from
+pure chunk geometry BEFORE any edit exists; `closure` replays every permutation of a batch to one
+head or refuses whole; `check_certificate` re-derives the entire proof from the parent world —
+certificates are evidence, never authority, and terraform's CAS stands unweakened beneath them.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -69,5 +76,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `WARD-*`, `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole,
-never repair.
+`TERRAFORM-`, `COMMUTE-`, `WARD-*`, `TERRAIN-REFUSE`) all follow the house law: typed, total,
+reject whole, never repair.

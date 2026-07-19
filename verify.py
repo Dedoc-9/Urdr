@@ -6521,6 +6521,160 @@ class Gate:
                     if (stale and wrongh and offgrid and tamper and order and admitted)
                     else "the terraform refusal did not hold")
 
+    def commute(self):
+        """The commutation certificate (T3.41, MMO Stage I, URDRCMU1): the proof-object turn on the
+        mutable world — two sibling edits either carry a first-class, content-addressed, independently
+        re-verifiable proof that order cannot matter, or they refuse. cert = MAGIC | rec_a | rec_b |
+        rank | SHA-256 (233 bytes); rank 0 = different chunks (parallel certified), rank 1 = same chunk
+        distinct cells; the same cell is COMMUTE-REFUSE in two independent layers. Rows: scenes
+        (twin_dig / quarry / caravan / contested reproduce URDRCMU1 digests), cert (the record law +
+        determinism + re-verification + the rank/predict agreement), diamond (both orders equal the
+        direct mutation over the corpus; rank-0 blast independence), refuse (contested both layers /
+        the no-op masked batch / forgeries under re-derivation / the unweakened terraform CAS)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import commute as CM
+            import terraform as TF
+            import chunkload as CK
+            import storecost as SC
+            import glide as GL
+            import heightfield as HF
+        except Exception as exc:
+            self.record("commute", False, f"import failed (commute / terraform / chunkload): {exc}")
+            return
+        try:
+            ref_ok = all(CM.scene_result(n) == CM.golden(n) for n in CM.SCENES)
+        except Exception as exc:
+            self.record("commute:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("commute:scenes", ref_ok,
+                    "twin_dig + quarry + caravan + contested reproduce URDRCMU1 digests"
+                    if ref_ok else "a commute config drifted from its digest")
+
+        def _rec(fld, c, x, y, dh):
+            return TF.edit_record(TF.parent_address(fld, c), x, y, fld[y][x], fld[y][x] + dh)
+
+        def _pairs(fld, c):
+            w, h = len(fld[0]), len(fld)
+            return (((1, 1), (w - 2, h - 2)), ((1, 1), (2, 1)), ((c - 1, c - 1), (c, c)))
+
+        cert_ok = True
+        try:
+            for scene, c in (("island", 16), ("blank", 8)):
+                fld = HF.scene_digest(HF.SCENES[scene]())[1]
+                for (a, b) in _pairs(fld, c):
+                    ra, rb = _rec(fld, c, *a, 7), _rec(fld, c, *b, -3)
+                    cert, head = CM.certify(fld, c, ra, rb)
+                    want = 0 if (a[0] // c, a[1] // c) != (b[0] // c, b[1] // c) else 1
+                    if (len(cert) != CM.CERT_BYTES or CM.certify(fld, c, ra, rb)[0] != cert
+                            or CM.restore_cert(cert)[2] != want or CM.predict(c, *a, *b) != want
+                            or CM.check_certificate(fld, c, cert) != (want, head)):
+                        cert_ok = False
+        except Exception:
+            cert_ok = False
+        self.record("commute-cert", cert_ok,
+                    "over the corpus, the 233-byte certificate mints deterministically, round-trips, "
+                    "independently re-verifies against the parent world, and embeds exactly the rank the "
+                    "PURE chunk-geometry prediction promised (0 = cross-chunk, 1 = same-chunk) — "
+                    "concurrency is schedulable before any edit exists"
+                    if cert_ok else "the certificate / rank / prediction law did not hold")
+        diamond_ok = blast_ok = True
+        try:
+            for scene, c in (("island", 16), ("blank", 8)):
+                fld = HF.scene_digest(HF.SCENES[scene]())[1]
+                for (a, b) in _pairs(fld, c):
+                    ra, rb = _rec(fld, c, *a, 7), _rec(fld, c, *b, -3)
+                    _c1, head_ab = CM.certify(fld, c, ra, rb)
+                    _c2, head_ba = CM.certify(fld, c, rb, ra)
+                    wa = TF.apply_edit(fld, c, ra)
+                    wab = TF.apply_edit(wa, c, CM.rebase_edit(rb, TF.parent_address(wa, c)))
+                    direct = tuple(tuple(v + (7 if (xx, yy) == a else -3 if (xx, yy) == b else 0)
+                                         for xx, v in enumerate(row)) for yy, row in enumerate(fld))
+                    if not (head_ab == head_ba and wab == direct
+                            and TF.parent_address(wab, c) == head_ab):
+                        diamond_ok = False
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            ra, rb = _rec(bl, 8, 5, 8, 1000), _rec(bl, 8, 12, 4, 777)
+            wa = TF.apply_edit(bl, 8, ra)
+            wab = TF.apply_edit(wa, 8, CM.rebase_edit(rb, TF.parent_address(wa, 8)))
+            quiet, near = ((1, 1), "e", 40, 4), ((2, 8), "eeee", 40, 4)
+            dem_q = CK.demand_chunks(bl, quiet[0], quiet[1], quiet[2], quiet[3], 8)
+            dem_n = CK.demand_chunks(bl, near[0], near[1], near[2], near[3], 8)
+            blast_ok = ((0, 1) not in dem_q and (1, 0) not in dem_q
+                        and GL.glide(wab, *quiet) == GL.glide(bl, *quiet)
+                        and (0, 1) in dem_n and (1, 0) not in dem_n
+                        and GL.glide(wa, *near) != GL.glide(bl, *near)
+                        and GL.glide(wab, *near) == GL.glide(wa, *near))
+        except Exception:
+            diamond_ok = False
+        self.record("commute-diamond", diamond_ok and blast_ok,
+                    "the diamond closes over the corpus — apply A then rebased-B EQUALS apply B then "
+                    "rebased-A, field and manifest, both equal to the direct two-cell mutation; and for "
+                    "a rank-0 pair the blast radii compose without interference (a demand-disjoint probe "
+                    "is bit-identical across the pair; A's divergence is unperturbed by B)"
+                    if (diamond_ok and blast_ok) else "the diamond / blast-independence law did not hold")
+        layer1 = layer2 = masked = forged = inner = wrongw = sib = flip = intact = admitted = False
+        try:
+            fld = HF.scene_digest(HF.SCENES["island"]())[1]
+            ra, rb = _rec(fld, 16, 10, 10, 50), _rec(fld, 16, 10, 10, -999)
+            try:
+                CM.certify(fld, 16, ra, rb)
+            except CM.CommuteError as exc:
+                layer1 = exc.code == "COMMUTE-REFUSE"
+            wa = TF.apply_edit(fld, 16, ra)
+            try:
+                TF.apply_edit(wa, 16, CM.rebase_edit(rb, TF.parent_address(wa, 16)))
+            except TF.TerraformError:
+                layer2 = True
+            try:
+                CM.closure(fld, 16, (_rec(fld, 16, 10, 10, 0), _rec(fld, 16, 10, 10, -1),
+                                     _rec(fld, 16, 40, 40, 30)))
+            except CM.CommuteError:
+                masked = True
+            good, _h = CM.certify(fld, 16, _rec(fld, 16, 10, 10, 50), _rec(fld, 16, 40, 40, 30))
+            fk = bytearray(good[:-CM.DIGEST_BYTES]); fk[-1] ^= 0x01
+            try:
+                CM.check_certificate(fld, 16, CM._seal(bytes(fk)))
+            except CM.CommuteError:
+                forged = True
+            tp = bytearray(good[:-CM.DIGEST_BYTES]); tp[len(CM.MAGIC) + 50] ^= 0x01
+            try:
+                CM.check_certificate(fld, 16, CM._seal(bytes(tp)))
+            except (CM.CommuteError, TF.TerraformError):
+                inner = True
+            other = TF.apply_edit(fld, 16, _rec(fld, 16, 3, 3, 9))
+            try:
+                CM.check_certificate(other, 16, good)
+            except CM.CommuteError:
+                wrongw = True
+            alien = TF.edit_record(TF.parent_address(wa, 16), 40, 40, fld[40][40], fld[40][40] + 30)
+            try:
+                CM.certify(fld, 16, _rec(fld, 16, 10, 10, 50), alien)
+            except CM.CommuteError:
+                sib = True
+            bad = bytearray(good); bad[40] ^= 0xFF
+            try:
+                CM.restore_cert(bytes(bad))
+            except CM.CommuteError:
+                flip = True
+            try:
+                TF.apply_edit(wa, 16, _rec(fld, 16, 40, 40, 30))
+            except TF.TerraformError:
+                intact = True
+            admitted = SC.within_storage_budget(CM.CERT_BYTES, 1000) is True
+        except Exception:
+            layer1 = False
+        refuse_ok = (layer1 and layer2 and masked and forged and inner and wrongw and sib
+                     and flip and intact and admitted)
+        self.record("commute-refuse", refuse_ok,
+                    "the contested cell refuses in BOTH layers (the cell law; the old-height CAS on the "
+                    "rebased loser); the no-op masked batch refuses whole; a forged rank, a tampered "
+                    "inner record under a fresh seal, the wrong world, non-sibling records, and a flipped "
+                    "byte all refuse; an un-rebased sibling still refuses stale-parent (terraform "
+                    "unweakened); a within-budget certificate admits under storecost's law"
+                    if refuse_ok else "the commute refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -7191,6 +7345,7 @@ def main() -> int:
     gate.resurrect()
     gate.chunkstate()
     gate.terraform()
+    gate.commute()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

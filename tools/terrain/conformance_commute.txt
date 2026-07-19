@@ -1,0 +1,14 @@
+# URDRCMU1 - commute: the commutation certificate (T3.41, MMO Stage I). The proof-object turn on the
+# mutable world: two sibling edits either carry a first-class, content-addressed, independently
+# re-verifiable PROOF that order cannot matter, or they refuse. cert = MAGIC | rec_a | rec_b | rank |
+# SHA-256 (233 bytes); rank 0 = different chunks (blast-disjoint, parallel certified), rank 1 = same
+# chunk, distinct cells (the world commutes, the chunk's consumers serialize); the SAME cell is
+# COMMUTE-REFUSE in two independent layers (the cell law; the old-height CAS on the rebased loser).
+# The diamond is discharged constructively (both orders built and compared, field + manifest); the
+# closure replays EVERY permutation to one head or refuses whole. Certificates are evidence, never
+# authority: check_certificate re-derives the entire proof from the parent world bit-for-bit.
+# SHA-256(MAGIC | name | parent | head-or-parent | rank-or-witness | bytes | verdict).
+twin_dig 804ddbc20c9c19584fc7581af715d753389dc939b50fc9aedd13e8399b168f9e
+quarry e84a2178400b5195ec03841d67903857b3f50be7b34f71a5875130eed65d60f7
+caravan 7ca91d063907eb986e003b63453e8f2588482f18ebaf5ada6aece0967babf938
+contested 0de9bc1f6b0d394d333215ebaf552c013ba61d56e61be8f61e8d4dbcf16197af
