@@ -1,0 +1,10 @@
+# URDRCHS1 - chunkstate: the regional state cut (T3.39, MMO Stage I). The D16 same-witness law on DYNAMIC
+# state: the actor snapshot partitioned per region by floor cell (chunkload's grid), each region a
+# content-addressed record (MAGIC | kx | ky | boundary | count | (idx | pose)* | SHA-256,
+# region_record_bytes(m) = 60 + 29*m), bound by a cut manifest (67 + 40*R); reunification reproduces the
+# monolithic persist window BYTE-FOR-BYTE (same records, same manifest, same addresses); a doubly-claimed,
+# lost, annexed, or mixed-boundary actor set is CHUNKSTATE-REFUSE; the consistent cut is the lockstep tick.
+# SHA-256(MAGIC | name | boundary | C | witness | bytes | verdict).
+consistent_cut d40d2caea8e261853c4ee22708f867bab8092e97606a4229264c3d98ad0abdfc
+seam_walker 247aae12ba4b7adf1c61067d5965986dc09b569dcdd7cb9b90622942427e2a00
+double_claim e43b89708e8f8415402f869050a749bd9022f243509b70c346fc6a9e5160fc2f

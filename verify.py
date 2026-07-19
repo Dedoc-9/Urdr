@@ -6243,6 +6243,148 @@ class Gate:
                     if (beyond and ground and face and offgrid and corrupt)
                     else "the resurrection refusal did not hold")
 
+    def chunkstate(self):
+        """The regional state cut (T3.39, MMO Stage I, URDRCHS1): the D16 same-witness law on DYNAMIC state.
+        The actor snapshot partitioned per region by floor cell (chunkload's grid), each region a
+        content-addressed record, reunification reproducing the MONOLITHIC persist window byte-for-byte —
+        same records, same manifest, same addresses; the consistent cut is the lockstep tick (no barrier
+        alignment). Rows: scenes (consistent_cut / seam_walker / double_claim reproduce URDRCHS1 digests),
+        reunify (the same-witness law over the corpus incl. a migrant and a fractional pose: state, persist
+        records, AND persist manifest byte-identical), region (the partition-by-floor-cell law, migration as
+        re-partition, regional resume == the global law, envelope == real bytes), refuse (double claim /
+        lost actor / annexed actor / mixed boundaries / corrupted record / over-budget cut all refuse; a
+        within-budget cut admits)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import chunkstate as CT
+            import persist as PS
+            import storecost as SC
+            import splice as SP
+            import glide as GL
+            import heightfield as HF
+        except Exception as exc:
+            self.record("chunkstate", False, f"import failed (chunkstate / persist / splice): {exc}")
+            return
+        try:
+            ref_ok = all(CT.scene_result(n) == CT.golden(n) for n in CT.SCENES)
+        except Exception as exc:
+            self.record("chunkstate:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("chunkstate:scenes", ref_ok,
+                    "consistent_cut + seam_walker + double_claim reproduce URDRCHS1 digests"
+                    if ref_ok else "a chunkstate config drifted from its digest")
+        corpus = (("island", ((14, 4), (2, 2), (30, 40)), "eeee", 30, 4, 4, 16),
+                  ("island", ((14, 4), (40, 9)), "EEee", 30, 8, 2, 8),
+                  ("mountains", ((2, 0), (30, 30)), "Ene", 20, 4, 3, 16))
+        witness_ok = True
+        try:
+            for scene, starts, cmds, ms, sub, hz, c in corpus:
+                fld = HF.scene_digest(HF.SCENES[scene]())[1]
+                w, h = len(fld[0]), len(fld)
+                last = len(cmds)
+                mono_records, mono_man = PS.checkpoint_window(fld, starts, cmds, ms, sub, hz)
+                reunified = []
+                for b in range(last - hz, last + 1):
+                    state = SC.boundary_state(fld, starts, cmds, ms, sub, b)
+                    man, store = CT.cut(state, b, c, w, h)
+                    if CT.reunify_cut(man, store) != state:
+                        witness_ok = False
+                    reunified.append(PS.checkpoint(CT.reunify_cut(man, store), b))
+                if tuple(reunified) != mono_records or PS.manifest(reunified) != mono_man:
+                    witness_ok = False
+        except Exception:
+            witness_ok = False
+        self.record("chunkstate-reunify", witness_ok,
+                    "over the corpus (a seam-crossing migrant, a fractional wall pose, C=8/16), the regional "
+                    "cut reunifies to the state AND to the monolithic persist records AND manifest "
+                    "byte-for-byte — partition, checkpoint regionally, reunify: same witness, same content "
+                    "addresses"
+                    if witness_ok else "the same-witness reunification did not hold")
+        part_ok = resume_ok = env_ok = True
+        try:
+            fld = HF.scene_digest(HF.SCENES["island"]())[1]
+            starts, pre, post, ms, sub, c = ((14, 4), (2, 2), (30, 40)), "eeee", "nn", 30, 4, 16
+            regions0 = regions4 = None
+            for b in (0, 4):
+                state = SC.boundary_state(fld, starts, pre, ms, sub, b)
+                parts = CT.partition(state, c, 64, 64)
+                for key, entries in parts.items():
+                    for _idx, (fx, fy, _g, _f) in entries:
+                        if key != ((fx >> 32) // c, (fy >> 32) // c):
+                            part_ok = False
+                where0 = [k for k, es in parts.items() if any(i == 0 for i, _p in es)]
+                if b == 0:
+                    regions0 = where0
+                else:
+                    regions4 = where0
+            if not (len(regions0) == len(regions4) == 1 and regions0 != regions4):
+                part_ok = False
+            state = SC.boundary_state(fld, starts, pre, ms, sub, 4)
+            for _key, entries in sorted(CT.partition(state, c, 64, 64).items()):
+                for (idx, traj), (_i2, (fx, fy, _g, fc)) in zip(
+                        CT.resume_region(fld, entries, post, ms, sub), entries):
+                    if (traj != SP.resume_cells(fld, (fx, fy, fc), post, ms, sub)
+                            or traj != GL.glide_cells(fld, starts[idx], pre + post, ms, sub)[len(pre):]):
+                        resume_ok = False
+            man, store = CT.cut(state, 4, c, 64, 64)
+            env_ok = CT.cut_bytes(state, c) == sum(len(r) for r in store.values()) + len(man)
+        except Exception:
+            part_ok = False
+        self.record("chunkstate-region", part_ok and resume_ok and env_ok,
+                    "every claimed actor floors into its claiming region; the seam-crossing migrant changes "
+                    "regions between boundaries (migration is re-partition); a region's independent resume "
+                    "equals the global law and the never-died suffix; cut_bytes equals the real bytes"
+                    if (part_ok and resume_ok and env_ok) else "the regional law did not hold")
+        dbl = lost = annex = mixed = corrupt = refused = admitted = False
+        try:
+            fld = HF.scene_digest(HF.SCENES["island"]())[1]
+            state = SC.boundary_state(fld, ((14, 4), (2, 2), (30, 40)), "eeee", 30, 4, 2)
+            parts = CT.partition(state, 16, 64, 64)
+            keys = sorted(parts)
+            ka, kb = keys[0], keys[1]
+            forged = dict(parts)
+            forged[kb] = tuple(sorted(forged[kb] + (parts[ka][0],)))
+            try:
+                CT.reunify_records(tuple(CT.region_record(k[0], k[1], 2, es)
+                                         for k, es in sorted(forged.items())), 16)
+            except CT.ChunkstateError as exc:
+                dbl = exc.code == "CHUNKSTATE-REFUSE"
+            try:
+                CT.reunify_records(tuple(CT.region_record(k[0], k[1], 2, es)
+                                         for k, es in sorted(parts.items()) if k != ka), 16)
+            except CT.ChunkstateError:
+                lost = True
+            idx0, pose0 = parts[ka][0]
+            try:
+                CT.reunify_records((CT.region_record(kb[0], kb[1], 2, ((idx0, pose0),)),), 16)
+            except CT.ChunkstateError:
+                annex = True
+            try:
+                CT.reunify_records((CT.region_record(ka[0], ka[1], 2, parts[ka]),
+                                    CT.region_record(kb[0], kb[1], 3, parts[kb])), 16)
+            except CT.ChunkstateError:
+                mixed = True
+            rec = CT.region_record(ka[0], ka[1], 2, parts[ka])
+            bad = bytearray(rec)
+            bad[30] ^= 0xFF
+            try:
+                CT.restore_region(bytes(bad))
+            except CT.ChunkstateError:
+                corrupt = True
+            try:
+                SC.within_storage_budget(CT.cut_bytes(state, 16), 10)
+            except SC.StoreError as exc:
+                refused = exc.code == "STORAGE-REFUSE"
+            admitted = SC.within_storage_budget(CT.cut_bytes(state, 16), 10000) is True
+        except Exception:
+            dbl = False
+        self.record("chunkstate-refuse", dbl and lost and annex and mixed and corrupt and refused and admitted,
+                    "a doubly-claimed, lost, annexed, or mixed-boundary actor set and a corrupted record are "
+                    "CHUNKSTATE-REFUSE; an over-budget cut is STORAGE-REFUSE; a within-budget cut admits"
+                    if (dbl and lost and annex and mixed and corrupt and refused and admitted)
+                    else "the cut-authority refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -6564,6 +6706,7 @@ def main() -> int:
     gate.persist()
     gate.chunkload()
     gate.resurrect()
+    gate.chunkstate()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
