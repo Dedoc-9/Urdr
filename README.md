@@ -8,8 +8,9 @@ Urðr is a small programming language in which a program that claims more than i
 **does not typecheck**. Every capability claim in this repository carries two orthogonal
 grades — **maturity** (`IMPLEMENTED` / `SCOPED` / `SPECULATIVE`) and **evidence**
 (`MEASURED` / `DECLARED` / `N/A`) — and evidence never exceeds what maturity licenses.
-The full graded inventory lives in [`spec/D5-ledger.md`](spec/D5-ledger.md). Anything this
-README says beyond that ledger is a bug; file it.
+The full graded inventory lives in the D5 ledger volumes — [`spec/D5-ledger.md`](spec/D5-ledger.md)
+(Volume I, sealed) and [`spec/D5-ledger-2.md`](spec/D5-ledger-2.md) (live; a capability's current
+grade is its latest entry across them). Anything this README says beyond that ledger is a bug; file it.
 
 Successor-in-discipline to the *Dentatus → Ursprung* line (executable epistemic
 determinism); standalone in code. The ported laws are in [`LESSONS.md`](LESSONS.md).
@@ -612,7 +613,7 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
 (regional authority — frozen, three placements), **D17** (the invariant-detector admission law — a
 *meta-contract* that names the pattern D14/D15/D16 already share; mechanically enforced by the
 `invariant_detectors` lint), a **10-detector library** admitted under it (D14, D15, D16, rigidity, criticality, toric code, persistent homology, winding number, Tellegen orthogonality, reconstructibility), **criticality** (P6, reactor-kinetics field), and
-**field-level desync localization** (Phase-2 observability). See [`spec/D5-ledger.md`](spec/D5-ledger.md).
+**field-level desync localization** (Phase-2 observability). See the D5 ledger volumes ([`spec/D5-ledger.md`](spec/D5-ledger.md), [`spec/D5-ledger-2.md`](spec/D5-ledger-2.md)).
 
 - **Phase IV — coverage over architecture (the current direction).** With D17 written and enforced, the
   organizing question is no longer "what subsystem?" but "what invariant deserves admission?" Each new
@@ -679,7 +680,7 @@ is [`LESSONS.md`](LESSONS.md); the normative language rules are [`spec/D1-spec.m
    ([`tools/fixpoint_proto/`](tools/fixpoint_proto/)) using only the operations the target actually has,
    *then* encode it. `algorithm proven ≠ measured`.
 3. **Grade every claim** on the maturity × evidence ladder; evidence never exceeds maturity; record it
-   in [`spec/D5-ledger.md`](spec/D5-ledger.md). No inflation (L2, L6).
+   in the live D5 ledger volume ([`spec/D5-ledger-2.md`](spec/D5-ledger-2.md)). No inflation (L2, L6).
 4. **Gate twice.** `python verify.py` green, deterministically, in isolated subprocesses (L3).
 5. **Cross-placement.** A numeric / observer result earns *both placements* only once an independent
    toolchain reproduces its pinned digest — two kernels agreeing on the accept/reject frontier. Where
