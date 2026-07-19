@@ -51,7 +51,10 @@ in each one's README and grade line.
   reassembly + demand sets, regional records + cut manifest + same-witness reunification with the four
   authority refuses, resume-from-pose + the durable horizon), twelve scenes against the live goldens,
   with the persist scenes re-derived through the GENERAL fold so latstore's scene-domain caveat is
-  retired), the `fpface` **fixed-point facing seam** (the first terrain module
+  retired — and by `latarith_rs`, the batch CLOSER: the Stage-H arithmetic family (opcost work counts,
+  the FIFO and priority-with-aging governors, the slo/clslo closed forms) in one file, seventeen scenes
+  against the live goldens with the REAL 24-check clslo soundness corpus green in-binary — every rung of
+  the Stage-B..I streak now carries an independent placement, re-verified live each gate run), the `fpface` **fixed-point facing seam** (the first terrain module
   that leaves division-free-exact: it lifts the discrete facing into the `fpquat` Q32.32 rotation — exact
   at the four cardinals, 0 ulp, and rounding for continuous mouse-look between them), and the `fpcap`
   **capsule body seam** that closes the arc (the actor's capsule over the terrain — its collision reuses
@@ -162,7 +165,7 @@ grading** (recorded in `spec/D5-ledger.md`) tags every capability `MEASURED` /
 `DECLARED` / `SPECULATIVE` / `NOT_MEASURED` and forbids inflation — performance numbers,
 in particular, stay `NOT_MEASURED` until run under the sealed protocol
 (`docs/bench_protocol.md`) on a named host. The whole tree answers to one gate
-(`../verify.py`): **906 unit falsifiers / 557 rows**, run twice, bit-identical.
+(`../verify.py`): **906 unit falsifiers / 559 rows**, run twice, bit-identical.
 
 The layering is strict and one-way: authority (kernel, physics, netcode) → view contract
 (D15) → replaceable presentation (renderers). Front-ends and importers *feed* authority
@@ -172,7 +175,7 @@ through the view contract, but can never feed themselves back into it.
 ## Dev notes
 
 - Run the whole gate from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py`
-  (expect `GATE PASSED` — 906 unit falsifiers / 557 rows). Each module's README documents running it standalone.
+  (expect `GATE PASSED` — 906 unit falsifiers / 559 rows). Each module's README documents running it standalone.
 - **Placements must stay in lockstep with their reference.** If you change a reference
   module's laws, every `*_c`/`*_rs` twin must be re-verified or its cross-placement grade
   is void (C99 self-verified in-session; Rust owner-attested on Windows/rustc). The `heightfield_rs` twin is the first re-verified **live by the gate** — the `heightfield-placement` stage recompiles it and re-checks the pinned goldens every run — so a re-pinned canon reddens the gate rather than silently staling the port; the rest are still attested in-session and are the next targets.

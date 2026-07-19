@@ -52,7 +52,7 @@ a third language; they are not repo placements.
 The gate enforcing all of the above: **906 unit falsifiers + per-layer conformance
 stages, each with a non-vacuity self-test, + 45 typed rejection fixtures + the
 tamper self-test** — `PYTHONHASHSEED=0 python verify.py` → `GATE PASSED`, ×2,
-on Windows and Linux. 28 std-only Rust placements, 14 C99 runtimes.
+on Windows and Linux. 29 std-only Rust placements, 14 C99 runtimes.
 
 ## Design targets (not theorems — do not cite as proved)
 

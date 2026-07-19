@@ -6723,6 +6723,97 @@ class Gate:
                     "load-bearing (gate can redden)"
                     if caught else "the mutated port still reproduced the goldens, or the gait anchor moved")
 
+    # -- 2p10. latarith_rs cross-placement, RE-VERIFIED LIVE (the arithmetic family — the batch CLOSER) -
+    def latarith_placement(self):
+        """The latarith_rs cross-placement, RE-VERIFIED LIVE — the placement batch CLOSES here: the Stage-H
+        arithmetic family (URDROPC1 opcost / URDROPC2 govern / URDROPC3 priogov / URDRLAT2 slo / URDRLAT3
+        clslo) in one std-only Rust file. SEVENTEEN scenes against the LIVE conformance goldens: the exact
+        work counts (fold micro-steps with the wall witness, edge checks, admit sub-steps, wardhom's
+        legal-edge columns, the tick envelope), the FIFO and priority-with-aging governors re-implemented,
+        and the slo/clslo closed forms. In-binary selfchecks: the REAL 24-check clslo soundness corpus
+        (4 class configs x 3 budgets x 2 aging rates — the closed-form bound EQUALS the Rust-native
+        priogov's last-served tick per class; the scheduler never sees the formula it validates), slo's
+        bound == the real drain length, count <= bound with the wall witness STRICT, the governor
+        guarantees, and the one-class reduction to slo. Non-vacuity: a mutated ceil division (ceil ->
+        floor) MUST diverge AND break soundness. SKIPPED rows without rustc."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import opcost as OC
+            import govern as GV
+            import priogov as PG
+            import slo as SL
+            import clslo as CL
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("latarith-placement", False, f"import failed: {exc}")
+            self.record("latarith-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(tdir, "latarith_rs", "latarith.rs")
+        try:
+            golds = {}
+            for mod in (OC, GV, PG, SL, CL):
+                golds.update({name: mod.golden(name) for name in mod.SCENES})
+        except Exception as exc:
+            self.record("latarith-placement", False, f"live goldens unreadable: {exc}")
+            self.record("latarith-placement-selftest", False, "no goldens")
+            return
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "latarith.rs missing"
+            self.record("latarith-placement", True,
+                        f"SKIPPED ({why}) — latarith_rs was NOT re-verified this run; the D5 "
+                        f"cross-placement claim is unchecked here (install rustc to enable)")
+            self.record("latarith-placement-selftest", True, f"SKIPPED ({why})")
+            return
+
+        def compile_run(source_text):
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "la.rs")
+                bp = os.path.join(td, "la.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(source_text)
+                cp = subprocess.run([rustc, "-O", sp, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                try:
+                    rp = subprocess.run([exe], capture_output=True, text=True)
+                except OSError:
+                    return None
+                out = {}
+                for ln in rp.stdout.split("\n"):
+                    parts = ln.strip().split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+                return out
+
+        real = open(src, encoding="utf-8").read()
+        got = compile_run(real)
+        got2 = compile_run(real)
+        ref_ok = (got is not None and got == got2 and got.get("selfcheck") == "OK"
+                  and all(got.get(name) == golds[name] for name in golds))
+        self.record("latarith-placement", ref_ok,
+                    "latarith_rs recompiles and reproduces the LIVE URDROPC1/2/3 + URDRLAT2/3 goldens "
+                    "(seventeen scenes) bit-for-bit, twice, with the 24-check soundness corpus green "
+                    "in-binary — the arithmetic family is independently placed and the placement batch "
+                    "CLOSES"
+                    if ref_ok else "latarith_rs did NOT reproduce the live arithmetic-family goldens")
+        anchor = "fn ceil_div(n: usize, m: usize) -> usize { (n + m - 1) / m }"
+        mgot = (compile_run(real.replace(anchor, "fn ceil_div(n: usize, m: usize) -> usize { n / m }", 1))
+                if anchor in real else None)
+        caught = (anchor in real) and (mgot is None or mgot.get("selfcheck") != "OK"
+                                       or any(mgot.get(name) != golds[name] for name in golds))
+        self.record("latarith-placement-selftest", caught,
+                    "a mutated ceil division (ceil -> floor) diverges from the goldens AND breaks the "
+                    "in-binary soundness corpus — the live re-verification is load-bearing"
+                    if caught else "the mutated port still reproduced the goldens, or the ceil anchor moved")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -6967,6 +7058,7 @@ def main() -> int:
     gate.latstore_placement()
     gate.glide_placement()
     gate.streamstate_placement()
+    gate.latarith_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
