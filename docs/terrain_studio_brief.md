@@ -2,7 +2,7 @@
 
 # Terrain studio brief — the zyfod goal, inserted surgically (T-ladder)
 
-Status: **T1 + T2 + S1 + S2 LANDED (stages `terrain` + `sea`: canon, URDROBJ2 bridge, masked transport, and the Marangoni wide-sea scene — all MEASURED at reference); the view panel's FIREWALL has landed (T3.0: `terrain_view.py` gated MEASURED + `terrain_view.html` on-demand renderer); the visual gap's AUTHORITY half has begun — T3.3 the wave seam: `wavefield.py`, an EXACT integer traveling-wave field (gate stage `wavefield`), the measurable core the GPU's declared Gerstner sinusoid will draw from — division-free (no `/`/`//`/`%` operator, tokenizer-asserted) for structural cross-placement parity. The WebGL2 view has LANDED as declared presentation — `tools/terrain/terrain_view3d.html`: a dependency-free WebGL2 3D render of the certified island heightfield + a float Gerstner water surface (analytic normals, Fresnel-Schlick) driven by the SAME wave parameters the exact integer field uses, carrying the URDRHF1/URDRWAV1 witnesses (bound) under the idle law. NOT_MEASURED by construction (browser float); the math (matrices, mesh, Gerstner analytic normal ≡ finite-diff) was verified off-GPU, the rasterization is the browser's. T3.1/T3.4 polish remains PLAN, governed by `docs/presentation_doctrine.md`.** The sea slice was renamed W → S to avoid the W1 winding-rung collision; its design verdict: not a detector, not bare reuse — an adapter plus a masked ADDITIVE step over the untouched frozen field substrate, digesting under the frozen URDRFLD1 law (no new witness class — a C8 datum). Authored 2026-07-16 against `terrains.zyfod.dev`
+Status (historical line, kept as written at the time; see §7 for the current map): **T1 + T2 + S1 + S2 LANDED (stages `terrain` + `sea`: canon, URDROBJ2 bridge, masked transport, and the Marangoni wide-sea scene — all MEASURED at reference); the view panel's FIREWALL has landed (T3.0: `terrain_view.py` gated MEASURED + `terrain_view.html` on-demand renderer); the visual gap's AUTHORITY half has begun — T3.3 the wave seam: `wavefield.py`, an EXACT integer traveling-wave field (gate stage `wavefield`), the measurable core the GPU's declared Gerstner sinusoid will draw from — division-free (no `/`/`//`/`%` operator, tokenizer-asserted) for structural cross-placement parity. The WebGL2 view has LANDED as declared presentation — `tools/terrain/terrain_view3d.html`: a dependency-free WebGL2 3D render of the certified island heightfield + a float Gerstner water surface (analytic normals, Fresnel-Schlick) driven by the SAME wave parameters the exact integer field uses, carrying the URDRHF1/URDRWAV1 witnesses (bound) under the idle law. NOT_MEASURED by construction (browser float); the math (matrices, mesh, Gerstner analytic normal ≡ finite-diff) was verified off-GPU, the rasterization is the browser's. T3.1/T3.4 polish remains PLAN, governed by `docs/presentation_doctrine.md`.** The sea slice was renamed W → S to avoid the W1 winding-rung collision; its design verdict: not a detector, not bare reuse — an adapter plus a masked ADDITIVE step over the untouched frozen field substrate, digesting under the frozen URDRFLD1 law (no new witness class — a C8 datum). Authored 2026-07-16 against `terrains.zyfod.dev`
 v0.20.0 (feature surface taken from operator screenshots; the site is a client-side JS
 shell, so its internals are INFERRED, not read — stated where it matters). Written while
 the desktop bridge was offline: the D14/D15/D16/D17 contracts this plan anchors on were
@@ -113,3 +113,24 @@ studio "better rendered" than zyfod; it makes it *honest, reproducible, and cool
 `tools/calculationViz/` (the machine-shop panel pattern + bridge scripts), `tools/frontend/
 canon_ref.py` (the exact URDROBJ2 canon call). To be read when the bridge returns; T1
 depends on none of them.
+
+## 7. Where the ladder actually went (status addendum, 2026-07-19 — evidence in the D5 volumes)
+
+The plan above stopped at "T3 presentation, T4 named targets." The ladder kept climbing past the plan, and
+this section is the honest record so the brief cannot mislead a reader into thinking T3.x ends at the view
+firewall. What LANDED after the plan was written, each with its gate stage green and its entry graded in
+the D5 ledger (Volume I, sealed; latest grades in Volume II): the movement/observer arc T3.9–T3.17
+(`stance`/`gaze`/`drive`/`traj` + the kernel and lockstep cross-checks + `fpface`/`fpcap`), the continuous
+arc T3.18–T3.21 (`glide`/`splice`/`predict`/`cpredict` — MMO Stages A–B), the scale/handoff/anti-cheat arc
+(`interest`/`layertheorem`/`hand`/`warden`/`crosswarden`/`dirward`/`wardhom` — Stages C–E), the Stage-H
+latency guarantee on BOTH axes (`opcost`/`govern`/`priogov`/`horizon`/`slo`/`clslo` for time,
+`storecost` for space), the durability/recovery capstones (`persist`/`resurrect`), and the Stage-I openers
+(`chunkload` — the streamed field, equal-or-refuse; `chunkstate` — the regional state cut, same witness).
+The whole streak is cross-placed: five std-only Rust placements (`heightfield_rs`, `latstore_rs`,
+`glide_rs`, `streamstate_rs`, `latarith_rs`) re-verified LIVE by the gate each run. Against §4's own
+T4 list: "multi-tile worlds riding the D16 seam law" is now PARTIALLY realized at the SNAPSHOT level
+(the chunked field reassembles to the canon digest; the regional cut reunifies to the monolithic window —
+both byte-for-byte), while LIVE world edits, splines/roads, erosion, and the worker renderer remain
+exactly as the plan graded them: named, not scoped, zero code — the mutable chunked world is the queued
+next rung. The idle law and the identity/presentation separation this brief demanded held unchanged
+through all of it.

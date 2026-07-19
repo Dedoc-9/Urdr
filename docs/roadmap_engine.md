@@ -4,7 +4,20 @@
 
 This document is the architectural compass for the engine ambition. It is written to bound the
 promise, not inflate it. Nothing here is `MEASURED`; it is a design contract. Where it and a spec
-disagree, the spec wins; grades live only in [`../spec/D5-ledger.md`](../spec/D5-ledger.md).
+disagree, the spec wins; grades live only in the D5 ledger volumes
+([`../spec/D5-ledger.md`](../spec/D5-ledger.md), sealed Volume I;
+[`../spec/D5-ledger-2.md`](../spec/D5-ledger-2.md), live).
+
+> **STATUS NOTE (2026-07-19)** — events have overtaken two environment assumptions below, recorded here
+> rather than silently rewritten. (a) §4 says the authoring sandbox has no `rustc`: the gate now carries
+> live-recompile placement stages (`heightfield`/`latstore`/`glide`/`streamstate`/`latarith`-placement)
+> that compile and re-verify the std-only Rust placements on ANY host where `rustc` exists, recording
+> SKIPPED honestly where it does not — cross-placement is no longer an off-gate, in-session-only claim.
+> (b) §4 lists persistence as not gate-able here: the Stage-H/I storage-and-recovery arc (`storecost` →
+> `persist` → `resurrect` → `chunkload` → `chunkstate`) is now IN the gate — durable content-addressed
+> checkpoint windows, through-death recovery equality via a real successor subprocess, the streamed field,
+> and the regional state cut, each with typed refusals and pinned digests. Networking transport, GPU
+> rendering, and real-time performance remain exactly as §4 states: off-gate, target-platform territory.
 
 ## 1. What Urðr uniquely provides (and what it does not)
 

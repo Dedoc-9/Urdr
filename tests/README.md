@@ -4,29 +4,43 @@
 
 ## Index
 
-**70 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**104 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,
   `test_determinism`, `test_provenance`, `test_capability`, `test_modules`, `test_snapshot`,
   `test_actors`, `test_oracle`, `test_verbose`, `test_transition`, `test_glyph_review`,
-  `test_hygiene`, `test_prelude_lists`, **`test_gate_guard`** (the vacuity guard).
+  `test_hygiene`, `test_prelude_lists`, `test_registry`, **`test_gate_guard`** (the vacuity
+  guard), `test_doc_currency` (the stale-count checker's own logic).
 - **User-directed integer algebra** — `test_graded_algebra`, `test_lattice`,
   `test_centering`, `test_chain`.
 - **Math spine & invariant detectors** — `test_atlas_injective`, `test_atlas_reconstruct`,
-  `test_rigidity_verdict`, `test_toric`, `test_persim`, `test_criticality`.
+  `test_rigidity_verdict`, `test_toric`, `test_persim`, `test_criticality`, `test_winding`
+  (the W1 rung), `test_tellegen`.
 - **Physics** — `test_physics`, `test_physics_nd`, `test_physics_properties`,
   `test_contact_lcp`, `test_articulated`, `test_field`, `test_field_coupling`,
   `test_field_body_loop`, `test_marangoni`, `test_fp_dynamics`.
 - **Render** — `test_render`, `test_raster3d`, `test_perspective`.
 - **Netcode (N1–N5 + N4.1 + D16)** — `test_lockstep`, `test_rollback`, `test_authinput`,
   `test_worldstep`, `test_worldstep_contact`, `test_worldpeer`, `test_worldregion`,
-  `test_field_desync`.
+  `test_field_desync`, `test_fraud` (the optimistic-verification crypto layer).
 - **Front-end / authoring (D14/D15)** — `test_frontend_contract`, `test_svg_import`,
   `test_photo_trace`, `test_view_export`, `test_load_world`.
 - **frontfps ladder (Stages 1–7)** — `test_frontfps`, `test_fpquat`, `test_fpclip`,
   `test_fppose`, `test_frontfps_view`, `test_frontfps_text`, `test_frontbench`.
 - **Topology** — `test_homology` (URDRPD1 𝔽₂ persistent homology + OOB).
+- **Terrain & wave studio (T1–T3.x)** — `test_terrain`, `test_terrain_view`, `test_sea`,
+  `test_wavefield`, `test_buoyancy`, `test_crossing`, `test_view_witness`.
+- **Movement & observers (MMO Stages A–B)** — `test_stance`, `test_gaze`, `test_drive`,
+  `test_traj`, `test_kernel_crosscheck`, `test_lockstep_crosscheck`, `test_fpface`,
+  `test_fpcap`, `test_predict`, `test_glide`, `test_splice`, `test_cpredict`.
+- **MMO Stages C–E (scale, handoff, anti-cheat)** — `test_interest`, `test_layertheorem`,
+  `test_hand`, `test_warden`, `test_crosswarden`, `test_dirward`, `test_wardhom`.
+- **MMO Stage H (the latency guarantee, time and space)** — `test_opcost`, `test_govern`,
+  `test_priogov`, `test_horizon`, `test_slo`, `test_clslo`, `test_storecost`.
+- **MMO Stages H/I (durability, recovery, streaming, the regional cut)** — `test_persist`
+  (the durable checkpoint), `test_resurrect` (through-death recovery), `test_chunkload`
+  (equal-or-refuse streaming), `test_chunkstate` (the same-witness regional cut).
 - **Staging & freeze** — `test_linear_core` (D13 C4 study), `test_spec_freeze` (D12 manifest).
 
 ## Whitepaper

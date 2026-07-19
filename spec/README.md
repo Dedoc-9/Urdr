@@ -10,7 +10,7 @@ disagree about a *grade*, the ledger wins. A capability described above its ledg
 |---|---|
 | [`D1-spec.md`](D1-spec.md) | The v0.1 core spec: **design laws** (§1), the **glyph lexicon** (§2) with attested-vs-assigned columns and the exclusions law (§2.6), grammar (§3), lexical hygiene (§4), the **epistemic type discipline** (§5), evaluation (§6), canon & digests (§7), the membrane (§8), error codes (§9), graded algebra (§12), actors (§13), capabilities (§16), modules (§17), evidence transitions (§19), the **glyph review** (§20). |
 | [`D4-typeability.md`](D4-typeability.md) | Input methods — how to type the glyphs offline (digraphs, pickers, editor snippets). `typeable ≠ renderable`. |
-| [`D5-ledger.md`](D5-ledger.md) | **The master graded inventory.** Every capability graded maturity × evidence with its evidence (fixtures, tests, cross-placement). Start here to know what is actually true. |
+| [`D5-ledger.md`](D5-ledger.md) + [`D5-ledger-2.md`](D5-ledger-2.md) | **The master graded inventory, in two volumes.** Every capability graded maturity × evidence with its evidence (fixtures, tests, cross-placement). Volume I is SEALED at the placement-batch-closure epoch (immutable history except corrections); Volume II is LIVE — new entries append there, and a capability's current grade is its latest entry across the volumes. Start with Volume II's opening stamp to know what is actually true right now. |
 | [`D6-gap-probe.md`](D6-gap-probe.md) | The reusable gap-hunt method (Structure → Constraint → Gap → candidate) used to decide whether a concept earns a new primitive. |
 | [`D7-execution-geometry.md`](D7-execution-geometry.md) | The execution-geometry contract: state = point, region = predicate, chart = lens, atlas = module, witness = ᛞ-Grounded. The Layer-1/Layer-2 boundary. |
 | [`D8-portable-kernel.md`](D8-portable-kernel.md) | The portable-kernel conformance contract: what an independent kernel must reproduce to be **ADMITTED** as a placement (the frozen vector corpus). |
@@ -33,8 +33,8 @@ numbering follows the order laws were written, not a table of contents.)
 ## Reading order
 
 New to the repo: [`../docs/THEOREMS.md`](../docs/THEOREMS.md) (the one-page map of what is
-proved vs planned, evidence-cited), then [`D5-ledger.md`](D5-ledger.md) tail (what is true
-right now, graded), then [`D11-layer-contracts.md`](D11-layer-contracts.md) (what each layer
+proved vs planned, evidence-cited), then [`D5-ledger-2.md`](D5-ledger-2.md) (what is true
+right now, graded — its opening stamp plus whatever entries follow; Volume I is the sealed history), then [`D11-layer-contracts.md`](D11-layer-contracts.md) (what each layer
 promises), then [`D12-versions.md`](D12-versions.md) (what is frozen and how the freeze is
 enforced). The deep-dive documents (D1, D7–D10) are reference material behind those three.
 
@@ -47,3 +47,12 @@ the authored-world runtime) · `URDRLOOP` field↔body coupled state · `URDRAIN
 `URDRROS1` signed-input message/pubkey/roster laws · `URDRFB1` framebuffer. Typed refusals
 added by the netcode stack: `ROLLBACK-REFUSE`, `ROLLBACK-CONFLICT`, `AUTH-REFUSE`,
 `WORLD-REFUSE` — each rejects whole, never repairs.
+
+The terrain/MMO arc (Stages A–I) adds its own digest laws — `URDRHF1` heightfield ·
+`URDRGLIDE1` continuous movement · `URDRSPLICE1` resumption · `URDROPC1/2/3` work envelope /
+FIFO governor / priority governor · `URDRLAT1..3` rollback horizon / composite SLO /
+per-class SLO · `URDRLAT4` storage envelope · `URDRLAT5` durable checkpoint · `URDRLAT6`
+resurrection · `URDRCHK1` chunked field · `URDRCHS1` regional state cut — and its own typed
+refusals: `GLIDE-`, `SPLICE-`, `OPCOST-`, `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`,
+`PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`, `WARD-*`, `TERRAIN-REFUSE` — same law:
+reject whole, never repair. Grades and entry-by-entry evidence live in the D5 volumes.
