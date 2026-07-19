@@ -6865,6 +6865,177 @@ class Gate:
                     "directions; a re-sealed tampered certificate and a misaligned claim refuse"
                     if refuse_ok else "the rannull refusal did not hold")
 
+    def lease(self):
+        """The standing lease (T3.43, MMO Stage I, URDRLSE1): the temporal extension of RAN-0 — an
+        80-byte write capability minted against one chunk state, valid until that authority moves.
+        State-free validity (one manifest slot), interval commutation (the leased edit admits at
+        every insertion position, bytes unchanged, one head), amortization (cheap admit == full
+        global reproof), self-expiry + renewal (the lease chain is the region's write history), and
+        the lost-update law (admit fetches by the CURRENT slot, never the lease's digest — the
+        anamnesis store still holds the stale bytes). Rows: scenes (long_watch / relay / amortized /
+        expired reproduce URDRLSE1 digests), validity (state-free both directions + transport),
+        interval (commutation + amortization), refuse (expiry two-layer / foreign state / region
+        mismatch / missing chunk / tampered lease / costs)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import lease as LS
+            import rannull as RN
+            import terraform as TF
+            import chunkload as CK
+            import storecost as SC
+            import heightfield as HF
+        except Exception as exc:
+            self.record("lease", False, f"import failed (lease / rannull / chunkload): {exc}")
+            return
+        try:
+            ref_ok = all(LS.scene_result(n) == LS.golden(n) for n in LS.SCENES)
+        except Exception as exc:
+            self.record("lease:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("lease:scenes", ref_ok,
+                    "long_watch + relay + amortized + expired reproduce URDRLSE1 digests"
+                    if ref_ok else "a lease config drifted from its digest")
+
+        def _state(fld, c):
+            chunks = CK.cut(fld, c)
+            return CK.field_manifest(fld, c), {CK.address(r): r for r in chunks.values()}
+
+        def _rec_under(man, store, x, y, dh, c):
+            _w, _h, _c, grid = CK.parse_manifest(man)
+            key = (x // c, y // c)
+            chunk = store[grid[key]]
+            kx, ky, cells = CK.restore_chunk(chunk)
+            old = cells[y - ky * c][x - kx * c]
+            return RN.regional_record(CK.address(chunk), kx, ky, x, y, old, old + dh)
+
+        def _evolve(man, store, x, y, dh, c):
+            _w, _h, _c, grid = CK.parse_manifest(man)
+            ls = LS.lease_from_chunk(store[grid[(x // c, y // c)]])
+            new_man, ch = LS.admit(man, store, ls, _rec_under(man, store, x, y, dh, c))
+            store[CK.address(ch)] = ch
+            return new_man
+
+        valid_ok = True
+        try:
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            man, store = _state(bl, 8)
+            ls = LS.mint_lease(bl, 8, 0, 1)
+            valid_ok = LS.valid(man, ls) is True
+            man2 = _evolve(man, dict(store), 6, 8, 77, 8)
+            valid_ok = valid_ok and LS.valid(man2, ls) is False
+            # transport inherited: the same lease + record admit on a different world sharing the
+            # chunk, landing the SAME new chunk address in the leased slot
+            rec = _rec_under(man, store, 5, 8, 1000, 8)
+            far = TF.edit_record(TF.parent_address(bl, 8), 12, 4, bl[4][12], bl[4][12] + 777)
+            w2 = TF.apply_edit(bl, 8, far)
+            man_b, store_b = _state(w2, 8)
+            ha, _ca = LS.admit(man, store, ls, rec)
+            hb, _cb = LS.admit(man_b, store_b, ls, rec)
+            valid_ok = valid_ok and (CK.parse_manifest(ha)[3][(0, 1)]
+                                     == CK.parse_manifest(hb)[3][(0, 1)])
+        except Exception:
+            valid_ok = False
+        self.record("lease-validity", valid_ok,
+                    "validity is STATE-FREE (one manifest slot — no store, no field) and goes false "
+                    "the moment the authority moves; the lease transports (the same lease + record "
+                    "admit on a different world sharing the chunk, landing the same new chunk "
+                    "address in the leased slot)"
+                    if valid_ok else "the validity / transport law did not hold")
+        int_ok = amort_ok = True
+        try:
+            man0, store0 = _state(bl, 8)
+            ls = LS.mint_lease(bl, 8, 0, 1)
+            rec_e = _rec_under(man0, store0, 5, 8, 1000, 8)
+            chain = ((2, 2, 11), (12, 4, 22), (12, 12, 33))
+            heads = set()
+            for pos in range(len(chain) + 1):
+                man, store = man0, dict(store0)
+                for (x, y, dh) in chain[:pos]:
+                    man = _evolve(man, store, x, y, dh, 8)
+                new_man, ch = LS.admit(man, store, ls, rec_e)
+                store[CK.address(ch)] = ch
+                man = new_man
+                for (x, y, dh) in chain[pos:]:
+                    man = _evolve(man, store, x, y, dh, 8)
+                heads.add(CK.address(man))
+            int_ok = len(heads) == 1
+            man, store = _state(bl, 8)
+            for (x, y, dh) in ((2, 2, 11), (12, 4, 22)):
+                man = _evolve(man, store, x, y, dh, 8)
+                cheap, _ch = LS.admit(man, store, ls, rec_e)
+                world = CK.reassemble(man, store)
+                lifted = TF.edit_record(TF.parent_address(world, 8), 5, 8, world[8][5],
+                                        world[8][5] + 1000)
+                if CK.address(cheap) != TF.parent_address(TF.apply_edit(world, 8, lifted), 8):
+                    amort_ok = False
+        except Exception:
+            int_ok = False
+        self.record("lease-interval", int_ok and amort_ok,
+                    "interval commutation holds — the leased edit (bytes unchanged) admits at every "
+                    "insertion position of a disjoint-authority chain and lands ONE head; and the "
+                    "cheap admission equals the full global reproof bit-for-bit at every interval "
+                    "head (the proof was paid at mint; admissions inherit it)"
+                    if (int_ok and amort_ok) else "the interval / amortization law did not hold")
+        exp1 = exp2 = trap = spent = renewed = foreign = mismatch = missing = tampered = cost = False
+        try:
+            man, store = _state(bl, 8)
+            ls = LS.mint_lease(bl, 8, 0, 1)
+            rec_e = _rec_under(man, store, 5, 8, 1000, 8)
+            man2 = _evolve(man, store, 6, 8, 77, 8)
+            exp1 = LS.valid(man2, ls) is False
+            try:
+                LS.admit(man2, store, ls, rec_e)
+            except LS.LeaseError as exc:
+                exp2 = exc.code == "LEASE-REFUSE"
+            trap = LS.restore_lease(ls)[0] in store
+            man, store = _state(bl, 8)
+            ls = LS.mint_lease(bl, 8, 0, 1)
+            man2, ch = LS.admit(man, store, ls, _rec_under(man, store, 5, 8, 100, 8))
+            store[CK.address(ch)] = ch
+            try:
+                LS.admit(man2, store, ls, _rec_under(man2, store, 5, 8, 1, 8))
+            except LS.LeaseError:
+                spent = True
+            man3, _c3 = LS.admit(man2, store, LS.lease_from_chunk(ch),
+                                 _rec_under(man2, store, 5, 8, 1, 8))
+            renewed = bool(man3)
+            try:
+                LS.admit(man, store, ls, _rec_under(man, store, 12, 4, 7, 8))
+            except LS.LeaseError:
+                foreign = True
+            try:
+                LS.admit(man, store, LS.mint_lease(bl, 8, 1, 0), _rec_under(man, store, 5, 8, 9, 8))
+            except LS.LeaseError:
+                mismatch = True
+            _w, _h, _c, grid = CK.parse_manifest(man)
+            lean = dict(store)
+            del lean[grid[(0, 1)]]
+            try:
+                LS.admit(man, lean, ls, _rec_under(man, store, 5, 8, 9, 8))
+            except LS.LeaseError:
+                missing = True
+            bad = bytearray(ls)
+            bad[10] ^= 0xFF
+            try:
+                LS.admit(man, store, bytes(bad), rec_e)
+            except LS.LeaseError:
+                tampered = True
+            cost = (LS.amortized_cost_bytes(8, 16, 16, 5)
+                    == LS.LEASE_BYTES + 5 * (RN.shard_cost_bytes(8) + CK.manifest_bytes(16, 16, 8))
+                    and SC.within_storage_budget(LS.LEASE_BYTES, 1000) is True)
+        except Exception:
+            exp1 = False
+        refuse_ok = (exp1 and exp2 and trap and spent and renewed and foreign and mismatch
+                     and missing and tampered and cost)
+        self.record("lease-refuse", refuse_ok,
+                    "expiry refuses in two layers (the manifest slot; the shard CAS against the "
+                    "CURRENT chunk) though the stale bytes still sit in the anamnesis store — the "
+                    "lost update is impossible, not just avoided; a spent lease refuses and its "
+                    "renewal admits; foreign state, region mismatch, a missing current chunk, and a "
+                    "tampered lease refuse; the amortized cost closed form holds under the budget law"
+                    if refuse_ok else "the lease refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -7537,6 +7708,7 @@ def main() -> int:
     gate.terraform()
     gate.commute()
     gate.rannull()
+    gate.lease()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

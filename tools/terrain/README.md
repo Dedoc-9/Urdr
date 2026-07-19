@@ -69,6 +69,16 @@ the world informationally absent (the frame property); the coordinator reunifies
 equality (parallel, both serials, the commute diamond) with ZERO rebases; overlap is `RAN-REFUSE`
 in two proven layers with the commute rank-1 fallback intact; and the certificate TRANSPORTS
 across authority-preserving worlds — the portability is the absence, made visible.
+`lease.py` — `URDRLSE1`, the standing lease: RAN-0's TEMPORAL extension — an 80-byte write
+capability (MAGIC | chunk digest | kx | ky | SHA-256) minted against one chunk state, valid from
+mint until that authority moves. `valid(manifest, lease)` is STATE-FREE (one manifest slot, no
+store, no field); interval commutation holds (the leased edit admits at every insertion position
+of a disjoint-authority chain, its bytes unchanged, one head); the cheap admission EQUALS the full
+global reproof (the proof paid at mint, admissions inherit it); a lease dies at its own use and
+renews from the new chunk (the lease chain is the region's write history); and expiry is
+`LEASE-REFUSE` in two proven layers — `admit` fetches by the CURRENT slot, never the lease's
+digest, because the anamnesis store still holds the stale bytes and a stale fetch would silently
+revert the interval's edits (the lost update, made impossible rather than avoided).
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -86,5 +96,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `WARD-*`, `TERRAIN-REFUSE`) all follow the house law: typed,
-total, reject whole, never repair.
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `WARD-*`, `TERRAIN-REFUSE`) all follow the house law:
+typed, total, reject whole, never repair.

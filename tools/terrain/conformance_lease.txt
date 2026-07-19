@@ -1,0 +1,16 @@
+# URDRLSE1 - lease: the standing lease (T3.43, MMO Stage I). The TEMPORAL extension of RAN-0: the
+# nullity certificate transports across authority-preserving worlds (spatial); the lease makes the
+# INTERVAL first-class — an 80-byte write capability (MAGIC | chunk digest | kx | ky | SHA-256)
+# minted against one chunk state, valid from mint until that authority moves. valid(manifest, lease)
+# is STATE-FREE (one manifest slot, no store, no field); interval commutation holds (the leased edit
+# admits at every insertion position of a disjoint-authority chain, bytes unchanged, one head); the
+# cheap admission equals the full global reproof bit-for-bit (proof paid at mint, admissions inherit
+# it); a lease dies at its own use and renews from the new chunk (the lease chain is the region's
+# write history); and expiry is LEASE-REFUSE in two proven layers — admit fetches by the CURRENT
+# slot, never the lease's digest, because the anamnesis store still holds the stale bytes and a
+# stale fetch would silently revert the interval's edits (the lost update, made impossible).
+# SHA-256(MAGIC | name | mint | head | count | bytes | verdict).
+long_watch 1a6c388dc6b2f8ebe324b924850b953f8e27eb777e04a09a71ffd6493d811541
+relay 1c9dd9cf4f0a8c7b74bdbf2d344361fe3d0c749d20f18fc4233aa1d1e69d2994
+amortized 3b26473d5d17cd22585d6492601360583fc790f7356cfe08de6884ef95d213be
+expired 0166f2cb9cc9de8d29660806731c5a1a3253c028974095e6377ba5e078cfbba2
