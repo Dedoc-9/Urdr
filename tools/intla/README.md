@@ -32,7 +32,10 @@ are bounded by subdeterminants (Hadamard), so this library is exact for **i64-si
 problems. Larger exact problems need a bignum substrate later — a separate piece that would not
 change these algorithms.
 
-## Contents (all proven prototypes; not yet cross-placed)
+## Contents — the linear-algebra prototypes (SINCE CROSS-PLACED: these became the frozen
+`urdr_math` spine, reproduced by `urdr_math_rs/` (std-only Rust) and `urdr_math_c/` (std-only C99,
+`__int128`) on the conformance corpus; the heading below is kept as the historical record of the
+prototype tier)
 
 | File | Provides | Verified against |
 |---|---|---|
@@ -94,3 +97,12 @@ urdr-world / host   ── scheduling · regions · networking · observer proje
 Next kernel-side increment: a **MEASURED, cross-placeable fixture** that certifies a
 nullspace-vector witness (deficiency certified; a forged witness refused), generalizing
 `atlas_algebra_deficient_wrong` to arbitrary integer matrices from a library witness.
+
+## The D17 detector residents (status note, 2026-07-19)
+
+This directory also hosts most of the D17 invariant-detector library, which post-dates the sections
+above: `gf2.py` (the exact 𝔽₂ substrate), `toric.py` (code dimension, cross-placed `toric_{rs,c}/`),
+`rigidity` (the verdict, cross-placed `rigidity_{rs,c}/`), `persim.py` (persistence barcode),
+`winding.py` (the W1 rung of D19), `tellegen.py` (Tellegen orthogonality), and `atlas_reconstruct`
+(the information-security detector). Admission law and roles: [`../../spec/D17-invariant-detectors.md`](../../spec/D17-invariant-detectors.md);
+grades in the D5 ledger volumes.

@@ -69,6 +69,15 @@ reproducible-by-frozen-rounding, refuses on overflow, not exact. N3 pins the
 *mechanism* (verification gates admission) on fixture keys from published seeds —
 operational key secrecy/distribution and cross-session replay protection are out of
 scope and not claimed. N4's runtime is cross-placed on the mapped canonical scene;
-its JSON loader is reference-gated; instance mass is loaded but inert until body-body
-contact arrives as a versioned successor. Remaining `DECLARED`: interest management,
-N2/N3 composition over authored worlds, body-body contact in N4.
+its JSON loader is reference-gated. (Status note, 2026-07-19 — the closing list this
+paragraph used to end with has been overtaken rung by rung, recorded here rather than
+silently deleted: body-body contact LANDED as **N4.1** and is cross-placed + frozen;
+N2/N3 composition over authored worlds LANDED as **N5** `worldpeer` — the composed
+contract, frozen at 0.1; interest management has its certified relevance rung in the
+terrain arc — `tools/terrain/interest.py`, URDRAOI1 — while interest-FILTERED wire
+replication remains `DECLARED`.) Remaining `DECLARED` at the netcode level: wire
+transport itself, interest-filtered replication, and the unification of N2's in-memory
+K/H snapshot window with the terrain arc's DURABLE window (`storecost` → `persist` →
+`resurrect`: byte-priced, content-addressed, through-death-recoverable; `chunkstate`
+cuts it per region under the D16 same-witness law) — that unification is a stated
+future rung (`resurrect`'s does_not_show), not begun.

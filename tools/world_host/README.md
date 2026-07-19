@@ -58,7 +58,10 @@ its own tests. `the runtime consumes the theorem; it does not re-prove it`.
 ## NOT here (Steps 4–5, deliberately)
 
 Step 4 Rust port against these same fixtures ·
-Step 5 networking, persistence, replication, renderer/GPU, spatial streaming. Steps 1–3 have no
+Step 5 networking, persistence, replication, renderer/GPU, spatial streaming. (Status note,
+2026-07-19: persistence and spatial streaming have since landed ELSEWHERE in the tree, under the
+gate — the terrain arc's `persist`/`resurrect`/`chunkload`/`chunkstate`; `world_host` itself still
+excludes them by design, exactly as this section states.) Steps 1–3 have no
 networking, no graphics, no optimization, and no concurrent EXECUTION (Step 3 is deterministic
 single-threaded scheduling, not threads) — by design.
 

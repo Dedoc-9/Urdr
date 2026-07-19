@@ -21,8 +21,12 @@ digest equals the ☉ reference (tree-walk) digest; a mismatch is refused
   `IMPLEMENTED / MEASURED` — `test_foreign_oracle.py` (3 falsifiers, stdlib-only,
   cargo-free; its own runner, not the integer core's `verify.py`).
 - **An independent Rust kernel agreeing on the corpus** (`urdr-core-rs`):
-  `SPECULATIVE / N/A`. This environment has **no Rust toolchain**, so it is not
-  measured here. `harness-works ≠ Rust-agrees` — do not conflate them.
+  graded in the D5 ledger volumes (it has since been ADMITTED on the owner's host).
+  The line this bullet used to end with — "this environment has no Rust toolchain" —
+  is an overtaken environment assumption, kept on record: the gate now carries
+  live-recompile placement stages that compile and re-verify std-only Rust wherever
+  `rustc` exists and record SKIPPED honestly where it does not.
+  `harness-works ≠ Rust-agrees` — the two claims stay separate either way.
 
 ## The first Rust brick (on a cargo host)
 
