@@ -6552,6 +6552,88 @@ class Gate:
                     "re-verification is load-bearing (gate can redden)"
                     if caught else "the mutated port still reproduced the goldens, or the layout anchor moved")
 
+    # -- 2p8. glide_rs cross-placement, RE-VERIFIED LIVE (the keystone: the general fold) -
+    def glide_placement(self):
+        """The glide_rs cross-placement, RE-VERIFIED LIVE — the KEYSTONE of the placement batch: the
+        general URDRGLIDE1 fold (command parse, the frozen gait law, sub = 2^k micro-steps of ONE >> k,
+        floor-sampled ground, off-grid and rise > MAX_STEP wall stops at the sub-cell boundary) ported
+        std-only with its own SHA-256, exercised over the REAL heightfield scenes (the URDRHF1 generation
+        lifted verbatim from heightfield_rs) — walls, sprints, real terrain, NOT a scene-domain shortcut.
+        Reproduces the three pinned URDRGLIDE1 digests against the LIVE conformance_glide.txt goldens,
+        twice, with in-binary selfchecks (determinism, the fold invariant ground == floor-sampled field at
+        every micro pose, micro-step exactness for every frozen subdivision). Non-vacuity: a mutated
+        sprint gait (2 -> 1) MUST diverge. Requires rustc; SKIPPED rows keep the count host-stable."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import glide as GL
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("glide-placement", False, f"import failed: {exc}")
+            self.record("glide-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(tdir, "glide_rs", "glide.rs")
+        scenes = ("glide_stroll", "glide_sprint", "glide_wall")
+        try:
+            golds = {name: GL.golden(name) for name in scenes}
+        except Exception as exc:
+            self.record("glide-placement", False, f"live goldens unreadable: {exc}")
+            self.record("glide-placement-selftest", False, "no goldens")
+            return
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "glide.rs missing"
+            self.record("glide-placement", True,
+                        f"SKIPPED ({why}) — glide_rs was NOT re-verified this run; the D5 "
+                        f"cross-placement claim is unchecked here (install rustc to enable)")
+            self.record("glide-placement-selftest", True, f"SKIPPED ({why})")
+            return
+
+        def compile_run(source_text):
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "gl.rs")
+                bp = os.path.join(td, "gl.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(source_text)
+                cp = subprocess.run([rustc, "-O", sp, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                try:
+                    rp = subprocess.run([exe], capture_output=True, text=True)
+                except OSError:
+                    return None
+                out = {}
+                for ln in rp.stdout.split("\n"):
+                    parts = ln.strip().split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+                return out
+
+        real = open(src, encoding="utf-8").read()
+        got = compile_run(real)
+        got2 = compile_run(real)
+        ref_ok = (got is not None and got == got2 and got.get("selfcheck") == "OK"
+                  and all(got.get(name) == golds[name] for name in scenes))
+        self.record("glide-placement", ref_ok,
+                    "glide_rs recompiles and reproduces the LIVE URDRGLIDE1 goldens (stroll/sprint/wall) "
+                    "bit-for-bit over the real generated terrain, twice, selfchecks OK — the general fold "
+                    "is now independently placed and a re-pinned canon forces the port to keep up"
+                    if ref_ok else "glide_rs did NOT reproduce the live glide goldens")
+        anchor = "const SPRINT_GAIT: i64 = 2;"
+        mgot = (compile_run(real.replace(anchor, "const SPRINT_GAIT: i64 = 1;", 1))
+                if anchor in real else None)
+        caught = (anchor in real) and (mgot is None or any(mgot.get(name) != golds[name] for name in scenes))
+        self.record("glide-placement-selftest", caught,
+                    "a mutated sprint gait (2 -> 1) diverges from the goldens — the live re-verification "
+                    "is load-bearing (gate can redden)"
+                    if caught else "the mutated port still reproduced the goldens, or the gait anchor moved")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -6794,6 +6876,7 @@ def main() -> int:
     gate.chunkstate()
     gate.heightfield_placement()
     gate.latstore_placement()
+    gate.glide_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
