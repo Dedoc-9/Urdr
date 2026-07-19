@@ -5894,6 +5894,104 @@ class Gate:
                     "window admits"
                     if (refused and overflow and admitted) else "the storage refusal did not hold")
 
+    def persist(self):
+        """The persistent snapshot checkpoint (T3.36, MMO Stage H, URDRLAT5): the DURABLE realization of
+        storecost's space bound. record = MAGIC | boundary | storecost payload | SHA-256 (the one digest:
+        integrity check, content address, filename), record_bytes(n) = 52 + 25*n checked EQUAL to real
+        encodings; a manifest binds the H+1 consecutive boundaries in order; durable_window_bytes(H, n) ==
+        storecost.window_storage + envelope_overhead (the realization identity). Rows: scenes (one_h4_durable /
+        five_h8_durable / tampered reproduce URDRLAT5 digests), durable (a REAL directory round-trip is
+        bit-exact, filenames ARE the digests, a re-save is byte-identical), window (the closed forms, the
+        realization identity, the horizon tie), refuse (a flipped byte, a substituted record, and a gapped
+        manifest are PERSIST-REFUSE; an over-budget durable window is STORAGE-REFUSE; a within-budget one
+        admits)."""
+        import tempfile
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import persist as PS
+            import storecost as SC
+            import horizon as HZ
+        except Exception as exc:
+            self.record("persist", False, f"import failed (persist / storecost / horizon): {exc}")
+            return
+        try:
+            ref_ok = all(PS.scene_result(n) == PS.golden(n) for n in PS.SCENES)
+        except Exception as exc:
+            self.record("persist:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("persist:scenes", ref_ok,
+                    "one_h4_durable + five_h8_durable + tampered reproduce URDRLAT5 digests"
+                    if ref_ok else "a persist config drifted from its digest")
+        fld = SC._flat16()
+        starts = ((2, 4), (2, 6), (2, 8), (2, 10), (2, 12))
+        records, man = PS.checkpoint_window(fld, starts[:3], "eeeeeeee", 40, 4, 4)
+        want = tuple(PS.restore(r) for r in records)
+        durable = named = resave = False
+        try:
+            with tempfile.TemporaryDirectory(prefix="urdr_persist_gate_") as td:
+                d1, d2 = os.path.join(td, "a"), os.path.join(td, "b")
+                os.makedirs(d1), os.makedirs(d2)
+                a1, a2 = PS.save_window(d1, records), PS.save_window(d2, records)
+                durable = PS.load_window(d1, a1) == want
+                names = sorted(os.listdir(d1))
+                named = all(PS.address(open(os.path.join(d1, nm), "rb").read()) == nm for nm in names)
+                resave = a1 == a2 and names == sorted(os.listdir(d2)) and all(
+                    open(os.path.join(d1, nm), "rb").read() == open(os.path.join(d2, nm), "rb").read()
+                    for nm in names)
+        except Exception:
+            durable = False
+        self.record("persist-durable", durable and named and resave,
+                    "a checkpointed window survives a REAL directory round-trip bit-for-bit, every filename IS "
+                    "its content digest, and a re-save is byte-identical (durability measured, not asserted)"
+                    if (durable and named and resave) else "the durable round-trip did not hold")
+        sound = True
+        for n in (1, 2, 3, 5):
+            for b in (0, 1, 4):
+                st = SC.boundary_state(fld, (starts * 2)[:n], "eeee", 40, 4, b)
+                if len(PS.checkpoint(st, b)) != PS.record_bytes(n):
+                    sound = False
+        ident = all(PS.durable_window_bytes(h, n) == SC.window_storage(h, n) + PS.envelope_overhead(h)
+                    and PS.durable_window_bytes(h, n)
+                    == SC.retained_snapshots(h) * PS.record_bytes(n) + PS.manifest_bytes(h)
+                    for n in (1, 3, 5) for h in (0, 1, 4, 8))
+        real = sum(len(r) for r in records) + len(man) == PS.durable_window_bytes(4, 3)
+        tie = all(len(PS.checkpoint_window(fld, starts[:1], "eeeeeeee", 40, 4, h)[0])
+                  == HZ.worst_case_window(h) + 1 for h in (0, 1, 4, 8))
+        self.record("persist-window", sound and ident and real and tie,
+                    "record_bytes(n) equals len(checkpoint(real glide state)); durable_window_bytes == "
+                    "storecost.window_storage + envelope_overhead == the real bytes written (the realization "
+                    "identity); the window count ties to horizon.worst_case_window(H)+1"
+                    if (sound and ident and real and tie) else "the durable envelope / realization identity "
+                    "did not hold")
+        flipped = subbed = gapped = refused = admitted = False
+        bad = bytearray(records[1])
+        bad[40] ^= 0xFF
+        try:
+            PS.restore(bytes(bad))
+        except PS.PersistError as exc:
+            flipped = exc.code == "PERSIST-REFUSE"
+        store = {PS.address(r): r for r in records}
+        store[PS.address(records[1])] = records[2]
+        try:
+            PS.restore_window(man, store)
+        except PS.PersistError as exc:
+            subbed = exc.code == "PERSIST-REFUSE"
+        try:
+            PS.manifest(records[:2] + records[3:])
+        except PS.PersistError as exc:
+            gapped = exc.code == "PERSIST-REFUSE"
+        try:
+            SC.within_storage_budget(PS.durable_window_bytes(8, 5), 1000)
+        except SC.StoreError as exc:
+            refused = exc.code == "STORAGE-REFUSE"
+        admitted = SC.within_storage_budget(PS.durable_window_bytes(4, 1), 10000) is True
+        self.record("persist-refuse", flipped and subbed and gapped and refused and admitted,
+                    "a flipped byte, a substituted record, and a gapped manifest are PERSIST-REFUSE; an "
+                    "over-budget durable window is STORAGE-REFUSE; a within-budget one admits"
+                    if (flipped and subbed and gapped and refused and admitted)
+                    else "the persistence refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -6212,6 +6310,7 @@ def main() -> int:
     gate.slo()
     gate.clslo()
     gate.storecost()
+    gate.persist()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()

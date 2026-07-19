@@ -1,0 +1,9 @@
+# URDRLAT5 - persist: the persistent snapshot checkpoint (T3.36, MMO Stage H). The DURABLE realization of
+# storecost's space bound. record = MAGIC | boundary | storecost payload | SHA-256 (the one digest: integrity,
+# content address, filename), record_bytes(n) = 52 + 25*n; manifest binds the H+1 consecutive boundaries in
+# order, manifest_bytes(H) = 47 + 40*(H+1); durable_window_bytes(H, n) = window_storage(H, n) +
+# envelope_overhead(H). A tampered record is PERSIST-REFUSE; an over-budget durable window is STORAGE-REFUSE.
+# SHA-256(MAGIC | name | n | horizon | record_bytes | durable_bytes | verdict).
+one_h4_durable 44ab484f6a1d8af1d792cf061c1dc36effe87dae255f774833c1f1d35a339295
+five_h8_durable 4d17a0f6c9114764c5b40ebe8ba951a75e089da519a019a7103cc0a13a03961e
+tampered ed4255523fe8401ab912e4a8fe37014472d77b75d03245cef6bb87ede108cc1c
