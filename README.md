@@ -32,7 +32,7 @@ rank/determinant/injectivity/reconstruction and the detector verdicts agree acro
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · the terrain/MMO stage arc T1–T3.39, Stages A–I: movement → latency → storage → recovery → streaming → the regional cut)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -464,6 +464,7 @@ pass a glyph review before it enters the grammar, or it will not enter.
 | N4.1 | **Body-body contact in the authored runtime** (`worldstep.py`, opt-in): a **sqrt-free Q32.32 impulse** — the exact `d/\|d\|` cancellation ported to fixed point — resolves collisions between authored dynamic bodies; x-momentum conserved *exactly*, restitution correct, and the frozen 0.1 surface runs contact-OFF **byte-identical**; the asymmetric-impulse defect breaks momentum (gated, `netcode-world-contact`, `collide2` golden) | `IMPLEMENTED / MEASURED` — **cross-placed**: C99 `worldregion_c/` + Rust `worldregion_rs/` reproduce the seam2 monolith (which uses N4.1 contact) bit-for-bit. Pays the N4 "mass inert" debt |
 | N5 | **Authenticated rollback over authored worlds** (`tools/netcode/worldpeer.py`): the composed end-to-end contract — same authored world + same authenticated transcript + same snapshot → the *identical* witness chain or the *same* typed refusal; a new `URDRWPN1` **world pin** covers everything the tick reads (statics included) and gates entry (mismatch `WORLD-REFUSE` before any tick); the verified-envelope apply-at-head defect diverges (gated) | `IMPLEMENTED / MEASURED (both placements)` — Rust `worldpeer_rs/` ADMITTED on Windows/`rustc`; C99 agrees on all five anchors incl. the defect `d5bc484b`; **FROZEN** `urdr-netcode-worldpeer 0.1` (D12) |
 | D16 | **Regional authority — one simulation, partitioned in space** (`tools/netcode/worldregion.py`): a world cut by integer x-seams into regions, each advancing its interior by the frozen N4.1 tick from **admitted read-only ghosts alone** (never a neighbour's interior); the deterministic reunification reproduces the monolithic `URDRLST1`/`URDRLSTT` witness **bit-for-bit** — the **Seam Composition Theorem**, with **no new witness class** | `IMPLEMENTED / MEASURED` — `netcode_region` (seam2 golden, partition-invariance over 6 partitions, dropped-boundary divergence localized to the contact tick, malformed-partition `REGION-REFUSE`); **FROZEN** `urdr-netcode-region 0.1`; **three placements** (Python + C99/gcc + Rust/Windows) agree incl. the failure mode. Answers D13 §C8 — the glyph stays parked |
+| T/A–I | **The terrain/MMO stage arc** ([`tools/terrain/`](tools/terrain/)): the `URDRHF1` field canon → continuous movement + byte-exact prediction reconciles (Stages A–B) → AOI relevance, atomic handoff, structural anti-cheat (C–E) → the Stage-H latency guarantee on BOTH axes (certified op-work + governors + rollback horizon + per-class SLOs for time; the snapshot-storage envelope for space) → durable content-addressed checkpoints and through-death recovery (a REAL successor subprocess reproduces the never-died timeline) → the streamed field (equal-or-refuse over certified demand sets) and the regional state cut (same-witness reunification) — each rung red-first with pinned digests; the full narrative is the studio section above, the per-rung grades are the D5 volumes | `IMPLEMENTED / MEASURED` — reference + five std-only Rust placements (`heightfield`/`latstore`/`glide`/`streamstate`/`latarith`) re-verified LIVE each gate run |
 
 ## Honest boundaries (§9, in our own words)
 
@@ -490,15 +491,15 @@ Each main-tree folder carries its own README with the detail.
 | Path | What lives there | README |
 |---|---|---|
 | [`urdr/`](urdr/) | The language: lexer, parser, checker, evaluator, canon, store, capabilities, modules, compiler — stdlib-only, no circular imports | [`urdr/README.md`](urdr/README.md) |
-| [`spec/`](spec/) | Normative specs D1–D12 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone, **layer contracts D11**, **versions/freeze D12**), the D5 graded ledger, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
+| [`spec/`](spec/) | Normative specs D1–D19 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone, **layer contracts D11**, **versions/freeze D12**, the glyph probe D13, the three one-way boundaries D14–D16, the detector law D17, the gauntlet D19), the D5 graded ledger in two volumes, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
 | [`examples/`](examples/) | The corpus the gate runs: accepted `.urdr` fixtures + golden `.digest`, `rejected/` must-die programs + `MANIFEST.txt`, `must_fail/` the tamper self-test, `vendor/` import-by-digest modules | [`examples/README.md`](examples/README.md) |
 | [`tests/`](tests/) | Unit falsifiers (pytest / unittest), one per subsystem — each designed to be able to go red | [`tests/README.md`](tests/README.md) |
-| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (exact dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`; **bounded fixed-point dynamics** `fp_dynamics.py` + `fp_dynamics_rs/`, the deterministic real-time path — rung 5, cross-placed), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `netcode/` (**`lockstep.py`** — the deterministic lockstep spine, rung N1: peers exchange inputs only, one witness chain, desyncs detected + localized), `world_host/` (runtime reference), `editor/` (a browser **authoring + deterministic-replay** front-end — draw wireframe objects, populate a 3D world with full physical state (mass/collider/material/velocity/joints), and a ▷ **Replay** mode that scrubs a run witness-by-witness with contacts/impulses/momentum/λ overlays *read from the recorded witnesses*; `replay.py` drives the exact solvers and the bounded `--fp` path, `load_world.py` renders an exported scene through the exact `perspective.py`; **exploratory** as a whole, but the fixed-point stepping it demos is the gated rung 5), `frontfps/` (the seven-stage FPS/MMO authoring ladder — world canon, Q32.32 rotation, pose/clip, posed hitboxes, view stream, LLM text surface, native bench — all cross-placed C99+Rust), `homology/` (**`URDRPD1`** — 𝔽₂ persistent homology + a topological OOB/anti-cheat witness, three placements), `frontend/` (D14 admission canon + D15 view contract + SVG import + rigidity certificate), `tracer/` (photo→wireframe), `linear/` (D13 C4 linearity staging study), `specfreeze/` (the D12 freeze manifest, mechanically checked), `registry/`, plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
+| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (exact dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`; **bounded fixed-point dynamics** `fp_dynamics.py` + `fp_dynamics_rs/`, the deterministic real-time path — rung 5, cross-placed), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `netcode/` (**`lockstep.py`** — the deterministic lockstep spine, rung N1: peers exchange inputs only, one witness chain, desyncs detected + localized), `world_host/` (runtime reference), `editor/` (a browser **authoring + deterministic-replay** front-end — draw wireframe objects, populate a 3D world with full physical state (mass/collider/material/velocity/joints), and a ▷ **Replay** mode that scrubs a run witness-by-witness with contacts/impulses/momentum/λ overlays *read from the recorded witnesses*; `replay.py` drives the exact solvers and the bounded `--fp` path, `load_world.py` renders an exported scene through the exact `perspective.py`; **exploratory** as a whole, but the fixed-point stepping it demos is the gated rung 5), `frontfps/` (the seven-stage FPS/MMO authoring ladder — world canon, Q32.32 rotation, pose/clip, posed hitboxes, view stream, LLM text surface, native bench — all cross-placed C99+Rust), `terrain/` (**the terrain/MMO stage arc** — field canon, movement, latency, storage, recovery, streaming, the regional cut, plus its five live-recompiled Rust placements; module-by-module index in [`tools/terrain/README.md`](tools/terrain/README.md)), `homology/` (**`URDRPD1`** — 𝔽₂ persistent homology + a topological OOB/anti-cheat witness, three placements), `frontend/` (D14 admission canon + D15 view contract + SVG import + rigidity certificate), `tracer/` (photo→wireframe), `linear/` (D13 C4 linearity staging study), `specfreeze/` (the D12 freeze manifest, mechanically checked), `registry/`, plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
 | [`demo/`](demo/) | **`prove_it.py`** — a one-command, self-checking proof that the authoritative simulation reproduces bit-for-bit (gated goldens + an authored world's witness chain + exact certified solves); **`lockstep_demo.py`** — two peers exchange inputs only, agree on one witness chain, and catch every injected desync; plus `world_highway.json` | [`demo/README.md`](demo/README.md) |
 | [`docs/`](docs/) | Design briefs and session transcripts (narrative, not normative) | [`docs/README.md`](docs/README.md) |
 | `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
 | `verify.py` | The gate: unit falsifiers + examples (×2) + oracle + modules + rejections + tamper self-test | — |
-| [`LESSONS.md`](LESSONS.md) | The 12 inherited discipline laws, each with where it is enforced | — |
+| [`LESSONS.md`](LESSONS.md) | The discipline laws L1–L17 — twelve inherited, five since paid for in this repo — each with where it is enforced | — |
 
 ## What the manifold / engine can do — and what it's for
 
@@ -557,6 +558,14 @@ catch every injected desync at the first mismatching tick. Walkthrough: [`demo/`
   dependency-free WebGL2 view whose pixels are *declared* while its embedded digests must **cite** the
   measured field or the gate reddens (`view_witness`). Edit any layer surgically: canon drift, a stale port,
   or a forged citation each redden on commit (full detail in the studio section above).
+- **Run a certified MMO substrate end-to-end.** Glide actors sub-cell over the certified field and
+  reconcile client predictions byte-exactly; certify a latency SLO per priority class (admission wait +
+  rollback window, checked EQUAL to the real governor's drain); price the rollback window's memory and
+  checkpoint it DURABLY as content-addressed records; kill the process and revive from the store alone —
+  the continuation equals the never-died timeline bit-for-bit; stream the field by content-addressed
+  chunks (movement over a partial world reproduces the full world or refuses); cut the actor snapshot per
+  region and reunify it to the byte-identical monolithic window. Every law typed-refuses instead of
+  degrading, and each family's Rust placement is recompiled and re-checked live per gate run.
 
 ### What it's for
 
@@ -615,7 +624,7 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
 `invariant_detectors` lint), a **10-detector library** admitted under it (D14, D15, D16, rigidity, criticality, toric code, persistent homology, winding number, Tellegen orthogonality, reconstructibility), **criticality** (P6, reactor-kinetics field), and
 **field-level desync localization** (Phase-2 observability). See the D5 ledger volumes ([`spec/D5-ledger.md`](spec/D5-ledger.md), [`spec/D5-ledger-2.md`](spec/D5-ledger-2.md)).
 
-- **Phase IV — coverage over architecture (the current direction).** With D17 written and enforced, the
+- **Phase IV — coverage over architecture.** With D17 written and enforced, the
   organizing question is no longer "what subsystem?" but "what invariant deserves admission?" Each new
   detector comes from a qualitatively different mathematical family and must admit under the *same* six
   conditions unchanged; the first that forces D17 to flex would be the informative one. Next candidates,
@@ -623,27 +632,41 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   algebraic witnesses), then a searchable **detector atlas**. Deliberately *not* pursued: new D-series
   meta-contracts, new primitive alphabets, or automatic detector discovery — D17 is young and the
   strongest evidence now comes from admitting diverse detectors, not adding architecture.
+- **Phase V — the MMO stage arc (what the direction became).** The work since Phase IV ran the terrain
+  ladder from movement to the regional cut: Stages A–B (continuous movement + byte-exact reconciles),
+  C–E (relevance, handoff, anti-cheat), H (the latency guarantee on both axes — time certified as
+  op-work + governors + horizon + per-class SLOs, space as the priced snapshot window), the durability/
+  recovery capstones (content-addressed checkpoints; revival through a real process death), and the
+  Stage-I openers (the streamed field, the regional cut — both under same-witness laws), closing with
+  the placement batch: every rung of the streak independently placed and live-re-verified. The queued
+  next rung is the **mutable chunked world** (live edits — the shared "until live world edits" boundary
+  of every storage rung), with the N2-window/durable-window unification behind it.
 - **Cross-placement of the reference detectors.** D17's Axis A (reproduction) separates `REFERENCE` from
   `CROSS-PLACED`. Toric and rigidity are now cross-placed (C99 self-verified + Rust admitted on Windows);
   **criticality** and **persim** remain reference-only and are the next cross-placement targets.
-- **Live re-verification of every placement (generalize `heightfield-placement`).** The terrain port is
-  now recompiled and re-checked against its live goldens each gate run, so a re-pinned canon cannot leave a
-  stale Rust port green. The same stage generalizes to the rest of the library — `winding_rs`, `toric`/
-  `rigidity` (Rust + C99), and the math/netcode C99+Rust runtimes are currently *attested in-session*;
-  bringing each under live re-verification turns the whole cross-placement library from historical
-  attestation into continuous enforcement. The only cost is build time per gate run.
+- **Live re-verification of every placement (generalize `heightfield-placement`) — five stages of
+  progress recorded.** The pattern has since generalized across the terrain arc: `latstore-`, `glide-`,
+  `streamstate-`, and `latarith-placement` now join `heightfield-placement`, each recompiling its
+  std-only Rust fresh per gate run against the LIVE goldens with a source-mutation selftest that must
+  diverge — so a re-pinned canon reddens rather than silently staling a port, and rustc-less hosts
+  record SKIPPED honestly. Still *attested in-session* and next in line: `winding_rs`, `toric`/
+  `rigidity` (Rust + C99), and the math/netcode C99+Rust runtimes. The only cost is build time per run.
 - **The terrain/wave studio's own roadmap.** Presentation-side (all `DECLARED`, never touching the
   authority): a sun-lit sea floor + caustics where shallow water reveals bathymetry, and a soft shoreline
   to smooth the wave/land seam. Contract-side (`MEASURED`): a no-CDN assertion proving the view fetches
   nothing third-party, and auto-discovery of view files into the `view_witness` `VIEWS` list so a new
   fidelity overlay inherits the forgery-proof citation contract by construction. Canon-side: a second wave
   placement (`URDRWAV1` → Rust) and the `URDROBJ2` terrain-bridge port.
-- **Scale-out as falsification of the sealed model (D16 → the next workloads).** The next surfaces —
-  **dynamic repartitioning** (seams that move / regions that split & merge on a live tick),
-  **interest-management / authority migration**, and a **distributed authority graph** — are pursued as
-  *attempts to break the model*: each is expected to compose on the existing witness laws, and a clean
-  pass is one more datum in **D5 § "Evidence Against C8."** Graded by integration tests and, where a
-  witness is involved, by the same bit-for-bit composition discipline as D16 — not a new primitive.
+- **Scale-out as falsification of the sealed model (D16 → the next workloads) — one half already
+  answered.** The SNAPSHOT half of dynamic repartitioning is now answered *by construction*: because the
+  regional state cut reunifies to the partition-free monolithic window (URDRCHS1's same-witness law),
+  re-partitioning a saved world across cuts — even at different region sizes per boundary — cannot move
+  the witness (recorded as Volume II's opening design-context entry, one more datum in **D5 §
+  "Evidence Against C8"**). What remains open, still pursued as attempts to break the model: **live
+  authority migration** (which region SIMULATES which actor, mid-window, under load — seams that move on
+  a live tick) and the **distributed authority graph**; interest RELEVANCE is certified (`interest`,
+  URDRAOI1) while interest-filtered wire replication stays declared. Graded by the same bit-for-bit
+  composition discipline as D16 — not a new primitive.
 - **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and two
   detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **29 Rust + 14 C99
   placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
@@ -684,8 +707,9 @@ is [`LESSONS.md`](LESSONS.md); the normative language rules are [`spec/D1-spec.m
 4. **Gate twice.** `python verify.py` green, deterministically, in isolated subprocesses (L3).
 5. **Cross-placement.** A numeric / observer result earns *both placements* only once an independent
    toolchain reproduces its pinned digest — two kernels agreeing on the accept/reject frontier. Where
-   the gate can compile the port (`heightfield-placement`), that cross-placement is **re-verified live
-   every run**, not merely attested once (D17 Axis A).
+   the gate can compile the port (the five `*-placement` stages: heightfield, latstore, glide,
+   streamstate, latarith), that cross-placement is **re-verified live every run**, not merely attested
+   once (D17 Axis A).
 6. **No glyph without a review.** New *operations* arrive as ASCII prelude functions; a glyph is
    *earned* later as a lossless alias via `tools/glyph_review.py` (§20), or never (design law 5).
 7. **Determinism is an environment:** `PYTHONHASHSEED=0`, `PYTHONUTF8=1` on redirected output; no
@@ -699,8 +723,9 @@ is [`LESSONS.md`](LESSONS.md); the normative language rules are [`spec/D1-spec.m
 For the terrain/wave studio, the three ways a certified graphics engine could silently rot are each a
 red row on commit, not a convention: **canon drift** — edit a heightfield/wavefield constant and the
 dependent `*:scenes` rows *and* `view-witness:cite` redden; **a stale port** — re-pin the Python canon
-and `heightfield-placement` reddens until the Rust port is brought current, because the port is
-recompiled and re-checked against the live goldens every run; **a forged citation** — the declared
+and the matching `*-placement` stage (heightfield, latstore, glide, streamstate, or latarith) reddens
+until the Rust port is brought current, because every port is recompiled and re-checked against the
+live goldens every run; **a forged citation** — the declared
 view's embedded digests must equal the live measured ones or `view-witness:cite` reddens (the D15
 firewall). Canon drift, stale ports, and forged citations are caught by the gate itself: the discipline
 above is how the code got here, but it is no longer what keeps it honest.
