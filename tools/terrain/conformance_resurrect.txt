@@ -1,0 +1,11 @@
+# URDRLAT6 - resurrect: the resurrection law (T3.38, MMO Stage H capstone). The recovery half of persist:
+# a process that dies after saving its rollback window is revived FROM THE STORE ALONE, and the revived
+# continuation equals the never-died timeline bit-for-bit (through-disk splice equivalence); a late
+# correction resumes auth[k:] from the saved boundary-k state and converges (k = 0 restarts from the
+# retained start — glide's entry mints the seed facing from the first command, cpredict's own k == 0 law);
+# a correction older than the window is RESURRECT-REFUSE (the durable horizon); an integral-but-
+# inconsistent window (ground != floor-sampled authority, non-cardinal facing, off-grid pose) refuses.
+# SHA-256(MAGIC | name | boundary | witness | verdict).
+phoenix c236433802aef2b74e4163513e8bb99bd65a1aa1fdc08fcdc5d81d9b7649fe32
+deep_heal efb28c69bd9d8ce7c5bd5defa03097b93e2c04c675ee566535d0012e13752746
+beyond_window 8a122f0528b457d31bac7319151452dc92972ec12ee81581b81ea86329528b3d

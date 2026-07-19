@@ -6111,6 +6111,138 @@ class Gate:
                     if (tampered and subbed and missing and refused and admitted)
                     else "the chunk-store refusal did not hold")
 
+    def resurrect(self):
+        """The resurrection law (T3.38, MMO Stage H capstone, URDRLAT6): the recovery half of persist — a
+        process that dies after saving its rollback window is revived FROM THE STORE ALONE and its
+        continuation equals the never-died timeline bit-for-bit. Rows: scenes (phoenix / deep_heal /
+        beyond_window reproduce URDRLAT6 digests), death (a REAL successor subprocess, knowing only the
+        store + the static authority + the post log, reproduces the never-died witness — twice,
+        identically), law (the resume law over the corpus incl. a fractional wall pose and the k=0 restart;
+        the retained-count tie), refuse (beyond-window RESURRECT-REFUSE; the consistency refuses —
+        wrong ground / facing / off-grid; a corrupted store file is PERSIST-REFUSE — two voices, each
+        typed)."""
+        import subprocess
+        import tempfile
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import resurrect as RS
+            import persist as PS
+            import storecost as SC
+            import glide as GL
+            import heightfield as HF
+        except Exception as exc:
+            self.record("resurrect", False, f"import failed (resurrect / persist / glide): {exc}")
+            return
+        try:
+            ref_ok = all(RS.scene_result(n) == RS.golden(n) for n in RS.SCENES)
+        except Exception as exc:
+            self.record("resurrect:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("resurrect:scenes", ref_ok,
+                    "phoenix + deep_heal + beyond_window reproduce URDRLAT6 digests"
+                    if ref_ok else "a resurrect config drifted from its digest")
+        fld = HF.scene_digest(HF.SCENES["blank"]())[1]
+        starts, pre, post, ms, sub = ((2, 4), (2, 8), (2, 12)), "eeee", "eenn", 40, 4
+        died = False
+        try:
+            records, _man = PS.checkpoint_window(fld, starts, pre, ms, sub, 4)
+            want = RS.witness(tuple(GL.glide_cells(fld, s, pre + post, ms, sub)[len(pre):]
+                                    for s in starts))
+            env = dict(os.environ)
+            env["PYTHONHASHSEED"] = "0"
+            env["PYTHONUTF8"] = "1"
+            with tempfile.TemporaryDirectory(prefix="urdr_resurrect_gate_") as td:
+                addr = PS.save_window(td, records)
+                outs = []
+                for _ in range(2):
+                    proc = subprocess.run(
+                        [sys.executable, "-B", os.path.join(ROOT, "tools", "terrain", "resurrect.py"),
+                         td, addr, "blank", post, str(ms), str(sub), "last"],
+                        capture_output=True, text=True, env=env, timeout=120)
+                    outs.append(proc.stdout.strip() if proc.returncode == 0 else f"rc={proc.returncode}")
+                died = outs[0] == outs[1] == want
+        except Exception:
+            died = False
+        self.record("resurrect-death", died,
+                    "a REAL successor process — knowing only the store, the static authority, and the post "
+                    "log — reproduces the never-died continuation witness, twice, bit-identically (the only "
+                    "channel across the death is the disk)"
+                    if died else "the through-death equality did not hold")
+        law = tie = True
+        try:
+            corpus = ((fld, ((2, 4), (2, 8), (2, 12)), "eeee", "eenn", 40, 4, 4),
+                      (fld, ((2, 8),), "EEEE", "ww", 40, 4, 2),
+                      (fld, ((2, 8),), "eeee", "e", 40, 16, 0))
+            for f, ss, p, q, m, sb, hz in corpus:
+                recs, man = PS.checkpoint_window(f, ss, p, m, sb, hz)
+                window = RS.revive_mem(f, man, {PS.address(r): r for r in recs})
+                if len(window) != SC.retained_snapshots(hz):
+                    tie = False
+                resumed = RS.resume_from(f, window, len(p), q, m, sb)
+                for i, s in enumerate(ss):
+                    if resumed[i] != GL.glide_cells(f, s, p + q, m, sb)[len(p):]:
+                        law = False
+            mfld = HF.scene_digest(HF.SCENES["mountains"]())[1]
+            recs, man = PS.checkpoint_window(mfld, ((2, 0),), "Ene", 20, 4, 3)
+            window = RS.revive_mem(mfld, man, {PS.address(r): r for r in recs})
+            heal = RS.resume_from(mfld, window, 1, "ee", 20, 4)
+            if heal[0] != GL.glide_cells(mfld, (2, 0), "Eee", 20, 4)[1:]:
+                law = False
+            restart = RS.restart_from(mfld, window, "Eee", 20, 4)
+            if restart[0] != GL.glide_cells(mfld, (2, 0), "Eee", 20, 4):
+                law = False
+        except Exception:
+            law = False
+        self.record("resurrect-law", law and tie,
+                    "restore(checkpoint) -> resume equals the never-died suffix per actor over the corpus "
+                    "(incl. H=0 and a FRACTIONAL wall-stopped pose); the k=0 restart equals the full "
+                    "authority re-glide (cpredict's own k==0 law, durable); the revived window retains "
+                    "exactly retained_snapshots(H) boundaries"
+                    if (law and tie) else "the resurrection law did not hold")
+        beyond = ground = face = offgrid = corrupt = False
+        try:
+            recs, man = PS.checkpoint_window(fld, ((2, 8),), "eeeeee", 40, 4, 2)
+            window = RS.revive_mem(fld, man, {PS.address(r): r for r in recs})
+            try:
+                RS.resume_from(fld, window, 3, "n", 40, 4)
+            except RS.ResurrectError as exc:
+                beyond = exc.code == "RESURRECT-REFUSE"
+            good = SC.boundary_state(fld, ((2, 8),), "eeee", 40, 4, 4)
+            fx, fy, g, fc = good[0]
+            for bad, flag in ((((fx, fy, g + 1, fc),), "ground"), (((fx, fy, g, 5),), "face"),
+                              (((200 << 32, fy, g, fc),), "offgrid")):
+                try:
+                    RS.check_states(fld, ((4, bad),))
+                except RS.ResurrectError as exc:
+                    if exc.code == "RESURRECT-REFUSE":
+                        if flag == "ground":
+                            ground = True
+                        elif flag == "face":
+                            face = True
+                        else:
+                            offgrid = True
+            with tempfile.TemporaryDirectory(prefix="urdr_resurrect_bad_") as td:
+                recs2, _m = PS.checkpoint_window(fld, ((2, 8),), "eeee", 40, 4, 4)
+                addr = PS.save_window(td, recs2)
+                victim = os.path.join(td, PS.address(recs2[2]))
+                raw = bytearray(open(victim, "rb").read())
+                raw[40] ^= 0xFF
+                with open(victim, "wb") as fh:
+                    fh.write(bytes(raw))
+                try:
+                    RS.revive(fld, td, addr)
+                except PS.PersistError:
+                    corrupt = True
+        except Exception:
+            beyond = False
+        self.record("resurrect-refuse", beyond and ground and face and offgrid and corrupt,
+                    "a correction beyond the durable window, an inconsistent ground, a non-cardinal facing, "
+                    "and an off-grid pose are RESURRECT-REFUSE; a corrupted store file is PERSIST-REFUSE — "
+                    "each voice typed, nothing repaired"
+                    if (beyond and ground and face and offgrid and corrupt)
+                    else "the resurrection refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -6431,6 +6563,7 @@ def main() -> int:
     gate.storecost()
     gate.persist()
     gate.chunkload()
+    gate.resurrect()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
