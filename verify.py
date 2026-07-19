@@ -6467,6 +6467,91 @@ class Gate:
                     "re-verification is load-bearing (gate can redden)"
                     if caught else "the mutated port still reproduced the goldens, or the floordiv anchor moved")
 
+    # -- 2p7. latstore_rs cross-placement, RE-VERIFIED LIVE (the Stage-H storage family) -
+    def latstore_placement(self):
+        """The latstore_rs cross-placement, RE-VERIFIED LIVE — the placement-batch opener for the
+        Python-only Stage-H/I streak. One std-only Rust file (own hand-rolled SHA-256) reproduces the SIX
+        pinned storage-family digests against the LIVE conformance goldens: URDRLAT4 storecost (one_h4 /
+        five_h8 / over_budget — pure closed forms, FULLY placed) and URDRLAT5 persist (one_h4_durable /
+        five_h8_durable / tampered — the record / manifest / window / envelope byte laws placed in full;
+        the scene STATES come from a scene-domain fold covering the pinned flat-field east-walk corpus
+        only, so the general glide fold remains Python-reference-only and D5 says so). The binary also
+        self-checks: closed forms vs real bytes, round-trips incl. near-int64 extremes, an EXHAUSTIVE
+        single-byte corruption + truncation sweep over the pinned 77-byte record, and the realization
+        identity. Non-vacuity: a mutated POSE_BYTES layout (25 -> 24) MUST diverge. Requires rustc; if
+        absent both rows are recorded SKIPPED (honestly labelled) so the row count stays host-stable."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import storecost as SC
+            import persist as PS
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("latstore-placement", False, f"import failed: {exc}")
+            self.record("latstore-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(tdir, "latstore_rs", "latstore.rs")
+        try:
+            golds = {name: SC.golden(name) for name in SC.SCENES}
+            golds.update({name: PS.golden(name) for name in PS.SCENES})
+        except Exception as exc:
+            self.record("latstore-placement", False, f"live goldens unreadable: {exc}")
+            self.record("latstore-placement-selftest", False, "no goldens")
+            return
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "latstore.rs missing"
+            self.record("latstore-placement", True,
+                        f"SKIPPED ({why}) — latstore_rs was NOT re-verified this run; the D5 "
+                        f"cross-placement claim is unchecked here (install rustc to enable)")
+            self.record("latstore-placement-selftest", True, f"SKIPPED ({why})")
+            return
+
+        def compile_run(source_text):
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "ls.rs")
+                bp = os.path.join(td, "ls.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(source_text)
+                cp = subprocess.run([rustc, "-O", sp, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                try:
+                    rp = subprocess.run([exe], capture_output=True, text=True)
+                except OSError:
+                    return None
+                out = {}
+                for ln in rp.stdout.split("\n"):
+                    parts = ln.strip().split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+                return out
+
+        real = open(src, encoding="utf-8").read()
+        got = compile_run(real)
+        got2 = compile_run(real)
+        ref_ok = (got is not None and got == got2 and got.get("selfcheck") == "OK"
+                  and all(got.get(name) == golds[name] for name in golds))
+        self.record("latstore-placement", ref_ok,
+                    "latstore_rs recompiles and reproduces the LIVE URDRLAT4 + URDRLAT5 goldens (six "
+                    "scenes) bit-for-bit, twice, with its exhaustive corruption/truncation selfcheck OK — "
+                    "re-pinning the Python canon forces the Rust to keep up or this reddens"
+                    if ref_ok else "latstore_rs did NOT reproduce the live storage-family goldens")
+        anchor = "const POSE_BYTES: usize = 3 * WORD + FACING_BYTES;"
+        mgot = (compile_run(real.replace(anchor, "const POSE_BYTES: usize = 3 * WORD;", 1))
+                if anchor in real else None)
+        caught = (anchor in real) and (mgot is None or any(mgot.get(name) != golds[name] for name in golds))
+        self.record("latstore-placement-selftest", caught,
+                    "a mutated pose layout (25 -> 24 bytes) diverges from the goldens — the live "
+                    "re-verification is load-bearing (gate can redden)"
+                    if caught else "the mutated port still reproduced the goldens, or the layout anchor moved")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -6708,6 +6793,7 @@ def main() -> int:
     gate.resurrect()
     gate.chunkstate()
     gate.heightfield_placement()
+    gate.latstore_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
