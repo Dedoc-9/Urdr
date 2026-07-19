@@ -109,7 +109,10 @@ These are non-negotiable. Every rung in this repo was built under them.
 1. **Honest grading (no inflation).** Every capability claim carries two grades:
    **maturity** (`IMPLEMENTED` / `SCOPED` / `SPECULATIVE`) and **evidence**
    (`MEASURED` / `DECLARED` / `N/A`), and evidence never exceeds maturity. The
-   graded inventory is [`spec/D5-ledger.md`](spec/D5-ledger.md). Never write a
+   graded inventory is [`spec/D5-ledger.md`](spec/D5-ledger.md) (Volume I, sealed at the
+   placement-batch closure) continued in [`spec/D5-ledger-2.md`](spec/D5-ledger-2.md)
+   (the live volume — new entries append there; a capability's current grade is its
+   latest entry across the volumes). Never write a
    grade the gate does not support. `admitted ≠ trusted` — a green gate certifies
    *these tests on this code*, never that a name means what it says.
 
@@ -186,7 +189,7 @@ These are non-negotiable. Every rung in this repo was built under them.
     planted stale count, so a green `doc-currency` means the docs are current, not that
     the check was skipped. Deliberately NOT tracked (they carry historical or
     forward-looking numbers the idiom would wrongly read as live counts): `spec/D5` (the
-    graded ledger — it records `x → y` count steps) and `spec/D17` (it names a future
+    graded ledger, BOTH volumes — it records `x → y` count steps) and `spec/D17` (it names a future
     catalog size). `spec/D11` is the layer contracts, `spec/D12` the versions/freeze. A
     doc that overstates is a bug — the gate now files it for you.
 

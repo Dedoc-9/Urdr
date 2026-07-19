@@ -1,6 +1,13 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 
-# D5 — Boundaries ledger (every claim graded)
+# D5 — Boundaries ledger (every claim graded) — VOLUME I (sealed)
+
+> **VOLUME I is SEALED as of commit `cb14318`** — the epoch at which the terrain placement batch closed
+> with the ledger at zero (every Stage-B..I rung independently placed and re-verified live). Entries here
+> are immutable history except for corrections of record. **New entries append to
+> [`D5-ledger-2.md`](D5-ledger-2.md)** — the live volume, which also carries the state-at-opening stamp.
+> The graded inventory remains the two volumes together; a capability's current grade is its LATEST entry
+> across them.
 
 Grades: **maturity** `IMPLEMENTED` / `SCOPED` / `SPECULATIVE` × **evidence** `MEASURED` /
 `DECLARED` / `N/A`. Evidence never exceeds maturity's ceiling — the same ladder the
