@@ -1,0 +1,18 @@
+# URDRTST1 - testament: durable intent (T3.44, MMO Stage I). The write that survives its writer —
+# resurrect proved the READ side of death (replay from the store alone); this proves the WRITE side.
+# The testament (144 bytes: MAGIC | regional edit record | SHA-256) is a last WILL (intent surviving
+# its author, executed by a successor only under the conditions it names) and TESTIMONY (evidence,
+# content-addressed, corruption-refusing); the lease it was authored under is DERIVED from the
+# record, never carried. PROBATE inherits the whole lease law (lost-update impossibility, amortized
+# == reproved), gains exactly-once for free (the admission expires the testament's own lease), and
+# its refusals SPEAK: "executed" (the current state IS what this intent produces — rest) vs
+# "distributed" (a foreign edit landed — re-author) vs "unadjudicable" (the parent state is not
+# retained — no flavor guessed from missing evidence). The death boundary is real: testament.py is
+# its own successor (argv = store dir + two addresses; disk the only channel; prints the never-died
+# head twice bit-identically); every estate object hashes to its filename (a SUBSTITUTED intact
+# object refuses — the address IS the identity); the executor is pure (a refusal writes nothing).
+# SHA-256(MAGIC | name | mint | head | flavor | bytes | verdict).
+phoenix_scribe 7f013ea0f397aad2c00893c09aa69de30f6957a0b867bedc34af0dd8f83a6840
+twice_told b5cc3186ad356c015ab2b86274f703d8e7995f4dee9e06eca7389e4396245086
+legacy_race 8942d92c1ce064ccad24bd2df5da208784a6cd6ce36695e3bdee7740b42dbe9a
+sealed_scroll d1db8bd5df31e59141b2a2ff2800a78a13e4aeb474d894f15d70b12e8662ddf8

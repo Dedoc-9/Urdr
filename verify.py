@@ -7036,6 +7036,183 @@ class Gate:
                     "tampered lease refuse; the amortized cost closed form holds under the budget law"
                     if refuse_ok else "the lease refusal did not hold")
 
+    def testament(self):
+        """Durable intent (T3.44, MMO Stage I, URDRTST1): the write that survives its writer — the
+        144-byte testament (MAGIC | regional record | SHA-256, the persist one-digest law on intent),
+        probate inheriting the whole lease law with exactly-once free, refusals that SPEAK (executed
+        / distributed / unadjudicable, each earned from evidence), the REAL successor subprocess
+        (testament.py as its own __main__ — disk the only channel), the filename law with the
+        substitution refuse, and executor purity. Rows: scenes (phoenix_scribe / twice_told /
+        legacy_race / sealed_scroll reproduce URDRTST1 digests), death (the real successor, twice,
+        bit-identical, == the never-died head; purity on the refused path), probate (== living
+        admission == global reproof; exactly-once; the three flavors), refuse (corruption /
+        substitution / orphan forms / unadjudicable honesty / cost)."""
+        import tempfile
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import testament as TS
+            import lease as LS
+            import rannull as RN
+            import terraform as TF
+            import chunkload as CK
+            import storecost as SC
+            import heightfield as HF
+        except Exception as exc:
+            self.record("testament", False, f"import failed (testament / lease / rannull): {exc}")
+            return
+        try:
+            ref_ok = all(TS.scene_result(n) == TS.golden(n) for n in TS.SCENES)
+        except Exception as exc:
+            self.record("testament:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("testament:scenes", ref_ok,
+                    "phoenix_scribe + twice_told + legacy_race + sealed_scroll reproduce URDRTST1 "
+                    "digests" if ref_ok else "a testament config drifted from its digest")
+
+        def _state(fld, c):
+            chunks = CK.cut(fld, c)
+            return CK.field_manifest(fld, c), {CK.address(r): r for r in chunks.values()}
+
+        def _rec_under(man, store, x, y, dh, c):
+            _w, _h, _c, grid = CK.parse_manifest(man)
+            chunk = store[grid[(x // c, y // c)]]
+            kx, ky, cells = CK.restore_chunk(chunk)
+            old = cells[y - ky * c][x - kx * c]
+            return RN.regional_record(CK.address(chunk), kx, ky, x, y, old, old + dh)
+
+        died = pure = False
+        try:
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            man, store = _state(bl, 8)
+            t = TS.testament_record(_rec_under(man, store, 5, 8, 1000, 8))
+            want_man, _wc = TS.probate(man, store, t)
+            want = CK.address(want_man)
+            env = dict(os.environ)
+            env["PYTHONHASHSEED"] = "0"
+            env["PYTHONUTF8"] = "1"
+            with tempfile.TemporaryDirectory(prefix="urdr_testament_gate_") as td:
+                man_addr, t_addr = TS.save_estate(td, man, store.values(), t)
+                outs = []
+                for _ in range(2):
+                    proc = subprocess.run(
+                        [sys.executable, "-B",
+                         os.path.join(ROOT, "tools", "terrain", "testament.py"), td, t_addr, man_addr],
+                        capture_output=True, text=True, env=env, timeout=120)
+                    outs.append(proc.stdout.strip() if proc.returncode == 0 else f"rc={proc.returncode}")
+                died = outs[0] == outs[1] == want
+            # purity on the refused path: a conflicted estate, byte-identical directory after
+            alien = _rec_under(man, store, 6, 8, 77, 8)
+            man2, ch2 = LS.admit(man, store, TS.lease_of(TS.testament_record(alien)), alien)
+            store2 = dict(store)
+            store2[CK.address(ch2)] = ch2
+            with tempfile.TemporaryDirectory(prefix="urdr_testament_gate_") as td:
+                man_addr, t_addr = TS.save_estate(td, man2, store2.values(), t)
+                before = {f: open(os.path.join(td, f), "rb").read() for f in sorted(os.listdir(td))}
+                proc = subprocess.run(
+                    [sys.executable, "-B",
+                     os.path.join(ROOT, "tools", "terrain", "testament.py"), td, t_addr, man_addr],
+                    capture_output=True, text=True, env=env, timeout=120)
+                after = {f: open(os.path.join(td, f), "rb").read() for f in sorted(os.listdir(td))}
+                pure = (proc.returncode == 0 and "TESTAMENT-REFUSE" in proc.stdout
+                        and before == after)
+        except Exception:
+            died = False
+        self.record("testament-death", died and pure,
+                    "a REAL successor process — knowing only the store directory and two addresses, "
+                    "the disk its only channel — prints the never-died admission head, twice, "
+                    "bit-identically; and on a conflicted estate it prints the typed refusal and "
+                    "writes NOTHING (the executor is membrane-pure, the directory byte-identical)"
+                    if (died and pure) else "the through-death admission / purity law did not hold")
+        prob_ok = once_ok = flav_ok = True
+        try:
+            man, store = _state(bl, 8)
+            rec = _rec_under(man, store, 5, 8, 1000, 8)
+            t = TS.testament_record(rec)
+            new_man, new_chunk = TS.probate(man, store, t)
+            live = LS.admit(man, store, TS.lease_of(t), rec)
+            world = CK.reassemble(man, store)
+            lifted = TF.edit_record(TF.parent_address(world, 8), 5, 8, world[8][5],
+                                    world[8][5] + 1000)
+            prob_ok = ((new_man, new_chunk) == live
+                       and CK.address(new_man) == TF.parent_address(TF.apply_edit(world, 8, lifted), 8)
+                       and TS.probate(man, store, t) == (new_man, new_chunk))
+            store2 = dict(store)
+            store2[CK.address(new_chunk)] = new_chunk
+            try:
+                TS.probate(new_man, store2, t)
+                once_ok = False
+            except TS.TestamentError as exc:
+                once_ok = exc.flavor == "executed"
+            alien = _rec_under(man, store, 6, 8, 77, 8)
+            man3, ch3 = LS.admit(man, store, TS.lease_of(TS.testament_record(alien)), alien)
+            store3 = dict(store)
+            store3[CK.address(ch3)] = ch3
+            try:
+                TS.probate(man3, store3, t)
+                flav_ok = False
+            except TS.TestamentError as exc:
+                flav_ok = exc.flavor == "distributed"
+            lean = dict(store3)
+            del lean[RN.restore_regional(rec)[0]]
+            try:
+                TS.probate(man3, lean, t)
+                flav_ok = False
+            except TS.TestamentError as exc:
+                flav_ok = flav_ok and exc.flavor == "unadjudicable"
+        except Exception:
+            prob_ok = False
+        self.record("testament-probate", prob_ok and once_ok and flav_ok,
+                    "probate equals the living admission AND the full global reproof bit-for-bit; "
+                    "exactly-once is free (the admission expires the testament's own lease — the "
+                    "second probate refuses AS 'executed'); and the flavors are earned from evidence "
+                    "— 'distributed' for a foreign edit, 'unadjudicable' when the parent state is "
+                    "not retained (no flavor guessed)"
+                    if (prob_ok and once_ok and flav_ok) else "the probate law did not hold")
+        tamper = subst = orphan_tf = orphan_raw = cost = True
+        try:
+            man, store = _state(bl, 8)
+            t = TS.testament_record(_rec_under(man, store, 5, 8, 1000, 8))
+            other = TS.testament_record(_rec_under(man, store, 12, 4, 77, 8))
+            bad = bytearray(t)
+            bad[60] ^= 0xFF
+            try:
+                TS.restore_testament(bytes(bad))
+                tamper = False
+            except TS.TestamentError:
+                pass
+            with tempfile.TemporaryDirectory(prefix="urdr_testament_gate_") as td:
+                _ma, t_addr = TS.save_estate(td, man, store.values(), t)
+                open(os.path.join(td, t_addr), "wb").write(other)
+                try:
+                    TS.load_testament(td, t_addr)
+                    subst = False
+                except TS.TestamentError:
+                    pass
+            try:
+                TS.testament_record(TF.edit_record(TF.parent_address(bl, 8), 5, 8,
+                                                   bl[8][5], bl[8][5] + 1))
+                orphan_tf = False
+            except TS.TestamentError:
+                pass
+            try:
+                TS.testament_record(b"\x00" * RN.RAN_RECORD_BYTES)
+                orphan_raw = False
+            except TS.TestamentError:
+                pass
+            cost = (TS.estate_cost_bytes(8, 16, 16)
+                    == TS.TESTAMENT_BYTES + LS.admission_cost_bytes(8, 16, 16)
+                    and SC.within_storage_budget(TS.TESTAMENT_BYTES, 1000) is True)
+        except Exception:
+            tamper = False
+        refuse_ok = tamper and subst and orphan_tf and orphan_raw and cost
+        self.record("testament-refuse", refuse_ok,
+                    "a tampered testament refuses; an INTACT testament under the WRONG address "
+                    "refuses (the substitution only the filename law can see); a global terraform "
+                    "record and raw bytes cannot become testaments; the estate cost closed form "
+                    "holds under the budget law"
+                    if refuse_ok else "the testament refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -7709,6 +7886,7 @@ def main() -> int:
     gate.commute()
     gate.rannull()
     gate.lease()
+    gate.testament()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

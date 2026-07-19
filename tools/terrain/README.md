@@ -79,6 +79,16 @@ renews from the new chunk (the lease chain is the region's write history); and e
 `LEASE-REFUSE` in two proven layers — `admit` fetches by the CURRENT slot, never the lease's
 digest, because the anamnesis store still holds the stale bytes and a stale fetch would silently
 revert the interval's edits (the lost update, made impossible rather than avoided).
+`testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
+testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
+surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the
+record (never carried, never incoherent) and inherits the whole lease law; exactly-once is free
+(the admission expires the testament's own lease) and the refusals SPEAK: "executed" (the intent
+is in the world — rest), "distributed" (a foreign edit landed — re-author), "unadjudicable" (the
+parent state is not retained — no flavor guessed). The death boundary is REAL: `testament.py` is
+its own successor (`python testament.py <store> <testament> <manifest>`, disk the only channel,
+prints the never-died head twice bit-identically); every estate object must hash to its filename
+(an intact SUBSTITUTED object refuses); and the executor is pure — a refusal writes nothing.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -96,5 +106,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `WARD-*`, `TERRAIN-REFUSE`) all follow the house law:
-typed, total, reject whole, never repair.
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `WARD-*`, `TERRAIN-REFUSE`) all follow
+the house law: typed, total, reject whole, never repair.
