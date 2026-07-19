@@ -1,0 +1,7 @@
+# URDRLAT4 - storecost: the snapshot-storage envelope (T3.35, MMO Stage H). The SPACE companion to horizon's
+# time bound. snapshot_bytes(n) = 4 + 25*n (4-byte count + 25-byte poses: fx/fy/ground int64 + 1-byte facing),
+# checked EQUAL to len(serialize(real state)); window_storage(H, n) = (H+1) * snapshot_bytes(n). A window over a
+# memory budget is STORAGE-REFUSE. SHA-256(MAGIC | name | n | horizon | snapshot_bytes | window_bytes | verdict).
+one_h4 465fd0c00e079facc62f67e61f0b581b550836130d79488a21837f11d1829052
+five_h8 d0204d3d7356bf85532ba79864a45010242f1f282916dc21350e6d31379ecdcd
+over_budget d9303602d4474a097a7a8f9a6b208efdaba7febb639fd5806e9797d39c601040

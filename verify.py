@@ -5834,6 +5834,66 @@ class Gate:
                     "here)"
                     if refused else "the per-class refusal did not hold")
 
+    def storecost(self):
+        """The snapshot-storage envelope (T3.35, MMO Stage H, URDRLAT4): the SPACE companion to horizon's time
+        bound. snapshot_bytes(n) = 4 + 25*n (checked EQUAL to a real serialization); window_storage(H, n) =
+        (H+1)*snapshot_bytes(n); a window over a memory budget is STORAGE-REFUSE. Rows: scenes (one_h4 /
+        five_h8 / over_budget reproduce URDRLAT4 digests), soundness (the byte count EQUALS len(serialize) for
+        real glide states and round-trips byte-exact), window (== (H+1)*snapshot_bytes, monotone, tied to
+        horizon.worst_case_window), refuse (an over-budget window and an over-range field are STORAGE-REFUSE, a
+        within-budget window admits)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import storecost as SC
+            import horizon as HZ
+        except Exception as exc:
+            self.record("storecost", False, f"import failed (storecost / horizon): {exc}")
+            return
+        try:
+            ref_ok = all(SC.scene_result(n) == SC.golden(n) for n in SC.SCENES)
+        except Exception as exc:
+            self.record("storecost:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("storecost:scenes", ref_ok,
+                    "one_h4 + five_h8 + over_budget reproduce URDRLAT4 digests"
+                    if ref_ok else "a storecost config drifted from its digest")
+        fld = SC._flat16()
+        starts = ((2, 4), (2, 6), (2, 8), (2, 10), (2, 12), (3, 8), (4, 8))
+        sound = True
+        for n in (1, 2, 3, 5, 7):
+            for b in (0, 1, 2, 4):
+                state = SC.boundary_state(fld, starts[:n], "eeee", 40, 4, b)
+                if len(SC.serialize(state)) != SC.snapshot_bytes(n) or not SC.serialize_is_exact(state):
+                    sound = False
+        self.record("storecost-soundness", sound,
+                    "snapshot_bytes(n) equals len(serialize(real glide state)) over the corpus, and deserialize "
+                    "round-trips byte-exact (the byte count is measured, not assumed)"
+                    if sound else "the storage byte count diverged from the real serialization")
+        window_ok = all(SC.window_storage(h, n) == (h + 1) * SC.snapshot_bytes(n)
+                        for n in (1, 3, 5) for h in (0, 1, 4, 8))
+        mono = (SC.window_storage(4, 5) < SC.window_storage(8, 5)
+                and SC.window_storage(8, 1) < SC.window_storage(8, 5))
+        tie = all(SC.retained_snapshots(h) == HZ.worst_case_window(h) + 1 for h in (0, 1, 4, 8))
+        self.record("storecost-window", window_ok and mono and tie,
+                    "window_storage == (H+1)*snapshot_bytes, monotone in H and N, and retained snapshots == "
+                    "horizon.worst_case_window(H)+1"
+                    if (window_ok and mono and tie) else "the window envelope / horizon tie did not hold")
+        refused = overflow = admitted = False
+        try:
+            SC.within_storage_budget(SC.window_storage(8, 5), 1000)
+        except SC.StoreError as exc:
+            refused = exc.code == "STORAGE-REFUSE"
+        try:
+            SC.serialize(((1 << 63, 0, 0, 0),))
+        except SC.StoreError as exc:
+            overflow = exc.code == "STORAGE-REFUSE"
+        admitted = SC.within_storage_budget(SC.window_storage(4, 1), 10000) is True
+        self.record("storecost-refuse", refused and overflow and admitted,
+                    "an over-budget window and an over-range pose field are STORAGE-REFUSE; a within-budget "
+                    "window admits"
+                    if (refused and overflow and admitted) else "the storage refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -6151,6 +6211,7 @@ def main() -> int:
     gate.horizon()
     gate.slo()
     gate.clslo()
+    gate.storecost()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
