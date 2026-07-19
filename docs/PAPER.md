@@ -22,7 +22,7 @@ across five layers: a sealed kernel, an exact-integer math library, a
 certified-physics layer, a deterministic rasterizer, and a world runtime, with
 I/O confined to a capability boundary.
 
-We report a concrete reproducibility result: 27 independent, single-file Rust
+We report a concrete reproducibility result: 28 independent, single-file Rust
 implementations — of the kernel, the renderer, the physics, the exact-integer math
 spine, the bounded fixed-point dynamics, and the four-rung netcode stack (lockstep,
 rollback, authenticated inputs, authored worlds) — reproduce the reference
@@ -229,7 +229,7 @@ defective build **caught** in every case:
 | `toric-rs` / `toric-c` (C99) | **D17 detector**: GF(2) homology — the `torus3` boundary digest + `k = dim H1` (torus 2/3/4 → 2, sphere → 0) | **1** | ADMITTED — Rust (Windows) + C99 (Linux) reproduce the digest and code dimension bit-for-bit |
 | `rigidity-rs` / `rigidity-c` (C99) | **D17 detector**: exact i128-Bareiss rank — four rigidity certificates + the overflow `REFUSE` | **4**(+refuse) | ADMITTED — Rust (Windows) + C99 (Linux) reproduce all verdicts/ranks/dofs and the refusal bit-for-bit |
 
-The 27 Rust and 14 C99 placements share no code, language, or SHA-256 implementation with the
+The 28 Rust and 14 C99 placements share no code, language, or SHA-256 implementation with the
 reference. This is the paper's central result: across the whole pipeline —
 **state, pixels, motion, reactive fields, and the networked transcript** — a
 second, independent implementation computes the identical digest, so the digests
@@ -396,7 +396,7 @@ Urðr demonstrates that a single discipline — content-addressed identity, exac
 computation, certified admissibility, and boundary-confined I/O — can carry
 reproducibility across an entire simulation-and-rendering pipeline, and that the
 reproducibility can itself be *checked* by independent implementations. Concretely,
-27 independent Rust placements (and 14 C99 runtimes) reproduce the reference's state, frame, physics,
+28 independent Rust placements (and 14 C99 runtimes) reproduce the reference's state, frame, physics,
 exact-math, fixed-point-dynamics, and netcode-stack digests — including the
 lockstep/rollback transcript, signed-input admission, an authored world with
 body-body contact, a regionally-partitioned simulation that recomposes to the

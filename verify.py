@@ -6634,6 +6634,95 @@ class Gate:
                     "is load-bearing (gate can redden)"
                     if caught else "the mutated port still reproduced the goldens, or the gait anchor moved")
 
+    # -- 2p9. streamstate_rs cross-placement, RE-VERIFIED LIVE (CHK + CHS + LAT6 + the LAT5 rewire) -
+    def streamstate_placement(self):
+        """The streamstate_rs cross-placement, RE-VERIFIED LIVE — the batch's second repayment: the three
+        streaming/recovery record families in ONE std-only Rust file (they share the fold, the field, and
+        the digest law): URDRCHK1 chunkload (chunk records, field manifest, reassembly, demand sets,
+        equal-or-refuse), URDRCHS1 chunkstate (regional records, cut manifest, partition + same-witness
+        reunification with the four authority refuses), URDRLAT6 resurrect (resume-from-pose, the durable
+        horizon), PLUS the URDRLAT5 persist scenes re-derived through the GENERAL fold — retiring
+        latstore_rs's scene-domain caveat (the in-binary selfcheck proves the general fold reproduces the
+        analytic flat states). TWELVE scene digests against the LIVE conformance goldens, twice, selfchecks
+        OK (reassembly byte-equality at C=8/16, same-witness reunification incl. the monolithic persist
+        record equality, resume == never-died suffix from a fractional wall pose, per-family corruption
+        refuses). Non-vacuity: a mutated sprint gait (2 -> 1) MUST diverge. SKIPPED rows without rustc."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import chunkload as CK
+            import chunkstate as CT
+            import resurrect as RS
+            import persist as PS
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("streamstate-placement", False, f"import failed: {exc}")
+            self.record("streamstate-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(tdir, "streamstate_rs", "streamstate.rs")
+        try:
+            golds = {}
+            for mod in (CK, CT, RS, PS):
+                golds.update({name: mod.golden(name) for name in mod.SCENES})
+        except Exception as exc:
+            self.record("streamstate-placement", False, f"live goldens unreadable: {exc}")
+            self.record("streamstate-placement-selftest", False, "no goldens")
+            return
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "streamstate.rs missing"
+            self.record("streamstate-placement", True,
+                        f"SKIPPED ({why}) — streamstate_rs was NOT re-verified this run; the D5 "
+                        f"cross-placement claim is unchecked here (install rustc to enable)")
+            self.record("streamstate-placement-selftest", True, f"SKIPPED ({why})")
+            return
+
+        def compile_run(source_text):
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "ss.rs")
+                bp = os.path.join(td, "ss.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(source_text)
+                cp = subprocess.run([rustc, "-O", sp, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                try:
+                    rp = subprocess.run([exe], capture_output=True, text=True)
+                except OSError:
+                    return None
+                out = {}
+                for ln in rp.stdout.split("\n"):
+                    parts = ln.strip().split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+                return out
+
+        real = open(src, encoding="utf-8").read()
+        got = compile_run(real)
+        got2 = compile_run(real)
+        ref_ok = (got is not None and got == got2 and got.get("selfcheck") == "OK"
+                  and all(got.get(name) == golds[name] for name in golds))
+        self.record("streamstate-placement", ref_ok,
+                    "streamstate_rs recompiles and reproduces the LIVE URDRCHK1 + URDRCHS1 + URDRLAT6 + "
+                    "URDRLAT5 goldens (twelve scenes) bit-for-bit, twice, selfchecks OK — the streaming and "
+                    "recovery families are independently placed and the persist scene-domain caveat is "
+                    "retired (the general fold reproduces the flat states in-binary)"
+                    if ref_ok else "streamstate_rs did NOT reproduce the live goldens")
+        anchor = "const SPRINT_GAIT: i64 = 2;"
+        mgot = (compile_run(real.replace(anchor, "const SPRINT_GAIT: i64 = 1;", 1))
+                if anchor in real else None)
+        caught = (anchor in real) and (mgot is None or any(mgot.get(name) != golds[name] for name in golds))
+        self.record("streamstate-placement-selftest", caught,
+                    "a mutated sprint gait (2 -> 1) diverges from the goldens — the live re-verification is "
+                    "load-bearing (gate can redden)"
+                    if caught else "the mutated port still reproduced the goldens, or the gait anchor moved")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -6877,6 +6966,7 @@ def main() -> int:
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()
+    gate.streamstate_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()
