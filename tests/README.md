@@ -4,7 +4,7 @@
 
 ## Index
 
-**104 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**105 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,
@@ -38,9 +38,10 @@
   `test_hand`, `test_warden`, `test_crosswarden`, `test_dirward`, `test_wardhom`.
 - **MMO Stage H (the latency guarantee, time and space)** — `test_opcost`, `test_govern`,
   `test_priogov`, `test_horizon`, `test_slo`, `test_clslo`, `test_storecost`.
-- **MMO Stages H/I (durability, recovery, streaming, the regional cut)** — `test_persist`
-  (the durable checkpoint), `test_resurrect` (through-death recovery), `test_chunkload`
-  (equal-or-refuse streaming), `test_chunkstate` (the same-witness regional cut).
+- **MMO Stages H/I (durability, recovery, streaming, the regional cut, the mutable world)** —
+  `test_persist` (the durable checkpoint), `test_resurrect` (through-death recovery), `test_chunkload`
+  (equal-or-refuse streaming), `test_chunkstate` (the same-witness regional cut), `test_terraform`
+  (the mutable chunked world — CAS edit records, exactly-one-slot manifests, certified blast radius).
 - **Staging & freeze** — `test_linear_core` (D13 C4 study), `test_spec_freeze` (D12 manifest).
 
 ## Whitepaper
@@ -48,7 +49,7 @@
 Every test here is designed to be able to go **red**: a test that cannot fail proves nothing
 (LESSONS L5, *validity not outcome*). The suites are falsifiers, not demonstrations — many
 document a defect that was injected, caught, and reverted, which is the evidence the harness
-actually bites. Together they are the `unit-falsifiers` row of the gate: **906 unit falsifiers, 0 red**.
+actually bites. Together they are the `unit-falsifiers` row of the gate: **915 unit falsifiers, 0 red**.
 This is the layer that makes "the checker rejects X" or "the placement reproduces Y" a
 *measured* claim rather than a hope — the negative space (`examples/rejected/`,
 `must_fail/`) is exercised here too.

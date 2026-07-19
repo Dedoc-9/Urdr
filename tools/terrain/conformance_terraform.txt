@@ -1,0 +1,11 @@
+# URDRTFM1 - terraform: the mutable chunked world (T3.40, MMO Stage I). The membrane's ☿-law on terrain:
+# an edit mints a NEW chunk digest + a NEW field manifest (exactly one slot moves; untouched chunks keep
+# their addresses; the parent world still reassembles — anamnesis is an address, not an undo). Edit record
+# = MAGIC | parent manifest digest | x | y | old_h | new_h | SHA-256 (96 bytes); a stale parent or
+# old-height mismatch is TERRAFORM-REFUSE (compare-and-swap — never a silent rebase); replay of the edit
+# log reproduces the head manifest bit-for-bit with order structural via the parent chain; the blast
+# radius is certified by demand sets; a snapshot whose ground an edit contradicts refuses on revive.
+# SHA-256(MAGIC | name | parent | head-or-witness | bytes | verdict).
+single_dig cd3e817428e5d9e22bc066242e44f8ddb6bf6b23c3164e898d4547b92884b942
+replay_chain cfc17d0cf209990ee776e0a0d330b7a6f95ffeed8a313e24028e1e0642ad1ef9
+walled_walk aab4ca92c1fc5997456f48d8ef70ef785a83dad618700296e0bb36c6e185dc4e

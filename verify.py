@@ -6385,6 +6385,142 @@ class Gate:
                     if (dbl and lost and annex and mixed and corrupt and refused and admitted)
                     else "the cut-authority refusal did not hold")
 
+    def terraform(self):
+        """The mutable chunked world (T3.40, MMO Stage I, URDRTFM1): the membrane's ☿-law on terrain — an
+        edit mints a NEW chunk digest + a NEW manifest (exactly one slot moves), the parent world stays
+        addressable (anamnesis), the edit record binds parent + old height (CAS — never a silent rebase),
+        replay reproduces the head with order structural, the blast radius is certified by demand sets,
+        and a snapshot the edit contradicts refuses on revive. Rows: scenes (single_dig / replay_chain /
+        walled_walk reproduce URDRTFM1 digests), edit-law (locality + direct-mutation equality + anamnesis
+        over a corpus), chain (replay == head; the blast radius both directions; the stale-snapshot
+        composition both directions), refuse (stale parent / old-height mismatch / off-grid / tampered
+        record / out-of-order replay; the within-budget cost admits)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import terraform as TF
+            import chunkload as CK
+            import persist as PS
+            import resurrect as RS
+            import storecost as SC
+            import glide as GL
+            import heightfield as HF
+        except Exception as exc:
+            self.record("terraform", False, f"import failed (terraform / chunkload / resurrect): {exc}")
+            return
+        try:
+            ref_ok = all(TF.scene_result(n) == TF.golden(n) for n in TF.SCENES)
+        except Exception as exc:
+            self.record("terraform:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("terraform:scenes", ref_ok,
+                    "single_dig + replay_chain + walled_walk reproduce URDRTFM1 digests"
+                    if ref_ok else "a terraform config drifted from its digest")
+        local_ok = anam_ok = True
+        try:
+            for scene, c in (("island", 16), ("blank", 8)):
+                fld = HF.scene_digest(HF.SCENES[scene]())[1]
+                w, h = len(fld[0]), len(fld)
+                for (x, y) in ((10, 10), (0, 0), (w - 1, h - 1)):
+                    rec = TF.edit_record(TF.parent_address(fld, c), x, y, fld[y][x], fld[y][x] + 7)
+                    new_fld = TF.apply_edit(fld, c, rec)
+                    direct = tuple(tuple(v + (7 if (xx, yy) == (x, y) else 0)
+                                         for xx, v in enumerate(row)) for yy, row in enumerate(fld))
+                    old_slots = {k: CK.address(r) for k, r in CK.cut(fld, c).items()}
+                    new_slots = {k: CK.address(r) for k, r in CK.cut(new_fld, c).items()}
+                    moved = sorted(k for k in old_slots if old_slots[k] != new_slots[k])
+                    if new_fld != direct or moved != [(x // c, y // c)]:
+                        local_ok = False
+            fld = HF.scene_digest(HF.SCENES["blank"]())[1]
+            base_man = CK.field_manifest(fld, 16)
+            rec = TF.edit_record(TF.parent_address(fld, 16), 5, 5, fld[5][5], fld[5][5] + 40)
+            new_fld = TF.apply_edit(fld, 16, rec)
+            store = {CK.address(r): r for r in CK.cut(fld, 16).values()}
+            store.update({CK.address(r): r for r in CK.cut(new_fld, 16).values()})
+            anam_ok = (CK.reassemble(base_man, store) == fld
+                       and CK.reassemble(CK.field_manifest(new_fld, 16), store) == new_fld)
+        except Exception:
+            local_ok = False
+        self.record("terraform-edit", local_ok and anam_ok,
+                    "over the corpus (interior/corner cells, C=8/16), an edit equals the direct mutation "
+                    "byte-for-byte and moves EXACTLY the containing chunk's manifest slot; both the parent "
+                    "and the edited world reassemble from one shared store (anamnesis is an address, not "
+                    "an undo)"
+                    if (local_ok and anam_ok) else "the ☿-locality / anamnesis law did not hold")
+        chain_ok = blast_ok = snap_ok = True
+        try:
+            fld = HF.scene_digest(HF.SCENES["island"]())[1]
+            records, head = TF.edit_chain(fld, 16, ((10, 10, 50), (12, 10, 1000), (10, 10, -30)))
+            _rf, rhead = TF.replay(fld, 16, records)
+            chain_ok = rhead == head
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            rec = TF.edit_record(TF.parent_address(bl, 8), 5, 8, bl[8][5], bl[8][5] + 1000)
+            new_bl = TF.apply_edit(bl, 8, rec)
+            far, near = ((10, 2), "eeee", 40, 4), ((2, 8), "eeee", 40, 4)
+            blast_ok = (GL.glide(bl, *far) == GL.glide(new_bl, *far)
+                        and (5 // 8, 8 // 8) not in CK.demand_chunks(bl, far[0], far[1], far[2], far[3], 8)
+                        and GL.glide(bl, *near) != GL.glide(new_bl, *near)
+                        and (5 // 8, 8 // 8) in CK.demand_chunks(bl, near[0], near[1], near[2], near[3], 8))
+            recs, man = PS.checkpoint_window(bl, ((2, 8),), "eeee", 40, 4, 4)
+            window = RS.revive_mem(bl, man, {PS.address(r): r for r in recs})
+            fx, fy = window[-1][1][0][0] >> 32, window[-1][1][0][1] >> 32
+            under = TF.apply_edit(bl, 16, TF.edit_record(TF.parent_address(bl, 16), fx, fy,
+                                                         bl[fy][fx], bl[fy][fx] + 3))
+            try:
+                RS.check_states(under, window)
+                snap_ok = False
+            except RS.ResurrectError:
+                pass
+            away = TF.apply_edit(bl, 16, TF.edit_record(TF.parent_address(bl, 16), 14, 14,
+                                                        bl[14][14], bl[14][14] + 3))
+            snap_ok = snap_ok and RS.check_states(away, window) == window
+        except Exception:
+            chain_ok = False
+        self.record("terraform-chain", chain_ok and blast_ok and snap_ok,
+                    "replaying the edit log reproduces the head manifest bit-for-bit; the blast radius is "
+                    "certified both ways (a demand-disjoint transcript is bit-identical across the edit, "
+                    "the demanding one diverges at the raised wall); a snapshot whose ground the edit "
+                    "contradicts is RESURRECT-REFUSE on revive while an edit elsewhere leaves revival green"
+                    if (chain_ok and blast_ok and snap_ok) else "the chain / blast-radius / stale-snapshot "
+                    "law did not hold")
+        stale = wrongh = offgrid = tamper = order = admitted = False
+        try:
+            fld = HF.scene_digest(HF.SCENES["island"]())[1]
+            p = TF.parent_address(fld, 16)
+            try:
+                TF.apply_edit(fld, 16, TF.edit_record("0" * 64, 10, 10, fld[10][10], 1))
+            except TF.TerraformError as exc:
+                stale = exc.code == "TERRAFORM-REFUSE"
+            try:
+                TF.apply_edit(fld, 16, TF.edit_record(p, 10, 10, fld[10][10] + 999, 1))
+            except TF.TerraformError:
+                wrongh = True
+            try:
+                TF.apply_edit(fld, 16, TF.edit_record(p, 200, 10, fld[10][10], 1))
+            except TF.TerraformError:
+                offgrid = True
+            rec = TF.edit_record(p, 10, 10, fld[10][10], fld[10][10] + 1)
+            bad = bytearray(rec)
+            bad[40] ^= 0xFF
+            try:
+                TF.restore_edit(bytes(bad))
+            except TF.TerraformError:
+                tamper = True
+            records, _head = TF.edit_chain(fld, 16, ((10, 10, 50), (12, 10, 7)))
+            try:
+                TF.replay(fld, 16, (records[1], records[0]))
+            except TF.TerraformError:
+                order = True
+            admitted = SC.within_storage_budget(TF.edit_cost_bytes(16, 64, 64), 10000) is True
+        except Exception:
+            stale = False
+        self.record("terraform-refuse", stale and wrongh and offgrid and tamper and order and admitted,
+                    "a stale parent, an old-height mismatch, an off-grid target, a tampered record, and an "
+                    "out-of-order replay are TERRAFORM-REFUSE; a within-budget edit admits under "
+                    "storecost's law"
+                    if (stale and wrongh and offgrid and tamper and order and admitted)
+                    else "the terraform refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -7054,6 +7190,7 @@ def main() -> int:
     gate.chunkload()
     gate.resurrect()
     gate.chunkstate()
+    gate.terraform()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

@@ -44,6 +44,14 @@ a REAL successor subprocess). `chunkload.py` — `URDRCHK1`, the field cut into 
 reassembly byte-for-byte to the canon, movement over a partial world equal-or-refuse over its certified
 demand set. `chunkstate.py` — `URDRCHS1`, the regional state cut whose reunification reproduces the
 monolithic persist window byte-for-byte (the D16 same-witness law on dynamic state).
+`terraform.py` — `URDRTFM1`, the mutable chunked world: an edit is a 96-byte content-addressed
+CAS record (magic | parent manifest digest | cell | old/new height | SHA-256) that mints a NEW
+chunk digest + a NEW field manifest with EXACTLY one slot moved — untouched chunks keep their
+addresses, the parent world still reassembles (anamnesis is an address, not an undo); a stale
+parent or old-height mismatch is `TERRAFORM-REFUSE`, never a rebase; replaying the edit log
+reproduces the head manifest bit-for-bit (order structural via the parent chain); the blast
+radius is certified by `chunkload`'s demand sets; `edit_cost_bytes` is a closed form under the
+`STORAGE-REFUSE` budget law, and a durable snapshot an edit has contradicted refuses on revive.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -60,5 +68,6 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 `GATE PASSED`). A single family's falsifiers: `python -m unittest tests.test_<name>` from the root.
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
-`HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`, `WARD-*`,
-`TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.
+`HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
+`TERRAFORM-`, `WARD-*`, `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole,
+never repair.
