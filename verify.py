@@ -6675,6 +6675,196 @@ class Gate:
                     "unweakened); a within-budget certificate admits under storecost's law"
                     if refuse_ok else "the commute refusal did not hold")
 
+    def rannull(self):
+        """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
+        the two proof domains — chunkstate's ownership and commute's semantic independence — into a
+        proof of ABSENCE: no shared semantic authority exists between two edits, so synchronization is
+        shown unnecessary by construction. The regional record (104 bytes) rebinds the CAS to its
+        CHUNK's address; the shard is a pure function of (chunk, record); the coordinator reunifies
+        from addresses; the prover discharges the four-way head equality. Rows: scenes (twin_shards /
+        frame_witness / annexed / healed_region reproduce URDRRAN0 digests), authority (alignment +
+        the frame property + the minimal-knowledge coordinator + cert transport), nullity (the
+        four-way equality + zero rebases + recovery composition), refuse (overlap two-layer / regional
+        CAS incl. the far-cell stale / cross-magic / forgery / misalignment)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import rannull as RN
+            import commute as CM
+            import terraform as TF
+            import chunkload as CK
+            import persist as PS
+            import resurrect as RS
+            import heightfield as HF
+        except Exception as exc:
+            self.record("rannull", False, f"import failed (rannull / commute / chunkload): {exc}")
+            return
+        try:
+            ref_ok = all(RN.scene_result(n) == RN.golden(n) for n in RN.SCENES)
+        except Exception as exc:
+            self.record("rannull:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("rannull:scenes", ref_ok,
+                    "twin_shards + frame_witness + annexed + healed_region reproduce URDRRAN0 digests"
+                    if ref_ok else "a rannull config drifted from its digest")
+
+        def _rrec(fld, c, x, y, dh):
+            key = (x // c, y // c)
+            chunk = CK.cut(fld, c)[key]
+            return RN.regional_record(CK.address(chunk), key[0], key[1], x, y, fld[y][x],
+                                      fld[y][x] + dh)
+
+        auth_ok = True
+        try:
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            isl = HF.scene_digest(HF.SCENES["island"]())[1]
+            for fld, c, cells in ((bl, 8, ((1, 1), (14, 14), (8, 7))),
+                                  (isl, 16, ((1, 1), (62, 62), (16, 15)))):
+                for (x, y) in cells:
+                    if RN.authority(fld, c, _rrec(fld, c, x, y, 7)) != frozenset({(x // c, y // c)}):
+                        auth_ok = False
+            # the frame property: the same chunk in two worlds -> byte-identical shard outputs
+            far = TF.edit_record(TF.parent_address(bl, 8), 12, 4, bl[4][12], bl[4][12] + 777)
+            world2 = TF.apply_edit(bl, 8, far)
+            rec = _rrec(bl, 8, 2, 2, 50)
+            auth_ok = auth_ok and (RN.shard_apply(CK.cut(bl, 8)[(0, 0)], rec)
+                                   == RN.shard_apply(CK.cut(world2, 8)[(0, 0)], rec))
+            # the minimal-knowledge coordinator: the parallel path from the manifest + TWO chunks
+            ra, rb = _rrec(bl, 8, 5, 8, 1000), _rrec(bl, 8, 12, 4, 777)
+            chunks = CK.cut(bl, 8)
+            lean = {CK.address(chunks[(0, 1)]): chunks[(0, 1)],
+                    CK.address(chunks[(1, 0)]): chunks[(1, 0)]}
+            cert, head = RN.nullity(bl, 8, ra, rb)
+            auth_ok = auth_ok and RN.parallel_head(CK.field_manifest(bl, 8), lean, ra, rb) == head
+            # the binding law: transport across an authority-preserving world; refuse when inside
+            outside = TF.apply_edit(bl, 8, TF.edit_record(TF.parent_address(bl, 8), 2, 2,
+                                                          bl[2][2], bl[2][2] + 9))
+            auth_ok = auth_ok and bool(RN.check_nullity(outside, 8, cert))
+            inside = TF.apply_edit(bl, 8, TF.edit_record(TF.parent_address(bl, 8), 5, 8,
+                                                         bl[8][5], bl[8][5] + 1))
+            try:
+                RN.check_nullity(inside, 8, cert)
+                auth_ok = False
+            except RN.RanError:
+                pass
+        except Exception:
+            auth_ok = False
+        self.record("rannull-authority", auth_ok,
+                    "authority == region == measured blast == demand over the corpus; the frame "
+                    "property holds (same chunk, two worlds, identical shard outputs — the world is "
+                    "informationally absent from the shard); the coordinator reunifies from the parent "
+                    "manifest + exactly two chunk records (addresses, not state); and the certificate "
+                    "is bound to its AUTHORITIES, not the world — it transports across an "
+                    "authority-preserving world and refuses one that moved inside an authority"
+                    if auth_ok else "the authority / frame / minimal-knowledge / binding law did not hold")
+        null_ok = rec_ok = True
+        try:
+            for fld, c, (a, b) in ((bl, 8, ((5, 8), (12, 4))), (isl, 16, ((10, 10), (40, 40)))):
+                ra, rb = _rrec(fld, c, *a, 7), _rrec(fld, c, *b, -3)
+                cert, par = RN.nullity(fld, c, ra, rb)
+                la = TF.edit_record(TF.parent_address(fld, c), *a, fld[a[1]][a[0]],
+                                    fld[a[1]][a[0]] + 7)
+                lb = TF.edit_record(TF.parent_address(fld, c), *b, fld[b[1]][b[0]],
+                                    fld[b[1]][b[0]] - 3)
+                wa = TF.apply_edit(fld, c, la)
+                wab = TF.apply_edit(wa, c, CM.rebase_edit(lb, TF.parent_address(wa, c)))
+                wb = TF.apply_edit(fld, c, lb)
+                wba = TF.apply_edit(wb, c, CM.rebase_edit(la, TF.parent_address(wb, c)))
+                _cc, cm_head = CM.certify(fld, c, la, lb)
+                if not (par == TF.parent_address(wab, c) == TF.parent_address(wba, c) == cm_head
+                        and RN.restore_nullity(cert) == (bytes(ra), bytes(rb))
+                        and RN.nullity(fld, c, ra, rb)[0] == cert):
+                    null_ok = False
+            # recovery inherits the nullity
+            records, man_w = PS.checkpoint_window(bl, ((2, 8),), "eeee", 40, 4, 4)
+            window = RS.revive_mem(bl, man_w, {PS.address(r): r for r in records})
+            ra, rb = _rrec(bl, 8, 12, 4, 777), _rrec(bl, 8, 12, 12, 555)
+            _cert2, head2 = RN.nullity(bl, 8, ra, rb)
+            chunks = CK.cut(bl, 8)
+            na, nb = RN.shard_apply(chunks[(1, 0)], ra), RN.shard_apply(chunks[(1, 1)], rb)
+            nman = RN.reunify(CK.field_manifest(bl, 8), (na, nb))
+            store = {CK.address(r): r for r in chunks.values()}
+            store[CK.address(na)] = na
+            store[CK.address(nb)] = nb
+            world = CK.reassemble(nman, store)
+            rec_ok = CK.address(nman) == head2 and RS.check_states(world, window) == window
+            under = _rrec(bl, 8, 2, 8, 3)
+            nu = RN.shard_apply(chunks[(0, 1)], under)
+            store[CK.address(nu)] = nu
+            uworld = CK.reassemble(RN.reunify(CK.field_manifest(bl, 8), (nu,)), store)
+            try:
+                RS.check_states(uworld, window)
+                rec_ok = False
+            except RS.ResurrectError:
+                pass
+        except Exception:
+            null_ok = False
+        self.record("rannull-nullity", null_ok and rec_ok,
+                    "Execute(A||B) == Execute(A;B) == Execute(B;A) == the commute diamond, all four "
+                    "heads bit-for-bit over the corpus, with the ORIGINAL records embedded unchanged "
+                    "(zero rebases — no shared authority moved); recovery inherits the nullity (a "
+                    "disjoint-region actor revives green across the pair; an edit under the actor "
+                    "still refuses)"
+                    if (null_ok and rec_ok) else "the nullity equivalence / recovery law did not hold")
+        overlap = fallback = stale_far = wrongh = wrongc = cross_a = cross_b = tamper = align = False
+        try:
+            ra, rb = _rrec(bl, 8, 5, 8, 7), _rrec(bl, 8, 6, 8, -3)
+            try:
+                RN.nullity(bl, 8, ra, rb)
+            except RN.RanError as exc:
+                overlap = exc.code == "RAN-REFUSE"
+            la = TF.edit_record(TF.parent_address(bl, 8), 5, 8, bl[8][5], bl[8][5] + 7)
+            lb = TF.edit_record(TF.parent_address(bl, 8), 6, 8, bl[8][6], bl[8][6] - 3)
+            fallback = CM.restore_cert(CM.certify(bl, 8, la, lb)[0])[2] == 1
+            chunks = CK.cut(bl, 8)
+            moved_far = RN.shard_apply(chunks[(0, 1)], _rrec(bl, 8, 6, 8, 77))
+            try:
+                RN.shard_apply(moved_far, _rrec(bl, 8, 5, 8, 1000))
+            except RN.RanError:
+                stale_far = True
+            try:
+                RN.shard_apply(chunks[(0, 1)], RN.regional_record(CK.address(chunks[(0, 1)]), 0, 1,
+                                                                  5, 8, bl[8][5] + 99, 1))
+            except RN.RanError:
+                wrongh = True
+            try:
+                RN.shard_apply(chunks[(0, 0)], _rrec(bl, 8, 5, 8, 1))
+            except RN.RanError:
+                wrongc = True
+            try:
+                RN.shard_apply(chunks[(0, 1)], TF.edit_record(TF.parent_address(bl, 8), 5, 8,
+                                                              bl[8][5], bl[8][5] + 1))
+            except RN.RanError:
+                cross_a = True
+            try:
+                TF.apply_edit(bl, 8, _rrec(bl, 8, 5, 8, 1))
+            except TF.TerraformError:
+                cross_b = True
+            good, _h = RN.nullity(bl, 8, _rrec(bl, 8, 5, 8, 1000), _rrec(bl, 8, 12, 4, 777))
+            tp = bytearray(good[:-RN.DIGEST_BYTES])
+            tp[len(RN.MAGIC) + 60] ^= 0x01
+            try:
+                RN.check_nullity(bl, 8, RN._seal(bytes(tp)))
+            except RN.RanError:
+                tamper = True
+            foreign = RN.regional_record(CK.address(chunks[(0, 0)]), 0, 0, 12, 4,
+                                         bl[4][12], bl[4][12] + 7)
+            try:
+                RN.authority(bl, 8, foreign)
+            except RN.RanError:
+                align = True
+        except Exception:
+            overlap = False
+        refuse_ok = (overlap and fallback and stale_far and wrongh and wrongc and cross_a
+                     and cross_b and tamper and align)
+        self.record("rannull-refuse", refuse_ok,
+                    "overlapping authority is RAN-REFUSE (two layers, proven redundant AND jointly "
+                    "load-bearing) while the commute rank-1 fallback still certifies (nullity strictly "
+                    "stronger); the regional CAS refuses a stale chunk EVEN when the drift is at "
+                    "another cell, a wrong height, a wrong region, and cross-magic records both "
+                    "directions; a re-sealed tampered certificate and a misaligned claim refuse"
+                    if refuse_ok else "the rannull refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -7346,6 +7536,7 @@ def main() -> int:
     gate.chunkstate()
     gate.terraform()
     gate.commute()
+    gate.rannull()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

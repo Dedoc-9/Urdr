@@ -1,0 +1,17 @@
+# URDRRAN0 - rannull: RAN-0, the authority-nullity certificate (T3.42, MMO Stage I). The composition
+# of the two proof domains: chunkstate certifies OWNERSHIP, commute certifies SEMANTIC INDEPENDENCE;
+# RAN-0 composes them into a proof of ABSENCE — no shared semantic authority exists between two edits,
+# so synchronization is shown unnecessary by construction. The regional edit record (104 bytes) rebinds
+# the CAS from the world's manifest to its CHUNK's content address — the record names exactly the
+# authority it holds. Execute(A||B) == Execute(A;B) == Execute(B;A): the shard is a pure function of
+# (chunk, record) — the world informationally absent (the frame property); the coordinator reunifies
+# from ADDRESSES (the parent manifest + two new digests — no other chunk's bytes); the prover
+# discharges the four-way head equality (parallel, both serials via the terraform lift, the commute
+# diamond). Zero rebases — no shared authority moved. Overlap is RAN-REFUSE in two proven layers;
+# the commute rank-1 fallback still holds (nullity strictly stronger). Certificates transport across
+# authority-preserving worlds — the portability IS the absence, made visible.
+# SHA-256(MAGIC | name | parent | head-or-witness | shards | bytes | verdict).
+twin_shards a0b2f5d9c2ac16a88de2d9c73e74a5e26b366e3030c2d68dbc098331c1eadfb8
+frame_witness 1ed58842bf447a263f41bcc080ded8a9021cc8fee00413a6c23177fb64d534cd
+annexed 8884130279268c337e97e650c188dd2c864abf9da941c505c94a8bc6e8d84ebd
+healed_region 3090593e0478d4b09d67f523aa83900deee8c3b17e7aaebf359c1b5208fbcbf3
