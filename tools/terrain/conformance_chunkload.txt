@@ -1,0 +1,10 @@
+# URDRCHK1 - chunkload: the chunk loader (T3.37, MMO Stage I opener). The terrain authority cut into
+# content-addressed chunks (record = MAGIC | kx | ky | cw | ch | cells | SHA-256, chunk_bytes(C) = 56 + 8*C*C;
+# the one digest is integrity check, content address, and filename) with a field manifest binding the digest
+# grid (manifest_bytes = 55 + 32*nchunks). Reassembly is byte-for-byte and ties to the URDRHF1 canon; a glide
+# over a partial residency EQUALS the frozen mover bit-for-bit over exactly its demand set or is CHUNK-REFUSE
+# (never unloaded-terrain-as-wall); field_storage / resident_bytes are closed forms under storecost's
+# STORAGE-REFUSE budget law. SHA-256(MAGIC | name | WxH | C | witness | bytes | verdict).
+island16 16c692a3cce6c90125a2333396382ed818f129d87afa9c7433c227a1d7ede900
+walk_demand a2b8f3a48d566661bb52e1d4e264ad6df588b90dbd2f9d46c8b1be67ffa7ba48
+cold_start a651c7e924eeb6137d9b737f56336447b27662600aa904646bc79e861e217546

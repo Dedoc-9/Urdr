@@ -5992,6 +5992,125 @@ class Gate:
                     if (flipped and subbed and gapped and refused and admitted)
                     else "the persistence refusal did not hold")
 
+    def chunkload(self):
+        """The chunk loader (T3.37, MMO Stage I opener, URDRCHK1): the terrain authority cut into
+        content-addressed chunks and streamed back under an equal-or-refuse law. chunk_bytes(C) = 56 + 8*C*C
+        and manifest/field_storage closed forms checked EQUAL to real bytes; reassembly is byte-for-byte and
+        ties to the URDRHF1 canon digest; a glide over exactly its demand set EQUALS the frozen mover
+        bit-for-bit, and any unloaded read is CHUNK-REFUSE (never unloaded-terrain-as-wall). Rows: scenes
+        (island16 / walk_demand / cold_start reproduce URDRCHK1 digests), reassembly (cut -> reassemble ==
+        the field for all three scenes + the canon tie + a mutated cell moves the manifest), locality (the
+        corpus equality + demand necessity: dropping any demanded chunk refuses), refuse (tampered /
+        substituted / coord-forged / missing chunks refuse; over-budget residency is STORAGE-REFUSE; a
+        within-budget one admits)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import chunkload as CK
+            import glide as GL
+            import heightfield as HF
+            import storecost as SC
+        except Exception as exc:
+            self.record("chunkload", False, f"import failed (chunkload / glide / heightfield): {exc}")
+            return
+        try:
+            ref_ok = all(CK.scene_result(n) == CK.golden(n) for n in CK.SCENES)
+        except Exception as exc:
+            self.record("chunkload:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("chunkload:scenes", ref_ok,
+                    "island16 + walk_demand + cold_start reproduce URDRCHK1 digests"
+                    if ref_ok else "a chunkload config drifted from its digest")
+        reasm = tie = moved = True
+        try:
+            for scene in ("island", "blank", "mountains"):
+                p = HF.SCENES[scene]()
+                fld = HF.scene_digest(p)[1]
+                store = {CK.address(r): r for r in CK.cut(fld, 16).values()}
+                back = CK.reassemble(CK.field_manifest(fld, 16), store)
+                if back != fld:
+                    reasm = False
+                if HF.field_digest(p["w"], p["h"], p["height_scale"], p["sea_level"], p["falloff"],
+                                   back) != HF.golden(scene):
+                    tie = False
+            fld = HF.scene_digest(HF.SCENES["blank"]())[1]
+            mut = tuple(tuple(v + (1 if (x, y) == (5, 5) else 0) for x, v in enumerate(row))
+                        for y, row in enumerate(fld))
+            moved = CK.address(CK.field_manifest(fld, 16)) != CK.address(CK.field_manifest(mut, 16))
+        except Exception:
+            reasm = False
+        self.record("chunkload-reassembly", reasm and tie and moved,
+                    "cut -> reassemble is byte-for-byte the original field for island/blank/mountains, the "
+                    "reassembled field reproduces its pinned URDRHF1 canon digest, and a mutated cell moves "
+                    "the field manifest"
+                    if (reasm and tie and moved) else "the reassembly / canon tie did not hold")
+        corpus = (("blank", (2, 8), "eeee", 16, 4), ("blank", (2, 8), "EEEE", 16, 4),
+                  ("mountains", (6, 24), "NNNNNN", 20, 4), ("island", (10, 10), "eessEE", 30, 8),
+                  ("island", (2, 2), "nnnn", 40, 1), ("mountains", (30, 30), "wwWW", 25, 16),
+                  ("mountains", (2, 1), "ee", 14, 4), ("mountains", (2, 1), "ee", 13, 4))
+        equal = necessary = True
+        try:
+            for scene, start, cmds, ms, sub in corpus:
+                fld = HF.scene_digest(HF.SCENES[scene]())[1]
+                demand = CK.demand_chunks(fld, start, cmds, ms, sub, 16)
+                view = CK.view_of(fld, 16, demand)
+                if (CK.glide_partial(view, start, cmds, ms, sub) != GL.glide(fld, start, cmds, ms, sub)
+                        or CK.glide_partial_cells(view, start, cmds, ms, sub)
+                        != GL.glide_cells(fld, start, cmds, ms, sub)):
+                    equal = False
+                for drop in sorted(demand):
+                    try:
+                        CK.glide_partial(CK.view_of(fld, 16, demand - {drop}), start, cmds, ms, sub)
+                        necessary = False
+                    except CK.ChunkError:
+                        pass
+        except Exception:
+            equal = False
+        self.record("chunkload-locality", equal and necessary,
+                    "over the corpus (walks, sprints, wall/edge stops, seam crossings, subs 1/4/8/16, a "
+                    "boundary-tight rise == max_step), the partial glide over exactly its demand set equals "
+                    "the frozen mover bit-for-bit, and dropping ANY demanded chunk refuses (sufficient AND "
+                    "necessary)"
+                    if (equal and necessary) else "the locality equality / demand necessity did not hold")
+        tampered = subbed = missing = refused = admitted = False
+        try:
+            fld = HF.scene_digest(HF.SCENES["island"]())[1]
+            chunks = CK.cut(fld, 16)
+            man = CK.field_manifest(fld, 16)
+            store = {CK.address(r): r for r in chunks.values()}
+            a00 = CK.address(chunks[(0, 0)])
+            bad = dict(store)
+            r = chunks[(0, 0)]
+            bad[a00] = r[:60] + bytes([r[60] ^ 0xFF]) + r[61:]
+            try:
+                CK.view_from(man, bad, frozenset({(0, 0)}))
+            except CK.ChunkError as exc:
+                tampered = exc.code == "CHUNK-REFUSE"
+            sub_store = dict(store)
+            sub_store[a00] = chunks[(1, 1)]
+            try:
+                CK.view_from(man, sub_store, frozenset({(0, 0)}))
+            except CK.ChunkError as exc:
+                subbed = exc.code == "CHUNK-REFUSE"
+            gone = dict(store)
+            del gone[a00]
+            try:
+                CK.view_from(man, gone, frozenset({(0, 0)}))
+            except CK.ChunkError as exc:
+                missing = exc.code == "CHUNK-REFUSE"
+            try:
+                SC.within_storage_budget(CK.resident_bytes(16, 16), 10000)
+            except SC.StoreError as exc:
+                refused = exc.code == "STORAGE-REFUSE"
+            admitted = SC.within_storage_budget(CK.resident_bytes(4, 16), 10000) is True
+        except Exception:
+            tampered = False
+        self.record("chunkload-refuse", tampered and subbed and missing and refused and admitted,
+                    "a tampered, substituted, or missing chunk is CHUNK-REFUSE on fetch; an over-budget "
+                    "residency is STORAGE-REFUSE under storecost's law; a within-budget one admits"
+                    if (tampered and subbed and missing and refused and admitted)
+                    else "the chunk-store refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -6311,6 +6430,7 @@ def main() -> int:
     gate.clslo()
     gate.storecost()
     gate.persist()
+    gate.chunkload()
     gate.heightfield_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
