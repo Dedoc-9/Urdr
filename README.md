@@ -664,9 +664,14 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   predicts the transport theorem); conservation (no authority without evidence, five axes
   individually load-bearing); one lineage (uniqueness modulo certified commutation). The closure
   law going forward: a future capability is lawful iff its evidence EMBEDS — the system stops
-  expanding and starts closing mathematically. The declared arc ahead: the authority algebra
-  (difference/projection/closure), n-way nullity and lease scheduling, live authority migration,
-  essence extended to the read-side families.
+  expanding and starts closing mathematically. THE AREA IS SEALED at quintessence (the ledger's
+  epoch stamp): reopening requires a new entry, never an edit. The recorded exit debt: placement
+  batch #2 (six Python-reference-only families — TFM1/CMU1/RAN0/LSE1/TST1/RBS1, twenty-three
+  pinned scenes), boundary-bound: the next phase does not open until the batch closes. The
+  ratified next phase: THE WIRE — certified replication (equal-or-refuse: every update carries
+  its essence; the receiving client ADMITS rather than applies — the client as verifier). Behind
+  it, declared: the authority algebra, n-way nullity and lease scheduling, live authority
+  migration, essence extended to the read-side families.
 - **Cross-placement of the reference detectors.** D17's Axis A (reproduction) separates `REFERENCE` from
   `CROSS-PLACED`. Toric and rigidity are now cross-placed (C99 self-verified + Rust admitted on Windows);
   **criticality** and **persim** remain reference-only and are the next cross-placement targets.
