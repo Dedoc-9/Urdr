@@ -7888,6 +7888,182 @@ class Gate:
                     "seals anything — eligibility is consumed by admission, never by attempt"
                     if order_ok else "the eligibility-precedes-admission law did not hold")
 
+    def driftgaze(self):
+        """Interest shift (T3.50, W4, URDRDGZ1): the moving client — regions acquired by
+        chunkload's verified fetch against the CURRENT manifest, released cleanly, wire's
+        equal-or-refuse preserved across every shift; the storm's declared gap repair paid.
+        Rows: scenes (wayfarer / crooked_fetch / homecoming / stormrepair reproduce URDRDGZ1
+        digests), fetch (all five acquisition refusal shapes pure + the genuine acquire lands
+        the head), shift (the mover equal to the full-field glide across a changing resident
+        set + interest follows the gaze), repair (stall -> verified refetch -> redelivery
+        refuses as history -> the live update admits -> head-equal)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import driftgaze as DZ
+            import chunkload as CKD
+            import glide as GLD
+            import rannull as RND
+            import wire as WRD
+            import heightfield as HF
+        except Exception as exc:
+            self.record("driftgaze", False, f"import failed (driftgaze / chunkload): {exc}")
+            return
+        try:
+            ref_ok = all(DZ.scene_result(n) == DZ.golden(n) for n in DZ.SCENES)
+        except Exception as exc:
+            self.record("driftgaze:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("driftgaze:scenes", ref_ok,
+                    "wayfarer + crooked_fetch + homecoming + stormrepair reproduce URDRDGZ1 digests"
+                    if ref_ok else "a driftgaze scene drifted from its digest")
+
+        def _edit(man, store, x, y, dh):
+            _w, _h, _c, grid = CKD.parse_manifest(man)
+            chunk = store[grid[(x // 8, y // 8)]]
+            kx, ky, cells = CKD.restore_chunk(chunk)
+            old = cells[y - ky * 8][x - kx * 8]
+            return RND.regional_record(CKD.address(chunk), kx, ky, x, y, old, old + dh)
+
+        def _serve(man, store, rec):
+            nc = RND.shard_apply(store[RND.restore_regional(rec)[0]], rec)
+            st2 = dict(store)
+            st2[CKD.address(nc)] = nc
+            return RND.reunify(man, (nc,)), st2
+
+        import hashlib as _hl
+        fetch_ok = True
+        try:
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            man = CKD.field_manifest(bl, 8)
+            store = {CKD.address(r): r for r in CKD.cut(bl, 8).values()}
+            client = DZ.subscribe_gaze(bl, 8, frozenset({(0, 0)}))
+            before = DZ.gaze_witness(client)
+            w, h, c, grid = CKD.parse_manifest(man)
+            head_len = len(man) - 32 - 32 * len(grid)
+            pre = bytearray(man[:head_len])
+            for ky in range(h // c):
+                for kx in range(w // c):
+                    key = (1, 1) if (kx, ky) == (0, 0) else (kx, ky)
+                    pre += bytes.fromhex(grid[key])
+            forged_man = bytes(pre) + _hl.sha256(bytes(pre)).digest()
+            tampered = bytearray(store[grid[(1, 0)]])
+            tampered[60] ^= 0x01
+            bad_store = dict(store)
+            bad_store[grid[(1, 0)]] = bytes(tampered)
+            gone = dict(store)
+            del gone[grid[(1, 1)]]
+            probes = ((man, bad_store, frozenset({(1, 0)})),
+                      (forged_man, store, frozenset({(0, 0)})),
+                      (man, gone, frozenset({(1, 1)})),
+                      (man, store, frozenset({(7, 7)})),
+                      (CKD.field_manifest(bl, 4), store, frozenset({(1, 0)})))
+            for (m, s, k) in probes:
+                try:
+                    DZ.acquire(client, m, s, k)
+                    fetch_ok = False
+                except (DZ.DriftError, CKD.ChunkError):
+                    pass
+            fetch_ok = fetch_ok and DZ.gaze_witness(client) == before
+            client = DZ.acquire(client, man, store, frozenset({(1, 0)}))
+            _w2, _h2, _c2, g2 = CKD.parse_manifest(man)
+            fetch_ok = fetch_ok and all(CKD.address(ch) == g2[k]
+                                        for k, ch in client["chunks"].items())
+        except Exception:
+            fetch_ok = False
+        self.record("driftgaze-fetch", fetch_ok,
+                    "tampered bytes, a RE-SEALED coord-forged manifest, a missing store entry, an "
+                    "off-grid key, and a dims-mismatched manifest each refuse typed with the "
+                    "replica byte-identical, and the genuine acquisition lands the authority's "
+                    "head — there is no unverified path into residency"
+                    if fetch_ok else "the verified-acquisition law did not hold")
+        shift_ok = True
+        try:
+            client = DZ.subscribe_gaze(bl, 8, frozenset({(0, 0)}))
+            start, cmds = (2, 2), "EEEE"
+            try:
+                CKD.glide_partial(DZ.resident_view(client), start, cmds, 4000, 4)
+                shift_ok = False                             # unloaded must refuse
+            except CKD.ChunkError:
+                pass
+            demand = CKD.demand_chunks(bl, start, cmds, 4000, 4, 8)
+            client = DZ.acquire(client, man, store, demand - set(client["chunks"]))
+            got = CKD.glide_partial(DZ.resident_view(client), start, cmds, 4000, 4)
+            shift_ok = shift_ok and got == GLD.glide(bl, start, cmds, 4000, 4)
+            rec = _edit(man, store, 5, 8, 3)                 # region (0,1): not resident
+            shift_ok = shift_ok and not WRD.relevant(rec, frozenset(client["chunks"]))
+            rec2 = _edit(man, store, 12, 4, 2)               # region (1,0): resident
+            shift_ok = (shift_ok and WRD.relevant(rec2, frozenset(client["chunks"])))
+            client = DZ.gaze_admit(client, rec2)
+            man2, store2 = _serve(man, store, rec2)
+            _w3, _h3, _c3, g3 = CKD.parse_manifest(man2)
+            shift_ok = shift_ok and all(CKD.address(ch) == g3[k]
+                                        for k, ch in client["chunks"].items())
+        except Exception:
+            shift_ok = False
+        self.record("driftgaze-shift", shift_ok,
+                    "the mover CHUNK-REFUSEs on the unloaded demand, then runs on the resident "
+                    "view EQUAL to the full-field glide bit-for-bit after the verified acquire; "
+                    "interest follows the gaze — the unheld region's update is irrelevant, the "
+                    "resident one's admits and mirrors the authority"
+                    if shift_ok else "the equal-across-the-shift law did not hold")
+        repair_ok = True
+        try:
+            client = DZ.subscribe_gaze(bl, 8, frozenset({(0, 1)}))
+            man3, store3 = man, store
+            u1 = _edit(man3, store3, 5, 8, 3)
+            man3, store3 = _serve(man3, store3, u1)
+            client = DZ.gaze_admit(client, u1)
+            u2 = _edit(man3, store3, 6, 8, 2)
+            man3, store3 = _serve(man3, store3, u2)          # LOST
+            u3 = _edit(man3, store3, 5, 9, 1)
+            man3, store3 = _serve(man3, store3, u3)
+            try:
+                DZ.gaze_admit(client, u3)
+                repair_ok = False                            # the stall must be typed
+            except WRD.WireError:
+                pass
+            client = DZ.release(client, frozenset({(0, 1)}))
+            client = DZ.acquire(client, man3, store3, frozenset({(0, 1)}))
+            try:
+                DZ.gaze_admit(client, u3)
+                repair_ok = False                            # history must refuse
+            except WRD.WireError:
+                pass
+            u4 = _edit(man3, store3, 6, 9, 2)
+            client = DZ.gaze_admit(client, u4)
+            man3, store3 = _serve(man3, store3, u4)
+            u5 = _edit(man3, store3, 5, 10, 1)
+            man3, store3 = _serve(man3, store3, u5)          # LOST again
+            u6 = _edit(man3, store3, 6, 10, 2)
+            man3, store3 = _serve(man3, store3, u6)
+            try:
+                DZ.gaze_admit(client, u6)
+                repair_ok = False                            # the second stall, typed
+            except WRD.WireError:
+                pass
+            client = DZ.acquire(client, man3, store3, frozenset({(0, 1)}))  # REFRESH in place
+            try:
+                DZ.gaze_admit(client, u6)
+                repair_ok = False                            # history must refuse
+            except WRD.WireError:
+                pass
+            u7 = _edit(man3, store3, 7, 10, 1)
+            client = DZ.gaze_admit(client, u7)
+            man3, store3 = _serve(man3, store3, u7)
+            _w4, _h4, _c4, g4 = CKD.parse_manifest(man3)
+            repair_ok = repair_ok and all(CKD.address(ch) == g4[k]
+                                          for k, ch in client["chunks"].items())
+        except Exception:
+            repair_ok = False
+        self.record("driftgaze-repair", repair_ok,
+                    "the storm's declared debt is PAID, both ways: the loss-stalled region refuses "
+                    "typed, the repair is a verified re-acquire of the head — release-then-fetch "
+                    "AND refresh-in-place — the redelivered stalled update refuses as "
+                    "already-history after each, and the next live update admits — the replica "
+                    "lands on the authority's head with nothing trusted"
+                    if repair_ok else "the gap-repair law did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -8748,6 +8924,7 @@ def main() -> int:
     gate.wire()
     gate.storm()
     gate.sealwrit()
+    gate.driftgaze()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

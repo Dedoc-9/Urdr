@@ -3,7 +3,8 @@
 # The Wire Phase Brief — the road from the sealed calculus to the visible, adversarial world
 
 STATUS: the phase is OPEN; W1 (`wire`, URDRWIR1, T3.47, `198807e`), W2 (`storm`, URDRSTM1, T3.48,
-`c514f6c`), and W3 (`sealwrit`, URDRSWT1, T3.49) are LANDED.
+`c514f6c`), W3 (`sealwrit`, URDRSWT1, T3.49, `41e0cd7`), and W4 (`driftgaze`, URDRDGZ1, T3.50) are
+LANDED.
 This brief is the long-horizon map for what follows — researched against the 2026 state of the
 world, written in the ledger's voice, and structured so each rung can be held to the covenant
 discipline (recorded ambitions become scheduled rungs, or they are honestly re-declared). Nothing
@@ -68,7 +69,7 @@ state law even runs (eligibility precedes admission, N3's own ordering). Closes 
 declared authenticity hole. The record stays 104 bytes; the signature rides beside it; the client
 verifies both — still a verifier, now of provenance too.
 
-**W4 — `driftgaze`, interest shift.** The moving client: a gliding actor's demand set changes,
+**W4 — `driftgaze`, interest shift. LANDED.** The moving client: a gliding actor's demand set changes,
 regions are ACQUIRED by chunkload's verified fetch (the manifest-bound, coord-forgery-refusing
 stream-in that already exists) and RELEASED cleanly; the law is that a client moving through the
 world never holds an unverified chunk and never desyncs across a subscription change — the

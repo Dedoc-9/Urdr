@@ -1,0 +1,8 @@
+# URDRDGZ1 conformance goldens — interest shift (W4): scene digests pinned AFTER the
+# five planted defects (trusting fetch, sticky gaze, lazy refresh, polite refusal,
+# verdict-blind digest) were each proven to BITE.
+# digest = SHA-256(MAGIC | name | witness | acquired | released | updates | verdict)
+wayfarer a3b5d84f44d6790a4a675ea137215154b163f5c5406683fdd24eaea5494375b7
+crooked_fetch bb279952083575e2f929f328057b29657926168b63b375844f7d116a6939e586
+homecoming 65152f878f75877a1a33803e859cc4ee9572bbc494d12655f15984b706bdc3b4
+stormrepair b39238a88d111388438b7bd39405184b0f973c57e053531fc7438889c562951d

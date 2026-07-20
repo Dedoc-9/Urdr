@@ -127,6 +127,15 @@ a stale record; a broken one cannot block the honest writ. The one-time rule ret
 retry-friendly transport: THE FIRST ADMISSION SEALS THE KEYPAIR TO ITS DIGEST — identical
 redelivery rides free to the CAS, verified-distinct reuse (the leak's exact exploit) refuses
 on the ledger, and a state-refused writ seals nothing, so reordering costs nothing.
+`driftgaze.py` — `URDRDGZ1`, W4: interest shift — the client that MOVES. Regions are
+ACQUIRED by `chunkload`'s verified fetch against the CURRENT authority manifest (tampered,
+substituted, re-sealed-coord-forged, missing, off-grid, and dims-mismatched all refuse pure)
+and RELEASED cleanly; the mover runs on the resident view EQUAL to the full-field glide
+bit-for-bit under a resident set that changes beneath the walk; interest follows the gaze;
+RE-ACQUISITION CARRIES HISTORY (missed updates arrive as already-history and refuse — catching
+up is a fetch, not a replay); a stale acquisition is DETECTED at the next admission's CAS; and
+the storm's declared gap repair is PAID — release-then-fetch AND refresh-in-place both land
+the replica on the authority's head with nothing trusted. Mints nothing: pure composition.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -147,5 +156,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `WARD-*`,
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `WARD-*`,
 `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.
