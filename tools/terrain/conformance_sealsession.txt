@@ -1,0 +1,8 @@
+# URDRSSN1 conformance goldens — the attested session (V5, the visible-world capstone):
+# report digests pinned AFTER the five planted defects (credulous avatar/world/ghost
+# verifiers, anonymous session, digest-blind parse) were each proven to BITE.
+# digest = SHA-256 over the check_session report (witnessed authority of a playthrough)
+stroll 225af46d1eb47abc5acb5a6cd13dc143cbe62050693a5d3b9d69eb270e922293
+wired 6fbe717a228fe15eca207c5e2d5f9732b1d2bf081d7caf6e76e9625ae2566fe4
+multiplayer a448ca3dbe334cb2ad5c3f294581ac0bd755b805300a6cf28d83398a5d0c78f5
+witnessed 38e98d9f78760048e6adbfae4ab3c3137147c1421cc3e6222c1973aae6db3111

@@ -8514,6 +8514,82 @@ class Gate:
                     "graduate a MEASURED claim (gate can redden)"
                     if self_ok else "a tampered or anonymous log was accepted")
 
+    def sealsession(self):
+        """The attested session (T3.56, V5, URDRSSN1) — THE VISIBLE-WORLD CAPSTONE: a play session
+        composing the loop (V1) + the wired world (V2) + the ghosts (V3), recorded as a
+        self-digested trace the gate REPLAYS through the unmodified laws. Rows: scenes (stroll /
+        wired / multiplayer / witnessed reproduce URDRSSN1 report digests), lawful (a genuine
+        movement / wired / multiplayer session replays to its own witnesses), forge (a forged
+        avatar / world / ghost witness and a cheater's malice-claimed edit each refuse — reality
+        may not overrule the law), selftest (a tampered trace and an anonymous session both
+        refuse)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import sealsession as SS
+        except Exception as exc:
+            self.record("sealsession", False, f"import failed (sealsession): {exc}")
+            return
+        try:
+            ref_ok = all(SS.scene_result(n) == SS.golden(n) for n in SS.SCENES)
+        except Exception as exc:
+            self.record("sealsession:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("sealsession:scenes", ref_ok,
+                    "stroll + wired + multiplayer + witnessed reproduce URDRSSN1 report digests"
+                    if ref_ok else "a sealsession scene drifted from its digest")
+        lawful_ok = True
+        try:
+            s = SS.check_session(SS.synth_session("stroll"))
+            w = SS.check_session(SS.synth_session("wired"))
+            m = SS.check_session(SS.synth_session("multiplayer"))
+            lawful_ok = (s["verdict"] == w["verdict"] == m["verdict"] == "LAWFUL"
+                         and s["ticks"] > 0 and w["edits"] > 0 and m["ghosts"] > 0
+                         and SS.report_digest(m) == SS.report_digest(
+                             SS.check_session(SS.synth_session("multiplayer"))))
+        except Exception:
+            lawful_ok = False
+        self.record("sealsession-lawful", lawful_ok,
+                    "a genuine movement / wired (live edits + streaming) / multiplayer (ghost "
+                    "stream) session each replays through the unmodified loop, wire, and ghost laws "
+                    "to its OWN recorded witnesses — the whole visible world attested in one trace, "
+                    "deterministically"
+                    if lawful_ok else "a lawful synthetic session did not verify")
+        forge_ok = True
+        try:
+            for kind, forge in (("stroll", "avatar"), ("wired", "world"),
+                                ("multiplayer", "ghost"), ("wired", "malice")):
+                try:
+                    SS.check_session(SS.synth_session(kind, forge=forge))
+                    forge_ok = False
+                except SS.SessionError:
+                    pass
+        except Exception:
+            forge_ok = False
+        self.record("sealsession-forge", forge_ok,
+                    "a forged avatar / world / ghost witness (a session claiming an outcome the "
+                    "recorded input does not produce) and a cheater's malice-claimed edit (an "
+                    "illegal edit dressed as admitted) each refuse — reality may not overrule the "
+                    "law on any axis"
+                    if forge_ok else "a woven session forgery slipped through the checker")
+        self_ok = True
+        try:
+            text = SS.synth_session("multiplayer")
+            try:
+                SS.parse_session(text.replace("input", "inptu", 1)); self_ok = False
+            except SS.SessionError:
+                pass
+            try:
+                SS.check_session(SS.synth_session("stroll", host="")); self_ok = False
+            except SS.SessionError:
+                pass
+        except Exception:
+            self_ok = False
+        self.record("sealsession-selftest", self_ok,
+                    "a tampered session refuses on its self-digest and an anonymous session refuses "
+                    "on the named-host law (gate can redden)"
+                    if self_ok else "a tampered or anonymous session was accepted")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -9477,6 +9553,7 @@ def main() -> int:
     gate.panewire()
     gate.ghostsnap()
     gate.sealframe()
+    gate.sealsession()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()
