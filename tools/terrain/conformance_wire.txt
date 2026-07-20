@@ -1,0 +1,16 @@
+# URDRWIR1 - wire: EQUAL-OR-REFUSE REPLICATION (T3.47, the wire phase opener). The ratified phase
+# slice: every update IS the essence-bearing object — the 104-byte URDRRAN0 regional record,
+# verbatim; no snapshots, no deltas of derived state, no trust. The receiving client ADMITS under
+# the authority's own laws against its own replica — a verifier, not a believer: a malicious or
+# buggy server is a typed WIRE-REFUSE with the replica byte-unchanged, never a silent desync. The
+# module mints nothing; each absence is a paid-for theorem: NO snapshots (the client derives the
+# new chunk — the frame property makes recomputation exact); NO sequence numbers (in-region order
+# is the parent hash chain — terraform's law on the wire; cross-region order is provably irrelevant
+# — RAN-0's nullity); the interest filter is one frozenset test on the essence's spatial axis,
+# SOUND (exactly-one-slot: an irrelevant edit cannot touch a resident chunk) and NECESSARY with
+# violations DETECTED (a withheld relevant update is caught by the next admission's CAS — drift is
+# refused, never absorbed). SHA-256(MAGIC | name | replica witness | updates | regions | verdict).
+faithful_mirror c2dbf7acd6f2a28c9ac189b64bf18e5aeb0c50fbeaa30430296a30994aa501b2
+narrow_gaze 65b3c85fb1b841087e38338a73d29d488a97a9cd62fbf7d7d90a2408a171092d
+crooked_wire a47a0b205cbb12bcf270a359074ee4f164b484ab10fd4e0b7411a602b77637b1
+silent_drift 509b70c1ce76d5f70235048f026935ea1c672822ad4eb1451efe99eee4f1df07

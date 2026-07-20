@@ -99,6 +99,17 @@ refuses — no authority without evidence. One lineage: every order carries the 
 to the same head (uniqueness modulo certified commutation; SHA-256 collision-resistance the one
 declared pillar). Anything outside the families refuses — no essence is ever guessed. The write
 calculus stops expanding and starts closing.
+`wire.py` — `URDRWIR1`, the wire phase opener: EQUAL-OR-REFUSE REPLICATION. Every update IS the
+104-byte regional record (no snapshots — the client DERIVES the new chunk; the frame property
+makes the recomputation exact); the receiving client ADMITS under the authority's own laws
+against its own replica — a verifier, not a believer (a malicious or buggy server is a typed
+`WIRE-REFUSE` with the replica byte-unchanged, never a silent desync). NO sequence numbers:
+in-region order is the parent hash chain (terraform's law on the wire), cross-region order is
+provably irrelevant (RAN-0's nullity — every interleaving lands the identical replica). The
+interest filter is one frozenset test on the essence's spatial axis — SOUND (exactly-one-slot:
+an irrelevant edit cannot touch a resident chunk) and NECESSARY with violations DETECTED (a
+withheld relevant update is caught by the next admission's CAS — drift is refused, never
+absorbed). The module mints nothing; every absence is a paid-for theorem.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -119,5 +130,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WARD-*`,
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `WARD-*`,
 `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.

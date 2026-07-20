@@ -7520,6 +7520,154 @@ class Gate:
                     "individually load-bearing"
                     if (closed and ablation) else "the closure / conservation law did not hold")
 
+    def wire(self):
+        """EQUAL-OR-REFUSE REPLICATION (T3.48, the wire phase opener, URDRWIR1): every update IS
+        the 104-byte regional record (no snapshots — the client derives; no sequence numbers —
+        in-region order is the parent chain, cross-region order is RAN-0-null); the client ADMITS
+        under the authority's own laws (a verifier, not a believer); the interest filter is sound
+        AND necessary-with-detection. Rows: scenes (faithful_mirror / narrow_gaze / crooked_wire /
+        silent_drift reproduce URDRWIR1 digests), replicate (per-step byte equality + the derived
+        chunk + cross-region interleaving invariance), interest (soundness + the detected drift),
+        refuse (tamper / unheld / out-of-order / duplicate, each with refuse purity)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import wire as WR
+            import rannull as RN
+            import chunkload as CK
+            import heightfield as HF
+        except Exception as exc:
+            self.record("wire", False, f"import failed (wire / rannull / chunkload): {exc}")
+            return
+        try:
+            ref_ok = all(WR.scene_result(n) == WR.golden(n) for n in WR.SCENES)
+        except Exception as exc:
+            self.record("wire:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("wire:scenes", ref_ok,
+                    "faithful_mirror + narrow_gaze + crooked_wire + silent_drift reproduce URDRWIR1 "
+                    "digests" if ref_ok else "a wire config drifted from its digest")
+
+        def _server(fld, c):
+            chunks = CK.cut(fld, c)
+            return CK.field_manifest(fld, c), {CK.address(r): r for r in chunks.values()}
+
+        def _edit(man, store, x, y, dh, c):
+            _w, _h, _c, grid = CK.parse_manifest(man)
+            key = (x // c, y // c)
+            chunk = store[grid[key]]
+            kx, ky, cells = CK.restore_chunk(chunk)
+            old = cells[y - ky * c][x - kx * c]
+            return RN.regional_record(CK.address(chunk), kx, ky, x, y, old, old + dh)
+
+        def _serve(man, store, rec):
+            nc = RN.shard_apply(store[RN.restore_regional(rec)[0]], rec)
+            nm = RN.reunify(man, (nc,))
+            s2 = dict(store)
+            s2[CK.address(nc)] = nc
+            return nm, s2
+
+        rep_ok = True
+        try:
+            import itertools
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            man, store = _server(bl, 8)
+            client = WR.subscribe(bl, 8, frozenset({(0, 0), (0, 1), (1, 0), (1, 1)}))
+            for (x, y, dh) in ((5, 8, 1000), (2, 2, 11), (12, 4, 22), (5, 8, -30), (12, 12, 33)):
+                rec = _edit(man, store, x, y, dh, 8)
+                if len(rec) != RN.RAN_RECORD_BYTES:
+                    rep_ok = False
+                man, store = _serve(man, store, rec)
+                client = WR.client_admit(client, rec)
+                _w, _h, _c, grid = CK.parse_manifest(man)
+                if not all(CK.address(ch) == grid[k] for k, ch in client["chunks"].items()):
+                    rep_ok = False
+            man0, store0 = _server(bl, 8)
+            ra = _edit(man0, store0, 12, 4, 7, 8)
+            rb = _edit(man0, store0, 12, 12, -3, 8)
+            wits = set()
+            for perm in itertools.permutations([ra, rb]):
+                cl = WR.subscribe(bl, 8, frozenset({(1, 0), (1, 1)}))
+                for rec in perm:
+                    cl = WR.client_admit(cl, rec)
+                wits.add(WR.replica_witness(cl))
+            rep_ok = rep_ok and len(wits) == 1
+        except Exception:
+            rep_ok = False
+        self.record("wire-replicate", rep_ok,
+                    "the update is the 104-byte record; after every admission the replica equals "
+                    "the authority byte-for-byte on the resident set (the new chunk DERIVED, never "
+                    "shipped); and every interleaving of disjoint-region updates lands the "
+                    "identical replica — RAN-0's nullity is the wire's cross-region ordering law"
+                    if rep_ok else "the equal-or-refuse replication law did not hold")
+        int_ok = True
+        try:
+            man, store = _server(bl, 8)
+            demand = CK.demand_chunks(bl, (2, 8), "eeee", 40, 4, 8)
+            client = WR.subscribe(bl, 8, demand)
+            far = _edit(man, store, 12, 12, 555, 8)
+            man2, store2 = _serve(man, store, far)
+            _w, _h, _c, grid = CK.parse_manifest(man2)
+            int_ok = (not WR.relevant(far, demand)
+                      and all(CK.address(ch) == grid[k] for k, ch in client["chunks"].items()))
+            near = _edit(man, store, 6, 8, 77, 8)
+            man3, store3 = _serve(man, store, near)             # relevant but WITHHELD
+            stale_next = _edit(man3, store3, 5, 8, 9, 8)
+            try:
+                WR.client_admit(client, stale_next)
+                int_ok = False
+            except WR.WireError:
+                pass
+            int_ok = int_ok and WR.relevant(near, demand)
+        except Exception:
+            int_ok = False
+        self.record("wire-interest", int_ok,
+                    "the interest filter is one frozenset test on the essence's spatial axis — "
+                    "SOUND (an irrelevant edit cannot touch a resident chunk; the unsent client "
+                    "stays byte-equal) and NECESSARY with the violation DETECTED (a withheld "
+                    "relevant update is caught by the next admission's CAS — drift is refused, "
+                    "never absorbed)"
+                    if int_ok else "the interest law did not hold")
+        tamper = unheld = order = dup = pure = raw = True
+        try:
+            man, store = _server(bl, 8)
+            client = WR.subscribe(bl, 8, frozenset({(0, 1)}))
+            before = WR.replica_witness(client)
+            r1 = _edit(man, store, 5, 8, 100, 8)
+            man2, store2 = _serve(man, store, r1)
+            r2 = _edit(man2, store2, 6, 8, 50, 8)
+            bad = bytearray(r1)
+            bad[50] ^= 0x01
+            for update, flag in ((bytes(bad), "tamper"), (r2, "order"),
+                                 (_edit(man, store, 12, 12, 5, 8), "unheld"),
+                                 (b"\x00" * RN.RAN_RECORD_BYTES, "raw")):
+                try:
+                    WR.client_admit(client, update)
+                    if flag == "tamper": tamper = False
+                    if flag == "order": order = False
+                    if flag == "unheld": unheld = False
+                    if flag == "raw": raw = False
+                except WR.WireError:
+                    pass
+            pure = WR.replica_witness(client) == before
+            c1 = WR.client_admit(client, r1)
+            c2 = WR.client_admit(c1, r2)
+            try:
+                WR.client_admit(c2, r2)
+                dup = False
+            except WR.WireError:
+                pass
+        except Exception:
+            tamper = False
+        refuse_ok = tamper and unheld and order and dup and pure and raw
+        self.record("wire-refuse", refuse_ok,
+                    "a tampered update, an unheld region, an out-of-order update, raw bytes, and "
+                    "an exact duplicate each refuse — and every refuse leaves the replica "
+                    "BYTE-IDENTICAL (the client never half-applies); the in-order retry then "
+                    "admits — the wire needs no sequence numbers because the calculus already "
+                    "contains its ordering"
+                    if refuse_ok else "the wire refusal did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -8377,6 +8525,7 @@ def main() -> int:
     gate.testament()
     gate.rollstore()
     gate.quintessence()
+    gate.wire()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()
