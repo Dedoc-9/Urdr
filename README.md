@@ -25,14 +25,14 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **31** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **995-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
+on fixed corpora, behind a **1009-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · the terrain/MMO stage arc T1–T3.48, Stages A–I + the wire: movement → latency → storage → recovery → streaming → the regional cut → the mutable world → certified concurrency → authority nullity → the standing lease → durable intent → the representation theorem → equal-or-refuse replication → the adversarial-transport loom)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · the terrain/MMO stage arc T1–T3.49, Stages A–I + the wire: movement → latency → storage → recovery → streaming → the regional cut → the mutable world → certified concurrency → authority nullity → the standing lease → durable intent → the representation theorem → equal-or-refuse replication → the adversarial-transport loom → the signed wire)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -672,9 +672,10 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   update IS the 104-byte record; the client DERIVES and ADMITS, never trusts; no sequence numbers
   — in-region order is the parent chain, cross-region order is RAN-0-null; the interest filter
   sound and necessary-with-detection). W2 `storm` is LANDED (the DST loom: convergence-under-chaos, typed chaos, the prefix
-  property under loss — the network misbehaves, the gate does not). Ahead in the phase: W3
-  `sealwrit` (sender authenticity — `authinput` composition), W4 `driftgaze` (interest
-  shift), W5 the reality attestation;
+  property under loss — the network misbehaves, the gate does not). W3 `sealwrit` is LANDED
+  (the signed wire: the record verbatim inside a Lamport-sealed writ, eligibility preceding
+  admission, the first-admission-seals-the-keypair one-time law — who may speak, answered).
+  Ahead in the phase: W4 `driftgaze` (interest shift), W5 the reality attestation;
   behind it, declared: the authority algebra, n-way nullity and lease scheduling, live authority
   migration, essence extended to the read-side families.
 - **Cross-placement of the reference detectors.** D17's Axis A (reproduction) separates `REFERENCE` from

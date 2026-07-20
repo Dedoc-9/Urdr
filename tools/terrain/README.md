@@ -118,6 +118,15 @@ primary-reordering floor must produce refusals — one assertion convicts both t
 storm and the 'helpful' silently-buffering client); the PREFIX PROPERTY under measured loss
 with the stall DETECTED; malice-under-chaos; the becalmed control. The network misbehaves,
 the gate does not.
+`sealwrit.py` — `URDRSWT1`, W3: the signed wire — WHO may write composed onto WHAT may
+change. The 104-byte regional record rides VERBATIM inside a 24,712-byte writ sealed by
+`authinput`'s Lamport one-time signature against a pre-committed roster; the client verifies
+provenance AND state — eligibility precedes admission (parse → roster → pin → all 256 bits →
+the seal ledger → only then `wire.client_admit`, unmodified). A valid signature cannot launder
+a stale record; a broken one cannot block the honest writ. The one-time rule retooled for a
+retry-friendly transport: THE FIRST ADMISSION SEALS THE KEYPAIR TO ITS DIGEST — identical
+redelivery rides free to the CAS, verified-distinct reuse (the leak's exact exploit) refuses
+on the ledger, and a state-refused writ seals nothing, so reordering costs nothing.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -138,5 +147,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `WARD-*`,
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `WARD-*`,
 `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.

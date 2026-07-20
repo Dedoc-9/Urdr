@@ -2,7 +2,8 @@
 
 # The Wire Phase Brief — the road from the sealed calculus to the visible, adversarial world
 
-STATUS: the phase is OPEN; W1 (`wire`, URDRWIR1, T3.47, `198807e`) and W2 (`storm`, URDRSTM1, T3.48) are LANDED.
+STATUS: the phase is OPEN; W1 (`wire`, URDRWIR1, T3.47, `198807e`), W2 (`storm`, URDRSTM1, T3.48,
+`c514f6c`), and W3 (`sealwrit`, URDRSWT1, T3.49) are LANDED.
 This brief is the long-horizon map for what follows — researched against the 2026 state of the
 world, written in the ledger's voice, and structured so each rung can be held to the covenant
 discipline (recorded ambitions become scheduled rungs, or they are honestly re-declared). Nothing
@@ -60,7 +61,7 @@ the house's poison); a schedule generator that never actually reorders (a vacuou
 convergence check that samples one client. The storm rung spends W1's absences against the exact
 chaos QUIC datagrams will deliver — and it is the precondition for honest attestation in W5.
 
-**W3 — `sealwrit`, the signed wire (authinput composition).** WHO may write, composed onto WHAT
+**W3 — `sealwrit`, the signed wire (authinput composition). LANDED.** WHO may write, composed onto WHAT
 may change: the regional record wrapped in `authinput`'s Lamport one-time signature against a
 pre-committed roster — the wire refuses an unsigned, mis-signed, or key-reused update BEFORE the
 state law even runs (eligibility precedes admission, N3's own ordering). Closes the wire's

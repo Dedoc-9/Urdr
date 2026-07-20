@@ -1,0 +1,8 @@
+# URDRSWT1 conformance goldens — the signed wire (W3): scene digests pinned AFTER
+# the five planted defects (trusting client, first-byte verifier, amnesiac ledger,
+# admission-first ordering, verdict-blind digest) were each proven to BITE.
+# digest = SHA-256(MAGIC | name | sealed-witness | writs | refusals | verdict)
+signet f3f8d02b02759dfff96403d1f4278a888a8bb9b14b7c1ad96eff9042ef9eb601
+impostor 5f01a7cb2b471a45026403a57654ac3126246dbadfee664f371ce60fbd3f6694
+burnt_seal 26b942b4e40091e1731876853819af2ed7271c79599034149c5596f88c7506a9
+precedence 817fbcdc6a50d40d61b5097cf488d854984a64dea9c79b318ec9c8f70a25bdcd

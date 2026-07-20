@@ -7757,6 +7757,137 @@ class Gate:
                     "the same storm outcome-identically — the network misbehaves, the gate does not"
                     if (malice and calm and det) else "the malice / control / determinism law did not hold")
 
+    def sealwrit(self):
+        """The signed wire (T3.49, W3, URDRSWT1): WHO may write composed onto WHAT may change —
+        the 104-byte regional record verbatim inside a Lamport-sealed writ against a
+        pre-committed roster, eligibility preceding admission (N3's ordering), and the one-time
+        rule retooled for a retry-friendly transport (first admission seals the keypair). Rows:
+        scenes (signet / impostor / burnt_seal / precedence reproduce URDRSWT1 digests),
+        provenance (forgeries refuse before the state law; the first-byte defect verifier accepts
+        the tail-collision the real one refuses), reuse (identical retry rides free to the CAS;
+        verified-distinct state-lawful reuse refuses on the ledger), order (the both-bad writ
+        refuses SEAL; a valid signature cannot launder a stale record)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import sealwrit as SL
+            import wire as WR
+            import chunkload as CKL
+            import rannull as RNL
+            import heightfield as HF
+        except Exception as exc:
+            self.record("sealwrit", False, f"import failed (sealwrit / wire): {exc}")
+            return
+        try:
+            ref_ok = all(SL.scene_result(n) == SL.golden(n) for n in SL.SCENES)
+        except Exception as exc:
+            self.record("sealwrit:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("sealwrit:scenes", ref_ok,
+                    "signet + impostor + burnt_seal + precedence reproduce URDRSWT1 digests"
+                    if ref_ok else "a sealwrit scene drifted from its digest")
+
+        def _edit(man, store, x, y, dh):
+            _w, _h, _c, grid = CKL.parse_manifest(man)
+            chunk = store[grid[(x // 8, y // 8)]]
+            kx, ky, cells = CKL.restore_chunk(chunk)
+            old = cells[y - ky * 8][x - kx * 8]
+            return RNL.regional_record(CKL.address(chunk), kx, ky, x, y, old, old + dh)
+
+        def _serve(man, store, rec):
+            nc = RNL.shard_apply(store[RNL.restore_regional(rec)[0]], rec)
+            st2 = dict(store)
+            st2[CKL.address(nc)] = nc
+            return RNL.reunify(man, (nc,)), st2
+
+        all4 = frozenset({(0, 0), (0, 1), (1, 0), (1, 1)})
+        prov_ok = True
+        try:
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            man, store = CKL.field_manifest(bl, 8), {CKL.address(r): r
+                                                     for r in CKL.cut(bl, 8).values()}
+            roster = SL.fixture_roster([(1, 0), (1, 1)])
+            client = SL.subscribe_sealed(bl, 8, all4, roster)
+            before = SL.sealed_witness(client)
+            rec = _edit(man, store, 5, 8, 100)
+            genuine = SL.seal(1, 0, rec, SL.fixture_keys(1, 0))
+            bad_sig = bytearray(genuine)
+            bad_sig[SL.WRIT_LEN - 100] ^= 0x01
+            forged = SL.forge_tail_collision_writ(1, 0, rec, SL.fixture_keys(1, 0))
+            for probe in (SL.seal(9, 0, rec, SL.fixture_keys(9, 0)),
+                          SL.seal(1, 0, rec, SL.fixture_keys(2, 0)), bytes(bad_sig), forged):
+                try:
+                    SL.client_admit_sealed(client, probe)
+                    prov_ok = False
+                except SL.SealError:
+                    pass
+            prov_ok = (prov_ok and SL.sealed_witness(client) == before
+                       and SL.verify_writ_defect_first_byte(forged, roster))
+            client = SL.client_admit_sealed(client, genuine)
+            prov_ok = prov_ok and len(client["seal"]) == 1
+        except Exception:
+            prov_ok = False
+        self.record("sealwrit-provenance", prov_ok,
+                    "an unregistered, wrong-keyed, mis-signed, or tail-collision-forged writ "
+                    "refuses BEFORE the state law with replica and ledger byte-identical, and the "
+                    "genuine writ still admits (a failed signature blocks nothing honest); the "
+                    "first-byte defect verifier ACCEPTS the forgery the real one refuses — all "
+                    "256 digest bits are load-bearing"
+                    if prov_ok else "the provenance law did not hold")
+        reuse_ok = True
+        try:
+            man2, store2 = _serve(man, store, rec)
+            r2 = _edit(man2, store2, 6, 8, 50)
+            w2 = SL.seal(1, 1, r2, SL.fixture_keys(1, 1))
+            try:
+                SL.client_admit_sealed(client, SL.seal(1, 0, rec, SL.fixture_keys(1, 0)))
+                reuse_ok = False                                # identical: the CAS's job
+            except WR.WireError:
+                pass
+            try:
+                SL.client_admit_sealed(client, SL.seal(1, 0, r2, SL.fixture_keys(1, 0)))
+                reuse_ok = False                                # distinct reuse: the ledger's job
+            except SL.SealError:
+                pass
+            client = SL.client_admit_sealed(client, w2)         # the honest next keypair admits
+            reuse_ok = reuse_ok and len(client["seal"]) == 2
+        except Exception:
+            reuse_ok = False
+        self.record("sealwrit-reuse", reuse_ok,
+                    "the first admission seals the keypair to its digest: an identical redelivery "
+                    "rides free to the CAS (at-most-once, the wire's own), a verified-DISTINCT "
+                    "state-lawful record under a sealed keypair refuses on the ledger (the reuse "
+                    "leak's exact exploit, contained), and the writer's next keypair admits"
+                    if reuse_ok else "the first-admission-seals law did not hold")
+        order_ok = True
+        try:
+            fresh = SL.subscribe_sealed(bl, 8, all4, roster)
+            man3, store3 = _serve(man2, store2, r2)
+            stale = _edit(man3, store3, 5, 8, 7)                # parent the fresh client lacks
+            both_bad = bytearray(SL.seal(1, 1, stale, SL.fixture_keys(1, 1)))
+            both_bad[SL.WRIT_LEN - 1] ^= 0x01
+            try:
+                SL.client_admit_sealed(fresh, bytes(both_bad))
+                order_ok = False
+            except SL.SealError:
+                pass                                            # eligibility spoke first
+            except WR.WireError:
+                order_ok = False                                # the state law spoke first: defect
+            try:
+                SL.client_admit_sealed(fresh, SL.seal(1, 1, stale, SL.fixture_keys(1, 1)))
+                order_ok = False
+            except WR.WireError:
+                pass                                            # the state law's own voice
+            order_ok = order_ok and fresh["seal"] == {}
+        except Exception:
+            order_ok = False
+        self.record("sealwrit-order", order_ok,
+                    "eligibility precedes admission: the writ that is BOTH mis-signed and "
+                    "state-unlawful refuses SEAL (the ordering proof), the perfectly signed stale "
+                    "record refuses WIRE (a signature cannot launder state), and neither refusal "
+                    "seals anything — eligibility is consumed by admission, never by attempt"
+                    if order_ok else "the eligibility-precedes-admission law did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -8616,6 +8747,7 @@ def main() -> int:
     gate.quintessence()
     gate.wire()
     gate.storm()
+    gate.sealwrit()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()
