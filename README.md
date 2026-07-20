@@ -25,14 +25,14 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **32** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **1045-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
+on fixed corpora, behind a **1055-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · **Hainuwele**, the manifold MMO arc (T1–T3.52, Stages A–I + the sealed wire phase — named for the Wemale dema-deity from whose buried, divided body the living crops grew: here, every living capability grows from content-addressed records buried under their own digests): movement → latency → storage → recovery → streaming → the regional cut → the mutable world → certified concurrency → authority nullity → the standing lease → durable intent → the representation theorem → equal-or-refuse replication → the adversarial-transport loom → the signed wire → interest shift → the reality attestation → the windowed loop)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · **Hainuwele**, the manifold MMO arc (T1–T3.53, Stages A–I + the sealed wire phase — named for the Wemale dema-deity from whose buried, divided body the living crops grew: here, every living capability grows from content-addressed records buried under their own digests): movement → latency → storage → recovery → streaming → the regional cut → the mutable world → certified concurrency → authority nullity → the standing lease → durable intent → the representation theorem → equal-or-refuse replication → the adversarial-transport loom → the signed wire → interest shift → the reality attestation → the windowed loop → the wired window)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -683,10 +683,13 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   placement batch #3 CLOSED here (`wirephase_rs` — the FIVE wire-phase families
   URDRWIR1/URDRSTM1/URDRSWT1/URDRDGZ1/URDRWAT1 independently placed: sixteen scene digests + the two
   synthetic-attest report digests re-derived in std-only Rust, the covenant's debt paid), so the road
-  to a windowed execution OPENED and its first rung LANDED: `panelight` — the windowed loop (the
+  to a windowed execution OPENED and V1–V2 LANDED: `panelight` — the windowed loop (the
   certified world driven live: input → fixed-timestep authority tick → witness → declared
   interpolated view; interactive==batch, the frame/tick accumulator, the interpolation firewall on
-  time; `panelight.html` the declared window citing the loop-witness it recomputes). Behind it, declared: the
+  time; `panelight.html` the declared window citing the loop-witness it recomputes) — and `panewire`, the
+  WIRED window (V2: the loop composed with wire + driftgaze — the avatar plays on a replicated,
+  streamed world; resident-or-refuse, live edits changing the walked terrain, two windows one
+  authority, equal-or-refuse under play; `panewire.html` the two-window demo). Behind it, declared: the
   authority algebra, n-way nullity and lease scheduling, live authority migration, essence extended
   to the read-side families.
 - **The road ahead — Hainuwele's next layers (researched, declared, not begun; see

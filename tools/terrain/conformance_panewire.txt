@@ -1,0 +1,8 @@
+# URDRPNW1 conformance goldens — the wired window (V2): scene digests pinned AFTER the
+# five planted defects (residency bypass, dead world, credulous verifier, world-blind
+# witness, verdict-blind digest) were each proven to BITE.
+# digest = SHA-256(MAGIC | name | composed-witness | ticks | acquired | refusals | verdict)
+crossing faa5aff20d779097569f7d3f385c9dd6c690445e5c5ba433a0f76a874163c172
+reshape 12e78811727dfcb2131f80c0cde60bf8805be1bc896ad5ff47e38703e330d1a5
+concord fd7dd1e216b8cc80ef1ac45bfec97ee352e1eda73f7d210bf861f75bc37bde60
+besieged 26a94557c2e1553f427579de62afa740351e972d90e5bd9d09001d7f7f12fe85

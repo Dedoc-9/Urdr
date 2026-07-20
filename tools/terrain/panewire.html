@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<!-- panewire.html - URDRPNW1, V2: the DECLARED two-window demo over ONE authority. Both panes render
+     the SAME replicated world (the shared heightfield + its live edit log); an edit made here appears
+     in BOTH views (one authority, two windows). The avatar folds over the world with glide's law and
+     stops at a wall raised mid-play. Each pane shows the world-hash it computes live - they stay EQUAL
+     (the composed authority is shared, not trusted per-window). Off-gate presentation behind the D15
+     firewall; the pixels are declared. -->
+<html lang="en"><head><meta charset="utf-8"><title>panewire - the wired window (URDRPNW1)</title>
+<style>
+  body { background:#0b0e13; color:#c8d0dc; font:13px/1.5 ui-monospace,Menlo,Consolas,monospace; margin:0; padding:18px; }
+  h1 { font-size:15px; font-weight:600; margin:0 0 2px; color:#e6ecf5; }
+  .sub { color:#7f8ea3; margin:0 0 14px; max-width:760px; }
+  #panes { display:flex; gap:18px; flex-wrap:wrap; }
+  .pane { }
+  .pane h2 { font-size:12px; font-weight:600; color:#8fb6e0; margin:0 0 6px; }
+  canvas { background:#05070a; border:1px solid #1c2430; image-rendering:pixelated; }
+  .wh { margin-top:6px; color:#7f8ea3; font-size:11px; }
+  .wh code { color:#8fb6e0; }
+  .bar { margin:14px 0 8px; }
+  .ok { color:#5fd08a; } .idle { color:#d0a35f; }
+  kbd { background:#131a24; border:1px solid #24303f; border-radius:3px; padding:1px 5px; color:#c8d0dc; }
+  #eq { margin-top:8px; font-size:12px; }
+</style></head><body>
+<h1>panewire - the wired window <span style="color:#7f8ea3">(URDRPNW1 . V2)</span></h1>
+<p class="sub">two windows, one authority. both panes render the SAME replicated world; a terraform edit made in one appears in the other (press <kbd>E</kbd> to raise a wall ahead of the avatar). the avatar (driven with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, <kbd>Shift</kbd> to sprint) folds over the live world and stops at the wall. each pane computes its own world-hash - they stay equal because the authority is shared, not trusted.</p>
+<div id="panes">
+  <div class="pane"><h2>window A (you drive)</h2><canvas id="a" width="360" height="360"></canvas>
+    <div class="wh">world-hash: <code id="wha">-</code></div></div>
+  <div class="pane"><h2>window B (same authority)</h2><canvas id="b" width="360" height="360"></canvas>
+    <div class="wh">world-hash: <code id="whb">-</code></div></div>
+</div>
+<div id="eq">-</div>
+<script>
+"use strict";
+const FIELD = [[34, 34, 39, 48, 60, 71, 80, 85, 85, 85, 83, 78, 71, 65, 60, 58], [33, 34, 39, 48, 59, 71, 80, 85, 85, 85, 82, 77, 71, 64, 59, 57], [32, 33, 37, 47, 59, 71, 80, 84, 85, 85, 82, 76, 69, 61, 56, 53], [29, 30, 35, 44, 57, 69, 79, 84, 85, 84, 81, 74, 65, 56, 49, 45], [26, 26, 32, 42, 55, 68, 78, 83, 84, 83, 79, 70, 59, 48, 39, 35], [22, 23, 28, 39, 53, 67, 77, 83, 84, 83, 77, 67, 54, 40, 30, 25], [19, 20, 26, 37, 51, 66, 77, 82, 83, 82, 76, 65, 50, 34, 23, 17], [18, 19, 24, 36, 50, 65, 76, 82, 83, 82, 76, 63, 47, 31, 19, 13], [17, 18, 24, 35, 50, 65, 76, 82, 83, 82, 76, 63, 47, 31, 19, 12], [18, 19, 25, 36, 51, 65, 76, 82, 83, 82, 76, 63, 47, 31, 19, 13], [24, 25, 30, 40, 54, 67, 78, 83, 84, 83, 77, 65, 49, 33, 21, 15], [34, 35, 40, 49, 60, 72, 80, 85, 86, 85, 79, 67, 52, 36, 25, 19], [48, 49, 52, 59, 68, 77, 84, 87, 88, 87, 81, 70, 56, 41, 30, 24], [62, 63, 65, 70, 76, 83, 87, 90, 90, 89, 84, 73, 59, 45, 35, 29], [73, 73, 75, 78, 82, 87, 90, 92, 92, 91, 86, 76, 62, 49, 39, 33], [78, 78, 80, 82, 85, 89, 91, 93, 93, 92, 87, 77, 64, 51, 41, 36]];          // the shared authority world (mutated by edits)
+const W = FIELD[0].length, H = FIELD.length;
+const ONE = 1n << 32n, SUB = 4n, MSTEP = (1n << 32n) >> 2n, MAXSTEP = 4000n, TICK_MS = 16;
+const GAIT = { walk:1n, sprint:2n }, DIRS = { N:[0n,-1n],S:[0n,1n],E:[1n,0n],W:[-1n,0n] }, FACE = { N:0,E:1,S:2,W:3 };
+
+function sha256(bytes){
+  const KC=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  let h=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const bl=bytes.length*8; const p=[...bytes,0x80]; while(p.length%64!==56)p.push(0);
+  for(let i=7;i>=0;i--)p.push(Math.floor(bl/Math.pow(2,i*8))&0xff);
+  const rr=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let o=0;o<p.length;o+=64){const w=new Array(64);
+    for(let i=0;i<16;i++)w[i]=(p[o+i*4]<<24)|(p[o+i*4+1]<<16)|(p[o+i*4+2]<<8)|(p[o+i*4+3]);
+    for(let i=16;i<64;i++){const s0=rr(w[i-15],7)^rr(w[i-15],18)^(w[i-15]>>>3);const s1=rr(w[i-2],17)^rr(w[i-2],19)^(w[i-2]>>>10);w[i]=(w[i-16]+s0+w[i-7]+s1)|0;}
+    let a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
+    for(let i=0;i<64;i++){const S1=rr(e,6)^rr(e,11)^rr(e,25);const ch=(e&f)^(~e&g);const t1=(hh+S1+ch+KC[i]+w[i])|0;const S0=rr(a,2)^rr(a,13)^rr(a,22);const mj=(a&b)^(a&c)^(b&c);const t2=(S0+mj)|0;hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;}
+    h=[(h[0]+a)|0,(h[1]+b)|0,(h[2]+c)|0,(h[3]+d)|0,(h[4]+e)|0,(h[5]+f)|0,(h[6]+g)|0,(h[7]+hh)|0];}
+  return h.map(x=>((x>>>0).toString(16).padStart(8,"0"))).join("");
+}
+const enc = s => Array.from(new TextEncoder().encode(s));
+function worldHash(){ let s="URDRPNW1|world"; for(let y=0;y<H;y++) s+="|"+FIELD[y].join(","); return sha256(enc(s)); }
+
+function stepTick(pose,cmd){
+  if(cmd===".") return pose;
+  const up=cmd.toUpperCase(); const gait=(cmd===up)?GAIT.sprint:GAIT.walk;
+  let fx=pose[0],fy=pose[1]; const facing=FACE[up];
+  let cx=fx>>32n,cy=fy>>32n; const dxy=DIRS[up]; const sfx=MSTEP*dxy[0],sfy=MSTEP*dxy[1];
+  for(let i=0;i<Number(gait*SUB);i++){
+    const nfx=fx+sfx,nfy=fy+sfy; const ncx=nfx>>32n,ncy=nfy>>32n;
+    if(ncx!==cx||ncy!==cy){
+      if(!(0n<=ncx&&ncx<BigInt(W)&&0n<=ncy&&ncy<BigInt(H))) break;
+      if(BigInt(FIELD[Number(ncy)][Number(ncx)])-BigInt(FIELD[Number(cy)][Number(cx)])>MAXSTEP) break;
+      cx=ncx; cy=ncy;
+    }
+    fx=nfx; fy=nfy;
+  }
+  return [fx,fy,BigInt(FIELD[Number(cy)][Number(cx)]),facing];
+}
+
+let pose=[2n*ONE,8n*ONE,BigInt(FIELD[8][2]),FACE.E], prev=pose, acc=0, lastT=null;
+const pressed={};
+const ca=document.getElementById("a"), cb=document.getElementById("b");
+const xa=ca.getContext("2d"), xb=cb.getContext("2d"); const CELL=ca.width/W;
+function drawInto(ctx,fp){
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const v=FIELD[y][x]; const t=Math.max(0,Math.min(255,Math.round((v-10)*2.4)));
+    const wall=v>500; const r=wall?150:(20+t*0.2)|0, gg=wall?40:(40+t*0.5)|0, bb=wall?40:(60+t*0.35)|0;
+    ctx.fillStyle="rgb("+r+","+gg+","+bb+")"; ctx.fillRect(x*CELL,y*CELL,CELL,CELL);
+  }
+  const px=Number(fp[0])/Number(ONE)*CELL+CELL/2, py=Number(fp[1])/Number(ONE)*CELL+CELL/2;
+  ctx.fillStyle="#e6c25f"; ctx.beginPath(); ctx.arc(px,py,CELL*0.34,0,7); ctx.fill();
+  ctx.strokeStyle="#0b0e13"; ctx.lineWidth=2; ctx.stroke();
+}
+function cmdFromKeys(){
+  let d=null;
+  if(pressed["w"]||pressed["arrowup"])d="N"; else if(pressed["s"]||pressed["arrowdown"])d="S";
+  else if(pressed["d"]||pressed["arrowright"])d="E"; else if(pressed["a"]||pressed["arrowleft"])d="W";
+  if(!d) return "."; return pressed["shift"]?d:d.toLowerCase();
+}
+function lerp(a,b,al){ const A=BigInt(Math.round(al)),T=BigInt(TICK_MS); return [a[0]+(b[0]-a[0])*A/T, a[1]+(b[1]-a[1])*A/T]; }
+function frame(now){
+  if(lastT===null)lastT=now; let dt=now-lastT; lastT=now; if(dt>250)dt=250;
+  const cmd=cmdFromKeys(), moving=cmd!==".";
+  if(moving){ acc+=dt; while(acc>=TICK_MS){ acc-=TICK_MS; prev=pose; pose=stepTick(pose,cmd); } } else { acc=0; prev=pose; }
+  const fp=lerp(prev,pose,Math.min(acc,TICK_MS-1));
+  drawInto(xa,fp); drawInto(xb,fp);          // ONE authority rendered into TWO windows
+  const wa=worldHash(), wb=worldHash();
+  document.getElementById("wha").textContent=wa.slice(0,24)+"...";
+  document.getElementById("whb").textContent=wb.slice(0,24)+"...";
+  const eq=document.getElementById("eq");
+  eq.innerHTML = (wa===wb) ? '<span class="ok">check both windows agree on the world-hash - one authority, not two trusted copies</span>'
+                           : '<span style="color:#e06c75">windows disagree (impossible - shared field)</span>';
+  requestAnimationFrame(frame);
+}
+addEventListener("keydown",e=>{
+  pressed[e.key.toLowerCase()]=true;
+  if(e.key.toLowerCase()==="e"){ // terraform: raise a wall one cell ahead of the avatar (both windows see it)
+    const cx=Number(pose[0]>>32n), cy=Number(pose[1]>>32n); const tx=Math.min(W-1,cx+1);
+    FIELD[cy][tx]=9000; // the live edit - appears in A and B at once (shared authority)
+  }
+});
+addEventListener("keyup",e=>{ pressed[e.key.toLowerCase()]=false; });
+requestAnimationFrame(frame);
+</script>
+</body></html>

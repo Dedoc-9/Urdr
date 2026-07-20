@@ -8249,6 +8249,85 @@ class Gate:
                     "frame or alpha can move the witness (the D15 firewall, on time)"
                     if fw_ok else "the interpolation-firewall law did not hold")
 
+    def panewire(self):
+        """The wired window (T3.53, V2, URDRPNW1): the certified world driven live as a REPLICATED,
+        STREAMED game — movement + replication + streaming in one loop. Rows: scenes (crossing /
+        reshape / concord / besieged reproduce URDRPNW1 digests), resident (the avatar folds over
+        the replica — a crossing without streaming REFUSES, with streaming it acquires and
+        completes equal to the full-field glide), live (a wall raised mid-play stops the walk — the
+        world is live authority), concord (two windows one authority: same input+edits -> identical
+        composed witness; malice woven in refuses and leaves the walk unperturbed)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import panewire as PW
+            import glide as GLW
+            import chunkload as CKW
+        except Exception as exc:
+            self.record("panewire", False, f"import failed (panewire): {exc}")
+            return
+        try:
+            ref_ok = all(PW.scene_result(n) == PW.golden(n) for n in PW.SCENES)
+        except Exception as exc:
+            self.record("panewire:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("panewire:scenes", ref_ok,
+                    "crossing + reshape + concord + besieged reproduce URDRPNW1 digests"
+                    if ref_ok else "a panewire scene drifted from its digest")
+        fld = PW._blank()
+        resident_ok = True
+        try:
+            try:
+                PW.run_wired(fld, (2, 8), "EEEEEE", {}, 4, 4000, acquire=False)
+                resident_ok = False                          # a crossing without streaming must refuse
+            except (PW.PaneWireError, CKW.ChunkError):
+                pass
+            out = PW.run_wired(fld, (2, 8), "EEEEEE", {}, 4, 4000)
+            resident_ok = (resident_ok and out["acquired"] > 0
+                           and out["transcript"] == GLW.glide_cells(fld, (2, 8), "EEEEEE", 4000, 4))
+        except Exception:
+            resident_ok = False
+        self.record("panewire-resident", resident_ok,
+                    "the avatar folds over the resident REPLICA, not the field: a crossing without "
+                    "streaming refuses (never walks on unloaded terrain), and with streaming the "
+                    "loop acquires the entered region by verified fetch and completes equal to the "
+                    "full-field glide bit-for-bit — interest follows the avatar"
+                    if resident_ok else "the resident-or-refuse / acquire-on-cross law did not hold")
+        live_ok = True
+        try:
+            base = PW.run_wired(fld, (2, 8), "EEEEEE", {}, 4, 4000)
+            walled = PW.run_wired(fld, (2, 8), "EEEEEE", {1: ("edit", 10, 8, 9000)}, 4, 4000)
+            live_ok = (walled["transcript"] != base["transcript"]
+                       and (walled["transcript"][-1][0] >> 32) < 10)
+        except Exception:
+            live_ok = False
+        self.record("panewire-live", live_ok,
+                    "a terraform edit admitted mid-play raises a wall in the avatar's path and STOPS "
+                    "the walk that would otherwise pass (the avatar halts west of the raised cell) — "
+                    "the walked world is live authority, not a backdrop"
+                    if live_ok else "the live-edit-changes-the-walked-world law did not hold")
+        concord_ok = True
+        try:
+            edits = {1: ("edit", 12, 12, 30), 3: ("edit", 13, 9, 20)}
+            a = PW.run_wired(fld, (2, 8), "EEEEEE", edits, 4, 4000)
+            b = PW.run_wired(fld, (2, 8), "EEEEEE", edits, 4, 4000)
+            d = PW.run_wired(fld, (2, 8), "EEEEEE", {1: ("edit", 12, 12, 31)}, 4, 4000)
+            clean = PW.run_wired(fld, (2, 8), "EEEEEE", {}, 4, 4000)
+            besieged = PW.run_wired(fld, (2, 8), "EEEEEE", {1: ("malice",), 3: ("malice",)}, 4, 4000)
+            concord_ok = (a["witness"] == b["witness"] and d["witness"] != a["witness"]
+                          and besieged["refusals"] > 0
+                          and besieged["transcript"] == clean["transcript"]
+                          and besieged["witness"] == clean["witness"])
+        except Exception:
+            concord_ok = False
+        self.record("panewire-concord", concord_ok,
+                    "two windows, one authority: the same (input, edits) run twice lands the "
+                    "IDENTICAL composed witness (the edit made in one view is seen in the other) "
+                    "while a different edit stream diverges; and a tampered edit woven into the "
+                    "stream refuses mid-loop with the replica byte-unchanged and the avatar's walk "
+                    "unperturbed — equal-or-refuse under play"
+                    if concord_ok else "the two-windows-one-authority / malice-under-play law did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -9209,6 +9288,7 @@ def main() -> int:
     gate.driftgaze()
     gate.wireattest()
     gate.panelight()
+    gate.panewire()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()
