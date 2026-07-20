@@ -7389,6 +7389,137 @@ class Gate:
                     "storecost's budget law — one window law, both layers"
                     if refuse_ok else "the rollstore refusal did not hold")
 
+    def quintessence(self):
+        """The ID-0 representation theorem (T3.46, URDRQNT1): every lawful authority in the five
+        landed families characterized by its five-axis evidence tuple (historical / spatial /
+        semantic / temporal / identity). The rung mints nothing — extractors, checkers, theorems.
+        Rows: scenes (distilled / one_lineage / five_wounds / closed_form reproduce URDRQNT1
+        digests), essence (totality + determinism + the scope finding + behavior-determined-by-
+        essence + injectivity), lineage (one essence set, every order, one head; a different set,
+        a different head), refuse (no essence guessed outside the families; the five-axis
+        conservation ablation — no authority without evidence)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import quintessence as QN
+            import terraform as TF
+            import rannull as RN
+            import lease as LS
+            import testament as TS
+            import chunkload as CK
+            import heightfield as HF
+        except Exception as exc:
+            self.record("quintessence", False, f"import failed (quintessence and families): {exc}")
+            return
+        try:
+            ref_ok = all(QN.scene_result(n) == QN.golden(n) for n in QN.SCENES)
+        except Exception as exc:
+            self.record("quintessence:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("quintessence:scenes", ref_ok,
+                    "distilled + one_lineage + five_wounds + closed_form reproduce URDRQNT1 digests"
+                    if ref_ok else "a quintessence config drifted from its digest")
+
+        def _fam(fld, c, x, y, dh):
+            import commute as CM
+            key = (x // c, y // c)
+            chunk = CK.cut(fld, c)[key]
+            old = fld[y][x]
+            tf = TF.edit_record(TF.parent_address(fld, c), x, y, old, old + dh)
+            ran = RN.regional_record(CK.address(chunk), key[0], key[1], x, y, old, old + dh)
+            ls = LS.lease_from_chunk(chunk)
+            t = TS.testament_record(ran)
+            px = (x + c) % len(fld[0])
+            partner = TF.edit_record(TF.parent_address(fld, c), px, y, fld[y][px], fld[y][px] + 1)
+            cert, _h = CM.certify(fld, c, tf, partner)
+            return tf, ran, ls, t, cert
+
+        ess_ok = True
+        try:
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            seen = set()
+            for (x, y, dh) in ((5, 8, 1000), (12, 4, 777), (12, 12, 555)):
+                for obj in _fam(bl, 8, x, y, dh):
+                    e = QN.essence_of(obj)
+                    if len(e) != 5 or QN.essence_of(obj) != e or e in seen:
+                        ess_ok = False
+                    seen.add(e)
+            tf, ran, _ls2, t, _cert2 = _fam(bl, 8, 5, 8, 1000)
+            e_tf, e_ran, e_t = QN.essence_of(tf), QN.essence_of(ran), QN.essence_of(t)
+            ess_ok = (ess_ok and e_tf[QN.AX_TEMPORAL][0] == "world"
+                      and e_ran[QN.AX_TEMPORAL][0] == "chunk"
+                      and e_tf[QN.AX_HISTORICAL] == e_tf[QN.AX_TEMPORAL][1]
+                      and e_ran[:4] == e_t[:4] and e_ran[QN.AX_IDENTITY] != e_t[QN.AX_IDENTITY]
+                      and QN.lease_of_essence(e_ran) == LS.lease_from_chunk(CK.cut(bl, 8)[(0, 1)]))
+            # the scope difference predicts the transport behavior
+            far = TF.edit_record(TF.parent_address(bl, 8), 12, 4, bl[4][12], bl[4][12] + 777)
+            moved = TF.apply_edit(bl, 8, far)
+            try:
+                TF.apply_edit(moved, 8, tf)
+                ess_ok = False
+            except TF.TerraformError:
+                pass
+            ess_ok = ess_ok and bool(RN.shard_apply(CK.cut(moved, 8)[(0, 1)], ran))
+        except Exception:
+            ess_ok = False
+        self.record("quintessence-essence", ess_ok,
+                    "the extractor is total and deterministic over the five families with full-tuple "
+                    "injectivity; within a family history and validity are the SAME address at a "
+                    "SCOPE (world vs chunk — the RAN-0 rebinding, visible in the tuple), and the "
+                    "scope difference PREDICTS the transport theorem; a record and its testament "
+                    "share axes 1-4 (behavior-determining) and differ on identity alone; the lease "
+                    "reconstructs bit-for-bit from the temporal evidence"
+                    if ess_ok else "the essence law did not hold")
+        lin_ok = True
+        try:
+            import itertools
+            recs = []
+            for (x, y, dh) in ((5, 8, 1000), (12, 4, 777), (12, 12, 555)):
+                key = (x // 8, y // 8)
+                chunk = CK.cut(bl, 8)[key]
+                recs.append(RN.regional_record(CK.address(chunk), key[0], key[1], x, y,
+                                               bl[y][x], bl[y][x] + dh))
+            heads, sets_ = set(), set()
+            for perm in itertools.permutations(recs):
+                h, e = QN.lineage(bl, 8, perm)
+                heads.add(h)
+                sets_.add(tuple(sorted(str(v) for v in e)))
+            other = list(recs)
+            chunk = CK.cut(bl, 8)[(0, 1)]
+            other[0] = RN.regional_record(CK.address(chunk), 0, 1, 5, 8, bl[8][5], bl[8][5] + 999)
+            h2, e2 = QN.lineage(bl, 8, other)
+            lin_ok = (len(heads) == 1 and len(sets_) == 1 and h2 not in heads
+                      and tuple(sorted(str(v) for v in e2)) not in sets_)
+        except Exception:
+            lin_ok = False
+        self.record("quintessence-lineage", lin_ok,
+                    "every order of one edit set carries the SAME essence set to the SAME head (the "
+                    "lineage is the equivalence class, not the path), and a different essence set "
+                    "lands a different head — heads in bijection with lineages over the corpus"
+                    if lin_ok else "the lineage law did not hold")
+        closed = ablation = False
+        try:
+            objs = _fam(bl, 8, 5, 8, 1000)
+            refused = 0
+            for alien in (CK.cut(bl, 8)[(0, 1)], CK.field_manifest(bl, 8), b"\x00" * 96,
+                          b"URDRXXX1" + bytes(objs[0][8:])):
+                try:
+                    QN.essence_of(alien)
+                except QN.QuintessenceError:
+                    refused += 1
+            closed = refused == 4
+            report = QN.conservation_check(bl, 8, 5, 8, 1000)
+            ablation = set(report) == set(QN.AXES) and all(report.values())
+        except Exception:
+            closed = False
+        self.record("quintessence-refuse", closed and ablation,
+                    "no essence is guessed outside the five families (a chunk record, a manifest, "
+                    "raw bytes, and a forged magic all refuse); and the five-axis conservation "
+                    "ablation holds — degrade any ONE axis (parent / region / height / currency / "
+                    "byte) and admission refuses: no authority without evidence, each axis "
+                    "individually load-bearing"
+                    if (closed and ablation) else "the closure / conservation law did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -8064,6 +8195,7 @@ def main() -> int:
     gate.lease()
     gate.testament()
     gate.rollstore()
+    gate.quintessence()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

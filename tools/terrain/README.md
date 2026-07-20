@@ -89,6 +89,16 @@ parent state is not retained — no flavor guessed). The death boundary is REAL:
 its own successor (`python testament.py <store> <testament> <manifest>`, disk the only channel,
 prints the never-died head twice bit-identically); every estate object must hash to its filename
 (an intact SUBSTITUTED object refuses); and the executor is pure — a refusal writes nothing.
+`quintessence.py` — `URDRQNT1`, the ID-0 representation theorem: the first rung that MINTS
+NOTHING — every lawful authority in the five families (TFM1/CMU1/RAN0/LSE1/TST1) characterized
+by its five-axis evidence tuple (historical / spatial / semantic / temporal / identity). The
+scope finding: within every family, history and validity are the SAME address at a SCOPE
+(validity is "my history is still current"), and the world-vs-chunk scope difference PREDICTS
+the transport theorem before any execution. Conservation: degrade any one axis and admission
+refuses — no authority without evidence. One lineage: every order carries the same essence set
+to the same head (uniqueness modulo certified commutation; SHA-256 collision-resistance the one
+declared pillar). Anything outside the families refuses — no essence is ever guessed. The write
+calculus stops expanding and starts closing.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -106,5 +116,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `WARD-*`, `TERRAIN-REFUSE`) all follow
-the house law: typed, total, reject whole, never repair.
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WARD-*`,
+`TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.

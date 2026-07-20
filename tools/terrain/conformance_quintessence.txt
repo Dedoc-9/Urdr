@@ -1,0 +1,18 @@
+# URDRQNT1 - quintessence: the ID-0 representation theorem (T3.46). The fifth essence — the write
+# calculus stops expanding and starts closing: every lawful authority in the five landed families
+# (URDRTFM1 / URDRCMU1 / URDRRAN0 / URDRLSE1 / URDRTST1) is characterized by its five-axis evidence
+# tuple: historical (parent address), spatial (cells + claimed scope), semantic (transitions, or
+# None for a pure capability), temporal (the validity predicate: scope + address), identity (the
+# object's own content address). The rung mints NOTHING — its entire content is theorems about
+# existing objects. The scope finding: within every family, history and validity are the SAME
+# address at a SCOPE (validity is "my history is still current"), and the scope difference PREDICTS
+# the transport theorem before any execution. Conservation: five axes, five degradations, five
+# refusals — no authority without evidence. One lineage: every order carries the same essence set
+# to the same head; a different set lands a different head (uniqueness modulo certified
+# commutation; SHA-256 collision-resistance the one declared pillar). Anything outside the
+# families refuses — no essence is ever guessed.
+# SHA-256(MAGIC | name | head-or-witness | axis witnesses | count | verdict).
+distilled 4fc2dd0bb3399bb2713a4f85b3d64fee860e28fc49630cf12fe0ea4fba1455f2
+one_lineage ca707e7583a0b2f15344ca5f4d9777af9a89072cb5bc5720e2ffbc0df7b79073
+five_wounds 099fa7c166afbf4dbb3d30cbb34f22be3a462013edfb0ac64830033acb7c33e0
+closed_form 81dae342ddbbcb9204b97b2a65a40ef8c5b94a0f560eda3821509f4eed07ad4d
