@@ -410,3 +410,148 @@ Behind both, unchanged from the sealed brief: Phase V (the three.js/WebGPU firew
 rendering ONLY the admitted replica; `bench_protocol.md` §3 input→photon on the named
 host) and Phase M (the mesh — certified authority migration as lease transfer, n-way
 nullity as the write scheduler; the answer to server meshing that cannot lie).
+
+---
+
+## 11. The comparative position (web-reviewed) — what Hainuwele is, next to what exists
+
+Read the evidence stack and the genre identifies itself: this is an FPS MMO — but not in the
+conventional sense. It is a persistent world where simulation depth meets twitch
+responsiveness, architected for both the frame-precise demands of first-person combat and
+continent-scale concurrency — with the one property nothing shipping has: the whole path is
+certified. The telltale signs, each pointing at its landed rung:
+
+- **Twitch DNA.** Rollback netcode with tick-precise desync LOCALIZATION (disagreements pinned
+  to tick 4, 6, or 11 — `lockstep`/`rollback`/`field_desync`) is fighting-game/FPS lineage,
+  not MMO-tab-target lineage. Certified prediction with reconciles (`predict`/`cpredict`/
+  `splice`) and presentation-side interpolation behind a firewall are exactly the
+  ghost-snapshot patterns Unity's Netcode-for-Entities builds for fast-paced multiplayer —
+  here with ADMISSION where the industry has trust.
+- **Avatar locomotion, not click-to-move.** Sprint gating by terrain, stride gaits, stance
+  checks, walk-through-wall detection (`stance`/`drive`/`glide`, the warden family) — this is
+  first-person movement with collision, wearing an anti-cheat that is topology-grade
+  (`wardhom`: the anti-cheat's component count is a three-placed homology invariant).
+- **A world larger than any client.** `driftgaze`'s lawful motion — regions acquired by
+  verified fetch and released as the player moves, equal-or-refuse preserved across the
+  changing resident set — is the streaming architecture of a continent-sized world, proven at
+  corpus scale. (Honesty: the MECHANISMS are MEASURED; "thousands concurrent" is the
+  architectural direction — `interest`/`warden`/D16 regional authority are built for it — not
+  yet a measured scale claim. The scale bench is future work and will be MEASURED-on-named-host
+  or it will not be claimed.)
+- **Persistence, not sessions.** Content-addressed authority, immutable interred records,
+  `persist`/`resurrect`/`testament` — a world with a durable past (through-death recovery,
+  writes that survive their writer), not match-based state that evaporates.
+- **The nearest shipping relatives** are PlanetSide 2 — the persistent MMOFPS whose
+  continent battles hold the Guinness record (1,158 players in one FPS engagement) — for
+  scale-plus-twitch, and Space Engineers for physics-as-the-gameplay-medium (volumetric,
+  simulation-first sandbox). Hainuwele reads as PlanetSide-2-scale ambitions crossed with
+  Space-Engineers-grade simulation depth — WITH the property neither has: cheating is
+  structurally impossible rather than policed. Every update carries a Lamport signature
+  (`sealwrit`), every physics step holds an energy witness, every contact carries an LCP
+  certificate, every replica converges under adversarial chaos that is deterministically
+  reproducible and provably non-vacuous (`storm`), and reality itself is attested
+  (`wireattest`).
+- **The deepest differentiator is the methodology.** Defense-in-depth masking of planted
+  defects is encoded INTO the development process (section 9, L15); every rung's plants must
+  bite before its goldens pin; individually-redundant layers are proven jointly load-bearing.
+  Most engines get their falsification regime retroactively, from desync bugs shipped to
+  production; here it is the constitution.
+
+Sources reviewed at writing time: Unity Netcode-for-Entities ghost/snapshot docs; Valve's
+Source multiplayer networking (fixed server tick, client interpolation ~100 ms behind between
+snapshots); snapshot-interpolation netcode surveys; the PlanetSide 2 Guinness record;
+Overwatch's ~63Hz tick with client-side interpolation. Conclusions recorded here; every law
+implied is falsified locally, not by citation.
+
+---
+
+## 12. The window ladder — OODA to a windowed execution
+
+**Observe.** The wire phase is SEALED; batch #3 is due; the certified island exists with a
+declared WebGL2 view (`terrain_view3d.html` — currently a file you open, not a loop you
+play); the named host's MEASURED native sim tick is ~0.073 ms (bench §4b). **Orient.** The
+distance to "a game running in a window" is not simulation power — it is one missing
+VERTICAL SLICE: input → certified tick → witness → declared view → pixels, closed in a loop,
+in one window. **Decide.** The ladder below, strictly ordered; the covenant's boundary first.
+**Act.** Each rung lands by the section-5 workflow — red-first, plants bite, goldens pin,
+gate ×2.
+
+- **V0 — placement batch #3 (DUE NOW, blocks everything).** Single-file std-only Rust for the
+  wire-phase families (URDRWIR1/URDRSTM1/URDRSWT1/URDRDGZ1 + URDRWAT1's checker), live
+  re-verified per gate run. The covenant holds or nothing else means anything.
+- **V1 — `panelight`, the windowed loop (THE identified vertical slice — self-contained,
+  end-to-end, nothing redundant with any landed rung).** One window (the existing WebGL2
+  path first; three.js/WebGPU is the target, not the gate), one avatar, the real game loop:
+  a fixed-timestep integer authority tick (the `drive`→`glide` fold + `worldstep`) driven by
+  an accumulator, rendering at display rate, keyboard→`drive` commands in, witness-cited
+  frames out. The gate covers everything except the pixels: the LOOP's tick sequence is a
+  transcript with a pinned digest (deterministic given an input log); the window is its
+  declared depiction under the `view_witness` citation contract.
+- **V2 — the wired window.** V1's client becomes a wire client: subscribe, admit live
+  terraform edits mid-play, `driftgaze` acquisition as the avatar crosses regions. The
+  brief's demonstration lands: two windows, one authority, an edit made in one view
+  appearing in the other, every byte admitted rather than trusted.
+- **V3 — `ghostsnap` (section 10).** Other actors appear: the actor wire, certified ghosts,
+  interpolation overlay declared. The window becomes multiplayer.
+- **V4 — the sealed frame.** bench_protocol §3 input→photon on the named host: the fps and
+  latency numbers become MEASURED (named host) or stay unclaimed. The frame budget joins the
+  gate the way `frontbench-budget` already polices MEASURED-without-a-log.
+- **V5 — the attested session.** The `wireattest` trace discipline extended to a real windowed
+  session: a play session recorded as a self-digested input+outcome trace, replayed by the
+  gate to the same witnesses. The demo is then not a video — it is a proof.
+
+### How the frame rate is reached, specifically
+
+The industry's standard decoupling (Source engine: fixed server tick, clients render at
+display rate and interpolate between the last snapshots; Overwatch: ~63Hz tick under
+higher-fps rendering) — adopted, with certified endpoints:
+
+1. **The authority tick is integer and TINY.** The measured native sim tick on the named
+   host is ~0.073 ms (bench §4b, the host log the gate enforces) — under a 60Hz frame
+   budget of 16.67 ms that is <0.5% of the frame; even a 128Hz authority tick would use
+   <1%. Headroom is structural: no floats, no GC-pressure allocation patterns on the hot
+   path, Q32.32 fixed-point where exactness is unaffordable.
+2. **Render rate is DECOUPLED from tick rate.** The window's loop runs at display rate
+   (60/120/144); the authority advances on a fixed-timestep accumulator. Frames between
+   tick boundaries show DECLARED interpolation of certified poses (`fpclip`/`fppose` tracks;
+   `nlerp` on the frozen Q32.32 quaternion law) — the ghost-snapshot pattern with both
+   endpoints admitted records. The local avatar uses certified prediction (`predict`/
+   `cpredict`) with `splice` reconciles, so input feels immediate while the authority stays
+   authoritative.
+3. **Per-tick work is BOUNDED, so frame time cannot spike.** `opcost` pins each core
+   operation's exact integer op-count; `govern`/`priogov` admit a budget-bounded prefix per
+   tick and defer the rest (never overrun — a typed refusal instead of a dropped frame);
+   `interest`/`driftgaze` bound resident state so tick cost scales with the demand set, not
+   the world. Worst-case latency is a certified number (`slo`/`clslo`), not a hope.
+4. **No fps number is claimed until §3 runs.** The pipeline above makes high fps
+   ARCHITECTURALLY cheap; the claim itself stays NOT_MEASURED until input→photon is logged
+   on the named host (V4). That is bench_protocol's law and it applies to us first.
+
+### How graphics is overlaid, specifically
+
+The D15 firewall (`presentation_doctrine.md`), applied end-to-end — the graphics layer is an
+OVERLAY on the witness, never a participant in it:
+
+1. **One-way glass.** The renderer's ONLY input is the admitted replica (heightfield bytes,
+   wave params, admitted poses). Nothing renders that was not admitted; nothing admitted is
+   altered by rendering. There is no readback path — the GPU cannot desync anyone.
+2. **Float is legal OUT THERE.** Inside the membrane, floats are refused; the overlay may
+   use GPU floats freely (Gerstner water, analytic normals, lighting) precisely BECAUSE it
+   is outside the authority — divergent rasterization across GPUs changes pixels, never
+   state. `terrain_view3d.html` already demonstrates this: a float Gerstner surface drawn
+   from the SAME integer wave params the exact `wavefield` authority certifies.
+3. **The citation is measured even though the pixels are declared.** Every exported view
+   embeds `hf_witness`/`wave_witness` and the `view_witness` contract checks the citation
+   against the LIVE authority — a one-hex forgery reddens the gate. The picture may be
+   pretty; its CLAIM to depict the authority is mechanically checked.
+4. **Knobs move the view digest, never the witness.** Camera, materials, interpolation
+   smoothing, upscaling — all presentation knobs are walled: they move the view's identity,
+   and the witness digest cannot move (the fold-into-witness defect diverges — a gate row).
+5. **The idle law.** Zero frames while idle; the renderer draws on demand. A window that
+   shows a still world costs nothing — presentation is an overlay, and an overlay you are
+   not looking at does not run.
+
+The OODA loop closes here: position reviewed, the one missing vertical slice named (V1),
+the ladder ordered, the covenant's boundary respected. The next OODA review belongs at the
+V2/V3 seam, when the windowed loop meets the wire.
+
