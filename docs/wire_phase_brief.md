@@ -2,7 +2,7 @@
 
 # The Wire Phase Brief — the road from the sealed calculus to the visible, adversarial world
 
-STATUS: the phase is OPEN; its first rung (`wire`, URDRWIR1, T3.47, commit `198807e`) is LANDED.
+STATUS: the phase is OPEN; W1 (`wire`, URDRWIR1, T3.47, `198807e`) and W2 (`storm`, URDRSTM1, T3.48) are LANDED.
 This brief is the long-horizon map for what follows — researched against the 2026 state of the
 world, written in the ledger's voice, and structured so each rung can be held to the covenant
 discipline (recorded ambitions become scheduled rungs, or they are honestly re-declared). Nothing
@@ -46,7 +46,7 @@ is the differentiated destination: not a bigger mesh, a mesh that cannot lie.
 **W1 — `wire`, equal-or-refuse replication. LANDED** (`198807e`). The update is the record; the
 client is a verifier; no sequence numbers; interest sound and necessary-with-detection.
 
-**W2 — `storm`, the adversarial transport loom. THE RECOMMENDED NEXT RUNG.** A deterministic,
+**W2 — `storm`, the adversarial transport loom. LANDED.** A deterministic,
 seeded transport model (the DST discipline, made a gate stage): frozen schedules of loss,
 duplication, reordering, and burst delivery driving MULTIPLE clients against one evolving
 authority. The laws to land: CONVERGENCE-UNDER-CHAOS (once a schedule delivers a region's chain

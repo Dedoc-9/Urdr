@@ -110,6 +110,14 @@ interest filter is one frozenset test on the essence's spatial axis — SOUND (e
 an irrelevant edit cannot touch a resident chunk) and NECESSARY with violations DETECTED (a
 withheld relevant update is caught by the next admission's CAS — drift is refused, never
 absorbed). The module mints nothing; every absence is a paid-for theorem.
+`storm.py` — `URDRSTM1`, W2: the deterministic adversarial-transport loom (the DST
+discipline as a gate stage). Frozen SEEDED schedules of loss/duplication/reordering — every
+draw a SHA-256 digest-stream decision — drive the UNMODIFIED wire client with the retry loom
+as the only repair. Convergence-under-chaos with exactly-once; TYPED CHAOS (a measured
+primary-reordering floor must produce refusals — one assertion convicts both the vacuous
+storm and the 'helpful' silently-buffering client); the PREFIX PROPERTY under measured loss
+with the stall DETECTED; malice-under-chaos; the becalmed control. The network misbehaves,
+the gate does not.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -130,5 +138,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `WARD-*`,
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `WARD-*`,
 `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.

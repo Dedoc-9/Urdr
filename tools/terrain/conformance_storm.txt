@@ -1,0 +1,17 @@
+# URDRSTM1 - storm: the deterministic adversarial-transport loom (T3.48, W2). The DST discipline
+# (FoundationDB-simulation / turmoil lineage) as a gate stage: frozen SEEDED schedules of loss,
+# duplication, reordering, and burst delivery — every draw a SHA-256 digest-stream decision, so the
+# same seed mints the same storm on every host and the gate stays byte-deterministic while the
+# network inside it does not. The client is wire.client_admit UNMODIFIED; the retry loom
+# (redelivery to fixpoint) is the only repair. The laws: convergence-under-chaos with exactly-once
+# (at-most-once holds under duplication); TYPED CHAOS, the invariant with two teeth (a schedule
+# with measured PRIMARY reorderings must produce refusals — zero convicts either the vacuous storm
+# or the 'helpful' silently-buffering client); cross-seed agreement; the PREFIX PROPERTY under
+# measured loss (every region equals some authority prefix — no state the authority never had; the
+# stall detected as counted refusals, repair being W4's fetch law); malice-under-chaos (tampered
+# and foreign injections refuse, convergence unharmed); the becalmed control (zero chaos, zero
+# refusals). SHA-256(MAGIC | name | witness | updates | seeds | verdict).
+tempest 332bf0b6525edba69bbfa269621c03af51b6c1597990bfb3bc1e276306d3a70c
+becalmed a86f7fbe07962dd1cef63d9ffa4c29193fde748508853230bdb9db17d1be63e2
+gale_loss ef54da8894ad1fefa93c6716976ffa29b38d70c2b3b035a26dd4780d88fafd93
+maelstrom d6f0f655d6c1c7acfb781a716872f177c4a753378f56cefa3e744938e8d68959

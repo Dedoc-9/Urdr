@@ -4,7 +4,7 @@
 
 ## Index
 
-**112 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**113 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,
@@ -55,7 +55,7 @@
   extractor totality, the scope finding predicting transport, behavior-determined-by-essence, the
   conservation ablation, one lineage modulo commutation, full-tuple injectivity), `test_wire` (the
   wire phase opener — equal-or-refuse replication: the update IS the record, no sequence numbers,
-  the interest filter sound and necessary-with-detection, the client as verifier, refuse purity).
+  the interest filter sound and necessary-with-detection, the client as verifier, refuse purity), `test_storm` (W2, the deterministic adversarial-transport loom — convergence-under-chaos, typed chaos with the primary-reorder floor, the prefix property under loss, malice-under-chaos, the becalmed control).
 - **Staging & freeze** — `test_linear_core` (D13 C4 study), `test_spec_freeze` (D12 manifest).
 
 ## Whitepaper
@@ -63,7 +63,7 @@
 Every test here is designed to be able to go **red**: a test that cannot fail proves nothing
 (LESSONS L5, *validity not outcome*). The suites are falsifiers, not demonstrations — many
 document a defect that was injected, caught, and reverted, which is the evidence the harness
-actually bites. Together they are the `unit-falsifiers` row of the gate: **985 unit falsifiers, 0 red**.
+actually bites. Together they are the `unit-falsifiers` row of the gate: **995 unit falsifiers, 0 red**.
 This is the layer that makes "the checker rejects X" or "the placement reproduces Y" a
 *measured* claim rather than a hope — the negative space (`examples/rejected/`,
 `must_fail/`) is exercised here too.

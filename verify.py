@@ -7668,6 +7668,95 @@ class Gate:
                     "contains its ordering"
                     if refuse_ok else "the wire refusal did not hold")
 
+    def storm(self):
+        """The deterministic adversarial-transport loom (T3.48, W2, URDRSTM1): the DST discipline
+        as a gate stage — frozen seeded schedules of loss/dup/reorder driving the UNMODIFIED wire
+        client, with the retry loom as the only repair. Rows: scenes (tempest / becalmed /
+        gale_loss / maelstrom reproduce URDRSTM1 digests), chaos (convergence + exactly-once +
+        typed chaos over the measured primary-reordering floor + cross-seed agreement), loss (the
+        prefix property + the detected stall over measured drops), refuse (malice-under-chaos +
+        the becalmed control + schedule/outcome determinism)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import storm as SM
+            import wire as WR
+            import heightfield as HF
+        except Exception as exc:
+            self.record("storm", False, f"import failed (storm / wire): {exc}")
+            return
+        try:
+            ref_ok = all(SM.scene_result(n) == SM.golden(n) for n in SM.SCENES)
+        except Exception as exc:
+            self.record("storm:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("storm:scenes", ref_ok,
+                    "tempest + becalmed + gale_loss + maelstrom reproduce URDRSTM1 digests"
+                    if ref_ok else "a storm config drifted from its digest")
+        chaos_ok = True
+        try:
+            bl = HF.scene_digest(HF.SCENES["blank"]())[1]
+            updates, want = SM.authority_log(bl, 8)
+            wits = set()
+            for seed in (b"gale-1", b"gale-2", b"gale-3"):
+                sched = SM.schedule(seed, len(updates), loss_pct=0, dup_pct=40, delay_max=6)
+                m = SM.measure(sched)
+                out = SM.run_client(bl, 8, updates, sched)
+                wits.add(WR.replica_witness(out["client"]))
+                if not (m["primary_reorderings"] > 0 and m["duplicates"] > 0
+                        and out["admitted"] == len(updates) and out["refusals"] > 0):
+                    chaos_ok = False
+            chaos_ok = chaos_ok and wits == {want}
+        except Exception:
+            chaos_ok = False
+        self.record("storm-chaos", chaos_ok,
+                    "every loss-free storm converges every client to the authority's witness "
+                    "bit-for-bit with exactly-once admission; the primary-reordering floor is "
+                    "measured (the storm actually storms) and the refusals are typed and nonzero "
+                    "(the client hid nothing); three seeds, one truth — agreement through chaos"
+                    if chaos_ok else "the convergence-under-chaos law did not hold")
+        loss_ok = True
+        try:
+            sched = SM.schedule(b"tempest-loss", len(updates), loss_pct=25, dup_pct=20, delay_max=6)
+            m = SM.measure(sched)
+            out = SM.run_client(bl, 8, updates, sched)
+            expected = SM.prefix_witness(bl, 8, updates, sched)
+            loss_ok = (m["drops"] > 0 and WR.replica_witness(out["client"]) == expected
+                       and out["stalled"] > 0)
+        except Exception:
+            loss_ok = False
+        self.record("storm-loss", loss_ok,
+                    "under measured loss the replica equals the authority's PREFIX at each region's "
+                    "first gap (no state the authority never had) and the stall is DETECTED as "
+                    "counted, typed refusals — repair belongs to W4's verified fetch, and silence "
+                    "belongs to nothing"
+                    if loss_ok else "the prefix / detected-stall law did not hold")
+        malice = calm = det = False
+        try:
+            sched = SM.schedule(b"maelstrom", len(updates), loss_pct=0, dup_pct=30, delay_max=5)
+            out = SM.run_client(bl, 8, updates, sched, inject=True)
+            malice = (WR.replica_witness(out["client"]) == want and out["malice_refused"] > 0
+                      and out["admitted"] == len(updates))
+            csched = SM.schedule(b"calm", len(updates), loss_pct=0, dup_pct=0, delay_max=0)
+            cm = SM.measure(csched)
+            cout = SM.run_client(bl, 8, updates, csched)
+            calm = (cm["reorderings"] == 0 and cm["drops"] == 0
+                    and WR.replica_witness(cout["client"]) == want and cout["refusals"] == 0)
+            s1 = SM.schedule(b"gale-1", len(updates), loss_pct=0, dup_pct=40, delay_max=6)
+            s2 = SM.schedule(b"gale-1", len(updates), loss_pct=0, dup_pct=40, delay_max=6)
+            o1 = SM.run_client(bl, 8, updates, s1)
+            o2 = SM.run_client(bl, 8, updates, s2)
+            det = (s1 == s2 and WR.replica_witness(o1["client"]) == WR.replica_witness(o2["client"])
+                   and (o1["admitted"], o1["refusals"]) == (o2["admitted"], o2["refusals"]))
+        except Exception:
+            malice = False
+        self.record("storm-refuse", malice and calm and det,
+                    "tampered copies and foreign records woven into the storm all refuse while "
+                    "convergence proceeds unharmed; the becalmed control converges with ZERO "
+                    "refusals (chaos, never the loom, causes refusals); and the same seed replays "
+                    "the same storm outcome-identically — the network misbehaves, the gate does not"
+                    if (malice and calm and det) else "the malice / control / determinism law did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -8526,6 +8615,7 @@ def main() -> int:
     gate.rollstore()
     gate.quintessence()
     gate.wire()
+    gate.storm()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()
