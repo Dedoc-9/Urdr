@@ -1,0 +1,7 @@
+# URDRCPS1 conformance — the property-based falsifier stage (Tier-2): the commute diamond under a
+# seeded adversary. The digest is SHA-256 over the ordered (head | sorted pairwise ranks) of a
+# fixed-seed (20260720), 200-scenario sweep. Pinned AFTER the sweep was proven to BITE mutants of
+# commute.predict (rank), commute.closure (head), and commute.certify (contested-arbitration) — each
+# raises COMMUTEPROP-FALSIFIED rather than returning a digest. Non-vacuity is asserted in-sweep
+# (rank0>0, rank1>0, all 200 contested pairs refuse, every scenario changed the world).
+sweep 1e4c5cc84ef30149e1f84cc19b79786d1e19a8a13d13604bf771980db67f4be9

@@ -59,6 +59,14 @@ same-chunk order-free-but-serialized) or refuse `COMMUTE-REFUSE`; `predict` deci
 pure chunk geometry BEFORE any edit exists; `closure` replays every permutation of a batch to one
 head or refuses whole; `check_certificate` re-derives the entire proof from the parent world —
 certificates are evidence, never authority, and terraform's CAS stands unweakened beneath them.
+`commuteprop.py` — `URDRCPS1`, THE PROPERTY-BASED FALSIFIER STAGE (Tier-2 hardening): the commute
+diamond faces a SEEDED ADVERSARY, not a fixed corpus. A fixed-seed integer LCG mints random worlds +
+random distinct-cell edit tuples; each is asserted against oracles the module cannot read (a
+brute-permutation orbit for the head/field, chunk geometry for the rank — the anti-Goodhart rule), so
+existence-on-a-corpus becomes confidence-over-a-sampled-space. Non-vacuity asserted (both ranks, real
+edits, every contested pair refuses); red-first (mutants of predict/closure/certify each raise
+`COMMUTEPROP-FALSIFIED`); an off-gate `--explore` reseeds and files any counterexample as a pinned
+scene. `reunify == monolith` + the storm prefix-property are the stage's queued next targets.
 `rannull.py` — `URDRRAN0`, RAN-0, the authority-nullity certificate: the composition of the two
 proof domains (chunkstate's ownership, commute's independence) into a proof of ABSENCE — no shared
 semantic authority exists between two edits, so synchronization is shown unnecessary by

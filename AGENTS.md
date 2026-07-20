@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1098 unit falsifiers / 634 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1106 unit falsifiers / 636 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -417,8 +417,9 @@ LANDED here: Tier 1 (the headline aligned to the ledger — §11 and the README 
 Tier 2b (the ghost kinematic law — a WARDED `ghost_admit` now refuses a remote ghost that
 teleports, speed-hacks, or wall-clips, reusing `warden`'s gait bound + walkable-component β₀; the
 one genuine correctness gap the debate found, closed). SCHEDULED, pinned by `hardening_brief.md`:
-Tier 2 (property-based / metamorphic falsifiers over the flagship ∀-laws) = the NEXT rung, still
-pre-mesh; the AIMBOT / ANTI-CHEAT posture = a THREE-BAND phased roadmap — Band A server-driven AoI
+Tier 2 (property-based / metamorphic falsifiers over the flagship ∀-laws) = PART 1 LANDED
+(`commuteprop`, URDRCPS1 — the commute diamond under a seeded adversary with independent oracles;
+`reunify == monolith` + the storm prefix-property queued on the same harness before Phase M); the AIMBOT / ANTI-CHEAT posture = a THREE-BAND phased roadmap — Band A server-driven AoI
 delivery WITH Phase M (the real ESP/wallhack mitigation), Band B behavioural detection post-mesh
 (DECLARED off-gate, because a statistical detector may not be graded MEASURED), Band C input-rate /
 humanness bounds (partial) — because aimbot/botting via LAWFUL inputs is unaddressable at the

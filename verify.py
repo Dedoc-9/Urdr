@@ -6675,6 +6675,55 @@ class Gate:
                     "unweakened); a within-budget certificate admits under storecost's law"
                     if refuse_ok else "the commute refusal did not hold")
 
+    def commuteprop(self):
+        """The property-based falsifier stage (Tier-2, URDRCPS1): the commute diamond faces a SEEDED
+        ADVERSARY. A fixed-seed integer LCG mints random worlds + random distinct-cell edit tuples;
+        each scenario is asserted against oracles the module CANNOT read — a brute-permutation orbit
+        for the head/field, chunk geometry for the rank — so certify/closure/predict cannot hide a bug
+        inside their own answer (the anti-Goodhart rule). Existence-on-a-corpus becomes
+        confidence-over-a-sampled-space. Rows: property (the fixed-seed sweep reproduces its aggregate
+        digest, with rank0>0 / rank1>0 / every contested pair refusing / every world changed asserted
+        in-sweep), selftest (a mutated commute makes the sweep REDDEN — the gate catches a ∀-law break)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import commuteprop as CP
+            import commute as CM
+        except Exception as exc:
+            self.record("commute-property", False, f"import failed (commuteprop): {exc}")
+            return
+        prop_ok = True
+        try:
+            rep = CP.sweep()                                    # raises on any ∀-law violation / vacuity
+            prop_ok = (rep["digest"] == CP.golden() and rep["rank0"] > 0 and rep["rank1"] > 0
+                       and rep["contested"] == rep["scenarios"] and rep["changed"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("commute-property", prop_ok,
+                    f"the commute diamond survived a {CP.COUNT}-scenario seeded adversarial sweep — "
+                    "every order lands one head+field (brute-permutation oracle), closure agrees, "
+                    "predict matches independent chunk geometry, and every same-cell pair refuses; the "
+                    "aggregate digest reproduces its golden (non-vacuous: both ranks, real edits)"
+                    if prop_ok else "the commute property sweep failed or drifted from its golden")
+        red_ok = False
+        try:
+            _orig = CM.predict
+            CM.predict = lambda cs, xa, ya, xb, yb: 0           # PLANT: predict always rank 0
+            try:
+                CP.sweep()
+            except CP.SweepError:
+                red_ok = True
+            finally:
+                CM.predict = _orig
+            red_ok = red_ok and CP.sweep_digest() == CP.golden()   # clean again after the revert
+        except Exception:
+            red_ok = False
+        self.record("commute-property-selftest", red_ok,
+                    "a mutated commute.predict (always rank 0) makes the seeded sweep raise "
+                    "COMMUTEPROP-FALSIFIED — the property gate can redden — and the module is clean "
+                    "again after the revert (the sweep is a live falsifier, not a rubber stamp)"
+                    if red_ok else "the property sweep did not redden under a planted defect")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -9585,6 +9634,7 @@ def main() -> int:
     gate.chunkstate()
     gate.terraform()
     gate.commute()
+    gate.commuteprop()
     gate.rannull()
     gate.lease()
     gate.testament()
