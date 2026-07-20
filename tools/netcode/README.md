@@ -49,6 +49,7 @@ sandbox and then **ADMITTED on Windows/`rustc`**:
 
 - [`lockstep_rs/lockstep.rs`](lockstep_rs/lockstep.rs) — the `arena3` trace, 2/2 + defect.
 - [`rollback_rs/rollback.rs`](rollback_rs/rollback.rs) — convergence at `K=4`(×2)/`K=8`, refusals typed, and the apply-at-head defect diverging to the **same digest** as the C99 port (`39326ff9…`).
+- [`rollstore_rs/rollstore.rs`](rollstore_rs/rollstore.rs) — placement batch #2's netcode half (URDRRBS1, the durable rollback window): the four scenes with REAL disk round-trips, restored == never-died in every observable in-binary, the apply-at-head defect still diverging on a RESTORED peer, and the cost closed form equal to the real directory bytes; re-verified live each gate run.
 - [`authinput_rs/authinput.rs`](authinput_rs/authinput.rs) — roster root + signed chain 2/2, refusals typed, and the tail-collision forgery found at the **same offset** as C99 (`dvx+423`).
 - [`worldstep_rs/worldstep.rs`](worldstep_rs/worldstep.rs) — arena equivalence with frozen N1, the highway golden 2/2, and the no-statics defect at the shared anchor (`9c0ad7c5…`).
 

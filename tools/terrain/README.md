@@ -105,7 +105,10 @@ calculus stops expanding and starts closing.
 `heightfield_rs/` (the URDRHF1 canon) · `latstore_rs/` (URDRLAT4 + the URDRLAT5 byte laws) · `glide_rs/`
 (the keystone: the general fold over real terrain) · `streamstate_rs/` (URDRCHK1 + URDRCHS1 + URDRLAT6,
 plus the persist scenes through the general fold) · `latarith_rs/` (URDROPC1/2/3 + URDRLAT2/3 with the
-24-check soundness corpus in-binary). Single files, std-only, hand-rolled SHA-256; each gate run
+24-check soundness corpus in-binary) · `writecalc_rs/` (placement batch #2's terrain half: the FIVE
+write-calculus families — URDRTFM1 + URDRCMU1 + URDRRAN0 + URDRLSE1 + URDRTST1 — nineteen scenes in
+one file, with the testament's filename law exercised on REAL disk and the no-op-edit defect anchor
+caught by the authority-alignment law itself). Single files, std-only, hand-rolled SHA-256; each gate run
 recompiles them fresh against the LIVE conformance goldens, so a re-pinned canon reddens rather than
 silently staling a port. Hosts without `rustc` record the placement rows SKIPPED, honestly labelled.
 

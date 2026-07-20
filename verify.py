@@ -7949,6 +7949,187 @@ class Gate:
                     "in-binary soundness corpus — the live re-verification is load-bearing"
                     if caught else "the mutated port still reproduced the goldens, or the ceil anchor moved")
 
+    def writecalc_placement(self):
+        """The writecalc_rs cross-placement, RE-VERIFIED LIVE — placement batch #2's terrain half:
+        the FIVE write-calculus record families (URDRTFM1 terraform / URDRCMU1 commute / URDRRAN0
+        rannull / URDRLSE1 lease / URDRTST1 testament) in one std-only Rust file. NINETEEN scenes
+        against the LIVE conformance goldens: edit records + the CAS apply + chains + the certified
+        blast radius; the commutation certificate + diamond + rank + permutation closure; regional
+        records + shard_apply (the frame property) + reunify + the 4-way nullity; the standing
+        lease (state-free validity, interval commutation, amortized == reproved); durable intent
+        (probate, speaking flavors, the filename law on REAL disk). In-binary selfchecks:
+        determinism x2, exactly-one-slot, diamond == direct mutation, the lost-update two-layer
+        law, corruption refuse. Non-vacuity: the minted_height defect (new -> old, the no-op-edit
+        bug) MUST fail to reproduce — the terraform/commute scenes print diverged digests and the
+        alignment law itself kills the binary at the first nullity scene. SKIPPED without rustc."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import terraform as TF
+            import commute as CM
+            import rannull as RN
+            import lease as LS
+            import testament as TS
+        except Exception as exc:
+            self.record("writecalc-placement", False, f"import failed: {exc}")
+            self.record("writecalc-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(tdir, "writecalc_rs", "writecalc.rs")
+        try:
+            golds = {}
+            for mod in (TF, CM, RN, LS, TS):
+                golds.update({name: mod.golden(name) for name in mod.SCENES})
+        except Exception as exc:
+            self.record("writecalc-placement", False, f"live goldens unreadable: {exc}")
+            self.record("writecalc-placement-selftest", False, "no goldens")
+            return
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "writecalc.rs missing"
+            self.record("writecalc-placement", True,
+                        f"SKIPPED ({why}) — writecalc_rs was NOT re-verified this run; the D5 "
+                        f"cross-placement claim is unchecked here (install rustc to enable)")
+            self.record("writecalc-placement-selftest", True, f"SKIPPED ({why})")
+            return
+
+        def compile_run(source_text):
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "wc.rs")
+                bp = os.path.join(td, "wc.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(source_text)
+                cp = subprocess.run([rustc, "-O", sp, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                try:
+                    rp = subprocess.run([exe], capture_output=True, text=True)
+                except OSError:
+                    return None
+                if rp.returncode != 0:
+                    return {}
+                out = {}
+                for ln in rp.stdout.split("\n"):
+                    parts = ln.strip().split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+                return out
+
+        real = open(src, encoding="utf-8").read()
+        got = compile_run(real)
+        got2 = compile_run(real)
+        ref_ok = (got is not None and got == got2 and got.get("selfcheck") == "OK"
+                  and all(got.get(name) == golds[name] for name in golds))
+        self.record("writecalc-placement", ref_ok,
+                    "writecalc_rs recompiles and reproduces the LIVE URDRTFM1 + URDRCMU1 + URDRRAN0 "
+                    "+ URDRLSE1 + URDRTST1 goldens (nineteen scenes) bit-for-bit, twice, with the "
+                    "in-binary selfchecks green — the write-calculus terrain families are "
+                    "independently placed"
+                    if ref_ok else "writecalc_rs did NOT reproduce the live write-calculus goldens")
+        anchor = "fn minted_height(_old_h: i64, new_h: i64) -> i64 { new_h }"
+        mgot = (compile_run(real.replace(
+            anchor, "fn minted_height(_old_h: i64, new_h: i64) -> i64 { _old_h }", 1))
+            if anchor in real else None)
+        caught = (anchor in real) and (mgot is None or mgot.get("selfcheck") != "OK"
+                                       or any(mgot.get(name) != golds[name] for name in golds))
+        self.record("writecalc-placement-selftest", caught,
+                    "the minted_height defect (new -> old, the no-op edit) fails to reproduce the "
+                    "goldens — diverged terraform/commute digests, and the authority-alignment law "
+                    "itself kills the binary at the first nullity scene (the law catching the "
+                    "defect IS the defense) — the live re-verification is load-bearing"
+                    if caught else "the mutated port still reproduced the goldens, or the anchor moved")
+
+    def rollstore_placement(self):
+        """The rollstore_rs cross-placement, RE-VERIFIED LIVE — placement batch #2 CLOSES here: the
+        netcode half, URDRRBS1 (the durable rollback window) in one std-only Rust file on the
+        rollback_rs substrate. FOUR scenes against the LIVE conformance goldens with REAL disk
+        round-trips (the filename law enforced on read-back): mirror_window, phoenix_peer,
+        crooked_window (the checked-evidence refuse), priced_window (the cost closed form equal to
+        the real directory bytes). In-binary selfchecks: restored == never-died in every observable,
+        the apply-at-head defect diverging on a restored peer, horizon/conflict/duplicate surviving
+        the restore, corruption refuse. Non-vacuity: a mutated restitution coefficient (-3/4 ->
+        -2/4) must diverge every trace-bearing scene. SKIPPED without rustc."""
+        import shutil
+        import subprocess
+        import tempfile
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        for d in (ndir, os.path.join(ROOT, "tools", "physics"), os.path.join(ROOT, "tools", "terrain")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import rollstore as RW
+        except Exception as exc:
+            self.record("rollstore-placement", False, f"import failed: {exc}")
+            self.record("rollstore-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(ndir, "rollstore_rs", "rollstore.rs")
+        try:
+            golds = {name: RW.golden(name) for name in RW.SCENES}
+        except Exception as exc:
+            self.record("rollstore-placement", False, f"live goldens unreadable: {exc}")
+            self.record("rollstore-placement-selftest", False, "no goldens")
+            return
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "rollstore.rs missing"
+            self.record("rollstore-placement", True,
+                        f"SKIPPED ({why}) — rollstore_rs was NOT re-verified this run; the D5 "
+                        f"cross-placement claim is unchecked here (install rustc to enable)")
+            self.record("rollstore-placement-selftest", True, f"SKIPPED ({why})")
+            return
+
+        def compile_run(source_text):
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "rs.rs")
+                bp = os.path.join(td, "rs.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(source_text)
+                cp = subprocess.run([rustc, "-O", sp, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                try:
+                    rp = subprocess.run([exe], capture_output=True, text=True)
+                except OSError:
+                    return None
+                if rp.returncode != 0:
+                    return {}
+                out = {}
+                for ln in rp.stdout.split("\n"):
+                    parts = ln.strip().split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+                return out
+
+        real = open(src, encoding="utf-8").read()
+        got = compile_run(real)
+        got2 = compile_run(real)
+        ref_ok = (got is not None and got == got2 and got.get("selfcheck") == "OK"
+                  and all(got.get(name) == golds[name] for name in golds))
+        self.record("rollstore-placement", ref_ok,
+                    "rollstore_rs recompiles and reproduces the LIVE URDRRBS1 goldens (four scenes, "
+                    "real disk round-trips, the cost closed form equal to the real directory bytes) "
+                    "bit-for-bit, twice, with the in-binary selfchecks green — the durable rollback "
+                    "window is independently placed and PLACEMENT BATCH #2 CLOSES"
+                    if ref_ok else "rollstore_rs did NOT reproduce the live URDRRBS1 goldens")
+        anchor = "self.vy[i] = mulk(self.vy[i], -3, 4);"
+        mgot = (compile_run(real.replace(anchor, "self.vy[i] = mulk(self.vy[i], -2, 4);", 1))
+                if anchor in real else None)
+        caught = (anchor in real) and (mgot is None or mgot.get("selfcheck") != "OK"
+                                       or any(mgot.get(name) != golds[name] for name in golds))
+        self.record("rollstore-placement-selftest", caught,
+                    "a mutated restitution coefficient (-3/4 -> -2/4) diverges the canonical trace "
+                    "and every trace-bearing scene digest — the live re-verification is load-bearing"
+                    if caught else "the mutated port still reproduced the goldens, or the anchor moved")
+
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
@@ -8201,6 +8382,8 @@ def main() -> int:
     gate.glide_placement()
     gate.streamstate_placement()
     gate.latarith_placement()
+    gate.writecalc_placement()
+    gate.rollstore_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

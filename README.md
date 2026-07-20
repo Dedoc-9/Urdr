@@ -22,7 +22,7 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **29** single-file Rust placements
+across independent implementations or explicitly refused. **31** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
 on fixed corpora, behind a **976-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
@@ -494,7 +494,7 @@ Each main-tree folder carries its own README with the detail.
 | [`spec/`](spec/) | Normative specs D1–D19 (design laws, grammar, membrane, portable kernel, numeric substrate, observer capstone, **layer contracts D11**, **versions/freeze D12**, the glyph probe D13, the three one-way boundaries D14–D16, the detector law D17, the gauntlet D19), the D5 graded ledger in two volumes, the TLA+ membrane model | [`spec/README.md`](spec/README.md) |
 | [`examples/`](examples/) | The corpus the gate runs: accepted `.urdr` fixtures + golden `.digest`, `rejected/` must-die programs + `MANIFEST.txt`, `must_fail/` the tamper self-test, `vendor/` import-by-digest modules | [`examples/README.md`](examples/README.md) |
 | [`tests/`](tests/) | Unit falsifiers (pytest / unittest), one per subsystem — each designed to be able to go red | [`tests/README.md`](tests/README.md) |
-| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (exact dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`; **bounded fixed-point dynamics** `fp_dynamics.py` + `fp_dynamics_rs/`, the deterministic real-time path — rung 5, cross-placed), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `netcode/` (**`lockstep.py`** — the deterministic lockstep spine, rung N1: peers exchange inputs only, one witness chain, desyncs detected + localized), `world_host/` (runtime reference), `editor/` (a browser **authoring + deterministic-replay** front-end — draw wireframe objects, populate a 3D world with full physical state (mass/collider/material/velocity/joints), and a ▷ **Replay** mode that scrubs a run witness-by-witness with contacts/impulses/momentum/λ overlays *read from the recorded witnesses*; `replay.py` drives the exact solvers and the bounded `--fp` path, `load_world.py` renders an exported scene through the exact `perspective.py`; **exploratory** as a whole, but the fixed-point stepping it demos is the gated rung 5), `frontfps/` (the seven-stage FPS/MMO authoring ladder — world canon, Q32.32 rotation, pose/clip, posed hitboxes, view stream, LLM text surface, native bench — all cross-placed C99+Rust), `terrain/` (**the terrain/MMO stage arc** — field canon, movement, latency, storage, recovery, streaming, the regional cut, the mutable world, certified concurrency, authority nullity, the standing lease, durable intent, the representation theorem, plus its five live-recompiled Rust placements; module-by-module index in [`tools/terrain/README.md`](tools/terrain/README.md)), `homology/` (**`URDRPD1`** — 𝔽₂ persistent homology + a topological OOB/anti-cheat witness, three placements), `frontend/` (D14 admission canon + D15 view contract + SVG import + rigidity certificate), `tracer/` (photo→wireframe), `linear/` (D13 C4 linearity staging study), `specfreeze/` (the D12 freeze manifest, mechanically checked), `registry/`, plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
+| [`tools/`](tools/) | The execution pipeline + tools: `intla/` (exact-integer linear algebra `urdr-math` + atlas injectivity/reconstruction + `urdr_math_rs/` + `urdr_math_c/`), `physics/` (exact dynamics, LCP, joints, `field`, `marangoni`, coupling + `urdr_physics_rs/`; **bounded fixed-point dynamics** `fp_dynamics.py` + `fp_dynamics_rs/`, the deterministic real-time path — rung 5, cross-placed), `render/` (rasterizer, 3D depth, `perspective` + `urdr_render_rs/`), `netcode/` (**`lockstep.py`** — the deterministic lockstep spine, rung N1: peers exchange inputs only, one witness chain, desyncs detected + localized), `world_host/` (runtime reference), `editor/` (a browser **authoring + deterministic-replay** front-end — draw wireframe objects, populate a 3D world with full physical state (mass/collider/material/velocity/joints), and a ▷ **Replay** mode that scrubs a run witness-by-witness with contacts/impulses/momentum/λ overlays *read from the recorded witnesses*; `replay.py` drives the exact solvers and the bounded `--fp` path, `load_world.py` renders an exported scene through the exact `perspective.py`; **exploratory** as a whole, but the fixed-point stepping it demos is the gated rung 5), `frontfps/` (the seven-stage FPS/MMO authoring ladder — world canon, Q32.32 rotation, pose/clip, posed hitboxes, view stream, LLM text surface, native bench — all cross-placed C99+Rust), `terrain/` (**the terrain/MMO stage arc** — field canon, movement, latency, storage, recovery, streaming, the regional cut, the mutable world, certified concurrency, authority nullity, the standing lease, durable intent, the representation theorem, plus its six live-recompiled Rust placements; module-by-module index in [`tools/terrain/README.md`](tools/terrain/README.md)), `homology/` (**`URDRPD1`** — 𝔽₂ persistent homology + a topological OOB/anti-cheat witness, three placements), `frontend/` (D14 admission canon + D15 view contract + SVG import + rigidity certificate), `tracer/` (photo→wireframe), `linear/` (D13 C4 linearity staging study), `specfreeze/` (the D12 freeze manifest, mechanically checked), `registry/`, plus `fixpoint_proto/`, `foreign_placement/`, `urdr_core_rs/`, `voi_gate/`, `glyph_review.py` | [`tools/README.md`](tools/README.md) |
 | [`demo/`](demo/) | **`prove_it.py`** — a one-command, self-checking proof that the authoritative simulation reproduces bit-for-bit (gated goldens + an authored world's witness chain + exact certified solves); **`lockstep_demo.py`** — two peers exchange inputs only, agree on one witness chain, and catch every injected desync; plus `world_highway.json` | [`demo/README.md`](demo/README.md) |
 | [`docs/`](docs/) | Design briefs and session transcripts (narrative, not normative) | [`docs/README.md`](docs/README.md) |
 | `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
@@ -504,7 +504,7 @@ Each main-tree folder carries its own README with the detail.
 ## What the manifold / engine can do — and what it's for
 
 Two properties are unusual in combination, and everything below follows from them: **the whole
-pipeline is bit-reproducible across independent implementations** (29 Rust placements + 14 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
+pipeline is bit-reproducible across independent implementations** (31 Rust placements + 14 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
 at the type level** (over-grading does not typecheck; `MEASURED` is minted only by a verifier).
 The "manifold" is the observer/atlas layer (D7–D10) — the theorem `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) =
 {0}` made computable and data-parameterized (nD is a data choice) — sitting under a physics + render
@@ -675,13 +675,16 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
 - **Cross-placement of the reference detectors.** D17's Axis A (reproduction) separates `REFERENCE` from
   `CROSS-PLACED`. Toric and rigidity are now cross-placed (C99 self-verified + Rust admitted on Windows);
   **criticality** and **persim** remain reference-only and are the next cross-placement targets.
-- **Live re-verification of every placement (generalize `heightfield-placement`) — five stages of
-  progress recorded.** The pattern has since generalized across the terrain arc: `latstore-`, `glide-`,
-  `streamstate-`, and `latarith-placement` now join `heightfield-placement`, each recompiling its
-  std-only Rust fresh per gate run against the LIVE goldens with a source-mutation selftest that must
-  diverge — so a re-pinned canon reddens rather than silently staling a port, and rustc-less hosts
-  record SKIPPED honestly. Still *attested in-session* and next in line: `winding_rs`, `toric`/
-  `rigidity` (Rust + C99), and the math/netcode C99+Rust runtimes. The only cost is build time per run.
+- **Live re-verification of every placement (generalize `heightfield-placement`) — seven stages of
+  progress recorded.** The pattern has since generalized across the arc: `latstore-`, `glide-`,
+  `streamstate-`, `latarith-`, `writecalc-`, and `rollstore-placement` now join
+  `heightfield-placement`, each recompiling its std-only Rust fresh per gate run against the LIVE
+  goldens with a source-mutation selftest that must diverge — so a re-pinned canon reddens rather
+  than silently staling a port, and rustc-less hosts record SKIPPED honestly. Placement batch #2
+  (the write-calculus seal's exit debt) closed here: all twenty-three scenes of the six sealed
+  families independently placed. Still *attested in-session* and next in line: `winding_rs`,
+  `toric`/`rigidity` (Rust + C99), and the math/netcode C99+Rust runtimes. The only cost is build
+  time per run.
 - **The terrain/wave studio's own roadmap.** Presentation-side (all `DECLARED`, never touching the
   authority): a sun-lit sea floor + caustics where shallow water reveals bathymetry, and a soft shoreline
   to smooth the wave/land seam. Contract-side (`MEASURED`): a no-CDN assertion proving the view fetches
@@ -699,7 +702,7 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   URDRAOI1) while interest-filtered wire replication stays declared. Graded by the same bit-for-bit
   composition discipline as D16 — not a new primitive.
 - **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and two
-  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **29 Rust + 14 C99
+  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **31 Rust + 14 C99
   placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles.
