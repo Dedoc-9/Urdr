@@ -22,7 +22,7 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **31** single-file Rust placements
+across independent implementations or explicitly refused. **32** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
 on fixed corpora, behind a **1033-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
@@ -504,7 +504,7 @@ Each main-tree folder carries its own README with the detail.
 ## What the manifold / engine can do — and what it's for
 
 Two properties are unusual in combination, and everything below follows from them: **the whole
-pipeline is bit-reproducible across independent implementations** (31 Rust placements + 14 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
+pipeline is bit-reproducible across independent implementations** (32 Rust placements + 14 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
 at the type level** (over-grading does not typecheck; `MEASURED` is minted only by a verifier).
 The "manifold" is the observer/atlas layer (D7–D10) — the theorem `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) =
 {0}` made computable and data-parameterized (nD is a data choice) — sitting under a physics + render
@@ -680,9 +680,12 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   W5 `wireattest` is LANDED and THE WIRE PHASE IS SEALED (the reality attestation: real
   processes, real UDP, a real chaos relay on the named host — recorded once as a self-digested
   trace, replayed by the gate through the unmodified laws forever). The covenant now calls in
-  placement batch #3 (URDRWIR1/URDRSTM1/URDRSWT1/URDRDGZ1/URDRWAT1 join the frontier);
-  behind it, declared: the authority algebra, n-way nullity and lease scheduling, live authority
-  migration, essence extended to the read-side families.
+  placement batch #3 CLOSED here (`wirephase_rs` — the FIVE wire-phase families
+  URDRWIR1/URDRSTM1/URDRSWT1/URDRDGZ1/URDRWAT1 independently placed: sixteen scene digests + the two
+  synthetic-attest report digests re-derived in std-only Rust, the covenant's debt paid), so the road
+  to a windowed execution is open (`AGENTS.md` §12: V1 `panelight`); behind it, declared: the
+  authority algebra, n-way nullity and lease scheduling, live authority migration, essence extended
+  to the read-side families.
 - **The road ahead — Hainuwele's next layers (researched, declared, not begun; see
   `AGENTS.md` §10 for the full plans).** After placement batch #3 closes (the covenant's
   boundary): **`ghostsnap`**, the actor wire — equal-or-refuse ghosts, the sealed write
@@ -700,12 +703,13 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   **criticality** and **persim** remain reference-only and are the next cross-placement targets.
 - **Live re-verification of every placement (generalize `heightfield-placement`) — seven stages of
   progress recorded.** The pattern has since generalized across the arc: `latstore-`, `glide-`,
-  `streamstate-`, `latarith-`, `writecalc-`, and `rollstore-placement` now join
+  `streamstate-`, `latarith-`, `writecalc-`, `rollstore-`, and `wirephase-placement` now join
   `heightfield-placement`, each recompiling its std-only Rust fresh per gate run against the LIVE
   goldens with a source-mutation selftest that must diverge — so a re-pinned canon reddens rather
   than silently staling a port, and rustc-less hosts record SKIPPED honestly. Placement batch #2
-  (the write-calculus seal's exit debt) closed here: all twenty-three scenes of the six sealed
-  families independently placed. Still *attested in-session* and next in line: `winding_rs`,
+  (the write-calculus seal's exit debt) and batch #3 (the wire phase's five families — sixteen
+  scene digests plus the two synthetic-attest report digests re-derived in Rust) both closed here:
+  every sealed family through the wire phase is now independently placed. Still *attested in-session* and next in line: `winding_rs`,
   `toric`/`rigidity` (Rust + C99), and the math/netcode C99+Rust runtimes. The only cost is build
   time per run.
 - **The terrain/wave studio's own roadmap.** Presentation-side (all `DECLARED`, never touching the
@@ -725,7 +729,7 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   URDRAOI1) while interest-filtered wire replication stays declared. Graded by the same bit-for-bit
   composition discipline as D16 — not a new primitive.
 - **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and two
-  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **31 Rust + 14 C99
+  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **32 Rust + 14 C99
   placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles.

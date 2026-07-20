@@ -76,7 +76,7 @@ invariant detectors `tools/intla/{toric,rigidity}_{rs,c}/` (the toric-code dimen
 the rigidity verdict) — each ADMITTED on Windows/`rustc`, MEASURED both placements, with
 its port logic first validated by an independent C99 cross-check that agrees on the golden
 AND the defect digests. Counting the math spine's `tools/intla/urdr_math_c/` (std-only,
-`__int128`), that is **31 Rust placements and 14 C99 runtimes** — three
+`__int128`), that is **32 Rust placements and 14 C99 runtimes** — three
 languages, two OSes, one digest.
 
 ---
@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1033 unit falsifiers / 611 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1033 unit falsifiers / 613 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -364,7 +364,7 @@ written here so the next contributor starts where we ended rather than where we 
    (the `wireattest` split — the pattern for every future reality boundary).
 9. **The covenant on debts.** Recorded ambitions become scheduled rungs or are honestly
    re-declared; a phase's placement batch falls due when the phase seals, NO LATER.
-   Placement batch #3 (the wire phase's five families) is due NOW — it precedes Phase V.
+   Placement batch #3 (the wire phase's five families) LANDED as `wirephase_rs` — debt paid; V1 is open.
 10. **Docs move in the same commit as the counts** — the `doc-currency` stage makes stale
     docs a RED GATE, and counts written in words instead of digits silently rot (it
     happened twice; see rule 10).
@@ -476,9 +476,10 @@ in one window. **Decide.** The ladder below, strictly ordered; the covenant's bo
 **Act.** Each rung lands by the section-5 workflow — red-first, plants bite, goldens pin,
 gate ×2.
 
-- **V0 — placement batch #3 (DUE NOW, blocks everything).** Single-file std-only Rust for the
-  wire-phase families (URDRWIR1/URDRSTM1/URDRSWT1/URDRDGZ1 + URDRWAT1's checker), live
-  re-verified per gate run. The covenant holds or nothing else means anything.
+- **V0 — placement batch #3. LANDED** (`wirephase_rs`). Single-file std-only Rust for all five
+  wire-phase families (URDRWIR1/URDRSTM1/URDRSWT1/URDRDGZ1 + URDRWAT1's checker re-derived over a
+  synthetic trace), live re-verified per gate run; the minted_height defect diverges fifteen of
+  sixteen scenes and crashes the attest checker. The covenant's debt is PAID — V1 is now open.
 - **V1 — `panelight`, the windowed loop (THE identified vertical slice — self-contained,
   end-to-end, nothing redundant with any landed rung).** One window (the existing WebGL2
   path first; three.js/WebGPU is the target, not the gate), one avatar, the real game loop:

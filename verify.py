@@ -8772,6 +8772,103 @@ class Gate:
                     if caught else "the mutated port still reproduced the goldens, or the anchor moved")
 
     # -- 2q. D17 invariant-detector admission lint (declared roles, not inferred) -
+    def wirephase_placement(self):
+        """The wirephase_rs cross-placement, RE-VERIFIED LIVE — placement batch #3 (the wire phase):
+        the FIVE wire-phase families (URDRWIR1 wire / URDRSTM1 storm / URDRSWT1 sealwrit / URDRDGZ1
+        driftgaze / URDRWAT1 wireattest) in one std-only Rust file. SIXTEEN scene digests against the
+        LIVE conformance goldens + the TWO synthetic-attest report digests independently re-derived
+        (the checker replayed in Rust): equal-or-refuse replication; the seeded storm loom with the
+        primary-reorder floor; the Lamport-sealed writ with eligibility-before-admission; the moving
+        gaze with verified acquisition + the gap repair; the reality checker over a synthetic trace.
+        In-binary selfcheck: wire determinism, refuse purity, the becalmed control, the SEAL/genuine
+        split. Non-vacuity: the minted_height defect (new -> old, the no-op edit) MUST fail — fifteen
+        of sixteen scene digests diverge and the attestation checker CRASHES (the admitted-everything
+        convergence law rejects the no-op trace) so the binary exits nonzero. SKIPPED without rustc."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import wire as WIR
+            import storm as STM
+            import sealwrit as SWT
+            import driftgaze as DGZ
+            import wireattest as WAT
+        except Exception as exc:
+            self.record("wirephase-placement", False, f"import failed: {exc}")
+            self.record("wirephase-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(tdir, "wirephase_rs", "wirephase.rs")
+        try:
+            golds = {}
+            for mod in (WIR, STM, SWT, DGZ):
+                golds.update({name: mod.scene_result(name) for name in mod.SCENES})
+            golds["attest-gale"] = WAT.report_digest(WAT.check_trace(WAT.synth_trace("gale")))
+            golds["attest-tempest"] = WAT.report_digest(WAT.check_trace(WAT.synth_trace("tempest")))
+        except Exception as exc:
+            self.record("wirephase-placement", False, f"live goldens unreadable: {exc}")
+            self.record("wirephase-placement-selftest", False, "no goldens")
+            return
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "wirephase.rs missing"
+            self.record("wirephase-placement", True,
+                        f"SKIPPED ({why}) — wirephase_rs was NOT re-verified this run; the D5 "
+                        f"cross-placement claim is unchecked here (install rustc to enable)")
+            self.record("wirephase-placement-selftest", True, f"SKIPPED ({why})")
+            return
+
+        def compile_run(source_text):
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "wp.rs")
+                bp = os.path.join(td, "wp.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(source_text)
+                cp = subprocess.run([rustc, "-O", sp, "-o", bp], capture_output=True, text=True)
+                if cp.returncode != 0:
+                    return None
+                exe = bp if os.path.exists(bp) else (bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None
+                try:
+                    rp = subprocess.run([exe], capture_output=True, text=True)
+                except OSError:
+                    return None
+                if rp.returncode != 0:
+                    return {}
+                out = {}
+                for ln in rp.stdout.split("\n"):
+                    parts = ln.strip().split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+                return out
+
+        real = open(src, encoding="utf-8").read()
+        got = compile_run(real)
+        got2 = compile_run(real)
+        ref_ok = (got is not None and got == got2 and got.get("selfcheck") == "OK"
+                  and all(got.get(name) == golds[name] for name in golds))
+        self.record("wirephase-placement", ref_ok,
+                    "wirephase_rs recompiles and reproduces the LIVE URDRWIR1 + URDRSTM1 + URDRSWT1 "
+                    "+ URDRDGZ1 goldens (sixteen scenes) AND independently re-derives the URDRWAT1 "
+                    "synthetic-attest report digests bit-for-bit, twice, with the in-binary selfcheck "
+                    "green — the wire phase's five families are independently placed"
+                    if ref_ok else "wirephase_rs did NOT reproduce the live wire-phase goldens")
+        anchor = "fn minted_height(_old_h: i64, new_h: i64) -> i64 { new_h }"
+        mgot = (compile_run(real.replace(
+            anchor, "fn minted_height(_old_h: i64, new_h: i64) -> i64 { _old_h }", 1))
+            if anchor in real else None)
+        caught = (anchor in real) and (mgot is None or mgot.get("selfcheck") != "OK"
+                                       or any(mgot.get(name) != golds[name] for name in golds))
+        self.record("wirephase-placement-selftest", caught,
+                    "the minted_height defect (new -> old, the no-op edit) fails to reproduce the "
+                    "goldens — fifteen of sixteen scene digests diverge and the attestation checker "
+                    "crashes on the no-op trace (the law catching the defect IS the defense) — the "
+                    "live re-verification is load-bearing"
+                    if caught else "the mutated port still reproduced the goldens, or the anchor moved")
+
     def invariant_detectors(self):
         """D17 structural lint: each admitted detector DECLARES which recorded rows fill its four
         roles (reference / invariance / defect / refusal). The lint checks — mechanically, never
@@ -9030,6 +9127,7 @@ def main() -> int:
     gate.latarith_placement()
     gate.writecalc_placement()
     gate.rollstore_placement()
+    gate.wirephase_placement()
     gate.invariant_detectors()
     gate.spec_freeze()
     gate.rejections()

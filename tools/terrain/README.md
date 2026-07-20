@@ -154,7 +154,11 @@ plus the persist scenes through the general fold) · `latarith_rs/` (URDROPC1/2/
 24-check soundness corpus in-binary) · `writecalc_rs/` (placement batch #2's terrain half: the FIVE
 write-calculus families — URDRTFM1 + URDRCMU1 + URDRRAN0 + URDRLSE1 + URDRTST1 — nineteen scenes in
 one file, with the testament's filename law exercised on REAL disk and the no-op-edit defect anchor
-caught by the authority-alignment law itself). Single files, std-only, hand-rolled SHA-256; each gate run
+caught by the authority-alignment law itself) · `wirephase_rs/` (placement batch #3, the wire phase:
+the FIVE wire-phase families — URDRWIR1 + URDRSTM1 + URDRSWT1 + URDRDGZ1 + URDRWAT1 — SIXTEEN scene
+digests plus the TWO synthetic-attest report digests independently re-derived (the reality checker
+replayed in Rust), with the same no-op-edit defect anchor: fifteen of sixteen scenes diverge and the
+attestation checker crashes on the no-op trace). Single files, std-only, hand-rolled SHA-256; each gate run
 recompiles them fresh against the LIVE conformance goldens, so a re-pinned canon reddens rather than
 silently staling a port. Hosts without `rustc` record the placement rows SKIPPED, honestly labelled.
 
