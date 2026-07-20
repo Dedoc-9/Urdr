@@ -8328,6 +8328,111 @@ class Gate:
                     "unperturbed — equal-or-refuse under play"
                     if concord_ok else "the two-windows-one-authority / malice-under-play law did not hold")
 
+    def ghostsnap(self):
+        """The actor wire (T3.54, V3, URDRGHS1): equal-or-refuse GHOSTS — actors replicated as
+        content-addressed per-tick pose snapshots chained by parent digest, admitted under wire's
+        law on the movement plane. Rows: scenes (muster / interloper / relay / concord reproduce
+        URDRGHS1 digests), admit (equal-or-refuse — a tampered / foreign-parent / out-of-interest /
+        out-of-order / duplicate ghost each refuse with the ghost map byte-identical), relay (a
+        shuffled delivery converges under the retry loom to the in-order witness), firewall (the
+        interpolated ghost is bounded between snapshots and the witness is structurally blind to
+        it — D15 on actors)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import ghostsnap as GS
+            from field import ONE as _ONE
+        except Exception as exc:
+            self.record("ghostsnap", False, f"import failed (ghostsnap): {exc}")
+            return
+        try:
+            ref_ok = all(GS.scene_result(n) == GS.golden(n) for n in GS.SCENES)
+        except Exception as exc:
+            self.record("ghostsnap:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("ghostsnap:scenes", ref_ok,
+                    "muster + interloper + relay + concord reproduce URDRGHS1 digests"
+                    if ref_ok else "a ghostsnap scene drifted from its digest")
+
+        def chain(aid, xs, ys):
+            snaps, parent = [], GS.GENESIS
+            for i, (x, y) in enumerate(zip(xs, ys)):
+                s = GS.ghost_record(aid, i, parent, x * _ONE, y * _ONE, 1)
+                snaps.append(s); parent = GS.address(s)
+            return snaps
+
+        admit_ok = True
+        try:
+            a = chain(1, [2, 3, 4], [8, 8, 8])
+            client = GS.subscribe_ghosts((3, 8), 4)
+            before = GS.ghost_witness(client)
+            tampered = bytearray(a[0]); tampered[50] ^= 0x01
+            foreign = GS.ghost_record(1, 0, "f" * 64, 2 * _ONE, 8 * _ONE, 1)
+            far = GS.ghost_record(9, 0, GS.GENESIS, 40 * _ONE, 40 * _ONE, 1)
+            for probe in (bytes(tampered), foreign, far, a[1]):
+                try:
+                    GS.ghost_admit(client, probe); admit_ok = False
+                except GS.GhostError:
+                    pass
+            admit_ok = admit_ok and GS.ghost_witness(client) == before
+            client = GS.ghost_admit(client, a[0])
+            try:
+                GS.ghost_admit(client, a[0]); admit_ok = False   # duplicate must refuse
+            except GS.GhostError:
+                pass
+            client = GS.ghost_admit(client, a[1])                # the in-order retry admits
+            admit_ok = admit_ok and GS.address(client["ghosts"][1]) == GS.address(a[1])
+        except Exception:
+            admit_ok = False
+        self.record("ghostsnap-admit", admit_ok,
+                    "equal-or-refuse ghosts: a tampered snapshot, a foreign-parent genesis, an "
+                    "out-of-interest actor, and an out-of-order snapshot each refuse with the "
+                    "ghost map byte-identical; a duplicate refuses (the parent moved); and the "
+                    "in-order retry admits — a ghost that cannot lie"
+                    if admit_ok else "the equal-or-refuse ghost law did not hold")
+        relay_ok = True
+        try:
+            ch = chain(1, [2, 3, 4, 5], [8, 8, 8, 8])
+            ordered = GS.subscribe_ghosts((4, 8), 16)
+            for s in ch:
+                ordered = GS.ghost_admit(ordered, s)
+            out = GS.run_relay((4, 8), 16, [ch[2], ch[0], ch[3], ch[1]])
+            relay_ok = (out["refusals"] > 0 and out["admitted"] == len(ch)
+                        and GS.ghost_witness(out["client"]) == GS.ghost_witness(ordered))
+            # two clients, one truth
+            c1 = GS.subscribe_ghosts((4, 8), 16)
+            c2 = GS.subscribe_ghosts((6, 8), 16)                 # a different observer, same interest
+            for s in ch:
+                c1 = GS.ghost_admit(c1, s)
+            for s in ch:
+                c2 = GS.ghost_admit(c2, s)
+            relay_ok = relay_ok and GS.ghost_witness(c1) == GS.ghost_witness(c2)
+        except Exception:
+            relay_ok = False
+        self.record("ghostsnap-relay", relay_ok,
+                    "a shuffled ghost delivery converges under the retry loom — out-of-order "
+                    "snapshots refuse and requeue, all admit to the SAME witness the in-order "
+                    "stream reaches; two independent clients over the same chain agree bit-for-bit "
+                    "(two clients, one truth)"
+                    if relay_ok else "the relay-convergence / two-clients-one-truth law did not hold")
+        fw_ok = True
+        try:
+            g0 = GS.ghost_record(1, 0, GS.GENESIS, 2 * _ONE, 8 * _ONE, 1)
+            g1 = GS.ghost_record(1, 1, GS.address(g0), 4 * _ONE, 8 * _ONE, 1)
+            for alpha in (0, 8, 15):
+                fx, _fy = GS.interpolate_ghost(g0, g1, alpha, 16)
+                fw_ok = fw_ok and 2 * _ONE <= fx <= 4 * _ONE
+            fw_ok = fw_ok and GS.interpolate_ghost(g0, g1, 0, 16)[0] == 2 * _ONE
+            fw_ok = fw_ok and GS.ghost_witness.__code__.co_argcount == 1
+        except Exception:
+            fw_ok = False
+        self.record("ghostsnap-firewall", fw_ok,
+                    "a rendered ghost interpolated between two snapshots is bounded strictly "
+                    "between them (alpha=0 is the earlier snapshot exactly), and the ghost witness "
+                    "is STRUCTURALLY blind to it — ghost_witness takes only the ghost map, so no "
+                    "interpolated frame can move it (the D15 firewall, on actors)"
+                    if fw_ok else "the interpolation-firewall law did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -9289,6 +9394,7 @@ def main() -> int:
     gate.wireattest()
     gate.panelight()
     gate.panewire()
+    gate.ghostsnap()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

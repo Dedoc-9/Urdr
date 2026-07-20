@@ -118,6 +118,16 @@ primary-reordering floor must produce refusals — one assertion convicts both t
 storm and the 'helpful' silently-buffering client); the PREFIX PROPERTY under measured loss
 with the stall DETECTED; malice-under-chaos; the becalmed control. The network misbehaves,
 the gate does not.
+`ghostsnap.py` — `URDRGHS1`, V3: THE ACTOR WIRE — `wire` for ACTORS instead of terrain. A ghost
+is a 112-byte content-addressed per-tick POSE SNAPSHOT chained by parent digest (terraform's chain
+law on the movement plane), admitted EQUAL-OR-REFUSE: it verifies (digest), the actor is IN
+INTEREST (`interest`'s AoI radius, reused), and it CHAINS from the client's current ghost (parent
+CAS). A forged, tampered, stale, duplicated, or out-of-interest ghost is a typed GHOST-REFUSE with
+the ghost map byte-unchanged — a ghost that cannot lie. Chain order + at-most-once; interest follows
+the observer; two clients admitting the same stream reach one witness; a shuffled delivery converges
+under the retry loom (the storm, on actors); the interpolation firewall (a rendered ghost lerped
+between snapshots, the witness structurally blind — D15 on actors). The industry's ghost-snapshot
+pattern with admission where it has trust.
 `panewire.py` — `URDRPNW1`, V2: THE WIRED WINDOW — the whole arc composed in one live loop:
 MOVEMENT (panelight's tick) + REPLICATION (wire's admission) + STREAMING (driftgaze's fetch)
 driving one avatar over a REPLICATED, STREAMED world. Mints nothing (the avatar folds with
@@ -190,5 +200,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `ATTEST-`, `PANEL-`, `PANEWIRE-`, `WARD-*`,
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `ATTEST-`, `PANEL-`, `PANEWIRE-`, `GHOST-`, `WARD-*`,
 `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.
