@@ -1,0 +1,8 @@
+# URDRSFR1 conformance goldens — the sealed frame (V4): scene digests pinned AFTER the
+# six planted defects (miscounted envelope, dishonest budget, anonymous-log graduation,
+# over-target graduation, digest-blind log, verdict-blind digest) were each proven to BITE.
+# digest = SHA-256(MAGIC | name | micro_steps | reads | verdict)
+walk fbf594fb39675045009a29d94265b66d0d3cbc70bae793c027cc7cbf750f4a55
+sprint 11a6cd37409ee9597adc93f011de377fc3965b1c786655b8ff66e1ea9fe3b18a
+restful ec049fa23369f0b8542505a98b62b2a838cb8c94e042acaebfe60b13cc4b36b3
+budget 8bf0509d7b9a3e3ecccab8e127162a82a1f9182977b590fc8a20ebe2b0877d14

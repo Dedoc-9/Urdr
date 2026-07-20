@@ -25,14 +25,14 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **32** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **1065-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
+on fixed corpora, behind a **1078-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · **Hainuwele**, the manifold MMO arc (T1–T3.54, Stages A–I + the sealed wire phase — named for the Wemale dema-deity from whose buried, divided body the living crops grew: here, every living capability grows from content-addressed records buried under their own digests): movement → latency → storage → recovery → streaming → the regional cut → the mutable world → certified concurrency → authority nullity → the standing lease → durable intent → the representation theorem → equal-or-refuse replication → the adversarial-transport loom → the signed wire → interest shift → the reality attestation → the windowed loop → the wired window → the actor wire)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · **Hainuwele**, the manifold MMO arc (T1–T3.55, Stages A–I + the sealed wire phase — named for the Wemale dema-deity from whose buried, divided body the living crops grew: here, every living capability grows from content-addressed records buried under their own digests): movement → latency → storage → recovery → streaming → the regional cut → the mutable world → certified concurrency → authority nullity → the standing lease → durable intent → the representation theorem → equal-or-refuse replication → the adversarial-transport loom → the signed wire → interest shift → the reality attestation → the windowed loop → the wired window → the actor wire → the sealed frame)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -692,7 +692,9 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   authority, equal-or-refuse under play; `panewire.html` the two-window demo) — and `ghostsnap`, the ACTOR wire (V3: `wire` for actors —
   other players arrive as content-addressed ghost snapshots chained by parent digest, admitted
   equal-or-refuse with AoI interest, two clients one truth, the interpolation firewall; the world
-  becomes multiplayer, a ghost that cannot lie). Behind it, declared: the
+  becomes multiplayer, a ghost that cannot lie) — and `sealframe`, the SEALED frame (V4: the loop's
+  op-cost envelope GATED and the wall-clock honesty mechanized — fps/latency stay NOT_MEASURED until
+  a named-host `--bench` log, bench_protocol's rule applied to the frame). Behind it, declared: the
   authority algebra, n-way nullity and lease scheduling, live authority migration, essence extended
   to the read-side families.
 - **The road ahead — Hainuwele's next layers (researched, declared, not begun; see

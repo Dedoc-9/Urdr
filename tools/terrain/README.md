@@ -118,6 +118,15 @@ primary-reordering floor must produce refusals — one assertion convicts both t
 storm and the 'helpful' silently-buffering client); the PREFIX PROPERTY under measured loss
 with the stall DETECTED; malice-under-chaos; the becalmed control. The network misbehaves,
 the gate does not.
+`sealframe.py` — `URDRSFR1`, V4: THE SEALED FRAME — the windowed loop's performance graded
+honestly. TWO halves kept apart: the WORK ACCOUNTING (the exact integer op-cost of one frame's
+authority tick — deterministic, host-independent, GATED, and a checkable inequality that it fits the
+60Hz budget under the measured native rate) and the WALL-CLOCK (fps, input->photon — NOT_MEASURED
+until a named-host log). The honesty boundary is mechanized (bench_protocol's rule, on the frame): a
+FRAME_BUDGET entry graded MEASURED must cite a named-host log; the unlogged-MEASURED defect is
+caught; a host log graduates a claim only when it NAMES a host AND is under target. The off-gate
+`--bench` runner times the real loop and writes a self-digested host log; the numbers stay a
+named-host claim, never a gated one (refusal code `FRAME-`).
 `ghostsnap.py` — `URDRGHS1`, V3: THE ACTOR WIRE — `wire` for ACTORS instead of terrain. A ghost
 is a 112-byte content-addressed per-tick POSE SNAPSHOT chained by parent digest (terraform's chain
 law on the movement plane), admitted EQUAL-OR-REFUSE: it verifies (digest), the actor is IN
@@ -200,5 +209,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `ATTEST-`, `PANEL-`, `PANEWIRE-`, `GHOST-`, `WARD-*`,
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `ATTEST-`, `PANEL-`, `PANEWIRE-`, `GHOST-`, `FRAME-`, `WARD-*`,
 `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.

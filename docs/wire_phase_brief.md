@@ -86,7 +86,8 @@ convergence verified by the same Python laws after the fact. The reality boundar
 honestly: the gate certifies the laws, the attestation certifies reality met them, and neither
 pretends to be the other.
 
-**Phase V — the visible world. OPEN; V1 `panelight`, V2 `panewire`, and V3 `ghostsnap` LANDED** (V3, URDRGHS1, T3.54 — the actor wire: equal-or-refuse ghosts, content-addressed pose snapshots chained by parent digest, AoI interest, two clients one truth, the interpolation firewall — the world made multiplayer).
+**Phase V — the visible world. OPEN; V1 `panelight`, V2 `panewire`, V3 `ghostsnap`, and V4 `sealframe` LANDED** (V4, URDRSFR1, T3.55 — the sealed frame: the loop's op-cost envelope gated, the wall-clock fps/latency NOT_MEASURED until a named-host `--bench` log, the honesty boundary mechanized).
+**Prior:** (V3, URDRGHS1, T3.54 — the actor wire: equal-or-refuse ghosts, content-addressed pose snapshots chained by parent digest, AoI interest, two clients one truth, the interpolation firewall — the world made multiplayer).
 **Detail:** (V2, URDRPNW1, T3.53 — the wired window: the loop over a replicated, streamed world, resident-or-refuse, live edits, two windows one authority, equal-or-refuse under play).
 **V1** (`URDRPNL1`, T3.52 — the windowed loop:
 the certified world driven live, interactive==batch, the frame/tick accumulator, the interpolation

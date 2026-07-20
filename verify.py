@@ -8433,6 +8433,87 @@ class Gate:
                     "interpolated frame can move it (the D15 firewall, on actors)"
                     if fw_ok else "the interpolation-firewall law did not hold")
 
+    def sealframe(self):
+        """The sealed frame (T3.55, V4, URDRSFR1): the windowed loop's performance graded honestly —
+        the exact integer op envelope GATED, the wall-clock (fps/latency) NOT_MEASURED until a
+        named-host log, the honesty mechanized (bench_protocol's rule, on the frame). Rows: scenes
+        (walk / sprint / restful / budget reproduce URDRSFR1 op digests), envelope (the op count is
+        the loop's ACTUAL work — model==execution — and fits the 60Hz budget under the measured
+        native rate), honesty (every MEASURED frame entry cites a host log; the unlogged-MEASURED
+        defect is caught; the named-host law graduates input->photon only from a named, on-target
+        log), selftest (a tampered host log and an anonymous graduation both refuse; gate can
+        redden)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import sealframe as SF
+        except Exception as exc:
+            self.record("sealframe", False, f"import failed (sealframe): {exc}")
+            return
+        try:
+            ref_ok = all(SF.scene_result(n) == SF.golden(n) for n in SF.SCENES)
+        except Exception as exc:
+            self.record("sealframe:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("sealframe:scenes", ref_ok,
+                    "walk + sprint + restful + budget reproduce URDRSFR1 op-envelope digests"
+                    if ref_ok else "a sealframe scene drifted from its digest")
+        env_ok = True
+        try:
+            fld = SF._blank()
+            e = SF.frame_ops(fld, (2, 8), "EEEE", 4, 4000)
+            env_ok = (e["micro_steps"] == SF.instrumented_micro_steps(fld, (2, 8), "EEEE", 4, 4000)
+                      and e["ops"] == e["micro_steps"] + e["reads"]
+                      and SF.frame_ops(fld, (2, 8), "eeee", 4, 4000)["micro_steps"] * 2
+                          == e["micro_steps"]
+                      and SF.fits_budget(e, 73000, 60))
+        except Exception:
+            env_ok = False
+        self.record("sealframe-envelope", env_ok,
+                    "the op envelope is the loop's ACTUAL work (micro-steps == the glide "
+                    "trajectory's own count — model==execution), sprint costs exactly twice the "
+                    "walk, and the envelope FITS the 60Hz budget under the measured native tick "
+                    "rate (bench §4b) — high fps is architecturally cheap, as an inequality not a "
+                    "wall-clock"
+                    if env_ok else "the op-envelope / fits-budget law did not hold")
+        honesty_ok = True
+        try:
+            honesty_ok = (SF.budget_is_honest(SF.FRAME_BUDGET)
+                          and not SF.budget_is_honest(SF.budget_defect_unlogged_measured()))
+            grades = {c: g for (c, g, _m, _l) in SF.FRAME_BUDGET}
+            honesty_ok = (honesty_ok and grades["input_to_photon"] == "NOT_MEASURED"
+                          and grades["authority_tick"] == "MEASURED")
+            good = SF.make_host_log("Ally X", 73000, 6.2)
+            slow = SF.make_host_log("Ally X", 73000, 40.0)
+            honesty_ok = (honesty_ok and SF.frame_budget_measured(good, 25.0)
+                          and not SF.frame_budget_measured(slow, 25.0))
+        except Exception:
+            honesty_ok = False
+        self.record("sealframe-honesty", honesty_ok,
+                    "every MEASURED frame-budget entry cites a named-host log (the unlogged-MEASURED "
+                    "defect is caught); input->photon stays NOT_MEASURED until a §3 run; and a host "
+                    "log graduates the claim to MEASURED only when it NAMES a host AND its "
+                    "input->photon is under target — the honesty boundary, mechanized"
+                    if honesty_ok else "the budget-honesty / named-host graduation law did not hold")
+        self_ok = True
+        try:
+            text = SF.make_host_log("scaffold-host (NOT the named host)", 73000, None)
+            SF.parse_host_log(text)                              # a valid scaffold parses
+            try:
+                SF.parse_host_log(text.replace("native", "nativ", 1)); self_ok = False
+            except SF.FrameError:
+                pass
+            try:
+                SF.frame_budget_measured(SF.make_host_log("", 73000, 6.2), 25.0); self_ok = False
+            except SF.FrameError:
+                pass
+        except Exception:
+            self_ok = False
+        self.record("sealframe-selftest", self_ok,
+                    "a tampered host log refuses on its self-digest and an anonymous log cannot "
+                    "graduate a MEASURED claim (gate can redden)"
+                    if self_ok else "a tampered or anonymous log was accepted")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -9395,6 +9476,7 @@ def main() -> int:
     gate.panelight()
     gate.panewire()
     gate.ghostsnap()
+    gate.sealframe()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()
