@@ -155,6 +155,99 @@ class TestInterpolationFirewall(unittest.TestCase):
         self.assertEqual(GS.ghost_witness.__code__.co_argcount, 1)
 
 
+class TestGhostKinematics(unittest.TestCase):
+    """Tier-2b: a WARDED client (one holding the terrain replica) enforces the movement law on
+    remote ghosts — the `warden`'s gait + walkable-component certificate wired into `ghost_admit`,
+    so a ghost that cannot lie about its BYTES also cannot lie about its MOTION. The plants (a
+    teleport, a slow wall-clip) bite before the goldens pin (L15)."""
+
+    FLAT = tuple(tuple(0 for _x in range(16)) for _y in range(16))
+    BARRIER = tuple(tuple(200 if x == 8 else 0 for x in range(16)) for _y in range(16))
+    MS = 40
+
+    def _warded(self, observer=(4, 8), radius=16, field=None):
+        return GS.subscribe_ghosts(observer, radius, field=self.FLAT if field is None else field,
+                                   max_step=self.MS)
+
+    def _snap(self, parent, x, y, tick, aid=1):
+        return GS.ghost_record(aid, tick, parent, x * ONE, y * ONE, 1)
+
+    def test_warded_honest_chain_admits(self):
+        """A warded client admits an honest ghost walking one cell per tick — the kinematic law
+        does not refuse LAWFUL motion (the non-vacuity control)."""
+        client = self._warded()
+        parent = GENESIS
+        for i, (x, y) in enumerate([(2, 8), (3, 8), (4, 8), (5, 8)]):
+            snap = self._snap(parent, x, y, i)
+            client = GS.ghost_admit(client, snap)
+            parent = GS.address(snap)
+        self.assertEqual(set(client["ghosts"]), {1})
+
+    def test_warded_teleport_refuses(self):
+        """A warded client REFUSES a ghost jumping 12 cells in one tick — a teleport / speed-hack
+        the byte digest cannot see."""
+        client = self._warded(observer=(8, 8))
+        g0 = self._snap(GENESIS, 2, 8, 0)
+        client = GS.ghost_admit(client, g0)
+        g1 = self._snap(GS.address(g0), 14, 8, 1)
+        with self.assertRaises(GS.GhostError):
+            GS.ghost_admit(client, g1)
+
+    def test_warded_slow_wallclip_refuses_topological(self):
+        """A warded client on a barrier field REFUSES a SLOW wall-crossing — (6,8)@t0 → (10,8)@t4
+        passes the gait bound but lands in a different walkable component (β₀ separates west from
+        east). The topological cheat a per-tick speed replay cannot cheaply catch."""
+        client = self._warded(observer=(8, 8), field=self.BARRIER)
+        g0 = self._snap(GENESIS, 6, 8, 0)
+        client = GS.ghost_admit(client, g0)
+        g1 = self._snap(GS.address(g0), 10, 8, 4)
+        with self.assertRaises(GS.GhostError):
+            GS.ghost_admit(client, g1)
+
+    def test_warded_kinematic_refuse_is_pure(self):
+        """A refused kinematic ghost leaves the client's ghost map byte-identical — equal-or-refuse
+        extends to MOTION (never a silent teleport)."""
+        client = self._warded(observer=(8, 8))
+        g0 = self._snap(GENESIS, 2, 8, 0)
+        client = GS.ghost_admit(client, g0)
+        before = GS.ghost_witness(client)
+        g1 = self._snap(GS.address(g0), 14, 8, 1)
+        with self.assertRaises(GS.GhostError):
+            GS.ghost_admit(client, g1)
+        self.assertEqual(GS.ghost_witness(client), before)
+
+    def test_unwarded_client_admits_teleport(self):
+        """THE TERRAIN-GATED BOUNDARY (the does_not_show, made executable): an UNWARDED client (no
+        terrain replica) ADMITS the very teleport the warded client refuses — the law needs the
+        world to check motion. Declared, not silent."""
+        client = GS.subscribe_ghosts((20, 20), 10 ** 9)        # no field → bytes-only
+        g0 = self._snap(GENESIS, 2, 8, 0)
+        g1 = self._snap(GS.address(g0), 14, 8, 1)
+        client = GS.ghost_admit(client, g0)
+        client = GS.ghost_admit(client, g1)                    # admits — bytes-only
+        self.assertEqual(set(client["ghosts"]), {1})
+
+    def test_backward_or_static_tick_refuses(self):
+        """A warded ghost may not move backward in time — Δtick ≥ 1 or refuse (the clock advances
+        along a chain)."""
+        client = self._warded()
+        g0 = self._snap(GENESIS, 2, 8, 5)
+        client = GS.ghost_admit(client, g0)
+        g_back = self._snap(GS.address(g0), 3, 8, 3)           # tick goes backward
+        with self.assertRaises(GS.GhostError):
+            GS.ghost_admit(client, g_back)
+
+    def test_ghost_reachable_deterministic(self):
+        """`ghost_reachable` is a pure function — the same move yields the same verdict twice, and
+        an honest single-cell step returns its (from, to, dt)."""
+        g0 = self._snap(GENESIS, 2, 8, 0)
+        g1 = self._snap(GS.address(g0), 3, 8, 1)
+        a = GS.ghost_reachable(self.FLAT, self.MS, g0, g1)
+        b = GS.ghost_reachable(self.FLAT, self.MS, g0, g1)
+        self.assertEqual(a, b)
+        self.assertEqual(a, ((2, 8), (3, 8), 1))
+
+
 class TestScenesAndDeterminism(unittest.TestCase):
     def test_scene_digests_match_goldens(self):
         for name in GS.SCENES:

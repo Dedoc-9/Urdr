@@ -25,7 +25,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **32** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **1091-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
+on fixed corpora, behind a **1098-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -483,6 +483,45 @@ pass a glyph review before it enters the grammar, or it will not enter.
   error, not a proof of termination.
 - Metatheory (progress/preservation, no-inflation soundness as a theorem, lens laws as
   theorems) is `CONJECTURED`; what is `TESTED` is the falsifier suite. See D5.
+
+### The game-world threat model (what the MMO arc does and does not enforce)
+
+A web-researched adversarial review before the mesh phase (`docs/hardening_brief.md`) sharpened
+the boundary. What the arc ENFORCES: state-transition lawfulness and integrity (a client
+DERIVES and admits equal-or-refuse — no silent desync, no forged/tampered/reordered/duplicated
+update), and topological STATE-cheat detection on the AUTHORITATIVE actor (the `warden` family:
+a claimed trajectory that walks through a wall or crosses an impassable component is refused).
+What it does NOT prevent — the ceiling of any server-authoritative design, stated plainly:
+information-advantage cheats (ESP/wallhack from data within the area-of-interest RADIUS — the
+AoI filter is Chebyshev distance, not occlusion, and its radius is a server-owned policy, not a
+client's to choose); input-legitimacy cheats (aimbot/botting via perfectly LEGAL inputs, which
+are indistinguishable from human play at the authority layer — `sealsession` proves *trace
+consistency*, not fair play); and collusion / timing-radar. Authentication is a keyless
+MECHANISM (Lamport OTS on published fixture seeds — key distribution/rotation out of scope), and
+`ghostsnap`'s remote-ghost admission now checks bytes + chain + interest AND kinematics for a
+WARDED client (one holding the terrain replica): the Tier-2b hardening LANDED — a remote ghost's
+*motion* must be reachable from its parent under the `warden`'s gait bound + walkable-component β₀,
+so a teleport, speed-hack, or wall-clip refuses. The residual is declared AND executable (the
+`unwarded_teleport` scene): the check is TERRAIN-GATED — a bytes-only subscriber that holds no
+terrain checks only bytes; the authoritative server always holds the terrain, so this is a weaker
+DECLARED posture, not a silent one. "A ghost that cannot lie" now covers its MOTION as well as its
+BYTES for a warded client; authorship remains enforced elsewhere or declared. "The demo becomes a
+proof" means a proof of *authority-trace consistency*, not of fair play. The evidence discipline is honest by
+construction; this section makes the headline match it.
+
+- Verification scope, stated: the `∀`-laws (commute diamond, RAN-0 nullity, interval
+  commutation, equal-or-refuse) are MEASURED **existentially on a pinned corpus** (3–20 scenes
+  each), not proved universally; each `*-selftest` plant is a **single curated mutant** proven
+  catchable (mutation *catchability*, not a mutation *score* — there is no coverage or kill-rate
+  metric yet). Closing this with property-based/randomized falsifiers over the same oracles is
+  the queued Tier-2 hardening; `intautology` (declared) graduates the affine envelopes to
+  decided-for-all-integers. `MEASURED` remains: *a falsifier is green on this code, on a named
+  host* — never universal.
+- Availability posture: the arc's guarantees to date are **safety-only**. A divergent or
+  malicious authority can drive clients to permanent typed refusal; there is detection→refuse,
+  not conflict *resolution* — no consensus, quorum, or liveness guarantee under partition or
+  Byzantine authority. That progress guarantee is the mesh phase's (Phase M) burden, named and
+  not yet paid.
 
 ## Repo map
 

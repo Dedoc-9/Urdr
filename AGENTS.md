@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1091 unit falsifiers / 633 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1098 unit falsifiers / 634 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -411,6 +411,21 @@ rendering ONLY the admitted replica; `bench_protocol.md` §3 input→photon on t
 host) and Phase M (the mesh — certified authority migration as lease transfer, n-way
 nullity as the write scheduler; the answer to server meshing that cannot lie).
 
+**Pre-mesh hardening (this rung) — the schedule before Phase M opens.** A web-researched
+adversarial debate (`docs/hardening_brief.md`) ranked the hardening that should precede the mesh.
+LANDED here: Tier 1 (the headline aligned to the ledger — §11 and the README threat model) and
+Tier 2b (the ghost kinematic law — a WARDED `ghost_admit` now refuses a remote ghost that
+teleports, speed-hacks, or wall-clips, reusing `warden`'s gait bound + walkable-component β₀; the
+one genuine correctness gap the debate found, closed). SCHEDULED, pinned by `hardening_brief.md`:
+Tier 2 (property-based / metamorphic falsifiers over the flagship ∀-laws) = the NEXT rung, still
+pre-mesh; the AIMBOT / ANTI-CHEAT posture = a THREE-BAND phased roadmap — Band A server-driven AoI
+delivery WITH Phase M (the real ESP/wallhack mitigation), Band B behavioural detection post-mesh
+(DECLARED off-gate, because a statistical detector may not be graded MEASURED), Band C input-rate /
+humanness bounds (partial) — because aimbot/botting via LAWFUL inputs is unaddressable at the
+authority layer and is NEVER claimed as structurally prevented; Tier 3 (mutation-score + coverage)
+= off-gate DECLARED metrics, no rung dependency. The "when" for each is pinned in the brief's
+schedule.
+
 ---
 
 ## 11. The comparative position (web-reviewed) — what Hainuwele is, next to what exists
@@ -445,11 +460,14 @@ certified. The telltale signs, each pointing at its landed rung:
   continent battles hold the Guinness record (1,158 players in one FPS engagement) — for
   scale-plus-twitch, and Space Engineers for physics-as-the-gameplay-medium (volumetric,
   simulation-first sandbox). Hainuwele reads as PlanetSide-2-scale ambitions crossed with
-  Space-Engineers-grade simulation depth — WITH the property neither has: cheating is
-  structurally impossible rather than policed. Every update carries a Lamport signature
-  (`sealwrit`), every physics step holds an energy witness, every contact carries an LCP
-  certificate, every replica converges under adversarial chaos that is deterministically
-  reproducible and provably non-vacuous (`storm`), and reality itself is attested
+  Space-Engineers-grade simulation depth — WITH a property neither has: STATE-cheats are
+  structurally DETECTED, not merely policed (the honest scope — see the threat model in the
+  README's Honest boundaries and `docs/hardening_brief.md`: information/input/collusion cheats
+  are NOT prevented, as for any server-authoritative design). Every update carries a Lamport
+  signature MECHANISM (`sealwrit`; keys and distribution out of scope), every physics step holds
+  an energy witness, every contact carries an LCP certificate, every replica converges under
+  adversarial chaos that is deterministically reproducible and provably non-vacuous (`storm`),
+  and reality itself is attested
   (`wireattest`).
 - **The deepest differentiator is the methodology.** Defense-in-depth masking of planted
   defects is encoded INTO the development process (section 9, L15); every rung's plants must

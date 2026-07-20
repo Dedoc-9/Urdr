@@ -6,3 +6,10 @@ muster 39e7ab744fe44154177f5b4db347101e8a1f9224e72e071ba9b7d5b475598997
 interloper 2f3f2687e68716b29ab9996c3a7d5894b5c87c3e4c355a585adfd36cf9015326
 relay 66b6a4e66b8432da8e572a406da48795727cba2002d5a3b9e9198b981b61e100
 concord 113cd0769af1a7375fb8c3f8ea18b90df0c4356babbe9737d50e886eabdaf52d
+# Tier-2b kinematic hardening — warded scenes (client holds the terrain replica), pinned AFTER
+# the disabled-check plant was proven to BITE warded_teleport + warded_wallclip (warded_muster is
+# the honest-motion control; unwarded_teleport is the terrain-gated boundary, admits by design).
+warded_muster 919e7863de0b6c68463a1b8ace80b7c54cab4298f8643fc2cf39f2922562bd9e
+warded_teleport d79a174786def0f4f84b3cc4807590948f13c8e70ecc087e38436e0c16364a10
+warded_wallclip ed495784395c04cbe858f0a72f554f427efa7f372d910420700607a97733b400
+unwarded_teleport 08df69e010f4c2661b4bd88ecf5754ec7949d1a597a008ae0c77a548e21a4a8b

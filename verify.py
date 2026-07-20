@@ -8351,7 +8351,9 @@ class Gate:
             self.record("ghostsnap:scenes", False, f"reference failed: {exc}")
             return
         self.record("ghostsnap:scenes", ref_ok,
-                    "muster + interloper + relay + concord reproduce URDRGHS1 digests"
+                    "muster + interloper + relay + concord + the four Tier-2b warded scenes "
+                    "(warded_muster / warded_teleport / warded_wallclip / unwarded_teleport) "
+                    "reproduce URDRGHS1 digests"
                     if ref_ok else "a ghostsnap scene drifted from its digest")
 
         def chain(aid, xs, ys):
@@ -8432,6 +8434,50 @@ class Gate:
                     "is STRUCTURALLY blind to it — ghost_witness takes only the ghost map, so no "
                     "interpolated frame can move it (the D15 firewall, on actors)"
                     if fw_ok else "the interpolation-firewall law did not hold")
+        kin_ok = True
+        try:
+            _FLAT = tuple(tuple(0 for _x in range(16)) for _y in range(16))
+            _BARR = tuple(tuple(200 if x == 8 else 0 for x in range(16)) for _y in range(16))
+            _MS = 40
+
+            def _snap(parent, x, y, tick, aid=1):
+                return GS.ghost_record(aid, tick, parent, x * _ONE, y * _ONE, 1)
+            # (a) a WARDED client admits an honest one-cell-per-tick walk (the law spares lawful motion)
+            w = GS.subscribe_ghosts((4, 8), 16, field=_FLAT, max_step=_MS)
+            parent = GS.GENESIS
+            for i, (x, y) in enumerate([(2, 8), (3, 8), (4, 8), (5, 8)]):
+                s = _snap(parent, x, y, i); w = GS.ghost_admit(w, s); parent = GS.address(s)
+            kin_ok = kin_ok and set(w["ghosts"]) == {1}
+            # (b) a 12-cell teleport in one tick REFUSES (gait bound), map byte-identical
+            w = GS.subscribe_ghosts((8, 8), 16, field=_FLAT, max_step=_MS)
+            g0 = _snap(GS.GENESIS, 2, 8, 0); w = GS.ghost_admit(w, g0)
+            before = GS.ghost_witness(w)
+            try:
+                GS.ghost_admit(w, _snap(GS.address(g0), 14, 8, 1)); kin_ok = False
+            except GS.GhostError:
+                pass
+            kin_ok = kin_ok and GS.ghost_witness(w) == before
+            # (c) a SLOW wall-clip REFUSES (walkable-component β₀ — passes the speed bound, crosses a wall)
+            w = GS.subscribe_ghosts((8, 8), 16, field=_BARR, max_step=_MS)
+            g0 = _snap(GS.GENESIS, 6, 8, 0); w = GS.ghost_admit(w, g0)
+            try:
+                GS.ghost_admit(w, _snap(GS.address(g0), 10, 8, 4)); kin_ok = False
+            except GS.GhostError:
+                pass
+            # (d) THE TERRAIN-GATED BOUNDARY: an unwarded client admits the same teleport (bytes-only)
+            u = GS.subscribe_ghosts((20, 20), 10 ** 9)
+            g0 = _snap(GS.GENESIS, 2, 8, 0); u = GS.ghost_admit(u, g0)
+            u = GS.ghost_admit(u, _snap(GS.address(g0), 14, 8, 1))
+            kin_ok = kin_ok and set(u["ghosts"]) == {1}
+        except Exception:
+            kin_ok = False
+        self.record("ghostsnap-kinematic", kin_ok,
+                    "the kinematic law (Tier-2b): a WARDED client (holding the terrain replica) "
+                    "admits honest motion but REFUSES a teleport (gait bound) and a SLOW wall-clip "
+                    "(walkable-component β₀, reusing warden) with the ghost map byte-identical — a "
+                    "ghost that cannot lie about its MOTION; an unwarded, terrain-less client admits "
+                    "the teleport (the declared, executable boundary)"
+                    if kin_ok else "the ghost kinematic law did not hold")
 
     def sealframe(self):
         """The sealed frame (T3.55, V4, URDRSFR1): the windowed loop's performance graded honestly —

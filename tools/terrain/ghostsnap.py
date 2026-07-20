@@ -34,8 +34,17 @@ ghost is `sealwrit`'s signature (a ghost admits whoever relays a lawful chain; a
 successor is the composition, not re-proven here); PREDICTION of the LOCAL actor is
 `predict`/`cpredict`/`splice` (certified already — the local player is predicted, remote actors are
 ghosts); the interest POLICY (radius, buckets) is operational (`interest`'s AoI is the mechanism);
-wall-clock interpolation timing is `panelight`'s accumulator, OFF-GATE. `does_not_show`: fps/latency
-(bench §3); the depicting client; cross-placement (URDRGHS1 joins the frontier)."""
+wall-clock interpolation timing is `panelight`'s accumulator, OFF-GATE. THE KINEMATIC LAW, LANDED
+(Tier-2b, the pre-mesh hardening review's one correctness fix): a WARDED client — one holding the
+terrain replica — now runs `ghost_reachable` inside `ghost_admit`, refusing a ghost whose pose is
+not reachable from its parent under the SAME movement law the local actor obeys (the `warden`'s
+gait bound + walkable-component β₀, reused). A remote ghost can no longer teleport, speed-hack, or
+wall-clip and still admit — "a ghost that cannot lie" now covers its MOTION, not only its BYTES. THE
+RESIDUAL, declared and made executable (`unwarded_teleport`): the law is TERRAIN-GATED — a bytes-
+only subscriber that holds no terrain checks only bytes; the authoritative server always holds the
+terrain, so this is a weaker DECLARED posture, never a silent one. `does_not_show`: fps/latency
+(bench §3); the depicting client; DIRECTED reachability (`warden` uses undirected mutual-reachability
+components — a one-way drop is a follow-on); cross-placement (URDRGHS1 joins the frontier)."""
 import hashlib
 import os as _os
 import sys as _sys
@@ -49,6 +58,7 @@ for _p in (_HERE, _PHYS):
     if _p not in _sys.path:
         _sys.path.insert(0, _p)
 import interest as _AOI                                         # the AoI interest filter (reused)
+import warden as _WARD                                         # the movement law (gait + β₀ reachability)
 from field import ONE                                          # the frozen Q32.32 radix
 
 
@@ -104,18 +114,68 @@ def relevant(snap, observer_cell, radius):
     return _AOI._cheby(ox, oy, ax, ay) <= radius
 
 
-def subscribe_ghosts(observer, radius):
-    """A ghost client: its observer cell, its AoI radius, and the (empty) per-actor ghost map."""
+def subscribe_ghosts(observer, radius, field=None, max_step=0):
+    """A ghost client: its observer cell, its AoI radius, the (empty) per-actor ghost map, and —
+    OPTIONALLY — the terrain replica it holds (the walkable `field` + its step law `max_step`). A
+    client that holds terrain is WARDED: `ghost_admit` enforces the movement law (Tier-2b) so a
+    remote ghost cannot teleport or wall-clip. A `field=None` client is bytes-only — the pre-
+    hardening behaviour, preserved for callers that do not hold a terrain replica."""
     if not (isinstance(observer, tuple) and len(observer) == 2):
         raise GhostError("observer must be an (x, y) cell")
-    return {"observer": observer, "radius": radius, "ghosts": {}}
+    if field is not None and not (isinstance(field, tuple) and field and isinstance(field[0], tuple)):
+        raise GhostError("a warded client's terrain replica must be a non-empty rectangular grid")
+    if not (type(max_step) is int and max_step >= 0):
+        raise GhostError(f"max_step must be a non-negative int, got {max_step!r}")
+    return {"observer": observer, "radius": radius, "ghosts": {}, "field": field, "max_step": max_step}
+
+
+def ghost_reachable(field, max_step, parent_snap, child_snap):
+    """THE KINEMATIC LAW (Tier-2b hardening): a child pose is admissible from its parent iff the move
+    obeys the SAME movement law the LOCAL actor obeys — the `warden`'s certificate, reused on the
+    ghost plane. Three exact, division-free checks:
+
+      * TIME — Δtick ≥ 1 (a ghost may not move backward, nor stand still in time; snapshots along a
+        chain advance the clock).
+      * REACHABILITY (topological, β₀) — the destination cell is in the parent cell's walkable
+        COMPONENT (`warden.reachable`): a wall-clip into a separated region refuses even when it is
+        SLOW enough to pass the speed bound — the cheat a per-tick replay cannot cheaply catch.
+      * GAIT + STEP (kinematic) — the cardinal cell span is at most `MAX_JUMP` cells per tick
+        (`|Δx|+|Δy| ≤ MAX_JUMP·Δtick`), and for a single-tick move the exact `warden.step_kind`
+        (cardinal, ≤2 cells, every sub-step's rise ≤ max_step) is OK/STAY — no teleport, no tunnel.
+
+    Raises `GhostError` on any violation (the ghost that lied about its MOTION); returns
+    (from_cell, to_cell, dt) on OK. Pure — reads the field, mutates nothing."""
+    _pa, ptick, _pp, pfx, pfy, _pf = restore_ghost(parent_snap)
+    _ca, ctick, _cp, cfx, cfy, _cf = restore_ghost(child_snap)
+    dt = ctick - ptick
+    if dt < 1:
+        raise GhostError(f"a ghost may not move backward or stand still in time (Δtick={dt}) — refused")
+    a = cell_of(pfx, pfy)
+    b = cell_of(cfx, cfy)
+    try:
+        ok = _WARD.reachable(field, a, b, max_step)
+    except _WARD.WardError as exc:
+        raise GhostError(f"ghost pose off the terrain replica ({a}→{b}): {exc.sub}")
+    if not ok:
+        raise GhostError(f"ghost pose {b} is unreachable from {a} — a different walkable component "
+                         f"(a wall-clip the byte digest cannot see)")
+    span = abs(b[0] - a[0]) + abs(b[1] - a[1])
+    if span > _WARD.MAX_JUMP * dt:
+        raise GhostError(f"ghost moved {span} cells in {dt} tick(s) — over the gait bound "
+                         f"{_WARD.MAX_JUMP}/tick (a teleport / speed-hack the byte digest cannot see)")
+    if dt == 1:
+        kind = _WARD.step_kind(field, a, b, max_step)
+        if kind not in ("OK", "STAY"):
+            raise GhostError(f"ghost move {a}→{b} is a {kind} — refused by the per-tick movement law")
+    return (a, b, dt)
 
 
 def ghost_admit(client, snap):
     """THE VERIFIER: admit one ghost snapshot under the equal-or-refuse law — it verifies
-    (identity), the actor is IN INTEREST, and it CHAINS from the client's current ghost for that
-    actor (parent CAS: genesis if unseen). Returns a NEW client; every refuse leaves the ghost map
-    byte-identical."""
+    (identity), the actor is IN INTEREST, it CHAINS from the client's current ghost for that actor
+    (parent CAS: genesis if unseen), and — if the client is WARDED (holds a terrain replica) — its
+    pose is KINEMATICALLY REACHABLE from its parent (Tier-2b: gait bound + walkable component).
+    Returns a NEW client; every refuse leaves the ghost map byte-identical."""
     aid, _tick, parent, _fx, _fy, _f = restore_ghost(snap)     # bad digest → GHOST-REFUSE
     if not relevant(snap, client["observer"], client["radius"]):
         raise GhostError(f"actor {aid} is outside the observer's area of interest — filtered")
@@ -124,9 +184,13 @@ def ghost_admit(client, snap):
     if parent != expected:
         raise GhostError(f"actor {aid}'s snapshot parent {parent[:12]}… does not chain from the "
                          f"current ghost {expected[:12]}… — stale, reordered, or duplicated")
+    field = client.get("field")
+    if field is not None and held is not None:                 # WARDED: the ghost must MOVE lawfully
+        ghost_reachable(field, client.get("max_step", 0), held, snap)
     ghosts = dict(client["ghosts"])
     ghosts[aid] = snap
-    return {"observer": client["observer"], "radius": client["radius"], "ghosts": ghosts}
+    return {"observer": client["observer"], "radius": client["radius"], "ghosts": ghosts,
+            "field": field, "max_step": client.get("max_step", 0)}
 
 
 def ghost_witness(client):
@@ -267,9 +331,92 @@ def _scene_concord():
     return ghost_witness(c1), len(stream), 0, ("ADMIT" if ok else "GHOST-REFUSE")
 
 
+# ---- warded scenes: the kinematic law (Tier-2b) -----------------------------------------
+def _flat16():
+    """A flat 16×16 walkable canvas — one component; only the gait/speed bound can bite here."""
+    return tuple(tuple(0 for _x in range(16)) for _y in range(16))
+
+
+def _barrier16():
+    """A flat 16×16 world split by an impassable wall column at x=8 (height 200); at max_step 40 the
+    wall separates west from east — `warden`'s β₀ barrier reused for the ghost reachability check."""
+    return tuple(tuple(200 if x == 8 else 0 for x in range(16)) for _y in range(16))
+
+
+_WMS = 40                                                       # the warded step law (matches warden)
+
+
+def _scene_warded_muster():
+    """A WARDED client (holding the flat terrain replica) admits an honest ghost walking one cell per
+    tick — the kinematic law does not refuse LAWFUL motion (the non-vacuity control)."""
+    client = subscribe_ghosts((4, 8), 16, field=_flat16(), max_step=_WMS)
+    parent = GENESIS
+    for i, (x, y) in enumerate([(2, 8), (3, 8), (4, 8), (5, 8)]):
+        snap = ghost_record(1, i, parent, x * ONE, y * ONE, 1)
+        client = ghost_admit(client, snap)
+        parent = address(snap)
+    ok = len(client["ghosts"]) == 1
+    return ghost_witness(client), 4, 0, ("ADMIT" if ok else "GHOST-REFUSE")
+
+
+def _scene_warded_teleport():
+    """A WARDED client REFUSES a ghost that jumps 12 cells in one tick — a teleport / speed-hack the
+    byte digest cannot see; the ghost map is byte-identical after the refusal (equal-or-refuse, on
+    MOTION). The honest genesis snapshot admitted first."""
+    client = subscribe_ghosts((8, 8), 16, field=_flat16(), max_step=_WMS)
+    g0 = ghost_record(1, 0, GENESIS, 2 * ONE, 8 * ONE, 1)
+    client = ghost_admit(client, g0)
+    g1 = ghost_record(1, 1, address(g0), 14 * ONE, 8 * ONE, 1)  # 12-cell jump in one tick
+    before = ghost_witness(client)
+    refused = 0
+    try:
+        ghost_admit(client, g1)
+    except GhostError:
+        refused = 1
+    ok = refused == 1 and ghost_witness(client) == before
+    return ghost_witness(client), 2, refused, ("GHOST-REFUSE" if ok else "ADMIT")
+
+
+def _scene_warded_wallclip():
+    """A WARDED client on the barrier field REFUSES a ghost that crosses the wall SLOWLY — (6,8) at
+    tick 0 to (10,8) at tick 4: a span of 4 over 4 ticks PASSES the gait bound, but the destination
+    is in a different walkable component (β₀ separates west from east), so REACHABILITY refuses. The
+    wall-clip a per-tick speed replay cannot cheaply catch."""
+    client = subscribe_ghosts((8, 8), 16, field=_barrier16(), max_step=_WMS)
+    g0 = ghost_record(1, 0, GENESIS, 6 * ONE, 8 * ONE, 1)
+    client = ghost_admit(client, g0)
+    g1 = ghost_record(1, 4, address(g0), 10 * ONE, 8 * ONE, 1)
+    before = ghost_witness(client)
+    refused = 0
+    try:
+        ghost_admit(client, g1)
+    except GhostError:
+        refused = 1
+    ok = refused == 1 and ghost_witness(client) == before
+    return ghost_witness(client), 2, refused, ("GHOST-REFUSE" if ok else "ADMIT")
+
+
+def _scene_unwarded_teleport():
+    """THE HONEST BOUNDARY (the does_not_show, made executable): an UNWARDED client — one holding NO
+    terrain replica — ADMITS the very 12-cell teleport the warded client refuses. The kinematic law
+    is terrain-gated: a client that does not hold the world can check only BYTES, not MOTION. The
+    authoritative server always holds the terrain; a bytes-only subscriber is a DECLARED weaker
+    posture, not a silent one."""
+    client = subscribe_ghosts((20, 20), 10 ** 9)               # no field → bytes-only
+    g0 = ghost_record(1, 0, GENESIS, 2 * ONE, 8 * ONE, 1)
+    g1 = ghost_record(1, 1, address(g0), 14 * ONE, 8 * ONE, 1)
+    client = ghost_admit(client, g0)
+    client = ghost_admit(client, g1)                           # admits — no terrain to check against
+    ok = len(client["ghosts"]) == 1
+    return ghost_witness(client), 2, 0, ("ADMIT" if ok else "GHOST-REFUSE")
+
+
 _SCENES = {"muster": _scene_muster, "interloper": _scene_interloper,
-           "relay": _scene_relay, "concord": _scene_concord}
-SCENES = ("muster", "interloper", "relay", "concord")
+           "relay": _scene_relay, "concord": _scene_concord,
+           "warded_muster": _scene_warded_muster, "warded_teleport": _scene_warded_teleport,
+           "warded_wallclip": _scene_warded_wallclip, "unwarded_teleport": _scene_unwarded_teleport}
+SCENES = ("muster", "interloper", "relay", "concord",
+          "warded_muster", "warded_teleport", "warded_wallclip", "unwarded_teleport")
 
 
 def scene_case(name):
