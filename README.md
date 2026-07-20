@@ -32,7 +32,7 @@ rank/determinant/injectivity/reconstruction and the detector verdicts agree acro
 [`spec/D11`](spec/D11-layer-contracts.md) and versions/freeze in
 [`spec/D12`](spec/D12-versions.md).
 
-## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · the terrain/MMO stage arc T1–T3.51, Stages A–I + the wire: movement → latency → storage → recovery → streaming → the regional cut → the mutable world → certified concurrency → authority nullity → the standing lease → durable intent → the representation theorem → equal-or-refuse replication → the adversarial-transport loom → the signed wire → interest shift → the reality attestation)
+## What exists today — `IMPLEMENTED / MEASURED` via the gate (rungs R0–R6b · M5–M7 · P1–P6 · N1–N5 · N4.1 · D14–D17 · D19's W1 · the frontfps FPS/MMO ladder (Stages 1–7) · the `URDRPD1` topological homology / OOB witness + the invariant-detector library · **Hainuwele**, the manifold MMO arc (T1–T3.51, Stages A–I + the sealed wire phase — named for the Wemale dema-deity from whose buried, divided body the living crops grew: here, every living capability grows from content-addressed records buried under their own digests): movement → latency → storage → recovery → streaming → the regional cut → the mutable world → certified concurrency → authority nullity → the standing lease → durable intent → the representation theorem → equal-or-refuse replication → the adversarial-transport loom → the signed wire → interest shift → the reality attestation)
 
 - A ~20-glyph core alphabet curated from historical sign systems (Elder Futhark runes,
   a cuneiform determinative, Greek, astronomical signs, mathematical notation), every
@@ -683,6 +683,18 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   placement batch #3 (URDRWIR1/URDRSTM1/URDRSWT1/URDRDGZ1/URDRWAT1 join the frontier);
   behind it, declared: the authority algebra, n-way nullity and lease scheduling, live authority
   migration, essence extended to the read-side families.
+- **The road ahead — Hainuwele's next layers (researched, declared, not begun; see
+  `AGENTS.md` §10 for the full plans).** After placement batch #3 closes (the covenant's
+  boundary): **`ghostsnap`**, the actor wire — equal-or-refuse ghosts, the sealed write
+  calculus extended from terrain to DYNAMIC state (content-addressed per-tick actor records
+  chained by parent digest; the industry's ghost-snapshot pattern with admission instead of
+  trust; certified prediction already landed as `predict`/`cpredict`/`splice`; interpolation
+  stays presentation behind the D15 firewall) — and **`intautology`**, the integer-tautology
+  layer — a hand-rolled, budget-bounded decision procedure for quantifier-free linear
+  integer arithmetic (Presburger's decidable fragment), graduating selected closed-form
+  envelopes from MEASURED-on-the-corpus to DECIDED-for-all-integers, with the nonlinear
+  remainder honestly staying corpus-measured. Behind both: Phase V (the WebGPU firewall
+  client + bench §3 input→photon) and Phase M (the certified mesh).
 - **Cross-placement of the reference detectors.** D17's Axis A (reproduction) separates `REFERENCE` from
   `CROSS-PLACED`. Toric and rigidity are now cross-placed (C99 self-verified + Rust admitted on Windows);
   **criticality** and **persim** remain reference-only and are the next cross-placement targets.

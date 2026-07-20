@@ -242,4 +242,171 @@ These are non-negotiable. Every rung in this repo was built under them.
 | `tools/netcode/` | The N1–N5 stack: **`lockstep.py`** (peers exchange inputs only, one `URDRLST1` witness chain, desyncs localized), **`rollback.py`** (canonical snapshots; late inputs rewind + replay and converge to the N1 chain; `ROLLBACK-REFUSE`/`ROLLBACK-CONFLICT`), **`authinput.py`** (Lamport-OTS envelopes gate admission; `AUTH-REFUSE`), **`worldstep.py`** (authored `URDR-WORLD-3` scenes in the loop; `WORLD-REFUSE`; **N4.1** opt-in sqrt-free body-body contact), **`worldpeer.py`** (N5 — the composed contract: authored world + authenticated transcript → one witness or one typed refusal; `URDRWPN1` world pin), and **`worldregion.py`** (**D16** regional authority: partition by integer x-seams → deterministic reunification reproduces the monolith witness, `REGION-REFUSE`); six corpora + Rust placements `{lockstep,rollback,authinput,worldstep,worldpeer}_rs` + `worldregion_{rs,c}`; all frozen at 0.1 in D12 |
 | `tools/editor/` | browser authoring + deterministic-replay front-end (`urdr_designer.html`, `replay.py`, `load_world.py`) — **exploratory** consumer; the `--fp` stepping it demos is the gated rung 5 |
 | `tools/frontfps/` | **`frontfps.py`** — the consolidated FPS/MMO authoring canon (**URDR-FPSW-1**, Stage 1): meshes + rigs + capsule hitboxes + actors + spawns + D16 seams under ONE world-identity law (provenance excluded, `FPSW-REFUSE` total, no digest for an inadmissible world), plus the first auto-affordance (`auto_capsule`, containment-certified, defect-checked) and **`fpquat.py`** — the Stage-2 Q32.32 rotation substrate (URDRFPQ1: qmul/norm2/rsqrt/normalize/rotate/nlerp on the frozen FIELDFP laws; C99 placement `fpquat_c/` golden+defect parity; Rust `fpquat_rs/` ADMITTED on the owner's Windows host — three placements, two OSes) and **`fpclip.py`** — the Stage-3 pose & clip canon (URDRCLP1: keyframed Q32.32 rotation tracks, canonical minimum-priority state machine, `auto_loopable` seam certificate, pinned 55-op pose budget proxy; bench protocol in `docs/bench_protocol.md`) and **`fppose.py`** — Stage-4 posed world transforms + hitbox capsules (URDRPSE1: normalize-per-compose hierarchy, exact point-in-capsule coverage certificate, one-tick-late IK contract DECLARED). Staged FPS/MMO plan + OODA reports in its README |
-| `tools/world_host/` | multi-actor world
+| `tools/world_host/` | multi-actor deterministic world (weave, history) — the layer beneath the netcode stack |
+| `tools/specfreeze/` | the D12 freeze manifest checker + `doc_currency.py` (the stale-count detector the gate runs on every pass) |
+| `spec/` | the normative documents: D1 (language), D5 volumes (the graded ledger), D11 (layer contracts), D12 (versions/freeze), D16/D17/D19 (regional authority, detectors, winding) — plus `spec/attest/` (the pinned reality-attestation traces, each a named-host log re-verified by the gate forever) |
+| `docs/` | the papers and briefs: `PAPER.md` (systems overview), `THEOREMS.md` (what is proved), `wire_phase_brief.md` (the sealed wire phase's map), `terrain_studio_brief.md` (the arc's realized ladder), `bench_protocol.md` (the named-host performance law), `presentation_doctrine.md` (the D15 firewall) |
+
+---
+
+## 7. Hainuwele — the manifold MMO project (the catch-up)
+
+The long arc that grew on top of the frozen kernel — terrain, movement, observers,
+anti-cheat, latency, durability, streaming, the mutable world, the write calculus, and the
+wire — carries the name **Hainuwele**, after the Wemale dema-deity of Seram (Maluku): the
+coconut-girl who gave uncannily (each gift more precious than custom allowed), was killed
+for it and buried, and from whose interred, divided body grew the tuber crops that fed the
+people ever after (A. E. Jensen's *dema* reading: the death that generates sustenance and
+order). The fit is exact and intentional: in this repository EVERY living capability grows
+from something buried — a content-addressed record interred under its own digest, immutable,
+divided by region, from which the world is re-derived rather than trusted. The membrane's
+`ᚠ` store is the burial ground; the manifests are the graves' registry; `anamnesis` is the
+exhumation that returns the exact prior body; and what grows from the pieces is *exactly
+determined* — same seed, same crop, on any host, or a typed refusal. Nothing living is ever
+edited; the world is fed by its dead.
+
+**Where the arc stands (catch-up in one paragraph).** T1–T3.8 grew the certified island —
+heightfield canon, sea, waves, buoyancy, the D15 view firewall. Stages A–E grew movement and
+its police — the fold (`glide`), observers, interest, handoff, wardens (topology-grade
+anti-cheat). Stage H bounded time and space — op-cost envelopes, governors, per-class SLOs,
+priced snapshots. Stage H/I made it durable and streaming — `persist`/`resurrect`
+(through-death recovery), `chunkload`/`chunkstate` (equal-or-refuse streaming, the regional
+cut). Then the WRITE CALCULUS (sealed in the D5 ledger): `terraform` (the CAS edit record),
+`commute` (the commutation certificate), `rannull` (RAN-0 authority nullity — proof of
+absence), `lease` (proof as an interval), `testament` (the write that survives its writer),
+`rollstore` (the durable rollback window), `quintessence` (the ID-0 representation theorem —
+five axes of evidence characterize every lawful authority). And on top of the sealed
+calculus, THE WIRE PHASE, all five rungs landed and the phase SEALED: `wire` (the update IS
+the record; the client is a verifier), `storm` (the deterministic adversarial-transport
+loom), `sealwrit` (the Lamport-signed writ; eligibility precedes admission), `driftgaze`
+(the moving client; the gap repair), `wireattest` (real UDP processes on the named host,
+recorded once, re-verified forever). Read the ledger entries newest-last in
+`spec/D5-ledger-2.md` — they are the authoritative narrative; the per-module index is
+`tools/terrain/README.md`.
+
+---
+
+## 8. The shell, exactly (how to run everything)
+
+The gate is the only ritual. Both hosts matter: the named Windows host (Ally X) and any
+Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ran 1 test"
+confusions were a drifted working directory.
+
+```bash
+# THE GATE (CI). Expect "GATE PASSED", 1033 unit falsifiers / 611 rows, and run it
+# TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
+PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
+PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
+cmp gate1.txt gate2.txt && echo "GATE x2 BYTE-IDENTICAL"
+
+# One unit suite, exactly as the gate discovers it (repo root, same env):
+PYTHONHASHSEED=0 PYTHONUTF8=1 python -m unittest tests.test_storm -v
+
+# The reality attestation (OFF-GATE by law — real UDP subprocesses on loopback;
+# run it on the NAMED host; it rewrites spec/attest/wire_attest.txt, which the
+# gate then re-verifies deterministically forever):
+PYTHONHASHSEED=0 PYTHONUTF8=1 python tools/terrain/wireattest.py --run spec/attest/wire_attest.txt "Ally X"
+
+# A placement by hand (the gate does this LIVE per run wherever rustc exists;
+# missing rustc records SKIPPED rows honestly — row counts stay host-stable):
+rustc -O tools/terrain/heightfield_rs/heightfield.rs -o /tmp/hf && /tmp/hf
+```
+
+PowerShell equivalents (the named host): `$env:PYTHONHASHSEED="0"; $env:PYTHONUTF8="1"`
+then the same `python verify.py`; compare with
+`(Get-FileHash gate1.txt).Hash -eq (Get-FileHash gate2.txt).Hash`.
+
+Environment laws, non-negotiable: `PYTHONHASHSEED=0` (hash-order determinism) and
+`PYTHONUTF8=1` (Windows console re-encoding must not corrupt the glyphs). Write every
+tracked text file with LF endings (`newline="\n"`) — a CRLF rewrite moves byte counts and
+digests. Never trust a stale `__pycache__` when bisecting oddities: delete it and re-run.
+When counts move (tests, rows, placements, detectors), run the gate and let the
+`doc-currency` refusal NAME each stale doc, then fix all seven tracked docs in the same
+commit (see rule 10 above).
+
+---
+
+## 9. Lessons so far (the ones that drew blood)
+
+The full law list is `LESSONS.md`; these are the ones this arc re-learned by being bitten,
+written here so the next contributor starts where we ended rather than where we began.
+
+1. **L5 — validity, not outcome.** A test that cannot fail proves nothing. Write the
+   falsifier FIRST, watch it fail, then build. Every suite in `tests/` was born red.
+2. **L15 — a plant must BITE, and masking is the default, not the exception.** Before any
+   golden is pinned, inject each planted defect and PROVE the falsifier reddens. The arc's
+   recurring find: defense-in-depth MASKS plants — the storm's vacuous-schedule plant passed
+   on secondary chaos until the `primary_reorderings` floor was invented; the wireattest
+   forged-admission fixture was absorbed by the at-most-once layer until retargeted at a
+   reorder-early refusal; its wrong-address-fetch forge was absorbed by the witness backstop
+   until rebuilt with a CONSISTENT witness. When a plant fails to bite, the fixture is wrong
+   or the layer is redundant — find out WHICH: prove layers individually redundant and
+   jointly load-bearing (the `rannull` two-layer discipline), and aim each forge at the one
+   lie only its target law can catch.
+3. **Goldens pin AFTER the bites.** A golden pinned before its falsifiers were proven to
+   bite is void — re-derive it. No exceptions, including doc-only convenience.
+4. **The gate must redden per-row.** A stage whose rows cannot each be independently
+   reddened is decorative: `driftgaze`'s repair row silently excused the lazy-refresh defect
+   until the row exercised BOTH repair paths. Prove each row's tooth the way you prove a
+   plant's.
+5. **Measure, don't remember.** A "the row reddened" observation from a stale run is worth
+   nothing — one of this arc's non-vacuity claims turned out to be a pycache artifact.
+   Re-run in a clean process before recording any red/green claim anywhere.
+6. **Ordering claims need ordering proofs.** "Eligibility precedes admission" is narrative
+   until the BOTH-BAD probe exists: an input failing two laws at once must refuse with the
+   FIRST law's type, and the swapped-order plant must flip it (the `sealwrit` proof).
+7. **Refusals are typed or they are nothing.** Every refusal path gets a code
+   (`*-REFUSE`), a message that teaches, and a purity guarantee (the replica/ledger/store
+   byte-identical after). The attestation checker refuses UNTYPED outcomes on sight.
+8. **Determinism leaks in through the seams**: dict/hash order (PYTHONHASHSEED), console
+   encodings, CRLF rewrites, wall-clock, `platform` strings inside gated bytes. Anything
+   nondeterministic lives OFF-GATE and crosses back as a pinned, self-digested record
+   (the `wireattest` split — the pattern for every future reality boundary).
+9. **The covenant on debts.** Recorded ambitions become scheduled rungs or are honestly
+   re-declared; a phase's placement batch falls due when the phase seals, NO LATER.
+   Placement batch #3 (the wire phase's five families) is due NOW — it precedes Phase V.
+10. **Docs move in the same commit as the counts** — the `doc-currency` stage makes stale
+    docs a RED GATE, and counts written in words instead of digits silently rot (it
+    happened twice; see rule 10).
+
+---
+
+## 10. The road ahead (researched, declared — not begun)
+
+Two candidate layers were scouted against the 2026 state of the art (web-researched at
+writing time; conclusions recorded, laws to be falsified locally when the rungs open).
+Neither opens before placement batch #3 closes — the covenant's boundary holds.
+
+**`ghostsnap` — the actor wire (equal-or-refuse ghosts).** The industry's pattern (Unity's
+Netcode-for-Entities "ghost snapshots") replicates server-authoritative entities to clients
+as per-tick snapshots with interpolation and prediction timelines, importance-ranked partial
+snapshots under MTU, delta compression — and the client TRUSTS every byte. Hainuwele's
+counterpart extends the sealed write calculus from terrain to DYNAMIC state: a ghost is a
+replica ACTOR admitted from content-addressed per-tick records (the `latstore` 25-byte pose
+law + `chunkstate`'s regional cut) chained by parent digest — `wire`'s admission law on the
+movement plane, `warden` regions as the interest filter, the storm re-run over actor
+updates. Prediction already exists certified (`predict`/`cpredict`/`splice` — the reconcile
+laws); interpolation is PRESENTATION and stays behind the D15 firewall (ghosts smooth the
+VIEW, never the witness). The differentiated claim, unchanged: not a cheaper ghost — a ghost
+that cannot lie.
+
+**`intautology` — the integer-tautology layer (from corpus to theorem).** Presburger
+arithmetic — integers with addition and order, no multiplication — is consistent, complete,
+and DECIDABLE (Presburger 1929; quantifier elimination with a triple-exponential upper
+bound and a genuine double-exponential lower bound; the quantifier-free linear fragment is
+what SMT solvers decide daily for verification). Today every closed-form envelope in this
+repo (`storecost`, `opcost`, `slo`, lease interval arithmetic) is MEASURED on a corpus —
+falsifiable coverage, not universality. The layer: a hand-rolled, std-only decision
+procedure for quantifier-free linear integer arithmetic (Cooper's algorithm or the Omega
+test, budget-bounded with a typed refusal on blowup — the OPCOST discipline applied to
+proof search), letting selected laws be stated as FORMULAS and graduate from
+measured-on-the-corpus to DECIDED-for-all-integers. Honest scope declared up front: only
+the linear fragment graduates (affine envelopes like `snapshot_bytes(n) = 4 + 25·n`
+qualify directly; nonlinear forms like `window_storage(H, n)` = `(H+1)·snapshot_bytes(n)`
+decide per-bounded-parameter or stay corpus-measured); the decision procedure itself is
+pure integer code — a natural future cross-placement.
+
+Behind both, unchanged from the sealed brief: Phase V (the three.js/WebGPU firewall client
+rendering ONLY the admitted replica; `bench_protocol.md` §3 input→photon on the named
+host) and Phase M (the mesh — certified authority migration as lease transfer, n-way
+nullity as the write scheduler; the answer to server meshing that cannot lie).
