@@ -114,6 +114,7 @@ def fits_budget(env, native_tick_ns, frame_hz):
 FRAME_BUDGET = (
     ("authority_tick",   "MEASURED",     0.073, "bench_protocol.md §4b (Ally X, cold+soak, 2026-07-14)"),
     ("op_envelope",      "MEASURED",     0.000, "frame_ops (exact integer work, gated — host-independent)"),
+    ("native_loop",      "MEASURED",     0.0088, "bench_protocol.md §4c (Ally X, 4-tick loop, 2026-07-20)"),
     ("frame_render",     "NOT_MEASURED", 0.000, ""),   # the layer-3 pixels — needs a real renderer
     ("input_to_photon",  "NOT_MEASURED", 0.000, ""),   # §3 — needs the named-host --bench run
 )

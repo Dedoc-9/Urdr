@@ -119,6 +119,29 @@ stays NOT_MEASURED until the layer-3 renderer + capture exist — and the
 like this one (an unlogged MEASURED still reddens). ~130× under the Python
 reference on the same hardware: watts didn't buy it, the native placement did.
 
+## 4c. Native windowed-loop reading — MEASURED (Ally X, V4 sealed frame)
+
+`python tools/terrain/sealframe.py --bench` (the URDRSFR1 off-gate runner, 200 reps,
+the four-command sprint reference loop "EEEE" = 4 authority ticks, 32 micro-steps) on
+`DanielDillberg · Windows 11 · ROG Ally X`, 2026-07-20:
+
+| Metric | median |
+|---|---|
+| native loop (4 ticks) | **8 800 ns** (0.0088 ms) |
+| per authority tick | ~2 200 ns (0.0022 ms) |
+
+Reading: the windowed loop's AUTHORITY tick is **~2.2 µs** on the named host — the
+four-command burst runs in **0.0088 ms**, ~0.05% of a 60 Hz frame (16.67 ms), so the
+op envelope's fits-the-budget inequality (gated, host-independent) is confirmed
+against real wall-clock with ~1900× headroom on this machine. The `sealframe` op
+envelope (`frame_ops`) is the gated, host-independent WORK; this section is its
+named-host wall-clock witness, carried as the host log for the `native_loop`
+FRAME_BUDGET row's graduation to MEASURED. THE BOUNDARY HOLDS, restated: this
+graduates the AUTHORITY-tick wall-clock only — **input→photon stays NOT_MEASURED**
+until the layer-3 renderer + photon capture exist, and the `sealframe-honesty` gate
+enforces that any MEASURED frame entry cite a host log like this one (an unlogged
+MEASURED still reddens).
+
 ## 5. Two corrections to the owner's guide (graded, so they don't propagate)
 
 1. **"Anti-Cheat: cryptographic — cheating requires breaking SHA-256 or Q32.32
