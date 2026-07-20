@@ -215,7 +215,10 @@ honestly claim and to where it lands:
   unaddressable at the authority layer; it is mitigated (server-driven AoI) and detected
   statistically (behavioural), never structurally prevented.* That is why it is a phased roadmap and
   not a rung — promising a structural aimbot fix would be the headline-above-evidence overclaim this
-  whole review exists to prevent.
+  whole review exists to prevent. The web-researched options and the architecture that fits this
+  discipline — the deterministic evidence membrane (MEASURED, gate-gradable) split cleanly from the
+  statistical detectors (OFF-GATE, DECLARED) — now live in `tools/anticheat/README.md`; the membrane
+  is the first gate-graded rung there, Band A occlusion lands with Phase M.
 
 **LATER — Tier 3, measure the gap (off-gate, DECLARED).** Mutation score (`mutmut` / `cosmic-ray`) +
 `coverage.py`, published as DECLARED numbers beside the check-counts. Lowest priority: it *measures*
