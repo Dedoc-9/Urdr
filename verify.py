@@ -8064,6 +8064,103 @@ class Gate:
                     "lands on the authority's head with nothing trusted"
                     if repair_ok else "the gap-repair law did not hold")
 
+    def wireattest(self):
+        """The reality attestation (T3.51, W5, URDRWAT1): real sockets live OFF-GATE; what the
+        gate verifies is the SELF-DIGESTED TRACE they left behind, replayed through the
+        unmodified wire and acquisition laws. Rows: laws (synthetic gale / tempest / stalled
+        traces verify LAWFUL, deterministically), forges (seven woven violations each refuse
+        typed), trace (the PINNED named-host trace re-verified — the host named in this row),
+        selftest (a byte flip and an anonymized re-seal both refuse; gate can redden)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import wireattest as WT
+        except Exception as exc:
+            self.record("wireattest", False, f"import failed (wireattest): {exc}")
+            return
+        laws_ok = True
+        detail = ""
+        try:
+            gale = WT.check_trace(WT.synth_trace("gale"))
+            temp = WT.check_trace(WT.synth_trace("tempest"))
+            stall = WT.check_trace(WT.synth_trace("tempest", forge="norepair"))
+            laws_ok = (gale["verdict"] == temp["verdict"] == stall["verdict"] == "LAWFUL"
+                       and gale["refusals"] > 0 and gale["malice_refused"] > 0
+                       and gale["stalls"] == 0 and temp["stalls"] > 0
+                       and temp["fetches"] > 0 and stall["fetches"] == 0
+                       and stall["stalls"] > 0
+                       and WT.report_digest(gale)
+                       == WT.report_digest(WT.check_trace(WT.synth_trace("gale"))))
+        except Exception:
+            laws_ok = False
+        self.record("wireattest:laws", laws_ok,
+                    "the synthetic gale (chaos + malice, zero stalls), the tempest (real loss, "
+                    "a verified repair fetch), and the stalled no-repair variant each replay "
+                    "LAWFUL under the unmodified wire law, deterministically — the checker "
+                    "accepts exactly what the law admits"
+                    if laws_ok else "a lawful synthetic trace did not verify")
+        forges_ok = True
+        try:
+            for forge in ("admission", "witness", "double", "untyped", "corrupt_admit"):
+                try:
+                    WT.check_trace(WT.synth_trace("gale", forge=forge))
+                    forges_ok = False
+                except WT.AttestError:
+                    pass
+            for forge in ("norepair_lie", "fetchaddr"):
+                try:
+                    WT.check_trace(WT.synth_trace("tempest", forge=forge))
+                    forges_ok = False
+                except WT.AttestError:
+                    pass
+        except Exception:
+            forges_ok = False
+        self.record("wireattest:forges", forges_ok,
+                    "a forged admission, a drifted witness, a double admission, an untyped "
+                    "outcome, a corrupt delivery claiming admission, a stalled client claiming "
+                    "the authority's witness, and a consistent wrong-address fetch each refuse "
+                    "typed — reality may not overrule the law on any axis"
+                    if forges_ok else "a woven violation slipped through the checker")
+        trace_ok = True
+        try:
+            path = os.path.join(ROOT, "spec", "attest", "wire_attest.txt")
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            rep = WT.check_trace(text)
+            trace_ok = rep["verdict"] == "LAWFUL" and rep["fetches"] > 0
+            detail = ("the pinned attestation replays LAWFUL: host [%s] — %d deliveries, "
+                      "%d refusals, %d malice refused, %d stalls, %d verified fetch(es), "
+                      "across %s — reality met the laws and the record proves it"
+                      % (rep["host"], rep["deliveries"], rep["refusals"],
+                         rep["malice_refused"], rep["stalls"], rep["fetches"],
+                         "/".join(rep["scenarios"])))
+        except Exception as exc:
+            trace_ok = False
+            detail = f"the pinned trace failed: {exc}"
+        self.record("wireattest:trace", trace_ok,
+                    detail if trace_ok else detail)
+        self_ok = True
+        try:
+            flipped = text.replace("ADMIT", "ADMIt", 1)
+            try:
+                WT.check_trace(flipped)
+                self_ok = False
+            except WT.AttestError:
+                pass
+            body = text.rstrip("\n").split("\n")[:-1]
+            body[1] = "host "
+            try:
+                WT.check_trace(WT.seal_trace(body))
+                self_ok = False
+            except WT.AttestError:
+                pass
+        except Exception:
+            self_ok = False
+        self.record("wireattest-selftest", self_ok,
+                    "a single byte flip refuses on the self-digest and an anonymized re-seal "
+                    "refuses on the named-host law (gate can redden)"
+                    if self_ok else "a tampered or anonymized trace was accepted")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -8925,6 +9022,7 @@ def main() -> int:
     gate.storm()
     gate.sealwrit()
     gate.driftgaze()
+    gate.wireattest()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

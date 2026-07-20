@@ -136,6 +136,15 @@ RE-ACQUISITION CARRIES HISTORY (missed updates arrive as already-history and ref
 up is a fetch, not a replay); a stale acquisition is DETECTED at the next admission's CAS; and
 the storm's declared gap repair is PAID — release-then-fetch AND refresh-in-place both land
 the replica on the authority's head with nothing trusted. Mints nothing: pure composition.
+`wireattest.py` — `URDRWAT1`, W5: the reality attestation. The RUN lives off-gate (`--run`
+on a NAMED host): real client and relay subprocesses over real loopback UDP — seeded
+duplication, delayed-forwarding reorder, corrupt-duplicate malice, real drops — with the
+unmodified wire loom in every client and a verified TCP fetch repairing the tempest's stall.
+What crosses into the gate is the SELF-DIGESTED TRACE (`spec/attest/wire_attest.txt`): the
+checker replays every recorded delivery and fetch through the wire and acquisition laws —
+reality's outcomes, witnesses, and addresses must MATCH, or the attestation is UNLAWFUL. The
+named-host law is mechanized (an unnamed trace refuses). The gate certifies the laws; the
+attestation certifies reality met them; neither pretends to be the other.
 
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
@@ -156,5 +165,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `WARD-*`,
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `ATTEST-`, `WARD-*`,
 `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.

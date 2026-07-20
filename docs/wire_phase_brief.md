@@ -2,9 +2,10 @@
 
 # The Wire Phase Brief — the road from the sealed calculus to the visible, adversarial world
 
-STATUS: the phase is OPEN; W1 (`wire`, URDRWIR1, T3.47, `198807e`), W2 (`storm`, URDRSTM1, T3.48,
-`c514f6c`), W3 (`sealwrit`, URDRSWT1, T3.49, `41e0cd7`), and W4 (`driftgaze`, URDRDGZ1, T3.50) are
-LANDED.
+STATUS: the phase is SEALED — W1 (`wire`, URDRWIR1, T3.47, `198807e`), W2 (`storm`, URDRSTM1,
+T3.48, `c514f6c`), W3 (`sealwrit`, URDRSWT1, T3.49, `41e0cd7`), W4 (`driftgaze`, URDRDGZ1, T3.50,
+`ab7d44d`), and W5 (`wireattest`, URDRWAT1, T3.51) are ALL LANDED. Placement batch #3 falls due
+(the covenant's boundary); Phase V (the visible world) and Phase M (the mesh) are the road ahead.
 This brief is the long-horizon map for what follows — researched against the 2026 state of the
 world, written in the ledger's voice, and structured so each rung can be held to the covenant
 discipline (recorded ambitions become scheduled rungs, or they are honestly re-declared). Nothing
@@ -76,7 +77,8 @@ world never holds an unverified chunk and never desyncs across a subscription ch
 equal-or-refuse property is preserved under a CHANGING resident set driven by the actor's own
 certified demand.
 
-**W5 — the attestation: the wire over reality.** Off-gate, by law (wall-clock and sockets are
+**W5 — the attestation: the wire over reality. LANDED** (`wireattest.py`; the pinned named-host
+trace at `spec/attest/wire_attest.txt`). Off-gate, by law (wall-clock and sockets are
 nondeterministic): the landed wire carried over REAL WebTransport/UDP between real processes on
 the named host, attested like `bench_protocol.md` §4 — packet traces recorded, refusal counts and
 convergence verified by the same Python laws after the fact. The reality boundary crossed
