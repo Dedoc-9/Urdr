@@ -118,6 +118,17 @@ primary-reordering floor must produce refusals — one assertion convicts both t
 storm and the 'helpful' silently-buffering client); the PREFIX PROPERTY under measured loss
 with the stall DETECTED; malice-under-chaos; the becalmed control. The network misbehaves,
 the gate does not.
+`panelight.py` — `URDRPNL1`, V1: THE WINDOWED LOOP (the first rung of the visible world) — the
+certified terrain driven as a live interactive game: input -> a fixed-timestep authority tick ->
+the witness -> a declared interpolated view. Mints its motion from `glide` (composition), and adds
+three laws no batch fold has: INTERACTIVE == BATCH (the tick loop reproduces `glide_cells`
+bit-for-bit — a live game and its fold agree), THE ACCUMULATOR (frame/tick decoupling: exactly-once
+input, alpha in [0,TICK_MS), and two render cadences landing one authority witness), and THE
+INTERPOLATION FIREWALL (a declared frame lerped between two tick poses, the witness structurally
+blind to it — D15 on time). `panelight.html` is the DECLARED window: keyboard-driven, real-dt
+accumulator, interpolated render, and it CITES the loop-witness it recomputes live (byte-exact
+integer fold + SHA-256 in JS == the pinned golden). Off-gate by construction (wall-clock is
+nondeterministic); the pixels are declared, the citation is measured; idle law: zero ticks at rest.
 `sealwrit.py` — `URDRSWT1`, W3: the signed wire — WHO may write composed onto WHAT may
 change. The 104-byte regional record rides VERBATIM inside a 24,712-byte writ sealed by
 `authinput`'s Lamport one-time signature against a pre-committed roster; the client verifies
@@ -169,5 +180,5 @@ The whole gate, from the repo root: `PYTHONHASHSEED=0 PYTHONUTF8=1 python verify
 Standalone placement check: `rustc -O tools/terrain/<name>_rs/<name>.rs -o /tmp/x && /tmp/x` and compare
 against the matching `conformance_*.txt`. Refusal codes raised here (`GLIDE-`, `SPLICE-`, `OPCOST-`,
 `HORIZON-`, `SLO-`, `CLSLO-`, `STORAGE-`, `PERSIST-`, `RESURRECT-`, `CHUNK-`, `CHUNKSTATE-`,
-`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `ATTEST-`, `WARD-*`,
+`TERRAFORM-`, `COMMUTE-`, `RAN-`, `LEASE-`, `TESTAMENT-`, `QUINTESSENCE-`, `WIRE-`, `STORM-`, `SEAL-`, `DRIFT-`, `ATTEST-`, `PANEL-`, `WARD-*`,
 `TERRAIN-REFUSE`) all follow the house law: typed, total, reject whole, never repair.

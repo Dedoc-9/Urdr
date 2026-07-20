@@ -8161,6 +8161,94 @@ class Gate:
                     "refuses on the named-host law (gate can redden)"
                     if self_ok else "a tampered or anonymized trace was accepted")
 
+    def panelight(self):
+        """The windowed loop (T3.52, V1, URDRPNL1): the certified world driven as a live interactive
+        game — input -> fixed-timestep authority tick -> witness -> declared interpolated view. The
+        gate certifies everything except the pixels. Rows: scenes (stroll / sprint / wall / restful
+        reproduce URDRPNL1 digests), equiv (the tick loop == glide_cells bit-for-bit — interactive
+        IS batch — and the terrain gate holds in the loop), accum (the accumulator: exactly-once
+        input + alpha in range + total ticks exact + DECOUPLING: two cadences, one authority
+        witness), firewall (the declared frame is bounded between its tick poses AND the witness is
+        structurally blind to it — the D15 firewall on time)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import panelight as PL
+            import glide as GLP
+        except Exception as exc:
+            self.record("panelight", False, f"import failed (panelight / glide): {exc}")
+            return
+        try:
+            ref_ok = all(PL.scene_result(n) == PL.golden(n) for n in PL.SCENES)
+        except Exception as exc:
+            self.record("panelight:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("panelight:scenes", ref_ok,
+                    "stroll + sprint + wall + restful reproduce URDRPNL1 digests"
+                    if ref_ok else "a panelight scene drifted from its digest")
+        fld = PL._blank()
+        mtn = GLP._heights("mountains")
+        equiv_ok = True
+        try:
+            for (f, st, log, ms) in ((fld, (2, 8), "eeee", 16), (fld, (2, 8), "EEEE", 16),
+                                     (fld, (4, 8), "eennww", 16), (mtn, (6, 24), "NNNNNN", 20)):
+                equiv_ok = equiv_ok and PL.run(f, st, log, ms, 4) == GLP.glide_cells(f, st, log, ms, 4)
+            # idle rests: the world clock ticks, the avatar stands byte-identical
+            t = PL.run(fld, (2, 8), "ee..ee", 16, 4)
+            equiv_ok = equiv_ok and t[2] == t[3] == t[4]
+        except Exception:
+            equiv_ok = False
+        self.record("panelight-equiv", equiv_ok,
+                    "the tick loop reproduces glide_cells bit-for-bit on every pure-move log "
+                    "(interactive IS batch — a live game and its fold agree) and the terrain gate "
+                    "holds inside the loop (a sprint into the ridge stops at the wall); an idle tick "
+                    "rests the avatar byte-identically"
+                    if equiv_ok else "the interactive-equals-batch law did not hold")
+        accum_ok = True
+        try:
+            dt = (10, 22, 16, 8, 30, 12)
+            sched, total, leftover = PL.schedule_ticks(dt, PL.TICK_MS)
+            accum_ok = (all(0 <= a < PL.TICK_MS for (_n, a) in sched)
+                        and total == sum(dt) // PL.TICK_MS
+                        and leftover == sum(dt) - total * PL.TICK_MS)
+            # exactly-once: a schedule short of the input refuses
+            try:
+                PL.drive_loop(fld, (2, 8), "eeee", (16, 16, 16), 16, 4)
+                accum_ok = False
+            except PL.PanelError:
+                pass
+            # DECOUPLING: two cadences, same input, one authority witness; different frame streams
+            a = PL.drive_loop(fld, (2, 8), "eeee", (16, 16, 16, 16), 16, 4)
+            b = PL.drive_loop(fld, (2, 8), "eeee", (8, 8, 8, 8, 8, 8, 8, 8), 16, 4)
+            accum_ok = (accum_ok and PL.loop_witness(a[0]) == PL.loop_witness(b[0])
+                        and len(a[1]) != len(b[1]))
+        except Exception:
+            accum_ok = False
+        self.record("panelight-accum", accum_ok,
+                    "the accumulator consumes each input EXACTLY once (a schedule short of the log "
+                    "refuses), every frame's alpha is in [0,TICK_MS), total ticks == floor(sum dt / "
+                    "TICK_MS); and the DECOUPLING law holds — two render cadences over one input land "
+                    "the identical authority witness while their declared frame streams differ"
+                    if accum_ok else "the accumulator / decoupling law did not hold")
+        fw_ok = True
+        try:
+            t = PL.run(fld, (2, 8), "eeee", 16, 4)
+            for alpha in (0, 4, 8, 15):
+                fr = PL.interpolate(t[0], t[1], alpha, PL.TICK_MS)
+                lo, hi = min(t[0][0], t[1][0]), max(t[0][0], t[1][0])
+                fw_ok = fw_ok and lo <= fr[0] <= hi
+            fw_ok = fw_ok and PL.interpolate(t[0], t[1], 0, PL.TICK_MS)[:2] == t[0][:2]
+            # the witness function's DOMAIN is the tick transcript alone — a frame cannot enter it
+            fw_ok = fw_ok and PL.loop_witness.__code__.co_argcount == 1
+        except Exception:
+            fw_ok = False
+        self.record("panelight-firewall", fw_ok,
+                    "the declared frame is an exact integer lerp bounded strictly between its two "
+                    "tick poses (alpha=0 is the left tick exactly); and the authority witness is "
+                    "STRUCTURALLY blind to it — loop_witness takes only the tick transcript, so no "
+                    "frame or alpha can move the witness (the D15 firewall, on time)"
+                    if fw_ok else "the interpolation-firewall law did not hold")
+
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):
         """The heightfield_rs cross-placement, RE-VERIFIED LIVE — not merely counted. The hole this
@@ -9120,6 +9208,7 @@ def main() -> int:
     gate.sealwrit()
     gate.driftgaze()
     gate.wireattest()
+    gate.panelight()
     gate.heightfield_placement()
     gate.latstore_placement()
     gate.glide_placement()

@@ -86,7 +86,9 @@ convergence verified by the same Python laws after the fact. The reality boundar
 honestly: the gate certifies the laws, the attestation certifies reality met them, and neither
 pretends to be the other.
 
-**Phase V — the visible world (after W3, can interleave from W4).** The three.js/WebGPU firewall
+**Phase V — the visible world. OPEN; V1 `panelight` LANDED** (`URDRPNL1`, T3.52 — the windowed loop:
+the certified world driven live, interactive==batch, the frame/tick accumulator, the interpolation
+firewall; `panelight.html` the declared window citing its loop-witness). The three.js/WebGPU firewall
 client: renders ONLY the admitted replica; live terraform edits arrive over the wire and the
 terrain visibly changes — the first time the certified substrate is SEEN. Then `bench_protocol.md`
 §3 on the named host: input→photon, the sealed numbers. The demonstration that positions the whole

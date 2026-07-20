@@ -1,0 +1,9 @@
+# URDRPNL1 conformance goldens — the windowed loop (V1): scene digests pinned AFTER the
+# five planted defects (walk-through-wall, lost-input, idle-drift, interpolation-overshoot,
+# verdict-blind digest) were each proven to BITE. The interpolation firewall is enforced
+# structurally (loop_witness's domain is the tick transcript alone — it cannot see a frame).
+# digest = SHA-256(MAGIC | name | loop-witness | ticks | frames | verdict)
+stroll d04d1b2ee3f64c968a5bfb0838cafae02699f75375cf9449a3a3ebd0f68872e2
+sprint 7a0dd282913455c9aaa2a52dcf1e26345fff1274494aba84c6f9cd8363241dab
+wall da518e9500b63cdd87ccb933b38621f6a66f9c009d1d7f1af3c8948f935774e0
+restful 2783ae74b8a5ce7842b6dfb5e517d37c8bba401ed876481943333a3114e0a0a2
