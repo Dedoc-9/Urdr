@@ -1,5 +1,5 @@
 URDRMAT1 v1
-host vm | Linux 6.18.5 | python 3.11.15 | Anthropic cloud sandbox (re-run --run on the named host to attest there)
+host DanielDillberg | Windows 11 | python 3.14.5 | Ally X
 scenario handoff
 world blank 8
 genesis alfa
@@ -26,4 +26,4 @@ write 2 charl 0 1 5 0 25 ADMIT 1fe9a654d00e01262ac829cd4917a38ded64d7b4b539920be
 write 1 bravo 0 1 4 0 9 MIGRATE-REFUSE
 finalwit 1fe9a654d00e01262ac829cd4917a38ded64d7b4b539920bec4dfadb3d3ae059
 finalcustody a9c7d29da2e78f225217129647d518ae2d9eb91416134f68d946fed87d4d2972
-digest 813c6f3115fb113bdc330a65f04c46c54a0304ae4da167693d12fd39ec520aa6
+digest fe0cbef978a3dc4fab9da9da4ab7bbbc7f56fbfd2b14a312e7e7f35d9c884b30
