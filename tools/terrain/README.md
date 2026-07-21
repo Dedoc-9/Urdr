@@ -114,6 +114,20 @@ makes the CP posture executable at one region (torn handoff → the region freez
 expiries, concurrent writes vs the migration-blind monolith, five adversaries, a counterexample
 shrinker) + red-first (a custody-blind admission makes the sweep's double-writer land). DECLARED
 successors: semantic dependency obligations + proof-transport; steward identity signatures (`sealwrit`).
+`meshattest.py` — `URDRMAT1`, Phase M rung M2.5: THE MESH REALITY ATTESTATION — authority migration
+over REAL sockets and REAL processes, the `wireattest` discipline applied to custody. The migration
+certificate is SERIALIZED, sent over a real TCP socket to a SEPARATE OS PROCESS, DESERIALIZED there from
+raw bytes, and ADOPTED by the unmodified `migrate` law in that far process — and the OLD steward node's
+post-handoff write is REFUSED across the boundary (the double-writer caught over a real socket, the
+differentiated claim re-attested over reality). Sockets/wall-clock are OFF-GATE; what the gate verifies
+is a SELF-DIGESTED TRACE (`spec/attest/mesh_attest.txt`), replayed through the migrate law — reality's
+recorded certificate bytes, outcomes, witnesses, and custody head must MATCH the law's replay or it is
+UNLAWFUL. Named-host law mechanized (no host line → refuse). The RUN (`python meshattest.py --run` on a
+named host) drives real coordinator + node subprocesses; the CHECK re-verifies the pinned trace in-gate,
+deterministically. Two synthetic scenarios (handoff A→B, relay A→B→C) + seven woven forges (each refuses)
++ red-first. Honest scope: loopback TCP on one machine (not cross-machine / NAT / internet); a PARTITION
+during handoff is M4's territory, not re-attested here — this is the reliable handoff's happy path made
+real.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1138 unit falsifiers / 648 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1149 unit falsifiers / 652 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -448,7 +448,13 @@ admission is the conjunction `valid lease ∧ custody chain`; witness preservati
 world); the migration-diamond theorem shows a certified-disjoint write commutes with a migration via byte-identical
 certificate transport while overlapping writes lawfully refuse; the CP posture is executable at one region via the
 handoff prefix law; red-first, 120-scenario property-swept vs the migration-blind monolith with a counterexample
-shrinker; single-writer safety in three jointly-load-bearing layers). Next: M3 meshed simulation (MESH == MONOLITH
+shrinker; single-writer safety in three jointly-load-bearing layers). **M2.5 — the mesh reality attestation
+(`tools/terrain/meshattest.py`, URDRMAT1) — is LANDED**: authority migration over REAL sockets and REAL
+processes (the `wireattest` discipline applied to custody) — the migration certificate is serialized, sent over
+a real TCP socket to a separate OS process, deserialized there from raw bytes, and adopted by the unmodified
+`migrate` law in that far process, and the old steward node's post-handoff write is REFUSED across the boundary
+(the double-writer caught over a real socket); sockets stay off-gate, and the gate re-verifies a self-digested
+trace (`spec/attest/mesh_attest.txt`) against the migrate law. Next: M3 meshed simulation (MESH == MONOLITH
 with migrating authorities) → M4 partitioned mesh (CAP executable) → M5 attested mesh session.
 
 ---

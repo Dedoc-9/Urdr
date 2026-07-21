@@ -7070,6 +7070,97 @@ class Gate:
                     "and the module is clean again after the revert"
                     if red_ok else "the migration sweep did not redden under a custody-blind admission")
 
+    def meshattest(self):
+        """The mesh reality attestation (Phase M rung M2.5, URDRMAT1): authority migration over REAL
+        sockets and REAL processes, judged by the same `migrate` laws after the fact. Sockets live
+        OFF-GATE (nondeterministic); what the gate verifies is the SELF-DIGESTED TRACE they left
+        behind — the wireattest discipline applied to custody. Rows: laws (synthetic handoff / relay
+        traces verify LAWFUL, deterministically, each witnessing a migration and a usurper refused),
+        forges (seven woven violations — a usurper's write recorded ADMIT, a drifted witness, a
+        forged/swapped certificate, an untyped outcome, a dropped migration, a drifted final witness
+        — each refuse typed), trace (the PINNED named-host trace re-verified — the host named in this
+        row), selftest (a byte flip and an anonymized re-seal both refuse; gate can redden)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import meshattest as MA
+        except Exception as exc:
+            self.record("meshattest", False, f"import failed (meshattest): {exc}")
+            return
+        laws_ok = True
+        try:
+            hand = MA.check_trace(MA.synth_trace("handoff"))
+            relay = MA.check_trace(MA.synth_trace("relay"))
+            laws_ok = (hand["verdict"] == relay["verdict"] == "LAWFUL"
+                       and hand["migrations"] > 0 and hand["usurpers_refused"] > 0
+                       and relay["migrations"] == 2 and relay["usurpers_refused"] > 0
+                       and MA.report_digest(hand)
+                       == MA.report_digest(MA.check_trace(MA.synth_trace("handoff"))))
+        except Exception:
+            laws_ok = False
+        self.record("meshattest:laws", laws_ok,
+                    "the synthetic handoff (A→B, a usurper refused, a disjoint region untouched) and "
+                    "relay (A→B→C custody chain, a mid-chain usurper refused) each replay LAWFUL "
+                    "under the unmodified migrate law, deterministically — the migration certificate "
+                    "the checker re-mints matches reality's record"
+                    if laws_ok else "a lawful synthetic mesh trace did not verify")
+        forges_ok = True
+        try:
+            for forge in ("usurper_admit", "witness", "forged_cert", "swap_dst", "untyped",
+                          "drop_migration", "finalwit"):
+                try:
+                    MA.check_trace(MA.synth_trace("handoff", forge=forge))
+                    forges_ok = False
+                except MA.MeshAttestError:
+                    pass
+        except Exception:
+            forges_ok = False
+        self.record("meshattest:forges", forges_ok,
+                    "a usurper's write recorded ADMIT (the double-writer laundering through a "
+                    "socket), a drifted witness, a forged certificate, a certificate to the wrong "
+                    "destination, an untyped outcome, a dropped migration, and a drifted final "
+                    "witness each refuse typed — reality may not overrule the law on any axis"
+                    if forges_ok else "a woven mesh violation slipped through the checker")
+        trace_ok = True
+        detail = ""
+        try:
+            path = os.path.join(ROOT, "spec", "attest", "mesh_attest.txt")
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            rep = MA.check_trace(text)
+            trace_ok = (rep["verdict"] == "LAWFUL" and rep["migrations"] > 0
+                        and rep["usurpers_refused"] > 0)
+            detail = ("the pinned mesh attestation replays LAWFUL: host [%s] — %d migration(s) "
+                      "over real sockets, %d admit(s), %d usurper(s) refused across the process "
+                      "boundary, across %s — the certified handoff met the laws in reality"
+                      % (rep["host"], rep["migrations"], rep["admits"], rep["usurpers_refused"],
+                         "/".join(rep["scenarios"])))
+        except Exception as exc:
+            trace_ok = False
+            detail = f"the pinned mesh trace failed: {exc}"
+        self.record("meshattest:trace", trace_ok, detail)
+        self_ok = True
+        try:
+            flipped = text.replace("ADMIT", "ADMIt", 1)
+            try:
+                MA.check_trace(flipped)
+                self_ok = False
+            except MA.MeshAttestError:
+                pass
+            body = text.rstrip("\n").split("\n")[:-1]
+            body[1] = "host "
+            try:
+                MA.check_trace(MA.seal_trace(body))
+                self_ok = False
+            except MA.MeshAttestError:
+                pass
+        except Exception:
+            self_ok = False
+        self.record("meshattest-selftest", self_ok,
+                    "a single byte flip refuses on the self-digest and an anonymized re-seal refuses "
+                    "on the named-host law (gate can redden)"
+                    if self_ok else "a tampered or anonymized mesh trace was accepted")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -9985,6 +10076,7 @@ def main() -> int:
     gate.rannull()
     gate.nway()
     gate.migrate()
+    gate.meshattest()
     gate.lease()
     gate.testament()
     gate.rollstore()
