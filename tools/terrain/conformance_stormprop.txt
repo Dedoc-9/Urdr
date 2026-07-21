@@ -1,0 +1,7 @@
+# URDRSTP1 conformance — the property-based falsifier stage for the storm's PREFIX PROPERTY (Tier-2):
+# equal-or-refuse under chaos, swept. The digest is SHA-256 over the authority witness + the ordered
+# (loss,dup,delay | replica witness) of a fixed-seed (20260721), 200-storm sweep. Pinned AFTER the
+# prefix-oracle mutant (prefix_witness -> the full-log witness) was proven to make the sweep raise
+# STORMPROP-FALSIFIED on a lossy storm. Non-vacuity asserted in-sweep (both branches; nonzero drops /
+# reorderings / duplicates / stalls; a strictly-below-full-log prefix occurs).
+sweep ece721e3abe5df044a704dc3ee6c6981eef3d665065188290ce926c3fc22db3d

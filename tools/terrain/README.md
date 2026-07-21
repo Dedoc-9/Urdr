@@ -126,6 +126,13 @@ primary-reordering floor must produce refusals — one assertion convicts both t
 storm and the 'helpful' silently-buffering client); the PREFIX PROPERTY under measured loss
 with the stall DETECTED; malice-under-chaos; the becalmed control. The network misbehaves,
 the gate does not.
+`stormprop.py` — `URDRSTP1`, Tier-2: THE PREFIX PROPERTY SWEPT — the storm's equal-or-refuse thesis
+under a seeded adversary. A seeded generator mints random storms `(seed, loss/dup/delay)`; loss-free
+storms must converge to the authority witness (exactly-once), lossy storms must equal
+`storm.prefix_witness` (the authority's prefix, computed WITHOUT the loom — the independent oracle). The
+strict-prefix case is asserted so a gap-ignoring client is caught. Non-vacuity (both branches, real
+chaos) and red-first (a wrong prefix oracle raises `STORMPROP-FALSIFIED`) in-sweep; fixed-seed in-gate,
+an off-gate `--explore` reseeder.
 `sealsession.py` — `URDRSSN1`, V5: THE ATTESTED SESSION — the visible-world CAPSTONE. `wireattest`
 proved the network met the laws; this proves a PLAY SESSION did. A session composes the whole
 visible world — the loop (V1), the wired world (V2 live edits + streaming), the ghosts (V3) — and

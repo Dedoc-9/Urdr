@@ -6724,6 +6724,99 @@ class Gate:
                     "again after the revert (the sweep is a live falsifier, not a rubber stamp)"
                     if red_ok else "the property sweep did not redden under a planted defect")
 
+    def regionprop(self):
+        """The property-based falsifier stage for the Seam Composition Theorem (Tier-2, URDRRGP1):
+        reunify == monolith under a SEEDED ADVERSARY. A seeded generator mints random valid partitions
+        (strictly-increasing integer x-seams) of the in-scope world; each must compose to the MONOLITH
+        (worldstep.simulate — the independent oracle that never partitions). Rows: property (the
+        fixed-seed sweep reproduces its aggregate digest, with >=3 region counts and an evolving
+        monolith asserted in-sweep), selftest (the dropped-boundary defect makes the sweep REDDEN)."""
+        for d in (os.path.join(ROOT, "tools", "netcode"), os.path.join(ROOT, "tools", "physics")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import regionprop as RP
+            import worldregion as R
+        except Exception as exc:
+            self.record("region-property", False, f"import failed (regionprop): {exc}")
+            return
+        prop_ok = True
+        try:
+            rep = RP.sweep()
+            prop_ok = (rep["digest"] == RP.golden() and len(rep["region_counts"]) >= 3
+                       and rep["frames"] > 1)
+        except Exception:
+            prop_ok = False
+        self.record("region-property", prop_ok,
+                    f"reunify == monolith survived a {RP.COUNT}-partition seeded sweep — every random "
+                    "valid partition composes to the monolith (worldstep.simulate, the independent "
+                    "oracle) bit-for-bit; the aggregate digest reproduces its golden (non-vacuous: "
+                    ">=3 region counts, an evolving monolith)"
+                    if prop_ok else "the reunify==monolith property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = R.region_simulate
+            R.region_simulate = lambda w, log, seams, **k: _orig(w, log, seams, defect_drop_ghost=True)
+            try:
+                RP.sweep()
+            except RP.SweepError:
+                red_ok = True
+            finally:
+                R.region_simulate = _orig
+            red_ok = red_ok and RP.sweep_digest() == RP.golden()
+        except Exception:
+            red_ok = False
+        self.record("region-property-selftest", red_ok,
+                    "the dropped-boundary defect (admit no ghosts) makes the seeded sweep raise "
+                    "REGIONPROP-FALSIFIED — the property gate can redden — and the module is clean "
+                    "again after the revert"
+                    if red_ok else "the reunify==monolith sweep did not redden under a planted defect")
+
+    def stormprop(self):
+        """The property-based falsifier stage for the storm's PREFIX PROPERTY (Tier-2, URDRSTP1):
+        equal-or-refuse under chaos, SWEPT. A seeded generator mints random storms and drives one honest
+        wire client; loss-free storms converge to the authority witness, lossy storms equal
+        storm.prefix_witness (the independent oracle, computed without the loom). Rows: property (the
+        fixed-seed sweep reproduces its aggregate digest, with both branches / real chaos / a strict
+        prefix asserted in-sweep), selftest (a wrong prefix oracle makes the sweep REDDEN)."""
+        for d in (os.path.join(ROOT, "tools", "terrain"), os.path.join(ROOT, "tools", "physics")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import stormprop as SP
+            import storm as ST
+        except Exception as exc:
+            self.record("storm-property", False, f"import failed (stormprop): {exc}")
+            return
+        prop_ok = True
+        try:
+            rep = SP.sweep()
+            prop_ok = (rep["digest"] == SP.golden() and rep["lossy"] > 0 and rep["lossfree"] > 0
+                       and rep["drops"] > 0 and rep["stalled"] > 0 and rep["prefix_ne_want"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("storm-property", prop_ok,
+                    f"the prefix property survived a {SP.COUNT}-storm seeded sweep — loss-free storms "
+                    "converge to the authority witness (exactly-once), lossy storms equal the authority "
+                    "PREFIX (storm.prefix_witness, the independent oracle) with the prefix strictly below "
+                    "the full log; the aggregate digest reproduces its golden (non-vacuous chaos)"
+                    if prop_ok else "the storm prefix-property sweep failed or drifted")
+        red_ok = False
+        try:
+            _want = lambda *a, **k: ST.authority_log(ST._blank(), SP.CSIZE)[1]
+            try:
+                SP.sweep(oracle=_want)
+            except SP.SweepError:
+                red_ok = True
+            red_ok = red_ok and SP.sweep_digest() == SP.golden()
+        except Exception:
+            red_ok = False
+        self.record("storm-property-selftest", red_ok,
+                    "replacing the honest prefix oracle with the full-log witness makes the seeded sweep "
+                    "raise STORMPROP-FALSIFIED on a lossy storm — the prefix property is a live "
+                    "falsifier, not decoration — and the module is clean again after"
+                    if red_ok else "the storm prefix-property sweep did not redden under a wrong oracle")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -9571,6 +9664,7 @@ def main() -> int:
     gate.netcode_world()
     gate.netcode_worldpeer()
     gate.netcode_region()
+    gate.regionprop()
     gate.netcode_field_desync()
     gate.netcode_fraud()
     gate.photo_trace()
@@ -9642,6 +9736,7 @@ def main() -> int:
     gate.quintessence()
     gate.wire()
     gate.storm()
+    gate.stormprop()
     gate.sealwrit()
     gate.driftgaze()
     gate.wireattest()

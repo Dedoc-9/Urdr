@@ -136,9 +136,13 @@ in-gate (byte-identical, an aggregate digest pins); an off-gate `--explore` rese
 counterexample back as a pinned scene (the wireattest off-gate→pinned split). Red-first: proven to
 BITE mutants of `predict` (rank), `closure` (head), and `certify` (contested-arbitration) — each
 raises `COMMUTEPROP-FALSIFIED` rather than returning a digest; a `commute-property-selftest` gate row
-reddens under the planted defect. **QUEUED (the stage's next flagship targets):** random partitions
-asserting `reunify == monolith`; random storms (seed-swept `(edit log, C, loss/dup/delay, resident
-set)`) asserting the prefix property and typed-refusal-on-reorder. This turns existence-on-corpus into
+reddens under the planted defect. **ALSO LANDED (Tier 2 COMPLETE):** `regionprop.py` (URDRRGP1) sweeps
+random valid partitions asserting `reunify == monolith` — the monolith (`worldstep.simulate`, which
+never partitions) is the independent oracle, non-vacuity forces ≥3 region counts, the dropped-boundary
+defect bites; and `stormprop.py` (URDRSTP1) sweeps random storms asserting the prefix property —
+loss-free storms converge to the authority witness, lossy storms equal `storm.prefix_witness` (computed
+without the loom, the independent oracle), with the strict-prefix case asserted so a gap-ignoring client
+is caught. All three flagship ∀-laws now face a seeded adversary. This turns existence-on-corpus into
 confidence-over-a-sampled-space — the equal-or-refuse thesis now faces an adversary actively searching
 for the counterexample before the mesh introduces concurrent, partitionable authorities.
 
@@ -174,14 +178,17 @@ Two items are DONE here; the rest are pinned to a named rung so nothing hides be
 `ghost_admit` enforces the movement law, gate-pinned and red-first. *This is the "when" for the
 kinematic-ghost hardening — it is now.*
 
-**Tier 2, the property-based / metamorphic falsifier stage — the debate's technical #1.** PART 1
-LANDED (`commuteprop.py`, URDRCPS1): the write-calculus **commute diamond** now faces a seeded
-adversary with independent oracles (brute-permutation orbit for the head; chunk geometry for the
-rank), red-first, gate-pinned, with an off-gate reseeded explorer. STILL QUEUED before Phase M, on the
-same harness: random partitions asserting `reunify == monolith`, and random storms asserting the
-prefix property + typed-refusal-on-reorder. Gate discipline (proven on the commute rung): a fixed seed
-in-gate for byte-identical runs; an off-gate reseeded explorer that files any counterexample back as a
-pinned corpus scene.
+**Tier 2, the property-based / metamorphic falsifier stage — the debate's technical #1. COMPLETE.**
+All three flagship ∀-laws now face a seeded adversary with independent oracles, red-first, gate-pinned,
+each with an off-gate reseeded explorer: `commuteprop.py` (URDRCPS1) — the write-calculus **commute
+diamond** (brute-permutation orbit for the head; chunk geometry for the rank); `regionprop.py`
+(URDRRGP1) — **reunify == monolith**, the Seam Composition Theorem (the un-partitioned
+`worldstep.simulate` monolith as the oracle, over random valid partitions); `stormprop.py` (URDRSTP1) —
+the storm's **prefix property** (the authority witness for loss-free storms, `storm.prefix_witness`
+computed without the loom for lossy ones, with the strict-prefix case asserted). Gate discipline (held
+across all three rungs): a fixed seed in-gate for byte-identical runs; an off-gate reseeded explorer
+that files any counterexample back as a pinned corpus scene. With Tier 2 complete, the equal-or-refuse
+laws have faced an active adversary before Phase M introduces concurrent, partitionable authorities.
 
 **PHASE M PREREQUISITE — the AIMBOT / ANTI-CHEAT posture (the input-legitimacy ceiling).** This is
 the honest part of the answer, and it is deliberately NOT an immediate build, because *no amount of

@@ -1,0 +1,7 @@
+# URDRRGP1 conformance — the property-based falsifier stage for the Seam Composition Theorem
+# (Tier-2): reunify == monolith under a seeded adversary. The digest is SHA-256 over the monolith
+# witness + the ordered seams of a fixed-seed (20260721), 200-partition sweep. Pinned AFTER the
+# dropped-boundary defect and the malformed-partition refusal were proven to make the sweep raise
+# REGIONPROP-FALSIFIED. Non-vacuity asserted in-sweep (>=3 distinct region counts; the monolith
+# evolves over >1 frame).
+sweep 9579c4cda30aed95c18cf517ea6d47e538ac9aa7c56253582e8dcbfc34361778
