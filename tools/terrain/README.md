@@ -96,6 +96,24 @@ allocator `lease` named. The shard path is cross-checked against the global mono
 independent oracle); N=2 reproduces RAN-0's pairwise head (a faithful generalization). Four pinned
 scenes + a variable-N `check_nway` certificate + a 150-batch seeded sweep + red-first (an off-by-one
 shard makes the sweep raise). Distributed execution across authorities as a composed theorem.
+`migrate.py` — `URDRMIG1`, Phase M rung M2: AUTHORITY MIGRATION AS LEASE TRANSFER — the
+witness-carrying migration certificate (WCMC). `lease` is minted from STATE and cannot see a HANDOFF
+(the born-red fact: after A→B the usurper's lease is byte-identical, and `lease.admit` alone admits
+it), so standing authority (WHO keeps writing) becomes first-class: a STEWARD MANIFEST (55 + 40·n,
+content-addressed, total) carries the per-region steward + custody head, and THE TRANSFER ITSELF emits
+a 128-byte certificate (MAGIC | parent cert | kx | ky | src | dst | the region's CHUNK digest | SHA-256)
+bound to the AUTHORITY — one chunk digest, the minimal dependency closure — never the world. Admission
+is the CONJUNCTION `valid lease ∧ custody chain naming the writer`, in three layers proven jointly
+load-bearing (steward slot / custody chain / succession — the anamnesis trap, custody edition). Witness
+preservation is STRUCTURAL (`migrate` returns no world → pre/post equality is a theorem in bytes); the
+dependency property is byte-identical certificate TRANSPORT in the MIGRATION-DIAMOND THEOREM (a
+certified-disjoint write commutes with a migration; overlapping writes lawfully refuse); the migration
+CAS refuses a moved authority; reorder/dup/fork refuse on the parent chain alone; the HANDOFF PREFIX LAW
+makes the CP posture executable at one region (torn handoff → the region freezes). Four pinned scenes
+(handoff / relay / diamond / usurper) + a 120-scenario seeded sweep (randomized layouts, schedules,
+expiries, concurrent writes vs the migration-blind monolith, five adversaries, a counterexample
+shrinker) + red-first (a custody-blind admission makes the sweep's double-writer land). DECLARED
+successors: semantic dependency obligations + proof-transport; steward identity signatures (`sealwrit`).
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

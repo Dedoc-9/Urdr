@@ -109,8 +109,25 @@ property-sweepable with the Tier-2 harness:
   lattice / overlap), a `check_nway` certificate, a 150-batch seeded sweep (shard==global, non-vacuous
   sizes 2..4), and a `nway` gate stage (4 rows) — red-first, the off-by-one shard mutant proven to
   redden. Guarantee #4 delivered; #1/#3 (single-writer, MESH==MONOLITH) build on it in M2/M3.
-- **M2 — authority migration (lease transfer).** The migration protocol and the witness-preservation
-  law. Guarantees #1, #2, property-swept.
+- **M2 — authority migration (lease transfer). LANDED (`tools/terrain/migrate.py`, URDRMIG1).** The
+  migration protocol as a COMPOSITION: `lease` (write capability is minted from state, so it is blind to
+  a handoff — the born-red motivation) + a first-class STANDING AUTHORITY (the steward manifest) whose
+  transfer is a PROOF-PRODUCING operation (the Witness-Carrying Migration Certificate — 128 bytes, bound
+  to the region's chunk digest, its minimal dependency closure, never the world). Admission is the
+  CONJUNCTIVE predicate `valid lease ∧ custody chain naming the writer`, in three layers proven jointly
+  load-bearing (steward slot / custody chain / succession). Witness preservation (guarantee #2) is
+  STRUCTURAL — `migrate` never returns a world, so pre/post equality is a theorem in bytes — and the
+  dependency property falls out as byte-identical certificate transport in the MIGRATION-DIAMOND THEOREM
+  (a certified-disjoint write commutes with a migration; overlapping writes lawfully refuse). SINGLE-WRITER
+  (guarantee #1) holds after A→B: the usurper's lease is byte-identical yet the custody layers refuse.
+  The handoff prefix law makes the CP posture executable at one region (torn handoff → the region freezes,
+  refuse rather than guess). Tier 2 generalized to a 120-scenario seeded sweep over randomized layouts,
+  schedules, expiries, and concurrent writes vs the migration-blind monolithic oracle, with a schedule
+  SHRINKER for off-gate counterexamples. Red-first; `migrate` gate stage (4 rows); 13 falsifiers.
+  Guarantees #1, #2 delivered. Prior art reviewed honestly (PBFT checkpoints, FastPay, CockroachDB
+  leases, zk-rollups, Bazel/Adapton dependency caches): the claim is the COMPOSITION under one calculus,
+  not any ingredient. DECLARED successors: SEMANTIC dependency obligations + proof-transport (M2 ships the
+  structural form); steward IDENTITY signatures (`sealwrit`); cross-placement.
 - **M3 — the meshed simulation.** N authorities owning regions and migrating; `MESH == MONOLITH`
   swept — `regionprop` generalised from static seams to migrating authorities. Guarantee #3.
 - **M4 — the partitioned mesh.** The CAP posture made executable: a mesh partition freezes clients at

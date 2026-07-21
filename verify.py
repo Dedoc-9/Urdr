@@ -6925,6 +6925,151 @@ class Gate:
                     "clean again after the revert"
                     if red_ok else "the n-way sweep did not redden under a planted shard defect")
 
+    def migrate(self):
+        """Phase M rung M2 — authority migration as lease transfer (URDRMIG1): the witness-carrying
+        migration certificate (WCMC). Authority over a region moves by expiring the steward's
+        standing on one node and minting it on another; THE TRANSFER ITSELF emits a content-addressed
+        certificate bound to the region's chunk digest (its minimal dependency closure), and admission
+        requires the CONJUNCTION of a valid lease AND a custody chain naming the writer — because a
+        lease is minted from state and migration moves none, so the lease law alone is BLIND to a
+        handoff. Rows: scenes (handoff / relay / diamond / usurper reproduce URDRMIG1 digests), law
+        (witness neutrality + exactly-one custody slot; single-writer refusal in three layers proven
+        jointly load-bearing; the migration diamond with byte-identical certificate transport; custody
+        replay with reordered/duplicated/forked refuse; the migration CAS; the handoff prefix law),
+        property (a seeded 120-scenario randomized-schedule sweep asserts the migration-blind
+        monolithic oracle and five adversaries), selftest (a custody-blind admission makes the sweep's
+        double-writer LAND → the sweep REDDENS)."""
+        for d in (os.path.join(ROOT, "tools", "terrain"),):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import migrate as MG
+            import lease as LS
+            import rannull as RN
+            import chunkload as CK
+        except Exception as exc:
+            self.record("migrate", False, f"import failed (migrate): {exc}")
+            return
+        try:
+            ref_ok = all(MG.scene_result(n) == MG.golden(n) for n in MG.SCENES)
+        except Exception as exc:
+            self.record("migrate:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("migrate:scenes", ref_ok,
+                    "handoff + relay + diamond + usurper reproduce URDRMIG1 digests"
+                    if ref_ok else "a migrate scene drifted from its digest")
+        law_ok = True
+        try:
+            fld = MG._world()[0]
+            man = CK.field_manifest(fld, 8)
+            store = {CK.address(r): r for r in CK.cut(fld, 8).values()}
+            a = MG.steward_tag("alfa"); b = MG.steward_tag("bravo"); c = MG.steward_tag("charl")
+            sman0 = MG.steward_genesis(man, MG._all_regions(man, a))
+            certs = {}
+            # witness neutrality (bytes) + exactly-one custody slot moves
+            man_before = bytes(man)
+            sman1, cert = MG.migrate(sman0, certs, man, 0, 1, a, b)
+            certs[MG.address(cert)] = cert
+            law_ok = bytes(man) == man_before
+            g0, g1 = MG.parse_steward(sman0)[3], MG.parse_steward(sman1)[3]
+            law_ok = law_ok and [k for k in g0 if g0[k] != g1[k]] == [(0, 1)]
+            # single-writer: the usurper (A) refuses; three layers jointly load-bearing
+            ls, rec = MG._lease_and_rec(man, store, 5, 8, 1000)
+            try:
+                MG.admit(sman1, certs, man, dict(store), a, ls, rec); law_ok = False
+            except MG.MigrateError:
+                pass
+            _s_ok, _c_ok, _u_ok = MG._steward_ok, MG._custody_ok, MG._unsuperseded
+            MG._steward_ok = lambda *x: True
+            MG._custody_ok = lambda *x: True
+            MG._unsuperseded = lambda *x: True
+            try:
+                nm, _ch = MG.admit(sman1, certs, man, dict(store), a, ls, rec)
+                law_ok = law_ok and CK.address(nm) != CK.address(man)   # all gutted → it LANDS
+            except MG.MigrateError:
+                law_ok = False
+            finally:
+                MG._steward_ok, MG._custody_ok, MG._unsuperseded = _s_ok, _c_ok, _u_ok
+            # the leased blindness: lease.admit ALONE admits the usurper (the conjunction is necessary)
+            law_ok = law_ok and LS.admit(man, dict(store), ls, rec) is not None
+            # the migration diamond + byte-identical certificate transport (disjoint W on (2,2))
+            lsw, recw = MG._lease_and_rec(man, store, 18, 18, 500)
+            man_w, _cw = LS.admit(man, dict(store), lsw, recw)
+            _swm, cert_wm = MG.migrate(sman1, dict(certs), man_w, 0, 1, b, c)
+            _smw, cert_mw = MG.migrate(sman1, dict(certs), man, 0, 1, b, c)
+            man_mw, _cw2 = LS.admit(man, dict(store), lsw, recw)
+            law_ok = law_ok and CK.address(man_w) == CK.address(man_mw) and bytes(cert_wm) == bytes(cert_mw)
+            # custody replay: reorder/dup/fork refuse; the migration CAS refuses a moved authority
+            sman2, c2 = MG.migrate(sman1, certs, man, 0, 1, b, c)
+            certs[MG.address(c2)] = c2
+            law_ok = law_ok and bytes(MG.replay_custody(sman0, (cert, c2))) == bytes(sman2)
+            for bad in ((c2, cert), (cert, cert)):
+                try:
+                    MG.replay_custody(sman0, bad); law_ok = False
+                except MG.MigrateError:
+                    pass
+            man_moved, chm = LS.admit(man, dict(store), *MG._lease_and_rec(man, store, 5, 8, 3))
+            try:
+                MG.apply_migration(sman1, man_moved, cert); law_ok = False   # stale binding: CAS
+            except MG.MigrateError:
+                pass
+            # the handoff prefix law: TORN (cert minted+adopted, manifest stale) → NOBODY writes
+            sman3, cert3 = MG.migrate(sman2, certs, man, 0, 1, c, a)
+            certs[MG.address(cert3)] = cert3
+            for who in (c, a):                                    # old steward and new steward both refuse
+                try:
+                    MG.admit(sman2, certs, man, dict(store), who, ls, rec); law_ok = False
+                except MG.MigrateError:
+                    pass
+        except Exception:
+            law_ok = False
+        self.record("migrate-law", law_ok,
+                    "authority migration as lease transfer: the world witness is untouched and exactly "
+                    "one custody slot moves; the usurper refuses in three jointly-load-bearing layers "
+                    "(the lease alone is blind and admits it); the migration diamond closes with "
+                    "byte-identical certificate transport; custody replays with reorder/dup/fork "
+                    "refused; the migration CAS refuses a moved authority; a torn handoff freezes the "
+                    "region — distributed authority as a composed theorem"
+                    if law_ok else "the migration law did not hold")
+        prop_ok = True
+        try:
+            rep = MG.sweep()
+            prop_ok = (rep["digest"] == MG.sweep_golden() and len(rep["lengths"]) >= 3
+                       and rep["deep_chains"] > 0 and rep["double_refused"] == rep["scenarios"]
+                       and rep["stale_refused"] == rep["scenarios"]
+                       and rep["dup_refused"] == rep["scenarios"]
+                       and rep["fork_refused"] == rep["scenarios"])
+        except Exception:
+            prop_ok = False
+        self.record("migrate-property", prop_ok,
+                    f"the migration laws survived a {MG.SWEEP_COUNT}-scenario seeded sweep — random "
+                    "authority layouts, migration schedules, lease expiries, and concurrent writes: "
+                    "every stewarded world head equals the migration-blind terraform monolith, and all "
+                    "five adversaries (double-writer / stale-lease / duplicated / forked / oracle) "
+                    "refuse every scenario; the aggregate digest reproduces its golden (non-vacuous: "
+                    ">=3 schedule lengths, some region re-migrated)"
+                    if prop_ok else "the migration property sweep failed or drifted")
+        red_ok = False
+        try:
+            _s_ok, _c_ok = MG._steward_ok, MG._custody_ok
+            MG._steward_ok = lambda *x: True
+            MG._custody_ok = lambda *x: True
+            try:
+                MG.sweep()
+            except MG.MigrateError:
+                red_ok = True
+            finally:
+                MG._steward_ok, MG._custody_ok = _s_ok, _c_ok
+            red_ok = red_ok and MG.sweep_digest() == MG.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("migrate-property-selftest", red_ok,
+                    "a custody-blind admission (steward + chain checks gutted) lets the sweep's "
+                    "fully-lease-lawful non-steward write LAND, so the seeded sweep raises "
+                    "MIGRATE-REFUSE — the conjunctive predicate is a live falsifier, not decoration — "
+                    "and the module is clean again after the revert"
+                    if red_ok else "the migration sweep did not redden under a custody-blind admission")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -9839,6 +9984,7 @@ def main() -> int:
     gate.commuteprop()
     gate.rannull()
     gate.nway()
+    gate.migrate()
     gate.lease()
     gate.testament()
     gate.rollstore()

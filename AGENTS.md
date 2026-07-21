@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1125 unit falsifiers / 644 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1138 unit falsifiers / 648 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -440,8 +440,16 @@ falsifiable guarantees and a five-rung roadmap are in the brief; each lands red-
 **M1 — the lease lattice / n-way nullity scheduler — is LANDED** (`tools/terrain/nway.py`, URDRNWY1:
 RAN-0's pairwise nullity generalized to N disjoint authorities — parallel == all serial orders, zero
 rebases; the independence lattice as the write scheduler; the shard path cross-checked against the
-global monolith; red-first, property-swept). Next: M2 authority migration (lease transfer) → M3
-meshed simulation (MESH == MONOLITH) → M4 partitioned mesh (CAP executable) → M5 attested mesh session.
+global monolith; red-first, property-swept). **M2 — authority migration (lease transfer) — is LANDED**
+(`tools/terrain/migrate.py`, URDRMIG1: standing authority made mobile WITHOUT a new primitive — a lease is minted from
+state and cannot see a handoff, so a first-class steward manifest carries WHO-keeps-writing and THE TRANSFER ITSELF
+emits a witness-carrying migration certificate bound to the region's chunk digest, its minimal dependency closure;
+admission is the conjunction `valid lease ∧ custody chain`; witness preservation is structural (`migrate` returns no
+world); the migration-diamond theorem shows a certified-disjoint write commutes with a migration via byte-identical
+certificate transport while overlapping writes lawfully refuse; the CP posture is executable at one region via the
+handoff prefix law; red-first, 120-scenario property-swept vs the migration-blind monolith with a counterexample
+shrinker; single-writer safety in three jointly-load-bearing layers). Next: M3 meshed simulation (MESH == MONOLITH
+with migrating authorities) → M4 partitioned mesh (CAP executable) → M5 attested mesh session.
 
 ---
 

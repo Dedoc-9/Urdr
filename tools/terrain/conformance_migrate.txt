@@ -1,0 +1,17 @@
+# URDRMIG1 conformance — Phase M rung M2: authority migration as lease transfer (WCMC).
+# Scene digests SHA-256(MAGIC | name | parent | head | migrations | bytes | verdict); the
+# sweep digest is over a fixed-seed (20260721), 120-scenario randomized-schedule sweep
+# (random authority layouts, migration schedules, lease expiries, concurrent writes, and
+# five adversaries: double-writer / stale-lease / duplicated / forked / oracle-divergence).
+# Pinned AFTER the plants were proven to bite: a custody-blind admission lets the sweep
+# double-writer LAND, and an off-by-one shard diverges the world head from the
+# migration-blind terraform monolith — both raise MIGRATE-REFUSE; the single-writer
+# refusal holds in three layers (steward slot / custody chain / succession), each proven
+# individually redundant and jointly load-bearing (all gutted, the double-write lands).
+# Non-vacuity in-sweep: >=3 distinct schedule lengths, some region re-migrated (depth>=2),
+# every adversary refused every scenario, the world changed.
+handoff 63c7dd124547f4af3d53ab4302f6b8c89becb868a93914180198f16d3c928923
+relay aa18af986816d9cfd73c7b3818d31369e925d5d28461d89d078274a1f859ebba
+diamond a07cbb52086b11dde56af0aa89ef4efcd2317844bb45a5b0fafaafabbc5d9f2b
+usurper f5f2445051ba75e2e30187fd3b8b5d2e7ca750e9487a859b896a7fa518fd692c
+sweep 17bb46a12a9961670edd957cbea1a9222926e8d5b942f4db8bb9d0bb306cc308
