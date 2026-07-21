@@ -7265,6 +7265,111 @@ class Gate:
                     "and the module is clean again after the revert"
                     if red_ok else "the mesh sweep did not redden under a planted monolith defect")
 
+    def partition(self):
+        """Phase M rung M4 — the partitioned mesh (URDRPRT1): the CP posture made executable. Under
+        partition, the system refuses to invent history. THE PARTITION PREFIX THEOREM: every lawful
+        partitioned execution equals a PREFIX of the connected execution; any attempt to extend beyond
+        that certified prefix preserves equality or refuses — `partitioned mesh == monolith prefix` OR
+        `PARTITION-REFUSE`. A COMPOSITION of M1 disjointness, M2 custody CAS, and the storm prefix
+        property. Rows: scenes (disjoint / freeze / mid_transfer / split_brain reproduce URDRPRT1
+        digests), law (partitioned == monolith of the admitted + the prefix property + the five attacks
+        each refuse: silent divergence / availability forgery / prefix violation / split-brain /
+        partition-transport forgery), property (a seeded 80-partition sweep asserts the theorem + the
+        prefix property with non-vacuity), selftest (a gutted freeze rule makes the sweep REDDEN)."""
+        for d in (os.path.join(ROOT, "tools", "terrain"),):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import partition as PT
+        except Exception as exc:
+            self.record("partition", False, f"import failed (partition): {exc}")
+            return
+        try:
+            ref_ok = all(PT.scene_result(n) == PT.golden(n) for n in PT.SCENES)
+        except Exception as exc:
+            self.record("partition:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("partition:scenes", ref_ok,
+                    "disjoint + freeze + mid_transfer + split_brain reproduce URDRPRT1 digests"
+                    if ref_ok else "a partition scene drifted from its digest")
+        law_ok = True
+        try:
+            fld = PT.flat_world(32)
+            assign = {}
+            for ky in range(4):
+                for kx in range(4):
+                    assign[(kx, ky)] = "lear" if kx < 2 else "raun"
+            side = {"lear": "L", "raun": "R"}
+            # partitioned == monolith of the admitted, and the prefix property
+            left = [("write", "lear", 0, 0, 1, 1, 100), ("write", "raun", 3, 3, 2, 2, 6)]  # 2nd cross → frozen
+            right = [("write", "raun", 3, 3, 1, 1, 9)]
+            rep = PT.partitioned_run(fld, assign, side, left, right)
+            law_ok = (rep["witness"] == PT.monolith_of(fld, rep["admitted"]) and rep["frozen"] == 1
+                      and PT.is_prefix_of_connected(fld, assign, side, left, right))
+            # ATTACK 3 — prefix violation: a cross migration + a beyond-prefix write both freeze
+            mt = PT.partitioned_run(fld, assign, side, [("migrate", 0, 0, "lear", "raun")],
+                                    [("write", "raun", 0, 0, 1, 1, 50)])
+            law_ok = law_ok and mt["admitted_count"] == 0 and mt["witness"] == PT.cut_witness(fld)
+            # ATTACK 5 — partition-transport forgery refuses
+            try:
+                PT.adopt_foreign_certificate(fld, assign, side); law_ok = False
+            except PT.PartitionError:
+                pass
+            # ATTACKS 1 & 4 — gut the freeze: a contested region is written on both sides → reunify refuses
+            _fo = PT._freeze_ok
+            PT._freeze_ok = lambda s, rs, kx, ky: True
+            try:
+                try:
+                    PT.partitioned_run(fld, assign, side, [("write", "lear", 1, 1, 1, 1, 30)],
+                                       [("write", "lear", 1, 1, 2, 2, 40)]); law_ok = False
+                except PT.PartitionError:
+                    pass
+            finally:
+                PT._freeze_ok = _fo
+        except Exception:
+            law_ok = False
+        self.record("partition-law", law_ok,
+                    "the Partition Prefix Theorem: a partitioned execution equals the monolith of its "
+                    "admitted writes and is a PREFIX of the connected execution (no invented history); a "
+                    "cross-partition write and a mid-transfer region FREEZE (refuse rather than guess); a "
+                    "partition-transport forgery refuses on the migration CAS; and a gutted freeze rule's "
+                    "split-brain is caught at reunification — the system refuses to invent history"
+                    if law_ok else "the partition law did not hold")
+        prop_ok = True
+        try:
+            rep = PT.sweep()
+            prop_ok = (rep["digest"] == PT.sweep_golden() and rep["frozen_total"] > 0
+                       and rep["admitted_total"] > 0 and rep["both_sides_active"] > 0
+                       and rep["changed"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("partition-property", prop_ok,
+                    f"the Partition Prefix Theorem survived an {PT.SWEEP_COUNT}-partition seeded sweep — "
+                    "random side splits, local and cross-partition ops, migration schedules: every "
+                    "partitioned world equals the monolith of its admitted writes AND is a prefix of the "
+                    "connected execution; the aggregate digest reproduces its golden (non-vacuous: ops "
+                    "freeze, ops admit, both sides active, the world changes)"
+                    if prop_ok else "the partition property sweep failed or drifted")
+        red_ok = False
+        try:
+            _fo = PT._freeze_ok
+            PT._freeze_ok = lambda s, rs, kx, ky: True
+            try:
+                PT.sweep()
+            except PT.PartitionError:
+                red_ok = True
+            finally:
+                PT._freeze_ok = _fo
+            red_ok = red_ok and PT.sweep_digest() == PT.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("partition-property-selftest", red_ok,
+                    "a gutted freeze rule lets the isolated sides speculate across the partition, so the "
+                    "seeded sweep hits a split-brain / divergence and raises PARTITION-REFUSE — the "
+                    "freeze rule is a live falsifier, not decoration — and the module is clean again "
+                    "after the revert"
+                    if red_ok else "the partition sweep did not redden under a gutted freeze rule")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10182,6 +10287,7 @@ def main() -> int:
     gate.migrate()
     gate.meshattest()
     gate.mesh()
+    gate.partition()
     gate.lease()
     gate.testament()
     gate.rollstore()

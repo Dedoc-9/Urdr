@@ -1,0 +1,16 @@
+# URDRPRT1 conformance — Phase M rung M4: the partitioned mesh (the Partition Prefix Theorem).
+# Scene digests SHA-256(MAGIC | name | parent | witness | admitted | frozen | verdict); the
+# sweep digest is over a fixed-seed (20260721), 80-partition seeded sweep (randomized side
+# splits, local + cross-partition writes, cross-partition migrations), each asserted
+# partitioned == monolith of the admitted writes AND the prefix property (every partitioned
+# region chunk is a state the connected execution genuinely passed through — no invented
+# history). Pinned AFTER the plants were proven to bite: gutting the freeze rule lets the
+# isolated sides speculate and the sweep hits split-brain / divergence and raises; the five
+# attacks (silent divergence / availability forgery / prefix violation / split-brain /
+# partition-transport forgery) each refuse. Non-vacuity: some op freezes, some admits,
+# both sides active, the world changes. partitioned mesh == monolith prefix, OR refuse.
+disjoint cd97d435a3e4ca65c7d50825dbe65fde42330fb0366816db5987dd1348dbfc2f
+freeze 3f776e9866f0ca873967b891df28fe4f54f7318c4004008048352a7a0ffddfff
+mid_transfer 4f16dd8b9521806c156dd151f4a052f2657e427bc4dbf848af872a78739a312b
+split_brain 40705fc21916429a94bc6ad0c2ba1b647b31cc31ff782b3e019e9c86185780bd
+sweep 0afe0ddc1a12c93215239bb4a444e1ae5fa1b7adc64f9e4ccd9b07f42adeddb5

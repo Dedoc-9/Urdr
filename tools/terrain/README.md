@@ -144,6 +144,24 @@ overlapping concurrent batch / theft migration each refuse the WHOLE tick). Four
 red-first (a dropped write diverges → the sweep raises). DECLARED: the partitioned mesh + CAP liveness
 under a real partition (M4); the attested mesh session (M5); scale (never a measured number until the
 scale bench).
+`partition.py` — `URDRPRT1`, Phase M rung M4: THE PARTITIONED MESH — the CP posture made executable and
+the theorem implicit since `storm`/`chunkstate`/`reunify==monolith`: under partition, the system REFUSES
+TO INVENT HISTORY. THE PARTITION PREFIX THEOREM — every lawful partitioned execution equals a PREFIX of
+the connected execution, or refuses (`partitioned mesh == monolith prefix` OR `PARTITION-REFUSE`). A
+COMPOSITION of M1 disjointness, M2 custody CAS, and the storm prefix property: a partition splits the
+stewards into two SIDES from a shared CUT; each side runs from FROZEN custody and admits only what it can
+verify — the FREEZE RULE (a write to a region whose steward is on the unreachable side freezes: refuse
+rather than guess), custody still bites (a duplicated lease can't write on the non-steward side), a
+cross-partition migration freezes, and the migration CAS refuses a partition-transport forgery (a
+certificate chaining from a custody head the frozen side never had). Reunification is two layers — the
+freeze rule keeps the sides on disjoint slots (M1), the overlap check catches a gutted freeze rule's
+split-brain and refuses. The five attacks (silent divergence / availability forgery / prefix violation /
+split-brain / partition-transport forgery) each land red-first; four pinned scenes (disjoint / freeze /
+mid_transfer / split_brain) + an 80-partition seeded sweep asserting the theorem + the prefix property
+(path-membership, no invented history). THE CP AVAILABILITY COST is STATED, not hidden — a mid-transfer
+region freezes (no liveness under partition); a consensus/quorum progress overlay is a NAMED, OPTIONAL,
+FUTURE extension, never folded into the theorem. DECLARED: the attested mesh session (M5);
+cross-placement.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

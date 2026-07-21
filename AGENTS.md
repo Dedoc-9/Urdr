@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1159 unit falsifiers / 656 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1169 unit falsifiers / 660 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -461,8 +461,18 @@ migration), and `terraform` (the neutral monolith oracle) — for ANY schedule o
 with authority migrating over time, the meshed world witness equals the monolith bit-for-bit, or the tick refuses
 whole; `regionprop`'s reunify==monolith generalized from static seams to MIGRATING authorities (the partition of
 work is fixed, the partition of authority moves, the witness is invariant to both); red-first, 100-mesh
-property-swept. Next: M4 partitioned mesh (CAP executable — the partition/liveness cost under a real partition) →
-M5 attested mesh session.
+property-swept. **M4 — the partitioned mesh (`tools/terrain/partition.py`, URDRPRT1) — is LANDED**: the CP posture
+made executable and the theorem implicit since `storm`/`chunkstate`/`reunify==monolith` — under partition, the
+system REFUSES TO INVENT HISTORY. The Partition Prefix Theorem: every lawful partitioned execution equals a PREFIX
+of the connected execution, or refuses (`partitioned mesh == monolith prefix` OR `PARTITION-REFUSE`); a composition
+of M1 disjointness, M2 custody CAS, and the storm prefix property — a partition splits stewards into two sides from
+a shared cut, the FREEZE RULE keeps each side writing only regions it solely owns (refuse rather than guess), a
+duplicated lease can't write on the non-steward side (custody bites), a cross-partition migration freezes, a
+partition-transport forgery refuses on the migration CAS, and a gutted freeze rule's split-brain is caught at
+reunification; the five attacks each land red-first; the CP availability cost is STATED (a mid-transfer region
+freezes; a consensus overlay is a named optional future extension, never folded into the theorem). Next: M5 the
+attested mesh session (a recorded multi-authority playthrough replayed by the gate, built ON TOP of this
+correctness theorem).
 
 ---
 

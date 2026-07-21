@@ -144,8 +144,25 @@ property-sweepable with the Tier-2 harness:
   (randomized layouts, tick schedules, concurrent batches, migration schedules vs the monolith), a
   dropped-write plant proven to make the sweep raise; `mesh` gate stage (4 rows); 10 falsifiers.
   Guarantee #3 delivered. Next: M4 the partitioned mesh (CAP executable) → M5 attested mesh session.
-- **M4 — the partitioned mesh.** The CAP posture made executable: a mesh partition freezes clients at
-  the prefix (storm at mesh scale), detected not silent. Guarantee #5.
+- **M4 — the partitioned mesh. LANDED (`tools/terrain/partition.py`, URDRPRT1).** The CAP posture made
+  executable, and the theorem implicit since `storm`/`wire`/`chunkstate`/`reunify==monolith`: under
+  partition, the system REFUSES TO INVENT HISTORY. THE PARTITION PREFIX THEOREM — every lawful
+  partitioned execution equals a PREFIX of the connected execution; any attempt to extend beyond that
+  certified prefix preserves equality or refuses (`partitioned mesh == monolith prefix` OR
+  `PARTITION-REFUSE`). A COMPOSITION of M1 disjointness, M2 custody CAS, and the storm prefix property:
+  a partition splits the stewards into two SIDES from a shared CUT; each side runs from FROZEN custody
+  and may only admit what it can verify — the FREEZE RULE (a write to a region whose steward is on the
+  unreachable side freezes: refuse rather than guess), custody still bites (a duplicated lease cannot
+  write on the non-steward side), a cross-partition migration freezes, and the migration CAS refuses a
+  partition-transport forgery (a certificate chaining from a custody head the frozen side never had).
+  Reunification is two layers — the freeze rule keeps the sides on disjoint slots (M1), and the overlap
+  check catches a gutted freeze rule's split-brain and refuses. The five attacks (silent divergence /
+  availability forgery / prefix violation / split-brain / partition-transport forgery) each land
+  red-first; four pinned scenes + an 80-partition sweep asserting the theorem + the prefix property
+  (path-membership, no invented history); `partition` gate stage (4 rows); 10 falsifiers. Guarantee #5.
+  THE CP AVAILABILITY COST is STATED, not hidden — a mid-transfer region freezes (no liveness under
+  partition); a consensus/quorum progress overlay is a NAMED, OPTIONAL, FUTURE extension, never folded
+  into the theorem. Next: M5 the attested mesh session (built on this correctness theorem).
 - **M5 — the attested mesh session (the capstone).** A recorded multi-authority playthrough replayed by
   the gate — "server meshing that cannot lie." Guarantee #6.
 
