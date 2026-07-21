@@ -128,8 +128,22 @@ property-sweepable with the Tier-2 harness:
   leases, zk-rollups, Bazel/Adapton dependency caches): the claim is the COMPOSITION under one calculus,
   not any ingredient. DECLARED successors: SEMANTIC dependency obligations + proof-transport (M2 ships the
   structural form); steward IDENTITY signatures (`sealwrit`); cross-placement.
-- **M3 — the meshed simulation.** N authorities owning regions and migrating; `MESH == MONOLITH`
-  swept — `regionprop` generalised from static seams to migrating authorities. Guarantee #3.
+- **M3 — the meshed simulation. LANDED (`tools/terrain/mesh.py`, URDRMSH1).** The capstone ∀-law
+  `MESH == MONOLITH`, delivered as a COMPOSITION: `nway` (M1) certifies each tick's concurrency (a
+  tick's writes admit in parallel iff they form ONE independence round — pairwise-disjoint regions);
+  `migrate` (M2) gates every write (steward-checked admission) and moves authority between ticks
+  (witness-neutral); `terraform` is the neutral MONOLITH oracle (it never consults custody, so a mesh
+  bug cannot hide in its own answer). A tick has two phases — concurrent writes by the current stewards,
+  then authority migrations for the next tick — and for ANY schedule the meshed world witness equals the
+  monolith of the same writes, bit-for-bit. This GENERALIZES `regionprop`'s reunify==monolith from a
+  STATIC partition (fixed seams) to a MIGRATING one: the partition of WORK is fixed (the chunk grid),
+  the partition of AUTHORITY migrates, and the witness is invariant to both — because migration is
+  witness-neutral and concurrent disjoint writes are n-way null. Reject-whole refusals (a non-steward
+  write, an overlapping concurrent batch, a theft migration each refuse the WHOLE tick). Red-first: four
+  pinned scenes (parallel_tick / migrating / handoff_write / refusal) + a seeded 100-mesh sweep
+  (randomized layouts, tick schedules, concurrent batches, migration schedules vs the monolith), a
+  dropped-write plant proven to make the sweep raise; `mesh` gate stage (4 rows); 10 falsifiers.
+  Guarantee #3 delivered. Next: M4 the partitioned mesh (CAP executable) → M5 attested mesh session.
 - **M4 — the partitioned mesh.** The CAP posture made executable: a mesh partition freezes clients at
   the prefix (storm at mesh scale), detected not silent. Guarantee #5.
 - **M5 — the attested mesh session (the capstone).** A recorded multi-authority playthrough replayed by

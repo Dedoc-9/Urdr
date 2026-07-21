@@ -128,6 +128,22 @@ deterministically. Two synthetic scenarios (handoff A→B, relay A→B→C) + se
 + red-first. Honest scope: loopback TCP on one machine (not cross-machine / NAT / internet); a PARTITION
 during handoff is M4's territory, not re-attested here — this is the reliable handoff's happy path made
 real.
+`mesh.py` — `URDRMSH1`, Phase M rung M3: THE MESHED SIMULATION, the capstone `MESH == MONOLITH`. N
+authorities own regions and MIGRATE authority over time; a concurrent multi-steward simulation composes
+to the SAME witness a single monolith computes, bit-for-bit, or refuses — the answer to server meshing
+that cannot lie. A COMPOSITION: `nway` (M1) certifies each tick's concurrency (a tick's writes admit in
+parallel iff they form ONE independence round — pairwise-disjoint regions); `migrate` (M2) gates every
+write (steward-checked admission) and moves authority between ticks (witness-neutral); `terraform` is the
+neutral MONOLITH oracle (never consults custody, so a mesh bug cannot hide in its own answer). A tick is
+two phases — concurrent writes by the current stewards, then authority migrations for the next tick — and
+for ANY schedule the meshed witness equals the monolith. GENERALIZES `regionprop`'s reunify==monolith from
+STATIC seams to MIGRATING authorities: the partition of WORK is fixed (the chunk grid), the partition of
+AUTHORITY migrates, the witness is invariant to both. Reject-whole refusals (non-steward write /
+overlapping concurrent batch / theft migration each refuse the WHOLE tick). Four pinned scenes
+(parallel_tick / migrating / handoff_write / refusal) + a 100-mesh seeded sweep vs the monolith +
+red-first (a dropped write diverges → the sweep raises). DECLARED: the partitioned mesh + CAP liveness
+under a real partition (M4); the attested mesh session (M5); scale (never a measured number until the
+scale bench).
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

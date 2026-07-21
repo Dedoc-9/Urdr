@@ -7161,6 +7161,110 @@ class Gate:
                     "on the named-host law (gate can redden)"
                     if self_ok else "a tampered or anonymized mesh trace was accepted")
 
+    def mesh(self):
+        """Phase M rung M3 — the meshed simulation (URDRMSH1): the capstone MESH == MONOLITH. N
+        authorities own regions and MIGRATE authority over time; a concurrent multi-steward simulation
+        composes to the SAME witness a monolith computes, bit-for-bit, or refuses — regionprop's
+        reunify==monolith generalized from STATIC seams to MIGRATING authorities. A COMPOSITION: `nway`
+        (M1) certifies each tick's concurrency (one independence round), `migrate` (M2) gates every
+        write and moves authority witness-neutrally, `terraform` is the neutral monolith oracle. Rows:
+        scenes (parallel_tick / migrating / handoff_write / refusal reproduce URDRMSH1 digests), law
+        (MESH==MONOLITH on the scenes + witness-neutrality: the same writes under a DIFFERENT migration
+        schedule land the SAME witness + reject-whole refusals: non-steward / overlap / theft),
+        property (a seeded 100-mesh sweep asserts MESH==MONOLITH with non-vacuity), selftest (a dropped
+        monolith write diverges → the sweep REDDENS)."""
+        for d in (os.path.join(ROOT, "tools", "terrain"),):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import mesh as MS
+        except Exception as exc:
+            self.record("mesh", False, f"import failed (mesh): {exc}")
+            return
+        try:
+            ref_ok = all(MS.scene_result(n) == MS.golden(n) for n in MS.SCENES)
+        except Exception as exc:
+            self.record("mesh:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("mesh:scenes", ref_ok,
+                    "parallel_tick + migrating + handoff_write + refusal reproduce URDRMSH1 digests"
+                    if ref_ok else "a mesh scene drifted from its digest")
+        law_ok = True
+        try:
+            fld = MS.flat_world(32)
+            assign = MS._grid16("alfa")
+            # MESH == MONOLITH on a migrating schedule
+            sched = [{"writes": [("alfa", 0, 0, 1, 1, 100), ("alfa", 1, 1, 2, 2, 50)],
+                      "migrations": [(0, 0, "alfa", "bravo")]},
+                     {"writes": [("bravo", 0, 0, 3, 3, 25)], "migrations": []}]
+            law_ok = MS.mesh_run(fld, assign, sched)["witness"] == MS.monolith(fld, sched)
+            # WITNESS-NEUTRALITY: the same writes under a DIFFERENT migration schedule → same witness
+            s_nomig = [{"writes": [("alfa", 0, 0, 1, 1, 100), ("alfa", 1, 1, 2, 2, 50)],
+                        "migrations": []},
+                       {"writes": [("alfa", 0, 0, 3, 3, 25)], "migrations": []}]
+            law_ok = law_ok and (MS.mesh_run(fld, MS._grid16("alfa"), s_nomig)["witness"]
+                                 == MS.mesh_run(fld, assign, sched)["witness"])
+            # concurrency is REAL: a 4-wide tick is one independence round (max_tick_width == 4)
+            quad = MS._quadrants()
+            wide = [{"writes": [("alfa", 0, 0, 1, 1, 11), ("bravo", 2, 0, 1, 1, 22),
+                                ("charl", 0, 2, 1, 1, 33), ("delta", 2, 2, 1, 1, 44)],
+                     "migrations": []}]
+            law_ok = law_ok and MS.mesh_run(fld, quad, wide)["max_tick_width"] == 4
+            # REJECT-WHOLE: non-steward write, overlapping batch, theft migration each refuse
+            for bad in ([{"writes": [("bravo", 0, 0, 1, 1, 5)], "migrations": []}],       # non-steward
+                        [{"writes": [("alfa", 0, 0, 1, 1, 5), ("alfa", 0, 0, 2, 2, 6)],   # overlap
+                         "migrations": []}],
+                        [{"writes": [], "migrations": [(0, 0, "bravo", "charl")]}]):       # theft
+                try:
+                    MS.mesh_run(fld, MS._grid16("alfa"), bad)
+                    law_ok = False
+                except MS.MeshError:
+                    pass
+        except Exception:
+            law_ok = False
+        self.record("mesh-law", law_ok,
+                    "MESH == MONOLITH: a concurrent multi-steward simulation with authority migrating "
+                    "equals the monolith bit-for-bit; migration is witness-neutral at scale (the same "
+                    "writes under a different migration schedule land the same world); a 4-wide tick is "
+                    "one independence round; and a non-steward write, an overlapping concurrent batch, "
+                    "and a theft migration each refuse the WHOLE tick — the certified mesh as a "
+                    "composed theorem"
+                    if law_ok else "the mesh law did not hold")
+        prop_ok = True
+        try:
+            rep = MS.sweep()
+            prop_ok = (rep["digest"] == MS.sweep_golden() and rep["migrations_total"] > 0
+                       and rep["concurrent_ticks"] > 0 and len(rep["steward_counts"]) >= 2
+                       and rep["changed"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("mesh-property", prop_ok,
+                    f"MESH == MONOLITH survived a {MS.SWEEP_COUNT}-mesh seeded sweep — random steward "
+                    "layouts, tick schedules, concurrent write batches, and migration schedules: every "
+                    "meshed world equals the independent terraform monolith; the aggregate digest "
+                    "reproduces its golden (non-vacuous: migrations occur, ticks are genuinely "
+                    "concurrent, layouts vary, the world changes)"
+                    if prop_ok else "the mesh property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = MS._monolith_apply
+            MS._monolith_apply = (lambda field, writes: _orig(field, writes[:-1])
+                                  if writes else _orig(field, writes))
+            try:
+                MS.sweep()
+            except MS.MeshError:
+                red_ok = True
+            finally:
+                MS._monolith_apply = _orig
+            red_ok = red_ok and MS.sweep_digest() == MS.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("mesh-property-selftest", red_ok,
+                    "a monolith oracle that drops a write diverges from the meshed world, so the seeded "
+                    "sweep raises MESH-REFUSE — MESH == MONOLITH is a live falsifier, not decoration — "
+                    "and the module is clean again after the revert"
+                    if red_ok else "the mesh sweep did not redden under a planted monolith defect")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10077,6 +10181,7 @@ def main() -> int:
     gate.nway()
     gate.migrate()
     gate.meshattest()
+    gate.mesh()
     gate.lease()
     gate.testament()
     gate.rollstore()

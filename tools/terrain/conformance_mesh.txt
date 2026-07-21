@@ -1,0 +1,16 @@
+# URDRMSH1 conformance — Phase M rung M3: the meshed simulation (MESH == MONOLITH).
+# Scene digests SHA-256(MAGIC | name | parent | witness | custody | ticks | verdict); the
+# sweep digest is over a fixed-seed (20260721), 100-mesh seeded sweep (randomized steward
+# layouts 2..4, tick schedules, concurrent write batches, and migration schedules), each
+# asserted MESH == MONOLITH against the independent terraform monolith oracle. Pinned AFTER
+# the plants were proven to bite: a dropped monolith write and a dropped mesh write each
+# diverge the meshed world from the monolith and raise MESH-REFUSE; the reject-whole
+# refusals (non-steward write / overlapping concurrent batch / theft migration) hold.
+# Non-vacuity in-sweep: some migration, some genuinely-concurrent tick (>1 write),
+# >=2 distinct steward counts, the world changed. Generalizes regionprop (static seams)
+# to MIGRATING authorities — the partition of authority moves, the witness does not.
+parallel_tick f4611faa560ef0630f10edaae056c9b5c84ceb75533cd2c3a7907d067d40afb3
+migrating f94c04c96ea8a530856777c5f86c5a15296d2e95cc2007201ad8043bda7162c4
+handoff_write 1fe97af134fd1efb9cd310d573c18c41ff0fde65bf812df23c56a0477e4f70f2
+refusal f75944ca852cfd8915f45abb6b7a551ce934a7e87d8ae4e9fbd0d783676c9db8
+sweep bd917fbe8c2ebcb22e2c31a2f288abdf757fe07d752c5888dd167d72fedde8cc

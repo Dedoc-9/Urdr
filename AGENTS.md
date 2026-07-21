@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1149 unit falsifiers / 652 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1159 unit falsifiers / 656 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -454,8 +454,15 @@ processes (the `wireattest` discipline applied to custody) — the migration cer
 a real TCP socket to a separate OS process, deserialized there from raw bytes, and adopted by the unmodified
 `migrate` law in that far process, and the old steward node's post-handoff write is REFUSED across the boundary
 (the double-writer caught over a real socket); sockets stay off-gate, and the gate re-verifies a self-digested
-trace (`spec/attest/mesh_attest.txt`) against the migrate law. Next: M3 meshed simulation (MESH == MONOLITH
-with migrating authorities) → M4 partitioned mesh (CAP executable) → M5 attested mesh session.
+trace (`spec/attest/mesh_attest.txt`) against the migrate law. **M3 — the meshed simulation
+(`tools/terrain/mesh.py`, URDRMSH1) — is LANDED**: the capstone MESH == MONOLITH, a COMPOSITION of `nway`
+(each tick's concurrency certified as one independence round), `migrate` (steward-checked writes + witness-neutral
+migration), and `terraform` (the neutral monolith oracle) — for ANY schedule of concurrent multi-steward ticks
+with authority migrating over time, the meshed world witness equals the monolith bit-for-bit, or the tick refuses
+whole; `regionprop`'s reunify==monolith generalized from static seams to MIGRATING authorities (the partition of
+work is fixed, the partition of authority moves, the witness is invariant to both); red-first, 100-mesh
+property-swept. Next: M4 partitioned mesh (CAP executable — the partition/liveness cost under a real partition) →
+M5 attested mesh session.
 
 ---
 
