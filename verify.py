@@ -6817,6 +6817,114 @@ class Gate:
                     "falsifier, not decoration — and the module is clean again after"
                     if red_ok else "the storm prefix-property sweep did not redden under a wrong oracle")
 
+    def nway(self):
+        """Phase M rung M1 — n-way nullity + the independence lattice (URDRNWY1): the certified mesh's
+        WRITE SCHEDULER. RAN-0's pairwise nullity generalized to N regional edits on pairwise-disjoint
+        authorities — the parallel shard head equals every serial order (zero rebases), overlap
+        refuses, and the shard path is cross-checked against the global monolith (`terraform`, the
+        independent oracle). Rows: scenes (quad / pair_agrees / lattice / overlap reproduce URDRNWY1
+        digests), nullity (the theorem directly + N=2 agrees with RAN-0 + the lattice serializes a
+        shared chunk + overlap refuses in two layers + the certificate re-verifies), property (a
+        seeded 150-batch sweep asserts shard==global with non-vacuous batch sizes), selftest (an
+        off-by-one shard makes the sweep REDDEN)."""
+        for d in (os.path.join(ROOT, "tools", "terrain"),):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import nway as NW
+            import rannull as RN
+            import chunkload as CK
+            import itertools as _it
+        except Exception as exc:
+            self.record("nway", False, f"import failed (nway): {exc}")
+            return
+        try:
+            ref_ok = all(NW.scene_result(n) == NW.golden(n) for n in NW.SCENES)
+        except Exception as exc:
+            self.record("nway:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("nway:scenes", ref_ok,
+                    "quad + pair_agrees + lattice + overlap reproduce URDRNWY1 digests"
+                    if ref_ok else "an nway scene drifted from its digest")
+        law_ok = True
+        try:
+            fld = NW.flat_world(32)
+            man = CK.field_manifest(fld, 8)
+            store = {CK.address(r): r for r in CK.cut(fld, 8).values()}
+            recs = (NW.rrec(fld, 8, 2, 2, 11), NW.rrec(fld, 8, 10, 4, 22),
+                    NW.rrec(fld, 8, 20, 20, 33), NW.rrec(fld, 8, 28, 10, 44))
+            par = NW.nway_parallel_head(man, store, recs)
+            law_ok = all(NW.nway_serial_head(man, store, recs, o) == par
+                         for o in _it.permutations(range(4)))            # parallel == all 24 orders
+            cert, head = NW.nway_null(fld, 8, recs)
+            law_ok = law_ok and NW.check_nway(fld, 8, cert) == head and head == NW._global_head(fld, 8, recs)
+            # N=2 agrees with RAN-0
+            ra, rb = NW.rrec(fld, 8, 2, 2, 11), NW.rrec(fld, 8, 20, 20, 33)
+            law_ok = law_ok and NW.nway_null(fld, 8, (ra, rb))[1] == RN.nullity(fld, 8, ra, rb)[1]
+            # the lattice serializes a repeated chunk into two disjoint rounds
+            r0a = NW.rrec(fld, 8, 1, 1, 5)
+            r0b = NW.rrec(NW._apply_global(fld, 8, (r0a,)), 8, 3, 3, 4)
+            latset = (r0a, NW.rrec(fld, 8, 10, 2, 7), r0b)
+            rounds = NW.independence_rounds(fld, 8, latset)
+            law_ok = law_ok and len(rounds) == 2 and all(NW._disjoint_round(fld, 8, latset, rd) for rd in rounds)
+            # overlap refuses in two layers
+            rc = RN.regional_record(CK.address(CK.cut(fld, 8)[(0, 0)]), 0, 0, 5, 5, 0, 7)
+            try:
+                NW.nway_null(fld, 8, (ra, rc)); law_ok = False
+            except NW.NwayError:
+                pass
+            _fo = NW.first_overlap
+            NW.first_overlap = lambda auths: None
+            try:
+                NW.nway_null(fld, 8, (ra, rc)); law_ok = False   # layer 2 must still catch it
+            except NW.NwayError:
+                pass
+            finally:
+                NW.first_overlap = _fo
+        except Exception:
+            law_ok = False
+        self.record("nway-nullity", law_ok,
+                    "n-way nullity: N disjoint edits' parallel head equals all serial orders (zero "
+                    "rebases) AND the global monolith; N=2 agrees with RAN-0; the independence lattice "
+                    "serializes a shared chunk into disjoint rounds; overlap refuses in two layers; the "
+                    "certificate re-verifies — distributed execution as a composed theorem"
+                    if law_ok else "the n-way nullity law did not hold")
+        prop_ok = True
+        try:
+            rep = NW.sweep()
+            prop_ok = (rep["digest"] == NW.sweep_golden() and len(rep["sizes"]) >= 3
+                       and rep["overlaps_refused"] == rep["scenarios"])
+        except Exception:
+            prop_ok = False
+        self.record("nway-property", prop_ok,
+                    f"the n-way law survived a {NW.SWEEP_COUNT}-batch seeded sweep — every random "
+                    "disjoint batch's shard head equals the independent global monolith and forms one "
+                    "parallel round; every overlapping batch refuses; the aggregate digest reproduces "
+                    "its golden (non-vacuous: batch sizes 2..4)"
+                    if prop_ok else "the n-way property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = RN.shard_apply
+
+            def _bad(ch, rec):
+                p, kx, ky, x, y, oh, nh = RN.restore_regional(rec)
+                return _orig(ch, RN.regional_record(p, kx, ky, x, y, oh, nh + 1))
+            RN.shard_apply = _bad
+            try:
+                NW.sweep()
+            except NW.NwayError:
+                red_ok = True
+            finally:
+                RN.shard_apply = _orig
+            red_ok = red_ok and NW.sweep_digest() == NW.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("nway-property-selftest", red_ok,
+                    "an off-by-one shard makes the shard head diverge from the global monolith, so the "
+                    "seeded sweep raises NWAY-REFUSE — the property gate can redden — and the module is "
+                    "clean again after the revert"
+                    if red_ok else "the n-way sweep did not redden under a planted shard defect")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -9730,6 +9838,7 @@ def main() -> int:
     gate.commute()
     gate.commuteprop()
     gate.rannull()
+    gate.nway()
     gate.lease()
     gate.testament()
     gate.rollstore()

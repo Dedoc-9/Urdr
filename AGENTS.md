@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1116 unit falsifiers / 640 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1125 unit falsifiers / 644 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -436,9 +436,12 @@ Seam Composition → `MESH == MONOLITH`; `commute` → same-region concurrency; 
 replication with partition→prefix; `sealwrit` → authority identity. CAP posture STATED: CP
 (consistency + partition-tolerance, availability sacrificed — refuse rather than guess), the
 availability cost declared, a consensus progress layer left as a named optional overlay. Six
-falsifiable guarantees and a five-rung roadmap (M1 lease lattice / n-way scheduler → M2 migration →
-M3 meshed simulation → M4 partitioned mesh → M5 attested mesh session) are in the brief; each lands
-red-first when built. Nothing is built yet — grades are DECLARED / SPECULATIVE→SCOPED.
+falsifiable guarantees and a five-rung roadmap are in the brief; each lands red-first when built.
+**M1 — the lease lattice / n-way nullity scheduler — is LANDED** (`tools/terrain/nway.py`, URDRNWY1:
+RAN-0's pairwise nullity generalized to N disjoint authorities — parallel == all serial orders, zero
+rebases; the independence lattice as the write scheduler; the shard path cross-checked against the
+global monolith; red-first, property-swept). Next: M2 authority migration (lease transfer) → M3
+meshed simulation (MESH == MONOLITH) → M4 partitioned mesh (CAP executable) → M5 attested mesh session.
 
 ---
 

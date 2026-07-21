@@ -1,0 +1,11 @@
+# URDRNWY1 conformance — Phase M rung M1: n-way nullity + the independence lattice. Scene digests
+# SHA-256(MAGIC | name | parent | head | edits | rounds | verdict); the sweep digest is over a
+# fixed-seed (20260721), 150-batch seeded sweep. Pinned AFTER: an off-by-one shard mutant was proven
+# to make the sweep raise NWAY-REFUSE (caught by the independent global-monolith oracle), and the
+# overlap refusal was shown to hold in TWO layers (the disjointness check AND parallel!=serial).
+# Non-vacuity in-sweep: >=3 distinct batch sizes, every overlapping batch refused.
+quad 95efefd0220016c6b4473656daa2d65ec5e2a5c742aee5a783ebacd6b6bb4a6a
+pair_agrees 8549b3d0e6c73fcf80ce0d39eff6f79cdcb55e3c9d1cc3175a5ec2ecdd1ad5a8
+lattice c8a88501d0aeadbb38dbab603ae0a8fd8f54c8b9b939f49cde872e337a5aded2
+overlap 0a15059359f81b318cab47a3090c646a13e4ab4bf19d4c313dac6a05723a328f
+sweep a6ca490f465141037471e08fcb7432ba277409ec90b4a3c36bc140a1884f30a7

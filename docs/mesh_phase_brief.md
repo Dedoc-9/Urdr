@@ -100,9 +100,15 @@ property-sweepable with the Tier-2 harness:
 
 ## The rung roadmap (each red-first, gated, one commit)
 
-- **M1 — the lease lattice / n-way nullity scheduler.** Generalise RAN-0's pairwise nullity to N
-  authorities; the independence lattice as a queryable allocator (`lease`'s declared successor).
-  Guarantee #4, property-swept.
+- **M1 — the lease lattice / n-way nullity scheduler. LANDED (`tools/terrain/nway.py`, URDRNWY1).**
+  RAN-0's pairwise nullity generalised to N regional edits on pairwise-disjoint authorities: the
+  parallel shard head equals every one of the N! serial orders, bit-for-bit, ZERO rebases; overlap is
+  `NWAY-REFUSE`; the shard path is cross-checked against the global monolith (`terraform`, the
+  independent oracle). The independence lattice (`independence_rounds`) partitions a batch into parallel
+  rounds — the queryable allocator `lease` named. Four pinned scenes (quad / pair_agrees=RAN-0 at N=2 /
+  lattice / overlap), a `check_nway` certificate, a 150-batch seeded sweep (shard==global, non-vacuous
+  sizes 2..4), and a `nway` gate stage (4 rows) — red-first, the off-by-one shard mutant proven to
+  redden. Guarantee #4 delivered; #1/#3 (single-writer, MESH==MONOLITH) build on it in M2/M3.
 - **M2 — authority migration (lease transfer).** The migration protocol and the witness-preservation
   law. Guarantees #1, #2, property-swept.
 - **M3 — the meshed simulation.** N authorities owning regions and migrating; `MESH == MONOLITH`

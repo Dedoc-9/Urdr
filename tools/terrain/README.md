@@ -87,6 +87,15 @@ renews from the new chunk (the lease chain is the region's write history); and e
 `LEASE-REFUSE` in two proven layers — `admit` fetches by the CURRENT slot, never the lease's
 digest, because the anamnesis store still holds the stale bytes and a stale fetch would silently
 revert the interval's edits (the lost update, made impossible rather than avoided).
+`nway.py` — `URDRNWY1`, Phase M rung M1: N-WAY NULLITY + THE INDEPENDENCE LATTICE — the certified
+mesh's write scheduler. RAN-0's pairwise nullity generalised to N regional edits on pairwise-disjoint
+authorities: the parallel shard head equals EVERY one of the N! serial orders bit-for-bit, ZERO
+rebases; overlap is `NWAY-REFUSE` (in two layers — the disjointness check AND parallel≠serial). The
+independence lattice (`independence_rounds`) partitions a batch into parallel rounds — the queryable
+allocator `lease` named. The shard path is cross-checked against the global monolith (`terraform`, the
+independent oracle); N=2 reproduces RAN-0's pairwise head (a faithful generalization). Four pinned
+scenes + a variable-N `check_nway` certificate + a 150-batch seeded sweep + red-first (an off-by-one
+shard makes the sweep raise). Distributed execution across authorities as a composed theorem.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the
