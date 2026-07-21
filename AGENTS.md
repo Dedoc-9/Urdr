@@ -428,6 +428,18 @@ authority layer and is NEVER claimed as structurally prevented; Tier 3 (mutation
 = off-gate DECLARED metrics, no rung dependency. The "when" for each is pinned in the brief's
 schedule.
 
+**Phase M — the certified mesh (DESIGN PASS landed: `docs/mesh_phase_brief.md`).** With the pre-mesh
+hardening arc complete (Tier 1, Tier 2b, Tier 2 all landed), Phase M is opened design-first. It is a
+COMPOSITION, not a new mechanism: `lease` → authority migration as lease transfer (single-writer per
+region, structural via the CAS); `rannull`/RAN-0 → the write scheduler (n-way nullity); `worldregion`
+Seam Composition → `MESH == MONOLITH`; `commute` → same-region concurrency; `wire`+`storm` →
+replication with partition→prefix; `sealwrit` → authority identity. CAP posture STATED: CP
+(consistency + partition-tolerance, availability sacrificed — refuse rather than guess), the
+availability cost declared, a consensus progress layer left as a named optional overlay. Six
+falsifiable guarantees and a five-rung roadmap (M1 lease lattice / n-way scheduler → M2 migration →
+M3 meshed simulation → M4 partitioned mesh → M5 attested mesh session) are in the brief; each lands
+red-first when built. Nothing is built yet — grades are DECLARED / SPECULATIVE→SCOPED.
+
 ---
 
 ## 11. The comparative position (web-reviewed) — what Hainuwele is, next to what exists
