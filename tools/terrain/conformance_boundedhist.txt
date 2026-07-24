@@ -1,0 +1,17 @@
+# URDRBHO1 conformance — the bounded-history optimizer: where look-ahead earns teeth on the REAL
+# model. A real client caches only H keyframes and must EVICT; a citation is lawful only if its keyframe
+# is still cached, and which slot to evict on a miss is a genuine multi-tick decision that COUPLES the
+# ticks. Greedy LRU eviction THRASHES on a cyclic pattern (H < cycle) — it evicts the keyframe about to be
+# used next — while BELADY's optimal replacement (evict the keyframe reused furthest in the future, a
+# bounded W-tick look-ahead) maximises hits. So the DP (Belady) produces a strictly smaller wire than
+# greedy (LRU) — the inversion of URDRLKA1 that a bounded-history model was predicted to give. Evictions
+# are SIGNALED on the wire so the client mirrors the cache deterministically (the eviction cost counted).
+# Scene digests SHA-256(MAGIC | name | H | lru-cost | belady-cost | verdict); the sweep digest is over a
+# fixed-seed (20260724) 120-sequence sweep. Pinned AFTER the plants were proven to bite: a wrong-slot CITE
+# reconstructs the wrong key; an out-of-range eviction slot and an empty-slot CITE are refused; the
+# wall-clock plant diverges. Composition over URDRLKA1/.../URDRPCP1 — NO new glyph (kernel frozen).
+teeth 4a232b75c02b221af4cdbc24bf49c0d9a3edee1c93521c31676f3d71e426ac09
+independent b062bf2a7d11d119555170f601c38c9d65bac85b2d67ea93f39cbc87557b3385
+optimal 915cd5d5505c4bc1be063e9114c65f684aefbcb1dc676e4a6140eacfb2e8482f
+bounded 886bc17d3e4704594b90689d835c11fb49dc1c9921b94db3152c30f6fb2b9322
+sweep a93660d1cd5deb02ccae7c54db3b47e5e1f31b0597349a302890809ec9674e8d

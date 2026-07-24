@@ -289,8 +289,21 @@ the optimizer-has-teeth on the coupled model, the certificate detects coupling (
 representation-independence, a bounded window (an over-window search refuses), and determinism. Four scenes
 (optimal / teeth / independent / bounded) + an 80-world sweep. THE OPTIMIZATION ARC CLOSED WITH A PROOF:
 adaptcite picks the cheapest lawful spelling, lookahead certifies it is globally optimal here. Declared
-successor: a bounded-HISTORY optimizer (where citing risks eviction, ticks couple, and look-ahead gains
-teeth).
+successor LANDED as `boundedhist.py` below.
+`boundedhist.py` — `URDRBHO1`, the BOUNDED-HISTORY OPTIMIZER: where look-ahead earns its teeth on the REAL
+model (composition, NO NEW GLYPH; design in `docs/boundedhist_brief.md`). A real client caches only H
+keyframes and must EVICT; a citation is lawful only if its keyframe is still cached, and which slot to evict
+on a miss COUPLES the ticks. On a cyclic pattern (H < cycle) greedy LRU is PESSIMAL (0 hits — it evicts the
+key about to be used), while BELADY's optimal replacement (evict the key reused furthest ahead, a bounded
+W-tick look-ahead) wins — so the DP (Belady) produces a strictly smaller wire than greedy (LRU): 619 vs 960
+bytes on the pinned 3-cycle. The inversion URDRLKA1 predicted. Evictions are SIGNALED on the wire so the
+client mirrors the cache deterministically (the eviction cost counted). Guarantees (each red-first):
+look-ahead-has-teeth, Belady-optimal, representation-independence (a wrong-slot CITE reconstructs wrong —
+caught), a bounded cache (out-of-range / empty slot refused), and determinism. Four scenes (teeth /
+independent / optimal / bounded) + a 120-sequence sweep. THE ARC CLOSED ON BOTH SIDES: URDRLKA1 (independent
+ticks → greedy optimal, look-ahead unnecessary) and URDRBHO1 (coupled ticks → look-ahead beats greedy);
+look-ahead's value is EXACTLY the cross-tick coupling, measured not assumed. Declared successor: a
+byte-accurate wire + the byteacct-budget interaction under a shared cache.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

@@ -8304,6 +8304,106 @@ class Gate:
                     "through the certificate layer too — and the module is clean again after the revert"
                     if red_ok else "the lookahead sweep did not redden under a leak-the-hidden manifest")
 
+    def boundedhist(self):
+        """The bounded-history optimizer (URDRBHO1): where look-ahead earns its teeth on the REAL model. A
+        real client caches only H keyframes and must evict; a citation is lawful only if its keyframe is
+        still cached, and which slot to evict on a miss couples the ticks. Greedy LRU eviction THRASHES on a
+        cyclic pattern while a bounded-window Belady optimum wins — so the DP (Belady) produces a strictly
+        smaller wire than greedy (LRU), the inversion URDRLKA1 predicted. Evictions are signaled on the wire
+        so the client mirrors the cache deterministically. Composition over URDRLKA1 — no new glyph (kernel
+        frozen); see docs/boundedhist_brief.md. Rows: scenes (teeth / independent / optimal / bounded
+        reproduce URDRBHO1 digests), law (look-ahead beats greedy + LRU thrashes + Belady is optimal +
+        representation-independence + a wrong-slot CITE reconstructs wrong + a bounded cache refuses an
+        out-of-range/empty slot + deterministic), property (a seeded 120-sequence sweep with non-vacuity),
+        selftest (a broken reconstruction makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import boundedhist as BH
+        except Exception as exc:
+            self.record("boundedhist", False, f"import failed (boundedhist): {exc}")
+            return
+        try:
+            ref_ok = all(BH.scene_result(n) == BH.golden(n) for n in BH.SCENES)
+        except Exception as exc:
+            self.record("boundedhist:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("boundedhist:scenes", ref_ok,
+                    "teeth + independent + optimal + bounded reproduce URDRBHO1 digests"
+                    if ref_ok else "a boundedhist scene drifted from its digest")
+        law_ok = True
+        try:
+            acc = BH._cyclic(3, 8); H = 2
+            # LOOK-AHEAD HAS TEETH: Belady beats LRU; LRU thrashes to zero hits
+            law_ok = BH.cost(acc, H, "belady") < BH.cost(acc, H, "lru") \
+                and BH.encode(acc, H, "lru")["hits"] == 0 and BH.encode(acc, H, "belady")["hits"] > 0
+            # Belady optimal; never worse than LRU across a few shapes
+            acc4 = BH._cyclic(4, 6)
+            law_ok = law_ok and BH.encode(acc4, 3, "belady", window=len(acc4))["misses"] \
+                == BH._optimal_misses(acc4, 3)
+            for cyc, reps, hh in ((3, 8, 2), (4, 5, 2), (5, 4, 3)):
+                a = BH._cyclic(cyc, reps)
+                law_ok = law_ok and BH.cost(a, hh, "belady") <= BH.cost(a, hh, "lru")
+            # representation-independence + a wrong-slot CITE reconstructs the wrong key
+            law_ok = law_ok and BH.representation_independent(acc, H)
+            for policy in ("lru", "belady"):
+                law_ok = law_ok and BH.client_reconstruct(BH.encode(acc, H, policy)["wire"], H) == acc
+            wire, honest = BH._forge_wrong_slot(acc, H)
+            law_ok = law_ok and BH.client_reconstruct(wire, H) != honest
+            # bounded cache: an out-of-range slot and an empty-slot CITE are refused
+            law_ok = law_ok and BH.bounded_cache_ok(acc, H, "belady")
+            for bad in ([("full", 0, H)], [("cite", 0)]):
+                try:
+                    BH.client_reconstruct(bad, H)
+                    law_ok = False
+                except BH.BoundedHistError:
+                    pass
+            # deterministic; the wall-clock plant diverges
+            law_ok = law_ok and BH.encode(acc, H, "belady")["wire"] == BH.encode(acc, H, "belady")["wire"] \
+                and BH.encode(acc, H, "belady", _clock=lambda: 1)["wire"] != BH.encode(acc, H, "belady")["wire"]
+        except Exception:
+            law_ok = False
+        self.record("boundedhist-law", law_ok,
+                    "bounded-history optimizer: a bounded H-slot keyframe cache COUPLES the ticks (a citation "
+                    "needs a cached keyframe), so greedy LRU THRASHES on a cycle (zero hits) while look-ahead "
+                    "BELADY wins — the DP produces a strictly smaller wire than greedy on the REAL model (the "
+                    "inversion URDRLKA1 predicted), and Belady is the optimal replacement; every policy "
+                    "reconstructs the same keys (representation-independence — a wrong-slot CITE reconstructs "
+                    "wrong and is caught), the cache is bounded (an out-of-range or empty slot refuses), and "
+                    "the client mirrors the wire deterministically (the wall-clock plant diverges)"
+                    if law_ok else "the boundedhist law did not hold")
+        prop_ok = True
+        try:
+            rep2 = BH.sweep()
+            prop_ok = rep2["digest"] == BH.sweep_golden() and rep2["teeth_seen"] > 0
+        except Exception:
+            prop_ok = False
+        self.record("boundedhist-property", prop_ok,
+                    f"the bounded-history optimizer survived a {BH.SWEEP_COUNT}-sequence seeded sweep — random "
+                    "recurring access patterns under a binding cache: representation-independence (every "
+                    "policy reconstructs the true keys), bounded cache, Belady optimality (== the offline "
+                    "optimum), Belady never worse than LRU, and deterministic encoding; the aggregate digest "
+                    "reproduces its golden (non-vacuous: look-ahead strictly beat greedy on most sequences)"
+                    if prop_ok else "the boundedhist property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = BH.client_reconstruct
+            BH.client_reconstruct = lambda wire, H: [-1]      # a broken reconstruction
+            try:
+                BH.sweep()
+            except BH.BoundedHistError:
+                red_ok = True
+            finally:
+                BH.client_reconstruct = _orig
+            red_ok = red_ok and BH.sweep_digest() == BH.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("boundedhist-property-selftest", red_ok,
+                    "a broken client reconstruction makes the representation-independence check fail, so the "
+                    "seeded sweep raises BOUNDEDHIST-REFUSE — the semantics-preserving guarantee is a live "
+                    "falsifier — and the module is clean again after the revert"
+                    if red_ok else "the boundedhist sweep did not redden under a broken reconstruction")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11231,6 +11331,7 @@ def main() -> int:
     gate.citation()
     gate.adaptcite()
     gate.lookahead()
+    gate.boundedhist()
     gate.lease()
     gate.testament()
     gate.rollstore()

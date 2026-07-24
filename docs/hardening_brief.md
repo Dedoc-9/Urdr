@@ -245,9 +245,13 @@ honestly claim and to where it lands:
      from correctness. And by the BOUNDED LOOK-AHEAD OPTIMALITY CERTIFICATE (`tools/terrain/lookahead.py`,
      URDRLKA1, `docs/lookahead_brief.md`): a deterministic Viterbi DP that PROVES greedy representation
      selection is globally optimal on this model (cross-tick independence → transition cost zero), and has
-     teeth (it beats greedy on a synthetic coupled model). EIGHT capabilities on one lens; the temporal
-     layer proves which history may be reused, which spelling is cheapest, AND that the cheapest spelling is
-     globally optimal — the optimization arc closed with a proof, not a heuristic's edge.
+     teeth (it beats greedy on a synthetic coupled model). And by the BOUNDED-HISTORY OPTIMIZER
+     (`tools/terrain/boundedhist.py`, URDRBHO1): where a real client's bounded keyframe cache COUPLES the
+     ticks, look-ahead (Belady) provably beats greedy (LRU) on the real model — the inversion URDRLKA1
+     predicted — while representation-independence still holds. NINE capabilities on one lens; the
+     optimization arc is proven on BOTH sides of the coupling boundary (independent ticks → greedy optimal;
+     coupled ticks → look-ahead wins), so look-ahead's value is measured as exactly the cross-tick coupling,
+     not assumed.
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual
