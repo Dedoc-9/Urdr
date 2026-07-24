@@ -7504,6 +7504,11 @@ class Gate:
             law_ok = law_ok and PC.probe(PC.perceive({1: (5, 0, PC._d(1))}, frozenset(), away), 1) is None
             law_ok = law_ok and PC.verify_transcript(ents, walls, cl, base) \
                 and not PC.verify_transcript(ents, walls, cl, PC.forge_citation(base, 1))
+            # the CLOSED-WORLD property (∅^∅): the reconstruction holds exactly the manifested set, and
+            # the open-template mistake (a null slot leaking a hidden id) is caught
+            law_ok = law_ok and PC.is_closed_world(ents, walls, cl, base) \
+                and set(PC.reconstruct(base)) == set(PC.manifest(ents, walls, cl)) \
+                and not PC.is_closed_world(ents, walls, cl, PC._perceive_open(ents, walls, cl))
         except Exception:
             law_ok = False
         self.record("perception-law", law_ok,
@@ -7511,7 +7516,9 @@ class Gate:
                     "set; a change to a hidden (behind / occluded) entity yields a BYTE-IDENTICAL "
                     "transcript while a visible change alters it; a wallhack probe finds NOTHING for a "
                     "hidden entity; the transcript is constant-shape (no count side-channel); the margin "
-                    "band reveals early but bounded; ∅→1 mints on turning; and a forged citation reddens"
+                    "band reveals early but bounded; ∅→1 mints on turning; a forged citation reddens; and "
+                    "the client reconstruction is a CLOSED WORLD (∅^∅) — exactly the manifested set, no "
+                    "addressable slot for any absent entity, the open-template null-slot mistake caught"
                     if law_ok else "the perception law did not hold")
         prop_ok = True
         try:

@@ -238,6 +238,44 @@ def verify_transcript(entities, walls, cl, transcript):
     return True
 
 
+def reconstruct(transcript):
+    """THE CLIENT'S CLOSED WORLD (∅^∅): parse the transcript into the client's reconstructed state — a
+    dict {eid: (x, y, cite)} of ONLY the manifested entities. Padding (Ø) is DROPPED, never materialized
+    as a null slot: the client holds a closed reality, not an open template with empty slots for possible
+    hidden entities. There is no addressable entry — not even null — for anything absent."""
+    return {eid: (x, y, cite) for (eid, x, y, cite) in _parse(transcript)}
+
+
+def is_closed_world(entities, walls, cl, transcript):
+    """THE CLOSED-WORLD PROPERTY (the ∅^∅ hardening): the reconstructed client state contains EXACTLY the
+    manifested set — no addressable slot, not even null, for any absent entity. Enumerating the WHOLE
+    reconstruction reveals nothing about the hidden set (a strictly stronger statement than per-entity
+    `probe → None`: the entire client reality is closed, not just each queried entity)."""
+    return set(reconstruct(transcript)) == set(_manifest(entities, walls, cl))
+
+
+def _perceive_open(entities, walls, cl):
+    """A FALSIFIER TOOL (not a law): the OPEN-TEMPLATE mistake — a slot for EVERY entity, hidden ones as a
+    NULL zeroed placeholder that still carries the real id (the standard-engine "empty slot waiting to be
+    filled", which leaks the EXISTENCE of a hidden entity even at zero position). The closed-world
+    property must catch that the client can now address a hidden entity."""
+    man = set(_manifest(entities, walls, cl))
+    slots = []
+    for eid in sorted(entities):
+        if eid in man:
+            ex, ey, cite = entities[eid]
+            slots.append(_slot(eid, ex, ey, cite))
+        else:
+            slots.append(_slot(eid, 0, 0, "00" * DIGEST_BYTES))    # a null slot — but it carries the id
+    slots = slots[:CAPACITY]
+    body = bytearray(MAGIC) + CAPACITY.to_bytes(4, "big")
+    for s in slots:
+        body += s
+    for _ in range(CAPACITY - len(slots)):
+        body += _PAD_SLOT
+    return bytes(body) + hashlib.sha256(bytes(body)).digest()
+
+
 def forge_citation(transcript, eid):
     """A falsifier tool: rewrite one manifested slot's cited digest (a lie the view_witness contract must
     catch). Never a law."""
@@ -386,7 +424,7 @@ def sweep(seed=SWEEP_SEED, count=SWEEP_COUNT):
     hh = hashlib.sha256()
     hh.update(MAGIC)
     r = _LCG(seed)
-    hidden_checked = visible_seen = occluded_seen = 0
+    hidden_checked = visible_seen = occluded_seen = closed_checked = 0
     for s in range(count):
         entities, walls, cl = gen_scenario(r)
         before = world_digest(entities, walls)
@@ -397,6 +435,10 @@ def sweep(seed=SWEEP_SEED, count=SWEEP_COUNT):
             raise PerceptionError(f"scenario {s}: transcript length {len(base)} is not constant-shape")
         if not verify_transcript(entities, walls, cl, base):
             raise PerceptionError(f"scenario {s}: the transcript fails its own citation contract")
+        if not is_closed_world(entities, walls, cl, base):        # ∅^∅ — the reconstruction is closed
+            raise PerceptionError(f"scenario {s}: the client reconstruction is not a closed world — a "
+                                  f"hidden entity is addressable")
+        closed_checked += 1
         # HIDDEN-SET INVARIANCE — mutate the ground-truth-hidden entity (id 2, behind): byte-identical
         moved = dict(entities); moved[2] = (entities[2][0], entities[2][1], _d(2000 + s))
         if perceive(moved, walls, cl) != base:
@@ -421,7 +463,7 @@ def sweep(seed=SWEEP_SEED, count=SWEEP_COUNT):
     if occluded_seen == 0:
         raise PerceptionError("NON-VACUITY: occlusion was never exercised")
     return {"scenarios": count, "hidden_checked": hidden_checked, "visible_seen": visible_seen,
-            "occluded_seen": occluded_seen, "digest": hh.hexdigest()}
+            "occluded_seen": occluded_seen, "closed_checked": closed_checked, "digest": hh.hexdigest()}
 
 
 def sweep_digest(seed=SWEEP_SEED, count=SWEEP_COUNT):

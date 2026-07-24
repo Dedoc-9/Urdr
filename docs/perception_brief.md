@@ -115,6 +115,27 @@ channel those systems are publicly known to leave partially open.
 6. **LAWFUL MINT + CITATION** — moving the viewpoint mints an entering entity (∅→1) with a correct
    authority citation; a forged citation reddens.
 
+## The closed-world (∅^∅) hardening (2026-07-24)
+
+A small follow-on suite formalizing the operator's ∅^∅ refinement: witnessed absence proves the
+*transcript* is witness-blind and constant-shape; this proves the *reconstruction* of that transcript is a
+CLOSED WORLD. `reconstruct(transcript)` returns exactly `{eid: (x, y, cite)}` for the manifested set, and
+`is_closed_world(entities, walls, client, transcript)` holds iff `set(reconstruct(t)) == set(manifest(...))`
+— the client holds exactly what it may perceive, with NO addressable slot (not even a null one) for any
+absent entity. The reading is ∅^∅ = the empty function, the one closed map (`0^0 = 1`): change over an
+empty possibility is not a reserved slot awaiting a value, it is a closed reality — the perceiver allocates
+no resting potential for the un-manifested.
+
+The falsifier that earns it (L15): `_perceive_open`, the standard-engine mistake — an OPEN template that
+keeps a null "empty slot" per entity and so writes a padded record CARRYING every hidden entity's id. It is
+proven to leak the hidden identities into the reconstruction and to fail `is_closed_world`, while the honest
+`perceive` passes; a companion falsifier proves the wire padding (Ø) is anonymous, carrying no absent
+entity's id. The checks are assert-only over the existing 120-world sweep, so the four conformance digests
+are UNCHANGED — the guarantee tightens the proof, not the protocol. It remains a property of THIS protocol
+(an un-addressed absence cannot be probed), not a comparative claim; NO new glyph — Ø stays the named
+view-layer sentinel `PAD_EID`. `tests/test_perception.py` grew 12 → 15 falsifiers; the `perception-law`
+gate row now also asserts the reconstruction is closed and the open-template mistake is caught.
+
 ## Honest scope & boundaries (does_not_show)
 
 - **The margin is a real, bounded, DECLARED leak — not zero.** Pop-in cannot be avoided without leaking a

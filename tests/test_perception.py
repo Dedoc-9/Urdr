@@ -146,6 +146,41 @@ class TheMarginAndMint(unittest.TestCase):
         self.assertFalse(PC.verify_transcript(entities, walls, client, forged))
 
 
+class TheClosedWorld(unittest.TestCase):
+    """The ∅^∅ hardening: the client's reconstructed state is a CLOSED WORLD — it holds exactly the
+    manifested set, with no addressable slot (not even null) for any absent entity. It does not hold an
+    empty slot waiting to be filled; it holds a closed reality."""
+
+    def test_reconstruction_is_a_closed_world(self):
+        entities, walls, client = _world()
+        t = PC.perceive(entities, walls, client)
+        world = PC.reconstruct(t)
+        man = set(PC.manifest(entities, walls, client))
+        self.assertEqual(set(world), man)
+        for hidden in (3, 4, 5):
+            self.assertNotIn(hidden, world, f"hidden entity {hidden} is addressable in the reconstruction")
+        self.assertTrue(PC.is_closed_world(entities, walls, client, t))
+
+    def test_open_template_plant_bites(self):
+        """The standard-engine mistake — an OPEN template that holds a null 'empty slot' carrying every
+        hidden entity's id — leaks the hidden IDENTITIES; the closed-world property must catch it, while
+        the honest perceive is a closed world."""
+        entities, walls, client = _world()
+        leaky = PC._perceive_open(entities, walls, client)
+        self.assertIn(3, PC.reconstruct(leaky), "the open template should leak the hidden id")
+        self.assertFalse(PC.is_closed_world(entities, walls, client, leaky),
+                         "the closed-world property failed to catch the open template")
+        self.assertTrue(PC.is_closed_world(entities, walls, client,
+                                           PC.perceive(entities, walls, client)))
+
+    def test_padding_carries_no_identity(self):
+        """The wire padding (Ø) is anonymous — it carries no hidden entity's id, so the reconstruction
+        cannot recover one from it."""
+        one = {1: (5, 0, _digest(1))}
+        t = PC.perceive(one, frozenset(), PC.client(0, 0, 1, 0, 2, 2, 400, 0))
+        self.assertEqual(set(PC.reconstruct(t)), {1})
+
+
 class TheSweep(unittest.TestCase):
     def test_sweep_matches_golden_and_non_vacuous(self):
         d1 = PC.sweep_digest()
