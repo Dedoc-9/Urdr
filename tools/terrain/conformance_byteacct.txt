@@ -1,0 +1,18 @@
+# URDRBYT1 conformance — proof-carrying byte accounting: the wire refinement of the scheduler under a
+# real BYTE budget. The byte budget B IS the constant packet size — every tick emits EXACTLY B bytes
+# (variable-size delta records: REMOVE/MOVE/FULL with canonical zigzag-varints, then anonymous padding).
+# Mandatory records (departures + entrants) fit first or the tick REFUSES; discretionary position updates
+# are the deterministic MAXIMAL PREFIX (scheduler priority order) that fits. The client reconstructs the
+# manifested set from the wire alone; the reported byte total equals the canonical re-serialization.
+# Scene digests SHA-256(MAGIC | name | lens | budget | run-digest | verdict); the sweep digest is over a
+# fixed-seed (20260724) 70-sequence x 3-budget x 12-tick sweep asserting the byte budget, closed-world
+# from the wire, accounting fidelity, client==server replay, priority-prefix packing, hidden-set
+# invariance, and determinism. Pinned AFTER the plants were proven to bite: _pack_firstfit (gap-fill) and
+# _pack_smallest_first (starves large updates) break the prefix; _pack_overrun+_serialize_nopad exceed B;
+# _serialize_hidden smuggles bytes into padding; _serialize_noncanonical is rejected; _run_drop_departure
+# leaves a ghost. Composition over URDRSCH1/URDRTHR1/URDRANA1/URDRPCP1 — NO new glyph (kernel frozen).
+budget 8c703d4d49616ae648e3ad9927422aac17099f8653d1c453483da478e3e5d116
+prefix d0046633b233778db601923023bb455d6058c085e2db83e881b33c1ecb4621fd
+account 3d13d8f288fc857c5eb0a895d63f0669bab814194d911d09cb83b401694815dd
+reduce 036302a9ba64287ba45ec4c742cb2f6340d249aa04f670541cfb6e7750462828
+sweep e1d260a52cd5bd5fd29539f51769a9a2a8a21f86dfe87a87845ec9f96922d225

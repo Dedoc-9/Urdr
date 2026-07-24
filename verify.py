@@ -7873,6 +7873,125 @@ class Gate:
                     "the module is clean again after the revert"
                     if red_ok else "the schedule sweep did not redden under a leak-the-hidden manifest")
 
+    def byteacct(self):
+        """Proof-carrying byte accounting (URDRBYT1): the wire refinement of the scheduler under a real BYTE
+        budget, where updates have different serialized costs. The byte budget B IS the constant packet size
+        (variable-size delta records + anonymous padding to B), so byte-accounting composes with the
+        constant-shape hardening. Mandatory records (departures + entrants) fit first or the tick refuses;
+        discretionary updates are the deterministic maximal PREFIX (scheduler priority) that fits. The
+        client reconstructs the manifested set from the wire alone, and the byte total is the canonical
+        re-serialization. Composition over URDRSCH1 — no new glyph (kernel frozen); see
+        docs/byteacct_brief.md. Rows: scenes (budget / prefix / account / reduce reproduce URDRBYT1
+        digests), law (every packet exactly B + the overrun and hidden-padding plants caught + priority
+        prefix + the fragmentation and starvation plants caught + closed-world from the wire + the
+        drop-departure ghost caught + accounting fidelity + client==server replay + canonical serialization
+        + deterministic), property (a seeded 70-sequence × 3-budget sweep with non-vacuity), selftest (a
+        leak-the-hidden manifest makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import byteacct as BY
+            import anamorphosis as AN
+            import perception as PC
+        except Exception as exc:
+            self.record("byteacct", False, f"import failed (byteacct): {exc}")
+            return
+        try:
+            ref_ok = all(BY.scene_result(n) == BY.golden(n) for n in BY.SCENES)
+        except Exception as exc:
+            self.record("byteacct:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("byteacct:scenes", ref_ok,
+                    "budget + prefix + account + reduce reproduce URDRBYT1 digests"
+                    if ref_ok else "a byteacct scene drifted from its digest")
+        law_ok = True
+        try:
+            L = AN.lens(0, 0)
+            ticks, cl = BY._contended()
+            rep = BY.run(ticks, cl, L, BY._SB)
+            # every packet is exactly B; contention real; closed-world from the wire; accounting attested
+            law_ok = BY.byte_budget_ok(rep) and rep["deferrals"] > 0 and all(len(p) == BY._SB
+                                                                             for p in rep["packets"])
+            cstate = {}
+            for t, (e, w) in enumerate(ticks):
+                law_ok = law_ok and BY.is_closed_world(e, w, cl, L, rep["packets"][t], cstate)
+                cstate = BY.client_apply(cstate, rep["packets"][t])
+            law_ok = law_ok and BY.accounting_fidelity(rep) and BY.client_matches_server(rep) \
+                and BY.prefix_correct(ticks, cl, L, BY._SB)
+            # the overrun and hidden-padding plants are caught
+            over_recs = [BY.rec_full(4, 3, 0, BY._d(4)), BY.rec_full(5, 4, 0, BY._d(5)), BY.rec_move(1, 1, 1)]
+            law_ok = law_ok and len(BY._serialize_nopad(0, BY._SB, over_recs)) != BY._SB
+            hid = BY._serialize_hidden(0, BY._SB, [BY.rec_full(1, 3, 0, BY._d(1))])
+            law_ok = law_ok and not BY.accounting_fidelity({"packets": [hid], "used_total": BY.parse(hid)[3]})
+            # the fragmentation and smallest-first (starvation) plants diverge from the maximal prefix
+            disc = [BY.rec_full(4, 3, 0, BY._d(4)), BY.rec_full(5, 4, 0, BY._d(5)), BY.rec_move(1, 1, 1)]
+            law_ok = law_ok and BY._pack([], disc, 46)[0] == disc[:1] \
+                and BY._pack_firstfit([], disc, 46)[0] != BY._pack([], disc, 46)[0]
+            st, scl = BY._starve(20)
+            hon_stale = BY.run(st, scl, L, BY._SB)["max_stale"]
+            sf_stale = BY.run(st, scl, L, BY._SB, _pack_fn=BY._pack_smallest_first)["max_stale"]
+            law_ok = law_ok and hon_stale <= BY.OVERHEAD and sf_stale > hon_stale * 3
+            # the drop-departure ghost breaks closed-world; the non-canonical serializer is rejected
+            gt, gcl = BY.gen_sequence(PC._LCG(BY.SWEEP_SEED))
+            _gp, gcs = BY._run_drop_departure(gt, gcl, L, BY.OVERHEAD + 120)
+            law_ok = law_ok and any(set(gcs[t]) != set(AN._manifest_under(e, w, gcl, L))
+                                    for t, (e, w) in enumerate(gt))
+            try:
+                BY.parse(BY._serialize_noncanonical(0, BY._SB, [BY.rec_move(1, 3, 4)]))
+                law_ok = False                                 # a non-canonical packet must be rejected
+            except BY.ByteAcctError:
+                pass
+            # deterministic; the wall-clock plant diverges; reduces to the schedule at a roomy budget
+            law_ok = law_ok and BY.run(ticks, cl, L, BY._SB)["packets"] == rep["packets"]
+            law_ok = law_ok and BY.run(ticks, cl, L, BY._SB, _clock=lambda: 1)["packets"] != rep["packets"]
+            law_ok = law_ok and BY.run(ticks, cl, L, BY.OVERHEAD + 400)["deferrals"] == 0
+        except Exception:
+            law_ok = False
+        self.record("byteacct-law", law_ok,
+                    "proof-carrying byte accounting: every packet is EXACTLY the byte budget B (records + "
+                    "anonymous padding — the overrun and hidden-padding plants caught); discretionary "
+                    "updates are the deterministic MAXIMAL PREFIX by scheduler priority (the fragmentation "
+                    "and smallest-first STARVATION plants caught); the client reconstructs the manifested "
+                    "set from the WIRE alone (the drop-departure GHOST caught) and the reported byte total "
+                    "equals the canonical re-serialization (client == server replay); serialization is "
+                    "canonical (a non-minimal varint rejected); the run is DETERMINISTIC (the wall-clock "
+                    "plant diverges) and reduces to the scheduler at a roomy budget — the byte budget IS the "
+                    "constant packet size, so constant-shape is preserved"
+                    if law_ok else "the byteacct law did not hold")
+        prop_ok = True
+        try:
+            rep2 = BY.sweep()
+            prop_ok = (rep2["digest"] == BY.sweep_golden() and rep2["deferrals"] > 0
+                       and rep2["departures"] > 0 and rep2["stale_seen"] > 0 and rep2["prefix_checked"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("byteacct-property", prop_ok,
+                    f"byte accounting survived a {BY.SWEEP_COUNT}-sequence × {len(BY._BUDGETS)}-budget × "
+                    f"{BY.NTICKS}-tick seeded sweep — mixed-size updates under tight byte budgets: every "
+                    "packet exactly B, closed-world from the wire every tick, accounting fidelity, "
+                    "client == server replay, priority-prefix packing, hidden-set invariance, and "
+                    "determinism; the aggregate digest reproduces its golden (non-vacuous: deferrals, "
+                    "departures, and stale records all exercised)"
+                    if prop_ok else "the byteacct property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = AN._manifest_under
+            AN._manifest_under = lambda entities, walls, cl3, L3: sorted(entities)   # leak the hidden set
+            try:
+                BY.sweep()
+            except BY.ByteAcctError:
+                red_ok = True
+            finally:
+                AN._manifest_under = _orig
+            red_ok = red_ok and BY.sweep_digest() == BY.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("byteacct-property-selftest", red_ok,
+                    "a manifest that leaks the hidden set breaks closed-world from the wire, so the seeded "
+                    "sweep raises BYTEACCT-REFUSE — the live-membership guarantee holds at the byte layer "
+                    "too — and the module is clean again after the revert"
+                    if red_ok else "the byteacct sweep did not redden under a leak-the-hidden manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10796,6 +10915,7 @@ def main() -> int:
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
+    gate.byteacct()
     gate.lease()
     gate.testament()
     gate.rollstore()

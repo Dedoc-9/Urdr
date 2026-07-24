@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1239 unit falsifiers / 680 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1257 unit falsifiers / 684 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

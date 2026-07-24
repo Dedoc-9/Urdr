@@ -226,8 +226,13 @@ honestly claim and to where it lands:
      URDRSCH1, `docs/schedule_brief.md`): bandwidth- and importance-aware refresh scheduling — when the
      per-tick refresh budget binds, the scheduler serves the due OLDEST-FIRST (starvation-free) so
      staleness stays bounded, membership stays live (closed-world every tick), and replay stays
-     deterministic. FOUR capabilities on one lens: security (URDRPCP1), network (URDRANA1), compute
-     (URDRTHR1), bandwidth scheduling (URDRSCH1).
+     deterministic. And by PROOF-CARRYING BYTE ACCOUNTING (`tools/terrain/byteacct.py`, URDRBYT1,
+     `docs/byteacct_brief.md`): the Byte Budget Theorem — every tick emits exactly `B` bytes (variable-size
+     delta records + anonymous padding, so the byte budget IS the constant packet size and constant-shape
+     is preserved), the client reconstructs from the wire alone, and the byte total is a replayable
+     artifact. FIVE capabilities on one lens: security (URDRPCP1), resolution (URDRANA1), compute
+     (URDRTHR1), bandwidth scheduling (URDRSCH1), byte accounting (URDRBYT1) — the bandwidth subsystem as a
+     stack of measurable, replayable laws (observe → resolution → work → which → how-many-bytes).
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual

@@ -234,7 +234,23 @@ closed-world every tick (the membership-defer plant caught), deterministic repla
 diverges), and a reduction to the throttle at budget ≥ CAPACITY. Four scenes (budget / priority /
 starvefree / reduce) + an 80-sequence × 3-budget × 12-tick sweep. FOUR capabilities now stand on the focal
 lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1), bandwidth scheduling (URDRSCH1).
-Declared successor: byte-level (not count-level) bandwidth accounting.
+Declared successor LANDED as `byteacct.py` below.
+`byteacct.py` — `URDRBYT1`, PROOF-CARRYING BYTE ACCOUNTING: the wire refinement of the scheduler under a
+real BYTE budget, where updates have different serialized costs (composition, NO NEW GLYPH; design in
+`docs/byteacct_brief.md`). THE BYTE BUDGET THEOREM: every tick emits EXACTLY `B` bytes — variable-size delta
+records (REMOVE / MOVE via canonical zigzag-varint / FULL with the 32-byte citation) then anonymous padding
+to `B` — so the byte budget IS the constant packet size and constant-shape is PRESERVED (no side-channel
+regression). Mandatory records (departures + entrants) fit first or the tick REFUSES; discretionary updates
+are the deterministic MAXIMAL PREFIX by scheduler priority. The client reconstructs the manifested set from
+the WIRE alone, and the byte total is a replayable artifact (each packet == its own canonical
+re-serialization). Guarantees (each red-first): the byte budget (overrun + hidden-padding plants caught),
+the maximal prefix (fragmentation plant caught), VARIABLE-SIZE STARVATION-FREEDOM (smallest-first starves a
+large update — caught), canonical serialization (non-minimal varint rejected), accounting fidelity + client
+== server replay, closed-world from the wire (drop-departure ghost caught), and determinism. Four scenes
+(budget / prefix / account / reduce) + a 70-sequence × 3-budget × 12-tick sweep. THE COMPLETED ARC:
+perception (observe?) → anamorphosis (resolution?) → throttle (work?) → schedule (which?) → byteacct (how
+many bytes, and why no lawful scheduler could admit more?). Declared successor: citation compression /
+cross-tick rate limiting.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the
