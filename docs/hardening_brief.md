@@ -211,8 +211,13 @@ honestly claim and to where it lands:
      them) while the pre-reveal margin is a bounded, declared leak. It lands with the certified mesh because the server
      that decides the manifested set is the mesh steward. Honest claim: *information-advantage cheats
      are bounded by what the server chose to reveal* — a real reduction, not elimination (aim-assist on
-     legitimately-visible data, audio/hitbox channels, and the margin/peeker's-advantage remain out of
-     scope, stated). EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
+     legitimately-visible data and the margin/peeker's-advantage remain out of scope, stated). The AUDIO
+     channel is now covered by AUDIBLE ABSENCE (`tools/terrain/audible.py`, URDRAUD1,
+     `docs/audible_brief.md`): a sound below the audibility threshold (too quiet / far / wall-occluded) is an
+     un-addressed absence, so an audio-ESP finds nothing — closing the footstep-leak seam VALORANT/CS2 are
+     publicly known to leave; the listener hears a bucketed direction + quantized loudness (bounded
+     localization), never the source. The firewall now covers TWO channels — vision (URDRPCP1) and audio
+     (URDRAUD1); hitbox/physics is the declared next channel. EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
      `docs/anamorphosis_brief.md`): the binary firewall becomes a server-tunable focal lens `L = (reach,
      focus)` — a graded dial that tunes the manifestation boundary and the precision of the
      already-visible while the closed world holds across the WHOLE dial (proven monotone, lossy-only,

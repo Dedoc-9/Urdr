@@ -8404,6 +8404,112 @@ class Gate:
                     "falsifier — and the module is clean again after the revert"
                     if red_ok else "the boundedhist sweep did not redden under a broken reconstruction")
 
+    def audible(self):
+        """Audible absence (URDRAUD1): the AUDIO channel of the anti-cheat firewall — witnessed absence
+        applied to positional audio. A sound below the audibility threshold (too quiet, too far, or
+        wall-occluded) is an UN-ADDRESSED ABSENCE, so an audio-ESP finds NOTHING — closing the footstep-leak
+        seam competitive shooters are publicly known to leave. The listener hears a bucketed direction (8
+        integer sectors, no float) + a quantized loudness (bounded localization), never the source. Exact-
+        integer audibility: d² <= L*RANGE_PER_LOUDNESS - WALL_PENALTY*walls. Composition over URDRPCP1 — no
+        new glyph (kernel frozen); see docs/audible_brief.md. Rows: scenes (near / wall / direction / esp
+        reproduce URDRAUD1 digests), law (witness-blind + hidden-set invariance byte-identical for an
+        inaudible change + audible change alters + audio-ESP probe finds nothing + constant-shape + wall
+        muffles + bounded localization + a forged citation reddens + closed world + the footstep-leak plant
+        caught), property (a seeded 120-soundscape sweep with non-vacuity), selftest (a leak-the-inaudible
+        manifest makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import audible as AU
+        except Exception as exc:
+            self.record("audible", False, f"import failed (audible): {exc}")
+            return
+        try:
+            ref_ok = all(AU.scene_result(n) == AU.golden(n) for n in AU.SCENES)
+        except Exception as exc:
+            self.record("audible:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("audible:scenes", ref_ok,
+                    "near + wall + direction + esp reproduce URDRAUD1 digests"
+                    if ref_ok else "an audible scene drifted from its digest")
+        law_ok = True
+        try:
+            lis = AU.listener(0, 0)
+            sounds = {1: (2, 0, 20, AU._d(1)), 2: (8, 0, 2, AU._d(2))}   # id2 quiet → inaudible but near
+            before = AU.world_digest(sounds, frozenset())
+            base = AU.perceive(sounds, frozenset(), lis)
+            law_ok = AU.world_digest(sounds, frozenset()) == before and base == AU.perceive(sounds, frozenset(), lis)
+            law_ok = law_ok and not AU._audible(sounds, frozenset(), lis, 2)
+            # hidden-set invariance: an inaudible change is byte-identical; an audible change alters
+            moved = dict(sounds); moved[2] = (9, 1, 2, AU._d(202))
+            law_ok = law_ok and AU.perceive(moved, frozenset(), lis) == base
+            vis = dict(sounds); vis[1] = (2, 0, 20, AU._d(900))
+            law_ok = law_ok and AU.perceive(vis, frozenset(), lis) != base
+            # the audio-ESP probe finds nothing for the inaudible sound, the record for the audible one
+            law_ok = law_ok and AU.probe(base, 2) is None and AU.probe(base, 1) is not None
+            # constant-shape; wall muffles a sound below audibility
+            full = AU.perceive({i: (1, 0, 25, AU._d(i)) for i in range(1, AU.CAPACITY + 1)}, frozenset(), lis)
+            law_ok = law_ok and len(AU.perceive({}, frozenset(), lis)) == len(full) == AU.transcript_bytes_len()
+            wall_s = {1: (9, 0, 20, AU._d(1))}
+            law_ok = law_ok and 1 in AU.manifest(wall_s, frozenset(), lis) \
+                and 1 not in AU.manifest(wall_s, frozenset({(5, 0), (6, 0), (7, 0)}), lis)
+            # bounded localization: four sounds resolve to four distinct sectors
+            dsnd = {1: (5, 0, 20, AU._d(1)), 2: (0, 5, 20, AU._d(2)), 3: (-5, 0, 20, AU._d(3)),
+                    4: (0, -5, 20, AU._d(4))}
+            law_ok = law_ok and len({AU._direction(dsnd, lis, e) for e in AU.manifest(dsnd, frozenset(), lis)}) == 4
+            # citation contract + forged citation reddens
+            law_ok = law_ok and AU.verify_transcript(sounds, frozenset(), lis, base) \
+                and not AU.verify_transcript(sounds, frozenset(), lis, AU.forge_citation(base, 1))
+            # closed world; the footstep-leak plant is caught
+            law_ok = law_ok and AU.is_closed_world(sounds, frozenset(), lis, base)
+            leak = AU._perceive_leak(sounds, frozenset(), lis, 100)
+            law_ok = law_ok and AU.probe(leak, 2) is not None \
+                and not AU.is_closed_world(sounds, frozenset(), lis, leak)
+        except Exception:
+            law_ok = False
+        self.record("audible-law", law_ok,
+                    "audible absence: hearing is witness-blind and a pure function of the audible set; a "
+                    "change to an INAUDIBLE sound (too quiet / far / wall-muffled) yields a BYTE-IDENTICAL "
+                    "transcript while an audible change alters it; an audio-ESP probe finds NOTHING for a "
+                    "sub-threshold footstep (the leak seam closed); the transcript is constant-shape; a wall "
+                    "muffles a sound below audibility; four sounds localize to distinct sectors (bounded, "
+                    "never the exact source); a forged citation reddens; the reconstruction is a CLOSED "
+                    "WORLD; and the footstep-leak plant (a whisper for a sub-threshold sound) is caught"
+                    if law_ok else "the audible law did not hold")
+        prop_ok = True
+        try:
+            rep = AU.sweep()
+            prop_ok = (rep["digest"] == AU.sweep_golden() and rep["inaudible_checked"] > 0
+                       and rep["audible_seen"] > 0 and rep["muffled_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("audible-property", prop_ok,
+                    f"audible absence survived a {AU.SWEEP_COUNT}-soundscape seeded sweep — random sources, "
+                    "loudnesses, and walls: hearing never mutates the witness, a ground-truth-inaudible "
+                    "sound's change leaves the transcript byte-identical (the audio-ESP has nothing to "
+                    "read), the shape is constant, the reconstruction is closed, and the citation contract "
+                    "holds; the aggregate digest reproduces its golden (non-vacuous: inaudible / audible / "
+                    "wall-muffled all exercised)"
+                    if prop_ok else "the audible property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = AU._manifest
+            AU._manifest = lambda sounds2, walls2, lis2: sorted(sounds2)   # leak the inaudible set
+            try:
+                AU.sweep()
+            except AU.AudibleError:
+                red_ok = True
+            finally:
+                AU._manifest = _orig
+            red_ok = red_ok and AU.sweep_digest() == AU.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("audible-property-selftest", red_ok,
+                    "a manifest that leaks the inaudible set breaks byte-identical invariance, so the seeded "
+                    "sweep raises AUDIBLE-REFUSE — audible absence is a live falsifier, not decoration — and "
+                    "the module is clean again after the revert"
+                    if red_ok else "the audible sweep did not redden under a leak-the-inaudible manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11324,6 +11430,7 @@ def main() -> int:
     gate.partition()
     gate.meshsession()
     gate.perception()
+    gate.audible()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

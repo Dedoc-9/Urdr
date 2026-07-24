@@ -192,6 +192,17 @@ citation contract. Four pinned scenes (sniper / corner / margin / wallhack) + a 
 red-first (a leak-the-hidden manifest reddens). DECLARED: the margin is a bounded declared leak (not zero;
 peeker's advantage unsolved); audio/hitbox channels out of scope; passive-info cheats only (aim-assist NOT
 touched); cross-placement.
+`audible.py` — `URDRAUD1`, AUDIBLE ABSENCE, the AUDIO channel of the anti-cheat firewall: witnessed absence
+applied to positional sound (composition over `perception`, NO NEW GLYPH; design in `docs/audible_brief.md`).
+A sound BELOW the audibility threshold (too quiet, too far, or wall-occluded) is an UN-ADDRESSED ABSENCE, so
+an audio-ESP finds NOTHING — closing the footstep-leak seam VALORANT/CS2 are publicly known to leave. Exact-
+integer, omnidirectional audibility: `d² <= L*RANGE_PER_LOUDNESS - WALL_PENALTY*walls`. The listener hears a
+bucketed direction (8 integer sectors, no atan2/float) + a quantized loudness — bounded localization, never
+the source position. Guarantees (each red-first): witness-blind, hidden-set invariance (an inaudible change
+is byte-identical), audio-ESP-finds-nothing, constant-shape, wall-muffle, bounded localization, closed world,
+citation contract; the footstep-leak plant (a whisper for a sub-threshold sound) is caught. Four scenes
+(near / wall / direction / esp) + a 120-soundscape sweep. The firewall now covers TWO channels: vision
+(URDRPCP1) and audio (URDRAUD1). Declared successor: the hitbox/physics channel.
 `anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception
 firewall generalized from BINARY (absent Ø / full-fidelity) to a GRADED, server-tunable dial `L = (reach,
 focus)` — a "simple patch to all users" — WITHOUT opening a slot for the hidden (composition over

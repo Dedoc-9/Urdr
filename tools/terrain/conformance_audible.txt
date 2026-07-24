@@ -1,0 +1,17 @@
+# URDRAUD1 conformance — AUDIBLE ABSENCE, the audio channel of the anti-cheat firewall: witnessed
+# absence applied to positional audio. A sound BELOW the audibility threshold (too quiet, too far, or
+# wall-occluded) is an UN-ADDRESSED ABSENCE, so an audio-ESP replayed against the listener transcript finds
+# NOTHING — closing the footstep-leak seam competitive shooters (VALORANT/CS2) are publicly known to leave.
+# A sound of loudness L at squared distance d^2 across w walls is audible iff L >= MIN_LOUDNESS and
+# d^2 <= L*RANGE_PER_LOUDNESS - WALL_PENALTY*w (omnidirectional; louder carries further; walls attenuate).
+# The listener hears a BUCKETED direction (8 integer sectors, exact, no atan2/float) and a QUANTIZED heard
+# loudness — bounded localization, never the exact source. Scene digests SHA-256(MAGIC | name | world |
+# transcript | audible | verdict); the sweep digest is over a fixed-seed (20260724) 120-soundscape sweep
+# asserting witness-blindness, hidden-set invariance (an inaudible change is BYTE-IDENTICAL), constant-
+# shape, the closed world, and the citation contract. Pinned AFTER the footstep-leak plant was proven to
+# break invariance and raise. Composition over URDRPCP1 — NO new glyph (kernel frozen).
+near 051957727c83d9edaf66209038d842bdf84f5f631be108c1f3cd765ea9439c02
+wall 943bd8479c69f400ebda86909110cfdc52dcd0287826f9cca695873a2fb27cc6
+direction e631b966bd5e3a1f448e5f959fd93eb496169856ecea9c03f7b0f76a8a32ef59
+esp d28dbcb6bd12fad570eadc4dab4779d09ada4062f19db127c4401bd1fbacb718
+sweep 5766bebae0099d9566744be02e8a95756977c7e4a9ef9e4219fc3db5da19c5a4
