@@ -1,0 +1,23 @@
+# URDRLAG1 conformance — TEMPORAL LAG-COMPENSATION for server-authoritative hit validation: the refinement
+# that earns the hit channel (URDRHIT1) its teeth against MOVING targets. A shooter fired at what they SAW —
+# the world as of an earlier tick — so adjudicating at `now` would wrongly refuse a legitimate shot at a
+# target that has since moved. Lag-comp REWINDS the target to the shooter's view-tick and adjudicates there.
+# A claim (target, point, view_tick) admits iff, after BOUNDING view_tick to [now-MAX_REWIND, now] (a future
+# claim or an over-old claim is REFUSED — the anti-abuse bound) and REWINDING to the exact stored snapshot at
+# view_tick, URDRHIT1's geometric admission holds at the rewound position. The geometry composes uncompromised:
+# a wall-shot, off-box, off-ray, or out-of-range claim is still refused AT the rewound tick. The verdict is a
+# constant-shape (104-byte) proof-carrying packet carrying the view_tick and the EXACT rewound position it
+# adjudicated against; a re-sealed forged ADMIT still fails verify_verdict because a fresh adjudication
+# disagrees. Scene digests SHA-256(MAGIC | name | world | verdict | reason | verdict-name); the sweep digest
+# is over a fixed-seed (20260724) 120-timeline sweep asserting the rewind teeth (a moved-target shot admits by
+# rewinding while the no-rewind adjudicator refuses), the window bound (stale/future refused), composed
+# geometry, determinism, and the proof-carrying contract. Pinned AFTER the no-rewind / unbounded-rewind /
+# clamp-future plants were proven to bite and the sweep proven to redden under a no-rewind / no-window
+# adjudicator. Composition over URDRHIT1 (over URDRPCP1) — NO new glyph (kernel frozen). Declared: the
+# favor-the-shooter / killed-behind-cover tradeoff is bounded by MAX_REWIND, not eliminated.
+rewind bb61b27d236e1e79891b890d54655b811b0769f80ec6c0530cddf8879d3a4b32
+stale d4016954976543c7b74dafae984c08e51b4311b37e5266df85a17b510414a95a
+future 209a2b4074a90aa589168b0656c33c3af352197eee7ea34c2491f091b9580742
+wall_at_vt 7626c4ca9f8956e14857d6b69f626ecbccf2a06348daa5f32d6356a972fb4c95
+behind_cover 7f4dac677d68d8be388cdf19803ad6358cc885a50a3b63aa9ae22a21e23504cb
+sweep bc80f73d2a0d40b2483e18e1d2565d6641e5ebbb2d6cc801866fb82e1aa56f61

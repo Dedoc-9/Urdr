@@ -226,9 +226,15 @@ honestly claim and to where it lands:
      to bite. The verdict is a constant-shape proof-carrying packet — a re-sealed forged ADMIT still fails
      verification because a fresh authoritative adjudication disagrees (the server, not the client, decides).
      The firewall now covers THREE channels — vision (URDRPCP1) and audio (URDRAUD1) on the RECEIVE side, hit
-     validation (URDRHIT1) on the CLAIM side; temporal lag-compensation (rewinding target positions to the
-     shooter's view-time) is the declared next refinement, and the aim-assist-on-legitimate-targets boundary
-     remains out of scope, stated. EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
+     validation (URDRHIT1) on the CLAIM side. The hit channel is now LAG-COMPENSATED by TEMPORAL
+     LAG-COMPENSATION (`tools/terrain/lagcomp.py`, URDRLAG1, `docs/lagcomp_brief.md`): a shooter fired at what
+     they SAW — an earlier tick — so the server REWINDS the target to the shooter's view-tick and adjudicates
+     there, within a bounded window (a future or over-old claim is refused — the anti-abuse bound that stops
+     backdating to an ancient favourable frame), with URDRHIT1's geometry composing uncompromised at the
+     rewound tick and the 104-byte verdict carrying the exact rewound position it used. The declared
+     favor-the-shooter / killed-behind-cover tradeoff is bounded by MAX_REWIND, not eliminated; the successor
+     is clock-authority (bounding the view-tick a client may assert), and the aim-assist-on-legitimate-targets
+     boundary remains out of scope, stated. EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
      `docs/anamorphosis_brief.md`): the binary firewall becomes a server-tunable focal lens `L = (reach,
      focus)` — a graded dial that tunes the manifestation boundary and the precision of the
      already-visible while the closed world holds across the WHOLE dial (proven monotone, lossy-only,
@@ -237,7 +243,7 @@ honestly claim and to where it lands:
      per-entity position-refresh rate (compute decoupled from the sim rate) while membership stays live
      (closed-world every tick, no ghosts) and staleness is structurally bounded. THREE PILLARS on one
      lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1). Remaining Band A work: wiring the
-     manifested-set decision to the live mesh authority; temporal lag-compensation for the hit channel;
+     manifested-set decision to the live mesh authority; clock-authority for the lag-compensated hit channel;
      cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
      URDRSCH1, `docs/schedule_brief.md`): bandwidth- and importance-aware refresh scheduling — when the
      per-tick refresh budget binds, the scheduler serves the due OLDEST-FIRST (starvation-free) so

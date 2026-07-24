@@ -8615,6 +8615,115 @@ class Gate:
                     "the module is clean again after the revert"
                     if red_ok else "the hitbox sweep did not redden under a skipped-occlusion adjudicator")
 
+    def lagcomp(self):
+        """Temporal lag-compensation (URDRLAG1): the refinement that earns the hit channel (URDRHIT1) its
+        teeth against MOVING targets. A shooter fired at what they SAW — an earlier tick — so adjudicating at
+        `now` would wrongly refuse a legitimate shot at a target that has since moved. Lag-comp REWINDS the
+        target to the shooter's view-tick and adjudicates there, within a bounded window: a future claim or an
+        over-old claim (vt < now - MAX_REWIND) is refused (the anti-abuse bound), and URDRHIT1's geometric
+        admission composes uncompromised at the rewound tick (a wall-shot / off-box / off-ray / out-of-range
+        claim is still refused). The verdict is a constant-shape proof-carrying packet carrying the view-tick
+        and the exact rewound position. Composition over URDRHIT1 (over URDRPCP1) — no new glyph (kernel
+        frozen); see docs/lagcomp_brief.md. Declared: the favor-the-shooter / killed-behind-cover tradeoff is
+        bounded by MAX_REWIND, not eliminated. Rows: scenes (rewind / stale / future / wall_at_vt /
+        behind_cover reproduce URDRLAG1 digests), law (the rewind teeth + the window bound each biting +
+        composed geometry + constant shape + the proof-carrying contract), property (a seeded 120-timeline
+        sweep with non-vacuity), selftest (a no-rewind adjudicator refuses a legitimate moving-target shot so
+        the sweep REDDENS)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import hitbox as HB
+            import lagcomp as LC
+        except Exception as exc:
+            self.record("lagcomp", False, f"import failed (lagcomp): {exc}")
+            return
+        try:
+            ref_ok = all(LC.scene_result(n) == LC.golden(n) for n in LC.SCENES)
+        except Exception as exc:
+            self.record("lagcomp:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("lagcomp:scenes", ref_ok,
+                    "rewind + stale + future + wall_at_vt + behind_cover reproduce URDRLAG1 digests"
+                    if ref_ok else "a lagcomp scene drifted from its digest")
+        law_ok = True
+        try:
+            sh = HB.shooter(0, 0, 1, 0, 400)
+            tl = LC._moving_timeline(100, 7, 95, 2)
+            before = LC.world_digest(tl, frozenset())
+            base = LC.adjudicate(tl, frozenset(), sh, (1, 7, 0, 95))
+            law_ok = LC.world_digest(tl, frozenset()) == before \
+                and base == LC.adjudicate(tl, frozenset(), sh, (1, 7, 0, 95))
+            # THE TEETH: the rewound shot admits and carries the exact rewound position; no-rewind refuses it
+            law_ok = law_ok and LC.admit(tl, frozenset(), sh, (1, 7, 0, 95)) \
+                and not LC._admit_no_rewind(tl, frozenset(), sh, (1, 7, 0, 95))
+            rd = LC.read_verdict(base)
+            law_ok = law_ok and rd[4] and (rd[6], rd[7]) == (7, 0)
+            # WINDOW BOUND: stale refused (unbounded plant admits); future refused (clamp plant admits)
+            stale = (3, 6, 0, 100 - (LC.MAX_REWIND + 1))
+            law_ok = law_ok and not LC.admit(tl, frozenset(), sh, stale) \
+                and LC._reason(tl, frozenset(), sh, stale) == LC.R_STALE \
+                and LC._admit_no_window(tl, frozenset(), sh, stale)
+            future = (3, 6, 0, 101)
+            law_ok = law_ok and not LC.admit(tl, frozenset(), sh, future) \
+                and LC._reason(tl, frozenset(), sh, future) == LC.R_FUTURE \
+                and LC._admit_clamp_future(tl, frozenset(), sh, future)
+            # COMPOSED GEOMETRY: a wall-shadowed rewound shot is refused (URDRHIT1's occlusion composes)
+            walls = frozenset({(10, 0)})
+            wclaim = (2, 14, 0, 95)
+            law_ok = law_ok and not LC.admit(tl, walls, sh, wclaim) \
+                and LC._reason(tl, walls, sh, wclaim) == HB.R_WALL
+            # constant-shape; proof-carrying (honest verifies; a re-sealed forged ADMIT still fails)
+            wv = LC.adjudicate(tl, walls, sh, wclaim)
+            law_ok = law_ok and len(base) == LC.verdict_bytes_len() == len(wv) \
+                and LC.verify_verdict(tl, walls, sh, wv) \
+                and not LC.verify_verdict(tl, walls, sh, LC.forge_admit(wv))
+        except Exception:
+            law_ok = False
+        self.record("lagcomp-law", law_ok,
+                    "temporal lag-compensation: a legitimate shot at a target that has since moved away is "
+                    "ADMITTED by rewinding to the shooter's view-tick (the no-rewind adjudicator at `now` "
+                    "refuses it — the teeth), and the verdict carries the exact rewound position; a future "
+                    "claim and an over-old (stale) claim are REFUSED, each plant (clamp-future / "
+                    "unbounded-rewind) admitting where the law refuses; URDRHIT1's geometry composes "
+                    "uncompromised — a wall-shadowed rewound shot is still refused; the verdict is "
+                    "constant-shape and proof-carrying (a re-sealed forged ADMIT still fails because a fresh "
+                    "lag-compensated adjudication disagrees)"
+                    if law_ok else "the lagcomp law did not hold")
+        prop_ok = True
+        try:
+            rep = LC.sweep()
+            prop_ok = (rep["digest"] == LC.sweep_golden() and rep["rewind_seen"] > 0
+                       and rep["stale_seen"] > 0 and rep["future_seen"] > 0 and rep["wall_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("lagcomp-property", prop_ok,
+                    f"lag-compensation survived a {LC.SWEEP_COUNT}-timeline seeded sweep — random view-ticks, "
+                    "positions, and drift: a legitimate moving-target shot admits by rewinding while the "
+                    "no-rewind adjudicator refuses it, stale and future claims are refused, a wall-shadowed "
+                    "rewound shot is refused (geometry composes), adjudication is deterministic and "
+                    "constant-shape, and a forged ADMIT never verifies; the aggregate digest reproduces its "
+                    "golden (non-vacuous: rewind / stale / future / wall all exercised)"
+                    if prop_ok else "the lagcomp property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = LC._snapshot_at
+            LC._snapshot_at = lambda tl2, vt2: tl2[LC.timeline_now(tl2)]   # disable the rewind (use `now`)
+            try:
+                LC.sweep()
+            except LC.LagcompError:
+                red_ok = True
+            finally:
+                LC._snapshot_at = _orig
+            red_ok = red_ok and LC.sweep_digest() == LC.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("lagcomp-property-selftest", red_ok,
+                    "an adjudicator that never rewinds (always uses `now`) refuses a legitimate moving-target "
+                    "shot, so the seeded sweep raises LAGCOMP-REFUSE — the rewind is a live falsifier, not "
+                    "decoration — and the module is clean again after the revert"
+                    if red_ok else "the lagcomp sweep did not redden under a no-rewind adjudicator")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11537,6 +11646,7 @@ def main() -> int:
     gate.perception()
     gate.audible()
     gate.hitbox()
+    gate.lagcomp()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

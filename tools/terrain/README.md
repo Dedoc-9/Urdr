@@ -217,6 +217,21 @@ Guarantees (each red-first): server-authority, the five refusals with teeth, cle
 constant-shape, proof-carrying. Five scenes (clean / wallshot / phantom / offray / inflated) + a 120-arena
 sweep. The firewall now covers THREE channels: vision (URDRPCP1) and audio (URDRAUD1) on the RECEIVE side,
 hit validation (URDRHIT1) on the CLAIM side. Declared successor: temporal lag-compensation.
+`lagcomp.py` — `URDRLAG1`, TEMPORAL LAG-COMPENSATION for server-authoritative hit validation: the refinement
+that earns the hit channel (URDRHIT1) its teeth against MOVING targets (composition over `hitbox`, over
+`perception`; NO NEW GLYPH; design in `docs/lagcomp_brief.md`). A shooter fired at what they SAW — an earlier
+tick — so adjudicating at `now` would wrongly refuse a legitimate shot at a target that has since moved.
+Lag-comp REWINDS the target to the shooter's view-tick and adjudicates there: a claim `(target, point,
+view_tick)` admits iff, after BOUNDING view_tick to `[now−MAX_REWIND, now]` (a future or over-old claim is
+REFUSED — the anti-abuse bound) and REWINDING to the exact per-tick snapshot (no float, no interpolation),
+URDRHIT1's geometric admission holds at the rewound position. The geometry composes uncompromised — a
+wall-shot / off-box / off-ray / out-of-range claim is still refused at the rewound tick. Guarantees (each
+red-first): the rewind teeth (a moved-target shot admits by rewinding while the no-rewind adjudicator refuses),
+the window bound (stale/future refused, each plant biting), composed geometry, constant-shape + proof-carrying
+(the 104-byte verdict carries the view-tick + the exact rewound position; a re-sealed forged ADMIT still
+fails). Five scenes (rewind / stale / future / wall_at_vt / behind_cover) + a 120-timeline sweep. Declared: the
+favor-the-shooter / killed-behind-cover tradeoff is bounded by MAX_REWIND, not eliminated; successor is
+clock-authority (bounding the view-tick a client may assert).
 `anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception
 firewall generalized from BINARY (absent Ø / full-fidelity) to a GRADED, server-tunable dial `L = (reach,
 focus)` — a "simple patch to all users" — WITHOUT opening a slot for the hidden (composition over
