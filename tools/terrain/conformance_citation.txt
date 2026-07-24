@@ -1,0 +1,17 @@
+# URDRCIT1 conformance — the deterministic cross-tick citation protocol: lawful historical reuse on
+# the byte layer. A large entity update that returns to a previously-ACKNOWLEDGED value is re-expressed as
+# a compact fixed-width CITE (tag|eid|anchor-tick), reconstructing exactly the same transcript as the
+# uncited baseline. HEADLINE LAW cited == baseline (compression never alters semantics). Four structural
+# laws: CERTIFIED (a CITE anchor must be <= tick - ACK_LAG, else refuse), CONSTANT-SHAPE (fixed-width CITE,
+# packet padded to exactly B), CLOSED-WORLD (citation history evicted when an entity leaves the manifested
+# set — no historical ghost), CROSS-TICK RATE (a mandatory FULL baseline within REFRESH_INTERVAL ticks).
+# Scene digests SHA-256(MAGIC | name | run-digest | verdict); the sweep digest is over a fixed-seed
+# (20260724) 80-world sweep. Pinned AFTER the plants were proven to bite: _encode unack cites an
+# un-acknowledged anchor (refused); a forged CITE for an evicted entity is a ghost (unresolvable);
+# no_baseline lets an entity exceed REFRESH_INTERVAL; _serialize_shape_drift varies the packet size.
+# Composition over URDRBYT1/.../URDRPCP1 — NO new glyph (kernel frozen).
+reuse 9ed11581c7b82ca4253b756926f0488c9ab7d4d117b5f094c40958ea7c7cf4de
+equiv 12dc8fc09384241b21c619b7ee11fbfab8fc257d6382432d4618a6b694fda373
+evict 51522e4aa5ecf29753fc442919dda37c8c0f1d5a74ae52078762045507f7f1e3
+rate 64d4cea0d4b29feb1421390267ec5f2bf48021b81233e31fa92f5098d0941912
+sweep db42ca60c0904e6cd55d7565aa91398b1e366df1a9e840b960bcd96df77c855a

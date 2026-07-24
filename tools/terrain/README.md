@@ -249,8 +249,21 @@ large update — caught), canonical serialization (non-minimal varint rejected),
 == server replay, closed-world from the wire (drop-departure ghost caught), and determinism. Four scenes
 (budget / prefix / account / reduce) + a 70-sequence × 3-budget × 12-tick sweep. THE COMPLETED ARC:
 perception (observe?) → anamorphosis (resolution?) → throttle (work?) → schedule (which?) → byteacct (how
-many bytes, and why no lawful scheduler could admit more?). Declared successor: citation compression /
-cross-tick rate limiting.
+many bytes, and why no lawful scheduler could admit more?). Declared successor LANDED as `citation.py` below.
+`citation.py` — `URDRCIT1`, the DETERMINISTIC CROSS-TICK CITATION PROTOCOL: lawful historical reuse on the
+byte layer (composition, NO NEW GLYPH; design in `docs/citation_brief.md`). Successive ticks retransmit
+state the client has already verified; a large FULL update that RETURNS to a previously-ACKNOWLEDGED value
+is re-expressed as a compact fixed-width CITE (tag|eid|anchor-tick, 9 bytes vs 39), reconstructing exactly
+the uncited transcript. HEADLINE LAW cited ≡ baseline (compression never alters semantics). Four structural
+laws: CERTIFIED (a CITE anchor must be ≤ tick − ACK_LAG, tracked by a deterministic Acknowledgment Witness —
+refuse uncertainty), CONSTANT-SHAPE (fixed-width CITE, packet padded to exactly B), CLOSED-WORLD (citation
+history evicted when an entity leaves the manifested set — no historical ghost), CROSS-TICK RATE (a mandatory
+FULL baseline within REFRESH_INTERVAL ticks). Guarantees (each red-first): cited ≡ baseline + real
+compression, the unacknowledged-citation plant refused, the historical-ghost plant unresolvable, the
+no-baseline plant exceeds the interval, the shape-drift plant refused; plus closed-world from the wire and
+determinism. Four scenes (reuse / equiv / evict / rate) + an 80-world sweep. THE COMPLETED TEMPORAL ARC:
+perception → anamorphosis → throttle → schedule → byteacct → citation — the wire as a proof-carrying
+temporal representation of network state. Declared successor: adaptive (bandwidth-aware) anchor selection.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

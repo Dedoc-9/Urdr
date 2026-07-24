@@ -7992,6 +7992,127 @@ class Gate:
                     "too — and the module is clean again after the revert"
                     if red_ok else "the byteacct sweep did not redden under a leak-the-hidden manifest")
 
+    def citation(self):
+        """The deterministic cross-tick citation protocol (URDRCIT1): lawful historical reuse on the byte
+        layer. A large entity update that returns to a previously-ACKNOWLEDGED value is re-expressed as a
+        compact fixed-width CITE, reconstructing exactly the uncited baseline. The headline law is CITED ==
+        BASELINE (compression never alters semantics), governed by four structural laws: certified (anchor
+        <= tick - ACK_LAG), constant-shape (fixed-width CITE, packet = B), closed-world (history evicted on
+        departure), cross-tick rate (a baseline within REFRESH_INTERVAL). Composition over URDRBYT1 — no new
+        glyph (kernel frozen); see docs/citation_brief.md. Rows: scenes (reuse / equiv / evict / rate
+        reproduce URDRCIT1 digests), law (cited == baseline + real compression + the unacknowledged,
+        historical-ghost, rate-starvation, and shape-drift plants caught + closed-world from the wire +
+        deterministic), property (a seeded 80-world sweep with non-vacuity), selftest (a leak-the-hidden
+        manifest makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import citation as CT
+            import anamorphosis as AN
+            import perception as PC
+        except Exception as exc:
+            self.record("citation", False, f"import failed (citation): {exc}")
+            return
+        try:
+            ref_ok = all(CT.scene_result(n) == CT.golden(n) for n in CT.SCENES)
+        except Exception as exc:
+            self.record("citation:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("citation:scenes", ref_ok,
+                    "reuse + equiv + evict + rate reproduce URDRCIT1 digests"
+                    if ref_ok else "a citation scene drifted from its digest")
+        law_ok = True
+        try:
+            L = AN.lens(0, 0)
+            ticks, cl = CT._toggle()
+            rep = CT.run(ticks, cl, L)
+            base = CT.run(ticks, cl, L, mode="baseline")
+            # CITED == BASELINE + real compression + closed-world from the wire + constant-shape + rate
+            law_ok = CT.cited_equals_baseline(ticks, cl, L) and rep["cites"] > 0 \
+                and rep["used_total"] < base["used_total"]
+            law_ok = law_ok and CT.is_closed_world_run(ticks, cl, L) and CT.constant_shape_ok(rep) \
+                and CT.rate_ok(rep) and CT.certified_ok(ticks, cl, L)
+            # the unacknowledged-citation plant is refused
+            cur, hist, bse = {}, {}, {}
+            unack_bit = False
+            for t, (e, w) in enumerate(ticks):
+                _m, br = CT._encode(cur, hist, bse, e, w, cl, L, t, (CT.B_ROOMY, CT.ACK_LAG, CT.REFRESH_INTERVAL),
+                                    "unack")
+                parsed = CT.parse(CT.serialize(t, CT.B_ROOMY, br))[2]
+                if not CT.verify_records(parsed, t, (CT.B_ROOMY, CT.ACK_LAG, CT.REFRESH_INTERVAL), hist):
+                    unack_bit = True
+                cur, hist, bse = CT.apply_records(cur, hist, bse, parsed, t)
+            law_ok = law_ok and unack_bit
+            # the historical-ghost plant: a CITE for an evicted entity is unresolvable
+            c2, h2, b2 = CT.apply_records({5: (3, 0, CT._d(5))}, {5: {0: (3, 0, CT._d(5))}}, {5: 0},
+                                          [("remove", 5, None)], 1)
+            ghost_bit = not CT.verify_records([("cite", 5, 0)], 2,
+                                              (CT.B_ROOMY, CT.ACK_LAG, CT.REFRESH_INTERVAL), h2)
+            try:
+                CT.apply_records(c2, h2, b2, [("cite", 5, 0)], 2)
+                ghost_bit = False
+            except CT.CitationError:
+                pass
+            law_ok = law_ok and ghost_bit
+            # the rate-starvation plant: a constant-cite entity with no baselines exceeds the interval
+            rcl = PC.client(0, 0, 1, 0, 4, 2, 400, 0)
+            rt = CT._seq({1: [(4, 0, CT._d(999)) for _ in range(12)]}, 12)
+            law_ok = law_ok and CT.rate_ok(CT.run(rt, rcl, L)) \
+                and not CT.rate_ok(CT.run(rt, rcl, L, mode="no_baseline"))
+            # the shape-drift plant: a variable-width anchor makes the packet not exactly B (parse refuses)
+            drift = CT._serialize_shape_drift(0, CT.B_ROOMY, [CT.rec_cite(1, 5)])
+            law_ok = law_ok and len(drift) != CT.B_ROOMY and len(CT.rec_cite(7, 999999)) == CT.CITE_BYTES
+            try:
+                CT.parse(drift)
+                law_ok = False
+            except CT.CitationError:
+                pass
+            law_ok = law_ok and CT.run(ticks, cl, L)["packets"] == rep["packets"]   # deterministic
+        except Exception:
+            law_ok = False
+        self.record("citation-law", law_ok,
+                    "cross-tick citation: the client reconstructs the SAME state sequence whether the server "
+                    "CITES history or always sends baselines (compression never alters semantics), a real "
+                    "compression (cites used, fewer useful bytes); a CITE anchor must be certified (<= tick - "
+                    "ACK_LAG — the unacknowledged plant refused), citation history is EVICTED on departure "
+                    "(the historical-ghost plant unresolvable), a mandatory baseline lands within "
+                    "REFRESH_INTERVAL (the no-baseline plant exceeds it), and a CITE is FIXED-WIDTH with "
+                    "every packet exactly B (the shape-drift plant refused); closed-world from the wire and "
+                    "deterministic replay hold"
+                    if law_ok else "the citation law did not hold")
+        prop_ok = True
+        try:
+            rep2 = CT.sweep()
+            prop_ok = (rep2["digest"] == CT.sweep_golden() and rep2["cite_seen"] > 0
+                       and rep2["evict_seen"] > 0 and rep2["base_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("citation-property", prop_ok,
+                    f"the citation protocol survived a {CT.SWEEP_COUNT}-world seeded sweep — worlds with "
+                    "temporal redundancy: cited == baseline, every citation certified, closed-world with "
+                    "eviction, constant-shape, bounded refresh, hidden-set invariance, a real compression, "
+                    "and deterministic replay; the aggregate digest reproduces its golden (non-vacuous: "
+                    "citations, baselines, and the rate bound all exercised)"
+                    if prop_ok else "the citation property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = AN._manifest_under
+            AN._manifest_under = lambda entities, walls, cl3, L3: sorted(entities)   # leak the hidden set
+            try:
+                CT.sweep()
+            except CT.CitationError:
+                red_ok = True
+            finally:
+                AN._manifest_under = _orig
+            red_ok = red_ok and CT.sweep_digest() == CT.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("citation-property-selftest", red_ok,
+                    "a manifest that leaks the hidden set makes a hidden entity's change alter the wire, so "
+                    "the seeded sweep raises CITATION-REFUSE — the closed-world guarantee holds through the "
+                    "citation layer too — and the module is clean again after the revert"
+                    if red_ok else "the citation sweep did not redden under a leak-the-hidden manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10916,6 +11037,7 @@ def main() -> int:
     gate.throttle()
     gate.schedule()
     gate.byteacct()
+    gate.citation()
     gate.lease()
     gate.testament()
     gate.rollstore()

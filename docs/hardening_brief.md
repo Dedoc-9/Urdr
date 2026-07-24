@@ -232,7 +232,13 @@ honestly claim and to where it lands:
      is preserved), the client reconstructs from the wire alone, and the byte total is a replayable
      artifact. FIVE capabilities on one lens: security (URDRPCP1), resolution (URDRANA1), compute
      (URDRTHR1), bandwidth scheduling (URDRSCH1), byte accounting (URDRBYT1) — the bandwidth subsystem as a
-     stack of measurable, replayable laws (observe → resolution → work → which → how-many-bytes).
+     stack of measurable, replayable laws (observe → resolution → work → which → how-many-bytes). And by the
+     DETERMINISTIC CROSS-TICK CITATION PROTOCOL (`tools/terrain/citation.py`, URDRCIT1,
+     `docs/citation_brief.md`): lawful historical reuse — a returning FULL is re-expressed as a compact
+     certified CITE, with cited ≡ baseline (compression never alters semantics), an Acknowledgment Witness
+     (refuse uncertainty), closed-world eviction on departure, and a bounded refresh interval. SIX
+     capabilities on one lens; the wire is now a proof-carrying temporal representation of network state
+     (observe → resolution → work → which → how-many-bytes → which-history-reused).
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual
