@@ -7553,6 +7553,116 @@ class Gate:
                     "decoration — and the module is clean again after the revert"
                     if red_ok else "the perception sweep did not redden under a leak-the-hidden manifest")
 
+    def anamorphosis(self):
+        """The tunable semantic focal lens (URDRANA1): a server-side, globally-deployable dial
+        L = (reach, focus) that generalizes the perception firewall from BINARY (absent Ø / full-fidelity)
+        to GRADED — WITHOUT ever opening a slot for the hidden. reach widens the manifestation boundary;
+        focus sharpens precision; a close entity is exact, a far one coarse. Composition over URDRPCP1 —
+        no new glyph (kernel frozen); see docs/anamorphosis_brief.md. Rows: scenes (focal / widen /
+        defended / reduce reproduce URDRANA1 digests), law (closed-world across the dial + a sub-boundary
+        entity is un-addressed + the monotone dial + lossy-only + the graded-leak and covert plants are
+        caught + the lens is cited and a forged one refused + constant-shape + reduces to perception),
+        property (a seeded 120-world × 4-lens sweep with non-vacuity), selftest (a leak-the-hidden manifest
+        makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import anamorphosis as AN
+            import perception as PC
+        except Exception as exc:
+            self.record("anamorphosis", False, f"import failed (anamorphosis): {exc}")
+            return
+        try:
+            ref_ok = all(AN.scene_result(n) == AN.golden(n) for n in AN.SCENES)
+        except Exception as exc:
+            self.record("anamorphosis:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("anamorphosis:scenes", ref_ok,
+                    "focal + widen + defended + reduce reproduce URDRANA1 digests"
+                    if ref_ok else "an anamorphosis scene drifted from its digest")
+        law_ok = True
+        try:
+            ents = {1: (5, 0, AN._d(1)), 2: (-7, 0, AN._d(2)), 3: (22, 0, AN._d(3))}
+            cl = PC.client(0, 0, 1, 0, 3, 2, 400, 0)
+            # closed-world across the dial; the behind entity is un-addressed; cited + lossy + constant-shape
+            for L in (AN.lens(0, 0), AN.lens(60, 0), AN.lens(200, 3)):
+                t = AN.perceive_lens(ents, {}, cl, L)
+                law_ok = law_ok and AN.is_closed_world_under(ents, {}, cl, L, t) and AN.probe(t, 2) is None
+                law_ok = law_ok and AN.verify_lens(ents, {}, cl, L, t) and AN.is_lossy(ents, {}, cl, L, t)
+                law_ok = law_ok and len(t) == AN.transcript_bytes_len()
+            # the monotone dial: widening reach 0->150 adds entities & never coarsens; focus refines strictly
+            La, Lb = AN.lens(0, 0), AN.lens(150, 0)
+            ma = set(AN._manifest_under(ents, {}, cl, La)); mb = set(AN._manifest_under(ents, {}, cl, Lb))
+            law_ok = law_ok and ma.issubset(mb) \
+                and all(AN.shift_of(ents, cl, Lb, e) <= AN.shift_of(ents, cl, La, e) for e in ma)
+            ec = {1: (12, 0, AN._d(1))}
+            law_ok = law_ok and AN.shift_of(ec, cl, AN.lens(0, 1), 1) < AN.shift_of(ec, cl, AN.lens(0, 0), 1)
+            # the inverted schedule coarsens on widening — the anamorphic order rejects it
+            law_ok = law_ok and not (AN._shift_nonmonotone(ec, cl, AN.lens(0, 1), 1)
+                                     <= AN._shift_nonmonotone(ec, cl, AN.lens(0, 0), 1))
+            # the graded-leak plant leaks a hidden entity & breaks closed-world; the covert plant is caught
+            elk = {1: (5, 0, AN._d(1)), 2: (-6, 0, AN._d(2))}; clk = PC.client(0, 0, 1, 0, 2, 2, 400, 0)
+            leak = AN._perceive_graded_leak(elk, {}, clk, AN.lens(0, 0), 100)
+            law_ok = law_ok and AN.probe(leak, 2) is not None \
+                and not AN.is_closed_world_under(elk, {}, clk, AN.lens(0, 0), leak)
+            ecov = {1: (13, 3, AN._d(1))}; clc = PC.client(0, 0, 1, 0, 4, 1, 400, 0)
+            cov = AN._perceive_covert(ecov, {}, clc, AN.lens(0, 0))
+            law_ok = law_ok and not AN.verify_lens(ecov, {}, clc, AN.lens(0, 0), cov) \
+                and not AN.is_lossy(ecov, {}, clc, AN.lens(0, 0), cov)
+            # a client-forged wider lens is refused; the identity lens reduces to perception (exact)
+            efw = {1: (21, 0, AN._d(1))}; clf = PC.client(0, 0, 1, 0, 4, 2, 400, 0)
+            forged = AN.perceive_lens(efw, {}, clf, AN.lens(80, 0))
+            law_ok = law_ok and not AN.verify_lens(efw, {}, clf, AN.lens(0, 0), forged)
+            erd = {1: (5, 0, AN._d(1)), 2: (3, 2, AN._d(2)), 3: (-4, 0, AN._d(3))}
+            crd = PC.client(0, 0, 1, 0, 2, 2, 400, 0); lid = AN.lens(0, AN.COARSEST)
+            trd = AN.perceive_lens(erd, {}, crd, lid)
+            law_ok = law_ok and AN._manifest_under(erd, {}, crd, lid) == PC._manifest(erd, frozenset(), crd) \
+                and all(v[:2] == (erd[e][0], erd[e][1]) for e, v in AN.reconstruct_under(trd).items())
+        except Exception:
+            law_ok = False
+        self.record("anamorphosis-law", law_ok,
+                    "the tunable focal lens: for EVERY lens the client reconstruction is a CLOSED WORLD "
+                    "(the graded dial changes RESOLUTION, never MEMBERSHIP) and a behind entity is "
+                    "un-addressed; the dial is MONOTONE (widening reach/focus only adds entities and "
+                    "refines precision — the inverted schedule is rejected); quantization is LOSSY-ONLY "
+                    "and the covert 'reversible blur' is refused; the 'semi-awareness blip' plant leaks a "
+                    "hidden entity and breaks closed-world (caught); the lens is CITED (a client forging a "
+                    "wider one is refused); the transcript is constant-shape; and at the identity lens it "
+                    "reduces to perception, exact — perception is the L = ⊤ corner"
+                    if law_ok else "the anamorphosis law did not hold")
+        prop_ok = True
+        try:
+            rep = AN.sweep()
+            prop_ok = (rep["digest"] == AN.sweep_golden() and rep["coarse_seen"] > 0
+                       and rep["fine_seen"] > 0 and rep["crossed_seen"] > 0 and rep["mono_pairs"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("anamorphosis-property", prop_ok,
+                    f"the focal lens survived a {AN.SWEEP_COUNT}-world × {len(AN._LENSES)}-lens seeded "
+                    "sweep — random worlds across a slice of the dial: witness-blind, closed-world under "
+                    "every lens (a hidden change is byte-identical), constant-shape, cited, lossy-only, and "
+                    "MONOTONE (widening only adds & refines); the aggregate digest reproduces its golden "
+                    "(non-vacuous: coarse + sharp records and boundary crossings all exercised)"
+                    if prop_ok else "the anamorphosis property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = AN._manifest_under
+            AN._manifest_under = lambda entities, walls, cl2, L: sorted(entities)   # leak the hidden set
+            try:
+                AN.sweep()
+            except AN.AnamorphosisError:
+                red_ok = True
+            finally:
+                AN._manifest_under = _orig
+            red_ok = red_ok and AN.sweep_digest() == AN.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("anamorphosis-property-selftest", red_ok,
+                    "a manifest that leaks the hidden set breaks closed-world/invariance under the lens, so "
+                    "the seeded sweep raises ANAMORPHOSIS-REFUSE — the graded firewall is a live falsifier, "
+                    "not decoration — and the module is clean again after the revert"
+                    if red_ok else "the anamorphosis sweep did not redden under a leak-the-hidden manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10473,6 +10583,7 @@ def main() -> int:
     gate.partition()
     gate.meshsession()
     gate.perception()
+    gate.anamorphosis()
     gate.lease()
     gate.testament()
     gate.rollstore()

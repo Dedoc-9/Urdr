@@ -192,6 +192,21 @@ citation contract. Four pinned scenes (sniper / corner / margin / wallhack) + a 
 red-first (a leak-the-hidden manifest reddens). DECLARED: the margin is a bounded declared leak (not zero;
 peeker's advantage unsolved); audio/hitbox channels out of scope; passive-info cheats only (aim-assist NOT
 touched); cross-placement.
+`anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception
+firewall generalized from BINARY (absent Ø / full-fidelity) to a GRADED, server-tunable dial `L = (reach,
+focus)` — a "simple patch to all users" — WITHOUT opening a slot for the hidden (composition over
+`perception`, NO NEW GLYPH; design in `docs/anamorphosis_brief.md`). `reach` widens the manifestation
+boundary; `focus` sharpens precision; a manifested record is floored to a 2ˢ grid where `s` grades with
+distance (close = exact, far = coarse) — the microscope's depth of field. The dial tunes the BOUNDARY of
+what manifests and the PRECISION of the already-visible, NEVER the presence of the hidden (the dangerous
+"semi-awareness blip" is a planted falsifier that breaks closed-world and is caught). Guarantees (each
+red-first): closed-world across the WHOLE dial (resolution changes, membership does not), the MONOTONE dial
+(widening only adds entities and refines precision, never swaps — kills a covert channel), LOSSY-ONLY
+quantization (the covert reversible blur is refused), a server-only CITED lens (a client forging a wider one
+is refused), constant-shape across the dial, and a reduction to perception at `L = ⊤` (exact). Four scenes
+(focal / widen / defended / reduce) + a 120-world × 4-lens seeded sweep. The academic twin is focus/nimbus
+(Benford & Fahlén 1993); no superiority claimed. Declared successor: a clarity-bounded update throttle
+(deterministic sim-rate decoupling) reading this rung's shift/awareness as its input.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

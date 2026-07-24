@@ -212,8 +212,13 @@ honestly claim and to where it lands:
      that decides the manifested set is the mesh steward. Honest claim: *information-advantage cheats
      are bounded by what the server chose to reveal* — a real reduction, not elimination (aim-assist on
      legitimately-visible data, audio/hitbox channels, and the margin/peeker's-advantage remain out of
-     scope, stated). Remaining Band A work: wiring the manifested-set decision to the live mesh
-     authority; audio/hitbox channels; cross-placement.
+     scope, stated). EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
+     `docs/anamorphosis_brief.md`): the binary firewall becomes a server-tunable focal lens `L = (reach,
+     focus)` — a graded dial that tunes the manifestation boundary and the precision of the
+     already-visible while the closed world holds across the WHOLE dial (proven monotone, lossy-only,
+     cited, constant-shape). Remaining Band A work: wiring the manifested-set decision to the live mesh
+     authority; the clarity-bounded update throttle (deterministic sim-rate decoupling, declared next);
+     audio/hitbox channels; cross-placement.
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual

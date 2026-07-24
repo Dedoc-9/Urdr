@@ -1,0 +1,22 @@
+# URDRANA1 conformance — the tunable semantic focal lens over witnessed absence: a server-side,
+# globally-deployable dial L = (reach, focus) that generalizes the perception firewall from BINARY
+# (absent Ø / full-fidelity) to GRADED, WITHOUT opening a slot for the hidden. reach widens the
+# manifestation boundary (a superset dial); focus sharpens precision (a resolution dial). A manifested
+# entity's record is floored to a 2^s grid where s = clamp(COARSEST - (awareness >> SCALE) - focus),
+# awareness = (range^2 + margin + reach) - d^2. Scene digests SHA-256(MAGIC | name | world | lens |
+# transcript | manifested | verdict). The sweep digest is over a fixed-seed (20260724) 120-world ×
+# 4-lens sweep asserting: witness-blindness; CLOSED-WORLD under every lens (a sub-boundary entity is an
+# un-addressed absence at ANY precision); constant-shape across the dial; the citation contract and
+# LOSSY-ONLY (a coarse record's low bits are zero and the exact position is unrecoverable); hidden-set
+# invariance under every lens; and the MONOTONE DIAL (widening L only adds entities and refines precision,
+# never swaps). Pinned AFTER the plants were proven to bite: _perceive_graded_leak (a "semi-awareness
+# blip") lets a wallhack recover a hidden entity and breaks closed-world; _perceive_covert (exact low
+# bits kept under a coarse claim) is refused by the citation contract and unmasked by is_lossy; the
+# inverted schedule breaks monotonicity; a client-forged wider/finer lens is refused. Composition over
+# URDRPCP1 — NO new glyph (kernel frozen). Third pillar (clarity-bounded update throttle) is a declared
+# successor: it reads THIS rung's shift/awareness as its input.
+focal 5d0a6f8087fceb724c148ac15f48cff1002858a8ed15a549baa6e7dead4f461b
+widen d12dbdb5736e10490bab4b36e752ba89b10584391434fd159edbb288bec12691
+defended 445248eb402b5c9bfbc4a64ff3fbad633f09db5e689621132c7980ba59b1cb75
+reduce cb78db410339464a23da9e3cf3a185d5299a6314f432e32e5579a79c70d43ddc
+sweep 6c584b8a019226653ef98dfe3c0f2df218e6f68063ab06658a6a334fb059cbdc
