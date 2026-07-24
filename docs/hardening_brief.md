@@ -221,8 +221,13 @@ honestly claim and to where it lands:
      per-entity position-refresh rate (compute decoupled from the sim rate) while membership stays live
      (closed-world every tick, no ghosts) and staleness is structurally bounded. THREE PILLARS on one
      lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1). Remaining Band A work: wiring the
-     manifested-set decision to the live mesh authority; adaptive/priority scheduling beyond the clarity
-     cadence; audio/hitbox channels; cross-placement.
+     manifested-set decision to the live mesh authority; byte-level bandwidth accounting; audio/hitbox
+     channels; cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
+     URDRSCH1, `docs/schedule_brief.md`): bandwidth- and importance-aware refresh scheduling — when the
+     per-tick refresh budget binds, the scheduler serves the due OLDEST-FIRST (starvation-free) so
+     staleness stays bounded, membership stays live (closed-world every tick), and replay stays
+     deterministic. FOUR capabilities on one lens: security (URDRPCP1), network (URDRANA1), compute
+     (URDRTHR1), bandwidth scheduling (URDRSCH1).
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual

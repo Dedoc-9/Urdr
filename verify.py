@@ -7773,6 +7773,106 @@ class Gate:
                     "decoration — and the module is clean again after the revert"
                     if red_ok else "the throttle sweep did not redden under a leak-the-hidden manifest")
 
+    def schedule(self):
+        """The adaptive priority scheduler (URDRSCH1): bandwidth- and importance-aware refresh scheduling
+        over the throttle. When more entities are due than a per-tick refresh BUDGET allows, the scheduler
+        serves them OLDEST-FIRST (starvation-free), importance/eid as tiebreaks, while membership stays live
+        (closed-world every tick, no ghosts). Composition over URDRTHR1 — no new glyph (kernel frozen); see
+        docs/schedule_brief.md. Rows: scenes (budget / priority / starvefree / reduce reproduce URDRSCH1
+        digests), law (budget respected + the over-budget plant caught + priority correct + the inversion
+        plant caught + STARVATION-FREE bounded staleness + the static-priority plant caught + closed-world
+        every tick + the membership-defer plant caught + deterministic replay + the wall-clock plant
+        diverges + reduces to the throttle at high budget), property (a seeded 80-sequence × 3-budget sweep
+        with non-vacuity), selftest (a leak-the-hidden manifest makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import schedule as SC
+            import anamorphosis as AN
+            import perception as PC
+        except Exception as exc:
+            self.record("schedule", False, f"import failed (schedule): {exc}")
+            return
+        try:
+            ref_ok = all(SC.scene_result(n) == SC.golden(n) for n in SC.SCENES)
+        except Exception as exc:
+            self.record("schedule:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("schedule:scenes", ref_ok,
+                    "budget + priority + starvefree + reduce reproduce URDRSCH1 digests"
+                    if ref_ok else "a schedule scene drifted from its digest")
+        law_ok = True
+        try:
+            L = AN.lens(0, 0)
+            ticks, cl = SC._contended()
+            rep = SC.run(ticks, cl, L, 2)
+            # budget respected + real contention + closed-world & constant-shape every tick
+            law_ok = rep["max_disc"] <= 2 and rep["deferrals"] > 0
+            for t, (ents, walls) in enumerate(ticks):
+                law_ok = law_ok and SC.is_closed_world_at(ents, walls, cl, L, rep["transcripts"][t]) \
+                    and len(rep["transcripts"][t]) == SC.transcript_bytes_len()
+            law_ok = law_ok and SC.priority_correct(ticks, cl, L, 2)
+            # the over-budget and membership-defer plants are caught
+            law_ok = law_ok and SC._run_over_budget(ticks, cl, L, 2)["max_disc"] > 2
+            md = SC._run_membership_defer(ticks, cl, L, 2)
+            law_ok = law_ok and any(set(SC.reconstruct(md[t])) != set(AN._manifest_under(e, w, cl, L))
+                                    for t, (e, w) in enumerate(ticks))
+            # STARVATION-FREE: the honest run is bounded; the static-priority and inversion plants exceed it
+            long_ticks, lcl = SC._contended(24)
+            law_ok = law_ok and SC.run(long_ticks, lcl, L, 1)["max_stale"] <= SC.stale_bound(1) \
+                and SC._run_static_priority(long_ticks, lcl, L, 1)["max_stale"] > SC.stale_bound(1) \
+                and SC._run_inversion(long_ticks, lcl, L, 1)["max_stale"] > SC.stale_bound(1)
+            # deterministic replay; the wall-clock plant diverges; reduces to the throttle at high budget
+            law_ok = law_ok and SC.run(ticks, cl, L, 2)["transcripts"] == rep["transcripts"]
+            law_ok = law_ok and SC.run(ticks, cl, L, 2, _clock=lambda: 0)["transcripts"] == rep["transcripts"] \
+                and SC.run(ticks, cl, L, 2, _clock=lambda: 1)["transcripts"] != rep["transcripts"]
+            rc = SC.run(ticks, cl, L, SC.CAPACITY)
+            law_ok = law_ok and rc["deferrals"] == 0 and rc["max_stale"] <= SC.MAX_STALE
+        except Exception:
+            law_ok = False
+        self.record("schedule-law", law_ok,
+                    "adaptive priority scheduling: at most `budget` discretionary refreshes per tick (the "
+                    "over-budget plant caught); the refreshed set is the top-budget due-known by priority "
+                    "(the inversion plant caught); STARVATION-FREE — oldest-first keeps staleness ≤ "
+                    "MAX_STALE + ceil(CAPACITY/budget) while the static-priority plant starves the coarse "
+                    "and exceeds it; the transcript is a CLOSED WORLD every tick (a deferred entity is still "
+                    "shown — the membership-defer plant caught) and constant-shape; the run is a "
+                    "DETERMINISTIC pure function of (ticks, lens, budget) — the wall-clock plant diverges; "
+                    "and at budget ≥ CAPACITY nothing is deferred, reducing to the throttle"
+                    if law_ok else "the schedule law did not hold")
+        prop_ok = True
+        try:
+            rep2 = SC.sweep()
+            prop_ok = (rep2["digest"] == SC.sweep_golden() and rep2["deferrals"] > 0
+                       and rep2["departures"] > 0 and rep2["stale_seen"] > 0 and rep2["prio_checked"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("schedule-property", prop_ok,
+                    f"the scheduler survived a {SC.SWEEP_COUNT}-sequence × {len(SC._BUDGETS)}-budget × "
+                    f"{SC.NTICKS}-tick seeded sweep — contended moving worlds: closed-world every tick, "
+                    "constant-shape, hidden-set invariant, budget respected, bounded staleness, priority "
+                    "correct, and deterministic; the aggregate digest reproduces its golden (non-vacuous: "
+                    "deferrals, departures, and stale records all exercised)"
+                    if prop_ok else "the schedule property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = AN._manifest_under
+            AN._manifest_under = lambda entities, walls, cl3, L3: sorted(entities)   # leak the hidden set
+            try:
+                SC.sweep()
+            except SC.ScheduleError:
+                red_ok = True
+            finally:
+                AN._manifest_under = _orig
+            red_ok = red_ok and SC.sweep_digest() == SC.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("schedule-property-selftest", red_ok,
+                    "a manifest that leaks the hidden set breaks closed-world per tick, so the seeded sweep "
+                    "raises SCHEDULE-REFUSE — the live-membership guarantee holds under scheduling too — and "
+                    "the module is clean again after the revert"
+                    if red_ok else "the schedule sweep did not redden under a leak-the-hidden manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10695,6 +10795,7 @@ def main() -> int:
     gate.perception()
     gate.anamorphosis()
     gate.throttle()
+    gate.schedule()
     gate.lease()
     gate.testament()
     gate.rollstore()

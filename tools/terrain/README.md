@@ -220,7 +220,21 @@ replay (the wall-clock plant diverges), a REAL compute saving (refreshes < refre
 shape + hidden-set invariance per tick, and a reduction to anamorphosis at the identity lens. Four scenes
 (throttle / live / depart / bounded) + a 90-sequence × 10-tick seeded sweep. The three pillars — security
 (URDRPCP1), network (URDRANA1), compute (URDRTHR1) — all read the same awareness and all keep the closed
-world. Declared successor: adaptive/priority scheduling beyond the clarity cadence.
+world. Declared successor LANDED as `schedule.py` below.
+`schedule.py` — `URDRSCH1`, the ADAPTIVE PRIORITY SCHEDULER: bandwidth- and importance-aware refresh
+scheduling over the throttle (composition, NO NEW GLYPH; design in `docs/schedule_brief.md`). When more
+entities are due than a per-tick refresh BUDGET allows, the scheduler chooses WHICH get fresh positions —
+serving them OLDEST-FIRST (STARVATION-FREE; importance and eid as tiebreaks) so nothing's staleness grows
+without bound. THE NEW HAZARD it answers: "serve the most important first" STARVES the coarse; age-first
+bounds staleness at MAX_STALE + ⌈CAPACITY/budget⌉. MEMBERSHIP stays live (closed-world every tick — a
+deferred entity is still shown carried, a departed one dropped). Deterministic (`tick` explicit, no
+wall-clock). Guarantees (each red-first): budget respected (the over-budget plant caught), priority correct
+(the inversion plant caught), starvation-free bounded staleness (the static-priority plant caught),
+closed-world every tick (the membership-defer plant caught), deterministic replay (the wall-clock plant
+diverges), and a reduction to the throttle at budget ≥ CAPACITY. Four scenes (budget / priority /
+starvefree / reduce) + an 80-sequence × 3-budget × 12-tick sweep. FOUR capabilities now stand on the focal
+lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1), bandwidth scheduling (URDRSCH1).
+Declared successor: byte-level (not count-level) bandwidth accounting.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

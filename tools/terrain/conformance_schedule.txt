@@ -1,0 +1,17 @@
+# URDRSCH1 conformance — the adaptive priority scheduler: bandwidth- and importance-aware refresh
+# scheduling over the clarity-bounded throttle. When more entities are due than a per-tick refresh BUDGET
+# allows, the scheduler serves them OLDEST-FIRST (starvation-free), importance and eid as tiebreaks, while
+# membership stays live (closed-world every tick, no ghosts). Staleness under a saturated budget is
+# bounded by MAX_STALE + ceil(CAPACITY/budget). Scene digests SHA-256(MAGIC | name | lens | budget |
+# run-digest | verdict); the sweep digest is over a fixed-seed (20260724) 80-sequence x 3-budget x 12-tick
+# sweep asserting closed-world per tick, constant-shape, hidden-set invariance, budget respected, bounded
+# staleness, priority correctness, and deterministic replay. Pinned AFTER the plants were proven to bite:
+# _run_static_priority (importance-only, no age) STARVES the coarse and exceeds the bound;
+# _run_membership_defer drops a deferred entity and breaks closed-world; _run_over_budget exceeds the
+# budget; _run_inversion serves the youngest and starves the oldest; the wall-clock plant diverges.
+# Composition over URDRTHR1/URDRANA1/URDRPCP1 — NO new glyph (kernel frozen).
+budget 0f716e2492b4cc3a7db3ac4481d1a27112bea9d0f4ac6ff5e77cf621cb42c108
+priority 06a05bc2bcd32eea28e87ddec3c712ba42e2dec398fba812406e1b0d149868d7
+starvefree 7b81c478be0a2227e8b188bc80273a6366f5ed98bc1fd7cc2ea67a3f7007382d
+reduce 3803c6f6361fca66f0d878fb3d4f42825837ac322eafb2a97df98cc223fec290
+sweep 15035579d1f4a173d853902cf069d77a74da2ac4f7cdc4363213d04b3aa9240c
