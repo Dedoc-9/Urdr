@@ -203,6 +203,20 @@ is byte-identical), audio-ESP-finds-nothing, constant-shape, wall-muffle, bounde
 citation contract; the footstep-leak plant (a whisper for a sub-threshold sound) is caught. Four scenes
 (near / wall / direction / esp) + a 120-soundscape sweep. The firewall now covers TWO channels: vision
 (URDRPCP1) and audio (URDRAUD1). Declared successor: the hitbox/physics channel.
+`hitbox.py` — `URDRHIT1`, SERVER-AUTHORITATIVE HIT VALIDATION, the ACTIVE channel of the anti-cheat firewall:
+the aimbot / wall-shoot defense (composition over `perception`, NO NEW GLYPH; design in `docs/hitbox_brief.md`).
+The residency channels (URDRPCP1/URDRAUD1) govern what a client may RECEIVE; this governs what a client may
+CLAIM. A claimed hit `(target, point)` is ADJUDICATED against the AUTHORITATIVE world and admits iff, in fixed
+reason priority, the point is on the SERVER's integer hitbox AABB (a client-claimed extent is never read), on
+the forward aim ray (exact-integer colinear `(hx−px)·ay == (hy−py)·ax` AND forward — no atan2/float), within
+squared range, and the line of fire crosses no wall (perception's integer supercover). Phantom / off-ray /
+out-of-range / wall-shot / inflated-hitbox claims are each REFUSED, each forgery plant proven to bite. The
+verdict is a constant-shape (92-byte) proof-carrying packet: a re-sealed forged ADMIT still fails
+`verify_verdict` because a fresh authoritative adjudication disagrees (the server, not the client, decides).
+Guarantees (each red-first): server-authority, the five refusals with teeth, clean admit + authority citation,
+constant-shape, proof-carrying. Five scenes (clean / wallshot / phantom / offray / inflated) + a 120-arena
+sweep. The firewall now covers THREE channels: vision (URDRPCP1) and audio (URDRAUD1) on the RECEIVE side,
+hit validation (URDRHIT1) on the CLAIM side. Declared successor: temporal lag-compensation.
 `anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception
 firewall generalized from BINARY (absent Ø / full-fidelity) to a GRADED, server-tunable dial `L = (reach,
 focus)` — a "simple patch to all users" — WITHOUT opening a slot for the hidden (composition over

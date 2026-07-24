@@ -8510,6 +8510,111 @@ class Gate:
                     "the module is clean again after the revert"
                     if red_ok else "the audible sweep did not redden under a leak-the-inaudible manifest")
 
+    def hitbox(self):
+        """Server-authoritative hit validation (URDRHIT1): the ACTIVE channel of the anti-cheat firewall —
+        the aimbot / wall-shoot defense. Witnessed/audible absence govern what a client may RECEIVE; this
+        governs what a client may CLAIM. A claimed hit (target, point) is ADJUDICATED against the
+        AUTHORITATIVE world and admits iff, in fixed reason priority, the point is on the SERVER's integer
+        hitbox AABB (a client-claimed extent is never read), on the forward aim ray (exact-integer colinear +
+        forward, no float), within squared range, and the line of fire crosses no wall (perception's integer
+        supercover). Phantom / off-ray / out-of-range / wall-shot / inflated-hitbox claims are each REFUSED,
+        each plant proven to bite. The verdict is a constant-shape proof-carrying packet; a re-sealed forged
+        ADMIT still fails verify_verdict because a fresh authoritative adjudication disagrees. Composition
+        over URDRPCP1 — no new glyph (kernel frozen); see docs/hitbox_brief.md; temporal lag-compensation is
+        the declared successor. Rows: scenes (clean / wallshot / phantom / offray / inflated reproduce
+        URDRHIT1 digests), law (server-authority + the five refusals each biting + clean admit + constant
+        shape + the proof-carrying contract), property (a seeded 120-arena sweep with non-vacuity), selftest
+        (a skipped-occlusion adjudicator admits a wall-shot so the sweep REDDENS)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import hitbox as HB
+        except Exception as exc:
+            self.record("hitbox", False, f"import failed (hitbox): {exc}")
+            return
+        try:
+            ref_ok = all(HB.scene_result(n) == HB.golden(n) for n in HB.SCENES)
+        except Exception as exc:
+            self.record("hitbox:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("hitbox:scenes", ref_ok,
+                    "clean + wallshot + phantom + offray + inflated reproduce URDRHIT1 digests"
+                    if ref_ok else "a hitbox scene drifted from its digest")
+        law_ok = True
+        try:
+            tg = {1: (10, 0, 1, 1, HB._d(1))}
+            sh = HB.shooter(0, 0, 1, 0, 400)
+            before = HB.world_digest(tg, frozenset())
+            base = HB.adjudicate(tg, frozenset(), sh, (1, 10, 0))
+            law_ok = HB.world_digest(tg, frozenset()) == before \
+                and base == HB.adjudicate(tg, frozenset(), sh, (1, 10, 0))
+            # the clean hit admits and carries the authority citation
+            law_ok = law_ok and HB.admit(tg, frozenset(), sh, (1, 10, 0))
+            law_ok = law_ok and HB.read_verdict(base)[3] and HB.read_verdict(base)[5] == tg[1][4]
+            # the five refusals, each with its plant biting where the law refuses
+            law_ok = law_ok and not HB.admit(tg, frozenset(), sh, (1, 13, 0)) \
+                and HB._admit_no_box(tg, frozenset(), sh, (1, 13, 0))              # phantom
+            law_ok = law_ok and not HB.admit(tg, frozenset(), sh, (1, 10, 1)) \
+                and HB._admit_no_ray(tg, frozenset(), sh, (1, 10, 1))             # off-ray
+            fg = {1: (30, 0, 1, 1, HB._d(1))}; sr = HB.shooter(0, 0, 1, 0, 100)
+            law_ok = law_ok and not HB.admit(fg, frozenset(), sr, (1, 30, 0)) \
+                and HB._admit_no_range(fg, frozenset(), sr, (1, 30, 0))           # out-of-range
+            law_ok = law_ok and not HB.admit(tg, frozenset({(5, 0)}), sh, (1, 10, 0)) \
+                and HB._admit_no_occlusion(tg, frozenset({(5, 0)}), sh, (1, 10, 0))  # wall-shot
+            law_ok = law_ok and not HB.admit(tg, frozenset(), sh, (1, 13, 0)) \
+                and HB._admit_client_extent(tg, frozenset(), sh, (1, 13, 0, 4, 4))   # inflated hitbox
+            # constant-shape verdict; server-authority (the off-box verdict is unmoved by any pretended extent)
+            law_ok = law_ok and len(base) == HB.verdict_bytes_len() \
+                == len(HB.adjudicate(tg, frozenset(), sh, (1, 13, 0)))
+            # proof-carrying: the honest verdict verifies; a re-sealed forged ADMIT still fails
+            wv = HB.adjudicate(tg, frozenset({(5, 0)}), sh, (1, 10, 0))
+            law_ok = law_ok and HB.verify_verdict(tg, frozenset({(5, 0)}), sh, wv) \
+                and not HB.verify_verdict(tg, frozenset({(5, 0)}), sh, HB.forge_admit(wv))
+        except Exception:
+            law_ok = False
+        self.record("hitbox-law", law_ok,
+                    "server-authoritative hit validation: a claimed hit is adjudicated against the "
+                    "authoritative world; a clean hit admits and carries the target's citation, while a "
+                    "phantom hit off the box, an aimbot corner off the ray, an out-of-range claim, a wall-shot "
+                    "through occlusion, and an inflated-hitbox claim are each REFUSED — and each forgery plant "
+                    "(skip that check / trust the client extent) admits exactly where the law refuses; the "
+                    "verdict is constant-shape and proof-carrying (a re-sealed forged ADMIT still fails "
+                    "verification because a fresh authoritative adjudication disagrees)"
+                    if law_ok else "the hitbox law did not hold")
+        prop_ok = True
+        try:
+            rep = HB.sweep()
+            prop_ok = (rep["digest"] == HB.sweep_golden() and rep["admit_seen"] > 0
+                       and rep["wall_seen"] > 0 and rep["offray_seen"] > 0 and rep["inflated_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("hitbox-property", prop_ok,
+                    f"server authority survived a {HB.SWEEP_COUNT}-arena seeded sweep — random shooters, "
+                    "targets, and walls: adjudication never mutates the witness, is deterministic and "
+                    "constant-shape, a legitimate hit admits, a wall-shot is refused (occlusion honoured), an "
+                    "off-ray corner and an off-real-box point a client's inflated extent would accept are "
+                    "refused, and a forged ADMIT never verifies; the aggregate digest reproduces its golden "
+                    "(non-vacuous: admit / wall / off-ray / inflated all exercised)"
+                    if prop_ok else "the hitbox property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = HB._clear_los
+            HB._clear_los = lambda *a: True                       # skip occlusion → a wall-shot admits
+            try:
+                HB.sweep()
+            except HB.HitboxError:
+                red_ok = True
+            finally:
+                HB._clear_los = _orig
+            red_ok = red_ok and HB.sweep_digest() == HB.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("hitbox-property-selftest", red_ok,
+                    "an adjudicator that skips the line-of-fire occlusion admits a wall-shot, so the seeded "
+                    "sweep raises HITBOX-REFUSE — server authority is a live falsifier, not decoration — and "
+                    "the module is clean again after the revert"
+                    if red_ok else "the hitbox sweep did not redden under a skipped-occlusion adjudicator")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11431,6 +11536,7 @@ def main() -> int:
     gate.meshsession()
     gate.perception()
     gate.audible()
+    gate.hitbox()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

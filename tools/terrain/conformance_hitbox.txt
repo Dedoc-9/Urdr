@@ -1,0 +1,21 @@
+# URDRHIT1 conformance — SERVER-AUTHORITATIVE HIT VALIDATION, the ACTIVE channel of the anti-cheat
+# firewall. Witnessed/audible absence (URDRPCP1/URDRAUD1) govern what a client may RECEIVE; this governs
+# what a client may CLAIM. A claimed hit (target, point) is ADJUDICATED against the AUTHORITATIVE world and
+# ADMITS iff, in fixed reason priority: the point is ON the server's integer hitbox AABB (a client-claimed
+# extent is never read), ON the forward aim ray (exact-integer colinear AND forward — no atan2/float),
+# WITHIN squared range, and the LINE OF FIRE crosses no wall cell (perception's integer supercover). A
+# wall-shot, a phantom hit off the box, an off-ray (aimbot) corner, an out-of-range claim, and an
+# inflated-hitbox claim are each REFUSED. The verdict is a constant-shape (92-byte) proof-carrying packet;
+# a forged ADMIT (re-sealed with a valid self-digest) still fails verify_verdict because a fresh
+# authoritative adjudication disagrees. Scene digests SHA-256(MAGIC | name | world | verdict | reason |
+# verdict-name); the sweep digest is over a fixed-seed (20260724) 120-arena sweep asserting server-
+# authority, determinism, constant shape, the proof-carrying contract, and the five refusals. Pinned AFTER
+# each of the five forgery plants was proven to bite (admit where the honest law refuses) and the sweep
+# proven to redden under a skipped-occlusion / box-blind adjudicator. Composition over URDRPCP1 — NO new
+# glyph (kernel frozen). Temporal lag-compensation is the declared successor.
+clean 17593637446cd2e5caed4b68c104bb73a36bed9c785e12952499b4031dfbb9ca
+wallshot 29006fe78e98ed296cca4270e6d039e57b89166e51d9513dc0305fd6247be2ce
+phantom 1bc38684ef8dbea6fd510e0f7071aad5b85e2fbbbf1d227b22c797038b4857fd
+offray 1b55ce42c95c15a23e6c24efc34c5df9ddc250cde2058f009e9e7af092e1e893
+inflated 961e331238d08a8d417fe9c4e714ffcff4ab2b661f6ebddf10c92dcc40d61f5b
+sweep bb75529769d9999eb1d00ed5455c879f14397f1d8afd84ced08c5d02e1326073

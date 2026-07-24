@@ -216,8 +216,19 @@ honestly claim and to where it lands:
      `docs/audible_brief.md`): a sound below the audibility threshold (too quiet / far / wall-occluded) is an
      un-addressed absence, so an audio-ESP finds nothing — closing the footstep-leak seam VALORANT/CS2 are
      publicly known to leave; the listener hears a bucketed direction + quantized loudness (bounded
-     localization), never the source. The firewall now covers TWO channels — vision (URDRPCP1) and audio
-     (URDRAUD1); hitbox/physics is the declared next channel. EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
+     localization), never the source. The HIT-CLAIM channel is now covered by SERVER-AUTHORITATIVE HIT
+     VALIDATION (`tools/terrain/hitbox.py`, URDRHIT1, `docs/hitbox_brief.md`), the ACTIVE side of the firewall
+     — the aimbot / wall-shoot defense: where the residency channels govern what a client may RECEIVE, this
+     governs what a client may CLAIM. A claimed hit is adjudicated against the authoritative world and admits
+     only if the point is on the SERVER's integer hitbox (a client-claimed extent is never read), on the
+     forward aim ray (exact-integer, no float), in range, and the line of fire is unoccluded; phantom,
+     off-ray, out-of-range, wall-shot, and inflated-hitbox claims are each refused, each forgery plant proven
+     to bite. The verdict is a constant-shape proof-carrying packet — a re-sealed forged ADMIT still fails
+     verification because a fresh authoritative adjudication disagrees (the server, not the client, decides).
+     The firewall now covers THREE channels — vision (URDRPCP1) and audio (URDRAUD1) on the RECEIVE side, hit
+     validation (URDRHIT1) on the CLAIM side; temporal lag-compensation (rewinding target positions to the
+     shooter's view-time) is the declared next refinement, and the aim-assist-on-legitimate-targets boundary
+     remains out of scope, stated. EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
      `docs/anamorphosis_brief.md`): the binary firewall becomes a server-tunable focal lens `L = (reach,
      focus)` — a graded dial that tunes the manifestation boundary and the precision of the
      already-visible while the closed world holds across the WHOLE dial (proven monotone, lossy-only,
@@ -226,8 +237,8 @@ honestly claim and to where it lands:
      per-entity position-refresh rate (compute decoupled from the sim rate) while membership stays live
      (closed-world every tick, no ghosts) and staleness is structurally bounded. THREE PILLARS on one
      lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1). Remaining Band A work: wiring the
-     manifested-set decision to the live mesh authority; byte-level bandwidth accounting; audio/hitbox
-     channels; cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
+     manifested-set decision to the live mesh authority; temporal lag-compensation for the hit channel;
+     cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
      URDRSCH1, `docs/schedule_brief.md`): bandwidth- and importance-aware refresh scheduling — when the
      per-tick refresh budget binds, the scheduler serves the due OLDEST-FIRST (starvation-free) so
      staleness stays bounded, membership stays live (closed-world every tick), and replay stays
