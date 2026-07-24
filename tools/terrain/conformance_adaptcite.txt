@@ -1,0 +1,16 @@
+# URDRADC1 conformance — adaptive (bandwidth-aware) representation selection: choosing the cheapest
+# LAWFUL encoding of each entity update. Since a CITE is fixed-width, anchor age does not change its cost;
+# 'bandwidth-aware' is about which REPRESENTATION (nothing 0 < MOVE ~7 < CITE 9 < FULL ~39). The adaptive
+# encoder picks the minimum-cost lawful spelling, deterministically, subject to the mandatory baselines the
+# rate law forces. HEADLINE LAW representation-independence: adaptive == oldest-match == all-baseline
+# reconstruction (every lawful spelling reconstructs the same state). Scene digests SHA-256(MAGIC | name |
+# run-digest | verdict); the sweep digest is over a fixed-seed (20260724) 80-world sweep. Pinned AFTER the
+# plants were proven to bite: the suboptimal encoder picks a costlier lawful spelling (larger wire); a
+# forged CITE to an UNCERTIFIED anchor is refused (certified law); a forged CITE to a NON-matching anchor
+# reconstructs the wrong state (representation-independence breaks); a wall-clock choice diverges.
+# Composition over URDRCIT1/.../URDRPCP1 — NO new glyph (kernel frozen).
+cheaper 770e25f1ec747aea46e5606951a351ffccd04d6e3810e51ff5b476ecde8a6d18
+independent b415daeb3806b47029dc84dc44ff20752f3ac895fcd9beccd5824b178e84fd9c
+optimal 5a786170a1fe37f3764fabc11a7495bb2e374d269d1ec807d7d112acb192336c
+lawful b1b1ccf55ef564b8af1ead4242effcad5c45a1ae8e7c0795557cd39114edfb92
+sweep e290df38a0b47637d32a15415949ca7d8a70dd32c3722db74115de280d28680c

@@ -263,7 +263,21 @@ compression, the unacknowledged-citation plant refused, the historical-ghost pla
 no-baseline plant exceeds the interval, the shape-drift plant refused; plus closed-world from the wire and
 determinism. Four scenes (reuse / equiv / evict / rate) + an 80-world sweep. THE COMPLETED TEMPORAL ARC:
 perception → anamorphosis → throttle → schedule → byteacct → citation — the wire as a proof-carrying
-temporal representation of network state. Declared successor: adaptive (bandwidth-aware) anchor selection.
+temporal representation of network state. Declared successor LANDED as `adaptcite.py` below.
+`adaptcite.py` — `URDRADC1`, ADAPTIVE (BANDWIDTH-AWARE) REPRESENTATION SELECTION: choosing the cheapest
+LAWFUL encoding of each entity update (composition, NO NEW GLYPH; design in `docs/adaptcite_brief.md`). Since
+a CITE is fixed-width, anchor age does not change its cost — so "bandwidth-aware" is about which
+REPRESENTATION (nothing 0 < MOVE ~7 < CITE 9 < FULL ~39), not which anchor. The adaptive encoder picks the
+MINIMUM-cost lawful spelling deterministically, subject to the mandatory baselines the rate law forces (the
+citation rung's fixed rule overspends a CITE where a MOVE was equally lawful). HEADLINE LAW
+representation-independence: adaptive ≡ oldest-match ≡ all-baseline reconstruction — every lawful spelling
+reconstructs the same state, so the optimizer cannot corrupt semantics (correctness and optimization are
+DECOUPLED). Guarantees (each red-first): representation-independence + optimality (min-cost lawful) + a real
+saving over the fixed rule; the suboptimal plant spends more, the uncertified-cite plant is refused, the
+representation-drift plant reconstructs wrong (caught), the wall-clock plant diverges; plus closed-world,
+constant-shape, and rate inherited. Four scenes (cheaper / independent / optimal / lawful) + an 80-world
+sweep. The temporal layer now has two rungs: citation (which history may be reused) + adaptcite (which lawful
+spelling is cheapest). Declared successor: a bounded look-ahead (multi-tick) optimizer.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

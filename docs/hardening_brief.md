@@ -238,7 +238,12 @@ honestly claim and to where it lands:
      certified CITE, with cited ≡ baseline (compression never alters semantics), an Acknowledgment Witness
      (refuse uncertainty), closed-world eviction on departure, and a bounded refresh interval. SIX
      capabilities on one lens; the wire is now a proof-carrying temporal representation of network state
-     (observe → resolution → work → which → how-many-bytes → which-history-reused).
+     (observe → resolution → work → which → how-many-bytes → which-history-reused). And by ADAPTIVE
+     REPRESENTATION SELECTION (`tools/terrain/adaptcite.py`, URDRADC1, `docs/adaptcite_brief.md`): the
+     encoder picks the cheapest LAWFUL spelling of each update (nothing < MOVE < CITE < FULL), with
+     representation-independence (every lawful spelling reconstructs the same state) decoupling optimization
+     from correctness. SEVEN capabilities on one lens; the temporal layer proves both which history may be
+     reused and which spelling is cheapest.
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual

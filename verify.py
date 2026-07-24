@@ -8113,6 +8113,102 @@ class Gate:
                     "citation layer too — and the module is clean again after the revert"
                     if red_ok else "the citation sweep did not redden under a leak-the-hidden manifest")
 
+    def adaptcite(self):
+        """Adaptive (bandwidth-aware) representation selection (URDRADC1): choosing the cheapest LAWFUL
+        encoding of each entity update. Since a CITE is fixed-width, 'bandwidth-aware' is about which
+        REPRESENTATION (nothing < MOVE < CITE < FULL), not which anchor; the adaptive encoder picks the
+        minimum-cost lawful spelling deterministically, subject to mandatory baselines. Composition over
+        URDRCIT1 — no new glyph (kernel frozen); see docs/adaptcite_brief.md. Rows: scenes (cheaper /
+        independent / optimal / lawful reproduce URDRADC1 digests), law (representation-independence
+        (adaptive == oldest == baseline) + optimality (min-cost lawful) + a real saving vs the fixed rule +
+        the suboptimal, uncertified-cite, representation-drift, and wall-clock plants caught + closed-world
+        + constant-shape + rate), property (a seeded 80-world sweep with non-vacuity), selftest (a
+        leak-the-hidden manifest makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import adaptcite as AC
+            import citation as CT
+            import anamorphosis as AN
+        except Exception as exc:
+            self.record("adaptcite", False, f"import failed (adaptcite): {exc}")
+            return
+        try:
+            ref_ok = all(AC.scene_result(n) == AC.golden(n) for n in AC.SCENES)
+        except Exception as exc:
+            self.record("adaptcite:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("adaptcite:scenes", ref_ok,
+                    "cheaper + independent + optimal + lawful reproduce URDRADC1 digests"
+                    if ref_ok else "an adaptcite scene drifted from its digest")
+        law_ok = True
+        try:
+            L = AN.lens(0, 0)
+            ticks, cl = AC._oscillate()
+            rep = AC.run(ticks, cl, L)
+            # representation-independence + optimality + a real saving over the fixed rule
+            law_ok = AC.representation_independent(ticks, cl, L) and AC.optimality_ok(ticks, cl, L)
+            a = AC.used_total(ticks, cl, L, mode="adaptive")
+            o = AC.used_total(ticks, cl, L, mode="oldest")
+            law_ok = law_ok and a < o
+            # inherited laws hold on the adaptive wire
+            law_ok = law_ok and AC.is_closed_world_run(ticks, cl, L) and AC.constant_shape_ok(rep) \
+                and AC.rate_ok(rep)
+            # the suboptimal plant spends more; the representation-drift plant breaks independence
+            law_ok = law_ok and AC.used_total(ticks, cl, L, mode="suboptimal") > a
+            base = AC.run(ticks, cl, L, mode="baseline")["recon"]
+            law_ok = law_ok and AC.run(ticks, cl, L, mode="drift")["recon"] != base \
+                and AC.run(ticks, cl, L, mode="adaptive")["recon"] == base
+            # the uncertified-cite plant is refused; the wall-clock plant diverges
+            law_ok = law_ok and not CT.verify_records([("cite", 1, 5)], 6,
+                                                      (AC.B_ROOMY, AC.ACK_LAG, AC.REFRESH_INTERVAL),
+                                                      {1: {5: (3, 0, AC._d(1))}})
+            law_ok = law_ok and AC.run(ticks, cl, L, _clock=lambda: 0)["packets"] == rep["packets"] \
+                and AC.run(ticks, cl, L, _clock=lambda: 1)["packets"] != rep["packets"]
+        except Exception:
+            law_ok = False
+        self.record("adaptcite-law", law_ok,
+                    "adaptive representation selection: every lawful spelling reconstructs the SAME state "
+                    "(adaptive == oldest-match == baseline — representation-independence), and the adaptive "
+                    "encoder picks the MINIMUM-cost lawful one (a MOVE where the fixed rule spent a CITE), a "
+                    "strictly smaller wire; the suboptimal plant spends more, a forged CITE to a non-matching "
+                    "anchor reconstructs the wrong state (caught), and a forged CITE to an uncertified anchor "
+                    "is refused; the adaptive wire is a closed world, constant-shape, and rate-bounded, and "
+                    "selection is deterministic (the wall-clock plant diverges)"
+                    if law_ok else "the adaptcite law did not hold")
+        prop_ok = True
+        try:
+            rep2 = AC.sweep()
+            prop_ok = (rep2["digest"] == AC.sweep_golden() and rep2["cheaper_seen"] > 0
+                       and rep2["cite_seen"] > 0 and rep2["move_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("adaptcite-property", prop_ok,
+                    f"adaptive selection survived a {AC.SWEEP_COUNT}-world seeded sweep — worlds where the "
+                    "fixed rule overspends: representation-independence (adaptive == oldest == baseline), "
+                    "optimality, a real saving, closed-world with eviction, constant-shape, bounded refresh, "
+                    "hidden-set invariance, and deterministic replay; the aggregate digest reproduces its "
+                    "golden (non-vacuous: cheaper wires, citations, and moves all exercised)"
+                    if prop_ok else "the adaptcite property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = AN._manifest_under
+            AN._manifest_under = lambda entities, walls, cl3, L3: sorted(entities)   # leak the hidden set
+            try:
+                AC.sweep()
+            except AC.AdaptCiteError:
+                red_ok = True
+            finally:
+                AN._manifest_under = _orig
+            red_ok = red_ok and AC.sweep_digest() == AC.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("adaptcite-property-selftest", red_ok,
+                    "a manifest that leaks the hidden set makes a hidden entity's change alter the wire, so "
+                    "the seeded sweep raises ADAPTCITE-REFUSE — the closed-world guarantee holds through the "
+                    "adaptive selection layer too — and the module is clean again after the revert"
+                    if red_ok else "the adaptcite sweep did not redden under a leak-the-hidden manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11038,6 +11134,7 @@ def main() -> int:
     gate.schedule()
     gate.byteacct()
     gate.citation()
+    gate.adaptcite()
     gate.lease()
     gate.testament()
     gate.rollstore()
