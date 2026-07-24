@@ -197,14 +197,22 @@ inputs, and `sealsession` proves trace *consistency*, not fair play — a bot's 
 LAWFUL. So the aimbot/anti-cheat schedule is a THREE-BAND roadmap, each band pinned to what it can
 honestly claim and to where it lands:
 
-  1. **Band A — server-driven AoI delivery (lands WITH Phase M, REQUIRED).** The highest-value real
-     mitigation and the one the mesh must carry: the authoritative server — not the client — decides
-     what each client is told, driving delivery from the authoritative pose with a server-OWNED,
-     capped interest radius (never the client's `radius = 10**9`). This turns the AoI filter from a
-     client-parameterized formality into genuine ESP/wallhack mitigation (you cannot aim at a ghost
-     you were never sent). It lands with the certified mesh because it needs the authority-migration
-     machinery Phase M builds. Honest claim: *information-advantage cheats are bounded by what the
-     server chose to reveal* — a real reduction, not elimination.
+  1. **Band A — server-driven AoI delivery (FIRST RUNG LANDED: `tools/terrain/perception.py`,
+     URDRPCP1; lands WITH Phase M, REQUIRED).** The highest-value real mitigation and the one the mesh
+     must carry: the authoritative server — not the client — decides what each client is told, driving
+     delivery from the authoritative pose with a server-OWNED, capped interest radius (never the
+     client's `radius = 10**9`). This turns the AoI filter from a client-parameterized formality into
+     genuine ESP/wallhack mitigation (you cannot aim at a ghost you were never sent). Now landed as
+     WITNESSED ABSENCE (`docs/perception_brief.md`): the D15 firewall applied to residency — a hidden
+     entity is an UN-ADDRESSED ABSENCE (the client transcript is a pure function of the manifested set,
+     so a wallhack replay finds NOTHING), and — beyond the shipping state of the art (VALORANT Fog of
+     War) — a CONSTANT-SHAPE transcript closes the timing/bandwidth side-channel while the pre-reveal
+     margin is a bounded, certified, declared leak. It lands with the certified mesh because the server
+     that decides the manifested set is the mesh steward. Honest claim: *information-advantage cheats
+     are bounded by what the server chose to reveal* — a real reduction, not elimination (aim-assist on
+     legitimately-visible data, audio/hitbox channels, and the margin/peeker's-advantage remain out of
+     scope, stated). Remaining Band A work: wiring the manifested-set decision to the live mesh
+     authority; audio/hitbox channels; cross-placement.
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual

@@ -176,6 +176,21 @@ flagship six-checkpoint composition; skirmish — the minimal timeline) + the se
 `spec/attest/mesh_session.txt`. DECLARED: deterministic in-process attestation (the real cross-process
 boundary is `meshattest`, M2.5); cross-placement. **Phase M seals here** — M1→M2→M2.5→M3→M4→M5, every rung
 a composition, not a new primitive.
+`perception.py` — `URDRPCP1`, the perception layer: WITNESSED ABSENCE as server-authoritative AoI (the
+anti-cheat Band A rung, grown from the operator's Ø idea, NO NEW GLYPH — kernel frozen; design in
+`docs/perception_brief.md`). The D15 firewall (`view_witness`) applied to RESIDENCY: the witness is the
+authoritative world; a per-client MANIFESTED set is a view-side channel WALLED from it. A hidden entity is
+an UN-ADDRESSED ABSENCE — the client transcript is a PURE FUNCTION of the manifested set, so a wallhack
+replayed against it finds NOTHING. Exact-integer AoI (in-front dot, integer-slope wedge, squared range +
+margin band, integer-supercover occlusion over walls). Beyond VALORANT Fog of War: the CONSTANT-SHAPE
+transcript (padded to a fixed capacity) closes the timing/bandwidth side-channel — the byte-length reveals
+nothing about the hidden count; the pre-reveal MARGIN is an explicit bounded certified leak, not zero.
+Guarantees (each red-first): witness-blind, hidden-set invariance (a hidden change → byte-identical
+transcript), constant-shape, wallhack-probe-finds-nothing, certified margin, lawful mint (∅→1) + the
+citation contract. Four pinned scenes (sniper / corner / margin / wallhack) + a 120-world seeded sweep +
+red-first (a leak-the-hidden manifest reddens). DECLARED: the margin is a bounded declared leak (not zero;
+peeker's advantage unsolved); audio/hitbox channels out of scope; passive-info cheats only (aim-assist NOT
+touched); cross-placement.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

@@ -7444,6 +7444,106 @@ class Gate:
                     "redden)"
                     if self_ok else "a tampered session trace was accepted")
 
+    def perception(self):
+        """The perception layer (URDRPCP1): WITNESSED ABSENCE as server-authoritative AoI — the anti-cheat
+        Band A rung, the D15 firewall applied to residency. A hidden entity is an UN-ADDRESSED ABSENCE, so
+        a wallhack replayed against the client transcript finds NOTHING. Beyond VALORANT Fog of War: the
+        constant-shape transcript closes the timing/bandwidth side-channel. Built as a composition — no new
+        glyph (kernel frozen); see docs/perception_brief.md. Rows: scenes (sniper / corner / margin /
+        wallhack reproduce URDRPCP1 digests), law (witness-blind + hidden-set invariance byte-identical +
+        the wallhack probe finds nothing + constant-shape + certified margin + lawful mint + a forged
+        citation reddens), property (a seeded 120-world sweep asserts witnessed absence with non-vacuity),
+        selftest (a leak-the-hidden manifest makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import perception as PC
+        except Exception as exc:
+            self.record("perception", False, f"import failed (perception): {exc}")
+            return
+        try:
+            ref_ok = all(PC.scene_result(n) == PC.golden(n) for n in PC.SCENES)
+        except Exception as exc:
+            self.record("perception:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("perception:scenes", ref_ok,
+                    "sniper + corner + margin + wallhack reproduce URDRPCP1 digests"
+                    if ref_ok else "a perception scene drifted from its digest")
+        law_ok = True
+        try:
+            ents = {1: (5, 0, PC._d(1)), 2: (3, 1, PC._d(2)), 3: (-5, 0, PC._d(3)),
+                    4: (9, 0, PC._d(4))}
+            walls = frozenset({(7, 0)})
+            cl = PC.client(0, 0, 1, 0, 1, 2, 100, 0)
+            before = PC.world_digest(ents, walls)
+            base = PC.perceive(ents, walls, cl)
+            # witness-blind + pure function
+            law_ok = PC.world_digest(ents, walls) == before and base == PC.perceive(ents, walls, cl)
+            # hidden-set invariance: a change to a hidden entity (3 behind, 4 occluded) is byte-identical
+            for hid in (3, 4):
+                moved = dict(ents); moved[hid] = (ents[hid][0], ents[hid][1], PC._d(hid + 500))
+                law_ok = law_ok and PC.perceive(moved, walls, cl) == base
+            # a visible change DOES alter it (non-vacuity)
+            vis = dict(ents); vis[1] = (5, 0, PC._d(900))
+            law_ok = law_ok and PC.perceive(vis, walls, cl) != base
+            # the wallhack probe finds NOTHING for hidden, the record for visible
+            law_ok = law_ok and PC.probe(base, 3) is None and PC.probe(base, 4) is None \
+                and PC.probe(base, 1) is not None
+            # constant-shape: empty and full worlds yield the same length
+            full = PC.perceive({i: (5, 0, PC._d(i)) for i in range(1, PC.CAPACITY + 1)},
+                               frozenset(), cl)
+            law_ok = law_ok and len(PC.perceive({}, walls, cl)) == len(full) == PC.transcript_bytes_len()
+            # certified margin: inside the band reveals early, beyond it is absent
+            mc = PC.client(0, 0, 1, 0, 1, 2, 100, 30)
+            law_ok = law_ok and 1 in PC.manifest({1: (11, 0, PC._d(1))}, frozenset(), mc) \
+                and 1 not in PC.manifest({1: (13, 0, PC._d(1))}, frozenset(), mc)
+            # lawful mint (∅→1) on turning to face; forged citation reddens
+            away = PC.client(0, 0, -1, 0, 1, 2, 100, 0)
+            law_ok = law_ok and PC.probe(PC.perceive({1: (5, 0, PC._d(1))}, frozenset(), away), 1) is None
+            law_ok = law_ok and PC.verify_transcript(ents, walls, cl, base) \
+                and not PC.verify_transcript(ents, walls, cl, PC.forge_citation(base, 1))
+        except Exception:
+            law_ok = False
+        self.record("perception-law", law_ok,
+                    "witnessed absence: perception is witness-blind and a pure function of the manifested "
+                    "set; a change to a hidden (behind / occluded) entity yields a BYTE-IDENTICAL "
+                    "transcript while a visible change alters it; a wallhack probe finds NOTHING for a "
+                    "hidden entity; the transcript is constant-shape (no count side-channel); the margin "
+                    "band reveals early but bounded; ∅→1 mints on turning; and a forged citation reddens"
+                    if law_ok else "the perception law did not hold")
+        prop_ok = True
+        try:
+            rep = PC.sweep()
+            prop_ok = (rep["digest"] == PC.sweep_golden() and rep["hidden_checked"] > 0
+                       and rep["visible_seen"] > 0 and rep["occluded_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("perception-property", prop_ok,
+                    f"witnessed absence survived a {PC.SWEEP_COUNT}-world seeded sweep — random worlds, "
+                    "walls, and entities: perception never mutates the witness, a ground-truth-hidden "
+                    "entity's change leaves the transcript byte-identical (the wallhack has nothing to "
+                    "read), the shape is constant, and the citation contract holds; the aggregate digest "
+                    "reproduces its golden (non-vacuous: hidden / visible / occluded all exercised)"
+                    if prop_ok else "the perception property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = PC._manifest
+            PC._manifest = lambda entities, walls, cl2: sorted(entities)   # leak the hidden set
+            try:
+                PC.sweep()
+            except PC.PerceptionError:
+                red_ok = True
+            finally:
+                PC._manifest = _orig
+            red_ok = red_ok and PC.sweep_digest() == PC.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("perception-property-selftest", red_ok,
+                    "a manifest that leaks the hidden set breaks byte-identical invariance, so the seeded "
+                    "sweep raises PERCEPTION-REFUSE — witnessed absence is a live falsifier, not "
+                    "decoration — and the module is clean again after the revert"
+                    if red_ok else "the perception sweep did not redden under a leak-the-hidden manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10363,6 +10463,7 @@ def main() -> int:
     gate.mesh()
     gate.partition()
     gate.meshsession()
+    gate.perception()
     gate.lease()
     gate.testament()
     gate.rollstore()
