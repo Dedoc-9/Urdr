@@ -69,13 +69,18 @@ glyph either — the exact substrate gets it for free.)
   **timing/bandwidth side-channel**: even with content hidden, the *shape* of the traffic (a defog burst)
   signals an imminent appearance — mostly left open by shipping systems.
 
-## The pioneering hardenings (what this rung carries beyond the state of the art)
+## The hardenings this rung carries (properties of THIS protocol, not comparative claims)
 
-Urðr's exactness and its witness/view firewall let it make guarantees shipping systems only approximate:
+The list below states properties URDRPCP1 proves about ITSELF. It does NOT assert superiority over
+shipping systems: whether this ultimately exceeds VALORANT's or CS2's Fog of War is an empirical question
+for benchmarking, not something these proofs establish. What the proofs give is a *formal* witness/view
+separation and a falsifiable constant-shape property — aimed squarely at seam (3), the timing/bandwidth
+channel those systems are publicly known to leave partially open.
 
 1. **Witness-blind residency (structural).** `perceive` returns a transcript, never a world — the
    residency channel provably cannot perturb the witness (a fold-into-witness defect diverges, the
-   `view_witness` row). Stronger than any shipping system, which lack a formal witness/view separation.
+   `view_witness` row). This is a *formal* witness/view separation, which shipping systems are not
+   described as providing (a property of this design, not a measured advantage over them).
 2. **Hidden-set invariance (absence is un-addressed, exactly).** The client transcript is a PURE FUNCTION
    of the manifested set: two worlds differing only OUTSIDE the client's wedge produce a **byte-identical**
    transcript. A wallhack replayed against the transcript finds *nothing* for an out-of-wedge entity —
@@ -83,7 +88,8 @@ Urðr's exactness and its witness/view firewall let it make guarantees shipping 
 3. **Constant-shape transcript (the timing/bandwidth side-channel closed).** The transcript is padded to a
    fixed capacity with indistinguishable padding, so its **byte-length is invariant to the manifested
    count** — the traffic shape carries no information about how many entities are hidden or about to
-   appear. This is the seam the industry leaves open, closed as a falsifiable property.
+   appear. This is aimed at seam (3), which shipping systems are publicly known to leave partially open;
+   the rung establishes it as a falsifiable property of this protocol, not a benchmarked win over them.
 4. **The margin is CERTIFIED and BOUNDED, not hidden.** The one unavoidable leak (the pre-reveal margin)
    is made an EXPLICIT, bounded, declared quantity — the rung certifies the manifested set leaks exactly
    the declared margin band and refuses to leak beyond it. Honest grading of the one leak that cannot be

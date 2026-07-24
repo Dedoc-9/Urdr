@@ -182,9 +182,10 @@ anti-cheat Band A rung, grown from the operator's Ø idea, NO NEW GLYPH — kern
 authoritative world; a per-client MANIFESTED set is a view-side channel WALLED from it. A hidden entity is
 an UN-ADDRESSED ABSENCE — the client transcript is a PURE FUNCTION of the manifested set, so a wallhack
 replayed against it finds NOTHING. Exact-integer AoI (in-front dot, integer-slope wedge, squared range +
-margin band, integer-supercover occlusion over walls). Beyond VALORANT Fog of War: the CONSTANT-SHAPE
-transcript (padded to a fixed capacity) closes the timing/bandwidth side-channel — the byte-length reveals
-nothing about the hidden count; the pre-reveal MARGIN is an explicit bounded certified leak, not zero.
+margin band, integer-supercover occlusion over walls). Aimed at the timing/bandwidth seam shipping systems
+(VALORANT/CS2 Fog of War) are publicly known to leave partially open: the CONSTANT-SHAPE transcript
+(padded to a fixed capacity) makes byte-length invariant to the hidden count — a falsifiable property of
+this protocol, not a benchmarked win; the pre-reveal MARGIN is an explicit bounded leak, not zero.
 Guarantees (each red-first): witness-blind, hidden-set invariance (a hidden change → byte-identical
 transcript), constant-shape, wallhack-probe-finds-nothing, certified margin, lawful mint (∅→1) + the
 citation contract. Four pinned scenes (sniper / corner / margin / wallhack) + a 120-world seeded sweep +

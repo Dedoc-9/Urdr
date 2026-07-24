@@ -7447,9 +7447,11 @@ class Gate:
     def perception(self):
         """The perception layer (URDRPCP1): WITNESSED ABSENCE as server-authoritative AoI — the anti-cheat
         Band A rung, the D15 firewall applied to residency. A hidden entity is an UN-ADDRESSED ABSENCE, so
-        a wallhack replayed against the client transcript finds NOTHING. Beyond VALORANT Fog of War: the
-        constant-shape transcript closes the timing/bandwidth side-channel. Built as a composition — no new
-        glyph (kernel frozen); see docs/perception_brief.md. Rows: scenes (sniper / corner / margin /
+        a wallhack replayed against the client transcript finds NOTHING. The constant-shape transcript is
+        aimed at the timing/bandwidth seam VALORANT/CS2 Fog of War are publicly known to leave partially
+        open (a property of this protocol; superiority vs shipping systems is empirical, not proven here).
+        Built as a composition — no new glyph (kernel frozen); see docs/perception_brief.md. Rows: scenes
+        (sniper / corner / margin /
         wallhack reproduce URDRPCP1 digests), law (witness-blind + hidden-set invariance byte-identical +
         the wallhack probe finds nothing + constant-shape + certified margin + lawful mint + a forged
         citation reddens), property (a seeded 120-world sweep asserts witnessed absence with non-vacuity),

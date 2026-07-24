@@ -6,8 +6,10 @@
 # (20260721) 120-world sweep asserting witness-blindness, hidden-set invariance (a hidden
 # change yields a BYTE-IDENTICAL transcript), constant-shape (length invariant to the count),
 # and the citation contract. Pinned AFTER the leak-the-hidden plant was proven to break
-# invariance and raise. Beyond the state of the art (VALORANT Fog of War): the constant-shape
-# transcript closes the timing/bandwidth side-channel. No new glyph (kernel frozen).
+# invariance and raise. Aimed at the timing/bandwidth seam VALORANT/CS2 Fog of War are publicly
+# known to leave partially open: the constant-shape transcript makes byte-length invariant to the
+# hidden set (a property of this protocol; superiority vs shipping systems is empirical, not proven).
+# No new glyph (kernel frozen).
 sniper e78e2a6f152f7abbed40d11477f0702af9927598bf99e75edabcf5cd0b08a652
 corner d16af4044c6316081592064d3ee35b60e99d636704c9b688caa817d31c9f0b43
 margin 3fa9b75245b6cb4b492747eab7075cb426f175ef41ec23c6b9f8cfcacac0f207

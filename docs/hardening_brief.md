@@ -205,9 +205,10 @@ honestly claim and to where it lands:
      genuine ESP/wallhack mitigation (you cannot aim at a ghost you were never sent). Now landed as
      WITNESSED ABSENCE (`docs/perception_brief.md`): the D15 firewall applied to residency — a hidden
      entity is an UN-ADDRESSED ABSENCE (the client transcript is a pure function of the manifested set,
-     so a wallhack replay finds NOTHING), and — beyond the shipping state of the art (VALORANT Fog of
-     War) — a CONSTANT-SHAPE transcript closes the timing/bandwidth side-channel while the pre-reveal
-     margin is a bounded, certified, declared leak. It lands with the certified mesh because the server
+     so a wallhack replay finds NOTHING), and — aimed at the timing/bandwidth seam VALORANT/CS2 Fog of
+     War are publicly known to leave partially open — a CONSTANT-SHAPE transcript makes byte-length
+     invariant to the hidden set (a falsifiable property of this protocol, not a benchmarked win over
+     them) while the pre-reveal margin is a bounded, declared leak. It lands with the certified mesh because the server
      that decides the manifested set is the mesh steward. Honest claim: *information-advantage cheats
      are bounded by what the server chose to reveal* — a real reduction, not elimination (aim-assist on
      legitimately-visible data, audio/hitbox channels, and the margin/peeker's-advantage remain out of

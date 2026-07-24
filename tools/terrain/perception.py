@@ -21,12 +21,20 @@ replayed against it finds NOTHING for anything out of view. `∅→1` (the opera
 `driftgaze`'s acquire-on-cross: turning to face an entity MINTS it into the manifested set, cited to the
 authority.
 
-BEYOND THE STATE OF THE ART (VALORANT Fog of War does per-tick server-side line-of-sight relevancy;
-CS2FOW does occlusion culling): this rung closes the timing/bandwidth SIDE-CHANNEL the industry leaves
-open. The transcript is CONSTANT-SHAPE — padded to a fixed capacity, so its byte-length is invariant to
-the manifested count; the traffic shape reveals nothing about how many entities are hidden or about to
-appear. And the one unavoidable leak (the pre-reveal MARGIN, the peeker's-advantage tradeoff) is made an
-EXPLICIT, BOUNDED, CERTIFIED quantity, not pretended to be zero.
+THE THIRD SEAM THIS TARGETS (aimed at, NOT claimed as surpassed). The literature survey identified the
+publicly-described state of the art — server-authoritative visibility systems such as VALORANT's Fog of
+War and CS2's Fog of War (per-tick server-side visibility determination, multiple line-of-sight rays,
+precomputed visibility structures, conservative velocity margins to reduce pop-in) — and isolated three
+remaining seams: (1) the visibility margin is an unavoidable asymmetric information leak; (2) audio
+propagation and physics/hitbox interactions are independent channels needing separate treatment; (3)
+timing and bandwidth characteristics can themselves reveal impending visibility changes (e.g. a burst of
+updates when an entity becomes visible). URDRPCP1 is AIMED at seam (3): the transcript is CONSTANT-SHAPE
+— padded to a fixed capacity, so its byte-length is invariant to the hidden set; the traffic shape
+carries no information about how many entities are hidden or about to appear — and the one unavoidable
+leak (the pre-reveal MARGIN, the peeker's-advantage tradeoff) is made an EXPLICIT, BOUNDED quantity, not
+pretended to be zero. Whether this ultimately EXCEEDS existing production systems is a question for
+empirical evaluation, NOT something these proofs establish: the proofs establish properties of THIS
+protocol, not comparative performance or completeness versus commercial anti-cheat.
 
 THE EXACT-INTEGER AoI (deterministic, no floats): an entity is MANIFESTED to a client iff it is in front
 (dot(view, facing) > 0), within the wedge (|cross| · hw ≤ dot · hh — the half-angle as an integer slope
