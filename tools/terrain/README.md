@@ -162,6 +162,20 @@ mid_transfer / split_brain) + an 80-partition seeded sweep asserting the theorem
 region freezes (no liveness under partition); a consensus/quorum progress overlay is a NAMED, OPTIONAL,
 FUTURE extension, never folded into the theorem. DECLARED: the attested mesh session (M5);
 cross-placement.
+`meshsession.py` — `URDRMSS1`, Phase M rung M5 (THE PHASE SEALS): THE ATTESTED MESH SESSION — an EVIDENCE
+theorem built ON TOP of the correctness theorems (M3 mesh==monolith, M4 the partition prefix), never a
+replacement. The ENTIRE multi-authority session — concurrency (M1), migration (M2), a partition episode
+(M4) — threaded through ONE timeline, recorded as a self-digested proof object (a chain of witness
+checkpoints + SHA-256), and REPLAYED by the gate to the same witnesses: the demo is not a video, it is a
+proof. A named SESSION is a deterministic playthrough of EPISODES (a connected mesh tick via
+`mesh.apply_tick`, or a partition episode via `partition.partitioned_from`); `check_session` re-runs the
+named session through the unmodified composed laws and requires every checkpoint to reproduce bit-for-bit.
+Five forges (a tampered tick/partition witness, a forged custody head, a dropped episode, a bumped
+admitted count) each refuse; a byte flip refuses on the self-digest. Two pinned sessions (campaign — the
+flagship six-checkpoint composition; skirmish — the minimal timeline) + the sealed campaign trace at
+`spec/attest/mesh_session.txt`. DECLARED: deterministic in-process attestation (the real cross-process
+boundary is `meshattest`, M2.5); cross-placement. **Phase M seals here** — M1→M2→M2.5→M3→M4→M5, every rung
+a composition, not a new primitive.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

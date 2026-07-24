@@ -206,6 +206,39 @@ def partitioned_run(field, assignment, side_of_steward, left_ops, right_ops):
             "left_regions": len(left["changed"]), "right_regions": len(right["changed"])}
 
 
+# ---- stateful hooks (for threaded sessions — M5 `meshsession`) ---------------------------
+def region_sides_from_sman(sman, side_of_steward):
+    """{(kx,ky): 'L'|'R'} derived from the CURRENT custody manifest (each region's live steward mapped
+    to its side) — the partition split for a session whose custody has already evolved via migrations."""
+    _w, _h, _c, grid = _MG.parse_steward(sman)
+    return {reg: side_of_steward[_MG._tag_str(tag)] for reg, (tag, _head) in grid.items()}
+
+
+def partitioned_from(field_now, cut_sman, side_of_steward, left_ops, right_ops):
+    """A partition episode from an ARBITRARY (world, custody) — not just genesis — for threaded sessions
+    (M5). The episode is WRITES-ONLY (custody unchanged; cross-partition migrations freeze), so the
+    reunified custody equals the cut. Returns {witness, admitted_count, frozen, field (reunified)}.
+    Raises PartitionError on split-brain."""
+    rs = region_sides_from_sman(cut_sman, side_of_steward)
+    left = _side_run(field_now, cut_sman, "L", rs, side_of_steward, left_ops)
+    right = _side_run(field_now, cut_sman, "R", rs, side_of_steward, right_ops)
+    overlap = left["changed"] & right["changed"]
+    if overlap:
+        raise PartitionError(f"split-brain: region(s) {sorted(overlap)} written on both sides — refused")
+    w, h, c, cut_grid = _CK.parse_manifest(_CK.field_manifest(field_now, _C))
+    grid = dict(cut_grid)
+    store = {_CK.address(r): r for r in _CK.cut(field_now, _C).values()}
+    for res in (left, right):
+        _w2, _h2, _c2, g = _CK.parse_manifest(res["man"])
+        for reg in res["changed"]:
+            grid[reg] = g[reg]
+            store[g[reg]] = res["store"][g[reg]]
+    new_man = _mint_manifest(w, h, c, grid)
+    admitted = left["admitted"] + right["admitted"]
+    return {"witness": _CK.address(new_man), "admitted_count": len(admitted),
+            "frozen": left["frozen"] + right["frozen"], "field": _CK.reassemble(new_man, store)}
+
+
 # ---- the oracles -------------------------------------------------------------------------
 def monolith_of(field, writes):
     """THE NEUTRAL ORACLE: apply the given writes GLOBALLY via terraform (custody ignored), region-

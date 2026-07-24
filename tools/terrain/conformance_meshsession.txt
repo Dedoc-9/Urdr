@@ -1,0 +1,9 @@
+# URDRMSS1 conformance — Phase M rung M5: the attested mesh session (the capstone).
+# Session digests SHA-256 over the checkpoint chain of a named multi-authority playthrough that
+# threads M3 concurrent ticks + a live migration (M2) + an M4 partition episode through one timeline.
+# The sealed campaign trace is pinned at spec/attest/mesh_session.txt and re-verified by check_session.
+# Pinned AFTER the forges were proven to bite: a tampered tick/partition witness, a forged custody
+# head, a dropped episode, and a bumped admitted count each refuse; a byte flip refuses on the
+# self-digest. Evidence theorem ON TOP of M3 (mesh==monolith) and M4 (the partition prefix).
+campaign 17307528a4f11351c3676e2062344a5a2346cd1b78c58fbef3bd00fb3cc7a9b3
+skirmish 6ddedd4633d5c748efd21d208d23d070ccc87247bfd8b81ba64604595931bb5f

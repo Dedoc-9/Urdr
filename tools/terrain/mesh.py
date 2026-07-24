@@ -149,6 +149,42 @@ def _tick_migrations(sman, certs, man, migrations):
     return sman
 
 
+# ---- stateful hooks (for threaded sessions — M5 `meshsession`) ---------------------------
+def initial_state(field, assignment):
+    """The mesh's initial threaded state from genesis custody: {field, man, store, sman, certs}."""
+    man, store = _fresh(field)
+    try:
+        sman = _MG.steward_genesis(man, {k: _MG.steward_tag(v) for k, v in assignment.items()})
+    except _MG.MigrateError as exc:
+        raise MeshError(f"genesis custody refused: {exc}")
+    return {"field": field, "man": man, "store": store, "sman": sman, "certs": {}}
+
+
+def state_from_field(field, sman, certs):
+    """Rebuild threaded state from a world FIELD plus a custody manifest + cert store (used to continue
+    a session after a partition episode reunifies the world)."""
+    man, store = _fresh(field)
+    return {"field": field, "man": man, "store": store, "sman": sman, "certs": dict(certs)}
+
+
+def apply_tick(state, writes, migrations):
+    """Apply ONE mesh tick to a threaded state (concurrent writes then witness-neutral migrations),
+    returning the new state. Raises MeshError (reject-whole) exactly as `mesh_run`."""
+    man, store, _width = _tick_writes(state["sman"], state["certs"], state["man"], state["store"],
+                                      tuple(writes))
+    sman = _tick_migrations(state["sman"], state["certs"], man, tuple(migrations))
+    return {"field": _CK.reassemble(man, store), "man": man, "store": store, "sman": sman,
+            "certs": state["certs"]}
+
+
+def state_witness(state):
+    return _CK.address(state["man"])
+
+
+def state_custody(state):
+    return _MG.address(state["sman"])
+
+
 def mesh_run(field, assignment, schedule):
     """THE MESHED SIMULATION. `assignment`: {(kx,ky): steward_name} genesis custody (total). `schedule`:
     a list of ticks, each {"writes": [(steward, kx, ky, lx, ly, dh), ...], "migrations": [(kx, ky, src,

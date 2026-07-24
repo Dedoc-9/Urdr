@@ -7370,6 +7370,80 @@ class Gate:
                     "after the revert"
                     if red_ok else "the partition sweep did not redden under a gutted freeze rule")
 
+    def meshsession(self):
+        """Phase M rung M5 — the attested mesh session (URDRMSS1): the capstone, an EVIDENCE theorem on
+        top of the correctness theorems (M3 mesh==monolith, M4 the partition prefix). The entire
+        multi-authority session — concurrency (M1), migration (M2), a partition episode (M4) — threaded
+        through one timeline, recorded as a self-digested proof object, replayed by the gate to the same
+        witnesses: the demo is not a video, it is a proof. Rows: sessions (campaign / skirmish checkpoint
+        chains reproduce URDRMSS1 digests, deterministically, each spanning a partition), attest (the
+        pinned sealed session trace at spec/attest/mesh_session.txt re-verifies via check_session),
+        forges (a tampered tick/partition witness, a forged custody head, a dropped episode, a bumped
+        admitted count each refuse), selftest (a byte flip on the pinned trace refuses)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import meshsession as MSS
+        except Exception as exc:
+            self.record("meshsession", False, f"import failed (meshsession): {exc}")
+            return
+        try:
+            ref_ok = all(MSS.session_digest(n) == MSS.golden(n) for n in MSS.SESSIONS)
+        except Exception as exc:
+            self.record("meshsession:sessions", False, f"reference failed: {exc}")
+            return
+        self.record("meshsession:sessions", ref_ok,
+                    "the campaign and skirmish multi-authority playthroughs reproduce URDRMSS1 "
+                    "checkpoint-chain digests, deterministically — concurrency (M1), migration (M2), and "
+                    "a partition episode (M4) composed into one attested timeline"
+                    if ref_ok else "a mesh session drifted from its digest")
+        attest_ok = True
+        detail = ""
+        try:
+            path = os.path.join(ROOT, "spec", "attest", "mesh_session.txt")
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            rep = MSS.check_session(text)
+            attest_ok = rep["verdict"] == "LAWFUL" and rep["partitions"] > 0
+            detail = ("the pinned attested session replays LAWFUL through the unmodified composed laws: "
+                      "%s — %d episodes (%d ticks, %d partition), final witness %s… — the whole "
+                      "multi-authority timeline is a re-derivable proof"
+                      % (rep["session"], rep["episodes"], rep["ticks"], rep["partitions"],
+                         rep["final"][:12]))
+        except Exception as exc:
+            attest_ok = False
+            detail = f"the pinned session trace failed: {exc}"
+        self.record("meshsession:attest", attest_ok, detail)
+        forges_ok = True
+        try:
+            for kind in ("tick_witness", "partition_witness", "custody", "drop_episode", "admitted"):
+                try:
+                    MSS.check_session(MSS.forge("campaign", kind))
+                    forges_ok = False
+                except MSS.MeshSessionError:
+                    pass
+        except Exception:
+            forges_ok = False
+        self.record("meshsession:forges", forges_ok,
+                    "a tampered tick witness, a tampered partition witness, a forged custody head, a "
+                    "dropped episode, and a bumped admitted count each refuse — reality may not overrule "
+                    "the composed mesh law on any axis of the session"
+                    if forges_ok else "a woven session forgery slipped through the checker")
+        self_ok = True
+        try:
+            flipped = text.replace("episode", "EPISODE", 1)
+            try:
+                MSS.check_session(flipped)
+                self_ok = False
+            except MSS.MeshSessionError:
+                pass
+        except Exception:
+            self_ok = False
+        self.record("meshsession-selftest", self_ok,
+                    "a single byte flip in the pinned session trace refuses on the self-digest (gate can "
+                    "redden)"
+                    if self_ok else "a tampered session trace was accepted")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10288,6 +10362,7 @@ def main() -> int:
     gate.meshattest()
     gate.mesh()
     gate.partition()
+    gate.meshsession()
     gate.lease()
     gate.testament()
     gate.rollstore()

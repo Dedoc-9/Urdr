@@ -293,7 +293,7 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1169 unit falsifiers / 660 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1178 unit falsifiers / 664 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
@@ -470,9 +470,16 @@ a shared cut, the FREEZE RULE keeps each side writing only regions it solely own
 duplicated lease can't write on the non-steward side (custody bites), a cross-partition migration freezes, a
 partition-transport forgery refuses on the migration CAS, and a gutted freeze rule's split-brain is caught at
 reunification; the five attacks each land red-first; the CP availability cost is STATED (a mid-transfer region
-freezes; a consensus overlay is a named optional future extension, never folded into the theorem). Next: M5 the
-attested mesh session (a recorded multi-authority playthrough replayed by the gate, built ON TOP of this
-correctness theorem).
+freezes; a consensus overlay is a named optional future extension, never folded into the theorem). **M5 — the
+attested mesh session (`tools/terrain/meshsession.py`, URDRMSS1) — is LANDED, and PHASE M SEALS**: an EVIDENCE
+theorem on top of the correctness theorems (M3/M4) — the entire multi-authority session (concurrency, migration,
+a partition episode) threaded through one timeline, recorded as a self-digested proof object (a chain of witness
+checkpoints), and replayed by the gate to the same witnesses (five forges + a byte flip each refuse); the sealed
+"campaign" trace is pinned at `spec/attest/mesh_session.txt`. **Phase M is SEALED** (M1→M2→M2.5→M3→M4→M5), not one
+new primitive — every rung composes the sealed write calculus, the wire phase, and the storage spine (distributed
+execution as a theorem obtained by composing proofs). THE COVENANT: Phase M is Python reference only; placement
+batch #4 (a std-only Rust placement of the mesh families) falls due at this seal; scale stays MEASURED-on-a-
+named-host or unclaimed (the scale bench the named successor).
 
 ---
 

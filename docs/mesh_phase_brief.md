@@ -163,8 +163,26 @@ property-sweepable with the Tier-2 harness:
   THE CP AVAILABILITY COST is STATED, not hidden — a mid-transfer region freezes (no liveness under
   partition); a consensus/quorum progress overlay is a NAMED, OPTIONAL, FUTURE extension, never folded
   into the theorem. Next: M5 the attested mesh session (built on this correctness theorem).
-- **M5 — the attested mesh session (the capstone).** A recorded multi-authority playthrough replayed by
-  the gate — "server meshing that cannot lie." Guarantee #6.
+- **M5 — the attested mesh session (the capstone). LANDED (`tools/terrain/meshsession.py`, URDRMSS1) —
+  THE PHASE SEALS.** An EVIDENCE theorem built ON TOP of the correctness theorems (M3 mesh==monolith, M4
+  the partition prefix), never a replacement: the ENTIRE multi-authority session — concurrency (M1),
+  migration (M2), a partition episode (M4) — threaded through one timeline, recorded as a self-digested
+  proof object (a chain of witness checkpoints + SHA-256), and REPLAYED by the gate to the same
+  witnesses. `check_session` re-runs the named session through the unmodified composed laws and requires
+  every checkpoint to reproduce bit-for-bit; five forges (a tampered tick/partition witness, a forged
+  custody head, a dropped episode, a bumped admitted count) each refuse, and a byte flip refuses on the
+  self-digest. The flagship "campaign" session composes the whole stack in six checkpoints (four
+  concurrent stewards → a live migration → the new steward writes → a partition episode reunifying to a
+  prefix → post-reunification writes); the sealed trace is pinned at `spec/attest/mesh_session.txt`.
+  Guarantee #6. The demo is not a video — it is a proof.
+
+**Phase M is SEALED.** M1 (`nway`) → M2 (`migrate`) → M2.5 (`meshattest`, MEASURED on the Ally X) → M3
+(`mesh`, MESH == MONOLITH) → M4 (`partition`, the Partition Prefix Theorem) → M5 (`meshsession`, the
+attested session). Not one new primitive — every rung composes the sealed write calculus, the wire phase,
+and the storage spine, which is the phase's whole thesis: distributed execution as a theorem obtained by
+composing proofs. THE COVENANT: Phase M is Python reference only; placement batch #4 (a std-only Rust
+placement of the mesh families) falls due at this seal; scale stays MEASURED-on-a-named-host or unclaimed
+(the scale bench the named successor).
 
 ## Honest scope & boundaries (does_not_show)
 
