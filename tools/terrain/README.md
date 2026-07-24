@@ -205,8 +205,22 @@ red-first): closed-world across the WHOLE dial (resolution changes, membership d
 quantization (the covert reversible blur is refused), a server-only CITED lens (a client forging a wider one
 is refused), constant-shape across the dial, and a reduction to perception at `L = ⊤` (exact). Four scenes
 (focal / widen / defended / reduce) + a 120-world × 4-lens seeded sweep. The academic twin is focus/nimbus
-(Benford & Fahlén 1993); no superiority claimed. Declared successor: a clarity-bounded update throttle
-(deterministic sim-rate decoupling) reading this rung's shift/awareness as its input.
+(Benford & Fahlén 1993); no superiority claimed. Declared successor LANDED as `throttle.py` below.
+`throttle.py` — `URDRTHR1`, the CLARITY-BOUNDED UPDATE THROTTLE: deterministic simulation-rate decoupling,
+the third pillar the focal lens unlocks (composition over `anamorphosis`, NO NEW GLYPH; design in
+`docs/throttle_brief.md`). The same awareness the lens computes bounds a per-entity POSITION-refresh rate
+(`rate = 2^shift`) — a coarse entity refreshed less often, decoupling client compute from the global sim
+rate. THE SEPARATION: the throttle delays POSITION, never PRESENCE — MEMBERSHIP stays live (closed-world
+every tick, a departed entity dropped, NO ghosts), POSITION is carried (bounded-stale) between clarity
+cadences, cited to the authority as of its last refresh. Deterministic (no wall-clock — `tick` is an
+explicit integer; every rate divides 2^COARSEST so `tick mod 2^COARSEST == 0` refreshes all, hence
+staleness ≤ 2^COARSEST − 1, sharp never stale). Guarantees (each red-first): closed-world every tick (the
+ghost and membership-throttle plants caught), bounded staleness (the unbounded plant caught), deterministic
+replay (the wall-clock plant diverges), a REAL compute saving (refreshes < refresh-everything), constant-
+shape + hidden-set invariance per tick, and a reduction to anamorphosis at the identity lens. Four scenes
+(throttle / live / depart / bounded) + a 90-sequence × 10-tick seeded sweep. The three pillars — security
+(URDRPCP1), network (URDRANA1), compute (URDRTHR1) — all read the same awareness and all keep the closed
+world. Declared successor: adaptive/priority scheduling beyond the clarity cadence.
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the

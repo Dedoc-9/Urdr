@@ -7663,6 +7663,116 @@ class Gate:
                     "not decoration — and the module is clean again after the revert"
                     if red_ok else "the anamorphosis sweep did not redden under a leak-the-hidden manifest")
 
+    def throttle(self):
+        """The clarity-bounded update throttle (URDRTHR1): deterministic simulation-rate decoupling — the
+        same awareness the focal lens computes bounds a per-entity POSITION-refresh rate (2^shift), so a
+        coarse entity is refreshed less often and client compute decouples from the global sim rate. The
+        throttle delays POSITION, never PRESENCE: membership stays live (closed-world every tick, no
+        ghosts), position is carried (bounded-stale) between clarity-cadence refreshes. Composition over
+        URDRANA1 — no new glyph (kernel frozen); see docs/throttle_brief.md. Rows: scenes (throttle / live
+        / depart / bounded reproduce URDRTHR1 digests), law (closed-world every tick + the ghost and
+        membership-throttle plants caught + bounded staleness + the unbounded plant caught + deterministic
+        replay + the wall-clock plant diverges + a real compute saving + reduces to anamorphosis),
+        property (a seeded 90-sequence sweep with non-vacuity), selftest (a leak-the-hidden manifest makes
+        the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import throttle as TH
+            import anamorphosis as AN
+            import perception as PC
+        except Exception as exc:
+            self.record("throttle", False, f"import failed (throttle): {exc}")
+            return
+        try:
+            ref_ok = all(TH.scene_result(n) == TH.golden(n) for n in TH.SCENES)
+        except Exception as exc:
+            self.record("throttle:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("throttle:scenes", ref_ok,
+                    "throttle + live + depart + bounded reproduce URDRTHR1 digests"
+                    if ref_ok else "a throttle scene drifted from its digest")
+        law_ok = True
+        try:
+            cl = PC.client(0, 0, 1, 0, 3, 2, 400, 0); L = AN.lens(0, 0)
+            ticks, cl2 = TH._paths_scene()
+            rep = TH.run(ticks, cl2, L)
+            # a REAL throttle (compute saved) + closed-world & constant-shape every tick + sharp live
+            law_ok = rep["refresh_total"] < rep["manifest_total"] and rep["carries"] > 0
+            for t, (ents, walls) in enumerate(ticks):
+                law_ok = law_ok and TH.is_closed_world_at(ents, walls, cl2, L, rep["transcripts"][t]) \
+                    and len(rep["transcripts"][t]) == TH.transcript_bytes_len()
+            law_ok = law_ok and TH.sharp_is_live(ticks, cl2, L) and TH.staleness_ok(rep)
+            # deterministic replay; the wall-clock plant is a divergence source
+            law_ok = law_ok and TH.run(ticks, cl2, L)["transcripts"] == rep["transcripts"]
+            law_ok = law_ok and TH.run(ticks, cl2, L, _clock=lambda: 0)["transcripts"] == rep["transcripts"] \
+                and TH.run(ticks, cl2, L, _clock=lambda: 1)["transcripts"] != rep["transcripts"]
+            # the GHOST plant (carry a departed entity) breaks closed-world
+            gcl = PC.client(0, 0, 1, 0, 1, 2, 400, 0)
+            gt = TH._seq_from_paths({1: [(6, u * 3) for u in range(6)]}, 6)
+            ghost = TH._run_ghost(gt, gcl, L)
+            law_ok = law_ok and any(set(TH.reconstruct(ghost[u])) != set(AN._manifest_under(e, w, gcl, L))
+                                    for u, (e, w) in enumerate(gt))
+            law_ok = law_ok and TH.reconstruct(TH.run(gt, gcl, L)["transcripts"][-1]) == {}  # honest drops it
+            # the MEMBERSHIP-THROTTLE plant (delay a new coarse entity) breaks closed-world
+            mt_ticks = TH._seq_from_paths({3: [(-5, 0), (17, 0), (17, 0), (17, 0)]}, 4)
+            mt = TH._run_membership_throttle(mt_ticks, cl, L)
+            law_ok = law_ok and TH.reconstruct(mt[1]) == {} \
+                and 3 in AN._manifest_under(mt_ticks[1][0], mt_ticks[1][1], cl, L)
+            # the UNBOUNDED plant exceeds the staleness bound; the identity lens reduces to anamorphosis
+            ub_ticks = TH._seq_from_paths({3: [(17, 0)] * 12}, 12)
+            law_ok = law_ok and TH._run_unbounded(ub_ticks, cl, L)["max_stale"] > TH.MAX_STALE \
+                and TH.run(ub_ticks, cl, L)["max_stale"] <= TH.MAX_STALE
+            lid = AN.lens(0, AN.COARSEST); st = {}
+            for t, (ents, walls) in enumerate(ticks):
+                _tr, st, man, _r = TH.step(st, ents, walls, cl2, lid, t)
+                for eid in man:
+                    law_ok = law_ok and TH.rate_of(AN.shift_of(ents, cl2, lid, eid)) == 1 \
+                        and st[eid][:2] == (ents[eid][0], ents[eid][1]) and st[eid][3] == t
+        except Exception:
+            law_ok = False
+        self.record("throttle-law", law_ok,
+                    "clarity-bounded throttle: the transcript at every tick is a CLOSED WORLD (membership "
+                    "live — a departed entity is dropped, the ghost and membership-throttle plants are "
+                    "caught) and constant-shape; a sharp entity is live while a coarse one is carried, with "
+                    "staleness BOUNDED by 2^COARSEST-1 (the unbounded plant is caught); the run is a "
+                    "DETERMINISTIC pure function of (ticks, lens) — replayable, and the wall-clock plant "
+                    "diverges; the refreshed count is STRICTLY fewer than refresh-everything (a real compute "
+                    "saving); and at the identity lens every rate is 1 — reduces to per-tick anamorphosis"
+                    if law_ok else "the throttle law did not hold")
+        prop_ok = True
+        try:
+            rep2 = TH.sweep()
+            prop_ok = (rep2["digest"] == TH.sweep_golden() and rep2["carries"] > 0
+                       and rep2["departures"] > 0 and rep2["stale_seen"] > 0 and rep2["det_checked"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("throttle-property", prop_ok,
+                    f"the throttle survived a {TH.SWEEP_COUNT}-sequence × {TH.NTICKS}-tick seeded sweep — "
+                    "moving worlds: closed-world every tick (membership live), constant-shape, hidden-set "
+                    "invariant, bounded staleness, a real compute saving, and deterministic replay; the "
+                    "aggregate digest reproduces its golden (non-vacuous: carries, departures, and stale "
+                    "records all exercised)"
+                    if prop_ok else "the throttle property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = AN._manifest_under
+            AN._manifest_under = lambda entities, walls, cl3, L3: sorted(entities)   # leak the hidden set
+            try:
+                TH.sweep()
+            except TH.ThrottleError:
+                red_ok = True
+            finally:
+                AN._manifest_under = _orig
+            red_ok = red_ok and TH.sweep_digest() == TH.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("throttle-property-selftest", red_ok,
+                    "a manifest that leaks the hidden set breaks closed-world per tick, so the seeded sweep "
+                    "raises THROTTLE-REFUSE — the live-membership guarantee is a real falsifier, not "
+                    "decoration — and the module is clean again after the revert"
+                    if red_ok else "the throttle sweep did not redden under a leak-the-hidden manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -10584,6 +10694,7 @@ def main() -> int:
     gate.meshsession()
     gate.perception()
     gate.anamorphosis()
+    gate.throttle()
     gate.lease()
     gate.testament()
     gate.rollstore()

@@ -216,9 +216,13 @@ honestly claim and to where it lands:
      `docs/anamorphosis_brief.md`): the binary firewall becomes a server-tunable focal lens `L = (reach,
      focus)` — a graded dial that tunes the manifestation boundary and the precision of the
      already-visible while the closed world holds across the WHOLE dial (proven monotone, lossy-only,
-     cited, constant-shape). Remaining Band A work: wiring the manifested-set decision to the live mesh
-     authority; the clarity-bounded update throttle (deterministic sim-rate decoupling, declared next);
-     audio/hitbox channels; cross-placement.
+     cited, constant-shape). And by the CLARITY-BOUNDED UPDATE THROTTLE (`tools/terrain/throttle.py`,
+     URDRTHR1, `docs/throttle_brief.md`): deterministic sim-rate decoupling — the same awareness bounds a
+     per-entity position-refresh rate (compute decoupled from the sim rate) while membership stays live
+     (closed-world every tick, no ghosts) and staleness is structurally bounded. THREE PILLARS on one
+     lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1). Remaining Band A work: wiring the
+     manifested-set decision to the live mesh authority; adaptive/priority scheduling beyond the clarity
+     cadence; audio/hitbox channels; cross-placement.
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual

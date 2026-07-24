@@ -1,0 +1,16 @@
+# URDRTHR1 conformance — the clarity-bounded update throttle: deterministic sim-rate decoupling over
+# the focal lens. rate = 2^shift (sharp = every tick, coarsest = every 2^COARSEST). MEMBERSHIP is the live
+# manifested set (closed-world every tick, no ghosts); POSITION is refreshed on the clarity cadence and
+# carried between, cited to the authority as of its last refresh tick. Staleness is bounded by
+# 2^COARSEST-1 (every rate divides 2^COARSEST). Scene digests SHA-256(MAGIC | name | lens | run-digest |
+# verdict); the sweep digest is over a fixed-seed (20260724) 90-sequence x 10-tick sweep asserting
+# closed-world per tick, constant-shape, hidden-set invariance, bounded staleness, a REAL throttle
+# (refreshes < manifest-total), and deterministic replay. Pinned AFTER the plants were proven to bite:
+# _run_ghost (carry a departed entity) and _run_membership_throttle (delay a new entity) break closed-
+# world; _run_unbounded exceeds the staleness bound; the wall-clock plant diverges. Composition over
+# URDRANA1/URDRPCP1 — NO new glyph (kernel frozen).
+throttle 782a15c2e454cce7976c86e56437cbcba31cd7f91557498b4a67401ad6f19048
+live 6c25d43aeb9d9bda344cb73271d86d5b53030d419efd1bef654d5fdcce8b0417
+depart 2b49aa6e61f74bbbe003702fa4b41261d5c274257a14b7e33d178b79938f1a03
+bounded 1707d21857366ce62b77f6b882fb09c0218c9c8134765b23a37954600437c9ce
+sweep 4bc3d0bd3cb4255bd4e6eba0fc8f1c3559d0f19d2118829adaabab7fc46f1504
