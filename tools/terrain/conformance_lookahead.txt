@@ -1,0 +1,16 @@
+# URDRLKA1 conformance — the bounded look-ahead optimality certificate: proving whether a multi-tick
+# optimizer can beat the greedy adaptive encoder. KEY LEMMA cross-tick independence: every representation
+# records the same anchor and resets the interval identically, so the inter-tick transition cost is ZERO
+# and greedy per-update selection is already the GLOBAL optimum. A deterministic bounded Viterbi DP over a
+# W-tick window confirms it: on the REAL model (transition = 0) DP total == greedy total (greedy is
+# optimal, no look-ahead helps). The DP has TEETH: on a SYNTHETIC coupled model it beats greedy's actual
+# cost, so it is a genuine optimizer, not a no-op. Scene digests SHA-256(MAGIC | name | window-DP results |
+# verdict); the sweep digest is over a fixed-seed (20260724) 80-world sweep. Pinned AFTER the plants were
+# proven to bite: the coupled model makes DP != greedy (the certificate is not vacuous) and DP < greedy
+# (teeth); an over-window search is rejected (bounded). Composition over URDRADC1/.../URDRPCP1 — NO new
+# glyph (kernel frozen). An honest confirmatory result: look-ahead is proven UNNECESSARY on this model.
+optimal cec7e436600e23c74532cc6a3b14cf6f9bec3516ae3f3b06ca64327b6220d725
+teeth a14e321ca8e5da6ddb4cd6e892cc9830a1ec8e075a9fad27a2677df30872a3a1
+independent 31cfd86b6e465eba06d7a0e8ea527b773ee8db3a1e4c0e41e6ee061e0edd2450
+bounded 317f6dc874332970c3f7fb1c2ced2e1fa275e247b930aa7d6b64eb9eea4016c0
+sweep bf047fb9fc8c1c54526aa113158eabe2318a56dffb6f004857b6f8be23c52a03

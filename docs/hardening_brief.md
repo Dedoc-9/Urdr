@@ -242,8 +242,12 @@ honestly claim and to where it lands:
      REPRESENTATION SELECTION (`tools/terrain/adaptcite.py`, URDRADC1, `docs/adaptcite_brief.md`): the
      encoder picks the cheapest LAWFUL spelling of each update (nothing < MOVE < CITE < FULL), with
      representation-independence (every lawful spelling reconstructs the same state) decoupling optimization
-     from correctness. SEVEN capabilities on one lens; the temporal layer proves both which history may be
-     reused and which spelling is cheapest.
+     from correctness. And by the BOUNDED LOOK-AHEAD OPTIMALITY CERTIFICATE (`tools/terrain/lookahead.py`,
+     URDRLKA1, `docs/lookahead_brief.md`): a deterministic Viterbi DP that PROVES greedy representation
+     selection is globally optimal on this model (cross-tick independence → transition cost zero), and has
+     teeth (it beats greedy on a synthetic coupled model). EIGHT capabilities on one lens; the temporal
+     layer proves which history may be reused, which spelling is cheapest, AND that the cheapest spelling is
+     globally optimal — the optimization arc closed with a proof, not a heuristic's edge.
 
   2. **Band B — behavioural / statistical detection (post-Phase-M, DECLARED off-gate).** Aim
      snap-angles, reaction-time distributions, input-timing regularity — the industry's actual

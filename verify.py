@@ -8209,6 +8209,101 @@ class Gate:
                     "adaptive selection layer too — and the module is clean again after the revert"
                     if red_ok else "the adaptcite sweep did not redden under a leak-the-hidden manifest")
 
+    def lookahead(self):
+        """The bounded look-ahead optimality certificate (URDRLKA1): proving whether a multi-tick optimizer
+        can beat the greedy adaptive encoder — and honestly finding it cannot on this model. Every
+        representation records the same anchor and resets the interval identically (cross-tick independence,
+        transition = 0), so greedy per-update selection is already GLOBALLY optimal; a deterministic bounded
+        Viterbi DP confirms it (DP total == greedy total on the real model) and has TEETH (it beats greedy on
+        a synthetic coupled model). Composition over URDRADC1 — no new glyph (kernel frozen); see
+        docs/lookahead_brief.md. Rows: scenes (optimal / teeth / independent / bounded reproduce URDRLKA1
+        digests), law (greedy-optimality on the real model + the DP has teeth on the coupled model + the
+        certificate detects coupling (not vacuous) + representation-independence + the bounded window rejects
+        an over-window search + deterministic), property (a seeded 80-world sweep with non-vacuity),
+        selftest (a leak-the-hidden manifest makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import lookahead as LK
+            import adaptcite as AC
+            import anamorphosis as AN
+        except Exception as exc:
+            self.record("lookahead", False, f"import failed (lookahead): {exc}")
+            return
+        try:
+            ref_ok = all(LK.scene_result(n) == LK.golden(n) for n in LK.SCENES)
+        except Exception as exc:
+            self.record("lookahead:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("lookahead:scenes", ref_ok,
+                    "optimal + teeth + independent + bounded reproduce URDRLKA1 digests"
+                    if ref_ok else "a lookahead scene drifted from its digest")
+        law_ok = True
+        try:
+            L = AN.lens(0, 0)
+            ticks, cl = LK._oscillate()
+            opts = [[(7, "move"), (9, "cite"), (39, "full")], [(7, "move"), (9, "cite"), (39, "full")]]
+            # greedy-optimality on the real model, non-vacuously
+            ok, seen = LK.certify_greedy_optimal(ticks, cl, L)
+            law_ok = ok and seen > 0 and LK.window_dp(opts, LK.real_trans)[0] == LK.greedy_cost(opts)
+            # the DP has TEETH on the coupled model, and the certificate detects coupling (not vacuous)
+            law_ok = law_ok and LK.optimizer_has_teeth() \
+                and LK.window_dp(opts, LK.coupled_trans)[0] < LK.greedy_actual_cost(opts, LK.coupled_trans) \
+                and LK.window_dp(opts, LK.coupled_trans)[0] != LK.greedy_cost(opts)
+            # representation-independence; the look-ahead wire IS the adaptive wire
+            law_ok = law_ok and LK.representation_independent(ticks, cl, L) \
+                and LK.lookahead_wire(ticks, cl, L) == AC.run(ticks, cl, L, mode="adaptive")["packets"]
+            # a bounded window rejects an over-window search; the DP is deterministic
+            try:
+                LK.window_dp([[(7, "move")]] * (LK.WINDOW + 1), LK.real_trans)
+                law_ok = False
+            except LK.LookaheadError:
+                pass
+            law_ok = law_ok and LK.window_dp(opts, LK.coupled_trans) == LK.window_dp(opts, LK.coupled_trans)
+        except Exception:
+            law_ok = False
+        self.record("lookahead-law", law_ok,
+                    "bounded look-ahead certificate: every representation records the same anchor and resets "
+                    "the interval identically (cross-tick independence), so the bounded Viterbi DP total "
+                    "EQUALS the greedy total on the real model — greedy is GLOBALLY OPTIMAL and no look-ahead "
+                    "helps; the DP has TEETH (it beats greedy on a synthetic coupled model, where it also "
+                    "differs from greedy so the equality is a real measurement); the look-ahead encoding IS "
+                    "the adaptive encoding and reconstructs the same states as the baseline "
+                    "(representation-independence); the window is BOUNDED (an over-window search refuses) and "
+                    "the DP is deterministic — an honest result: look-ahead is proven UNNECESSARY here"
+                    if law_ok else "the lookahead law did not hold")
+        prop_ok = True
+        try:
+            rep2 = LK.sweep()
+            prop_ok = rep2["digest"] == LK.sweep_golden() and rep2["choices_total"] > 0
+        except Exception:
+            prop_ok = False
+        self.record("lookahead-property", prop_ok,
+                    f"the certificate survived a {LK.SWEEP_COUNT}-world seeded sweep — greedy-optimality on "
+                    "the real model (the bounded DP finds no improvement), representation-independence, "
+                    "hidden-set invariance of the certified wire, and deterministic certification, with the "
+                    "optimizer-has-teeth invariant checked once; the aggregate digest reproduces its golden "
+                    "(non-vacuous: genuine multi-option windows exercised)"
+                    if prop_ok else "the lookahead property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = AN._manifest_under
+            AN._manifest_under = lambda entities, walls, cl3, L3: sorted(entities)   # leak the hidden set
+            try:
+                LK.sweep()
+            except LK.LookaheadError:
+                red_ok = True
+            finally:
+                AN._manifest_under = _orig
+            red_ok = red_ok and LK.sweep_digest() == LK.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("lookahead-property-selftest", red_ok,
+                    "a manifest that leaks the hidden set makes a hidden entity's change alter the certified "
+                    "wire, so the seeded sweep raises LOOKAHEAD-REFUSE — the closed-world guarantee holds "
+                    "through the certificate layer too — and the module is clean again after the revert"
+                    if red_ok else "the lookahead sweep did not redden under a leak-the-hidden manifest")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11135,6 +11230,7 @@ def main() -> int:
     gate.byteacct()
     gate.citation()
     gate.adaptcite()
+    gate.lookahead()
     gate.lease()
     gate.testament()
     gate.rollstore()

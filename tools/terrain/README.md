@@ -277,7 +277,20 @@ saving over the fixed rule; the suboptimal plant spends more, the uncertified-ci
 representation-drift plant reconstructs wrong (caught), the wall-clock plant diverges; plus closed-world,
 constant-shape, and rate inherited. Four scenes (cheaper / independent / optimal / lawful) + an 80-world
 sweep. The temporal layer now has two rungs: citation (which history may be reused) + adaptcite (which lawful
-spelling is cheapest). Declared successor: a bounded look-ahead (multi-tick) optimizer.
+spelling is cheapest). Declared successor LANDED as `lookahead.py` below.
+`lookahead.py` — `URDRLKA1`, the BOUNDED LOOK-AHEAD OPTIMALITY CERTIFICATE: proving a multi-tick optimizer
+cannot beat the greedy adaptive encoder on this model — an honest negative result (composition, NO NEW
+GLYPH; design in `docs/lookahead_brief.md`). KEY LEMMA cross-tick independence: every representation records
+the same anchor and resets the interval identically, so the inter-tick transition cost is ZERO and greedy
+per-update selection is already the GLOBAL optimum. A deterministic bounded Viterbi DP confirms it (DP total
+== greedy total on the real model) and has TEETH (it beats greedy on a synthetic coupled model, 16 vs 114,
+so it is a genuine optimizer not a no-op). Guarantees (each red-first): greedy-optimality on the real model,
+the optimizer-has-teeth on the coupled model, the certificate detects coupling (not vacuous),
+representation-independence, a bounded window (an over-window search refuses), and determinism. Four scenes
+(optimal / teeth / independent / bounded) + an 80-world sweep. THE OPTIMIZATION ARC CLOSED WITH A PROOF:
+adaptcite picks the cheapest lawful spelling, lookahead certifies it is globally optimal here. Declared
+successor: a bounded-HISTORY optimizer (where citing risks eviction, ticks couple, and look-ahead gains
+teeth).
 `testament.py` — `URDRTST1`, durable intent: the write that survives its writer. The 144-byte
 testament (MAGIC | regional record | SHA-256) is a last WILL and TESTIMONY in one — intent
 surviving death, evidence under the persist one-digest law. PROBATE derives the lease from the
