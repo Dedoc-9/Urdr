@@ -238,10 +238,19 @@ honestly claim and to where it lands:
      favourable tick in the window; clock-authority binds it to the client's SERVER-ATTESTED latency (from the
      ack/RTT stream, never client-asserted) — the admissible band is `[now−lat−jitter, now−lat+jitter]`
      clamped inside the lag window, and a backdated or forward-skewed view-tick is refused (R_CLOCK) even when
-     geometrically valid, with a client-asserted latency unable to widen the band. The jitter band is a
-     declared bounded leg of legitimate slack; the successor is the latency-estimator itself (measuring and
-     defending the attested latency from the ack stream), and the aim-assist-on-legitimate-targets boundary
-     remains out of scope, stated. EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
+     geometrically valid, with a client-asserted latency unable to widen the band. And the attested clock
+     itself is now MEASURED AND DEFENDED by THE LATENCY-ESTIMATOR (`tools/terrain/latencyest.py`, URDRLES1,
+     `docs/latencyest_brief.md`): from the ack / round-trip stream the one-way latency is the MINIMUM RTT // 2
+     (a cheater can delay an echo but never speed it up, so the min is the inflation-proof floor), the estimate
+     rises at most MAX_RISE per update (anti-drip) and falls freely (an improved ping tightens at once), the
+     jitter is capped, and an implausible RTT is refused — closing the slow-drip latency forge URDRCLK1 left
+     declared; end-to-end, the honest estimator feeding URDRCLK1 refuses a backdate a mean-inflated estimator's
+     widened band would admit. The lag-compensated hit channel is thus self-contained — where (URDRHIT1), when
+     (URDRLAG1), which view-tick (URDRCLK1), and the measured clock that bounds it (URDRLES1). Declared: the
+     estimator bounds and slows band-widening, it does not make inflation impossible (a total, visible,
+     rate-limited drip remains); the ping-scheduling policy is the successor, and the
+     aim-assist-on-legitimate-targets boundary remains out of scope, stated. EXTENDED by ANAMORPHOSIS
+     (`tools/terrain/anamorphosis.py`, URDRANA1,
      `docs/anamorphosis_brief.md`): the binary firewall becomes a server-tunable focal lens `L = (reach,
      focus)` — a graded dial that tunes the manifestation boundary and the precision of the
      already-visible while the closed world holds across the WHOLE dial (proven monotone, lossy-only,
@@ -250,8 +259,8 @@ honestly claim and to where it lands:
      per-entity position-refresh rate (compute decoupled from the sim rate) while membership stays live
      (closed-world every tick, no ghosts) and staleness is structurally bounded. THREE PILLARS on one
      lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1). Remaining Band A work: wiring the
-     manifested-set decision to the live mesh authority; the latency-estimator feeding clock-authority's
-     attested clock; cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
+     manifested-set decision to the live mesh authority; the ping-scheduling policy feeding the
+     latency-estimator's ack window; cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
      URDRSCH1, `docs/schedule_brief.md`): bandwidth- and importance-aware refresh scheduling — when the
      per-tick refresh budget binds, the scheduler serves the due OLDEST-FIRST (starvation-free) so
      staleness stays bounded, membership stays live (closed-world every tick), and replay stays

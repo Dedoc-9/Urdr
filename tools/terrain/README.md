@@ -248,6 +248,23 @@ refused by the clock while the no-clock adjudicator admits it), forward-skew ref
 latency + enforced band). Five scenes (consistent / backdate / forward / laggy / wall) + a 120-arena sweep.
 Declared: the jitter band is a bounded leg of legitimate slack; successor is the latency-estimator itself
 (measuring and defending `(lat, jitter)` from the ack stream).
+`latencyest.py` — `URDRLES1`, THE LATENCY-ESTIMATOR that feeds clock-authority: measure the attested clock
+`(lat, jitter)` URDRCLK1 consumes from the acknowledgment / round-trip stream, and defend it against a
+slow-drip latency forge (composition over `clockauth`, over `lagcomp`, `hitbox`, `perception`; NO NEW GLYPH;
+design in `docs/latencyest_brief.md`). URDRCLK1 took the attested latency as given; this rung derives it. From
+a window of ack samples `(sent_tick, recv_tick)`: `RTT = recv−sent`; the one-way latency is the MINIMUM RTT //
+2 (a cheater can delay an echo but never speed it up, so the min is the inflation-proof floor); the published
+estimate RISES by at most `MAX_RISE` per update (anti-drip) and FALLS freely (an improved ping tightens
+immediately); the jitter is the bounded spread capped at `MAX_JITTER`; an implausible RTT (negative or
+`> MAX_RTT`) is REFUSED. The estimate feeds URDRCLK1 directly. Guarantees (each red-first): the min floor
+(delaying some acks does not move the latency — the mean plant inflates it), rate-limited rise + free fall
+(the no-ratelimit plant jumps), jitter cap, plausibility (the no-plausibility plant folds a garbage RTT in),
+the END-TO-END composition (the honest estimator feeding URDRCLK1 refuses a backdate a defective estimator's
+widened band admits), proof-carrying (the 88-byte record is bound to its ack window; a forged higher latency
+fails). Five scenes (honest / inflate / drip / improve / implausible) + a 120-arena sweep. Declared: this
+bounds and slows band-widening, it does not make inflation impossible; successor is the ping-scheduling /
+sample-selection policy. The lag-compensated hit channel is now self-contained: where (URDRHIT1), when
+(URDRLAG1), which view-tick (URDRCLK1), and the measured clock that bounds it (URDRLES1).
 `anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception
 firewall generalized from BINARY (absent Ø / full-fidelity) to a GRADED, server-tunable dial `L = (reach,
 focus)` — a "simple patch to all users" — WITHOUT opening a slot for the hidden (composition over

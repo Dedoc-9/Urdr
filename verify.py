@@ -8840,6 +8840,119 @@ class Gate:
                     "the module is clean again after the revert"
                     if red_ok else "the clockauth sweep did not redden under a disabled clock band")
 
+    def latencyest(self):
+        """The latency-estimator (URDRLES1): measure the attested clock (lat, jitter) URDRCLK1 consumes from
+        the acknowledgment / round-trip stream, and defend it against a slow-drip latency forge. From a window
+        of ack samples the one-way latency is the MINIMUM RTT // 2 (a cheater can delay an echo but never speed
+        it up, so the min is the inflation-proof floor); the estimate rises at most MAX_RISE per update
+        (anti-drip) and falls freely (an improved ping tightens immediately); the jitter is the bounded spread
+        capped at MAX_JITTER; an implausible RTT is refused. The estimate feeds URDRCLK1 directly. Composition
+        over URDRCLK1 (over URDRLAG1, URDRHIT1, URDRPCP1) — no new glyph (kernel frozen); see
+        docs/latencyest_brief.md. Declared: this bounds and slows band-widening, it does not make inflation
+        impossible. Rows: scenes (honest / inflate / drip / improve / implausible reproduce URDRLES1 digests),
+        law (the min floor + rate-limited rise + free fall + jitter cap + plausibility + the END-TO-END
+        composition + proof-carrying record), property (a seeded 120-arena sweep with non-vacuity), selftest (a
+        mean-based estimator moves the latency off the floor so the sweep REDDENS)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import clockauth as CK
+            import latencyest as LE
+        except Exception as exc:
+            self.record("latencyest", False, f"import failed (latencyest): {exc}")
+            return
+        try:
+            ref_ok = all(LE.scene_result(n) == LE.golden(n) for n in LE.SCENES)
+        except Exception as exc:
+            self.record("latencyest:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("latencyest:scenes", ref_ok,
+                    "honest + inflate + drip + improve + implausible reproduce URDRLES1 digests"
+                    if ref_ok else "a latencyest scene drifted from its digest")
+
+        def _win(rtts, base=0):
+            return [LE.sample(base + i, base + i + r) for i, r in enumerate(rtts)]
+
+        law_ok = True
+        try:
+            # honest convergence + determinism
+            w = _win([6, 6, 6, 6])
+            law_ok = LE.estimate(3, w) == (3, 0) and LE.estimate(3, w) == LE.estimate(3, w)
+            # THE MIN FLOOR: an inflated window keeps the latency at the floor; the mean plant inflates it
+            inf = _win([6, 12, 6, 12])
+            law_ok = law_ok and LE.estimate(3, inf)[0] == 3 and LE._estimate_by_mean(3, inf)[0] > 3
+            # rate-limited rise; the no-ratelimit plant jumps; free fall on an improved ping
+            drip = _win([10, 10, 10, 12])
+            law_ok = law_ok and LE.estimate(2, drip)[0] <= 2 + LE.MAX_RISE \
+                and LE._estimate_no_ratelimit(2, drip)[0] > LE.estimate(2, drip)[0]
+            law_ok = law_ok and LE.estimate(5, _win([4, 4]))[0] == 2
+            # jitter cap
+            law_ok = law_ok and LE.estimate(3, inf)[1] <= LE.MAX_JITTER
+            # plausibility: the law refuses a garbage RTT; the plant tolerates it
+            bad = _win([6, LE.MAX_RTT + 5, 6])
+            refused = False
+            try:
+                LE.estimate(3, bad)
+            except LE.LatencyestError:
+                refused = True
+            law_ok = law_ok and refused and LE._estimate_no_plausibility(3, bad) is not None
+            # END-TO-END: the honest clock refuses a backdate the mean-inflated clock admits
+            tl = CK._static_timeline(100, 7); sh = CK.HB.shooter(0, 0, 1, 0, 400)
+            honest_clk = LE.estimate(3, inf); mean_clk = LE._estimate_by_mean(3, inf)
+            bd = (1, 7, 0, 100 - honest_clk[0] - LE.MAX_JITTER - 1)
+            law_ok = law_ok and not CK.admit(tl, frozenset(), sh, honest_clk, bd) \
+                and CK.admit(tl, frozenset(), sh, mean_clk, bd)
+            # proof-carrying record: honest verifies; a forged higher latency fails; bound to its window
+            rec = LE.publish(3, w)
+            law_ok = law_ok and len(rec) == LE.record_bytes_len() and LE.verify_record(3, w, rec) \
+                and not LE.verify_record(3, w, LE.forge_clock(rec, 7)) \
+                and not LE.verify_record(3, _win([6, 6, 6, 8]), rec)
+        except Exception:
+            law_ok = False
+        self.record("latencyest-law", law_ok,
+                    "the latency-estimator: the one-way latency is the MINIMUM RTT // 2, so delaying some acks "
+                    "(the mean-based plant) does not move it off the floor; the estimate rises at most MAX_RISE "
+                    "per update (the no-ratelimit plant jumps) but falls freely when the ping improves; the "
+                    "jitter is capped; an implausible RTT is refused (the no-plausibility plant folds it in); "
+                    "END-TO-END, the honest estimator feeding URDRCLK1 REFUSES a backdate the mean-inflated "
+                    "clock's widened band admits; and the 88-byte published record is proof-carrying (a forged "
+                    "higher latency, or a different ack window, fails verification)"
+                    if law_ok else "the latencyest law did not hold")
+        prop_ok = True
+        try:
+            rep = LE.sweep()
+            prop_ok = (rep["digest"] == LE.sweep_golden() and rep["floor_seen"] > 0
+                       and rep["drip_seen"] > 0 and rep["implausible_seen"] > 0 and rep["compose_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("latencyest-property", prop_ok,
+                    f"the latency-estimator survived a {LE.SWEEP_COUNT}-arena seeded sweep — random true "
+                    "latencies with honest, inflated, and drip ack windows: the min floor holds against a "
+                    "partial inflation (the mean plant inflates), the rise is rate-limited (the no-ratelimit "
+                    "plant jumps), jitter is capped, a garbage RTT is refused, and END-TO-END the honest "
+                    "estimator feeding URDRCLK1 refuses a backdate the mean-inflated clock admits; the record "
+                    "is proof-carrying and the aggregate digest reproduces its golden (non-vacuous: floor / "
+                    "drip / implausible / compose all exercised)"
+                    if prop_ok else "the latencyest property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = LE.estimate
+            LE.estimate = LE._estimate_by_mean                    # a mean-based estimator moves off the floor
+            try:
+                LE.sweep()
+            except LE.LatencyestError:
+                red_ok = True
+            finally:
+                LE.estimate = _orig
+            red_ok = red_ok and LE.sweep_digest() == LE.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("latencyest-property-selftest", red_ok,
+                    "a mean-based estimator moves the latency off the min floor (an inflated ack window now "
+                    "widens the band), so the seeded sweep raises LATENCYEST-REFUSE — the inflation defense is "
+                    "a live falsifier, not decoration — and the module is clean again after the revert"
+                    if red_ok else "the latencyest sweep did not redden under a mean-based estimator")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11764,6 +11877,7 @@ def main() -> int:
     gate.hitbox()
     gate.lagcomp()
     gate.clockauth()
+    gate.latencyest()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
