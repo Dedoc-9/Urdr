@@ -1,0 +1,28 @@
+# URDRMAG1 conformance — DIVISION BY AN INVARIANT CONSTANT, EXHAUSTIVELY DECIDED. The
+# Granlund-Montgomery multiply-shift identity: with l = ceil(log2 d), m = ceil(2^(W+l)/d), s = W+l,
+#   floor(n/d) == (m*n) >> s   for EVERY n in [0, 2^W).
+# The gate decides this EXHAUSTIVELY at W=10 — every divisor against every dividend, 1047552 checks,
+# 0 failures. That is a decided finite statement, not a sampled sweep: a stronger grade than any
+# other property in this arc. Pinned AFTER the floor-instead-of-ceil plant was proven to fail on
+# 1013 divisors (it is correct only for powers of two — the exact subtle defect exhaustion exists
+# to catch). A handed-down theorem arrived with four "self-organization" corollaries; each is graded
+# rather than repeated:
+#   CLAIM 1 (Hausdorff dimension ~ log2 log2 M): REFUTED BY DEFINITION — Lambda is a set of integer
+#     pairs, hence countable, and every countable subset of R^2 has Hausdorff dimension 0. No
+#     computation can rescue it. Kept in the record because a refuted claim is a result.
+#   CLAIM 2 (equal-shift near-collisions cluster around powers of 2): TRUE and SHARPER — the classes
+#     ARE the half-open dyadic blocks (2^k, 2^(k+1)], every upper edge landing exactly on a power of
+#     two, EXCEPT the final class which the word truncates at 2^W-1. An earlier draft asserted the
+#     universal from a six-class sample and was WRONG; the exhaustive check found the exception, and
+#     the exception is now part of the stated claim.
+#   CLAIM 3 (the mu/gcd equivalence): well-defined; reported as a class-size histogram, a measurement.
+#   CLAIM 4 (shift constant on dyadic intervals around a centre): TRUE, and the mechanism is NOT
+#     self-organization — s = W + ceil(log2 d) exactly, so the constancy restates the definition.
+# Scene digests SHA-256(MAGIC | name | payload). Composition-free (depends on no other rung) —
+# NO new glyph (kernel frozen). DECLARED: only the W=10 statement is DECIDED here; W=16 is
+# spot-checked. does_not_show: signed division; runtime-variable divisors; cross-placement.
+identity be9d45e97af84bddae6f3263ff19ce4502a0abd1e1c269d7b7e063fa2d17c28d
+plans 6219ea889fcffb960a167e2d1cf46489267ac0256ed515b78ec943d81225e8af
+dyadic 18ebecace28492beda550adeb5ff994dcd92b41d62db1139fc4b77593fb04b61
+bitlength a9b5a6aaf367d9a265dc4535ee24c97280a47afeeb3e16c152ecf6ee3a3aa402
+refuted 74aed315bd76a4e4a0ef0d024b591bd315b207f91453d405a070499f9f7ad17a

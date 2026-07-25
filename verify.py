@@ -9240,6 +9240,66 @@ class Gate:
                     "again after the revert"
                     if red_ok else "the oobprior sweep did not redden under an including-self reference")
 
+    def magicdiv(self):
+        """Division by an invariant constant (URDRMAG1): the Granlund-Montgomery multiply-shift
+        identity, EXHAUSTIVELY DECIDED rather than swept — every divisor against every dividend in a
+        10-bit word (1047552 checks), which is a decided finite statement rather than
+        confidence-over-a-sampled-space. A handed-down theorem arrived with four self-organization
+        corollaries; each is graded rather than repeated: claim 1 (Hausdorff dimension) REFUTED by
+        definition (a countable set has dimension 0), claim 2 TRUE and sharper (the equal-shift
+        classes ARE the dyadic blocks, with one word-truncated exception the exhaustive check found
+        after a six-class sample had asserted the universal wrongly), claim 3 reported as a
+        histogram, claim 4 TRUE but demystified (s = W + ceil(log2 d) — bit-length, not emergence).
+        No new glyph; depends on no other rung. Rows: scenes, law (the identity + the plant + the
+        graded corollaries), selftest (the floor-instead-of-ceil plant fails exhaustively)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import magicdiv as MD
+        except Exception as exc:
+            self.record("magicdiv", False, f"import failed (magicdiv): {exc}")
+            return
+        try:
+            ref_ok = all(MD.scene_result(n) == MD.golden(n) for n in MD.SCENES)
+        except Exception as exc:
+            self.record("magicdiv:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("magicdiv:scenes", ref_ok,
+                    "identity + plans + dyadic + bitlength + refuted reproduce URDRMAG1 digests"
+                    if ref_ok else "a magicdiv scene drifted from its digest")
+        law_ok = True
+        try:
+            checks, fails = MD.exhaustive()
+            law_ok = fails == 0 and checks == (1 << MD.WORD) * ((1 << MD.WORD) - 1)
+            law_ok = law_ok and MD.refutes_claim1() == ("countable", 0)
+            law_ok = law_ok and MD.classes_are_dyadic() and MD.shift_is_bitlength()
+            law_ok = law_ok and sum(k * v for k, v in MD.equiv_classes().items()) == (1 << MD.WORD) - 1
+            law_ok = law_ok and MD.wide_spotcheck()
+            law_ok = law_ok and MD.verify_divisor(3) and not MD.verify_divisor(3, _plan=MD._plan_floor)
+        except Exception:
+            law_ok = False
+        self.record("magicdiv-law", law_ok,
+                    f"floor(n/d) == (m*n) >> s DECIDED exhaustively over the whole {MD.WORD}-bit word "
+                    "(every divisor x every dividend, 0 failures) — a decided finite statement, not a "
+                    "sampled sweep; the handed-down corollaries graded rather than repeated: the "
+                    "Hausdorff-dimension claim REFUTED by definition (countable => dimension 0), the "
+                    "equal-shift classes shown to BE the dyadic blocks (with the word-truncated final "
+                    "class stated as part of the claim), the shift shown to be exactly "
+                    "W + ceil(log2 d) so the 'self-organization' is bit-length, and the equivalence "
+                    "histogram accounting for every divisor"
+                    if law_ok else "the magicdiv law did not hold")
+        red_ok = False
+        try:
+            _c, pf = MD.exhaustive(_plan=MD._plan_floor)
+            red_ok = pf > 0 and MD.verify_divisor(4, _plan=MD._plan_floor)
+        except Exception:
+            red_ok = False
+        self.record("magicdiv-selftest", red_ok,
+                    f"the floor-instead-of-ceil multiplier fails on {pf} divisors while remaining "
+                    "CORRECT for powers of two — the subtlety is the point: a sampled check on easy "
+                    "divisors would have passed it, and only exhaustion refuses it"
+                    if red_ok else "the floor plant did not fail exhaustively")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12167,6 +12227,7 @@ def main() -> int:
     gate.latencyest()
     gate.pingpolicy()
     gate.oobprior()
+    gate.magicdiv()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
