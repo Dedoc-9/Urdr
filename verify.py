@@ -8724,6 +8724,122 @@ class Gate:
                     "decoration — and the module is clean again after the revert"
                     if red_ok else "the lagcomp sweep did not redden under a no-rewind adjudicator")
 
+    def clockauth(self):
+        """Clock-authority (URDRCLK1): bound the VIEW-TICK a client may assert to its server-ATTESTED latency,
+        closing the backdating-within-the-window abuse URDRLAG1 left declared. Lag-comp bounds vt to the
+        window but takes it as given, so a cheater can cherry-pick the most favourable tick. The server holds
+        a per-client attested latency (lat, jitter) from the ack stream (never client-asserted); the
+        admissible band is [now-lat-jitter, now-lat+jitter] clamped inside the lag window. A view-tick outside
+        the band is refused (R_CLOCK, before any rewind) even if geometrically valid; a client-asserted
+        latency cannot widen the band; URDRLAG1's window/rewind and URDRHIT1's geometry compose through. The
+        verdict is a constant-shape proof-carrying packet carrying the attested latency + the enforced band.
+        Composition over URDRLAG1 (over URDRHIT1, over URDRPCP1) — no new glyph (kernel frozen); see
+        docs/clockauth_brief.md. Declared: the jitter band is a bounded leg of legitimate slack; the
+        latency-estimate's accuracy is the successor. Rows: scenes (consistent / backdate / forward / laggy /
+        wall reproduce URDRCLK1 digests), law (the clock-consistent admit + backdating teeth + forward-skew +
+        attestation + composition + constant shape + proof-carrying), property (a seeded 120-arena sweep with
+        non-vacuity), selftest (a disabled clock band admits a backdate so the sweep REDDENS)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import hitbox as HB
+            import clockauth as CK
+        except Exception as exc:
+            self.record("clockauth", False, f"import failed (clockauth): {exc}")
+            return
+        try:
+            ref_ok = all(CK.scene_result(n) == CK.golden(n) for n in CK.SCENES)
+        except Exception as exc:
+            self.record("clockauth:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("clockauth:scenes", ref_ok,
+                    "consistent + backdate + forward + laggy + wall reproduce URDRCLK1 digests"
+                    if ref_ok else "a clockauth scene drifted from its digest")
+        law_ok = True
+        try:
+            sh = HB.shooter(0, 0, 1, 0, 400)
+            tl = CK._static_timeline(100, 7)
+            clk = CK.clock(3, 1)                                  # band [96, 98] at now=100
+            before = CK.world_digest(tl, frozenset(), clk)
+            base = CK.adjudicate(tl, frozenset(), sh, clk, (1, 7, 0, 97))
+            law_ok = CK.world_digest(tl, frozenset(), clk) == before \
+                and base == CK.adjudicate(tl, frozenset(), sh, clk, (1, 7, 0, 97))
+            # the clock-consistent shot admits and the verdict carries the attested latency + band
+            law_ok = law_ok and CK.admit(tl, frozenset(), sh, clk, (1, 7, 0, 97))
+            rd = CK.read_verdict(base)
+            law_ok = law_ok and rd[8] and (rd[4], rd[5]) == (3, 1) and (rd[6], rd[7]) == (96, 98)
+            # THE BACKDATING TEETH: an older cherry-picked view-tick is refused by the clock; no-clock admits it
+            back = (1, 7, 0, 95)
+            law_ok = law_ok and not CK.admit(tl, frozenset(), sh, clk, back) \
+                and CK._reason(tl, frozenset(), sh, clk, back) == CK.R_CLOCK \
+                and CK._admit_no_clock(tl, frozenset(), sh, clk, back)
+            # forward-skew refused
+            fwd = (1, 7, 0, 100)
+            law_ok = law_ok and not CK.admit(tl, frozenset(), sh, clk, fwd) \
+                and CK._reason(tl, frozenset(), sh, clk, fwd) == CK.R_CLOCK
+            # attestation: a client-asserted (inflated) latency admits the backdate the attested clock refuses
+            law_ok = law_ok and CK._admit_client_latency(tl, frozenset(), sh, CK.clock(5, 1), back)
+            # latency-proportional: a laggy client legitimately gets an older band a low-latency one cannot
+            law_ok = law_ok and CK.admit(tl, frozenset(), sh, CK.clock(6, 1), (1, 7, 0, 94)) \
+                and not CK.admit(tl, frozenset(), sh, clk, (1, 7, 0, 94))
+            # composition: a clock-consistent but wall-shadowed shot is refused (URDRHIT1's occlusion)
+            walls = frozenset({(10, 0)})
+            wclaim = (2, 14, 0, 97)
+            law_ok = law_ok and not CK.admit(tl, walls, sh, clk, wclaim) \
+                and CK._reason(tl, walls, sh, clk, wclaim) == HB.R_WALL
+            # constant-shape; proof-carrying (honest verifies; a re-sealed forged ADMIT still fails)
+            wv = CK.adjudicate(tl, walls, sh, clk, wclaim)
+            law_ok = law_ok and len(base) == CK.verdict_bytes_len() == len(wv) \
+                and CK.verify_verdict(tl, walls, sh, clk, wv) \
+                and not CK.verify_verdict(tl, walls, sh, clk, CK.forge_admit(wv))
+        except Exception:
+            law_ok = False
+        self.record("clockauth-law", law_ok,
+                    "clock-authority: a view-tick matching the client's server-attested latency admits (and "
+                    "the verdict carries the latency + the enforced band), while a cherry-picked BACKDATED "
+                    "view-tick — inside the lag window and geometrically valid — is REFUSED by the clock (the "
+                    "no-clock adjudicator admits it), a forward-skewed view-tick is refused, a client-asserted "
+                    "latency cannot widen the band (the attestation plant admits a backdate the attested clock "
+                    "refuses), a laggy client legitimately gets an older band, URDRHIT1's occlusion composes "
+                    "through, and the constant-shape verdict is proof-carrying (a re-sealed forged ADMIT still "
+                    "fails)"
+                    if law_ok else "the clockauth law did not hold")
+        prop_ok = True
+        try:
+            rep = CK.sweep()
+            prop_ok = (rep["digest"] == CK.sweep_golden() and rep["admit_seen"] > 0
+                       and rep["backdate_seen"] > 0 and rep["forward_seen"] > 0
+                       and rep["attest_seen"] > 0 and rep["wall_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("clockauth-property", prop_ok,
+                    f"clock-authority survived a {CK.SWEEP_COUNT}-arena seeded sweep — random attested "
+                    "latencies and jitter: a clock-consistent shot admits while a backdated view-tick is "
+                    "refused by the clock (the no-clock plant admits it), a forward-skewed view-tick is "
+                    "refused, a client-asserted latency admits a backdate the attested clock refuses, a "
+                    "wall-shadowed clock-consistent shot is refused (geometry composes), adjudication is "
+                    "deterministic and constant-shape, and a forged ADMIT never verifies; the aggregate digest "
+                    "reproduces its golden (non-vacuous: admit / backdate / forward / attest / wall exercised)"
+                    if prop_ok else "the clockauth property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = CK._clock_ok
+            CK._clock_ok = lambda now2, clk2, vt2: True           # accept any view-tick — disable the band
+            try:
+                CK.sweep()
+            except CK.ClockauthError:
+                red_ok = True
+            finally:
+                CK._clock_ok = _orig
+            red_ok = red_ok and CK.sweep_digest() == CK.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("clockauth-property-selftest", red_ok,
+                    "a disabled clock band admits a backdated view-tick, so the seeded sweep raises "
+                    "CLOCKAUTH-REFUSE — the attested-latency bound is a live falsifier, not decoration — and "
+                    "the module is clean again after the revert"
+                    if red_ok else "the clockauth sweep did not redden under a disabled clock band")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11647,6 +11763,7 @@ def main() -> int:
     gate.audible()
     gate.hitbox()
     gate.lagcomp()
+    gate.clockauth()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

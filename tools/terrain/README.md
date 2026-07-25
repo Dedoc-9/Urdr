@@ -232,6 +232,22 @@ the window bound (stale/future refused, each plant biting), composed geometry, c
 fails). Five scenes (rewind / stale / future / wall_at_vt / behind_cover) + a 120-timeline sweep. Declared: the
 favor-the-shooter / killed-behind-cover tradeoff is bounded by MAX_REWIND, not eliminated; successor is
 clock-authority (bounding the view-tick a client may assert).
+`clockauth.py` — `URDRCLK1`, CLOCK-AUTHORITY for the lag-compensated hit channel: bound the VIEW-TICK a client
+may assert to its server-ATTESTED latency, closing the backdating-within-the-window abuse URDRLAG1 left
+declared (composition over `lagcomp`, over `hitbox`, over `perception`; NO NEW GLYPH; design in
+`docs/clockauth_brief.md`). Lag-comp bounds the view-tick to the window but takes it as given, so a cheater can
+cherry-pick the most favourable tick; the server holds a per-client attested latency `(lat, jitter)` from the
+ack/RTT stream (NEVER client-asserted) and the admissible band is `[now−lat−jitter, now−lat+jitter]` clamped
+inside the lag window. A claim `(target, point, view_tick)` admits iff view_tick is in that band (else
+`R_CLOCK`, before any rewind) AND URDRLAG1's lag-compensated geometry admits; a backdated or forward-skewed
+view-tick is refused even when geometrically valid, and a client-asserted latency cannot widen the band.
+Guarantees (each red-first): the clock-consistent admit, the backdating teeth (a cherry-picked older view-tick
+refused by the clock while the no-clock adjudicator admits it), forward-skew refused, the attestation property
+(a client-latency plant admits a backdate the attested clock refuses), latency-proportionality, composition
+(URDRLAG1/URDRHIT1 refusals hold), constant-shape + proof-carrying (the 120-byte verdict carries the attested
+latency + enforced band). Five scenes (consistent / backdate / forward / laggy / wall) + a 120-arena sweep.
+Declared: the jitter band is a bounded leg of legitimate slack; successor is the latency-estimator itself
+(measuring and defending `(lat, jitter)` from the ack stream).
 `anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception
 firewall generalized from BINARY (absent Ø / full-fidelity) to a GRADED, server-tunable dial `L = (reach,
 focus)` — a "simple patch to all users" — WITHOUT opening a slot for the hidden (composition over

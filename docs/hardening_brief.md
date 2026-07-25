@@ -232,9 +232,16 @@ honestly claim and to where it lands:
      there, within a bounded window (a future or over-old claim is refused — the anti-abuse bound that stops
      backdating to an ancient favourable frame), with URDRHIT1's geometry composing uncompromised at the
      rewound tick and the 104-byte verdict carrying the exact rewound position it used. The declared
-     favor-the-shooter / killed-behind-cover tradeoff is bounded by MAX_REWIND, not eliminated; the successor
-     is clock-authority (bounding the view-tick a client may assert), and the aim-assist-on-legitimate-targets
-     boundary remains out of scope, stated. EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
+     favor-the-shooter / killed-behind-cover tradeoff is bounded by MAX_REWIND, not eliminated. And the
+     view-tick a client may assert is now bounded by CLOCK-AUTHORITY (`tools/terrain/clockauth.py`, URDRCLK1,
+     `docs/clockauth_brief.md`): lag-comp took the view-tick as given, letting a cheater cherry-pick the most
+     favourable tick in the window; clock-authority binds it to the client's SERVER-ATTESTED latency (from the
+     ack/RTT stream, never client-asserted) — the admissible band is `[now−lat−jitter, now−lat+jitter]`
+     clamped inside the lag window, and a backdated or forward-skewed view-tick is refused (R_CLOCK) even when
+     geometrically valid, with a client-asserted latency unable to widen the band. The jitter band is a
+     declared bounded leg of legitimate slack; the successor is the latency-estimator itself (measuring and
+     defending the attested latency from the ack stream), and the aim-assist-on-legitimate-targets boundary
+     remains out of scope, stated. EXTENDED by ANAMORPHOSIS (`tools/terrain/anamorphosis.py`, URDRANA1,
      `docs/anamorphosis_brief.md`): the binary firewall becomes a server-tunable focal lens `L = (reach,
      focus)` — a graded dial that tunes the manifestation boundary and the precision of the
      already-visible while the closed world holds across the WHOLE dial (proven monotone, lossy-only,
@@ -243,8 +250,8 @@ honestly claim and to where it lands:
      per-entity position-refresh rate (compute decoupled from the sim rate) while membership stays live
      (closed-world every tick, no ghosts) and staleness is structurally bounded. THREE PILLARS on one
      lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1). Remaining Band A work: wiring the
-     manifested-set decision to the live mesh authority; clock-authority for the lag-compensated hit channel;
-     cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
+     manifested-set decision to the live mesh authority; the latency-estimator feeding clock-authority's
+     attested clock; cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
      URDRSCH1, `docs/schedule_brief.md`): bandwidth- and importance-aware refresh scheduling — when the
      per-tick refresh budget binds, the scheduler serves the due OLDEST-FIRST (starvation-free) so
      staleness stays bounded, membership stays live (closed-world every tick), and replay stays

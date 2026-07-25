@@ -1,0 +1,23 @@
+# URDRCLK1 conformance — CLOCK-AUTHORITY for the lag-compensated hit channel: bound the VIEW-TICK a client
+# may assert to its server-ATTESTED latency, closing the backdating-within-the-window abuse URDRLAG1 left
+# declared. Lag-comp bounds vt to [now-MAX_REWIND, now] but takes vt as given, so a cheater can cherry-pick
+# the most favourable tick in the window. The server holds a per-client attested latency (lat, jitter) from
+# the ack/RTT stream (NEVER client-asserted); the admissible band is [now-lat-jitter, now-lat+jitter] clamped
+# inside the lag window. A claim (target, point, view_tick) admits iff view_tick is in that band (else
+# R_CLOCK, before any rewind) AND URDRLAG1's lag-compensated geometry admits at view_tick. A backdated or
+# forward-skewed view-tick is refused even when geometrically valid; a client-asserted latency cannot widen
+# the band; URDRLAG1's window/rewind and URDRHIT1's geometry compose through. The verdict is a constant-shape
+# (120-byte) proof-carrying packet carrying the attested latency and the enforced band [lo,hi]; a re-sealed
+# forged ADMIT still fails verify_verdict. Scene digests SHA-256(MAGIC | name | world+clock | verdict | reason
+# | verdict-name); the sweep digest is over a fixed-seed (20260725) 120-arena sweep asserting the
+# clock-consistent admit, the backdating teeth, the forward-skew refusal, the attestation property, composed
+# geometry, determinism, and the proof-carrying contract. Pinned AFTER the no-clock and client-latency plants
+# were proven to bite and the sweep proven to redden under a disabled clock band. Composition over URDRLAG1
+# (over URDRHIT1, over URDRPCP1) — NO new glyph (kernel frozen). Declared: the jitter band is a bounded leg
+# of legitimate slack; the latency-estimate's own accuracy is the declared successor.
+consistent 87248e252fb1a242c2c7c67859c63468a935a5bb27bd58ac64063167017f96e7
+backdate 7d09c43c8c351c33080b6b81d46f5e568800652eee1cafdd12fe0f0392448861
+forward dca4ad3c2649bd1f039a0bd86791947de6898aeee8df9f6c3867b11d461d1d59
+laggy 2c9c2dd3a71bff05454b2392288dd0bc4df9244302afaa78083945e5d4356f4b
+wall 3872c02f4ccb71bd886ca48622a7efcaee9b435931f96e3b70a9811048d1f41f
+sweep 3e2cd34916c60c5a1c0739c2177e67ea11d7a70f0e97f8d98686741d401699d2
