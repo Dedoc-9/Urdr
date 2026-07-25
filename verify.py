@@ -2729,7 +2729,7 @@ class Gate:
             self.record("doc-currency", False, f"import failed: {exc}")
             self.record("doc-currency-selftest", False, "checker did not load")
             return
-        N_OWN = 2  # rows THIS method records below — keep == the record() count
+        N_OWN = 4  # rows THIS method records below — keep == the record() count
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
                               len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
@@ -2746,6 +2746,33 @@ class Gate:
         self.record("doc-currency-selftest", caught,
                     "a planted stale count is caught (gate can redden)"
                     if caught else "self-defect not caught")
+
+        # ---- doc-staleness: the four classes a repo-wide comb found LIVE outside the checker ----
+        try:
+            live_x = live
+            suites_x = DC.count_suites(ROOT)
+            stale = DC.staleness_problems(ROOT, suites_x) + DC.word_problems(ROOT, live_x)
+            stale_ok = not stale
+        except Exception as exc:
+            stale, stale_ok, suites_x = [("doc-staleness", "error", str(exc), "")], False, -1
+        self.record("doc-staleness", stale_ok,
+                    f"no stale staleness-class found across every .md: WORD-form counts agree "
+                    f"({live_x['det']} detectors written as words), the suite count agrees "
+                    f"({suites_x} discovered), no doc claims a module is unbuilt while it carries a "
+                    f"gate stage, and no 'declared successor' names a rung that has since shipped "
+                    f"(the append-only D5 ledgers are exempt — recorded history is not drift)"
+                    if stale_ok else "stale: " + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in stale[:4]))
+        try:
+            red_x = DC.extension_defect_is_caught(ROOT, live_x, suites_x)
+        except Exception:
+            red_x = False
+        self.record("doc-staleness-selftest", red_x,
+                    "all four planted stale shapes are caught — a WORD-form count, a stale suite "
+                    "count, an 'unbuilt' status naming a module that exists, and a 'declared "
+                    "successor' naming a shipped rung; each shape is one this repo actually carried, "
+                    "so the checker is a live falsifier rather than decoration"
+                    if red_x else "the staleness extension failed to catch a planted stale shape")
+
 
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
     def rigidity_verdict(self):

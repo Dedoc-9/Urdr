@@ -6,7 +6,7 @@ STATUS: the phase is SEALED — W1 (`wire`, URDRWIR1, T3.47, `198807e`), W2 (`st
 T3.48, `c514f6c`), W3 (`sealwrit`, URDRSWT1, T3.49, `41e0cd7`), W4 (`driftgaze`, URDRDGZ1, T3.50,
 `ab7d44d`), and W5 (`wireattest`, URDRWAT1, T3.51) are ALL LANDED, and placement batch #3 is CLOSED
 (`wirephase_rs` — the five families independently placed). Phase V (the visible world; `AGENTS.md`
-§12's windowed-execution ladder) and Phase M (the mesh) are the road ahead.
+§12's windowed-execution ladder) and Phase M (the mesh) are the road ahead. **UPDATE: both are now SEALED** — Phase V at `sealsession` (V5), Phase M at `meshsession` (M5).
 This brief is the long-horizon map for what follows — researched against the 2026 state of the
 world, written in the ledger's voice, and structured so each rung can be held to the covenant
 discipline (recorded ambitions become scheduled rungs, or they are honestly re-declared). Nothing
@@ -86,7 +86,7 @@ convergence verified by the same Python laws after the fact. The reality boundar
 honestly: the gate certifies the laws, the attestation certifies reality met them, and neither
 pretends to be the other.
 
-**Phase V — the visible world. SEALED — V1 `panelight`, V2 `panewire`, V3 `ghostsnap`, V4 `sealframe`, and V5 `sealsession` ALL LANDED** (V5, URDRSSN1, T3.56 — the attested session, the capstone: a play session composing loop+wire+ghosts recorded as a self-digested trace the gate replays through the unmodified laws; a forged playthrough refuses — the demo becomes a proof). Phase M (the mesh) is the road ahead.
+**Phase V — the visible world. SEALED — V1 `panelight`, V2 `panewire`, V3 `ghostsnap`, V4 `sealframe`, and V5 `sealsession` ALL LANDED** (V5, URDRSSN1, T3.56 — the attested session, the capstone: a play session composing loop+wire+ghosts recorded as a self-digested trace the gate replays through the unmodified laws; a forged playthrough refuses — the demo becomes a proof). Phase M (the mesh) is SEALED — M1–M5 all LANDED.
 **Detail:** (V4, URDRSFR1, T3.55 — the sealed frame: the loop's op-cost envelope gated, the wall-clock fps/latency NOT_MEASURED until a named-host `--bench` log, the honesty boundary mechanized).
 **Prior:** (V3, URDRGHS1, T3.54 — the actor wire: equal-or-refuse ghosts, content-addressed pose snapshots chained by parent digest, AoI interest, two clients one truth, the interpolation firewall — the world made multiplayer).
 **Detail:** (V2, URDRPNW1, T3.53 — the wired window: the loop over a replicated, streamed world, resident-or-refuse, live edits, two windows one authority, equal-or-refuse under play).
@@ -101,7 +101,7 @@ every byte of the path admitted rather than trusted.
 
 **Phase M — the mesh (the far horizon, kept honest).** Live authority migration as lease transfer
 between shards (the C8 attempt-#1 live half); n-way nullity as the write scheduler; the authority
-algebra as the allocator. The certified answer to server meshing. Not begun; listed so the
+algebra as the allocator. The certified answer to server meshing. **SEALED since this was written** (M1–M5 LANDED); listed so the
 covenant can find it.
 
 ## The standing disciplines (unchanged, restated for the phase)

@@ -293,7 +293,37 @@ Linux/cloud host. All commands run from the REPO ROOT — half of historical "Ra
 confusions were a drifted working directory.
 
 ```bash
-# THE GATE (CI). Expect "GATE PASSED", 1444 unit falsifiers / 728 rows, and run it
+# ---------------------------------------------------------------------------------------
+# REPORTING A RUN — the compact style (use this; it is the house convention)
+#
+# A full PowerShell transcript of a gate run is several KB, of which about a hundred bytes
+# carry information. When reporting a run — to a colleague, an issue, or an agent session —
+# do NOT paste the transcript. Run the wrapper and paste ONLY the delimited block:
+#
+#     .\tools\urdrgate.ps1                    # verify only
+#     .\tools\urdrgate.ps1 -Patch x.patch     # git am, then verify
+#     .\tools\urdrgate.ps1 -Push              # push iff green, identical and 0 FAIL
+#
+# It prints exactly one block, and that block is the whole report:
+#
+#     <<<URDR
+#     HEAD=afaf3db BR=main AM=ce642c1->afaf3db
+#     GATE=PASSED FAILROWS=0 FALS=1444/0red ROWS=730 DOCCUR=OK DOCSTALE=OK
+#     DET=BYTE-IDENTICAL BYTES=232894/232894 A=88534E5B B=88534E5B
+#     PUSH=ce642c1..afaf3db
+#     URDR>>>
+#
+# On failure it appends ONLY the [FAIL] rows, which is the part that actually needs reading.
+# The rule: paste between the <<<URDR and URDR>>> markers and nothing else. Everything the
+# gate certifies is in there — verdict, byte-identity of the two runs, both output lengths and
+# hash prefixes, the live falsifier/row counts, and the two doc-currency verdicts. A run
+# reported any other way is not easier to trust, only longer.
+#
+# Exit code is 0 iff GATE PASSED and the two runs were byte-identical and non-empty, so the
+# wrapper composes in CI as well as in conversation.
+# ---------------------------------------------------------------------------------------
+
+# THE GATE (CI). Expect "GATE PASSED", 1444 unit falsifiers / 730 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
