@@ -300,20 +300,24 @@ confusions were a drifted working directory.
 # carry information. When reporting a run — to a colleague, an issue, or an agent session —
 # do NOT paste the transcript. Run the wrapper and paste ONLY the delimited block:
 #
-#     .\tools\urdrgate.ps1                    # verify only
-#     .\tools\urdrgate.ps1 -Patch x.patch     # git am, then verify
-#     .\tools\urdrgate.ps1 -Push              # push iff green, identical and 0 FAIL
+#     powershell -ExecutionPolicy Bypass -File .\tools\urdrgate.ps1                # verify
+#     powershell -ExecutionPolicy Bypass -File .\tools\urdrgate.ps1 -Patch x.patch  # am+verify
+#     powershell -ExecutionPolicy Bypass -File .\tools\urdrgate.ps1 -Push           # +push
+#
+# A default Windows profile disables script execution, so the bare `.\tools\urdrgate.ps1` fails
+# with PSSecurityException. The launcher form above is the one that runs — use it.
 #
 # It prints exactly one block, and that block is the whole report:
 #
 #     <<<URDR
-#     HEAD=afaf3db BR=main AM=ce642c1->afaf3db
+#     HEAD=2d81bdf BR=main AM=none
 #     GATE=PASSED FAILROWS=0 FALS=1444/0red ROWS=730 DOCCUR=OK DOCSTALE=OK
-#     DET=BYTE-IDENTICAL BYTES=232894/232894 A=88534E5B B=88534E5B
-#     PUSH=ce642c1..afaf3db
+#     DET=BYTE-IDENTICAL BYTES=240028/240028 A=698E23C7 B=698E23C7
+#     PUSH=afaf3db..2d81bdf
 #     URDR>>>
 #
-# On failure it appends ONLY the [FAIL] rows, which is the part that actually needs reading.
+# The block above is a REAL run — MEASURED on the named Windows host (2026-07-25), not a
+# mock. On failure it appends ONLY the [FAIL] rows, which is the part that needs reading.
 # The rule: paste between the <<<URDR and URDR>>> markers and nothing else. Everything the
 # gate certifies is in there — verdict, byte-identity of the two runs, both output lengths and
 # hash prefixes, the live falsifier/row counts, and the two doc-currency verdicts. A run

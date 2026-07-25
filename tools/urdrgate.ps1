@@ -8,9 +8,14 @@
 # <<<URDR and URDR>>> — copy that, nothing else. On failure it additionally prints ONLY the
 # failing rows, which is exactly the part that needs reading.
 #
-#   .\tools\urdrgate.ps1                 # apply nothing, just verify
-#   .\tools\urdrgate.ps1 -Patch x.patch  # git am the patch first, then verify
-#   .\tools\urdrgate.ps1 -Push           # push on success
+# A default Windows profile has script execution DISABLED, so the bare form fails with
+# PSSecurityException. Invoke it through the launcher instead — this is the form that works:
+#
+#   powershell -ExecutionPolicy Bypass -File .\tools\urdrgate.ps1
+#   powershell -ExecutionPolicy Bypass -File .\tools\urdrgate.ps1 -Patch x.patch
+#   powershell -ExecutionPolicy Bypass -File .\tools\urdrgate.ps1 -Push
+#
+# (The bare `.\tools\urdrgate.ps1` works only where the policy has been relaxed already.)
 #
 # Exit code 0 iff the gate passed AND both runs were byte-identical AND non-empty.
 
@@ -60,7 +65,12 @@ $branch = (git rev-parse --abbrev-ref HEAD)
 $pushed = "no"
 if ($Push -and $verdict -eq "PASSED" -and $ident -and $fail -eq 0) {
     $out = (git push origin $branch 2>&1 | Out-String)
-    $pushed = if ($out -match "->") { ($out | Select-String -Pattern "\s([0-9a-f]{7,}\.\.[0-9a-f]{7,})\s" ).Matches.Groups[1].Value } else { "up-to-date" }
+    # Defensive: -match sets $Matches for the FIRST match only and never returns an array, so
+    # this cannot throw the way an indexed Select-String result can. (The original form DID work
+    # on the named host; this is belt-and-braces for the multi-line-match case.)
+    $pushed = if ($out -match "([0-9a-f]{7,}\.\.[0-9a-f]{7,})") { $Matches[1] }
+              elseif ($out -match "Everything up-to-date") { "up-to-date" }
+              else { "sent" }
 }
 
 Write-Host "<<<URDR"
