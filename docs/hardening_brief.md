@@ -266,7 +266,17 @@ honestly claim and to where it lands:
      refused, so reach <= cold_start_ceiling(), and URDRCLK1 clamps to the lag window regardless) but NOT
      defeated, because a cold-start padder is indistinguishable from a genuinely slow path FROM TIMING ALONE —
      closing it needs an OUT-OF-BAND prior (a route/population baseline or a trusted first measurement), which
-     is the declared successor and a different KIND of evidence. Also declared: the +DRIFT_ALLOWANCE is real; the session floor assumes the
+     is the declared successor and a different KIND of evidence — AND THAT SUCCESSOR HAS NOW LANDED as THE
+     OUT-OF-BAND PRIOR (`tools/terrain/oobprior.py`, URDROOB1, `docs/oobprior_brief.md`): peers on the same
+     route have already founded honest floors the judged client does not control, so a founding claim is
+     believed only to `cohort_reference + TOLERANCE` (the LOWER MEDIAN of PEER floors). The neutral-ruler rule
+     is STRUCTURAL — the reference cannot RECEIVE the judged client's own observation, so it is never built
+     from the quantity the adversary optimises; measured, that exclusion is belt-and-braces against a single
+     self-observation (the median absorbs it) but LOAD-BEARING against SELF-SYBIL. A corroborated slow client
+     is NOT capped (the prior is not a tax on distant players) and below MIN_COHORT peers no reference is
+     invented. Declared in turn: a MAJORITY-poisoned cohort (OTHER-sybil / collusion on one route) DOES move
+     the reference and this rung does not defeat it — the successor is an identity/sybil-cost layer, the one
+     place the chain still rests on an assumption rather than a check. Also declared: the +DRIFT_ALLOWANCE is real; the session floor assumes the
      path does not permanently worsen mid-session, and the lower-half rule under-reads genuine one-sided
      jitter — both deliberate fairness costs favouring the defender, bounded and stated; the
      aim-assist-on-legitimate-targets boundary remains out of scope, stated. EXTENDED by ANAMORPHOSIS
@@ -279,7 +289,8 @@ honestly claim and to where it lands:
      per-entity position-refresh rate (compute decoupled from the sim rate) while membership stays live
      (closed-world every tick, no ghosts) and staleness is structurally bounded. THREE PILLARS on one
      lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1). Remaining Band A work: wiring the
-     manifested-set decision to the live mesh authority; the transport that carries the pings; cross-placement.
+     manifested-set decision to the live mesh authority; the transport that carries the pings; an identity
+     layer that would make the out-of-band prior's cohorts sybil-resistant; cross-placement.
      And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
      URDRSCH1, `docs/schedule_brief.md`): bandwidth- and importance-aware refresh scheduling — when the
      per-tick refresh budget binds, the scheduler serves the due OLDEST-FIRST (starvation-free) so

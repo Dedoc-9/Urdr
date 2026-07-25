@@ -9091,6 +9091,128 @@ class Gate:
                     "clean again after the revert"
                     if red_ok else "the pingpolicy sweep did not redden under a no-session-floor policy")
 
+    def oobprior(self):
+        """The out-of-band prior (URDROOB1): close URDRPNG1's declared COLD-START residual with evidence the
+        judged client does not control. A cold-start padder is indistinguishable FROM TIMING ALONE from a
+        client on a genuinely slow path, so the missing ingredient is evidence of a DIFFERENT KIND: peers on
+        the same route have already founded honest floors. The founding floor is capped at cohort_reference +
+        TOLERANCE, the reference being the LOWER MEDIAN of PEER floors. The neutral-ruler rule is STRUCTURAL —
+        cohort_reference(observations, key, exclude_client) cannot receive the judged client's own
+        observation, so the ruler is never built from the quantity the adversary optimises. Composition over
+        URDRPNG1 (over URDRLES1, URDRCLK1, URDRLAG1, URDRHIT1, URDRPCP1) — no new glyph (kernel frozen); see
+        docs/oobprior_brief.md. Rows: scenes (capped / honest_slow / no_cohort / minority_poison /
+        majority_poison reproduce URDROOB1 digests), law (leave-one-out invariance + the exclusion load-bearing
+        against self-sybil + the cap + never-hurts + the fairness exemption + bootstrap + robustness +
+        proof-carrying), property (a seeded 120-cohort sweep with measured counters and non-vacuity witnesses),
+        selftest (an including-self reference makes the sweep REDDEN)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import oobprior as OB
+        except Exception as exc:
+            self.record("oobprior", False, f"import failed (oobprior): {exc}")
+            return
+        try:
+            ref_ok = all(OB.scene_result(n) == OB.golden(n) for n in OB.SCENES)
+        except Exception as exc:
+            self.record("oobprior:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("oobprior:scenes", ref_ok,
+                    "capped + honest_slow + no_cohort + minority_poison + majority_poison reproduce URDROOB1 "
+                    "digests" if ref_ok else "an oobprior scene drifted from its digest")
+        law_ok = True
+        try:
+            CKY = OB.COHORT
+            obs = OB.cohort_of([6, 6, 6], CKY)
+            ref = OB.cohort_reference(obs, CKY, 1)
+            law_ok = ref == 6
+            # NEUTRAL RULER: leave-one-out invariance, and load-bearing against SELF-SYBIL
+            polluted = obs + [OB.observation(1, CKY, OB.MAX_RTT)]
+            law_ok = law_ok and OB.cohort_reference(polluted, CKY, 1) == ref
+            flood = obs + [OB.observation(1, CKY, OB.MAX_RTT) for _ in range(4)]
+            law_ok = law_ok and OB.cohort_reference(flood, CKY, 1) == ref \
+                and OB._reference_including_self(flood, CKY, 1) > ref
+            # THE CAP, and what it is worth; the no-cap plant leaves the cold start open
+            adm, reason, _r = OB.found(obs, CKY, 1, 12)
+            law_ok = law_ok and reason == OB.R_CAPPED and adm == ref + OB.TOLERANCE and adm < 12
+            law_ok = law_ok and OB._found_no_cap(obs, CKY, 1, 12)[0] == 12
+            capped = OB.reach_from_floor(OB.SECRET, 6, 6, 5, adm)
+            uncapped = OB.reach_from_floor(OB.SECRET, 6, 6, 5, 12)
+            law_ok = law_ok and capped < uncapped
+            # FAIRNESS: a corroborated slow client is believed in full
+            slow = OB.cohort_of([12, 12, 12], CKY)
+            law_ok = law_ok and OB.found(slow, CKY, 1, 12)[0] == 12
+            # BOOTSTRAP: no reference invented below MIN_COHORT
+            thin = OB.cohort_of([6, 6], CKY)
+            law_ok = law_ok and OB.cohort_reference(thin, CKY, 1) is None \
+                and OB.found(thin, CKY, 1, 12)[1] == OB.R_NO_COHORT
+            # ROBUSTNESS: minority poisoning absorbed; the mean plant is moved; MAJORITY moves it (declared)
+            honest5 = OB.cohort_of([6, 6, 6, 6, 6], CKY)
+            minority = OB.cohort_of([6, 6, 6, OB.MAX_RTT, OB.MAX_RTT], CKY)
+            majority = OB.cohort_of([6, OB.MAX_RTT, OB.MAX_RTT, OB.MAX_RTT, OB.MAX_RTT], CKY)
+            law_ok = law_ok and OB.cohort_reference(minority, CKY, 1) == OB.cohort_reference(honest5, CKY, 1)
+            fragile = OB.cohort_of([6, 6, 6, OB.MAX_RTT], CKY)
+            law_ok = law_ok and OB._reference_by_mean(fragile, CKY, 1) > OB.cohort_reference(fragile, CKY, 1)
+            law_ok = law_ok and OB.cohort_reference(majority, CKY, 1) > OB.cohort_reference(honest5, CKY, 1)
+            # proof-carrying
+            rec = OB.publish(obs, CKY, 1, 12)
+            law_ok = law_ok and len(rec) == OB.record_bytes_len() and OB.verify_record(obs, CKY, 1, 12, rec) \
+                and not OB.verify_record(obs, CKY, 1, 12, OB.forge_floor(rec, OB.MAX_RTT)) \
+                and not OB.verify_record(OB.cohort_of([6, 6, 8], CKY), CKY, 1, 12, rec)
+        except Exception:
+            law_ok = False
+        self.record("oobprior-law", law_ok,
+                    "the out-of-band prior: the cohort reference is the LOWER MEDIAN of PEER floors and the "
+                    "judged client's own observation cannot reach it (leave-one-out invariance) — the "
+                    "exclusion is load-bearing against SELF-SYBIL, where a client flooding the pool under its "
+                    "own id leaves the lawful reference unmoved while the including-self plant is dragged up; "
+                    "a padded founding claim is believed only to cohort + TOLERANCE and its reach strictly "
+                    "falls (the no-cap plant takes the claim at face value); a corroborated slow client is NOT "
+                    "capped, so the prior is not a tax on distant players; below MIN_COHORT peers no reference "
+                    "is invented; a MINORITY of padded peers is absorbed by the median while the mean plant is "
+                    "moved by one outlier; a MAJORITY-poisoned cohort DOES move it (the declared residual, "
+                    "needing an identity layer); and the founding record is proof-carrying"
+                    if law_ok else "the oobprior law did not hold")
+        prop_ok = True
+        try:
+            rep = OB.sweep()
+            prop_ok = (rep["digest"] == OB.sweep_golden() and rep["loo_seen"] > 0 and rep["cap_seen"] > 0
+                       and rep["slow_seen"] > 0 and rep["boot_seen"] > 0 and rep["poison_seen"] > 0
+                       and rep["strict_seen"] > 0 and rep["fragile_seen"] > 0
+                       and rep["witness_capped"] < rep["witness_uncapped"])
+        except Exception:
+            prop_ok = False
+        self.record("oobprior-property", prop_ok,
+                    f"the out-of-band prior survived a {OB.SWEEP_COUNT}-cohort seeded sweep — random routes, "
+                    "cohort sizes and pad magnitudes: the neutral ruler holds under a self-sybil flood, the "
+                    "cap never HURTS a client (universal) and strictly reduces a padder's reach in most cases "
+                    "(counted, not assumed — where URDRPNG1's rate limit binds first the prior is merely "
+                    "redundant), a corroborated slow client is never capped, no reference is invented below "
+                    "MIN_COHORT, a minority of padded peers is absorbed while a mean reference is inflated "
+                    "(counted), and the record is proof-carrying; the aggregate digest reproduces its golden, "
+                    "with fixed witnesses asserting both the prior's teeth and the majority-poisoning residual "
+                    "are still real so neither claim can go vacuous"
+                    if prop_ok else "the oobprior property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = OB.cohort_reference
+            OB.cohort_reference = OB._reference_including_self   # let the judged client feed its own ruler
+            try:
+                OB.sweep()
+            except OB.OobpriorError:
+                red_ok = True
+            finally:
+                OB.cohort_reference = _orig
+            red_ok = red_ok and OB.sweep_digest() == OB.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("oobprior-property-selftest", red_ok,
+                    "a reference that reads the judged client's OWN observations lets a self-sybil flood drag "
+                    "up the very baseline it is measured against, so the seeded sweep raises OOBPRIOR-REFUSE — "
+                    "the neutral-ruler rule is a live falsifier, not decoration — and the module is clean "
+                    "again after the revert"
+                    if red_ok else "the oobprior sweep did not redden under an including-self reference")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12017,6 +12139,7 @@ def main() -> int:
     gate.clockauth()
     gate.latencyest()
     gate.pingpolicy()
+    gate.oobprior()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

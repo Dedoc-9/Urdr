@@ -296,6 +296,30 @@ measurement), the declared successor. A fixed sweep witness asserts the residual
 cannot go vacuous. Also declared: the `+DRIFT_ALLOWANCE` is real; the session floor assumes the path does not
 permanently worsen mid-session; the lower-half rule under-reads genuine one-sided jitter — both deliberate
 fairness costs favouring the defender, bounded and stated.
+`oobprior.py` — `URDROOB1`, THE OUT-OF-BAND PRIOR: close URDRPNG1's declared COLD-START residual with
+evidence the judged client does NOT control (composition over `pingpolicy`, over `latencyest`, `clockauth`,
+`lagcomp`, `hitbox`, `perception`; NO NEW GLYPH; design in `docs/oobprior_brief.md`). URDRPNG1's theorem is
+CONDITIONAL on a floor founded on an unpadded window, and it named why it could not close the gap itself: a
+cold-start padder is INDISTINGUISHABLE FROM TIMING ALONE from a client on a genuinely slow path. The missing
+ingredient is evidence of a DIFFERENT KIND — peers on the same route have already founded honest floors, and
+the judged client does not control them. So `admissible = min(claimed, cohort_reference + TOLERANCE)`, the
+reference being the LOWER MEDIAN of PEER floors. THE NEUTRAL-RULER RULE IS STRUCTURAL: `cohort_reference(obs,
+key, exclude_client)` cannot RECEIVE the judged client's own observation, so the ruler is never built from the
+quantity the adversary optimises. Exactly what that buys, MEASURED (and not more): against a SINGLE
+self-observation it is belt-and-braces (the median absorbs it); it is LOAD-BEARING against SELF-SYBIL (a
+flood under the client's own id leaves the reference unmoved at 6 while the including-self plant is dragged to
+16); and it does NOT stop OTHER-SYBIL (distinct fake ids) — the declared residual. Guarantees (each
+red-first): leave-one-out invariance, the cap (NEVER hurts — universal; strictly reduces a padder's reach in
+86/120 sweep cases, COUNTED not assumed, since where URDRPNG1's rate limit binds first the prior is merely
+redundant), the fairness exemption (a corroborated slow client is NOT capped — why the reference is per-route,
+not one global constant), the bootstrap (below MIN_COHORT no reference is invented), robustness (a minority of
+padded peers is absorbed; a mean reference is inflated in 110/120 cases — the case for a median, counted),
+proof-carrying (the 92-byte record is bound to its cohort). Five scenes (capped / honest_slow / no_cohort /
+minority_poison / majority_poison) + a 120-cohort sweep with fixed witnesses so neither the teeth nor the
+residual can go vacuous. DECLARED: the prior is only as honest as the cohort — a MAJORITY-poisoned cohort
+moves the reference and this rung does not defeat it (successor: identity/sybil cost); cohort assignment is
+server-derived but a VPN lets a client pick its baseline; an honest slow client in a FAST cohort is capped and
+under-compensated (the same deliberate fairness trade favouring the defender).
 `anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception
 firewall generalized from BINARY (absent Ø / full-fidelity) to a GRADED, server-tunable dial `L = (reach,
 focus)` — a "simple patch to all users" — WITHOUT opening a slot for the hidden (composition over

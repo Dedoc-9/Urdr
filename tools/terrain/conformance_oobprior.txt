@@ -1,0 +1,43 @@
+# URDROOB1 conformance — THE OUT-OF-BAND PRIOR: close URDRPNG1's declared COLD-START residual with evidence
+# the judged client does not control. URDRPNG1's monotone-disadvantage theorem is CONDITIONAL on a session
+# floor founded on a window the client did not pad; a client padding from CONNECT founds an inflated floor and
+# keeps a wider band, and URDRPNG1 named why it could not close this itself — a cold-start padder is
+# INDISTINGUISHABLE, FROM TIMING ALONE, from a client on a genuinely slow path. The missing ingredient is not
+# more timing evidence but evidence OF A DIFFERENT KIND: peers on the same route have already founded honest
+# floors, and the judged client does not control them. So the founding floor is capped by the cohort:
+# admissible = min(claimed, cohort_reference + TOLERANCE), the reference being the LOWER MEDIAN of PEER floors.
+#
+# THE NEUTRAL-RULER RULE IS STRUCTURAL: cohort_reference(observations, cohort_key, exclude_client) cannot
+# RECEIVE the judged client's own observation — the exclusion lives in the function, not a comment, so the
+# ruler is never built from the quantity the adversary optimises. EXACTLY WHAT THE EXCLUSION BUYS, MEASURED
+# (and not more — this rung's first draft assumed more and was corrected before landing): against a SINGLE
+# inflated self-observation it is belt-and-braces, because the robust median already absorbs it; it is
+# LOAD-BEARING against SELF-SYBIL (a client flooding the pool under its OWN id — the exclusion drops every one
+# and the reference is unmoved, while the including-self plant is dragged 6 -> 16 on the reference cohort); and
+# it does NOT protect against OTHER-SYBIL (many DISTINCT fake identities), which is the declared residual.
+#
+# MEASURED, NOT ASSUMED (the sweep counts rather than asserting false universals): the prior NEVER HURTS a
+# client (universal), and STRICTLY reduces a padder's reach in 86 of 120 sweep cases — where URDRPNG1's
+# rate limit binds before the padder's own ceiling, both land on the same reach and the prior is merely
+# redundant. A mean reference is inflated by an outlier in 110 of 120 cases (it can coincide with the median
+# under integer division), which is why the reference is a median. Both are carried by fixed witnesses so they
+# cannot go vacuous. FAIRNESS: a genuinely slow client whose PEERS ARE ALSO SLOW is NOT capped — the cohort
+# encodes what that route costs, which is why the reference is per-route and not one global constant.
+# BOOTSTRAP: below MIN_COHORT founded peers there is NO prior and the rung falls back to URDRPNG1 alone,
+# refusing to invent a reference from too little evidence.
+#
+# Scene digests SHA-256(MAGIC | name | cohort | claimed | admissible | reference | reason | reach); the sweep
+# digest is over a fixed-seed (20260725) 120-cohort sweep. Pinned AFTER the including-self / mean-reference /
+# no-cap plants were each proven to bite. Composition over URDRPNG1 (over URDRLES1, URDRCLK1, URDRLAG1,
+# URDRHIT1, URDRPCP1) — NO new glyph (kernel frozen). DECLARED: the prior is only as honest as the cohort — a
+# MAJORITY-poisoned cohort (other-sybil / collusion on one route) MOVES the reference and this rung does not
+# defeat it (pinned as the `majority_poison` scene and witnessed, successor is identity/sybil cost); cohort
+# assignment is server-derived but a client that can change apparent route (VPN) picks its baseline; and an
+# honest slow client in a FAST cohort is capped and under-compensated — the same deliberate fairness trade the
+# session floor makes, favouring the defender.
+capped 25da5887b436993ab879c02eabf7d5c5aa6cec5bf750d7db23e955e2ab739fb3
+honest_slow 7d9ad63d3b8e03091263c8ce9b95ae5095e4e958f64b0be0a82d6680482f693c
+no_cohort 0abaa721a1ad6c095b06c65103abae3446cdc12760d29f1669a95018a8e25751
+minority_poison cd24580715784abad0cf6ab89e91851f1a9b58a89c80a788a19ab9eebea7881e
+majority_poison a7e9b6de576d102a227d46367388c2cc2895d983c70005b438c5ee6e6db9a9e9
+sweep 33e63788861a264a189caeaddf2edcbd3130ce0941105c61813b3d592e894fe6
