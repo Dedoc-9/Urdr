@@ -371,7 +371,12 @@ written here so the next contributor starts where we ended rather than where we 
 
 ---
 
-## 10. The road ahead (researched, declared — not begun)
+## 10. The road ahead — SUPERSEDED (retained for provenance)
+
+> **STALE AS WRITTEN.** This section described `ghostsnap`, Phase V and Phase M as unbegun. All
+> three have since LANDED and SEALED (see §11 and `spec/D5-ledger-2.md`): Phase V sealed at
+> `sealsession` (V5), Phase M sealed at `meshsession` (M5), placement batch #3 LANDED. Band A also
+> landed in full. The text below is kept as the original design record, not as current status.
 
 Two candidate layers were scouted against the 2026 state of the art (web-researched at
 writing time; conclusions recorded, laws to be falsified locally when the rungs open).

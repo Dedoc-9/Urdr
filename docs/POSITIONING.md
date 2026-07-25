@@ -94,7 +94,7 @@ operator's decision, with its honest gating.
 (frozen); the exact-integer math spine (cross-placed, three languages); certified physics
 (dynamics, LCP, joints — cross-placed) and reactive fields (advection-diffusion, Marangoni
 surface tension, criticality); the netcode stack N1–N5 + D16 regional authority (frozen,
-cross-placed); nine exact invariant detectors, one cross-placed (winding); and the terrain
+cross-placed); ten exact invariant detectors, one cross-placed (winding); and the terrain
 world — the `URDRHF1` heightfield canon, the `URDROBJ2` bridge, the masked certified sea, the
 Marangoni wide sea, and the T3.0 view-export firewall. **596 unit falsifiers, 412 gate rows,
 23 std-only Rust placements + 13 C99 runtimes** (as of `006efc5`).

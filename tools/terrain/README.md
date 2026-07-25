@@ -66,7 +66,7 @@ brute-permutation orbit for the head/field, chunk geometry for the rank — the 
 existence-on-a-corpus becomes confidence-over-a-sampled-space. Non-vacuity asserted (both ranks, real
 edits, every contested pair refuses); red-first (mutants of predict/closure/certify each raise
 `COMMUTEPROP-FALSIFIED`); an off-gate `--explore` reseeds and files any counterexample as a pinned
-scene. `reunify == monolith` + the storm prefix-property are the stage's queued next targets.
+scene. `reunify == monolith` + the storm prefix-property LANDED (`regionprop.py`, `stormprop.py`) — Tier 2 COMPLETE.
 `rannull.py` — `URDRRAN0`, RAN-0, the authority-nullity certificate: the composition of the two
 proof domains (chunkstate's ownership, commute's independence) into a proof of ABSENCE — no shared
 semantic authority exists between two edits, so synchronization is shown unnecessary by
@@ -202,7 +202,7 @@ the source position. Guarantees (each red-first): witness-blind, hidden-set inva
 is byte-identical), audio-ESP-finds-nothing, constant-shape, wall-muffle, bounded localization, closed world,
 citation contract; the footstep-leak plant (a whisper for a sub-threshold sound) is caught. Four scenes
 (near / wall / direction / esp) + a 120-soundscape sweep. The firewall now covers TWO channels: vision
-(URDRPCP1) and audio (URDRAUD1). Declared successor: the hitbox/physics channel.
+(URDRPCP1) and audio (URDRAUD1). Declared successor LANDED as `hitbox.py` below.
 `hitbox.py` — `URDRHIT1`, SERVER-AUTHORITATIVE HIT VALIDATION, the ACTIVE channel of the anti-cheat firewall:
 the aimbot / wall-shoot defense (composition over `perception`, NO NEW GLYPH; design in `docs/hitbox_brief.md`).
 The residency channels (URDRPCP1/URDRAUD1) govern what a client may RECEIVE; this governs what a client may
@@ -216,7 +216,7 @@ verdict is a constant-shape (92-byte) proof-carrying packet: a re-sealed forged 
 Guarantees (each red-first): server-authority, the five refusals with teeth, clean admit + authority citation,
 constant-shape, proof-carrying. Five scenes (clean / wallshot / phantom / offray / inflated) + a 120-arena
 sweep. The firewall now covers THREE channels: vision (URDRPCP1) and audio (URDRAUD1) on the RECEIVE side,
-hit validation (URDRHIT1) on the CLAIM side. Declared successor: temporal lag-compensation.
+hit validation (URDRHIT1) on the CLAIM side. Declared successor LANDED as `lagcomp.py` below.
 `lagcomp.py` — `URDRLAG1`, TEMPORAL LAG-COMPENSATION for server-authoritative hit validation: the refinement
 that earns the hit channel (URDRHIT1) its teeth against MOVING targets (composition over `hitbox`, over
 `perception`; NO NEW GLYPH; design in `docs/lagcomp_brief.md`). A shooter fired at what they SAW — an earlier

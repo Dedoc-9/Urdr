@@ -2,7 +2,9 @@
 
 # The anti-cheat membrane — design & honest scope (a planning drop)
 
-STATUS: **a planning drop — no code yet.** This is the anti-cheat home. It records the web-researched
+STATUS: **Band A LANDED.** (This README is retained as the original planning drop; the Band A
+stack is built and gated: `perception`, `audible`, `hitbox`, `lagcomp`, `clockauth`, `latencyest`,
+`pingpolicy`, `oobprior` — see `tools/terrain/` and `docs/*_brief.md`.) This is the anti-cheat home. It records the web-researched
 2026 options, the architecture that fits the arc's discipline, and the honest scope. The FIRST
 gate-graded rung inside it will be the deterministic **evidence membrane** (below); the statistical
 detectors that consume it are declared OFF-GATE by construction. Nothing here claims a detection

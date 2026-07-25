@@ -63,4 +63,4 @@ the membrane already models manifested-vs-absent. Ruled against D1 §20: the ker
 The anti-cheat firewall now covers two channels with one discipline: **vision** (URDRPCP1, witnessed
 absence) and **audio** (URDRAUD1, audible absence). Both answer the same fault — never transmit data for
 what a client should not perceive — and both close a seam production systems are publicly known to leave
-open. The next channel in the same shape is hitbox/physics exposure.
+open. The next channel in the same shape is hitbox/physics exposure — LANDED as `hitbox.py` (URDRHIT1).

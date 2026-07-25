@@ -514,7 +514,7 @@ construction; this section makes the headline match it.
   each), not proved universally; each `*-selftest` plant is a **single curated mutant** proven
   catchable (mutation *catchability*, not a mutation *score* — there is no coverage or kill-rate
   metric yet). Closing this with property-based/randomized falsifiers over the same oracles is
-  the queued Tier-2 hardening; `intautology` (declared) graduates the affine envelopes to
+  the Tier-2 hardening (LANDED — `commuteprop`, `regionprop`, `stormprop`); `intautology` (declared) graduates the affine envelopes to
   decided-for-all-integers. `MEASURED` remains: *a falsifier is green on this code, on a named
   host* — never universal.
 - Availability posture: the arc's guarantees to date are **safety-only**. A divergent or
@@ -740,7 +740,11 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   replicated+streamed, multiplayer, graded honestly, attested. Behind it, declared: the
   authority algebra, n-way nullity and lease scheduling, live authority migration, essence extended
   to the read-side families.
-- **The road ahead — Hainuwele's next layers (researched, declared, not begun; see
+- **The road ahead — SUPERSEDED (retained for provenance).** *The layers named below as "not
+  begun" have LANDED: `ghostsnap` (V3), Phase V sealed at `sealsession` (V5), Phase M sealed at
+  `meshsession` (M5), placement batch #3 CLOSED, and Band A built in full (`perception`, `audible`,
+  `hitbox`, `lagcomp`, `clockauth`, `latencyest`, `pingpolicy`, `oobprior`). See `hainuwele/` for
+  the current index.* Original text: **(researched, declared, not begun; see
   `AGENTS.md` §10 for the full plans).** After placement batch #3 closes (the covenant's
   boundary): **`ghostsnap`**, the actor wire — equal-or-refuse ghosts, the sealed write
   calculus extended from terrain to DYNAMIC state (content-addressed per-tick actor records

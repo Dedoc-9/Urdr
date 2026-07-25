@@ -4,7 +4,7 @@
 
 ## Index
 
-**121 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**146 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,

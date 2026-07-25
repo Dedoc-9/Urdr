@@ -2,7 +2,9 @@
 
 # Phase M — the certified mesh: a design pass
 
-STATUS: **a design pass — no code.** This is the Phase M home. Every rung before it built increasingly
+STATUS: **SEALED — M1–M5 all landed.** (This brief is retained as the original design pass; the
+rungs it proposed are built and gated: `nway` M1, `migrate` M2, `meshattest` M2.5, `mesh` M3,
+`partition` M4, `meshsession` M5. Grades in `spec/D5-ledger-2.md`.) This is the Phase M home. Every rung before it built increasingly
 rich invariants over a SINGLE authority; Phase M is where those invariants must survive COMPOSITION
 across MANY authorities. The challenge is no longer implementing another mechanism — it is showing that
 the mechanisms already built compose into a protocol whose guarantees can be STATED, FALSIFIED, and
