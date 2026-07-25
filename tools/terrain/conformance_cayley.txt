@@ -1,0 +1,31 @@
+# URDRCAY1 conformance — THE CAYLEY-MENGER DETERMINANT AS A COORDINATE-FREE REALIZABILITY LAW.
+# CM consumes ONLY squared distances and returns an exact integer, which is this arc's native
+# arithmetic (perception's d2, hitbox's max_range2) rather than an import into it. Identities checked
+# against independently computed quantities: Heron in determinant form (-det(CM) == 16*area^2, 576 on
+# a 3-4-5 triangle) and the simplex volume (det(CM) == 288*V^2 == 373248 on the worked tetrahedron).
+# THE OPERATIVE LAW: any 5 points in 3-space have a vanishing 6x6 determinant — a TAUTOLOGY every
+# real configuration obeys, with no coordinates and no shared frame. A client reporting distances to
+# 5 landmarks is OVER-DETERMINED: the tenth distance is pinned by the other nine, so a fabricated one
+# breaks the identity exactly (0 -> -8944 on the ring scene). This asks whether a claimed set of
+# RELATIONSHIPS is possible, not whether a claimed POSITION is lawful — a different and weaker
+# assumption than any other admission in the arc, so it composes underneath them.
+# TWO INDEPENDENT DETERMINANT ALGORITHMS are implemented and asserted equal on every swept
+# configuration: Bareiss (fraction-free, but it divides) and Leibniz (the permutation sum, purely
+# multiplicative and additive, NO division at all — S_5 = 120 terms for the tetrahedron identity,
+# S_6 = 720 for realizability). The division-free form is the one that cross-places, since integer
+# division semantics differ between languages for negative operands. Neither reads the other's
+# intermediate state — each is the other's oracle.
+# The ring scene is an EXACT-INTEGER chair-form six-ring after alpha-D-glucopyranose: distance
+# geometry is how NMR recovers conformation from pairwise distances alone, and the chair's pucker is
+# exactly the NON-vanishing of a four-atom determinant that a flattened ring makes vanish. DECLARED:
+# real glucose coordinates are irrational; these are integers chosen to keep the arithmetic exact, so
+# this is a faithful analogue and not measured atomic data.
+# Pinned AFTER the credulous verifier was proven to admit every forged claim the law refuses.
+# NO new glyph (kernel frozen). does_not_show: WHICH reported distance is false (the determinant
+# proves the SET impossible, not the liar); coordinate recovery; noise tolerance; cross-placement.
+heron 8c00b00c88daed076df014c7c0660176cf7fef2853976815911590329ac63ed8
+simplex ac3676afb1451a2518242345aaf471f29fce04cdb9d66b3d974660d22971048f
+ring 49a5c64670a40a35efba4e0ea9a1b270e374c62b78a8b1b84bd0268ebd9bba7d
+realizable b14fd40b11b3ed2c2d5972bf6998a19385444e6a0c510f9bf629d5c49933d24d
+forged 05f0d1d4b133858dee42890638f291dc2252522bd23c46924f893b697dce47b6
+sweep 17c3530acf07d31dd3524081d72c9f783fd3dacc00cef46fcfc4fc4264cd94ba

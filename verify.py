@@ -9300,6 +9300,85 @@ class Gate:
                     "divisors would have passed it, and only exhaustion refuses it"
                     if red_ok else "the floor plant did not fail exhaustively")
 
+    def cayley(self):
+        """The Cayley-Menger determinant as a COORDINATE-FREE realizability law (URDRCAY1). CM
+        consumes only SQUARED DISTANCES and returns an exact integer — this arc's native arithmetic,
+        not an import into it. THE OPERATIVE LAW: any 5 points in 3-space have a vanishing 6x6
+        determinant, a tautology every real configuration obeys with no coordinates and no shared
+        frame; a client reporting 5 landmark distances is OVER-DETERMINED, so a fabricated distance
+        breaks the identity exactly. This asks whether a claimed set of RELATIONSHIPS is possible,
+        not whether a claimed POSITION is lawful — weaker assumptions than any other admission here,
+        so it composes underneath them. Two INDEPENDENT determinant algorithms are asserted equal on
+        every configuration: Bareiss (fraction-free, divides) and Leibniz (the permutation sum, NO
+        division at all — the form that cross-places, since integer division differs between
+        languages for negatives). No new glyph. Rows: scenes, law, property, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import cayley as CY
+        except Exception as exc:
+            self.record("cayley", False, f"import failed (cayley): {exc}")
+            return
+        try:
+            ref_ok = all(CY.scene_result(n) == CY.golden(n) for n in CY.SCENES)
+        except Exception as exc:
+            self.record("cayley:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("cayley:scenes", ref_ok,
+                    "heron + simplex + ring + realizable + forged reproduce URDRCAY1 digests"
+                    if ref_ok else "a cayley scene drifted from its digest")
+        law_ok = True
+        try:
+            tri = CY.table([(0, 0, 0), (3, 0, 0), (0, 4, 0)])
+            tet = CY.table([(0, 0, 0), (6, 0, 0), (0, 6, 0), (0, 0, 6)])
+            law_ok = CY.area_sq_16(tri) == 16 * 36 and CY.volume_sq_288(tet) == 288 * 36 * 36
+            five = CY.table(CY.RING_CHAIR[:5])
+            law_ok = law_ok and CY.realizable_3d(five) and CY.realizability_residue(five) == 0
+            bad = CY.forge_distance(five, 0, 4, 1)
+            law_ok = law_ok and not CY.realizable_3d(bad) and CY._realizable_blind(bad)
+            law_ok = law_ok and CY.cm_det(five) == CY.cm_det_leibniz(five) \
+                and CY.cm_det(bad) == CY.cm_det_leibniz(bad)
+            law_ok = law_ok and CY.leibniz_terms(4) == 120 and CY.leibniz_terms(5) == 720
+            law_ok = law_ok and CY.ring_pucker_census(CY.RING_CHAIR) == (3, [4608]) \
+                and CY.ring_pucker_census(CY.RING_PLANAR) == (15, [])
+        except Exception:
+            law_ok = False
+        self.record("cayley-law", law_ok,
+                    "Heron and the simplex volume reproduce independently computed area and volume; "
+                    "five points in 3-space give a VANISHING determinant (the coordinate-free "
+                    "tautology) while a single fabricated distance makes the set impossible and the "
+                    "credulous plant admits exactly what the law refuses; the DIVISION-FREE Leibniz "
+                    "expansion (S_5 = 120 terms for the volume identity, S_6 = 720 for realizability) "
+                    "agrees with Bareiss on every case, two independent algorithms as oracles for "
+                    "each other; and the chair ring's conformation is legible from distances ALONE — "
+                    "exactly 3 coplanar four-subsets of 15 with one shared volume, against 15 of 15 "
+                    "for a flattened ring"
+                    if law_ok else "the cayley law did not hold")
+        prop_ok = True
+        try:
+            rep = CY.sweep()
+            prop_ok = (rep["digest"] == CY.sweep_golden() and rep["honest"] > 0 and rep["forged"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("cayley-property", prop_ok,
+                    f"the realizability identity held EXACTLY on every one of {CY.SWEEP_COUNT} random "
+                    "integer configurations in 3-space (a tautology: one non-zero residue would "
+                    "falsify the implementation), a forged distance broke it every time, and the two "
+                    "independent determinant algorithms agreed throughout"
+                    if prop_ok else "the cayley property sweep failed or drifted")
+        red_ok = False
+        try:
+            five = CY.table(CY.RING_CHAIR[:5])
+            bad = CY.forge_distance(five, 0, 4, 1)
+            red_ok = CY._realizable_blind(bad) and not CY.realizable_3d(bad) \
+                and CY.realizability_residue(bad) != 0
+        except Exception:
+            red_ok = False
+        self.record("cayley-selftest", red_ok,
+                    "the credulous verifier admits an impossible distance set that the determinant "
+                    "refuses — the realizability law is a live falsifier, not decoration"
+                    if red_ok else "the credulous plant did not admit what the law refuses")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12228,6 +12307,7 @@ def main() -> int:
     gate.pingpolicy()
     gate.oobprior()
     gate.magicdiv()
+    gate.cayley()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
