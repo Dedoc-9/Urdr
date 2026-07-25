@@ -2,29 +2,44 @@
 # window, organised around ONE invariant. URDRLES1's min-floor is honest "as long as one true-timed ack lands
 # in the window" — an assumption it cannot itself guarantee — and its residual was open-ended (a patient
 # total delay widens the band without bound). THE INVARIANT, stated as a falsifiable theorem over a client
-# strategy space rather than a hope — MONOTONE DISADVANTAGE: every lever the client can pull resolves against
-# the client, i.e. for every strategy sigma, reach(sigma) <= reach(honest) + DRIFT_ALLOWANCE, and for every
-# non-total-delay sigma, reach(sigma) <= reach(honest), where reach = lat + jitter is exactly how far back
-# URDRCLK1 lets that client claim. FOUR LAWS COMPOSE TO IT: (1) AUTHENTICATED ECHO — each ping carries a
-# server-keyed nonce; a forged or replayed echo is refused, so coverage cannot be faked; (2) COVERAGE OR
-# REFUSAL — fewer than MIN_SAMPLES authenticated echoes freezes the band (no rise, jitter 0) and after
-# STARVE_WINDOWS refuses, so silence never pays; (3) THE LOWER-HALF RULE — a delay can only push an RTT up, so
-# only the fast half is trusted and the jitter is its spread, leaving partial delay unable to inflate; (4) THE
-# SESSION FLOOR — the latency may never exceed all-time-min-RTT//2 + DRIFT_ALLOWANCE, so a client's own honest
-# early samples pin them for the session and total delay buys a CONSTANT, not a growing advantage (this is
-# what converts URDRLES1's open residual into a bounded one). Scene digests SHA-256(MAGIC | name | secret |
-# base_rtt | strategy | rate | lat | jitter | reason); the sweep digest is over a fixed-seed (20260725)
-# 120-client sweep asserting the theorem over {honest, delay_half, delay_all, drop_half, drop_all, replay,
-# forge} plus the four laws, the rate floor and one-step decay, determinism, and the proof-carrying record.
+# strategy space rather than a hope — CONDITIONAL MONOTONE DISADVANTAGE: GIVEN a session floor established
+# from a window the client did not pad, every lever the client can pull resolves against the client, i.e. for
+# every strategy sigma, reach(sigma) <= reach(honest) + DRIFT_ALLOWANCE, and for every non-total-delay sigma,
+# reach(sigma) <= reach(honest), where reach = lat + jitter is exactly how far back URDRCLK1 lets that client
+# claim. FOUR LAWS COMPOSE TO IT: (1) AUTHENTICATED ECHO — each ping carries a server-keyed nonce; a forged or
+# replayed echo is refused, so coverage cannot be faked; (2) COVERAGE OR REFUSAL — fewer than MIN_SAMPLES
+# authenticated echoes freezes the band (no rise, jitter 0) and after STARVE_WINDOWS refuses, so silence never
+# pays; (3) THE LOWER-HALF RULE — a delay can only push an RTT up, so only the fast half is trusted and the
+# jitter is its spread, leaving partial delay unable to inflate; (4) THE SESSION FLOOR — the latency may never
+# exceed all-time-min-RTT//2 + DRIFT_ALLOWANCE, so a client's own honest early samples pin them for the
+# session and total delay buys a CONSTANT, not a growing advantage.
+#
+# THE PRECONDITION IS LOAD-BEARING AND ITS FAILURE IS THE DECLARED RESIDUAL — THE COLD START. A client that
+# pads EVERY ack from the moment it connects never founds an honest floor: it records an inflated one and
+# keeps a permanently WIDER band than honest play. That client is NOT covered by the theorem, the gap is
+# MEASURED (not hypothesised), and it is pinned here as the `coldstart` scene and asserted every sweep. What
+# still bounds it: padding beyond MAX_RTT is refused outright, so reach <= cold_start_ceiling() =
+# MAX_RTT//2 + DRIFT_ALLOWANCE + MAX_JITTER = 11; and URDRCLK1 clamps the band to the lag window regardless,
+# so backdating never exceeds MAX_REWIND however the floor was set. It buys a BOUNDED constant, larger than
+# honest play. It is not merely unfixed: a client padding from connect is indistinguishable, FROM TIMING
+# ALONE, from a client on a genuinely slow path, so refusing it would refuse the honest laggy player
+# identically — closing it needs an out-of-band prior (route/population baseline or a trusted first
+# measurement), which is the declared successor. The sweep carries a fixed WITNESS asserting the residual is
+# still real, so the boundary cannot silently go vacuous.
+#
+# Scene digests SHA-256(MAGIC | name | secret | base_rtt | strategy | rate | lat | jitter | reason); the sweep
+# digest is over a fixed-seed (20260725) 120-client sweep asserting the conditional theorem over {honest,
+# delay_half, delay_all, drop_half, drop_all, replay, forge}, the four laws, the cold-start ceiling and its
+# refusal-beyond-plausibility, the rate floor and one-step decay, determinism, and the proof-carrying record.
 # Pinned AFTER the no-auth / no-floor / full-spread-jitter / rate-free-fall plants were each proven to bite
 # and the sweep proven to redden under each. Composition over URDRLES1 (over URDRCLK1, URDRLAG1, URDRHIT1,
-# URDRPCP1) — NO new glyph (kernel frozen). Declared: the +DRIFT_ALLOWANCE is real (a sustained total delay
-# still buys that one constant); the session floor assumes the path does not permanently worsen mid-session;
-# the lower-half rule under-reads genuine one-sided jitter — both deliberate fairness costs favouring the
-# defender, bounded and stated.
+# URDRPCP1) — NO new glyph (kernel frozen). Also declared: the +DRIFT_ALLOWANCE is real; the session floor
+# assumes the path does not permanently worsen mid-session; the lower-half rule under-reads genuine one-sided
+# jitter — both deliberate fairness costs favouring the defender, bounded and stated.
 steady b07ff3a4220a8d329d0e83bb9f5ef39df486c80553a99885f7c827a8d5069cb9
 starve dfb5105f6067514965b6123568de41aaaf1ccda67ee3482dc3d46ccacd4b84ce
 replay 7ebd825ec70d0b0d2807eaa863abbbf4246de0449ef202691e5952f9a3aefac5
 pinned bc3801291f9d5d9227f868833501a984c9218a9ff41462a4ff698d8dbb0bf7fd
 halfdelay fca4bfcdf141c646a84f298c08ea76b204ed0d4fa00bf165b9dbe7f865b509a3
-sweep 8e2a0f6cadddccce9c35331720042e69f8f50f17ad0131dc4e3632261a27441b
+coldstart 3fb796d5e30939815c4809312b379169f1353c1d3bce4d02454aa13050ca41bc
+sweep 4906e0ffd51d32dfc4df65e422a4ef7b9f0c141aa87262109da4e8d8bbe218e8

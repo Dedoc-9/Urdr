@@ -17,18 +17,20 @@ should have. The estimator already has a shape worth generalising — *rises slo
 direction that helps the client is hard, the direction that costs them is easy. Lift that from the estimate to
 every degree of freedom the client can touch, and the design writes itself.
 
-**Decide.** One invariant — **monotone disadvantage**: *every lever the client can pull resolves against the
-client.* A client may always make their own clock band tighter; no strategy makes it wider than honest
-behaviour, beyond one declared constant. Stated as a theorem over an explicit strategy space rather than a
-hope:
+**Decide.** One invariant — **conditional monotone disadvantage**: *once a session floor is established,
+every lever the client can pull resolves against the client.* Such a client may always make their own clock
+band tighter; no strategy makes it wider than honest behaviour, beyond one declared constant. Stated as a
+theorem over an explicit strategy space rather than a hope:
 
 ```
-for every strategy σ:            reach(σ) ≤ reach(honest) + DRIFT_ALLOWANCE
-for every non-total-delay σ:     reach(σ) ≤ reach(honest)
+GIVEN a session floor founded on a window the client did not pad,
+  for every strategy σ:            reach(σ) ≤ reach(honest) + DRIFT_ALLOWANCE
+  for every non-total-delay σ:     reach(σ) ≤ reach(honest)
 ```
 
 where `reach = lat + jitter` is exactly how far back into the lag window URDRCLK1 will let that client claim.
-Four laws compose to it, each closing the specific way a strategy could have widened the band.
+Four laws compose to it, each closing the specific way a strategy could have widened the band. The
+precondition is load-bearing, and its failure is the rung's honest residual — see *The cold start* below.
 
 **Act.** Built red-first; four gate rows (`pingpolicy`), a 120-client strategy sweep, 24 falsifiers. Each of
 the four plants was proven to bite — and two of them by *falsifying the theorem itself* — before any golden
@@ -75,6 +77,28 @@ The sweep runs the whole strategy space on every random client. The reach table 
 | `replay` | refused | authentication, then coverage law |
 | `forge` | refused | authentication, then coverage law |
 
+## The cold start — the precondition failing, measured
+
+The theorem is **conditional**, and the condition is not free. The session floor is only as honest as the
+window that *set* it. A client that pads **every** ack from the moment it connects never founds an honest
+floor at all: it records an inflated one and keeps a permanently **wider** band than honest play. Measured on
+the reference path (true RTT 6): honest reach 3, cold-start reach 6 — past the `honest + DRIFT_ALLOWANCE`
+bound the theorem states. That client is **not covered**, and the gap is pinned as the `coldstart` scene and
+asserted every sweep rather than left in prose.
+
+What still bounds it, also measured: padding beyond the plausibility ceiling `MAX_RTT` is refused outright
+(the samples never reach the estimate), so `reach ≤ cold_start_ceiling() = MAX_RTT//2 + DRIFT_ALLOWANCE +
+MAX_JITTER = 11`; and URDRCLK1 clamps the admissible band to the lag window regardless, so backdating never
+exceeds `MAX_REWIND` however the floor was set. A cold start therefore buys a **bounded** constant — but a
+larger one than honest play, which is strictly weaker than an unconditional claim.
+
+It is not merely unfixed. A client padding from connect is indistinguishable, *from timing alone*, from a
+client on a genuinely slow path: at connect the server holds no prior for this client, and refusing the padded
+one would refuse the honest laggy one identically. Closing it needs an **out-of-band prior** — a population or
+route baseline, a geo/AS expectation, or a trusted first measurement. That is the declared successor, and it
+is a different *kind* of evidence rather than more of this one. The sweep carries a fixed witness asserting
+the residual is still real, so this boundary cannot quietly become vacuous.
+
 ## The glyph verdict: NO new glyph (kernel frozen)
 
 The policy is a keyed hash for ping placement, integer comparisons for authentication and selection, and a
@@ -84,6 +108,9 @@ clockauth / lagcomp / hitbox / perception, never editing the kernel.
 
 ## Honest scope & boundaries (does_not_show)
 
+- **The theorem is conditional.** Its precondition — a session floor founded on an unpadded window — is
+  load-bearing, and the *cold start* above is its measured failure mode: bounded by the plausibility ceiling
+  and the lag window, but strictly worse than honest play, and not defeated by this rung.
 - **The `+ DRIFT_ALLOWANCE` is real.** A sustained, total delay still buys that one constant. The rung bounds
   it and makes it explicit; it does not eliminate it.
 - **The session floor assumes the path does not permanently worsen mid-session.** A genuine sustained route
@@ -100,4 +127,5 @@ The clock subsystem is now closed as a unit under one invariant. URDRHIT1 fixed 
 URDRLAG1 *when* the server rewinds to, URDRCLK1 *which view-tick* a client may claim, URDRLES1 measured the
 clock that bounds it, and URDRPNG1 governs the measurement itself — so that across the whole apparatus, a
 client can tighten their own band but never widen it. Alongside vision (URDRPCP1) and audio (URDRAUD1) on the
-receive side, the anti-cheat firewall's claim side is self-contained.
+receive side, the anti-cheat firewall's claim side is self-contained — with one declared opening left: the
+cold start, which needs an out-of-band prior rather than another timing law.

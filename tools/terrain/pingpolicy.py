@@ -10,16 +10,37 @@ THE PROBLEM URDRLES1 LEFT DECLARED. The min-floor defense rests on one sentence:
 someone else chose. Worse, its residual was open-ended: a client who delays EVERY ack raises the minimum, and
 the estimate may climb MAX_RISE per update, so the band widens without bound GIVEN ENOUGH PATIENCE.
 
-THE INVARIANT (the whole design in one line) — MONOTONE DISADVANTAGE: *every lever the client can pull
-resolves against the client.* A client may always make their own clock band TIGHTER; no strategy makes it
-WIDER than honest behaviour, beyond one declared constant. This is the dual of URDRLES1's "rises slowly,
-falls freely", extended from the estimate to the whole measurement apparatus, and it is stated as a
-FALSIFIABLE THEOREM over a strategy space, not as a hope:
+THE INVARIANT (the whole design in one line) — CONDITIONAL MONOTONE DISADVANTAGE: *once a session floor is
+established, every lever the client can pull resolves against the client.* Such a client may always make
+their own clock band TIGHTER; no strategy makes it WIDER than honest behaviour, beyond one declared constant.
+This is the dual of URDRLES1's "rises slowly, falls freely", extended from the estimate to the whole
+measurement apparatus, and it is stated as a FALSIFIABLE THEOREM over a strategy space, not as a hope:
 
-    for every client strategy σ:   reach(σ) ≤ reach(honest) + DRIFT_ALLOWANCE
+    GIVEN a session floor established from a window the client did not pad,
+    for every client strategy σ:     reach(σ) ≤ reach(honest) + DRIFT_ALLOWANCE
     and for every NON-TOTAL-DELAY σ: reach(σ) ≤ reach(honest)
 
 where `reach = lat + jitter` is exactly how far back into the lag window URDRCLK1 will let that client claim.
+
+THE PRECONDITION IS LOAD-BEARING, AND ITS FAILURE IS THE RUNG'S HONEST RESIDUAL — THE COLD START. The session
+floor is only as honest as the window that SET it. A client who pads EVERY ack from the moment it connects
+never establishes an honest floor at all: it records an inflated one and keeps a permanently wider band. That
+client is NOT covered by the theorem above, and the gap is real — MEASURED, not hypothesised (see
+`cold_start_reach`, the `coldstart` scene, and the sweep's cold-start block, which assert the bound that DOES
+hold and keep the residual visible so it cannot be silently "fixed" into vacuity).
+
+WHAT STILL BOUNDS A COLD START (measured, and asserted every sweep): padding beyond the plausibility ceiling
+`MAX_RTT` is REFUSED outright (the samples never enter the estimate), so the reach is capped at
+`cold_start_ceiling() = MAX_RTT//2 + DRIFT_ALLOWANCE + MAX_JITTER`; and URDRCLK1 clamps the admissible band to
+the lag window regardless, so backdating can never exceed `MAX_REWIND` however the floor was set. The cold
+start therefore buys a BOUNDED constant, not an unbounded one — but a LARGER one than honest play, which is
+strictly weaker than the unconditional claim and is stated as such.
+
+WHY IT IS NOT MERELY UNFIXED. A client padding from connect is INDISTINGUISHABLE, from timing alone, from a
+client on a genuinely slow path: at connect the server holds no prior for this client, and refusing the
+padded one would refuse the honest laggy one identically. Closing it needs an OUT-OF-BAND prior (a population
+baseline for the route, a geo/AS expectation, or a trusted first measurement) — that is the declared
+successor, and it is a different kind of evidence, not more of this one.
 
 FOUR LAWS COMPOSE TO IT.
   1. AUTHENTICATED ECHO — each ping carries a server-KEYED nonce (a secret the client never holds); an echo
@@ -38,17 +59,23 @@ FOUR LAWS COMPOSE TO IT.
      delaying everything thereafter buys a CONSTANT, never a growing advantage. This converts URDRLES1's
      open-ended residual into a bounded one — the elegance of the rung.
 
-GRADE. The four laws, the ping schedule's coverage (evenly spaced, keyed phase), the bandwidth economy (the
-rate falls only on demonstrated stability), the MONOTONE-DISADVANTAGE THEOREM over the strategy space
-{honest, delay_half, delay_all, drop_half, drop_all, replay, forge}, determinism, and the proof-carrying
-published record are MEASURED. DECLARED, honestly: (a) the theorem's `+ DRIFT_ALLOWANCE` is real — a total,
-sustained delay still buys that one constant, and the rung bounds it rather than eliminating it; (b) the
-SESSION FLOOR assumes the path does not permanently WORSEN mid-session — a genuine sustained route
+GRADE. MEASURED: the four laws; the ping schedule's coverage (evenly spaced, keyed phase); the bandwidth
+economy (the rate falls only on demonstrated stability); the CONDITIONAL monotone-disadvantage theorem over
+the strategy space {honest, delay_half, delay_all, drop_half, drop_all, replay, forge}; the COLD-START
+RESIDUAL and the ceiling that bounds it; determinism; and the proof-carrying published record. Mechanism: a
+fixed-seed 120-client sweep plus the pinned scenes, each with a plant proven to bite first. DECLARED,
+honestly: (a) the theorem is CONDITIONAL on an unpadded founding window — the COLD START above is its
+measured failure mode, bounded by `cold_start_ceiling()` and the lag window but strictly worse than honest,
+and closing it needs an out-of-band prior (the declared successor); (b) the `+ DRIFT_ALLOWANCE` is real — a
+total, sustained delay still buys that one constant, and the rung bounds it rather than eliminating it;
+(c) the SESSION FLOOR assumes the path does not permanently WORSEN mid-session — a genuine sustained route
 degradation beyond the allowance is capped, so that honest player receives LESS lag-compensation than their
-network deserves (a deliberate, declared fairness cost, favouring the defender); (c) the LOWER-HALF RULE
+network deserves (a deliberate, declared fairness cost, favouring the defender); (d) the LOWER-HALF RULE
 under-reads genuinely one-sided upward jitter, so an honest client on a bursty path gets a tighter band than
-their network deserves — the same deliberate trade. does_not_show: the transport that carries the pings; a
-colluding pair of clients; secret rotation / compromise; cross-placement (URDRPNG1 Python reference only)."""
+their network deserves — the same deliberate trade. FALSIFIER: swap in `_step_no_floor` (or
+`_full_spread_jitter`) and the sweep must RAISE; if it does not, these claims are void. does_not_show: the
+transport that carries the pings; a colluding pair of clients; secret rotation / compromise; cross-placement
+(URDRPNG1 Python reference only)."""
 import hashlib
 import os as _os
 import sys as _sys
@@ -351,6 +378,7 @@ def policy_digest(name, secret_hex, base_rtt, strat, rate, lat, jitter, reason):
 
 # ---- scenarios (pinned by the gate) ------------------------------------------------------------
 SECRET = b"\xA1\x1C\xE0\x9E\x37\x79\xB1\x5A"                      # the server's ping key (never the client's)
+SWEEP_WITNESS_SECRET = b"\x5A\xB1\x79\x37\x9E\xE0\x1C\xA1"         # a fixed key for the residual witness
 
 
 def _scene(name, base_rtt, strat, windows, st0=None):
@@ -392,9 +420,19 @@ def _scene_halfdelay():
     return _scene("halfdelay", 6, "delay_half", 3)
 
 
+def _scene_coldstart():
+    """THE RESIDUAL, pinned as a scene so it is part of the record rather than a footnote: a client that pads
+    every ack from connect never founds an honest floor, so it keeps a band WIDER than honest play — the
+    theorem's precondition failing. It is still bounded (padding past plausibility is refused, and URDRCLK1
+    clamps to the lag window), but this rung does not defeat it; an out-of-band prior is the successor."""
+    st = state(MAX_RATE, 3, MAX_RTT)
+    fs, clk, reason = run(SECRET, st, 6 + 6, "honest", 5)         # honest SHAPE, uniformly padded RTT
+    return policy_digest("coldstart", SECRET.hex(), 12, "cold_pad", fs[0], clk[0], clk[1], reason)
+
+
 _SCENES = {"steady": _scene_steady, "starve": _scene_starve, "replay": _scene_replay,
-           "pinned": _scene_pinned, "halfdelay": _scene_halfdelay}
-SCENES = ("steady", "starve", "replay", "pinned", "halfdelay")
+           "pinned": _scene_pinned, "halfdelay": _scene_halfdelay, "coldstart": _scene_coldstart}
+SCENES = ("steady", "starve", "replay", "pinned", "halfdelay", "coldstart")
 
 
 def scene_result(name):
@@ -421,13 +459,37 @@ def strategy_reach(secret, base_rtt, strat, windows, _step=None):
 
 
 def monotone_disadvantage(secret, base_rtt, windows, _step=None):
-    """THE THEOREM, evaluated: no strategy out-reaches honest play by more than DRIFT_ALLOWANCE, and no
-    non-total-delay strategy out-reaches it at all. Returns (holds, honest_reach, {strat: reach})."""
+    """THE THEOREM, evaluated — CONDITIONAL on a session floor established from an unpadded window (the
+    initial state below seeds exactly that). No strategy out-reaches honest play by more than
+    DRIFT_ALLOWANCE, and no non-total-delay strategy out-reaches it at all. Returns (holds, honest_reach,
+    {strat: reach}). It says NOTHING about a client that pads from connect — see `cold_start_reach`."""
     reaches = {s: strategy_reach(secret, base_rtt, s, windows, _step) for s in STRATEGIES}
     h = reaches["honest"]
     holds = all(reaches[s] <= h + DRIFT_ALLOWANCE for s in STRATEGIES) \
         and all(reaches[s] <= h for s in NON_TOTAL_DELAY)
     return holds, h, reaches
+
+
+# ---- THE COLD-START RESIDUAL (the theorem's precondition failing — measured, not hypothesised) --
+def cold_start_ceiling():
+    """The bound that DOES hold when no honest founding window ever existed: padding beyond `MAX_RTT` is
+    refused outright, so the latency cannot exceed `MAX_RTT//2 + DRIFT_ALLOWANCE` and the reach cannot exceed
+    that plus the jitter cap. URDRCLK1 additionally clamps the band to the lag window, so backdating is capped
+    at MAX_REWIND however the floor was set."""
+    return MAX_RTT // 2 + DRIFT_ALLOWANCE + MAX_JITTER
+
+
+def cold_start_reach(secret, base_rtt, pad, windows):
+    """A client that pads EVERY ack by `pad` from the moment it connects — so the session floor is never
+    honestly founded. Returns its reach, or −1 if the padding is implausible and the samples are refused.
+    This is the theorem's precondition failing, kept as a first-class MEASUREMENT so the residual stays
+    visible and cannot be quietly optimised away."""
+    st = state(MAX_RATE, base_rtt // 2, MAX_RTT)                  # no prior: the floor is unknown at connect
+    clk, reason = CK.clock(st[1], 0), R_OK
+    for w in range(windows):
+        st, clk, reason = step(secret, st, w * WINDOW,
+                               play(secret, w * WINDOW, st[0], base_rtt + pad, "honest"))
+    return -1 if reason == R_COVERAGE else reach(clk)
 
 
 # ---- the seeded property sweep -----------------------------------------------------------------
@@ -444,7 +506,7 @@ def sweep(seed=SWEEP_SEED, count=SWEEP_COUNT):
     record. RAISES on the first violation."""
     hh = hashlib.sha256(); hh.update(MAGIC)
     r = PC._LCG(seed)
-    theorem_seen = auth_seen = floor_seen = half_seen = rate_seen = 0
+    theorem_seen = auth_seen = floor_seen = half_seen = rate_seen = cold_seen = 0
     for s in range(count):
         secret = bytes([r.rng(0, 255) for _ in range(8)])
         base_rtt = 2 * r.rng(2, 4)                                # an even, plausible true round-trip
@@ -499,12 +561,33 @@ def sweep(seed=SWEEP_SEED, count=SWEEP_COUNT):
         if st2[0] >= st1[0]:
             raise PingpolicyError(f"scenario {s}: the free-fall plant did not thin the stream (vacuous)")
         rate_seen += 1
-        hh.update(f"|{s}:{h}:{pinned}:{loose}:{st1[0]}".encode())
-    if theorem_seen == 0 or auth_seen == 0 or floor_seen == 0 or half_seen == 0 or rate_seen == 0:
+        # THE COLD-START RESIDUAL — the theorem's precondition failing. Assert the bound that DOES hold:
+        # within plausibility the reach is capped by the ceiling; beyond it the samples are refused outright.
+        pad = 2 * r.rng(1, 3)
+        cs = cold_start_reach(secret, base_rtt, pad, windows)
+        if cs > cold_start_ceiling():
+            raise PingpolicyError(f"scenario {s} (seed {seed}): a cold start reached {cs}, past the "
+                                  f"plausibility ceiling {cold_start_ceiling()}")
+        if cold_start_reach(secret, base_rtt, MAX_RTT + 4, windows) != -1:
+            raise PingpolicyError(f"scenario {s}: an implausibly padded cold start was not refused")
+        cold_seen += 1
+        hh.update(f"|{s}:{h}:{pinned}:{loose}:{st1[0]}:{cs}".encode())
+    # THE RESIDUAL MUST STAY VISIBLE: a fixed, deterministic witness that a cold start really does out-reach
+    # the conditional theorem's bound. If this ever stops holding, the honest boundary has silently become
+    # vacuous (or the rung genuinely improved) — either way the claim must be re-graded, not left standing.
+    wit_h = strategy_reach(SWEEP_WITNESS_SECRET, 6, "honest", 5)
+    wit_cold = cold_start_reach(SWEEP_WITNESS_SECRET, 6, 6, 5)
+    if not wit_cold > wit_h + DRIFT_ALLOWANCE:
+        raise PingpolicyError(f"the cold-start residual is no longer witnessed (cold {wit_cold} vs honest "
+                              f"{wit_h} + {DRIFT_ALLOWANCE}) — the declared boundary has gone vacuous and the "
+                              f"claim must be re-graded")
+    if theorem_seen == 0 or auth_seen == 0 or floor_seen == 0 or half_seen == 0 or rate_seen == 0 \
+            or cold_seen == 0:
         raise PingpolicyError(f"NON-VACUITY: theorem {theorem_seen}, auth {auth_seen}, floor {floor_seen}, "
-                              f"half {half_seen}, rate {rate_seen}")
+                              f"half {half_seen}, rate {rate_seen}, cold {cold_seen}")
     return {"scenarios": count, "theorem_seen": theorem_seen, "auth_seen": auth_seen,
             "floor_seen": floor_seen, "half_seen": half_seen, "rate_seen": rate_seen,
+            "cold_seen": cold_seen, "witness_cold": wit_cold, "witness_honest": wit_h,
             "digest": hh.hexdigest()}
 
 

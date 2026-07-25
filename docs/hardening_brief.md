@@ -249,9 +249,10 @@ honestly claim and to where it lands:
      (URDRLAG1), which view-tick (URDRCLK1), and the measured clock that bounds it (URDRLES1). And the
      measurement ITSELF is now governed by THE PING POLICY (`tools/terrain/pingpolicy.py`, URDRPNG1,
      `docs/pingpolicy_brief.md`), which closes the estimator's open residual by generalising its shape into
-     ONE invariant — MONOTONE DISADVANTAGE: every lever the client can pull resolves against the client, so a
-     client may always make their own clock band TIGHTER but no strategy makes it WIDER than honest play
-     beyond one declared constant. It is stated as a FALSIFIABLE THEOREM over an explicit strategy space
+     ONE invariant — CONDITIONAL MONOTONE DISADVANTAGE: GIVEN a session floor founded on a window the client did
+     not pad, every lever the client can pull resolves against the client, so such a client may always make
+     their own clock band TIGHTER but no strategy makes it WIDER than honest play beyond one declared
+     constant. It is stated as a FALSIFIABLE THEOREM over an explicit strategy space
      ({honest, delay_half, delay_all, drop_half, drop_all, replay, forge}), not as a hope, and four laws
      compose to it: authenticated echo (a server-keyed nonce, so coverage cannot be faked by replay),
      coverage-or-refusal (silence freezes the band then refuses, never widens), the lower-half rule (a delay
@@ -259,7 +260,13 @@ honestly claim and to where it lands:
      and the session floor (the client's own honest early samples pin them, bounding a total delay to a
      CONSTANT instead of a growing advantage — the residual URDRLES1 left open). Scrutiny is monotone too: the
      ping rate jumps to max on instability and is earned back one step per stable window, floored, so the
-     sample stream cannot be thinned. Declared: the +DRIFT_ALLOWANCE is real; the session floor assumes the
+     sample stream cannot be thinned. THE PRECONDITION IS LOAD-BEARING, and its failure is the rung's
+     declared, MEASURED residual — THE COLD START: a client padding every ack from CONNECT never founds an
+     honest floor and keeps a WIDER band than honest play; it is bounded (padding past plausibility is
+     refused, so reach <= cold_start_ceiling(), and URDRCLK1 clamps to the lag window regardless) but NOT
+     defeated, because a cold-start padder is indistinguishable from a genuinely slow path FROM TIMING ALONE —
+     closing it needs an OUT-OF-BAND prior (a route/population baseline or a trusted first measurement), which
+     is the declared successor and a different KIND of evidence. Also declared: the +DRIFT_ALLOWANCE is real; the session floor assumes the
      path does not permanently worsen mid-session, and the lower-half rule under-reads genuine one-sided
      jitter — both deliberate fairness costs favouring the defender, bounded and stated; the
      aim-assist-on-legitimate-targets boundary remains out of scope, stated. EXTENDED by ANAMORPHOSIS

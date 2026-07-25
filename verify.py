@@ -8957,18 +8957,22 @@ class Gate:
         """The ping policy (URDRPNG1): the scheduling / sample-selection layer feeding URDRLES1's ack window,
         organised around ONE invariant. URDRLES1's min-floor is honest 'as long as one true-timed ack lands in
         the window' — an assumption it cannot itself guarantee — and its residual was open-ended (a patient
-        total delay widens the band without bound). MONOTONE DISADVANTAGE, stated as a falsifiable theorem
-        over a client strategy space: every lever the client can pull resolves against them — reach(σ) ≤
-        reach(honest) (+ DRIFT_ALLOWANCE for a total delay), where reach = lat + jitter is how far back
-        URDRCLK1 lets that client claim. Four laws compose to it: authenticated echo (a keyed nonce, so
+        total delay widens the band without bound). CONDITIONAL MONOTONE DISADVANTAGE, stated as a falsifiable
+        theorem over a client strategy space: GIVEN a session floor founded on a window the client did not
+        pad, every lever the client can pull resolves against them — reach(σ) ≤ reach(honest)
+        (+ DRIFT_ALLOWANCE for a total delay), where reach = lat + jitter is how far back URDRCLK1 lets that
+        client claim. The precondition is load-bearing: a client that pads from CONNECT never founds an honest
+        floor and keeps a WIDER band — the declared COLD-START residual, measured and bounded by
+        cold_start_ceiling() and the lag window, not defeated (closing it needs an out-of-band prior). Four laws compose to it: authenticated echo (a keyed nonce, so
         coverage cannot be faked), coverage-or-refusal (silence freezes then refuses, never widens), the
         lower-half rule (only the fast half is trusted, so partial delay cannot inflate the jitter), and the
         session floor (the client's own honest early samples pin them, bounding total delay to a constant).
         Composition over URDRLES1 (over URDRCLK1, URDRLAG1, URDRHIT1, URDRPCP1) — no new glyph (kernel
-        frozen); see docs/pingpolicy_brief.md. Rows: scenes (steady / starve / replay / pinned / halfdelay
-        reproduce URDRPNG1 digests), law (the theorem over the strategy space + the four laws + the rate floor
-        + proof-carrying), property (a seeded 120-client sweep with non-vacuity), selftest (a no-floor policy
-        falsifies the theorem so the sweep REDDENS)."""
+        frozen); see docs/pingpolicy_brief.md. Rows: scenes (steady / starve / replay / pinned / halfdelay /
+        coldstart reproduce URDRPNG1 digests), law (the CONDITIONAL theorem over the strategy space + the four
+        laws + the measured cold-start residual and its ceiling + the rate floor + proof-carrying), property
+        (a seeded 120-client sweep with non-vacuity), selftest (a no-floor policy falsifies the theorem so the
+        sweep REDDENS)."""
         if os.path.join(ROOT, "tools", "terrain") not in sys.path:
             sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
         try:
@@ -8982,7 +8986,7 @@ class Gate:
             self.record("pingpolicy:scenes", False, f"reference failed: {exc}")
             return
         self.record("pingpolicy:scenes", ref_ok,
-                    "steady + starve + replay + pinned + halfdelay reproduce URDRPNG1 digests"
+                    "steady + starve + replay + pinned + halfdelay + coldstart reproduce URDRPNG1 digests"
                     if ref_ok else "a pingpolicy scene drifted from its digest")
         law_ok = True
         try:
@@ -9020,6 +9024,11 @@ class Gate:
                 and PP.step(S, PP.state(PP.MIN_RATE, 3, 6), 0,
                             PP.play(S, 0, PP.MIN_RATE, 6, "honest"))[0][0] == PP.MIN_RATE \
                 and PP._step_rate_free_fall(S, st0, 0, hon)[0][0] < ns[0]
+            # THE COLD-START RESIDUAL — the precondition failing: measured, bounded, and kept visible
+            cs = PP.cold_start_reach(S, 6, 6, 5)
+            law_ok = law_ok and cs <= PP.cold_start_ceiling() \
+                and PP.cold_start_reach(S, 6, PP.MAX_RTT + 4, 5) == -1 \
+                and cs > h + PP.DRIFT_ALLOWANCE
             # proof-carrying: honest verifies; a forged widened band fails; bound to its window
             rec = PP.publish(S, st0, 0, hon)
             law_ok = law_ok and len(rec) == PP.record_bytes_len() and PP.verify_record(S, st0, 0, hon, rec) \
@@ -9028,9 +9037,13 @@ class Gate:
         except Exception:
             law_ok = False
         self.record("pingpolicy-law", law_ok,
-                    "the ping policy: MONOTONE DISADVANTAGE holds over the whole client strategy space — no "
-                    "strategy out-reaches honest play (a total delay by at most the declared drift allowance), "
-                    "and the no-floor policy BREAKS it, so the theorem has teeth; a replayed or forged echo "
+                    "the ping policy: CONDITIONAL MONOTONE DISADVANTAGE holds over the whole client strategy "
+                    "space — given a session floor founded on an unpadded window, no strategy out-reaches "
+                    "honest play (a total delay by at most the declared drift allowance), and the no-floor "
+                    "policy BREAKS it, so the theorem has teeth; the precondition is load-bearing and its "
+                    "failure is MEASURED, not hidden — a client padding from CONNECT out-reaches honest play "
+                    "and is bounded only by the plausibility ceiling and the lag window (the declared "
+                    "cold-start residual, needing an out-of-band prior to close); a replayed or forged echo "
                     "earns no coverage (the no-auth plant hands it over); sustained silence freezes the band "
                     "and then REFUSES, never widening; a partial delay cannot move the jitter under the "
                     "lower-half rule (the full-spread plant lets it); an honest opening window PINS a later "
@@ -9042,17 +9055,21 @@ class Gate:
             rep = PP.sweep()
             prop_ok = (rep["digest"] == PP.sweep_golden() and rep["theorem_seen"] > 0
                        and rep["auth_seen"] > 0 and rep["floor_seen"] > 0
-                       and rep["half_seen"] > 0 and rep["rate_seen"] > 0)
+                       and rep["half_seen"] > 0 and rep["rate_seen"] > 0 and rep["cold_seen"] > 0)
         except Exception:
             prop_ok = False
         self.record("pingpolicy-property", prop_ok,
                     f"the ping policy survived a {PP.SWEEP_COUNT}-client seeded sweep — random ping secrets, "
-                    "true path RTTs, and horizons: MONOTONE DISADVANTAGE holds over {honest, delay_half, "
+                    "true path RTTs, and horizons: CONDITIONAL MONOTONE DISADVANTAGE holds (on its "
+                    "precondition — a session floor founded on an unpadded window) over {honest, delay_half, "
                     "delay_all, drop_half, drop_all, replay, forge} on every client, replay/forgery earn no "
                     "coverage, the session floor pins a total delay while the no-floor plant escapes it, the "
                     "lower-half rule holds the jitter while the full-spread plant inflates it, the rate floor "
-                    "and one-step decay hold, and the record is proof-carrying; the aggregate digest "
-                    "reproduces its golden (non-vacuous: theorem / auth / floor / half / rate all exercised)"
+                    "and one-step decay hold, the cold-start residual stays within its plausibility "
+                    "ceiling while an implausibly padded cold start is refused outright, and the record is "
+                    "proof-carrying; the aggregate digest reproduces its golden (non-vacuous: theorem / auth / "
+                    "floor / half / rate / cold all exercised, with a fixed witness asserting the cold-start "
+                    "residual is still real so the declared boundary cannot go vacuous)"
                     if prop_ok else "the pingpolicy property sweep failed or drifted")
         red_ok = False
         try:
@@ -9069,7 +9086,7 @@ class Gate:
             red_ok = False
         self.record("pingpolicy-property-selftest", red_ok,
                     "a policy without the session floor lets a patient total delay widen the band without "
-                    "bound, so MONOTONE DISADVANTAGE is falsified and the seeded sweep raises "
+                    "bound, so CONDITIONAL MONOTONE DISADVANTAGE is falsified and the seeded sweep raises "
                     "PINGPOLICY-REFUSE — the invariant is a live falsifier, not decoration — and the module is "
                     "clean again after the revert"
                     if red_ok else "the pingpolicy sweep did not redden under a no-session-floor policy")

@@ -270,10 +270,11 @@ window, organised around ONE invariant (composition over `latencyest`, over `clo
 `perception`; NO NEW GLYPH; design in `docs/pingpolicy_brief.md`). URDRLES1's min-floor is honest "as long as
 one true-timed ack lands in the window" — which it cannot itself guarantee — and its residual was open-ended
 (a patient TOTAL delay widens the band without bound). THE INVARIANT, stated as a FALSIFIABLE THEOREM over an
-explicit client strategy space rather than a hope — MONOTONE DISADVANTAGE: *every lever the client can pull
-resolves against the client*, i.e. `reach(σ) ≤ reach(honest) + DRIFT_ALLOWANCE` for every strategy and
-`≤ reach(honest)` for every non-total-delay strategy, where `reach = lat + jitter` is exactly how far back
-URDRCLK1 lets that client claim. FOUR LAWS compose to it: (1) AUTHENTICATED ECHO — each ping carries a
+explicit client strategy space rather than a hope — CONDITIONAL MONOTONE DISADVANTAGE: *GIVEN a session floor
+founded on a window the client did not pad*, every lever the client can pull resolves against the client, i.e.
+`reach(σ) ≤ reach(honest) + DRIFT_ALLOWANCE` for every strategy and `≤ reach(honest)` for every
+non-total-delay strategy, where `reach = lat + jitter` is exactly how far back URDRCLK1 lets that client
+claim. FOUR LAWS compose to it: (1) AUTHENTICATED ECHO — each ping carries a
 server-keyed nonce, so a forged or replayed echo is refused and coverage cannot be FAKED; (2) COVERAGE OR
 REFUSAL — too few authenticated echoes freezes the band (no rise, jitter 0) and after `STARVE_WINDOWS`
 refuses, so silence never pays; (3) THE LOWER-HALF RULE — a delay can only push an RTT UP, so only the fast
@@ -284,8 +285,15 @@ the ping rate jumps to max on instability and is earned back one step per stable
 can make us ping more, never less (and that is where the bandwidth economy lives). Guarantees (each
 red-first): the theorem over {honest, delay_half, delay_all, drop_half, drop_all, replay, forge}, the four
 laws, the rate floor and one-step decay, proof-carrying (the 100-byte record is bound to its ack window; a
-forged widened band fails). Five scenes (steady / starve / replay / pinned / halfdelay) + a 120-client
-strategy sweep. Declared: the `+DRIFT_ALLOWANCE` is real; the session floor assumes the path does not
+forged widened band fails). Six scenes (steady / starve / replay / pinned / halfdelay / coldstart) + a
+120-client strategy sweep. THE PRECONDITION IS LOAD-BEARING and its failure is the declared, MEASURED
+residual — THE COLD START: a client padding every ack from CONNECT never founds an honest floor and keeps a
+WIDER band than honest play (measured 6 vs 3 on the reference path). It is bounded — padding past
+plausibility is refused, so `reach <= cold_start_ceiling() = 11`, and URDRCLK1 clamps to the lag window
+regardless — but NOT defeated: a cold-start padder is indistinguishable from a genuinely slow path from
+timing alone, so closing it needs an OUT-OF-BAND prior (route/population baseline or a trusted first
+measurement), the declared successor. A fixed sweep witness asserts the residual is still real so the boundary
+cannot go vacuous. Also declared: the `+DRIFT_ALLOWANCE` is real; the session floor assumes the path does not
 permanently worsen mid-session; the lower-half rule under-reads genuine one-sided jitter — both deliberate
 fairness costs favouring the defender, bounded and stated.
 `anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception

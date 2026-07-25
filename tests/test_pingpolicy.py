@@ -4,8 +4,11 @@
 layer feeding URDRLES1's ack window, organised around ONE invariant. Composition over `latencyest` (over
 `clockauth`, `lagcomp`, `hitbox`, `perception`), NO new glyph.
 
-  MONOTONE DISADVANTAGE (the headline theorem) — for every client strategy, reach <= honest reach
-    (+ DRIFT_ALLOWANCE for a total delay). Every lever the client can pull resolves against them.
+  CONDITIONAL MONOTONE DISADVANTAGE (the headline theorem) — GIVEN a session floor founded on an unpadded
+    window, for every client strategy reach <= honest reach (+ DRIFT_ALLOWANCE for a total delay). Every
+    lever such a client can pull resolves against them.
+  THE COLD-START RESIDUAL — the precondition failing: a client padding from connect founds an inflated floor
+    and keeps a WIDER band. Measured, bounded by the plausibility ceiling, and asserted so it stays visible.
   AUTHENTICATED ECHO — a forged or replayed echo earns no coverage; the no-auth plant hands it over.
   COVERAGE OR REFUSAL — too few authenticated echoes freezes the band and then refuses; silence never widens.
   THE LOWER-HALF RULE — partial delay cannot move the jitter; the full-spread plant lets it.
@@ -69,6 +72,41 @@ class TheMonotoneDisadvantageTheorem(unittest.TestCase):
     def test_no_floor_plant_falsifies_the_theorem(self):
         holds, _h, _r = PP.monotone_disadvantage(S, 6, 6, _step=PP._step_no_floor)
         self.assertFalse(holds, "the no-floor plant must break monotone disadvantage")
+
+
+class TheColdStartResidual(unittest.TestCase):
+    """The theorem's PRECONDITION failing — the rung's declared, measured residual. These tests assert the
+    bound that DOES hold and keep the gap VISIBLE, so it can never be quietly relabelled as covered."""
+
+    def test_cold_start_out_reaches_honest_the_gap_is_real(self):
+        """A client padding every ack from connect never founds an honest floor and keeps a WIDER band than
+        honest play. If this ever stops holding, the declared boundary has gone vacuous (or the rung genuinely
+        improved) — either way the claim must be re-graded, so this test failing is a signal, not a nuisance."""
+        h = PP.strategy_reach(S, 6, "honest", 5)
+        cold = PP.cold_start_reach(S, 6, 6, 5)
+        self.assertGreater(cold, h + PP.DRIFT_ALLOWANCE,
+                           "the cold-start residual is no longer witnessed — re-grade the claim")
+
+    def test_cold_start_is_bounded_by_the_plausibility_ceiling(self):
+        for base in (4, 6, 8):
+            for pad in (0, 2, 4, 6):
+                self.assertLessEqual(PP.cold_start_reach(S, base, pad, 6), PP.cold_start_ceiling(),
+                                     f"cold start base={base} pad={pad} passed the ceiling")
+
+    def test_padding_beyond_plausibility_is_refused_outright(self):
+        self.assertEqual(PP.cold_start_reach(S, 6, PP.MAX_RTT + 4, 5), -1,
+                         "an implausibly padded cold start must be refused, not folded in")
+
+    def test_ceiling_is_the_documented_expression(self):
+        self.assertEqual(PP.cold_start_ceiling(), PP.MAX_RTT // 2 + PP.DRIFT_ALLOWANCE + PP.MAX_JITTER)
+
+    def test_theorem_does_not_claim_to_cover_cold_start(self):
+        """The conditional theorem is evaluated from an honestly-seeded floor; that precondition is what the
+        cold start violates. Asserting both here keeps the two statements from being conflated."""
+        holds, h, _r = PP.monotone_disadvantage(S, 6, 5)
+        self.assertTrue(holds, "the conditional theorem must hold on its own precondition")
+        self.assertGreater(PP.cold_start_reach(S, 6, 6, 5), h + PP.DRIFT_ALLOWANCE,
+                           "and must NOT be read as covering a client that pads from connect")
 
 
 class TheAuthenticatedEcho(unittest.TestCase):
@@ -185,7 +223,7 @@ class TheSweep(unittest.TestCase):
         self.assertEqual(d1, PP.sweep_digest(), "deterministic")
         self.assertEqual(d1, PP.sweep_golden(), "sweep drifted from golden")
         rep = PP.sweep()
-        for k in ("theorem_seen", "auth_seen", "floor_seen", "half_seen", "rate_seen"):
+        for k in ("theorem_seen", "auth_seen", "floor_seen", "half_seen", "rate_seen", "cold_seen"):
             self.assertGreater(rep[k], 0, f"{k} never exercised")
 
     def test_sweep_bites_no_floor_policy(self):
