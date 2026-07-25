@@ -265,6 +265,29 @@ fails). Five scenes (honest / inflate / drip / improve / implausible) + a 120-ar
 bounds and slows band-widening, it does not make inflation impossible; successor is the ping-scheduling /
 sample-selection policy. The lag-compensated hit channel is now self-contained: where (URDRHIT1), when
 (URDRLAG1), which view-tick (URDRCLK1), and the measured clock that bounds it (URDRLES1).
+`pingpolicy.py` — `URDRPNG1`, THE PING POLICY: the scheduling / sample-selection layer feeding URDRLES1's ack
+window, organised around ONE invariant (composition over `latencyest`, over `clockauth`, `lagcomp`, `hitbox`,
+`perception`; NO NEW GLYPH; design in `docs/pingpolicy_brief.md`). URDRLES1's min-floor is honest "as long as
+one true-timed ack lands in the window" — which it cannot itself guarantee — and its residual was open-ended
+(a patient TOTAL delay widens the band without bound). THE INVARIANT, stated as a FALSIFIABLE THEOREM over an
+explicit client strategy space rather than a hope — MONOTONE DISADVANTAGE: *every lever the client can pull
+resolves against the client*, i.e. `reach(σ) ≤ reach(honest) + DRIFT_ALLOWANCE` for every strategy and
+`≤ reach(honest)` for every non-total-delay strategy, where `reach = lat + jitter` is exactly how far back
+URDRCLK1 lets that client claim. FOUR LAWS compose to it: (1) AUTHENTICATED ECHO — each ping carries a
+server-keyed nonce, so a forged or replayed echo is refused and coverage cannot be FAKED; (2) COVERAGE OR
+REFUSAL — too few authenticated echoes freezes the band (no rise, jitter 0) and after `STARVE_WINDOWS`
+refuses, so silence never pays; (3) THE LOWER-HALF RULE — a delay can only push an RTT UP, so only the fast
+half is trusted and the jitter is its spread, leaving partial delay unable to inflate; (4) THE SESSION FLOOR —
+the latency may never exceed `all-time-min-RTT//2 + DRIFT_ALLOWANCE`, so a client's own honest early samples
+PIN them for the session and total delay buys a CONSTANT, not a growing advantage. Scrutiny is monotone too:
+the ping rate jumps to max on instability and is earned back one step per stable window, floored — a client
+can make us ping more, never less (and that is where the bandwidth economy lives). Guarantees (each
+red-first): the theorem over {honest, delay_half, delay_all, drop_half, drop_all, replay, forge}, the four
+laws, the rate floor and one-step decay, proof-carrying (the 100-byte record is bound to its ack window; a
+forged widened band fails). Five scenes (steady / starve / replay / pinned / halfdelay) + a 120-client
+strategy sweep. Declared: the `+DRIFT_ALLOWANCE` is real; the session floor assumes the path does not
+permanently worsen mid-session; the lower-half rule under-reads genuine one-sided jitter — both deliberate
+fairness costs favouring the defender, bounded and stated.
 `anamorphosis.py` — `URDRANA1`, the TUNABLE SEMANTIC FOCAL LENS over witnessed absence: the perception
 firewall generalized from BINARY (absent Ø / full-fidelity) to a GRADED, server-tunable dial `L = (reach,
 focus)` — a "simple patch to all users" — WITHOUT opening a slot for the hidden (composition over

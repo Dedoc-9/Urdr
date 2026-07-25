@@ -8953,6 +8953,127 @@ class Gate:
                     "a live falsifier, not decoration — and the module is clean again after the revert"
                     if red_ok else "the latencyest sweep did not redden under a mean-based estimator")
 
+    def pingpolicy(self):
+        """The ping policy (URDRPNG1): the scheduling / sample-selection layer feeding URDRLES1's ack window,
+        organised around ONE invariant. URDRLES1's min-floor is honest 'as long as one true-timed ack lands in
+        the window' — an assumption it cannot itself guarantee — and its residual was open-ended (a patient
+        total delay widens the band without bound). MONOTONE DISADVANTAGE, stated as a falsifiable theorem
+        over a client strategy space: every lever the client can pull resolves against them — reach(σ) ≤
+        reach(honest) (+ DRIFT_ALLOWANCE for a total delay), where reach = lat + jitter is how far back
+        URDRCLK1 lets that client claim. Four laws compose to it: authenticated echo (a keyed nonce, so
+        coverage cannot be faked), coverage-or-refusal (silence freezes then refuses, never widens), the
+        lower-half rule (only the fast half is trusted, so partial delay cannot inflate the jitter), and the
+        session floor (the client's own honest early samples pin them, bounding total delay to a constant).
+        Composition over URDRLES1 (over URDRCLK1, URDRLAG1, URDRHIT1, URDRPCP1) — no new glyph (kernel
+        frozen); see docs/pingpolicy_brief.md. Rows: scenes (steady / starve / replay / pinned / halfdelay
+        reproduce URDRPNG1 digests), law (the theorem over the strategy space + the four laws + the rate floor
+        + proof-carrying), property (a seeded 120-client sweep with non-vacuity), selftest (a no-floor policy
+        falsifies the theorem so the sweep REDDENS)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import pingpolicy as PP
+        except Exception as exc:
+            self.record("pingpolicy", False, f"import failed (pingpolicy): {exc}")
+            return
+        try:
+            ref_ok = all(PP.scene_result(n) == PP.golden(n) for n in PP.SCENES)
+        except Exception as exc:
+            self.record("pingpolicy:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("pingpolicy:scenes", ref_ok,
+                    "steady + starve + replay + pinned + halfdelay reproduce URDRPNG1 digests"
+                    if ref_ok else "a pingpolicy scene drifted from its digest")
+        law_ok = True
+        try:
+            S = PP.SECRET
+            # THE THEOREM over the whole strategy space, and its non-vacuity
+            holds, h, reaches = PP.monotone_disadvantage(S, 6, 5)
+            law_ok = holds and h > 0
+            law_ok = law_ok and all(reaches[st] <= h for st in PP.NON_TOTAL_DELAY)
+            law_ok = law_ok and reaches["delay_all"] <= h + PP.DRIFT_ALLOWANCE
+            law_ok = law_ok and all(reaches[st] == -1 for st in ("drop_all", "replay", "forge"))
+            # and the no-floor plant BREAKS it (the theorem has teeth)
+            law_ok = law_ok and not PP.monotone_disadvantage(S, 6, 6, _step=PP._step_no_floor)[0]
+            # LAW 1 — replay/forge earn no coverage; the no-auth plant hands it over
+            for bad in ("replay", "forge"):
+                e = PP.play(S, 0, PP.MAX_RATE, 6, bad)
+                law_ok = law_ok and len(PP.authenticate(S, 0, PP.MAX_RATE, e)) < PP.MIN_SAMPLES \
+                    and len(PP._authenticate_none(S, 0, PP.MAX_RATE, e)) >= PP.MIN_SAMPLES
+            # LAW 2 — silence freezes then refuses, and never widens
+            st0 = PP.state(PP.MAX_RATE, 3, 6)
+            _fs, sclk, sreason = PP.run(S, st0, 6, "drop_all", PP.STARVE_WINDOWS)
+            law_ok = law_ok and sreason == PP.R_COVERAGE and sclk[1] == 0 and sclk[0] <= st0[1]
+            # LAW 3 — partial delay cannot move the jitter; the full-spread plant lets it
+            e = PP.play(S, 0, PP.MAX_RATE, 6, "delay_half")
+            rtts = [b - a for (a, b) in PP.authenticate(S, 0, PP.MAX_RATE, e)]
+            law_ok = law_ok and PP.lower_half_jitter(rtts) == 0 \
+                and PP._full_spread_jitter(rtts) > PP.lower_half_jitter(rtts)
+            # LAW 4 — an honest opening pins a later total delay; the no-floor plant escapes
+            pinned = PP.strategy_reach(S, 6, "delay_all", 6)
+            loose = PP.strategy_reach(S, 6, "delay_all", 6, _step=PP._step_no_floor)
+            law_ok = law_ok and pinned <= h + PP.DRIFT_ALLOWANCE and loose > pinned
+            # scrutiny: one-step decay, floored, and instant rise; the free-fall plant thins the stream
+            hon = PP.play(S, 0, PP.MAX_RATE, 6, "honest")
+            ns, _c, _r = PP.step(S, st0, 0, hon)
+            law_ok = law_ok and ns[0] == PP.MAX_RATE - 1 \
+                and PP.step(S, PP.state(PP.MIN_RATE, 3, 6), 0,
+                            PP.play(S, 0, PP.MIN_RATE, 6, "honest"))[0][0] == PP.MIN_RATE \
+                and PP._step_rate_free_fall(S, st0, 0, hon)[0][0] < ns[0]
+            # proof-carrying: honest verifies; a forged widened band fails; bound to its window
+            rec = PP.publish(S, st0, 0, hon)
+            law_ok = law_ok and len(rec) == PP.record_bytes_len() and PP.verify_record(S, st0, 0, hon, rec) \
+                and not PP.verify_record(S, st0, 0, hon, PP.forge_widen(rec, 7, PP.MAX_JITTER)) \
+                and not PP.verify_record(S, st0, 0, PP.play(S, 0, PP.MAX_RATE, 8, "honest"), rec)
+        except Exception:
+            law_ok = False
+        self.record("pingpolicy-law", law_ok,
+                    "the ping policy: MONOTONE DISADVANTAGE holds over the whole client strategy space — no "
+                    "strategy out-reaches honest play (a total delay by at most the declared drift allowance), "
+                    "and the no-floor policy BREAKS it, so the theorem has teeth; a replayed or forged echo "
+                    "earns no coverage (the no-auth plant hands it over); sustained silence freezes the band "
+                    "and then REFUSES, never widening; a partial delay cannot move the jitter under the "
+                    "lower-half rule (the full-spread plant lets it); an honest opening window PINS a later "
+                    "total delay to the session floor (the no-floor plant escapes); scrutiny rises at once and "
+                    "falls one step per stable window, floored; and the record is proof-carrying"
+                    if law_ok else "the pingpolicy law did not hold")
+        prop_ok = True
+        try:
+            rep = PP.sweep()
+            prop_ok = (rep["digest"] == PP.sweep_golden() and rep["theorem_seen"] > 0
+                       and rep["auth_seen"] > 0 and rep["floor_seen"] > 0
+                       and rep["half_seen"] > 0 and rep["rate_seen"] > 0)
+        except Exception:
+            prop_ok = False
+        self.record("pingpolicy-property", prop_ok,
+                    f"the ping policy survived a {PP.SWEEP_COUNT}-client seeded sweep — random ping secrets, "
+                    "true path RTTs, and horizons: MONOTONE DISADVANTAGE holds over {honest, delay_half, "
+                    "delay_all, drop_half, drop_all, replay, forge} on every client, replay/forgery earn no "
+                    "coverage, the session floor pins a total delay while the no-floor plant escapes it, the "
+                    "lower-half rule holds the jitter while the full-spread plant inflates it, the rate floor "
+                    "and one-step decay hold, and the record is proof-carrying; the aggregate digest "
+                    "reproduces its golden (non-vacuous: theorem / auth / floor / half / rate all exercised)"
+                    if prop_ok else "the pingpolicy property sweep failed or drifted")
+        red_ok = False
+        try:
+            _orig = PP.step
+            PP.step = PP._step_no_floor                           # forget the client's own honest early samples
+            try:
+                PP.sweep()
+            except PP.PingpolicyError:
+                red_ok = True
+            finally:
+                PP.step = _orig
+            red_ok = red_ok and PP.sweep_digest() == PP.sweep_golden()
+        except Exception:
+            red_ok = False
+        self.record("pingpolicy-property-selftest", red_ok,
+                    "a policy without the session floor lets a patient total delay widen the band without "
+                    "bound, so MONOTONE DISADVANTAGE is falsified and the seeded sweep raises "
+                    "PINGPOLICY-REFUSE — the invariant is a live falsifier, not decoration — and the module is "
+                    "clean again after the revert"
+                    if red_ok else "the pingpolicy sweep did not redden under a no-session-floor policy")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -11878,6 +11999,7 @@ def main() -> int:
     gate.lagcomp()
     gate.clockauth()
     gate.latencyest()
+    gate.pingpolicy()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

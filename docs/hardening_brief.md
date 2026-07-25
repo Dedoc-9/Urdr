@@ -246,9 +246,22 @@ honestly claim and to where it lands:
      jitter is capped, and an implausible RTT is refused — closing the slow-drip latency forge URDRCLK1 left
      declared; end-to-end, the honest estimator feeding URDRCLK1 refuses a backdate a mean-inflated estimator's
      widened band would admit. The lag-compensated hit channel is thus self-contained — where (URDRHIT1), when
-     (URDRLAG1), which view-tick (URDRCLK1), and the measured clock that bounds it (URDRLES1). Declared: the
-     estimator bounds and slows band-widening, it does not make inflation impossible (a total, visible,
-     rate-limited drip remains); the ping-scheduling policy is the successor, and the
+     (URDRLAG1), which view-tick (URDRCLK1), and the measured clock that bounds it (URDRLES1). And the
+     measurement ITSELF is now governed by THE PING POLICY (`tools/terrain/pingpolicy.py`, URDRPNG1,
+     `docs/pingpolicy_brief.md`), which closes the estimator's open residual by generalising its shape into
+     ONE invariant — MONOTONE DISADVANTAGE: every lever the client can pull resolves against the client, so a
+     client may always make their own clock band TIGHTER but no strategy makes it WIDER than honest play
+     beyond one declared constant. It is stated as a FALSIFIABLE THEOREM over an explicit strategy space
+     ({honest, delay_half, delay_all, drop_half, drop_all, replay, forge}), not as a hope, and four laws
+     compose to it: authenticated echo (a server-keyed nonce, so coverage cannot be faked by replay),
+     coverage-or-refusal (silence freezes the band then refuses, never widens), the lower-half rule (a delay
+     can only push an RTT up, so only the fast half is trusted and partial delay cannot inflate the jitter),
+     and the session floor (the client's own honest early samples pin them, bounding a total delay to a
+     CONSTANT instead of a growing advantage — the residual URDRLES1 left open). Scrutiny is monotone too: the
+     ping rate jumps to max on instability and is earned back one step per stable window, floored, so the
+     sample stream cannot be thinned. Declared: the +DRIFT_ALLOWANCE is real; the session floor assumes the
+     path does not permanently worsen mid-session, and the lower-half rule under-reads genuine one-sided
+     jitter — both deliberate fairness costs favouring the defender, bounded and stated; the
      aim-assist-on-legitimate-targets boundary remains out of scope, stated. EXTENDED by ANAMORPHOSIS
      (`tools/terrain/anamorphosis.py`, URDRANA1,
      `docs/anamorphosis_brief.md`): the binary firewall becomes a server-tunable focal lens `L = (reach,
@@ -259,8 +272,8 @@ honestly claim and to where it lands:
      per-entity position-refresh rate (compute decoupled from the sim rate) while membership stays live
      (closed-world every tick, no ghosts) and staleness is structurally bounded. THREE PILLARS on one
      lens: security (URDRPCP1), network (URDRANA1), compute (URDRTHR1). Remaining Band A work: wiring the
-     manifested-set decision to the live mesh authority; the ping-scheduling policy feeding the
-     latency-estimator's ack window; cross-placement. And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
+     manifested-set decision to the live mesh authority; the transport that carries the pings; cross-placement.
+     And by the ADAPTIVE PRIORITY SCHEDULER (`tools/terrain/schedule.py`,
      URDRSCH1, `docs/schedule_brief.md`): bandwidth- and importance-aware refresh scheduling — when the
      per-tick refresh budget binds, the scheduler serves the due OLDEST-FIRST (starvation-free) so
      staleness stays bounded, membership stays live (closed-world every tick), and replay stays
