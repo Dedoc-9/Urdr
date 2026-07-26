@@ -1,0 +1,86 @@
+# URDRHRN1 conformance — THE GABRIEL ANCHOR LADDER: unbounded rollback reach at bounded storage,
+# with a MINIMAX OPTIMALITY THEOREM for WHICH past states to keep. Task 58, Half A.
+# GABRIEL'S HORN, both halves operational and NOT interchangeable: INT dt/t DIVERGES (the surface) and
+# is exactly the unboundedness of REACH; INT dt/t^2 CONVERGES to 1 (the volume) and is exactly the
+# boundedness of STORAGE. A rollback potential written as INT_1^T (1/t)dt = ln T is therefore on the
+# surface side and diverges — unbounded storage, the opposite of what a bounded buffer needs.
+# THE THEOREM (minimax anchor spacing). Anchors at integer depths 1=a_0<...<a_B=T; a rollback to depth
+# t replays forward from the least anchor >= t, so the cost is RELATIVE: rho(t)=(a(t)-t)/t (constant
+# precision per decade, not per tick).
+#   (1) sup over INTEGER depths is max_i (a_(i+1)-a_i-1)/(a_i+1), attained at t = a_i + 1. Verified
+#       against an independent brute-force oracle that sweeps every depth.
+#   (2) minimising max_i a_(i+1)/a_i is achieved EXACTLY by the geometric ladder a_i = T^(i/B), with
+#       optimum T^(1/B). DECIDED EXHAUSTIVELY over every integer schedule for (T,B) in {(16,2),(16,4),
+#       (27,3),(32,5),(64,3),(81,4)} — in each the unique argmin IS the geometric ladder.
+#   (3) CONTINUOUSLY sup rho = max ratio - 1; on the INTEGER LATTICE that is an UPPER BOUND, NOT an
+#       identity (measured 511/513 < 1 on the 12-slot ladder). An earlier draft asserted the equality
+#       and the exhaustive check REFUSED it; the bound is pinned at its true strength.
+#   COROLLARY: equal ratios are uniform spacing in the measure dt/t — the horn's surface integrand. The
+#   divergent half is not an obstacle to clamp; it is the coordinate in which the optimum is uniform.
+# MEASURED reach (dense window 4): 8 slots -> 64 ticks where lagcomp's FIXED window reaches 8 at the
+# same cost; 12 -> 1024; 16 -> 16384; 20 -> 262144. The survival scene shows the cliff become a slope:
+# at starvation 9, 40 and 300 the ladder ANCHORS where the fixed-window policy REFUSES; at 2000 both
+# refuse — the boundary is extended, not removed.
+# DECLARED, and load-bearing: (a) deep anchors are SPARSE, so deep reconciliation loses precision and
+# must replay forward — the relative cost above IS that price, quantified not hidden; (b) THIS DOES NOT
+# DEFEAT A DDoS: survivable starvation goes from a fixed 8 to ~2^B at bounded memory, but an attacker
+# sustaining the outage indefinitely still wins; (c) replay from a sparse anchor is sound only if the
+# intervening operations COMMUTE — the arc has that CHECKED per instance (commute/rannull/nway); making
+# it STRUCTURAL is Half B of task 58 and is NOT claimed here.
+# THE TWIST (rubber-band stress). Under starvation the ladder does not GROW, it TWISTS — a flat ribbon
+# becomes a cylinder with the same material and a different rise per turn. The ladder's "material" is
+# the RUNG COUNT B-W and its "pitch" is the ratio r; stress changes only the pitch, never the rung
+# count, and that conservation is asserted as a LAW (twist_conserves_rungs) rather than described.
+# Both sides of the trade are closed forms, which is what makes this a mechanism and not a dial:
+#     reach = W * r^(B-W)           exact, at every admitted pitch (reach_is_dense_times_pitch_to_rungs)
+#     price = worst rho < r - 1     the part-(3) bound, STRICTLY under it on the lattice
+# MEASURED at dense 4, 12 slots: pitch 2 -> reach 1024 at cost 511/513; pitch 8 -> reach 67108864 at
+# cost 58720255/8388609. Both reach and cost rise strictly with pitch — no free lunch in either
+# direction. An earlier draft of the twist block said the price is EXACTLY r-1; that is the CONTINUOUS
+# value, and part (3) had already recorded that the integer lattice comes in strictly under it. The
+# same correction is applied here rather than the error repeated one paragraph later.
+# MONOTONE DISCIPLINE, borrowed from pingpolicy: pitch RISES FREELY under stress (reach is needed now)
+# and RELAXES ONE STEP per calm window (never thrash) — the direction that helps survival is fast, the
+# direction that restores precision is slow. Ceiling MAX_RATIO = 8 is DECLARED policy, not a theorem:
+# the theorem prices any pitch, it does not pick one.
+# REMOVABILITY, as a law and by two independent paths: stress=None and TWIST_ENABLED=False each
+# reproduce the untwisted ladder EXACTLY — equality of lists, not merely equivalent behaviour — so a
+# deployment that does not want adaptive pitch drops one argument and loses nothing else. Pinned in the
+# `removable` scene, not left as prose.
+# DECOUPLING FROM THE VIEW BAND — the one place this could go wrong, and therefore MEASURED against
+# clockauth's own band rather than asserted. Retention is what the SERVER keeps; the band is what the
+# CLIENT may claim. A client that can induce stress must not thereby buy backdating. The honest path
+# hands a stressed client ZERO extra view-ticks at every stress; the `_coupled_band` plant — a band
+# whose jitter tolerance widens with the pitch — hands it FOUR, converting the anchors survival bought
+# into an alibi budget. The zero is pinned WITH the plant's four, so it is a result and not a
+# reassurance; an earlier draft returned a hardcoded 0 that no test could ever turn red. The decoupling
+# is finally STRUCTURAL, not disciplinary: clockauth's band takes (now, clk) and nothing else, so
+# stress cannot reach it through any argument.
+# PITCH AUTHORITY — who is allowed to set the stress. Every sibling rung closes this for its own input
+# (clockauth._admit_client_latency, pingpolicy._authenticate_none, oobprior._reference_including_self)
+# and the twist is not the exception. The incentive is real and it is NOT the view band: coarse pitch
+# widens the REPLAY GAP a client is reconciled through, and a wider gap is exactly where the declared
+# commutation dependency has the most room to be violated — so a client permitted to name its own
+# stress would name the largest. Stress is therefore DERIVED: zero inside the tail, then ONE PITCH STEP
+# PER DOUBLING of the outage, which tracks the outage's ORDER rather than its size and so keeps one
+# long stall from spending the whole pitch range. The doubling count is a BIT-LENGTH, not a logarithm —
+# the same identity magicdiv decided, and the reason no float enters an authority path. MEASURED at
+# threshold 8: starvations (1, 8, 9, 16, 32, 64, 256, 1024, 65536) give pitches (2, 2, 2, 3, 4, 5, 7,
+# 8, 8) — saturating at the ceiling rather than running away. The _stress_from_client plant reads the
+# claimed field instead and takes a client claiming 99 at a REAL starvation of 1 straight to pitch 8.
+# The law is stated so it can be false: it requires both that no claim moves the honest pitch AND that
+# some claim moves the plant's, so wiring the pitch to the claimed field reddens it rather than
+# satisfying it vacuously. DECLARED: the doubling law is a POLICY for pricing an observed outage, not
+# a derived quantity; and HOW the starvation length is observed is latencyest's territory, not
+# re-derived here — what is closed here is only that the number may not come from the client.
+# PRIOR ART: exponentially-spaced checkpointing is not new. The closest formal work found is
+# "Formalizing Rollback Netcodes..." (OPODIS 2025); I could NOT confirm whether it treats the retention
+# SCHEDULE under bounded memory, so NO NOVELTY is claimed for the minimax result — stated and verified
+# here, not asserted to be first. NO new glyph (kernel frozen).
+ladder 191e93a93fbd9dc7f5363c51cb09740fffb968cef468169b6c558f4115e5bf63
+minimax 615b542e40411151a6102203f58878af8d97a1e09ae8946b52fe9eb2c26244a6
+integer_bound 044c25288aa2c3349b35c6a8dadac1af55608bd2fbcb8f4c2acf55c157c4051f
+survival 9ad7f2a81c6b3f63ac92e3200e61c26ad29a334fd7b419dcce5632426ada8c9e
+twist 980bcaa6debd50122bf07206f951f95a316cbc60997bcacbc46f06502791b4fa
+removable 5831421934473a7eae7c1a2377c029670c9f9e1b8e34ea6262f01dcc68d61918
+authority b28deb55d324c114db739fa821176664a7be0c24e9faee67411739e7b689f996

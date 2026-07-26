@@ -9379,6 +9379,128 @@ class Gate:
                     "refuses — the realizability law is a live falsifier, not decoration"
                     if red_ok else "the credulous plant did not admit what the law refuses")
 
+    def horn(self):
+        """The Gabriel anchor ladder (URDRHRN1), task 58 Half A: unbounded rollback reach at bounded
+        storage, with a MINIMAX OPTIMALITY THEOREM for which past states to keep. Both halves of
+        Gabriel's Horn are operational and not interchangeable — INT dt/t diverges and IS the
+        unboundedness of reach, INT dt/t^2 converges and IS the boundedness of storage, so a rollback
+        potential written as INT(1/t)dt is on the surface side and unbounded. THE THEOREM: minimising
+        the worst RATIO between consecutive anchors is achieved exactly by the geometric ladder
+        a_i = T^(i/B), DECIDED exhaustively over every integer schedule at six pinned (T,B); and on
+        the INTEGER lattice the continuous bound max-ratio-1 is an upper bound and NOT an identity
+        (an earlier draft asserted equality and the check refused it). Declared: deep anchors are
+        sparse so reconciliation loses precision; this does NOT defeat a DDoS, it turns a cliff into a
+        slope; and sparse replay is sound only under commutation, which the arc has CHECKED
+        (commute/rannull/nway) and Half B would make structural. THE TWIST: under starvation the
+        ladder does not GROW, it TWISTS — the rung count B-W is CONSERVED and only the pitch r changes,
+        exactly as a flat ribbon becomes a cylinder with the same material and a different rise. Reach
+        = W*r^(B-W); price strictly under r-1 by the same integer-lattice bound; rise free, relax one
+        step. It is OPT-OUT BY CONSTRUCTION by two independent paths, asserted as equality of ladders.
+        And it is DECOUPLED from the view band: retention is what the server KEEPS, the band is what the
+        client may CLAIM, so a client that induces stress must not buy backdating — measured against
+        clockauth's own band with a coupling plant that leaks four ticks where the honest path leaks
+        zero. Rows: scenes, law, twist, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import horn as HN
+        except Exception as exc:
+            self.record("horn", False, f"import failed (horn): {exc}")
+            return
+        try:
+            ref_ok = all(HN.scene_result(n) == HN.golden(n) for n in HN.SCENES)
+        except Exception as exc:
+            self.record("horn:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("horn:scenes", ref_ok,
+                    "ladder + minimax + integer_bound + survival + twist + removable + authority "
+                    "reproduce URDRHRN1 digests"
+                    if ref_ok else "a horn scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = all(HN.optimum_is_geometric(T, B) for T, B in HN.PINNED)
+            lad = HN.ladder(HN.DENSE, 12)
+            law_ok = law_ok and HN.continuous_bound_is_strict(lad)
+            law_ok = law_ok and HN.worst_relative_cost(lad) == HN.worst_relative_cost_bruteforce(lad)
+            law_ok = law_ok and [HN.reach(HN.DENSE, b) for b in (8, 12, 16, 20)] == [64, 1024, 16384, 262144]
+            law_ok = law_ok and lad == sorted(set(lad))
+            law_ok = law_ok and all(HN.anchor_for(t, lad) is not None for t in range(1, lad[-1] + 1))
+        except Exception:
+            law_ok = False
+        self.record("horn-law", law_ok,
+                    "the geometric ladder is the EXHAUSTIVE minimax optimum over every integer anchor "
+                    "schedule at each pinned (T,B) — a decided statement, not a sampled one; the "
+                    "continuous bound max-ratio-1 is STRICT on the integer lattice rather than an "
+                    "identity (the check refused the equality an earlier draft asserted); the closed "
+                    "form for the discrete supremum agrees with an independent brute-force oracle "
+                    "sweeping every depth; and reach is exponential in the slot count (8 slots reach "
+                    "64 ticks where a fixed window reaches 8) with the ladder monotone and covering"
+                    if law_ok else "the horn law did not hold")
+        twist_ok = True
+        try:
+            # the invariant: stress changes pitch, never rung count
+            twist_ok = HN.twist_conserves_rungs()
+            twist_ok = twist_ok and all(len(HN.twisted_ladder(HN.DENSE, 12, st)) == 12
+                                        for st in (None, 0, 1, 3, 6, 99))
+            # both sides of the trade, in closed form
+            twist_ok = twist_ok and HN.reach_is_dense_times_pitch_to_rungs()
+            twist_ok = twist_ok and HN.twist_price_is_bounded()
+            # monotone discipline: rise free, relax one step, ceiling holds
+            twist_ok = twist_ok and HN.twist_ratio(5, prev_ratio=HN.MIN_RATIO) == 7
+            twist_ok = twist_ok and HN.twist_ratio(0, prev_ratio=6) == 5
+            twist_ok = twist_ok and HN.twist_ratio(99) == HN.MAX_RATIO
+            # removability, both paths, as equality of ladders
+            twist_ok = twist_ok and HN.twist_is_removable()
+            twist_ok = twist_ok and all(
+                HN.twisted_ladder(HN.DENSE, s, stress=None) == HN.ladder(HN.DENSE, s, HN.MIN_RATIO)
+                for s in (8, 12, 16))
+            # the decoupling, measured — and its plant, which must bite
+            twist_ok = twist_ok and all(HN.twist_leaks_into_view_band(st) == 0 for st in (0, 5, 99))
+            twist_ok = twist_ok and HN.twist_leaks_into_view_band(5, _bandfn=HN._coupled_band) == 4
+            twist_ok = twist_ok and HN._twist_unbounded(99) > HN.MAX_RATIO
+            twist_ok = twist_ok and HN._twist_unbounded(0, prev_ratio=6) == HN.MIN_RATIO
+            # pitch authority: the stress is the SERVER's measurement, never a client field
+            twist_ok = twist_ok and HN.pitch_is_server_derived()
+            twist_ok = twist_ok and [HN.server_stress(s, 8) for s in (16, 32, 64, 128)] == [1, 2, 3, 4]
+            twist_ok = twist_ok and HN.twist_ratio(HN.server_stress(1, 8)) == HN.MIN_RATIO
+            twist_ok = twist_ok and HN.twist_ratio(
+                HN._stress_from_client(99, starvation=1, thresh=8)) == HN.MAX_RATIO
+        except Exception:
+            twist_ok = False
+        self.record("horn-twist", twist_ok,
+                    "under starvation the ladder TWISTS rather than grows — the rung count B-W is "
+                    "CONSERVED and only the pitch changes, a flat ribbon becoming a cylinder with the "
+                    "same material and a different rise; reach = W*r^(B-W) exactly and the price is "
+                    "STRICTLY under r-1 by the same integer-lattice bound part (3) established, so the "
+                    "twist is priced by the theorem rather than dialled; pitch rises freely under "
+                    "stress and relaxes exactly one step per calm window; it is REMOVABLE by two "
+                    "independent paths as equality of ladders, not merely equivalent behaviour; and it "
+                    "is DECOUPLED from the view band — a stressed client is bought ZERO extra "
+                    "view-ticks measured against clockauth's own band, while the coupling plant buys "
+                    "it four, so the zero is a result and not a reassurance; and the PITCH AUTHORITY "
+                    "is closed the way every sibling rung closes its own input — the stress is DERIVED "
+                    "from the server's starvation measurement at one step per doubling (a bit-length, "
+                    "not a logarithm), never read from a client field, because coarse pitch widens the "
+                    "replay gap a client is reconciled through and a client naming its own stress "
+                    "would name the largest; the claim-reading plant follows a client claiming 99 at a "
+                    "real starvation of 1 straight to the ceiling"
+                    if twist_ok else "the twist law did not hold")
+        red_ok = False
+        try:
+            lad = HN.ladder(HN.DENSE, 12)
+            th = HN.tail_threshold([1, 1, 2, 2, 3, 3, 4, 5, 9, 40])
+            red_ok = all(HN.anchor_decision(s, lad, th)[0] == "anchor"
+                         and HN._decision_no_ladder(s, lad, th)[0] == "refuse" for s in (9, 40, 300))
+            red_ok = red_ok and HN.anchor_decision(lad[-1] + 976, lad, th)[0] == "refuse"
+        except Exception:
+            red_ok = False
+        self.record("horn-selftest", red_ok,
+                    "the fixed-window policy the arc has today REFUSES starvations of 9, 40 and 300 "
+                    "ticks that the ladder still anchors and replays — the cliff becomes a slope — "
+                    "while past the ladder's reach the ladder ALSO refuses, so the boundary is "
+                    "extended rather than removed and the honest limit stays visible"
+                    if red_ok else "the fixed-window plant did not refuse what the ladder survives")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12308,6 +12430,7 @@ def main() -> int:
     gate.oobprior()
     gate.magicdiv()
     gate.cayley()
+    gate.horn()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
