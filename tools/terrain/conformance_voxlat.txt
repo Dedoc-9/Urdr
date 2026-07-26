@@ -1,0 +1,55 @@
+# URDRVOX1 conformance — THE INTEGER VOXEL LATTICE: the certified quantization boundary where float
+# capture becomes exact integer authority, with the triangle/box overflow bound DECIDED, not estimated.
+# Slice S1 of the city-replica arc. NO new glyph (kernel frozen).
+#
+# PART 1 — THE LCA IDENTITY. For Morton keys, octree common-ancestor depth is
+#     lca_depth(a,b) = (3*levels - bit_length(a XOR b)) // 3,  and levels when a == b
+# the count of LEADING agreeing 3-bit groups, because Morton hierarchy lives in the HIGH bits: the
+# root's octant is the most significant group. A handed-down version used the 2-adic valuation —
+# TRAILING zeros, ctz — which measures agreement from the BOTTOM of the tree where the octree has no
+# hierarchy. MEASURED over every pair of a pinned 120-key corpus (7140 pairs): leading form 7140/7140,
+# trailing form 3231/7140 = 45%. The wrong form is kept as _lca_by_ctz and pinned as a live falsifier,
+# because the error is instructive rather than embarrassing: it arrived attached to a p-adic framing
+# that was refuted PRECISELY BECAUSE the valuation measures shared-prefix depth rather than distance —
+# and then the refuted operation was adopted as the replacement. Refuting a mechanism and then keeping
+# it is worse than never refuting it, so it goes in the gate rather than in a chat message.
+# THE ZERO CASE IS THE ONE THAT MATTERS. a == b gives XOR 0, and that is exactly where hardware
+# diverges: x86 BSF leaves the destination UNDEFINED, TZCNT returns the operand size, ARM CLZ returns
+# the width, C's __builtin_ctz(0)/__builtin_clz(0) are undefined behaviour. A voxel compared with
+# itself is the commonest case in the world. Closed here by an explicit branch and asserted as a law;
+# bit_length is used rather than an intrinsic so the reference inherits no UB.
+#
+# PART 2 — THE OVERFLOW THEOREM, DECIDED EXACTLY. Exact-integer Akenine-Möller is division-free and
+# branch-free by ordinary means; the only thing that breaks it is SILENT OVERFLOW, which is how a
+# cross-platform desync is born. So the question is not "is it exact" but "in how many bits". A
+# handed-down estimate answered  W > 3 + 2*log2(B) + 2k  — WRONG EXPONENT, and dangerously so.
+#   THEOREM. On the lattice [-B,B]^3 with the box at the origin, the largest absolute intermediate is
+#   attained by the PLANE test and equals EXACTLY  max |n . u0| = 4 * B^3,  n = (u1-u0) x (u2-u1).
+#   DECIDED EXHAUSTIVELY at B = 1..5 over EVERY ordered triple — 4, 32, 108, 256, 500 against
+#   4B^3 = 4, 32, 108, 256, 500. The triple loop collapses by the scalar triple product identity
+#   (f0 x f1).u0 == f1.(u0 x f0), which makes the inner maximisation a LINEAR functional over u2,
+#   attained at a lattice corner — that is what makes exhaustion cheap enough to sit in a gate.
+# WHY CUBIC AND NOT QUADRATIC. The nine edge-cross-axis tests are products of TWO coordinate-scale
+# quantities; the plane test is a TRIPLE product — a cross product, quadratic in the bound, dotted
+# with a position. An estimate that stops at the nine edge tests reads the exponent off the wrong
+# term. The analytic upper bound 192*B^3 is also correct but loose by 48x, so the constant 4 had to be
+# MEASURED; deriving it gives the exponent but not the value.
+# WHY THIS IS LOAD-BEARING. At the figures the estimate was offered for — B = 32,000 voxels (4 km at
+# 12.5 cm), k = 12 — the fixed-point bound is 2^27 and the width needed is 84 bits. The quadratic
+# estimate reports 57 and concludes "fits in uint64_t". It does not fit at any k: k = 8 still needs
+# 72. Shipping the estimate yields a lattice exact on small test scenes and silently wrong on a real
+# city, and the symptom is mis-adjudicated hits at long range — indistinguishable from cheating. The
+# _bound_by_quadratic plant is pinned together with the proof that it underestimates.
+# THE COROLLARY THAT SIZES A SHARD. Requiring the width to fit 64 bits gives coord_bits <= 20, so a
+# 64-bit placement admits B * 2^k <= 2^20 — at k = 8, B <= 4096 voxels, a 512 m tile at 12.5 cm. The
+# arithmetic DERIVES a tile size rather than having one chosen for it: the partition is forced by the
+# word, not by taste.
+# DECLARED, and stated at exactly that strength: that 4*B^3 extends past B = 5. The law is decided on
+# the pinned bounds and stated as a closed form; the city-scale width is arithmetic on that closed
+# form, NOT an enumeration at city scale, and this rung does not claim otherwise.
+# does_not_show: that the lattice is CORRECT (only that it is canonical and reproducible); any
+# splat-to-occupancy derivation; the render/lattice divergence bound; cross-placement.
+lca c1d418da3185099311d733861e06927bbf1bc2d1c2ed9e0844dbb2e14cba48b0
+ctz_plant 4cb25ba96ab24ed271a00d5f5662928d7b580642f6643541bb7d8fb616b22c7d
+overflow cad7e04bb328c9df3d8b0665638ef983edf1dcac59abd4dbcabdfcc0926181d7
+word 2753604d3ddcb0ffaab19f1ef30dc9a7d49acfd5c03cb1126d83e399afd42a53

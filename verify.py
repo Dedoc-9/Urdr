@@ -9501,6 +9501,84 @@ class Gate:
                     "extended rather than removed and the honest limit stays visible"
                     if red_ok else "the fixed-window plant did not refuse what the ladder survives")
 
+    def voxlat(self):
+        """The integer voxel lattice (URDRVOX1), slice S1 of the city-replica arc: the certified
+        quantization boundary where float capture becomes exact integer authority. TWO DECIDED
+        RESULTS. (1) THE LCA IDENTITY — octree common-ancestor depth for Morton keys is the count of
+        LEADING agreeing 3-bit groups, because Morton hierarchy lives in the HIGH bits; a handed-down
+        draft used the 2-adic valuation (TRAILING zeros, ctz) which measures agreement from the
+        bottom of the tree where the octree has no hierarchy, and it is wrong on the MAJORITY of
+        pairs — for two leaf siblings it reports root divergence, so it is inverted rather than
+        imprecise. The zero case a == b is closed by an explicit branch because that is exactly where
+        x86 BSF is UNDEFINED and __builtin_ctz(0) is UB, and a voxel compared with itself is the
+        commonest case there is. (2) THE OVERFLOW THEOREM — on the lattice [-B,B]^3 the largest
+        intermediate exact-integer Akenine-Moller forms is attained by the PLANE test and equals
+        EXACTLY 4*B^3, decided exhaustively over every ordered triple at B = 1..5. The exponent is
+        CUBIC because the plane test is a triple product, not quadratic as a handed-down estimate
+        claimed by reading it off the nine edge tests; at city scale that estimate reports 57 bits
+        and "fits in uint64_t" where the decided law needs 84, which is the dangerous direction to be
+        wrong in — exact on small scenes, silently corrupt on a real city. Rows: scenes, law,
+        selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import voxlat as VX
+        except Exception as exc:
+            self.record("voxlat", False, f"import failed (voxlat): {exc}")
+            return
+        try:
+            ref_ok = all(VX.scene_result(n) == VX.golden(n) for n in VX.SCENES)
+        except Exception as exc:
+            self.record("voxlat:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("voxlat:scenes", ref_ok,
+                    "lca + ctz_plant + overflow + word reproduce URDRVOX1 digests"
+                    if ref_ok else "a voxlat scene drifted from its digest")
+        law_ok = True
+        try:
+            pairs, ok = VX.lca_census()
+            law_ok = (pairs == VX.CORPUS * (VX.CORPUS - 1) // 2 and ok == pairs)
+            law_ok = law_ok and VX.zero_case_is_closed() and VX.morton_is_bijective()
+            law_ok = law_ok and VX.law_is_four_b_cubed() and VX.growth_is_cubic()
+            law_ok = law_ok and all(VX.attained_max(B) == 4 * B ** 3 for B in VX.PINNED_BOUNDS)
+            law_ok = law_ok and VX.analytic_bound_is_loose()
+            law_ok = law_ok and VX.max_tile_coord_bits() == 20
+            law_ok = law_ok and VX.width_for(20) <= 64 < VX.width_for(21)
+        except Exception:
+            law_ok = False
+        self.record("voxlat-law", law_ok,
+                    "the octree LCA closed form agrees with an independent brute-force walk on every "
+                    "pair of the pinned corpus, with the zero case closed by an explicit branch "
+                    "rather than an intrinsic that is UNDEFINED at zero on x86; and the exact-integer "
+                    "Akenine-Moller overflow maximum is DECIDED EXHAUSTIVELY over every ordered "
+                    "triple at each pinned bound to be exactly 4*B^3 — cubic, because the dominant "
+                    "term is the plane test's triple product rather than the nine quadratic edge "
+                    "tests — with the provable 192*B^3 bound correct but 48x loose, which is why the "
+                    "constant had to be measured rather than derived, and with the 64-bit word "
+                    "DERIVING a maximum tile coordinate width of 20 bits rather than one being chosen"
+                    if law_ok else "the voxlat law did not hold")
+        red_ok = False
+        try:
+            _p, bad = VX.lca_census(_impl=VX._lca_by_ctz)
+            red_ok = bad < _p // 2
+            a, b = VX.morton(0, 0, 0), VX.morton(0, 0, 1)
+            red_ok = red_ok and VX.lca_depth(a, b) == VX.LEVELS - 1 and VX._lca_by_ctz(a, b) == 0
+            red_ok = red_ok and VX.quadratic_plant_underestimates()
+            red_ok = red_ok and VX._bound_by_quadratic(32000, 12) == 57
+            red_ok = red_ok and VX.city_scale_bits(32000, 12) == (84, False)
+            red_ok = red_ok and all(not VX.city_scale_bits(32000, k)[1] for k in (8, 12, 16))
+        except Exception:
+            red_ok = False
+        self.record("voxlat-selftest", red_ok,
+                    "both plants bite. The 2-adic form is correct on under half the corpus and "
+                    "INVERTS on the sharpest case — two leaf siblings differing in one bit are "
+                    "reported as diverging at the root — and the quadratic width estimate claims a "
+                    "57-bit fit inside uint64_t where the decided law needs 84, wrong in the "
+                    "direction that ships: invisible on small test scenes, silently corrupting on a "
+                    "real city, where the symptom is mis-adjudicated hits at long range that are "
+                    "indistinguishable from cheating; no choice of fractional precision rescues it"
+                    if red_ok else "a voxlat plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12431,6 +12509,7 @@ def main() -> int:
     gate.magicdiv()
     gate.cayley()
     gate.horn()
+    gate.voxlat()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
