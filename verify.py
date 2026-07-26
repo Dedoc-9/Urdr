@@ -9579,6 +9579,87 @@ class Gate:
                     "indistinguishable from cheating; no choice of fractional precision rescues it"
                     if red_ok else "a voxlat plant did not bite")
 
+    def geoquorum(self):
+        """Adversarial geometry submission (URDRGEO1), slice S4: admitting user-authored world
+        geometry against evidence the submitter does not control. voxlat makes quantization canonical
+        and a divergence bound would bound how far a render sits from its lattice, but BOTH defend
+        against ERROR and neither against INTENT — a submitter who thins a wall in the splat and
+        derives the lattice FROM the doctored splat has internal divergence ZERO, identical to an
+        honest one, so no bound computed from a submission alone can see it. The only evidence a liar
+        does not control is other people's captures of the same place, which is oobprior's structure
+        applied to geometry. THE QUORUM THEOREM, decided exhaustively: strict majority flips exactly
+        when c >= ceil(k/2); a first draft asserted floor(k/2)+1 and enumeration refused it, and the
+        corollary the wrong form hid is that an EVEN COHORT BUYS NOTHING. A second falsifier refused
+        MIN_COHORT = 3, inherited by analogy from oobprior: leave-one-out shrinks the reference to
+        k-1, so at k=3 ONE liar deadlocks the reference and FRAMES an honest contributor. Rows:
+        scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import geoquorum as GQ
+        except Exception as exc:
+            self.record("geoquorum", False, f"import failed (geoquorum): {exc}")
+            return
+        try:
+            ref_ok = all(GQ.scene_result(n) == GQ.golden(n) for n in GQ.SCENES)
+        except Exception as exc:
+            self.record("geoquorum:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("geoquorum:scenes", ref_ok,
+                    "blindness + threshold + plants + verdicts reproduce URDRGEO1 digests"
+                    if ref_ok else "a geoquorum scene drifted from its digest")
+        law_ok = True
+        try:
+            honest, liar, real = GQ.divergence_is_blind()
+            law_ok = (honest == liar == 0 and real)
+            law_ok = law_ok and GQ.threshold_is_ceil_half() and GQ.even_cohorts_buy_nothing()
+            law_ok = law_ok and GQ.lone_liar_flips_nothing() and GQ.lone_liar_cannot_frame()
+            law_ok = law_ok and [GQ.flip_threshold(k) for k in range(1, 10)] == [1,1,2,2,3,3,4,4,5]
+            law_ok = law_ok and GQ.MIN_COHORT == 5 and GQ.R_THIN != GQ.R_DEVIATE
+            v = tuple(range(3))
+            liars = [GQ.doctored(GQ._wall(3))] + [GQ._wall(3) for _ in range(GQ.MIN_COHORT - 1)]
+            law_ok = law_ok and GQ.adjudicate(liars, 0, v)[0] == GQ.R_DEVIATE
+            law_ok = law_ok and all(GQ.adjudicate(liars, i, v)[0] == GQ.R_ADMIT
+                                    for i in range(1, GQ.MIN_COHORT))
+            law_ok = law_ok and GQ.adjudicate([GQ._wall(3)] * (GQ.MIN_COHORT - 1), 0, v)[0] == GQ.R_THIN
+        except Exception:
+            law_ok = False
+        self.record("geoquorum-law", law_ok,
+                    "an honest capture and a self-consistent DOCTORED one have the SAME internal "
+                    "divergence (zero), so intent is invisible to any per-submission bound and only "
+                    "a cohort the submitter does not control can adjudicate it; strict-majority "
+                    "consensus flips exactly at ceil(k/2), DECIDED by enumeration over every (k,c) "
+                    "rather than derived, with the operational corollary that an even cohort has "
+                    "exactly the resistance of the odd one below it so the marginal submission is "
+                    "wasted; a lone liar flips nothing and — at MIN_COHORT = 5 — cannot frame an "
+                    "honest contributor either; and the doctored submitter is caught while every "
+                    "honest member of the same cohort is admitted, with sub-quorum blocks refused as "
+                    "THIN, a coverage verdict that is never counted as an integrity event"
+                    if law_ok else "the geoquorum law did not hold")
+        red_ok = False
+        try:
+            red_ok = all(GQ.flip_threshold(k, GQ._consensus_by_intersection) == 1 for k in range(1, 10))
+            red_ok = red_ok and GQ.union_fails_to_addition()
+            red_ok = red_ok and GQ.self_inclusion_lowers_the_bar()
+            red_ok = red_ok and GQ.self_inclusion_self_certifies()
+            red_ok = red_ok and GQ.three_would_have_framed_the_honest()
+            red_ok = red_ok and GQ.false_positive_threshold(3) == 1
+            red_ok = red_ok and [k // 2 + 1 for k in range(1, 10)] != [GQ.flip_threshold(k) for k in range(1, 10)]
+        except Exception:
+            red_ok = False
+        self.record("geoquorum-selftest", red_ok,
+                    "every plant bites, in a different direction each. INTERSECTION falls to ONE "
+                    "deleting liar at every cohort size — omit a wall and it vanishes for everyone; "
+                    "UNION falls to ONE adding liar — invent cover nobody else can see; "
+                    "SELF-INCLUSION, oobprior's own defect restated for geometry, self-certifies at "
+                    "a cohort of one and lowers the accomplice count in adjudication (measured "
+                    "through the verdict rather than through world consensus, where it would "
+                    "coincide with the law by construction and appear not to bite at all); the "
+                    "refuted closed form floor(k/2)+1 disagrees with the decided thresholds; and the "
+                    "refused MIN_COHORT = 3 is kept as a measured witness, where a false-positive "
+                    "threshold of 1 means a single liar frames an honest contributor"
+                    if red_ok else "a geoquorum plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12510,6 +12591,7 @@ def main() -> int:
     gate.cayley()
     gate.horn()
     gate.voxlat()
+    gate.geoquorum()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

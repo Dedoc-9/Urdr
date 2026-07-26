@@ -1,0 +1,65 @@
+# URDRGEO1 conformance — ADVERSARIAL GEOMETRY SUBMISSION: admitting user-authored world geometry
+# against evidence the submitter does not control. Slice S4. NO new glyph (kernel frozen).
+#
+# THE HOLE, stated exactly. voxlat (URDRVOX1) makes quantization canonical and a divergence bound
+# would bound how far a rendered splat sits from its collision lattice. Both defend against ERROR,
+# neither against INTENT: a submitter who thins a wall in the SPLAT and derives the lattice FROM the
+# doctored splat produces a pair whose internal divergence is ZERO. MEASURED — honest pair and
+# doctored pair both give divergence 0 while the lie is real. No bound computed from a submission
+# alone can separate them. This is not a threshold that needs tuning; it is a statement about what a
+# single submission can witness. Self-consistency is the one property a liar can always supply.
+#
+# THE ONLY EVIDENCE A LIAR DOES NOT CONTROL is other people's captures of the same place — which is
+# oobprior's structure (a reference with the judged party STRUCTURALLY EXCLUDED) applied to geometry
+# instead of latency. The composition with voxlat is literal: "the same place" is a Morton-prefix
+# predicate over that rung's LCA identity, an exact integer test rather than a spatial tolerance.
+#
+# THE QUORUM THEOREM, DECIDED EXHAUSTIVELY over every (k, c) with k <= 9: strict-majority consensus
+# flips exactly when c >= ceil(k/2). A first draft asserted floor(k/2)+1 and the enumeration REFUSED
+# it — the forms agree on odd k and differ on every even k, because a strict majority of 2j needs j+1
+# votes while 2j-1 needs only j. MEASURED thresholds k=1..9: 1,1,2,2,3,3,4,4,5.
+#   COROLLARY, operational: AN EVEN COHORT BUYS NOTHING. Cohort 4 has exactly cohort 3's resistance,
+#   6 has 5's. The marginal submission is wasted; recruit to ODD sizes. The wrong closed form would
+#   have hidden this — it predicts a strict gain at every step.
+#   A lone liar flips nothing at any cohort of 3 or more.
+#
+# WHY MAJORITY, argued by the pair of failures rather than by taste. UNION (admit anything anyone
+# claims) fails to ADDITION: one liar invents cover nobody else sees and knows where it is.
+# INTERSECTION (admit only what all claim) fails to DELETION: one liar omits a wall and it vanishes
+# for everybody — MEASURED threshold 1 at every cohort size. Majority resists both up to the decided
+# threshold. The third plant, _consensus_including_self, is oobprior's own defect restated for
+# geometry, and it bites in ADJUDICATION rather than in world consensus: MEASURED admit-thresholds
+# for k=3..9 are law 2,3,3,4,4,5,5 against self-inclusion 2,2,3,3,4,4,5 — one fewer accomplice on
+# exactly the even cohorts the corollary already calls wasteful. A first draft measured this plant
+# through the flip test, where it coincides with the law by construction and appeared not to bite;
+# measuring the wrong quantity is how a plant gets quietly retired, so the quantity is now the one
+# adjudication actually uses.
+#
+#   THE SETTING A FALSIFIER REFUSED. A first draft took MIN_COHORT = 3 by analogy with oobprior. The
+#   leave-one-out reference has k-1 members, so at k=3 an HONEST submitter is judged against a cohort
+#   of 2 — which ONE liar deadlocks, framing the honest contributor. MEASURED false-positive
+#   thresholds k=1..9: 0,1,1,2,2,3,3,4,4. MIN_COHORT is therefore 5, where two liars are needed to
+#   frame anyone and three to flip the world. Flagging honest people is the worse error in a system
+#   whose whole discipline is not inflating cheat counts, and this is the number that governs it.
+#   AN HONEST TENSION, surfaced rather than smoothed. World consensus reads all k and is strongest at
+#   ODD k; adjudication reads the leave-one-out reference of k-1 and is strongest at EVEN k. The two
+#   quantities do not want the same cohort size. Resolved by POLICY — odd k >= 5, strong on both —
+#   not by pretending one number serves both. the_two_optima_disagree decides that the tension is real.
+#
+# TWO REFUSAL CLASSES, KEPT DISTINCT AND COUNTED SEPARATELY. GEOQUORUM-THIN (fewer than MIN_COHORT=5
+# independent submissions cover this block) is coverage-or-refusal, the discipline pingpolicy already
+# uses, and is NOT an integrity finding. GEOQUORUM-DEVIATE is the integrity verdict. Conflating them
+# inflates cheat statistics the way the surveyed industry does — Escape from Tarkov's own Q1 2026
+# figures put only 54% of banned accounts as actually cheating.
+#
+# DECLARED: majority is a POLICY over the cohort, not a theorem about truth. It decides what the
+# cohort agrees on; nothing here knows the cohort is right.
+# does_not_show, and this is load-bearing: NO SYBIL RESISTANCE. k submissions from one person wearing
+# k identities defeat this completely, because the mechanism reasons about submissions and not about
+# people. Identity is a different subsystem; this rung does not touch it and would be dishonest to
+# claim it. Also does_not_show: that consensus matches the real city (the real city changes, and a
+# stale unanimous cohort is unanimously wrong); capture quality; cross-placement.
+blindness 301c91d3b80d31c75f9252470eb3dc4d385a467713a7d1267f9573a4c1fa6a43
+threshold 924a730e873c9fe02e004ab58fe26e01a0088ccb155792362ee4428b8df2076b
+plants 0eb6781005fa21e6739b252ac4982ad26fb685277b51e954c4e074eb5962f38a
+verdicts b806e5b1fa73e7084ceb12016c710d00f313608f0fd61bdf4cb3ee4c86a2b875
