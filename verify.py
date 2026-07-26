@@ -9660,6 +9660,85 @@ class Gate:
                     "threshold of 1 means a single liar frames an honest contributor"
                     if red_ok else "a geoquorum plant did not bite")
 
+    def disjoint(self):
+        """Structural commutation by Morton prefix-disjointness (URDRDSJ1) — TASK 58 HALF B, the
+        arc's oldest open item, made DECIDABLE by the lattice S1 built. commute/rannull/nway already
+        establish order-independence but PER INSTANCE, and horn's declared boundary (c) depends on
+        that check: replay from a sparse anchor is sound only if intervening operations commute.
+        Half B stayed open because "these two edits share no semantic authority" was a JUDGMENT
+        rather than a predicate; an edit's footprint is a set of Morton keys, two footprints occupy
+        disjoint subtrees exactly when their prefixes do not intersect, and a prefix is a shift. THE
+        POLARITY IS THE HAZARD: disjointness is lca_depth < level, NOT >= threshold — a deep common
+        ancestor means a SHARED subtree, i.e. overlap. That inversion has now appeared three times in
+        this arc and the plant measures it admitting 402 non-commuting pairs as safe. The predicate is
+        SUFFICIENT and NOT NECESSARY: ~80% of overlapping pairs commute anyway, so this converts the
+        common case into a proof and leaves the rest on the existing per-instance path. Rows: scenes,
+        law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import disjoint as DJ
+        except Exception as exc:
+            self.record("disjoint", False, f"import failed (disjoint): {exc}")
+            return
+        try:
+            ref_ok = all(DJ.scene_result(n) == DJ.golden(n) for n in DJ.SCENES)
+        except Exception as exc:
+            self.record("disjoint:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("disjoint:scenes", ref_ok,
+                    "soundness + incompleteness + polarity reproduce URDRDSJ1 digests"
+                    if ref_ok else "a disjoint scene drifted from its digest")
+        law_ok = True
+        try:
+            dn, dc, on, oc = DJ.census()
+            law_ok = (dn, dc) == (18144, 18144) and (on, oc) == (47922, 38640)
+            law_ok = law_ok and DJ.disjointness_is_sufficient()
+            law_ok = law_ok and DJ.law_admits_nothing_unsound() == 0
+            law_ok = law_ok and DJ.level_monotone()
+            st, pi, tot = DJ.split_of_the_work()
+            law_ok = law_ok and st + pi == tot and st > 0 and pi > 0
+            a = DJ.keys()[0]
+            law_ok = law_ok and not DJ.prefix_disjoint({a: 1}, {a: 0})
+        except Exception:
+            law_ok = False
+        self.record("disjoint-law", law_ok,
+                    "TASK 58 HALF B: prefix-disjointness implies commutation, DECIDED over every "
+                    "pair of the pinned edit family — 18144 disjoint pairs, 18144 commuting, zero "
+                    "exceptions and zero unsound admissions — which converts the arc's oldest open "
+                    "item from a per-instance judgment into one integer comparison per prefix, and "
+                    "so makes horn's replay boundary decidable rather than checked; the predicate is "
+                    "SUFFICIENT and NOT NECESSARY, with 38640 of 47922 overlapping pairs commuting "
+                    "anyway because same-value writes to a shared cell are order-independent, so "
+                    "this is a strict improvement that proves the common case and leaves every other "
+                    "case exactly where commute/rannull/nway already had it; and disjointness is "
+                    "MONOTONE in level, coarse implying fine, which makes the level a knob that is "
+                    "safe in the direction of more precision"
+                    if law_ok else "the disjoint law did not hold")
+        red_ok = False
+        try:
+            red_ok = DJ.inverted_predicate_is_unsound() == 402
+            a, b = DJ.keys()[0], DJ.keys()[1]
+            red_ok = red_ok and DJ._disjoint_by_lca_ge({a: 1}, {b: 0}) and not DJ.prefix_disjoint({a: 1}, {b: 0})
+            fam, wl = DJ.edit_family(), DJ.worlds()
+            from itertools import combinations as _c
+            red_ok = red_ok and any(not DJ.commutes(e1, e2, wl) for e1, e2 in _c(fam[:200], 2))
+            flat = [dict.fromkeys(p, 1) for p in _c(DJ.keys()[:8], 2)]
+            red_ok = red_ok and all(DJ.commutes(e1, e2, wl) for e1, e2 in _c(flat, 2))
+        except Exception:
+            red_ok = False
+        self.record("disjoint-selftest", red_ok,
+                    "the INVERTED predicate — reading a deep common ancestor as independence — "
+                    "admits exactly 402 NON-COMMUTING pairs as structurally safe, which is unsound "
+                    "in the direction that ships because it licenses precisely the replays that "
+                    "corrupt state; this is the THIRD appearance of that polarity inversion in the "
+                    "arc, so it is pinned as a hazard class rather than corrected quietly. And the "
+                    "VACUOUS FAMILY is pinned beside it: single-valued edits commute unconditionally, "
+                    "so a census built on them would have confirmed ANY predicate including the "
+                    "inverted one — conflict has to be constructible or a commutation census is "
+                    "theatre, and the pinned family is checked to contain genuinely conflicting pairs"
+                    if red_ok else "a disjoint plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12592,6 +12671,7 @@ def main() -> int:
     gate.horn()
     gate.voxlat()
     gate.geoquorum()
+    gate.disjoint()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

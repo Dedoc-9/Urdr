@@ -1,0 +1,56 @@
+# URDRDSJ1 conformance — STRUCTURAL COMMUTATION BY MORTON PREFIX-DISJOINTNESS. Task 58 Half B, made
+# decidable by the lattice S1 built. NO new glyph (kernel frozen).
+#
+# WHAT HALF B WAS WAITING FOR. commute (URDRCMU1), rannull (RAN-0) and nway (URDRNWY1) establish
+# order-independence PER INSTANCE — each pair of edits is checked. horn's declared boundary (c)
+# depends on that check: replay from a sparse anchor is sound only if intervening operations commute,
+# and under a user-authored city that is where order is least controlled. Half B stayed open because
+# "these two edits share no semantic authority" was a JUDGMENT rather than a predicate. The integer
+# voxel lattice turns it into arithmetic: an edit's footprint is a set of Morton keys, two footprints
+# occupy disjoint subtrees exactly when their level-L prefixes do not intersect, and a prefix is a
+# shift. One integer comparison per prefix.
+#
+# THE THEOREM (SOUNDNESS), DECIDED EXHAUSTIVELY over every pair of the pinned edit family:
+#   18144 prefix-disjoint pairs, 18144 commuting, 0 exceptions. Prefix-disjoint => COMMUTES.
+#
+# THE POLARITY, WHICH IS WHERE THIS KEEPS GOING WRONG. Disjointness is lca_depth < level, NOT
+# lca_depth >= threshold. A HIGH common-ancestor depth means a DEEP SHARED prefix, hence the SAME
+# subtree, hence OVERLAP. A handed-down statement had the comparison inverted; _disjoint_by_lca_ge
+# keeps that form and MEASURED it admits 402 NON-COMMUTING pairs as structurally safe — unsound in
+# the direction that ships, licensing exactly the replays that corrupt state. This is the THIRD
+# appearance of this inversion in the arc (the 2-adic LCA form in voxlat, the "collision-relevant
+# proximity" predicate in a handed-down framework, and this), which is enough repetitions to treat the
+# polarity as a hazard class rather than three unrelated slips. The law admits 0.
+#
+# THE BOUNDARY, MEASURED RATHER THAN GLOSSED: SUFFICIENT and NOT NECESSARY. Of 47922 overlapping
+# pairs, 38640 — about 80% — commute anyway, because two edits writing the SAME value to a shared cell
+# are order-independent regardless. Prefix-disjointness is therefore a SOUND but INCOMPLETE test and
+# the incompleteness is large. Stating it as an equivalence would be false; stating only the soundness
+# would hide that four fifths of overlapping cases remain recoverable by the existing per-instance
+# check. The honest split:
+#     prefix-disjoint  -> commutes BY CONSTRUCTION, no check, defect zero
+#     overlapping      -> falls through to commute/rannull/nway, unchanged
+# which is why this is a strict improvement rather than a replacement: it converts the common case
+# into a proof and leaves the rest exactly where it was. MEASURED split of the pinned family:
+# 18144 structural / 47922 per-instance of 66066 pairs.
+#
+# LEVEL MONOTONICITY, decided by enumeration with 0 counterexamples: disjointness at a COARSE level
+# implies disjointness at every FINER level, since a coarse prefix is a prefix of a fine one. A coarse
+# level is therefore the CONSERVATIVE choice — it admits fewer pairs and never a wrong one — so
+# raising the level recovers precision without risking soundness. That is the right direction for a
+# knob to be safe in.
+#
+# A FIRST DRAFT'S VACUOUS MEASUREMENT, recorded because it nearly passed. The edit family originally
+# wrote a single value, under which EVERY pair commutes trivially and the census proved nothing at all
+# (it reported 100% commutation for both branches and would have "confirmed" any predicate whatsoever,
+# including the inverted one). Conflict has to be CONSTRUCTIBLE or a commutation census is theatre.
+# The family now carries values, so two edits can genuinely disagree on a shared cell.
+#
+# DECLARED: the edit model is last-writer-wins occupancy writes over a 2-level lattice — a bounded
+# model, decided completely within its bounds; extension to richer edit semantics is NOT claimed.
+# does_not_show: commutation for edits that are not pure writes (read-modify-write, transactional
+# groups); anything about WHEN edits arrive (lagcomp/horn's territory); that overlapping edits fail to
+# commute — measured, they mostly do; cross-placement.
+soundness 6162f15a76e5810ebfa73deb16961451b799abfa7f2cbcdf294e58bcb7e8e553
+incompleteness eee3cb37756a62baf9c018d3a3e90294d6759a33af3453806de755dac229c546
+polarity ff9ded02ea4331155287539cf612c1208ce79e95ff0971ef404eda169a11561e
