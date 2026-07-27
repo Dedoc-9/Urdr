@@ -10118,6 +10118,71 @@ class Gate:
                     "handed-down bound itself"
                     if red_ok else "an ashdepth plant did not bite")
 
+    def syntaxclean(self):
+        """EVERY Python file in the tree must compile with no invalid-escape warning — a check that
+        exists because its absence produced a real DET=DIFFER on a clean machine while this container
+        stayed byte-identical. The mechanism is worth stating because it is the nastiest shape a
+        nondeterminism takes: an invalid escape sequence such as a bare backslash-space in a docstring
+        raises a warning AT COMPILE TIME ONLY. Run one compiles the module and emits it to stderr;
+        run two finds a warm __pycache__, does not compile, and stays silent. The two runs therefore
+        differ by exactly the warning text, and the difference is invisible to anyone whose cache was
+        already warm — which is every developer who has run the file once, and no one who clones
+        fresh. It is also VERSION-DEPENDENT: Python 3.11 emits DeprecationWarning (hidden by default)
+        while 3.12+ emits SyntaxWarning (shown), so a tree can be clean on one interpreter and
+        nondeterministic on another. This check matches on the WARNING MESSAGE rather than its
+        category so it is portable across both, and it uses compile() on source text so it never
+        touches the bytecode cache and cannot itself be warmed into silence. Rows: clean, selftest."""
+        import warnings as _warnings
+        offenders = []
+        try:
+            for dirpath, dirnames, filenames in os.walk(ROOT):
+                dirnames[:] = [d for d in dirnames if d not in ("__pycache__", ".git", "target")]
+                for fn in sorted(filenames):
+                    if not fn.endswith(".py"):
+                        continue
+                    fp = os.path.join(dirpath, fn)
+                    try:
+                        with open(fp, encoding="utf-8") as fh:
+                            src = fh.read()
+                    except Exception:
+                        continue
+                    rel = os.path.relpath(fp, ROOT).replace(os.sep, "/")
+                    with _warnings.catch_warnings(record=True) as caught:
+                        _warnings.simplefilter("always")
+                        try:
+                            compile(src, rel, "exec")
+                        except SyntaxError as exc:
+                            offenders.append(f"{rel}: SyntaxError {exc}")
+                            continue
+                        for c in caught:
+                            if "invalid escape sequence" in str(c.message):
+                                offenders.append(f"{rel}: {c.message}")
+        except Exception as exc:
+            offenders.append(f"walk failed: {exc}")
+        self.record("syntax-clean", not offenders,
+                    "every .py in the tree compiles with no invalid escape sequence, so no module "
+                    "can emit a compile-time warning on its FIRST run and stay silent on its second "
+                    "— the shape of nondeterminism a warm __pycache__ hides from everyone whose "
+                    "cache is already warm and shows to everyone who clones fresh; matched on the "
+                    "warning MESSAGE rather than its category, because 3.11 files it as a hidden "
+                    "DeprecationWarning and 3.12+ as a visible SyntaxWarning, so a tree can be clean "
+                    "on one interpreter and split its gate runs on another"
+                    if not offenders else "invalid escape sequences: " + "; ".join(offenders[:4]))
+        red_ok = False
+        try:
+            with _warnings.catch_warnings(record=True) as caught:
+                _warnings.simplefilter("always")
+                compile('"""a docstring with a bare \\ backslash-space escape"""\n', "<plant>", "exec")
+                red_ok = any("invalid escape sequence" in str(c.message) for c in caught)
+        except Exception:
+            red_ok = False
+        self.record("syntax-clean-selftest", red_ok,
+                    "a planted bare backslash-space in a docstring IS detected by this very check, "
+                    "so the clean result above is a measurement and not an empty scan — the fifth "
+                    "vacuity lesson applied to the checker itself, since a scanner that can never "
+                    "fire reports a clean tree and an absent tree identically"
+                    if red_ok else "the planted invalid escape was not detected")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -13056,6 +13121,7 @@ def main() -> int:
     gate.frontier()
     gate.membrane()
     gate.ashdepth()
+    gate.syntaxclean()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

@@ -40,7 +40,7 @@ HOLDS on 63 of 63 tested (P, O) pairs. The abstraction is SOUND (P <= gamma(alph
 (alpha(gamma(O)) <= O) and NOT COMPLETE (gamma(alpha(P)) != P), with measured precision loss
 65, 207, 268, 256, 226 across the sampled P.
 
-THAT PRECISION LOSS IS NOT AN ERROR MARGIN. The set `gamma(alpha(P)) \ P` IS the obligation set — the
+THAT PRECISION LOSS IS NOT AN ERROR MARGIN. The set `gamma(alpha(P)) MINUS P` IS the obligation set — the
 sound over-approximation the abstraction needs in order to stay authoritative WITHOUT doing proof
 work. Calling the frontier a gap, a leak or an operational failure misreads an order-theoretic
 over-approximation as a defect. It is the headroom, it is counted, and counting it is what the
