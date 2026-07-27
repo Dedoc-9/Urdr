@@ -10183,6 +10183,83 @@ class Gate:
                     "fire reports a clean tree and an absent tree identically"
                     if red_ok else "the planted invalid escape was not detected")
 
+    def recirc(self):
+        """Re-entrant recirculation on the Galois frontier (URDRRCC1). The proposal — recirculate
+        discarded states structurally as P_{t+1} = P_t U (gamma_k(alpha_k(P_t)) \\ P_t) rather than
+        queueing them with counters and decorators — is right as an idea, and TWO CLAIMS ATTACHED TO
+        IT BOTH INVERT. (1) The union is redundant because the abstraction is extensive, so the step
+        is just gamma.alpha, which is a CLOSURE OPERATOR and therefore IDEMPOTENT BY THE ADJUNCTION:
+        the iteration converges in at most ONE step for every input, so the step count is a constant
+        and cannot be the S2 defect. (2) More seriously, the closure is COARSER than its input, so
+        distinct captures COLLAPSE onto a shared fixed point — measured 400 raw sets to 5 fixed
+        points, and an honest capture collides with a doctored one that dropped a single obligation.
+        Fixed-point equality is a STRICTLY WEAKER integrity check than raw equality and would have
+        raised false negatives on exactly the omission attack geoquorum exists to catch. THE SALVAGE:
+        refining the LEVEL when the iteration stalls is genuinely multi-step and bounded by the level
+        ladder rather than the cell count. Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import recirc as RC
+        except Exception as exc:
+            self.record("recirc", False, f"import failed (recirc): {exc}")
+            return
+        try:
+            ref_ok = all(RC.scene_result(n) == RC.golden(n) for n in RC.SCENES)
+        except Exception as exc:
+            self.record("recirc:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("recirc:scenes", ref_ok,
+                    "closure + collapse + plants + salvage reproduce URDRRCC1 digests"
+                    if ref_ok else "a recirc scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = RC.is_extensive() and RC.is_monotone() and RC.is_idempotent()
+            law_ok = law_ok and RC.converges_in_at_most_one_step()
+            law_ok = law_ok and RC.step_counts() == (1, 1, 1, 1, 1, 1, 0, 0)
+            law_ok = law_ok and RC.collapse_census() == (400, 5)
+            law_ok = law_ok and RC.fixed_point_is_a_weaker_check()
+            law_ok = law_ok and RC.refinement_steps_are_level_bounded() and RC.refinement_is_total()
+            for P in RC._samples()[:4]:
+                fp, steps, lv = RC.refine_to_fixed_point(P)
+                law_ok = law_ok and RC.closure(fp, RC.FAMILY, lv) == fp and steps > 0
+        except Exception:
+            law_ok = False
+        self.record("recirc-law", law_ok,
+                    "the recirculation step simplifies to gamma.alpha because the abstraction is "
+                    "extensive, and gamma.alpha of a Galois connection is a CLOSURE OPERATOR — "
+                    "extensive, monotone and IDEMPOTENT — so the Kleene iteration reaches its fixed "
+                    "point in at most ONE step for every input, measured 1,1,1,1,1,1,0,0 over the "
+                    "pinned ladder; idempotence here is a theorem of the adjunction rather than a "
+                    "property of any capture. The salvage is real and separate: refining the LEVEL "
+                    "when the iteration stalls IS genuinely multi-step, halts by construction on a "
+                    "finite level ladder rather than by a timeout, and is bounded by the number of "
+                    "levels rather than by the cell count — a bound of size three rather than of "
+                    "size |cells|, which is the difference between a real bound and a wrong-order one"
+                    if law_ok else "the recirc law did not hold")
+        red_ok = False
+        try:
+            red_ok = RC.step_count_is_constant()
+            red_ok = red_ok and {RC._step_count_as_defect(P) for P in RC._samples()} <= {0, 1}
+            raw_differ, collide = RC.doctored_collides_with_honest()
+            red_ok = red_ok and raw_differ and collide
+            red_ok = red_ok and RC.raw_equality_sees_what_the_closure_cannot()
+            raw, fixed = RC.collapse_census()
+            red_ok = red_ok and raw > 1 and fixed < raw
+        except Exception:
+            red_ok = False
+        self.record("recirc-selftest", red_ok,
+                    "both plants bite, and the second one is the reason this is a rung rather than a "
+                    "note. The step-count-as-defect plant returns 0 or 1 for every input in the "
+                    "universe, so as a defect measure it does not vary with what it measures. The "
+                    "fixed-point-as-integrity plant CONFLATES an honest capture with a doctored one "
+                    "that quietly dropped a single obligation — their raw sets differ and their "
+                    "closures are identical — so adopting it would have raised false negatives on "
+                    "precisely the omission attack geoquorum exists to catch, an elegance that costs "
+                    "detection; the collapse census is checked non-vacuous first, since a census over "
+                    "identical inputs would report a collapse that is only a lack of variety"
+                    if red_ok else "a recirc plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -13122,6 +13199,7 @@ def main() -> int:
     gate.membrane()
     gate.ashdepth()
     gate.syntaxclean()
+    gate.recirc()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

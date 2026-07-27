@@ -1,0 +1,49 @@
+# URDRRCC1 conformance — RE-ENTRANT RECIRCULATION ON THE GALOIS FRONTIER. NO new glyph.
+#
+# THE PROPOSAL, which is right as an idea: rather than queueing discarded states back to the head of a
+# stream with generation counters and decorators, recirculate them structurally as a fixed-point
+# iteration on the frontier,  P_{t+1} = P_t UNION (gamma_k(alpha_k(P_t)) MINUS P_t).  No counters, no
+# decorators, no external tracking. Two claims were attached to it and BOTH INVERT under measurement,
+# and one of them would have made the system LESS safe while looking more principled.
+#
+# WHY THE ITERATION IS ONE STEP, ALWAYS. The union is redundant because the abstraction is extensive
+# (that is soundness), so the step is just P_{t+1} = gamma(alpha(P_t)). But gamma.alpha of a Galois
+# connection is a CLOSURE OPERATOR — extensive, monotone, IDEMPOTENT — and idempotence is a theorem of
+# the adjunction, not a property of the data. MEASURED: extensive True, monotone True, idempotent True;
+# step counts over the eight pinned inputs 1,1,1,1,1,1,0,0.
+#
+#   CONSEQUENCE 1, REFUTED. "The iteration count to convergence IS the S2 defect — one step means zero
+#   quantization instability, N steps means ambiguity in exactly N cells." The step count is a
+#   CONSTANT: 1 for any set not already closed, 0 for any set that is, depending on nothing about the
+#   capture. A metric that does not vary with what it measures cannot measure it. The attained maximum
+#   is not available for free; it still has to be measured exactly as S2 says.
+#
+#   CONSEQUENCE 2, REFUTED AND DANGEROUS. "The fixed point IS the digest — two honest captures converge
+#   to the same P*, so fraud detection becomes a fixed-point equality check." The closure is COARSER
+#   than its input, so distinct captures COLLAPSE onto a shared fixed point. MEASURED: 400 distinct raw
+#   capture-sets collapse to 5 distinct fixed points. And on the case that matters, an honest capture
+#   and a doctored one with a single obligation quietly dropped have DIFFERENT raw sets and the SAME
+#   closure. Fixed-point equality is therefore a STRICTLY WEAKER integrity check than raw-lattice
+#   equality, and adopting it would have RAISED FALSE NEGATIVES on precisely the omission attack
+#   geoquorum exists to catch. An elegance that costs detection. This is the most important measurement
+#   here and the reason this is a rung rather than a note.
+#
+# THE SALVAGE, WHICH IS REAL. At a FIXED level the iteration is one step; an iteration that REFINES the
+# level when it stalls is genuinely multi-step, and its step count reports how far the abstraction had
+# to be refined before it distinguished enough. It is bounded by the LEVEL LADDER — not by the cell
+# count, which would be a bound of the wrong order entirely — floors at ashdepth's k_min (below which
+# the abstraction is silent) and ceilings at the finest level. So "guaranteed termination without a
+# timeout heuristic" is true, but it comes from a finite level ladder rather than from the finiteness
+# of the tile, and that distinction is the difference between a bound of size 3 and a bound of size
+# |cells|.
+#
+# DECLARED: the abstraction is disjoint's block-prefix footprint over a bounded edit model, inherited.
+# does_not_show: that the refinement ladder's step count is a USEFUL quality metric — it is well-defined
+# and bounded, which is strictly less than useful; anything about float capture, since this operates on
+# the already-quantized pair domain; that raw-lattice equality is itself sufficient for fraud detection
+# (it is not — that is geoquorum, and the only claim here is that the closure is WEAKER than it);
+# cross-placement.
+closure 1c21a9805de623bc80493b7d327075fe755c3c2b19a771492a5aa33b4a965ea3
+collapse c6c03f129982b01a702a7f04a3b6750a26f56302ad7e345b7363b42e96f7b520
+plants d4b1fbbc075b5c4cd34880c29223debc20e9ac8ccef795a42324084fbb26ac46
+salvage 278dde0d9a40bd59bfeb3609432fe04f14b0f648ec7c0ea8fb1aa87f96a6b88f
