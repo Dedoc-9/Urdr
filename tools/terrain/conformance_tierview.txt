@@ -1,0 +1,39 @@
+# URDRTVW1 conformance — VISUAL ASYMMETRY, ZERO BY CONSTRUCTION. Slice S6. NO new glyph.
+#
+# THE HANDED-DOWN MEASURE IS THE WRONG QUANTITY, IN BOTH DIRECTIONS. A framework proposed bounding
+# tier asymmetry by per-pixel LUMINANCE DELTA. Refuted by construction and MEASURED:
+#   (a) a uniform tint shifts 36 of 36 pixels and yields defect 0 — large delta, zero asymmetry;
+#   (b) culling ONE occluder cell shifts 1 cell's worth of pixels and yields defect 3 — small delta,
+#       real asymmetry: one client can shoot someone the other cannot see.
+# Information asymmetry is about WHAT IS RESOLVABLE, never about pixel values. The defect is therefore
+# a SET DIFFERENCE over lattice cells, |Vis_high XOR Vis_low|, exact integer.
+#
+# THE RESOLUTION IS STRONGER THAN A BOUND. C2 says authority lives in the integer lattice and the
+# splat is a skin; applied to VISIBILITY rather than collision that says BOTH TIERS QUERY ONE
+# AUTHORITATIVE PREDICATE. The asymmetry is then not bounded but ZERO, because there is only one
+# answer to be had. MEASURED over every observer on both pinned walls and every ordered tier pair:
+# defect 0. `visible` takes no tier argument and cannot take one, so the decoupling is STRUCTURAL —
+# a signature, not a discipline — checked the way horn._honest_band is checked.
+# S6 therefore stops being a measurement problem and becomes an ENFORCEMENT problem with a one-line
+# falsifier: find any authority path that reads the render. _visible_by_tier is that path, and
+# MEASURED it costs 1152 cells of asymmetry across the same census.
+#
+# AND IT REFUSES, IT DOES NOT WARN. The handed-down framework logged an exceeded bound and admitted
+# the content anyway ("visual asymmetry is a warning, not a refusal"). In a competitive shooter that
+# is the one place refusal is mandatory: a tier pair resolving different cells is not a cosmetic
+# difference, it is an unequal game. adjudicate_pair returns TIERVIEW-ASYMMETRIC.
+#
+# The visibility predicate is deliberately the arc's existing shape: integer supercover from observer
+# to target, refused if any lattice cell strictly between them is occupied — exact integers, no
+# tolerance, the discipline hitbox._on_ray already uses. This does not re-derive perception (URDRPCP1);
+# it composes the same idea at lattice granularity so the defect has a codomain to live in.
+#
+# DECLARED: the tier model is a culling fraction over occupancy, a bounded model decided completely
+# within its bounds. Richer tier semantics are NOT claimed — though the argument is unchanged for any
+# of them, because it is about WHO ANSWERS rather than about how the answer looks.
+# does_not_show: audio asymmetry (same argument, not made here); frame timing; what the client CHOOSES
+# to draw once the server has answered — the claim is that the AUTHORITATIVE answer is tier-independent,
+# not that two screens look alike; cross-placement.
+zero 32d8e7e005d65cfa5c1988ea4424da462e443418e639f4eea14a9bf0a3a86199
+plant b7701d83ac4ed91feb3e7595f6b5b3ddbdfefcc16de24bacaee08e6a97133836
+wrong_quantity cb0f8561c6660197aabe0c167ab61fddd3ac16a151bac516b8abbd13cb3b2ad9

@@ -9739,6 +9739,143 @@ class Gate:
                     "theatre, and the pinned family is checked to contain genuinely conflicting pairs"
                     if red_ok else "a disjoint plant did not bite")
 
+    def tierview(self):
+        """Visual asymmetry, ZERO BY CONSTRUCTION (URDRTVW1), slice S6. A handed-down framework
+        proposed bounding tier asymmetry by per-pixel LUMINANCE DELTA; that is the wrong quantity in
+        BOTH directions, measured here — a uniform tint shifts every pixel and yields defect 0, while
+        culling ONE occluder cell shifts almost no pixels and yields a real defect, i.e. one client
+        can shoot someone the other cannot see. Information asymmetry is about WHAT IS RESOLVABLE, so
+        the defect is a SET DIFFERENCE over lattice cells. And the resolution is stronger than a
+        bound: C2's principle applied to visibility says BOTH TIERS QUERY ONE AUTHORITATIVE
+        PREDICATE, so the defect is ZERO rather than budgeted. `visible` takes no tier argument and
+        cannot, which makes the decoupling STRUCTURAL. Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import tierview as TV
+        except Exception as exc:
+            self.record("tierview", False, f"import failed (tierview): {exc}")
+            return
+        try:
+            ref_ok = all(TV.scene_result(n) == TV.golden(n) for n in TV.SCENES)
+        except Exception as exc:
+            self.record("tierview:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("tierview:scenes", ref_ok,
+                    "zero + plant + wrong_quantity reproduce URDRTVW1 digests"
+                    if ref_ok else "a tierview scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = TV.defect_is_zero() and TV.census() == 0
+            law_ok = law_ok and TV.decoupling_is_structural()
+            occ = TV.walls()[0]
+            law_ok = law_ok and TV.adjudicate_pair((0, 0), occ, "low", "high")[0] == TV.R_ADMIT
+            law_ok = law_ok and not TV.visible((0, 0), (4, 0), frozenset({(2, 0)}))
+            law_ok = law_ok and TV.visible((0, 0), (4, 4), frozenset({(2, 0)}))
+        except Exception:
+            law_ok = False
+        self.record("tierview-law", law_ok,
+                    "the authoritative visibility predicate takes NO tier argument, so the asymmetry "
+                    "between quality tiers is ZERO by construction rather than bounded by a budget — "
+                    "decided over every observer on both pinned walls and every ordered tier pair — "
+                    "and the decoupling is STRUCTURAL rather than disciplinary, checked by signature "
+                    "the way horn checks its view band; S6 is therefore an ENFORCEMENT problem with a "
+                    "one-line falsifier (find an authority path that reads the render) rather than a "
+                    "measurement problem with a calibrated epsilon"
+                    if law_ok else "the tierview law did not hold")
+        red_ok = False
+        try:
+            red_ok = TV.plant_defect() == 1152
+            r, d = TV.adjudicate_pair((0, 0), TV.walls()[0], "low", "high", TV.GRID,
+                                      TV._visible_by_tier)
+            red_ok = red_ok and r == TV.R_ASYMMETRIC and d > 0
+            (td, tdef), (cd, cdef) = TV.luminance_delta_is_the_wrong_quantity()
+            red_ok = red_ok and td > cd and tdef == 0 and cdef > 0
+        except Exception:
+            red_ok = False
+        self.record("tierview-selftest", red_ok,
+                    "a tier-reading authority path costs 1152 cells of asymmetry across the same "
+                    "census the law scores zero on, and is REFUSED rather than warned about because a "
+                    "tier pair resolving different cells is an unequal game and not a cosmetic "
+                    "difference; and the handed-down luminance measure is refuted in BOTH directions "
+                    "at once — a uniform tint shifts every pixel for zero asymmetry, while culling "
+                    "one occluder shifts almost none and produces real asymmetry, so the measure is "
+                    "neither sound nor complete for the thing it claimed to bound"
+                    if red_ok else "a tierview plant did not bite")
+
+    def provbind(self):
+        """Admissibility as a BOUND typed refusal (URDRPRV1), slice S3. This resolves no legal
+        question — the surveyed surface is genuinely fragmented and needs a lawyer — but it makes the
+        answer ENFORCEABLE. Two defects in the handed-down design, both fatal: the certificate was
+        DETACHABLE (its digest hashed only metadata, so a permissive certificate could be lifted onto
+        a restricted capture — measured succeeding), and the design CONTRADICTED ITSELF, claiming
+        'decidable at serve time, no external lookup' while calling a live distance lookup whose
+        answer differs between serves. The law binds H(cert | lattice_digest) with the lattice digest
+        recomputed at serve time, and evaluates the buffer ONCE AT CAPTURE and carries it as a field.
+        Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import provbind as PV
+        except Exception as exc:
+            self.record("provbind", False, f"import failed (provbind): {exc}")
+            return
+        try:
+            ref_ok = all(PV.scene_result(n) == PV.golden(n) for n in PV.SCENES)
+        except Exception as exc:
+            self.record("provbind:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("provbind:scenes", ref_ok,
+                    "binding + verdicts + lookup reproduce URDRPRV1 digests"
+                    if ref_ok else "a provbind scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = PV.binding_defeats_the_lift() and PV.classes_are_distinct()
+            law_ok = law_ok and PV.lift_attack() == (False, PV.R_UNBOUND)
+            lat = PV.lattices()["block_a"]
+            base = PV.corpus()["public_domain"]
+            b = PV.bound_digest(base, lat)
+            for i, alt in ((0, "FR"), (1, "k12_school"), (2, "ODbL"), (3, 5), (4, False)):
+                c = list(base); c[i] = alt
+                law_ok = law_ok and PV.bound_digest(tuple(c), lat) != b
+            res = PV.corpus()["residence"]
+            bres = PV.bound_digest(res, lat)
+            law_ok = law_ok and all(PV.adjudicate(res, lat, bres, r) == PV.R_CONSENT
+                                    for r in ("US", "FR", "XX"))
+            law_ok = law_ok and PV.adjudicate(base, lat, b, "US") == PV.R_ADMIT
+            law_ok = law_ok and PV.adjudicate(base, lat, b, "FR") == PV.R_JURISDICTION
+            law_ok = law_ok and PV.adjudicate(base, lat, b, "XX") == PV.R_JURISDICTION
+            law_ok = law_ok and len({PV.adjudicate(base, lat, b, "US") for _ in range(8)}) == 1
+        except Exception:
+            law_ok = False
+        self.record("provbind-law", law_ok,
+                    "the provenance certificate is BOUND to the geometry it certifies by "
+                    "H(cert | lattice_digest) with the lattice digest recomputed at serve time, so "
+                    "the binding cannot be asserted by whoever supplied it, and every carried field "
+                    "including the capture-time buffer distance changes the commitment; the three "
+                    "refusal classes stay distinct and all reachable — UNBOUND is an integrity event, "
+                    "CONSENT refuses everywhere, and JURISDICTION is a property of the REQUEST so the "
+                    "same block lawfully admits for one viewer and refuses for another — with an "
+                    "unlisted region refusing rather than defaulting open, and the verdict stable "
+                    "across repeated serves because nothing is looked up"
+                    if law_ok else "the provbind law did not hold")
+        red_ok = False
+        try:
+            m, v = PV.lift_attack(_digest=PV._digest_metadata_only)
+            red_ok = m and v == PV.R_ADMIT
+            red_ok = red_ok and PV.live_lookup_is_unstable()
+        except Exception:
+            red_ok = False
+        self.record("provbind-selftest", red_ok,
+                    "both plants bite. The metadata-only digest — the handed-down form — matches a "
+                    "DIFFERENT block's geometry, so a permissive certificate lifted off a "
+                    "public-domain block and stapled to a restricted capture is ADMITTED, which is "
+                    "the whole attack; and the serve-time distance lookup returns different verdicts "
+                    "for the same block on successive serves, refuting the design's own claim to be "
+                    "decidable at serve time without external lookup — the carried-field path gives "
+                    "one answer across every serve"
+                    if red_ok else "a provbind plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12672,6 +12809,8 @@ def main() -> int:
     gate.voxlat()
     gate.geoquorum()
     gate.disjoint()
+    gate.tierview()
+    gate.provbind()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

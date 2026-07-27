@@ -1,0 +1,43 @@
+# URDRPRV1 conformance — ADMISSIBILITY AS A BOUND TYPED REFUSAL. Slice S3. NO new glyph.
+#
+# This rung resolves no legal question and could not; the surveyed surface is genuinely fragmented
+# (France non-commercial panorama only, Italy authorization for cultural goods, Greece occasional
+# media only, Belgium full commercial, and no statute anywhere says whether a 3D mesh is the same act
+# as a photograph). What it does is make the ANSWER ENFORCEABLE: a block carries provenance and the
+# server refuses to serve it where that provenance is inadmissible, as a TYPED REFUSAL rather than as
+# moderation policy.
+#
+# TWO DEFECTS IN THE HANDED-DOWN DESIGN, both fatal, both one line to fix.
+#  (1) THE CERTIFICATE WAS DETACHABLE. The proposed digest hashed only metadata, binding nothing to
+#      the geometry. MEASURED: lifting the permissive certificate's binding from block_a and
+#      presenting it with block_b's geometry gives (binding_matches=True, verdict=ADMIT) against the
+#      metadata-only plant and (False, PROVBIND-UNBOUND) against the bound digest. The law is
+#      H(MAGIC | cert | lattice_digest) with the lattice digest RECOMPUTED at serve time, so the
+#      binding cannot be asserted by whoever supplied it. The law is stated so it can be false: it
+#      requires the lift to SUCCEED against the plant AND fail against the law, so it cannot pass
+#      vacuously.
+#  (2) IT CONTRADICTED ITS OWN CLAIM. The stated property was "decidable at serve time from embedded
+#      provenance, no external lookup" and the check then called distance_to_nearest_school() — an
+#      external lookup on the hot path whose answer can differ between two serves of the same block.
+#      MEASURED: the carried-field path gives one verdict across repeated serves, the live-lookup
+#      plant gives more than one. The buffer test is evaluated ONCE AT CAPTURE TIME and carried as a
+#      field, which makes the claim true instead of aspirational and puts the buffer inside the
+#      digest's commitment.
+#
+# THREE REFUSAL CLASSES, KEPT DISTINCT because they mean different things to a contributor and must
+# never share a counter: PROVBIND-UNBOUND (the certificate does not belong to this geometry — an
+# integrity event), PROVBIND-CONSENT (inadmissible anywhere), PROVBIND-JURISDICTION (admissible
+# somewhere, not here — the only class that is a property of the REQUEST rather than the block, so
+# the same block legitimately admits for one viewer and refuses for another). All three are reachable
+# from the pinned corpus; a class no input can produce is decoration.
+#
+# DECLARED: the exclusion set (private residences, K-12 schools, cemeteries, active farmland) and the
+# 40 m residence buffer are imported from Niantic Wayfarer and its 2019 trespass settlement, and the
+# commercial-permission table is a policy import. Chosen, not derived. The mechanism is the
+# contribution; the contents need a lawyer.
+# does_not_show: that any refusal set is legally sufficient — this is a constraint surface, not
+# advice; whether a 3D reproduction is the same act as a photograph anywhere (untested); identity of
+# the contributor (untouched here, exactly as geoquorum declares); cross-placement.
+binding cdc8873c5a7373b97b02b2f236be14b1a023d6ef20d84a8cc8b1b91f873f17a5
+verdicts 026a29586302b5888dc201bc698c32f69778c32facac04b346aa5e8c4e4e7eac
+lookup 7c1b10429a90e94d72dfdd38ba00fdaa2c0d6233d4d2e93baa0b842eebf5ec8e
