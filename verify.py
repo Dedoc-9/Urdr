@@ -9957,6 +9957,88 @@ class Gate:
                     "anything about grouping being wrong"
                     if red_ok else "a frontier plant did not bite")
 
+    def membrane(self):
+        """The semantic membrane (URDRMEM1): an adaptive layer MATHEMATICALLY INCAPABLE of changing
+        what is admitted. frontier leaves OBLIGATIONS; a membrane may propose the ORDER they are
+        discharged in, by any means whatever, and THE ADMITTED SET IS IDENTICAL — decided against
+        nine membranes including hostile ones. The structural reason is stronger than the
+        measurement: a membrane returns an ORDER, so there is no channel through which a verdict
+        could travel, the same shape as tierview.visible taking no tier. THE ENERGY CORRECTION: a
+        handed-down statement had the membrane driving E down; reordering leaves E EXACTLY INVARIANT
+        and only DISCHARGE reduces it, so the membrane reduces the COST of reducing E, never E
+        itself — a membrane that lowered E would be doing proof work. Termination is then free, and
+        nothing can starve. Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import membrane as MB
+        except Exception as exc:
+            self.record("membrane", False, f"import failed (membrane): {exc}")
+            return
+        try:
+            ref_ok = all(MB.scene_result(n) == MB.golden(n) for n in MB.SCENES)
+        except Exception as exc:
+            self.record("membrane:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("membrane:scenes", ref_ok,
+                    "invariance + energy + plants reproduce URDRMEM1 digests"
+                    if ref_ok else "a membrane scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = MB.invariance_holds() and MB.canalization_holds()
+            law_ok = law_ok and MB.advisory_is_structural() and len(MB.MEMBRANES) >= 9
+            om = MB.obligations()
+            ref = MB.admitted(om, MB.identity_membrane)
+            law_ok = law_ok and all(MB.admitted(om, m) == ref for m in MB.MEMBRANES)
+            law_ok = law_ok and MB.reordering_leaves_energy_invariant()
+            law_ok = law_ok and MB.discharge_strictly_decreases_energy()
+            law_ok = law_ok and MB.terminates_within_energy() and MB.membrane_cannot_starve()
+            law_ok = law_ok and MB.energy(om) == 780 and om[0] in set(MB.starving_membrane(om))
+        except Exception:
+            law_ok = False
+        self.record("membrane-law", law_ok,
+                    "every lawful membrane produces the IDENTICAL admitted set — decided against "
+                    "nine of them including reversed, both-ends-interleaved adversarial, and one "
+                    "that puts a chosen obligation last every time to starve it — so an adaptive "
+                    "layer changes how efficiently truth is reached and never what is true, which is "
+                    "a measurement here rather than a slogan; the reason is STRUCTURAL, since a "
+                    "membrane returns an ORDER and has no channel for a verdict; REORDERING leaves "
+                    "the obligation energy E = |Omega| exactly invariant while only DISCHARGE reduces "
+                    "it, correcting a handed-down statement that credited the membrane with the "
+                    "decrease — a membrane that could lower E by itself would be doing proof work, "
+                    "which is what advisory-not-authoritative forbids; and termination is then free, "
+                    "because a non-negative integer strictly decreasing reaches every element, so "
+                    "even the starving membrane's victim is discharged"
+                    if law_ok else "the membrane law did not hold")
+        red_ok = False
+        try:
+            red_ok = MB.plants_are_refused()
+            red_ok = red_ok and MB.plants_would_change_the_admitted_set() == 2
+            om = MB.obligations()
+            dup = tuple(om[:-1]) + (om[0],)
+            red_ok = red_ok and len(dup) == len(om)
+            red_ok = red_ok and MB.check_membrane(om, dup) == MB.R_DUPLICATED
+            for p in (MB._membrane_that_filters, MB._membrane_that_injects):
+                try:
+                    MB.admitted(om, p)
+                    red_ok = False
+                except MB.MembraneError:
+                    pass
+        except Exception:
+            red_ok = False
+        self.record("membrane-selftest", red_ok,
+                    "all three plants bite and each is REFUSED with its own name rather than "
+                    "tolerated: the filtering membrane DROPS obligations (the accelerator's "
+                    "characteristic failure, since silently discarding what you cannot handle looks "
+                    "exactly like handling it), the injecting membrane creates state that was never "
+                    "owed, and the discharging membrane does proof work; were the refusal lifted, two "
+                    "of them CHANGE the admitted set, which is why it is a refusal and not a warning. "
+                    "The ORDER of the lattice's checks is itself a finding — a first draft tested "
+                    "length before duplication, so a same-length proposal carrying a duplicate was "
+                    "reported as INJECTED and the specific failure was masked by the coarser one, the "
+                    "same defect class as conflating an unadjudicable block with a dishonest one"
+                    if red_ok else "a membrane plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12893,6 +12975,7 @@ def main() -> int:
     gate.tierview()
     gate.provbind()
     gate.frontier()
+    gate.membrane()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

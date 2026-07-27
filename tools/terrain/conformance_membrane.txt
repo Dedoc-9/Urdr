@@ -1,0 +1,60 @@
+# URDRMEM1 conformance — THE SEMANTIC MEMBRANE: an adaptive layer MATHEMATICALLY INCAPABLE of
+# changing what is admitted. NO new glyph (kernel frozen).
+#
+# THE THEOREM, DECIDED. frontier (URDRFRN1) leaves OBLIGATIONS — pairs the structural certificate
+# could not decide. A membrane may propose the ORDER they are discharged in, by any means whatever:
+#     Admitted(Omega, A_1) == Admitted(Omega, A_2)   for EVERY lawful membrane A_i
+# MEASURED over the pinned obligation set (E = |Omega| = 780) against NINE membranes including
+# deliberately hostile ones — reversed, rotated, both-ends-interleaved adversarial, and one that puts
+# a chosen obligation last every time to starve it. All nine produce the identical admitted set.
+# The membrane changes HOW EFFICIENTLY truth is reached, never WHAT IS TRUE — a measurement here
+# rather than a slogan.
+#
+# THE STRUCTURAL REASON, stronger than the measurement: a membrane's return type is an ORDER. It has
+# no channel through which a verdict could travel, exactly as tierview.visible has no tier parameter
+# and clockauth.band has no stress parameter. Advisory is a SIGNATURE, not a maintained discipline.
+#
+# THE ENERGY, AND THE CORRECTION IT FORCES. Let E = |Omega|. A handed-down statement had every lawful
+# refinement satisfy E_{t+1} <= E_t with the membrane driving the decrease. The inequality holds; the
+# ATTRIBUTION DOES NOT, and the distinction is the whole architecture:
+#     REORDERING leaves E EXACTLY INVARIANT — measured over every membrane.
+#     DISCHARGE strictly decreases E, and only the semantic layer can discharge.
+# The membrane does not reduce obligation energy; it reduces the COST OF REDUCING IT. A membrane that
+# could lower E by itself would be doing proof work, which is precisely what advisory-not-authoritative
+# forbids — _membrane_that_discharges is that mistake, kept as a plant and measured changing the set.
+#
+# TERMINATION IS FREE, which is the one thing an adaptive layer usually costs you. E is a non-negative
+# integer strictly decreasing under discharge, so the process ends in at most |Omega| steps whatever
+# the membrane proposes: it cannot diverge, cannot loop, and cannot starve — membrane_cannot_starve
+# decides that against the starving membrane specifically, since a finite strictly-decreasing sequence
+# reaches every element including the one placed last every time.
+#
+# THE REFUSAL LATTICE, AND THE ORDER OF ITS CHECKS, WHICH IS ITSELF A FINDING. A first draft tested
+# LENGTH first, so a proposal that DUPLICATED an obligation was reported as MEMBRANE-INJECTED because
+# the extra element made it one too long — the more specific and more actionable failure masked by the
+# coarser one. A refusal lattice with wrongly-ordered classes loses no soundness but hands the operator
+# the wrong diagnosis, the same defect class as conflating an unadjudicable block with a dishonest one.
+# Duplication is now checked FIRST, then membership, then count. Classes: MEMBRANE-DROPPED (an
+# obligation missing — the accelerator's characteristic failure, since silently discarding what you
+# cannot handle looks exactly like handling it), MEMBRANE-INJECTED (an obligation never owed — the
+# membrane creating state), MEMBRANE-DUPLICATED (work invented rather than state).
+#
+# WADDINGTON, AND WHY THE ANALOGY IS EXACT RATHER THAN DECORATIVE. The EPIGENETIC LANDSCAPE is
+# Organisers and Genes (1940); CANALIZATION is Nature, 1942; the familiar landscape figure is The
+# Strategy of the Genes (1957). A handed-down version dated the landscape to 1944 — it is 1940, and
+# the arc grades attributions. Canalization is the property that a trajectory reaches the same endpoint
+# despite perturbation of the path: valleys set by the genes, path nudged by environment, phenotype
+# invariant. That is not a metaphor for membrane invariance, it is the SAME STATEMENT — fixed layer
+# sets the landscape, adaptive layer perturbs the path, endpoint invariant. canalization_holds is
+# invariance_holds under a second name, kept because the biological framing makes the FAILURE legible:
+# a membrane that changes the admitted set is a path that has left its creode.
+#
+# DECLARED: the obligation model is frontier's pair set and the semantic oracle is disjoint.commutes,
+# both bounded and inherited.
+# does_not_show: that any membrane is GOOD — this rung proves a membrane cannot be HARMFUL, never that
+# it is useful, and a membrane that orders at random satisfies every law here; anything about learned
+# policies, embeddings, or search quality; any wall-clock benefit; that the semantic oracle is correct
+# (composed with, not re-proved); cross-placement.
+invariance 0a64bd5c28ad90427ca1da392f36d28a36ac3a205793ad501877660e0d445340
+energy 4d72bfe72d73641fdf543bc4ea585c4e4acdf2252260a3ab17e43481d20e594c
+plants 4e1b22f1b5226c6d60b91639e8ad9ab7ef451bb4a00b80959ef1e33572e9dfff
