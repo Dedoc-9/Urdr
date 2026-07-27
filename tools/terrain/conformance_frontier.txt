@@ -1,0 +1,72 @@
+# URDRFRN1 conformance — THE ADMISSION ACCELERATOR: routing work between a cheap structural
+# certificate and an expensive semantic check, with the residue tracked as an explicit OBLIGATION
+# SIGNATURE rather than left implicit. NO new glyph (kernel frozen).
+#
+# PRIOR ART, SCOPED NARROWLY. Almost all of this pattern is decades old and none of it is claimed:
+# "commuting operations admit a conflict-free schedule" is the Scalable Commutativity Rule (Clements,
+# Kaashoek, Zeldovich, Morris, Kohler, SOSP 2013; revised proof arXiv:1809.09550, 2018);
+# "cheap sound filter + expensive complete verifier on the residue" is at least fifty years old
+# (intention locks, Gray et al. IFIP 1976; filter/refinement for spatial joins, Brinkhoff/Kriegel/
+# Seeger SIGMOD 1993, ~68% of false hits eliminated before touching exact geometry; broadphase/
+# narrowphase, Baraff 1992 / Ericson 2005); "conflict-graph acyclicity decides serializability" is
+# Papadimitriou JACM 1979; "pairwise non-conflict does not license group scheduling — use independent
+# sets or a colouring" is standard graph theory (Luby 1986; Chaitin 1981); Morton/Z-order for spatial
+# structure BUILDING and broadphase CANDIDATE GENERATION is Karras HPG 2012 and PLOC (Meister &
+# Bittner TVCG 2018, shipped in Rapier 2025).
+# What a survey of that literature did NOT turn up is the specific composition: Morton prefix-
+# disjointness used as the sound proxy at the COMMUTATIVITY layer. Physics engines use spatial codes
+# for candidate pairs and then switch to a contact-graph island structure for scheduling (Bullet,
+# PhysX, Jolt, Box2D, Rapier — all verified); ECS schedulers decide parallelism from declared
+# component access sets, never coordinates (Unity DOTS; Bevy explicitly moved to COARSER type-level
+# tracking to keep the check cheap); even the 2025 formal ECS commutativity work (Redmond et al.,
+# OOPSLA 2025) is access-set based. The claim is stated at that width and no wider, and is NOT
+# asserted to be first — only unfound.
+#
+# THE THEOREM (CROSS-COMPONENT COMMUTATION), DECIDED. Edge the conflict graph exactly where the
+# certificate FAILS. Two edits in DIFFERENT connected components then have no edge, hence are
+# prefix-disjoint, hence commute — whole components schedule against each other with no semantic
+# check. Verified against the commutation SEMANTICS, not against the predicate that produced the graph.
+#
+# THE HAZARD, WITNESSED. Prefix-disjointness is NOT TRANSITIVE: measured (A||B, B||C, A||C) =
+# (True, True, False) at blocks (0,1,0). So greedily growing a batch from edits pairwise-disjoint with
+# its first member is UNSOUND — the batch is not an independent set and scheduling it together runs
+# conflicting edits concurrently. _batch_by_greedy_pairwise is that optimisation, kept as a plant, and
+# its minimal bite is THREE edits (minimal_unsound_witness). The sound construction is the independent
+# set — connected components — and it is what the rung uses.
+#
+# AND THE PLANT ALMOST DID NOT BITE, which is the more useful finding. On the first 60 edits of the
+# pinned family EVERY greedy batch is a SINGLETON, so the plant scores 0 and would have been retired
+# as harmless. A batching census over a corpus that never batches proves nothing about batching —
+# exactly as disjoint's single-valued edit family proved nothing about commutation. That is the SECOND
+# occurrence of this vacuity in the arc, so greedy_census_is_not_vacuous is a standing guard (grouping
+# must actually HAPPEN before anything can be concluded about grouping being wrong) and
+# the_small_slice_was_vacuous keeps the near-miss as a measured witness rather than a memory.
+#
+# THE OBLIGATION SIGNATURE, which is what makes this an accounting rather than a speedup. Every
+# routing emits (proved, obligations, total) in pairs. MEASURED on the pinned family:
+# (18144, 47922, 66066). Two laws:
+#   CONSERVATION — proved + obligations == total, always. The failure this forbids is the one an
+#     accelerator invites: a fast path that silently DISCARDS what it cannot handle is
+#     indistinguishable from a fast path that handles it.
+#   MONOTONICITY — refining the level moves pairs from the obligation column to the proved column and
+#     never the reverse, so "uncertainty is preserved or reduced, never silently grown" is decided
+#     rather than intended, and the level knob is safe in the direction of more precision.
+#
+# THE YIELD CURVE, and the number this rung exists to stop anyone quoting as a constant. disjoint's
+# pinned family routes 27% of pairs to the fast path; that is an ARTIFACT OF ITS DENSITY. MEASURED at
+# a fixed block count: pool 6 -> 96/1770, pool 10 -> 2560/16110, pool 14 -> 18144/66066,
+# pool 20 -> 84432/288420. An accelerator's value is a function of how spread the work is, so the
+# honest report is the curve and not a point. Same discipline the channel-profiler work applies to
+# autocorrelated telemetry: a count of observations is not a count of INDEPENDENT observations, and a
+# corpus's support must be declared rather than assumed representative.
+#
+# DECLARED: the edit model is disjoint's (last-writer-wins occupancy writes, bounded lattice) and
+# inherits its bounds; the routing is a POLICY over that model.
+# does_not_show: ANY SPEEDUP — this rung counts pairs, it does not time them, and no wall-clock claim
+# is made or implied; that the corpus is representative of deployment (the curve is the honest answer,
+# and it is a curve over THIS corpus's densities); that the semantic layer is correct (that is
+# commute/rannull/nway, composed with rather than re-proved); cross-placement.
+theorem d44a124febcae861850a0b3ab2243efd8a2a1b09c47641d47e277bab64577b41
+hazard 365c3baede39045567797b1b372c028ae2bc78a8a0aba9596a2128d5e5185607
+signature b23e5c4902fe2c5af3871cc57dfbb1e2242c8326f046097e054cbeba9bbcad16
+yield 23872e600a033044a0beb11dfde438f256aac70857b6b0c23f69d92bf4acdc08

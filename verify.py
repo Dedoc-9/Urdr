@@ -9876,6 +9876,87 @@ class Gate:
                     "one answer across every serve"
                     if red_ok else "a provbind plant did not bite")
 
+    def frontier(self):
+        """The admission accelerator (URDRFRN1): routing work between disjoint's cheap structural
+        certificate and the expensive semantic layer, with the residue carried as an explicit
+        OBLIGATION SIGNATURE. PRIOR ART IS SCOPED NARROWLY AND MOSTLY DISCLAIMED — commute-implies-
+        schedulable is the Scalable Commutativity Rule (SOSP 2013), cheap-filter-then-expensive-verify
+        is fifty years old (intention locks 1976, spatial-join filter/refinement 1993, broadphase/
+        narrowphase 1992), conflict-graph serializability is Papadimitriou 1979, and independent-sets-
+        not-pairwise is standard graph theory; the only unfound composition is using Morton prefix-
+        disjointness as the proxy at the COMMUTATIVITY layer rather than as a broadphase, and even
+        that is stated as unfound rather than first. THE HAZARD: disjointness is NOT TRANSITIVE, so
+        greedy pairwise batching is unsound — witnessed at three edits. THE GUARD: on a 60-edit slice
+        every greedy batch is a singleton and the plant scores zero, the SECOND vacuity of this shape
+        in the arc. Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import frontier as FR
+            import disjoint as DJ
+        except Exception as exc:
+            self.record("frontier", False, f"import failed (frontier): {exc}")
+            return
+        try:
+            ref_ok = all(FR.scene_result(n) == FR.golden(n) for n in FR.SCENES)
+        except Exception as exc:
+            self.record("frontier:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("frontier:scenes", ref_ok,
+                    "theorem + hazard + signature + yield reproduce URDRFRN1 digests"
+                    if ref_ok else "a frontier scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = FR.cross_component_commutes() and FR.components_are_sound()
+            law_ok = law_ok and FR.conservation_holds() and FR.obligations_are_monotone()
+            law_ok = law_ok and FR.signature(DJ.edit_family()) == (18144, 47922, 66066)
+            fam = DJ.edit_family()[:60]
+            comps = FR.components(fam)
+            law_ok = law_ok and sorted(i for c in comps for i in c) == list(range(len(fam)))
+            law_ok = law_ok and sum(len(c) for c in comps) == len(fam)
+            law_ok = law_ok and FR.yield_rises_with_spread()
+            law_ok = law_ok and FR.the_pinned_fraction_is_an_artifact()[2]
+        except Exception:
+            law_ok = False
+        self.record("frontier-law", law_ok,
+                    "edits in DIFFERENT connected components of the conflict graph commute — checked "
+                    "against the commutation SEMANTICS rather than against the predicate that built "
+                    "the graph, so the theorem is not true by construction — which lets whole "
+                    "components schedule against each other with no semantic check at all; the "
+                    "OBLIGATION SIGNATURE conserves (proved + obligations == total, so nothing is "
+                    "dropped, which is the failure an accelerator invites because a fast path that "
+                    "silently discards what it cannot handle looks exactly like one that handles it) "
+                    "and is MONOTONE (refining the level moves pairs from obligation to proved and "
+                    "never the reverse, so 'uncertainty preserved or reduced, never silently grown' "
+                    "is decided rather than intended); and the fast-path fraction is reported as a "
+                    "CURVE over density rather than the single 27% figure, which is an artifact of "
+                    "one corpus and would be an inflation to quote as the accelerator's value"
+                    if law_ok else "the frontier law did not hold")
+        red_ok = False
+        try:
+            ab, bc, ac = FR.non_transitivity_witness()
+            red_ok = ab and bc and not ac
+            red_ok = red_ok and FR.greedy_batching_is_unsound() > 0
+            hx, hy, xy, bad = FR.minimal_unsound_witness()
+            red_ok = red_ok and hx and hy and not xy and bad == 1
+            red_ok = red_ok and FR.the_small_slice_was_vacuous()
+            red_ok = red_ok and FR.greedy_census_is_not_vacuous()
+        except Exception:
+            red_ok = False
+        self.record("frontier-selftest", red_ok,
+                    "prefix-disjointness is NOT TRANSITIVE — measured (A||B, B||C, A||C) = "
+                    "(True, True, False) — so the obvious optimisation of growing a batch from edits "
+                    "pairwise-disjoint with its first member is UNSOUND, and its minimal bite is "
+                    "THREE edits; but the more useful finding is that the plant ALMOST DID NOT BITE, "
+                    "because on the first 60 edits of the pinned family every greedy batch is a "
+                    "SINGLETON and the plant scores zero, which would have retired an unsound rule as "
+                    "harmless — a batching census over a corpus that never batches proves nothing "
+                    "about batching, exactly as disjoint's single-valued edit family proved nothing "
+                    "about commutation, and this is the SECOND occurrence of that vacuity in the arc, "
+                    "so the census now asserts that grouping actually HAPPENS before concluding "
+                    "anything about grouping being wrong"
+                    if red_ok else "a frontier plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12811,6 +12892,7 @@ def main() -> int:
     gate.disjoint()
     gate.tierview()
     gate.provbind()
+    gate.frontier()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
