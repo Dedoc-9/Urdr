@@ -10039,6 +10039,85 @@ class Gate:
                     "same defect class as conflating an unadjudicable block with a dishonest one"
                     if red_ok else "a membrane plant did not bite")
 
+    def ashdepth(self):
+        """The vacuity floor (URDRASH1): how far an abstraction may be coarsened before it stops
+        saying anything. A handed-down design proposed k* = max{k : P subset gamma_k(alpha_k(P))},
+        on the reasoning that burning past it makes the abstraction unsound. MEASURED, that INVERTS:
+        coarsening is strictly MORE conservative by disjoint's level monotonicity, so the containment
+        holds at EVERY level including the coarsest and k* passes at maximum burn — licensing a fast
+        path of size ZERO. A VOID IS SOUND. The bound worth guarding is the other end, k_min = the
+        coarsest level that still DISTINGUISHES anything, measured 1 against k* = 0. This is the
+        FOURTH appearance of vacuity as this arc's characteristic failure, so it is named as a law
+        rather than fixed again: wrong answers are rare here and empty answers are common, and an
+        empty answer is indistinguishable from a correct one unless something asserts non-emptiness.
+        Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import ashdepth as AD
+        except Exception as exc:
+            self.record("ashdepth", False, f"import failed (ashdepth): {exc}")
+            return
+        try:
+            ref_ok = all(AD.scene_result(n) == AD.golden(n) for n in AD.SCENES)
+        except Exception as exc:
+            self.record("ashdepth:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("ashdepth:scenes", ref_ok,
+                    "levels + floor + vacuity reproduce URDRASH1 digests"
+                    if ref_ok else "an ashdepth scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = AD.soundness_never_breaks() and AD.precision_is_monotone_in_level()
+            rows = AD.level_table()
+            law_ok = law_ok and all(u == 0 for _lv, _p, u, _t in rows)
+            proved = [p for _lv, p, _u, _t in rows]
+            law_ok = law_ok and max(proved) > 0 and len(set(proved)) > 1
+            law_ok = law_ok and AD.k_min() == 1
+            fam = AD.spread_corpus()
+            law_ok = law_ok and AD.guard(fam, 1) == 1
+            law_ok = law_ok and AD.guard_refuses_below_floor()
+        except Exception:
+            law_ok = False
+        self.record("ashdepth-law", law_ok,
+                    "SOUNDNESS NEVER BREAKS as an abstraction is coarsened — no level admits a pair "
+                    "that does not commute, not even the coarsest, because coarsening is strictly "
+                    "more conservative by level monotonicity; so the failure at maximum burn is not a "
+                    "lie but an EMPTY FAST PATH, and a void is perfectly sound and perfectly useless. "
+                    "The bound worth guarding is therefore k_min, the coarsest level that still "
+                    "DISTINGUISHES anything (measured 1), and the guard refuses every level below it "
+                    "LOUDLY rather than returning a clean zero. The census carries its own "
+                    "non-vacuity precondition — the level table must actually differ between levels "
+                    "before anything is concluded from it, which is the check whose absence nearly "
+                    "produced a false finding here"
+                    if law_ok else "the ashdepth law did not hold")
+        red_ok = False
+        try:
+            red_ok = AD.handed_down_bound_is_vacuous()
+            red_ok = red_ok and AD.handed_down_k_star() == 0 < AD.k_min()
+            red_ok = red_ok and AD.tripwire_fires_on_the_empty_corpus()
+            red_ok = red_ok and all(p == 0 for _lv, p, _u, _t in AD.level_table(AD.EMPTY_CORPUS()))
+            red_ok = red_ok and AD.all_four_vacuities_are_witnessed()
+            try:
+                AD.guard(AD.spread_corpus(), 0)
+                red_ok = False
+            except AD.VacuityError:
+                pass
+        except Exception:
+            red_ok = False
+        self.record("ashdepth-selftest", red_ok,
+                    "the handed-down bound is REFUTED by measurement: it returns the coarsest level, "
+                    "whose fast path is empty, so it passes at exactly the point it was built to "
+                    "catch; the tripwire corpus RAISES ASHDEPTH-VACUOUS rather than reporting a clean "
+                    "zero (and a first draft of that corpus shared only a level-1 block, leaving the "
+                    "finest level non-empty and the tripwire silent — the vacuity asset was itself "
+                    "insufficiently vacuous); and all FOUR occurrences of vacuity in this arc are "
+                    "pinned as measured constants rather than remembered — single-valued edits that "
+                    "make every pair commute, singleton batches that let an unsound grouping rule "
+                    "score clean, an all-levels-empty corpus that distinguishes no levels, and the "
+                    "handed-down bound itself"
+                    if red_ok else "an ashdepth plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -12976,6 +13055,7 @@ def main() -> int:
     gate.provbind()
     gate.frontier()
     gate.membrane()
+    gate.ashdepth()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

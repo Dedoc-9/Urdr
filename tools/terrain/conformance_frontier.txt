@@ -12,7 +12,22 @@
 # Papadimitriou JACM 1979; "pairwise non-conflict does not license group scheduling — use independent
 # sets or a colouring" is standard graph theory (Luby 1986; Chaitin 1981); Morton/Z-order for spatial
 # structure BUILDING and broadphase CANDIDATE GENERATION is Karras HPG 2012 and PLOC (Meister &
-# Bittner TVCG 2018, shipped in Rapier 2025).
+# Bittner TVCG 2018, shipped in Rapier 2025); and the CLOSEST FRAMEWORK OF ALL, omitted by an earlier
+# draft of this header — ABSTRACT INTERPRETATION (Cousot & Cousot, POPL 1977). A sound-but-incomplete
+# static approximation related to a concrete semantics by a Galois connection IS abstract
+# interpretation; that is the discipline's name and it is fifty years old.
+# THE FRONTIER IS A GALOIS CONNECTION, VERIFIED: with alpha mapping edit pairs to block-prefix
+# footprints and gamma concretizing back, the adjunction alpha(P) <= O <=> P <= gamma(O) HOLDS on
+# 63/63 tested (P,O) pairs; the abstraction is SOUND (P <= gamma(alpha(P))), REDUCTIVE
+# (alpha(gamma(O)) <= O) and NOT COMPLETE (gamma(alpha(P)) != P), measured precision loss
+# 65, 207, 268, 256, 226. That loss is NOT an error margin: gamma(alpha(P)) \ P IS the obligation set,
+# the sound over-approximation the abstraction needs to stay authoritative WITHOUT doing proof work.
+# The frontier is not a gap, a leak, or an operational failure — it is order-theoretic headroom, and
+# it is counted.
+# THE OBJECT IS ORDER-THEORETIC, NOT ANALYTIC. No metric, no convergence, no contraction, no manifold.
+# |Omega_1 XOR Omega_2| is a genuine metric (triangle inequality decided elsewhere: 32768 triples,
+# 0 violations) but nothing here uses it, and an attractor would need a contraction property that is
+# NOT established. Manifold language would be interpretive rather than theorematic, so it is absent.
 # What a survey of that literature did NOT turn up is the specific composition: Morton prefix-
 # disjointness used as the sound proxy at the COMMUTATIVITY layer. Physics engines use spatial codes
 # for candidate pairs and then switch to a contact-graph island structure for scheduling (Bullet,

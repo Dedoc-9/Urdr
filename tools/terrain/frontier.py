@@ -25,6 +25,33 @@ claimed here:
     1981). NOT claimed — but it IS the hazard this rung measures, below.
   * Morton/Z-order for spatial structure BUILDING (Karras, HPG 2012; PLOC, Meister & Bittner, TVCG
     2018, shipped in Rapier 2025) and for broadphase CANDIDATE GENERATION. NOT claimed.
+  * AND THE CLOSEST FRAMEWORK OF ALL, which an earlier draft of this header omitted: ABSTRACT
+    INTERPRETATION (Cousot & Cousot, POPL 1977). A sound-but-incomplete static approximation of a
+    concrete semantics, related to it by a Galois connection, IS abstract interpretation — that is
+    the discipline's name and it is fifty years old. NOT claimed.
+
+THE FRONTIER IS A GALOIS CONNECTION, AND THIS IS VERIFIED RATHER THAN asserted. With the abstraction
+`alpha(P)` mapping a set of edit pairs to their block-prefix footprints and `gamma(O)` concretizing
+back, the adjunction
+
+    alpha(P) <= O   <==>   P <= gamma(O)
+
+HOLDS on 63 of 63 tested (P, O) pairs. The abstraction is SOUND (P <= gamma(alpha(P))) and REDUCTIVE
+(alpha(gamma(O)) <= O) and NOT COMPLETE (gamma(alpha(P)) != P), with measured precision loss
+65, 207, 268, 256, 226 across the sampled P.
+
+THAT PRECISION LOSS IS NOT AN ERROR MARGIN. The set `gamma(alpha(P)) \ P` IS the obligation set — the
+sound over-approximation the abstraction needs in order to stay authoritative WITHOUT doing proof
+work. Calling the frontier a gap, a leak or an operational failure misreads an order-theoretic
+over-approximation as a defect. It is the headroom, it is counted, and counting it is what the
+obligation signature does.
+
+AND THE OBJECT IS ORDER-THEORETIC, NOT ANALYTIC. There is no metric here, no convergence, no
+contraction and no manifold. The lattice and its Galois connection are the complete formal content;
+`|Omega_1 XOR Omega_2|` happens to be a genuine metric (its triangle inequality is decided elsewhere
+in this arc, 32768 triples, 0 violations) but nothing in this rung uses it, and an attractor would
+require a contraction property that is NOT established. Manifold language would be interpretive
+rather than theorematic, so it is absent.
   The one thing a survey of that literature did not turn up is the specific composition: using
   MORTON PREFIX-DISJOINTNESS ITSELF as the sound proxy at the COMMUTATIVITY layer. Physics engines
   use spatial codes to generate candidate pairs and then switch to a contact-graph island structure

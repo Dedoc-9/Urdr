@@ -1,0 +1,51 @@
+# URDRASH1 conformance — THE VACUITY FLOOR: how far an abstraction may be coarsened before it stops
+# saying anything, and the tripwire that refuses silence. NO new glyph (kernel frozen).
+#
+# THE PREMISE THAT INVERTED. A handed-down design proposed an ash-depth bound
+# k* = max{k : P subset gamma_k(alpha_k(P))}, on the reasoning that burning past it "collapses the
+# Galois connection into an unsound approximation." MEASURED over the pinned spread corpus:
+#     level 0 (coarsest):    0/12090 fast-path, 0 unsound   VACUOUS
+#     level 1           : 4212/12090 fast-path, 0 unsound   sound
+#     level 2 (finest)  : 8580/12090 fast-path, 0 unsound   sound
+# SOUNDNESS NEVER BREAKS. Coarsening is strictly MORE CONSERVATIVE — disjoint's already-decided level
+# monotonicity, coarse-disjoint implying fine-disjoint — so a coarser abstraction admits strictly
+# FEWER pairs and can never admit a wrong one. The containment holds at EVERY k including the
+# coarsest, so k* is vacuously the maximum burn: the guard passes at exactly the point it was built
+# to catch, licensing a fast path of size zero.
+# The failure at full burn is not a lie. It is an EMPTY FAST PATH. Burning past the useful depth does
+# not breach the Galois connection; it collapses alpha to a constant. A VOID IS SOUND.
+#
+# THE BOUND WORTH GUARDING is the other end:  k_min = min{k : the fast path is non-empty}.
+# MEASURED k_min = 1 against the handed-down k* = 0. Decided by the same monotonicity read in the
+# same direction, and it catches the failure this architecture actually admits — an accelerator that
+# proves nothing — rather than one it structurally cannot commit.
+#
+# VACUITY IS THIS ARC'S CHARACTERISTIC FAILURE, and this is its FOURTH appearance in one session:
+#   1. disjoint's first edit family wrote a SINGLE VALUE — every pair commutes trivially, so the
+#      census would have confirmed ANY predicate, including the inverted one it existed to refute.
+#   2. frontier's greedy plant scored ZERO on a 60-edit slice where every batch was a SINGLETON,
+#      which would have retired an unsound grouping rule as harmless.
+#   3. The level comparison producing the table above was FIRST RUN on a corpus where the fast path
+#      was empty at every level — it distinguished no levels and was one keystroke from being
+#      reported as "soundness never breaks at any level," proved on nothing.
+#   4. The handed-down k* itself, which passes at maximum burn.
+# And a fifth turn of the same screw while building this rung: the EMPTY_CORPUS asset was first
+# written to share only a level-1 block, which left the finest level non-empty and the tripwire
+# SILENT — the vacuity asset was itself insufficiently vacuous. It now shares a common PIVOT KEY, so
+# every pair overlaps at every level including the finest, where the prefix is the whole key.
+#
+# The pattern is named as a law rather than fixed five times: IN THIS ARCHITECTURE WRONG ANSWERS ARE
+# RARE AND EMPTY ANSWERS ARE COMMON, AND AN EMPTY ANSWER IS INDISTINGUISHABLE FROM A CORRECT ONE
+# UNLESS SOMETHING ASSERTS NON-EMPTINESS. Every census here carries a non-vacuity precondition, and
+# VacuityError (ASHDEPTH-VACUOUS) is RAISED rather than a zero quietly returned. Silence must be loud.
+#
+# DECLARED: the corpus is disjoint's edit model spread across the lattice, bounded and inherited;
+# "distinguishes something" is defined as a non-empty fast path — the weakest useful non-vacuity
+# condition, and a choice.
+# does_not_show: that k_min is the OPTIMAL operating level (it is the floor below which the
+# abstraction is silent, never a recommendation of where to sit); any wall-clock cost of a level;
+# that a non-empty fast path is a USEFUL one — a single admitted pair clears the floor;
+# cross-placement.
+levels e17b87deb0f9da7d8efd881c15663abd2ad5a0d50fd7b7f306f004e207dcb46e
+floor 04fa41b6fb41df1e66123dd80a90a159fcc5b47292c9d5a8278e78995d3df2d0
+vacuity bcf319e9ad53fc0c5bcd5393ff535a9ed5f8ede51469e9ed314b26b5bc91ec7a
