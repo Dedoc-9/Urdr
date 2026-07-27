@@ -10260,6 +10260,84 @@ class Gate:
                     "identical inputs would report a collapse that is only a lack of variety"
                     if red_ok else "a recirc plant did not bite")
 
+    def divergence(self):
+        """The quantization defect, in cells (URDRDVG1) — slice S2, the LAST of the city arc and the
+        one always known to be irreducible. S6 turned out zero by construction, S3 and S4 are
+        enforcement, Half B made commutation structural; capture error is intrinsic to the
+        float-to-integer boundary and can only be MEASURED, so the content is measuring the RIGHT
+        THING. THE MEASURAND IS NOT A RATE — an adversary does not attack the mean. MEASURED: two
+        perturbations with the IDENTICAL rate 2/35, one scattered and one aligned, have largest runs
+        1 and 2 and breach FALSE and TRUE. The quantity is the LARGEST CONNECTED RUN of flipped cells,
+        and it is the harm's PRECONDITION rather than a proxy: the minimum breaching run equals the
+        wall thickness exactly. The attained maximum is DECIDED over every k-subset, not sampled, and
+        the perturbation model is DECLARED as adversarial choice rather than a Gaussian. Rows: scenes,
+        law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import divergence as DV
+        except Exception as exc:
+            self.record("divergence", False, f"import failed (divergence): {exc}")
+            return
+        try:
+            ref_ok = all(DV.scene_result(n) == DV.golden(n) for n in DV.SCENES)
+        except Exception as exc:
+            self.record("divergence:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("divergence:scenes", ref_ok,
+                    "refutation + worst + breach reproduce URDRDVG1 digests"
+                    if ref_ok else "a divergence scene drifted from its digest")
+        law_ok = True
+        try:
+            (ra, run_a, br_a), (rb, run_b, br_b) = DV.rate_is_blind()
+            law_ok = ra == rb and run_a != run_b and (not br_a) and br_b
+            law_ok = law_ok and DV.rate_equal_run_differs()
+            law_ok = law_ok and DV.worst_run_is_k()
+            law_ok = law_ok and DV.worst_run_table() == ((1, 1), (2, 2), (3, 3))
+            law_ok = law_ok and DV.breach_needs_a_run_of_at_least_thickness() == (2, 2)
+            breach, total = DV.breach_census()
+            law_ok = law_ok and (breach, total) == (155, 6545) and 0 < breach < total
+            law_ok = law_ok and DV.THICK > 1 and len(DV.wall()) == DV.THICK * DV.H
+        except Exception:
+            law_ok = False
+        self.record("divergence-law", law_ok,
+                    "the quantization defect is measured in CELLS and specifically as the LARGEST "
+                    "CONNECTED RUN of flipped cells, because an adversary does not attack the mean — "
+                    "two perturbations with the identical rate 2/35 have runs 1 and 2 and breach the "
+                    "wall FALSE and TRUE, so the rate is blind to the only thing that matters; the "
+                    "run is the harm's PRECONDITION rather than a proxy for it, since the minimum "
+                    "breaching run equals the wall thickness exactly and no shorter run can open a "
+                    "wall that deep; and the attained maximum is DECIDED over every k-subset at each "
+                    "pinned k rather than averaged, because a mean reports a number the adversary "
+                    "never has to accept while an attained maximum is a bound"
+                    if law_ok else "the divergence law did not hold")
+        red_ok = False
+        try:
+            red_ok = DV.rate_plant_conflates_them()
+            gt = DV.wall()
+            a = DV.perturb(gt, [(DV.WALL_X, 0), (DV.WALL_X + 1, 2)])
+            b = DV.perturb(gt, [(DV.WALL_X, 0), (DV.WALL_X + 1, 0)])
+            red_ok = red_ok and DV._defect_by_rate(gt, a) == DV._defect_by_rate(gt, b)
+            red_ok = red_ok and DV.breached(a) != DV.breached(b)
+            thin = frozenset((DV.WALL_X, y) for y in range(DV.H))
+            holed = DV.perturb(thin, [(DV.WALL_X, 0)])
+            red_ok = red_ok and DV.largest_run(thin, holed) == 1 and DV.breached(holed)
+            from itertools import combinations as _c
+            runs = [DV.largest_run(gt, DV.perturb(gt, f)) for f in _c(DV.cells(), 3)]
+            red_ok = red_ok and sum(runs) < 3 * len(runs) and max(runs) == DV.worst_run(3)
+        except Exception:
+            red_ok = False
+        self.record("divergence-selftest", red_ok,
+                    "the rate plant assigns the SAME defect to a perturbation that leaves the wall "
+                    "standing and one that opens it, which is the refutation; a sampled MEAN run is "
+                    "strictly below the attained worst case, which is why the maximum is enumerated "
+                    "rather than averaged; and the first draft's one-cell-thick wall is kept as a "
+                    "live check — at thickness one a single hole already breaches, so run length and "
+                    "traversability are unrelated and the metric would only be describing rather "
+                    "than predicting, which is why the SCENE was changed rather than the claim "
+                    "weakened when that measurement refuted it"
+                    if red_ok else "a divergence plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -13200,6 +13278,7 @@ def main() -> int:
     gate.ashdepth()
     gate.syntaxclean()
     gate.recirc()
+    gate.divergence()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

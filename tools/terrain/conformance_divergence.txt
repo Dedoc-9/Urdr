@@ -1,0 +1,51 @@
+# URDRDVG1 conformance — THE QUANTIZATION DEFECT, IN CELLS. Slice S2, the last of the city arc and the
+# one always known to be irreducible. NO new glyph (kernel frozen).
+#
+# WHY IT CANNOT BE ELIMINATED. S6 turned out ZERO by construction once visibility was adjudicated on
+# the lattice; S3 and S4 are enforcement; task 58 Half B made commutation structural. S2 is different:
+# capture error is intrinsic to the float-to-integer boundary and no architectural move removes it. It
+# can only be MEASURED, so the whole content of this rung is measuring the RIGHT THING.
+#
+# THE MEASURAND IS NOT A RATE. A handed-down protocol proposed the mean fraction of cells whose
+# occupancy flips — the wrong quantity for the same reason luminance was wrong for S6: it is not in
+# the units the adversary works in. An adversary does not attack the mean. MEASURED on the pinned
+# scene, two perturbations with the IDENTICAL rate 2/35:
+#     scattered  (holes in different rows): largest run 1, breached FALSE
+#     contiguous (holes in the same row)  : largest run 2, breached TRUE
+# Same rate. Different run. Different consequence. The rate is blind to the only thing that matters.
+#
+#     THE QUANTITY IS THE LARGEST CONNECTED RUN OF FLIPPED CELLS — an integer, and the thing a body
+#     can actually pass through.
+#
+# AND THE RUN IS THE HARM'S PRECONDITION, NOT A PROXY FOR IT. Over every 3-cell perturbation the
+# MINIMUM largest-run among those that breach is 2, exactly the wall thickness: no perturbation whose
+# run is shorter than the wall is deep can open it. That is what makes the run the right measurand
+# rather than a convenient one. A FIRST DRAFT USED A ONE-CELL-THICK WALL and measured a minimum
+# breaching run of 1 — refuting its own claim that a breach needs a full run, because a one-cell wall
+# falls to any single hole and run length is then unrelated to traversability. The SCENE was changed
+# rather than the claim weakened.
+#
+# THE ATTAINED MAXIMUM, DECIDED, not sampled: over EVERY k-cell perturbation the largest achievable
+# run is exactly k for k = 1, 2, 3 — an adversary who may flip k cells can always make them
+# contiguous. Obvious in hindsight and enumerated anyway, because the point is that the bound is
+# ATTAINED and therefore a bound rather than an estimate. A mean over sampled perturbations would
+# report a number the adversary never has to accept. Breach census at k=3: 155 of 6545 perturbations
+# open the wall.
+#
+# THE NOISE MODEL IS DECLARED AS A MODEL. This rung perturbs by ADVERSARIAL CHOICE — every k-subset —
+# not by a Gaussian. Real capture error is view-dependent, correlated and anisotropic (worse behind
+# the capture hemisphere, worse on specular and textureless surfaces), so an iid Gaussian would report
+# an optimistic figure with no bound on its optimism. Adversarial choice over a synthetic wall is not
+# an estimate of real divergence either: it is an UPPER bound on what k flipped cells can do to THIS
+# geometry and a LOWER bound on what real capture does to a real one, because real error is correlated
+# in exactly the direction that builds runs. Both directions are stated and the number is not offered
+# as a prediction.
+#
+# DECLARED: the perturbation model is adversarial k-subset choice over a synthetic 2D wall; the 3D case
+# is not enumerated here.
+# does_not_show: WHAT k A REAL CAPTURE PRODUCES — that needs a corpus of real scans and is the open
+# half of S2; this rung supplies the metric, not the datum. Also: any float capture pipeline; that a
+# non-breaching run is harmless (it is not, it is only non-traversable); cross-placement.
+refutation 01c7f747c713aa4f4539ede229b9a24aa0384c652ae4d258715599bd95e158a4
+worst 06d955aa8a9736f378d4ac50666be59a1204ad4a98c77e401d761ba1ef0df41d
+breach 684a035cd21d9d2ad393761ae85ae60cf688624713d132f3ce492706d4565d92
