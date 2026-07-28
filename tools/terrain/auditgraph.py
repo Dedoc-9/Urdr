@@ -23,9 +23,20 @@ exclude clients until the survivors fall into two or more non-communicating grou
     the price of undetected equivocation is exactly kappa(T), the VERTEX connectivity
 
 DECIDED by running the attack — enumerate every subset of clients the server might exclude, ask
-whether the survivors split — and comparing it against kappa computed independently, over every
-connected labelled graph to order 5. They agree everywhere with 0 exceptions, which is what makes
-this a measurement of the attack rather than a restatement of a definition.
+whether the survivors split — and comparing it against kappa computed by MAX-FLOW under Menger's
+theorem, over every connected labelled graph to order 5. They agree everywhere, 0 exceptions of 771.
+
+    AND THE FIRST VERSION OF THAT SENTENCE WAS A LIE, WHICH IS RECORDED HERE RATHER THAN REPAIRED IN
+    SILENCE. This rung originally compared `exclusion_price` against `vertex_connectivity` and sold
+    the agreement as "two computations agreeing is a measurement; one computation is a definition
+    restated." Those two functions are the SAME loop over the SAME subsets calling the SAME
+    `components`, separated only by a `len(alive) < 2` guard that provably cannot change the answer.
+    The claim shipped three times before an audit caught it. It was refuted BY MUTATION, not by
+    argument: corrupt `components` and the old census still reports 0 exceptions, merely shrinking
+    its own denominator, while the Menger census reports 181. A checker that cannot fail is not
+    evidence, and `cross_check_is_falsifiable` now runs exactly that mutation on every gate pass so
+    the property is asserted rather than believed. The NUMBERS below never changed; only the reason
+    to trust them did.
 
 AND THE COMPLETE GRAPH HAS NO PRICE, WHICH REVERSES THE PREVIOUS RUNG'S RECOMMENDATION. Enumerated:
 the connected graphs on k vertices that the server can NEVER split, at any exclusion budget, are
@@ -43,7 +54,9 @@ itself without comparing anything. The attack is not prevented, it is made to co
 victims can see.
 
 GRADE. MEASURED: price == kappa over every connected labelled graph to order 5, 0 exceptions, by
-attack simulation against an independent invariant; the unbreakable set is exactly the complete
+attack simulation (subset enumeration) against Menger max-flow — two algorithms sharing no primitive,
+with the independence itself asserted by a mutation that makes the check go red; the unbreakable set
+is exactly the complete
 graphs; the Bell(k)-1 assignment census and its collapse to 0 under commitment; the path/ring/complete
 price ladder 1/2/infinity, attained; three plants biting, including two that OVER-price by using
 lambda or delta where kappa is the truth and so understate the threat; determinism. DECLARED: the
@@ -57,6 +70,7 @@ the assignment lever it lost."""
 import hashlib
 import os as _os
 import sys as _sys
+from collections import deque as _deque
 from itertools import combinations as _comb
 
 _HERE = _os.path.dirname(_os.path.abspath(__file__))
@@ -180,10 +194,75 @@ def server_wins_after_excluding(k, edges, excluded):
     return len(components(k, edges, alive)) >= 2
 
 
+def _maxflow(cap, s, t):
+    """Edmonds-Karp on integer capacities. BFS augmentation — it shares NO machinery with
+    `components`, which is the entire reason it is here."""
+    res = {u: dict(v) for u, v in cap.items()}
+    flow = 0
+    while True:
+        par, q = {s: None}, _deque([s])
+        while q:
+            u = q.popleft()
+            for v, c in res.get(u, {}).items():
+                if c > 0 and v not in par:
+                    par[v] = u
+                    q.append(v)
+        if t not in par:
+            return flow
+        b, v = None, t
+        while par[v] is not None:
+            c = res[par[v]][v]
+            b = c if b is None else min(b, c)
+            v = par[v]
+        v = t
+        while par[v] is not None:
+            u = par[v]
+            res[u][v] -= b
+            res.setdefault(v, {})[u] = res.get(v, {}).get(u, 0) + b
+            v = u
+        flow += b
+
+
+def vertex_connectivity_menger(k, edges):
+    """kappa(G) BY MENGER'S THEOREM: the minimum, over NON-ADJACENT pairs, of the maximum number of
+    internally vertex-disjoint paths — computed as a max-flow on the vertex-split graph, where each
+    client v becomes v_in -> v_out with capacity 1 (capacity INF for the two endpoints, which cannot
+    be excluded) and each audit link becomes an infinite-capacity arc. A complete graph has no
+    non-adjacent pair, hence no cut, hence INFINITE.
+
+    THIS EXISTS BECAUSE THE ORIGINAL CROSS-CHECK WAS CIRCULAR. `exclusion_price` and
+    `vertex_connectivity` are the SAME loop over the SAME subsets calling the SAME `components`,
+    differing only by a guard that provably cannot change the answer, so their agreement was a
+    tautology sold as a measurement. Proved by mutation rather than by argument: with `components`
+    deliberately corrupted the old census still reported 0 exceptions and merely shrank its own
+    denominator, while this one reports 181. A checker that cannot fail is not evidence."""
+    adjacent = {(min(u, v), max(u, v)) for u, v in edges}
+    INF = k + 10
+    best = None
+    for s, t in _comb(range(k), 2):
+        if (s, t) in adjacent:
+            continue
+        cap = {}
+
+        def _add(a, b, c):
+            cap.setdefault(a, {})
+            cap[a][b] = cap[a].get(b, 0) + c
+
+        for v in range(k):
+            _add(2 * v, 2 * v + 1, INF if v in (s, t) else 1)
+        for u, v in edges:
+            _add(2 * u + 1, 2 * v, INF)
+            _add(2 * v + 1, 2 * u, INF)
+        f = _maxflow(cap, 2 * s + 1, 2 * t)
+        best = f if best is None else min(best, f)
+    return INFINITE if best is None else best
+
+
 def exclusion_price(k, edges):
     """THE PRICE: the fewest clients a server must exclude before it can equivocate undetected.
-    INFINITE when no budget suffices. Computed by RUNNING THE ATTACK over every exclusion set, so it
-    is a measurement rather than a restatement of the invariant it is about to be compared with."""
+    INFINITE when no budget suffices. Computed by RUNNING THE ATTACK over every exclusion set. Its
+    agreement with `vertex_connectivity` is NOT evidence — those two share `components` and cannot
+    disagree; the load-bearing check is `menger_census`, which uses max-flow instead."""
     if not is_connected(k, edges):
         return 0
     for size in range(0, k):
@@ -194,8 +273,12 @@ def exclusion_price(k, edges):
 
 
 def price_census(max_k=MAX_ORDER):
-    """DECIDED over every connected labelled graph to order `max_k`: the simulated attack price EQUALS
-    the vertex connectivity. Returns (agreements, exceptions, total)."""
+    """A CONSISTENCY CHECK, NOT EVIDENCE, and labelled that way after it was caught being sold as the
+    latter. `exclusion_price` and `vertex_connectivity` are the same enumeration over the same
+    subsets calling the same `components`; the only difference is a `len(alive) < 2` guard which at
+    size k-1 leaves one vertex, and a one-vertex graph has one component, so `>= 2` is False on both
+    paths. They CANNOT disagree. This is retained because it is cheap and would catch a regression in
+    that guard — but it is not a measurement of anything. Returns (agreements, exceptions, total)."""
     agree = exc = total = 0
     for k in range(2, max_k + 1):
         for edges in connected_graphs(k):
@@ -207,15 +290,60 @@ def price_census(max_k=MAX_ORDER):
     return agree, exc, total
 
 
+def menger_census(max_k=MAX_ORDER):
+    """THE LOAD-BEARING CHECK: the simulated attack price against kappa computed by MAX-FLOW under
+    Menger's theorem. Subset enumeration versus flow augmentation — no shared primitive, so the two
+    can genuinely disagree, and under a planted fault they do. Returns
+    (agreements, exceptions, total)."""
+    agree = exc = total = 0
+    for k in range(2, max_k + 1):
+        for edges in connected_graphs(k):
+            total += 1
+            if exclusion_price(k, edges) == vertex_connectivity_menger(k, edges):
+                agree += 1
+            else:
+                exc += 1
+    return agree, exc, total
+
+
 def price_is_vertex_connectivity(max_k=MAX_ORDER):
-    _a, exc, total = price_census(max_k)
+    _a, exc, total = menger_census(max_k)
     return exc == 0 and total > 0
+
+
+def cross_check_is_falsifiable(max_k=4):
+    """L15 APPLIED TO A CHECKER RATHER THAN TO A CLAIM. Corrupt the primitive the attack simulation
+    depends on and demand that each census react. The circular one does NOT — it keeps reporting 0
+    exceptions and quietly shrinks its denominator, which is exactly how it passed review three times.
+    The Menger one does. Returns (circular_exceptions_under_fault, menger_exceptions_under_fault);
+    the first is 0 and the second must be positive, and that CONTRAST is the evidence that the second
+    check is worth anything."""
+    real = globals()["components"]
+
+    def _broken(k, edges, alive=None):
+        return real(k, tuple(edges)[1:] if edges else edges, alive)
+
+    globals()["components"] = _broken
+    try:
+        _a1, circular_exc, _t1 = price_census(max_k)
+        _a2, menger_exc, _t2 = menger_census(max_k)
+    finally:
+        globals()["components"] = real
+    return circular_exc, menger_exc
 
 
 # ---- the unbreakable set ---------------------------------------------------------------------------------
 def unbreakable_graphs(k):
     """Every connected topology on k clients the server can NEVER split, at any budget."""
     return tuple(e for e in connected_graphs(k) if exclusion_price(k, e) is INFINITE)
+
+
+def circular_check_cannot_fail(max_k=4):
+    """Named separately so the defect is a first-class object rather than a comment: the
+    original cross-check reports 0 exceptions even with the primitive it depends on
+    corrupted. Returns True when that is still so — and it is expected to be True, because
+    the point is that this check is inert, not that it was fixed."""
+    return cross_check_is_falsifiable(max_k)[0] == 0
 
 
 def unbreakable_are_exactly_complete(max_k=MAX_ORDER):
@@ -430,7 +558,8 @@ def ag_digest(name, payload):
 
 
 def _scene_price():
-    return ag_digest("price", f"{price_census()}:{price_is_vertex_connectivity()}:"
+    return ag_digest("price", f"{price_census()}:{menger_census()}:"
+                              f"{price_is_vertex_connectivity()}:{cross_check_is_falsifiable()}:"
                               f"{unbreakable_are_exactly_complete()}")
 
 
@@ -469,7 +598,9 @@ def golden(name):
 def _main(argv):
     for n in SCENES:
         print(n, scene_result(n))
-    print(f"price == kappa {price_census()} (exceptions must be 0)")
+    print(f"circular consistency (NOT evidence) {price_census()}")
+    print(f"attack vs MENGER max-flow  {menger_census()} (exceptions must be 0)")
+    print(f"cross-check falsifiable (circular_exc, menger_exc) {cross_check_is_falsifiable()}")
     print(f"unbreakable are exactly complete {unbreakable_are_exactly_complete()}")
     print(f"ladder path/ring/complete {price_ladder()[:3]} ... 1/2/inf "
           f"{ladder_is_one_two_infinite()} | triangle degeneracy {the_triangle_is_both()}")

@@ -2,8 +2,12 @@
 # Copyright (C) 2026 Daniel J. Dillberg
 """Falsifiers for tools/terrain/auditgraph.py — THE EXCLUSION PRICE (URDRAUD1).
 
-  THE PRICE IS KAPPA — the simulated attack and the independent invariant agree on all 771 connected
-    labelled graphs to order 5, 0 exceptions. Two computations agreeing is a measurement.
+  THE PRICE IS KAPPA — the simulated attack (subset enumeration) and MENGER MAX-FLOW agree on all
+    771 connected labelled graphs to order 5, 0 exceptions, sharing no primitive.
+  AND THE CHECK CAN FAIL — corrupt components() and the Menger census goes red while the ORIGINAL
+    cross-check does not. That original compared two functions that share components() and cannot
+    disagree; it was a tautology sold as a measurement and it shipped three times. The numbers were
+    always right — the reason to believe them was not.
   ALL-PAIRS IS THE ONLY UNBREAKABLE TOPOLOGY — and that reverses splitview's recommendation, whose
     "a spanning tree suffices" is true in a model where the server cannot exclude anyone.
   THE LADDER IS 1 / 2 / INFINITE — and it starts at FOUR clients, because on three the ring IS the
@@ -28,11 +32,36 @@ class ThePriceIsVertexConnectivity(unittest.TestCase):
             self.assertEqual(AG.scene_result(n), AG.golden(n), n)
             self.assertEqual(AG.scene_result(n), AG.scene_result(n), n)
 
-    def test_simulated_attack_equals_the_invariant(self):
-        agree, exc, total = AG.price_census()
-        self.assertEqual(exc, 0, "the attack price diverged from kappa")
+    def test_simulated_attack_equals_menger_maxflow(self):
+        """THE LOAD-BEARING CHECK: subset enumeration against flow augmentation, no shared
+        primitive."""
+        agree, exc, total = AG.menger_census()
+        self.assertEqual(exc, 0, "the attack price diverged from Menger kappa")
         self.assertEqual((agree, total), (771, 771))
         self.assertTrue(AG.price_is_vertex_connectivity())
+
+    def test_the_cross_check_can_actually_fail(self):
+        """L15 APPLIED TO A CHECKER. Corrupt the primitive the attack depends on; the Menger census
+        must react. Without this the agreement above is unfalsifiable and therefore worthless."""
+        circular_exc, menger_exc = AG.cross_check_is_falsifiable()
+        self.assertGreater(menger_exc, 0, "a checker that cannot fail is not evidence")
+        self.assertEqual(circular_exc, 0)
+
+    def test_the_original_cross_check_was_circular(self):
+        """THE DEFECT, KEPT LIVE. exclusion_price and vertex_connectivity share components() and are
+        separated only by a guard that cannot change the answer, so they can never disagree — the
+        agreement was a tautology sold as a measurement, and it shipped three times."""
+        self.assertTrue(AG.circular_check_cannot_fail())
+        diff = [(k, e) for k in range(2, AG.MAX_ORDER + 1) for e in AG.connected_graphs(k)
+                if AG.exclusion_price(k, e) != AG.vertex_connectivity(k, e)]
+        self.assertEqual(diff, [], "they are structurally incapable of disagreeing")
+
+    def test_menger_and_the_enumerated_kappa_still_agree(self):
+        """The NUMBERS were never wrong — only the reason to believe them."""
+        for k in range(2, AG.MAX_ORDER + 1):
+            for e in AG.connected_graphs(k):
+                self.assertEqual(AG.vertex_connectivity(k, e),
+                                 AG.vertex_connectivity_menger(k, e), (k, e))
 
     def test_the_family_is_not_vacuous(self):
         """L19 — the census is free if every graph has the same price."""

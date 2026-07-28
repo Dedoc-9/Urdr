@@ -1,0 +1,3 @@
+# label :: command   (engineering-rigor gate manifest for Urdr)
+gate      :: python verify.py
+determinism :: python verify.py > /tmp/_d1.txt 2>&1 && python verify.py > /tmp/_d2.txt 2>&1 && cmp /tmp/_d1.txt /tmp/_d2.txt

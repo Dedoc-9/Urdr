@@ -10463,7 +10463,13 @@ class Gate:
                     if ref_ok else "an auditgraph scene drifted from its digest")
         law_ok = True
         try:
-            law_ok = AG.price_census() == (771, 0, 771) and AG.price_is_vertex_connectivity()
+            law_ok = AG.menger_census() == (771, 0, 771) and AG.price_is_vertex_connectivity()
+            law_ok = law_ok and AG.price_census() == (771, 0, 771)
+            _circ, _meng = AG.cross_check_is_falsifiable()
+            law_ok = law_ok and _circ == 0 and _meng > 0 and AG.circular_check_cannot_fail()
+            law_ok = law_ok and all(
+                AG.vertex_connectivity(kk, ee) == AG.vertex_connectivity_menger(kk, ee)
+                for kk in range(2, AG.MAX_ORDER + 1) for ee in AG.connected_graphs(kk))
             law_ok = law_ok and AG.unbreakable_are_exactly_complete() == (
                 (2, 1, True), (3, 1, True), (4, 1, True), (5, 1, True))
             law_ok = law_ok and AG.ladder_is_one_two_infinite()
@@ -10485,9 +10491,20 @@ class Gate:
                     "committing the topology to CLIENT IDENTITY collapses that to 0 of 1 and leaves "
                     "only ADMISSION; under a committed topology the price of undetected equivocation "
                     "is exactly kappa, the VERTEX connectivity, decided by RUNNING THE ATTACK over "
-                    "every exclusion set and comparing against an independently computed invariant "
-                    "across all 771 connected labelled graphs to order 5 with 0 exceptions, because "
-                    "two computations agreeing is a measurement where one is a definition restated; "
+                    "every exclusion set and comparing against kappa computed by MAX-FLOW under "
+                    "MENGER'S THEOREM across all 771 connected labelled graphs to order 5 with 0 "
+                    "exceptions — subset enumeration against flow augmentation, sharing no "
+                    "primitive. THE FIRST VERSION OF THAT CHECK WAS CIRCULAR AND SHIPPED THREE "
+                    "TIMES: it compared exclusion_price against vertex_connectivity, which are the "
+                    "same loop over the same subsets calling the same components() and are "
+                    "separated only by a guard that cannot change the answer, so they were "
+                    "structurally incapable of disagreeing while being sold as two computations "
+                    "agreeing. It was refuted BY MUTATION rather than by argument — corrupt "
+                    "components() and the old census still reports 0 exceptions and quietly "
+                    "shrinks its denominator from 771 to 495, where the Menger census reports 181 "
+                    "— and cross_check_is_falsifiable now runs that mutation on every gate pass so "
+                    "the independence is ASSERTED rather than believed. The numbers never changed; "
+                    "only the reason to trust them did; "
                     "the topologies the server can NEVER split are EXACTLY the complete graphs, one "
                     "per order and no others, so the ladder is spanning-tree 1 / ring 2 / all-pairs "
                     "INFINITE for every client count and redundancy here is a matter of kind rather "

@@ -21,9 +21,25 @@
 #     the price of undetected equivocation is exactly kappa(T), the VERTEX connectivity
 #
 # DECIDED by RUNNING THE ATTACK — every subset of clients the server might exclude, asking whether the
-# survivors split — and comparing against kappa computed independently: 771 of 771 connected labelled
-# graphs to order 5, 0 exceptions. Two computations agreeing is a measurement; one computation is a
-# definition restated.
+# survivors split — and comparing against kappa computed by MAX-FLOW under MENGER'S THEOREM on the
+# vertex-split graph: 771 of 771 connected labelled graphs to order 5, 0 exceptions. Subset
+# enumeration against flow augmentation, sharing no primitive.
+#
+# AND THE FIRST VERSION OF THAT SENTENCE WAS A LIE, RECORDED HERE RATHER THAN REPAIRED IN SILENCE.
+# This rung originally compared exclusion_price against vertex_connectivity and sold the agreement as
+# "two computations agreeing is a measurement; one computation is a definition restated." Those two
+# are the SAME loop over the SAME subsets calling the SAME components(), separated only by a
+# len(alive) < 2 guard that provably cannot change the answer — at size k-1 one vertex survives, and a
+# one-vertex graph has one component, so the >= 2 test is False on both paths. They CANNOT disagree.
+# The claim shipped three times before an audit caught it.
+#
+# IT WAS REFUTED BY MUTATION, NOT BY ARGUMENT. Corrupt components() and the old census still reports 0
+# exceptions, quietly shrinking its denominator from 771 to 495; the Menger census reports 181. A
+# checker that cannot fail is not evidence. cross_check_is_falsifiable() now runs that exact mutation
+# on every gate pass and demands (circular 0, menger > 0), so the independence is ASSERTED rather than
+# believed, and circular_check_cannot_fail() keeps the inert check as a first-class named object
+# instead of a comment. THE NUMBERS NEVER CHANGED — 771/0/771 then and now. Only the reason to trust
+# them did, which is the whole distinction between a result and a hypothesis that happened to be true.
 #
 # AND THE COMPLETE GRAPH HAS NO PRICE, WHICH REVERSES THE PREVIOUS RUNG'S RECOMMENDATION. Enumerated:
 # the connected topologies the server can NEVER split, at any budget, are EXACTLY the complete graphs —
@@ -69,6 +85,6 @@
 # unchanged, and a client that cannot tell denial from outage cannot raise the alarm; WHO to believe
 # once a fork is detected; any bound on a server that can MINT identities, which would buy back the
 # assignment lever it just lost.
-price ca38c17cd0e2c66ef0143ac225e5504c6f177494bb5694b3ab2420cf65ad5db6
+price 95c0ab9a1473cbe00505a52276ed99cfdb07f800d8dab4a505dd5ec4b030961e
 ladder bc5d3f3bae71a7e48c878c84d210877a2209b719608c3b639aba96eaec26209e
 lever 681bee86384061b8319ed3acbac94e7da4ced02e1bf73408ec7f6017aea68299
