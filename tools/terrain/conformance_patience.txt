@@ -1,0 +1,77 @@
+# URDRPAT1 conformance — THE PRICE OF THE PRICE. The timing hypothesis URDRAUD1's ladder was resting
+# on without saying so, and the exact integer cost of buying it. NO new glyph (kernel frozen).
+#
+# THE CONTINGENCY, NAMED. auditgraph proved the cost of undetected equivocation under a committed
+# audit topology is kappa, the vertex connectivity, and sold that as converting an INVISIBLE INTEGRITY
+# attack into a VISIBLE AVAILABILITY one. Every word rests on "visible", and neither splitview nor
+# auditgraph established it — both DECLARED it and moved on. This rung asks what happens when the
+# server excludes nobody and simply answers late.
+#
+#     CHANDRA AND TOUEG (JACM 1996): a crashed process cannot be distinguished from a slow one, so no
+#     failure detector in a purely asynchronous system has any accuracy property. The observation is
+#     identical.
+#
+# That is splitview's own lonely-client argument turned from history onto time, and it is fatal here.
+#
+# THE STALL COLLAPSE. Honest delays lie in [1, Delta]; a client waits T before calling a peer silent.
+# A server wanting a partition kicks nobody — it answers a CUT at delay T+1. If T < Delta that lies
+# INSIDE the honest envelope, so the move is not merely undetected but UNATTRIBUTABLE: a pattern
+# nature could have produced. MEASURED on the pinned 4-ring over all 256 delay assignments, winning
+# moves by patience: T=1 243, T=2 176, T=3 67, T=4 0, T=5 0. They vanish exactly at T = Delta.
+#
+#     the auditgraph ladder 1 / 2 / INFINITE holds exactly when T >= Delta,
+#     and collapses to 0 / 0 / 0 the moment T < Delta
+#
+# Not reduced — ZERO, because the price was denominated in EXCLUDED CLIENTS and a stalling server
+# excludes none. The patient row is cross-checked against auditgraph's own exclusion_price rather than
+# restated here. This is the third scope correction in one chain: splitview assumed the audit graph
+# was exogenous, auditgraph assumed exclusion was visible, and each was true in its own model.
+#
+# THE SHARPEST ROW LANDS ON THE TOPOLOGY AUDITGRAPH CALLED UNBREAKABLE. On the complete graph no
+# exclusion budget suffices — kappa is INFINITE — and a stalling server needs exactly lambda = 3
+# edges silenced at a visible cost of 0 clients. All-pairs gossip is unbreakable by exclusion and
+# breakable by patience.
+#
+# AND THAT RETURNS A QUANTITY THE PREVIOUS RUNG COUNTED AS A DEFECT. auditgraph measured two plants
+# pricing the attack by lambda and delta and showed both OVER-price kappa 15 times each; that verdict
+# STANDS for the question it asked. But a stalling server does not remove vertices, it silences EDGES,
+# and the count is exactly lambda. lambda was never bad graph theory — it was the right answer to a
+# question nobody had posed, and which of kappa or lambda binds is decided by ONE INEQUALITY:
+# T >= Delta, or not. On the ring and path the two COINCIDE at 2 and 1, which is why the complete
+# graph is the witness that has to be shown rather than assumed.
+#
+# THE COST OF BUYING T >= Delta, AS A CLOSED FORM. With Delta known, set T = Delta and the ladder is
+# restored at no recurring cost. Under DWORK-LYNCH-STOCKMEYER partial synchrony (JACM 1988) a bound
+# EXISTS but is UNKNOWN, so no fixed T is safe and patience must grow. Doubling from T0 pays
+#
+#     false_alarms(Delta, T0) = ceil(log2(ceil(Delta / T0)))      integer: (q - 1).bit_length()
+#
+# false alarms ONCE and never again — DECIDED against simulation over all 512 (Delta, T0) pairs in the
+# pinned ranges with 0 exceptions, in integer division and bit_length so no float enters an authority
+# path (the same ceil-log2 move horn uses for pitch). Stabilization is permanent: the worst count over
+# the range is 6, and patience never falls back below Delta once it has passed it.
+#
+# THE LINEAR PLANT IS NOT INCORRECT — IT IS UNAFFORDABLE, and that is a plant class this repo had not
+# yet needed a name for. Linear growth also terminates and costs ceil(Delta/T0) - 1, the same quantity
+# BEFORE the logarithm: (Delta, T0, linear, doubling) = (200,1,199,8) (1000,1,999,10) (64,1,63,6)
+# (64,8,7,3). It is sound and it loses on price alone. The other two plants fail harder: a FIXED
+# patience below Delta false-alarms every round forever — 100 at 100 rounds, 10000 at 10000, against
+# a doubling cost of 6, so the difference is not magnitude but UNBOUNDEDNESS; and GUESSING Delta at 8
+# leaves 56 of the 64 pinned bounds above the guess, each one a free move the deployment believes it
+# has closed.
+#
+# THE REFUSAL IS TYPED. An audit deployment whose patience does not cover the envelope has NO exclusion
+# price, so require_patience_covers RAISES rather than reporting a reduced guarantee. Quoting kappa
+# there would be exactly the inflation this rung exists to prevent.
+#
+# DECLARED: delays are integers in [1, Delta] on a static topology with an envelope uniform over edges
+# — real networks are neither, and a heavy-tailed distribution makes the envelope LARGER and the attack
+# CHEAPER, not smaller; patience is per-client and identical across clients.
+# does_not_show: WHAT Delta IS for any real deployment — a measurement on a named host, and this rung
+# supplies the form rather than the datum; that stabilization suffices, since a server may stall only
+# during the window it needs and then go quiet, and bounding that needs the HISTORIES splitview
+# compares rather than the timings compared here; any claim about consensus — this is a detector
+# accuracy result, NOT FLP, and the two must not be run together.
+separation 57c4e3530c57d68b493e8f87fa595addd02e10cdf368d08423ddd9c7aa66c747
+collapse fb3f56f505867ecfefe8f56b18143ed7aa372ca603c5ae4230f3a819cd55c49b
+form d0d50eb91ad1495ca4341cb02ca6a1f85be414ffb9e9a8f78fa30cc906006eca

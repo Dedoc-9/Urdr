@@ -10537,6 +10537,112 @@ class Gate:
                     "rather than demoted to a footnote"
                     if red_ok else "an auditgraph plant did not bite")
 
+    def patience(self):
+        """The price of the price (URDRPAT1) — the timing hypothesis URDRAUD1's ladder rested on
+        without saying so. auditgraph sold kappa as converting an INVISIBLE INTEGRITY attack into a
+        VISIBLE AVAILABILITY one; every word rests on 'visible', which both it and splitview DECLARED
+        rather than established. CHANDRA-TOUEG: a crashed process cannot be distinguished from a slow
+        one — splitview's own lonely-client argument turned from history onto time. A server wanting
+        a partition kicks nobody and answers a CUT at delay T+1; below the envelope that is a pattern
+        NATURE COULD HAVE PRODUCED, so the ladder 1/2/INFINITE collapses to 0/0/0. The topology
+        auditgraph called UNBREAKABLE falls to 3 silenced edges at zero visible cost. Buying T >=
+        Delta under DLS partial synchrony costs exactly ceil(log2(ceil(Delta/T0))) false alarms,
+        once. Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import patience as PT
+            import auditgraph as AGX
+        except Exception as exc:
+            self.record("patience", False, f"import failed (patience): {exc}")
+            return
+        try:
+            ref_ok = all(PT.scene_result(n) == PT.golden(n) for n in PT.SCENES)
+        except Exception as exc:
+            self.record("patience:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("patience:scenes", ref_ok,
+                    "separation + collapse + form reproduce URDRPAT1 digests"
+                    if ref_ok else "a patience scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = PT.free_moves_vanish_exactly_at_delta() == (
+                (1, 243, 256), (2, 176, 256), (3, 67, 256), (4, 0, 256), (5, 0, 256))
+            law_ok = law_ok and PT.separation_is_exactly_t_ge_delta()
+            imp, pat = PT.ladder_under_stall()
+            law_ok = law_ok and imp == (3, 0, 0, 0) and pat == (4, 1, 2, AGX.INFINITE)
+            law_ok = law_ok and PT.ladder_collapses_then_returns()
+            k = PT.PINNED_K
+            law_ok = law_ok and AGX.exclusion_price(k, AGX.path_graph(k)) == 1
+            law_ok = law_ok and AGX.exclusion_price(k, AGX.ring_graph(k)) == 2
+            law_ok = law_ok and AGX.exclusion_price(k, AGX.complete_graph(k)) is AGX.INFINITE
+            law_ok = law_ok and PT.the_unbreakable_topology_is_stall_breakable() == (
+                AGX.INFINITE, 0, 3)
+            law_ok = law_ok and PT.which_quantity_binds() == (
+                ("path", 1, 1, 0, 1), ("ring", 2, 2, 0, 2),
+                ("complete", AGX.INFINITE, 3, 0, AGX.INFINITE))
+            law_ok = law_ok and PT.closed_form_census() == (512, 0, 512) and PT.closed_forms_hold()
+            law_ok = law_ok and PT.stabilization_is_finite_and_permanent() == (6, True)
+            law_ok = law_ok and PT.refuses_an_impatient_deployment() and PT.admits_a_patient_one()
+        except Exception:
+            law_ok = False
+        self.record("patience-law", law_ok,
+                    "auditgraph priced undetected equivocation at kappa and sold that as converting "
+                    "an INVISIBLE INTEGRITY attack into a VISIBLE AVAILABILITY one, and every word "
+                    "of it rests on 'visible' — which both it and splitview DECLARED rather than "
+                    "established. Chandra-Toueg's result is that a crashed process cannot be "
+                    "distinguished from a slow one, which is splitview's own lonely-client "
+                    "indistinguishability argument turned from history onto TIME: a server wanting "
+                    "a partition excludes nobody and answers a CUT at delay T+1, and while T < "
+                    "Delta that delay lies INSIDE the honest envelope, so the move is not merely "
+                    "undetected but UNATTRIBUTABLE — a pattern nature could equally have produced. "
+                    "Decided over all 256 delay assignments on the pinned ring, winning moves run "
+                    "243 / 176 / 67 and then vanish EXACTLY at T = Delta, so the ladder 1 / 2 / "
+                    "INFINITE holds precisely when T >= Delta and collapses to 0 / 0 / 0 below it — "
+                    "not reduced but ZERO, because the price was denominated in EXCLUDED CLIENTS "
+                    "and a stalling server excludes none, with the patient row cross-checked "
+                    "against auditgraph's own exclusion_price rather than retyped; the sharpest row "
+                    "lands on the topology auditgraph called UNBREAKABLE, where no exclusion budget "
+                    "suffices and yet 3 silenced edges at ZERO visible cost do the job; and buying "
+                    "T >= Delta under Dwork-Lynch-Stockmeyer partial synchrony, where the bound "
+                    "EXISTS but is UNKNOWN, costs exactly ceil(log2(ceil(Delta/T0))) false alarms "
+                    "ONCE and never again, decided against simulation over all 512 pinned pairs "
+                    "with 0 exceptions in integer division and bit_length so no float touches an "
+                    "authority path"
+                    if law_ok else "the patience law did not hold")
+        red_ok = False
+        try:
+            red_ok = PT.fixed_patience_never_stabilizes() == (100, 10000, 6)
+            red_ok = red_ok and PT.guessing_delta_bites() == (56, 64)
+            red_ok = red_ok and PT.linear_plant_is_unaffordable_not_wrong() == (63, 6, True)
+            red_ok = red_ok and PT.the_gap() == ((200, 1, 199, 8), (1000, 1, 999, 10),
+                                                 (64, 1, 63, 6), (64, 8, 7, 3))
+            red_ok = red_ok and AGX.overprice_census() == (15, 0, 15, 0, 767)
+            kc, lc, kr, lr, coincide = PT.lambda_was_the_answer_to_another_question()
+            red_ok = red_ok and kc is AGX.INFINITE and lc == 3 and (kr, lr) == (2, 2) and coincide
+            tbl = PT.free_moves_vanish_exactly_at_delta()
+            red_ok = red_ok and any(w > 0 for _T, w, _t in tbl) and any(w == 0 for _T, w, _t in tbl)
+        except Exception:
+            red_ok = False
+        self.record("patience-selftest", red_ok,
+                    "three plants bite and one of them is a class this repo had not yet needed a "
+                    "name for: LINEAR patience growth is SOUND — it terminates, and the test asserts "
+                    "that it does — and it loses on price alone, costing 63 false alarms where "
+                    "doubling costs 6 and 199 against 8 at Delta/T0 = 200, so the plant is not "
+                    "incorrect but UNAFFORDABLE; a FIXED patience below the envelope false-alarms "
+                    "every round forever, 100 at a hundred rounds and 10000 at ten thousand against "
+                    "a doubling cost of 6, where the difference that matters is not magnitude but "
+                    "UNBOUNDEDNESS; and GUESSING the bound at 8 leaves 56 of the 64 pinned envelopes "
+                    "above the guess, each a free move the deployment believes it has closed, which "
+                    "is exactly the case DLS partial synchrony forbids assuming away. AND "
+                    "AUDITGRAPH'S OWN PLANT VERDICT IS RE-RUN HERE UNRETRACTED: lambda still "
+                    "over-prices the EXCLUSION question 15 times of 767, because lambda was never "
+                    "bad graph theory — it is the exact count of edges a STALLING server must "
+                    "silence, the right answer to a question the previous rung had not posed, and "
+                    "on the ring and path the two quantities COINCIDE at 2 and 1 so the complete "
+                    "graph is the witness that has to be shown rather than assumed"
+                    if red_ok else "a patience plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -13480,6 +13586,7 @@ def main() -> int:
     gate.divergence()
     gate.splitview()
     gate.auditgraph()
+    gate.patience()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
