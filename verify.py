@@ -10338,6 +10338,103 @@ class Gate:
                     "weakened when that measurement refuted it"
                     if red_ok else "a divergence plant did not bite")
 
+    def splitview(self):
+        """The official server's own audit (URDRSPV1) — the one authority nothing was pointed at.
+        Every prior rung hardens the server against a lying CLIENT; the design goal has an OFFICIAL
+        GLOBAL SERVER and nothing asked what happens when THAT lies. It forges nothing: it serves
+        Alice history H_A and Bob history H_B, both internally consistent and both passing every
+        existing check. THE LONELY-CLIENT THEOREM: a client confined to one side holds a transcript
+        BIT-IDENTICAL to the honest world for that side, so detection power is 0 for every solo
+        detector including unwritten ones — measured as 0 of 240 forks flagged by the strongest solo
+        detector against 240 of 240 by one crossing comparison. THE CUT THEOREM carries the
+        hypothesis the textbook omits: detection also requires BOTH heads past the divergence, so a
+        freshly joined client cannot audit and audit power is TENURE, not headcount. Gossip cost is
+        k-1, attained. The RFC 6962 crypto is DECIDED against the structural oracle, not cited.
+        Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import splitview as SV
+        except Exception as exc:
+            self.record("splitview", False, f"import failed (splitview): {exc}")
+            return
+        try:
+            ref_ok = all(SV.scene_result(n) == SV.golden(n) for n in SV.SCENES)
+        except Exception as exc:
+            self.record("splitview:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("splitview:scenes", ref_ok,
+                    "crypto + lonely + gossip reproduce URDRSPV1 digests"
+                    if ref_ok else "a splitview scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = SV.agreement_census() == (2667, 0, 2667) and SV.crypto_matches_structure()
+            law_ok = law_ok and SV.forgery_census() == (0, 1920, 240)
+            solo, crossing, forks = SV.solo_vs_crossing_census()
+            law_ok = law_ok and (solo, crossing, forks) == (0, 240, 240) and forks > 0
+            law_ok = law_ok and SV.solo_power_is_zero()
+            agree, exc_, total, det = SV.head_depth_census()
+            law_ok = law_ok and (agree, exc_, total) == (6000, 0, 6000) and 0 < det < total
+            law_ok = law_ok and SV.shallow_gossip_is_worthless() == (0, 2080)
+            law_ok = law_ok and SV.connectivity_census() == (1099, 0, 1099)
+            law_ok = law_ok and SV.min_edges_table() == ((1, 0), (2, 1), (3, 2), (4, 3), (5, 4))
+            law_ok = law_ok and SV.gossip_cost_is_linear()
+            law_ok = law_ok and SV.single_client_is_vacuously_safe() == (True, False)
+            law_ok = law_ok and SV.refuses_a_fork() and SV.admits_an_extension()
+        except Exception:
+            law_ok = False
+        self.record("splitview-law", law_ok,
+                    "a forked server is NOT detectable by verification and IS detectable only by "
+                    "comparison — the strongest solo detector flags 0 of 240 forks while one "
+                    "crossing comparison flags 240 of 240, and the zero is a property of the INPUT "
+                    "(a confined client's transcript is bit-identical to the honest world for its "
+                    "side) rather than of the detector, so it bounds detectors not yet written; "
+                    "detection additionally requires BOTH heads past the divergence, decided 6000 "
+                    "of 6000 with 0 exceptions and 0 of 2080 shallow pairs detecting anything, "
+                    "which makes audit power a property of TENURE rather than headcount and means "
+                    "a freshly joined client cannot audit; undetected equivocation is possible "
+                    "exactly when the gossip graph is DISCONNECTED (1099 of 1099 graphs, 0 "
+                    "exceptions) so a spanning tree suffices and the minimum is k-1 ATTAINED, "
+                    "all-pairs gossip buying nothing; and the RFC 6962 proof and verifier are "
+                    "DECIDED against the structural oracle is_prefix over 2667 ordered pairs with "
+                    "0 exceptions rather than cited, because implementing a published algorithm is "
+                    "not evidence that the algorithm was implemented"
+                    if law_ok else "the splitview law did not hold")
+        red_ok = False
+        try:
+            red_ok = SV.root_plant_false_positives() == (258, 258)
+            red_ok = red_ok and SV.cut_plant_overclaims() == 3232
+            red_ok = red_ok and SV.count_plant_bites() == 326
+            admitted, pforks = SV.unchecked_plant_admits_forks()
+            red_ok = red_ok and (admitted, pforks) == (336, 1044) and admitted > 0
+            red_ok = red_ok and SV.unchecked_plant_witness()
+            ap, fp2, ao, fo = SV.unchecked_plant_is_blind_at_powers_of_two()
+            red_ok = red_ok and (ap, fp2, ao, fo) == (0, 708, 336, 336) and ao == fo and fp2 > 0
+            fam = SV._short_long_forks()
+            red_ok = red_ok and len(fam) > 0
+            red_ok = red_ok and all(len(a) < len(b) for a, b in fam)
+            red_ok = red_ok and not [(a, b) for a in SV._logs_exactly(SV.FORK_LEN)
+                                     for b in SV._logs_exactly(SV.FORK_LEN) if len(a) < len(b)]
+        except Exception:
+            red_ok = False
+        self.record("splitview-selftest", red_ok,
+                    "four plants bite: root-inequality is the INVERTED detector and cries fork on "
+                    "258 of 258 honest pairs because differing roots are the resting state rather "
+                    "than evidence; the cut stated without its depth hypothesis over-claims 3232 "
+                    "times; a detector keyed on HEADCOUNT instead of connectivity passes 326 "
+                    "disconnected graphs; and a verifier that derives the new root without checking "
+                    "the old one admits 336 of 1044 forks. THAT LAST CENSUS FIRST RETURNED (0, 0) — "
+                    "its family had been drawn from logs of one fixed length where len(A) < len(B) "
+                    "is never true, so a plant looked harmless because it had never been offered "
+                    "anything to bite, and the DENOMINATOR is what caught it; the repair then "
+                    "exposed more than the plant, because at POWER-OF-TWO head sizes the old root "
+                    "is implicit and gets spliced into the proof, so the defective verifier is "
+                    "poisoned by the root it was handed and fails anyway — 0 of 708 admitted at "
+                    "powers of two against 336 of 336 off them, a perfect dichotomy meaning a suite "
+                    "exercising only sizes 1, 2, 4, 8 would certify a broken verifier at a 100% "
+                    "pass rate"
+                    if red_ok else "a splitview plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -13279,6 +13376,7 @@ def main() -> int:
     gate.syntaxclean()
     gate.recirc()
     gate.divergence()
+    gate.splitview()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

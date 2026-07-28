@@ -1,0 +1,73 @@
+# URDRSPV1 conformance — THE OFFICIAL SERVER'S OWN AUDIT. The one authority in the architecture that
+# nothing was pointed at. NO new glyph (kernel frozen).
+#
+# THE GAP. voxlat certifies the lattice, divergence bounds a capture, geoquorum adjudicates a doctored
+# submission, provbind refuses an unbound certificate, tierview refuses an asymmetric visibility claim,
+# lagcomp refuses a dated one, persist reconstructs-or-refuses a durable record. Every one hardens the
+# server against a lying CLIENT. The design goal has an OFFICIAL GLOBAL SERVER and nothing asked what
+# happens when THAT lies. It need forge nothing: it serves Alice history H_A and Bob history H_B, both
+# internally consistent, both correctly signed, both passing every check listed above.
+#
+#     A FORKED SERVER IS NOT DETECTABLE BY VERIFICATION. IT IS DETECTABLE ONLY BY COMPARISON.
+#
+# THE LONELY-CLIENT THEOREM. A client confined to side A holds a transcript BIT-IDENTICAL to the one
+# it would hold in an honest world whose log is exactly A. No function of that transcript is a fork
+# detector — not because a detector was too weak but because the input is identical, so the bound is 0
+# for every solo detector including unwritten ones. MEASURED as the contrast that forbids reading the
+# zero as vacuity: the STRONGEST solo detector, one that verifies every proof it is ever offered,
+# flags 0 of 240 forks, and the SAME 240 are flagged by 240 of 240 crossing comparisons. Zero and
+# total, on one family.
+#
+# THE CUT THEOREM, WITH THE HYPOTHESIS THE TEXTBOOK VERSION OMITS. "Gossip catches equivocation" is
+# TRUE AND INSUFFICIENT, and shipping it alone would have been an inflation. Two clients on opposite
+# sides detect NOTHING unless BOTH heads are deeper than the divergence — a head at or below the
+# common prefix is a prefix of the other side too and a consistency proof honestly exists. DECIDED
+# over every fork and every head pair, 6000 of 6000 agreeing, 0 exceptions:
+#
+#     detection <=> an edge crosses the cut AND both endpoints' heads exceed the common prefix
+#
+# 2768 of 6000 head pairs detect (strictly between 0 and total, so the law is not vacuous), and 0 of
+# 2080 SHALLOW pairs detect anything. The deployment consequence is not obvious: A FRESHLY JOINED
+# CLIENT CANNOT AUDIT. Audit power is a property of TENURE, not of headcount. The plant that states
+# the cut without its hypothesis over-claims 3232 times.
+#
+# THE COST IS LINEAR, NOT QUADRATIC. Undetected equivocation is possible iff the gossip graph is
+# DISCONNECTED — one view per connected component and no more, so undetected forkings number exactly
+# 2^c - 2. Decided over every labelled graph to order 5 (1099 of 1099, 0 exceptions), and the minimum
+# edge count for guaranteed detection is ((1,0),(2,1),(3,2),(4,3),(5,4)) — exactly k-1, ATTAINED. A
+# spanning tree suffices; all-pairs gossip buys nothing. The k=1 entry is named as VACUOUS SAFETY
+# rather than counted as a result: a server with one client has one view to serve and cannot
+# equivocate at all, which is absence of the attack, not presence of a defence.
+#
+# THE CRYPTO IS DECIDED, NOT CITED. RFC 6962's tree hash, consistency proof and verifier are
+# implemented and then CHECKED AGAINST THE STRUCTURAL ORACLE is_prefix over every ordered pair in an
+# exhaustive log family: 2667 of 2667, 0 exceptions. Implementing a published algorithm is not
+# evidence that the algorithm was implemented; the census is. Of 1920 enumerated forgeries a forked
+# server can compute from BOTH sides it holds, 0 verify.
+#
+# THE PLANT THAT DID NOT BITE, AND WHAT IT WAS HIDING. The defective-verifier census first returned
+# (0, 0) — a plant that looked harmless because its family had been drawn from logs of one fixed
+# length, where len(A) < len(B) is never true and no proof is even defined. The DENOMINATOR caught it.
+# Rebuilt across lengths the plant admits 336 of 1044, and the repair exposed a result worth more than
+# the plant: when the client's head size is an EXACT POWER OF TWO the old root is implicit — the
+# verifier splices it into the proof — so a verifier that never checks the old root still fails there,
+# poisoned by the root it was handed. Measured: 0 of 708 admitted at power-of-two head sizes, 336 of
+# 336 admitted off them. A PERFECT DICHOTOMY, which means a test suite exercising only sizes 1, 2, 4,
+# 8 would certify a broken verifier with a 100% pass rate.
+#
+# ABSENCE OF PROOF IS THE EVIDENCE, AND THAT POLARITY IS LOAD-BEARING. A forked server cannot produce
+# a consistency proof between the heads it served, so the protocol must read "no proof" as FORKED and
+# not as "retry later" — otherwise it stalls forever and buys permanent silence. The safe polarity
+# costs something real: at this layer a transient outage is indistinguishable from a fork.
+#
+# DECLARED: the gossip model is a static undirected graph over a fixed client set with truthful head
+# exchange — clients may be confined and deceived but do not lie about each other's heads, and a sybil
+# population reporting fabricated heads is geoquorum's cohort problem, not this rung's; the log is
+# append-only leaves with no semantics.
+# does_not_show: WHO forked or when — detection localizes to a PAIR, not to a culprit, and attribution
+# needs signed heads this rung does not model; liveness, so a transient outage reads as a fork here;
+# that detection implies remedy — a detected fork is an alarm, and which side is canonical is a
+# governance question with no cryptographic answer.
+crypto 937c30022a97f204eb269a94a22b129ad748e4a1a3f0bf53bcb0845294cd9096
+lonely 50ede7d2bd2190cdc265cf457f7bb2d76763b2e8b85afbc1e1fc516920a273c6
+gossip a5a950f4bafcfeae76c8c1f6434e9a120c560ba934e2b81a776ba150e30523b3
