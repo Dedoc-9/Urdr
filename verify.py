@@ -10435,6 +10435,108 @@ class Gate:
                     "pass rate"
                     if red_ok else "a splitview plant did not bite")
 
+    def auditgraph(self):
+        """The exclusion price (URDRAUD1) — what URDRSPV1 assumed away. splitview's gossip graph is
+        EXOGENOUS: given, with the server playing against it. In an MMO the server BUILDS the graph,
+        so matchmaking is the attack surface — over the Bell(k) session partitions, Bell(k)-1
+        disconnect the audit graph and the server picks. Committing the topology to CLIENT IDENTITY
+        collapses that to 0 of 1 and leaves only ADMISSION. THE EXCLUSION PRICE THEOREM: under a
+        committed topology the price of undetected equivocation is exactly kappa, the VERTEX
+        connectivity — decided by running the attack and comparing against the invariant, 771 of 771
+        with 0 exceptions. AND THE UNBREAKABLE TOPOLOGIES ARE EXACTLY THE COMPLETE ONES, which
+        reverses splitview's cheapest recommendation: a spanning tree costs the server ONE kick. The
+        two rungs do not conflict; the scope of the cheaper one does. Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import auditgraph as AG
+        except Exception as exc:
+            self.record("auditgraph", False, f"import failed (auditgraph): {exc}")
+            return
+        try:
+            ref_ok = all(AG.scene_result(n) == AG.golden(n) for n in AG.SCENES)
+        except Exception as exc:
+            self.record("auditgraph:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("auditgraph:scenes", ref_ok,
+                    "price + ladder + lever reproduce URDRAUD1 digests"
+                    if ref_ok else "an auditgraph scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = AG.price_census() == (771, 0, 771) and AG.price_is_vertex_connectivity()
+            law_ok = law_ok and AG.unbreakable_are_exactly_complete() == (
+                (2, 1, True), (3, 1, True), (4, 1, True), (5, 1, True))
+            law_ok = law_ok and AG.ladder_is_one_two_infinite()
+            law_ok = law_ok and AG.spanning_tree_falls_to_one_exclusion() == (
+                (4, 1), (5, 1), (6, 1), (7, 1), (8, 1))
+            law_ok = law_ok and all(AG.server_choice_census(k) == e for k, e in
+                                    ((2, (1, 2)), (3, (4, 5)), (4, (14, 15)), (5, (51, 52))))
+            law_ok = law_ok and AG.committed_census(5) == (0, 1)
+            law_ok = law_ok and AG.commitment_removes_the_assignment_lever()
+            law_ok = law_ok and AG.vertex_connectivity(5, AG.complete_graph(5)) is AG.INFINITE
+            law_ok = law_ok and AG.refuses_a_spanning_tree() and AG.admits_a_ring()
+            law_ok = law_ok and not AG.server_wins_after_excluding(3, AG.path_graph(3), (0, 1))
+        except Exception:
+            law_ok = False
+        self.record("auditgraph-law", law_ok,
+                    "splitview's gossip graph is EXOGENOUS and an official server BUILDS its own, so "
+                    "matchmaking is the attack surface: over the Bell(k) session partitions "
+                    "Bell(k)-1 leave the audit graph disconnected and the server chooses, while "
+                    "committing the topology to CLIENT IDENTITY collapses that to 0 of 1 and leaves "
+                    "only ADMISSION; under a committed topology the price of undetected equivocation "
+                    "is exactly kappa, the VERTEX connectivity, decided by RUNNING THE ATTACK over "
+                    "every exclusion set and comparing against an independently computed invariant "
+                    "across all 771 connected labelled graphs to order 5 with 0 exceptions, because "
+                    "two computations agreeing is a measurement where one is a definition restated; "
+                    "the topologies the server can NEVER split are EXACTLY the complete graphs, one "
+                    "per order and no others, so the ladder is spanning-tree 1 / ring 2 / all-pairs "
+                    "INFINITE for every client count and redundancy here is a matter of kind rather "
+                    "than degree — which REVERSES splitview's cheapest recommendation, since a "
+                    "spanning tree is the minimum-edge topology that guarantees detection and also "
+                    "the one a server dismantles with ONE kick; kappa is reported as INFINITE rather "
+                    "than the textbook k-1 on a complete graph because the quantity is an "
+                    "ADVERSARY'S BUDGET and k-1 would inflate a guarantee into a price; and this "
+                    "buys no impossibility, only the conversion of an INVISIBLE INTEGRITY attack "
+                    "into a VISIBLE AVAILABILITY one, since being removed is the one thing a client "
+                    "can observe about itself without comparing anything to anyone"
+                    if law_ok else "the auditgraph law did not hold")
+        red_ok = False
+        try:
+            red_ok = AG.overprice_census() == (15, 0, 15, 0, 767)
+            red_ok = red_ok and AG.plants_only_fail_optimistically()
+            red_ok = red_ok and AG.kappa_below_lambda_witness() == 15
+            red_ok = red_ok and AG.index_commitment_is_not_commitment() == (True, 10)
+            same, rp, cp = AG.the_triangle_is_both()
+            red_ok = red_ok and same and rp is AG.INFINITE and rp == cp
+            red_ok = red_ok and AG.LADDER_MIN == 4
+            red_ok = red_ok and not AG.ladder_is_one_two_infinite(min_k=3)
+            for k in range(2, AG.MAX_ORDER + 1):
+                for e in AG.connected_graphs(k):
+                    kap, lam = AG.vertex_connectivity(k, e), AG.edge_connectivity(k, e)
+                    if kap is AG.INFINITE or lam is AG.INFINITE:
+                        continue
+                    red_ok = red_ok and kap <= lam <= AG.min_degree(k, e)
+        except Exception:
+            red_ok = False
+        self.record("auditgraph-selftest", red_ok,
+                    "three plants bite and two of them fail in the DANGEROUS direction: pricing the "
+                    "attack in CUT LINKS (lambda) or in the least-connected client's DEGREE (delta) "
+                    "instead of in EXCLUDED CLIENTS over-states the price 15 times each and "
+                    "under-states it 0 times over 767 graphs — Whitney's kappa <= lambda <= delta "
+                    "made flesh, and over-stating is the optimistic error because it tells a "
+                    "deployment the server must work harder than it does, with 15 kappa < lambda "
+                    "witnesses present so the census is not decoration; the third commits the "
+                    "topology to the CLIENT INDEX which the server assigns, and it is hard to see "
+                    "precisely because relabelling PRESERVES CONNECTIVITY so the topology still "
+                    "looks safe while the server picks which real client sits at each cut position, "
+                    "selecting all 10 of the 10 possible victim pairs at k=5. AND THE LADDER'S "
+                    "STARTING POINT IS ITSELF A KEPT LESSON: a first draft ran it from three "
+                    "clients and the law came back FALSE, because on three the RING IS THE COMPLETE "
+                    "GRAPH and its price is INFINITE rather than 2 — a universal asserted from a "
+                    "mental sample of one, refused by enumeration, and the degeneracy is held live "
+                    "rather than demoted to a footnote"
+                    if red_ok else "an auditgraph plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -13377,6 +13479,7 @@ def main() -> int:
     gate.recirc()
     gate.divergence()
     gate.splitview()
+    gate.auditgraph()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

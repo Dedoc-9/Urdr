@@ -1,0 +1,74 @@
+# URDRAUD1 conformance — THE EXCLUSION PRICE. What URDRSPV1 assumed away, and the reason its cheapest
+# recommendation is the wrong one to ship. NO new glyph (kernel frozen).
+#
+# WHAT THE PREVIOUS RUNG ASSUMED. splitview decided that undetected equivocation is possible exactly
+# when the gossip graph is disconnected, that the minimum edge count for a guarantee is k-1, and hence
+# that a spanning tree suffices and all-pairs gossip buys nothing. All true, and the last one true ONLY
+# against an adversary with no membership control. There the gossip graph is EXOGENOUS — given, with
+# the server playing against it.
+#
+#     IN AN MMO THE SERVER BUILDS THE GRAPH. MATCHMAKING IS THE ATTACK SURFACE.
+#
+# An OFFICIAL global server decides who shares a session, who shards with whom, who is admitted at all.
+# If it also picks the audit topology it need not hope for a disconnection — it constructs one. DECIDED
+# over the Bell(k) session partitions of k clients: Bell(k)-1 leave the audit graph disconnected, and
+# the server chooses. Measured (2,5): (1,2) (4,5) (14,15) (51,52). Committing the topology to CLIENT
+# IDENTITY removes that lever entirely: 0 of 1. What survives is ADMISSION, and that is this rung.
+#
+# THE EXCLUSION PRICE THEOREM. Under a committed topology T the server's only remaining move is to
+# exclude clients until the survivors fall into two or more non-communicating groups.
+#
+#     the price of undetected equivocation is exactly kappa(T), the VERTEX connectivity
+#
+# DECIDED by RUNNING THE ATTACK — every subset of clients the server might exclude, asking whether the
+# survivors split — and comparing against kappa computed independently: 771 of 771 connected labelled
+# graphs to order 5, 0 exceptions. Two computations agreeing is a measurement; one computation is a
+# definition restated.
+#
+# AND THE COMPLETE GRAPH HAS NO PRICE, WHICH REVERSES THE PREVIOUS RUNG'S RECOMMENDATION. Enumerated:
+# the connected topologies the server can NEVER split, at any budget, are EXACTLY the complete graphs —
+# one per order, no others. The ladder, decided for 4 through 8 clients, is
+#
+#     spanning tree 1   |   ring 2   |   all-pairs INFINITE
+#
+# regardless of client count: redundancy here is not a matter of degree but of KIND. So splitview's
+# "all-pairs gossip buys nothing" was correct in its own model and would be a bad thing to build. The
+# value of redundant gossip is INVISIBLE until the adversary's membership control is modelled. The two
+# rungs do not conflict; the scope of the cheaper one does. It is recorded rather than quietly fixed,
+# because a reader who saw only the first would ship a spanning tree that a server dismantles with ONE
+# kick — measured at 1 for every k from 4 to 8.
+#
+# WHY THE LADDER STARTS AT FOUR. A first draft ran it from k=3 and the law came back FALSE: on three
+# clients the RING IS THE COMPLETE GRAPH, so the middle and top rungs are the same topology and the
+# ring's price is INFINITE rather than 2. The universal had been asserted from a mental sample of one —
+# the five-client picture — and the enumeration refused it. The degeneracy is kept as a live
+# measurement rather than demoted to a footnote.
+#
+# KAPPA, NOT THE TEXTBOOK CONVENTION. vertex_connectivity returns INFINITE for a complete graph rather
+# than the customary k-1, because the quantity here is an ADVERSARY'S BUDGET: k-1 would report
+# "expensive but possible" where the truth is "impossible", inflating a guarantee into a price.
+#
+# THE PLANTS FAIL IN THE DANGEROUS DIRECTION. Pricing the attack in CUT LINKS (lambda) or in the
+# least-connected client's DEGREE (delta) instead of in EXCLUDED CLIENTS over-states the price 15 times
+# each and under-states it 0 times, over 767 graphs — Whitney's kappa <= lambda <= delta made flesh.
+# Over-stating is the optimistic error: it tells a deployment the server must work harder than it does.
+# 15 witnesses with kappa < lambda exist in the family, which is what keeps that census from being
+# decoration. A third plant commits the topology to the CLIENT INDEX, which the server assigns:
+# relabelling preserves connectivity — so it still looks safe — while letting the server choose which
+# real client sits at each cut position. It can select ALL 10 of the 10 possible victim pairs at k=5.
+#
+# WHAT THIS BUYS, PRECISELY. Not impossibility; nothing here gives that. It converts an INVISIBLE
+# INTEGRITY attack into a VISIBLE AVAILABILITY one: to fork, a server must first remove kappa named
+# clients, and being removed is the one thing a client can observe about itself without comparing
+# anything to anyone.
+#
+# DECLARED: the audit topology is a static undirected graph over a fixed identity set with truthful
+# gossip (a sybil population reporting fabricated heads is geoquorum's problem); exclusion is modelled
+# as vertex removal, so a server that DEGRADES rather than drops a client is out of scope.
+# does_not_show: that exclusion is actually NOTICED — splitview's liveness residual is inherited
+# unchanged, and a client that cannot tell denial from outage cannot raise the alarm; WHO to believe
+# once a fork is detected; any bound on a server that can MINT identities, which would buy back the
+# assignment lever it just lost.
+price ca38c17cd0e2c66ef0143ac225e5504c6f177494bb5694b3ab2420cf65ad5db6
+ladder bc5d3f3bae71a7e48c878c84d210877a2209b719608c3b639aba96eaec26209e
+lever 681bee86384061b8319ed3acbac94e7da4ced02e1bf73408ec7f6017aea68299
