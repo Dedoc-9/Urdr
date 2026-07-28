@@ -1,0 +1,79 @@
+# URDRBMB1 conformance — INTERACTION-FREE TAMPER DETECTION. Certifying that a recorded computation
+# contains an illegal step WITHOUT EVER RUNNING THE STEP. NO new glyph (kernel frozen).
+#
+# THE PROBLEM. The Dentatus Replay Court proves a published result is the untampered consequence of
+# its recorded inputs by RE-RUNNING the workflow bit-for-bit. That is the strongest check available
+# and its cost is not an engineering detail: it requires POSSESSING the inputs and EXECUTING the
+# rules. A reviewer holding embargoed patient data, a proprietary model under licence, or a climate
+# run costing a week of cluster time cannot pay it. Re-execution is the detonation.
+#
+#     THE ELITZUR-VAIDMAN QUESTION, TRANSPOSED: can a reviewer certify a trail is tampered WITHOUT
+#     executing the tampered step?
+#
+# THE STRUCTURE THAT TRANSFERS, AND IT IS NOT THE PHYSICS. Strip the interferometer and five things
+# remain: a check that in the honest case CANCELS to a constant; tampering breaks the cancellation;
+# firing certifies with NO false positives (one-sided); silence is INCONCLUSIVE rather than innocent;
+# and efficiency is improvable by adding arms, at a cost. All five are classical and all five are
+# implemented. What does NOT transfer is the part that makes EV remarkable — a real bomb's mere
+# DISPOSITION to absorb alters the amplitude with no absorption occurring, and there is no classical
+# mechanism for that. Here "interaction-free" means exactly one thing, MEASURED rather than asserted:
+#
+#     the audit path invokes the rule EXACTLY ZERO times, instrumented as a call count
+#
+# Measured (audit, court) = (0, 6). That is a claim about ACCESS AND COST, not about physics, and
+# treating the analogy as more than structural would be the inflation this repo exists to refuse.
+#
+# THE DARK PORT IS A NEVER CLAIM. Holzmann's SPIN composes the system with an automaton that must
+# NEVER accept; an accepting run IS the counterexample. That is the dark port exactly — a detector
+# wired so it cannot fire on honest work. Discharged exhaustively: 4096 states, 13824 LEGAL
+# transitions, 0 acceptances. A PLANTED non-conserved arm (a bare coordinate) accepts 4608 times, so
+# the exhaustive check is a live falsifier rather than decoration. Without this the screen has FALSE
+# POSITIVES, and a screen that condemns honest work is worse than no screen at all.
+#
+# A COUNT IN THE FIRST DRAFT OF THAT SENTENCE WAS WRONG. It said 24576 transitions, which is 4096 x 6
+# — every state times every rule, counting boundary-blocked moves that never fire. Writing down a
+# product instead of reading the counter is the same class of error as promoting a sample to a
+# universal, and it is corrected in place rather than rounded to.
+#
+# THE BLIND SPOT IS EXACTLY A KERNEL, COMPUTED AND NOT SAMPLED. A tamper is invisible precisely when
+# its delta balances within every ACTIVE pair, so the dud class is a linear subspace with a closed
+# form: 3^k * 9^(3-k) invisible deltas for k active arms, giving [729, 243, 81, 27] for k = 0..3 and
+# an exact detection ladder
+#
+#     k = 1: 486/728        k = 2: 648/728        k = 3: 702/728
+#
+# decided against enumeration with 0 exceptions. Adding arms is the Zeno move — more interferometer,
+# higher efficiency — and its price is that EACH new arm must itself discharge the never-claim or it
+# begins condemning honest trails. Detection is also TRAIL-INDEPENDENT (65400 agreements, 0
+# exceptions): because every arm is linear, whether a tamper is caught depends only on its DELTA, not
+# on where in the trail it lands nor on which trail it lands in.
+#
+# THE CEILING, MEASURED RATHER THAN CAVEATED. Detection efficiency is against a NON-ADAPTIVE
+# tamperer. An adversary who has READ the invariants picks a delta from the kernel and is caught 0
+# times out of 70 attempts. That is a difference in KIND from a keyed MAC, and it is why this screen
+# replaces nothing:
+#
+#     hash chain   catches post-hoc edits, says NOTHING about whether a transition was legal,
+#                  and goes quiet for a tamperer who recomputes the root — measured, and that is
+#                  precisely the person a forensics court exists to audit
+#     screen       catches illegal transitions at ZERO execution, evadable by anyone who reads it
+#     replay court catches everything, at the price of running the whole computation
+#
+# Three tiers, disjoint failure modes, decided together: on a kernel tamper the triple (screen, court,
+# chain) reads (False, True, True) — the screen misses exactly what the other two catch.
+#
+# NO SILENT TRUNCATION. The trail family is CAPPED at 24 of 858 and the cap is reported as
+# (kept, full, was_capped) = (24, 858, True), because a bounded census that reads as exhaustive is
+# the failure this repo has hit most often.
+#
+# DECLARED: the workflow is a bounded integer lattice with pairwise-conserving rules — a MODEL of a
+# stoichiometric or accounting workload, chosen because its conserved functionals are exactly
+# computable; a workload whose invariants are unknown or nonlinear inherits nothing from the ladder.
+# The tamper alphabet is single-state deltas in {-1,0,1}^6 kept in range.
+# does_not_show: WHICH value was correct — the screen localizes to a step and never recovers the true
+# output; that silence is innocence, which is the whole one-sidedness and is measured as a nonzero dud
+# class; and that the science is right, since this is the integrity half only, exactly as Dentatus
+# states it — INTEGRITY IS NOT TRUTH, and a bit-perfectly reproducible result can still be wrong.
+neverclaim 7dc1d00b038d0c27a0c75240a56e47100b1d57ffb9cb898ff35dfc062e8c4417
+ladder ec3587bbeb89e14ece6376b3ca93051fcd399146c18db055163d127d33c99315
+freeness 5024e6785e0cb111fbfa3228a735de6a0575af2d965d9605aa4584efcbf6f088

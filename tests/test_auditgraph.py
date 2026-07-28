@@ -42,10 +42,37 @@ class ThePriceIsVertexConnectivity(unittest.TestCase):
 
     def test_the_cross_check_can_actually_fail(self):
         """L15 APPLIED TO A CHECKER. Corrupt the primitive the attack depends on; the Menger census
-        must react. Without this the agreement above is unfalsifiable and therefore worthless."""
-        circular_exc, menger_exc = AG.cross_check_is_falsifiable()
+        AND the family census must both react. Without this the agreements are unfalsifiable."""
+        circular_exc, menger_exc, family_exc = AG.cross_check_is_falsifiable()
         self.assertGreater(menger_exc, 0, "a checker that cannot fail is not evidence")
+        self.assertGreater(family_exc, 0, "and the DENOMINATOR needs its own live check")
         self.assertEqual(circular_exc, 0)
+        self.assertTrue(AG.family_check_is_falsifiable())
+
+    def test_the_denominator_is_cross_checked(self):
+        """is_connected builds connected_graphs, which is the denominator of every census here.
+        Flood fill against max-flow over every labelled graph, not just the connected ones."""
+        agree, exc, total, conn = AG.family_census()
+        self.assertEqual(exc, 0, "flood fill and max-flow disagreed about connectivity")
+        self.assertEqual((agree, total, conn), (1099, 1099, 772))
+
+    def test_malformed_graphs_refuse_instead_of_being_dropped(self):
+        """HARDENING: an out-of-range endpoint used to be silently dropped and is_connected returned
+        a plausible False — answering a question the caller never asked."""
+        for k, e in ((3, ((0, 1), (1, 99))), (3, ((0, 1), (-5, 2))),
+                     (2, ((0, 0),)), (3, ((0, 1, 2),)), (3, ((0, "x"),))):
+            with self.assertRaises(AG.AuditGraphError, msg=f"{k} {e}"):
+                AG.is_connected(k, e)
+        with self.assertRaises(AG.AuditGraphError):
+            AG.validate_graph(-1, ())
+
+    def test_validation_admits_every_graph_the_censuses_use(self):
+        """Validity-not-outcome: the guard must not be so strict it empties the family."""
+        self.assertEqual(len(AG.connected_graphs(5)), 728)
+        for k in range(3, 7):
+            self.assertTrue(AG.validate_graph(k, AG.ring_graph(k)))
+            self.assertTrue(AG.validate_graph(k, AG.path_graph(k)))
+            self.assertTrue(AG.validate_graph(k, AG.complete_graph(k)))
 
     def test_the_original_cross_check_was_circular(self):
         """THE DEFECT, KEPT LIVE. exclusion_price and vertex_connectivity share components() and are

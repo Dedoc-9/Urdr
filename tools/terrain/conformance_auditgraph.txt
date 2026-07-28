@@ -41,6 +41,17 @@
 # instead of a comment. THE NUMBERS NEVER CHANGED — 771/0/771 then and now. Only the reason to trust
 # them did, which is the whole distinction between a result and a hypothesis that happened to be true.
 #
+# AND THAT FIX ONLY REACHED THE NUMERATOR. connected_graphs — the DENOMINATOR of every census here —
+# is built entirely from is_connected, which is the same flood fill. Under the same planted fault the
+# family at order 5 shrinks from 728 to 476 and raises NOTHING, so a fault that narrowed the world
+# without causing disagreements would still have passed unseen. is_connected is now cross-checked
+# against MAX-FLOW connectivity over every labelled graph to order 5: 1099 of 1099, 0 exceptions, 772
+# connected — and that check BITES under the fault, so falsifiability now reads (circular 0, menger
+# 10, family 24) with only the inert one silent. Separately, validate_graph turns an out-of-range
+# endpoint, a negative index, a self-loop or a malformed edge from a SILENTLY DROPPED input into a
+# typed AUDITGRAPH-REFUSE: is_connected(3, ((0,1),(1,99))) used to return a plausible False, which is
+# answering a question the caller did not ask, one layer below where the first audit looked.
+#
 # AND THE COMPLETE GRAPH HAS NO PRICE, WHICH REVERSES THE PREVIOUS RUNG'S RECOMMENDATION. Enumerated:
 # the connected topologies the server can NEVER split, at any budget, are EXACTLY the complete graphs —
 # one per order, no others. The ladder, decided for 4 through 8 clients, is
@@ -85,6 +96,6 @@
 # unchanged, and a client that cannot tell denial from outage cannot raise the alarm; WHO to believe
 # once a fork is detected; any bound on a server that can MINT identities, which would buy back the
 # assignment lever it just lost.
-price 95c0ab9a1473cbe00505a52276ed99cfdb07f800d8dab4a505dd5ec4b030961e
+price e9b023c0a692e35ab9859cfd584c9c87542f2b5e775577e67a8068c0dde13bcf
 ladder bc5d3f3bae71a7e48c878c84d210877a2209b719608c3b639aba96eaec26209e
 lever 681bee86384061b8319ed3acbac94e7da4ced02e1bf73408ec7f6017aea68299

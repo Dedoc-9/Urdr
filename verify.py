@@ -10465,8 +10465,10 @@ class Gate:
         try:
             law_ok = AG.menger_census() == (771, 0, 771) and AG.price_is_vertex_connectivity()
             law_ok = law_ok and AG.price_census() == (771, 0, 771)
-            _circ, _meng = AG.cross_check_is_falsifiable()
+            _circ, _meng, _fam = AG.cross_check_is_falsifiable()
             law_ok = law_ok and _circ == 0 and _meng > 0 and AG.circular_check_cannot_fail()
+            law_ok = law_ok and _fam > 0 and AG.family_check_is_falsifiable()
+            law_ok = law_ok and AG.family_census() == (1099, 0, 1099, 772)
             law_ok = law_ok and all(
                 AG.vertex_connectivity(kk, ee) == AG.vertex_connectivity_menger(kk, ee)
                 for kk in range(2, AG.MAX_ORDER + 1) for ee in AG.connected_graphs(kk))
@@ -10503,7 +10505,17 @@ class Gate:
                     "components() and the old census still reports 0 exceptions and quietly "
                     "shrinks its denominator from 771 to 495, where the Menger census reports 181 "
                     "— and cross_check_is_falsifiable now runs that mutation on every gate pass so "
-                    "the independence is ASSERTED rather than believed. The numbers never changed; "
+                    "the independence is ASSERTED rather than believed. AND THAT FIX ONLY REACHED "
+                    "THE NUMERATOR: connected_graphs is the DENOMINATOR of every census here and is "
+                    "built entirely from is_connected, the same flood fill, so under the same fault "
+                    "the family at order 5 silently shrinks from 728 to 476 and raises nothing — a "
+                    "narrowing of the world that causes no disagreement would have passed unseen. "
+                    "is_connected is now cross-checked against MAX-FLOW connectivity over every "
+                    "labelled graph to order 5 (1099 of 1099, 0 exceptions, 772 connected), that "
+                    "check bites under the fault, and validate_graph turns an out-of-range endpoint, "
+                    "a negative index or a self-loop from a SILENTLY DROPPED edge into a typed "
+                    "refusal, because returning a plausible False to a caller who asked about a "
+                    "different graph is the same defect one layer down. The numbers never changed; "
                     "only the reason to trust them did; "
                     "the topologies the server can NEVER split are EXACTLY the complete graphs, one "
                     "per order and no others, so the ladder is spanning-tree 1 / ring 2 / all-pairs "
@@ -10659,6 +10671,111 @@ class Gate:
                     "on the ring and path the two quantities COINCIDE at 2 and 1 so the complete "
                     "graph is the witness that has to be shown rather than assumed"
                     if red_ok else "a patience plant did not bite")
+
+    def bombtest(self):
+        """Interaction-free tamper detection (URDRBMB1) — certifying a recorded computation contains
+        an illegal step WITHOUT RUNNING THE STEP. The Dentatus Replay Court proves reproducibility by
+        RE-EXECUTION, which requires possessing the inputs and running the rules; a reviewer holding
+        embargoed data, a licensed model or a week-long climate run cannot pay that. Re-execution is
+        the detonation. The ELITZUR-VAIDMAN structure transfers WITHOUT the physics: a check that
+        cancels when honest, tampering that breaks the cancellation, one-sided firing, inconclusive
+        silence, and efficiency improvable by adding arms. 'Interaction-free' means exactly one
+        measured thing — the audit invokes the rule ZERO times. Soundness is HOLZMANN'S NEVER CLAIM,
+        discharged exhaustively. Rows: scenes, law, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import bombtest as BT
+        except Exception as exc:
+            self.record("bombtest", False, f"import failed (bombtest): {exc}")
+            return
+        try:
+            ref_ok = all(BT.scene_result(n) == BT.golden(n) for n in BT.SCENES)
+        except Exception as exc:
+            self.record("bombtest:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("bombtest:scenes", ref_ok,
+                    "neverclaim + ladder + freeness reproduce URDRBMB1 digests"
+                    if ref_ok else "a bombtest scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = BT.never_claim_census() == (13824, 0, 4096) and BT.never_claim_is_discharged()
+            law_ok = law_ok and BT.audit_invokes_nothing() == (0, 6)
+            law_ok = law_ok and BT.detection_ladder() == ((1, 486, 728), (2, 648, 728),
+                                                          (3, 702, 728))
+            law_ok = law_ok and BT.ladder_matches_the_closed_form()
+            law_ok = law_ok and [BT.kernel_size_closed_form(k)
+                                 for k in range(BT.PAIRS + 1)] == [729, 243, 81, 27]
+            law_ok = law_ok and BT.detection_is_trail_independent() == (65400, 0)
+            law_ok = law_ok and BT.trail_cap_is_reported() == (24, 858, True)
+            law_ok = law_ok and BT.refuses_a_detectable_tamper() and BT.admits_an_honest_trail()
+            rates = [d for _k, d, _t in BT.detection_ladder()]
+            law_ok = law_ok and rates == sorted(rates) and rates[0] < rates[-1]
+            law_ok = law_ok and all(d < t for _k, d, t in BT.detection_ladder())
+        except Exception:
+            law_ok = False
+        self.record("bombtest-law", law_ok,
+                    "the Replay Court proves reproducibility by RE-EXECUTION, which costs possession "
+                    "of the inputs and a run of the rules — unpayable for embargoed data, a licensed "
+                    "model, or a week of cluster time — so re-execution is the detonation and the "
+                    "Elitzur-Vaidman question transposes exactly: can a reviewer certify a trail is "
+                    "tampered WITHOUT executing the tampered step. Five things transfer and none of "
+                    "them is physics — a check that CANCELS when honest, tampering that breaks the "
+                    "cancellation, firing that certifies with no false positives, silence that is "
+                    "INCONCLUSIVE rather than innocent, and efficiency improvable by adding arms at "
+                    "a price; what does not transfer is the one feature that makes EV remarkable, "
+                    "since a real bomb's mere DISPOSITION to absorb alters the amplitude with no "
+                    "absorption occurring and there is no classical mechanism for that, so "
+                    "'interaction-free' here means exactly one MEASURED thing: the audit invokes the "
+                    "rule 0 times where the court invokes it 6. Soundness is HOLZMANN'S NEVER CLAIM "
+                    "— an automaton wired so that ACCEPTANCE IS THE BUG, which is the dark port "
+                    "exactly — discharged over 4096 states and 13824 LEGAL transitions with 0 "
+                    "acceptances, because without it the screen has FALSE POSITIVES and a screen "
+                    "that condemns honest work is worse than none. The blind spot is EXACTLY A "
+                    "KERNEL, computed rather than sampled: 3^k * 9^(3-k) invisible deltas giving "
+                    "[729, 243, 81, 27] and the ladder 486 / 648 / 702 of 728, decided against "
+                    "enumeration; and detection is TRAIL-INDEPENDENT over 65400 cases with 0 "
+                    "exceptions, because linearity makes catchability a property of the delta alone"
+                    if law_ok else "the bombtest law did not hold")
+        red_ok = False
+        try:
+            bad, honest = BT.planted_functional_breaks_the_never_claim()
+            red_ok = bad == 4608 and honest == 0 and bad > 0
+            red_ok = red_ok and BT.adaptive_tamperer_is_never_caught() == (0, 70)
+            red_ok = red_ok and BT.silence_plant_bites()
+            red_ok = red_ok and BT.chain_only_plant_bites() == (False, True)
+            red_ok = red_ok and BT.the_court_catches_what_the_screen_misses() == (False, True, True)
+            checked, _a, states = BT.never_claim_census()
+            red_ok = red_ok and checked < states * len(BT.RULES)
+            BT.reset_invocations()
+            BT.apply_rule(BT.START, 0)
+            red_ok = red_ok and BT.invocations() == 1
+            BT.reset_invocations()
+        except Exception:
+            red_ok = False
+        self.record("bombtest-selftest", red_ok,
+                    "the plants bite and the instrument is checked against itself: a planted "
+                    "NON-CONSERVED arm makes the never-claim accept 4608 times against 0 honest, so "
+                    "the exhaustive check is a live falsifier rather than decoration; the "
+                    "zero-invocation counter is shown to INCREMENT when a rule actually runs, "
+                    "because a zero from an instrument that never moves is worthless; and the two "
+                    "one-sidedness plants bite where it matters — reading a quiet dark port as proof "
+                    "of a dud is THE Elitzur-Vaidman error and it passes a tampered trail, while a "
+                    "CHAIN-ONLY check goes quiet against a tamperer who recomputes the root, which "
+                    "is precisely the party a forensics court audits since they are the one who "
+                    "publishes it. The ceiling is MEASURED rather than caveated: an adversary who "
+                    "has READ the invariants picks a kernel delta and is caught 0 times of 70, a "
+                    "difference in KIND from a keyed MAC, and on that same tamper the triple "
+                    "(screen, court, chain) reads (False, True, True) — three tiers whose failure "
+                    "modes are disjoint, so the cheap one is a SCREEN and never a verdict. The trail "
+                    "family is capped at 24 of 858 and reports the cap, because a bounded census "
+                    "that reads as exhaustive is the failure this repo has hit most often. AND A "
+                    "COUNT IN THE HEADER WAS WRONG ON THE FIRST DRAFT: it said 24576 transitions, "
+                    "which is 4096 x 6 — every state times every rule, counting boundary-blocked "
+                    "moves that never fire — a product written down instead of a counter read, and "
+                    "the gate now asserts the legal count is STRICTLY BELOW that product so the "
+                    "error cannot recur"
+                    if red_ok else "a bombtest plant did not bite")
 
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
@@ -13604,6 +13721,7 @@ def main() -> int:
     gate.splitview()
     gate.auditgraph()
     gate.patience()
+    gate.bombtest()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

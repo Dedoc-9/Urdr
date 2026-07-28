@@ -38,6 +38,16 @@ theorem, over every connected labelled graph to order 5. They agree everywhere, 
     the property is asserted rather than believed. The NUMBERS below never changed; only the reason
     to trust them did.
 
+    AND THAT FIX ONLY REACHED THE NUMERATOR. `connected_graphs` — the DENOMINATOR of every census
+    here — is built entirely from `is_connected`, which is the same flood fill. Under the same
+    planted fault the family at order 5 silently shrinks from 728 to 476 and raises NOTHING, so a
+    fault that narrowed the world without causing disagreements would still have passed. `is_connected`
+    is now cross-checked against MAX-FLOW connectivity over every labelled graph to order 5 (1099 of
+    1099, 0 exceptions, 772 connected), that check bites under the fault, and `validate_graph` turns
+    an out-of-range endpoint, a negative index or a self-loop from a SILENTLY DROPPED edge into a
+    typed refusal — because returning a plausible False to a caller who asked about a different graph
+    is the same defect one layer down.
+
 AND THE COMPLETE GRAPH HAS NO PRICE, WHICH REVERSES THE PREVIOUS RUNG'S RECOMMENDATION. Enumerated:
 the connected graphs on k vertices that the server can NEVER split, at any exclusion budget, are
 EXACTLY the complete ones. A spanning tree costs 1 exclusion. A ring costs 2. All-pairs costs
@@ -55,9 +65,9 @@ victims can see.
 
 GRADE. MEASURED: price == kappa over every connected labelled graph to order 5, 0 exceptions, by
 attack simulation (subset enumeration) against Menger max-flow — two algorithms sharing no primitive,
-with the independence itself asserted by a mutation that makes the check go red; the unbreakable set
-is exactly the complete
-graphs; the Bell(k)-1 assignment census and its collapse to 0 under commitment; the path/ring/complete
+with the independence itself asserted by a mutation that makes the check go red; the DENOMINATOR
+cross-checked the same way, flood fill against max-flow over 1099 labelled graphs with 0 exceptions
+and a typed refusal for malformed input; the unbreakable set is exactly the complete graphs; the Bell(k)-1 assignment census and its collapse to 0 under commitment; the path/ring/complete
 price ladder 1/2/infinity, attained; three plants biting, including two that OVER-price by using
 lambda or delta where kappa is the truth and so understate the threat; determinism. DECLARED: the
 audit topology is a static undirected graph over a fixed identity set, and clients gossip truthfully
@@ -119,8 +129,74 @@ def components(k, edges, alive=None):
     return tuple(out)
 
 
+def validate_graph(k, edges):
+    """HARDENING THE PRIMITIVE EVERY CENSUS RESTS ON. `_neighbours` only wires an edge when BOTH
+    endpoints are alive, which means a vertex index outside range(k), a negative index, or a typo
+    was SILENTLY DROPPED and `is_connected` returned a plausible False instead of refusing. A
+    malformed edge raised a bare ValueError rather than a typed refusal. Both are now errors: a
+    caller that hands this module a graph it did not mean gets told, rather than getting an answer
+    to a different question."""
+    if not isinstance(k, int) or k < 0:
+        raise AuditGraphError(f"vertex count must be a non-negative int, got {k!r}")
+    for e in edges:
+        try:
+            u, v = e
+        except (TypeError, ValueError):
+            raise AuditGraphError(f"edge {e!r} is not a pair")
+        if not isinstance(u, int) or not isinstance(v, int):
+            raise AuditGraphError(f"edge {e!r} has a non-integer endpoint")
+        if not (0 <= u < k) or not (0 <= v < k):
+            raise AuditGraphError(f"edge {e!r} references a vertex outside range({k})")
+        if u == v:
+            raise AuditGraphError(f"edge {e!r} is a self-loop, which carries no connectivity")
+    return True
+
+
 def is_connected(k, edges):
+    validate_graph(k, edges)
     return k > 0 and len(components(k, edges)) == 1
+
+
+def is_connected_by_flow(k, edges):
+    """CONNECTIVITY BY MAX-FLOW, sharing nothing with `components`. Fix a root and demand a unit of
+    flow reaches every other vertex. This exists because the Menger fix de-circularized the NUMERATOR
+    of every census while leaving the DENOMINATOR — `connected_graphs`, built entirely from
+    `is_connected` — resting on the same flood fill. Measured: with `components` corrupted the family
+    silently shrinks from 728 to 476 at order 5 and raises nothing, so a fault that narrows the family
+    without causing disagreements would have passed unseen."""
+    validate_graph(k, edges)
+    if k <= 0:
+        return False
+    if k == 1:
+        return True
+    cap = {}
+
+    def _add(a, b, c):
+        cap.setdefault(a, {})
+        cap[a][b] = cap[a].get(b, 0) + c
+
+    for u, v in edges:
+        _add(u, v, 1)
+        _add(v, u, 1)
+    return all(_maxflow({a: dict(b) for a, b in cap.items()}, 0, t) >= 1 for t in range(1, k))
+
+
+def family_census(max_k=MAX_ORDER):
+    """THE DENOMINATOR, CROSS-CHECKED. Flood fill against max-flow over EVERY labelled graph to order
+    `max_k` — not merely the connected ones, since the question is precisely which graphs enter the
+    family. Returns (agreements, exceptions, total, connected)."""
+    agree = exc = total = conn = 0
+    for k in range(1, max_k + 1):
+        for edges in _all_graphs(k):
+            total += 1
+            a = is_connected(k, edges)
+            b = is_connected_by_flow(k, edges)
+            conn += 1 if a else 0
+            if a == b:
+                agree += 1
+            else:
+                exc += 1
+    return agree, exc, total, conn
 
 
 def min_degree(k, edges):
@@ -327,15 +403,22 @@ def cross_check_is_falsifiable(max_k=4):
     try:
         _a1, circular_exc, _t1 = price_census(max_k)
         _a2, menger_exc, _t2 = menger_census(max_k)
+        _a3, family_exc, _t3, _c3 = family_census(max_k)
     finally:
         globals()["components"] = real
-    return circular_exc, menger_exc
+    return circular_exc, menger_exc, family_exc
 
 
 # ---- the unbreakable set ---------------------------------------------------------------------------------
 def unbreakable_graphs(k):
     """Every connected topology on k clients the server can NEVER split, at any budget."""
     return tuple(e for e in connected_graphs(k) if exclusion_price(k, e) is INFINITE)
+
+
+def family_check_is_falsifiable(max_k=4):
+    """The denominator check must react to the same planted fault, or the family is still resting on
+    an unaudited primitive."""
+    return cross_check_is_falsifiable(max_k)[2] > 0
 
 
 def circular_check_cannot_fail(max_k=4):
@@ -558,7 +641,7 @@ def ag_digest(name, payload):
 
 
 def _scene_price():
-    return ag_digest("price", f"{price_census()}:{menger_census()}:"
+    return ag_digest("price", f"{price_census()}:{menger_census()}:{family_census()}:"
                               f"{price_is_vertex_connectivity()}:{cross_check_is_falsifiable()}:"
                               f"{unbreakable_are_exactly_complete()}")
 
@@ -600,7 +683,8 @@ def _main(argv):
         print(n, scene_result(n))
     print(f"circular consistency (NOT evidence) {price_census()}")
     print(f"attack vs MENGER max-flow  {menger_census()} (exceptions must be 0)")
-    print(f"cross-check falsifiable (circular_exc, menger_exc) {cross_check_is_falsifiable()}")
+    print(f"family (flood fill vs max-flow) {family_census()}")
+    print(f"falsifiable (circular, menger, family) {cross_check_is_falsifiable()}")
     print(f"unbreakable are exactly complete {unbreakable_are_exactly_complete()}")
     print(f"ladder path/ring/complete {price_ladder()[:3]} ... 1/2/inf "
           f"{ladder_is_one_two_infinite()} | triangle degeneracy {the_triangle_is_both()}")
