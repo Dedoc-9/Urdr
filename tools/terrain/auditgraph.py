@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 Daniel J. Dillberg
-"""auditgraph — THE EXCLUSION PRICE (URDRAUD1): what URDRSPV1 assumed away, and the reason its
+"""auditgraph — THE EXCLUSION PRICE (URDRAGR1): what URDRSPV1 assumed away, and the reason its
 cheapest recommendation is the wrong one to ship. NO NEW GLYPH.
 
 WHAT THE PREVIOUS RUNG ASSUMED. `splitview` decided that undetected equivocation is possible exactly
@@ -87,7 +87,7 @@ _HERE = _os.path.dirname(_os.path.abspath(__file__))
 if _HERE not in _sys.path:
     _sys.path.insert(0, _HERE)
 
-MAGIC = b"URDRAUD1"
+MAGIC = b"URDRAGR1"
 MAX_ORDER = 5            # every labelled graph to this order is enumerated
 LADDER_MIN = 4           # ...starting HERE: on three clients the ring IS the complete graph
 LADDER_MAX = 8           # the path/ring/complete price ladder is decided to here

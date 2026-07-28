@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 Daniel J. Dillberg
-"""Falsifiers for tools/terrain/tierview.py — VISUAL ASYMMETRY (URDRTVW1), slice S6.
+"""Falsifiers for tools/terrain/tierview.py — VISUAL ASYMMETRY (URDRTIR1), slice S6.
 
   ZERO BY CONSTRUCTION — the authoritative predicate takes no tier, so the defect is 0, not bounded.
   STRUCTURAL, NOT DISCIPLINARY — checked by signature, the way horn._honest_band is.

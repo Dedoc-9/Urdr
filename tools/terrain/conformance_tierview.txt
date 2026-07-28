@@ -1,4 +1,4 @@
-# URDRTVW1 conformance — VISUAL ASYMMETRY, ZERO BY CONSTRUCTION. Slice S6. NO new glyph.
+# URDRTIR1 conformance — VISUAL ASYMMETRY, ZERO BY CONSTRUCTION. Slice S6. NO new glyph.
 #
 # THE HANDED-DOWN MEASURE IS THE WRONG QUANTITY, IN BOTH DIRECTIONS. A framework proposed bounding
 # tier asymmetry by per-pixel LUMINANCE DELTA. Refuted by construction and MEASURED:
@@ -34,6 +34,6 @@
 # does_not_show: audio asymmetry (same argument, not made here); frame timing; what the client CHOOSES
 # to draw once the server has answered — the claim is that the AUTHORITATIVE answer is tier-independent,
 # not that two screens look alike; cross-placement.
-zero 32d8e7e005d65cfa5c1988ea4424da462e443418e639f4eea14a9bf0a3a86199
-plant b7701d83ac4ed91feb3e7595f6b5b3ddbdfefcc16de24bacaee08e6a97133836
-wrong_quantity cb0f8561c6660197aabe0c167ab61fddd3ac16a151bac516b8abbd13cb3b2ad9
+zero fc6297cce6e2518f74d5aa645e1db3bfed4de005f5cbda5334d87e629ca904ba
+plant ebf3c7ccfee972a992e4f7872fbed4e72e28e2bbe90ad7fcae307453762fec38
+wrong_quantity 8c461a1c62c43810d2206b5df742c3397c02825f97183bdbf4e1fb93e508fa03

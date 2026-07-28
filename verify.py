@@ -22,6 +22,7 @@ Exit 0 iff every check passes. Output ends with 'GATE PASSED' or 'GATE FAILED'.
 """
 import io
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -9740,7 +9741,7 @@ class Gate:
                     if red_ok else "a disjoint plant did not bite")
 
     def tierview(self):
-        """Visual asymmetry, ZERO BY CONSTRUCTION (URDRTVW1), slice S6. A handed-down framework
+        """Visual asymmetry, ZERO BY CONSTRUCTION (URDRTIR1), slice S6. A handed-down framework
         proposed bounding tier asymmetry by per-pixel LUMINANCE DELTA; that is the wrong quantity in
         BOTH directions, measured here — a uniform tint shifts every pixel and yields defect 0, while
         culling ONE occluder cell shifts almost no pixels and yields a real defect, i.e. one client
@@ -9762,7 +9763,7 @@ class Gate:
             self.record("tierview:scenes", False, f"reference failed: {exc}")
             return
         self.record("tierview:scenes", ref_ok,
-                    "zero + plant + wrong_quantity reproduce URDRTVW1 digests"
+                    "zero + plant + wrong_quantity reproduce URDRTIR1 digests"
                     if ref_ok else "a tierview scene drifted from its digest")
         law_ok = True
         try:
@@ -10436,7 +10437,7 @@ class Gate:
                     if red_ok else "a splitview plant did not bite")
 
     def auditgraph(self):
-        """The exclusion price (URDRAUD1) — what URDRSPV1 assumed away. splitview's gossip graph is
+        """The exclusion price (URDRAGR1) — what URDRSPV1 assumed away. splitview's gossip graph is
         EXOGENOUS: given, with the server playing against it. In an MMO the server BUILDS the graph,
         so matchmaking is the attack surface — over the Bell(k) session partitions, Bell(k)-1
         disconnect the audit graph and the server picks. Committing the topology to CLIENT IDENTITY
@@ -10459,7 +10460,7 @@ class Gate:
             self.record("auditgraph:scenes", False, f"reference failed: {exc}")
             return
         self.record("auditgraph:scenes", ref_ok,
-                    "price + ladder + lever reproduce URDRAUD1 digests"
+                    "price + ladder + lever reproduce URDRAGR1 digests"
                     if ref_ok else "an auditgraph scene drifted from its digest")
         law_ok = True
         try:
@@ -10567,7 +10568,7 @@ class Gate:
                     if red_ok else "an auditgraph plant did not bite")
 
     def patience(self):
-        """The price of the price (URDRPAT1) — the timing hypothesis URDRAUD1's ladder rested on
+        """The price of the price (URDRPAT1) — the timing hypothesis URDRAGR1's ladder rested on
         without saying so. auditgraph sold kappa as converting an INVISIBLE INTEGRITY attack into a
         VISIBLE AVAILABILITY one; every word rests on 'visible', which both it and splitview DECLARED
         rather than established. CHANDRA-TOUEG: a crashed process cannot be distinguished from a slow
@@ -10776,6 +10777,58 @@ class Gate:
                     "the gate now asserts the legal count is STRICTLY BELOW that product so the "
                     "error cannot recur"
                     if red_ok else "a bombtest plant did not bite")
+
+    def magicuniq(self):
+        """MAGIC UNIQUENESS (found by combing the docs, not by combing the code). Every terrain
+        module domain-separates its digests with a MAGIC prefix — `H(MAGIC | name | payload)` — so
+        two modules sharing one prefix defeat exactly the separation the prefix exists to provide.
+        An index pass over the module table found TWO collisions: `audible`/`auditgraph` on
+        URDRAUD1, which THIS SESSION introduced three commits earlier by picking a code without
+        checking, and `terrain_view`/`tierview` on URDRTVW1, which predates it. The newer module
+        moved in each case — `terrain_view` keeps URDRTVW1 because `view_witness` STRING-ANCHORS on
+        that literal in exported HTML, so renaming it would break a cross-module anchor test. This
+        row exists so the class cannot come back: it reads MAGIC from every module's source and
+        asserts the set is injective. Rows: uniqueness, selftest."""
+        terrain = os.path.join(ROOT, "tools", "terrain")
+        pat = re.compile(r'^MAGIC\s*=\s*b"([^"]+)"', re.M)
+        found = {}
+        ok = True
+        try:
+            for fn in sorted(os.listdir(terrain)):
+                if not fn.endswith(".py"):
+                    continue
+                with open(os.path.join(terrain, fn), encoding="utf-8") as fh:
+                    m = pat.search(fh.read())
+                if m:
+                    found.setdefault(m.group(1), []).append(fn[:-3])
+            dupes = {k: v for k, v in found.items() if len(v) > 1}
+            ok = not dupes and len(found) > 80
+        except Exception as exc:
+            ok = False
+            dupes = {"error": [str(exc)]}
+        self.record("magicuniq", ok,
+                    f"every terrain module's digest prefix is unique across {len(found)} modules, so "
+                    "domain separation actually separates — two collisions were found by an INDEX "
+                    "PASS rather than by any test (audible/auditgraph on URDRAUD1, introduced this "
+                    "session by picking a code without checking, and terrain_view/tierview on "
+                    "URDRTVW1, which predates it); the newer module moved in each case because "
+                    "view_witness STRING-ANCHORS on the URDRTVW1 literal in exported HTML and "
+                    "renaming terrain_view would break a cross-module anchor"
+                    if ok else f"MAGIC collisions: {dupes}")
+        red_ok = False
+        try:
+            probe = dict(found)
+            probe.setdefault("URDRDUP1", []).extend(["alpha", "beta"])
+            planted = {k: v for k, v in probe.items() if len(v) > 1}
+            red_ok = bool(planted) and not {k: v for k, v in found.items() if len(v) > 1}
+            red_ok = red_ok and len(found) == len({m for ms in found.values() for m in ms})
+        except Exception:
+            red_ok = False
+        self.record("magicuniq-selftest", red_ok,
+                    "a planted duplicate is detected by the same predicate that passes on the live "
+                    "set, so the uniqueness row is a live falsifier rather than a constant True — "
+                    "and the module-to-code mapping is checked injective in both directions"
+                    if red_ok else "the magicuniq selftest did not bite")
 
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
@@ -13722,6 +13775,7 @@ def main() -> int:
     gate.auditgraph()
     gate.patience()
     gate.bombtest()
+    gate.magicuniq()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

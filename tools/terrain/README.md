@@ -555,6 +555,53 @@ reality's outcomes, witnesses, and addresses must MATCH, or the attestation is U
 named-host law is mechanized (an unnamed trace refuses). The gate certifies the laws; the
 attestation certifies reality met them; neither pretends to be the other.
 
+**The city arc (S1–S6, the LiDAR-replica slices).** The design goal is player-scanned real cities,
+joinable as small matches and as persistent worlds, with private builds alongside one OFFICIAL global
+server. Six slices carry it. `voxlat.py` — `URDRVOX1`, S1, the certified integer voxel lattice: Morton
+codes with LCA depth taken from the LEADING agreement (`clz`, not `ctz` — the inverted form is kept as
+a plant scoring 45%), Akenine-Möller triangle/box overlap, and an overflow bound whose attained maximum
+is exactly `4B³`, decided by enumeration rather than sampled. `divergence.py` — `URDRDVG1`, S2, the
+quantization defect measured in CELLS: the measurand is the LARGEST CONNECTED RUN of flipped cells, not
+a rate, because two perturbations at the identical rate 2/35 have runs 1 and 2 and breach the wall False
+and True. `provbind.py` — `URDRPRV1`, S3, provenance binding: a certificate bound to its lattice digest
+or refused, with the metadata-only lift attack measured succeeding and then failing. `geoquorum.py` —
+`URDRGEO1`, S4, multi-observer capture consensus: `MIN_COHORT = 5` because leave-one-out on 3 leaves a
+reference of 2 that one liar deadlocks, threshold `ceil(k/2)` (enumeration refused `floor(k/2)+1`), and
+two REFUSAL CLASSES that must never merge — `GEOQUORUM-THIN` is coverage, `GEOQUORUM-DEVIATE` is
+integrity. `tierview.py` — `URDRTIR1`, S6, visual asymmetry ZERO BY CONSTRUCTION: the authoritative
+predicate takes no tier and structurally cannot; the census is 0 and the tier-reading plant leaks 1152
+cells. Plus `disjoint.py` (`URDRDSJ1`, task 58 Half B — prefix-disjointness IS commutation, 18144/18144
+with 0 exceptions) and `horn.py` (`URDRHRN1`, the Gabriel anchor ladder — rung count conserved, only
+pitch changes, and pitch is server-derived).
+
+**The admission and hygiene rungs.** `frontier.py` — `URDRFRN1`, the admission accelerator: conservation,
+monotone obligations, union-find components, a verified Galois adjunction (63/63) with its precision loss
+reported as a sound over-approximation rather than a failure. `membrane.py` — `URDRMEM1`, the semantic
+membrane: advisory by construction, structurally unable to starve, and checked for DUPLICATION before
+membership so the class cannot be masked. `ashdepth.py` — `URDRASH1`, the vacuity floor: a soundness
+level that distinguishes nothing is not a result, and `ASHDEPTH-VACUOUS` raises rather than returning a
+quiet zero. `recirc.py` — `URDRRCC1`, Kleene recirculation: THERE IS NO LOOP, and closing it would have
+collapsed 400 distinct captures onto 5 fixed points, conflating honest with doctored — the elegant move
+measured against the attack it was supposed to stop, and rejected.
+
+**The authority arc — auditing the server itself.** Every rung above hardens the server against a lying
+CLIENT. These four ask what happens when the OFFICIAL server lies. `splitview.py` — `URDRSPV1`: a forked
+server is not detectable by verification, only by COMPARISON. The lonely-client theorem bounds every solo
+detector at zero by transcript identity (0 of 240 forks, against 240 of 240 for one crossing comparison),
+and the cut theorem carries the hypothesis the textbook omits — detection also needs BOTH heads past the
+divergence, so audit power is TENURE, not headcount, and a freshly joined client cannot audit. RFC 6962's
+proof and verifier are DECIDED against the structural oracle over 2667 pairs, not cited.
+`auditgraph.py` — `URDRAGR1`: in an MMO the server BUILDS the audit graph, so matchmaking is the attack
+surface; under a committed topology the price of undetected equivocation is exactly κ, the VERTEX
+connectivity, and the only unbreakable topology is all-pairs — which REVERSES `splitview`'s cheapest
+recommendation, since a spanning tree costs the server one kick. `patience.py` — `URDRPAT1`: that whole
+ladder rests on exclusion being VISIBLE. Under Chandra-Toueg indistinguishability a server that STALLS
+rather than excludes gets the same partition at a visible cost of zero, so 1/2/∞ collapses to 0/0/0 the
+moment patience drops below the delay envelope; buying it back costs exactly `ceil(log2(ceil(Δ/T₀)))`
+false alarms, once. `bombtest.py` — `URDRBMB1`: interaction-free tamper detection — an Elitzur-Vaidman
+screen over a SPIN never-claim, certifying a recorded computation contains an illegal step WITHOUT
+running the step, where "interaction-free" is an instrumented call count of exactly 0 and nothing more.
+
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
 `heightfield_rs/` (the URDRHF1 canon) · `latstore_rs/` (URDRLAT4 + the URDRLAT5 byte laws) · `glide_rs/`

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 Daniel J. Dillberg
-"""Falsifiers for tools/terrain/auditgraph.py — THE EXCLUSION PRICE (URDRAUD1).
+"""Falsifiers for tools/terrain/auditgraph.py — THE EXCLUSION PRICE (URDRAGR1).
 
   THE PRICE IS KAPPA — the simulated attack (subset enumeration) and MENGER MAX-FLOW agree on all
     771 connected labelled graphs to order 5, 0 exceptions, sharing no primitive.

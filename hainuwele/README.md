@@ -59,6 +59,24 @@ W5) → the windowed loop (`panelight`, V1) → the wired window (`panewire`, V2
 **Phase M — the certified mesh.** `nway` (M1) → `migrate` (M2) → `meshattest` (M2.5) → `mesh`
 (M3) → `partition` (M4) → `meshsession` (M5).
 
+**The city arc (S1–S6) — the LiDAR-replica slices.** `voxlat` (S1, the certified integer voxel
+lattice) → `divergence` (S2, the quantization defect in cells) → `provbind` (S3, provenance binding)
+→ `geoquorum` (S4, multi-observer capture consensus) → `tierview` (S6, visual asymmetry zero by
+construction), with `disjoint` (task 58 Half B) and `horn` (the Gabriel anchor ladder) alongside.
+S5 was never opened as a slice: what it would have covered turned out to be enforcement already
+carried by S3 and S4.
+
+**Hygiene rungs.** `frontier` (the admission accelerator) · `membrane` (the semantic membrane,
+advisory by construction) · `ashdepth` (the vacuity floor) · `recirc` (there is no loop) ·
+`cayley` / `magicdiv` (the exact-arithmetic substrate).
+
+**The authority arc — auditing the server itself.** Every rung before this one hardens the server
+against a lying CLIENT. These four ask what happens when the OFFICIAL server lies:
+`splitview` (a fork is detectable only by comparison, never by verification) → `auditgraph` (the
+server BUILDS the audit graph, so matchmaking is the attack surface; the price is kappa) →
+`patience` (that ladder rests on exclusion being VISIBLE, and a staller pays nothing) → `bombtest`
+(interaction-free tamper detection, for the case where re-execution cannot be paid for at all).
+
 **Band A — the anti-cheat firewall and the latency chain.** The perception family
 (`perception` → `anamorphosis` → `throttle` → `schedule` → `byteacct` → `citation` → `adaptcite`
 → `lookahead` → `boundedhist`), the three channels (`perception` vision, `audible` audio,
@@ -67,18 +85,22 @@ W5) → the windowed loop (`panelight`, V1) → the wired window (`panewire`, V2
 
 ## Every file
 
-77 modules. Gate stage `terrain` covers `heightfield` + `terrain_bridge`; `bench` is deliberately
+94 modules. Gate stage `terrain` covers `heightfield` + `terrain_bridge`; `bench` is deliberately
 ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 
 | Module | Code | Purpose | Gate stage | Falsifiers | Conformance | Brief |
 |---|---|---|---|---|---|---|
 | [`adaptcite.py`](../tools/terrain/adaptcite.py) | `URDRADC1` | Adaptive bandwidth-aware representation selection (cheapest lawful rep) | `adaptcite` | [test](../tests/test_adaptcite.py) | [conf](../tools/terrain/conformance_adaptcite.txt) | [brief](../docs/adaptcite_brief.md) |
 | [`anamorphosis.py`](../tools/terrain/anamorphosis.py) | `URDRANA1` | Tunable semantic focal lens over witnessed absence | `anamorphosis` | [test](../tests/test_anamorphosis.py) | [conf](../tools/terrain/conformance_anamorphosis.txt) | [brief](../docs/anamorphosis_brief.md) |
+| [`ashdepth.py`](../tools/terrain/ashdepth.py) | `URDRASH1` | The VACUITY FLOOR — a level that distinguishes nothing is not a result | `ashdepth` | [test](../tests/test_ashdepth.py) | [conf](../tools/terrain/conformance_ashdepth.txt) | — |
 | [`audible.py`](../tools/terrain/audible.py) | `URDRAUD1` | Audible absence: the AUDIO channel of the anti-cheat firewall | `audible` | [test](../tests/test_audible.py) | [conf](../tools/terrain/conformance_audible.txt) | [brief](../docs/audible_brief.md) |
+| [`auditgraph.py`](../tools/terrain/auditgraph.py) | `URDRAGR1` | The exclusion price (kappa) — all-pairs is the only unbreakable audit topology | `auditgraph` | [test](../tests/test_auditgraph.py) | [conf](../tools/terrain/conformance_auditgraph.txt) | — |
 | [`bench.py`](../tools/terrain/bench.py) | `—` | Wall-clock harness (T3.29) — MEASURED-on-named-host, deliberately UNGATED | `—` | — | — | — |
+| [`bombtest.py`](../tools/terrain/bombtest.py) | `URDRBMB1` | Interaction-free tamper detection — certify an illegal step WITHOUT running it | `bombtest` | [test](../tests/test_bombtest.py) | [conf](../tools/terrain/conformance_bombtest.txt) | — |
 | [`boundedhist.py`](../tools/terrain/boundedhist.py) | `URDRBHO1` | Bounded-history optimizer (look-ahead with teeth; Belady vs LRU) | `boundedhist` | [test](../tests/test_boundedhist.py) | [conf](../tools/terrain/conformance_boundedhist.txt) | [brief](../docs/boundedhist_brief.md) |
 | [`buoyancy.py`](../tools/terrain/buoyancy.py) | `URDRBUOY1` | Exact integer flotation over the wave seam (T3.5) | `buoyancy` | [test](../tests/test_buoyancy.py) | — | — |
 | [`byteacct.py`](../tools/terrain/byteacct.py) | `URDRBYT1` | Proof-carrying byte accounting (the Byte Budget Theorem) | `byteacct` | [test](../tests/test_byteacct.py) | [conf](../tools/terrain/conformance_byteacct.txt) | [brief](../docs/byteacct_brief.md) |
+| [`cayley.py`](../tools/terrain/cayley.py) | `URDRCAY1` | The Cayley-Menger determinant as a coordinate-free realizability law | `cayley` | [test](../tests/test_cayley.py) | [conf](../tools/terrain/conformance_cayley.txt) | — |
 | [`chunkload.py`](../tools/terrain/chunkload.py) | `URDRCHK1` | Certified terrain authority cut (T3.37, Stage I opener) | `chunkload` | [test](../tests/test_chunkload.py) | [conf](../tools/terrain/conformance_chunkload.txt) | — |
 | [`chunkstate.py`](../tools/terrain/chunkstate.py) | `URDRCHS1` | Regional state cut (T3.39) — the D16 same-witness law | `chunkstate` | [test](../tests/test_chunkstate.py) | [conf](../tools/terrain/conformance_chunkstate.txt) | — |
 | [`citation.py`](../tools/terrain/citation.py) | `URDRCIT1` | Deterministic cross-tick citation protocol | `citation` | [test](../tests/test_citation.py) | [conf](../tools/terrain/conformance_citation.txt) | [brief](../docs/citation_brief.md) |
@@ -90,11 +112,15 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`crossing.py`](../tools/terrain/crossing.py) | `URDRCROSS1` | Wave-crossing timing (T3.7) | `crossing` | [test](../tests/test_crossing.py) | — | — |
 | [`crosswarden.py`](../tools/terrain/crosswarden.py) | `URDRWARD2` | Cross-region structural anti-cheat (T3.25) | `crosswarden` | [test](../tests/test_crosswarden.py) | [conf](../tools/terrain/conformance_crosswarden.txt) | — |
 | [`dirward.py`](../tools/terrain/dirward.py) | `URDRWARD3` | Directed-reachability structural anti-cheat (T3.26) | `dirward` | [test](../tests/test_dirward.py) | [conf](../tools/terrain/conformance_dirward.txt) | — |
+| [`disjoint.py`](../tools/terrain/disjoint.py) | `URDRDSJ1` | Prefix-disjointness IS commutation (task 58, Half B) | `disjoint` | [test](../tests/test_disjoint.py) | [conf](../tools/terrain/conformance_disjoint.txt) | — |
+| [`divergence.py`](../tools/terrain/divergence.py) | `URDRDVG1` | The quantization defect in CELLS (S2) — the largest connected RUN, never a rate | `divergence` | [test](../tests/test_divergence.py) | [conf](../tools/terrain/conformance_divergence.txt) | — |
 | [`driftgaze.py`](../tools/terrain/driftgaze.py) | `URDRDGZ1` | Interest shift (T3.50, W4) — the client that MOVES | `driftgaze` | [test](../tests/test_driftgaze.py) | [conf](../tools/terrain/conformance_driftgaze.txt) | — |
 | [`drive.py`](../tools/terrain/drive.py) | `URDRDRIVE1` | Certified movement TRANSCRIPT (T3.11) | `drive` | [test](../tests/test_drive.py) | [conf](../tools/terrain/conformance_drive.txt) | — |
 | [`fpcap.py`](../tools/terrain/fpcap.py) | `URDRCAP1` | Capsule/body seam (T3.16) | `fpcap` | [test](../tests/test_fpcap.py) | [conf](../tools/terrain/conformance_fpcap.txt) | — |
 | [`fpface.py`](../tools/terrain/fpface.py) | `URDRFACE1` | Exact-integer facing seam (T3.15) | `fpface` | [test](../tests/test_fpface.py) | [conf](../tools/terrain/conformance_fpface.txt) | — |
+| [`frontier.py`](../tools/terrain/frontier.py) | `URDRFRN1` | The admission accelerator — conservation, monotone obligations, a Galois adjunction | `frontier` | [test](../tests/test_frontier.py) | [conf](../tools/terrain/conformance_frontier.txt) | — |
 | [`gaze.py`](../tools/terrain/gaze.py) | `URDRGAZE1` | Certified first-person OBSERVER over terrain (T3.10) | `gaze` | [test](../tests/test_gaze.py) | [conf](../tools/terrain/conformance_gaze.txt) | — |
+| [`geoquorum.py`](../tools/terrain/geoquorum.py) | `URDRGEO1` | Multi-observer capture consensus (S4) — coverage refusal vs INTEGRITY refusal | `geoquorum` | [test](../tests/test_geoquorum.py) | [conf](../tools/terrain/conformance_geoquorum.txt) | — |
 | [`ghostsnap.py`](../tools/terrain/ghostsnap.py) | `URDRGHS1` | The actor wire (T3.54, V3) — equal-or-refuse ghosts | `ghostsnap` | [test](../tests/test_ghostsnap.py) | [conf](../tools/terrain/conformance_ghostsnap.txt) | — |
 | [`glide.py`](../tools/terrain/glide.py) | `URDRGLIDE1` | Continuous fixed-point movement (T3.18, Stage B) | `glide` | [test](../tests/test_glide.py) | [conf](../tools/terrain/conformance_glide.txt) | — |
 | [`govern.py`](../tools/terrain/govern.py) | `URDROPC2` | Per-tick work governor (T3.30) | `govern` | [test](../tests/test_govern.py) | [conf](../tools/terrain/conformance_govern.txt) | — |
@@ -102,12 +128,15 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`heightfield.py`](../tools/terrain/heightfield.py) | `URDRHF1` | Deterministic integer heightfield canon (T1) | `terrain` | — | — | — |
 | [`hitbox.py`](../tools/terrain/hitbox.py) | `URDRHIT1` | Server-authoritative hit validation (ACTIVE anti-cheat channel) | `hitbox` | [test](../tests/test_hitbox.py) | [conf](../tools/terrain/conformance_hitbox.txt) | [brief](../docs/hitbox_brief.md) |
 | [`horizon.py`](../tools/terrain/horizon.py) | `URDRLAT1` | Rollback-horizon reconcile window (T3.32) | `horizon` | [test](../tests/test_horizon.py) | [conf](../tools/terrain/conformance_horizon.txt) | — |
+| [`horn.py`](../tools/terrain/horn.py) | `URDRHRN1` | The Gabriel anchor ladder — rung count conserved, only the pitch changes | `horn` | [test](../tests/test_horn.py) | [conf](../tools/terrain/conformance_horn.txt) | — |
 | [`interest.py`](../tools/terrain/interest.py) | `URDRAOI1` | Deterministic Area-of-Interest relevance (T3.21, Stage C) | `interest` | [test](../tests/test_interest.py) | [conf](../tools/terrain/conformance_interest.txt) | — |
 | [`lagcomp.py`](../tools/terrain/lagcomp.py) | `URDRLAG1` | Temporal lag-compensation for hit validation | `lagcomp` | [test](../tests/test_lagcomp.py) | [conf](../tools/terrain/conformance_lagcomp.txt) | [brief](../docs/lagcomp_brief.md) |
 | [`latencyest.py`](../tools/terrain/latencyest.py) | `URDRLES1` | Latency estimator feeding clock-authority | `latencyest` | [test](../tests/test_latencyest.py) | [conf](../tools/terrain/conformance_latencyest.txt) | [brief](../docs/latencyest_brief.md) |
 | [`layertheorem.py`](../tools/terrain/layertheorem.py) | `URDRISPL1` | Integer Scalar Potential Layer Theorem (T3.22) | `layertheorem` | [test](../tests/test_layertheorem.py) | [conf](../tools/terrain/conformance_layertheorem.txt) | — |
 | [`lease.py`](../tools/terrain/lease.py) | `URDRLSE1` | The standing lease (T3.43) — RAN-0's temporal extension | `lease` | [test](../tests/test_lease.py) | [conf](../tools/terrain/conformance_lease.txt) | — |
 | [`lookahead.py`](../tools/terrain/lookahead.py) | `URDRLKA1` | Bounded look-ahead optimality certificate (honest negative) | `lookahead` | [test](../tests/test_lookahead.py) | [conf](../tools/terrain/conformance_lookahead.txt) | [brief](../docs/lookahead_brief.md) |
+| [`magicdiv.py`](../tools/terrain/magicdiv.py) | `URDRMAG1` | Division by an invariant constant, exact and exhaustively proven | `magicdiv` | [test](../tests/test_magicdiv.py) | [conf](../tools/terrain/conformance_magicdiv.txt) | — |
+| [`membrane.py`](../tools/terrain/membrane.py) | `URDRMEM1` | The semantic membrane — advisory, structural, and unable to starve | `membrane` | [test](../tests/test_membrane.py) | [conf](../tools/terrain/conformance_membrane.txt) | — |
 | [`mesh.py`](../tools/terrain/mesh.py) | `URDRMSH1` | THE MESHED SIMULATION (M3) — MESH == MONOLITH | `mesh` | [test](../tests/test_mesh.py) | [conf](../tools/terrain/conformance_mesh.txt) | — |
 | [`meshattest.py`](../tools/terrain/meshattest.py) | `URDRMAT1` | Mesh reality attestation (M2.5) — real sockets, real processes | `meshattest` | [test](../tests/test_meshattest.py) | — | — |
 | [`meshsession.py`](../tools/terrain/meshsession.py) | `URDRMSS1` | Attested mesh session (M5) — the Phase M capstone | `meshsession` | [test](../tests/test_meshsession.py) | [conf](../tools/terrain/conformance_meshsession.txt) | — |
@@ -118,13 +147,16 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`panelight.py`](../tools/terrain/panelight.py) | `URDRPNL1` | THE WINDOWED LOOP (T3.52, V1) | `panelight` | [test](../tests/test_panelight.py) | [conf](../tools/terrain/conformance_panelight.txt) | — |
 | [`panewire.py`](../tools/terrain/panewire.py) | `URDRPNW1` | THE WIRED WINDOW (T3.53, V2) | `panewire` | [test](../tests/test_panewire.py) | [conf](../tools/terrain/conformance_panewire.txt) | — |
 | [`partition.py`](../tools/terrain/partition.py) | `URDRPRT1` | THE PARTITIONED MESH (M4) — the CP posture made executable | `partition` | [test](../tests/test_partition.py) | [conf](../tools/terrain/conformance_partition.txt) | — |
+| [`patience.py`](../tools/terrain/patience.py) | `URDRPAT1` | The price of the price — the exclusion ladder holds only at T >= Delta | `patience` | [test](../tests/test_patience.py) | [conf](../tools/terrain/conformance_patience.txt) | — |
 | [`perception.py`](../tools/terrain/perception.py) | `URDRPCP1` | Witnessed absence as server-authoritative AoI (Band A) | `perception` | [test](../tests/test_perception.py) | [conf](../tools/terrain/conformance_perception.txt) | [brief](../docs/perception_brief.md) |
 | [`persist.py`](../tools/terrain/persist.py) | `URDRLAT5` | Persistent snapshot checkpoint (T3.36) | `persist` | [test](../tests/test_persist.py) | [conf](../tools/terrain/conformance_persist.txt) | — |
 | [`pingpolicy.py`](../tools/terrain/pingpolicy.py) | `URDRPNG1` | The ping policy — monotone disadvantage (conditional) | `pingpolicy` | [test](../tests/test_pingpolicy.py) | [conf](../tools/terrain/conformance_pingpolicy.txt) | [brief](../docs/pingpolicy_brief.md) |
 | [`predict.py`](../tools/terrain/predict.py) | `URDRPRED1` | Client-prediction RECONCILE primitive (T3.17, Stage A) | `predict` | [test](../tests/test_predict.py) | [conf](../tools/terrain/conformance_predict.txt) | — |
 | [`priogov.py`](../tools/terrain/priogov.py) | `URDROPC3` | PRIORITY work governor (T3.31) | `priogov` | [test](../tests/test_priogov.py) | [conf](../tools/terrain/conformance_priogov.txt) | — |
+| [`provbind.py`](../tools/terrain/provbind.py) | `URDRPRV1` | Provenance binding (S3) — a certificate bound to its lattice, or refused | `provbind` | [test](../tests/test_provbind.py) | [conf](../tools/terrain/conformance_provbind.txt) | — |
 | [`quintessence.py`](../tools/terrain/quintessence.py) | `URDRQNT1` | ID-0 representation theorem (T3.46) — the fifth essence | `quintessence` | [test](../tests/test_quintessence.py) | [conf](../tools/terrain/conformance_quintessence.txt) | — |
 | [`rannull.py`](../tools/terrain/rannull.py) | `URDRRAN0` | RAN-0 authority-nullity certificate (T3.42) — proof of ABSENCE | `rannull` | [test](../tests/test_rannull.py) | [conf](../tools/terrain/conformance_rannull.txt) | — |
+| [`recirc.py`](../tools/terrain/recirc.py) | `URDRRCC1` | Kleene recirculation — THERE IS NO LOOP, and closing it would weaken fraud detection | `recirc` | [test](../tests/test_recirc.py) | [conf](../tools/terrain/conformance_recirc.txt) | — |
 | [`resurrect.py`](../tools/terrain/resurrect.py) | `URDRLAT6` | Resurrection law (T3.38) — recovery half of persist | `resurrect` | [test](../tests/test_resurrect.py) | [conf](../tools/terrain/conformance_resurrect.txt) | — |
 | [`schedule.py`](../tools/terrain/schedule.py) | `URDRSCH1` | Adaptive priority scheduler (age-first, starvation-free) | `schedule` | [test](../tests/test_schedule.py) | [conf](../tools/terrain/conformance_schedule.txt) | [brief](../docs/schedule_brief.md) |
 | [`sea.py`](../tools/terrain/sea.py) | `URDRFLD1` | Terrain sea as certified field state (S1/S2) | `sea` | [test](../tests/test_sea.py) | [conf](../tools/terrain/conformance_sea.txt) | — |
@@ -133,6 +165,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`sealwrit.py`](../tools/terrain/sealwrit.py) | `URDRSWT1` | THE SIGNED WIRE (T3.49, W3) — WHO may write x WHAT may change | `sealwrit` | [test](../tests/test_sealwrit.py) | [conf](../tools/terrain/conformance_sealwrit.txt) | — |
 | [`slo.py`](../tools/terrain/slo.py) | `URDRLAT2` | Composite worst-case latency SLO (T3.33) | `slo` | [test](../tests/test_slo.py) | [conf](../tools/terrain/conformance_slo.txt) | — |
 | [`splice.py`](../tools/terrain/splice.py) | `URDRSPLICE1` | Glide resumption — the memoryless property | `splice` | [test](../tests/test_splice.py) | [conf](../tools/terrain/conformance_splice.txt) | — |
+| [`splitview.py`](../tools/terrain/splitview.py) | `URDRSPV1` | The official server's own audit — the lonely-client and cut theorems | `splitview` | [test](../tests/test_splitview.py) | [conf](../tools/terrain/conformance_splitview.txt) | — |
 | [`stance.py`](../tools/terrain/stance.py) | `URDRSTANCE1` | The grounded step law (T3.9) | `stance` | [test](../tests/test_stance.py) | [conf](../tools/terrain/conformance_stance.txt) | — |
 | [`storecost.py`](../tools/terrain/storecost.py) | `URDRLAT4` | Snapshot-storage envelope (T3.35) | `storecost` | [test](../tests/test_storecost.py) | [conf](../tools/terrain/conformance_storecost.txt) | — |
 | [`storm.py`](../tools/terrain/storm.py) | `URDRSTM1` | Deterministic adversarial-transport loom (T3.48, W2) | `storm` | [test](../tests/test_storm.py) | [conf](../tools/terrain/conformance_storm.txt) | — |
@@ -142,30 +175,137 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`terrain_view.py`](../tools/terrain/terrain_view.py) | `URDRTVW1` | The D15 view-export FIREWALL (T3.0) | `terrain_view` | [test](../tests/test_terrain_view.py) | — | — |
 | [`testament.py`](../tools/terrain/testament.py) | `URDRTST1` | Durable intent (T3.44) — the write that survives its writer | `testament` | [test](../tests/test_testament.py) | [conf](../tools/terrain/conformance_testament.txt) | — |
 | [`throttle.py`](../tools/terrain/throttle.py) | `URDRTHR1` | Clarity-bounded update throttle (sim-rate decoupling) | `throttle` | [test](../tests/test_throttle.py) | [conf](../tools/terrain/conformance_throttle.txt) | [brief](../docs/throttle_brief.md) |
+| [`tierview.py`](../tools/terrain/tierview.py) | `URDRTIR1` | Visual asymmetry ZERO BY CONSTRUCTION (S6) — the predicate cannot take a tier | `tierview` | [test](../tests/test_tierview.py) | [conf](../tools/terrain/conformance_tierview.txt) | — |
 | [`traj.py`](../tools/terrain/traj.py) | `URDRTRAJ1` | Certified TRAJECTORY OBSERVER (T3.12) | `traj` | [test](../tests/test_traj.py) | [conf](../tools/terrain/conformance_traj.txt) | — |
 | [`view_witness.py`](../tools/terrain/view_witness.py) | `URDRTVW1` | The citation contract (T3.6) — the declared view must CITE | `view_witness` | [test](../tests/test_view_witness.py) | — | — |
+| [`voxlat.py`](../tools/terrain/voxlat.py) | `URDRVOX1` | The certified integer voxel lattice (S1) — clz LCA depth, attained 4*B^3 | `voxlat` | [test](../tests/test_voxlat.py) | [conf](../tools/terrain/conformance_voxlat.txt) | — |
 | [`warden.py`](../tools/terrain/warden.py) | `URDRWARD1` | Structural anti-cheat (T3.24, Stage E opener) | `warden` | [test](../tests/test_warden.py) | [conf](../tools/terrain/conformance_warden.txt) | — |
 | [`wardhom.py`](../tools/terrain/wardhom.py) | `URDRWARDH1` | Warden beta0 IS certified F2-homology beta0, cross-placed (T3.27) | `wardhom` | [test](../tests/test_wardhom.py) | [conf](../tools/terrain/conformance_wardhom.txt) | — |
 | [`wavefield.py`](../tools/terrain/wavefield.py) | `URDRWAV1` | Exact division-free traveling-wave field (T3.3) | `wavefield` | [test](../tests/test_wavefield.py) | — | — |
 | [`wire.py`](../tools/terrain/wire.py) | `URDRWIR1` | EQUAL-OR-REFUSE REPLICATION (T3.47, wire-phase opener) | `wire` | [test](../tests/test_wire.py) | [conf](../tools/terrain/conformance_wire.txt) | — |
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | — |
-## Known gaps, stated rather than hidden
+## Status
 
-- **`bench.py`** has no gate stage, no falsifier suite and no conformance corpus. This is
-  deliberate and declared: it measures wall-clock, which is nondeterministic and must never enter
-  a byte-identical gate. It is the arc's only fully ungated module.
+**MEASURED, as of this writing.** 94 modules under `tools/terrain/`, 163 falsifier suites, 1725 unit
+falsifiers with 0 red, 787 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
+glyph, and every one carries a D1 §20 ruling saying so.
+
+**Cross-host determinism is witnessed, not assumed.** `spec/attest/mesh_attest.txt` has been re-run
+on a named host (Windows 11 / Python 3.14 / Ally X) against the cloud baseline (Linux 6.18 / Python
+3.11). The write log, `finalwit` and `finalcustody` match BYTE-FOR-BYTE; only the provenance header
+and therefore the trace digest differ. That is stronger evidence than anything the in-repo
+determinism check can produce, because it crosses OS, CPU and Python minor version at once.
+
+**What is actually proven, in one line each.** The terrain is canonical and seed-reproducible. The
+view layer is a firewall that must CITE. Movement, latency, storage, recovery, streaming and the
+regional cut are certified end-to-end. Concurrency is admitted by proof of independence rather than
+by lock discipline. Replication is equal-or-refuse. The wire is signed, attested, and tested against
+a real adversarial transport. The mesh migrates with custody. The anti-cheat firewall is witnessed
+absence across three channels. The city arc voxelizes, bounds capture error, binds provenance,
+adjudicates cohorts, and closes visual asymmetry. The authority arc turns the official server from
+an unexamined trusted party into a priced one.
+
+## Current
+
+The live edge is the **authority arc**, and it is a chain of scope corrections rather than a stack of
+features — which is the most useful thing to know about it. Each rung was true in its own model and
+each was undermined by the next one's model, on purpose:
+
+1. `splitview` proved a forked server is invisible to any lonely client and detectable only by
+   comparison, and recommended a spanning tree as the cheapest sufficient gossip topology. **It
+   assumed the audit graph was exogenous.**
+2. `auditgraph` observed that an MMO server BUILDS that graph, priced undetected equivocation at
+   kappa, and found all-pairs to be the only unbreakable topology — reversing the previous rung's
+   cheapest recommendation. **It assumed exclusion was visible.**
+3. `patience` showed a server that STALLS rather than excludes gets the same partition at a visible
+   cost of zero, collapsing the 1/2/∞ ladder to 0/0/0 below the delay envelope, and priced buying the
+   hypothesis back at `ceil(log2(ceil(Δ/T₀)))` one-time false alarms. **It assumes the envelope Δ is
+   knowable.**
+4. `bombtest` steps sideways to the reviewer's problem: certify an illegal step without executing it,
+   for the case where re-execution cannot be paid at all.
+
+None of these is retracted. Each is scoped, and the scope is written in the module header rather than
+quietly patched, because a reader who took rung 1 at face value would ship a topology that rung 2
+dismantles in one move.
+
+## Weak spots, named
+
+- **The liveness residual is still open, and two rungs now depend on it.** `patience` shows a
+  transient outage is indistinguishable from a fork at this layer. Everything `auditgraph` claims
+  about converting an integrity attack into a *visible* availability attack is contingent on a client
+  being able to tell denial from bad weather, and nothing here establishes that. It is the single
+  largest open hole in the arc.
+- **Detection localizes to a pair, never to a culprit.** `splitview` can prove a fork happened; it
+  cannot say who forked, and attribution needs signed heads the model does not carry. Which side is
+  canonical after a detected fork is a governance question with no cryptographic answer here.
+- **A server that can MINT identities buys back the assignment lever.** `auditgraph` removes the
+  matchmaking lever by committing the topology to client identity — and says nothing about a server
+  that manufactures the identities. That is `geoquorum`'s cohort problem pointed at the operator
+  rather than at the players, and no rung addresses it.
+- **The open half of S2 is blocked on data, not on design.** `divergence` supplies the metric — the
+  largest connected run of flipped cells — but WHAT RUN a real LiDAR capture produces needs a corpus
+  of real scans that does not exist here. The number in the repo bounds a synthetic wall; it is not a
+  prediction about a real one.
+- **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
+  NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
+  of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
+- **17 of 94 modules have no design brief.** Every module in the city and authority arcs
+  (`voxlat` … `bombtest`) carries a gate stage, falsifiers and a pinned corpus, and NONE carries a
+  `docs/<name>_brief.md`. The OODA passes that produced them live only in commit messages and module
+  headers.
+- **`bench.py` remains fully ungated** — deliberately, since it measures wall-clock, which must never
+  enter a byte-identical gate. It is the arc's only ungated module.
+- **True conformance gaps:** `meshattest`, `terrain_view`, `view_witness`, `wireattest` carry gate
+  stages and falsifiers but no pinned corpus of their own.
+- **Docstring/MAGIC divergence:** several modules open their docstring citing the *upstream*
+  authority code rather than their own MAGIC (`crosswarden`, `dirward`, `layertheorem`, `warden`,
+  `gaze`, `stance`, `terrain_view`). Cosmetic, but it makes automated extraction unreliable.
+- **Two MAGIC collisions existed until they were found by an INDEX PASS, not by a test.**
+  `audible`/`auditgraph` shared `URDRAUD1` and `terrain_view`/`tierview` shared `URDRTVW1`. Since a
+  digest is `H(MAGIC | name | payload)`, a shared prefix defeats exactly the domain separation the
+  prefix exists to provide. The newer module moved in each case; `terrain_view` kept its code because
+  `view_witness` string-anchors on that literal in exported HTML. A `magicuniq` gate row now asserts
+  injectivity so the class cannot recur — but the lesson is that combing the DOCS found a CODE defect
+  that 1725 falsifiers did not.
 - **Conformance corpora under a different name** (not gaps): `conformance_buoy.txt` (buoyancy),
   `conformance_cross.txt` (crossing), `conformance_wave.txt` (wavefield), `conformance_terrain.txt`
   (heightfield + terrain_bridge).
-- **True conformance gaps:** `meshattest`, `terrain_view`, `view_witness`, `wireattest` carry gate
-  stages and falsifiers but no pinned corpus of their own.
-- **No design brief** exists for the Stage A–I movement/storage/streaming/write-calculus modules
-  (`glide`, `chunkload`, `terraform`, `commute`, `rannull`, `lease`, `testament`, `quintessence`)
-  nor for the V1–V5 visible-world rungs. The briefs cover the anti-cheat/latency chain and the
-  phase capstones only. [`DEVNOTES.md`](DEVNOTES.md) partly fills that gap.
-- **Docstring/MAGIC divergence:** several modules open their docstring citing the *upstream*
-  authority code rather than their own MAGIC (`crosswarden`, `dirward`, `layertheorem`, `warden`,
-  `gaze`, `stance`, `terrain_view`). Cosmetic, but it makes automated code extraction unreliable.
+
+## Future stages, broad
+
+Stated at the altitude of *what must be true*, not as a schedule. Nothing below is committed work.
+
+**Stage 1 — close the liveness residual.** Until a client can distinguish denial from outage, the
+authority arc's central claim is contingent. This needs a failure-detector layer with a stated
+accuracy class, and the honest outcome may be that the guarantee has to be weakened rather than the
+detector strengthened.
+
+**Stage 2 — attribution.** Signed heads, so a detected fork yields a transferable proof of
+misbehaviour rather than a local alarm. The interesting property is that evidence becomes DURABLE and
+SPREADABLE where the detection opportunity is ephemeral and local.
+
+**Stage 3 — identity.** Bound the server's power to mint participants. Without this, Stage 2's
+signatures certify a population the operator chose.
+
+**Stage 4 — the real-capture corpus.** Close the open half of S2 with actual scans. This is a data
+acquisition problem, not a design problem, and it gates any honest claim about real-world capture
+error.
+
+**Stage 5 — the persistent-world composition.** The slices are proven individually; the arc has not
+yet demonstrated one persistent city standing on all of them at once, under load, with players
+joining and leaving. Composition is where declared boundaries meet.
+
+**Stage 6 — briefs and grading debt.** 17 modules need `docs/*_brief.md`, and the D5 ledger needs
+entries for the city and authority arcs. Documentation debt in this repo is not cosmetic: the briefs
+are where the OODA and the D1 §20 rulings live.
+
+**Stage 7 — the parallel substrates.** `parallel/` holds structures explored alongside the Euclidean
+arc without disturbing it. Promoting any of them is a kernel question and therefore a D1 §20 question.
+
+Forward candidates identified during OODA passes but not yet scoped are held privately until there is
+consensus to publish them, matching the convention already used for CITYSCALE §7 and
+COMMUTING-DEFECT §6.
 
 ## Running it
 

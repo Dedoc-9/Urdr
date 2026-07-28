@@ -1,4 +1,4 @@
-# URDRAUD1 conformance — THE EXCLUSION PRICE. What URDRSPV1 assumed away, and the reason its cheapest
+# URDRAGR1 conformance — THE EXCLUSION PRICE. What URDRSPV1 assumed away, and the reason its cheapest
 # recommendation is the wrong one to ship. NO new glyph (kernel frozen).
 #
 # WHAT THE PREVIOUS RUNG ASSUMED. splitview decided that undetected equivocation is possible exactly
@@ -96,6 +96,6 @@
 # unchanged, and a client that cannot tell denial from outage cannot raise the alarm; WHO to believe
 # once a fork is detected; any bound on a server that can MINT identities, which would buy back the
 # assignment lever it just lost.
-price e9b023c0a692e35ab9859cfd584c9c87542f2b5e775577e67a8068c0dde13bcf
-ladder bc5d3f3bae71a7e48c878c84d210877a2209b719608c3b639aba96eaec26209e
-lever 681bee86384061b8319ed3acbac94e7da4ced02e1bf73408ec7f6017aea68299
+price 80b01c8d7c3104a41673acb79b0d260f57d748c4afca1f3c0b4a65fb84a8c05c
+ladder 08ceaca48cd120a91f1c7e5f142f4dd6f468839bbd5b7aee2b2424092c19ea0f
+lever 35aac152bebf93114eca4c2bc47564257f0aecab5ebd74e1b36d53ca693bbe2d

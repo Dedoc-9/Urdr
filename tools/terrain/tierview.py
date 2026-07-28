@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 Daniel J. Dillberg
-"""tierview — VISUAL ASYMMETRY, ZERO BY CONSTRUCTION (URDRTVW1): slice S6 of the city-replica arc.
+"""tierview — VISUAL ASYMMETRY, ZERO BY CONSTRUCTION (URDRTIR1): slice S6 of the city-replica arc.
 NO NEW GLYPH.
 
 THE PROBLEM, AND WHY THE OBVIOUS MEASUREMENT IS THE WRONG ONE. Clients render at different quality
@@ -57,7 +57,7 @@ _HERE = _os.path.dirname(_os.path.abspath(__file__))
 if _HERE not in _sys.path:
     _sys.path.insert(0, _HERE)
 
-MAGIC = b"URDRTVW1"
+MAGIC = b"URDRTIR1"
 GRID = 6                                       # lattice extent the census is decided over
 TIERS = ("low", "medium", "high")
 _CULL = {"low": 3, "medium": 2, "high": 1}     # the plant's tier model: keep 1 cell in N
