@@ -10949,6 +10949,119 @@ class Gate:
                     "how this repo obtains guarantees"
                     if red_ok else "a liveness plant did not bite")
 
+    def jurisdiction(self):
+        """S3 collapsed into the defect framework (URDRJUR1). provbind binds a certificate to a
+        lattice and refuses an unbound one, but the jurisdictional content still lives in the
+        CERTIFICATE — a claim about how the capture was produced, which is metadata, which is whatever
+        the submitter says. Here admissibility is a predicate on WHAT THE LATTICE IS, so a violation
+        is a defect IN CELLS in the same units as S2, subadditive into the same budget, composing
+        structurally over prefix-disjoint Morton subtrees. The handed-down FILTRATION signature was
+        tested and did NOT survive as an integrity mechanism. Rows: scenes, law, filtration,
+        selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import jurisdiction as JR
+        except Exception as exc:
+            self.record("jurisdiction", False, f"import failed (jurisdiction): {exc}")
+            return
+        try:
+            ref_ok = all(JR.scene_result(n) == JR.golden(n) for n in JR.SCENES)
+            ref_ok = ref_ok and JR.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("jurisdiction:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("jurisdiction:scenes", ref_ok,
+                    "predicate + compose + filtration reproduce URDRJUR1 digests, and the pinned "
+                    "corpus is exactly what `--emit` produces"
+                    if ref_ok else "a jurisdiction scene drifted from its digest")
+        law_ok = True
+        try:
+            law_ok = JR.lift_attack() == (True, True)
+            law_ok = law_ok and JR.certificate_is_not_consulted() == (False,)
+            law_ok = law_ok and len(JR.certificate_is_not_consulted()) == 1
+            law_ok = law_ok and JR.family_is_not_vacuous() == (11, 3, 49)
+            law_ok = law_ok and JR.subadditivity_census() == (55, 0, 53, 3) and JR.subadditive()
+            law_ok = law_ok and JR.composition_census() == (49, 0, 55)
+            law_ok = law_ok and JR.composition_is_structural()
+            law_ok = law_ok and JR.adjudicate(frozenset({(0, 0, 0)})) is True
+            try:
+                JR.adjudicate(frozenset({(33, 33, 33)}))
+                law_ok = False
+            except JR.Inadmissible:
+                pass
+        except Exception:
+            law_ok = False
+        self.record("jurisdiction-law", law_ok,
+                    "provbind binds a certificate to a lattice and refuses an unbound one, but the "
+                    "JURISDICTIONAL content still lived in the certificate as a claim about how the "
+                    "capture was produced — metadata, which is whatever the submitter says. Here "
+                    "'this block contains no private residence footprint' is not a provenance claim "
+                    "but a property of WHAT THE LATTICE IS, so a bound and truthful-looking "
+                    "certificate presented with a block sitting on the exclusion zone is ADMITTED by "
+                    "metadata and REFUSED by the lattice, and the verdict is invariant under every "
+                    "certificate including one asserting the opposite — a single value across all "
+                    "four. The violation is then a DEFECT IN CELLS, the same unit as S2 and the same "
+                    "budget: subadditive over 55 pairs with 0 violations, 53 tight, and 3 pairs "
+                    "carrying defect on BOTH sides, that last number being the non-vacuity because a "
+                    "census of 0 + 0 = 0 would confirm any composition rule. And composition over "
+                    "PREFIX-DISJOINT Morton subtrees is structural rather than measured — 49 disjoint "
+                    "pairs of 55, 0 exceptions, combined defect equal to the sum and combined "
+                    "admissibility equal to the conjunction, which is Half B's commutation restated "
+                    "on occupancy sets"
+                    if law_ok else "the jurisdiction law did not hold")
+        filt_ok = True
+        try:
+            filt_ok = JR.filtration_separates_a_careless_doctorer() == ((0, 1), (1, 2, 3))
+            filt_ok = filt_ok and JR.filtration_is_forgeable() == (256, 256, 8, 9, True)
+            filt_ok = filt_ok and JR.filtration_is_a_screen_not_a_verdict() == (True, True)
+            filt_ok = filt_ok and JR.recirc_already_refuted_the_iteration() == (True, True, True)
+        except Exception:
+            filt_ok = False
+        self.record("jurisdiction-filtration", filt_ok,
+                    "THE HANDED-DOWN FILTRATION SIGNATURE WAS TESTED AND DID NOT SURVIVE AS AN "
+                    "INTEGRITY MECHANISM, and both directions are recorded rather than the "
+                    "convenient one. It DOES separate a careless doctorer — uniform-certainty "
+                    "captures give step counts {0, 1} against {1, 2, 3} for captures with boundary "
+                    "ambiguity, so the intuition is sound. It is ALSO free to anyone who reads it, "
+                    "because the filtration is computed from data THE SUBMITTER ALSO PRODUCES: 256 "
+                    "of 256 filtrations are reachable by choosing confidences, and for a chosen "
+                    "fixed point EVERY honest-shaped filtration is reachable by an adversary aiming "
+                    "at it — so the filtration is a DECLARATION BY THE SUBMITTER, the same trust "
+                    "structure provbind refused, wearing different clothes. And the repo had already "
+                    "refuted the iteration independently: recirc measured this arc's Kleene operator "
+                    "IDEMPOTENT at most one step, with 400 raw captures collapsing onto 5 fixed "
+                    "points and doctored colliding with honest, so there is no iteration history to "
+                    "compare at all — read from that module here rather than restated, so if recirc "
+                    "moves this row reddens. GRADED as a one-sided SCREEN with bombtest's character, "
+                    "catching the careless and free to the informed, and NOT the integrity signal "
+                    "geoquorum needs; shipping it as one would repeat exactly the class L22 names"
+                    if filt_ok else "the jurisdiction filtration measurement did not hold")
+        red_ok = False
+        try:
+            red_ok = JR._admit_by_certificate(frozenset({(33, 33, 33)}),
+                                              {"jurisdiction_ok": True}) is True
+            red_ok = red_ok and JR.defect(frozenset({(33, 33, 33)})) > 0
+            blocks, violating, disjoint = JR.family_is_not_vacuous()
+            red_ok = red_ok and violating > 0 and disjoint > 0 and disjoint < blocks * blocks
+            for bad in ((64, 0, 0), (-1, 0, 0)):
+                try:
+                    JR.defect(frozenset({bad}))
+                    red_ok = False
+                except JR.JurisdictionError:
+                    pass
+        except Exception:
+            red_ok = False
+        self.record("jurisdiction-selftest", red_ok,
+                    "the metadata plant bites: `_admit_by_certificate` returns True for a block whose "
+                    "measured defect is positive, which is the whole gap between a bound claim and a "
+                    "read lattice; the family is asserted non-vacuous in BOTH directions since a "
+                    "first draft scattered its blocks across one small grid, gave every pair a shared "
+                    "Morton prefix, and produced ZERO disjoint pairs — a composition census that "
+                    "would have confirmed any law because it never ran one; and a cell outside the "
+                    "world is a typed refusal rather than a silently dropped input"
+                    if red_ok else "a jurisdiction plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -13896,6 +14009,7 @@ def main() -> int:
     gate.bombtest()
     gate.magicuniq()
     gate.liveness()
+    gate.jurisdiction()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

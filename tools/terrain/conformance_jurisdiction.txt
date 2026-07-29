@@ -1,0 +1,71 @@
+# URDRJUR1 conformance — S3 COLLAPSED INTO THE DEFECT FRAMEWORK. Admissibility as a predicate on the
+# LATTICE rather than a claim about the capture. NO new glyph (kernel frozen).
+#
+# THE MOVE, AND IT IS THE RIGHT ONE. provbind binds a certificate to a lattice with
+# H(cert | lattice_digest) and refuses an unbound one — but the jurisdictional content still lives in
+# the certificate, as a CLAIM ABOUT HOW THE CAPTURE WAS PRODUCED. That is metadata, and metadata is
+# whatever the submitter says.
+#
+#     "this block contains no private residence footprint" is not a claim about provenance.
+#     It is a property of WHAT THE LATTICE IS, decidable by reading occupancy.
+#
+# So a jurisdictional violation is a DEFECT IN CELLS against the permitted lattice, in the same units
+# as S2, on the same canonical object the authority path already uses for collision and visibility.
+# MEASURED: a certificate that truthfully describes a permitted block, correctly bound, presented with
+# a block sitting on the exclusion zone — metadata ADMITS it, the lattice predicate REFUSES it. And
+# the verdict is invariant under every certificate including one asserting the opposite: the set of
+# verdicts seen across {}, {ok: True}, {ok: False} and None is a single value.
+#
+# ONE UNIT, ONE BUDGET. defect(A ∪ B) <= defect(A) + defect(B) over 55 pairs, 0 violations, 53 tight,
+# and 3 pairs carry defect on BOTH sides — that last number is the non-vacuity, because a census of
+# 0 + 0 = 0 would confirm any composition rule.
+#
+# THE DISJOINT-SUBTREE COMPOSITION IS STRUCTURAL. Blocks in prefix-disjoint Morton subtrees compose by
+# UNION with no per-instance check: 49 disjoint pairs of 55, 0 exceptions, combined defect equal to
+# the sum and combined admissibility equal to the conjunction. That is Half B's structural commutation
+# restated on occupancy sets. A FIRST DRAFT SCATTERED ITS BLOCKS ACROSS ONE SMALL GRID, so every pair
+# shared a Morton prefix and the census found ZERO disjoint pairs — it would have confirmed any
+# composition law because it never ran one. The guard caught it and the family was rebuilt across
+# distinct octants.
+#
+# THE FILTRATION PROPOSAL, TESTED AND GRADED — THIS IS THE PART THAT DID NOT SURVIVE INTACT. The
+# handed-down design made the Kleene filtration P0 ⊂ P1 ⊂ ... ⊂ P* the capture-quality signature
+# distinguishing an independent scan from a copied one: a doctored capture converging in ONE step, an
+# honest one showing a multi-step filtration. Three measurements bear on it.
+#
+#   (a) IT SEPARATES A CARELESS DOCTORER, and the intuition is sound. Over the enumerated confidence
+#       space, uniform-certainty captures give step counts {0, 1} and captures with boundary ambiguity
+#       give {1, 2, 3}.
+#
+#   (b) IT IS FREE TO ANYONE WHO READS IT. The filtration is computed from data THE SUBMITTER ALSO
+#       PRODUCES. Enumerated: 256 of 256 filtrations are reachable by choosing confidences, and for a
+#       chosen fixed point EVERY honest-shaped filtration is reachable by an adversary aiming at it.
+#       The filtration is therefore not evidence about capture conditions — it is a DECLARATION BY THE
+#       SUBMITTER, the same trust structure provbind refused, wearing different clothes.
+#
+#   (c) THE REPO HAD ALREADY REFUTED THE ITERATION INDEPENDENTLY. recirc measured this arc's Kleene
+#       operator IDEMPOTENT — step counts (1,1,1,1,1,1,0,0), at most one step — with 400 distinct raw
+#       captures collapsing onto 5 fixed points and doctored_collides_with_honest() = (True, True).
+#       There is no filtration to compare because there is no iteration. Read from that module here
+#       rather than restated, so if recirc ever moves this row goes red.
+#
+#   GRADED: the filtration is a one-sided SCREEN with bombtest's character — it catches the careless
+#   and is free to the informed — and it is NOT the integrity mechanism geoquorum needs. Shipping it
+#   as one would repeat exactly the class L22 names: a construction more elegant than what it replaces
+#   that costs detection.
+#
+# THE DIGESTS BELOW ARE EMITTED, NOT INSCRIBED, AND STILL FROZEN. `jurisdiction.py --emit` prints
+# exactly these lines and emitted_matches_pinned proves the file is that output; the gate compares and
+# never rewrites, because a golden regenerated at run time cannot detect drift (L23).
+#
+# DECLARED: the forbidden region is a pinned cell set standing in for a surveyed exclusion zone — real
+# jurisdiction is a legal object with boundaries this rung does not model, and nothing here says a
+# surveyed boundary is correctly surveyed; the confidence space is enumerated at a small width so the
+# forgeability result is exact rather than sampled.
+# does_not_show: that a lattice predicate captures the LAW — it captures a GEOMETRY, and mapping a
+# statute onto a cell set is a human act taken as given here; that an admissible block is otherwise
+# honest, since jurisdiction and integrity are different predicates on the same object; any bound
+# against a submitter who forges the filtration, which is measured at zero.
+predicate 034c2cd97742f60f735c3e2c9c6915e8d9423ac0687ff8cb5148e6104474d096
+compose fb012083ad075a12470f794b0cda0ea788109d910ed9e4f8a9998f5d0c3fb21e
+filtration 175cf8a09bb2b118f18bb6ffec8f0373d21eab5db15ef19eee6e5c0b5659d87d
