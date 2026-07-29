@@ -311,7 +311,7 @@ confusions were a drifted working directory.
 #
 #     <<<URDR
 #     HEAD=2d81bdf BR=main AM=none
-#     GATE=PASSED FAILROWS=0 FALS=1798/0red ROWS=803 DOCCUR=OK DOCSTALE=OK
+#     GATE=PASSED FAILROWS=0 FALS=1815/0red ROWS=807 DOCCUR=OK DOCSTALE=OK
 #     DET=BYTE-IDENTICAL BYTES=240028/240028 A=698E23C7 B=698E23C7
 #     PUSH=afaf3db..2d81bdf
 #     URDR>>>
@@ -327,7 +327,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 1798 unit falsifiers / 803 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1815 unit falsifiers / 807 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

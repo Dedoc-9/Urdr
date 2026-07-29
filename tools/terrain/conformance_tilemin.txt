@@ -1,0 +1,53 @@
+# URDRTMN1 conformance — THE MINIMAL CERTIFICATE, ALL THREE FIELDS PROOF-CARRYING. What survived
+# URDRTIL1's sort, plus the one field that legitimately moves from commitment to proof. NO new glyph.
+#
+# tilecert sorted five proposed fields by what a LATTICE-LESS client can decide and got (2, 2, 1).
+# This rung keeps the two that worked, DROPS the three that did not, and adds a third that reaches the
+# bar — a certificate where 3 of 3 fields are checkable with no occupancy in hand:
+#
+#     tile_prefix          WHERE it sits        decidable from tile IDs alone (the ID IS the prefix)
+#     jurisdiction_region  WHAT it may serve    recomputable from the prefix + the published survey
+#     liveness_token       WHEN it was attested an HMAC the secret-holder verifies directly
+#
+# remaining_budget stays OFF the certificate and lives only in the shard ledger, because budget's
+# remainder is a function of ADMISSION HISTORY and no download settles it. Measured as structurally
+# absent, not merely unused. Putting an unverifiable number on a certificate is how a certificate
+# becomes a claim.
+#
+# THE REGION FIELD REACHES THE BAR ONLY BECAUSE IT IS RECOMPUTED, NEVER TRUSTED — a correction to the
+# design this rung was written to, which described it as "server-read at admission and stored in the
+# registry entry". That would be exactly the stored assertion the previous rung refused. The dichotomy
+# is sharp: if the region is a pure function of the prefix the client computes it and the stored copy
+# carries no information; if it is not, the client cannot check it and it is a bare claim. Resolved by
+# making the SURVEY the shared artifact — the exclusion zone is an exogenous legal object, the
+# prefix->region table is published, and the client RECOMPUTES and compares. Measured: a server that
+# marks a restricted tile OPEN and signs it correctly is CAUGHT WITH NO LATTICE AT ALL.
+#
+# INTEGRITY AND POLICY ARE TWO VERDICTS, AND A FIRST DRAFT MERGED THEM. That draft folded the client's
+# policy into the region check, so an honest certificate for a legitimately RESTRICTED tile came back
+# False and was INDISTINGUISHABLE FROM A FORGED ONE — destroying attribution, since the client could
+# no longer tell "the server lied" from "I may not enter". After the split: honest integrity True,
+# honest policy False, forged integrity False. Three distinct verdicts where there was one, and the
+# discipline is geoquorum's — THIN is coverage, DEVIATE is integrity, and they never merge.
+#
+# LOCATION-JURISDICTION IS SOUND, AND COARSE, AND BOTH ARE MEASURED. Deciding admissibility from WHERE
+# a tile sits rather than WHAT IT CONTAINS is an over-approximation in the safe direction: over all 64
+# tiles, an OPEN region provably contains no forbidden cell — 63 open, 1 restricted, 0 exceptions. The
+# price is reported rather than elided:
+#
+#     4096 cells refused to protect 4 — a 1024x over-refusal at this tile granularity
+#
+# the same Galois shape frontier established: a sound over-approximation whose precision loss is a
+# stated number, not a defect. Finer tiles cost less precision and more certificates; this rung
+# enforces the tradeoff rather than making it.
+#
+# DECLARED: the survey is a PINNED PUBLIC TABLE standing in for a legal boundary — this rung enforces
+# a survey, it does not validate one, and a wrong survey yields wrong verdicts soundly; the tile
+# granularity is fixed at one level.
+# does_not_show: that an open tile is SAFE — location-jurisdiction bounds only the surveyed exclusion
+# zone and says nothing about integrity, which is geoquorum's question; that a fresh token means an
+# HONEST server, since an HMAC proves possession and never truthfulness; that attribution implies
+# remedy.
+fields daea05957a77f537d626cc6b6169aee901e56c7f49e3e8f749dadeb0ac36eb7e
+soundness 0a8e418589307f53662efc17747899889fcbc9732617efc69c27243888559fb3
+plants 46a4366c71eec87cc40da2ddeae838f49e2aec5aac9b5d287a81a79449457ef8

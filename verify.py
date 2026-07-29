@@ -11280,6 +11280,111 @@ class Gate:
                     "and an empty neighbour set now fails rather than passing"
                     if red_ok else "a tilecert plant did not bite")
 
+    def tilemin(self):
+        """The minimal certificate, all three fields proof-carrying (URDRTMN1). tilecert sorted five
+        proposed fields and got (2, 2, 1); this keeps the two that worked, DROPS the three that did
+        not, and adds a third that reaches the bar — 3 of 3 checkable with no occupancy in hand.
+        remaining_budget is structurally ABSENT. The region field is RECOMPUTED from the published
+        survey, never trusted, so a signed lie about it dies before a single voxel moves. Rows:
+        scenes, fields, soundness, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import tilemin as TM
+        except Exception as exc:
+            self.record("tilemin", False, f"import failed (tilemin): {exc}")
+            return
+        try:
+            ref_ok = all(TM.scene_result(n) == TM.golden(n) for n in TM.SCENES)
+            ref_ok = ref_ok and TM.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("tilemin:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("tilemin:scenes", ref_ok,
+                    "fields + soundness + plants reproduce URDRTMN1 digests, and the pinned corpus is "
+                    "exactly what `--emit` produces"
+                    if ref_ok else "a tilemin scene drifted from its digest")
+        f_ok = True
+        try:
+            f_ok = TM.all_fields_are_lattice_free() == (3, 3, 2, 5)
+            f_ok = f_ok and TM.admits_an_honest_certificate()
+            fields, present = TM.the_budget_is_absent()
+            f_ok = f_ok and not present and "remaining_budget" not in fields
+            f_ok = f_ok and set(TM.FIELDS) == {"tile_prefix", "jurisdiction_region",
+                                               "liveness_token"}
+            f_ok = f_ok and TM.forged_region_plant() == (True, True)
+            hi, hp, fi = TM.the_two_refusals_stay_distinct()
+            f_ok = f_ok and hi is True and hp is False and fi is False and hi != fi
+            f_ok = f_ok and len({TM.TileMinError("x").code, TM.Restricted("x").code,
+                                 TM.Stale("x").code}) == 3
+        except Exception:
+            f_ok = False
+        self.record("tilemin-fields", f_ok,
+                    "3 of 3 fields are checkable with NO occupancy in hand, against tilecert's 2 of "
+                    "5, and remaining_budget is STRUCTURALLY ABSENT rather than merely unused because "
+                    "budget's remainder is a function of admission history and no download settles "
+                    "it — an unverifiable number on a certificate is how a certificate becomes a "
+                    "claim. The region field reaches the bar ONLY because it is RECOMPUTED from the "
+                    "published survey rather than stored and believed: a server that marks a "
+                    "restricted tile OPEN and signs it correctly is caught WITH NO LATTICE AT ALL, "
+                    "which is Necula's standard rather than a stored assertion. AND INTEGRITY AND "
+                    "POLICY ARE TWO VERDICTS: a first draft folded the client's policy into the "
+                    "region check, so an honest certificate for a legitimately RESTRICTED tile came "
+                    "back False and was INDISTINGUISHABLE FROM A FORGED ONE — which destroys "
+                    "attribution, since the client could no longer tell 'the server lied' from 'I may "
+                    "not enter'. After the split the three verdicts are honest-integrity True, "
+                    "honest-policy False, forged-integrity False, and the three refusal codes stay "
+                    "distinct, which is geoquorum's THIN-versus-DEVIATE discipline at this layer"
+                    if f_ok else "the tilemin field law did not hold")
+        s_ok = True
+        try:
+            s_ok = TM.soundness_census() == (63, 1, 0) and TM.location_jurisdiction_is_sound()
+            s_ok = s_ok and TM.over_refusal_price() == (4096, 4, 1024)
+            s_ok = s_ok and TM.coarseness_is_stated()
+            s_ok = s_ok and len(TM.all_tiles()) == 64
+        except Exception:
+            s_ok = False
+        self.record("tilemin-soundness", s_ok,
+                    "deciding admissibility from WHERE a tile sits rather than WHAT IT CONTAINS is an "
+                    "over-approximation in the SAFE direction, decided over all 64 tiles: 63 open, 1 "
+                    "restricted, 0 exceptions, so an OPEN region provably contains no forbidden cell. "
+                    "AND THE PRICE IS REPORTED RATHER THAN ELIDED — 4096 cells refused to protect 4, "
+                    "a 1024x over-refusal at this tile granularity, which is the same Galois shape "
+                    "frontier established where precision loss is a stated number and not a defect. "
+                    "Finer tiles buy precision and cost certificates; this rung enforces that tradeoff "
+                    "rather than making it"
+                    if s_ok else "the tilemin soundness law did not hold")
+        red_ok = False
+        try:
+            fresh, stale_refused = TM.stale_token_plant()
+            red_ok = fresh and stale_refused
+            red_ok = red_ok and TM.forged_neighbour_plant() == (True, True, True)
+            red_ok = red_ok and TM.lifted_certificate_plant()
+            occ = frozenset({(33, 33, 33), (33, 33, 34)})
+            cert = TM.certify(occ, 5)
+            try:
+                TM.adjudicate(cert, (cert["tile_prefix"] ^ 1,), 5, policy_open=True)
+                red_ok = False
+            except TM.Restricted:
+                pass
+            red_ok = red_ok and TM.adjudicate(cert, (cert["tile_prefix"] ^ 1,), 5,
+                                              policy_open=False) is True
+        except Exception:
+            red_ok = False
+        self.record("tilemin-selftest", red_ok,
+                    "five plants bite. A FORGED REGION dies with no lattice, because the client "
+                    "recomputes it from the published survey. A STALE token verifies at the horizon "
+                    "edge and refuses one tick past it, so freshness is a bound rather than a "
+                    "gesture. A tile claiming ITSELF as a disjoint neighbour is refused and an EMPTY "
+                    "neighbour set does not pass vacuously — that second case is the exact vacuity "
+                    "tilecert's first verifier shipped with, where a filter excluded the only case "
+                    "the field could be wrong about and all() ran over nothing. A LIFTED certificate "
+                    "fails its binding, which is provbind's attack at this layer. And a legitimately "
+                    "restricted tile raises RESTRICTED rather than REFUSE, then passes under a policy "
+                    "that permits restricted regions — proving the policy verdict is separable from "
+                    "the integrity one rather than merely differently worded"
+                    if red_ok else "a tilemin plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -14230,6 +14335,7 @@ def main() -> int:
     gate.jurisdiction()
     gate.budget()
     gate.tilecert()
+    gate.tilemin()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
