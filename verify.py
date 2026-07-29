@@ -11385,6 +11385,111 @@ class Gate:
                     "the integrity one rather than merely differently worded"
                     if red_ok else "a tilemin plant did not bite")
 
+    def inputset(self):
+        """Which inputs determine a quantity (URDRINP1) — the arc-wide state-versus-path classifier,
+        DECIDED by underdetermination witness rather than tabulated. A quantity belongs to the
+        COARSEST level whose projection determines it, and the tier is PROVED by exhibiting a witness
+        pair that the next-coarser level does not. The levels nest CERT within LATTICE within HISTORY
+        within COHORT, so determination is monotone and 'coarsest' is unique. The handed-down
+        three-tier table misfiles quorum_agreement, and the classifier found it. Rows: scenes, table,
+        correction, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import inputset as IS
+        except Exception as exc:
+            self.record("inputset", False, f"import failed (inputset): {exc}")
+            return
+        try:
+            ref_ok = all(IS.scene_result(n) == IS.golden(n) for n in IS.SCENES)
+            ref_ok = ref_ok and IS.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("inputset:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("inputset:scenes", ref_ok,
+                    "classification + correction + family reproduce URDRINP1 digests, and the pinned "
+                    "corpus is exactly what `--emit` produces"
+                    if ref_ok else "an inputset scene drifted from its digest")
+        tab_ok = True
+        try:
+            got = {n: t for n, t, _w in IS.classification()}
+            tab_ok = got == {"exclusion_membership": "CERT", "prefix_disjointness": "CERT",
+                             "liveness_horizon": "CERT", "occupancy_defect": "LATTICE",
+                             "ledger_remainder": "HISTORY", "quorum_agreement": "COHORT"}
+            tab_ok = tab_ok and IS.every_classification_carries_a_refutation() == (3, 3, 6)
+            tab_ok = tab_ok and IS.determination_is_monotone()
+            for _n, t, w in IS.classification():
+                if t != "CERT":
+                    tab_ok = tab_ok and w is not None and w[0] != w[1]
+        except Exception:
+            tab_ok = False
+        self.record("inputset-table", tab_ok,
+                    "a hand-written taxonomy would be an opinion, so the tier of every arc quantity "
+                    "is DECIDED: a quantity belongs to the COARSEST level whose projection determines "
+                    "it, and the tier is PROVED by exhibiting a WITNESS PAIR showing the next-coarser "
+                    "level does not — so every classification ships its own falsifier and nothing is "
+                    "asserted that a search could have refuted. The levels NEST (CERT within LATTICE "
+                    "within HISTORY within COHORT), determination is verified MONOTONE, and "
+                    "'coarsest' is therefore unique rather than an artifact of iteration order. The "
+                    "decided table: exclusion_membership, prefix_disjointness and liveness_horizon "
+                    "are CERT-local and may appear inline on a minimal certificate; occupancy_defect "
+                    "is LATTICE, refuted at CERT by two situations sharing a certificate and "
+                    "differing in defect 1 against 0; ledger_remainder is HISTORY, refuted at LATTICE "
+                    "by 6 against 5; and quorum_agreement is COHORT, refuted at HISTORY by 0 against 1"
+                    if tab_ok else "the inputset table did not hold")
+        cor_ok = True
+        try:
+            cor_ok = IS.quorum_is_peer_not_path() == ("COHORT", False, False)
+            cor_ok = cor_ok and IS.path_and_peer_need_different_remedies() == (True, False)
+            d, t, rows = IS.asserted_table_disagrees()
+            cor_ok = cor_ok and (d, t) == (1, 6)
+            cor_ok = cor_ok and rows == (("quorum_agreement", "LATTICE", "COHORT"),)
+        except Exception:
+            cor_ok = False
+        self.record("inputset-correction", cor_ok,
+                    "THE HANDED-DOWN THREE-TIER TAXONOMY MISFILES ONE QUANTITY AND THE CLASSIFIER "
+                    "FOUND IT. quorum_agreement was placed in the post-download tier, verifiable "
+                    "'once the spatial bytes arrive'. It is not: downloading YOUR tile settles "
+                    "nothing about whether a cohort of independent observers agrees with you, because "
+                    "agreement is a function of OTHER PARTIES' submissions — measured as two "
+                    "situations with identical certificate, identical occupancy AND identical history "
+                    "differing in agreement, so neither the payload nor the log determines it. The "
+                    "asserted table is right on 5 of 6 and wrong on exactly the row a deployment "
+                    "would have built wrong. THERE ARE FOUR TIERS AND THE FOURTH IS PEER-DEPENDENT "
+                    "RATHER THAN PATH-DEPENDENT, and it earns its place by measurement rather than "
+                    "taxonomy: publishing the HISTORY determines the ledger (True) and leaves the "
+                    "quorum undetermined (False), so two quantities equally unverifiable from your "
+                    "own bytes need different artifacts — one the LOG, the other the COHORT. Filing "
+                    "them together would tell a deployment to build the wrong thing"
+                    if cor_ok else "the inputset correction did not hold")
+        red_ok = False
+        try:
+            red_ok = IS.witnessless_check_is_vacuous() == (6, 6)
+            red_ok = red_ok and IS.family_separates_every_level() == (162, 162, 54)
+            red_ok = red_ok and len(IS.family()) == 54
+            qfn = dict(IS.QUANTITIES)["occupancy_defect"]
+            ok1, w1 = IS.determines("CERT", qfn)
+            ok2, w2 = IS.determines("LATTICE", qfn)
+            red_ok = red_ok and (not ok1) and w1 == (1, 0) and ok2 and w2 is None
+            try:
+                IS.proj("GALAXY", IS.family()[0])
+                red_ok = False
+            except IS.InputSetError:
+                pass
+        except Exception:
+            red_ok = False
+        self.record("inputset-selftest", red_ok,
+                    "THE WITNESS SEARCH IS THE POINT, AND THE LAZY ALTERNATIVE IS PINNED TO SHOW WHY: "
+                    "a check that compares a situation against ITSELF instead of searching for a "
+                    "refuting pair returns True for every quantity at every level, classifying all 6 "
+                    "of 6 as CERT-local — the exact vacuity L19 names, and it would have produced a "
+                    "table that looks like a result and proves nothing. The family is therefore "
+                    "asserted to SEPARATE every adjacent level pair (162, 162, 54 separating pairs "
+                    "over 54 situations), because without separation every quantity classifies as "
+                    "CERT-local for free; and `determines` returns a USABLE witness rather than a "
+                    "bare False, so a refutation names the two values that differ"
+                    if red_ok else "an inputset plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -14336,6 +14441,7 @@ def main() -> int:
     gate.budget()
     gate.tilecert()
     gate.tilemin()
+    gate.inputset()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

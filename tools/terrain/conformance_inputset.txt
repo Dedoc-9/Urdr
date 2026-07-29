@@ -1,0 +1,66 @@
+# URDRINP1 conformance — WHICH INPUTS DETERMINE A QUANTITY. The arc-wide state-versus-path classifier,
+# decided by underdetermination witness rather than tabulated. NO new glyph (kernel frozen).
+#
+# tilecert established for ONE field that occupancy does not determine the ledger remainder, and
+# tilemin used that to keep it off the certificate. The general question — for every quantity the arc
+# computes, what is the SMALLEST input set that determines it — decides where a quantity may live:
+# inline on a certificate, in the payload, or only in a published log. A hand-written taxonomy would
+# be an opinion. This is a decision procedure:
+#
+#     a quantity belongs to the COARSEST level whose projection determines it, and the tier is proved
+#     by exhibiting a WITNESS PAIR that the next-coarser level does NOT determine it
+#
+# Every classification therefore carries its own falsifier. The levels are NESTED — CERT within
+# LATTICE within HISTORY within COHORT — so determination is monotone (verified) and "coarsest" is
+# unique rather than an artifact of iteration order.
+#
+# THE DECIDED TABLE, with each non-CERT row's refuting witness from the level below:
+#
+#     exclusion_membership   CERT      (no coarser level to be refuted at)
+#     prefix_disjointness    CERT
+#     liveness_horizon       CERT
+#     occupancy_defect       LATTICE   refuted at CERT     by values (1, 0)
+#     ledger_remainder       HISTORY   refuted at LATTICE  by values (6, 5)
+#     quorum_agreement       COHORT    refuted at HISTORY  by values (0, 1)
+#
+# THE PROPOSED THREE-TIER TAXONOMY MISFILES ONE QUANTITY, AND THE CLASSIFIER FOUND IT. The
+# handed-down design placed quorum_agreement in the post-download tier — verifiable "once the spatial
+# bytes arrive". It is not. Downloading YOUR tile settles nothing about whether a cohort of
+# independent observers agrees with you, because agreement is a function of OTHER PARTIES'
+# submissions. Measured: two situations with identical certificate, identical occupancy AND identical
+# history differ in agreement, so neither the payload nor the log determines it. The asserted table is
+# right on 5 of 6 and wrong on exactly the row a deployment would have built wrong.
+#
+#     THERE ARE FOUR TIERS, NOT THREE, AND THE FOURTH IS PEER-DEPENDENT RATHER THAN PATH-DEPENDENT.
+#
+# The fourth tier earns its place because the remedies are not interchangeable, and that is measured
+# rather than argued: publishing the HISTORY determines the ledger (True) and leaves the quorum
+# undetermined (False). Both quantities are equally unverifiable from your own bytes; one is fixed by
+# publishing the LOG and the other by publishing the COHORT. Filing them together would tell a
+# deployment to build the wrong artifact. This is the same shape as the gauge-obstruction versus
+# accumulation distinction: equal symptoms, different causes, different fixes.
+#
+# WHAT EACH TIER MEANS OPERATIONALLY. CERT is verifiable inline before a byte of payload moves, and is
+# the ONLY tier that may appear on tilemin's minimal certificate. LATTICE is unverifiable up front and
+# recomputable once the payload lands, which buys tilecert's ATTRIBUTION rather than verification.
+# HISTORY needs an append-only log, and publishing it genuinely fixes the quantity because the
+# obstruction is accumulation and not symmetry. COHORT needs the peers' submissions, which is
+# geoquorum's object rather than this tile's.
+#
+# THE WITNESS SEARCH IS THE POINT, AND THE LAZY ALTERNATIVE IS PINNED TO SHOW WHY. A check that
+# compares a situation against ITSELF instead of searching for a refuting pair returns True for every
+# quantity at every level — measured, it classifies all 6 of 6 as CERT-local. That is the exact
+# vacuity class L19 names, and it is why determination is decided by search over a family that is
+# itself asserted to separate every adjacent level pair (162, 162, 54 separating pairs).
+#
+# DECLARED: the family is a small enumerated set of 54 situations built to separate the levels. A
+# witness search can prove a quantity is NOT determined at a level — one witness suffices and is
+# exact — but "determined" is over THIS family rather than over all possible situations. That
+# asymmetry is honest and is precisely why every positive classification also ships its refuting
+# witness one level down.
+# does_not_show: that a CERT-tier quantity is TRUE — determination is about which inputs fix a value,
+# never about whether the value is honest, which is why tilemin needed a separate recomputation check;
+# what any quantity MEANS; any quantity outside the pinned six.
+classification bde1b1ec2a95e3efa394d5e86fd3ad2635de753c4215c9a47dbf5eac29cf7a7d
+correction 63e7d821a8e519ed1d6e74f233ea387e0353b0829a560a35fa9c7895719d9b57
+family 531f47db632f5ae0faccc7a3485e54eb565eb440077936e122251bc643428711
