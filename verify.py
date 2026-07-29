@@ -11062,6 +11062,120 @@ class Gate:
                     "world is a typed refusal rather than a silently dropped input"
                     if red_ok else "a jurisdiction plant did not bite")
 
+    def budget(self):
+        """The defect budget as a monotone resource (URDRBGT1). jurisdiction decided
+        defect(A|B) <= defect(A) + defect(B) in cells and left it a theorem; this spends it. A shard
+        declares a budget in CELLS, every admitted capture is charged its MEASURED defect, and a
+        charge that would go below zero REFUSES. Soundness runs the right way — per-part charging
+        can only OVER-charge — and on prefix-disjoint shards it is EXACT, which is what makes tiling
+        sound. Three corrections to the handed-down design are measured rather than argued: no
+        refunds (they void the bound), no modality credits (a typed word is not a lattice
+        operation), and privilege as a structural firewall rather than a flag. Rows: scenes,
+        accounting, descent, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import budget as BG
+        except Exception as exc:
+            self.record("budget", False, f"import failed (budget): {exc}")
+            return
+        try:
+            ref_ok = all(BG.scene_result(n) == BG.golden(n) for n in BG.SCENES)
+            ref_ok = ref_ok and BG.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("budget:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("budget:scenes", ref_ok,
+                    "accounting + descent + plants reproduce URDRBGT1 digests, and the pinned corpus "
+                    "is exactly what `--emit` produces"
+                    if ref_ok else "a budget scene drifted from its digest")
+        acc_ok = True
+        try:
+            acc_ok = BG.soundness_census() == (55, 0, 2, 1) and BG.accounting_is_sound()
+            acc_ok = acc_ok and BG.exactness_on_disjoint_census() == (49, 0, 55)
+            acc_ok = acc_ok and BG.disjoint_charging_is_exact()
+            acc_ok = acc_ok and BG.conservatism_is_priced() == (2, 1, 55)
+            import inspect as _isp
+            acc_ok = acc_ok and list(_isp.signature(BG.charge_for).parameters) == ["occupancy"]
+        except Exception:
+            acc_ok = False
+        self.record("budget-accounting", acc_ok,
+                    "the composition law becomes enforcement: a shard declares a budget in CELLS and "
+                    "every admitted capture is charged its MEASURED defect. Soundness runs the right "
+                    "way — charging per part and summing can only OVER-charge, never under, because "
+                    "subadditivity bounds the union by the sum, so a budget that survives per-part "
+                    "accounting has survived the true total: 55 pairs, 0 UNDER-charges. The "
+                    "conservatism is PRICED rather than hidden — 2 pairs over-charge by at most 1 "
+                    "cell — because an accounting scheme that silently drifts pessimistic eventually "
+                    "refuses honest work. And on PREFIX-DISJOINT shards it is EXACT: 49 pairs of 55, "
+                    "0 exceptions, sum == union with no slack and no covariance term, which is what "
+                    "makes prefix-partitioned tiling sound — a city is tiles whose budgets compose to "
+                    "the shard total, the partition forced by the word and the composition by the "
+                    "law. THE COST IS COMPUTED, NEVER PASSED: charge_for takes a lattice and its "
+                    "signature has no parameter through which a submitted number could enter"
+                    if acc_ok else "the budget accounting law did not hold")
+        desc_ok = True
+        try:
+            desc_ok = BG.unit_descent() == (6, True, 6) and BG.descent_is_well_founded()
+            desc_ok = desc_ok and BG.remainder_never_goes_negative() == (0, True)
+            desc_ok = desc_ok and BG.jurisdictional_variation() == (1, 3)
+            desc_ok = desc_ok and BG.charge(2, 2) == 0
+            for bad in ((5, -1), ("5", 1), (5.0, 1)):
+                try:
+                    BG.charge(*bad)
+                    desc_ok = False
+                except BG.BudgetError:
+                    pass
+            try:
+                BG.charge(1, 2)
+                desc_ok = False
+            except BG.Overdrawn:
+                pass
+        except Exception:
+            desc_ok = False
+        self.record("budget-descent", desc_ok,
+                    "the ledger is MONOTONE NON-INCREASING by pure integer subtraction with no clamp: "
+                    "with unit charges exactly 6 succeed and the 7th refuses, the remainder never "
+                    "goes negative, and spending exactly to zero is legal while the NEXT charge is "
+                    "what raises — a well-founded descent on (N, <), the same structure liveness "
+                    "needed one rung earlier. A NEGATIVE CHARGE IS REFUSED AS A REFUND at the type "
+                    "boundary rather than tolerated. Server-side jurisdictional variation is kept and "
+                    "measured (a strict region admits 1 of the same captures where a loose one admits "
+                    "3), because 'this region is tighter' is a policy keyed on a location the SERVER "
+                    "reads off the lattice"
+                    if desc_ok else "the budget descent law did not hold")
+        red_ok = False
+        try:
+            red_ok = BG.refund_pump() == (4, True, True)
+            red_ok = red_ok and BG.refunds_void_the_bound() == (100, 1000, 6)
+            red_ok = red_ok and BG.modality_credit_admits_what_the_lattice_refuses() == (
+                True, True, True)
+            red_ok = red_ok and BG.authority_is_invariant_under_privilege() == (False,)
+            red_ok = red_ok and len(BG.authority_is_invariant_under_privilege()) == 1
+            red_ok = red_ok and BG.the_lanes_are_separable() == (True, True)
+            import inspect as _isp2
+            red_ok = red_ok and list(
+                _isp2.signature(BG.authoritative_admit).parameters) == ["occupancy", "remaining"]
+        except Exception:
+            red_ok = False
+        self.record("budget-selftest", red_ok,
+                    "THREE CORRECTIONS TO THE HANDED-DOWN DESIGN, EACH MEASURED RATHER THAN ARGUED. "
+                    "REFUNDS VOID THE MECHANISM: crediting budget back for a clean block is a PUMP — "
+                    "4 clean submissions buy a cost-4 block the honest ledger refuses, and the "
+                    "reachable budget is unbounded in submissions (100 clean reach 100, 1000 reach "
+                    "1000) against an honest cap of 6, so a quantity that can go back up has no "
+                    "termination argument and therefore no bound. MODALITY CREDITS ARE REFUSED BY THE "
+                    "PROPOSAL'S OWN SAFEGUARD: bonus tolerance for LiDAR requires knowing the "
+                    "modality, which is not readable from the lattice but typed by the submitter, and "
+                    "the measurement shows the SAME capture admitted as 'lidar' and refused as 'rgb' "
+                    "while the lattice-only ledger refuses it either way — the verdict moved on a "
+                    "word, which is the exact defect jurisdiction exists to remove. PRIVILEGE IS A "
+                    "STRUCTURAL FIREWALL RATHER THAN A FLAG: authoritative_admit has no privilege "
+                    "parameter and cannot be given one, so its verdict is a SINGLE VALUE across every "
+                    "privilege setting, while the cosmetic lane really does admit what the authority "
+                    "path refuses — which is its point, and why the separation must be structural"
+                    if red_ok else "a budget plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -14010,6 +14124,7 @@ def main() -> int:
     gate.magicuniq()
     gate.liveness()
     gate.jurisdiction()
+    gate.budget()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

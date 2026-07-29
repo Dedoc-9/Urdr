@@ -1,0 +1,68 @@
+# URDRBGT1 conformance — THE DEFECT BUDGET AS A MONOTONE RESOURCE. The composition law turned from
+# passive knowledge into active enforcement. NO new glyph (kernel frozen).
+#
+# THE MOVE. jurisdiction decided defect(A ∪ B) <= defect(A) + defect(B) in cells and left it a theorem
+# about composition. This rung spends it: a shard declares a budget in CELLS, every admitted capture
+# is charged its measured defect, and a charge that would take the remainder below zero REFUSES.
+# Three thresholds become one resource, in the unit S2, S6 and the jurisdictional predicate share.
+#
+# SOUNDNESS RUNS THE RIGHT WAY. Charging per part and summing can only OVER-charge, never under —
+# subadditivity bounds the union by the sum — so a budget that survives per-part accounting has
+# survived the true total. Measured over the pinned family: 55 pairs, 0 UNDER-charges. And the
+# conservatism is PRICED rather than hidden: 2 pairs over-charge, worst over-charge 1 cell. An
+# accounting scheme that silently drifts pessimistic eventually refuses honest work, so the drift is
+# a reported number.
+#
+# ON PREFIX-DISJOINT SHARDS IT IS EXACT: 49 disjoint pairs of 55, 0 exceptions, sum == union with no
+# slack and no covariance term. That is what makes prefix-partitioned tiling sound — a city is not one
+# block with one budget but tiles whose budgets compose to the shard total, the partition forced by
+# the word (S1) and the composition forced by the law (Half B).
+#
+# THE DESCENT IS WELL-FOUNDED. Pure integer subtraction, no clamp: with unit charges exactly 6 succeed
+# and the 7th refuses, and the remainder never goes negative (minimum 0, which is a legitimately spent
+# budget — the NEXT charge is what refuses). Server-side jurisdictional variation is kept and measured:
+# a strict region admits 1 of the same captures where a loose one admits 3, because "this region is
+# tighter" is a policy keyed on a location the SERVER reads off the lattice.
+#
+#     THREE CORRECTIONS TO THE DESIGN THIS RUNG WAS WRITTEN TO, EACH MEASURED RATHER THAN ARGUED.
+#
+# (1) THERE ARE NO REFUNDS, AND A REFUND IS NOT A TUNING CHOICE — IT VOIDS THE MECHANISM. The proposal
+#     credited budget back when a block passes clean. That is a PUMP. Measured: 4 clean submissions
+#     buy a cost-4 block the honest ledger refuses, and the reachable budget grows without limit —
+#     100 clean submissions reach 100, 1000 reach 1000, against an honest cap of 6. A quantity that
+#     can go back up has no termination argument and therefore no bound. The ledger must be MONOTONE
+#     NON-INCREASING, the same well-founded descent on (N, <) that liveness needed one rung earlier
+#     and for the identical reason.
+#
+# (2) MODALITY CREDITS ARE REFUSED, BY THE PROPOSAL'S OWN SAFEGUARD. Bonus tolerance for LiDAR over
+#     RGB-only requires knowing the modality, and the modality is not readable from the lattice — it
+#     is a field the submitter fills in. The design states the correct rule ("charged against actual
+#     lattice operations, not submitted claims") and then proposes a feature that breaks it. Measured:
+#     the SAME capture is admitted when declared "lidar" and refused when declared "rgb", and refused
+#     by the lattice-only ledger either way. The verdict moved on a typed word. Jurisdictional
+#     variation survives because location is server-read; modality is a claim about the sensor, and
+#     jurisdiction exists precisely because claims about how a capture was produced are not evidence.
+#
+# (3) THE PRIVILEGE LANE IS A STRUCTURAL FIREWALL, NOT A FLAG. The second-class lane is right that not
+#     all geometry serves the same function, but a tier the authority path can READ is a tier it can
+#     be talked into honouring. authoritative_admit takes no privilege argument and structurally
+#     cannot take one — tierview's move — and the measured verdict is a SINGLE VALUE across every
+#     privilege setting. The cosmetic lane exists, admits what the authority path refuses (that is its
+#     point), and nothing it returns is reachable from the authority path.
+#
+# THE COST IS COMPUTED, NEVER PASSED. charge_for takes a lattice and returns a cost; there is no
+# parameter through which a submitted number could enter the accounting. Same structural move as (3),
+# and it is what keeps the budget from becoming another provenance claim.
+#
+# DECLARED: the budget is a POLICY NUMBER — this rung enforces an allocation, it does not derive one,
+# and what B should be for a real shard is not answerable from inside the arc; the defect sources are
+# jurisdiction's exclusion-zone predicate and a cell-count quantization model, each inheriting its own
+# declared boundaries.
+# does_not_show: that a within-budget capture is CORRECT — the budget bounds admitted defect, never
+# truth, and a capture can be entirely wrong at zero cost; what a cell is WORTH, since cells are
+# commensurable by construction here and a real deployment may find a jurisdictional cell and a
+# quantization cell are not equally bad; any bound on an adversary who can influence the DECLARED
+# budget, which is a governance surface this rung does not model.
+accounting ea90695c31d05b5ea022ff08492b1234315564cc46ce4f93f717a23752a5f1fb
+descent 55aaec9100a54349dc5471aa31d81589723ff3ba72f7bbab927c8c716e49dc44
+plants 21ebb07423a2f9527ca694a57b386023bcf4379b43679bdbc2ff0f84580b6d01
