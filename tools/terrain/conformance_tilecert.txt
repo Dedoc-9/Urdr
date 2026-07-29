@@ -1,0 +1,68 @@
+# URDRTIL1 conformance — THE TILE CERTIFICATE, AND WHAT IT ACTUALLY PROVES. Verification separated
+# from possession, measured against the standard the name invokes. NO new glyph (kernel frozen).
+#
+# THE PROBLEM IS REAL AND THE FRAMING IS RIGHT. Every guarantee this arc provides currently requires
+# the lattice in hand — collision, visibility, jurisdiction, budget and geoquorum all read it — so at
+# city scale a client needs gigabytes before it can decide whether to trust anything. A compact
+# per-tile certificate bound the way provbind binds provenance, H(cert | lattice_digest), is the right
+# object.
+#
+# BUT THE NAME SETS A STANDARD AND THREE OF FIVE FIELDS DO NOT MEET IT. Necula's proof-carrying code
+# (POPL 1997) has one defining property: the consumer CHECKS the proof against the artifact and trusts
+# the producer for nothing. A certificate asserting a property of data the verifier does not have is
+# not a proof — it is a signed claim, and a signature establishes WHO SAID IT, never THAT IT IS TRUE.
+# jurisdiction exists in this repo because that distinction was collapsed once already. Sorted by what
+# a LATTICE-LESS client can actually decide, the five fields split three ways — measured (2, 2, 1, 5):
+#
+#   CHECKABLE WITHOUT THE LATTICE (2) — genuinely proof-carrying.
+#     tile_prefix     decidable from the tile IDs alone, because the ID IS the Morton prefix
+#     liveness_token  an HMAC the holder of the shared secret verifies directly
+#
+#   CHECKABLE ONLY ONCE THE BYTES ARRIVE (2) — accountability, not verification.
+#     lattice_digest  a COMMITMENT: it binds, and it informs only after the download
+#     jurisdiction_ok recomputable from occupancy — afterwards; pre-download it is a bare assertion
+#
+#   NEVER RECOMPUTABLE FROM THE LATTICE (1) — and this is the sharp one.
+#     remaining_budget  budget's ledger is a function of ADMISSION HISTORY, not of occupancy. Measured:
+#     two certificates over a BYTE-IDENTICAL lattice carry different remainders and the with-lattice
+#     checker returns None for both. No download settles it. It is the weakest field and the one most
+#     worth not over-selling.
+#
+# WHAT IT ACTUALLY BUYS IS WORTH MORE THAN THE CLAIM IT REPLACES: ATTRIBUTION. A bound, signed
+# certificate whose recomputable field later disagrees with the lattice is NON-REPUDIABLE EVIDENCE of
+# server misbehaviour, reproducible by any third party from the certificate and the bytes alone.
+# Measured: a lying jurisdiction_ok is INVISIBLE before download, CAUGHT after, and a third party
+# reaches the same verdict with no access to the original exchange. splitview closed detection and
+# left attribution open — "detection localizes to a PAIR, not to a culprit" — and this closes it for
+# exactly the recomputable fields. THE LIMIT IS MEASURED NEXT TO THE WIN: a false remaining_budget is
+# ADMITTED, because nothing recomputes it, so attribution does not reach the field that most invites
+# a lie.
+#
+# THE PREDICTIVE ESTIMATOR IS REFUTED, TWICE. It saves no work: reading every occupied cell's prefix
+# depth IS the same single pass charge_for already makes, measured at equal cell visits and a saving
+# of 0. And it predicts nothing about the charged defect — the correlation over the pinned family
+# comes back PERFECT at 24 of 24, AND THAT NUMBER IS A TRAP. It is an artifact of how
+# jurisdiction._blocks was built, since its violating blocks happen to be the scattered ones, which is
+# L20 caught on the repo's own family. Hand-built witnesses invert it: a TIGHT cluster inside the
+# forbidden region scores defect 4 at estimate 6, while a SCATTERED set entirely outside scores defect
+# 0 at estimate 16. Prefix depth measures WHERE a cell sits in the tree; the jurisdictional defect is
+# membership in a fixed region. Worst of all the proposal allows a TOLERANCE for the estimate
+# understating reality — the unsound direction, when budget's entire argument is that charging can
+# only over-state.
+#
+# A VACUOUS CHECK IN THIS MODULE'S OWN VERIFIER, CAUGHT BY ITS PLANT. The first draft of
+# check_without_lattice filtered self-referential neighbours out of the disjointness test, which
+# silently excluded the ONLY case the field can be wrong about, leaving all() to run over an empty
+# generator and return True. The forged-disjointness plant failed to bite, which is how it was found.
+# The filter is gone and the plant now refuses the liar and accepts the honest neighbour.
+#
+# DECLARED: the certificate carries ONE jurisdiction boolean for a single pinned region, and a real
+# deployment has many regions and many predicates; the neighbour set is the six face-adjacent tiles of
+# a cubic partition.
+# does_not_show: that a certificate-clean tile is SAFE, since three fields are unverified until the
+# bytes arrive and one is never verifiable from bytes at all; any bound on a server that signs
+# honestly and lies in a field no one recomputes; that attribution implies REMEDY — naming a liar is
+# not replacing it, which is the governance residual auditgraph also left open.
+taxonomy cb63e1c0b21770717acb599598febcab596b620beaf88d112ec1cd47ff418c52
+attribution 3440e1a69819c724f611bbe8903d59bdd908979ca126e4773f92962e587b8ad0
+plants d6999735dc9cb8809151dfe23f4b5b130d7da2adab3de56165cb7b6c1d2a9218

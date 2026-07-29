@@ -11176,6 +11176,110 @@ class Gate:
                     "path refuses — which is its point, and why the separation must be structural"
                     if red_ok else "a budget plant did not bite")
 
+    def tilecert(self):
+        """The tile certificate, and what it actually proves (URDRTIL1). Every guarantee in this arc
+        currently needs the lattice in hand, which is gigabytes at city scale before a client can
+        trust anything — so a compact per-tile certificate bound the way provbind binds provenance is
+        the right object. But Necula's proof-carrying code sets a standard: the consumer CHECKS the
+        proof and trusts the producer for nothing. Sorted by what a LATTICE-LESS client can decide,
+        the five fields split THREE ways, and what the certificate buys is ATTRIBUTION rather than
+        pre-download verification. Rows: scenes, taxonomy, attribution, selftest."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import tilecert as TC
+        except Exception as exc:
+            self.record("tilecert", False, f"import failed (tilecert): {exc}")
+            return
+        try:
+            ref_ok = all(TC.scene_result(n) == TC.golden(n) for n in TC.SCENES)
+            ref_ok = ref_ok and TC.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("tilecert:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("tilecert:scenes", ref_ok,
+                    "taxonomy + attribution + plants reproduce URDRTIL1 digests, and the pinned "
+                    "corpus is exactly what `--emit` produces"
+                    if ref_ok else "a tilecert scene drifted from its digest")
+        tax_ok = True
+        try:
+            tax_ok = TC.verifiability_taxonomy() == (2, 2, 1, 5) and TC.taxonomy_is_three_tiered()
+            tax_ok = tax_ok and TC.the_budget_field_is_never_settled_by_bytes() == (True, True, True)
+            tax_ok = tax_ok and (set(TC.WITHOUT_LATTICE) | set(TC.WITH_LATTICE)
+                                 | set(TC.NEVER_FROM_LATTICE)) == set(TC.FIELDS)
+            tax_ok = tax_ok and len(TC.NEVER_FROM_LATTICE) > 0
+        except Exception:
+            tax_ok = False
+        self.record("tilecert-taxonomy", tax_ok,
+                    "Necula's proof-carrying code has one defining property — the consumer CHECKS the "
+                    "proof against the artifact and trusts the producer for nothing — and a "
+                    "certificate asserting a property of data the verifier does not have is not a "
+                    "proof but a SIGNED CLAIM, where a signature establishes who said it and never "
+                    "that it is true. Sorted by what a lattice-less client can actually decide, the "
+                    "five fields split (2, 2, 1): tile_prefix and the liveness token are genuinely "
+                    "proof-carrying because the tile ID IS the Morton prefix and the token is an HMAC "
+                    "the secret-holder verifies directly; lattice_digest and jurisdiction_ok are "
+                    "settled only once the bytes arrive, which is accountability rather than "
+                    "verification; and remaining_budget is NEVER recomputable from the lattice at all, "
+                    "because budget's ledger is a function of ADMISSION HISTORY — measured as two "
+                    "certificates over a BYTE-IDENTICAL lattice carrying different remainders, with "
+                    "the with-lattice checker returning None for both. That last field is the weakest "
+                    "in the certificate and the one most worth not over-selling"
+                    if tax_ok else "the tilecert taxonomy did not hold")
+        att_ok = True
+        try:
+            att_ok = TC.attribution_is_transferable() == (True, True, True)
+            att_ok = att_ok and TC.attribution_does_not_reach_the_budget() == (True, None)
+            occ = frozenset({(33, 0, 0), (33, 0, 1)})
+            att_ok = att_ok and TC.adjudicate(TC.certify(occ, 3, 7), occ) is True
+            att_ok = att_ok and TC.lifted_certificate_plant() == (True,)
+        except Exception:
+            att_ok = False
+        self.record("tilecert-attribution", att_ok,
+                    "what the certificate buys is not pre-download verification of content — that "
+                    "would require the content — but ATTRIBUTION: a bound, signed certificate whose "
+                    "recomputable field later disagrees with the lattice is NON-REPUDIABLE EVIDENCE "
+                    "of server misbehaviour, reproducible by any third party from the certificate and "
+                    "the bytes alone. Measured: a lying jurisdiction_ok is INVISIBLE before download, "
+                    "CAUGHT after, and a third party reaches the same verdict with no access to the "
+                    "original exchange — which closes, for the recomputable fields, the attribution "
+                    "gap splitview left open when it found that detection localizes to a PAIR rather "
+                    "than to a culprit. AND THE LIMIT IS MEASURED BESIDE THE WIN rather than omitted: "
+                    "a false remaining_budget is ADMITTED, because nothing recomputes it, so "
+                    "attribution does not reach the field that most invites a lie"
+                    if att_ok else "the tilecert attribution law did not hold")
+        red_ok = False
+        try:
+            liar, honest = TC.forged_disjointness_plant()
+            red_ok = (liar is False) and (honest is True)
+            occ = frozenset({(33, 0, 0)})
+            red_ok = red_ok and not TC.check_without_lattice(TC.certify(occ, 3, 7), ())["tile_prefix"]
+            red_ok = red_ok and TC.forged_budget_plant() == (True, False)
+            red_ok = red_ok and TC.estimator_saves_no_work() == (4, 4, 0)
+            red_ok = red_ok and TC.estimator_correlation() == (24, 24)
+            red_ok = red_ok and TC.estimator_correlation_is_an_artifact() == (4, 6, 0, 16, True)
+        except Exception:
+            red_ok = False
+        self.record("tilecert-selftest", red_ok,
+                    "THE PREDICTIVE ESTIMATOR IS REFUTED TWICE. It saves no work — reading every "
+                    "occupied cell's prefix depth IS the same single pass charge_for already makes, "
+                    "measured at equal visits and a saving of 0, so 'refuse before processing' "
+                    "processes. And it predicts nothing about the charged defect: the correlation "
+                    "over the pinned family comes back PERFECT at 24 of 24, AND THAT NUMBER IS A "
+                    "TRAP — it is an artifact of how jurisdiction._blocks was built, since its "
+                    "violating blocks happen to be the scattered ones, which is L20 caught on the "
+                    "repo's own family. Hand-built witnesses invert it: a TIGHT cluster inside the "
+                    "forbidden region scores defect 4 at estimate 6 while a SCATTERED set entirely "
+                    "outside scores defect 0 at estimate 16, so the proxy orders them backwards — "
+                    "prefix depth measures WHERE a cell sits in the tree and the jurisdictional "
+                    "defect is membership in a fixed region. AND A VACUOUS CHECK IN THIS MODULE'S OWN "
+                    "VERIFIER WAS CAUGHT BY ITS PLANT: the first draft of check_without_lattice "
+                    "filtered self-referential neighbours out of the disjointness test, excluding the "
+                    "ONLY case the field can be wrong about, so all() ran over an empty generator and "
+                    "returned True. The plant failing to bite is how it was found; the filter is gone "
+                    "and an empty neighbour set now fails rather than passing"
+                    if red_ok else "a tilecert plant did not bite")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -14125,6 +14229,7 @@ def main() -> int:
     gate.liveness()
     gate.jurisdiction()
     gate.budget()
+    gate.tilecert()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
