@@ -11731,6 +11731,226 @@ class Gate:
                     "refuses rather than silently clipping"
                     if pol_ok else "a cohort policy declaration did not hold")
 
+    def autoroute(self):
+        """Decide at the cheapest level that can decide (URDRAUT1) — inputset's taxonomy and cohort's
+        theorem wired into one router, with the handed-down cascade's tier order CORRECTED by
+        measurement. The Menger screen cannot precede the payload fetch, so its saving is FLOOD FILLS
+        rather than bytes; k is the min-cut of the whole submitted occupancy, which strengthens the
+        screening law to whole-lattice perturbations; the screen is vacuous on a breached base and the
+        router refuses to run it there; and a fetch atom leaves a plan only where a witness search AND
+        a syntactic independence proof agree, because view determinacy is undecidable and no search
+        positive is ever universal. Rows: scenes, plan, screen, law, vacuity, determinacy, fault."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import autoroute as AR
+            import cohort as CO
+        except Exception as exc:
+            self.record("autoroute", False, f"import failed (autoroute): {exc}")
+            return
+        try:
+            ref_ok = all(AR.scene_result(n) == AR.golden(n) for n in AR.SCENES)
+            ref_ok = ref_ok and AR.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("autoroute:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("autoroute:scenes", ref_ok,
+                    "route + screen + refuted reproduce URDRAUT1 digests, and the pinned corpus is "
+                    "exactly what `--emit` produces"
+                    if ref_ok else "an autoroute scene drifted from its digest")
+        plan_ok = True
+        try:
+            plan_ok = AR.route_census() == (
+                ("exclusion_membership", (), "CERT", ()),
+                ("prefix_disjointness", (), "CERT", ()),
+                ("liveness_horizon", (), "CERT", ()),
+                ("occupancy_defect", ("own_tile",), "LATTICE", ()),
+                ("ledger_remainder", ("own_log",), "HISTORY", ("own_tile",)),
+                ("quorum_agreement", ("own_tile", "peer_tiles"), "COHORT", ("own_log",)))
+            plan_ok = plan_ok and AR.the_chain_is_not_tight() == (2, 6)
+            plan_ok = plan_ok and AR.the_real_savings() == (
+                ("ledger_remainder", "own_tile"), ("quorum_agreement", "own_log"))
+            rows, bad = AR.routing_agrees_with_cohort()
+            plan_ok = plan_ok and bad == 0 and len(rows) == 3
+            for name, plan, tier, dropped in AR.route_census():
+                plan_ok = plan_ok and frozenset(plan) | frozenset(dropped) == AR.CHAIN_SET[tier]
+                for atom in dropped:
+                    plan_ok = plan_ok and (name, atom) in AR.the_real_savings()
+            try:
+                AR._subproj(("own_galaxy",), AR._IS.family()[0])
+                plan_ok = False
+            except AR.RouteError:
+                pass
+        except Exception:
+            plan_ok = False
+        self.record("autoroute-plan", plan_ok,
+                    "THE FETCH PLAN IS THE TIER'S CHAIN PREFIX MINUS EVERY ATOM THE VERIFIER CAN PROVE "
+                    "IT DOES NOT READ, so the router stops asking the caller for inputs it does not "
+                    "need. inputset's four levels are a CHAIN, but the minimal input sets form a "
+                    "LATTICE over {own_tile, own_log, peer_tiles} and a chain visits only 4 of its 8 "
+                    "nodes — 2 of 6 quantities turn out to sit strictly below their tier's prefix, "
+                    "which is why the lattice is worth walking at all. ADOPTED: ledger_remainder "
+                    "fetches the log and NOT the tile; quorum_agreement fetches the tile and peers and "
+                    "NOT the log. And the property a router must not break is asserted rather than "
+                    "promised — the routed verifier is run against cohort's own verify_cohort across "
+                    "the full population, the empty population and an all-liar population, 0 "
+                    "disagreements, because routing may change which inputs are read and never the "
+                    "answer. An unknown fetch atom is a typed refusal rather than a silently ignored "
+                    "projection"
+                    if plan_ok else "the autoroute fetch plan did not hold")
+        scr_ok = True
+        try:
+            fields, has_cells, needs = AR.subgap_needs_the_payload()
+            scr_ok = fields == ("tile_prefix", "jurisdiction_region", "liveness_token")
+            scr_ok = scr_ok and not has_cells and needs
+            scr_ok = scr_ok and AR.flood_fill_census() == (2, 7, 6, 5)
+            scr_ok = scr_ok and AR.the_screen_saves_fills_not_bytes() == (5, 0)
+            src = inspect.getsource(AR.verify_routed)
+            scr_ok = scr_ok and src.index("fetched += 1") < src.index("len(mine ^ p[\"occupancy\"]) < k")
+        except Exception:
+            scr_ok = False
+        self.record("autoroute-screen", scr_ok,
+                    "THE MENGER SCREEN CANNOT PRECEDE THE PAYLOAD FETCH, AND THE SAVING IS COMPUTE "
+                    "RATHER THAN BYTES. The handed-down cascade placed sub-gap screening ABOVE payload "
+                    "download so it would 'return the local verdict without downloading the remote "
+                    "tile payload'. It cannot: the screen tests |mine XOR theirs| < k and that "
+                    "symmetric difference is a function of the peer's CELL SET, while tilemin's "
+                    "certificate carries tile_prefix, jurisdiction_region and liveness_token and NONE "
+                    "of them is the occupancy — which is not an oversight but cohort's refutation (3) "
+                    "restated, since byte-identical boundary occupancy admits opposite verdicts and no "
+                    "digest of a lattice can stand in for the lattice. What the screen genuinely buys "
+                    "is FLOOD FILLS: compute your own verdict once, then settle each sub-gap peer by a "
+                    "set-difference COUNT — 2 fills against 7 over the pinned population, 5 of 6 peers "
+                    "decided by count, and BYTES SAVED EXACTLY 0. The ordering is checked "
+                    "STRUCTURALLY, not promised: `fetched` increments before the screen is consulted"
+                    if scr_ok else "the autoroute screen accounting did not hold")
+        law_ok = True
+        try:
+            law_ok = AR.subregion_k_is_conservative_not_unsound() == (160, 0, 67)
+            law_ok = law_ok and AR.the_subregion_costs_the_whole_saving() == (1, 2, True, 0, 5)
+            law_ok = law_ok and AR.screening_law_generalizes() == (2, 2144, 0)
+            law_ok = law_ok and AR.the_law_covers_additions() == (1056, 3104)
+            for fn in (AR._sweep_corpus, AR.screening_law_generalizes, AR.flood_fill_census):
+                law_ok = law_ok and "random" not in inspect.getsource(fn)
+        except Exception:
+            law_ok = False
+        self.record("autoroute-law", law_ok,
+                    "MY OWN FIRST CORRECTION DID NOT SURVIVE ITS OWN MEASUREMENT, AND THE MODULE SAYS "
+                    "SO. I suspected that computing k over a wall SUBREGION while measuring divergence "
+                    "over the whole lattice was the wrong-denominator defect that killed the 2/3 "
+                    "agreement bar. It is not: if the subregion spans and blocks then breaching the "
+                    "occupancy requires breaching the subregion, so k(subregion) <= k(occupancy) — 160 "
+                    "occupancies from a deterministic sweep, 0 violations, 67 STRICTLY smaller, so the "
+                    "numbers do come apart but never in the unsafe direction. THE REAL COST IS THE "
+                    "SAVING AND IT IS TOTAL: measured, k(subregion) = 1 against k(occupancy) = 2, and "
+                    "at the smaller one the sub-gap range is EMPTY so 0 of 5 peers are screened where "
+                    "the correct k screens 5 of 5 — a router that silently screened nothing would look "
+                    "identical to one that worked. AND WITH k TAKEN OVER THE FULL OCCUPANCY THE "
+                    "SCREENING LAW GETS STRICTLY STRONGER THAN cohort's: it extends from wall cells to "
+                    "perturbations ANYWHERE in the lattice, additions included — 2 bases, 2144 "
+                    "perturbations, 0 flips, with 1056 of the perturbed cells asserted to be ADDITIONS "
+                    "so the census cannot be the wall-cell one wearing a larger name. The sweep uses "
+                    "an explicit integer recurrence rather than the stdlib generator, whose sampling "
+                    "internals are not a cross-version contract while this repo's determinism claim "
+                    "crosses Python minor versions"
+                    if law_ok else "the autoroute screening law did not hold")
+        vac_ok = True
+        try:
+            vac_ok = AR.screen_is_vacuous_when_breached() == (0, 6, 5, 6, 0, 2)
+            vac_ok = vac_ok and AR.a_breached_verdict_flips_at_one_cell() == (64, 4)
+            out = AR.verify_routed(frozenset(), CO.peer_population(), 20)
+            vac_ok = vac_ok and out[4] == 0 and out[5] == out[2]
+        except Exception:
+            vac_ok = False
+        self.record("autoroute-vacuity", vac_ok,
+                    "THE SCREEN HAS NO TEETH ON A BREACHED SUBMITTER, AND REPORTING OTHERWISE WOULD BE "
+                    "THE L19 VACUITY EXACTLY. k = 0 when the base is already open, the sub-gap range "
+                    "is empty, and the screen settles NOTHING — measured, a breached submitter decides "
+                    "0 of 6 peers where an INTACT one decides 5 of 6 (k = 0 against k = 2). The "
+                    "vacuity is not benign either: it abandons precisely the regime with the smallest "
+                    "margin, since 4 of 64 one-cell perturbations DO flip a breached verdict. So the "
+                    "router recomputes every peer instead of reporting a confident 0 exceptions over "
+                    "an empty set, and that is asserted through the returned counters rather than "
+                    "trusted — screened 0, recomputed equal to fetched"
+                    if vac_ok else "the autoroute breached-base vacuity did not hold")
+        det_ok = True
+        try:
+            det_ok = AR.syntax_versus_search_census() == (
+                ("occupancy_defect", "own_tile", False, False),
+                ("ledger_remainder", "own_log", False, False),
+                ("ledger_remainder", "own_tile", True, True),
+                ("quorum_agreement", "own_log", True, True),
+                ("quorum_agreement", "own_tile", True, False),
+                ("quorum_agreement", "peer_tiles", False, False))
+            det_ok = det_ok and AR.only_syntax_gives_a_universal_positive() == (3, 2, 1)
+            det_ok = det_ok and AR.search_alone_would_over_skip()[2] == (
+                ("quorum_agreement", "own_tile"),)
+            det_ok = det_ok and AR.the_syntactic_check_follows_calls() == (True, True)
+            det_ok = det_ok and AR.the_family_was_built_for_a_chain() == (3, 8, 12)
+            said, cs, ch, occ, va, vb, refuted = AR.the_lattice_enumeration_overreached()
+            det_ok = det_ok and said == (("peer_tiles",),) and cs and ch and not occ
+            det_ok = det_ok and (va, vb) == (1, 0) and refuted
+            try:
+                AR.syntactically_independent("ledger_remainder", "own_galaxy")
+                det_ok = False
+            except AR.RouteError:
+                pass
+        except Exception:
+            det_ok = False
+        self.record("autoroute-determinacy", det_ok,
+                    "THE SEARCH CANNOT BE TRUSTED ALONE, AND THE REASON IS A HARDNESS RESULT RATHER "
+                    "THAN A GAP IN THE FAMILY. What inputset's `determines` computes is exactly "
+                    "Nash-Segoufin-Vianu VIEW DETERMINACY — views V determine query Q iff V(D1) = "
+                    "V(D2) implies Q(D1) = Q(D2) FOR ALL instances — and that problem is UNDECIDABLE "
+                    "for unions of conjunctive queries, by reduction from the word problem for finite "
+                    "monoids, and open for conjunctive queries; determinacy over FINITE instances also "
+                    "diverges from determinacy over all instances, so restricting to finite ones is "
+                    "not a simplification. Enlarging the family therefore CANNOT convert a "
+                    "family-relative positive into a universal one, and the asymmetry is permanent: a "
+                    "NEGATIVE answer is exact from one witness, a search POSITIVE is forever "
+                    "family-relative, and the only route to a universal positive is SYNTACTIC. "
+                    "Measured: the search gives 3 positives, syntax 2, and syntax is SILENT on 1 where "
+                    "the search is positive — its honest weakness, since a quantity may read the "
+                    "occupancy only through what the certificate already exposes. Their conjunction is "
+                    "exactly the 2 correct reductions, and THE SEARCH ALONE WOULD HAVE DROPPED own_tile "
+                    "FROM quorum_agreement, which the quantity provably reads — refuted twice, by a "
+                    "hand-built pair (same certificate, same cohort, different occupancy, agreement 1 "
+                    "against 0) and mechanically by syntax. The syntactic checker ships its OWN plant "
+                    "(L23): a quantity reading occupancy through a HELPER is cleared by a scan that "
+                    "does not follow calls and caught by one that does, measured both ways"
+                    if det_ok else "the autoroute determinacy asymmetry did not hold")
+        flt_ok = True
+        try:
+            flt_ok = AR.fault_needs_a_claimed_verdict() == (True, False)
+            flt_ok = flt_ok and AR.fault_is_caught_by_a_count() == (True, 0, 1)
+            flt_ok = flt_ok and AR.an_honest_claim_is_not_a_fault() == (True, CO.UNAVAILABLE)
+            flt_ok = flt_ok and AR.fault_is_a_distinct_code() == (
+                "AUTOROUTE-PEERFAULT", "AUTOROUTE-REFUSE", False)
+            try:
+                AR.verify_routed(CO.submitter(), CO.peer_population(), 20, min_peers=0)
+                flt_ok = False
+            except AR.RouteError:
+                pass
+        except Exception:
+            flt_ok = False
+        self.record("autoroute-fault", flt_ok,
+                    "PEER-FAULT IS REAL BUT IT NEEDED A FIELD THE PROTOCOL DID NOT CARRY, AND SAYING "
+                    "SO IS THE POINT. The cascade wanted a disagreeing sub-gap peer marked provably "
+                    "faulty; in cohort as built that can NEVER fire, because peers_agree RECOMPUTES "
+                    "both verdicts from both occupancies (verified: two verdict calls, and no peer "
+                    "record carries a claimed verdict), so sub-gap disagreement is a statement about "
+                    "the FUNCTION rather than an observable about a peer — a detector for it would be "
+                    "a test that our own arithmetic works. The fault becomes observable exactly when a "
+                    "peer CLAIMS a verdict alongside its occupancy, and then the screen pays a second "
+                    "time: the lie is caught with 0 flood fills on the peer's lattice where "
+                    "recomputation needs 1. The HONEST claim is accepted (validity-not-outcome, or the "
+                    "detector is not a detector), AUTOROUTE-PEERFAULT is a DISTINCT code from "
+                    "AUTOROUTE-REFUSE and not a subclass of it because a proven Byzantine peer and a "
+                    "malformed request need different attribution, and the claimed verdict is "
+                    "LATTICE-tier by cohort's refutation (3) so the bytes adjudicate it and it never "
+                    "becomes a certificate field"
+                    if flt_ok else "an autoroute fault check did not hold")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -14684,6 +14904,7 @@ def main() -> int:
     gate.tilemin()
     gate.inputset()
     gate.cohort()
+    gate.autoroute()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

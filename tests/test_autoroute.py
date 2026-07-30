@@ -1,0 +1,270 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Daniel J. Dillberg
+"""Falsifiers for tools/terrain/autoroute.py — DECIDE AT THE CHEAPEST LEVEL (URDRAUT1).
+
+  THE MENGER SCREEN CANNOT PRECEDE THE PAYLOAD — the divergence is a function of the peer's CELL SET
+    and the certificate carries no cells, so the saving is FLOOD FILLS (2 against 7), never bytes.
+  MY OWN FIRST CORRECTION WAS WRONG — k(subregion) <= k(occupancy) always, 160 tested, 0 violations,
+    so the subregion is CONSERVATIVE not unsound. What it costs is the whole saving: 0 of 5 peers
+    screened against 5 of 5.
+  THE LAW GENERALIZES from wall cells to the whole lattice, additions included, 2144 tried, 0 flips.
+  THE SCREEN IS VACUOUS ON A BREACHED BASE — 0 of 6 against 5 of 6 — and that is exactly where one
+    cell does flip the verdict, so the router recomputes rather than reporting 0 over an empty set.
+  THE CHAIN OVER-FETCHES ON ONE ROW AND MY ENUMERATION INVENTED A SECOND — a family built to separate
+    3 chain pairs cannot settle a lattice of 12 covering pairs.
+  PEER-FAULT NEEDS A CLAIMED VERDICT to fire at all, and then costs 0 fills against 1.
+
+Every test can go red (L5); the plants bite before any golden pins (L15)."""
+import inspect
+import os
+import sys
+import unittest
+
+_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(_ROOT, "tools", "terrain"))
+
+import autoroute as AR                                              # noqa: E402
+import cohort as CO                                                 # noqa: E402
+
+
+class TheRouteIsMeasuredNotTabulated(unittest.TestCase):
+    def test_scene_goldens_and_determinism(self):
+        for n in AR.SCENES:
+            self.assertEqual(AR.scene_result(n), AR.golden(n), n)
+            self.assertEqual(AR.scene_result(n), AR.scene_result(n), n)
+        self.assertTrue(AR.emitted_matches_pinned())
+
+    def test_the_route_census(self):
+        self.assertEqual(AR.route_census(), (
+            ("exclusion_membership", (), "CERT", ()),
+            ("prefix_disjointness", (), "CERT", ()),
+            ("liveness_horizon", (), "CERT", ()),
+            ("occupancy_defect", ("own_tile",), "LATTICE", ()),
+            ("ledger_remainder", ("own_log",), "HISTORY", ("own_tile",)),
+            ("quorum_agreement", ("own_tile", "peer_tiles"), "COHORT", ("own_log",)),
+        ))
+
+    def test_routing_changes_inputs_never_the_answer(self):
+        """The one property a router must not break, asserted rather than promised."""
+        rows, bad = AR.routing_agrees_with_cohort()
+        self.assertEqual(bad, 0)
+        self.assertEqual(len(rows), 3)
+        for _label, a, b in rows:
+            self.assertEqual(a, b)
+
+    def test_an_unknown_fetch_atom_refuses(self):
+        s = AR._IS.family()[0]
+        with self.assertRaises(AR.RouteError):
+            AR._subproj(("own_galaxy",), s)
+
+    def test_a_missing_golden_refuses(self):
+        with self.assertRaises(AR.RouteError):
+            AR.golden("no_such_scene")
+
+
+class TheScreenIsPostPayload(unittest.TestCase):
+    def test_the_certificate_carries_no_cells(self):
+        """cohort's refutation (3) restated: no digest of a lattice can stand in for the lattice."""
+        fields, has_cells, needs = AR.subgap_needs_the_payload()
+        self.assertEqual(fields, ("tile_prefix", "jurisdiction_region", "liveness_token"))
+        self.assertFalse(has_cells, "the divergence cannot be computed from the certificate")
+        self.assertTrue(needs)
+
+    def test_the_saving_is_fills_and_the_byte_saving_is_zero(self):
+        with_s, without, peers, screened = AR.flood_fill_census()
+        self.assertEqual((with_s, without, peers, screened), (2, 7, 6, 5))
+        self.assertLess(with_s, without, "the screen does save work")
+        self.assertEqual(AR.the_screen_saves_fills_not_bytes(), (5, 0),
+                         "and it saves exactly zero bytes, which is the correction")
+
+    def test_the_bytes_move_either_way(self):
+        """Structural: `fetched` increments before any screening decision."""
+        src = inspect.getsource(AR.verify_routed)
+        fetched_at = src.index("fetched += 1")
+        screen_at = src.index("len(mine ^ p[\"occupancy\"]) < k")
+        self.assertLess(fetched_at, screen_at, "the payload is charged for before the screen runs")
+
+
+class MyOwnCorrectionWasWrong(unittest.TestCase):
+    def test_the_subregion_is_conservative_not_unsound(self):
+        """The first draft of this module claimed a soundness defect. There is none."""
+        tested, viol, strict = AR.subregion_k_is_conservative_not_unsound()
+        self.assertEqual((tested, viol), (160, 0), "k(subregion) <= k(occupancy) always")
+        self.assertGreater(tested, 0, "an empty sweep would pass vacuously")
+        self.assertGreater(strict, 0, "and the two numbers do genuinely come apart")
+        self.assertEqual(strict, 67)
+
+    def test_but_the_subregion_costs_the_whole_saving(self):
+        ks, ko, strictly, at_sub, at_occ = AR.the_subregion_costs_the_whole_saving()
+        self.assertEqual((ks, ko), (1, 2))
+        self.assertTrue(strictly)
+        self.assertEqual((at_sub, at_occ), (0, 5),
+                         "at the smaller k the sub-gap range is empty and nothing is screened")
+
+    def test_the_sweep_uses_no_stdlib_rng(self):
+        """`random.sample`'s internals are not a cross-version contract, and this repo's determinism
+        claim crosses Python minor versions."""
+        for fn in (AR._sweep_corpus, AR.subregion_k_is_conservative_not_unsound,
+                   AR.screening_law_generalizes, AR.flood_fill_census):
+            src = inspect.getsource(fn)
+            self.assertNotIn("random", src, fn.__name__)
+        self.assertNotIn("import random", inspect.getsource(AR).split('"""', 2)[2])
+
+
+class TheLawGeneralizes(unittest.TestCase):
+    def test_whole_lattice_perturbations_below_k_never_flip(self):
+        bases, tested, flips = AR.screening_law_generalizes()
+        self.assertEqual((bases, tested, flips), (2, 2144, 0))
+        self.assertGreater(bases, 0)
+        self.assertGreater(tested, 0, "an empty census would pass vacuously")
+        self.assertEqual(flips, 0)
+
+    def test_the_census_actually_contains_additions(self):
+        """Otherwise it is cohort's wall-cell census wearing a larger name."""
+        adds, removes = AR.the_law_covers_additions()
+        self.assertEqual((adds, removes), (1056, 3104))
+        self.assertGreater(adds, 0, "additions are what the generalization adds")
+        self.assertGreater(removes, 0)
+
+
+class TheScreenIsVacuousWhenBreached(unittest.TestCase):
+    def test_a_breached_base_screens_nothing(self):
+        bd, bt, idc, it, kb, ki = AR.screen_is_vacuous_when_breached()
+        self.assertEqual((bd, bt), (0, 6), "k=0 leaves the sub-gap range empty")
+        self.assertEqual((idc, it), (5, 6), "where an INTACT base screens five of six")
+        self.assertEqual((kb, ki), (0, 2))
+        self.assertLess(bd, idc)
+
+    def test_and_that_is_where_one_cell_matters(self):
+        """The vacuity is not benign — it abandons exactly the regime with the smallest margin."""
+        tested, flips = AR.a_breached_verdict_flips_at_one_cell()
+        self.assertEqual((tested, flips), (64, 4))
+        self.assertGreater(flips, 0, "a single cell does flip a breached verdict")
+
+    def test_the_router_recomputes_instead_of_screening(self):
+        mine = frozenset()
+        out = AR.verify_routed(mine, CO.peer_population(), 20)
+        _o, _a, fetched, _r, screened, recomputed = out
+        self.assertEqual(screened, 0, "nothing is screened on a breached base")
+        self.assertEqual(recomputed, fetched, "every peer is recomputed instead")
+
+
+class TheLatticeEnumerationOverreached(unittest.TestCase):
+    def test_the_chain_is_not_tight(self):
+        off, total = AR.the_chain_is_not_tight()
+        self.assertEqual((off, total), (2, 6))
+        self.assertGreater(off, 0, "else the lattice adds nothing and this module is pointless")
+
+    def test_both_real_savings_hold_by_witness_and_by_syntax(self):
+        self.assertEqual(AR.the_real_savings(), (("ledger_remainder", "own_tile"),
+                                                 ("quorum_agreement", "own_log")))
+        for name, atom in AR.the_real_savings():
+            self.assertTrue(AR.syntactically_independent(name, atom), (name, atom))
+
+    def test_the_other_saving_was_an_artifact(self):
+        """L19/L24 — a positive determination result is only as strong as the family's separating
+        power, and this one nearly shipped a fetch reduction that does not exist."""
+        said, cert_same, coh_same, occ_same, va, vb, refuted = \
+            AR.the_lattice_enumeration_overreached()
+        self.assertEqual(said, (("peer_tiles",),), "the enumeration claimed cohort alone suffices")
+        self.assertTrue(cert_same, "identical certificate")
+        self.assertTrue(coh_same, "identical cohort")
+        self.assertFalse(occ_same, "different occupancy")
+        self.assertEqual((va, vb), (1, 0), "and different agreement")
+        self.assertTrue(refuted)
+
+    def test_the_family_was_built_for_a_chain(self):
+        chain_pairs, nodes, covers = AR.the_family_was_built_for_a_chain()
+        self.assertEqual((chain_pairs, nodes, covers), (3, 8, 12))
+        self.assertGreater(covers, chain_pairs,
+                           "a family separating a chain cannot settle a lattice")
+
+    def test_the_adopted_route_drops_only_two_route_agreements(self):
+        """The discipline: an atom leaves a fetch plan only where search AND syntax agree."""
+        adopted = set(AR.the_real_savings())
+        for name, plan, tier, dropped in AR.route_census():
+            self.assertEqual(frozenset(plan) | frozenset(dropped), AR.CHAIN_SET[tier])
+            for atom in dropped:
+                self.assertIn((name, atom), adopted)
+
+
+class OnlySyntaxGivesAUniversalPositive(unittest.TestCase):
+    def test_the_search_alone_would_over_skip(self):
+        """Nash-Segoufin-Vianu determinacy is UNDECIDABLE for UCQs, so a search positive is forever
+        family-relative. Measured: it drops an atom the quantity provably reads."""
+        search_only, both, over = AR.search_alone_would_over_skip()
+        self.assertEqual(len(search_only), 3)
+        self.assertEqual(len(both), 2)
+        self.assertEqual(over, (("quorum_agreement", "own_tile"),))
+
+    def test_the_scorecard(self):
+        s_pos, y_pos, silent = AR.only_syntax_gives_a_universal_positive()
+        self.assertEqual((s_pos, y_pos, silent), (3, 2, 1))
+        self.assertLess(y_pos, s_pos, "syntax is sound and weaker — that is the trade")
+        self.assertGreater(silent, 0, "and it is silent where a cert already exposes the input")
+
+    def test_the_census_rows(self):
+        self.assertEqual(AR.syntax_versus_search_census(), (
+            ("occupancy_defect", "own_tile", False, False),
+            ("ledger_remainder", "own_log", False, False),
+            ("ledger_remainder", "own_tile", True, True),
+            ("quorum_agreement", "own_log", True, True),
+            ("quorum_agreement", "own_tile", True, False),
+            ("quorum_agreement", "peer_tiles", False, False),
+        ))
+
+    def test_the_syntactic_checker_follows_calls(self):
+        """L23 applied to this module's own checker — a check whose failure mode has never been
+        observed is a hypothesis."""
+        shallow_clears, deep_catches = AR.the_syntactic_check_follows_calls()
+        self.assertTrue(shallow_clears, "a scan that does not follow calls misses the helper")
+        self.assertTrue(deep_catches, "and one that does, catches it")
+
+    def test_the_digests_do_not_depend_on_the_invocation(self):
+        """A first draft filtered call-following on `__module__`, which is '__main__' when the module
+        is run as a script — so the verdict changed with how it was invoked."""
+        import subprocess
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        env = dict(os.environ, PYTHONHASHSEED="0", PYTHONUTF8="1")
+        out = subprocess.run([sys.executable, os.path.join(root, "tools", "terrain", "autoroute.py"),
+                              "--emit"], capture_output=True, text=True, env=env, check=True)
+        self.assertEqual(tuple(out.stdout.strip().split("\n")), AR.conformance_lines())
+
+    def test_an_unknown_atom_refuses_in_the_syntactic_route_too(self):
+        with self.assertRaises(AR.RouteError):
+            AR.syntactically_independent("ledger_remainder", "own_galaxy")
+
+
+class PeerFaultNeedsAClaim(unittest.TestCase):
+    def test_it_cannot_fire_in_cohort_as_built(self):
+        """cohort recomputes both verdicts, so sub-gap disagreement is a property of the FUNCTION and
+        a detector for it would be a test that our own arithmetic works."""
+        recomputes, has_claim = AR.fault_needs_a_claimed_verdict()
+        self.assertTrue(recomputes, "both verdicts are recomputed locally")
+        self.assertFalse(has_claim, "and no peer record carries a claimed verdict")
+
+    def test_the_lie_is_caught_by_a_count(self):
+        raised, fills_on_peer, recompute_fills = AR.fault_is_caught_by_a_count()
+        self.assertTrue(raised)
+        self.assertEqual(fills_on_peer, 0, "zero flood fills on the peer's lattice")
+        self.assertLess(fills_on_peer, recompute_fills)
+
+    def test_an_honest_claim_is_accepted(self):
+        """Validity-not-outcome: a detector that rejects the honest claim is not a detector."""
+        ok, outcome = AR.an_honest_claim_is_not_a_fault()
+        self.assertTrue(ok, "no fault is raised on a truthful claim")
+        self.assertEqual(outcome, CO.UNAVAILABLE, "one agreeing peer is coverage, not integrity")
+
+    def test_the_fault_is_a_distinct_code(self):
+        fault, refuse, subclass = AR.fault_is_a_distinct_code()
+        self.assertEqual(fault, "AUTOROUTE-PEERFAULT")
+        self.assertEqual(refuse, "AUTOROUTE-REFUSE")
+        self.assertFalse(subclass, "a proven Byzantine peer is not a malformed request")
+
+    def test_a_threshold_below_one_refuses(self):
+        with self.assertRaises(AR.RouteError):
+            AR.verify_routed(CO.submitter(), CO.peer_population(), 20, min_peers=0)
+
+
+if __name__ == "__main__":
+    unittest.main()

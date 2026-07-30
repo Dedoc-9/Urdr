@@ -1,0 +1,141 @@
+# URDRAUT1 conformance — DECIDE AT THE CHEAPEST LEVEL THAT CAN DECIDE. inputset's taxonomy and
+# cohort's theorem wired into one router, with the proposed cascade's tier order CORRECTED by
+# measurement. NO new glyph (kernel frozen).
+#
+# WHAT THIS IS. inputset decided where each quantity may live; cohort enforced it for one tier. The
+# remaining move is a verifier that stops asking the caller for inputs it does not need: inspect what
+# is local, run the cheapest procedure that can settle the question, escalate only when the
+# mathematics demands it. It is also SIX corrections: the handed-down cascade inverted three of its own
+# transitions and claimed one saving that does not exist, my first attempt to correct it was itself
+# wrong and had to be withdrawn by measurement, and the search built to replace the hand-written plan
+# invented a reduction of its own that a hardness result says no search can ever be trusted to rule out.
+#
+# CORRECTION 1 — THE MENGER SCREEN CANNOT PRECEDE THE PAYLOAD FETCH; THE SAVING IS COMPUTE, NOT BYTES.
+# The cascade placed sub-gap screening ABOVE payload download, on the grounds that it "returns the
+# local verdict directly without downloading the remote tile payload". It cannot: the screen tests
+# |mine XOR theirs| < k, and that symmetric difference is a function of the peer's CELL SET.
+# tilemin's certificate carries ('tile_prefix', 'jurisdiction_region', 'liveness_token') and NONE of
+# them is the occupancy — which is not an oversight but cohort's refutation (3) restated, since
+# byte-identical boundary occupancy admits opposite verdicts, so no digest of a lattice can stand in
+# for the lattice. What the screen genuinely saves is FLOOD FILLS: compute your own verdict once, then
+# decide each sub-gap peer by a set-difference COUNT instead of a reachability search. MEASURED over
+# the pinned population: 2 fills with the screen against 7 without, 5 of 6 peers decided by count,
+# BYTES SAVED 0. Linear in peers, and that is the whole prize.
+#
+# CORRECTION 2 — k IS THE MIN-CUT OF THE SUBMITTED OCCUPANCY, AND MY FIRST REASON FOR SAYING SO WAS
+# WRONG. cohort measured its screening law on a fixture where the wall IS the entire occupancy, so it
+# never distinguished the two. The suspicion was that a router inheriting "min-cut(wall)" literally
+# would compute k over a subregion while measuring divergence over the whole lattice — a bound taken
+# from one population and applied to another, the class that killed the 2/3 agreement bar. THAT
+# SUSPICION DOES NOT SURVIVE MEASUREMENT. If the subregion spans and blocks then breaching the whole
+# occupancy requires breaching the subregion, so k(subregion) <= k(occupancy): 160 occupancies from a
+# deterministic sweep, 0 violations, 67 STRICTLY smaller. The two numbers genuinely come apart; they
+# never come apart in the unsafe direction. The subregion's k is CONSERVATIVE, not unsound — and this
+# module's first draft claimed otherwise on the strength of a witness whose two min-cuts were both 0,
+# a difference that was not a difference.
+#
+#     THE REAL COST IS THE SAVING, NOT THE SOUNDNESS, AND IT IS TOTAL. Measured on a composite
+#     occupancy: k(subregion) = 1 while k(occupancy) = 2, strictly smaller. At k = 1 the sub-gap range
+#     is EMPTY and the screen decides 0 of 5 peers; at k = 2 it decides 5 of 5. Computing k over a
+#     subregion does not give a wrong answer, it gives up the entire prize — and a router that
+#     silently screened nothing while reporting 0 exceptions would look identical to one that worked.
+#
+# CORRECTION 3 — AND WITH k TAKEN OVER THE FULL OCCUPANCY THE SCREENING LAW GETS STRICTLY STRONGER.
+# cohort proved the law for perturbations of WALL cells. Taking k over the whole occupancy extends it
+# to perturbations ANYWHERE in the lattice, additions included, and the reason is short enough to
+# state: write B = (A minus R) union S, so Free(B) = Free(A minus R) minus S. If |A XOR B| < k then
+# |R| < k, so by Menger A minus R is still INTACT, and a subset of a non-connecting free set cannot
+# connect. MEASURED exhaustively over the pinned INTACT bases: 2 bases, 2144 perturbations, 0 flips,
+# with 1056 of the perturbed cells being ADDITIONS rather than removals — asserted separately, because
+# a census containing only removals would be cohort's wall-cell census wearing a larger name. This
+# generalization is what licenses screening on a whole-lattice divergence at all.
+#
+# CORRECTION 4 — THE SCREEN HAS NO TEETH ON A BREACHED SUBMITTER, AND SAYING OTHERWISE WOULD BE
+# VACUITY. k = 0 when the base is already open, the sub-gap range is empty, and the screen decides
+# NOTHING. Not a corner case: MEASURED, a BREACHED submitter's screen decides 0 of 6 peers where an
+# INTACT one decides 5 of 6 (k = 0 against k = 2), and a single cell genuinely does flip a breached
+# verdict — 4 of 64 one-cell perturbations, counted, so the regime the screen abandons is exactly the
+# regime where one cell matters. The router therefore sends a breached submitter straight to full
+# recomputation rather than reporting a confident 0 exceptions over an empty set (L19).
+#
+# CORRECTION 5 — THE CHAIN OVER-FETCHES ON TWO ROWS, AND THE SEARCH THAT FOUND THEM INVENTED A THIRD.
+# inputset's four levels are a CHAIN; the minimal input sets form a LATTICE over the three atoms
+# {own_tile, own_log, peer_tiles}, and a chain visits only 4 of its 8 nodes (8 nodes, 12 covering pairs,
+# against the 3 adjacent pairs the family was built to separate). Searching the family for per-atom
+# independence returns 3 positives. TWO ARE REAL: ledger_remainder never reads the occupancy, so the
+# nested HISTORY plan's own_tile is dead weight; and quorum_agreement never reads the history, so the
+# COHORT plan's own_log is too. ONE IS FALSE: the search also clears quorum_agreement of own_tile, which
+# it demonstrably reads — refuted twice, by a hand-built pair (same certificate, same cohort, different
+# occupancy, agreement 1 against 0) and mechanically by the syntactic route.
+#
+#     ADOPTED PLANS: CERT rows fetch nothing; occupancy_defect fetches (own_tile); ledger_remainder
+#     fetches (own_log) and NOT the tile; quorum_agreement fetches (own_tile, peer_tiles) and NOT the
+#     log. Two of six rows are strictly below their tier's chain prefix.
+#
+# CORRECTION 6 — THE REASON THE SEARCH CANNOT BE TRUSTED ALONE IS A HARDNESS RESULT, NOT A GAP IN THE
+# FAMILY. What inputset's `determines` computes is exactly Nash-Segoufin-Vianu VIEW DETERMINACY: views V
+# determine query Q iff V(D1) = V(D2) implies Q(D1) = Q(D2) FOR ALL instances. That problem is
+# UNDECIDABLE for unions of conjunctive queries, by reduction from the word problem for finite monoids,
+# and open for conjunctive queries; determinacy over FINITE instances also diverges from determinacy
+# over all instances, so restricting to finite instances is not a simplification either. Enlarging the
+# family therefore CANNOT ever convert a family-relative positive into a universal one, and the
+# asymmetry this arc has been working around is permanent rather than a coverage debt:
+#
+#     A NEGATIVE ANSWER IS EXACT AND COMES FROM ONE WITNESS. A POSITIVE ANSWER FROM A SEARCH IS FOREVER
+#     FAMILY-RELATIVE. THE ONLY ROUTE TO A UNIVERSAL POSITIVE IS SYNTACTIC — prove the quantity CANNOT
+#     read the input, rather than that it happened not to matter on the instances tried.
+#
+# So both routes are carried and a fetch is dropped only where they AGREE. MEASURED: search 3 positives,
+# syntax 2, syntax SILENT on 1 where the search is positive — not a bug in syntax but its honest
+# weakness, since a CERT-tier quantity may read the occupancy only through what the certificate already
+# exposes. The conjunction is exactly the 2 correct reductions; the search alone would have dropped
+# own_tile from quorum_agreement, the false one.
+#
+#     THE SYNTACTIC CHECKER SHIPS ITS OWN PLANT (L23 — a checker whose failure mode has never been
+#     observed is a hypothesis). A quantity reading the occupancy only through a HELPER is cleared by a
+#     scan that does not follow calls and caught by one that does: measured (shallow clears True, deep
+#     catches True). The call-following filter is decided by the function's source FILE, not by its
+#     `__module__` string — a first draft filtered on `__module__` and the checker's verdict then
+#     depended on whether this module was IMPORTED or RUN AS A SCRIPT, since `__module__` is '__main__'
+#     in the second case. A digest that changes with the invocation is not a digest, so the emitted
+#     lines are now asserted identical under both invocations.
+#
+# PEER-FAULT IS REAL BUT IT NEEDS A FIELD THE PROTOCOL DID NOT CARRY. The cascade wants a disagreeing
+# sub-gap peer marked provably faulty. In cohort as built that can NEVER fire, because peers_agree
+# RECOMPUTES both verdicts from both occupancies (verified: 2 verdict calls, no `claimed` field on a
+# peer record) — so sub-gap disagreement is a statement about the FUNCTION, not an observable about a
+# peer, and a detector for it would be a test that this module's own arithmetic works. The fault
+# becomes observable exactly when a peer CLAIMS a verdict alongside its occupancy, and then the screen
+# pays a second time: MEASURED, the lie is caught with 0 flood fills on the peer's lattice where
+# recomputation needs 1. The honest claim is ACCEPTED (validity-not-outcome), and AUTOROUTE-PEERFAULT
+# is a DISTINCT code from AUTOROUTE-REFUSE and not a subclass of it, because a proven Byzantine peer
+# and a malformed request need different attribution. The claimed verdict is LATTICE-tier by cohort's
+# refutation (3), so it is a claim the bytes adjudicate and never a certificate field.
+#
+# ROUTING MAY CHANGE WHICH INPUTS ARE READ AND NEVER THE ANSWER, which is asserted rather than
+# promised: the routed verifier is run against cohort's own verify_cohort across the full population,
+# the empty population and an all-liar population, 0 disagreements.
+#
+# GRADE. MEASURED: the minimal input set per quantity over the enumerated lattice; the two adopted
+# reductions, each by witness AND by syntax; the search-alone over-skip; the syntactic checker's own
+# plant in both directions; invocation-independence of every emitted digest; the flood-fill census;
+# the generalized screening law, exhaustive with additions counted separately; the breached-base
+# vacuity in both directions; fault detection by count against recomputation; outcome agreement with
+# cohort; determinism.
+#
+# DECLARED, NOT DERIVED. The family is inputset's, and by the undecidability of determinacy NO family
+# can make a search positive universal — the reason every adopted reduction also holds by syntax. The
+# syntactic scan's call-following depth is BOUNDED at 3, and a bound is not a proof. The peer
+# population, occupancy corpus and INTACT bases are cohort's pinned synthetic sets. The deterministic
+# sweep uses an explicit integer recurrence rather than `random`, because `random.sample`'s internals
+# are not a cross-version contract and this repo's determinism claim crosses Python minor versions.
+#
+# does_not_show: that a routed verdict is HONEST, since routing changes only which inputs are read and
+# never what agreement means — a colluding majority still verifies itself, geoquorum's residual
+# inherited unchanged; that the screen saves BYTES, which is exactly what correction 1 refutes; that k
+# beyond CUT_SEARCH_MAX = 3 is decided, inherited unchanged from cohort; that a minimal input set is
+# minimal over all possible situations rather than over this family; that the router is FASTER in
+# wall-clock, since flood fills are counted and not timed, and wall-clock may never enter this gate.
+route 4171c58594571bdbc0efed337ceb89909c3ec570650ae07d9f9a2b0300837fce
+screen ed61f7e615015c930780e18ddc0a66b0c4eade27d0d96297166e0994e1432219
+refuted a9b021f27187b29651218ceb830be19b3177d543e1da2f4b75abca14d45a70b3
