@@ -93,7 +93,10 @@ than tabulated, and it caught the handed-down taxonomy misfiling the quorum) →
 taxonomy turned into enforcement, with the agreement predicate replaced by a THEOREM: the verdict is
 connectivity and the gap is Menger's min-cut, so `THICK = 2` was never a tuned constant) → `autoroute` (the taxonomy turned into a ROUTER: a fetch
 plan is the tier's prefix minus every atom the verifier can prove it does not read, and the only
-route to a universal proof of that is syntactic, because view determinacy is undecidable).
+route to a universal proof of that is syntactic, because view determinacy is undecidable) →
+`blindscreen` (the hole that router left: a cascade cannot tell "this tier DECIDES" from "this tier is
+all I can afford", so four cheap invariants AND their conjunction are refuted at once, and the cost
+order is measured against the decisiveness order).
 
 **Band A — the anti-cheat firewall and the latency chain.** The perception family
 (`perception` → `anamorphosis` → `throttle` → `schedule` → `byteacct` → `citation` → `adaptcite`
@@ -103,7 +106,7 @@ route to a universal proof of that is syntactic, because view determinacy is und
 
 ## Every file
 
-102 modules. Gate stage `terrain` covers `heightfield` + `terrain_bridge`; `bench` is deliberately
+103 modules. Gate stage `terrain` covers `heightfield` + `terrain_bridge`; `bench` is deliberately
 ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 
 | Module | Code | Purpose | Gate stage | Falsifiers | Conformance | Brief |
@@ -115,6 +118,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`auditgraph.py`](../tools/terrain/auditgraph.py) | `URDRAGR1` | The exclusion price (kappa) — all-pairs is the only unbreakable audit topology | `auditgraph` | [test](../tests/test_auditgraph.py) | [conf](../tools/terrain/conformance_auditgraph.txt) | — |
 | [`autoroute.py`](../tools/terrain/autoroute.py) | `URDRAUT1` | Decide at the cheapest level that can decide — the fetch plan minus every atom provably unread | `autoroute` | [test](../tests/test_autoroute.py) | [conf](../tools/terrain/conformance_autoroute.txt) | — |
 | [`bench.py`](../tools/terrain/bench.py) | `—` | Wall-clock harness (T3.29) — MEASURED-on-named-host, deliberately UNGATED | `—` | — | — | — |
+| [`blindscreen.py`](../tools/terrain/blindscreen.py) | `URDRBLS1` | Cheapness is not soundness — four cheap invariants AND their conjunction blind to the verdict | `blindscreen` | [test](../tests/test_blindscreen.py) | [conf](../tools/terrain/conformance_blindscreen.txt) | — |
 | [`bombtest.py`](../tools/terrain/bombtest.py) | `URDRBMB1` | Interaction-free tamper detection — certify an illegal step WITHOUT running it | `bombtest` | [test](../tests/test_bombtest.py) | [conf](../tools/terrain/conformance_bombtest.txt) | — |
 | [`boundedhist.py`](../tools/terrain/boundedhist.py) | `URDRBHO1` | Bounded-history optimizer (look-ahead with teeth; Belady vs LRU) | `boundedhist` | [test](../tests/test_boundedhist.py) | [conf](../tools/terrain/conformance_boundedhist.txt) | [brief](../docs/boundedhist_brief.md) |
 | [`buoyancy.py`](../tools/terrain/buoyancy.py) | `URDRBUOY1` | Exact integer flotation over the wave seam (T3.5) | `buoyancy` | [test](../tests/test_buoyancy.py) | — | — |
@@ -212,8 +216,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | — |
 ## Status
 
-**MEASURED, as of this writing.** 102 modules under `tools/terrain/`, 171 falsifier suites, 1892 unit
-falsifiers with 0 red, 825 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 103 modules under `tools/terrain/`, 172 falsifier suites, 1907 unit
+falsifiers with 0 red, 829 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 
@@ -311,8 +315,8 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **86 of 102 modules have no design brief, and the newest arcs are the whole of the gap.** All 19
-  modules of the city, authority and certificate arcs (`voxlat` … `autoroute`) carry a gate stage,
+- **87 of 103 modules have no design brief, and the newest arcs are the whole of the gap.** All 20
+  modules of the city, authority and certificate arcs (`voxlat` … `blindscreen`) carry a gate stage,
   falsifiers and — with the four named exceptions below — a pinned corpus, and NOT ONE carries a
   `docs/<name>_brief.md`. The OODA passes that produced them live only in commit messages and module
   headers, which means the *reasoning* is recoverable only by reading the header of each module
@@ -335,6 +339,13 @@ rung 2 dismantles in one move.
   enforces a contract; it does not model peer discovery, latency or churn, and `COHORT_VERIFIED` says
   a population agreed — never that the population was honest. A colluding majority still verifies
   itself, which is `geoquorum`'s residual inherited unchanged.
+- **`blindscreen`'s negative is over an ENUMERATED FAMILY OF FOUR, not over all cheap invariants.**
+  The refutations are sound — one witness each, plus one pair defeating all four at once — but the
+  claim "no cheap pre-screen decides breach" is proved only for cell count, boundary occupancy, tile
+  prefix and occupancy defect. A fifth candidate would need its own witness. The corpus is also built
+  to CONTAIN the pairs rather than to be representative, and a sparser first draft of it produced no
+  conjunction witness at all — which would have read as the cheap conjunction surviving when it was
+  the corpus that was thin.
 - **`bench.py` remains fully ungated** — deliberately, since it measures wall-clock, which must never
   enter a byte-identical gate. It is the arc's only ungated module.
 - **True conformance gaps:** `meshattest`, `terrain_view`, `view_witness`, `wireattest` carry gate
@@ -378,7 +389,7 @@ error.
 yet demonstrated one persistent city standing on all of them at once, under load, with players
 joining and leaving. Composition is where declared boundaries meet.
 
-**Stage 6 — briefs and grading debt.** 86 modules have no `docs/*_brief.md`, and all 19 of the city,
+**Stage 6 — briefs and grading debt.** 87 modules have no `docs/*_brief.md`, and all 20 of the city,
 authority and certificate arcs are among them; the D5 ledger needs entries for all three. Documentation debt in this repo is not cosmetic: the briefs
 are where the OODA and the D1 §20 rulings live.
 

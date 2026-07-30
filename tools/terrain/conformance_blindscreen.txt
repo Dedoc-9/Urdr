@@ -1,0 +1,94 @@
+# URDRBLS1 conformance — CHEAPNESS IS NOT SOUNDNESS. The whole family of cheap pre-screens refuted at
+# once, and the one hole autoroute left open. NO new glyph (kernel frozen).
+#
+# WHY THIS RUNG EXISTS. autoroute routes a query to the cheapest level that CAN decide it, and drops a
+# fetch only where a witness search and a syntactic proof agree. What it could not yet do is tell apart
+# two situations that look identical from inside a cascade:
+#
+#     (a) THIS TIER DECIDES — the cheap answer is backed by a determinacy proof
+#     (b) THIS TIER IS ALL I CAN AFFORD — the cheap answer is backed by nothing
+#
+# A cascade that cannot distinguish those will eventually accept a screen BECAUSE it is cheap. This is
+# the missing falsifier, and it covers the FAMILY rather than one predicate at a time.
+#
+# MEASURED — EVERY CHEAP INVARIANT IS BLIND TO THE VERDICT, AND SO IS THEIR CONJUNCTION. Four candidate
+# pre-screens, each refuted by an equal-invariant / opposite-verdict pair over a 545-occupancy corpus
+# (170 breached, 375 intact, so the corpus is not one-sided): cell_count (divergence 4),
+# boundary_occupancy (2), tile_prefix (16), occupancy_defect (16) — 4 of 4 refuted. And then the result
+# that closes the family: ONE PAIR agrees on ALL FOUR SIMULTANEOUSLY and has OPPOSITE verdicts — two
+# 16-cell occupancies differing in 2 cells, one BREACHED and one INTACT. Stacking cheap checks does not
+# converge on the answer, because they are all blind in the same direction.
+#
+#     POSITIVE CONTROL, so this is blindness rather than a degenerate corpus: connectivity — the
+#     expensive measurand — separates that same pair (True against False). If it could not, the pair
+#     would prove nothing about the invariants.
+#
+# THE OPERATIONAL COST, COUNTED. Install a cell-count screen ahead of the flood fill and point it at a
+# population every member of which shares the submitter's cell count: it clears 8 of 8 peers and clears
+# 3 of them WRONGLY. The population is asserted to exercise both arms (5 agreeing, 3 disagreeing),
+# because a population of honest peers only would have made the screen look free.
+#
+# THE COST ORDER AND THE DECISIVENESS ORDER ARE DIFFERENT ORDERS. Sorted by cost: cell_count 1,
+# tile_prefix 1, occupancy_defect 2, boundary_occupancy 3, connectivity 4. Sorted by what they settle:
+# the first four settle NOTHING and only the last settles anything — cheap-that-decide is EMPTY,
+# expensive-that-decide is (connectivity), orders_agree FALSE. A cascade is sound only where the two
+# orders COINCIDE, and autoroute's CERT tier qualifies not because it is first but because inputset
+# proved determinacy there. The router is checked by SIGNATURE to take no blind invariant on any
+# decision path — 4 functions scanned (verify_routed, screen_decides, plan_for, peers_agree), 0
+# appearances — the same discipline that keeps cohort's centrality graph unwired.
+#
+# THE HISTORICAL TRAJECTORY THIS FORMALIZES, WITH ITS DATES CORRECTED. A four-step chemical structure
+# determination was offered as a blueprint for the cascade: biosynthesis -> extraction -> isomerization
+# -> degradation. Checked against the record, three of four attributions do not hold and the ordering is
+# not a trajectory:
+#
+#     1844  Saint-Evre determines the empirical FORMULA of safrole.
+#     1869  Grimaux and Ruotte investigate and NAME safrole. Separately Fittig prepares piperonal by
+#           permanganate oxidation of piperic acid — 1869 rather than 1871, a different substrate and
+#           reagent from the cleavage the blueprint cites, and Remsen is not named in the 1911
+#           encyclopaedic account of it.
+#     1885  Eijkman shows "shikimol" (from Illicium anisatum) and safrole are the SAME compound, on the
+#           grounds that they share an empirical formula and have other similar properties. He isolates
+#           shikimic acid from that plant the same year — the one step attributed correctly.
+#     1888  Bruhl establishes that safrole's C3H5 group is an ALLYL group.
+#
+# So the structural feature the blueprint has being isomerized in 1886 was not established until 1888.
+# The corrected sequence is FORMULA -> NAME -> IDENTITY-BY-SHARED-INVARIANT -> STRUCTURE, and it tells
+# the OPPOSITE story: each step used a weaker invariant than the question demanded and the structural
+# answer came LAST — not because cheap-first was sound but because the structural instrument did not
+# exist yet. The cascade is that trajectory's INVERSE, and it is sound only because the arc already owns
+# the structural answer.
+#
+# AND THE 1885 STEP IS A NAMED INSTANCE OF THE DEFECT. "Same empirical formula plus similar properties,
+# therefore the same compound" is identity from an invariant that provably cannot decide identity —
+# safrole and isosafrole share C10H10O2 and are different compounds. The conclusion was right; the
+# argument as stated does not reach it. That is cohort's refutation (1) with the chemistry removed, and
+# the lattice analogue is pinned here: identical cell count, identical boundary, identical tile prefix,
+# OPPOSITE verdict (True, True, True, True).
+#
+# GRADE. MEASURED: four cheap invariants each refuted by a witness pair; the conjunction of all four
+# refuted by a single pair differing in 2 cells; the operational cost as peers wrongly cleared;
+# connectivity separating the same pair as a positive control; the cost order against the decisiveness
+# order; the router's decision path checked by signature.
+#
+# DECLARED, NOT DERIVED. The corpus is a PINNED SYNTHETIC SET BUILT TO CONTAIN THE PAIRS. A refutation
+# needs one witness so the negatives are sound, but the ABSENCE of a decisive cheap invariant is over
+# this enumerated family of four and is NOT a proof that no cheap invariant exists. A sparser first
+# corpus produced no conjunction witness at all, which would have read as "the cheap conjunction
+# survives" when it was the corpus that was thin — so the corpus size and both-arm split are asserted
+# rather than assumed. The historical dates are cited from the secondary sources below and this module
+# makes no chemical claim beyond attribution and shared empirical formula.
+#
+# SOURCES for the historical attributions: en.wikipedia.org/wiki/Johann_Frederik_Eijkman (shikimic acid,
+# 1885, Illicium anisatum); en.wikipedia.org/wiki/Safrole (Saint-Evre 1844 formula; Grimaux and Ruotte
+# 1869 naming; Eijkman 1885 shikimol-safrole identity; Bruhl 1888 allyl group);
+# en.wikisource.org/wiki/1911_Encyclopaedia_Britannica/Piperonal (Fittig 1869, permanganate oxidation of
+# piperic acid).
+#
+# does_not_show: that connectivity is CHEAP — it is the expensive measurand and this rung is the
+# argument for paying for it; that a routed verdict is HONEST, inherited unchanged from cohort; that no
+# cheap invariant whatsoever could decide breach, only that these four and their conjunction cannot;
+# any chemical fact beyond the cited attributions.
+blind 467c5c50fb70267ceffba7299b560695b0ff9f0f74dc459b186c4d92d078bc2b
+conjunction 521f488eeb20818756c77f2689fbd967ae6d416f45cff1bb881d21011a9a7db9
+cost a4c0815d0b9541e67387709a081e44cd726a2b8ba50ba325d2e6a0a5bc701277

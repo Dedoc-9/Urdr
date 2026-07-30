@@ -11951,6 +11951,117 @@ class Gate:
                     "becomes a certificate field"
                     if flt_ok else "an autoroute fault check did not hold")
 
+    def blindscreen(self):
+        """Cheapness is not soundness (URDRBLS1) — the whole family of cheap pre-screens refuted at once,
+        and the hole autoroute left open: a cascade that cannot tell 'this tier DECIDES' from 'this tier
+        is all I can afford' will eventually accept a screen because it is cheap. Four cheap invariants
+        are each blind to the breach verdict AND so is their conjunction, with connectivity separating
+        the same pair as a positive control. Rows: scenes, blind, conjunction, cost."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import blindscreen as BS
+            import cohort as CO
+        except Exception as exc:
+            self.record("blindscreen", False, f"import failed (blindscreen): {exc}")
+            return
+        try:
+            ref_ok = all(BS.scene_result(n) == BS.golden(n) for n in BS.SCENES)
+            ref_ok = ref_ok and BS.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("blindscreen:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("blindscreen:scenes", ref_ok,
+                    "blind + conjunction + cost reproduce URDRBLS1 digests, and the pinned corpus is "
+                    "exactly what `--emit` produces"
+                    if ref_ok else "a blindscreen scene drifted from its digest")
+        bl_ok = True
+        try:
+            bl_ok = BS.corpus_census() == (545, 170, 375)
+            bl_ok = bl_ok and BS.blindness_census() == (
+                ("cell_count", True, 4), ("boundary_occupancy", True, 2),
+                ("tile_prefix", True, 16), ("occupancy_defect", True, 16))
+            bl_ok = bl_ok and BS.every_cheap_invariant_is_blind() == (4, 4)
+            c = BS.corpus()
+            bl_ok = bl_ok and c == tuple(sorted(c, key=BS._key)) and len(c) == len(set(c))
+            for _nm, fn in BS.CHEAP:
+                a, b = BS.blindness_witness(fn)
+                bl_ok = bl_ok and fn(a) == fn(b)
+                bl_ok = bl_ok and CO.verdict(a, BS.WORLD) != CO.verdict(b, BS.WORLD)
+        except Exception:
+            bl_ok = False
+        self.record("blindscreen-blind", bl_ok,
+                    "EVERY CHEAP INVARIANT IS BLIND TO THE VERDICT, EACH REFUTED BY ITS OWN WITNESS "
+                    "PAIR RATHER THAN BY ARGUMENT. Four candidates that a cascade would be tempted to "
+                    "install ahead of the expensive measurand — cell_count, boundary_occupancy, "
+                    "tile_prefix, occupancy_defect — each admit two occupancies with the IDENTICAL "
+                    "invariant and OPPOSITE breach verdicts, at divergences 4, 2, 16 and 16 "
+                    "respectively, so 4 of 4 are refuted. The corpus is asserted to exercise BOTH arms "
+                    "(545 occupancies, 170 breached and 375 intact) because a one-sided corpus cannot "
+                    "refute anything, and it is CANONICALLY ORDERED with no duplicates so that 'the "
+                    "first witness found' is a function of the corpus rather than of set iteration. "
+                    "Each witness is re-read through the gate rather than trusted as a boolean: the "
+                    "invariants are asserted equal and the verdicts asserted different"
+                    if bl_ok else "a blindscreen invariant was not refuted")
+        cj_ok = True
+        try:
+            cj_ok = BS.the_conjunction_is_also_blind() == (True, 16, 16, 2, CO.BREACHED, CO.INTACT)
+            ra, rb, sep = BS.connectivity_separates_the_pair()
+            cj_ok = cj_ok and sep and ra != rb
+            cj_ok = cj_ok and BS.eijkman_identity_is_underdetermined() == (True, True, True, True)
+            a, b = BS.conjunction_witness()
+            for _nm, fn in BS.CHEAP:
+                cj_ok = cj_ok and fn(a) == fn(b)
+        except Exception:
+            cj_ok = False
+        self.record("blindscreen-conjunction", cj_ok,
+                    "AND THEIR CONJUNCTION IS BLIND TOO, WHICH IS THE RESULT THAT CLOSES THE FAMILY "
+                    "RATHER THAN ONE PREDICATE. A single pair agrees on ALL FOUR cheap invariants "
+                    "SIMULTANEOUSLY and has OPPOSITE verdicts — two 16-cell occupancies differing in "
+                    "exactly 2 cells, one BREACHED and one INTACT — so stacking cheap checks does not "
+                    "converge on the answer, because they are blind in the same direction. Every future "
+                    "proposal of the form 'add one more cheap check before the payload moves' is "
+                    "answered by this pair without needing to be measured again. POSITIVE CONTROL, so "
+                    "this is blindness and not a degenerate corpus: connectivity — the expensive "
+                    "measurand — separates that same pair. AND THE PAIR IS A NAMED HISTORICAL DEFECT: "
+                    "Eijkman's 1885 identification of shikimol with safrole argued from a shared "
+                    "empirical formula plus similar properties, which is identity from an invariant "
+                    "that provably cannot decide it, since safrole and isosafrole share C10H10O2 and "
+                    "are different compounds. The conclusion was right and the argument does not reach "
+                    "it — cohort's refutation (1) with the chemistry removed, pinned here as identical "
+                    "count, identical boundary, identical prefix, opposite verdict"
+                    if cj_ok else "the blindscreen conjunction was not refuted")
+        ct_ok = True
+        try:
+            ct_ok = BS.a_cheap_screen_would_clear_a_liar() == (8, 3, 8)
+            ct_ok = ct_ok and BS.the_population_exercises_both_arms() == (5, 3)
+            ct_ok = ct_ok and BS.decisiveness_rank() == (
+                ("cell_count", False), ("tile_prefix", False), ("occupancy_defect", False),
+                ("boundary_occupancy", False), ("connectivity", True))
+            ct_ok = ct_ok and BS.cheapness_is_not_soundness() == ((), ("connectivity",), False)
+            ct_ok = ct_ok and BS.the_router_takes_no_blind_invariant() == (4, ())
+            costs = [dict(BS.COST_RANK)[nm] for nm, _d in BS.decisiveness_rank()]
+            ct_ok = ct_ok and costs == sorted(costs)
+        except Exception:
+            ct_ok = False
+        self.record("blindscreen-cost", ct_ok,
+                    "THE COST ORDER AND THE DECISIVENESS ORDER ARE DIFFERENT ORDERS, AND A CASCADE IS "
+                    "SOUND ONLY WHERE THEY COINCIDE. Presented cheapest-first, which is the temptation: "
+                    "cell_count 1, tile_prefix 1, occupancy_defect 2, boundary_occupancy 3, "
+                    "connectivity 4 — and measured, the first four settle NOTHING while only the last "
+                    "settles anything, so cheap-that-decide is EMPTY and expensive-that-decide is "
+                    "exactly (connectivity). autoroute's CERT tier is legitimate not because it is "
+                    "first but because inputset PROVED determinacy there; a tier that is merely first "
+                    "is affordability wearing the costume of a decision. THE OPERATIONAL COST IS "
+                    "COUNTED rather than argued: point a cell-count screen at a population every "
+                    "member of which shares the submitter's count and it clears 8 of 8 peers and clears "
+                    "3 of them WRONGLY, with the population asserted to exercise both arms (5 agreeing, "
+                    "3 disagreeing) because an all-honest population would have made the screen look "
+                    "free. And the router is checked by SIGNATURE to take no blind invariant on any "
+                    "decision path — verify_routed, screen_decides, plan_for and peers_agree scanned, "
+                    "0 appearances — the discipline that keeps cohort's centrality graph unwired"
+                    if ct_ok else "the blindscreen cost ordering did not hold")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -14905,6 +15016,7 @@ def main() -> int:
     gate.inputset()
     gate.cohort()
     gate.autoroute()
+    gate.blindscreen()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()
