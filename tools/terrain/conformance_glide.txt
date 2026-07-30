@@ -8,6 +8,18 @@
 #   glide_sprint ⊒ drive.sprint_run, glide_wall ⊒ drive.sprint_wall (a sub-cell stop at the ridge). Same
 #   host, same bytes; no float, no clock, no `/` `//` `%`.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The
+# claim was already graded in code and merely absent from the PINNED artifact, which is
+# where a boundary has to live to be durable and scannable — the debt was placement, not
+# absence:
+# does_not_show`: SMOOTH height interpolation (bilinear over the four corner cells — the DECLARED
+# presentation regime; the floor-sample is the measured authority here), CONTINUOUS facing
+# (mouse-look is the Q32.32 `fpquat`/`fpface` rotation, not this discrete turn), sub-cell START
+# poses (the actor begins cell-aligned), continuous PREDICTION reconcile (glide ∘ predict is the
+# next slice), and diagonal movement. Refusals are typed `GLIDE-REFUSE` (unknown command, empty
+# log, off-grid start, bad subdivision, negative step, non-int): refuse, never clamp the path or
+# invent a footing.
 glide_stroll 592393034fbc67310ee149d944e32130f1d91ab154b1e1f204f615103eeea6fc
 glide_sprint f9c8b72471173ba24197c91d462a90ef155340e2055c389e0bc06628273cf019
 glide_wall f9b20b1ba1c723b75d0872d9ba3a2abd0a2dfa0bdcde7e418aa0060fd85005d0

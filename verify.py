@@ -31,6 +31,12 @@ import tempfile
 import unittest
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+
+#: THE GRADING RATCHET, read from the filesystem at pin time and lowered only by an
+#: actual module read. A new ungraded corpus exceeds these; a backfill must lower them.
+GRADING_CEILING_DNS = 69        # corpora with no boundary line (placement)
+GRADING_CEILING_ORPHAN = 6      # ...of which the MODULE has none either (real debt)
+GRADING_CEILING_DECL = 60
 PY = sys.executable
 CLI = os.path.join(ROOT, "urdr.py")
 
@@ -10831,6 +10837,140 @@ class Gate:
                     "and the module-to-code mapping is checked injective in both directions"
                     if red_ok else "the magicuniq selftest did not bite")
 
+    def grading(self):
+        """THE GRADING RATCHET — the discipline this repo most claims to be about, made mechanical.
+        `doc-currency` stops prose numbers drifting, `doc-staleness` stops stale status claims and
+        `magicuniq` stops identifier collisions; NOTHING enforced claim grading, which is the repo's own
+        spine. Measured at pin time: of 97 pinned conformance corpora, 72 carried no `does_not_show`
+        boundary and 61 no DECLARED section, while `does_not_show` appeared in this file exactly twice,
+        both as prose inside evidence strings and never as a check. A discipline followed by habit has
+        never been shown to redden.
+
+        WHY A RATCHET AND NOT A WALL. Bulk-backfilling 72 boundaries without deep-reading each module
+        would MANUFACTURE grading rather than do it — the inflation this repo forbids, wearing the
+        costume of a fix. So the ungraded count is READ from the filesystem (L16, never from prose) and
+        pinned as a ceiling: a NEW ungraded corpus reddens the gate immediately, and the existing
+        backlog can only shrink. The pin is asserted TIGHT as well as respected, so a backfill that
+        forgets to lower it reddens too and slack cannot accumulate silently.
+
+        HONEST SCOPE, because the alarming reading would be wrong. A scan of the ungraded corpora for
+        unbounded language (proves / guarantees / always / impossible) returned 4 hits, all of which
+        read as already scoped in context. This is grading DEBT, not measured inflation, and the row
+        says so. Rows: ratchet, selftest."""
+        terrain = os.path.join(ROOT, "tools", "terrain")
+
+        alias = {"buoy": "buoyancy", "cross": "crossing", "wave": "wavefield",
+                 "terrain": "heightfield", "mesh": "meshattest"}
+
+        def scan(extra=()):
+            """Returns (total, with_boundary, without, orphans, undeclared, names). ORPHANS are the
+            corpora whose MODULE docstring carries no boundary either — the real debt, as against the
+            merely misplaced. `extra` is scanned as if present, in memory, so the gate never writes to
+            the tree."""
+            import ast as _ast
+            seen = []
+            for fn in sorted(os.listdir(terrain)):
+                if fn.startswith("conformance_") and fn.endswith(".txt"):
+                    with open(os.path.join(terrain, fn), encoding="utf-8") as fh:
+                        seen.append((fn, fh.read()))
+            seen.extend(extra)
+            dns = [n for n, t in seen if "does_not_show" not in t]
+            dec = [n for n, t in seen if not re.search(r"DECLARED|declared", t)]
+            orphan = []
+            for n in dns:
+                stem = n[len("conformance_"):-4]
+                mod = os.path.join(terrain, f"{alias.get(stem, stem)}.py")
+                doc = ""
+                if os.path.exists(mod):
+                    try:
+                        with open(mod, encoding="utf-8") as fh:
+                            doc = _ast.get_docstring(_ast.parse(fh.read())) or ""
+                    except Exception:
+                        doc = ""
+                if "does_not_show" not in doc:
+                    orphan.append(n)
+            return (len(seen), len(seen) - len(dns), len(dns), len(orphan), len(dec),
+                    tuple(sorted(dns)))
+
+        rat_ok = True
+        live = (0, 0, 0, 0, ())
+        try:
+            live = scan()
+            total, graded, ungraded, orphans, undeclared, _names = live
+            rat_ok = (ungraded <= GRADING_CEILING_DNS and orphans <= GRADING_CEILING_ORPHAN
+                      and undeclared <= GRADING_CEILING_DECL)
+            rat_ok = rat_ok and ungraded == GRADING_CEILING_DNS
+            rat_ok = rat_ok and orphans == GRADING_CEILING_ORPHAN
+            rat_ok = rat_ok and undeclared == GRADING_CEILING_DECL
+            rat_ok = rat_ok and graded > 0 and ungraded > 0 and orphans < ungraded
+            rat_ok = rat_ok and graded + ungraded == total
+            rat_ok = rat_ok and total == len([f for f in os.listdir(terrain)
+                                              if f.startswith("conformance_")
+                                              and f.endswith(".txt")])
+        except Exception:
+            rat_ok = False
+        self.record("grading-ratchet", rat_ok,
+                    f"THE GRADING DISCIPLINE IS NOW MECHANICAL RATHER THAN HABITUAL. Read from the "
+                    f"filesystem at claim time (L16, never from prose): {live[0]} pinned conformance "
+                    f"corpora, {live[1]} carrying a `does_not_show` boundary and {live[2]} not — but of those "
+                    f"{live[2]}, only {live[3]} are ORPHANS whose module docstring carries no boundary "
+                    f"either, so THE DEBT IS PLACEMENT RATHER THAN ABSENCE and the earlier reading of "
+                    f"it as {live[2]} ungraded claims was itself imprecise; {live[4]} carry no DECLARED "
+                    f"section. All three backlogs are PINNED AS CEILINGS "
+                    f"that a new ungraded corpus immediately exceeds, so the discipline the repo most "
+                    f"claims to be about can no longer regress silently — until this row, "
+                    f"`doc-currency` guarded prose numbers, `doc-staleness` guarded status claims and "
+                    f"`magicuniq` guarded identifier collisions, while claim grading was guarded by "
+                    f"nothing and `does_not_show` appeared in this file only as prose inside evidence "
+                    f"strings. A RATCHET RATHER THAN A WALL, because bulk-backfilling boundaries "
+                    f"without deep-reading each module would MANUFACTURE grading instead of doing it, "
+                    f"which is the inflation this repo forbids wearing the costume of a fix; the "
+                    f"backlog shrinks only when a module is actually read. The pin is asserted TIGHT "
+                    f"as well as respected — a backfill that forgets to lower it reddens too, so slack "
+                    f"cannot accumulate — and the scan is asserted NON-VACUOUS in both directions "
+                    f"(graded and ungraded both positive, summing to the corpus total read "
+                    f"independently from the directory). HONEST SCOPE: scanning the ungraded corpora "
+                    f"for unbounded language returned 4 hits, all already scoped in context, so this "
+                    f"is grading DEBT and not measured inflation, and claiming otherwise would be the "
+                    f"exact defect the row exists to prevent"
+                    if rat_ok else
+                    f"the grading ratchet did not hold: read {live[2]} corpora without a boundary "
+                    f"against ceiling {GRADING_CEILING_DNS}, {live[3]} orphans against "
+                    f"{GRADING_CEILING_ORPHAN}, {live[4]} undeclared against {GRADING_CEILING_DECL} "
+                    f"(a NEW ungraded corpus, or a backfill that did not lower the pin)")
+        red_ok = False
+        try:
+            ungraded_plant = (("conformance_planted_ungraded.txt",
+                               "# a corpus with a header and no boundary line\nscene abc123\n"),)
+            graded_plant = (("conformance_planted_graded.txt",
+                             "# DECLARED: pinned corpus\n# does_not_show: anything at all\n"
+                             "scene abc123\n"),)
+            u = scan(ungraded_plant)
+            g = scan(graded_plant)
+            red_ok = u[2] == GRADING_CEILING_DNS + 1 and not (u[2] <= GRADING_CEILING_DNS)
+            red_ok = red_ok and u[3] == GRADING_CEILING_ORPHAN + 1
+            red_ok = red_ok and g[2] == GRADING_CEILING_DNS
+            red_ok = red_ok and g[3] == GRADING_CEILING_ORPHAN
+            red_ok = red_ok and g[4] == GRADING_CEILING_DECL
+            red_ok = red_ok and u[0] == live[0] + 1 and g[0] == live[0] + 1
+            red_ok = red_ok and "conformance_planted_ungraded.txt" in u[5]
+            red_ok = red_ok and "conformance_planted_graded.txt" not in g[5]
+            red_ok = red_ok and not os.path.exists(
+                os.path.join(terrain, "conformance_planted_ungraded.txt"))
+        except Exception:
+            red_ok = False
+        self.record("grading-ratchet-selftest", red_ok,
+                    "THE PLANT BITES, AND IT IS SPECIFIC RATHER THAN MERELY SENSITIVE. An UNGRADED "
+                    "corpus injected into the same scan that passes on the live set pushes the count "
+                    "one past the ceiling and breaks the ratchet predicate, so the row is a live "
+                    "falsifier and not a constant True. And the validity-not-outcome half: a GRADED "
+                    "corpus injected the same way leaves BOTH counts unmoved and does not appear in "
+                    "the ungraded names — so the check reddens on missing GRADING rather than on any "
+                    "extra file, which is the difference between a falsifier and a file counter. Both "
+                    "plants are in-memory: the scan is asserted to have written nothing to the tree, "
+                    "because a gate that mutates the repository to test itself is not deterministic"
+                    if red_ok else "the grading ratchet selftest did not bite")
+
     def liveness(self):
         """The keyed heartbeat and the well-founded countdown (URDRLIV1) — the residual URDRPAT1
         declared and URDRAGR1 was resting on. A heartbeat derived from PUBLIC data is not evidence:
@@ -15063,6 +15203,7 @@ def main() -> int:
     gate.patience()
     gate.bombtest()
     gate.magicuniq()
+    gate.grading()
     gate.liveness()
     gate.jurisdiction()
     gate.budget()

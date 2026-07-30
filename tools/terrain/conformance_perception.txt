@@ -10,6 +10,13 @@
 # known to leave partially open: the constant-shape transcript makes byte-length invariant to the
 # hidden set (a property of this protocol; superiority vs shipping systems is empirical, not proven).
 # No new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The
+# claim was already graded in code and merely absent from the PINNED artifact, which is
+# where a boundary has to live to be durable and scannable — the debt was placement, not
+# absence:
+# does_not_show`: real line-of-sight over continuous geometry (this is an exact integer grid
+# model); cross-placement (URDRPCP1 Python reference only).
 sniper e78e2a6f152f7abbed40d11477f0702af9927598bf99e75edabcf5cd0b08a652
 corner d16af4044c6316081592064d3ee35b60e99d636704c9b688caa817d31c9f0b43
 margin 3fa9b75245b6cb4b492747eab7075cb426f175ef41ec23c6b9f8cfcacac0f207
