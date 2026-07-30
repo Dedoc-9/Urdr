@@ -20,6 +20,7 @@ Checks, in order (all sorted, all deterministic):
 
 Exit 0 iff every check passes. Output ends with 'GATE PASSED' or 'GATE FAILED'.
 """
+import inspect
 import io
 import os
 import re
@@ -11490,6 +11491,246 @@ class Gate:
                     "bare False, so a refutation names the two values that differ"
                     if red_ok else "an inputset plant did not bite")
 
+    def cohort(self):
+        """The COHORT fetch protocol with the gap DERIVED (URDRCOH1) — inputset's taxonomy turned into
+        enforcement, and the agreement predicate replaced by a theorem. The tier IS the fetch plan,
+        read cross-module rather than retyped, and the plans nest. Every threshold is gone: the verdict
+        is CONNECTIVITY of free space across the wall, and the gap is k = min-cut(wall), Menger's
+        minimum vertex cut. Measured, a 1-thick spanning wall has k=1 and a 2-thick wall has k=2, so
+        THICK = 2 was never tuned — it is the wall's own geometry. Rows: scenes, plan, gap, impossible,
+        outcomes, refuted, policy."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import cohort as CO
+        except Exception as exc:
+            self.record("cohort", False, f"import failed (cohort): {exc}")
+            return
+        try:
+            ref_ok = all(CO.scene_result(n) == CO.golden(n) for n in CO.SCENES)
+            ref_ok = ref_ok and CO.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("cohort:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("cohort:scenes", ref_ok,
+                    "gap + protocol + refuted reproduce URDRCOH1 digests, and the pinned corpus is "
+                    "exactly what `--emit` produces"
+                    if ref_ok else "a cohort scene drifted from its digest")
+        plan_ok = True
+        try:
+            plan_ok = CO.plan_matches_the_classifier() == (
+                ("exclusion_membership", "CERT", 0), ("prefix_disjointness", "CERT", 0),
+                ("liveness_horizon", "CERT", 0), ("occupancy_defect", "LATTICE", 1),
+                ("ledger_remainder", "HISTORY", 2), ("quorum_agreement", "COHORT", 3))
+            plan_ok = plan_ok and CO.plans_are_nested()
+            plan_ok = plan_ok and CO.threshold_is_geoquorums() == (True, 5)
+        except Exception:
+            plan_ok = False
+        self.record("cohort-plan", plan_ok,
+                    "A DECIDED TABLE IS DOCUMENTATION UNTIL SOMETHING MAKES A VERIFIER OBEY IT, so the "
+                    "tier IS the fetch plan and it is READ from inputset rather than retyped: CERT "
+                    "fetches nothing and verifies inline, LATTICE fetches your tile and recomputes "
+                    "from occupancy, HISTORY fetches your log and replays the ledger, COHORT fetches "
+                    "peers and recomputes the verdict against other parties' submissions. Cross-module "
+                    "on purpose — if the classifier moves, this moves, and a divergence is a gate "
+                    "failure rather than a stale comment. The plans NEST (verified), which is what "
+                    "makes 'a progressively richer fetch' mean anything rather than four unrelated "
+                    "lists; and MIN_PEERS is geoquorum's MIN_COHORT INHERITED rather than re-chosen "
+                    "(verified equal, 5), because a second independently-picked quorum number is a "
+                    "second thing to get wrong"
+                    if plan_ok else "the cohort fetch plan did not match the classifier")
+        gap_ok = True
+        try:
+            gap_ok = CO.gap_table() == ((3, 1, 1), (4, 1, 1), (4, 2, 2), (5, 1, 1), (5, 2, 2))
+            gap_ok = gap_ok and CO.the_gap_is_the_thickness()
+            gap_ok = gap_ok and CO.screening_law_census() == (2, 32, 0)
+            gap_ok = gap_ok and CO.screening_law_holds()
+            gap_ok = gap_ok and CO.min_cut(frozenset(), 4) == 0
+            wall = CO.spanning_wall(4, 2)
+            gap_ok = gap_ok and len(wall) == 32 and len({(y, z) for _x, y, z in wall}) == 16
+            gap_ok = gap_ok and CO.verdict(wall, 4) == CO.INTACT
+        except Exception:
+            gap_ok = False
+        self.record("cohort-gap", gap_ok,
+                    "EVERY THRESHOLD IS GONE AND THE GAP IS A THEOREM. The verdict is CONNECTIVITY of "
+                    "free space between the two faces — one flood fill on the integer lattice, no "
+                    "division and no bar — and the gap is k = min-cut(wall), Menger's 1927 minimum "
+                    "vertex cut, equal by duality to the maximum number of internally vertex-disjoint "
+                    "paths across the wall. MEASURED per wall: (n, thick, k) = (3,1,1) (4,1,1) (4,2,2) "
+                    "(5,1,1) (5,2,2), so a 1-thick spanning wall has k=1 and a 2-thick wall has k=2. "
+                    "THICK = 2 WAS NEVER A TUNED CONSTANT — it is the wall's own geometry, computed "
+                    "rather than fitted, which is why the Guggenheim caution that the earlier 1/2 bar "
+                    "was a fitted law with a declared regime is now DISCHARGED rather than inherited. "
+                    "The screening law follows as a theorem instead of a threshold: at k=2 all 32 "
+                    "sub-gap perturbations were tried and 0 flipped the verdict, with the count "
+                    "asserted POSITIVE so an empty census cannot pass vacuously. A wall's cross-section "
+                    "is checked fully spanned (32 cells over all 16 columns) because a first draft's "
+                    "fixture did not span, free space walked around it, and every min-cut came back 1 "
+                    "— a number measuring a wall that never blocked anything"
+                    if gap_ok else "the cohort gap did not measure as derived")
+        imp_ok = True
+        try:
+            imp_ok = CO.sub_gap_disagreement_is_impossible() == (2, 32, 0)
+            imp_ok = imp_ok and CO.at_or_above_the_gap_disagreement_becomes_possible() == (2, 496, 16)
+            w = CO.spanning_wall(4, 2)
+            cs = sorted(w)
+            imp_ok = imp_ok and CO.peers_agree(w, w - {cs[0]}, 4)
+            imp_ok = imp_ok and not CO.peers_agree(w, frozenset(), 4)
+            imp_ok = imp_ok and "/" not in inspect.getsource(CO.peers_agree)
+        except Exception:
+            imp_ok = False
+        self.record("cohort-impossible", imp_ok,
+                    "THE SHARPEST FORM OF THE COHORT TEST FALLS OUT OF MENGER FOR FREE, AND IT IS AN "
+                    "IMPOSSIBILITY CHECK RATHER THAN A TOLERANCE. If a peer's occupancy differs from "
+                    "mine by FEWER THAN k cells inside the wall, the theorem FORBIDS our verdicts "
+                    "differing — measured (k, sub-gap peers, impossible observations) = (2, 32, 0). So "
+                    "a peer that disagrees under that condition is not an outlier to be forgiven by a "
+                    "bar; it is PROVABLY faulty, because the observation it reports cannot occur. "
+                    "Agreement is VERDICT EQUALITY, the same structural bit, with no rational bar, no "
+                    "distance and no division anywhere in the predicate (checked by source). And the "
+                    "bound is TIGHT rather than a claim about an unreachable regime: at exactly k the "
+                    "impossibility lifts and disagreement becomes reachable, 16 of 496 — without that "
+                    "second measurement the first would be an assertion about a regime nothing enters"
+                    if imp_ok else "the cohort impossibility check did not hold")
+        out_ok = True
+        try:
+            rows = {r[0]: r[1] for r in CO.outcome_census()}
+            out_ok = CO.all_three_outcomes_are_reachable()
+            out_ok = out_ok and rows["full population"] == CO.VERIFIED
+            out_ok = out_ok and rows["no peers"] == CO.UNAVAILABLE
+            out_ok = out_ok and rows["all disagree"] == CO.FAILED
+            out_ok = out_ok and CO.unavailable_is_not_failure() == (
+                CO.UNAVAILABLE, CO.FAILED, True)
+            out_ok = out_ok and CO.first_agreement_is_cherry_picking() == (
+                CO.VERIFIED, 1, CO.UNAVAILABLE, 1)
+            out_ok = out_ok and CO.loop_terminates() == (6, 6, True)
+            occs = [p["occupancy"] for p in CO.peer_population()]
+            out_ok = out_ok and len(occs) == len(set(occs))
+            mine, k = CO.submitter(), CO.min_cut(CO.spanning_wall(4, 2), 4)
+            honest = [p for p in CO.peer_population()
+                      if CO.peers_agree(mine, p["occupancy"], 4)]
+            out_ok = out_ok and len(honest) == 5
+            out_ok = out_ok and all(len(mine ^ p["occupancy"]) < k for p in honest)
+            try:
+                CO.verify_cohort(mine, CO.peer_population(), 20, min_peers=0)
+                out_ok = False
+            except CO.CohortError:
+                pass
+        except Exception:
+            out_ok = False
+        self.record("cohort-outcomes", out_ok,
+                    "THREE GRADED OUTCOMES, ALL REACHABLE AND DISTINCT: the full population verifies "
+                    "with 5 agreeing of 5 fetched, no peers is UNAVAILABLE, and a population of liars "
+                    "is FAILED. UNAVAILABLE is COVERAGE and FAILED is INTEGRITY — geoquorum's "
+                    "THIN-versus-DEVIATE at this layer — and conflating them would report a network "
+                    "outage as a forgery, which is exactly the attribution loss tilemin's split "
+                    "prevented one rung down. FIRST-AGREEMENT IS CHERRY-PICKING and the plant BITES: "
+                    "the proposed stop-at-the-first-agreeing-peer loop returns VERIFIED on a cohort of "
+                    "ONE where the threshold rule returns UNAVAILABLE, so an adversary controlling a "
+                    "single peer would satisfy it. The fetch loop terminates inside the ledger budget "
+                    "(6 fetched of 6) rather than by a retry cap. The population is asserted to "
+                    "EXERCISE BOTH ARMS — 5 honest peers each STRICTLY sub-gap so Menger forbids their "
+                    "disagreeing, plus one liar that does — and every peer is a DISTINCT frozenset, "
+                    "because a reordering is the same set and would be a duplicate masquerading as an "
+                    "independent observer, inflating the agreement count"
+                    if out_ok else "a cohort outcome or plant did not hold")
+        ref2_ok = True
+        try:
+            ref2_ok = CO.jaccard_is_blind_to_structure() == (1, 4, True, True)
+            ref2_ok = ref2_ok and CO.run_length_is_inverted() == (49, False, 3, True)
+            ref2_ok = ref2_ok and CO.boundary_does_not_determine_breach() == (
+                True, CO.BREACHED, CO.INTACT)
+            ref2_ok = ref2_ok and CO.hex_duality_fails_in_3d() == (True, True, True)
+            ref2_ok = ref2_ok and CO.centrality_dividend_pump() == (
+                (0, -34, False), (1, 6, False), (2, 46, True), (3, 86, True))
+            ref2_ok = ref2_ok and CO.dividend_has_no_safe_useful_setting() == ((2, 3), (0, 1), ())
+            cp, vp, appears = CO.the_graph_is_unwired()
+            ref2_ok = ref2_ok and cp == ("remaining", "cost") and not appears
+            ref2_ok = ref2_ok and "centrality" not in vp
+            edges = CO.edge_log()
+            ref2_ok = ref2_ok and len(edges) == 15 and edges == tuple(sorted(edges))
+            ref2_ok = ref2_ok and CO.centrality(1) > 0
+        except Exception:
+            ref2_ok = False
+        self.record("cohort-refuted", ref2_ok,
+                    "FOUR PROPOSED MEASURANDS DIED BY MEASUREMENT, EACH PINNED AS A WITNESS RATHER "
+                    "THAN AN ARGUMENT. (1) JACCARD CELL-COUNT OVERLAP IS BLIND TO STRUCTURE: two peers "
+                    "diverging by the identical cell count, one scattered and one contiguous, share "
+                    "the identical Jaccard verdict at runs 1 and 4 — the wrong-units defect L21 names, "
+                    "reproduced one layer up in this module's OWN first draft, which is why the "
+                    "predicate that shipped in the previous rung is superseded rather than merely "
+                    "suspect. (2) LONGEST-RUN IS INVERTED relative to the truth: a whole wall face "
+                    "removed WITHOUT opening a passage scores run 49 and is not breached, while an "
+                    "actual 3-cell breach scores 3 — so the run-gap this arc was one step from "
+                    "adopting would have over-flagged the safe case and been wrong in the dangerous "
+                    "direction. (3) THE BOUNDARY REDUCTION DOES NOT EXIST: two occupancies with "
+                    "BYTE-IDENTICAL boundary occupancy have OPPOSITE breach verdicts, so no Stokes-like "
+                    "surface sum determines breach, no tier between CERT and LATTICE can be created, "
+                    "inputset's four tiers stand, and a peer's CLAIMED verdict or a hash of its lattice "
+                    "is a claim that only the bytes verify. (4) THE HEX/SPERNER Z2 DUALITY IS "
+                    "TWO-DIMENSIONAL: on this 3D lattice a free tube through a solid slab has free "
+                    "space connecting along x AND the occupied set connecting along z simultaneously, "
+                    "so the exhaustive-and-exclusive 2D dichotomy fails and the SSB phase diagram, "
+                    "Goldstone classification and criticality curve resting on it are NOT adopted — "
+                    "while the breach predicate is untouched, having never been the parity of anything. "
+                    "(5) THE CENTRALITY DIVIDEND IS THE REFUND PUMP, still refused: it pumps without "
+                    "bound at alpha >= edge_cost + 1 and rewards nothing below it, safe-and-useful "
+                    "overlap EMPTY. The graph is kept as a REAL observable (15 edges, deterministic "
+                    "order, positive centrality) and wired to nothing, checked by SIGNATURE rather "
+                    "than promised in prose"
+                    if ref2_ok else "a cohort refutation did not hold")
+        pol_ok = True
+        try:
+            pol_ok = CO.thin_walls_are_refused() == (True, True)
+            pol_ok = pol_ok and CO.charge_table() == (
+                (0, 12), (1, 12), (2, 6), (3, 4), (4, 3), (6, 2), (12, 1))
+            pol_ok = pol_ok and CO.charge_is_monotone_non_increasing()
+            pol_ok = pol_ok and CO.the_peak_is_not_adopted() == (12, 12, False)
+            pol_ok = pol_ok and (CO.WALL_MIN_K, CO.BASE_CHARGE) == (2, 12)
+            pol_ok = pol_ok and CO.charge_for_gap(None) == 0
+            pol_ok = pol_ok and CO.TooThin("x").code != CO.CohortError("x").code
+            pol_ok = pol_ok and not issubclass(CO.TooThin, CO.CohortError)
+            try:
+                CO.certifiable(CO.spanning_wall(4, 1), 4)
+                pol_ok = False
+            except CO.TooThin:
+                pass
+            for bad in (-1, "2", 2.0, True):
+                try:
+                    CO.charge_for_gap(bad)
+                    pol_ok = False
+                except CO.CohortError:
+                    pass
+            for bad in (0, -1, 4, 9):
+                try:
+                    CO.spanning_wall(4, bad)
+                    pol_ok = False
+                except CO.CohortError:
+                    pass
+        except Exception:
+            pol_ok = False
+        self.record("cohort-policy", pol_ok,
+                    "TWO CONSTANTS REMAIN AND BOTH ARE DECLARED POLICY RATHER THAN DERIVED, WHICH IS "
+                    "THE HONEST GRADE. WALL_MIN_K = 2 refuses to certify a wall a single cell can "
+                    "open: the theorem supplies the LANGUAGE (k=1 is one cell from failing) and the "
+                    "choice of 2 is operational, so a thin wall RAISES rather than being certified "
+                    "with a caveat, and TooThin is a DISTINCT code from COHORT-REFUSE and not a "
+                    "subclass of it — an honestly-reported fragile wall is not the same event as a "
+                    "malformed request, and merging them would destroy attribution the way tilemin's "
+                    "merged integrity-and-policy check did. The budget charge is B // max(k, 1), "
+                    "integer division, MONOTONE non-increasing and not peaked at k=1. THE CRITICALITY "
+                    "PEAK BORROWED FROM STATISTICAL MECHANICS IS NOT ADOPTED, AND THE REASON IS THAT "
+                    "IT WAS NEVER MEASURED HERE: this rung measured k across wall thicknesses and did "
+                    "NOT measure a charge curve, so 'the measurement ruled out the peak' would be an "
+                    "inflation. Monotone is the conservative default in the ABSENCE of the "
+                    "measurement, and the falsifier is stated — measure end-to-end verification cost "
+                    "against k on a real corpus, and if cost is maximal at k=1 rather than k=0 the "
+                    "peaked schedule is correct and this constant is wrong. The charge admits only "
+                    "non-negative ints (a float, a str, a bool and a negative all refuse; None, an "
+                    "undecided cut, charges nothing) and a thickness that does not fit its world "
+                    "refuses rather than silently clipping"
+                    if pol_ok else "a cohort policy declaration did not hold")
+
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of
         the two proof domains — chunkstate's ownership and commute's semantic independence — into a
@@ -14442,6 +14683,7 @@ def main() -> int:
     gate.tilecert()
     gate.tilemin()
     gate.inputset()
+    gate.cohort()
     gate.anamorphosis()
     gate.throttle()
     gate.schedule()

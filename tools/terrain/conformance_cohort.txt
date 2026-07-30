@@ -1,0 +1,115 @@
+# URDRCOH1 conformance — THE COHORT FETCH PROTOCOL, WITH THE GAP DERIVED. inputset's taxonomy turned
+# into enforcement, and the agreement predicate replaced by a theorem. NO new glyph (kernel frozen).
+#
+# THE TIER IS THE FETCH PLAN, read from inputset rather than retyped. A decided table is documentation
+# until something makes a verifier obey it:
+#
+#     CERT     fetch nothing      verify inline
+#     LATTICE  fetch your tile    recompute from occupancy
+#     HISTORY  fetch your log     replay the ledger
+#     COHORT   fetch peers        recompute the verdict against other parties' submissions
+#
+# The plans are NESTED (verified), which is what makes "a progressively richer fetch" mean anything,
+# and MIN_PEERS is geoquorum's MIN_COHORT inherited rather than re-chosen (verified, 5).
+#
+# THE AGREEMENT PREDICATE IS MENGER'S THEOREM AND EVERY THRESHOLD IS GONE. Four candidate measurands
+# were proposed across this arc; three died by measurement. What survives:
+#
+#     the verdict is CONNECTIVITY of free space between the two sides of the wall
+#     the gap is k = min-cut(wall), Menger's minimum vertex cut = max internally disjoint paths
+#     k = 0 is BREACHED, k >= 1 is INTACT, and no perturbation of fewer than k cells can flip it
+#
+# MEASURED, and this is the load-bearing result: (n, thick, k) = (3,1,1) (4,1,1) (4,2,2) (5,1,1)
+# (5,2,2). A 1-thick spanning wall has k = 1; a 2-thick spanning wall has k = 2. THICK = 2 WAS NEVER A
+# TUNED CONSTANT — it is min-cut(wall), and Menger computes it from the wall's own geometry. So the
+# screening law is a THEOREM rather than a threshold: at k = 2, all 32 sub-gap perturbations tried,
+# 0 verdict flips. There is no Jaccard bar, no run-length gap, no persistence Delta, and nothing that
+# grows permissive with tile size.
+#
+#     THE SHARPEST FORM OF THE COHORT TEST FALLS OUT FOR FREE. If a peer's occupancy differs from mine
+#     by fewer than k cells inside the wall, Menger says our verdicts MUST agree — measured (2, 32, 0).
+#     A peer that disagrees under that condition is PROVABLY faulty, because the theorem forbids the
+#     observation. That is an impossibility check, not a tolerance. At or above the gap the
+#     impossibility lifts and disagreement becomes reachable: (2, 496, 16). The bound is tight.
+#
+# WHAT DIED, EACH BY A PINNED WITNESS RATHER THAN AN ARGUMENT.
+#
+# (1) JACCARD CELL-COUNT OVERLAP IS BLIND TO STRUCTURE (1, 4, True, True). Two peers diverging by
+#     identical cell counts, one scattered and one contiguous, produce the identical Jaccard verdict at
+#     runs 1 and 4 — the same wrong-units defect L21 names, reproduced one layer up in this module's
+#     own first draft. The predicate that shipped in the previous rung is superseded, not merely
+#     suspect.
+#
+# (2) LONGEST-RUN IS INVERTED relative to the truth (49, False, 3, True). A whole wall face removed
+#     without opening a passage scores run 7; an actual 3-cell breach scores run 3. Run length
+#     OVER-FLAGS the non-breaching case, so the run-gap this arc was one step from adopting would have
+#     been wrong in the dangerous direction.
+#
+# (3) THE BOUNDARY REDUCTION DOES NOT EXIST (True, 0, 1). The Stokes / Ward-Takahashi proposal would
+#     have created a tier between CERT and LATTICE by deciding breach from boundary cells alone.
+#     Refuted: two occupancies with BYTE-IDENTICAL boundary occupancy have opposite breach verdicts — a
+#     straight interior tunnel against the same face cells with the interior hole displaced. Breach is
+#     interior reachability and no surface sum determines it, so inputset's four tiers stand and the
+#     verdict is LATTICE-tier. A peer's CLAIMED verdict, or a hash of its lattice, is therefore a
+#     claim; only the bytes verify it.
+#
+# (4) THE HEX / SPERNER Z2 DUALITY IS TWO-DIMENSIONAL (True, True, True). In 2D either free space
+#     crosses or the occupied set blocks — exhaustive and exclusive. On this 3D lattice a free tube
+#     through a solid slab has free space connecting along x AND the occupied set connecting along z,
+#     simultaneously. There is no two-valued order parameter of that kind here, so the SSB phase
+#     diagram, Goldstone classification and criticality curve that rested on it are not adopted. The
+#     breach predicate itself is untouched — it was never the parity of anything.
+#
+# THE LIMITING-LAW CAUTION IS DISCHARGED RATHER THAN INHERITED. An earlier draft carried a Guggenheim
+# note: the 1/2 bar was a FITTED law with a declared regime and no derivation. That caution no longer
+# applies, because the gap is derived from Menger rather than fitted to a regime. The Blagden
+# colligative caution still stands one layer down — the defect budget counts cells and is blind to
+# which cell — and that remains the exchange-rate residual already named in budget.
+#
+# THE PROTOCOL. Three graded outcomes, all reachable and distinct: full population -> VERIFIED
+# (5 agreeing of 5 fetched), no peers -> UNAVAILABLE, all disagree -> FAILED. UNAVAILABLE is coverage
+# and FAILED is integrity — geoquorum's THIN-versus-DEVIATE at this layer, and conflating them would
+# report a network outage as a forgery. FIRST-AGREEMENT IS CHERRY-PICKING: the proposed
+# stop-at-first-agreeing-peer loop returns VERIFIED on a cohort of ONE where the threshold rule
+# returns UNAVAILABLE (VERIFIED/1 against UNAVAILABLE/1). The fetch loop terminates inside the ledger
+# budget (6, 6).
+#
+# THIN WALLS ARE REFUSED RATHER THAN CERTIFIED WITH A CAVEAT (True, True). certifiable() raises
+# COHORT-TOOTHIN below WALL_MIN_K, so a wall one cell from failing cannot be signed at all. TooThin is
+# a DISTINCT code from COHORT-REFUSE: a wall too thin to certify is not the same event as a malformed
+# request, and merging them would destroy attribution the way tilemin's merged integrity-and-policy
+# check did.
+#
+# THE CENTRALITY DIVIDEND IS THE REFUND PUMP, MEASURED AND REFUSED. Rewarding well-connected peers
+# with budget credit pumps without bound at alpha >= edge_cost + 1 and rewards nothing below it:
+# ((0,-34,False), (1,6,False), (2,46,True), (3,86,True)), safe-and-useful overlap EMPTY. The graph is
+# kept as a real observable — 15 edges, deterministic order, positive centrality — and wired to
+# nothing, which is checked by SIGNATURE rather than promised in prose: charge takes (remaining, cost)
+# and verify_cohort takes (mine, peers, budget, n, min_peers), and "centrality" appears in neither.
+#
+# GRADE. MEASURED: the fetch plan agreeing with inputset's decided tiers, read cross-module; k derived
+# per wall thickness with the screening law holding below it, 0 exceptions; the impossibility check;
+# the three graded outcomes reachable and distinct; termination of the budget-bounded loop; five plants
+# biting, four of them refuting a proposed measurand; determinism.
+#
+# DECLARED, NOT DERIVED — two constants, both policy. WALL_MIN_K = 2 refuses to certify a wall a
+# single cell can open; the theorem supplies the language (k = 1 is one cell from failing) and the
+# choice of 2 is operational. The budget charge is B // max(k, 1) — MONOTONE, not peaked at k = 1
+# (table ((0,12),(1,12),(2,6),(3,4),(4,3),(6,2),(12,1)), monotone True). The criticality peak borrowed
+# from statistical mechanics is NOT adopted, and the honest reason is that it was never measured here:
+# this rung measured k across wall thicknesses and did NOT measure a charge curve, so "the measurement
+# ruled out the peak" would be an inflation. Monotone is the conservative default in the absence of the
+# measurement. FALSIFIER for the peak: measure end-to-end verification cost against k on a real corpus;
+# if cost is maximal at k = 1 rather than at k = 0, the peaked charge is the correct schedule and this
+# constant is wrong. Also declared: the peer population and wall corpus are pinned synthetic sets —
+# this rung enforces a contract and does not model peer discovery, latency or churn.
+#
+# does_not_show: that a COHORT_VERIFIED tile is HONEST — agreement among peers is evidence about a
+# population and never about truth, and a colluding majority verifies itself, which is geoquorum's
+# residual inherited unchanged; that the criticality charge peak is absent, since it was not measured;
+# that k computed to CUT_SEARCH_MAX = 3 is the min-cut of walls needing a larger cut, since the
+# enumeration is decided only to that size; peer discovery latency, which is wall-clock and outside
+# every gate here; that centrality means anything, since it is measured and deliberately unwired.
+gap 04431e2a5c000ed15fb55a1032797c9bcf2a0a54c77a54dd8c9e550a004a7c0e
+protocol a3f610d086253f16340a16aa32f304666c15c94bd8cc41b0f5c1b9f24eab0b2c
+refuted 69a656a3f8a4706371b1150dd341bf3a15f9f4fb14468b6f69f1d6777ecfdfa2

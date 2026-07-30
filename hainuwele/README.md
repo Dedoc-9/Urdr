@@ -71,11 +71,27 @@ advisory by construction) · `ashdepth` (the vacuity floor) · `recirc` (there i
 `cayley` / `magicdiv` (the exact-arithmetic substrate).
 
 **The authority arc — auditing the server itself.** Every rung before this one hardens the server
-against a lying CLIENT. These four ask what happens when the OFFICIAL server lies:
+against a lying CLIENT. These six ask what happens when the OFFICIAL server lies:
 `splitview` (a fork is detectable only by comparison, never by verification) → `auditgraph` (the
 server BUILDS the audit graph, so matchmaking is the attack surface; the price is kappa) →
 `patience` (that ladder rests on exclusion being VISIBLE, and a staller pays nothing) → `bombtest`
-(interaction-free tamper detection, for the case where re-execution cannot be paid for at all).
+(interaction-free tamper detection, for the case where re-execution cannot be paid for at all) →
+`liveness` (denial versus outage: the crashed-slow indistinguishability, authenticated to
+`clockauth` so the horizon cannot be moved by the party it constrains) → `jurisdiction` (the Kleene
+fixed point — the four predicates the arc kept separate are ONE object, and filtration is a screen
+rather than a decision procedure).
+
+**The certificate arc — what a tile may CLAIM, and what a claim COSTS.** Where the authority arc asks
+whether the server lies, this one asks what a signed artifact actually establishes: `budget` (the
+defect budget as a first-class resource — pure subtraction, and a refund voids the bound) →
+`tilecert` (the tile certificate and what it PROVES: attribution, never verification; the estimator
+that looked correlated was an artifact of the fixture and is refuted twice) → `tilemin` (the minimal
+certificate, 3 of 3 fields lattice-free, with integrity split from policy because merging them made
+an honest RESTRICTED tile indistinguishable from a forged one) → `inputset` (which inputs determine a
+quantity — the arc-wide state-versus-path classifier, decided by underdetermination witness rather
+than tabulated, and it caught the handed-down taxonomy misfiling the quorum) → `cohort` (that
+taxonomy turned into enforcement, with the agreement predicate replaced by a THEOREM: the verdict is
+connectivity and the gap is Menger's min-cut, so `THICK = 2` was never a tuned constant).
 
 **Band A — the anti-cheat firewall and the latency chain.** The perception family
 (`perception` → `anamorphosis` → `throttle` → `schedule` → `byteacct` → `citation` → `adaptcite`
@@ -85,7 +101,7 @@ server BUILDS the audit graph, so matchmaking is the attack surface; the price i
 
 ## Every file
 
-94 modules. Gate stage `terrain` covers `heightfield` + `terrain_bridge`; `bench` is deliberately
+101 modules. Gate stage `terrain` covers `heightfield` + `terrain_bridge`; `bench` is deliberately
 ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 
 | Module | Code | Purpose | Gate stage | Falsifiers | Conformance | Brief |
@@ -99,6 +115,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`bombtest.py`](../tools/terrain/bombtest.py) | `URDRBMB1` | Interaction-free tamper detection — certify an illegal step WITHOUT running it | `bombtest` | [test](../tests/test_bombtest.py) | [conf](../tools/terrain/conformance_bombtest.txt) | — |
 | [`boundedhist.py`](../tools/terrain/boundedhist.py) | `URDRBHO1` | Bounded-history optimizer (look-ahead with teeth; Belady vs LRU) | `boundedhist` | [test](../tests/test_boundedhist.py) | [conf](../tools/terrain/conformance_boundedhist.txt) | [brief](../docs/boundedhist_brief.md) |
 | [`buoyancy.py`](../tools/terrain/buoyancy.py) | `URDRBUOY1` | Exact integer flotation over the wave seam (T3.5) | `buoyancy` | [test](../tests/test_buoyancy.py) | — | — |
+| [`budget.py`](../tools/terrain/budget.py) | `URDRBGT1` | The defect budget as a first-class resource — pure subtraction, a refund voids the bound | `budget` | [test](../tests/test_budget.py) | [conf](../tools/terrain/conformance_budget.txt) | — |
 | [`byteacct.py`](../tools/terrain/byteacct.py) | `URDRBYT1` | Proof-carrying byte accounting (the Byte Budget Theorem) | `byteacct` | [test](../tests/test_byteacct.py) | [conf](../tools/terrain/conformance_byteacct.txt) | [brief](../docs/byteacct_brief.md) |
 | [`cayley.py`](../tools/terrain/cayley.py) | `URDRCAY1` | The Cayley-Menger determinant as a coordinate-free realizability law | `cayley` | [test](../tests/test_cayley.py) | [conf](../tools/terrain/conformance_cayley.txt) | — |
 | [`chunkload.py`](../tools/terrain/chunkload.py) | `URDRCHK1` | Certified terrain authority cut (T3.37, Stage I opener) | `chunkload` | [test](../tests/test_chunkload.py) | [conf](../tools/terrain/conformance_chunkload.txt) | — |
@@ -107,6 +124,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`clockauth.py`](../tools/terrain/clockauth.py) | `URDRCLK1` | Clock-authority: bounds the client's asserted VIEW-TICK | `clockauth` | [test](../tests/test_clockauth.py) | [conf](../tools/terrain/conformance_clockauth.txt) | [brief](../docs/clockauth_brief.md) |
 | [`clslo.py`](../tools/terrain/clslo.py) | `URDRLAT3` | Per-CLASS worst-case latency SLO (T3.34) | `clslo` | [test](../tests/test_clslo.py) | [conf](../tools/terrain/conformance_clslo.txt) | — |
 | [`commute.py`](../tools/terrain/commute.py) | `URDRCMU1` | Commutation certificate (T3.41) — the proof-object turn | `commute` | [test](../tests/test_commute.py) | [conf](../tools/terrain/conformance_commute.txt) | — |
+| [`cohort.py`](../tools/terrain/cohort.py) | `URDRCOH1` | The COHORT fetch protocol with the gap DERIVED — agreement is Menger's min-cut, not a threshold | `cohort` | [test](../tests/test_cohort.py) | [conf](../tools/terrain/conformance_cohort.txt) | — |
 | [`commuteprop.py`](../tools/terrain/commuteprop.py) | `URDRCPS1` | Property-based falsifier for the commute diamond (Tier-2) | `commuteprop` | [test](../tests/test_commuteprop.py) | [conf](../tools/terrain/conformance_commuteprop.txt) | — |
 | [`cpredict.py`](../tools/terrain/cpredict.py) | `URDRCPRED1` | Continuous client-prediction reconcile (T3.20) | `cpredict` | [test](../tests/test_cpredict.py) | [conf](../tools/terrain/conformance_cpredict.txt) | — |
 | [`crossing.py`](../tools/terrain/crossing.py) | `URDRCROSS1` | Wave-crossing timing (T3.7) | `crossing` | [test](../tests/test_crossing.py) | — | — |
@@ -130,9 +148,12 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`horizon.py`](../tools/terrain/horizon.py) | `URDRLAT1` | Rollback-horizon reconcile window (T3.32) | `horizon` | [test](../tests/test_horizon.py) | [conf](../tools/terrain/conformance_horizon.txt) | — |
 | [`horn.py`](../tools/terrain/horn.py) | `URDRHRN1` | The Gabriel anchor ladder — rung count conserved, only the pitch changes | `horn` | [test](../tests/test_horn.py) | [conf](../tools/terrain/conformance_horn.txt) | — |
 | [`interest.py`](../tools/terrain/interest.py) | `URDRAOI1` | Deterministic Area-of-Interest relevance (T3.21, Stage C) | `interest` | [test](../tests/test_interest.py) | [conf](../tools/terrain/conformance_interest.txt) | — |
+| [`inputset.py`](../tools/terrain/inputset.py) | `URDRINP1` | Which inputs determine a quantity — the arc-wide state-versus-path classifier, decided by witness | `inputset` | [test](../tests/test_inputset.py) | [conf](../tools/terrain/conformance_inputset.txt) | — |
 | [`lagcomp.py`](../tools/terrain/lagcomp.py) | `URDRLAG1` | Temporal lag-compensation for hit validation | `lagcomp` | [test](../tests/test_lagcomp.py) | [conf](../tools/terrain/conformance_lagcomp.txt) | [brief](../docs/lagcomp_brief.md) |
+| [`jurisdiction.py`](../tools/terrain/jurisdiction.py) | `URDRJUR1` | The Kleene fixed point — four predicates are one object, and filtration is a SCREEN | `jurisdiction` | [test](../tests/test_jurisdiction.py) | [conf](../tools/terrain/conformance_jurisdiction.txt) | — |
 | [`latencyest.py`](../tools/terrain/latencyest.py) | `URDRLES1` | Latency estimator feeding clock-authority | `latencyest` | [test](../tests/test_latencyest.py) | [conf](../tools/terrain/conformance_latencyest.txt) | [brief](../docs/latencyest_brief.md) |
 | [`layertheorem.py`](../tools/terrain/layertheorem.py) | `URDRISPL1` | Integer Scalar Potential Layer Theorem (T3.22) | `layertheorem` | [test](../tests/test_layertheorem.py) | [conf](../tools/terrain/conformance_layertheorem.txt) | — |
+| [`liveness.py`](../tools/terrain/liveness.py) | `URDRLIV1` | Denial versus outage — the crashed-slow indistinguishability, authenticated to clockauth | `liveness` | [test](../tests/test_liveness.py) | [conf](../tools/terrain/conformance_liveness.txt) | — |
 | [`lease.py`](../tools/terrain/lease.py) | `URDRLSE1` | The standing lease (T3.43) — RAN-0's temporal extension | `lease` | [test](../tests/test_lease.py) | [conf](../tools/terrain/conformance_lease.txt) | — |
 | [`lookahead.py`](../tools/terrain/lookahead.py) | `URDRLKA1` | Bounded look-ahead optimality certificate (honest negative) | `lookahead` | [test](../tests/test_lookahead.py) | [conf](../tools/terrain/conformance_lookahead.txt) | [brief](../docs/lookahead_brief.md) |
 | [`magicdiv.py`](../tools/terrain/magicdiv.py) | `URDRMAG1` | Division by an invariant constant, exact and exhaustively proven | `magicdiv` | [test](../tests/test_magicdiv.py) | [conf](../tools/terrain/conformance_magicdiv.txt) | — |
@@ -175,6 +196,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`terrain_view.py`](../tools/terrain/terrain_view.py) | `URDRTVW1` | The D15 view-export FIREWALL (T3.0) | `terrain_view` | [test](../tests/test_terrain_view.py) | — | — |
 | [`testament.py`](../tools/terrain/testament.py) | `URDRTST1` | Durable intent (T3.44) — the write that survives its writer | `testament` | [test](../tests/test_testament.py) | [conf](../tools/terrain/conformance_testament.txt) | — |
 | [`throttle.py`](../tools/terrain/throttle.py) | `URDRTHR1` | Clarity-bounded update throttle (sim-rate decoupling) | `throttle` | [test](../tests/test_throttle.py) | [conf](../tools/terrain/conformance_throttle.txt) | [brief](../docs/throttle_brief.md) |
+| [`tilecert.py`](../tools/terrain/tilecert.py) | `URDRTIL1` | The tile certificate and what it actually proves — attribution, not verification | `tilecert` | [test](../tests/test_tilecert.py) | [conf](../tools/terrain/conformance_tilecert.txt) | — |
+| [`tilemin.py`](../tools/terrain/tilemin.py) | `URDRTMN1` | The minimal certificate — 3 of 3 fields lattice-free, integrity split from policy | `tilemin` | [test](../tests/test_tilemin.py) | [conf](../tools/terrain/conformance_tilemin.txt) | — |
 | [`tierview.py`](../tools/terrain/tierview.py) | `URDRTIR1` | Visual asymmetry ZERO BY CONSTRUCTION (S6) — the predicate cannot take a tier | `tierview` | [test](../tests/test_tierview.py) | [conf](../tools/terrain/conformance_tierview.txt) | — |
 | [`traj.py`](../tools/terrain/traj.py) | `URDRTRAJ1` | Certified TRAJECTORY OBSERVER (T3.12) | `traj` | [test](../tests/test_traj.py) | [conf](../tools/terrain/conformance_traj.txt) | — |
 | [`view_witness.py`](../tools/terrain/view_witness.py) | `URDRTVW1` | The citation contract (T3.6) — the declared view must CITE | `view_witness` | [test](../tests/test_view_witness.py) | — | — |
@@ -186,8 +209,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | — |
 ## Status
 
-**MEASURED, as of this writing.** 94 modules under `tools/terrain/`, 169 falsifier suites, 1762 unit
-falsifiers with 0 red, 787 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 101 modules under `tools/terrain/`, 170 falsifier suites, 1860 unit
+falsifiers with 0 red, 818 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 
@@ -204,13 +227,18 @@ by lock discipline. Replication is equal-or-refuse. The wire is signed, attested
 a real adversarial transport. The mesh migrates with custody. The anti-cheat firewall is witnessed
 absence across three channels. The city arc voxelizes, bounds capture error, binds provenance,
 adjudicates cohorts, and closes visual asymmetry. The authority arc turns the official server from
-an unexamined trusted party into a priced one.
+an unexamined trusted party into a priced one. The certificate arc establishes what a signed tile may
+CLAIM — attribution rather than verification — which inputs determine each quantity, and that the
+cohort agreement predicate is a THEOREM (Menger's min-cut) rather than a tuned threshold.
 
 ## Current
 
-The live edge is the **authority arc**, and it is a chain of scope corrections rather than a stack of
-features — which is the most useful thing to know about it. Each rung was true in its own model and
-each was undermined by the next one's model, on purpose:
+The live edge is the **certificate arc**, which grew out of the authority arc and now carries it. Both
+are chains of scope corrections rather than stacks of features — which is the most useful thing to
+know about them. Each rung was true in its own model and each was undermined by the next one's model,
+on purpose.
+
+**The authority arc, in order, with what each rung assumed:**
 
 1. `splitview` proved a forked server is invisible to any lonely client and detectable only by
    comparison, and recommended a spanning tree as the cheapest sufficient gossip topology. **It
@@ -224,18 +252,48 @@ each was undermined by the next one's model, on purpose:
    knowable.**
 4. `bombtest` steps sideways to the reviewer's problem: certify an illegal step without executing it,
    for the case where re-execution cannot be paid at all.
+5. `liveness` took up the residual rung 3 declared, authenticated the horizon to `clockauth` so the
+   party being constrained cannot move it, and pinned the crashed-versus-slow indistinguishability as
+   a theorem. **It did not close the residual — it made its shape exact and its accuracy class
+   declared.** The honest reading is a negative result, not a fix.
+6. `jurisdiction` found that four predicates the arc had kept separate are ONE object under a Kleene
+   fixed point, and that filtration is a SCREEN rather than a decision procedure. **It assumed the
+   quantities it filters are all recomputable from the same inputs**, which the certificate arc then
+   refuted.
+
+**The certificate arc, in order, and this one converges rather than correcting laterally:**
+
+1. `budget` made the defect allowance a first-class resource: pure subtraction, and a refund voids the
+   bound — measured, a refunding ledger admits 100 defects against a 6-defect budget.
+2. `tilecert` asked what a signed tile PROVES and answered: attribution, never verification. Its own
+   first verifier was VACUOUS — it filtered the self-referential neighbours out of the disjointness
+   test so `all()` ran over an empty generator — and the plant FAILING to bite is how that was found.
+3. `tilemin` cut the certificate to three fields, all lattice-free, and SPLIT integrity from policy
+   after the merged check made an honest RESTRICTED tile indistinguishable from a forged one.
+4. `inputset` generalized the one-field result to the whole arc: a quantity belongs to the coarsest
+   input level that determines it, PROVED by a witness pair at the level below. It caught the
+   handed-down taxonomy misfiling the quorum — peer-dependent, not path-dependent — and established
+   FOUR tiers where three were asserted.
+5. `cohort` turned that table into enforcement and, in the same pass, replaced the agreement predicate
+   with a theorem. Every threshold is gone: the verdict is connectivity of free space across the wall,
+   the gap is k = min-cut(wall), and MEASURED, a 1-thick wall has k=1 while a 2-thick wall has k=2 —
+   so `THICK = 2` was never a tuned constant. Four candidate measurands died by measurement on the way
+   (Jaccard overlap, longest-run, the boundary reduction, and the Hex Z₂ duality), each pinned as a
+   witness rather than removed quietly.
 
 None of these is retracted. Each is scoped, and the scope is written in the module header rather than
-quietly patched, because a reader who took rung 1 at face value would ship a topology that rung 2
-dismantles in one move.
+quietly patched, because a reader who took authority rung 1 at face value would ship a topology that
+rung 2 dismantles in one move.
 
 ## Weak spots, named
 
-- **The liveness residual is still open, and two rungs now depend on it.** `patience` shows a
-  transient outage is indistinguishable from a fork at this layer. Everything `auditgraph` claims
-  about converting an integrity attack into a *visible* availability attack is contingent on a client
-  being able to tell denial from bad weather, and nothing here establishes that. It is the single
-  largest open hole in the arc.
+- **The liveness residual is MEASURED but not CLOSED, and it is still the largest hole.** `patience`
+  showed a transient outage is indistinguishable from a fork at this layer; `liveness` then made that
+  indistinguishability exact rather than removing it, and authenticated the horizon to `clockauth` so
+  the party being constrained cannot move it. What is established is the SHAPE of the obstruction and
+  a declared accuracy class. What is NOT established — and this is the load-bearing gap — is that a
+  client can tell denial from bad weather. Everything `auditgraph` claims about converting an
+  integrity attack into a *visible* availability attack remains contingent on exactly that.
 - **Detection localizes to a pair, never to a culprit.** `splitview` can prove a fork happened; it
   cannot say who forked, and attribution needs signed heads the model does not carry. Which side is
   canonical after a detected fork is a governance question with no cryptographic answer here.
@@ -250,10 +308,30 @@ dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **17 of 94 modules have no design brief.** Every module in the city and authority arcs
-  (`voxlat` … `bombtest`) carries a gate stage, falsifiers and a pinned corpus, and NONE carries a
+- **85 of 101 modules have no design brief, and the newest arcs are the whole of the gap.** All 18
+  modules of the city, authority and certificate arcs (`voxlat` … `cohort`) carry a gate stage,
+  falsifiers and — with the four named exceptions below — a pinned corpus, and NOT ONE carries a
   `docs/<name>_brief.md`. The OODA passes that produced them live only in commit messages and module
-  headers.
+  headers, which means the *reasoning* is recoverable only by reading the header of each module
+  rather than from a document written to be read. Four briefs (`hardening`, `mesh_phase`,
+  `terrain_studio`, `wire_phase`) are phase-level rather than module-level and cover none of them.
+- **`cohort`'s min-cut is DECIDED only to `CUT_SEARCH_MAX = 3`.** The enumeration proves k for walls
+  whose cut is at most 3 cells and returns `None` above that, which charges nothing and certifies
+  nothing. For the pinned corpus this is exact; for a wall needing a larger cut the gate says only
+  that no small cut exists. Scaling the search is combinatorial in the wall size, so the honest fix is
+  a max-flow formulation on the vertex-split graph — the shape `auditgraph` already uses — rather than
+  a larger cap.
+- **The criticality peak in the defect charge was never MEASURED, only not adopted.** `cohort` charges
+  `B // max(k, 1)`, monotone. The peaked alternative from statistical mechanics — cost maximal at
+  k = 1, where the wall is one cell from failing — is a live open question, and saying the measurement
+  ruled it out would be an inflation: this arc measured k across wall thicknesses and never measured a
+  charge curve. The falsifier is stated in the module and remains unrun: measure end-to-end
+  verification cost against k on a real corpus.
+- **Two constants in `cohort` and every wall in its corpus are DECLARED.** `WALL_MIN_K = 2` and
+  `BASE_CHARGE = 12` are policy numbers, and the walls and peers are pinned synthetic sets. The rung
+  enforces a contract; it does not model peer discovery, latency or churn, and `COHORT_VERIFIED` says
+  a population agreed — never that the population was honest. A colluding majority still verifies
+  itself, which is `geoquorum`'s residual inherited unchanged.
 - **`bench.py` remains fully ungated** — deliberately, since it measures wall-clock, which must never
   enter a byte-identical gate. It is the arc's only ungated module.
 - **True conformance gaps:** `meshattest`, `terrain_view`, `view_witness`, `wireattest` carry gate
@@ -276,10 +354,11 @@ dismantles in one move.
 
 Stated at the altitude of *what must be true*, not as a schedule. Nothing below is committed work.
 
-**Stage 1 — close the liveness residual.** Until a client can distinguish denial from outage, the
-authority arc's central claim is contingent. This needs a failure-detector layer with a stated
-accuracy class, and the honest outcome may be that the guarantee has to be weakened rather than the
-detector strengthened.
+**Stage 1 — close the liveness residual.** `liveness` bounded it and made it exact; closing it is a
+different problem. Until a client can distinguish denial from outage, the authority arc's central
+claim is contingent. This needs a failure detector whose accuracy class is EARNED against a real
+transport rather than declared against a synthetic one, and the honest outcome may still be that the
+guarantee has to be weakened rather than the detector strengthened.
 
 **Stage 2 — attribution.** Signed heads, so a detected fork yields a transferable proof of
 misbehaviour rather than a local alarm. The interesting property is that evidence becomes DURABLE and
@@ -296,12 +375,17 @@ error.
 yet demonstrated one persistent city standing on all of them at once, under load, with players
 joining and leaving. Composition is where declared boundaries meet.
 
-**Stage 6 — briefs and grading debt.** 17 modules need `docs/*_brief.md`, and the D5 ledger needs
-entries for the city and authority arcs. Documentation debt in this repo is not cosmetic: the briefs
+**Stage 6 — briefs and grading debt.** 85 modules have no `docs/*_brief.md`, and all 18 of the city,
+authority and certificate arcs are among them; the D5 ledger needs entries for all three. Documentation debt in this repo is not cosmetic: the briefs
 are where the OODA and the D1 §20 rulings live.
 
 **Stage 7 — the parallel substrates.** `parallel/` holds structures explored alongside the Euclidean
 arc without disturbing it. Promoting any of them is a kernel question and therefore a D1 §20 question.
+
+**Stage 8 — the certificate arc's own composition.** `inputset` decides where every quantity may live
+and `cohort` enforces it for one tier. The remaining work is enforcing the OTHER three the same way —
+a verifier that refuses to compute a HISTORY quantity without the log, structurally rather than by
+convention — so the taxonomy becomes unbypassable rather than obeyed by one module.
 
 Forward candidates identified during OODA passes but not yet scoped are held privately until there is
 consensus to publish them, matching the convention already used for CITYSCALE §7 and
