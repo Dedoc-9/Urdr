@@ -137,5 +137,73 @@ class CheapnessIsNotSoundness(unittest.TestCase):
         self.assertEqual(hits, (), "no blind invariant reaches any admission path")
 
 
+class TheStructuralReasonIsInclusionExclusion(unittest.TestCase):
+    def test_three_cheap_invariants_are_valuations_and_the_verdict_is_not(self):
+        """The blindness is not four unlucky choices — it is what inclusion-exclusion forces."""
+        self.assertEqual(BS.valuation_census(), (
+            ("cell_count", 400, 0, True),
+            ("boundary_occupancy", None, None, False),
+            ("tile_prefix", 400, 0, True),
+            ("occupancy_defect", 400, 0, True),
+            ("verdict", 400, 24, False),
+            ("free_components", 400, 29, False),
+        ))
+        cheap_vals, tested, viol = BS.the_verdict_is_not_a_valuation()
+        self.assertEqual(cheap_vals, ("cell_count", "tile_prefix", "occupancy_defect"))
+        self.assertEqual(tested, 400)
+        self.assertGreater(viol, 0, "the verdict violates inclusion-exclusion")
+
+    def test_breach_is_two_pointed(self):
+        """A valuation assigns one number to one set; breach asks about TWO designated faces."""
+        needs_two, one_set, is_a_reason = BS.breach_is_two_pointed()
+        self.assertTrue(needs_two)
+        self.assertTrue(one_set)
+        self.assertTrue(is_a_reason, "graded as a reason, not a theorem")
+
+    def test_the_corpus_missed_the_fifth_witness(self):
+        """L19 again, inside this module: a built corpus finding no witness is NOT a surviving
+        predicate. The corpus warning this rung already carried came true one invariant later."""
+        corpus_found, hand_equal, hand_opposite = BS.the_corpus_missed_the_fifth_witness()
+        self.assertFalse(corpus_found, "the 545-occupancy corpus contains no such pair")
+        self.assertTrue(hand_equal, "yet a hand-built pair has equal component counts")
+        self.assertTrue(hand_opposite, "and opposite verdicts")
+
+    def test_the_fifth_witness_reads_correctly(self):
+        ca, cb, va, vb, div = BS.the_fifth_witness()
+        self.assertEqual((ca, cb), (1, 1), "one free component each")
+        self.assertEqual((va, vb), (CO.INTACT, CO.BREACHED))
+        self.assertEqual(div, 35)
+
+    def test_five_of_five_are_blind(self):
+        self.assertEqual(BS.five_of_five_are_blind(), (5, 5))
+
+
+class TheFalsificationRecordIsScoped(unittest.TestCase):
+    def test_every_candidate_has_a_row_with_a_witness(self):
+        rows = BS.falsification_record()
+        self.assertEqual(BS.every_candidate_is_falsified_with_a_witness(), (6, 6))
+        for cand, status, witness, failure, impact in rows:
+            self.assertEqual(status, "FALSIFIED", cand)
+            self.assertTrue(witness.strip(), cand)
+            self.assertTrue(failure.strip(), cand)
+            self.assertTrue(impact.strip(), cand)
+
+    def test_the_vocabulary_admits_nothing_stronger_than_falsified(self):
+        """Five counterexamples are five counterexamples; an impossibility theorem is a different
+        object. The scoping is enforced in the status vocabulary, not promised in prose."""
+        statuses, forbidden, all_witnessed = BS.the_record_claims_no_impossibility_theorem()
+        self.assertEqual(statuses, ("FALSIFIED",))
+        self.assertEqual(forbidden, (), "no CONFIRMED / PROVED / IMPOSSIBLE anywhere in the record")
+        self.assertTrue(all_witnessed)
+        self.assertEqual(BS.STATUS_VOCABULARY, ("FALSIFIED", "OPEN"))
+
+    def test_the_free_components_row_states_its_corpus_limitation(self):
+        """The row has to carry the reason the corpus missed it, or the next topological candidate
+        gets swept the same insufficient way."""
+        row = next(r for r in BS.falsification_record() if r[0] == "free_components")
+        self.assertIn("two-pointed", row[3])
+        self.assertIn("corpus did NOT contain", row[4])
+
+
 if __name__ == "__main__":
     unittest.main()

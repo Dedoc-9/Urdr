@@ -66,14 +66,57 @@
 # the lattice analogue is pinned here: identical cell count, identical boundary, identical tile prefix,
 # OPPOSITE verdict (True, True, True, True).
 #
+#
+# WHY THEY ARE ALL BLIND, WHICH IS BETTER THAN FOUR COINCIDENCES — AND IT COMES FROM VALUATION THEORY.
+# Geometric valuation theory studies functionals obeying inclusion-exclusion,
+# Phi(K) + Phi(L) = Phi(K u L) + Phi(K n L), and its classification theorems — Hadwiger 1957 for rigid
+# motions, Ludwig-Reitzner 1999 and 2010 for the equi-affine and centro-affine cases — are RIGIDITY
+# results: add mild regularity plus a symmetry group and an infinite-dimensional space of candidates
+# collapses onto a short list. MEASURED HERE: three of the four cheap invariants ARE valuations —
+# cell_count, tile_prefix and occupancy_defect each satisfy inclusion-exclusion with 0 violations over
+# 400 pairs (boundary_occupancy is set-valued, so not a real-valued candidate at all) — and THE BREACH
+# VERDICT IS NOT, violating it 24 times in the same 400. So the blindness is not four unlucky choices:
+#
+#     A VALUATION ASSIGNS ONE NUMBER TO ONE SET. BREACH ASKS WHETHER TWO DESIGNATED FACES LIE IN THE
+#     SAME FREE COMPONENT — a relative, TWO-POINTED property of a set together with a choice of
+#     boundary pair. It is not an absolute functional of the set, so inclusion-exclusion has nothing to
+#     decompose.
+#
+# That is a REASON, not a proof, and it is graded as one. Closing the gap would need a Hadwiger-style
+# classification of lattice valuations under this arc's symmetry group, then a check of whether any
+# member of the resulting short list decides breach. Not done here, and not claimed.
+#
+# AND THE FIFTH REFUTATION BIT THIS MODULE'S OWN CORPUS, ONE INVARIANT AFTER IT WARNED ABOUT EXACTLY
+# THAT. The free-component count is the natural escalation — topological rather than metric, not cheap,
+# and not a valuation either (29 violations of 400). Searching the 545-occupancy corpus for an
+# equal-component / opposite-verdict pair finds NOTHING (corpus_found_a_witness FALSE). Read as a
+# result that would have been "free_components survives", and it would have been wrong: every corpus
+# member is wall-like so its free space always touches both faces, and the discriminating case is
+# simply absent. A HAND-BUILT pair refutes it at once — everything-but-one-interior-cell (free space
+# one component, touching neither face, INTACT) against a two-thick wall with an aligned tunnel (free
+# space one component, spanning, BREACHED): components (1, 1), verdicts (INTACT, BREACHED), divergence
+# 35. FIVE OF FIVE BLIND. The corpus caveat this file already carried came true inside the file.
+#
+# THE STATUS IS FALSIFIED, NOT DISPROVEN-IN-GENERAL, AND THE VOCABULARY ENFORCES IT RATHER THAN
+# PROMISING IT. Every candidate carries a durable row in falsification_record() — candidate, status,
+# witness, failure mode, impact — and the status vocabulary admits FALSIFIED and OPEN and NOTHING
+# STRONGER. There is no CONFIRMED, no PROVED and no IMPOSSIBLE anywhere in it (checked: statuses used
+# ('FALSIFIED',), forbidden words present (), every row carries a witness True, 6 of 6 falsified WITH a
+# witness). Five counterexamples are five counterexamples; an impossibility theorem is a different
+# object and is not claimed. The record exists so a candidate cannot be quietly reconsidered later, and
+# the impact field says what to DO rather than what was learned. The free_components row states its own
+# corpus limitation explicitly: the corpus did NOT contain that witness, so it is insufficient for
+# topological candidates and any future one needs its own construction rather than a corpus sweep.
 # GRADE. MEASURED: four cheap invariants each refuted by a witness pair; the conjunction of all four
 # refuted by a single pair differing in 2 cells; the operational cost as peers wrongly cleared;
 # connectivity separating the same pair as a positive control; the cost order against the decisiveness
-# order; the router's decision path checked by signature.
+# order; the router's decision path checked by signature; the inclusion-exclusion census; the fifth
+# (topological) invariant refuted by a hand-built pair after the corpus failed to contain one.
 #
 # DECLARED, NOT DERIVED. The corpus is a PINNED SYNTHETIC SET BUILT TO CONTAIN THE PAIRS. A refutation
-# needs one witness so the negatives are sound, but the ABSENCE of a decisive cheap invariant is over
-# this enumerated family of four and is NOT a proof that no cheap invariant exists. A sparser first
+# needs one witness so the negatives are sound, but the ABSENCE of a decisive invariant is over an
+# enumerated family of FIVE and is NOT a proof that no such invariant exists. The two-pointedness
+# criterion is a REASON, not a theorem. A sparser first
 # corpus produced no conjunction witness at all, which would have read as "the cheap conjunction
 # survives" when it was the corpus that was thin — so the corpus size and both-arm split are asserted
 # rather than assumed. The historical dates are cited from the secondary sources below and this module
@@ -87,8 +130,11 @@
 #
 # does_not_show: that connectivity is CHEAP — it is the expensive measurand and this rung is the
 # argument for paying for it; that a routed verdict is HONEST, inherited unchanged from cohort; that no
-# cheap invariant whatsoever could decide breach, only that these four and their conjunction cannot;
+# invariant whatsoever could decide breach, only that these five and the conjunction of the cheap four
+# cannot; that no VALUATION can decide breach, which is the conjecture the criterion suggests and not a
+# result; anything about the Hadwiger or Ludwig-Reitzner theorems beyond citing their shape;
 # any chemical fact beyond the cited attributions.
 blind 467c5c50fb70267ceffba7299b560695b0ff9f0f74dc459b186c4d92d078bc2b
 conjunction 521f488eeb20818756c77f2689fbd967ae6d416f45cff1bb881d21011a9a7db9
 cost a4c0815d0b9541e67387709a081e44cd726a2b8ba50ba325d2e6a0a5bc701277
+valuation 22c35d24965b329b8ae5d39551d6e7dcfe6326bc52974b96d4957f4a89e65485

@@ -12061,6 +12061,61 @@ class Gate:
                     "decision path — verify_routed, screen_decides, plan_for and peers_agree scanned, "
                     "0 appearances — the discipline that keeps cohort's centrality graph unwired"
                     if ct_ok else "the blindscreen cost ordering did not hold")
+        val_ok = True
+        try:
+            val_ok = BS.valuation_census() == (
+                ("cell_count", 400, 0, True), ("boundary_occupancy", None, None, False),
+                ("tile_prefix", 400, 0, True), ("occupancy_defect", 400, 0, True),
+                ("verdict", 400, 24, False), ("free_components", 400, 29, False))
+            val_ok = val_ok and BS.the_verdict_is_not_a_valuation() == (
+                ("cell_count", "tile_prefix", "occupancy_defect"), 400, 24)
+            val_ok = val_ok and BS.breach_is_two_pointed() == (True, True, True)
+            val_ok = val_ok and BS.the_corpus_missed_the_fifth_witness() == (False, True, True)
+            val_ok = val_ok and BS.the_fifth_witness() == (1, 1, CO.INTACT, CO.BREACHED, 35)
+            val_ok = val_ok and BS.five_of_five_are_blind() == (5, 5)
+            val_ok = val_ok and BS.every_candidate_is_falsified_with_a_witness() == (6, 6)
+            val_ok = val_ok and BS.the_record_claims_no_impossibility_theorem() == (
+                ("FALSIFIED",), (), True)
+            val_ok = val_ok and BS.STATUS_VOCABULARY == ("FALSIFIED", "OPEN")
+            for _c, st, wit, fail, imp in BS.falsification_record():
+                val_ok = val_ok and st == "FALSIFIED" and wit.strip() and fail.strip() and imp.strip()
+        except Exception:
+            val_ok = False
+        self.record("blindscreen-valuation", val_ok,
+                    "WHY THEY ARE ALL BLIND, WHICH IS BETTER THAN FOUR COINCIDENCES. Geometric "
+                    "valuation theory studies functionals obeying inclusion-exclusion, Phi(K) + Phi(L) "
+                    "= Phi(K u L) + Phi(K n L), and its classification theorems — Hadwiger 1957 for "
+                    "rigid motions, Ludwig-Reitzner 1999 and 2010 for the equi-affine and "
+                    "centro-affine cases — are RIGIDITY results: add regularity plus a symmetry group "
+                    "and an infinite-dimensional space of candidates collapses onto a short list. "
+                    "MEASURED: three of the four cheap invariants ARE valuations (cell_count, "
+                    "tile_prefix, occupancy_defect, 0 violations each over 400 pairs; "
+                    "boundary_occupancy is set-valued and not a real-valued candidate) while THE "
+                    "BREACH VERDICT IS NOT, violating it 24 times in the same 400. A VALUATION ASSIGNS "
+                    "ONE NUMBER TO ONE SET; BREACH ASKS WHETHER TWO DESIGNATED FACES LIE IN THE SAME "
+                    "FREE COMPONENT — a relative, two-pointed property, so inclusion-exclusion has "
+                    "nothing to decompose. That is graded a REASON and not a theorem: closing it needs "
+                    "a Hadwiger-style classification of lattice valuations under this arc's symmetry "
+                    "group, which is not done here. AND THE FIFTH REFUTATION BIT THIS RUNG'S OWN "
+                    "CORPUS, one invariant after it warned about exactly that: the free-component "
+                    "count is the natural escalation — topological, not cheap, not a valuation either "
+                    "(29 of 400) — and searching the 545-occupancy corpus for an equal-component / "
+                    "opposite-verdict pair finds NOTHING, which read as a result would have said "
+                    "'free_components survives'. It does not: every corpus member is wall-like so its "
+                    "free space always touches both faces, and a HAND-BUILT pair refutes it at once — "
+                    "everything-but-one-interior-cell against a two-thick wall with an aligned tunnel, "
+                    "components (1, 1), verdicts INTACT against BREACHED, divergence 35. Five of five "
+                    "blind, and the corpus caveat came true inside the module that wrote it. THE STATUS IS "
+                    "FALSIFIED AND NOTHING STRONGER, ENFORCED IN THE VOCABULARY RATHER THAN PROMISED: "
+                    "every candidate carries a durable row — candidate, status, witness, failure mode, "
+                    "impact, 6 of 6 falsified WITH a witness — and the status vocabulary admits only "
+                    "FALSIFIED and OPEN, with no CONFIRMED, PROVED or IMPOSSIBLE anywhere in it, "
+                    "because five counterexamples are five counterexamples and an impossibility "
+                    "theorem is a different object. The record exists so a candidate cannot be quietly "
+                    "reconsidered later, the impact field says what to DO rather than what was learned, "
+                    "and the free_components row carries its own corpus limitation so the next "
+                    "topological candidate is not swept the same insufficient way"
+                    if val_ok else "the blindscreen valuation census did not hold")
 
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of

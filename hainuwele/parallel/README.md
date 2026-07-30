@@ -41,3 +41,83 @@ programme rests on it. A negative answer is a valid result and would close the l
 Bobenko & Suris, *Discrete differential geometry: consistency as integrability*; Hydon & Mansfield,
 *Extensions of Noether's Second Theorem: from continuous to discrete systems* (Thm 5.1:
 `D̃ᵅᵣ Ẽᵅ(L) ≡ 0`, identically, off-shell).
+
+## Built, and DELIBERATELY UNGATED: `URDRRPI1` — `rpimm.py`, the degree-dimension problem for RP^n
+
+**Status.** Built with its own falsifiers and its own runner; **no stage in `verify.py`**, by design.
+Run it with `python3 hainuwele/parallel/rpimm.py`. It stays ungated until there is either a
+constructive family that survives the corrected tangent-space test or an obstruction genuinely beyond
+the blockwise case. Ungated means it **can rot**, and that is stated rather than hidden — the same
+treatment `bench.py` gets for wall-clock. Selfcheck: 16/16.
+
+**What it is.** The question is whether a bounded-degree *even* polynomial map can immerse `RP^n` in a
+target dimension approaching the topological one, and the module holds the corrected machinery for
+asking. Exact rational arithmetic throughout; no float ever decides a rank.
+
+**Three errors pinned as witnesses, because each was made in the design that preceded it.**
+
+1. **A parity category error, not a missing proof.** The original construction was antipodally ODD and
+   was asked to induce a map on `RP^n`. It cannot: descending to `S^n/{±1}` needs `Φ(-x) = Φ(x)`, and
+   an odd map satisfying that is identically zero. Only EVEN maps descend, so the linear block `x` is
+   inadmissible from the start rather than "lost to the quotient". Measured `(True, False, True)`.
+2. **The identity block made the original obstruction vacuous.** The argument was "one block's
+   differential dies, therefore the rank drops." Measured, at exactly the points where `DQ_k = 0` the
+   map with an identity block still has FULL rank `n` — `n = 2,3,4,5` all give `n`, not `n-1`. A
+   vanishing sub-block is not a rank deficit until you count what survives.
+3. **"Positive-dimensional" failed at a boundary case.** The vanishing locus is exactly
+   `S^(n-|B_k|)`, so a *proper* block missing one coordinate gives `S^0` — two points. The exact
+   dimension formula replaces the adjective; `(n,|B|) = (5,4) → S^1` but `(5,5) → S^0`.
+
+**The lemma that survives, in its general form.** For an even variable-separable map with blocks
+partitioning the coordinates and every monomial of degree ≥ 2, let `Z` be the union of blocks
+vanishing *entirely* at `x`. Every direction supported in `Z` is tangent and in the kernel, so
+
+    rank DΦ|T_xS^n  ≤  n − |Z|
+
+Measured on 6 cases, holds on 6, **attained** on 6, and below `n` on 6 — so it is a bound that bites
+rather than a slack inequality. It recovers both special cases: block-supported points give
+`rank ≤ |B_1| − 1` (measured `(2,1)→0`, `(3,2)→1`, `(4,2)→1`, `(5,3)→2`), and `{x_Bj = 0}` gives
+`rank ≤ n − |B_j|`. **The obstruction is factorization through independent coordinate projections —
+locality — not the degree:** raising the degree from 2 to 4 to 6 leaves the rank at 2 against a needed
+4. That is what later constructions must avoid.
+
+**The rank test was the most dangerous error available.** The immersion condition is the rank of the
+differential *restricted* to `T_xS^n`. Two sound routes are implemented and cross-checked — project
+onto a tangent basis, or stack the normal row `xᵀ` and subtract one, since
+`ker([A; xᵀ]) = ker(A) ∩ T_x` gives `rank(A|T_x) = rank([A; xᵀ]) − 1` identically. They agree on 12
+of 12 cases, and a **mutation probe** proves the agreement can fail: a variant using the ambient basis
+disagrees on 12 of 12, so the cross-check is measuring something (L23).
+
+**And the naive ambient test is off by exactly one, for a reason.** Euler's relation `A x = d·Φ(x)`
+puts one unit of rank in the radial direction, verified on every case. Measured, there are points
+where the ambient rank reaches `n` while the true tangent rank is `n−1`: `(n, ambient, tangent)` =
+`(3,3,2)`, `(4,4,3)`, `(5,5,4)`. **The naive test certifies an immersion that is not one.** Kept live.
+
+**The algebraic certification has a real-versus-complex trap.** Sound direction only:
+`I_minors + I_sphere = (1)` ⟹ immersion. The converse fails, because the Nullstellensatz is about
+algebraically closed fields while immersion is a real question. Witness in exact Gaussian integers:
+`f = x₀² + x₁² + 2x₂² + 2x₃²` is positive definite so `V_R(f)` misses the sphere entirely, yet
+`z = (1,1,0,i)` gives `Σz_i² = 1` and `f(z) = 0`. A pipeline reading "ideal ≠ (1) ⟹ not an immersion"
+returns a false negative here.
+
+**Positive control, and the gap that shows where the difficulty is.** The Veronese returns rank exactly
+`n` at every point tested for `n = 2…5`, so the rank routine is measuring separability and not a bug.
+Its target dimension is `(n+1)(n+2)/2` = 6, 10, 15, 21 — **quadratic**, against topological targets
+linear in `n`. The open question is whether any bounded-degree family closes a quadratic-to-linear gap.
+
+**Refutations only, never a certified positive.** A refutation is exact from ONE witness: if the
+tangent rank drops below `n` anywhere, the map is not an immersion. A positive is not available by
+search, so the subset census reports `RPIMM_REFUTED` or `RPIMM_CANDIDATE` and **never "immersion"** —
+enforced in the return vocabulary, not in a comment. This is the same asymmetry `autoroute` inherited
+from view determinacy (L27), arriving from a different direction. Measured over monomial subsets of the
+degree-2 Veronese at `n = 2`: size 3 → **20 refuted, 0 candidates** (a real negative), size 4 → 13
+refuted, **2 candidates**, size 5 → 3 refuted, 3 candidates.
+
+**Two invariants, kept separate.** `m_d^imm(n)` and `m_d^emb(n)`. Conflating them would let the
+Veronese's *embedding* bound masquerade as an immersion bound.
+
+**Open, stated honestly.** The asymptotics of `m_d` are untouched — this module only makes the question
+askable. The subset search ranges over MONOMIAL subsets rather than general linear projections, so its
+CANDIDATE verdicts are weaker than they look. The point sets used for refutation are pinned and finite.
+Whether this optimization problem is already known under another formulation has **not** been
+established by a literature review, so it is a natural question here and not a claimed open problem.
