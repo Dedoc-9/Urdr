@@ -2,9 +2,23 @@
 #   interpolation, exact FBM rescale, sqrt-free island falloff. Same (seed, params) ->
 #   same bytes on every host. See the builders' provenance docstrings.
 # name  digest
+# bridge objects (T2): URDROBJ2 digests of the pinned wireframe grids
+#
+# BOUNDARY, EARNED BY READING THE MODULE. This corpus was one of the six ORPHANS the grading
+# ratchet named: no boundary line here AND none in the module docstring either. The frame is the
+# AIAA G-077 distinction — VERIFICATION is "the process of determining that a model implementation
+# accurately represents the developer's conceptual description of the model", i.e. solving the
+# equations right; VALIDATION asks whether they are the right equations. Every claim in this arc is
+# VERIFIED and none is VALIDATED, and that is the boundary these six were missing:
+# does_not_show: any resemblance to REAL LANDFORMS — this is a procedural generator admitted under
+# the D14 front-end contract, producing authored assets and DETECTING NOTHING, so what is
+# certified is that one (seed, params) reproduces one byte-identical heightmap on every host and
+# never that the result is geologically meaningful; that SEA LEVEL bears on the field, since
+# heights provably never depend on it and it is recorded in the canon as a classification
+# threshold; presentation of any kind, since nothing here renders; and cross-placement, which the
+# module explicitly does not claim.
 island 7243652eb97adf557f336d7417ed19a769ea60764e1354f68f29e8b7b55cb222
 blank 7cc67f6769959ff09356f20b6a0999d7c3c397b30e4fb4addbfc04c342faa83e
 mountains c57c56bee9650148b139b927aa1d036baca1f07d0a683982c01c4b17e1aa069e
-# bridge objects (T2): URDROBJ2 digests of the pinned wireframe grids
 island_obj 3caa092acf8a710cb48ad16f7b9e1c3299482530f939862b96d7e98b13ec88e8
 blank_obj 77910ea7a18be76e3276e1f0e4ae1813d7f783ded6e4842453cb882c1d6b0ae0

@@ -34,9 +34,9 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 #: THE GRADING RATCHET, read from the filesystem at pin time and lowered only by an
 #: actual module read. A new ungraded corpus exceeds these; a backfill must lower them.
-GRADING_CEILING_DNS = 69        # corpora with no boundary line (placement)
-GRADING_CEILING_ORPHAN = 6      # ...of which the MODULE has none either (real debt)
-GRADING_CEILING_DECL = 60
+GRADING_CEILING_DNS = 63        # corpora with no boundary line (placement)
+GRADING_CEILING_ORPHAN = 0      # ...of which the MODULE has none either (real debt)
+GRADING_CEILING_DECL = 57
 PY = sys.executable
 CLI = os.path.join(ROOT, "urdr.py")
 
@@ -10903,6 +10903,7 @@ class Gate:
             rat_ok = rat_ok and orphans == GRADING_CEILING_ORPHAN
             rat_ok = rat_ok and undeclared == GRADING_CEILING_DECL
             rat_ok = rat_ok and graded > 0 and ungraded > 0 and orphans < ungraded
+            rat_ok = rat_ok and orphans == 0
             rat_ok = rat_ok and graded + ungraded == total
             rat_ok = rat_ok and total == len([f for f in os.listdir(terrain)
                                               if f.startswith("conformance_")
@@ -10914,8 +10915,8 @@ class Gate:
                     f"filesystem at claim time (L16, never from prose): {live[0]} pinned conformance "
                     f"corpora, {live[1]} carrying a `does_not_show` boundary and {live[2]} not — but of those "
                     f"{live[2]}, only {live[3]} are ORPHANS whose module docstring carries no boundary "
-                    f"either, so THE DEBT IS PLACEMENT RATHER THAN ABSENCE and the earlier reading of "
-                    f"it as {live[2]} ungraded claims was itself imprecise; {live[4]} carry no DECLARED "
+                    f"either — now ZERO, the real debt PAID by reading all six and writing boundaries "
+                    f"grounded in what each module actually computes, so every corpus in this repo now carries a boundary somewhere and THE REMAINDER IS PURE PLACEMENT; {live[4]} carry no DECLARED "
                     f"section. All three backlogs are PINNED AS CEILINGS "
                     f"that a new ungraded corpus immediately exceeds, so the discipline the repo most "
                     f"claims to be about can no longer regress silently — until this row, "

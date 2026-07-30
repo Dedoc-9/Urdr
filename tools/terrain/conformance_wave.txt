@@ -2,6 +2,19 @@
 #   parabolic profile (P² | 8A), floor-mod phase, superposition — same (components, t) →
 #   same bytes on every host, EXACT (no rounding). name = scene@tick.
 # name  digest
+#
+# BOUNDARY, EARNED BY READING THE MODULE. This corpus was one of the six ORPHANS the grading
+# ratchet named: no boundary line here AND none in the module docstring either. The frame is the
+# AIAA G-077 distinction — VERIFICATION is "the process of determining that a model implementation
+# accurately represents the developer's conceptual description of the model", i.e. solving the
+# equations right; VALIDATION asks whether they are the right equations. Every claim in this arc is
+# VERIFIED and none is VALIDATED, and that is the boundary these six were missing:
+# does_not_show: REAL OCEAN SURFACE DYNAMICS — the profile is a periodic PARABOLIC integer form
+# chosen precisely to avoid trigonometry, so it is not a Gerstner surface and reproduces none of
+# dispersion, refraction, shoaling, breaking or wave-wave interaction; the FLOAT Gerstner surface
+# the presentation renders, which is a separate and explicitly DECLARED grade that this authority
+# never touches; any claim that amplitude or period carry physical units; and cross-placement,
+# named in the module as a clean next step and not done.
 swell@0 31be244d80332b72e56005dfca78ed9ab606b768403d54f8d1f70cf4859a049e
 swell@3 07088ff63250db41e91d01710c6c887306fc0c406fe9a2f62fe46f6d5a6c9718
 swell@7 278dcce5c1e4e77317c8d38cc009616d0bf80df312ac6f6df74db6205bfac72e

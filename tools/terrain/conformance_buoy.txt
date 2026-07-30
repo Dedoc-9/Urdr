@@ -4,6 +4,19 @@
 #   bisection. Digest binds z* AND the per-cell submerged profile. name = scene@tick.
 #   The buoyancy LAW is a declared model; the computed z* is measured (exact, reproducible).
 # name  digest
+#
+# BOUNDARY, EARNED BY READING THE MODULE. This corpus was one of the six ORPHANS the grading
+# ratchet named: no boundary line here AND none in the module docstring either. The frame is the
+# AIAA G-077 distinction — VERIFICATION is "the process of determining that a model implementation
+# accurately represents the developer's conceptual description of the model", i.e. solving the
+# equations right; VALIDATION asks whether they are the right equations. Every claim in this arc is
+# VERIFIED and none is VALIDATED, and that is the boundary these six were missing:
+# does_not_show: REAL HYDROSTATICS — the settling law is a DISCRETE ARCHIMEDES summing submerged
+# depth over an integer cell footprint, which the module states outright, and no comparison
+# against a physical float line is made or possible here; any raft DYNAMICS — the hull is rigid
+# and flat and settles to its per-tick equilibrium waterline instantly, so there is no roll,
+# pitch, drift, momentum or wake; sub-cell or non-rectangular hulls; and cross-placement, this
+# being the Python reference only.
 raft_swell@0 38943499a11f15c687787c71c5b77be25bafc34b39ddea91a67ca7bd833d0ea0
 raft_swell@3 d875ffa4a7e31876f1f8c9b5ce76a9a6a0e5806c9ce2cd3c09b2c93c712281c4
 raft_swell@7 610774de084f2fa3850bc0459678b2624b7cf54dd92daf5cedb4424816d0c681

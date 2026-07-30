@@ -4,6 +4,18 @@
 #   Division-free (multiply/compare + the division-free wavefield). The crossing LAW is a declared
 #   model; the computed event tick is measured (exact, reproducible). name = scene.
 # name  digest
+#
+# BOUNDARY, EARNED BY READING THE MODULE. This corpus was one of the six ORPHANS the grading
+# ratchet named: no boundary line here AND none in the module docstring either. The frame is the
+# AIAA G-077 distinction — VERIFICATION is "the process of determining that a model implementation
+# accurately represents the developer's conceptual description of the model", i.e. solving the
+# equations right; VALIDATION asks whether they are the right equations. Every claim in this arc is
+# VERIFIED and none is VALIDATED, and that is the boundary these six were missing:
+# does_not_show: REAL WAVE-AGENT INTERACTION — the overtop rule ("a crest above clearance overtops
+# a straight-line constant-velocity agent") is a DECLARED model, and the agent is a SAMPLER of the
+# field rather than a body in it, so no hydrodynamic force, drag or displacement acts on it;
+# non-straight or non-constant-velocity paths; SUB-TICK event times, since the result is the FIRST
+# tick satisfying the predicate and the resolution is therefore one tick; and cross-placement.
 ferry_clear 664436c55fd2c9f6feacc1b53ff2d6e1597f8c94debb2c133014e8733d1f72d0
 ferry_swamped 488f963fbd8c3e799bc08b3ee45cab57cf8615a5a84221703fa9d07170c5cebc
 swimmer_north 9fa612ca54f9c5461f2be5afade122bb0861bfd11f0b40cc7c403836001f5d46
