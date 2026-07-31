@@ -80,9 +80,30 @@ class InputSetError(Exception):
 
 
 # ---- a situation, and the nested projections ---------------------------------------------------------
-def situation(occupancy, tick, history, cohort):
-    """Everything that could possibly bear on a quantity, in one object."""
-    return {"occupancy": frozenset(occupancy), "tick": tick,
+#: THE DERIVATION GRAPH, DECLARED AS DATA rather than left implicit in a function body. Each entry
+#: is `derived -> (producer, (inputs...))`. It exists because the certificate USED to be computed
+#: inside `proj` from `s["occupancy"]`, which meant the CERT projection — the narrowest one, the
+#: whole point of the tier — read the very atom the tier is supposed not to need. A derivation that
+#: lives only in a call site cannot be audited; one that lives here can be.
+DERIVED = {"cert": ("tilemin.certify", ("occupancy", "tick"))}
+
+
+def situation(occupancy, tick, history, cohort, cert=None):
+    """Everything that could possibly bear on a quantity, in one object.
+
+    `cert` IS AN INPUT, not a derived convenience. In the protocol a certificate ARRIVES — a peer
+    hands it to you and you act on it; you do not receive their occupancy and re-derive it. Deriving
+    it inside `proj` modelled the fixture's convenience rather than the protocol, and that leak was
+    load-bearing: it is why `exclusion_membership` and `prefix_disjointness` read occupancy while
+    their plan designated nothing.
+
+    Passing `cert=None` still derives it, because the test corpora legitimately construct consistent
+    situations — but the derivation is now NAMED (`DERIVED`) and happens ONCE, at construction, where
+    it is visible, instead of on every projection where it was not."""
+    occ = frozenset(occupancy)
+    if cert is None:
+        cert = _TM.certify(occ, tick)
+    return {"cert": cert, "occupancy": occ, "tick": tick,
             "history": tuple(history), "cohort": tuple(frozenset(c) for c in cohort)}
 
 
@@ -91,7 +112,8 @@ def proj(level, s):
     'the coarsest level that determines' is unique."""
     if level not in LEVELS:
         raise InputSetError(f"unknown level {level!r}")
-    cert = _TM.certify(s["occupancy"], s["tick"])
+    cert = s["cert"]          # AN INPUT NOW. Was `_TM.certify(s["occupancy"], ...)`, which made
+                              # the CERT projection read the atom the CERT tier exists to avoid.
     base = (cert["tile_prefix"], cert["jurisdiction_region"], cert["liveness_token"], cert["tick"])
     if level == "CERT":
         return base
@@ -105,21 +127,24 @@ def proj(level, s):
 
 # ---- the six arc quantities ---------------------------------------------------------------------------
 def q_exclusion_membership(s):
-    """tilemin's region — a pure function of the tile prefix and the published survey."""
-    return _TM.region_of(_TM.tile_prefix(s["occupancy"]))
+    """tilemin's region — read FROM THE CERTIFICATE, which already carries it. This used to be
+    `_TM.region_of(_TM.tile_prefix(s["occupancy"]))`: the same answer, recomputed from an atom the
+    CERT tier does not designate. The answers are identical by construction and that identity is
+    asserted (`the_cert_read_was_redundant`), so this narrows AUTHORITY without moving a value."""
+    return s["cert"]["jurisdiction_region"]
 
 
 def q_prefix_disjointness(s, reference=0):
     """Half B's predicate against a fixed reference tile — decidable from IDs alone."""
     shift = 3 * (_TM._VX.LEVELS - _TM.TILE_LEVEL)
     import voxlat as _VX
-    return _VX.lca_depth(_TM.tile_prefix(s["occupancy"]) << shift, reference << shift) \
+    return _VX.lca_depth(s["cert"]["tile_prefix"] << shift, reference << shift) \
         < _TM.TILE_LEVEL
 
 
 def q_liveness_horizon(s, now=NOW):
     """liveness freshness at a fixed `now` — the certificate carries the tick and the token."""
-    return 0 <= now - s["tick"] <= _TM.HORIZON
+    return 0 <= now - s["cert"]["tick"] <= _TM.HORIZON
 
 
 def q_occupancy_defect(s):

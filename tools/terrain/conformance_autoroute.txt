@@ -208,8 +208,65 @@
 # inherited unchanged; that the screen saves BYTES, which is exactly what correction 1 refutes; that k
 # beyond CUT_SEARCH_MAX = 3 is decided, inherited unchanged from cohort; that a minimal input set is
 # minimal over all possible situations rather than over this family; that the router is FASTER in
-# wall-clock, since flood fills are counted and not timed, and wall-clock may never enter this gate.
-route 4171c58594571bdbc0efed337ceb89909c3ec570650ae07d9f9a2b0300837fce
+# wall-clock, since flood fills are counted and not timed, and wall-clock may never enter this gate.#
+# CORRECTION 7 — THE CERTIFICATE WAS NOT AN INPUT AT ALL, AND THE CERT TIER'S EMPTY PLAN SAID SO.
+# `inputset.proj` computed `certify(s["occupancy"], s["tick"])` INSIDE the projection, so the CERT
+# projection -- the narrowest one, the entire point of the tier -- read the very atom the tier exists
+# to avoid. `projected` had already caught it as a measured witness: 4 of 6 admitted where `guarded`
+# admitted 6, the two casualties being `exclusion_membership` and `prefix_disjointness`. The fix is
+# not a wider plan but a first-class atom: the certificate is passed IN (`situation(..., cert=...)`),
+# its derivation edge is declared as data (`inputset.DERIVED`), and the CERT tier designates
+# `own_cert`. In the protocol a certificate ARRIVES; deriving it from the peer's occupancy modelled
+# the fixture's convenience and that convenience was load-bearing.
+#
+#     THREE OF THE FOUR DIGESTS BELOW MOVED, AND THE ONE THAT DID NOT IS THE CONTROL. `route` moved
+#     because the CERT plans went () -> ("own_cert",); `refuted` because the syntax-versus-search
+#     census grew from 6 rows to 12; `enforce` because the invariants moved (provenance 13 -> 12
+#     undesignated-read opportunities, the error partition 42 -> 54 cases). `screen` is BYTE-IDENTICAL,
+#     and it had to be: the screening law is a statement about occupancy connectivity and has nothing
+#     to do with fetch plans. A refactor that moved it would have been touching something it had no
+#     business touching, so the unchanged digest is evidence, not a coincidence.
+#
+#     AND `--only inputset --diff` REPORTED NO DRIFT: every quantity returns the identical value
+#     through the certificate that it returned through occupancy. Same answers, strictly less
+#     authority -- which is what makes this a narrowing of authority rather than a change of meaning.
+#
+#     CORRECTION 8 -- THE SAME DEFECT WAS IN A SECOND PROJECTION FUNCTION, AND THE FIRST EXPLANATION
+#     OF ITS SYMPTOM WAS WRONG. Correction 7 fixed `inputset.proj` and left `autoroute._subproj`
+#     standing: it stapled `certify(s["occupancy"], s["tick"])` onto EVERY projection regardless of
+#     the atom set and never consulted `own_cert`. So the "empty" projection carried
+#     `jurisdiction_region` -- which IS `exclusion_membership` -- and the witness search concluded
+#     that projecting onto NOTHING determined it. The 16-node lattice was really 8 nodes with a
+#     constant certificate stapled to each.
+#
+#     The symptom (all three CERT quantities reported search-INDEPENDENT) was first blamed on the
+#     FAMILY: "every situation derives its certificate from its occupancy, so no member separates on
+#     the certificate." THREE MEASUREMENTS REFUTED THAT. The family separates `own_cert` in 27
+#     isolating pairs; it varies `jurisdiction_region` in 648 pairs; and a per-observed-input
+#     separating metric proposed to replace the first two turned out toothless, because a quantity
+#     reading ONE input satisfies it vacuously. The defect was in the code, in a function whose name
+#     said what it did, and it should have been read first.
+#
+#     CORRECTED: `exclusion_membership/own_cert` and `prefix_disjointness/own_cert` flip to
+#     search-False, which is what a quantity reading the certificate must report; over-skip is 2
+#     rather than 4; the scorecard is (7, 5, 2). `liveness_horizon/own_cert` stays True and is the ONE
+#     honest family limitation here -- that quantity takes a single distinct value across all 54
+#     members, so the empty projection determines it by constancy. Extending the family so it varies
+#     is the named follow-on and is NOT claimed here.
+#
+#     TWO OF THE FOUR DIGESTS MOVED AND TWO DID NOT, AND BOTH OF THE UNCHANGED ONES ARE EVIDENCE.
+#     `route` and `refuted` moved with the search results. `screen` is unrelated to fetch plans and
+#     had to hold. `enforce` covers the plans, the projection census, the ambient readers and the
+#     three invariants -- and it is BYTE-IDENTICAL, which is the mechanical proof of the claim that
+#     the PLANS never moved through any of this. Syntax vetoed every bad drop the whole time.
+#
+#     AND THE FIX MADE ONE CHECK VACUOUS BEFORE ANYONE NOTICED. `the_lattice_enumeration_overreached`
+#     established its "identical certificate" premise with `_subproj((), a) == _subproj((), b)`, which
+#     only ever compared certificates BECAUSE of the defect. Once the empty projection became truly
+#     empty, that line compared two empty tuples. The premise still holds on measurement; it is now
+#     actually being checked, via `_subproj(("own_cert",), ...)`.
+
+route 0286a2f6fc87a8e4811703afa30ae0861b2d0612405d7d1c7f01a08a12b2c7bc
 screen ed61f7e615015c930780e18ddc0a66b0c4eade27d0d96297166e0994e1432219
-refuted a9b021f27187b29651218ceb830be19b3177d543e1da2f4b75abca14d45a70b3
-enforce ca7e03f0a4e278e19f2ef3aacd1eb39292d91bb891e2627b0c05fc1fbdebbe74
+refuted cefce881429e1a72b44edad525593b4f62c83f968513a17baa5dea7d9cf54aaf
+enforce 91db6daa3b3392803bd3305d0ee0a47d21437dfb2fc3d18e2b06b7e8ee7c18d3

@@ -36,12 +36,13 @@ class TheRouteIsMeasuredNotTabulated(unittest.TestCase):
 
     def test_the_route_census(self):
         self.assertEqual(AR.route_census(), (
-            ("exclusion_membership", (), "CERT", ()),
-            ("prefix_disjointness", (), "CERT", ()),
-            ("liveness_horizon", (), "CERT", ()),
-            ("occupancy_defect", ("own_tile",), "LATTICE", ()),
-            ("ledger_remainder", ("own_log",), "HISTORY", ("own_tile",)),
-            ("quorum_agreement", ("own_tile", "peer_tiles"), "COHORT", ("own_log",)),
+            ("exclusion_membership", ("own_cert",), "CERT", ()),
+            ("prefix_disjointness", ("own_cert",), "CERT", ()),
+            ("liveness_horizon", ("own_cert",), "CERT", ()),
+            ("occupancy_defect", ("own_tile",), "LATTICE", ("own_cert",)),
+            ("ledger_remainder", ("own_log",), "HISTORY", ("own_cert", "own_tile")),
+            ("quorum_agreement", ("own_tile", "peer_tiles"), "COHORT",
+             ("own_cert", "own_log")),
         ))
 
     def test_routing_changes_inputs_never_the_answer(self):
@@ -152,12 +153,14 @@ class TheScreenIsVacuousWhenBreached(unittest.TestCase):
 class TheLatticeEnumerationOverreached(unittest.TestCase):
     def test_the_chain_is_not_tight(self):
         off, total = AR.the_chain_is_not_tight()
-        self.assertEqual((off, total), (2, 6))
+        self.assertEqual((off, total), (4, 6))
         self.assertGreater(off, 0, "else the lattice adds nothing and this module is pointless")
 
     def test_both_real_savings_hold_by_witness_and_by_syntax(self):
-        self.assertEqual(AR.the_real_savings(), (("ledger_remainder", "own_tile"),
-                                                 ("quorum_agreement", "own_log")))
+        self.assertEqual(AR.the_real_savings(), (
+            ("occupancy_defect", "own_cert"),
+            ("ledger_remainder", "own_cert"), ("ledger_remainder", "own_tile"),
+            ("quorum_agreement", "own_cert"), ("quorum_agreement", "own_log")))
         for name, atom in AR.the_real_savings():
             self.assertTrue(AR.syntactically_independent(name, atom), (name, atom))
 
@@ -166,7 +169,15 @@ class TheLatticeEnumerationOverreached(unittest.TestCase):
         power, and this one nearly shipped a fetch reduction that does not exist."""
         said, cert_same, coh_same, occ_same, va, vb, refuted = \
             AR.the_lattice_enumeration_overreached()
-        self.assertEqual(said, (("peer_tiles",),), "the enumeration claimed cohort alone suffices")
+        # Was (("peer_tiles",),) — a SINGLE-atom overreach. With `_subproj` honouring `own_cert` the
+        # enumeration names two two-atom sets: {own_tile, peer_tiles} is genuinely minimal, while
+        # {own_cert, peer_tiles} is still an overreach for the original reason — the certificate does
+        # not carry the occupancy, and the witness below proves it.
+        self.assertEqual(said, (("own_cert", "peer_tiles"), ("own_tile", "peer_tiles")))
+        # `cert_same` is a REAL check again. It was established by `_subproj((), a) == _subproj((), b)`,
+        # which only compared certificates BECAUSE of the defect; once the empty projection became
+        # genuinely empty it compared two empty tuples and could not fail. Fixing the defect made this
+        # premise vacuous before anyone noticed, which is its own small lesson about repairs.
         self.assertTrue(cert_same, "identical certificate")
         self.assertTrue(coh_same, "identical cohort")
         self.assertFalse(occ_same, "different occupancy")
@@ -175,7 +186,7 @@ class TheLatticeEnumerationOverreached(unittest.TestCase):
 
     def test_the_family_was_built_for_a_chain(self):
         chain_pairs, nodes, covers = AR.the_family_was_built_for_a_chain()
-        self.assertEqual((chain_pairs, nodes, covers), (3, 8, 12))
+        self.assertEqual((chain_pairs, nodes, covers), (3, 16, 32))
         self.assertGreater(covers, chain_pairs,
                            "a family separating a chain cannot settle a lattice")
 
@@ -193,21 +204,33 @@ class OnlySyntaxGivesAUniversalPositive(unittest.TestCase):
         """Nash-Segoufin-Vianu determinacy is UNDECIDABLE for UCQs, so a search positive is forever
         family-relative. Measured: it drops an atom the quantity provably reads."""
         search_only, both, over = AR.search_alone_would_over_skip()
-        self.assertEqual(len(search_only), 3)
-        self.assertEqual(len(both), 2)
-        self.assertEqual(over, (("quorum_agreement", "own_tile"),))
+        self.assertEqual(len(search_only), 7)
+        self.assertEqual(len(both), 5)
+        # Was 1, then 4, now 2. The 4 was an ARTIFACT: `_subproj` stapled a certificate derived from
+        # the occupancy onto every projection and never consulted `own_cert`, so the empty projection
+        # carried the very field `exclusion_membership` returns. Two of the four were that bug. The
+        # two that remain are honest — `liveness_horizon` is CONSTANT across all 54 family members,
+        # so projecting onto nothing really does determine it.
+        self.assertEqual(over, (("liveness_horizon", "own_cert"),
+                                ("quorum_agreement", "own_tile")))
 
     def test_the_scorecard(self):
         s_pos, y_pos, silent = AR.only_syntax_gives_a_universal_positive()
-        self.assertEqual((s_pos, y_pos, silent), (3, 2, 1))
+        self.assertEqual((s_pos, y_pos, silent), (7, 5, 2))
         self.assertLess(y_pos, s_pos, "syntax is sound and weaker — that is the trade")
         self.assertGreater(silent, 0, "and it is silent where a cert already exposes the input")
 
     def test_the_census_rows(self):
         self.assertEqual(AR.syntax_versus_search_census(), (
+            ("exclusion_membership", "own_cert", False, False),
+            ("prefix_disjointness", "own_cert", False, False),
+            ("liveness_horizon", "own_cert", True, False),
+            ("occupancy_defect", "own_cert", True, True),
             ("occupancy_defect", "own_tile", False, False),
+            ("ledger_remainder", "own_cert", True, True),
             ("ledger_remainder", "own_log", False, False),
             ("ledger_remainder", "own_tile", True, True),
+            ("quorum_agreement", "own_cert", True, True),
             ("quorum_agreement", "own_log", True, True),
             ("quorum_agreement", "own_tile", True, False),
             ("quorum_agreement", "peer_tiles", False, False),
@@ -294,9 +317,9 @@ class ThePlanIsEnforcedNotMerelyComputed(unittest.TestCase):
 
     def test_the_guard_census(self):
         self.assertEqual(AR.guard_census(), (
-            ("exclusion_membership", (), None, True, True),
-            ("prefix_disjointness", (), None, True, True),
-            ("liveness_horizon", (), None, True, True),
+            ("exclusion_membership", ("own_cert",), True, True, True),
+            ("prefix_disjointness", ("own_cert",), True, True, True),
+            ("liveness_horizon", ("own_cert",), True, True, True),
             ("occupancy_defect", ("own_tile",), True, True, True),
             ("ledger_remainder", ("own_log",), True, True, True),
             ("quorum_agreement", ("own_tile", "peer_tiles"), True, True, True),
@@ -307,35 +330,75 @@ class ThePlanIsEnforcedNotMerelyComputed(unittest.TestCase):
             self.assertTrue(evaluated, "an empty atom must evaluate")
             self.assertTrue(unchanged, "the guard changes inputs required, never the answer")
 
-    def test_the_cert_hole_is_asserted_not_hidden(self):
-        """Half the census tests nothing here, and saying so is the point."""
+    def test_the_cert_hole_is_closed(self):
+        """WAS `test_the_cert_hole_is_asserted_not_hidden`, and the rename is the result. Half the
+        census used to test nothing, because the three CERT rows had an EMPTY plan and the guard had
+        nothing to check. The certificate is a designated atom now, so every row is exercised."""
         cert, real, total = AR.cert_rows_are_not_exercised_by_this_gate()
-        self.assertEqual((cert, real, total), (3, 3, 6))
-        self.assertGreater(real, 0, "else the gate would be entirely vacuous")
+        self.assertEqual((cert, real, total), (0, 6, 6))
+        self.assertEqual(cert, 0, "an unexercised row is a row whose plan forgot what it reads")
+        self.assertEqual(real, total, "every row must now be exercised, not merely most")
 
-    def test_projection_is_stricter_than_checking(self):
-        """Checking the plan is AMBIENT AUTHORITY — the quantity gets the whole situation because it
-        is in scope. Projection designates instead, and admits strictly fewer."""
+    def test_projection_and_checking_now_agree_and_that_costs_a_witness(self):
+        """THE ASSERTION THAT USED TO LIVE HERE WAS `assertLess(p, g)`, AND THE FIX INVALIDATED IT.
+        Projection admitted strictly fewer than checking ONLY because of the ambient-reader defect;
+        with the certificate designated, both admit 6 of 6 and the inequality is false.
+
+        Re-pinning (6, 6, 6) and deleting the inequality would leave a test that cannot distinguish
+        'the defect is fixed' from 'projection stopped projecting'. So the inequality moves to where
+        it is still true — a PLANTED ambient reader — and this test asserts the corpus agreement and
+        the plant together. The property was never 'p < g on this corpus'; it was 'projection refuses
+        what checking admits, whenever such a thing exists'."""
         g, p, total = AR.projection_is_stricter_than_checking()
-        self.assertEqual((g, p, total), (6, 4, 6))
-        self.assertLess(p, g, "if they agreed, projection would be checking with extra steps")
+        self.assertEqual((g, p, total), (6, 6, 6))
+        caught, planted, clean = AR.the_detector_still_catches_an_ambient_reader()
+        self.assertEqual((caught, planted, clean), ("planted_ambient", 1, 0))
+        self.assertGreater(planted, clean,
+                           "projection must still refuse what checking admits, or it is checking "
+                           "with extra steps after all")
 
-    def test_the_ambient_readers_are_named(self):
-        """The measured witness for Stage 8's remaining rung — and it is 2, not the 3 a reading of the
-        tiers inferred: liveness_horizon survives, reading only the tick."""
+    def test_there_are_no_ambient_readers_left(self):
+        """It named `exclusion_membership` and `prefix_disjointness`; it names nobody now. An empty
+        result from a detector is worth exactly as much as the detector's ability to be non-empty, so
+        the control is asserted in the same test rather than in a neighbouring one that could be
+        deleted separately (L23)."""
         names, ambient, total = AR.the_ambient_readers()
-        self.assertEqual(names, ("exclusion_membership", "prefix_disjointness"))
-        self.assertEqual((ambient, total), (2, 6))
+        self.assertEqual(names, ())
+        self.assertEqual((ambient, total), (0, 6))
+        self.assertEqual(AR.the_detector_still_catches_an_ambient_reader()[1], 1,
+                         "the detector must still find a planted ambient reader, or this zero "
+                         "means nothing at all")
 
     def test_the_projection_census(self):
         self.assertEqual(AR.projection_census(), (
-            ("exclusion_membership", (), False, None),
-            ("prefix_disjointness", (), False, None),
-            ("liveness_horizon", (), True, True),
+            ("exclusion_membership", ("own_cert",), True, 1),
+            ("prefix_disjointness", ("own_cert",), True, True),
+            ("liveness_horizon", ("own_cert",), True, True),
             ("occupancy_defect", ("own_tile",), True, 1),
             ("ledger_remainder", ("own_log",), True, 2),
             ("quorum_agreement", ("own_tile", "peer_tiles"), True, 1),
         ))
+
+    def test_the_quantity_follows_the_certificate_not_the_occupancy(self):
+        """The rewiring changed no value, which is what makes it safe and equally what makes it
+        invisible: two functions agreeing on every input in the corpus is L23's shape and could just
+        as well mean the edit never took. Force them apart — hold the occupancy FIXED and forge the
+        certificate's region — and the quantity must follow the certificate."""
+        honest, forged, differ, followed = \
+            AR.the_quantity_follows_the_certificate_not_the_occupancy()
+        self.assertEqual((honest, forged), (1, 1001))
+        self.assertTrue(differ, "same occupancy, different certificate, same answer => still reading "
+                                "the occupancy")
+        self.assertTrue(followed, "the value must be the CERTIFICATE's region, not occupancy's")
+
+    def test_an_absent_certificate_refuses(self):
+        """A peer who sent no certificate is an ordinary protocol event that was INEXPRESSIBLE before
+        the certificate became an atom, because `proj` manufactured one from occupancy. Three typed
+        refusals — an exception is not a refusal."""
+        codes = AR.an_absent_certificate_refuses()
+        self.assertEqual(codes, ("AUTOROUTE-MISSING-ATOM",) * 3)
+        for c in codes:
+            self.assertFalse(c.startswith("UNTYPED"), "a crash is not a refusal")
 
     def test_the_sentinel_refuses_typed_rather_than_crashing(self):
         """Inert, it died as a TypeError from inside tilemin — untyped, naming neither atom nor

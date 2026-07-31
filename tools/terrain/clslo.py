@@ -52,6 +52,16 @@ import slo as _SL                                               # the one-class 
 import opcost as _OC                                            # OPCOST-REFUSE (shared refuse family)
 
 
+#: scalar -> (admitted type, normalization, encoding). A priority reaches a DICT here, so `True`
+#: would silently select the target keyed 1 and `Fraction(2, 1)` the target keyed 2 — a class
+#: identity decided by `__eq__`/`__hash__` agreement across types rather than by a declared contract.
+REPRESENTATION = {"priority": ("int", "exact, no coercion", "dict key, identity by value")}
+
+
+def _is_int(v):
+    return type(v) is int                                        # bool excluded on purpose
+
+
 class ClsloError(Exception):
     def __init__(self, message, priority=None):
         super().__init__(f"CLSLO-REFUSE: {message}")
@@ -138,6 +148,9 @@ def class_slo_admit(classes, budget, actor_cost, horizon, targets):
     cs = _norm(classes)
     tmap = _targets_map(targets)
     for (pr, _c) in cs:
+        if not _is_int(pr):
+            raise ClsloError(f"priority must be an int, got {pr!r} of type {type(pr).__name__}",
+                             priority=pr)
         if pr not in tmap:
             raise ClsloError(f"no target for the class at priority {pr}", priority=pr)
     for (pr, _c) in cs:                                         # high priority first (cs is sorted desc)
@@ -255,3 +268,20 @@ def golden(name):
                 if nm == name:
                     return dig
     raise ClsloError(f"no golden named {name!r}")
+
+
+def the_representation_contract_bites():
+    """FALSIFIER for REPRESENTATION. A priority reaches a DICT, so `True` would have selected the
+    target keyed 1 and `Fraction(2, 1)` the one keyed 2 — class identity by cross-type `__eq__`
+    rather than by contract. Returns the refusal codes for the porous types."""
+    from fractions import Fraction as _F
+    codes = []
+    for bad in (True, _F(1, 1), 1.0):
+        try:
+            class_slo_admit(((bad, 1),), 10, 1, 10, {bad: 10})
+            codes.append("ADMITTED")
+        except ClsloError as exc:
+            codes.append(exc.code)
+        except Exception as exc:
+            codes.append(f"UNTYPED:{type(exc).__name__}")
+    return tuple(codes)

@@ -117,11 +117,21 @@ granted by scope rather than by designation. `projected` hands over ONLY the ato
 every other atom replaced by NOT_FETCHED, so a quantity reading an undesignated input refuses BY
 CONSTRUCTION and nobody has to enumerate the reads.
 
-    MEASURED, AND IT IS STRICTLY STRONGER: on the same situation `guarded` admits 6 of 6 while
-    `projected` admits 4 of 6. The two that fall are `exclusion_membership` and `prefix_disjointness` —
-    CERT-tier rows whose plan designates NOTHING and which read `s['occupancy']` anyway, because the
-    model DERIVES the certificate from occupancy. That is the second representation defect, now a
-    measured witness rather than a note.
+    IT WAS STRICTLY STRONGER, AND THE GAP IT MEASURED IS NOW CLOSED. On the same situation `guarded`
+    admitted 6 of 6 while `projected` admitted 4 of 6; the two that fell were `exclusion_membership`
+    and `prefix_disjointness` — CERT-tier rows whose plan designated NOTHING and which read
+    `s['occupancy']` anyway, because `inputset.proj` DERIVED the certificate from occupancy on every
+    call. The certificate is a designated atom now (`own_cert`), so both admit and
+    `the_ambient_readers` reports 0 of 6.
+
+    WHICH COSTS THIS MODULE A WITNESS, AND THE HONEST MOVE IS TO SAY SO RATHER THAN BANK THE GREEN.
+    `projection_is_stricter_than_checking` now reads (6, 6, 6): the two gates agree on this corpus,
+    so the strictness the name asserts is no longer DEMONSTRATED here. Projection is still strictly
+    stronger in principle — checking asks whether an atom is present, projection makes an
+    undesignated one unreachable — and that difference is kept observable by a PLANT rather than by a
+    defect: `the_detector_still_catches_an_ambient_reader` builds a quantity whose plan designates
+    only `own_cert` and whose body reads occupancy, and demands the detector find it. A checker whose
+    only witness has been repaired is indistinguishable from a broken one (L23).
 
     AND IT IS 2 OF 6, NOT 3. A first reading inferred the hole from the tier and said three CERT rows;
     projection says `liveness_horizon` SURVIVES, because it reads only the tick, which rides inline on
@@ -178,14 +188,20 @@ import tilemin as _TM                                              # noqa: E402
 MAGIC = b"URDRAUT1"
 
 WORLD = 4                        # cohort's pinned world edge
-ATOMS = ("own_tile", "own_log", "peer_tiles")
-ATOM_OF = {"own_tile": "occupancy", "own_log": "history", "peer_tiles": "cohort"}
+ATOMS = ("own_cert", "own_tile", "own_log", "peer_tiles")
+ATOM_OF = {"own_cert": "cert", "own_tile": "occupancy",
+           "own_log": "history", "peer_tiles": "cohort"}
 
 #: `inputset`'s chain, as SETS of fetch atoms, so it can be compared against the lattice.
-CHAIN = (("CERT", frozenset()),
-         ("LATTICE", frozenset({"own_tile"})),
-         ("HISTORY", frozenset({"own_tile", "own_log"})),
-         ("COHORT", frozenset({"own_tile", "own_log", "peer_tiles"})))
+#:
+#: `own_cert` IS AN ATOM NOW, and the CERT tier is no longer empty. It was empty because the model
+#: DERIVED the certificate inside `proj` from `s["occupancy"]` — so the narrowest tier read the very
+#: atom it exists to avoid, and `projected` caught it: 4 of 6 admitted where `guarded` admitted 6.
+#: An empty plan does not mean "needs nothing"; it meant "needs something nobody wrote down".
+CHAIN = (("CERT", frozenset({"own_cert"})),
+         ("LATTICE", frozenset({"own_cert", "own_tile"})),
+         ("HISTORY", frozenset({"own_cert", "own_tile", "own_log"})),
+         ("COHORT", frozenset({"own_cert", "own_tile", "own_log", "peer_tiles"})))
 CHAIN_SET = dict(CHAIN)
 
 DECIDED_LOCALLY, SCREENED, RECOMPUTED = "ROUTE_CERT", "ROUTE_SCREEN", "ROUTE_RECOMPUTE"
@@ -407,12 +423,34 @@ def a_breached_verdict_flips_at_one_cell(n=WORLD):
 
 # ---- CORRECTION 5: the minimal input SETS, and the enumeration that overreached ------------------------
 def _subproj(atoms, s):
-    """The projection onto an arbitrary SUBSET of atoms — the chain's `proj` generalized off-chain."""
+    """The projection onto an arbitrary SUBSET of atoms — the chain's `proj` generalized off-chain.
+
+    THE CERTIFICATE IS CONDITIONAL ON `own_cert` NOW, AND IT WAS NOT. This function used to open with
+
+        cert = _TM.certify(s["occupancy"], s["tick"])
+        out = [cert["tile_prefix"], cert["jurisdiction_region"], ...]
+
+    unconditionally — the same derive-from-occupancy defect the certificate rung removed from
+    `inputset.proj`, left standing in the SECOND projection function. Two consequences, both
+    load-bearing. The "empty" projection was never empty: it always carried `jurisdiction_region`,
+    which IS `exclusion_membership`, so the witness search concluded that projecting onto NOTHING
+    determined it and the atom was droppable. And `own_cert` was never consulted at all, so the
+    16-node lattice was really 8 nodes with a constant certificate stapled to each.
+
+    MEASURED after the fix: `exclusion_membership/own_cert` and `prefix_disjointness/own_cert` go
+    search-True -> search-False, which is correct — they read the certificate and no projection
+    omitting it can determine them. `liveness_horizon/own_cert` stays True, which is ALSO correct and
+    is the one genuine family limitation here: the quantity takes exactly ONE distinct value across
+    all 54 members, so the empty projection determines it by constancy. That row is a real
+    family-relative positive; the other two were an artifact."""
     for a in atoms:
         if a not in ATOMS:
             raise RouteError(f"unknown fetch atom {a!r}")
-    cert = _TM.certify(s["occupancy"], s["tick"])
-    out = [cert["tile_prefix"], cert["jurisdiction_region"], cert["liveness_token"], cert["tick"]]
+    out = []
+    if "own_cert" in atoms:
+        cert = s["cert"]
+        out += [cert["tile_prefix"], cert["jurisdiction_region"], cert["liveness_token"],
+                cert["tick"]]
     if "own_tile" in atoms:
         out.append(tuple(sorted(s["occupancy"])))
     if "own_log" in atoms:
@@ -602,7 +640,13 @@ def the_lattice_enumeration_overreached():
     said = minimal_sets("quorum_agreement")
     a = _IS.situation({(33, 33, 33)}, 6, (), ({(33, 33, 33)},))
     b = _IS.situation({(40, 40, 40)}, 6, (), ({(33, 33, 33)},))
-    base = _subproj((), a) == _subproj((), b)
+    # `_subproj(("own_cert",), ...)`, NOT `_subproj((), ...)`. The old form asked for the EMPTY
+    # projection and got the certificate anyway, because `_subproj` stapled it on unconditionally.
+    # Once that was fixed the empty projection became `()`, so this line compared two empty tuples
+    # and the "identical certificate" premise of the witness silently became vacuous — a check that
+    # cannot fail, introduced BY the fix. The premise still holds on measurement (both situations
+    # certify to tile_prefix 56, region 1, same token and tick); it is now actually being checked.
+    base = _subproj(("own_cert",), a) == _subproj(("own_cert",), b)
     coh = a["cohort"] == b["cohort"]
     va, vb = _IS.q_quorum_agreement(a), _IS.q_quorum_agreement(b)
     return (said, base, coh, a["occupancy"] == b["occupancy"], va, vb, va != vb)
@@ -781,12 +825,20 @@ class _NotFetched:
 NOT_FETCHED = _NotFetched()
 
 
-def fetched_situation(occupancy, tick, history, cohort):
+def fetched_situation(occupancy, tick, history, cohort, cert=None):
     """`inputset.situation` with every atom allowed to be NOT_FETCHED. The coercions are skipped for
-    the sentinel — `frozenset(NOT_FETCHED)` would raise, and an exception is not a refusal."""
+    the sentinel — `frozenset(NOT_FETCHED)` would raise, and an exception is not a refusal.
+
+    `cert=None` DERIVES, exactly as `inputset.situation` does, and for the same reason: a corpus that
+    hands over occupancy is entitled to a consistent certificate. Pass `cert=NOT_FETCHED` to model a
+    peer who sent no certificate — that is now expressible, and before this rung it was not, because
+    the certificate was not an atom at all."""
     def keep(v, coerce):
         return v if v is NOT_FETCHED else coerce(v)
-    return {"occupancy": keep(occupancy, frozenset), "tick": tick,
+    if cert is None:
+        cert = (NOT_FETCHED if occupancy is NOT_FETCHED
+                else _TM.certify(frozenset(occupancy), tick))
+    return {"cert": cert, "occupancy": keep(occupancy, frozenset), "tick": tick,
             "history": keep(history, tuple),
             "cohort": keep(cohort, lambda c: tuple(frozenset(x) for x in c))}
 
@@ -935,14 +987,93 @@ def projection_census():
 
 
 def the_ambient_readers(census=None):
-    """THE MEASURED WITNESS FOR THE REMAINING RUNG. Returns (names, ambient, total) — the quantities
-    whose plan designates nothing yet which read the occupancy anyway, because the model DERIVES the
-    certificate from it. Not 3 of 6 as a first reading of the tiers suggested: `liveness_horizon`
-    survives projection, since it reads only the tick, which is carried inline on the certificate and
-    is not a fetch atom at all."""
+    """Returns (names, ambient, total) — quantities that read an atom their plan does not designate.
+
+    IT RETURNS THE EMPTY TUPLE NOW, AND THAT IS THE POINT OF THE CERTIFICATE RUNG. It used to report
+    `exclusion_membership` and `prefix_disjointness`: plans designating NOTHING while reading
+    `s["occupancy"]`, because `proj` derived the certificate from occupancy on every call. The
+    certificate is a designated atom now, so there is nothing ambient left to find.
+
+    WHICH IS EXACTLY WHY IT NEEDS A POSITIVE CONTROL. A detector whose only witness has been fixed is
+    a detector nobody can distinguish from a broken one — L23, and the reason `auditgraph` shipped
+    three times. `the_detector_still_catches_an_ambient_reader` below plants one and demands this
+    function find it. Never re-pin a `0 of 6` here without checking that control is green."""
     rows = census or projection_census()
     bad = tuple(n for n, _p, ok, _v in rows if not ok)
     return bad, len(bad), len(rows)
+
+
+def the_detector_still_catches_an_ambient_reader():
+    """POSITIVE CONTROL for `the_ambient_readers`, live rather than commented.
+
+    Plants a quantity whose plan designates only `own_cert` but whose body reads `s["occupancy"]` —
+    the exact defect the certificate rung removed — and asserts the mechanism still bites. Returns
+    (caught_name, planted_count, clean_count).
+
+    The plant is built the way `projected` builds a view — every atom outside the plan replaced by
+    NOT_FETCHED — so a body that touches occupancy hits the sentinel and refuses. Written against the
+    view construction READ OUT OF `projected`, not guessed: a first attempt passed `_subproj`'s
+    return value, which is a projection TUPLE and not a situation dict, and died with a TypeError
+    instead of a refusal. An exception is not a refusal (this module's own thesis), so the control
+    would have been reporting on the wrong mechanism entirely.
+
+    If this ever returns a planted count of 0, the detector has stopped detecting and the empty
+    result from `the_ambient_readers` means nothing."""
+    def _ambient(s):
+        return len(s["occupancy"])                      # reads an atom its plan does not designate
+
+    full = fetched_situation({(33, 33, 33)}, 6, (2, 2), ({(33, 33, 33)},))
+    view = dict(full)
+    for atom, key in ATOM_OF.items():                   # the plan is ("own_cert",) and nothing else
+        if atom != "own_cert":
+            view[key] = NOT_FETCHED
+    caught = ""
+    try:
+        _ambient(view)
+    except MissingAtom:
+        caught = "planted_ambient"                      # refused => the mechanism still bites
+    clean, _n, _t = the_ambient_readers()
+    return (caught, 1 if caught else 0, len(clean))
+
+
+def the_quantity_follows_the_certificate_not_the_occupancy():
+    """MUTATION PROBE for the certificate rung. Rewiring `exclusion_membership` from
+    `region_of(tile_prefix(s["occupancy"]))` to `s["cert"]["jurisdiction_region"]` changed no value
+    (`--only inputset --diff`: no drift), and that identity is exactly what makes the change safe —
+    and exactly what makes it unfalsifiable by observation alone. Two functions agreeing on every
+    input in the corpus is the `auditgraph` shape from L23: it could equally mean the edit did not
+    take.
+
+    So force them apart. Hold the occupancy FIXED and hand over a certificate whose region disagrees
+    with the one that occupancy would produce. A quantity reading the certificate returns the forged
+    region; a quantity still reading occupancy returns the honest one and is blind to the swap.
+    Returns (honest, forged, they_differ, followed_the_cert)."""
+    occ = frozenset({(33, 33, 33)})
+    honest = _TM.certify(occ, 6)
+    forged = dict(honest)
+    forged["jurisdiction_region"] = honest["jurisdiction_region"] + 1000
+    a = projected("exclusion_membership", fetched_situation(occ, 6, (), (), cert=honest))
+    b = projected("exclusion_membership", fetched_situation(occ, 6, (), (), cert=forged))
+    return a, b, a != b, b == forged["jurisdiction_region"]
+
+
+def an_absent_certificate_refuses():
+    """THE REFUSAL THAT WAS NOT EXPRESSIBLE BEFORE THIS RUNG. A peer who sends no certificate is an
+    ordinary protocol event, and until the certificate became an atom there was no way to say it: the
+    situation always had one, because `proj` manufactured it from occupancy. Now `cert=NOT_FETCHED`
+    is a state, and every CERT quantity must refuse on it with the typed code rather than crash or
+    return a confident number. Returns the three codes."""
+    s = fetched_situation(frozenset({(33, 33, 33)}), 6, (), (), cert=NOT_FETCHED)
+    out = []
+    for n in ("exclusion_membership", "prefix_disjointness", "liveness_horizon"):
+        try:
+            projected(n, s)
+            out.append("ADMITTED")                      # would be the defect: a number with no cert
+        except MissingAtom as exc:
+            out.append(exc.code)
+        except Exception as exc:                        # an exception is not a refusal
+            out.append(f"UNTYPED:{type(exc).__name__}")
+    return tuple(out)
 
 
 def projection_is_stricter_than_checking():

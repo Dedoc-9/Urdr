@@ -72,6 +72,30 @@ DIGEST_BYTES = 32
 CERT_BYTES = len(MAGIC) + 2 * _TF.EDIT_RECORD_BYTES + 1 + DIGEST_BYTES  # 233
 
 
+#: THE REPRESENTATION CONTRACT, declared as data: scalar -> (admitted type, normalization,
+#: encoding). A digest-binding scalar without one is a scalar whose identity is whatever Python's
+#: `==` happens to say, and MEASURED that is not the same as its digest:
+#:
+#:     commute_digest(..., rank=1,            ...) -> 32e3d2c45341be01...
+#:     commute_digest(..., rank=True,         ...) -> 34d6384b3500da4a...   ADMITTED, DIFFERENT digest
+#:     commute_digest(..., rank=Fraction(1,1),...) -> 32e3d2c45341be01...   ADMITTED, SAME digest
+#:
+#: `rank not in (0, 1)` admitted both, because `True == 1` and `Fraction(1,1) == 1`. So the bool split
+#: the identity (same value, two digests) and the Fraction laundered its type (two types, one digest)
+#: — opposite failures from ONE missing contract. `_is_int` closes both: bool is a subclass of int and
+#: `type(v) is int` excludes it on purpose.
+#: AND THE ADMITTED TYPE IS `int OR THE STRING "-"`, WHICH THE DOCSTRING SAYS AND A FIRST GUARD
+#: MISSED. `commute_digest`'s rank slot carries the pairwise rank, a permutation count, OR "-" for a
+#: refusal — so a plain int guard would have refused every refusal scene. Read the code, then write
+#: the contract; a contract inferred from the parameter's name would have been wrong here.
+REPRESENTATION = {"rank": ('int or the string "-"', "exact, no coercion",
+                           'str() into the digest preimage: "0", "1", "-"')}
+
+
+def _is_int(v):
+    return type(v) is int                                        # bool excluded on purpose
+
+
 class CommuteError(Exception):
     def __init__(self, message):
         super().__init__(f"COMMUTE-REFUSE: {message}")
@@ -159,8 +183,9 @@ def restore_cert(buf):
         _TF.restore_edit(rec_b)
     except _TF.TerraformError as exc:
         raise CommuteError(f"embedded edit record refused: {exc}")
-    if rank not in (0, 1):
-        raise CommuteError(f"rank must be 0 or 1, got {rank}")
+    if not _is_int(rank) or rank not in (0, 1):
+        raise CommuteError(f"rank must be the int 0 or 1, got {rank!r} of type "
+                           f"{type(rank).__name__}")
     return rec_a, rec_b, rank
 
 
@@ -201,6 +226,12 @@ def commute_digest(name, parent_hex, head_hex, rank, nbytes, verdict):
     """URDRCMU1 canon — SHA-256(MAGIC | name | parent | head | rank | bytes | verdict). The rank slot
     carries the scene's proof witness: the pairwise rank, the verified permutation count for a
     closure, or '-' for a refusal."""
+    if not (_is_int(rank) or (type(rank) is str and rank == "-")):
+        raise CommuteError(f"rank binds a digest and must be an int or the string '-', got "
+                           f"{rank!r} of type {type(rank).__name__}")
+    if not _is_int(nbytes):
+        raise CommuteError(f"nbytes binds a digest and must be an int, got {nbytes!r} of type "
+                           f"{type(nbytes).__name__}")
     hh = hashlib.sha256()
     hh.update(MAGIC)
     hh.update(f"|{name}|p:{parent_hex}|h:{head_hex}|r:{rank}|n:{nbytes}|v:{verdict}".encode())
@@ -295,3 +326,29 @@ def golden(name):
                 if nm == name:
                     return dig
     raise CommuteError(f"no golden named {name!r}")
+
+
+def the_representation_contract_bites():
+    """FALSIFIER for REPRESENTATION. Every admitted-type claim is exercised against the values that
+    slipped through before it existed, and against the ones that must STILL pass. Returns
+    (refused_codes, rank_one, rank_dash_differs).
+
+    Both historical failures are covered because they were opposite: `True` was admitted and produced
+    a DIFFERENT digest (same value, split identity), `Fraction(1, 1)` was admitted and produced the
+    SAME one (different type, laundered identity)."""
+    D = lambda r, n=10: commute_digest("n", "ab" * 32, "cd" * 32, r, n, True)
+    from fractions import Fraction as _F
+    codes = []
+    for bad in (True, _F(1, 1), 1.0, "1"):
+        try:
+            D(bad)
+            codes.append("ADMITTED")
+        except CommuteError as exc:
+            codes.append(exc.code)
+    for bad_n in (True, 10.0, _F(10, 1)):
+        try:
+            D(1, bad_n)
+            codes.append("ADMITTED")
+        except CommuteError as exc:
+            codes.append(exc.code)
+    return tuple(codes), D(1), D("-") != D(1)

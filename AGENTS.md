@@ -326,7 +326,7 @@ cannot score itself, so the gate scores it: `_classify_drift` is a pure function
 a percentage of the gate.
 
 Those rows are **withheld, not merely missing.** `--only doc_currency` used to print `[FAIL]
-doc-currency — README.md says fals=1946 (live -1)`: a red that was certain in advance, because
+doc-currency — README.md says fals=1948 (live -1)`: a red that was certain in advance, because
 `fals`, `rows` and `det` are totals over the whole run. The same missing input made the WORD-form
 half of `doc-staleness` compare against `-1` and pass VACUOUSLY — one defect, a false red in one row
 and a false green in its neighbour. So the stage now calls `Gate.subset_withholds` and the runner
@@ -431,7 +431,7 @@ confusions were a drifted working directory.
 #
 #     <<<URDR
 #     HEAD=2d81bdf BR=main AM=none
-#     GATE=PASSED FAILROWS=0 FALS=1946/0red ROWS=836 DOCCUR=OK DOCSTALE=OK
+#     GATE=PASSED FAILROWS=0 FALS=1948/0red ROWS=836 DOCCUR=OK DOCSTALE=OK
 #     DET=BYTE-IDENTICAL BYTES=240028/240028 A=698E23C7 B=698E23C7
 #     PUSH=afaf3db..2d81bdf
 #     URDR>>>
@@ -447,7 +447,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 1946 unit falsifiers / 836 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1948 unit falsifiers / 836 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

@@ -70,7 +70,22 @@ class ChunkstateError(Exception):
         self.code = "CHUNKSTATE-REFUSE"
 
 
+#: scalar -> (admitted type, normalization, encoding). MEASURED porosity before this guard: with
+#: CHUNK_SIZES = {4, 8, 16, 32}, both `4.0` and `Fraction(4, 1)` were ADMITTED by the membership test,
+#: because `==` and `hash` agree across numeric types. `True` was not, only because 1 is not a valid
+#: size — the bool vector was closed by the VALUE SET rather than by the check, which is luck and not
+#: a contract.
+REPRESENTATION = {"csize": ("int", "exact, no coercion", "one of the frozen CHUNK_SIZES")}
+
+
+def _is_int(v):
+    return type(v) is int                                        # bool excluded on purpose
+
+
 def _check_c(csize):
+    if not _is_int(csize):
+        raise ChunkstateError(f"region size must be an int, got {csize!r} of type "
+                              f"{type(csize).__name__}")
     if csize not in _CK.CHUNK_SIZES:
         raise ChunkstateError(f"region size {csize!r} is not one of the frozen {_CK.CHUNK_SIZES}")
 
@@ -379,3 +394,23 @@ def golden(name):
                 if nm == name:
                     return dig
     raise ChunkstateError(f"no golden named {name!r}")
+
+
+def the_representation_contract_bites():
+    """FALSIFIER for REPRESENTATION. `4.0` and `Fraction(4, 1)` were ADMITTED as region sizes before
+    the guard, because `==` and `hash` agree across numeric types and the membership test asked only
+    about equality. Returns (refused_codes, a_valid_size_still_passes)."""
+    from fractions import Fraction as _F
+    codes = []
+    for bad in (4.0, _F(4, 1), True, "4"):
+        try:
+            _check_c(bad)
+            codes.append("ADMITTED")
+        except ChunkstateError as exc:
+            codes.append(exc.code)
+    ok = True
+    try:
+        _check_c(sorted(_CK.CHUNK_SIZES)[0])
+    except ChunkstateError:
+        ok = False
+    return tuple(codes), ok

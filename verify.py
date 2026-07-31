@@ -6116,7 +6116,12 @@ class Gate:
             CL.class_slo_admit(classes, 3 * c, c, 2, ((3, 2), (2, 4), (1, 5)))
         except CL.ClsloError as exc:
             refused = exc.code == "CLSLO-REFUSE" and exc.priority == 3
-        self.record("clslo-refuse", refused,
+        # B: a priority reaches a DICT, so `True` selected the target keyed 1 by cross-type equality.
+        try:
+            rep_ok = CL.the_representation_contract_bites() == ("CLSLO-REFUSE",) * 3
+        except Exception:
+            rep_ok = False
+        self.record("clslo-refuse", refused and rep_ok,
                     "a tier whose worst-case latency exceeds its own target is CLSLO-REFUSE, named (premium p3 "
                     "here)"
                     if refused else "the per-class refusal did not hold")
@@ -6666,10 +6671,18 @@ class Gate:
             admitted = SC.within_storage_budget(CT.cut_bytes(state, 16), 10000) is True
         except Exception:
             dbl = False
-        self.record("chunkstate-refuse", dbl and lost and annex and mixed and corrupt and refused and admitted,
+        # B: `4.0` and `Fraction(4, 1)` were ADMITTED as region sizes, because a membership test asks
+        # only about `==` and numeric types compare equal across representations.
+        try:
+            _cs_codes, _cs_valid = CT.the_representation_contract_bites()
+            rep_ok = _cs_codes == ("CHUNKSTATE-REFUSE",) * 4 and _cs_valid
+        except Exception:
+            rep_ok = False
+        self.record("chunkstate-refuse", dbl and lost and annex and mixed and corrupt and refused and admitted and rep_ok,
                     "a doubly-claimed, lost, annexed, or mixed-boundary actor set and a corrupted record are "
                     "CHUNKSTATE-REFUSE; an over-budget cut is STORAGE-REFUSE; a within-budget cut admits"
-                    if (dbl and lost and annex and mixed and corrupt and refused and admitted)
+                    if (dbl and lost and annex and mixed and corrupt and refused and admitted
+                        and rep_ok)
                     else "the cut-authority refusal did not hold")
 
     def terraform(self):
@@ -6952,8 +6965,19 @@ class Gate:
             admitted = SC.within_storage_budget(CM.CERT_BYTES, 1000) is True
         except Exception:
             layer1 = False
+        # B: THE REPRESENTATION CONTRACT, asserted rather than merely written. `rank` and `nbytes`
+        # BIND A DIGEST, and before the guard `commute_digest(..., rank=True, ...)` was ADMITTED and
+        # produced 34d6384b... where rank=1 produces 32e3d2c4... — the same logical value, two
+        # digests — while `Fraction(1, 1)` was ADMITTED and produced 32e3d2c4... exactly, a different
+        # type laundered into the int's identity. Opposite failures from one missing contract.
+        # Seven porous values, seven typed refusals; rank="-" (the refusal witness) still admits.
+        try:
+            codes, valid, dash_differs = CM.the_representation_contract_bites()
+            rep_ok = codes == ("COMMUTE-REFUSE",) * 7 and dash_differs and len(valid) == 64
+        except Exception:
+            rep_ok = False
         refuse_ok = (layer1 and layer2 and masked and forged and inner and wrongw and sib
-                     and flip and intact and admitted)
+                     and flip and intact and admitted and rep_ok)
         self.record("commute-refuse", refuse_ok,
                     "the contested cell refuses in BOTH layers (the cell law; the old-height CAS on the "
                     "rebased loser); the no-op masked batch refuses whole; a forged rank, a tampered "
@@ -12220,16 +12244,34 @@ class Gate:
                     if ref_ok else "an autoroute scene drifted from its digest")
         plan_ok = True
         try:
+            # RE-DERIVED when the certificate became a designated atom. Every change below is a
+            # consequence of ONE structural fact: `own_cert` exists now, so the CERT tier is no
+            # longer the empty set and every tier's chain prefix names it.
+            #   - the three CERT rows go () -> ("own_cert",): they were reading the certificate all
+            #     along, through `proj`'s internal `certify(s["occupancy"], ...)`. The plan finally
+            #     says what they read.
+            #   - the three non-CERT rows gain "own_cert" in their DROPPED column, not their plan.
+            #     Their plans are byte-for-byte what they were. That is the anti-inflation check:
+            #     adding an atom must not widen a plan that does not read it.
             plan_ok = AR.route_census() == (
-                ("exclusion_membership", (), "CERT", ()),
-                ("prefix_disjointness", (), "CERT", ()),
-                ("liveness_horizon", (), "CERT", ()),
-                ("occupancy_defect", ("own_tile",), "LATTICE", ()),
-                ("ledger_remainder", ("own_log",), "HISTORY", ("own_tile",)),
-                ("quorum_agreement", ("own_tile", "peer_tiles"), "COHORT", ("own_log",)))
-            plan_ok = plan_ok and AR.the_chain_is_not_tight() == (2, 6)
+                ("exclusion_membership", ("own_cert",), "CERT", ()),
+                ("prefix_disjointness", ("own_cert",), "CERT", ()),
+                ("liveness_horizon", ("own_cert",), "CERT", ()),
+                ("occupancy_defect", ("own_tile",), "LATTICE", ("own_cert",)),
+                ("ledger_remainder", ("own_log",), "HISTORY", ("own_cert", "own_tile")),
+                ("quorum_agreement", ("own_tile", "peer_tiles"), "COHORT",
+                 ("own_cert", "own_log")))
+            # (2, 6) -> (6, 6) -> (4, 6). The middle value was an ARTIFACT of a broken `_subproj`,
+            # which stapled the certificate onto every projection regardless of the atom set, so the
+            # search believed the two certificate-reading quantities sat below their tier prefix. With
+            # the projection honouring `own_cert`, they sit exactly AT it — a CERT quantity that reads
+            # the certificate has no slack, which is the correct answer. Four of six still sit strictly
+            # below, and the PLANS never moved through any of it.
+            plan_ok = plan_ok and AR.the_chain_is_not_tight() == (4, 6)
             plan_ok = plan_ok and AR.the_real_savings() == (
-                ("ledger_remainder", "own_tile"), ("quorum_agreement", "own_log"))
+                ("occupancy_defect", "own_cert"),
+                ("ledger_remainder", "own_cert"), ("ledger_remainder", "own_tile"),
+                ("quorum_agreement", "own_cert"), ("quorum_agreement", "own_log"))
             rows, bad = AR.routing_agrees_with_cohort()
             plan_ok = plan_ok and bad == 0 and len(rows) == 3
             for name, plan, tier, dropped in AR.route_census():
@@ -12247,8 +12289,9 @@ class Gate:
                     "THE FETCH PLAN IS THE TIER'S CHAIN PREFIX MINUS EVERY ATOM THE VERIFIER CAN PROVE "
                     "IT DOES NOT READ, so the router stops asking the caller for inputs it does not "
                     "need. inputset's four levels are a CHAIN, but the minimal input sets form a "
-                    "LATTICE over {own_tile, own_log, peer_tiles} and a chain visits only 4 of its 8 "
-                    "nodes — 2 of 6 quantities turn out to sit strictly below their tier's prefix, "
+                    "LATTICE over {own_cert, own_tile, own_log, peer_tiles} and a chain visits only 4 of "
+                    "its 16 nodes — 6 of 6 quantities turn out to sit strictly below their tier's "
+                    "prefix, "
                     "which is why the lattice is worth walking at all. ADOPTED: ledger_remainder "
                     "fetches the log and NOT the tile; quorum_agreement fetches the tile and peers and "
                     "NOT the log. And the property a router must not break is asserted rather than "
@@ -12335,20 +12378,57 @@ class Gate:
                     if vac_ok else "the autoroute breached-base vacuity did not hold")
         det_ok = True
         try:
+            # RE-DERIVED TWICE, AND THE FIRST EXPLANATION WAS WRONG — recorded here because the
+            # explanation is the deliverable. The first pass saw all three CERT quantities reported
+            # search-INDEPENDENT and blamed the FAMILY: "every situation derives its certificate from
+            # its occupancy, so no member separates on the certificate." Three measurements refuted
+            # that. The family separates `own_cert` in 27 isolating pairs; it varies
+            # `jurisdiction_region` in 648 pairs; and a per-observed-input separating metric turned
+            # out toothless, since a quantity reading ONE input satisfies it vacuously.
+            #
+            # The defect was in the CODE, in a function whose name said what it did. `_subproj`
+            # stapled `certify(s["occupancy"], s["tick"])` onto EVERY projection regardless of the
+            # atom set and never consulted `own_cert` — the same derive-from-occupancy defect the
+            # certificate rung removed from `inputset.proj`, left standing in the SECOND projection
+            # function. So the "empty" projection carried `jurisdiction_region`, which IS
+            # `exclusion_membership`, and the search concluded that projecting onto nothing determined
+            # it. Corrected, the two flip to search-False, which is what a quantity that reads the
+            # certificate must report.
+            #
+            # `liveness_horizon/own_cert` STAYS True, and that one is a genuine family limitation
+            # rather than an artifact: the quantity takes exactly ONE distinct value across all 54
+            # members, so the empty projection determines it by constancy. Over-skip is 2, not 4, and
+            # both entries are honest. Extending the family so `liveness_horizon` varies is the named
+            # follow-on; the plans never moved through any of this, because syntax vetoed every bad
+            # drop the whole time.
             det_ok = AR.syntax_versus_search_census() == (
+                ("exclusion_membership", "own_cert", False, False),
+                ("prefix_disjointness", "own_cert", False, False),
+                ("liveness_horizon", "own_cert", True, False),
+                ("occupancy_defect", "own_cert", True, True),
                 ("occupancy_defect", "own_tile", False, False),
+                ("ledger_remainder", "own_cert", True, True),
                 ("ledger_remainder", "own_log", False, False),
                 ("ledger_remainder", "own_tile", True, True),
+                ("quorum_agreement", "own_cert", True, True),
                 ("quorum_agreement", "own_log", True, True),
                 ("quorum_agreement", "own_tile", True, False),
                 ("quorum_agreement", "peer_tiles", False, False))
-            det_ok = det_ok and AR.only_syntax_gives_a_universal_positive() == (3, 2, 1)
+            det_ok = det_ok and AR.only_syntax_gives_a_universal_positive() == (7, 5, 2)
             det_ok = det_ok and AR.search_alone_would_over_skip()[2] == (
-                ("quorum_agreement", "own_tile"),)
+                ("liveness_horizon", "own_cert"), ("quorum_agreement", "own_tile"))
             det_ok = det_ok and AR.the_syntactic_check_follows_calls() == (True, True)
-            det_ok = det_ok and AR.the_family_was_built_for_a_chain() == (3, 8, 12)
+            det_ok = det_ok and AR.the_family_was_built_for_a_chain() == (3, 16, 32)
             said, cs, ch, occ, va, vb, refuted = AR.the_lattice_enumeration_overreached()
-            det_ok = det_ok and said == (("peer_tiles",),) and cs and ch and not occ
+            # The enumeration used to claim {peer_tiles} ALONE determined quorum_agreement — a
+            # single-atom overreach the hand-built witness refutes. With `_subproj` honouring
+            # `own_cert` it now names two TWO-atom minimal sets instead, so the overreach is smaller
+            # but has not vanished: {own_tile, peer_tiles} is genuinely minimal, while
+            # {own_cert, peer_tiles} is still an overreach for the same reason as before — the
+            # certificate does not carry the occupancy, and the witness below proves it with two
+            # situations sharing a certificate and a cohort but differing in agreement.
+            det_ok = det_ok and said == (("own_cert", "peer_tiles"),
+                                         ("own_tile", "peer_tiles")) and cs and ch and not occ
             det_ok = det_ok and (va, vb) == (1, 0) and refuted
             try:
                 AR.syntactically_independent("ledger_remainder", "own_galaxy")
@@ -12369,10 +12449,17 @@ class Gate:
                     "family-relative positive into a universal one, and the asymmetry is permanent: a "
                     "NEGATIVE answer is exact from one witness, a search POSITIVE is forever "
                     "family-relative, and the only route to a universal positive is SYNTACTIC. "
-                    "Measured: the search gives 3 positives, syntax 2, and syntax is SILENT on 1 where "
+                    "Measured: the search gives 7 positives, syntax 5, and syntax is SILENT on 2 where "
                     "the search is positive — its honest weakness, since a quantity may read the "
                     "occupancy only through what the certificate already exposes. Their conjunction is "
-                    "exactly the 2 correct reductions, and THE SEARCH ALONE WOULD HAVE DROPPED own_tile "
+                    "exactly the 5 correct reductions, and THE SEARCH ALONE WOULD HAVE DROPPED own_cert "
+                    "FROM liveness_horizon, which is the one HONEST family limitation here: that quantity "
+                    "takes a single distinct value across all 54 members, so projecting onto nothing "
+                    "determines it by constancy. Two sibling rows reported the same verdict for a WRONG "
+                    "reason and were FIXED rather than recorded — `_subproj` stapled a certificate derived "
+                    "from the occupancy onto every projection and never consulted own_cert, so the empty "
+                    "projection carried the very field the quantity returns. It would also have dropped "
+                    "own_tile "
                     "FROM quorum_agreement, which the quantity provably reads — refuted twice, by a "
                     "hand-built pair (same certificate, same cohort, different occupancy, agreement 1 "
                     "against 0) and mechanically by syntax. The syntactic checker ships its OWN plant "
@@ -12416,32 +12503,65 @@ class Gate:
             enf_ok = AR.the_representation_conflated_absent_and_empty() == (True, True)
             enf_ok = enf_ok and AR.unguarded_evaluation_is_silently_wrong() == (2, 6, 6, True)
             enf_ok = enf_ok and AR.the_guard_refuses_absence_and_admits_emptiness() == (True, 6, 2)
-            enf_ok = enf_ok and AR.cert_rows_are_not_exercised_by_this_gate() == (3, 3, 6)
+            # (3, 3, 6) -> (0, 6, 6): the three CERT rows were unexercised because their plan was
+            # EMPTY, so the guard had nothing to check. They designate `own_cert` now and are
+            # exercised like every other row.
+            enf_ok = enf_ok and AR.cert_rows_are_not_exercised_by_this_gate() == (0, 6, 6)
             enf_ok = enf_ok and AR.missing_atom_is_a_distinct_code() == (
                 "AUTOROUTE-MISSING-ATOM", "AUTOROUTE-REFUSE", False)
+            # The `None` column was "plan is empty, nothing to check". It is gone.
             enf_ok = enf_ok and AR.guard_census() == (
-                ("exclusion_membership", (), None, True, True),
-                ("prefix_disjointness", (), None, True, True),
-                ("liveness_horizon", (), None, True, True),
+                ("exclusion_membership", ("own_cert",), True, True, True),
+                ("prefix_disjointness", ("own_cert",), True, True, True),
+                ("liveness_horizon", ("own_cert",), True, True, True),
                 ("occupancy_defect", ("own_tile",), True, True, True),
                 ("ledger_remainder", ("own_log",), True, True, True),
                 ("quorum_agreement", ("own_tile", "peer_tiles"), True, True, True))
-            enf_ok = enf_ok and AR.projection_is_stricter_than_checking() == (6, 4, 6)
-            enf_ok = enf_ok and AR.the_ambient_readers() == (
-                ("exclusion_membership", "prefix_disjointness"), 2, 6)
+            # (6, 4, 6) -> (6, 6, 6), AND THE FUNCTION'S NAME NOW OVERSTATES WHAT IT SHOWS. Projection
+            # was stricter than checking ONLY because of the defect this rung removed; on this corpus
+            # the two gates now agree. Strictness is a real property of projection and it is no longer
+            # demonstrated HERE — it is demonstrated by the planted control below. Recorded rather
+            # than smoothed, because "6 of 6 both ways" reads like a success and is really the loss of
+            # a witness.
+            enf_ok = enf_ok and AR.projection_is_stricter_than_checking() == (6, 6, 6)
+            # THE DEFECT IS CLOSED: zero ambient readers of six, where two were named before.
+            enf_ok = enf_ok and AR.the_ambient_readers() == ((), 0, 6)
+            # ...which is why the detector needs a POSITIVE CONTROL (L23). A planted quantity whose
+            # plan designates only own_cert and whose body reads occupancy MUST still be caught: 1
+            # planted caught, 0 in the real corpus. Without this row, `the_ambient_readers() == ((), 0,
+            # 6)` is indistinguishable from a detector that stopped detecting.
+            enf_ok = enf_ok and AR.the_detector_still_catches_an_ambient_reader() == (
+                "planted_ambient", 1, 0)
+            # A.2, THE TWO FALSIFIERS THE RUNG OWES. The rewiring changed no value, which is what
+            # makes it safe AND what makes it unobservable — two functions agreeing everywhere is the
+            # L23 shape. So force them apart: hold occupancy FIXED, forge the certificate's region
+            # (1 -> 1001), and the quantity must follow the CERTIFICATE. If the edit had not taken it
+            # would return 1 twice and this reddens.
+            enf_ok = enf_ok and AR.the_quantity_follows_the_certificate_not_the_occupancy() == (
+                1, 1001, True, True)
+            # And the state that did not EXIST before this rung: a peer who sent no certificate.
+            # `proj` used to manufacture one from occupancy, so `cert` could never be absent. Three
+            # typed refusals, not three crashes — an exception is not a refusal.
+            enf_ok = enf_ok and AR.an_absent_certificate_refuses() == (
+                "AUTOROUTE-MISSING-ATOM",) * 3
             enf_ok = enf_ok and AR.projection_census() == (
-                ("exclusion_membership", (), False, None),
-                ("prefix_disjointness", (), False, None),
-                ("liveness_horizon", (), True, True),
+                ("exclusion_membership", ("own_cert",), True, 1),
+                ("prefix_disjointness", ("own_cert",), True, True),
+                ("liveness_horizon", ("own_cert",), True, True),
                 ("occupancy_defect", ("own_tile",), True, 1),
                 ("ledger_remainder", ("own_log",), True, 2),
                 ("quorum_agreement", ("own_tile", "peer_tiles"), True, 1))
             enf_ok = enf_ok and AR.the_sentinel_refuses_typed_not_crashes() == (
                 "AUTOROUTE-MISSING-ATOM",) * 4
             enf_ok = enf_ok and AR.identity_still_works_on_the_sentinel() == (True, True, True)
-            enf_ok = enf_ok and AR.provenance_invariant() == (6, 0, 13, 0)
+            # 13 -> 12 undesignated-read opportunities, 0 violations. The count fell because the
+            # certificate stopped being reachable without designation.
+            enf_ok = enf_ok and AR.provenance_invariant() == (6, 0, 12, 0)
             enf_ok = enf_ok and AR.guard_transparency_invariant() == (24, 0)
-            enf_ok = enf_ok and AR.error_partition_invariant() == (42, 18, 4, 0, True, 20)
+            # The partition grew with the atom (42 -> 54 cases, 20 -> 34 refusals) and stays TOTAL:
+            # 0 escapes as an untyped third class. A wider corpus that still partitions is the
+            # evidence; a wider corpus that quietly stopped partitioning is what this catches.
+            enf_ok = enf_ok and AR.error_partition_invariant() == (54, 16, 4, 0, True, 34)
             enf_ok = enf_ok and AR.the_invariants() == (
                 ("provenance", True), ("guard-transparency", True), ("error-partition", True))
             sit = AR.fetched_situation({(33, 33, 33)}, 6, (), ())
