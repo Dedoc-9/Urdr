@@ -217,7 +217,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 ## Status
 
 **MEASURED, as of this writing.** 103 modules under `tools/terrain/`, 172 falsifier suites, 1915 unit
-falsifiers with 0 red, 832 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+falsifiers with 0 red, 834 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 

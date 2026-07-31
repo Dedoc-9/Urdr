@@ -51,7 +51,14 @@ def _is_int(v):
 
 
 def _k(side):
-    """side → k with side == 2^k, refusing any bucket side not in the frozen set."""
+    """side → k with side == 2^k, refusing any bucket side not in the frozen set.
+
+    THE TYPE GUARD IS LOAD-BEARING: a membership test alone admits `True` (True == 1, and 1 is in
+    BUCKET_SIDES). Measured before the fix: `side=True` gave the IDENTICAL bucket and a DIFFERENT
+    `relevance_digest`, because the canon formats the parameter as text — one behaviour, two content
+    identities. Same defect as `glide._shift`, found by the same scan."""
+    if not _is_int(side):
+        raise AoiError(f"bucket side must be an int (bool excluded), got {side!r}")
     if side not in BUCKET_SIDES:
         raise AoiError(f"bucket side {side!r} is not one of {BUCKET_SIDES} (must be a frozen power of two)")
     return side.bit_length() - 1

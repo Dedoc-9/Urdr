@@ -78,7 +78,16 @@ class ChunkError(Exception):
         self.code = "CHUNK-REFUSE"
 
 
+def _is_int(v):
+    return type(v) is int                                        # bool excluded on purpose
+
+
 def _check_grid(field, csize):
+    # The same membership-guard shape as `glide._shift` and `interest._k`, both of which ADMITTED
+    # bool. This one is safe only because 1 is not in CHUNK_SIZES — luck, not design, and it stops
+    # being luck the day a smaller chunk size is frozen. Guarded explicitly.
+    if not _is_int(csize):
+        raise ChunkError(f"chunk size must be an int (bool excluded), got {csize!r}")
     if csize not in CHUNK_SIZES:
         raise ChunkError(f"chunk size {csize!r} is not one of the frozen {CHUNK_SIZES}")
     if not (isinstance(field, tuple) and field and isinstance(field[0], tuple) and field[0]):
@@ -93,6 +102,8 @@ def _check_grid(field, csize):
 def chunk_bytes(csize):
     """The EXACT record size of a CxC chunk: 56 + 8*C*C. The closed form the gate checks EQUAL to real
     records."""
+    if not _is_int(csize):
+        raise ChunkError(f"chunk size must be an int (bool excluded), got {csize!r}")
     if csize not in CHUNK_SIZES:
         raise ChunkError(f"chunk size {csize!r} is not one of the frozen {CHUNK_SIZES}")
     return REC_OVERHEAD + CELL_BYTES * csize * csize

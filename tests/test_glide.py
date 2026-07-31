@@ -128,6 +128,7 @@ class Glide(unittest.TestCase):
             (H, _START, "ee", _MS, 3),         # subdivision not a frozen power of two
             (H, (2, 8.0), "ee", _MS, 4),       # non-int start
             (H, _START, "ee", -1, 4),          # negative max_step
+            (H, _START, "ee", _MS, True),      # bool subdivision (True == 1, and 1 is in SUBDIV)
         ]
         for args in cases:
             with self.assertRaises(G.GlideError) as cm:

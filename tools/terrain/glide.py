@@ -75,7 +75,15 @@ def _parse(cmd):
 
 def _shift(sub):
     """sub → k with sub == 2^k, refusing any subdivision not in the frozen SUBDIV set. The micro-step
-    is `ONE >> k`, so it is EXACT (a shift) and `sub` of them sum to exactly one cell."""
+    is `ONE >> k`, so it is EXACT (a shift) and `sub` of them sum to exactly one cell.
+
+    THE TYPE GUARD IS LOAD-BEARING AND WAS MISSING. A membership test alone admits `True`, because
+    `True == 1` and 1 is in SUBDIV — every other integer parameter here rejects bool via `_is_int`
+    ("bool excluded on purpose") and this one did not. Measured before the fix: `sub=True` produced a
+    trajectory IDENTICAL to `sub=1` and a DIFFERENT digest, so one behaviour had two content
+    identities, which is L1 broken at the point the module claims tamper-evidence."""
+    if not _is_int(sub):
+        _refuse(f"subdivision must be an int (bool excluded), got {sub!r}")
     if sub not in SUBDIV:
         _refuse(f"subdivision {sub!r} is not one of {SUBDIV} (must be a frozen power of two)")
     return sub.bit_length() - 1

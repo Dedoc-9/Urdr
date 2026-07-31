@@ -10972,6 +10972,73 @@ class Gate:
                     "because a gate that mutates the repository to test itself is not deterministic"
                     if red_ok else "the grading ratchet selftest did not bite")
 
+    def boolport(self):
+        """THE POROUS MEMBERSHIP GUARD (URDR bool-through-`in`). Three modules validated a frozen
+        integer parameter with `if x not in FROZEN_SET`, and a membership test ADMITS `True`, because
+        `True == 1`. Every other integer parameter in these modules rejects bool explicitly — `_is_int`
+        is written `type(v) is int` with the comment "bool excluded on purpose" — so the guard was
+        inconsistent with the module's own stated discipline at exactly one spot each.
+
+        AND IT WAS NOT COSMETIC. Measured before the fix: `glide(..., sub=True)` produced a trajectory
+        IDENTICAL to `sub=1` and a DIFFERENT digest; `interest.bucket(5, 7, True)` gave the identical
+        bucket and a different `relevance_digest`, because the canon formats the parameter as text. One
+        behaviour, two content identities — L1 broken at the exact point both modules claim
+        tamper-evidence, in modules 17 and 16 others import. `chunkload` carries the same shape and was
+        safe only because 1 is not in CHUNK_SIZES: luck, not design, and it stops being luck the day a
+        smaller chunk size is frozen. Guarded anyway. Rows: refuse, load-bearing."""
+        for p in (os.path.join(ROOT, "tools", "terrain"),):
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import glide as GL
+            import interest as IN
+            import chunkload as CK
+        except Exception as exc:
+            self.record("boolport", False, f"import failed (glide / interest / chunkload): {exc}")
+            return
+        ref_ok = True
+        codes = []
+        try:
+            for fn, args, err in ((GL.glide, (GL._heights("blank"), (2, 8), "ee", 16, True),
+                                   GL.GlideError),
+                                  (IN.bucket, (5, 7, True), IN.AoiError),
+                                  (CK.chunk_bytes, (True,), CK.ChunkError)):
+                try:
+                    fn(*args)
+                    codes.append(None)
+                except err as exc:
+                    codes.append(exc.code)
+            ref_ok = codes == ["GLIDE-REFUSE", "AOI-REFUSE", "CHUNK-REFUSE"]
+            ref_ok = ref_ok and GL._shift(4) == 2 and IN._k(4) == 2 and CK.chunk_bytes(4) == 56 + 8 * 16
+        except Exception:
+            ref_ok = False
+        self.record("boolport-refuse", ref_ok,
+                    "a bool reaching a frozen integer parameter is a TYPED REFUSAL in all three "
+                    "modules — GLIDE-REFUSE, AOI-REFUSE, CHUNK-REFUSE — and the honest int still "
+                    "passes, so the guard refuses bool rather than refusing everything, which is the "
+                    "difference between a fix and a wall"
+                    if ref_ok else "a bool still reaches a frozen integer parameter")
+        load_ok = False
+        try:
+            # THE PLANT, AND IT NEEDS NO MUTATION: if membership alone were doing the refusing, these
+            # would be False. They are True, so the ONLY thing refusing `True` is the type guard.
+            load_ok = (True in GL.SUBDIV) and (True in IN.BUCKET_SIDES)
+            load_ok = load_ok and (True not in CK.CHUNK_SIZES)
+            load_ok = load_ok and codes == ["GLIDE-REFUSE", "AOI-REFUSE", "CHUNK-REFUSE"]
+            load_ok = load_ok and GL._is_int(True) is False and IN._is_int(True) is False
+            load_ok = load_ok and CK._is_int(True) is False
+        except Exception:
+            load_ok = False
+        self.record("boolport-load-bearing", load_ok,
+                    "THE GUARD IS PROVED LOAD-BEARING WITHOUT MUTATING ANYTHING: `True in SUBDIV` and "
+                    "`True in BUCKET_SIDES` are both still TRUE, so the membership test cannot be what "
+                    "refuses a bool — the type guard is the only thing standing there, and removing it "
+                    "provably restores the defect. `True in CHUNK_SIZES` is FALSE, which is why "
+                    "chunkload was safe before the fix and why its safety was an accident of the frozen "
+                    "set rather than a property of the check; that asymmetry is asserted so the day "
+                    "someone freezes a chunk size of 1 the row already covers it"
+                    if load_ok else "the boolport guard was not shown load-bearing")
+
     def liveness(self):
         """The keyed heartbeat and the well-founded countdown (URDRLIV1) — the residual URDRPAT1
         declared and URDRAGR1 was resting on. A heartbeat derived from PUBLIC data is not evidence:
@@ -15205,6 +15272,7 @@ def main() -> int:
     gate.bombtest()
     gate.magicuniq()
     gate.grading()
+    gate.boolport()
     gate.liveness()
     gate.jurisdiction()
     gate.budget()
