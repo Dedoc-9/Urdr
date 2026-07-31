@@ -162,6 +162,7 @@ BYTES, which is exactly what correction 1 refutes; that k beyond CUT_SEARCH_MAX 
 unchanged from `cohort`; that a minimal set is minimal over all possible situations rather than over
 this family."""
 import hashlib
+from functools import lru_cache as _memo
 import os as _os
 import sys as _sys
 from itertools import combinations as _comb
@@ -337,6 +338,7 @@ def _intact_bases(n=WORLD):
     return tuple(out)
 
 
+@_memo(maxsize=None)
 def screening_law_generalizes(n=WORLD):
     """EXHAUSTIVE over every perturbation of fewer than k cells ANYWHERE in the lattice — additions
     included, which `cohort`'s wall-cell census never tried. Returns (bases, tested, flips)."""
@@ -352,6 +354,7 @@ def screening_law_generalizes(n=WORLD):
     return bases, tested, flips
 
 
+@_memo(maxsize=None)
 def the_law_covers_additions(n=WORLD):
     """Validity-not-outcome: the generalized census must actually contain perturbations that ADD
     occupancy, or it is the wall-cell census wearing a larger name. Returns (adds, removes)."""
@@ -435,6 +438,7 @@ def all_subsets():
     return tuple(frozenset(c) for r in range(len(ATOMS) + 1) for c in _comb(ATOMS, r))
 
 
+@_memo(maxsize=None)
 def minimal_sets(name):
     """The ANTICHAIN of minimal determining sets — plural on purpose, since nothing guarantees the
     minimum is unique once the order is a lattice rather than a chain."""
@@ -462,6 +466,7 @@ def the_chain_is_not_tight():
     return sum(1 for _n, _t, _m, below in rows if below), len(rows)
 
 
+@_memo(maxsize=None)
 def the_real_savings():
     """THE ADOPTED REDUCTIONS: an atom is dropped from a fetch plan only where BOTH routes agree — the
     family search (complete, family-relative) AND the syntactic check (sound, universal). Returns
@@ -560,6 +565,7 @@ def the_syntactic_check_follows_calls():
     return not hit(shallow), hit(deep)
 
 
+@_memo(maxsize=None)
 def syntax_versus_search_census():
     """THE ASYMMETRY, MEASURED. Determinacy in the Nash-Segoufin-Vianu sense is UNDECIDABLE in
     general, so a positive answer from a family search is forever family-relative while a NEGATIVE
@@ -828,6 +834,7 @@ def unguarded_evaluation_is_silently_wrong():
     return with_log, without, _BG.SHARD_BUDGET, without == _BG.SHARD_BUDGET
 
 
+@_memo(maxsize=None)
 def guard_census():
     """Per quantity: does a missing atom REFUSE, does an empty atom EVALUATE, and does the guarded
     answer equal the unguarded one when the plan is satisfied. Returns
@@ -911,6 +918,7 @@ def projected(name, situation):
     return qfn(view)
 
 
+@_memo(maxsize=None)
 def projection_census():
     """Which quantities survive being handed ONLY what their plan names. Returns
     ((name, plan, survives, value_or_None), ...) — a row that does NOT survive was reading ambient
@@ -1141,6 +1149,7 @@ _SCENES = {"route": _scene_route, "screen": _scene_screen, "refuted": _scene_ref
 SCENES = ("route", "screen", "refuted", "enforce")
 
 
+@_memo(maxsize=None)
 def scene_result(name):
     return _SCENES[name]()
 

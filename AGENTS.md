@@ -297,8 +297,31 @@ failures, assert both DISJOINTNESS and EXHAUSTIVENESS — drive a corpus that sh
 nothing escapes as a third type (`autoroute`'s error-partition invariant does exactly this, and it
 is what catches an untyped `TypeError` leaking from a callee).
 
-**Timing.** A full pass takes several minutes and grows with the arc. It is not a fast inner loop:
-develop against `python3 -m unittest tests.test_<name>` and run the full gate before cutting a patch.
+**Timing, and the dev loop.** A full pass takes ~15 minutes and grows with the arc, so DO NOT run it
+to check one stage. Use the subset runner:
+
+```
+PYTHONHASHSEED=0 PYTHONUTF8=1 python3 verify.py --only cohort      # one stage, seconds
+PYTHONHASHSEED=0 PYTHONUTF8=1 python3 verify.py --profile          # per-stage timings to STDERR
+```
+
+`--only` prints its rows and then `SUBSET RUN — N rows, NOT A GATE PASS`, and exits non-zero on any
+red. It is deliberately NOT a gate pass: the vacuity floor, the tamper selftest and every
+cross-cutting row are absent by construction. `--profile` writes timings to STDERR only, so certified
+STDOUT stays byte-identical. `STAGE_ORDER` is data rather than a straight-line call list precisely so
+selection cannot make the order a function of how the run was invoked.
+
+**Keep the stages cheap, and memoize the pure ones.** Scene digests are computed at least twice per
+stage — once against the golden and again by `emitted_matches_pinned()` — and the falsifier suite
+computes them a third time. Where a function is a pure function of PINNED data, `lru_cache` it: a
+cache cannot change a deterministic answer, and the gate's own byte-identity check is the proof that
+it did not. Measured on this pass: `blindscreen` 70.35s → 1.19s, `autoroute` >130s → 17.29s, with
+STDOUT byte-identical before and after.
+
+**Running the two required passes CONCURRENTLY saves about 8%, not half.** Measured: 1768s for both
+together against roughly 2×16 min sequentially. The box has 2 cores and the gate already spawns
+subprocesses, so a second full pass mostly contends rather than parallelizes. Worth doing, not worth
+expecting much from — the real saving is not running the full gate in the first place.
 
 
 ## 7. Hainuwele — the manifold MMO project (the catch-up)

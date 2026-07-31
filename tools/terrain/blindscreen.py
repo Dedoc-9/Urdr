@@ -123,6 +123,7 @@ breach, which is the conjecture the criterion suggests and not a result; any cla
 Ludwig-Reitzner or Hadwiger theorems beyond citing their shape, since this module proves none of
 them."""
 import hashlib
+from functools import lru_cache as _memo
 import os as _os
 import sys as _sys
 from itertools import combinations as _comb
@@ -174,6 +175,7 @@ def _key(occ):
     return tuple(sorted(occ))
 
 
+@_memo(maxsize=None)
 def corpus(n=WORLD):
     """Built to CONTAIN the pairs rather than to be representative, and ordered canonically so the
     first witness found is a function of the corpus and not of set iteration."""
@@ -201,6 +203,7 @@ def corpus(n=WORLD):
     return tuple(sorted(dict.fromkeys(out), key=_key))
 
 
+@_memo(maxsize=None)
 def verdicts(n=WORLD):
     return {o: _CO.verdict(o, n) for o in corpus(n)}
 
@@ -214,6 +217,7 @@ def corpus_census(n=WORLD):
 
 
 # ---- each cheap invariant, refuted ---------------------------------------------------------------------
+@_memo(maxsize=None)
 def blindness_witness(fn, n=WORLD):
     """The first equal-invariant / opposite-verdict pair in canonical order, or None."""
     v = verdicts(n)
@@ -238,6 +242,7 @@ def every_cheap_invariant_is_blind(n=WORLD):
 
 
 # ---- and so is their CONJUNCTION, which is the result that closes the family ----------------------------
+@_memo(maxsize=None)
 def conjunction_witness(n=WORLD):
     """THE LOAD-BEARING NEGATIVE: one pair agreeing on ALL FOUR cheap invariants at once with OPPOSITE
     verdicts. Stacking cheap checks does not converge, because they are blind in the same direction."""
@@ -355,6 +360,7 @@ def eijkman_identity_is_underdetermined(n=WORLD):
 
 
 # ---- WHY they are all blind: inclusion-exclusion, and what breach is not --------------------------------
+@_memo(maxsize=None)
 def free_components(occ, n=WORLD):
     """A FIFTH candidate, and deliberately not a cheap one: the number of connected components of free
     space. Topological rather than metric, strictly more informative than the four, and still refuted
@@ -583,6 +589,7 @@ _SCENES = {"blind": _scene_blind, "conjunction": _scene_conjunction, "cost": _sc
 SCENES = ("blind", "conjunction", "cost", "valuation")
 
 
+@_memo(maxsize=None)
 def scene_result(name):
     return _SCENES[name]()
 

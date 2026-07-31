@@ -22,6 +22,7 @@ Exit 0 iff every check passes. Output ends with 'GATE PASSED' or 'GATE FAILED'.
 """
 import inspect
 import io
+import time as _time
 import os
 import re
 import shutil
@@ -31,6 +32,182 @@ import tempfile
 import unittest
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+
+#: THE CANONICAL STAGE ORDER. Was a straight-line call list in `main`; it is data now so
+#: `--only` can select and a future shard runner can partition, without the order ever
+#: becoming a function of how the run was invoked.
+STAGE_ORDER = (
+    "unit_tests",
+    "examples",
+    "oracle",
+    "oracle_generators",
+    "modules",
+    "atlas_injective",
+    "atlas_reconstruct",
+    "math_conformance",
+    "registry",
+    "render",
+    "render3d",
+    "render_perspective",
+    "physics",
+    "physics_nd",
+    "physics_lcp",
+    "physics_joint",
+    "physics_stress",
+    "physics_fp",
+    "netcode_lockstep",
+    "netcode_rollback",
+    "netcode_auth",
+    "netcode_world",
+    "netcode_worldpeer",
+    "netcode_region",
+    "regionprop",
+    "netcode_field_desync",
+    "netcode_fraud",
+    "photo_trace",
+    "frontend_contract",
+    "svg_import",
+    "frontfps",
+    "frontfps_quat",
+    "frontfps_clip",
+    "frontfps_pose",
+    "frontfps_view",
+    "frontfps_text",
+    "frontbench",
+    "homology",
+    "rigidity_verdict",
+    "view_export",
+    "field",
+    "marangoni",
+    "field_coupling",
+    "field_body_loop",
+    "criticality",
+    "toric",
+    "persim",
+    "winding",
+    "tellegen",
+    "terrain",
+    "sea",
+    "terrain_view",
+    "wavefield",
+    "buoyancy",
+    "view_witness",
+    "crossing",
+    "stance",
+    "gaze",
+    "drive",
+    "traj",
+    "kernel_crosscheck",
+    "lockstep_crosscheck",
+    "fpface",
+    "fpcap",
+    "predict",
+    "glide",
+    "splice",
+    "cpredict",
+    "interest",
+    "layertheorem",
+    "hand",
+    "warden",
+    "crosswarden",
+    "dirward",
+    "wardhom",
+    "opcost",
+    "govern",
+    "priogov",
+    "horizon",
+    "slo",
+    "clslo",
+    "storecost",
+    "persist",
+    "chunkload",
+    "resurrect",
+    "chunkstate",
+    "terraform",
+    "commute",
+    "commuteprop",
+    "rannull",
+    "nway",
+    "migrate",
+    "meshattest",
+    "mesh",
+    "partition",
+    "meshsession",
+    "perception",
+    "audible",
+    "hitbox",
+    "lagcomp",
+    "clockauth",
+    "latencyest",
+    "pingpolicy",
+    "oobprior",
+    "magicdiv",
+    "cayley",
+    "horn",
+    "voxlat",
+    "geoquorum",
+    "disjoint",
+    "tierview",
+    "provbind",
+    "frontier",
+    "membrane",
+    "ashdepth",
+    "syntaxclean",
+    "recirc",
+    "divergence",
+    "splitview",
+    "auditgraph",
+    "patience",
+    "bombtest",
+    "magicuniq",
+    "grading",
+    "boolport",
+    "liveness",
+    "jurisdiction",
+    "budget",
+    "tilecert",
+    "tilemin",
+    "inputset",
+    "cohort",
+    "autoroute",
+    "blindscreen",
+    "anamorphosis",
+    "throttle",
+    "schedule",
+    "byteacct",
+    "citation",
+    "adaptcite",
+    "lookahead",
+    "boundedhist",
+    "lease",
+    "testament",
+    "rollstore",
+    "quintessence",
+    "wire",
+    "storm",
+    "stormprop",
+    "sealwrit",
+    "driftgaze",
+    "wireattest",
+    "panelight",
+    "panewire",
+    "ghostsnap",
+    "sealframe",
+    "sealsession",
+    "heightfield_placement",
+    "latstore_placement",
+    "glide_placement",
+    "streamstate_placement",
+    "latarith_placement",
+    "writecalc_placement",
+    "rollstore_placement",
+    "wirephase_placement",
+    "invariant_detectors",
+    "spec_freeze",
+    "rejections",
+    "tamper",
+    "doc_currency",
+)
 
 #: THE GRADING RATCHET, read from the filesystem at pin time and lowered only by an
 #: actual module read. A new ungraded corpus exceeds these; a backfill must lower them.
@@ -15247,176 +15424,29 @@ def main() -> int:
     _utf8_stdio()
     os.environ["PYTHONHASHSEED"] = "0"
     gate = Gate()
-    gate.unit_tests()
-    gate.examples()
-    gate.oracle()
-    gate.oracle_generators()
-    gate.modules()
-    gate.atlas_injective()
-    gate.atlas_reconstruct()
-    gate.math_conformance()
-    gate.registry()
-    gate.render()
-    gate.render3d()
-    gate.render_perspective()
-    gate.physics()
-    gate.physics_nd()
-    gate.physics_lcp()
-    gate.physics_joint()
-    gate.physics_stress()
-    gate.physics_fp()
-    gate.netcode_lockstep()
-    gate.netcode_rollback()
-    gate.netcode_auth()
-    gate.netcode_world()
-    gate.netcode_worldpeer()
-    gate.netcode_region()
-    gate.regionprop()
-    gate.netcode_field_desync()
-    gate.netcode_fraud()
-    gate.photo_trace()
-    gate.frontend_contract()
-    gate.svg_import()
-    gate.frontfps()
-    gate.frontfps_quat()
-    gate.frontfps_clip()
-    gate.frontfps_pose()
-    gate.frontfps_view()
-    gate.frontfps_text()
-    gate.frontbench()
-    gate.homology()
-    gate.rigidity_verdict()
-    gate.view_export()
-    gate.field()
-    gate.marangoni()
-    gate.field_coupling()
-    gate.field_body_loop()
-    gate.criticality()
-    gate.toric()
-    gate.persim()
-    gate.winding()
-    gate.tellegen()
-    gate.terrain()
-    gate.sea()
-    gate.terrain_view()
-    gate.wavefield()
-    gate.buoyancy()
-    gate.view_witness()
-    gate.crossing()
-    gate.stance()
-    gate.gaze()
-    gate.drive()
-    gate.traj()
-    gate.kernel_crosscheck()
-    gate.lockstep_crosscheck()
-    gate.fpface()
-    gate.fpcap()
-    gate.predict()
-    gate.glide()
-    gate.splice()
-    gate.cpredict()
-    gate.interest()
-    gate.layertheorem()
-    gate.hand()
-    gate.warden()
-    gate.crosswarden()
-    gate.dirward()
-    gate.wardhom()
-    gate.opcost()
-    gate.govern()
-    gate.priogov()
-    gate.horizon()
-    gate.slo()
-    gate.clslo()
-    gate.storecost()
-    gate.persist()
-    gate.chunkload()
-    gate.resurrect()
-    gate.chunkstate()
-    gate.terraform()
-    gate.commute()
-    gate.commuteprop()
-    gate.rannull()
-    gate.nway()
-    gate.migrate()
-    gate.meshattest()
-    gate.mesh()
-    gate.partition()
-    gate.meshsession()
-    gate.perception()
-    gate.audible()
-    gate.hitbox()
-    gate.lagcomp()
-    gate.clockauth()
-    gate.latencyest()
-    gate.pingpolicy()
-    gate.oobprior()
-    gate.magicdiv()
-    gate.cayley()
-    gate.horn()
-    gate.voxlat()
-    gate.geoquorum()
-    gate.disjoint()
-    gate.tierview()
-    gate.provbind()
-    gate.frontier()
-    gate.membrane()
-    gate.ashdepth()
-    gate.syntaxclean()
-    gate.recirc()
-    gate.divergence()
-    gate.splitview()
-    gate.auditgraph()
-    gate.patience()
-    gate.bombtest()
-    gate.magicuniq()
-    gate.grading()
-    gate.boolport()
-    gate.liveness()
-    gate.jurisdiction()
-    gate.budget()
-    gate.tilecert()
-    gate.tilemin()
-    gate.inputset()
-    gate.cohort()
-    gate.autoroute()
-    gate.blindscreen()
-    gate.anamorphosis()
-    gate.throttle()
-    gate.schedule()
-    gate.byteacct()
-    gate.citation()
-    gate.adaptcite()
-    gate.lookahead()
-    gate.boundedhist()
-    gate.lease()
-    gate.testament()
-    gate.rollstore()
-    gate.quintessence()
-    gate.wire()
-    gate.storm()
-    gate.stormprop()
-    gate.sealwrit()
-    gate.driftgaze()
-    gate.wireattest()
-    gate.panelight()
-    gate.panewire()
-    gate.ghostsnap()
-    gate.sealframe()
-    gate.sealsession()
-    gate.heightfield_placement()
-    gate.latstore_placement()
-    gate.glide_placement()
-    gate.streamstate_placement()
-    gate.latarith_placement()
-    gate.writecalc_placement()
-    gate.rollstore_placement()
-    gate.wirephase_placement()
-    gate.invariant_detectors()
-    gate.spec_freeze()
-    gate.rejections()
-    gate.tamper()
-    gate.doc_currency()
+    only = None
+    profile = "--profile" in sys.argv
+    if "--only" in sys.argv:
+        only = sys.argv[sys.argv.index("--only") + 1]
+    for _name in STAGE_ORDER:
+        if only is not None and only not in _name:
+            continue
+        _fn = getattr(gate, _name)
+        if profile:
+            _t = _time.perf_counter()
+            _fn()
+            sys.stderr.write(f"{_time.perf_counter() - _t:8.2f}s  {_name}\n")
+            sys.stderr.flush()
+        else:
+            _fn()
+    if only is not None:
+        # DEV LOOP ONLY. A subset run is NOT a gate pass: the vacuity floor, the tamper selftest and
+        # every cross-cutting row are absent by construction, so it prints rows and refuses to grade.
+        for _n, _ok, _d in gate.rows:
+            sys.stdout.write(f"[{'PASS' if _ok else 'FAIL'}] {_n}\n")
+        sys.stdout.write(f"SUBSET RUN — {len(gate.rows)} rows, NOT A GATE PASS\n")
+        return 1 if gate.failed else 0
+
     return gate.report()
 
 
