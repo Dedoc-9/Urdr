@@ -33,6 +33,12 @@ import unittest
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
+#: The `--only` substring when this is a SUBSET run, else None. Read by `Gate.subset_withholds`
+#: so a stage whose inputs are run-scoped can decline to grade instead of emitting a verdict it
+#: cannot support. `main()` sets it before any stage executes; on a full pass it stays None and
+#: nothing about certified STDOUT changes.
+SUBSET_ONLY = None
+
 #: THE CANONICAL STAGE ORDER. Was a straight-line call list in `main`; it is data now so
 #: `--only` can select and a future shard runner can partition, without the order ever
 #: becoming a function of how the run was invoked.
@@ -289,6 +295,23 @@ class Gate:
     def __init__(self):
         self.rows = []
         self.failed = False
+        # Rows a SUBSET run must not grade because their inputs are RUN-SCOPED (see
+        # `subset_withholds`). Empty on a full pass, so certified STDOUT is untouched.
+        self.withheld = []
+
+    def subset_withholds(self, name: str, why: str) -> bool:
+        """True when this stage's claim is NOT COMPUTABLE under `--only`, because its inputs are
+        totals accumulated across the WHOLE run rather than read from the filesystem. Building
+        `--diff` exposed the defect: `--only doc_currency` reported `[FAIL] doc-currency` with
+        `fals=1931 (live -1)` — a GUARANTEED FALSE RED, since the falsifier count is `self
+        .n_falsifiers` from a stage the subset never ran and the row total is `len(self.rows)` of a
+        run that recorded four rows instead of 835. A red that is certain in advance is not evidence;
+        it is a trained reflex to ignore reds. So the subset withholds the row and SAYS it withheld
+        it, rather than emitting a verdict it cannot support in either direction."""
+        if SUBSET_ONLY is None:
+            return False
+        self.withheld.append((name, why))
+        return True
 
     def record(self, name: str, ok: bool, detail: str = ""):
         self.rows.append((name, ok, detail))
@@ -2904,7 +2927,19 @@ class Gate:
         counts come from the filesystem, the unit-falsifier count from THIS run's own
         testsRun, the row total from the live gate; any README/paper quoting a different
         number reddens the gate. Runs last so the row total is final; a planted stale count
-        is caught (non-vacuity)."""
+        is caught (non-vacuity).
+
+        THREE of this stage's five inputs (`fals`, `rows`, `det`) are accumulated across the whole
+        run, so under `--only` they are -1, -1 and a row count of the subset. The stage therefore
+        withholds ALL of its rows in subset mode — including `doc-staleness`, whose WORD-form
+        detector check would otherwise pass VACUOUSLY against a live value of -1, which is the worse
+        of the two failure modes because it is silent."""
+        if self.subset_withholds(
+                "doc-currency / doc-staleness (4 rows)",
+                "fals, rows and det are totals over the WHOLE run; under --only they are -1, -1 and "
+                "the subset's own row count, so doc-currency reddens by construction and the "
+                "WORD-form half of doc-staleness passes vacuously. Run the full gate."):
+            return
         sdir = os.path.join(ROOT, "tools", "specfreeze")
         if sdir not in sys.path:
             sys.path.insert(0, sdir)
@@ -2914,7 +2949,7 @@ class Gate:
             self.record("doc-currency", False, f"import failed: {exc}")
             self.record("doc-currency-selftest", False, "checker did not load")
             return
-        N_OWN = 4  # rows THIS method records below — keep == the record() count
+        N_OWN = 5  # rows THIS method records below — keep == the record() count
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
                               len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
@@ -2957,6 +2992,46 @@ class Gate:
                     "successor' naming a shipped rung; each shape is one this repo actually carried, "
                     "so the checker is a live falsifier rather than decoration"
                     if red_x else "the staleness extension failed to catch a planted stale shape")
+
+        # ---- subset-withhold-honest: withholding must be a FACT, never a convenient excuse ----
+        # `--only doc_currency` used to print a GUARANTEED FALSE RED; the fix withholds the row. A
+        # withhold is a licence to make no claim, so it needs its own falsifier or it becomes the
+        # cheapest way to hide a red. Four things are asserted, and each is a way the fix could rot:
+        # (1) on the gate path the predicate is OFF — reached here, so it did not withhold; (2) with
+        # the flag set it withholds EXACTLY once and names a reason; (3) the reason is TRUE of a
+        # fresh Gate — the run-scoped inputs are absent as attributes, not merely wrong; and (4) they
+        # are present and non-negative on THIS full run, so the difference is the RUN, not the code.
+        # If someone ever makes these counts filesystem-derived, (3) or (4) reddens and the withhold
+        # must be deleted rather than kept as decoration.
+        global SUBSET_ONLY
+        _saved = SUBSET_ONLY
+        try:
+            gate_path_is_open = (SUBSET_ONLY is None) and not self.withheld
+            probe = Gate()
+            off = probe.subset_withholds("x", "y")
+            SUBSET_ONLY = "doc_currency"
+            on = probe.subset_withholds("doc-currency", "run-scoped")
+        finally:
+            SUBSET_ONLY = _saved
+        mechanism = (off is False) and (on is True) and len(probe.withheld) == 1 \
+            and probe.withheld[0][1] == "run-scoped"
+        fresh = Gate()
+        reason_true = not hasattr(fresh, "n_falsifiers") and not hasattr(fresh, "n_detectors")
+        run_supplies = (getattr(self, "n_falsifiers", -1) >= 0
+                        and getattr(self, "n_detectors", -1) >= 0)
+        honest = gate_path_is_open and mechanism and reason_true and run_supplies
+        self.record("subset-withhold-honest", honest,
+                    "withholding is a fact, not an excuse: the predicate is OFF on the gate path "
+                    "(this stage graded), ON exactly once under --only, the stated reason is true of "
+                    "a fresh Gate (n_falsifiers and n_detectors are absent attributes, not stale "
+                    "numbers), and this full run supplies both (%d falsifiers, %d detectors) — so "
+                    "what the subset lacks is the RUN, not the code"
+                    % (getattr(self, "n_falsifiers", -1), getattr(self, "n_detectors", -1))
+                    if honest else
+                    "withhold is not justified: gate_path_open=%s mechanism=%s reason_true=%s "
+                    "run_supplies=%s" % (gate_path_is_open, mechanism, reason_true, run_supplies))
+        if SUBSET_ONLY is not None:  # pragma: no cover - restored above; asserted, never assumed
+            self.record("subset-withhold-honest", False, "SUBSET_ONLY leaked out of the probe")
 
 
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
@@ -15420,14 +15495,103 @@ class Gate:
         return 0
 
 
+
+def _numeric_signature(detail: str) -> str:
+    """Every NUMBER in an evidence string, in order. Evidence strings deliberately carry MEASURED
+    values (L16), so a change here is a change in what was measured — which is the signal. Prose
+    edits move `len(detail)` and leave this alone, and the drift report separates the two, because
+    "I rewrote a sentence" and "the census moved" are different events."""
+    import re as _re
+    return ",".join(_re.findall(r"-?\d+(?:\.\d+)?", detail))
+
+
+def _drift_report(only: str, rows) -> str:
+    """Compare this subset run against the SAME stages run from a git worktree at HEAD. The baseline
+    is DERIVED FROM THE COMMIT, never read from a transcript lying around: a stale `gate1.txt` has no
+    provenance binding it to any code, so a diff against it cannot distinguish 'my edit is wrong' from
+    'the baseline is old' — the same defect class doc-currency exists to prevent."""
+    import subprocess as _sp
+    import tempfile as _tf
+    import shutil as _sh
+    wt = _tf.mkdtemp(prefix="urdr-baseline-")
+    out = ["-" * 70 + "\n", "DRIFT vs HEAD (baseline built from the commit, not from a transcript)\n"]
+    try:
+        r = _sp.run(["git", "-C", ROOT, "worktree", "add", "-q", "--detach", wt, "HEAD"],
+                    capture_output=True, text=True)
+        if r.returncode:
+            return "".join(out) + f"  [SKIP] no baseline: {r.stderr.strip()[:80]}\n"
+        env = dict(os.environ, PYTHONHASHSEED="0", PYTHONUTF8="1")
+        b = _sp.run([sys.executable, os.path.join(wt, "verify.py"), "--only", only, "--emit-rows"],
+                    capture_output=True, text=True, env=env, cwd=wt)
+        base = {}
+        for line in b.stdout.splitlines():
+            parts = line.split("\t")
+            if len(parts) == 4:
+                base[parts[0]] = (parts[1], parts[2], parts[3])
+        now = {n: (str(int(ok)), _numeric_signature(d), str(len(d))) for n, ok, d in rows}
+        degraded = False
+        if not base:
+            # BOOTSTRAP: a baseline commit that predates `--emit-rows` cannot report evidence
+            # signatures. Fall back to its plain `--only` output, which gives STATUS drift only, and
+            # SAY SO rather than printing "no drift" — a comparison that silently lost half its
+            # resolution is worse than one that admits it.
+            b2 = _sp.run([sys.executable, os.path.join(wt, "verify.py"), "--only", only],
+                         capture_output=True, text=True, env=env, cwd=wt)
+            for line in b2.stdout.splitlines():
+                if line.startswith("[PASS] ") or line.startswith("[FAIL] "):
+                    base[line[7:].strip()] = ("1" if line.startswith("[PASS]") else "0", None, None)
+            degraded = bool(base)
+            if not base:
+                return "".join(out) + "  [SKIP] baseline produced no rows (new stage?)\n"
+            out.append("  [DEGRADED] baseline predates --emit-rows: STATUS drift only, no evidence\n"
+                       "             signatures. Upgrades automatically once this lands.\n")
+        added = [n for n in now if n not in base]
+        gone = [n for n in base if n not in now]
+        out.append(f"  rows {len(now)} here / {len(base)} at HEAD\n")
+        for n in added:
+            out.append(f"  [NEW]  {n}\n")
+        for n in gone:
+            out.append(f"  [GONE] {n}\n")
+        for n in now:
+            if n not in base:
+                continue
+            ok_n, num_n, len_n = now[n]
+            ok_b, num_b, len_b = base[n]
+            if ok_n != ok_b:
+                out.append(f"  [RED]  {n}: {ok_b} -> {ok_n}\n")
+            if num_b is None:
+                continue
+            if num_n != num_b:
+                out.append(f"  [NUM]  {n}: measured values moved\n"
+                           f"           - {num_b[:90]}\n           + {num_n[:90]}\n")
+            elif len_n != len_b:
+                out.append(f"  [TEXT] {n}: prose only ({len_b} -> {len_n} chars), numbers unmoved\n")
+        if not any(x.lstrip().startswith(("[NEW]", "[GONE]", "[RED]", "[NUM]", "[TEXT]"))
+                   for x in out):
+            out.append("  no drift" + (" in status (evidence not comparable)" if degraded else "")
+                       + "\n")
+    finally:
+        _sp.run(["git", "-C", ROOT, "worktree", "remove", "--force", wt],
+                capture_output=True, text=True)
+        _sh.rmtree(wt, ignore_errors=True)
+    out.append("  WHAT THIS CANNOT SEE: doc-currency and doc-staleness (they need LIVE totals across\n"
+               "  the whole run and are WITHHELD, not merely absent — see [WITHHELD] above), the\n"
+               "  vacuity floor, the tamper selftest, and any cross-stage effect. In this session's\n"
+               "  history that is the MOST FREQUENT red, so this is a fast partial check and\n"
+               "  explicitly not a substitute for the gate.\n")
+    return "".join(out)
+
+
 def main() -> int:
+    global SUBSET_ONLY
     _utf8_stdio()
     os.environ["PYTHONHASHSEED"] = "0"
-    gate = Gate()
     only = None
     profile = "--profile" in sys.argv
     if "--only" in sys.argv:
         only = sys.argv[sys.argv.index("--only") + 1]
+    SUBSET_ONLY = only            # set BEFORE Gate() so no stage can race the flag
+    gate = Gate()
     for _name in STAGE_ORDER:
         if only is not None and only not in _name:
             continue
@@ -15442,9 +15606,18 @@ def main() -> int:
     if only is not None:
         # DEV LOOP ONLY. A subset run is NOT a gate pass: the vacuity floor, the tamper selftest and
         # every cross-cutting row are absent by construction, so it prints rows and refuses to grade.
-        for _n, _ok, _d in gate.rows:
-            sys.stdout.write(f"[{'PASS' if _ok else 'FAIL'}] {_n}\n")
-        sys.stdout.write(f"SUBSET RUN — {len(gate.rows)} rows, NOT A GATE PASS\n")
+        rows = [(n, ok, d) for n, ok, d in gate.rows]
+        if "--emit-rows" in sys.argv:                       # machine form, for --diff's baseline
+            for n, ok, d in rows:
+                sys.stdout.write(f"{n}\t{int(ok)}\t{_numeric_signature(d)}\t{len(d)}\n")
+            return 1 if gate.failed else 0
+        for n, ok, _d in rows:
+            sys.stdout.write(f"[{'PASS' if ok else 'FAIL'}] {n}\n")
+        for _n, _why in gate.withheld:
+            sys.stdout.write(f"[WITHHELD] {_n}\n           {_why}\n")
+        if "--diff" in sys.argv:
+            sys.stdout.write(_drift_report(only, rows))
+        sys.stdout.write(f"SUBSET RUN — {len(rows)} rows, NOT A GATE PASS\n")
         return 1 if gate.failed else 0
 
     return gate.report()

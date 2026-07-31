@@ -305,6 +305,35 @@ PYTHONHASHSEED=0 PYTHONUTF8=1 python3 verify.py --only cohort      # one stage, 
 PYTHONHASHSEED=0 PYTHONUTF8=1 python3 verify.py --profile          # per-stage timings to STDERR
 ```
 
+Add `--diff` to compare the same stages against a baseline BUILT FROM HEAD — a `git worktree` at the
+commit, never a transcript lying around, because a stale `gate1.txt` has no provenance binding it to
+any code and a diff against it cannot distinguish "my edit is wrong" from "the baseline is old". The
+report separates STATUS drift (`[RED]`), MEASURED-VALUE drift (`[NUM]` — every number in the evidence
+string, which is what L16 puts there) and PROSE-only edits (`[TEXT]`), because rewriting a sentence
+and moving a census are different events. Against a baseline predating `--emit-rows` it reports
+`[DEGRADED]` and compares status only, rather than printing "no drift" at half resolution.
+
+**What `--diff` cannot see, which is the most frequent red in practice:** `doc-currency` and
+`doc-staleness` need LIVE totals across the whole run, so a subset can never compute them; likewise
+the vacuity floor, the tamper selftest, and any cross-stage effect. Treat it as a fast partial check,
+not as a percentage of the gate.
+
+Those rows are **withheld, not merely missing.** `--only doc_currency` used to print `[FAIL]
+doc-currency — README.md says fals=1931 (live -1)`: a red that was certain in advance, because
+`fals`, `rows` and `det` are totals over the whole run. The same missing input made the WORD-form
+half of `doc-staleness` compare against `-1` and pass VACUOUSLY — one defect, a false red in one row
+and a false green in its neighbour. So the stage now calls `Gate.subset_withholds` and the runner
+prints `[WITHHELD]` with the reason. **If you add a stage whose inputs are run-scoped, withhold it
+the same way, and add a row proving the withhold was earned** — `subset-withhold-honest` asserts the
+predicate is OFF on the gate path, ON exactly once under `--only`, and that the stated reason is true
+of a fresh `Gate`. A licence to make no claim is still a claim about the harness (LESSONS L38).
+
+Measured, so nobody has to guess: `--only autoroute` is 17.5s, `--only autoroute --diff` is 51.1s
+(the baseline is a SECOND real execution of the stage in a fresh worktree — the diff is not free),
+and it covers 8 of the gate's 836 rows against 579s for the two required passes. That is ~1% of the
+rows for ~9% of the cost. Its value is not coverage; it is that it answers the question a dev loop
+actually asks — *did my edit move this stage, and in what way* — nine minutes before the gate does.
+
 `--only` prints its rows and then `SUBSET RUN — N rows, NOT A GATE PASS`, and exits non-zero on any
 red. It is deliberately NOT a gate pass: the vacuity floor, the tamper selftest and every
 cross-cutting row are absent by construction. `--profile` writes timings to STDERR only, so certified
@@ -386,7 +415,7 @@ confusions were a drifted working directory.
 #
 #     <<<URDR
 #     HEAD=2d81bdf BR=main AM=none
-#     GATE=PASSED FAILROWS=0 FALS=1931/0red ROWS=835 DOCCUR=OK DOCSTALE=OK
+#     GATE=PASSED FAILROWS=0 FALS=1931/0red ROWS=836 DOCCUR=OK DOCSTALE=OK
 #     DET=BYTE-IDENTICAL BYTES=240028/240028 A=698E23C7 B=698E23C7
 #     PUSH=afaf3db..2d81bdf
 #     URDR>>>
@@ -402,7 +431,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 1931 unit falsifiers / 835 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1931 unit falsifiers / 836 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
