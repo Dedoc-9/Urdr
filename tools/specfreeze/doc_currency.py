@@ -261,13 +261,53 @@ def stale_successors(root, modules):
     return out
 
 
-def staleness_problems(root, suites):
+#: THE FIFTH STALENESS CLASS, AND IT IS A CONTRACT RATHER THAN A HEURISTIC.
+#:
+#: The shape it catches, live in this repo: hainuwele/README.md's Stage 8 read "The remaining work is
+#: enforcing the OTHER three the same way -- a verifier that refuses to compute a HISTORY quantity
+#: without the log, structurally rather than by convention", while `autoroute.projected` had been
+#: doing exactly that for all four tiers, measured, AUTOROUTE-MISSING-ATOM on every one. Prose said
+#: work remained; the code said it had shipped.
+#:
+#: A detector for "the remaining work is X" in free text is a natural-language problem, and this
+#: session retired four heuristics that misfired on prose. So the claim carries its own falsifier
+#: instead: a `<!-- remains: <gate-row> -->` marker naming the row whose EXISTENCE would refute it.
+#: If that row is present in the gate's pinned row set, the work is not remaining and the doc is
+#: stale. An unfalsifiable prose claim becomes a checkable one, and the burden sits with whoever
+#: writes the claim rather than with a regex trying to read English.
+_REMAINS_MARKER = re.compile(r"<!--\s*remains:\s*([A-Za-z0-9_:.\-]+)\s*-->")
+
+
+def stale_remaining_work(root, gate_rows):
+    """`<!-- remains: row -->` markers naming a gate row that already exists. `gate_rows` is the live
+    row-name set from THIS run -- exogenous to the doc, which is the whole point."""
+    out = []
+    for rel in _md_files(root):
+        try:
+            with open(os.path.join(root, rel), encoding="utf-8") as fh:
+                lines = fh.read().splitlines()
+        except OSError:
+            continue
+        for i, ln in enumerate(lines, 1):
+            m = _REMAINS_MARKER.search(ln)
+            if m and m.group(1) in gate_rows:
+                out.append((f"{rel}:{i}", "remains", m.group(1), "shipped"))
+    return out
+
+
+def remains_defect_text():
+    """A REMAINS marker naming a row that has shipped -- the exact shape Stage 8 carried."""
+    return "Stage 8 -- the remaining work. <!-- remains: autoroute-enforce -->"
+
+
+def staleness_problems(root, suites, gate_rows=None):
     """Every stale item the extension can see: word-form counts, suite counts, status
-    contradictions, superseded successors."""
+    contradictions, superseded successors, and REMAINS markers naming a shipped gate row."""
     modules = live_modules(root)
     out = list(suite_problems(root, suites))
     out += status_contradictions(root, modules)
     out += stale_successors(root, modules)
+    out += stale_remaining_work(root, gate_rows or frozenset())
     return out
 
 
@@ -304,8 +344,8 @@ def successor_defect_text():
     return "Declared successor: the `hitbox` channel."
 
 
-def extension_defect_is_caught(root, live, suites):
-    """True iff the extension flags ALL FOUR planted stale shapes — its non-vacuity. Each shape is
+def extension_defect_is_caught(root, live, suites, gate_rows=None):
+    """True iff the extension flags ALL FIVE planted stale shapes — its non-vacuity. Each shape is
     a real defect this repo actually carried, not a hypothetical."""
     modules = live_modules(root)
     word_ok = any(got != live["det"] for _k, got in scan_words(word_defect_text(live)))
@@ -317,4 +357,7 @@ def extension_defect_is_caught(root, live, suites):
     sc = successor_defect_text()
     succ_ok = bool(_SUCCESSOR_LINE.search(sc)) and not _LANDED_ESCAPE.search(sc) \
         and any(re.search(r"`%s(?:\.py)?`" % re.escape(m), sc) for m in modules)
-    return word_ok and suite_ok and status_ok and succ_ok
+    rm = remains_defect_text()
+    m = _REMAINS_MARKER.search(rm)
+    remains_ok = bool(m) and m.group(1) in (gate_rows or frozenset())
+    return word_ok and suite_ok and status_ok and succ_ok and remains_ok

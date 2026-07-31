@@ -2971,7 +2971,13 @@ class Gate:
         try:
             live_x = live
             suites_x = DC.count_suites(ROOT)
-            stale = DC.staleness_problems(ROOT, suites_x) + DC.word_problems(ROOT, live_x)
+            # The live row-name set, EXOGENOUS to the docs: a REMAINS marker is refuted by the row
+            # actually existing, not by anyone remembering to delete the sentence.
+            gate_rows_x = frozenset(n for n, _ok, _d in self.rows) | {
+                "doc-currency", "doc-currency-selftest", "doc-staleness",
+                "doc-staleness-selftest", "subset-withhold-honest"}
+            stale = DC.staleness_problems(ROOT, suites_x, gate_rows_x) \
+                + DC.word_problems(ROOT, live_x)
             stale_ok = not stale
         except Exception as exc:
             stale, stale_ok, suites_x = [("doc-staleness", "error", str(exc), "")], False, -1
@@ -2979,18 +2985,24 @@ class Gate:
                     f"no stale staleness-class found across every .md: WORD-form counts agree "
                     f"({live_x['det']} detectors written as words), the suite count agrees "
                     f"({suites_x} discovered), no doc claims a module is unbuilt while it carries a "
-                    f"gate stage, and no 'declared successor' names a rung that has since shipped "
+                    f"gate stage, no 'declared successor' names a rung that has since shipped, and no "
+                    f"'<!-- remains: ROW -->' marker names a gate row that already exists — the fifth "
+                    f"class, added because hainuwele/README.md claimed Stage 8's HISTORY-tier "
+                    f"enforcement was still to do while `projected` had been refusing on all four "
+                    f"tiers; a REMAINS claim now carries the row whose existence refutes it, rather "
+                    f"than a regex trying to read English "
                     f"(the append-only D5 ledgers are exempt — recorded history is not drift)"
                     if stale_ok else "stale: " + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in stale[:4]))
         try:
-            red_x = DC.extension_defect_is_caught(ROOT, live_x, suites_x)
+            red_x = DC.extension_defect_is_caught(ROOT, live_x, suites_x, gate_rows_x)
         except Exception:
             red_x = False
         self.record("doc-staleness-selftest", red_x,
-                    "all four planted stale shapes are caught — a WORD-form count, a stale suite "
-                    "count, an 'unbuilt' status naming a module that exists, and a 'declared "
-                    "successor' naming a shipped rung; each shape is one this repo actually carried, "
-                    "so the checker is a live falsifier rather than decoration"
+                    "all five planted stale shapes are caught — a WORD-form count, a stale suite "
+                    "count, an 'unbuilt' status naming a module that exists, a 'declared successor' "
+                    "naming a shipped rung, and a REMAINS marker naming a live gate row; each shape "
+                    "is one this repo actually carried, so the checker is a live falsifier rather "
+                    "than decoration"
                     if red_x else "the staleness extension failed to catch a planted stale shape")
 
         # ---- subset-withhold-honest: withholding must be a FACT, never a convenient excuse ----

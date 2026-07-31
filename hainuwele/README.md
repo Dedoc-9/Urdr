@@ -401,10 +401,28 @@ passes and the D1 §20 rulings live, and unlike a boundary a brief cannot be tra
 **Stage 7 — the parallel substrates.** `parallel/` holds structures explored alongside the Euclidean
 arc without disturbing it. Promoting any of them is a kernel question and therefore a D1 §20 question.
 
-**Stage 8 — the certificate arc's own composition.** `inputset` decides where every quantity may live
-and `cohort` enforces it for one tier. The remaining work is enforcing the OTHER three the same way —
-a verifier that refuses to compute a HISTORY quantity without the log, structurally rather than by
-convention — so the taxonomy becomes unbypassable rather than obeyed by one module.
+**Stage 8 — the certificate arc's own composition. LANDED.** `inputset` decides where every quantity
+may live; `autoroute` now enforces it for ALL FOUR tiers by CAPABILITY PROJECTION rather than by
+convention — `projected` hands a quantity only the atoms its plan designates and replaces every other
+with a sentinel that refuses on use, so a quantity reading an undesignated input refuses BY
+CONSTRUCTION and nobody has to enumerate reads. Measured, one tier per line:
+
+```
+CERT     no certificate -> exclusion_membership: AUTOROUTE-MISSING-ATOM
+LATTICE  no occupancy   -> occupancy_defect:     AUTOROUTE-MISSING-ATOM
+HISTORY  no log         -> ledger_remainder:     AUTOROUTE-MISSING-ATOM
+COHORT   no peers       -> quorum_agreement:     AUTOROUTE-MISSING-ATOM
+```
+
+The last rung was the certificate itself, which was not an input at all: `inputset.proj` derived it
+from `s["occupancy"]` inside the projection, so the CERT tier — the narrowest one — read the very atom
+it exists to avoid. It is a designated atom now (`own_cert`), in BOTH projection functions; the
+witness search's `_subproj` carried the identical defect and was missed on the first pass (L41, L43).
+
+What remains here is one honest family limitation, not a design gap: `liveness_horizon` takes a single
+distinct value across all 54 family members, so a projection onto nothing determines it by constancy
+and the search reports it droppable. Syntax vetoes the drop, so the plan is right. Extending the
+family so that quantity varies would take over-skip from 2 to 1.
 
 Forward candidates identified during OODA passes but not yet scoped are held privately until there is
 consensus to publish them, matching the convention already used for CITYSCALE §7 and
