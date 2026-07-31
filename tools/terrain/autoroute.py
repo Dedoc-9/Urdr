@@ -158,8 +158,9 @@ by a flood fill. That field is added here as a claimed verdict on the peer recor
 LATTICE-tier by `cohort`'s refutation (3), so it is a claim the bytes adjudicate and never a
 certificate field.
 
-GRADE. MEASURED: the minimal input set per quantity over the enumerated lattice; the two adopted
-reductions, each by witness AND by syntax; the search-alone over-skip; the syntactic checker's own
+GRADE. MEASURED: the minimal input set per quantity over the enumerated lattice; the FIVE adopted
+reductions, each by witness AND by syntax (two before the certificate became an atom -- writing the
+Stage 6 brief is what caught this line still saying two); the search-alone over-skip; the syntactic checker's own
 plant, both directions; the flood-fill census with and without the screen; the
 generalized screening law, exhaustive over the pinned bases with 0 flips; the breached-base vacuity in
 both directions; fault detection by count against recomputation; invocation-independence of every
