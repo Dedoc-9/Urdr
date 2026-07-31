@@ -10,6 +10,15 @@
 # slot, never the lease's digest, because the anamnesis store still holds the stale bytes and a
 # stale fetch would silently revert the interval's edits (the lost update, made impossible).
 # SHA-256(MAGIC | name | mint | head | count | bytes | verdict).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: revocation before expiry (mint a competing edit — the CAS expires the lease
+# naturally; explicit revocation lists are future work); wall-clock (`bench.py`); cross-placement
+# (Python reference only until a placement reproduces these digests).
 long_watch 1a6c388dc6b2f8ebe324b924850b953f8e27eb777e04a09a71ffd6493d811541
 relay 1c9dd9cf4f0a8c7b74bdbf2d344361fe3d0c749d20f18fc4233aa1d1e69d2994
 amortized 3b26473d5d17cd22585d6492601360583fc790f7356cfe08de6884ef95d213be

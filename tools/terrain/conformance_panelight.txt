@@ -3,6 +3,14 @@
 # verdict-blind digest) were each proven to BITE. The interpolation firewall is enforced
 # structurally (loop_witness's domain is the tick transcript alone — it cannot see a frame).
 # digest = SHA-256(MAGIC | name | loop-witness | ticks | frames | verdict)
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: fps/latency numbers (bench §3, V4); the depicting client's own correctness (it
+# is declared); cross-placement (URDRPNL1 joins the frontier).
 stroll d04d1b2ee3f64c968a5bfb0838cafae02699f75375cf9449a3a3ebd0f68872e2
 sprint 7a0dd282913455c9aaa2a52dcf1e26345fff1274494aba84c6f9cd8363241dab
 wall da518e9500b63cdd87ccb933b38621f6a66f9c009d1d7f1af3c8948f935774e0

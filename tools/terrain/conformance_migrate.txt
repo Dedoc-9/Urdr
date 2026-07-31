@@ -10,6 +10,15 @@
 # individually redundant and jointly load-bearing (all gutted, the double-write lands).
 # Non-vacuity in-sweep: >=3 distinct schedule lengths, some region re-migrated (depth>=2),
 # every adversary refused every scenario, the world changed.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: WHO may be a steward (issuance is fiat at genesis — `authinput`); revocation
+# other than by migration; cross-process transport and wall-clock (`bench.py`); cross-placement
+# (URDRMIG1 is Python reference only).
 handoff 63c7dd124547f4af3d53ab4302f6b8c89becb868a93914180198f16d3c928923
 relay aa18af986816d9cfd73c7b3818d31369e925d5d28461d89d078274a1f859ebba
 diamond a07cbb52086b11dde56af0aa89ef4efcd2317844bb45a5b0fafaafabbc5d9f2b

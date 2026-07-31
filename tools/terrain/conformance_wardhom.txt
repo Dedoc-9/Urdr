@@ -3,6 +3,18 @@
 # beta0 (= n0 - rank d1 over F2) EQUALS warden.betti0 (union-find). barrier8=3 / cliff8=2 / flat8=1.
 # merge8 (=3) is a crosswarden MERGE (region-boundary beta0); dirward's directed num_scc <= this beta0.
 # Reproduced bit-for-bit by wardhom_c (cc -O2 -std=c99) and wardhom_rs (rustc -O). Regenerate: scene_result(name).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: beta2 and higher (the walkable graph is 1-dimensional by construction);
+# PERSISTENCE (this is the static complex's homology, not a filtration); torsion (F2 ranks only,
+# as URDRPD1); weighting the edges (a single MAX_STEP); and any WALL-CLOCK cost (NOT_MEASURED
+# until a sealed bench, Stage H). The homology here is the walkable graph's, not a Vietoris-Rips
+# point cloud's — but it uses URDRPD1's exact F2 machinery verbatim, so the two agree by
+# construction where they overlap (beta0).
 barrier8 974212cb86fe1e47f3f09ad5634850583840d3af41bb4db83ba1dfd09ce2cb04
 cliff8 d26e7940c7d1d17cc8ee64e3706c2ff0d5120d4827012bdb51664dd10766b4af
 flat8 f3538a083c1aa3071da9e29e5ca71e8e453aec09cd97273173e057e808e12401

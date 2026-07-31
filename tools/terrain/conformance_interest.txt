@@ -8,5 +8,19 @@
 #   the broad phase CONTAINS the narrow phase, so the acceleration never misses a relevant actor. Same host,
 #   same bytes; no float, no `/` `//` `%`.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: the network DELIVERY itself (who sends what to whom — the transport, not this
+# set-valued predicate); PREDICTIVE / dynamic AOI (leading an actor's motion) and priority / LOD
+# tiers (DECLARED policy — this certifies a static radius filter); continuous sub-cell positions
+# (a glide actor's Q32.32 pose floors into the same buckets — `pos >> 32 >> k` — a clean
+# follow-on); and **THROUGHPUT / per-tick cost is `NOT_MEASURED`** — the O(local) claim is a
+# design target until a sealed bench. Refusals are typed `AOI-REFUSE` (duplicate / non-integer
+# actor ids or coords, unknown observer, negative radius, non-power-of-two bucket side): refuse,
+# never guess a relevance.
 radius 33d71927f4ea1f645ce633032a2c76cf1a5444fe4aec58a4edc37c7818bd8621
 bucket 3e68d99aeb6e6b59b43b1bb31359ea09e7d23f1864d873c096bb96c350b8c11f

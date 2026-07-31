@@ -2,6 +2,14 @@
 # five planted defects (residency bypass, dead world, credulous verifier, world-blind
 # witness, verdict-blind digest) were each proven to BITE.
 # digest = SHA-256(MAGIC | name | composed-witness | ticks | acquired | refusals | verdict)
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: fps/latency (bench §3, V4); the depicting client's own correctness (the
+# `panewire.html` two-window demo is declared); cross-placement (URDRPNW1 joins the frontier).
 crossing faa5aff20d779097569f7d3f385c9dd6c690445e5c5ba433a0f76a874163c172
 reshape 12e78811727dfcb2131f80c0cde60bf8805be1bc896ad5ff47e38703e330d1a5
 concord fd7dd1e216b8cc80ef1ac45bfec97ee352e1eda73f7d210bf861f75bc37bde60

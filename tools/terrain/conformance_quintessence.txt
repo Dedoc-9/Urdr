@@ -12,6 +12,14 @@
 # commutation; SHA-256 collision-resistance the one declared pillar). Anything outside the
 # families refuses — no essence is ever guessed.
 # SHA-256(MAGIC | name | head-or-witness | axis witnesses | count | verdict).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: authority POLICY of every kind (issuance, scheduling, revocation — `authinput`
+# territory); wall-clock; cross-placement (Python reference only).
 distilled 4fc2dd0bb3399bb2713a4f85b3d64fee860e28fc49630cf12fe0ea4fba1455f2
 one_lineage ca707e7583a0b2f15344ca5f4d9777af9a89072cb5bc5720e2ffbc0df7b79073
 five_wounds 099fa7c166afbf4dbb3d30cbb34f22be3a462013edfb0ac64830033acb7c33e0

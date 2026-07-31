@@ -10,6 +10,14 @@
 # un-acknowledged anchor (refused); a forged CITE for an evicted entity is a ghost (unresolvable);
 # no_baseline lets an entity exceed REFRESH_INTERVAL; _serialize_shape_drift varies the packet size.
 # Composition over URDRBYT1/.../URDRPCP1 — NO new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: adaptive anchor selection (the encoder cites the OLDEST certified match, a fixed
+# rule); lossy history compaction; cross-placement (URDRCIT1 Python reference only).
 reuse 9ed11581c7b82ca4253b756926f0488c9ab7d4d117b5f094c40958ea7c7cf4de
 equiv 12dc8fc09384241b21c619b7ee11fbfab8fc257d6382432d4618a6b694fda373
 evict 51522e4aa5ecf29753fc442919dda37c8c0f1d5a74ae52078762045507f7f1e3

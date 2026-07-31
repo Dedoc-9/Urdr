@@ -6,5 +6,18 @@
 #   field's connected-component structure (beta0 = rank H0, the invariant URDRPD1 certifies) alone, no
 #   trajectory needed. Each digest binds (name, beta0, verdict). Same host, same bytes; no float, no clock.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: DIRECTED reachability (this uses UNDIRECTED mutual-reachability components — a
+# one-way descent off a cliff is a strongly-connected refinement, a follow-on); gaits beyond
+# sprint (moves > 2 cells/tick); the URDRPD1 homology CROSS-PLACEMENT (β₀ is computed directly
+# here; wiring `homology_c/rs` to the warden is a named follow-on); and any WALL-CLOCK cost
+# (`NOT_MEASURED`). Refusals are typed `WARD-REFUSE` with a sub-code (`WARD-TUNNEL`,
+# `WARD-TELEPORT`, `WARD-UNREACH`, or a malformed-claim `WARD-MALFORMED`): refuse, never admit a
+# cheat.
 honest da5fb738568176783a323b0e34a76b0d00584c1e246130f892b9be61bd84004d
 teleport_across d986c35b1427379b7da0c709ab960335f456e4b541ab024441d62540dee22940

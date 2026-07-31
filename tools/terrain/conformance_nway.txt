@@ -4,6 +4,15 @@
 # to make the sweep raise NWAY-REFUSE (caught by the independent global-monolith oracle), and the
 # overlap refusal was shown to hold in TWO layers (the disjointness check AND parallel!=serial).
 # Non-vacuity in-sweep: >=3 distinct batch sizes, every overlapping batch refused.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: WHO may author (`sealwrit`/`authinput`); cross-process transport, failure
+# mid-parallel-apply, wall-clock (`bench.py`); cross-placement (URDRNWY1 is Python reference
+# only).
 quad 95efefd0220016c6b4473656daa2d65ec5e2a5c742aee5a783ebacd6b6bb4a6a
 pair_agrees 8549b3d0e6c73fcf80ce0d39eff6f79cdcb55e3c9d1cc3175a5ec2ecdd1ad5a8
 lattice c8a88501d0aeadbb38dbab603ae0a8fd8f54c8b9b939f49cde872e337a5aded2

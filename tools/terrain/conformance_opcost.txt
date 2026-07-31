@@ -2,6 +2,16 @@
 # SHA-256(MAGIC | name | sorted op-count vector). The op-count is EXACT and DETERMINISTIC (gate-certified);
 # wall-clock is bench.py's job (MEASURED-on-named-host, never gated). glide micro-count <= no-wall bound;
 # warden edge-checks = (W-1)H + W(H-1); wardhom columns = n1; tick_envelope = per-tick integer work.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: WALL-CLOCK time (that is `bench.py`, MEASURED-on-named-host, not here); the
+# constant factor per op-count unit (host- and compiler-dependent); cache / memory effects; and
+# any guarantee under an adversarial scheduler (the op-count bounds the WORK, not the OS's
+# willingness to run it).
 glide_open 12217cef13fab46a5b271d80a322d3c737630ae68d24f08d67cffc2f24eeec09
 glide_wall 0b5b5d70cbf7d274dd19eb908707694a85000b581f095ea307bf65e90ef74f10
 warden_flat16 bdb1375dd76034c5474d4d72eb8d4c2c785b8268263d98c797be8a3e6fbd11ea

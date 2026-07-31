@@ -9,6 +9,14 @@
 # forged CITE to an UNCERTIFIED anchor is refused (certified law); a forged CITE to a NON-matching anchor
 # reconstructs the wrong state (representation-independence breaks); a wall-clock choice diverges.
 # Composition over URDRCIT1/.../URDRPCP1 — NO new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: byte-budget deferral (B roomy here, as in URDRCIT1); cross-placement (URDRADC1
+# Python reference only).
 cheaper 770e25f1ec747aea46e5606951a351ffccd04d6e3810e51ff5b476ecde8a6d18
 independent b415daeb3806b47029dc84dc44ff20752f3ac895fcd9beccd5824b178e84fd9c
 optimal 5a786170a1fe37f3764fabc11a7495bb2e374d269d1ec807d7d112acb192336c

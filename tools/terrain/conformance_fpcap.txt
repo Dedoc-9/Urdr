@@ -7,6 +7,18 @@
 #   offset upright and at a 90° cardinal pitch is exact, and a ~45° mouse-look pitch ROUNDS (the rounding
 #   is confined to continuous orientation, never the body). Same host, same bytes.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: contact RESPONSE / resolution (this is the collision PREDICATE, not the solver —
+# a rise > `MAX_STEP` is refused, not slid along); a swept/continuous-time capsule (the test is
+# per-tick static); ragdoll / IK / animation; exactness of a non-cardinal posed capsule (it rounds
+# — the same bounded, normalize-managed drift `fpface` names); any real-time claim. Refusals typed
+# `CAP-REFUSE`. The COLLISION is division-free; the POSE path delegates to `fpquat` (which rounds)
+# — the module straddles the regime boundary on purpose, and grades each side.
 collision 7c2acdee2ee5d98eaebd7c24b17080e760d591cb895343ba327be54d132b8220
 terrain e93a0843cdaf65136efd89235fb1c9d7ce3b3098cbed1f1bc1d26a63eb39c440
 pose 0da4ae65083cbc04f48ac5c0693952d0c2833666c797d8935d1d320d9688eb7f

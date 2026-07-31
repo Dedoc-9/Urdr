@@ -15,6 +15,16 @@
 # clamp-future plants were proven to bite and the sweep proven to redden under a no-rewind / no-window
 # adjudicator. Composition over URDRHIT1 (over URDRPCP1) — NO new glyph (kernel frozen). Declared: the
 # favor-the-shooter / killed-behind-cover tradeoff is bounded by MAX_REWIND, not eliminated.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show: sub-tick interpolation (this stores one exact snapshot per tick — no float);
+# moving/destructible walls (walls are static across the window, declared); clock-authority (the
+# view-tick is taken as given — a lying clock is a separate concern, the successor); real network
+# transport; cross-placement (URDRLAG1 Python reference only).
 rewind bb61b27d236e1e79891b890d54655b811b0769f80ec6c0530cddf8879d3a4b32
 stale d4016954976543c7b74dafae984c08e51b4311b37e5266df85a17b510414a95a
 future 209a2b4074a90aa589168b0656c33c3af352197eee7ea34c2491f091b9580742

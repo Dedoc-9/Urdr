@@ -2,6 +2,14 @@
 # six planted defects (miscounted envelope, dishonest budget, anonymous-log graduation,
 # over-target graduation, digest-blind log, verdict-blind digest) were each proven to BITE.
 # digest = SHA-256(MAGIC | name | micro_steps | reads | verdict)
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: any ms/fps number as MEASURED without a host log (structurally forbidden);
+# cross-placement (URDRSFR1 joins the frontier).
 walk fbf594fb39675045009a29d94265b66d0d3cbc70bae793c027cc7cbf750f4a55
 sprint 11a6cd37409ee9597adc93f011de377fc3965b1c786655b8ff66e1ea9fe3b18a
 restful ec049fa23369f0b8542505a98b62b2a838cb8c94e042acaebfe60b13cc4b36b3

@@ -77,6 +77,18 @@
 # "Formalizing Rollback Netcodes..." (OPODIS 2025); I could NOT confirm whether it treats the retention
 # SCHEDULE under bounded memory, so NO NOVELTY is claimed for the minimax result — stated and verified
 # here, not asserted to be first. NO new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show: the transport; the actual replay of intervening operations (that is
+# `commute`/`nway`'s territory, composed with rather than re-proved); HOW THE STARVATION IS
+# OBSERVED (this rung takes an integer starvation length and an integer threshold and derives the
+# pitch from them; producing that length from the ack stream is `latencyest`'s territory and is
+# not re-derived here — what IS closed here is that the number may not come from the client);
+# cross-placement.
 ladder 191e93a93fbd9dc7f5363c51cb09740fffb968cef468169b6c558f4115e5bf63
 minimax 615b542e40411151a6102203f58878af8d97a1e09ae8946b52fe9eb2c26244a6
 integer_bound 044c25288aa2c3349b35c6a8dadac1af55608bd2fbcb8f4c2acf55c157c4051f

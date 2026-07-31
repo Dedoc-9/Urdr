@@ -6,6 +6,18 @@
 # a correction older than the window is RESURRECT-REFUSE (the durable horizon); an integral-but-
 # inconsistent window (ground != floor-sampled authority, non-cardinal facing, off-grid pose) refuses.
 # SHA-256(MAGIC | name | boundary | witness | verdict).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: a crash DURING save (a torn write is DETECTED on load by `persist`, never
+# prevented — the last completed window is the recovery point); window PROVENANCE (above);
+# WALL-CLOCK of recovery (`bench.py` territory, MEASURED-on-named-host); CONCURRENT revivals
+# racing one store; and the netcode-layer analog (N2 `rollback` keeps in-memory snapshots — the
+# unification of its window with this durable one LANDED as `tools/netcode/rollstore.py`,
+# N2.5/URDRRBS1: the debt this line recorded, settled).
 phoenix c236433802aef2b74e4163513e8bb99bd65a1aa1fdc08fcdc5d81d9b7649fe32
 deep_heal efb28c69bd9d8ce7c5bd5defa03097b93e2c04c675ee566535d0012e13752746
 beyond_window 8a122f0528b457d31bac7319151452dc92972ec12ee81581b81ea86329528b3d

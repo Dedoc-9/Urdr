@@ -10,6 +10,14 @@
 # fixed-seed (20260724) 120-sequence sweep. Pinned AFTER the plants were proven to bite: a wrong-slot CITE
 # reconstructs the wrong key; an out-of-range eviction slot and an empty-slot CITE are refused; the
 # wall-clock plant diverges. Composition over URDRLKA1/.../URDRPCP1 — NO new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: variable-size keyframes; shared cross-entity cache; cross-placement (URDRBHO1
+# Python reference only).
 teeth 4a232b75c02b221af4cdbc24bf49c0d9a3edee1c93521c31676f3d71e426ac09
 independent b062bf2a7d11d119555170f601c38c9d65bac85b2d67ea93f39cbc87557b3385
 optimal 915cd5d5505c4bc1be063e9114c65f684aefbcb1dc676e4a6140eacfb2e8482f

@@ -9,6 +9,17 @@
 #   drive(authority) — the continuous rollback refines the discrete one without contradicting it. Same host,
 #   same bytes; no float, no clock.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: the input-PREDICTION policy (how a client guesses is a DECLARED heuristic — this
+# certifies the reconcile for ANY guess); network transport / jitter / loss (the protocol, not
+# this primitive); and **WALL-CLOCK latency and tick budget are `NOT_MEASURED`** — no timing or
+# scale claim, none until the sealed bench (Stage H). Refusals are typed `CPRED-REFUSE` (window
+# mismatch, empty window, bad transcript / subdivision): refuse, never smooth.
 correct 47bc9b5de35f3ba07dfbef23f235f4e9edfb625b66cb489ab49c4001f5e047cf
 mispredict 39e6b70ef2139e9d306456edfa96a7837c97c1452dbda30788c6dac3e20b55aa
 subcell b4e03a041e8901149a63ff982b0f3f37aaf6814175fc2434d9aa42adb95328bf

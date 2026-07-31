@@ -5,5 +5,13 @@
 # Pinned AFTER the forges were proven to bite: a tampered tick/partition witness, a forged custody
 # head, a dropped episode, and a bumped admitted count each refuse; a byte flip refuses on the
 # self-digest. Evidence theorem ON TOP of M3 (mesh==monolith) and M4 (the partition prefix).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: wall-clock (`bench.py`); cross-placement (URDRMSS1 Python reference only — it
+# attests the Python reference mesh).
 campaign 17307528a4f11351c3676e2062344a5a2346cd1b78c58fbef3bd00fb3cc7a9b3
 skirmish 6ddedd4633d5c748efd21d208d23d070ccc87247bfd8b81ba64604595931bb5f

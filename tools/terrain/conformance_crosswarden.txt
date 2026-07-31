@@ -1,5 +1,18 @@
 # URDRWARD2 - crosswarden: cross-region anti-cheat (T3.25, MMO Stage E, the D+E synthesis).
 # SHA-256(MAGIC | name | b0(merged) | seam-digest | verdict). Pinned on the flat-A / walled-B world
 # (split=8, band [6,10), B's wall at x=12). Regenerate: crosswarden.scene_result(name).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: DIRECTED reachability (this uses UNDIRECTED components, as URDRWARD1 does — a
+# follow-on); the network TRANSPORT of the neighbor field (who ships `F_B` to whom); the URDRPD1
+# homology CROSS-PLACEMENT (β₀ computed directly here, as in URDRWARD1); NON-MONOTONE crossings
+# (this certifies the east crossing, as `hand` does); and any WALL-CLOCK cost (`NOT_MEASURED`
+# until a sealed bench, Stage H). Refusals are typed `WARD-REFUSE` with a sub-code (`WARD-TUNNEL`,
+# `WARD-TELEPORT`, `WARD-UNREACH`, `WARD-SEAM`, or a malformed `WARD-MALFORMED`): refuse, never
+# admit a cheat that hides in the seam.
 honest_cross c6b97e342c42d68cbe6be7cf7fd134427884ab50bc41c0a08014afcc4ecfc73c
 seam_tunnel 9096ebba9e49e6921ee20bde1b65e9445b1f64a681363b06e2d45b45bc6fdf4b

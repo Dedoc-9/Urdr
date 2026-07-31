@@ -9,6 +9,14 @@
 # Non-vacuity in-sweep: some migration, some genuinely-concurrent tick (>1 write),
 # >=2 distinct steward counts, the world changed. Generalizes regionprop (static seams)
 # to MIGRATING authorities — the partition of authority moves, the witness does not.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: throughput/scale (never a measured number until the scale bench); cross-
+# placement (URDRMAT1 attests URDRMIG1, itself Python reference only).
 parallel_tick f4611faa560ef0630f10edaae056c9b5c84ceb75533cd2c3a7907d067d40afb3
 migrating f94c04c96ea8a530856777c5f86c5a15296d2e95cc2007201ad8043bda7162c4
 handoff_write 1fe97af134fd1efb9cd310d573c18c41ff0fde65bf812df23c56a0477e4f70f2

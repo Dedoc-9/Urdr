@@ -6,6 +6,19 @@
 #   gaze's same-where-different-WHEN gap. The digest binds (name, verdict, code, every frame). Division-
 #   free; same (start, inputs, witness) -> same bytes on every host. See the observer's docstring.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: facing UNOBSERVABLE-from-position when the actor is BLOCKED (a stationary step —
+# it needs the facing axis observed, or the input); input INFERENCE (the inputs are
+# lockstep-known, N1, not inferred from the frames); visual localization (recovering the pose from
+# the terrain *seen* is a nonlinear field inversion — the `gaze` barrier); continuous /
+# fixed-point Φ (the Q32.32 regime, `fpquat`/`fppose`, is the Slice-4 enrichment of Φ, not this
+# exact-integer grid); the kernel `world_host` cross-check (verdicts agree with the kernel
+# observer where the `urdr` package is importable). No float, no `/` `//` `%`.
 honest_full 43c49f70f47c9a38c4fef8b1550aa6a090ae6c86afcf0efc3d098163569415cd
 honest_partial c34760a402277446673f07e26ffe7bf71653f8bc74b348f48ff0359413eb4a14
 replay 07f29ec9d5082c29889f51940abe4bf18048ba5cd3f3514c6a877498b2005090

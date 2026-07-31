@@ -11,6 +11,14 @@
 # the commute rank-1 fallback still holds (nullity strictly stronger). Certificates transport across
 # authority-preserving worlds — the portability IS the absence, made visible.
 # SHA-256(MAGIC | name | parent | head-or-witness | shards | bytes | verdict).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: eviction/prefetch (chunkload's boundary stands); WHO may author (`authinput`);
+# cross-placement (Python reference only until a placement reproduces these digests).
 twin_shards a0b2f5d9c2ac16a88de2d9c73e74a5e26b366e3030c2d68dbc098331c1eadfb8
 frame_witness 1ed58842bf447a263f41bcc080ded8a9021cc8fee00413a6c23177fb64d534cd
 annexed 8884130279268c337e97e650c188dd2c864abf9da941c505c94a8bc6e8d84ebd

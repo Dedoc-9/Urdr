@@ -13,6 +13,15 @@
 # each of the five forgery plants was proven to bite (admit where the honest law refuses) and the sweep
 # proven to redden under a skipped-occlusion / box-blind adjudicator. Composition over URDRPCP1 — NO new
 # glyph (kernel frozen). Temporal lag-compensation is the declared successor.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: continuous geometry / sub-cell precision (this is an exact integer grid); real
+# ballistics (penetration, drop, ricochet); lag-compensation (the successor); cross-placement
+# (URDRHIT1 Python reference only).
 clean 17593637446cd2e5caed4b68c104bb73a36bed9c785e12952499b4031dfbb9ca
 wallshot 29006fe78e98ed296cca4270e6d039e57b89166e51d9513dc0305fd6247be2ce
 phantom 1bc38684ef8dbea6fd510e0f7071aad5b85e2fbbbf1d227b22c797038b4857fd

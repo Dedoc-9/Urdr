@@ -11,6 +11,15 @@
 # stall detected as counted refusals, repair being W4's fetch law); malice-under-chaos (tampered
 # and foreign injections refuse, convergence unharmed); the becalmed control (zero chaos, zero
 # refusals). SHA-256(MAGIC | name | witness | updates | seeds | verdict).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: wall-clock, bandwidth, congestion (`bench.py` territory); partitions between
+# MULTIPLE authorities (single-authority storms only — the mesh phase's problem); cross-placement
+# (URDRSTM1 joins the frontier).
 tempest 332bf0b6525edba69bbfa269621c03af51b6c1597990bfb3bc1e276306d3a70c
 becalmed a86f7fbe07962dd1cef63d9ffa4c29193fde748508853230bdb9db17d1be63e2
 gale_loss ef54da8894ad1fefa93c6716976ffa29b38d70c2b3b035a26dd4780d88fafd93

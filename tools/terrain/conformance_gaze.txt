@@ -4,6 +4,19 @@
 #   pose). The digest binds (scene, verdict, code, frame image); same host -> same bytes. See the
 #   builder's provenance docstring; the D7-D10 observability construct specialized to the terrain pose.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: visual localization (recovering the pose from the *terrain seen* is a nonlinear
+# inversion of the field — NOT this linear observer); a true perspective projection
+# (axis-selection charts only); TEMPORAL replay of a *spatially identical* pose (identity is
+# content — an identical pose is a valid current frame; catching same-where-different-when needs a
+# sequence, which the netcode N1/N2 stack binds — gaze certifies WHERE, composing with lockstep
+# certifies WHERE AND WHEN); the kernel `world_host` cross-check (verdicts agree with the kernel
+# observer where the `urdr` package is importable).
 genuine 881d6e23af9ea6e50be966f98447e4a71af7f7b7045c0458d82d4a0e88cd34bf
 noncover 7fdd4d9ba27c1473e6c468b1c79492aa6d25d8e21ef068318e06b2ab485e891e
 forged 8022455f69c48f891c9cce40b4d1a7db4a5d17b9438dfe9e2d5bf8c80f4ff424

@@ -15,6 +15,16 @@
 # were proven to bite and the sweep proven to redden under a disabled clock band. Composition over URDRLAG1
 # (over URDRHIT1, over URDRPCP1) — NO new glyph (kernel frozen). Declared: the jitter band is a bounded leg
 # of legitimate slack; the latency-estimate's own accuracy is the declared successor.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show: the ACCURACY of the latency estimate itself (this rung takes `(lat, jitter)` as
+# the attested truth — how the ack-stream MEASURES it, and defends that measurement against a
+# slow-drip latency forge, is the declared successor); sub-tick timing; real network transport;
+# cross-placement (URDRCLK1 Python reference only).
 consistent 87248e252fb1a242c2c7c67859c63468a935a5bb27bd58ac64063167017f96e7
 backdate 7d09c43c8c351c33080b6b81d46f5e568800652eee1cafdd12fe0f0392448861
 forward dca4ad3c2649bd1f039a0bd86791947de6898aeee8df9f6c3867b11d461d1d59

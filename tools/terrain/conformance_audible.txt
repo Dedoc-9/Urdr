@@ -10,6 +10,14 @@
 # asserting witness-blindness, hidden-set invariance (an inaudible change is BYTE-IDENTICAL), constant-
 # shape, the closed world, and the citation contract. Pinned AFTER the footstep-leak plant was proven to
 # break invariance and raise. Composition over URDRPCP1 — NO new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: continuous acoustics (exact integer grid); the visual/hitbox channels (their own
+# rungs); cross-placement (URDRAUD1 Python reference only).
 near 051957727c83d9edaf66209038d842bdf84f5f631be108c1f3cd765ea9439c02
 wall 943bd8479c69f400ebda86909110cfdc52dcd0287826f9cca695873a2fb27cc6
 direction e631b966bd5e3a1f448e5f959fd93eb496169856ecea9c03f7b0f76a8a32ef59

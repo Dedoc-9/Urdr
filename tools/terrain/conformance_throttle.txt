@@ -9,6 +9,14 @@
 # _run_ghost (carry a departed entity) and _run_membership_throttle (delay a new entity) break closed-
 # world; _run_unbounded exceeds the staleness bound; the wall-clock plant diverges. Composition over
 # URDRANA1/URDRPCP1 — NO new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: continuous line-of-sight (exact integer grid); adaptive/priority scheduling
+# beyond the clarity cadence; cross-placement (URDRTHR1 Python reference only).
 throttle 782a15c2e454cce7976c86e56437cbcba31cd7f91557498b4a67401ad6f19048
 live 6c25d43aeb9d9bda344cb73271d86d5b53030d419efd1bef654d5fdcce8b0417
 depart 2b49aa6e61f74bbbe003702fa4b41261d5c274257a14b7e33d178b79938f1a03

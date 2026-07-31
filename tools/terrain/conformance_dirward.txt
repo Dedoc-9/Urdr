@@ -1,5 +1,16 @@
 # URDRWARD3 - dirward: directed-reachability anti-cheat (SCC / one-way terrain), T3.26, MMO Stage E.
 # SHA-256(MAGIC | name | nscc | asym | verdict). Pinned on the plateau-over-plain cliff world
 # (west x<8 at height 100, east x>=8 at height 0, MAX_STEP=40). Regenerate: dirward.scene_result(name).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: the KINEMATIC trajectory case (already covered by the `warden` step law); a
+# strict `num_scc < betti0` coarsening (needs a bridging directed cycle, not built here); variable
+# / weighted step costs (a single `MAX_STEP`); the URDRPD1 homology CROSS-PLACEMENT (computed
+# directly here); and any WALL-CLOCK cost (`NOT_MEASURED` until a sealed bench, Stage H). Refusals
+# are typed `WARD-REFUSE` with a sub-code (`WARD-ONEWAY`, `WARD-UNREACH`, `WARD-MALFORMED`).
 honest_descent 89ff33bb544033311405ab093375064d0dcaf32aad05dacad128643d748bca61
 climb_back 7273a8eb0ef29ef53bfce86a86b9e29108d836ee77bb68c32cb70680bb728711

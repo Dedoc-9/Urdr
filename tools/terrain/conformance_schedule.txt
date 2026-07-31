@@ -10,6 +10,15 @@
 # _run_membership_defer drops a deferred entity and breaks closed-world; _run_over_budget exceeds the
 # budget; _run_inversion serves the youngest and starves the oldest; the wall-clock plant diverges.
 # Composition over URDRTHR1/URDRANA1/URDRPCP1 — NO new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: continuous line-of-sight (exact integer grid); byte-level bandwidth accounting
+# (the budget is a per-tick refresh COUNT, not a byte meter — a declared successor);
+# cross-placement (URDRSCH1 Python reference only).
 budget 0f716e2492b4cc3a7db3ac4481d1a27112bea9d0f4ac6ff5e77cf621cb42c108
 priority 06a05bc2bcd32eea28e87ddec3c712ba42e2dec398fba812406e1b0d149868d7
 starvefree 7b81c478be0a2227e8b188bc80273a6366f5ed98bc1fd7cc2ea67a3f7007382d

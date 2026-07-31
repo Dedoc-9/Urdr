@@ -8,6 +8,15 @@
 #   (splice_wall: a sprint EAST into the ridge stops 3/4 of a cell in; +x/+y walls stop sub-cell because
 #   floor rounds toward -inf). Same host, same bytes; no float, no clock, no `/` `//` `%`.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`, unchanged); and any timing claim (`NOT_MEASURED`). Refusals are typed
+# `SPLICE-REFUSE` (off-grid or non-integer resume pose, bad facing, a non-interior split,
+# empty/short log, bad subdivision): refuse, never clamp the pose or invent a boundary.
 splice_stroll 9fc186e5f846f5a3038ef209a0bafb79153e06e7f1e65c33f8829eabcfa335f2
 splice_sprint da6d6e40e501f5d2de7e8015ae75c1bcfe40cf756ac18a88e1d53947488b1a37
 splice_wall 2a0c2627103ace79df17b0fd11a728e7a10627503d81631d88fccc418d961ff1

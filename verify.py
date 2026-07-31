@@ -34,9 +34,9 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 
 #: THE GRADING RATCHET, read from the filesystem at pin time and lowered only by an
 #: actual module read. A new ungraded corpus exceeds these; a backfill must lower them.
-GRADING_CEILING_DNS = 63        # corpora with no boundary line (placement)
+GRADING_CEILING_DNS = 0         # corpora with no boundary line (placement)
 GRADING_CEILING_ORPHAN = 0      # ...of which the MODULE has none either (real debt)
-GRADING_CEILING_DECL = 57
+GRADING_CEILING_DECL = 46
 PY = sys.executable
 CLI = os.path.join(ROOT, "urdr.py")
 
@@ -10902,8 +10902,8 @@ class Gate:
             rat_ok = rat_ok and ungraded == GRADING_CEILING_DNS
             rat_ok = rat_ok and orphans == GRADING_CEILING_ORPHAN
             rat_ok = rat_ok and undeclared == GRADING_CEILING_DECL
-            rat_ok = rat_ok and graded > 0 and ungraded > 0 and orphans < ungraded
-            rat_ok = rat_ok and orphans == 0
+            rat_ok = rat_ok and graded > 0 and orphans <= ungraded
+            rat_ok = rat_ok and orphans == 0 and ungraded == 0 and graded == total
             rat_ok = rat_ok and graded + ungraded == total
             rat_ok = rat_ok and total == len([f for f in os.listdir(terrain)
                                               if f.startswith("conformance_")
@@ -10911,29 +10911,29 @@ class Gate:
         except Exception:
             rat_ok = False
         self.record("grading-ratchet", rat_ok,
-                    f"THE GRADING DISCIPLINE IS NOW MECHANICAL RATHER THAN HABITUAL. Read from the "
-                    f"filesystem at claim time (L16, never from prose): {live[0]} pinned conformance "
-                    f"corpora, {live[1]} carrying a `does_not_show` boundary and {live[2]} not — but of those "
-                    f"{live[2]}, only {live[3]} are ORPHANS whose module docstring carries no boundary "
-                    f"either — now ZERO, the real debt PAID by reading all six and writing boundaries "
-                    f"grounded in what each module actually computes, so every corpus in this repo now carries a boundary somewhere and THE REMAINDER IS PURE PLACEMENT; {live[4]} carry no DECLARED "
-                    f"section. All three backlogs are PINNED AS CEILINGS "
-                    f"that a new ungraded corpus immediately exceeds, so the discipline the repo most "
-                    f"claims to be about can no longer regress silently — until this row, "
-                    f"`doc-currency` guarded prose numbers, `doc-staleness` guarded status claims and "
-                    f"`magicuniq` guarded identifier collisions, while claim grading was guarded by "
-                    f"nothing and `does_not_show` appeared in this file only as prose inside evidence "
-                    f"strings. A RATCHET RATHER THAN A WALL, because bulk-backfilling boundaries "
-                    f"without deep-reading each module would MANUFACTURE grading instead of doing it, "
-                    f"which is the inflation this repo forbids wearing the costume of a fix; the "
-                    f"backlog shrinks only when a module is actually read. The pin is asserted TIGHT "
-                    f"as well as respected — a backfill that forgets to lower it reddens too, so slack "
-                    f"cannot accumulate — and the scan is asserted NON-VACUOUS in both directions "
-                    f"(graded and ungraded both positive, summing to the corpus total read "
-                    f"independently from the directory). HONEST SCOPE: scanning the ungraded corpora "
-                    f"for unbounded language returned 4 hits, all already scoped in context, so this "
-                    f"is grading DEBT and not measured inflation, and claiming otherwise would be the "
-                    f"exact defect the row exists to prevent"
+                    f"THE GRADING DISCIPLINE IS MECHANICAL, AND THE BACKLOG IT NAMED IS PAID. Read "
+                    f"from the filesystem at claim time (L16, never from prose): {live[0]} pinned "
+                    f"conformance corpora, {live[1]} carrying a `does_not_show` boundary and {live[2]} "
+                    f"not — ALL OF THEM, with {live[3]} orphans, so every claim in this repo now states "
+                    f"what it does NOT show, in the pinned artifact where a boundary has to live to be "
+                    f"durable and scannable. Until this row existed `doc-currency` guarded prose "
+                    f"numbers, `doc-staleness` guarded status claims and `magicuniq` guarded identifier "
+                    f"collisions, while claim grading — the discipline this repo most says it is about "
+                    f"— was guarded by nothing, and `does_not_show` appeared in this file only as prose "
+                    f"inside evidence strings. THE BACKLOG WAS PAID IN TWO DIFFERENT ACTS AND THE "
+                    f"ARTIFACTS SAY WHICH: six ORPHANS whose module carried no boundary either were "
+                    f"EARNED by reading the module and writing a boundary grounded in what its code "
+                    f"computes; the remaining 63 were TRANSCRIBED from their own docstrings, cut from "
+                    f"the GRADE section rather than the first mention, because an earlier occurrence "
+                    f"can reference ANOTHER module's boundary — a mistake this rung made once and "
+                    f"caught. Both boundary ceilings are now ZERO, so the ratchet has become a WALL: "
+                    f"any new corpus without a boundary reddens immediately. {live[4]} still carry no "
+                    f"DECLARED section and that one stays a RATCHET, because a DECLARED list cannot be "
+                    f"transcribed from anywhere and manufacturing one would be the inflation this row "
+                    f"exists to prevent. NON-VACUITY NOW RESTS ENTIRELY ON THE PLANT, which is the "
+                    f"honest place for it: with nothing ungraded left there is no live negative case to "
+                    f"point at, so the selftest's injected corpus is the only thing standing between "
+                    f"this row and a constant True"
                     if rat_ok else
                     f"the grading ratchet did not hold: read {live[2]} corpora without a boundary "
                     f"against ceiling {GRADING_CEILING_DNS}, {live[3]} orphans against "

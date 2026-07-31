@@ -15,6 +15,14 @@
 # inverted schedule breaks monotonicity; a client-forged wider/finer lens is refused. Composition over
 # URDRPCP1 — NO new glyph (kernel frozen). Third pillar (clarity-bounded update throttle) is a declared
 # successor: it reads THIS rung's shift/awareness as its input.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: continuous line-of-sight (exact integer grid model); cross-placement (Python
+# reference).
 focal 5d0a6f8087fceb724c148ac15f48cff1002858a8ed15a549baa6e7dead4f461b
 widen d12dbdb5736e10490bab4b36e752ba89b10584391434fd159edbb288bec12691
 defended 445248eb402b5c9bfbc4a64ff3fbad633f09db5e689621132c7980ba59b1cb75

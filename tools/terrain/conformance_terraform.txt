@@ -6,6 +6,17 @@
 # log reproduces the head manifest bit-for-bit with order structural via the parent chain; the blast
 # radius is certified by demand sets; a snapshot whose ground an edit contradicts refuses on revive.
 # SHA-256(MAGIC | name | parent | head-or-witness | bytes | verdict).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: MULTI-CELL atomic edits (a brush is a chain; mid-chain observation semantics are
+# the next rung if a consumer needs them); CONCURRENT editors racing one parent (the CAS refuses
+# the loser — merge policy is DECLARED out of scope); edit-log COMPACTION; wall-clock
+# (`bench.py`); and cross-placement (Python reference only until a placement reproduces these
+# digests).
 single_dig cd3e817428e5d9e22bc066242e44f8ddb6bf6b23c3164e898d4547b92884b942
 replay_chain cfc17d0cf209990ee776e0a0d330b7a6f95ffeed8a313e24028e1e0642ad1ef9
 walled_walk aab4ca92c1fc5997456f48d8ef70ef785a83dad618700296e0bb36c6e185dc4e

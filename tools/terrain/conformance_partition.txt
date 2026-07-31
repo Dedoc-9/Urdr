@@ -9,6 +9,15 @@
 # attacks (silent divergence / availability forgery / prefix violation / split-brain /
 # partition-transport forgery) each refuse. Non-vacuity: some op freezes, some admits,
 # both sides active, the world changes. partitioned mesh == monolith prefix, OR refuse.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: real cross-machine partitions / netsplit timing (this models the partition as a
+# frozen-knowledge split, not wall-clock; `meshattest`/`bench.py` own the reality boundary); the
+# attested mesh session (M5); cross-placement (URDRPRT1 Python reference only).
 disjoint cd97d435a3e4ca65c7d50825dbe65fde42330fb0366816db5987dd1348dbfc2f
 freeze 3f776e9866f0ca873967b891df28fe4f54f7318c4004008048352a7a0ffddfff
 mid_transfer 4f16dd8b9521806c156dd151f4a052f2657e427bc4dbf848af872a78739a312b

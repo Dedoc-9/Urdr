@@ -4,4 +4,14 @@
 # commute.predict (rank), commute.closure (head), and commute.certify (contested-arbitration) — each
 # raises COMMUTEPROP-FALSIFIED rather than returning a digest. Non-vacuity is asserted in-sweep
 # (rank0>0, rank1>0, all 200 contested pairs refuse, every scenario changed the world).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show: the OFF-GATE explorer's reseeded search (declared; its counterexamples become
+# pinned scenes, they are not gate-run); reunify==monolith and the storm prefix-property (the
+# stage's next flagship targets — this rung lands the commute diamond); cross-placement (URDRCPS1
+# is Python reference only).
 sweep 1e4c5cc84ef30149e1f84cc19b79786d1e19a8a13d13604bf771980db67f4be9

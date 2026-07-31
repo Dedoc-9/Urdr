@@ -8,5 +8,17 @@
 #   handoff tick (latency-invariant). Same host, same bytes; no float, no clock. Wall-clock latency /
 #   throughput NOT_MEASURED.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: NON-MONOTONE boundary crossings (an actor that recrosses west of the band
+# mid-suffix — this certifies the east-crossing case); the network TRANSPORT of the handoff
+# payload (who sends the boundary pose to whom); overlapping/blended authority (rejected by
+# construction — it imports drift); and **WALL-CLOCK latency and per-handoff / batch THROUGHPUT
+# are `NOT_MEASURED`** until a sealed bench (Stage H). Refusals are typed `HAND-REFUSE` (unsynced
+# seam, out-of-band handoff, mismatched field dims, bad split): refuse, never blend.
 one_point 3164caeb886650fdc193159c8e1b68c61af5e350971ddaa4b3aadb2ac0a9ffd7
 many_points bef1dd0698d614844bc3d58a602ccb3477f3c86130e6dac8a6900c84b7f27e7b

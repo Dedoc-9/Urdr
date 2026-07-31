@@ -15,6 +15,15 @@
 # to the ack window; a forged higher latency fails verify_record). Composition over URDRCLK1 (over URDRLAG1,
 # URDRHIT1, URDRPCP1) — NO new glyph (kernel frozen). Declared: this bounds and slows band-widening, it does
 # not make inflation impossible; the ping-scheduling / sample-selection policy is the declared successor.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show: the ping SCHEDULING / sample selection policy (this rung consumes a given
+# window); clock-skew between server and client beyond the jitter model; real network transport;
+# cross-placement (URDRLES1 Python reference only).
 honest 28b1c090edafbdf648b90d5bb806d272ce89ce36958664846af6fb7cf6926488
 inflate 7f884f804627ce26ae376ba6f881f61ac964f415f8fb5295a6745d69f4189443
 drip 930893751b9616109581efc6edff99fc5f655ac01016bd7330ad9846671985ba

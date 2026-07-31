@@ -11,6 +11,15 @@
 # _pack_smallest_first (starves large updates) break the prefix; _pack_overrun+_serialize_nopad exceed B;
 # _serialize_hidden smuggles bytes into padding; _serialize_noncanonical is rejected; _run_drop_departure
 # leaves a ghost. Composition over URDRSCH1/URDRTHR1/URDRANA1/URDRPCP1 — NO new glyph (kernel frozen).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: compression of the citation (the 32-byte authority digest is sent whole on a
+# FULL); multi-packet fragmentation across ticks (one packet per tick); cross-placement (URDRBYT1
+# Python reference only).
 budget 8c703d4d49616ae648e3ad9927422aac17099f8653d1c453483da478e3e5d116
 prefix d0046633b233778db601923023bb455d6058c085e2db83e881b33c1ecb4621fd
 account 3d13d8f288fc857c5eb0a895d63f0669bab814194d911d09cb83b401694815dd

@@ -35,6 +35,14 @@
 # assignment is server-derived but a client that can change apparent route (VPN) picks its baseline; and an
 # honest slow client in a FAST cohort is capped and under-compensated — the same deliberate fairness trade the
 # session floor makes, favouring the defender.
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show: the transport; the identity layer that would make cohorts sybil-resistant;
+# cross-placement (URDROOB1 Python reference only).
 capped 25da5887b436993ab879c02eabf7d5c5aa6cec5bf750d7db23e955e2ab739fb3
 honest_slow 7d9ad63d3b8e03091263c8ce9b95ae5095e4e958f64b0be0a82d6680482f693c
 no_cohort 0abaa721a1ad6c095b06c65103abae3446cdc12760d29f1669a95018a8e25751

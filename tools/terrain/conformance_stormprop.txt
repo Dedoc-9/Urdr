@@ -4,4 +4,13 @@
 # prefix-oracle mutant (prefix_witness -> the full-log witness) was proven to make the sweep raise
 # STORMPROP-FALSIFIED on a lossy storm. Non-vacuity asserted in-sweep (both branches; nonzero drops /
 # reorderings / duplicates / stalls; a strictly-below-full-log prefix occurs).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show: the off-gate explorer (declared, not gate-run); malice injection (the `storm`
+# maelstrom scene owns the tampered/foreign-record refusals); cross-placement (URDRSTP1 is Python
+# reference only).
 sweep ece721e3abe5df044a704dc3ee6c6981eef3d665065188290ce926c3fc22db3d

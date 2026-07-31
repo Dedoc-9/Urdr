@@ -7,5 +7,15 @@
 #   divergence after a full turn — exactness holds only on the cardinal lattice). Same host, same bytes;
 #   reproducibility-by-frozen-rounding (this is the FIRST terrain canon that is not division-free).
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: exactness under ACCUMULATION (composition drifts — bounded, normalize-managed,
+# NOT claimed exact); trigonometry / angles (the seam is trig-free, on `rsqrt`/`qnlerp`); the
+# continuous capsule POSE (position + capsule-vs-terrain collision — the `fppose` seam, Slice 4b);
+# any real-time / animation claim. Refusals typed `FACE-REFUSE`.
 cardinals b86ace9b884c43cb6cdf9719ebe9d624181be3763b6623c005b4483e29b8d0e5
 mouselook c3adb31ec6ccbd1409ab24485f014e0ee9c22bf545f4386c1adf85001bffabc3

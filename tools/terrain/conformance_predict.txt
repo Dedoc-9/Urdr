@@ -7,6 +7,19 @@
 #   misprediction (tick 0, empty prefix, full re-sim). In every case reconstruct == drive(authority)
 #   bit-for-bit (rollback-replay equivalence). Same host, same bytes; no float, no clock.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: network transport / jitter / loss (the protocol, not this primitive); WALL-CLOCK
+# latency and tick budget (NOT_MEASURED until the sealed bench protocol, Stage H — this module
+# makes NO timing claim); the input-PREDICTION policy (how a client guesses inputs is a DECLARED
+# client heuristic — this certifies the reconcile is correct for ANY prediction); continuous
+# positions (the exact-integer grid `drive`; the fixed-point regime is Stage B); server authority,
+# interest management, and cross-region handoff (Stages C–D). No float, no clock. Refusals typed
+# `PRED-REFUSE`.
 correct c9f7d2a19e9a190f1f447eef0430bfc5cc8cda91b809e19340a89c047e027a9a
 mispredict f1e78d7c81b89cc3aafac06c8ab481b974dfb70428d660d8a93a09810dadb282
 early ceda1cee57d714d0df0e05aebf8539102bed1cb31a18567844da3638a934aa09

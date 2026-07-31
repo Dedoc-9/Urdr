@@ -6,4 +6,14 @@
 #   digest), OUTWARD FLOW (a one-cell perturbation of Phi moves every downstream layer), MEMBRANE (no
 #   downstream op alters Phi; a forged citation is refused). Same host, same bytes.
 # name  digest
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: the general theorem over an ARBITRARY integer manifold (this certifies the URDR
+# terrain INSTANTIATION of it); the Presentation layer's pixels (DECLARED, certified only by
+# citation); and any claim beyond the seven bound layers. Refusals are typed `ISPL-REFUSE` (a
+# missing / drifted layer, a malformed authority).
 island_manifold 36829b1064fb5a0c7a1d8446489c45e94945759b540606365e4c97f4633fbde6

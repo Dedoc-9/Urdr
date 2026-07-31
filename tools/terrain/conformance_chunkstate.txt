@@ -5,6 +5,18 @@
 # monolithic persist window BYTE-FOR-BYTE (same records, same manifest, same addresses); a doubly-claimed,
 # lost, annexed, or mixed-boundary actor set is CHUNKSTATE-REFUSE; the consistent cut is the lockstep tick.
 # SHA-256(MAGIC | name | boundary | C | witness | bytes | verdict).
+#
+# BOUNDARY, TRANSCRIBED from this module's own docstring rather than authored here. The claim was
+# already graded in code and merely absent from the PINNED artifact, which is where a boundary has
+# to live to be durable and scannable — this was placement debt, not absence. Transcribed from the
+# module's GRADE section (its last does_not_show), because an earlier occurrence can be a reference
+# to another module's boundary rather than this one's:
+# does_not_show`: cross-machine transport and clocks (the cut is a data law, not a network
+# protocol); DYNAMIC REPARTITIONING mid-window (C is fixed per cut — the D5 open falsification
+# attempt, not begun); a per-region DEATH boundary (inherited by composition — regional records
+# ride `persist`'s verified restore path; the subprocess falsifier stays `resurrect`'s); live
+# world edits; and cross-placement (Python reference only until a second placement reproduces
+# these digests).
 consistent_cut d40d2caea8e261853c4ee22708f867bab8092e97606a4229264c3d98ad0abdfc
 seam_walker 247aae12ba4b7adf1c61067d5965986dc09b569dcdd7cb9b90622942427e2a00
 double_claim e43b89708e8f8415402f869050a749bd9022f243509b70c346fc6a9e5160fc2f
