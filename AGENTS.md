@@ -313,13 +313,20 @@ string, which is what L16 puts there) and PROSE-only edits (`[TEXT]`), because r
 and moving a census are different events. Against a baseline predating `--emit-rows` it reports
 `[DEGRADED]` and compares status only, rather than printing "no drift" at half resolution.
 
-**What `--diff` cannot see, which is the most frequent red in practice:** `doc-currency` and
-`doc-staleness` need LIVE totals across the whole run, so a subset can never compute them; likewise
-the vacuity floor, the tamper selftest, and any cross-stage effect. Treat it as a fast partial check,
-not as a percentage of the gate.
+**What `--diff` cannot see — and the second item is `--diff` itself.** First, `doc-currency` and
+`doc-staleness`, and *structurally* rather than as a matter of luck: `doc_currency` runs last and
+reads `len(self.rows)`, so **every** row in the gate is one of its inputs and no subset can supply
+them. Same for the vacuity floor, the tamper selftest, and any cross-stage effect. Second, **the
+comparator**. The baseline's rows come from a worktree at HEAD, so they are independent of your
+edits — but the comparison is executed by the *working tree's* `_classify_drift`. Plant
+`if False and num_n != num_b:` and the report prints `no drift` with total confidence while a
+measured value really moved; that was demonstrated, not feared. A ruler inside what it measures
+cannot score itself, so the gate scores it: `_classify_drift` is a pure function and
+`tests/test_drift_report.py` is its falsifier suite. Treat `--diff` as a fast partial check, not as
+a percentage of the gate.
 
 Those rows are **withheld, not merely missing.** `--only doc_currency` used to print `[FAIL]
-doc-currency — README.md says fals=1931 (live -1)`: a red that was certain in advance, because
+doc-currency — README.md says fals=1946 (live -1)`: a red that was certain in advance, because
 `fals`, `rows` and `det` are totals over the whole run. The same missing input made the WORD-form
 half of `doc-staleness` compare against `-1` and pass VACUOUSLY — one defect, a false red in one row
 and a false green in its neighbour. So the stage now calls `Gate.subset_withholds` and the runner
@@ -333,6 +340,15 @@ Measured, so nobody has to guess: `--only autoroute` is 17.5s, `--only autoroute
 and it covers 8 of the gate's 836 rows against 579s for the two required passes. That is ~1% of the
 rows for ~9% of the cost. Its value is not coverage; it is that it answers the question a dev loop
 actually asks — *did my edit move this stage, and in what way* — nine minutes before the gate does.
+
+**The manifest.** `gates.txt` + `python scripts/run_gates.py` is the one-command form of "is this
+done", and it is deliberately thin: two passes through `scripts/gate_once.py`, the second comparing
+bytes against the first. Assert the **literal tail line**, never the exit code — a sync-truncated
+`verify.py` once parsed cleanly, defined `Gate`, ran zero checks and exited 0 (incident 2026-07-13,
+falsified in `tests/test_gate_guard.py`), and the manifest's first draft trusted the exit code and
+was therefore weaker than the CI workflow it duplicates. The helper is Python, not a `grep`/`cmp`
+pipeline, because `run_gates.py`'s shell on Windows is `cmd.exe` and neither tool is there.
+`exit-0 ≠ ran`; `shell ≠ portable`.
 
 `--only` prints its rows and then `SUBSET RUN — N rows, NOT A GATE PASS`, and exits non-zero on any
 red. It is deliberately NOT a gate pass: the vacuity floor, the tamper selftest and every
@@ -415,7 +431,7 @@ confusions were a drifted working directory.
 #
 #     <<<URDR
 #     HEAD=2d81bdf BR=main AM=none
-#     GATE=PASSED FAILROWS=0 FALS=1931/0red ROWS=836 DOCCUR=OK DOCSTALE=OK
+#     GATE=PASSED FAILROWS=0 FALS=1946/0red ROWS=836 DOCCUR=OK DOCSTALE=OK
 #     DET=BYTE-IDENTICAL BYTES=240028/240028 A=698E23C7 B=698E23C7
 #     PUSH=afaf3db..2d81bdf
 #     URDR>>>
@@ -431,7 +447,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 1931 unit falsifiers / 836 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1946 unit falsifiers / 836 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

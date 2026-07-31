@@ -15505,6 +15505,42 @@ def _numeric_signature(detail: str) -> str:
     return ",".join(_re.findall(r"-?\d+(?:\.\d+)?", detail))
 
 
+def _classify_drift(now, base):
+    """THE COMPARATOR, deliberately separated from the git/subprocess I/O around it so it can be
+    FALSIFIED. Both arguments map row-name -> (status, numeric-signature, evidence-length); a
+    signature of None means the baseline could not supply one (the [DEGRADED] path), and then only
+    status is comparable. Returns the report lines; an EMPTY list is what earns the words "no drift".
+
+    Why this is a separate function at all: the baseline's rows come from a worktree at HEAD, but
+    the comparison runs in the WORKING TREE. The ruler is therefore inside what it measures, and a
+    fail-open edit here — `if False and num_n != num_b:` — makes the report print "no drift" with
+    full confidence while a measured value really moved. That is DEMONSTRATED, not feared: planted
+    against `cohort-gap`'s (4,1,1) -> (4,1,9), the report stayed silent. A ruler cannot score
+    itself, so the gate scores it instead (`tests/test_drift_report.py`)."""
+    lines = []
+    for n in now:
+        if n not in base:
+            lines.append(f"  [NEW]  {n}\n")
+    for n in base:
+        if n not in now:
+            lines.append(f"  [GONE] {n}\n")
+    for n in now:
+        if n not in base:
+            continue
+        ok_n, num_n, len_n = now[n]
+        ok_b, num_b, len_b = base[n]
+        if ok_n != ok_b:
+            lines.append(f"  [RED]  {n}: {ok_b} -> {ok_n}\n")
+        if num_b is None:                       # degraded baseline: status was all it could give
+            continue
+        if num_n != num_b:
+            lines.append(f"  [NUM]  {n}: measured values moved\n"
+                         f"           - {num_b[:90]}\n           + {num_n[:90]}\n")
+        elif len_n != len_b:
+            lines.append(f"  [TEXT] {n}: prose only ({len_b} -> {len_n} chars), numbers unmoved\n")
+    return lines
+
+
 def _drift_report(only: str, rows) -> str:
     """Compare this subset run against the SAME stages run from a git worktree at HEAD. The baseline
     is DERIVED FROM THE COMMIT, never read from a transcript lying around: a stale `gate1.txt` has no
@@ -15545,40 +15581,28 @@ def _drift_report(only: str, rows) -> str:
                 return "".join(out) + "  [SKIP] baseline produced no rows (new stage?)\n"
             out.append("  [DEGRADED] baseline predates --emit-rows: STATUS drift only, no evidence\n"
                        "             signatures. Upgrades automatically once this lands.\n")
-        added = [n for n in now if n not in base]
-        gone = [n for n in base if n not in now]
         out.append(f"  rows {len(now)} here / {len(base)} at HEAD\n")
-        for n in added:
-            out.append(f"  [NEW]  {n}\n")
-        for n in gone:
-            out.append(f"  [GONE] {n}\n")
-        for n in now:
-            if n not in base:
-                continue
-            ok_n, num_n, len_n = now[n]
-            ok_b, num_b, len_b = base[n]
-            if ok_n != ok_b:
-                out.append(f"  [RED]  {n}: {ok_b} -> {ok_n}\n")
-            if num_b is None:
-                continue
-            if num_n != num_b:
-                out.append(f"  [NUM]  {n}: measured values moved\n"
-                           f"           - {num_b[:90]}\n           + {num_n[:90]}\n")
-            elif len_n != len_b:
-                out.append(f"  [TEXT] {n}: prose only ({len_b} -> {len_n} chars), numbers unmoved\n")
-        if not any(x.lstrip().startswith(("[NEW]", "[GONE]", "[RED]", "[NUM]", "[TEXT]"))
-                   for x in out):
+        drift = _classify_drift(now, base)
+        out.extend(drift)
+        if not drift:
             out.append("  no drift" + (" in status (evidence not comparable)" if degraded else "")
                        + "\n")
     finally:
         _sp.run(["git", "-C", ROOT, "worktree", "remove", "--force", wt],
                 capture_output=True, text=True)
         _sh.rmtree(wt, ignore_errors=True)
-    out.append("  WHAT THIS CANNOT SEE: doc-currency and doc-staleness (they need LIVE totals across\n"
-               "  the whole run and are WITHHELD, not merely absent — see [WITHHELD] above), the\n"
-               "  vacuity floor, the tamper selftest, and any cross-stage effect. In this session's\n"
-               "  history that is the MOST FREQUENT red, so this is a fast partial check and\n"
-               "  explicitly not a substitute for the gate.\n")
+    out.append(
+        "  WHAT THIS CANNOT SEE — and the second item is this tool itself:\n"
+        "  (1) doc-currency and doc-staleness, STRUCTURALLY and not just in practice: doc_currency\n"
+        "      runs LAST and reads len(self.rows), so EVERY row in the gate is one of its inputs and\n"
+        "      no subset can supply them (they are WITHHELD, see [WITHHELD] above). Likewise the\n"
+        "      vacuity floor, the tamper selftest, and any cross-stage effect.\n"
+        "  (2) THE COMPARATOR. The baseline's rows come from HEAD, but the comparison is executed by\n"
+        "      the WORKING TREE's _classify_drift. Edit it to fail open and this report says 'no\n"
+        "      drift' with full confidence — demonstrated, not feared. That is why _classify_drift\n"
+        "      is pure and carries unit falsifiers (tests/test_drift_report.py): the ruler cannot\n"
+        "      score itself, so the gate scores it.\n"
+        "  A fast partial check, explicitly not a substitute for the gate.\n")
     return "".join(out)
 
 

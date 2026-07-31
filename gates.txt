@@ -1,3 +1,21 @@
-# label :: command   (engineering-rigor gate manifest for Urdr)
-gate      :: python verify.py
-determinism :: python verify.py > /tmp/_d1.txt 2>&1 && python verify.py > /tmp/_d2.txt 2>&1 && cmp /tmp/_d1.txt /tmp/_d2.txt
+# label :: command   (engineering-rigor gate manifest for Urdr — `python scripts/run_gates.py`)
+#
+# TWO passes, not three. The previous manifest ran `python verify.py` for `gate` and then twice
+# more for `determinism`; `determinism` now reuses the transcript `gate` already produced, so the
+# manifest costs exactly what the discipline costs — run twice, compare bytes. Order matters: the
+# runner executes these lines top to bottom and the second reads the first's log.
+#
+# Both lines go through scripts/gate_once.py, which asserts the LITERAL TAIL LINE and not the exit
+# code alone. That is not pedantry: a sync-truncated verify.py once parsed cleanly, defined Gate,
+# ran ZERO checks and exited 0 (incident 2026-07-13, falsified in tests/test_gate_guard.py). The
+# manifest's first draft trusted the exit code and was therefore weaker than the CI workflow it
+# duplicates — .github/workflows/verify.yml has grepped `^GATE PASSED$` since the incident. If the
+# two ever disagree, the workflow wins.  `exit-0 != ran`.
+#
+# The helper is Python rather than a grep/cmp pipeline because this repo is tested on Windows too,
+# where run_gates.py's shell is cmd.exe and neither tool exists.  `shell != portable`.
+#
+# NOT a substitute for reading the transcript: a green manifest certifies these checks on this
+# code, never that a name means what it says.
+gate        :: python scripts/gate_once.py _gate1.log
+determinism :: python scripts/gate_once.py _gate2.log --compare _gate1.log
