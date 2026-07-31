@@ -93,6 +93,29 @@ the search alone would have dropped `own_tile` from `quorum_agreement`, which is
     module was imported or run as a script, since `__module__` is '__main__' in the second case. A
     digest that changes with the invocation is not a digest.
 
+CORRECTION 7 — THE PLAN WAS COMPUTED AND NOTHING CONSUMED IT (Stage 8). Every row above decides WHICH
+inputs a quantity needs, and then nothing stopped a caller evaluating that quantity without them.
+Measured: `ledger_remainder` with the log returns 2 and WITHOUT the log returns 6, which is the full
+shard budget — an under-populated situation yielding a confident number that says "the ledger is
+pristine", wrong in the dangerous direction. A plan that is computed and never enforced is the same
+shape as a `does_not_show` that lives only in a docstring: obeyed by convention.
+
+    AND THE FIX HAD TO BE A REPRESENTATION CHANGE, NOT A CHECK, WHICH IS THE WHOLE CONTENT OF THIS
+    ROW. `inputset`'s `situation` stores `history=()`, and that is BOTH "I fetched the log and it was
+    empty" AND "I never fetched the log" — measured identical. No gate can separate THIN from DEVIATE
+    on a type that cannot express the difference. THE SHARPEST FORM: on an EMPTY log the honest answer
+    is 6, and the FABRICATED answer from an absent log is ALSO 6 — the right answer and the wrong one
+    are THE SAME NUMBER, so no value-level check could ever have caught this. Hence `NOT_FETCHED`, a
+    new inhabitant rather than a new predicate, and `guarded()` refusing with a DISTINCT code
+    (AUTOROUTE-MISSING-ATOM, not a subclass of AUTOROUTE-REFUSE) because an under-populated request and
+    a malformed one need different attribution.
+
+    THE HOLE IS ASSERTED RATHER THAN HIDDEN: 3 of 6 rows are CERT-tier with an EMPTY plan, so this gate
+    refuses nothing for them — correct given the plan, but it means half the census tests nothing here.
+    The reason is a SECOND representation defect this rung does NOT fix: the model derives the
+    certificate FROM occupancy, so a CERT quantity still reads `s['occupancy']` while its plan says
+    fetch nothing.
+
 WHAT THE ROUTER THEREFORE IS. A per-quantity fetch plan equal to the tier's chain prefix minus every
 atom BOTH routes agree is unread; a post-payload Menger screen that converts flood fills into counts
 wherever the divergence is sub-gap; and an honest refusal to screen at all where k = 0.
@@ -686,6 +709,145 @@ def fault_is_a_distinct_code():
     return PeerFault("x").code, RouteError("x").code, issubclass(PeerFault, RouteError)
 
 
+
+# ---- STAGE 8: THE PLAN IS ENFORCED, NOT MERELY COMPUTED -------------------------------------------------
+class MissingAtom(Exception):
+    """The caller evaluated a quantity without an input its plan names. DISTINCT from RouteError: a
+    malformed request and an under-populated one need different attribution, the same split `tilemin`
+    needed between integrity and policy."""
+    def __init__(self, message):
+        super().__init__(f"AUTOROUTE-MISSING-ATOM: {message}")
+        self.code = "AUTOROUTE-MISSING-ATOM"
+
+
+class _NotFetched:
+    """A sentinel distinct from every legitimate value. THE REPRESENTATION IS THE RUNG: `inputset`'s
+    `situation` stores `history=()`, and that is BOTH 'I fetched the log and it was empty' AND 'I never
+    fetched the log'. No gate can separate THIN from DEVIATE on a type that conflates them, so the fix
+    is a new inhabitant rather than a new check."""
+    __slots__ = ()
+
+    def __repr__(self):
+        return "NOT_FETCHED"
+
+
+NOT_FETCHED = _NotFetched()
+
+
+def fetched_situation(occupancy, tick, history, cohort):
+    """`inputset.situation` with every atom allowed to be NOT_FETCHED. The coercions are skipped for
+    the sentinel — `frozenset(NOT_FETCHED)` would raise, and an exception is not a refusal."""
+    def keep(v, coerce):
+        return v if v is NOT_FETCHED else coerce(v)
+    return {"occupancy": keep(occupancy, frozenset), "tick": tick,
+            "history": keep(history, tuple),
+            "cohort": keep(cohort, lambda c: tuple(frozenset(x) for x in c))}
+
+
+def atom_is_present(situation, atom):
+    if atom not in ATOM_OF:
+        raise RouteError(f"unknown fetch atom {atom!r}")
+    return situation.get(ATOM_OF[atom], NOT_FETCHED) is not NOT_FETCHED
+
+
+def guarded(name, situation):
+    """EVALUATE THROUGH THE PLAN. Every atom the plan names must be PRESENT, or the quantity refuses
+    rather than returning a confident number from an under-populated situation. An EMPTY atom is
+    present and evaluates cleanly — that distinction is the whole point."""
+    qfn = dict(_IS.QUANTITIES).get(name)
+    if qfn is None:
+        raise RouteError(f"unknown quantity {name!r}")
+    plan, _tier, _dropped = plan_for(name)
+    for atom in sorted(plan):
+        if not atom_is_present(situation, atom):
+            raise MissingAtom(f"{name} needs {atom}, which was not fetched")
+    return qfn(situation)
+
+
+def the_representation_conflated_absent_and_empty():
+    """THE WITNESS THAT MOTIVATES THE SENTINEL, kept live. Under `inputset.situation` the two are the
+    SAME OBJECT; under `fetched_situation` they are distinguishable. Returns
+    (old_are_equal, new_are_distinct)."""
+    old_empty = _IS.situation({(33, 33, 33)}, 6, (), ())
+    old_absent = _IS.situation({(33, 33, 33)}, 6, (), ())
+    new_empty = fetched_situation({(33, 33, 33)}, 6, (), ())
+    new_absent = fetched_situation({(33, 33, 33)}, 6, NOT_FETCHED, ())
+    return (old_empty["history"] == old_absent["history"],
+            new_empty["history"] is not new_absent["history"])
+
+
+def unguarded_evaluation_is_silently_wrong():
+    """WHY THIS RUNG EXISTS, MEASURED. Evaluating a HISTORY quantity with no log returns a number
+    rather than refusing, and it is wrong in the DANGEROUS direction — the full shard budget, i.e.
+    'the ledger is pristine'. Returns (with_log, without_log, budget, wrong_direction)."""
+    qfn = dict(_IS.QUANTITIES)["ledger_remainder"]
+    with_log = qfn(_IS.situation({(33, 33, 33)}, 6, (2, 2), ()))
+    without = qfn(_IS.situation({(33, 33, 33)}, 6, (), ()))
+    import budget as _BG
+    return with_log, without, _BG.SHARD_BUDGET, without == _BG.SHARD_BUDGET
+
+
+def guard_census():
+    """Per quantity: does a missing atom REFUSE, does an empty atom EVALUATE, and does the guarded
+    answer equal the unguarded one when the plan is satisfied. Returns
+    ((name, atoms_in_plan, refused_when_missing, evaluated_when_empty, answer_unchanged), ...)."""
+    out = []
+    for name, qfn in _IS.QUANTITIES:
+        plan, _t, _d = plan_for(name)
+        full = fetched_situation({(33, 33, 33)}, 6, (2, 2), ({(33, 33, 33)},))
+        refused = None
+        if plan:
+            holes = dict(full)
+            holes[ATOM_OF[sorted(plan)[0]]] = NOT_FETCHED
+            try:
+                guarded(name, holes)
+                refused = False
+            except MissingAtom:
+                refused = True
+        # EMPTY means the plan's atoms are empty, NOT that the tile is empty — an empty tile is
+        # `tilemin`'s own typed refusal and has nothing to do with this gate. A first draft emptied
+        # the occupancy too and hit TILEMIN-REFUSE, which would have been read as the guard failing.
+        empty = fetched_situation({(33, 33, 33)}, 6, (), ())
+        try:
+            guarded(name, empty)
+            evaluated = True
+        except MissingAtom:
+            evaluated = False
+        out.append((name, tuple(sorted(plan)), refused, evaluated,
+                    guarded(name, full) == qfn(full)))
+    return tuple(out)
+
+
+def the_guard_refuses_absence_and_admits_emptiness():
+    """The load-bearing pair, read rather than inferred. Returns
+    (refused_on_absent, value_on_empty, value_on_full)."""
+    absent = fetched_situation({(33, 33, 33)}, 6, NOT_FETCHED, ())
+    empty = fetched_situation({(33, 33, 33)}, 6, (), ())
+    full = fetched_situation({(33, 33, 33)}, 6, (2, 2), ())
+    try:
+        guarded("ledger_remainder", absent)
+        refused = False
+    except MissingAtom:
+        refused = True
+    return refused, guarded("ledger_remainder", empty), guarded("ledger_remainder", full)
+
+
+def cert_rows_are_not_exercised_by_this_gate():
+    """THE HONEST HOLE, ASSERTED RATHER THAN HIDDEN. A CERT quantity's plan is EMPTY, so this gate
+    refuses nothing for it — correct given the plan, but it means 3 of 6 rows test nothing here. The
+    deeper reason is a SECOND representation defect this rung does not fix: the model derives the
+    certificate FROM occupancy, so a CERT quantity still reads `s['occupancy']` even though its plan
+    says fetch nothing. Returns (cert_rows, rows_with_a_plan, total)."""
+    rows = guard_census()
+    empty_plan = sum(1 for _n, plan, _r, _e, _u in rows if not plan)
+    return empty_plan, len(rows) - empty_plan, len(rows)
+
+
+def missing_atom_is_a_distinct_code():
+    return (MissingAtom("x").code, RouteError("x").code,
+            issubclass(MissingAtom, RouteError))
+
+
 # ---- digests + scenes ----------------------------------------------------------------------------------
 def ar_digest(name, payload):
     hh = hashlib.sha256(); hh.update(MAGIC)
@@ -719,8 +881,18 @@ def _scene_refuted():
                                 f"{fault_is_caught_by_a_count()}:{an_honest_claim_is_not_a_fault()}")
 
 
-_SCENES = {"route": _scene_route, "screen": _scene_screen, "refuted": _scene_refuted}
-SCENES = ("route", "screen", "refuted")
+def _scene_enforce():
+    return ar_digest("enforce", f"{the_representation_conflated_absent_and_empty()}:"
+                                f"{unguarded_evaluation_is_silently_wrong()}:"
+                                f"{guard_census()}:"
+                                f"{the_guard_refuses_absence_and_admits_emptiness()}:"
+                                f"{cert_rows_are_not_exercised_by_this_gate()}:"
+                                f"{missing_atom_is_a_distinct_code()}")
+
+
+_SCENES = {"route": _scene_route, "screen": _scene_screen, "refuted": _scene_refuted,
+           "enforce": _scene_enforce}
+SCENES = ("route", "screen", "refuted", "enforce")
 
 
 def scene_result(name):

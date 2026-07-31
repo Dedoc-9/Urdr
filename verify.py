@@ -12159,6 +12159,57 @@ class Gate:
                     "becomes a certificate field"
                     if flt_ok else "an autoroute fault check did not hold")
 
+        enf_ok = True
+        try:
+            enf_ok = AR.the_representation_conflated_absent_and_empty() == (True, True)
+            enf_ok = enf_ok and AR.unguarded_evaluation_is_silently_wrong() == (2, 6, 6, True)
+            enf_ok = enf_ok and AR.the_guard_refuses_absence_and_admits_emptiness() == (True, 6, 2)
+            enf_ok = enf_ok and AR.cert_rows_are_not_exercised_by_this_gate() == (3, 3, 6)
+            enf_ok = enf_ok and AR.missing_atom_is_a_distinct_code() == (
+                "AUTOROUTE-MISSING-ATOM", "AUTOROUTE-REFUSE", False)
+            enf_ok = enf_ok and AR.guard_census() == (
+                ("exclusion_membership", (), None, True, True),
+                ("prefix_disjointness", (), None, True, True),
+                ("liveness_horizon", (), None, True, True),
+                ("occupancy_defect", ("own_tile",), True, True, True),
+                ("ledger_remainder", ("own_log",), True, True, True),
+                ("quorum_agreement", ("own_tile", "peer_tiles"), True, True, True))
+            sit = AR.fetched_situation({(33, 33, 33)}, 6, (), ())
+            for bad, err in (("no_such_quantity", AR.RouteError),):
+                try:
+                    AR.guarded(bad, sit)
+                    enf_ok = False
+                except err:
+                    pass
+        except Exception:
+            enf_ok = False
+        self.record("autoroute-enforce", enf_ok,
+                    "THE PLAN WAS COMPUTED AND NOTHING CONSUMED IT, WHICH IS A DOCUMENTATION PROMISE "
+                    "WEARING A ROUTER'S CLOTHES. Every row above decides WHICH inputs a quantity needs, "
+                    "and nothing stopped a caller evaluating it without them: MEASURED, "
+                    "ledger_remainder with the log returns 2 and WITHOUT the log returns 6 — the full "
+                    "shard budget, an under-populated situation yielding a confident 'the ledger is "
+                    "pristine', wrong in the dangerous direction. AND THE FIX HAD TO BE A "
+                    "REPRESENTATION CHANGE RATHER THAN A CHECK, which is the whole content of this "
+                    "row: inputset's `situation` stores history=(), and that is BOTH 'fetched and "
+                    "empty' AND 'never fetched', measured identical — no gate separates THIN from "
+                    "DEVIATE on a type that cannot express the difference. THE SHARPEST FORM: on an "
+                    "EMPTY log the honest answer is 6 and the FABRICATED answer from an ABSENT log is "
+                    "ALSO 6, so the right answer and the wrong one are THE SAME NUMBER and no "
+                    "value-level check could ever have caught it. Hence NOT_FETCHED, a new INHABITANT "
+                    "rather than a new predicate, with `guarded()` refusing under a DISTINCT code — "
+                    "AUTOROUTE-MISSING-ATOM, not a subclass of AUTOROUTE-REFUSE, because an "
+                    "under-populated request and a malformed one need different attribution, which is "
+                    "tilemin's integrity/policy split moved to the input layer. Measured per quantity: "
+                    "all three rows with a non-empty plan REFUSE on absence, EVALUATE on emptiness, and "
+                    "return the unguarded answer, so the gate changes which inputs are required and "
+                    "NEVER the answer. THE HOLE IS ASSERTED RATHER THAN HIDDEN — 3 of 6 rows are "
+                    "CERT-tier with an EMPTY plan so this gate refuses nothing for them, and the reason "
+                    "is a SECOND representation defect this rung does not fix: the model derives the "
+                    "certificate FROM occupancy, so a CERT quantity reads the occupancy while its plan "
+                    "says fetch nothing"
+                    if enf_ok else "the autoroute plan-enforcement gate did not hold")
+
     def blindscreen(self):
         """Cheapness is not soundness (URDRBLS1) — the whole family of cheap pre-screens refuted at once,
         and the hole autoroute left open: a cascade that cannot tell 'this tier DECIDES' from 'this tier
@@ -12324,6 +12375,7 @@ class Gate:
                     "and the free_components row carries its own corpus limitation so the next "
                     "topological candidate is not swept the same insufficient way"
                     if val_ok else "the blindscreen valuation census did not hold")
+
 
     def rannull(self):
         """RAN-0, the authority-nullity certificate (T3.42, MMO Stage I, URDRRAN0): the composition of

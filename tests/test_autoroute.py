@@ -266,5 +266,66 @@ class PeerFaultNeedsAClaim(unittest.TestCase):
             AR.verify_routed(CO.submitter(), CO.peer_population(), 20, min_peers=0)
 
 
+class ThePlanIsEnforcedNotMerelyComputed(unittest.TestCase):
+    def test_the_unguarded_evaluation_is_silently_wrong(self):
+        """Why this exists: an under-populated situation yields a confident number, and it is wrong in
+        the DANGEROUS direction — the full shard budget, i.e. 'the ledger is pristine'."""
+        with_log, without, budget, dangerous = AR.unguarded_evaluation_is_silently_wrong()
+        self.assertEqual((with_log, without), (2, 6))
+        self.assertEqual(without, budget)
+        self.assertTrue(dangerous)
+
+    def test_the_representation_had_to_change(self):
+        """A check could not have fixed this: `history=()` was BOTH fetched-and-empty and
+        never-fetched, so the type could not express the distinction the gate needs."""
+        old_equal, new_distinct = AR.the_representation_conflated_absent_and_empty()
+        self.assertTrue(old_equal, "inputset.situation conflates absent with empty")
+        self.assertTrue(new_distinct, "fetched_situation separates them")
+
+    def test_the_right_answer_and_the_wrong_one_are_the_same_number(self):
+        """The sharpest form, and the reason no value-level check could have caught it."""
+        refused, on_empty, on_full = AR.the_guard_refuses_absence_and_admits_emptiness()
+        self.assertTrue(refused, "an absent log refuses")
+        self.assertEqual(on_empty, 6, "an EMPTY log honestly evaluates to the full budget")
+        self.assertEqual(on_full, 2)
+        _wl, fabricated, _b, _d = AR.unguarded_evaluation_is_silently_wrong()
+        self.assertEqual(fabricated, on_empty,
+                         "the fabricated answer equals the honest one — only the type separates them")
+
+    def test_the_guard_census(self):
+        self.assertEqual(AR.guard_census(), (
+            ("exclusion_membership", (), None, True, True),
+            ("prefix_disjointness", (), None, True, True),
+            ("liveness_horizon", (), None, True, True),
+            ("occupancy_defect", ("own_tile",), True, True, True),
+            ("ledger_remainder", ("own_log",), True, True, True),
+            ("quorum_agreement", ("own_tile", "peer_tiles"), True, True, True),
+        ))
+        for _n, plan, refused, evaluated, unchanged in AR.guard_census():
+            if plan:
+                self.assertTrue(refused, "a missing atom must refuse")
+            self.assertTrue(evaluated, "an empty atom must evaluate")
+            self.assertTrue(unchanged, "the guard changes inputs required, never the answer")
+
+    def test_the_cert_hole_is_asserted_not_hidden(self):
+        """Half the census tests nothing here, and saying so is the point."""
+        cert, real, total = AR.cert_rows_are_not_exercised_by_this_gate()
+        self.assertEqual((cert, real, total), (3, 3, 6))
+        self.assertGreater(real, 0, "else the gate would be entirely vacuous")
+
+    def test_missing_atom_is_a_distinct_code(self):
+        missing, refuse, subclass = AR.missing_atom_is_a_distinct_code()
+        self.assertEqual(missing, "AUTOROUTE-MISSING-ATOM")
+        self.assertEqual(refuse, "AUTOROUTE-REFUSE")
+        self.assertFalse(subclass, "under-populated is not malformed")
+
+    def test_an_unknown_quantity_or_atom_refuses(self):
+        s = AR.fetched_situation({(33, 33, 33)}, 6, (), ())
+        with self.assertRaises(AR.RouteError):
+            AR.guarded("no_such_quantity", s)
+        with self.assertRaises(AR.RouteError):
+            AR.atom_is_present(s, "own_galaxy")
+
+
 if __name__ == "__main__":
     unittest.main()

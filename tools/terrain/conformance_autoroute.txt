@@ -116,6 +116,35 @@
 # promised: the routed verifier is run against cohort's own verify_cohort across the full population,
 # the empty population and an all-liar population, 0 disagreements.
 #
+#
+# CORRECTION 7 — THE PLAN WAS COMPUTED AND NOTHING CONSUMED IT (Stage 8). Every row above decides WHICH
+# inputs a quantity needs, and nothing stopped a caller evaluating it without them. MEASURED:
+# ledger_remainder with the log returns 2, without the log returns 6 — the FULL SHARD BUDGET, an
+# under-populated situation yielding a confident "the ledger is pristine", wrong in the dangerous
+# direction. A plan computed and never enforced is the same shape as a does_not_show living only in a
+# docstring: obeyed by convention.
+#
+#     THE FIX HAD TO BE A REPRESENTATION CHANGE, NOT A CHECK. inputset's `situation` stores
+#     history=(), and that is BOTH "fetched and empty" AND "never fetched" — measured identical. No
+#     gate separates THIN from DEVIATE on a type that cannot express the difference. THE SHARPEST
+#     FORM: on an EMPTY log the honest answer is 6, and the FABRICATED answer from an ABSENT log is
+#     ALSO 6 — the right answer and the wrong one are THE SAME NUMBER, so no value-level check could
+#     ever have caught this. Hence NOT_FETCHED, a new INHABITANT rather than a new predicate.
+#
+# MEASURED, per quantity (plan, refuses-when-an-atom-is-missing, evaluates-when-that-atom-is-empty,
+# answer-unchanged-when-the-plan-is-satisfied): the three rows with a non-empty plan all refuse on
+# absence, all evaluate on emptiness, and all return the unguarded answer — so the gate changes WHICH
+# inputs are required and never the answer. AUTOROUTE-MISSING-ATOM is a DISTINCT code and NOT a
+# subclass of AUTOROUTE-REFUSE, because an under-populated request and a malformed one need different
+# attribution — tilemin's integrity/policy split at the input layer.
+#
+# THE HOLE IS ASSERTED RATHER THAN HIDDEN: 3 of 6 rows are CERT-tier with an EMPTY plan, so this gate
+# refuses nothing for them and half the census tests nothing here. The reason is a SECOND
+# representation defect this rung does NOT fix — the model derives the certificate FROM occupancy, so
+# a CERT quantity reads s['occupancy'] while its plan says fetch nothing. Also declared: the "empty"
+# fixture empties the PLAN's atoms and not the tile, because an empty tile is tilemin's own typed
+# refusal and a first draft that emptied it hit TILEMIN-REFUSE, which would have read as this guard
+# failing.
 # GRADE. MEASURED: the minimal input set per quantity over the enumerated lattice; the two adopted
 # reductions, each by witness AND by syntax; the search-alone over-skip; the syntactic checker's own
 # plant in both directions; invocation-independence of every emitted digest; the flood-fill census;
@@ -139,3 +168,4 @@
 route 4171c58594571bdbc0efed337ceb89909c3ec570650ae07d9f9a2b0300837fce
 screen ed61f7e615015c930780e18ddc0a66b0c4eade27d0d96297166e0994e1432219
 refuted a9b021f27187b29651218ceb830be19b3177d543e1da2f4b75abca14d45a70b3
+enforce 32787cd7ba66c0113708f8684896b366587434978fc66ebffa1ae56c6d4e9793

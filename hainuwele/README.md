@@ -93,7 +93,9 @@ than tabulated, and it caught the handed-down taxonomy misfiling the quorum) →
 taxonomy turned into enforcement, with the agreement predicate replaced by a THEOREM: the verdict is
 connectivity and the gap is Menger's min-cut, so `THICK = 2` was never a tuned constant) → `autoroute` (the taxonomy turned into a ROUTER: a fetch
 plan is the tier's prefix minus every atom the verifier can prove it does not read, and the only
-route to a universal proof of that is syntactic, because view determinacy is undecidable) →
+route to a universal proof of that is syntactic, because view determinacy is undecidable, and whose
+computed plan is now ENFORCED rather than advisory — a plan nothing consumes is a documentation
+promise wearing a router's clothes) →
 `blindscreen` (the hole that router left: a cascade cannot tell "this tier DECIDES" from "this tier is
 all I can afford", so four cheap invariants AND their conjunction are refuted at once, and the cost
 order is measured against the decisiveness order).
@@ -216,8 +218,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | — |
 ## Status
 
-**MEASURED, as of this writing.** 103 modules under `tools/terrain/`, 172 falsifier suites, 1915 unit
-falsifiers with 0 red, 834 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 103 modules under `tools/terrain/`, 172 falsifier suites, 1922 unit
+falsifiers with 0 red, 835 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 
@@ -389,9 +391,12 @@ error.
 yet demonstrated one persistent city standing on all of them at once, under load, with players
 joining and leaving. Composition is where declared boundaries meet.
 
-**Stage 6 — briefs and grading debt.** 87 modules have no `docs/*_brief.md`, and all 20 of the city,
-authority and certificate arcs are among them; the D5 ledger needs entries for all three. Documentation debt in this repo is not cosmetic: the briefs
-are where the OODA and the D1 §20 rulings live.
+**Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
+conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 87
+modules have no `docs/*_brief.md`, all 20 of the city, authority and certificate arcs among them, and
+the D5 ledger needs entries for all three. That debt is not cosmetic: the briefs are where the OODA
+passes and the D1 §20 rulings live, and unlike a boundary a brief cannot be transcribed from anywhere.
 
 **Stage 7 — the parallel substrates.** `parallel/` holds structures explored alongside the Euclidean
 arc without disturbing it. Promoting any of them is a kernel question and therefore a D1 §20 question.
