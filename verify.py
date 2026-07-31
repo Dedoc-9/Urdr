@@ -12174,6 +12174,24 @@ class Gate:
                 ("occupancy_defect", ("own_tile",), True, True, True),
                 ("ledger_remainder", ("own_log",), True, True, True),
                 ("quorum_agreement", ("own_tile", "peer_tiles"), True, True, True))
+            enf_ok = enf_ok and AR.projection_is_stricter_than_checking() == (6, 4, 6)
+            enf_ok = enf_ok and AR.the_ambient_readers() == (
+                ("exclusion_membership", "prefix_disjointness"), 2, 6)
+            enf_ok = enf_ok and AR.projection_census() == (
+                ("exclusion_membership", (), False, None),
+                ("prefix_disjointness", (), False, None),
+                ("liveness_horizon", (), True, True),
+                ("occupancy_defect", ("own_tile",), True, 1),
+                ("ledger_remainder", ("own_log",), True, 2),
+                ("quorum_agreement", ("own_tile", "peer_tiles"), True, 1))
+            enf_ok = enf_ok and AR.the_sentinel_refuses_typed_not_crashes() == (
+                "AUTOROUTE-MISSING-ATOM",) * 4
+            enf_ok = enf_ok and AR.identity_still_works_on_the_sentinel() == (True, True, True)
+            enf_ok = enf_ok and AR.provenance_invariant() == (6, 0, 13, 0)
+            enf_ok = enf_ok and AR.guard_transparency_invariant() == (24, 0)
+            enf_ok = enf_ok and AR.error_partition_invariant() == (42, 18, 4, 0, True, 20)
+            enf_ok = enf_ok and AR.the_invariants() == (
+                ("provenance", True), ("guard-transparency", True), ("error-partition", True))
             sit = AR.fetched_situation({(33, 33, 33)}, 6, (), ())
             for bad, err in (("no_such_quantity", AR.RouteError),):
                 try:
@@ -12207,7 +12225,36 @@ class Gate:
                     "CERT-tier with an EMPTY plan so this gate refuses nothing for them, and the reason "
                     "is a SECOND representation defect this rung does not fix: the model derives the "
                     "certificate FROM occupancy, so a CERT quantity reads the occupancy while its plan "
-                    "says fetch nothing"
+                    "says fetch nothing. AND CHECKING THE PLAN IS ITSELF AMBIENT AUTHORITY, WHICH "
+                    "PROJECTION FIXES: `guarded` verifies the plan and then hands over the WHOLE "
+                    "situation — authority granted by SCOPE rather than DESIGNATION, the "
+                    "object-capability critique exactly. `projected` hands over only the atoms the plan "
+                    "names, so an undesignated read refuses BY CONSTRUCTION with nobody enumerating "
+                    "the reads. Measured strictly stronger on the same situation: guarded admits 6 of "
+                    "6, projected admits 4 of 6, and the two that fall are exclusion_membership and "
+                    "prefix_disjointness — the ambient readers, now a measured witness rather than a "
+                    "note. IT IS 2 OF 6 AND NOT 3: a first reading inferred the hole from the TIER, "
+                    "and projection says liveness_horizon SURVIVES because it reads only the tick, "
+                    "which rides inline on the certificate and is not a fetch atom. THE SENTINEL HAD "
+                    "TO REFUSE ON USE or none of this is enforcement — inert it produced a TypeError "
+                    "from inside tilemin, untyped and naming neither atom nor caller; all four use "
+                    "protocols now raise AUTOROUTE-MISSING-ATOM while identity and hashing stay "
+                    "untouched so the gate can ask whether an atom is the sentinel without triggering "
+                    "the refusal it asks about. AND THE THREE PROPERTIES ARE NOW STATED AS "
+                    "INVARIANTS RATHER THAN AS DESCRIPTIONS OF THIS CODE, so they survive the code "
+                    "being rewritten. PROVENANCE: no fetched state is representable as NOT_FETCHED and "
+                    "NOT_FETCHED is never produced by a successful fetch — 6 values, 0 collisions by "
+                    "identity or equality, 13 built, 0 sentinels produced. GUARD TRANSPARENCY: for any "
+                    "FULLY POPULATED input, guarded and unguarded evaluation agree — 24 pairs over a "
+                    "family rather than one fixture, 0 disagreements, and a populated input that "
+                    "REFUSED would count as one. ERROR PARTITION: the two refusal classes are DISJOINT "
+                    "(structurally, neither subclasses the other) and EXHAUST all router failures — "
+                    "driven over 42 attempts giving 18 missing-atom, 4 refuse, 20 legitimate successes "
+                    "(holing an atom a quantity does not need must NOT fail) and 0 ESCAPED. That last "
+                    "invariant is the one that WOULD HAVE CAUGHT THE INERT SENTINEL, whose undesignated "
+                    "read escaped as a TypeError from inside tilemin — neither class, an exhaustiveness "
+                    "violation rather than a missing test, and the argument for stating invariants "
+                    "instead of describing implementations"
                     if enf_ok else "the autoroute plan-enforcement gate did not hold")
 
     def blindscreen(self):

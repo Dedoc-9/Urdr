@@ -313,6 +313,41 @@ class ThePlanIsEnforcedNotMerelyComputed(unittest.TestCase):
         self.assertEqual((cert, real, total), (3, 3, 6))
         self.assertGreater(real, 0, "else the gate would be entirely vacuous")
 
+    def test_projection_is_stricter_than_checking(self):
+        """Checking the plan is AMBIENT AUTHORITY — the quantity gets the whole situation because it
+        is in scope. Projection designates instead, and admits strictly fewer."""
+        g, p, total = AR.projection_is_stricter_than_checking()
+        self.assertEqual((g, p, total), (6, 4, 6))
+        self.assertLess(p, g, "if they agreed, projection would be checking with extra steps")
+
+    def test_the_ambient_readers_are_named(self):
+        """The measured witness for Stage 8's remaining rung — and it is 2, not the 3 a reading of the
+        tiers inferred: liveness_horizon survives, reading only the tick."""
+        names, ambient, total = AR.the_ambient_readers()
+        self.assertEqual(names, ("exclusion_membership", "prefix_disjointness"))
+        self.assertEqual((ambient, total), (2, 6))
+
+    def test_the_projection_census(self):
+        self.assertEqual(AR.projection_census(), (
+            ("exclusion_membership", (), False, None),
+            ("prefix_disjointness", (), False, None),
+            ("liveness_horizon", (), True, True),
+            ("occupancy_defect", ("own_tile",), True, 1),
+            ("ledger_remainder", ("own_log",), True, 2),
+            ("quorum_agreement", ("own_tile", "peer_tiles"), True, 1),
+        ))
+
+    def test_the_sentinel_refuses_typed_rather_than_crashing(self):
+        """Inert, it died as a TypeError from inside tilemin — untyped, naming neither atom nor
+        caller, indistinguishable from a genuine bug."""
+        self.assertEqual(AR.the_sentinel_refuses_typed_not_crashes(),
+                         ("AUTOROUTE-MISSING-ATOM",) * 4)
+
+    def test_identity_still_works_on_the_sentinel(self):
+        """Validity-not-outcome: the gate must ASK whether an atom is the sentinel without triggering
+        the refusal it is asking about."""
+        self.assertEqual(AR.identity_still_works_on_the_sentinel(), (True, True, True))
+
     def test_missing_atom_is_a_distinct_code(self):
         missing, refuse, subclass = AR.missing_atom_is_a_distinct_code()
         self.assertEqual(missing, "AUTOROUTE-MISSING-ATOM")
@@ -325,6 +360,41 @@ class ThePlanIsEnforcedNotMerelyComputed(unittest.TestCase):
             AR.guarded("no_such_quantity", s)
         with self.assertRaises(AR.RouteError):
             AR.atom_is_present(s, "own_galaxy")
+
+
+class TheInvariants(unittest.TestCase):
+    """Stated so they could be checked against a DIFFERENT implementation of this module."""
+
+    def test_provenance(self):
+        """No fetched state is representable as NOT_FETCHED, and NOT_FETCHED is never produced by a
+        successful fetch."""
+        values, collisions, built, produced = AR.provenance_invariant()
+        self.assertEqual(collisions, 0, "no legitimate value identifies or compares as the sentinel")
+        self.assertEqual(produced, 0, "a successful build never yields the sentinel")
+        self.assertGreater(values, 0)
+        self.assertGreater(built, 0, "an empty sweep would pass vacuously")
+
+    def test_guard_transparency(self):
+        """For any fully populated input, guarded and unguarded evaluation agree."""
+        pairs, bad = AR.guard_transparency_invariant()
+        self.assertEqual(bad, 0)
+        self.assertEqual(pairs, 24, "quantified over a family, not one fixture")
+
+    def test_error_partition(self):
+        """Missing-input and policy-refusal errors are disjoint and exhaust all router failures.
+        THIS is the invariant that would have caught the inert sentinel: an undesignated read escaped
+        as a TypeError from inside tilemin, which is neither class."""
+        att, missing, refuse, escaped, disjoint, succeeded = AR.error_partition_invariant()
+        self.assertTrue(disjoint, "neither refusal class subclasses the other")
+        self.assertEqual(escaped, 0, "no third exception type escapes")
+        self.assertGreater(missing, 0, "the missing-input arm is exercised")
+        self.assertGreater(refuse, 0, "and so is the policy-refusal arm")
+        self.assertEqual(att, missing + refuse + escaped + succeeded)
+
+    def test_all_three_hold(self):
+        self.assertEqual(AR.the_invariants(),
+                         (("provenance", True), ("guard-transparency", True),
+                          ("error-partition", True)))
 
 
 if __name__ == "__main__":

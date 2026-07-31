@@ -249,6 +249,58 @@ These are non-negotiable. Every rung in this repo was built under them.
 
 ---
 
+## 6a. `verify.py` — the gate, in one page
+
+`verify.py` IS the contract. Everything else in this repository is a claim; this file is what makes
+a claim cost something. Read this before adding a stage.
+
+**Run it.** `PYTHONHASHSEED=0 PYTHONUTF8=1 python3 verify.py`. It exits 0 and its last line is
+`GATE PASSED`, or it exits 1 and prints `GATE FAILED`. Run it TWICE and compare the two transcripts
+byte-for-byte — a gate that is green but not byte-identical is not a gate. On Windows use the
+wrapper (`tools/urdrgate.ps1`) and report only its delimited block, per §8.
+
+**Shape.** One class with one METHOD PER STAGE, called in a fixed order at the bottom of the file.
+A stage imports what it needs, computes, and calls `self.record(row_name, ok, evidence)`. Nothing
+else. A stage never writes to the working tree, never reads the clock, never uses an unseeded RNG,
+and never depends on set or dict iteration order.
+
+**A row is a claim, and the evidence string is the claim's text.** `record`'s third argument is not
+a log line — it is what the repository asserts, written so a reader who never opens the module can
+tell what was measured and what was not. Write the numbers into it. If the row can only say "it
+worked", the row is not worth having.
+
+**Every stage needs a plant, and the plant must BITE (L15).** A row that has never been observed to
+go red is a hypothesis. Prove the check is load-bearing: mutate the primitive it rests on and watch
+the row redden, or — better where the arithmetic allows — assert the *non-mutating* form, as
+`boolport-load-bearing` does by asserting `True in SUBDIV` is still True, so membership cannot be
+what refuses a bool and only the type guard can be.
+
+**Non-vacuity is asserted, not assumed (L19).** A census asserts its count is POSITIVE; a corpus
+asserts it exercises both arms; a family asserts it separates what it claims to separate. An empty
+answer is indistinguishable from a correct one, and that is this architecture's characteristic
+failure.
+
+**Counts are read, never written (L16).** Any number in an evidence string or in the docs comes from
+the artifact at claim time. `doc-currency` and `doc-staleness` enforce this on tracked docs;
+`grading-ratchet` enforces that every pinned corpus states what it does NOT show.
+
+**Where to put a stage.** Insert the method next to its neighbours and add `gate.<name>()` to the
+call list in the same relative position. **Anchor edits to the method you mean**, not to the next
+`def` you can find: a stage inserted by searching forward for `def rannull` landed inside
+`blindscreen` instead, where the intended module was undefined and a bare `except` swallowed the
+`NameError` — the row failed while the identical assertions passed standalone.
+
+**Refusals are typed and DISTINCT.** Different failures get different codes: a malformed request and
+an under-populated one are not the same event, and merging them destroys attribution the way
+`tilemin`'s merged integrity-and-policy check did. Where two classes are meant to partition the
+failures, assert both DISJOINTNESS and EXHAUSTIVENESS — drive a corpus that should fail and assert
+nothing escapes as a third type (`autoroute`'s error-partition invariant does exactly this, and it
+is what catches an untyped `TypeError` leaking from a callee).
+
+**Timing.** A full pass takes several minutes and grows with the arc. It is not a fast inner loop:
+develop against `python3 -m unittest tests.test_<name>` and run the full gate before cutting a patch.
+
+
 ## 7. Hainuwele — the manifold MMO project (the catch-up)
 
 The long arc that grew on top of the frozen kernel — terrain, movement, observers,
@@ -311,7 +363,7 @@ confusions were a drifted working directory.
 #
 #     <<<URDR
 #     HEAD=2d81bdf BR=main AM=none
-#     GATE=PASSED FAILROWS=0 FALS=1922/0red ROWS=835 DOCCUR=OK DOCSTALE=OK
+#     GATE=PASSED FAILROWS=0 FALS=1931/0red ROWS=835 DOCCUR=OK DOCSTALE=OK
 #     DET=BYTE-IDENTICAL BYTES=240028/240028 A=698E23C7 B=698E23C7
 #     PUSH=afaf3db..2d81bdf
 #     URDR>>>
@@ -327,7 +379,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 1922 unit falsifiers / 835 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1931 unit falsifiers / 835 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

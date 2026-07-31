@@ -110,11 +110,29 @@ shape as a `does_not_show` that lives only in a docstring: obeyed by convention.
     (AUTOROUTE-MISSING-ATOM, not a subclass of AUTOROUTE-REFUSE) because an under-populated request and
     a malformed one need different attribution.
 
-    THE HOLE IS ASSERTED RATHER THAN HIDDEN: 3 of 6 rows are CERT-tier with an EMPTY plan, so this gate
-    refuses nothing for them — correct given the plan, but it means half the census tests nothing here.
-    The reason is a SECOND representation defect this rung does NOT fix: the model derives the
-    certificate FROM occupancy, so a CERT quantity still reads `s['occupancy']` while its plan says
-    fetch nothing.
+CORRECTION 8 — CHECKING THE PLAN IS AMBIENT AUTHORITY; PROJECTING TO IT IS NOT. `guarded` verifies the
+plan and then hands the quantity the WHOLE situation, which is exactly the object-capability critique:
+authority that "exists in a broadly visible environment where any subject can request it by name",
+granted by scope rather than by designation. `projected` hands over ONLY the atoms the plan names,
+every other atom replaced by NOT_FETCHED, so a quantity reading an undesignated input refuses BY
+CONSTRUCTION and nobody has to enumerate the reads.
+
+    MEASURED, AND IT IS STRICTLY STRONGER: on the same situation `guarded` admits 6 of 6 while
+    `projected` admits 4 of 6. The two that fall are `exclusion_membership` and `prefix_disjointness` —
+    CERT-tier rows whose plan designates NOTHING and which read `s['occupancy']` anyway, because the
+    model DERIVES the certificate from occupancy. That is the second representation defect, now a
+    measured witness rather than a note.
+
+    AND IT IS 2 OF 6, NOT 3. A first reading inferred the hole from the tier and said three CERT rows;
+    projection says `liveness_horizon` SURVIVES, because it reads only the tick, which rides inline on
+    the certificate and is not a fetch atom at all. Inferring coverage from a tier was wrong in the
+    direction that overstates the problem.
+
+    THE SENTINEL HAD TO REFUSE ON USE FOR ANY OF THIS TO BE ENFORCEMENT. Inert, it produced
+    `TypeError: '_NotFetched' object is not iterable` from inside `tilemin` — an untyped crash naming
+    neither the atom nor the caller, indistinguishable from a genuine bug. Every use protocol now
+    raises AUTOROUTE-MISSING-ATOM, while identity and hashing stay untouched so the gate can still ASK
+    whether an atom is the sentinel without triggering the refusal it is asking about.
 
 WHAT THE ROUTER THEREFORE IS. A per-quantity fetch plan equal to the tier's chain prefix minus every
 atom BOTH routes agree is unread; a post-payload Menger screen that converts flood fills into counts
@@ -724,8 +742,31 @@ class _NotFetched:
     """A sentinel distinct from every legitimate value. THE REPRESENTATION IS THE RUNG: `inputset`'s
     `situation` stores `history=()`, and that is BOTH 'I fetched the log and it was empty' AND 'I never
     fetched the log'. No gate can separate THIN from DEVIATE on a type that conflates them, so the fix
-    is a new inhabitant rather than a new check."""
+    is a new inhabitant rather than a new check.
+
+    AND THE SENTINEL REFUSES ON USE, WHICH IS WHAT MAKES PROJECTION ENFORCEABLE. A first draft was
+    inert, so a quantity reading an unfetched atom died with `TypeError: '_NotFetched' object is not
+    iterable` — an UNTYPED crash from deep inside `tilemin`, indistinguishable from a genuine bug and
+    naming neither the atom nor the caller. Every use protocol now raises AUTOROUTE-MISSING-ATOM
+    instead, so the refusal arrives wherever the read happens without anyone enumerating the reads.
+    Identity (`is`) and hashing are deliberately NOT overridden: the gate must still be able to ASK
+    whether an atom is the sentinel without triggering the refusal it is asking about."""
     __slots__ = ()
+
+    def _refuse(self, op):
+        raise MissingAtom(f"an unfetched atom was used ({op}) — its plan never designated it")
+
+    def __iter__(self):
+        self._refuse("iterated")
+
+    def __len__(self):
+        self._refuse("len()")
+
+    def __getitem__(self, k):
+        self._refuse("indexed")
+
+    def __contains__(self, k):
+        self._refuse("membership")
 
     def __repr__(self):
         return "NOT_FETCHED"
@@ -848,6 +889,205 @@ def missing_atom_is_a_distinct_code():
             issubclass(MissingAtom, RouteError))
 
 
+
+def projected(name, situation):
+    """CAPABILITY PROJECTION — hand the quantity ONLY the atoms its plan designates, every other atom
+    replaced by NOT_FETCHED. `guarded` CHECKS the plan and then passes the whole situation, which is
+    AMBIENT AUTHORITY in the object-capability sense: the quantity can reach an input because it is in
+    a broadly visible environment rather than because anything designated it. Projection removes the
+    ambient environment, so a quantity reading an undesignated atom REFUSES BY CONSTRUCTION and no
+    enumeration of reads is needed."""
+    qfn = dict(_IS.QUANTITIES).get(name)
+    if qfn is None:
+        raise RouteError(f"unknown quantity {name!r}")
+    plan, _tier, _dropped = plan_for(name)
+    for atom in sorted(plan):
+        if not atom_is_present(situation, atom):
+            raise MissingAtom(f"{name} needs {atom}, which was not fetched")
+    view = dict(situation)
+    for atom, key in ATOM_OF.items():
+        if atom not in plan:
+            view[key] = NOT_FETCHED
+    return qfn(view)
+
+
+def projection_census():
+    """Which quantities survive being handed ONLY what their plan names. Returns
+    ((name, plan, survives, value_or_None), ...) — a row that does NOT survive was reading ambient
+    authority, and the refusal is now TYPED rather than a TypeError from inside a callee."""
+    full = fetched_situation({(33, 33, 33)}, 6, (2, 2), ({(33, 33, 33)},))
+    out = []
+    for name, _qfn in _IS.QUANTITIES:
+        plan, _t, _d = plan_for(name)
+        try:
+            out.append((name, tuple(sorted(plan)), True, projected(name, full)))
+        except MissingAtom:
+            out.append((name, tuple(sorted(plan)), False, None))
+    return tuple(out)
+
+
+def the_ambient_readers(census=None):
+    """THE MEASURED WITNESS FOR THE REMAINING RUNG. Returns (names, ambient, total) — the quantities
+    whose plan designates nothing yet which read the occupancy anyway, because the model DERIVES the
+    certificate from it. Not 3 of 6 as a first reading of the tiers suggested: `liveness_horizon`
+    survives projection, since it reads only the tick, which is carried inline on the certificate and
+    is not a fetch atom at all."""
+    rows = census or projection_census()
+    bad = tuple(n for n, _p, ok, _v in rows if not ok)
+    return bad, len(bad), len(rows)
+
+
+def projection_is_stricter_than_checking():
+    """The two gates compared on the SAME situation: `guarded` admits every row, `projected` refuses
+    the ambient readers. If they agreed, projection would be checking with extra steps. Returns
+    (guarded_ok, projected_ok, total)."""
+    full = fetched_situation({(33, 33, 33)}, 6, (2, 2), ({(33, 33, 33)},))
+    g = p = 0
+    for name, _qfn in _IS.QUANTITIES:
+        try:
+            guarded(name, full)
+            g += 1
+        except MissingAtom:
+            pass
+        try:
+            projected(name, full)
+            p += 1
+        except MissingAtom:
+            pass
+    return g, p, len(_IS.QUANTITIES)
+
+
+def the_sentinel_refuses_typed_not_crashes():
+    """THE PLANT for the sentinel itself: an inert sentinel dies as a TypeError from inside a callee,
+    which names neither the atom nor the caller. Returns (iter_code, len_code, index_code, in_code)."""
+    codes = []
+    for op in (lambda: list(NOT_FETCHED), lambda: len(NOT_FETCHED),
+               lambda: NOT_FETCHED[0], lambda: 1 in NOT_FETCHED):
+        try:
+            op()
+            codes.append(None)
+        except MissingAtom as exc:
+            codes.append(exc.code)
+        except Exception as exc:
+            codes.append(type(exc).__name__)
+    return tuple(codes)
+
+
+def identity_still_works_on_the_sentinel():
+    """Validity-not-outcome: the gate must still be able to ASK whether an atom is the sentinel
+    without triggering the refusal it is asking about."""
+    s = fetched_situation({(33, 33, 33)}, 6, NOT_FETCHED, ())
+    return (s["history"] is NOT_FETCHED, atom_is_present(s, "own_log") is False,
+            atom_is_present(s, "own_tile") is True)
+
+
+# ---- THE INVARIANTS, STATED SO THEY CAN BE CHECKED INDEPENDENT OF THIS IMPLEMENTATION ------------------
+def _situation_family():
+    """Fully-populated situations only — the family the transparency invariant quantifies over."""
+    return (fetched_situation({(33, 33, 33)}, 6, (2, 2), ({(33, 33, 33)},)),
+            fetched_situation({(33, 33, 33)}, 6, (), ()),
+            fetched_situation({(40, 40, 40)}, 6, (1,), ({(40, 40, 40)},)),
+            fetched_situation({(33, 33, 34)}, 5, (2, 2, 1), ({(33, 33, 33)}, {(40, 40, 40)})))
+
+
+def _atom_value_family():
+    """Legitimate values an atom can hold, including every EMPTY one — the empties are the point."""
+    return (frozenset(), frozenset({(33, 33, 33)}), (), (2, 2), 0, 6)
+
+
+def provenance_invariant():
+    """INVARIANT 1 — NO FETCHED STATE IS REPRESENTABLE AS NOT_FETCHED, AND NOT_FETCHED IS NEVER
+    PRODUCED BY A SUCCESSFUL FETCH. Checked both directions over the value family: no legitimate value
+    compares or identifies as the sentinel, and building a situation from legitimate values never
+    yields one. Returns (values_checked, collisions, built, sentinels_produced)."""
+    vals = _atom_value_family()
+    collisions = sum(1 for v in vals if v is NOT_FETCHED or v == NOT_FETCHED)
+    produced = 0
+    built = 0
+    for v in vals:
+        for slot in range(3):
+            args = [frozenset({(33, 33, 33)}), 6, (), ()]
+            args[1 + slot if slot else 0] = v if slot else frozenset(v) if isinstance(
+                v, (frozenset, set)) else frozenset({(33, 33, 33)})
+            try:
+                sit = fetched_situation(args[0], 6, args[2], args[3])
+            except Exception:
+                continue
+            built += 1
+            produced += sum(1 for k in ("occupancy", "history", "cohort")
+                            if sit[k] is NOT_FETCHED)
+    return len(vals), collisions, built, produced
+
+
+def guard_transparency_invariant():
+    """INVARIANT 2 — FOR ANY FULLY POPULATED INPUT, GUARDED AND UNGUARDED EVALUATION AGREE. Quantified
+    over the situation family, not one fixture. Returns (pairs, disagreements)."""
+    pairs = bad = 0
+    for sit in _situation_family():
+        for name, qfn in _IS.QUANTITIES:
+            pairs += 1
+            try:
+                if guarded(name, sit) != qfn(sit):
+                    bad += 1
+            except MissingAtom:
+                bad += 1                       # a fully populated input must never refuse
+    return pairs, bad
+
+
+def _failure_corpus():
+    """Inputs that SHOULD fail, spanning both intended failure kinds."""
+    ok = fetched_situation({(33, 33, 33)}, 6, (2, 2), ({(33, 33, 33)},))
+    out = [("unknown quantity", lambda: guarded("no_such_quantity", ok)),
+           ("unknown atom", lambda: atom_is_present(ok, "own_galaxy")),
+           ("unknown level", lambda: _subproj(("own_galaxy",), _IS.family()[0])),
+           ("unknown atom, syntactic", lambda: syntactically_independent(
+               "ledger_remainder", "own_galaxy"))]
+    for atom, key in sorted(ATOM_OF.items()):
+        holed = dict(ok)
+        holed[key] = NOT_FETCHED
+        for name, _q in _IS.QUANTITIES:
+            out.append((f"{name} without {atom}", (lambda n, h: lambda: guarded(n, h))(name, holed)))
+            out.append((f"{name} projected without {atom}",
+                        (lambda n, h: lambda: projected(n, h))(name, holed)))
+    out.append(("sentinel iterated", lambda: list(NOT_FETCHED)))
+    out.append(("sentinel indexed", lambda: NOT_FETCHED[0]))
+    return tuple(out)
+
+
+def error_partition_invariant():
+    """INVARIANT 3 — MISSING-INPUT AND POLICY-REFUSAL ERRORS ARE DISJOINT AND EXHAUST ALL ROUTER
+    FAILURES. Disjointness is structural (neither class subclasses the other); EXHAUSTIVENESS is
+    driven over a corpus that should fail, asserting nothing else escapes. THIS INVARIANT WOULD HAVE
+    CAUGHT THE INERT SENTINEL: before it refused on use, an undesignated read escaped as a TypeError
+    from inside `tilemin`, which is neither class — an exhaustiveness violation, not a missing test.
+    Returns (attempted, missing, refuse, escaped, disjoint, succeeded)."""
+    disjoint = not (issubclass(MissingAtom, RouteError) or issubclass(RouteError, MissingAtom))
+    attempted = missing = refuse = escaped = succeeded = 0
+    for _label, op in _failure_corpus():
+        attempted += 1
+        try:
+            op()
+            succeeded += 1
+        except MissingAtom:
+            missing += 1
+        except RouteError:
+            refuse += 1
+        except Exception:
+            escaped += 1
+    return attempted, missing, refuse, escaped, disjoint, succeeded
+
+
+def the_invariants():
+    """All three, in one row. Returns ((name, holds), ...) — each stated so it could be checked against
+    a different implementation of this module entirely."""
+    _v, coll, built, produced = provenance_invariant()
+    pairs, bad = guard_transparency_invariant()
+    att, _m, _r, esc, disj, _s = error_partition_invariant()
+    return (("provenance", coll == 0 and produced == 0 and built > 0),
+            ("guard-transparency", bad == 0 and pairs > 0),
+            ("error-partition", esc == 0 and disj and att > 0))
+
+
 # ---- digests + scenes ----------------------------------------------------------------------------------
 def ar_digest(name, payload):
     hh = hashlib.sha256(); hh.update(MAGIC)
@@ -887,7 +1127,13 @@ def _scene_enforce():
                                 f"{guard_census()}:"
                                 f"{the_guard_refuses_absence_and_admits_emptiness()}:"
                                 f"{cert_rows_are_not_exercised_by_this_gate()}:"
-                                f"{missing_atom_is_a_distinct_code()}")
+                                f"{missing_atom_is_a_distinct_code()}:"
+                                f"{projection_census()}:{the_ambient_readers()}:"
+                                f"{projection_is_stricter_than_checking()}:"
+                                f"{the_sentinel_refuses_typed_not_crashes()}:"
+                                f"{identity_still_works_on_the_sentinel()}:"
+                                f"{provenance_invariant()}:{guard_transparency_invariant()}:"
+                                f"{error_partition_invariant()}:{the_invariants()}")
 
 
 _SCENES = {"route": _scene_route, "screen": _scene_screen, "refuted": _scene_refuted,
