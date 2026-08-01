@@ -60,7 +60,29 @@
 # witness one level down.
 # does_not_show: that a CERT-tier quantity is TRUE — determination is about which inputs fix a value,
 # never about whether the value is honest, which is why tilemin needed a separate recomputation check;
-# what any quantity MEANS; any quantity outside the pinned six.
+# what any quantity MEANS; any quantity outside the pinned six.#
+# THE SEPARATION BASIS BLOCK -- 54 -> 60 SITUATIONS, AND ONLY THE `family` DIGEST MOVED.
+# Measured at FIELD granularity, this family's separation basis spanned 2 of 8 declared semantic
+# axes: only `history` and `cohort` had a pair differing in them and in NOTHING else. `occupancy` had
+# none because `situation(cert=None)` derives a certificate from it, so every occupancy change
+# dragged a certificate change along; the five certificate FIELDS had none because they are derived
+# TOGETHER, so no pair differs in exactly one of them.
+#
+#     THE PRIOR FAILURE WAS NOT SIZE. 54 situations, fully enumerated, six of eight directions
+#     unrepresented. Adding more of the same grid would have added nothing. Six members were added,
+#     one per unspanned axis -- five supplying an EXPLICIT certificate differing from the base's in
+#     exactly one field, one holding the certificate fixed while the occupancy moves. Rank is now
+#     8 of 8. This is a BASIS, not a bigger corpus, and it is expressible only because the
+#     certificate became an input.
+#
+#     `classification` AND `correction` ARE BYTE-IDENTICAL, AND THAT IS THE RESULT. A strictly more
+#     discriminating family CONFIRMED every tier rather than moving one. The taxonomy was right; the
+#     evidence for it is now stronger. Only `family` moved, which it had to.
+#
+#     A certificate whose field disagrees with the occupancy it accompanies is not a malformed
+#     fixture -- it is a peer sending an inconsistent certificate, which is why `tilemin` carries a
+#     recomputation check at all.
+
 classification bde1b1ec2a95e3efa394d5e86fd3ad2635de753c4215c9a47dbf5eac29cf7a7d
 correction 63e7d821a8e519ed1d6e74f233ea387e0353b0829a560a35fa9c7895719d9b57
-family 531f47db632f5ae0faccc7a3485e54eb565eb440077936e122251bc643428711
+family 178fde16c9029ef43bf63eef6ad79ee74786194ab14dc6749ede248405391b9f

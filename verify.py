@@ -11993,8 +11993,15 @@ class Gate:
         red_ok = False
         try:
             red_ok = IS.witnessless_check_is_vacuous() == (6, 6)
-            red_ok = red_ok and IS.family_separates_every_level() == (162, 162, 54)
-            red_ok = red_ok and len(IS.family()) == 54
+            # 54 -> 60 and (162, 162, 54) -> (181, 174, 58): the SEPARATION BASIS BLOCK. Six
+            # situations, one per declared semantic axis that had no isolating witness — five
+            # supplying an explicit certificate that differs from the base's in exactly ONE field,
+            # one holding the certificate fixed while the occupancy moves. The prior failure was
+            # never SIZE (54 fully enumerated situations, six of eight directions unrepresented); it
+            # was the absence of INDEPENDENT VARIATION, which is why this is a basis and not a bigger
+            # corpus. Expressible only because the certificate became an input.
+            red_ok = red_ok and IS.family_separates_every_level() == (181, 174, 58)
+            red_ok = red_ok and len(IS.family()) == 60
             qfn = dict(IS.QUANTITIES)["occupancy_defect"]
             ok1, w1 = IS.determines("CERT", qfn)
             ok2, w2 = IS.determines("LATTICE", qfn)
@@ -12310,7 +12317,10 @@ class Gate:
             # the projection honouring `own_cert`, they sit exactly AT it — a CERT quantity that reads
             # the certificate has no slack, which is the correct answer. Four of six still sit strictly
             # below, and the PLANS never moved through any of it.
-            plan_ok = plan_ok and AR.the_chain_is_not_tight() == (4, 6)
+            # (4, 6) -> (3, 6). `liveness_horizon` stopped being constant, so it now sits AT its
+            # tier prefix rather than below it — a CERT quantity that genuinely reads the certificate
+            # has no slack. Three of six still sit strictly below. THE PLANS DID NOT MOVE.
+            plan_ok = plan_ok and AR.the_chain_is_not_tight() == (3, 6)
             plan_ok = plan_ok and AR.the_real_savings() == (
                 ("occupancy_defect", "own_cert"),
                 ("ledger_remainder", "own_cert"), ("ledger_remainder", "own_tile"),
@@ -12447,7 +12457,7 @@ class Gate:
             det_ok = AR.syntax_versus_search_census() == (
                 ("exclusion_membership", "own_cert", False, False),
                 ("prefix_disjointness", "own_cert", False, False),
-                ("liveness_horizon", "own_cert", True, False),
+                ("liveness_horizon", "own_cert", False, False),
                 ("occupancy_defect", "own_cert", True, True),
                 ("occupancy_defect", "own_tile", False, False),
                 ("ledger_remainder", "own_cert", True, True),
@@ -12457,9 +12467,13 @@ class Gate:
                 ("quorum_agreement", "own_log", True, True),
                 ("quorum_agreement", "own_tile", True, False),
                 ("quorum_agreement", "peer_tiles", False, False))
-            det_ok = det_ok and AR.only_syntax_gives_a_universal_positive() == (7, 5, 2)
+            det_ok = det_ok and AR.only_syntax_gives_a_universal_positive() == (6, 5, 1)
+            # OVER-SKIP 2 -> 1. The removed entry is `liveness_horizon/own_cert`, and no target was
+            # ever set for this number: three plausible diagnoses were falsified in this arc, and
+            # precommitting to a count would have turned a measurement into a destination. What is
+            # required is that the drop be EXPLAINED, which the three controls below do.
             det_ok = det_ok and AR.search_alone_would_over_skip()[2] == (
-                ("liveness_horizon", "own_cert"), ("quorum_agreement", "own_tile"))
+                ("quorum_agreement", "own_tile"),)
             det_ok = det_ok and AR.the_syntactic_check_follows_calls() == (True, True)
             det_ok = det_ok and AR.the_family_was_built_for_a_chain() == (3, 16, 32)
             # THE SEPARATION BASIS, at FIELD granularity, reported BEFORE anything is done about it.
@@ -12473,17 +12487,29 @@ class Gate:
             # PINNED AS A DEBT, in the GRADING_CEILING idiom: these zeros are a known deficiency
             # recorded so it cannot worsen unnoticed, and the declared successor lowers them. A
             # family extension's acceptance test is that the basis SPANS, not that the corpus grew.
+            # THE BASIS SPANS. Every declared axis has an isolating witness; rank 2 of 8 -> 8 of 8.
+            # The acceptance test was never "the corpus grew" — 54 fully-enumerated situations left
+            # six of eight directions unrepresented, so size was never the deficiency.
             det_ok = det_ok and AR.separation_basis() == (
-                ("occupancy", 0), ("history", 54), ("cohort", 54),
-                ("cert.tile_prefix", 0), ("cert.jurisdiction_region", 0),
-                ("cert.liveness_token", 0), ("cert.tick", 0), ("cert.binding", 0))
-            det_ok = det_ok and AR.basis_rank() == (2, 8)
+                ("occupancy", 1), ("history", 54), ("cohort", 54),
+                ("cert.tile_prefix", 1), ("cert.jurisdiction_region", 1),
+                ("cert.liveness_token", 1), ("cert.tick", 1), ("cert.binding", 2))
+            det_ok = det_ok and AR.basis_rank() == (8, 8)
             # ...and the concrete consequence, named rather than left as an abstraction: a quantity
             # taking ONE value across the family is determined by the EMPTY projection by CONSTANCY,
             # so the search calls its atom droppable and syntax must veto. That is the honest half of
             # the over-skip count.
             det_ok = det_ok and AR.a_constant_quantity_is_droppable_for_a_reason() == (
-                "liveness_horizon", 1, True, True)
+                "liveness_horizon", 2, False, True)
+            # CONTROL 3, and the one that keeps a falling over-skip honest: extending a family can
+            # ONLY remove search positives, so the count dropping proves nothing by itself. The
+            # removed positive must name the pair that killed it — liveness_horizon now takes both
+            # values, because the basis block supplied a certificate whose tick is outside
+            # tilemin.HORIZON. Controls 1 and 2 (route_census unchanged, five savings intact) are
+            # asserted in autoroute-plan and guard the opposite failure: a corpus that erases
+            # legitimate independence and silently WIDENS fetch plans is not an improvement.
+            det_ok = det_ok and AR.the_removed_positive_has_a_witness() == (
+                ("False", "True"), True, False)
             said, cs, ch, occ, va, vb, refuted = AR.the_lattice_enumeration_overreached()
             # The enumeration used to claim {peer_tiles} ALONE determined quorum_agreement — a
             # single-atom overreach the hand-built witness refutes. With `_subproj` honouring
@@ -12514,16 +12540,14 @@ class Gate:
                     "family-relative positive into a universal one, and the asymmetry is permanent: a "
                     "NEGATIVE answer is exact from one witness, a search POSITIVE is forever "
                     "family-relative, and the only route to a universal positive is SYNTACTIC. "
-                    "Measured: the search gives 7 positives, syntax 5, and syntax is SILENT on 2 where "
+                    "Measured: the search gives 6 positives, syntax 5, and syntax is SILENT on 1 where "
                     "the search is positive — its honest weakness, since a quantity may read the "
                     "occupancy only through what the certificate already exposes. Their conjunction is "
-                    "exactly the 5 correct reductions, and THE SEARCH ALONE WOULD HAVE DROPPED own_cert "
-                    "FROM liveness_horizon, which is the one HONEST family limitation here: that quantity "
-                    "takes a single distinct value across all 54 members, so projecting onto nothing "
-                    "determines it by constancy. Two sibling rows reported the same verdict for a WRONG "
-                    "reason and were FIXED rather than recorded — `_subproj` stapled a certificate derived "
-                    "from the occupancy onto every projection and never consulted own_cert, so the empty "
-                    "projection carried the very field the quantity returns. It would also have dropped "
+                    "exactly the 5 correct reductions. The search would ONCE have dropped own_cert from "
+                    "liveness_horizon, because that quantity took a single value across the family and the "
+                    "empty projection determined it by CONSTANCY rather than by independence; the separation "
+                    "basis now spans 8 of 8 declared semantic axes and that positive is gone, with the pair "
+                    "that killed it named rather than inferred from a falling count. It would still have dropped "
                     "own_tile "
                     "FROM quorum_agreement, which the quantity provably reads — refuted twice, by a "
                     "hand-built pair (same certificate, same cohort, different occupancy, agreement 1 "

@@ -706,6 +706,25 @@ def separation_basis():
     return tuple(out)
 
 
+def the_removed_positive_has_a_witness():
+    """A SEARCH POSITIVE THAT DISAPPEARED MUST NAME THE PAIR THAT KILLED IT.
+
+    Extending a family can only ever REMOVE search positives — more members, more chances to find a
+    refuting witness — so a falling over-skip count proves nothing on its own and could equally come
+    from a corpus that quietly erased legitimate independence results. Two controls guard that
+    (`route_census` unchanged, the five adopted savings intact), and this is the third: bind the
+    changed verdict to a CONCRETE pair rather than to an aggregate.
+
+    `liveness_horizon/own_cert` was a search positive because the quantity took ONE value across all
+    54 members, so the empty projection determined it by CONSTANCY. The basis block added a
+    certificate whose tick is outside `tilemin.HORIZON`; that member and the base now disagree.
+    Returns (values, they_differ, still_droppable)."""
+    fam = _IS.family()
+    qfn = dict(_IS.QUANTITIES)["liveness_horizon"]
+    vals = tuple(sorted({repr(qfn(s)) for s in fam}))
+    return vals, len(vals) > 1, determines_subset(frozenset(), qfn, fam)[0]
+
+
 def basis_rank():
     """Returns (spanned, declared) — how many declared axes have an isolating witness. The acceptance
     condition for a family extension is not "the corpus got bigger" but "the basis spans"."""

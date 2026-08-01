@@ -153,7 +153,7 @@ class TheScreenIsVacuousWhenBreached(unittest.TestCase):
 class TheLatticeEnumerationOverreached(unittest.TestCase):
     def test_the_chain_is_not_tight(self):
         off, total = AR.the_chain_is_not_tight()
-        self.assertEqual((off, total), (4, 6))
+        self.assertEqual((off, total), (3, 6))
         self.assertGreater(off, 0, "else the lattice adds nothing and this module is pointless")
 
     def test_both_real_savings_hold_by_witness_and_by_syntax(self):
@@ -184,6 +184,44 @@ class TheLatticeEnumerationOverreached(unittest.TestCase):
         self.assertEqual((va, vb), (1, 0), "and different agreement")
         self.assertTrue(refuted)
 
+    def test_the_separation_basis_spans(self):
+        """The acceptance test for a family extension is that the BASIS SPANS, not that the corpus
+        grew. It spanned 2 of 8 declared semantic axes at field granularity — 54 fully enumerated
+        situations with six of eight directions unrepresented — so size was never the deficiency."""
+        rows = AR.separation_basis()
+        self.assertEqual(rows, (
+            ("occupancy", 1), ("history", 54), ("cohort", 54),
+            ("cert.tile_prefix", 1), ("cert.jurisdiction_region", 1),
+            ("cert.liveness_token", 1), ("cert.tick", 1), ("cert.binding", 2)))
+        self.assertEqual(AR.basis_rank(), (8, 8))
+        for axis, n in rows:
+            self.assertGreater(n, 0, f"{axis} has no isolating witness; a search positive about it "
+                                     f"is vacuous however many situations were examined")
+
+    def test_the_removed_positive_has_a_witness(self):
+        """Extending a family can ONLY remove search positives, so over-skip falling proves nothing
+        by itself. The removed one must name the pair that killed it."""
+        vals, differ, droppable = AR.the_removed_positive_has_a_witness()
+        self.assertEqual(vals, ("False", "True"))
+        self.assertTrue(differ, "liveness_horizon must no longer be constant across the family")
+        self.assertFalse(droppable, "and the empty projection must no longer determine it")
+        self.assertEqual(AR.a_constant_quantity_is_droppable_for_a_reason(),
+                         ("liveness_horizon", 2, False, True))
+
+    def test_the_controls_that_keep_a_falling_over_skip_honest(self):
+        """A corpus that erases legitimate independence results and silently WIDENS fetch plans is
+        not an improvement. Both controls are asserted here as a pair, so neither can be relaxed
+        alone while the other keeps the suite green."""
+        self.assertEqual(len(AR.the_real_savings()), 5, "an adopted saving was erased")
+        self.assertEqual(AR.route_census(), (
+            ("exclusion_membership", ("own_cert",), "CERT", ()),
+            ("prefix_disjointness", ("own_cert",), "CERT", ()),
+            ("liveness_horizon", ("own_cert",), "CERT", ()),
+            ("occupancy_defect", ("own_tile",), "LATTICE", ("own_cert",)),
+            ("ledger_remainder", ("own_log",), "HISTORY", ("own_cert", "own_tile")),
+            ("quorum_agreement", ("own_tile", "peer_tiles"), "COHORT",
+             ("own_cert", "own_log"))), "the plans moved; better evidence must confirm them")
+
     def test_the_family_was_built_for_a_chain(self):
         chain_pairs, nodes, covers = AR.the_family_was_built_for_a_chain()
         self.assertEqual((chain_pairs, nodes, covers), (3, 16, 32))
@@ -204,19 +242,22 @@ class OnlySyntaxGivesAUniversalPositive(unittest.TestCase):
         """Nash-Segoufin-Vianu determinacy is UNDECIDABLE for UCQs, so a search positive is forever
         family-relative. Measured: it drops an atom the quantity provably reads."""
         search_only, both, over = AR.search_alone_would_over_skip()
-        self.assertEqual(len(search_only), 7)
+        self.assertEqual(len(search_only), 6)
         self.assertEqual(len(both), 5)
-        # Was 1, then 4, now 2. The 4 was an ARTIFACT: `_subproj` stapled a certificate derived from
-        # the occupancy onto every projection and never consulted `own_cert`, so the empty projection
-        # carried the very field `exclusion_membership` returns. Two of the four were that bug. The
-        # two that remain are honest — `liveness_horizon` is CONSTANT across all 54 family members,
-        # so projecting onto nothing really does determine it.
-        self.assertEqual(over, (("liveness_horizon", "own_cert"),
-                                ("quorum_agreement", "own_tile")))
+        # 1 -> 4 -> 2 -> 1. The 4 was an ARTIFACT of a `_subproj` that stapled a certificate onto
+        # every projection; fixing it took two entries away. The third went when the SEPARATION BASIS
+        # made `liveness_horizon` non-constant — it was reported droppable because the empty
+        # projection determined it by CONSTANCY, not by independence. What remains is the original
+        # `quorum_agreement/own_tile`, refuted by a hand-built witness and by syntax.
+        #
+        # A FALLING COUNT IS NOT EVIDENCE ON ITS OWN. Extending a family can only ever remove search
+        # positives, so the drop is expected; `test_the_removed_positive_has_a_witness` binds it to
+        # the concrete pair, and the route census and adopted savings guard the opposite failure.
+        self.assertEqual(over, (("quorum_agreement", "own_tile"),))
 
     def test_the_scorecard(self):
         s_pos, y_pos, silent = AR.only_syntax_gives_a_universal_positive()
-        self.assertEqual((s_pos, y_pos, silent), (7, 5, 2))
+        self.assertEqual((s_pos, y_pos, silent), (6, 5, 1))
         self.assertLess(y_pos, s_pos, "syntax is sound and weaker — that is the trade")
         self.assertGreater(silent, 0, "and it is silent where a cert already exposes the input")
 
@@ -224,7 +265,7 @@ class OnlySyntaxGivesAUniversalPositive(unittest.TestCase):
         self.assertEqual(AR.syntax_versus_search_census(), (
             ("exclusion_membership", "own_cert", False, False),
             ("prefix_disjointness", "own_cert", False, False),
-            ("liveness_horizon", "own_cert", True, False),
+            ("liveness_horizon", "own_cert", False, False),
             ("occupancy_defect", "own_cert", True, True),
             ("occupancy_defect", "own_tile", False, False),
             ("ledger_remainder", "own_cert", True, True),

@@ -265,8 +265,36 @@
 #     only ever compared certificates BECAUSE of the defect. Once the empty projection became truly
 #     empty, that line compared two empty tuples. The premise still holds on measurement; it is now
 #     actually being checked, via `_subproj(("own_cert",), ...)`.
+#
+# CORRECTION 9 -- THE SEPARATION BASIS. The witness family spanned 2 of 8 declared semantic axes at
+# FIELD granularity: only `history` and `cohort` had a pair differing in them and in nothing else.
+# Six situations were added, one per unspanned axis -- five supplying an EXPLICIT certificate
+# differing from the base's in exactly one field, one holding the certificate fixed while the
+# occupancy moves. Rank 2/8 -> 8/8, family 54 -> 60. Size was never the deficiency: 54 situations
+# were already fully enumerated with six of eight directions unrepresented. This is a BASIS, not a
+# bigger corpus, and it is writable only because the certificate became an input (correction 7).
+#
+#     ONLY `route` MOVED, AND THE THREE THAT DID NOT ARE THE CONTROLS. `enforce` covers the plans,
+#     the guard and projection censuses and the three invariants -- byte-identical, so the fetch
+#     PLANS did not move. `refuted` and `screen` are untouched by fetch-plan evidence and had to
+#     hold. Within `route`, `route_census()` and `the_real_savings()` are themselves unchanged; what
+#     moved is `the_chain_is_not_tight` (4, 6) -> (3, 6), because `liveness_horizon` stopped being
+#     constant and now sits AT its tier prefix rather than below it.
+#
+#     OVER-SKIP 2 -> 1, WITH THE REMOVED POSITIVE NAMED. Extending a family can only ever REMOVE
+#     search positives -- more members, more chances to find a refuting witness -- so a falling count
+#     proves nothing by itself and could equally come from a corpus that erased legitimate
+#     independence results. Three controls: route_census unchanged, the five adopted savings intact,
+#     and `the_removed_positive_has_a_witness` binding the changed verdict to a concrete pair.
+#     `liveness_horizon` took ONE value across the old family, so the empty projection determined it
+#     by CONSTANCY; the basis block supplies a certificate whose tick is outside tilemin.HORIZON and
+#     it now takes both. NO TARGET WAS SET for the resulting count -- three plausible diagnoses were
+#     falsified in this arc, and precommitting to a number turns a measurement into a destination.
+#
+#     AND `inputset`'s `classification` DIGEST IS BYTE-IDENTICAL. A strictly more discriminating
+#     family CONFIRMED every tier rather than moving one.
 
-route 0286a2f6fc87a8e4811703afa30ae0861b2d0612405d7d1c7f01a08a12b2c7bc
+route c00a09d2fcb869723a86cb67321172ad433c6000d85fb5d10907f937231502e8
 screen ed61f7e615015c930780e18ddc0a66b0c4eade27d0d96297166e0994e1432219
 refuted cefce881429e1a72b44edad525593b4f62c83f968513a17baa5dea7d9cf54aaf
 enforce 91db6daa3b3392803bd3305d0ee0a47d21437dfb2fc3d18e2b06b7e8ee7c18d3

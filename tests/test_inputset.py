@@ -95,10 +95,10 @@ class TheWitnessSearchIsThePoint(unittest.TestCase):
     def test_the_family_separates_every_adjacent_level(self):
         """L19 — without separation every quantity would classify as CERT-local for free."""
         seps = IS.family_separates_every_level()
-        self.assertEqual(seps, (162, 162, 54))
+        self.assertEqual(seps, (181, 174, 58))
         for n in seps:
             self.assertGreater(n, 0, "each adjacent level pair must be separated by some pair")
-        self.assertEqual(len(IS.family()), 54)
+        self.assertEqual(len(IS.family()), 60)
 
     def test_determines_returns_a_usable_witness(self):
         qfn = dict(IS.QUANTITIES)["occupancy_defect"]

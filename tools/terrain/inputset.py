@@ -195,6 +195,54 @@ def family():
             for hist in ((), (1,), (1, 2)):
                 for coh in ((), (occ,), (_OTHER_TILE, _OTHER_TILE)):
                     out.append(situation(occ, tick, hist, coh))
+    return tuple(out) + _separation_basis_block()
+
+
+#: The base every basis member is paired against. It is ALREADY in the grid above
+#: (occ=_IN_TILE_FORBIDDEN, tick=6, hist=(), coh=()), so each member below differs from a real
+#: family situation in EXACTLY ONE declared axis and nothing has to be added to hold the other end.
+_BASIS_OCC, _BASIS_TICK = _IN_TILE_FORBIDDEN, 6
+
+
+def _separation_basis_block():
+    """SIX SITUATIONS THAT MAKE THE FAMILY A BASIS RATHER THAN MERELY A CORPUS.
+
+    Measured before this block existed, the family's separation basis spanned 2 of 8 declared
+    semantic axes: only `history` and `cohort` had a pair differing in them and in nothing else.
+    `occupancy` had none because `situation(cert=None)` derives a certificate from it, so every
+    occupancy change dragged a certificate change along; the five certificate FIELDS had none because
+    they are derived TOGETHER, so no pair differs in exactly one of them.
+
+    The prior failure was never SIZE. 54 situations, fully enumerated, and six of eight directions
+    unrepresented — adding more of the same grid would have added nothing. What was missing was
+    INDEPENDENT VARIATION, which is why this is a basis and not a bigger corpus.
+
+    Each member below holds occupancy, tick, history and cohort at the base and supplies an EXPLICIT
+    certificate differing from the base's derived one in exactly one field — or holds the certificate
+    fixed and moves the occupancy. That is expressible only because the certificate became an input
+    (`situation(..., cert=...)`); before that rung this block could not have been written at all.
+
+    A certificate whose field disagrees with the occupancy it accompanies is not a malformed fixture.
+    It is a peer sending an inconsistent certificate, which is precisely the case the arc must be able
+    to reason about — and `tilemin`'s recomputation check exists because such a thing can arrive."""
+    base_cert = _TM.certify(frozenset(_BASIS_OCC), _BASIS_TICK)
+    out = []
+
+    # (1) occupancy alone: same certificate, different cells. The certificate is now inconsistent
+    #     with the occupancy, which is the point — it is what lets the search see occupancy at all.
+    out.append(situation(_IN_TILE_CLEAN, _BASIS_TICK, (), (), cert=dict(base_cert)))
+
+    # (2)-(6) one certificate FIELD alone. The tick variant is chosen OUTSIDE tilemin.HORIZON so
+    #     `liveness_horizon` stops being constant across the family; that constancy is what made the
+    #     empty projection determine it and the search call its atom droppable.
+    for field, value in (("tile_prefix", base_cert["tile_prefix"] + 1),
+                         ("jurisdiction_region", base_cert["jurisdiction_region"] + 1),
+                         ("liveness_token", "00" * 16),
+                         ("tick", _BASIS_TICK - (_TM.HORIZON + 5)),
+                         ("binding", "ff" * 32)):
+        c = dict(base_cert)
+        c[field] = value
+        out.append(situation(_BASIS_OCC, _BASIS_TICK, (), (), cert=c))
     return tuple(out)
 
 
