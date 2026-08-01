@@ -67,6 +67,7 @@ STAGE_ORDER = (
     "netcode_world",
     "netcode_worldpeer",
     "compose",
+    "edgeattr",
     "netcode_region",
     "regionprop",
     "netcode_field_desync",
@@ -3046,6 +3047,95 @@ class Gate:
                     "cut (39 of 39) — that is the hidden-state defect the law exists to catch, and it "
                     "is precisely the one a perturbation plant would never exercise"
                     if pl_ok else "a compose plant did not bite")
+
+
+    # -- Stage 5: which edges carry which laws ---------------------------------
+    def edgeattr(self):
+        """WHICH EDGES CARRY WHICH LAWS (URDREDG1) — the graph is DERIVED from the AST and each edge
+        is valued by SEVERING it. Rows: scenes, matrix, walls, plants."""
+        for d in (os.path.join(ROOT, "tools", "netcode"), os.path.join(ROOT, "tools", "physics"),
+                  os.path.join(ROOT, "tools", "terrain")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import edgeattr as EA
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("edgeattr", False, f"import failed: {exc}")
+            return
+        try:
+            ref_ok = all(EA.scene_result(n) == EA.golden(n) for n in EA.SCENES)
+            ref_ok = ref_ok and EA.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("edgeattr:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("edgeattr:scenes", ref_ok,
+                    "attribution + walls reproduce URDREDG1 digests, and the pinned corpus is exactly "
+                    "what `--emit` produces"
+                    if ref_ok else "an edgeattr scene drifted from its digest")
+
+        mx_ok = True
+        try:
+            mx_ok = EA.the_families_are_disjoint() == ((), 7, (), 7)
+            mx_ok = mx_ok and EA.minimal_responsible_set("replay") == (
+                "glide._fold_from", "glide.glide_cells", "persist.checkpoint",
+                "persist.restore", "storecost.serialize")
+            mx_ok = mx_ok and EA.minimal_responsible_set("step") == (
+                "worldstep.simulate_trace", "worldstep.step_tick")
+        except Exception:
+            mx_ok = False
+        self.record("edgeattr-matrix", mx_ok,
+                    "THE ATTRIBUTION MATRIX PARTITIONS, AND THE PARTITION IS D11 RE-DERIVED. Each "
+                    "declared edge is severed — its target replaced by a sentinel that raises on USE, "
+                    "the trick `autoroute` uses for undesignated atoms, lifted from "
+                    "atoms-inside-a-module to edges-between-modules — and the laws recomputed. The "
+                    "replay laws rest on glide + storecost + persist and NOTHING else; segmentation "
+                    "and identity rest on worldstep and NOTHING else; 0 edges carry both, 0 are "
+                    "unattributed, 7 of 7 single-family. The durability boundary was written one rung "
+                    "earlier from ARGUMENT and is here derived mechanically from the opposite "
+                    "direction — a contract that survived a measurement which could have refuted it. "
+                    "Severance must run against the LAW FUNCTIONS: against the stage, four different "
+                    "edges all reddened `compose:scenes` and nothing else, because that row computes "
+                    "first and returns early, so the test had no resolution at all"
+                    if mx_ok else "the edge attribution matrix did not hold")
+
+        wl_ok = True
+        try:
+            wl_ok = EA.every_family_has_two_edges() == (("replay", 5), ("step", 2))
+            for _f, n in EA.every_family_has_two_edges():
+                wl_ok = wl_ok and n >= 2
+            wl_ok = wl_ok and EA.declared_edges_exist() == (7, 6, 1, 7)
+            wl_ok = wl_ok and EA.the_transitive_carriers() == ("storecost.serialize",)
+        except Exception:
+            wl_ok = False
+        self.record("edgeattr-walls", wl_ok,
+                    "TWO WALLS AND A TRANSITIVE CARRIER. No family may rest on ONE severable edge — "
+                    "a monoculture is a single point of failure in the EVIDENCE, not just the code — "
+                    "and both clear it (replay 5, step 2). And the declaration check found a real "
+                    "discrepancy on its first run: 7 declared edges, 6 direct imports of `compose`. "
+                    "`storecost` IS NOT IMPORTED BY compose at all — it is reached through `persist` "
+                    "— yet severing storecost.serialize breaks BOTH replay laws. Severance measures "
+                    "REACHABILITY, the AST measures DIRECT IMPORTS, and the gap is exactly where a "
+                    "dependency carries a law while being invisible in the consumer's import list. "
+                    "Named rather than counted: 'one transitive edge' is a number, "
+                    "`storecost.serialize` is a fact someone can act on"
+                    if wl_ok else "an edgeattr wall did not hold")
+
+        pl_ok = True
+        try:
+            pl_ok = EA.an_unbreakable_edge_is_caught() == (False,) * 5
+            pl_ok = pl_ok and EA.severance_leaves_no_residue() == (True, 5)
+        except Exception:
+            pl_ok = False
+        self.record("edgeattr-plants", pl_ok,
+                    "NON-VACUITY, AND A DETERMINISM GUARD. The method works by BREAKING things, so it "
+                    "is evidence only if an edge that breaks nothing reports nothing: a planted "
+                    "attribute no law reaches yields an all-false vector. Without it, a harness that "
+                    "silently failed to sever would report every edge as unattributed and look "
+                    "exactly like a clean partition of nothing. And every law returns its baseline "
+                    "after the whole matrix has run — a leaked sentinel would make later rows depend "
+                    "on stage ORDER, which is a determinism defect rather than a wrong answer, and "
+                    "the harder kind to notice"
+                    if pl_ok else "an edgeattr plant did not bite")
 
 
     def doc_currency(self):

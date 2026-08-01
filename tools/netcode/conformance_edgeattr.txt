@@ -1,0 +1,47 @@
+# URDREDG1 conformance — WHICH EDGES CARRY WHICH LAWS. The dependency graph is DERIVED from the
+# AST; what each edge is WORTH is measured by severing it and recomputing the laws.
+#
+# THE TOPOLOGY IS NOT THE ARCHITECTURE. 320 import edges across 134 modules say nothing about which
+# of them a law depends on. An edge nobody can break is an edge nobody has evidence for.
+#
+#     SEVERANCE MUST RUN AGAINST THE LAW FUNCTIONS, NOT THE GATE STAGE. Measured the hard way:
+#     severing four different edges and running the `compose` STAGE reddened `compose:scenes` and
+#     nothing else in all four cases, because the scenes row computes first and returns early. Every
+#     edge produced an identical verdict and the test had NO resolution. Against the individual law
+#     functions the picture separates immediately.
+#
+#     AND RESOLUTION IS FAMILY-LEVEL, NOT EDGE-LEVEL. All five glide/storecost/persist edges break
+#     exactly the same two laws and are indistinguishable to this test. Claiming per-edge precision
+#     would repeat the separation basis's granularity error, where atom granularity looked healthy at
+#     27 isolating pairs while field granularity was 0 across the board.
+#
+# THE MATRIX PARTITIONS, AND THAT IS THE RESULT.
+#
+#     glide._fold_from  glide.glide_cells  persist.restore  persist.checkpoint  storecost.serialize
+#         -> replay family, 5 edges
+#     worldstep.step_tick  worldstep.simulate_trace
+#         -> step family, 2 edges
+#     no edge carries both
+#
+# That is the D11 DURABILITY BOUNDARY -- written one rung earlier from ARGUMENT -- re-derived
+# mechanically from the opposite direction. A contract that survives a measurement which could have
+# refuted it is worth more than one that was never at risk.
+#
+# AND THE DECLARATION CHECK FOUND A TRANSITIVE CARRIER ON ITS FIRST RUN. 7 declared edges, 6 direct
+# imports of `compose`. `storecost` IS NOT IMPORTED BY `compose` AT ALL -- it is reached through
+# `persist` -- yet severing `storecost.serialize` breaks both replay laws. Severance measures
+# REACHABILITY; the AST measures DIRECT IMPORTS; the gap between them is exactly where a dependency
+# carries a law while being invisible in the consumer's import list. A reviewer reading compose.py
+# sees glide, lockstep, persist, worldstep and would not know that a change to storecost's encoding
+# can break a law here. Named rather than counted, because "one transitive edge" is a number and
+# `storecost.serialize` is a fact someone can act on.
+#
+# ABSENCE OF ATTRIBUTION IS NOT DEAD CODE. Only one cell is always wrong: an edge that does NOT exist
+# while a law depends on it. An unattributed edge may be an implementation detail below the current
+# certification line or an evidence gap, and collapsing those into "dead code" would be an inflation.
+#
+# does_not_show: which INDIVIDUAL law an edge serves (family-level only); that an unattributed edge is
+# dead; anything about the ~313 edges outside the declared set -- an edge no law touches cannot be
+# attributed by a method that works by breaking laws.
+attribution 6ba1a53c054a04ed02a128de837b5ab38abc412b3a4928fb1fb55ca73916fe55
+walls 68d188becc513c16798578e16f6380f5e10b1d4ce3364364fca54f12d5743930
