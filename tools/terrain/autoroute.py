@@ -653,6 +653,79 @@ def the_lattice_enumeration_overreached():
     return (said, base, coh, a["occupancy"] == b["occupancy"], va, vb, va != vb)
 
 
+#: THE DECLARED SEMANTIC AXES — the directions a witness family must be able to vary INDEPENDENTLY if
+#: a search over it is to refute dependence on them. Declared here as data so the census has a fixed
+#: denominator that the family cannot quietly shrink by omitting a row.
+SEMANTIC_AXES = ("occupancy", "history", "cohort",
+                 "cert.tile_prefix", "cert.jurisdiction_region", "cert.liveness_token",
+                 "cert.tick", "cert.binding")
+
+
+def _axis_value(s, axis):
+    if axis.startswith("cert."):
+        v = s["cert"][axis.split(".", 1)[1]]
+    else:
+        v = s[axis]
+    try:
+        hash(v)
+        return v
+    except TypeError:                                   # unhashable payloads compare by repr
+        return repr(v)
+
+
+@_memo(maxsize=None)
+def separation_basis():
+    """THE INCIDENCE STRUCTURE OF THE FAMILY, at FIELD granularity. Returns ((axis, isolating_pairs),
+    ...) where an isolating pair differs in that axis and in NO other declared axis.
+
+    WHY FIELD GRANULARITY AND NOT ATOM. At atom granularity `own_cert` has 27 isolating pairs and
+    looks healthy; at field granularity every one of its five fields has ZERO, because the fields
+    CO-VARY — they are derived together, so no pair differs in exactly one. An atom-level metric would
+    have reported a comfortable number at the exact moment the search could not see the field a
+    quantity actually reads. Granularity has to match the semantics of the computation, not the
+    declared atom boundary.
+
+    A ZERO IS NOT A BUG IN THIS FUNCTION. It is the honest report that the family cannot refute
+    dependence on that axis, and a search positive about it is therefore vacuous however many
+    situations were examined. `occupancy` reads zero because `situation(cert=None)` derives a
+    certificate from it, so every occupancy change drags a certificate change along — a regression the
+    certificate rung introduced and this census exists to make visible rather than to hide."""
+    fam = _IS.family()
+    out = []
+    for axis in SEMANTIC_AXES:
+        n = 0
+        for i in range(len(fam)):
+            for j in range(i + 1, len(fam)):
+                a, b = fam[i], fam[j]
+                if _axis_value(a, axis) == _axis_value(b, axis):
+                    continue
+                if all(_axis_value(a, o) == _axis_value(b, o)
+                       for o in SEMANTIC_AXES if o != axis):
+                    n += 1
+        out.append((axis, n))
+    return tuple(out)
+
+
+def basis_rank():
+    """Returns (spanned, declared) — how many declared axes have an isolating witness. The acceptance
+    condition for a family extension is not "the corpus got bigger" but "the basis spans"."""
+    rows = separation_basis()
+    return sum(1 for _a, n in rows if n > 0), len(rows)
+
+
+def a_constant_quantity_is_droppable_for_a_reason():
+    """The concrete consequence of an unspanned basis, named rather than left implicit. A quantity
+    that takes ONE value across the whole family is determined by the EMPTY projection — by constancy,
+    not by independence — so the search reports its atom droppable and syntax has to veto it. Returns
+    (name, distinct_values, search_says_droppable, syntax_vetoes)."""
+    fam = _IS.family()
+    qfn = dict(_IS.QUANTITIES)["liveness_horizon"]
+    distinct = len({repr(qfn(s)) for s in fam})
+    search = determines_subset(frozenset(), qfn, fam)[0]
+    return "liveness_horizon", distinct, search, not syntactically_independent(
+        "liveness_horizon", "own_cert")
+
+
 def the_family_was_built_for_a_chain():
     """THE ROOT CAUSE, and it is why only the inspection-confirmed saving is adopted. Returns
     (chain_pairs, lattice_nodes, lattice_covering_pairs)."""

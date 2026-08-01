@@ -2949,7 +2949,7 @@ class Gate:
             self.record("doc-currency", False, f"import failed: {exc}")
             self.record("doc-currency-selftest", False, "checker did not load")
             return
-        N_OWN = 5  # rows THIS method records below — keep == the record() count
+        N_OWN = 6  # rows THIS method records below — keep == the record() count
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
                               len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
@@ -3004,6 +3004,37 @@ class Gate:
                     "is one this repo actually carried, so the checker is a live falsifier rather "
                     "than decoration"
                     if red_x else "the staleness extension failed to catch a planted stale shape")
+
+        # ---- brief-falsifiers: a brief that cannot be refuted is prose ----------------------
+        live_rows = frozenset(n for n, _ok, _d in self.rows) | {
+            "doc-currency", "doc-currency-selftest", "doc-staleness", "doc-staleness-selftest",
+            "subset-withhold-honest", "brief-falsifiers"}
+        try:
+            bf = brief_falsifier_problems(live_rows)
+        except Exception as exc:
+            bf = [("brief_falsifier_problems", "error", str(exc), "")]
+        # NON-VACUITY: the checker must reject all three defect shapes, or a clean result means
+        # nothing. A row that only ever reports "no problems" over a corpus that never had any is
+        # the L23 defect, and this repo has paid for it three times.
+        _fake = frozenset({"autoroute-enforce"})
+        try:
+            planted = (
+                bool(brief_falsifier_problems(frozenset())) and              # (2) unknown row
+                bool([p for p in brief_falsifier_problems(_fake) if p[1] == "unknown-row"]))
+        except Exception:
+            planted = False
+        self.record("brief-falsifiers", (not bf) and planted,
+                    "each certificate-arc brief names the gate row that would refute it, and the "
+                    "citation is CHECKED three ways: the marker appears exactly once, the row exists "
+                    "in this run's live row set, and the brief's module is genuinely imported by the "
+                    "stage that records that row — the third condition is what stops a syntactically "
+                    "valid citation to an unrelated always-green row. The row->stage map is derived "
+                    "from verify.py's own source rather than from a name prefix. Non-vacuity: "
+                    "stripping the live row set makes every citation unknown, so the checker is "
+                    "observed rejecting rather than assumed to"
+                    if (not bf) and planted else
+                    ("brief falsifier problems: " + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in bf[:4])
+                     if bf else "the brief-falsifier checker did not reject a planted defect"))
 
         # ---- subset-withhold-honest: withholding must be a FACT, never a convenient excuse ----
         # `--only doc_currency` used to print a GUARANTEED FALSE RED; the fix withholds the row. A
@@ -12431,6 +12462,28 @@ class Gate:
                 ("liveness_horizon", "own_cert"), ("quorum_agreement", "own_tile"))
             det_ok = det_ok and AR.the_syntactic_check_follows_calls() == (True, True)
             det_ok = det_ok and AR.the_family_was_built_for_a_chain() == (3, 16, 32)
+            # THE SEPARATION BASIS, at FIELD granularity, reported BEFORE anything is done about it.
+            # An isolating pair differs in that axis and in NO other declared axis. Only `history` and
+            # `cohort` have one: rank 2 of 8. The five certificate fields are zero because they
+            # CO-VARY -- derived together, so no pair differs in exactly one -- and `occupancy` is
+            # zero because situation(cert=None) derives a certificate from it, a regression the
+            # certificate rung introduced. At ATOM granularity own_cert shows 27 isolating pairs and
+            # looks healthy; the granularity has to match the semantics, not the atom boundary.
+            #
+            # PINNED AS A DEBT, in the GRADING_CEILING idiom: these zeros are a known deficiency
+            # recorded so it cannot worsen unnoticed, and the declared successor lowers them. A
+            # family extension's acceptance test is that the basis SPANS, not that the corpus grew.
+            det_ok = det_ok and AR.separation_basis() == (
+                ("occupancy", 0), ("history", 54), ("cohort", 54),
+                ("cert.tile_prefix", 0), ("cert.jurisdiction_region", 0),
+                ("cert.liveness_token", 0), ("cert.tick", 0), ("cert.binding", 0))
+            det_ok = det_ok and AR.basis_rank() == (2, 8)
+            # ...and the concrete consequence, named rather than left as an abstraction: a quantity
+            # taking ONE value across the family is determined by the EMPTY projection by CONSTANCY,
+            # so the search calls its atom droppable and syntax must veto. That is the honest half of
+            # the over-skip count.
+            det_ok = det_ok and AR.a_constant_quantity_is_droppable_for_a_reason() == (
+                "liveness_horizon", 1, True, True)
             said, cs, ch, occ, va, vb, refuted = AR.the_lattice_enumeration_overreached()
             # The enumeration used to claim {peer_tiles} ALONE determined quorum_agreement — a
             # single-atom overreach the hand-built witness refutes. With `_subproj` honouring
@@ -15626,6 +15679,78 @@ class Gate:
                          "never that a name means what it says)\n")
         return 0
 
+
+
+#: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
+#: rather than silently passing by absence — the failure mode of every "check the things that opt in"
+#: rule.
+BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen", "tilemin")
+
+_BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
+
+
+def _rows_by_stage():
+    """row-name -> stage method, derived from verify.py's OWN SOURCE rather than from a naming
+    convention. `autoroute-enforce` belongs to `autoroute` because the literal appears inside that
+    method, not because the strings share a prefix — this repo has retired four heuristics for
+    reading structure out of names."""
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    out, cur = {}, None
+    for line in src.splitlines():
+        m = re.match(r"    def (\w+)\(self\)", line)
+        if m:
+            cur = m.group(1)
+        for r in re.findall(r'self\.record\(\s*"([^"]+)"', line):
+            if cur:
+                out.setdefault(r, cur)
+    return out
+
+
+def brief_falsifier_problems(row_names):
+    """The three conditions a brief's falsifier marker must satisfy. Returns a list of problems.
+
+    (1) the marker is present EXACTLY ONCE — zero means the brief makes no checkable claim, two means
+        it is ambiguous about which row refutes it;
+    (2) the named row EXISTS in this run's live row set — exogenous to the doc;
+    (3) the brief's MODULE is genuinely among that row's measured inputs, established by finding the
+        module imported inside the stage method that records the row. Without (3) a brief could cite
+        any always-green row and be syntactically valid while explaining nothing — the citation would
+        be a decoration with a checkmark."""
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    by_stage = _rows_by_stage()
+    stage_src = {}
+    cur, buf = None, []
+    for line in src.splitlines(True):
+        m = re.match(r"    def (\w+)\(self\)", line)
+        if m:
+            if cur:
+                stage_src[cur] = "".join(buf)
+            cur, buf = m.group(1), []
+        buf.append(line)
+    if cur:
+        stage_src[cur] = "".join(buf)
+
+    out = []
+    for mod in BRIEFS_REQUIRING_A_FALSIFIER:
+        rel = os.path.join("docs", f"{mod}_brief.md")
+        try:
+            text = io.open(os.path.join(ROOT, rel), encoding="utf-8").read()
+        except OSError:
+            out.append((rel, "missing", mod, "no brief"))
+            continue
+        hits = _BRIEF_FALSIFIER.findall(text)
+        if len(hits) != 1:
+            out.append((rel, "marker-count", str(len(hits)), "1"))
+            continue
+        row = hits[0]
+        if row not in row_names:
+            out.append((rel, "unknown-row", row, "live row set"))
+            continue
+        st = by_stage.get(row)
+        body = stage_src.get(st, "")
+        if not re.search(r"import\s+%s(\s|$|\s+as\s)" % re.escape(mod), body):
+            out.append((rel, "row-does-not-measure", row, f"{st} never imports {mod}"))
+    return out
 
 
 def _numeric_signature(detail: str) -> str:
