@@ -235,7 +235,12 @@ def _utf8_stdio() -> None:
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:
-            reconfigure(encoding="utf-8", errors="backslashreplace")
+            # line_buffering=True is NOT cosmetic and NOT a content change. `reconfigure(encoding=)`
+            # resets the stream to BLOCK buffering on a pipe, which overrides even `python -u`, so a
+            # redirected gate emitted nothing for its entire run and looked hung. Buffering decides
+            # WHEN bytes appear, never WHICH bytes — and the gate's own byte-identity requirement is
+            # the proof, exactly as it was for the memoization in L36.
+            reconfigure(encoding="utf-8", errors="backslashreplace", line_buffering=True)
 
 
 def pinned_env() -> dict:

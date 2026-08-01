@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: AGPL-3.0-only
-# Vendored, unmodified in behaviour, from the portable `engineering-rigor` skill so this repo stays
+# Vendored from the portable `engineering-rigor` skill, with ONE behavioural change (see below) so this repo stays
 # runnable OFFLINE and with no dependency outside the stdlib — the same rule the rest of the tree
 # follows. Only this header was added.
 #
@@ -24,7 +24,18 @@ for line in lines:
     label, sep, cmd = line.partition("::")
     cmd = cmd.strip() if sep else label.strip()
     label = label.strip() if sep else cmd
-    p = subprocess.run(cmd, shell=True, env=os.environ, capture_output=True, text=True, errors="replace")
+    # STREAMED, NOT CAPTURED -- the one behavioural change from the vendored original, and it is a
+    # bug fix rather than a preference: capture_output=True meant a 15-minute gate printed nothing at
+    # all until it finished, which reads as a hang and invites Ctrl-C. It got one.
+    proc = subprocess.Popen(cmd, shell=True, env=os.environ, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, text=True, errors="replace", bufsize=1)
+    _buf = []
+    for _line in proc.stdout:
+        sys.stdout.write("    | " + _line)
+        sys.stdout.flush()
+        _buf.append(_line)
+    proc.wait()
+    p = subprocess.CompletedProcess(cmd, proc.returncode, "".join(_buf), "")
     ok = p.returncode == 0
     print("[%s] %s%s" % ("PASS" if ok else "FAIL", label, "" if ok else "  (rc=%d)" % p.returncode))
     if not ok:
