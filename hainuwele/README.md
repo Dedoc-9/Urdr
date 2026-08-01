@@ -176,7 +176,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`opcost.py`](../tools/terrain/opcost.py) | `URDROPC1` | Certified integer-work envelope (T3.29, Stage H opener) | `opcost` | [test](../tests/test_opcost.py) | [conf](../tools/terrain/conformance_opcost.txt) | — |
 | [`panelight.py`](../tools/terrain/panelight.py) | `URDRPNL1` | THE WINDOWED LOOP (T3.52, V1) | `panelight` | [test](../tests/test_panelight.py) | [conf](../tools/terrain/conformance_panelight.txt) | — |
 | [`panewire.py`](../tools/terrain/panewire.py) | `URDRPNW1` | THE WIRED WINDOW (T3.53, V2) | `panewire` | [test](../tests/test_panewire.py) | [conf](../tools/terrain/conformance_panewire.txt) | — |
-| [`partition.py`](../tools/terrain/partition.py) | `URDRPRT1` | THE PARTITIONED MESH (M4) — the CP posture made executable | `partition` | [test](../tests/test_partition.py) | [conf](../tools/terrain/conformance_partition.txt) | — |
+| [`partition.py`](../tools/terrain/partition.py) | `URDRPRT1` | THE PARTITIONED MESH (M4) — the CP posture made executable | `partition` | [test](../tests/test_partition.py) | [conf](../tools/terrain/conformance_partition.txt) | [brief](../docs/partition_brief.md) |
 | [`patience.py`](../tools/terrain/patience.py) | `URDRPAT1` | The price of the price — the exclusion ladder holds only at T >= Delta | `patience` | [test](../tests/test_patience.py) | [conf](../tools/terrain/conformance_patience.txt) | — |
 | [`perception.py`](../tools/terrain/perception.py) | `URDRPCP1` | Witnessed absence as server-authoritative AoI (Band A) | `perception` | [test](../tests/test_perception.py) | [conf](../tools/terrain/conformance_perception.txt) | [brief](../docs/perception_brief.md) |
 | [`persist.py`](../tools/terrain/persist.py) | `URDRLAT5` | Persistent snapshot checkpoint (T3.36) | `persist` | [test](../tests/test_persist.py) | [conf](../tools/terrain/conformance_persist.txt) | — |
@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **82 of 103 modules have no design brief, and the newest arcs are the whole of the gap.** All 20
+- **81 of 103 modules have no design brief, and the newest arcs are the whole of the gap.** All 20
   modules of the city, authority and certificate arcs (`voxlat` … `blindscreen`) carry a gate stage,
   falsifiers and — with the four named exceptions below — a pinned corpus, and NOT ONE carries a
   `docs/<name>_brief.md`. The OODA passes that produced them live only in commit messages and module
@@ -395,7 +395,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 82
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 81
 modules have no `docs/*_brief.md`, all 20 of the city, authority and certificate arcs among them, and
 the D5 ledger needs entries for all three. That debt is not cosmetic: the briefs are where the OODA
 passes and the D1 §20 rulings live, and unlike a boundary a brief cannot be transcribed from anywhere.
