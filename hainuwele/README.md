@@ -127,8 +127,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`budget.py`](../tools/terrain/budget.py) | `URDRBGT1` | The defect budget as a first-class resource — pure subtraction, a refund voids the bound | `budget` | [test](../tests/test_budget.py) | [conf](../tools/terrain/conformance_budget.txt) | — |
 | [`byteacct.py`](../tools/terrain/byteacct.py) | `URDRBYT1` | Proof-carrying byte accounting (the Byte Budget Theorem) | `byteacct` | [test](../tests/test_byteacct.py) | [conf](../tools/terrain/conformance_byteacct.txt) | [brief](../docs/byteacct_brief.md) |
 | [`cayley.py`](../tools/terrain/cayley.py) | `URDRCAY1` | The Cayley-Menger determinant as a coordinate-free realizability law | `cayley` | [test](../tests/test_cayley.py) | [conf](../tools/terrain/conformance_cayley.txt) | — |
-| [`chunkload.py`](../tools/terrain/chunkload.py) | `URDRCHK1` | Certified terrain authority cut (T3.37, Stage I opener) | `chunkload` | [test](../tests/test_chunkload.py) | [conf](../tools/terrain/conformance_chunkload.txt) | — |
-| [`chunkstate.py`](../tools/terrain/chunkstate.py) | `URDRCHS1` | Regional state cut (T3.39) — the D16 same-witness law | `chunkstate` | [test](../tests/test_chunkstate.py) | [conf](../tools/terrain/conformance_chunkstate.txt) | — |
+| [`chunkload.py`](../tools/terrain/chunkload.py) | `URDRCHK1` | Certified terrain authority cut (T3.37, Stage I opener) | `chunkload` | [test](../tests/test_chunkload.py) | [conf](../tools/terrain/conformance_chunkload.txt) | [brief](../docs/chunkload_brief.md) |
+| [`chunkstate.py`](../tools/terrain/chunkstate.py) | `URDRCHS1` | Regional state cut (T3.39) — the D16 same-witness law | `chunkstate` | [test](../tests/test_chunkstate.py) | [conf](../tools/terrain/conformance_chunkstate.txt) | [brief](../docs/chunkstate_brief.md) |
 | [`citation.py`](../tools/terrain/citation.py) | `URDRCIT1` | Deterministic cross-tick citation protocol | `citation` | [test](../tests/test_citation.py) | [conf](../tools/terrain/conformance_citation.txt) | [brief](../docs/citation_brief.md) |
 | [`clockauth.py`](../tools/terrain/clockauth.py) | `URDRCLK1` | Clock-authority: bounds the client's asserted VIEW-TICK | `clockauth` | [test](../tests/test_clockauth.py) | [conf](../tools/terrain/conformance_clockauth.txt) | [brief](../docs/clockauth_brief.md) |
 | [`clslo.py`](../tools/terrain/clslo.py) | `URDRLAT3` | Per-CLASS worst-case latency SLO (T3.34) | `clslo` | [test](../tests/test_clslo.py) | [conf](../tools/terrain/conformance_clslo.txt) | — |
@@ -170,7 +170,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`mesh.py`](../tools/terrain/mesh.py) | `URDRMSH1` | THE MESHED SIMULATION (M3) — MESH == MONOLITH | `mesh` | [test](../tests/test_mesh.py) | [conf](../tools/terrain/conformance_mesh.txt) | — |
 | [`meshattest.py`](../tools/terrain/meshattest.py) | `URDRMAT1` | Mesh reality attestation (M2.5) — real sockets, real processes | `meshattest` | [test](../tests/test_meshattest.py) | — | — |
 | [`meshsession.py`](../tools/terrain/meshsession.py) | `URDRMSS1` | Attested mesh session (M5) — the Phase M capstone | `meshsession` | [test](../tests/test_meshsession.py) | [conf](../tools/terrain/conformance_meshsession.txt) | — |
-| [`migrate.py`](../tools/terrain/migrate.py) | `URDRMIG1` | Authority migration as lease transfer (M2) | `migrate` | [test](../tests/test_migrate.py) | [conf](../tools/terrain/conformance_migrate.txt) | — |
+| [`migrate.py`](../tools/terrain/migrate.py) | `URDRMIG1` | Authority migration as lease transfer (M2) | `migrate` | [test](../tests/test_migrate.py) | [conf](../tools/terrain/conformance_migrate.txt) | [brief](../docs/migrate_brief.md) |
 | [`nway.py`](../tools/terrain/nway.py) | `URDRNWY1` | N-way nullity + the independence lattice (M1) | `nway` | [test](../tests/test_nway.py) | [conf](../tools/terrain/conformance_nway.txt) | — |
 | [`oobprior.py`](../tools/terrain/oobprior.py) | `URDROOB1` | The out-of-band prior — closes the COLD-START residual | `oobprior` | [test](../tests/test_oobprior.py) | [conf](../tools/terrain/conformance_oobprior.txt) | [brief](../docs/oobprior_brief.md) |
 | [`opcost.py`](../tools/terrain/opcost.py) | `URDROPC1` | Certified integer-work envelope (T3.29, Stage H opener) | `opcost` | [test](../tests/test_opcost.py) | [conf](../tools/terrain/conformance_opcost.txt) | — |
@@ -185,7 +185,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`priogov.py`](../tools/terrain/priogov.py) | `URDROPC3` | PRIORITY work governor (T3.31) | `priogov` | [test](../tests/test_priogov.py) | [conf](../tools/terrain/conformance_priogov.txt) | — |
 | [`provbind.py`](../tools/terrain/provbind.py) | `URDRPRV1` | Provenance binding (S3) — a certificate bound to its lattice, or refused | `provbind` | [test](../tests/test_provbind.py) | [conf](../tools/terrain/conformance_provbind.txt) | — |
 | [`quintessence.py`](../tools/terrain/quintessence.py) | `URDRQNT1` | ID-0 representation theorem (T3.46) — the fifth essence | `quintessence` | [test](../tests/test_quintessence.py) | [conf](../tools/terrain/conformance_quintessence.txt) | — |
-| [`rannull.py`](../tools/terrain/rannull.py) | `URDRRAN0` | RAN-0 authority-nullity certificate (T3.42) — proof of ABSENCE | `rannull` | [test](../tests/test_rannull.py) | [conf](../tools/terrain/conformance_rannull.txt) | — |
+| [`rannull.py`](../tools/terrain/rannull.py) | `URDRRAN0` | RAN-0 authority-nullity certificate (T3.42) — proof of ABSENCE | `rannull` | [test](../tests/test_rannull.py) | [conf](../tools/terrain/conformance_rannull.txt) | [brief](../docs/rannull_brief.md) |
 | [`recirc.py`](../tools/terrain/recirc.py) | `URDRRCC1` | Kleene recirculation — THERE IS NO LOOP, and closing it would weaken fraud detection | `recirc` | [test](../tests/test_recirc.py) | [conf](../tools/terrain/conformance_recirc.txt) | — |
 | [`resurrect.py`](../tools/terrain/resurrect.py) | `URDRLAT6` | Resurrection law (T3.38) — recovery half of persist | `resurrect` | [test](../tests/test_resurrect.py) | [conf](../tools/terrain/conformance_resurrect.txt) | — |
 | [`schedule.py`](../tools/terrain/schedule.py) | `URDRSCH1` | Adaptive priority scheduler (age-first, starvation-free) | `schedule` | [test](../tests/test_schedule.py) | [conf](../tools/terrain/conformance_schedule.txt) | [brief](../docs/schedule_brief.md) |
@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **81 of 103 modules have no design brief, and the newest arcs are the whole of the gap.** All 20
+- **77 of 103 modules have no design brief, and the newest arcs are the whole of the gap.** All 20
   modules of the city, authority and certificate arcs (`voxlat` … `blindscreen`) carry a gate stage,
   falsifiers and — with the four named exceptions below — a pinned corpus, and NOT ONE carries a
   `docs/<name>_brief.md`. The OODA passes that produced them live only in commit messages and module
@@ -395,7 +395,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 81
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 77
 modules have no `docs/*_brief.md`, all 20 of the city, authority and certificate arcs among them, and
 the D5 ledger needs entries for all three. That debt is not cosmetic: the briefs are where the OODA
 passes and the D1 §20 rulings live, and unlike a boundary a brief cannot be transcribed from anywhere.

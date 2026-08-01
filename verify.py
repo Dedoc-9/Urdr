@@ -3282,7 +3282,8 @@ class Gate:
             planted = False
         self.record("brief-falsifiers", (not bf) and planted,
                     f"each of the {len(BRIEFS_REQUIRING_A_FALSIFIER)} enforced briefs (the certificate "
-                    "arc plus partition and worldregion) names the gate row that would refute it, and "
+                    "arc, the partition/authority arc, and the composition arc) names the gate row that "
+                    "would refute it, and "
                     "the citation is CHECKED three ways: the marker appears exactly once, the row exists "
                     "in this run's live row set, and the brief's module is genuinely imported by the "
                     "stage that records that row — the third condition is what stops a syntactically "
@@ -15993,7 +15994,8 @@ class Gate:
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
 BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen", "tilemin",
-                               "partition", "worldregion")
+                               "partition", "worldregion",
+                               "chunkstate", "chunkload", "migrate", "rannull")
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
 
