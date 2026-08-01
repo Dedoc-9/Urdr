@@ -3227,7 +3227,7 @@ class Gate:
                 "doc-currency", "doc-currency-selftest", "doc-staleness",
                 "doc-staleness-selftest", "subset-withhold-honest"}
             stale = DC.staleness_problems(ROOT, suites_x, gate_rows_x) \
-                + DC.word_problems(ROOT, live_x)
+                + DC.word_problems(ROOT, live_x) + DC.stale_absences(ROOT)
             stale_ok = not stale
         except Exception as exc:
             stale, stale_ok, suites_x = [("doc-staleness", "error", str(exc), "")], False, -1
@@ -3240,7 +3240,14 @@ class Gate:
                     f"class, added because hainuwele/README.md claimed Stage 8's HISTORY-tier "
                     f"enforcement was still to do while `projected` had been refusing on all four "
                     f"tiers; a REMAINS claim now carries the row whose existence refutes it, rather "
-                    f"than a regex trying to read English "
+                    f"than a regex trying to read English. AND NO COUNT OF AN ABSENCE HAS DRIFTED "
+                    f"({DC.absence_count(ROOT)} terrain modules still have no brief) — the sixth "
+                    f"class. Every other class watches something that EXISTS; a claim about what is "
+                    f"MISSING goes stale in the one direction work always moves, downward and "
+                    f"silently, and this one sat at 87 for a full rung after five briefs landed. It "
+                    f"is matched against WHITESPACE-NORMALIZED text because the very claim it was "
+                    f"written for is LINE-WRAPPED in the source, which is the third time a checker "
+                    f"here missed a phrase over where an author broke a line "
                     f"(the append-only D5 ledgers are exempt — recorded history is not drift)"
                     if stale_ok else "stale: " + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in stale[:4]))
         try:

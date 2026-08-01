@@ -254,6 +254,65 @@ def status_contradictions(root, modules):
     return out
 
 
+#: A count of an ABSENCE -- "N modules have no brief". It drifts DOWNWARD as work lands, which is why
+#: no existing class catches it: every other class watches something that EXISTS and can be counted
+#: where it lives. An absence has no file to inspect, so the checker has to recompute the complement.
+#: MATCHED AGAINST WHITESPACE-NORMALIZED TEXT, not against lines. The claim this class exists for is
+#: itself LINE-WRAPPED in the source (`-- 87\nmodules have no ...`), which is the third time in this
+#: repository that a checker missed a phrase because of where an author happened to break the line
+#: (L46's wrapped count, then a brief-boundary presence test). Normalizing is now the DEFAULT for
+#: prose matching rather than a fix applied per case: a check sensitive to line breaks is testing the
+#: formatting. Two phrasings are covered because both exist -- "N of M modules have no design brief"
+#: and "N modules have no `docs/*_brief.md`".
+_ABSENCE = re.compile(r"(\d+)(?:\s+of\s+\d+)?\s+modules have no\s+(?:design brief|`?docs/\*?_?brief)",
+                      re.I)
+
+
+def absence_count(root):
+    """Terrain modules with no `docs/<name>_brief.md`. The complement, recomputed from the
+    filesystem -- never read from the prose it is about to check (L16)."""
+    tdir = os.path.join(root, "tools", "terrain")
+    ddir = os.path.join(root, "docs")
+    try:
+        mods = [f[:-3] for f in os.listdir(tdir) if f.endswith(".py")]
+        briefs = {f[:-len("_brief.md")] for f in os.listdir(ddir) if f.endswith("_brief.md")}
+    except OSError:
+        return -1
+    return sum(1 for m in mods if m not in briefs)
+
+
+def stale_absences(root, live_absence=None):
+    """A prose claim about how many modules LACK a brief, checked against the complement.
+
+    THE SHAPE NO OTHER CLASS MODELS. `doc-currency` compares quoted counts of things that exist;
+    `stale_status` catches a doc calling a built module unbuilt; `stale_successors` catches a
+    successor that shipped; the remains marker catches remaining-work naming a live gate row. All of
+    them watch something PRESENT. "87 modules have no brief" is a claim about what is ABSENT, and it
+    goes stale in the one direction work always moves -- downward, silently, as briefs get written.
+    It was 87, five briefs landed, and 82 was true for a full rung before anyone noticed.
+
+    History files are exempt: a ledger recording the count on the day it was written stays true."""
+    n = absence_count(root) if live_absence is None else live_absence
+    out = []
+    for rel in _md_files(root):
+        if _HISTORY.match(rel):
+            continue
+        try:
+            with open(os.path.join(root, rel), encoding="utf-8") as fh:
+                flat = " ".join(fh.read().split())      # wrap-insensitive by construction
+        except OSError:
+            continue
+        for m in _ABSENCE.finditer(flat):
+            if int(m.group(1)) != n:
+                out.append((rel, "absence", int(m.group(1)), n))
+    return out
+
+
+def absence_defect_text():
+    """The PLANT: a claim off by one from the live complement, so the class must flag it."""
+    return "In this repository %d modules have no `docs/*_brief.md` yet." % (absence_count(".") + 1)
+
+
 def stale_successors(root, modules):
     """'declared successor' lines naming a module that has since shipped, without saying LANDED."""
     out = []
@@ -357,7 +416,7 @@ def successor_defect_text():
 
 
 def extension_defect_is_caught(root, live, suites, gate_rows=None):
-    """True iff the extension flags ALL FIVE planted stale shapes — its non-vacuity. Each shape is
+    """True iff the extension flags ALL SIX planted stale shapes — its non-vacuity. Each shape is
     a real defect this repo actually carried, not a hypothetical."""
     modules = live_modules(root)
     word_ok = any(got != live["det"] for _k, got in scan_words(word_defect_text(live)))
@@ -372,4 +431,6 @@ def extension_defect_is_caught(root, live, suites, gate_rows=None):
     rm = remains_defect_text()
     m = _REMAINS_MARKER.search(rm)
     remains_ok = bool(m) and m.group(1) in (gate_rows or frozenset())
-    return word_ok and suite_ok and status_ok and succ_ok and remains_ok
+    ab = _ABSENCE.search(absence_defect_text())
+    absence_ok = bool(ab) and int(ab.group(1)) != absence_count(root)
+    return word_ok and suite_ok and status_ok and succ_ok and remains_ok and absence_ok

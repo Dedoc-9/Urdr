@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **87 of 103 modules have no design brief, and the newest arcs are the whole of the gap.** All 20
+- **82 of 103 modules have no design brief, and the newest arcs are the whole of the gap.** All 20
   modules of the city, authority and certificate arcs (`voxlat` … `blindscreen`) carry a gate stage,
   falsifiers and — with the four named exceptions below — a pinned corpus, and NOT ONE carries a
   `docs/<name>_brief.md`. The OODA passes that produced them live only in commit messages and module
@@ -395,7 +395,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 87
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 82
 modules have no `docs/*_brief.md`, all 20 of the city, authority and certificate arcs among them, and
 the D5 ledger needs entries for all three. That debt is not cosmetic: the briefs are where the OODA
 passes and the D1 §20 rulings live, and unlike a boundary a brief cannot be transcribed from anywhere.
