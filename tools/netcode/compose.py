@@ -39,14 +39,18 @@ cheap, it is the k=0 and k=T boundary of segmentation, and boundaries are where 
 
 GRADE. MEASURED: segmentation over every cut of two worlds (158 cuts, 0 divergences); both plants
 biting, with the counts asserted rather than the mere fact of failure; the identity law at both
-boundaries; determinism. DECLARED: two worlds is a corpus, not a proof — the law is established for
+boundaries; the SERIALIZATION REPLAY LAW as a commuting diagram over 14 glide boundaries, 0
+round-trip failures and 0 tail divergences, with three planted axes that share no failure mode;
+determinism. DECLARED: two worlds is a corpus, not a proof — the law is established for
 `collide_world` and `arena_world` under their pinned logs and is UNREFUTED elsewhere, which is the
 honest asymmetry of a witness search (`inputset`'s brief states the same limit for the same reason).
 does_not_show: that the world's state IS (pos, vel) in general — it shows no hidden state affects
-these runs, which is a statement about these fixtures and not a structural proof; that a checkpoint
-WRITTEN by `persist` and READ back reproduces the tail, which is the replay law across the
-serialization boundary and is the declared successor to this rung, NOT claimed here; anything about
-concurrency, joining or leaving, which is Stage 5's remaining work."""
+these runs, which is a statement about these fixtures and not a structural proof; that the pose
+schema is structurally permutation-proof (the replay law's axis 2 refuses by a RANGE coincidence, not
+by structure); that `worldstep` states are durable, which they are NOT and BY DESIGN — see the D11
+durability boundary, which this rung's measurement is what settled. The declared successor is a
+SESSION law: one persistent world standing on all the slices at once, with actors joining and leaving,
+which is where concurrency finally enters and is NOT claimed here."""
 import hashlib
 import os as _os
 import sys as _sys
@@ -57,8 +61,11 @@ if _HERE not in _sys.path:
 # `lockstep` imports the frozen Q32.32 substrate from ../physics, so the sibling directory has to be
 # on the path here too — the same two lines `worldstep` carries, read out of it rather than guessed.
 _sys.path.insert(0, _os.path.join(_HERE, "..", "physics"))
+_sys.path.insert(0, _os.path.join(_HERE, "..", "terrain"))     # glide / storecost / persist
 
+import glide as _G                                                 # noqa: E402
 import lockstep as _L                                              # noqa: E402
+import persist as _P                                               # noqa: E402
 import worldstep as _WS                                            # noqa: E402
 
 MAGIC = b"URDRCMP1"
@@ -147,6 +154,100 @@ def the_identity_law():
     return tuple(out)
 
 
+def glide_scenes():
+    """The glide corpus, resolved to (name, heights, start, cmds, max_step, sub)."""
+    return tuple((n, _G._heights(sc), st, cm, ms, sub)
+                 for n, (sc, st, cm, ms, sub) in
+                 (("stroll", _G.glide_stroll()), ("sprint", _G.glide_sprint()),
+                  ("wall", _G.glide_wall())))
+
+
+def the_serialization_replay_law():
+    """THE SERIALIZATION REPLAY LAW, as a COMMUTING DIAGRAM rather than a procedure.
+
+        fold_from ∘ deserialize ∘ restore ∘ serialize  ==  fold_from
+
+    Read down the left of the diagram and you continue a trajectory from an interior pose. Read
+    around the right and you serialize that pose, store it, restore it, and continue from what came
+    back. The law is that both paths land on the SAME future tail, bit for bit.
+
+    THE SEAM IS THREE MODULES WIDE, and each owns one edge. `glide._fold_from` proves a trajectory is
+    resumable from an interior pose — already gated by `splice`, which checks resumption WITHIN glide
+    for every log and interior split. `storecost` defines the canonical pose encoding. `persist`
+    proves byte-faithful storage with a digest law. What NONE of them asserts, and what no test inside
+    any one of them could, is that the composition preserves behaviour: the property is the diagram
+    commuting, and a diagram is not owned by any of its edges.
+
+    Returns ((name, boundaries, roundtrip_failures, tail_divergences), ...) — zeros throughout."""
+    out = []
+    for name, h, start, cmds, ms, sub in glide_scenes():
+        cells = _G.glide_cells(h, start, cmds, ms, sub)
+        rt = tail_bad = 0
+        for k in range(1, len(cells)):
+            k2, st2 = _P.restore(_P.checkpoint((cells[k],), k))
+            if k2 != k or st2[0] != tuple(cells[k]):
+                rt += 1
+                continue
+            fx, fy, _g, facing = st2[0]
+            if _G._fold_from(h, fx, fy, facing, cmds[k:], ms, sub)[1] != cells[k:]:
+                tail_bad += 1
+        out.append((name, len(cells) - 1, rt, tail_bad))
+    return tuple(out)
+
+
+def the_replay_plants():
+    """THREE AXES, EACH A DIFFERENT WAY THE SEAM BREAKS. Redundant plants prove one thing twice; these
+    three are chosen so that no two share a failure mode.
+
+      1. CORRUPTED BYTES     -> refusal at `restore`. Integrity is enforced before anything resumes.
+      2. PERMUTED SCHEMA     -> refusal at `serialize`. Well-formed bytes, wrong MEANING.
+      3. MISMATCHED TAIL     -> a valid restore that then diverges. Determinism of the continuation.
+
+    AXIS 2 DID NOT DO WHAT THE DESIGN PREDICTED, AND THE REASON IS WORTH MORE THAN THE PREDICTION.
+    Swapping `ground_height` and `facing` was expected to serialize cleanly and diverge on replay —
+    a silent semantic fault. It REFUSES instead, at `storecost.serialize`, because `facing` carries a
+    RANGE guard (0..3) and every ground height in this corpus is >= 24. That is a stronger outcome
+    than predicted and a WEAKER guarantee than it appears: the schema is protected by a range
+    coincidence, not by structure. A scene whose ground heights fell in 0..3 would serialize the
+    permuted pose without complaint. Measured across both scenes: 14 of 14 permutations refused, 0
+    boundaries where the two fields coincide — a fact about THIS CORPUS, recorded as such.
+
+    AXIS 3 IS TESTABLE AT 11 OF THE 14 BOUNDARIES, NOT ALL 14, and the shortfall is structural rather
+    than a plant failing to bite. At the LAST boundary of a scene there is no next command, so there
+    is no "wrong continuation" to resume against — `cmds[k+1:]` is empty and the comparison would be
+    between a pose and itself. Three scenes, one final boundary each, 14 - 3 = 11. Reported as
+    (diverged, testable) so the pair reads as 11 of 11 rather than as 11 of 14 with three misses.
+
+    Returns (corrupt_refused, permute_refused, permute_coincident, tail_diverged, tail_testable,
+    boundaries)."""
+    corrupt = permute = coincide = diverged = testable = total = 0
+    for _name, h, start, cmds, ms, sub in glide_scenes():
+        cells = _G.glide_cells(h, start, cmds, ms, sub)
+        for k in range(1, len(cells)):
+            total += 1
+            fx, fy, g, f = cells[k]
+            buf = bytearray(_P.checkpoint((cells[k],), k))
+            buf[20] ^= 1                                        # axis 1: one flipped byte
+            try:
+                _P.restore(bytes(buf))
+            except _P.PersistError:
+                corrupt += 1
+            if g == f:                                          # axis 2: the fields coincide here
+                coincide += 1
+            else:
+                try:
+                    _P.checkpoint(((fx, fy, f, g),), k)
+                except Exception:
+                    permute += 1
+            _k2, st2 = _P.restore(_P.checkpoint((cells[k],), k))  # axis 3: valid restore, wrong tail
+            rfx, rfy, _rg, rf = st2[0]
+            if k + 1 <= len(cmds):                              # else: no next command to get wrong
+                testable += 1
+                if _G._fold_from(h, rfx, rfy, rf, cmds[k + 1:], ms, sub)[1] != cells[k:]:
+                    diverged += 1
+    return corrupt, permute, coincide, diverged, testable, total
+
+
 def cm_digest(name, payload):
     h = hashlib.sha256()
     h.update(MAGIC)
@@ -162,8 +263,13 @@ def _scene_plants():
     return cm_digest("plants", f"{the_law_can_fail()}")
 
 
-SCENES = ("segmentation", "plants")
-_SCENES = {"segmentation": _scene_segmentation, "plants": _scene_plants}
+def _scene_replay():
+    return cm_digest("replay", f"{the_serialization_replay_law()}:{the_replay_plants()}")
+
+
+SCENES = ("segmentation", "plants", "replay")
+_SCENES = {"segmentation": _scene_segmentation, "plants": _scene_plants,
+           "replay": _scene_replay}
 
 
 def scene_result(name):

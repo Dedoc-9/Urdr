@@ -2933,7 +2933,7 @@ class Gate:
         rather than inside one. The gate already carried 26 rows across rollback (10), lease (6),
         persist (6) and boundary (4), and ZERO for identity, associativity or replay — the three that
         exist only in the seams, which is exactly why nothing had them. Rows: scenes, segmentation,
-        identity, plants."""
+        identity, plants, replay, replay-plants."""
         nd = os.path.join(ROOT, "tools", "netcode")
         for d in (nd, os.path.join(ROOT, "tools", "physics")):
             if d not in sys.path:
@@ -2987,6 +2987,50 @@ class Gate:
                     "physics-only chain, checked at BOTH boundaries (k=0 and k=T) rather than folded "
                     "into segmentation, because that is where an off-by-one in a cut-and-resume lives"
                     if id_ok else "the identity law did not hold")
+
+        rep_ok = True
+        try:
+            rep_ok = CM.the_serialization_replay_law() == (
+                ("stroll", 4, 0, 0), ("sprint", 4, 0, 0), ("wall", 6, 0, 0))
+            for _nm, bounds, rt, tail in CM.the_serialization_replay_law():
+                rep_ok = rep_ok and bounds > 0 and rt == 0 and tail == 0
+        except Exception:
+            rep_ok = False
+        self.record("compose-replay", rep_ok,
+                    "THE SERIALIZATION REPLAY LAW, AS A COMMUTING DIAGRAM: `fold_from o deserialize o "
+                    "restore o serialize == fold_from`. Continue a trajectory from an interior pose, "
+                    "or serialize that pose, store it, restore it and continue from what came back — "
+                    "both paths must land on the SAME future tail, bit for bit. MEASURED: 14 "
+                    "boundaries across three glide scenes, 0 round-trip failures, 0 tail divergences. "
+                    "THE SEAM IS THREE MODULES WIDE and each owns one edge — `glide._fold_from` proves "
+                    "an interior pose is resumable (already gated by `splice`, WITHIN glide), "
+                    "`storecost` defines the canonical pose encoding, `persist` proves byte-faithful "
+                    "storage under a digest law. None of them asserts that the COMPOSITION preserves "
+                    "behaviour, and no test inside any one of them could: a diagram is not owned by "
+                    "any of its edges"
+                    if rep_ok else "the serialization replay law did not hold")
+
+        rpl_ok = True
+        try:
+            rpl_ok = CM.the_replay_plants() == (14, 14, 0, 11, 11, 14)
+        except Exception:
+            rpl_ok = False
+        self.record("compose-replay-plants", rpl_ok,
+                    "THREE AXES, NO TWO SHARING A FAILURE MODE: corrupted bytes refuse at `restore` "
+                    "(14 of 14); a PERMUTED SCHEMA refuses at `serialize` (14 of 14); a valid restore "
+                    "resumed against the wrong continuation DIVERGES (11 of 11 testable). AXIS 2 DID "
+                    "NOT DO WHAT THE DESIGN PREDICTED AND THE REASON IS WORTH MORE THAN THE "
+                    "PREDICTION — swapping ground_height and facing was expected to serialize cleanly "
+                    "and diverge on replay, a silent semantic fault. It REFUSES, because `facing` "
+                    "carries a RANGE guard (0..3) and every ground height in this corpus is >= 24. "
+                    "Stronger than predicted and a WEAKER guarantee than it looks: the schema is "
+                    "protected by a range coincidence rather than by structure, and a scene with "
+                    "ground heights in 0..3 would serialize the permuted pose without complaint — 0 "
+                    "boundaries here have ground == facing, which is a fact about THIS CORPUS. AXIS 3 "
+                    "is testable at 11 of 14 STRUCTURALLY, because a scene's last boundary has no "
+                    "next command to get wrong; reported as 11 of 11 testable rather than 11 of 14 "
+                    "with three silent misses"
+                    if rpl_ok else "a compose replay plant did not bite")
 
         pl_ok = True
         try:

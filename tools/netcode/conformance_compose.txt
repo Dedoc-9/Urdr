@@ -25,6 +25,42 @@
 # which is a statement about these fixtures rather than a structural proof; that a checkpoint WRITTEN
 # by persist and READ BACK reproduces the tail, which is the replay law across the serialization
 # boundary and is the declared successor, NOT claimed here; anything about concurrency, joining or
-# leaving, which is Stage 5's remaining work.
+# leaving, which is Stage 5's remaining work.#
+# THE SERIALIZATION REPLAY LAW, AS A COMMUTING DIAGRAM.
+#
+#     fold_from o deserialize o restore o serialize  ==  fold_from
+#
+# Continue a trajectory from an interior pose; or serialize that pose, store it, restore it, and
+# continue from what came back. Both paths must land on the SAME future tail, bit for bit. MEASURED:
+# 14 boundaries across three glide scenes, 0 round-trip failures, 0 tail divergences.
+#
+#     THE SEAM IS THREE MODULES WIDE AND EACH OWNS ONE EDGE. glide._fold_from proves a trajectory is
+#     resumable from an interior pose -- already gated by `splice`, which checks resumption WITHIN
+#     glide for every log and interior split. storecost defines the canonical pose encoding. persist
+#     proves byte-faithful storage under a digest law. What none of them asserts, and what no test
+#     inside any one of them could, is that the COMPOSITION preserves behaviour. A diagram is not
+#     owned by any of its edges.
+#
+# THREE PLANTED AXES, chosen so no two share a failure mode:
+#
+#     1. corrupted bytes    -> refusal at restore     14 of 14
+#     2. permuted schema    -> refusal at serialize   14 of 14
+#     3. mismatched tail    -> valid restore, diverges 11 of 11 testable
+#
+#     AXIS 2 DID NOT DO WHAT THE DESIGN PREDICTED, AND THE REASON MATTERS MORE THAN THE PREDICTION.
+#     Swapping ground_height and facing was expected to serialize cleanly and diverge on replay -- a
+#     silent semantic fault. It REFUSES instead, at storecost.serialize, because `facing` carries a
+#     RANGE guard (0..3) and every ground height in this corpus is >= 24. Stronger than predicted and
+#     a WEAKER guarantee than it looks: the schema is protected by a range coincidence, not by
+#     structure. A scene whose ground heights fell in 0..3 would serialize the permuted pose without
+#     complaint. 0 boundaries here have ground == facing; that is a fact about THIS CORPUS.
+#
+#     AXIS 3 IS TESTABLE AT 11 OF 14, structurally. At a scene's LAST boundary there is no next
+#     command, so there is no wrong continuation to resume against. Reported as 11 of 11 testable
+#     rather than 11 of 14 with three silent misses.
+#
+# does_not_show: that the pose schema is structurally permutation-proof -- see axis 2; that
+# `worldstep` states are durable, which they are NOT and by design (D11 durability boundary).
 segmentation 8b63f68b290cf9547b37e7c125a33683d6d922afac56eba6c5b230e94c2c4bb3
 plants 6bd183e984eb5cccc3b3025eac9a43ef36cb870666b2d06a0fc2a1286be608de
+replay 6ed5151457bd3a68a2e12b7fee0bbfd3408ca4957e9196e5630554b3eb9d07bc

@@ -488,3 +488,26 @@ each against a contract written *before* its implementation.
 
 `I/O proposes · math computes · the kernel certifies · the renderer projects.`
 `Nihil ultrā probātum` — a layer assumes of the layer beneath it exactly what it guarantees in writing, and no more.
+
+## Durability boundary (Stage 5, settled by measurement rather than by intent)
+
+Which layers have a persistence contract was inferable only from the ABSENCE of a serializer, which
+is the weakest possible form of a design decision — indistinguishable from an oversight. The
+`compose` rung measured the seam and the answer is now written down.
+
+**`glide` is durable and resumable.** A pose is `(fx, fy, ground_height, facing)`; `storecost`
+defines its canonical encoding; `persist` stores it under a digest law; `glide._fold_from` resumes a
+trajectory from any interior pose. The SERIALIZATION REPLAY LAW certifies the composition of all
+three — `fold_from ∘ deserialize ∘ restore ∘ serialize == fold_from`, measured over 14 command
+boundaries with 0 round-trip failures and 0 tail divergences (`compose-replay`).
+
+**`worldstep` is TRANSIENT BY DESIGN, and this is a contract rather than a gap.** Its state is
+`(pos, vel)` in Q32.32 and no serializer accepts it. That is not a missing feature: `persist` is the
+glide layer's durability, and `storecost`'s encoding is a POSE encoding — the two layers hold
+different state and only one of them is meant to survive a process. World stepping is deterministic
+and re-derivable from an authored world plus a log, so a session restores its ACTORS and replays its
+world rather than storing physics. The `compose-segmentation` law is what makes that sound: a run cut
+at any tick and resumed reproduces the tail exactly.
+
+A contributor adding a `worldstep` serializer is therefore changing this contract and owes a D1 §20
+style justification, not merely a function. `<!-- remains: compose-session -->`
