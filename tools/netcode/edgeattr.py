@@ -43,8 +43,10 @@ partition and its disjointness; each family's independent-edge count; the minima
 set per family; that every declared edge exists in the AST; that severance leaves no residue.
 DECLARED: the edge set is the one the `compose` laws reach, not all 320 — an edge no law touches
 cannot be attributed by a method that works by breaking laws. does_not_show: which INDIVIDUAL law an
-edge serves (family-level only); that an unattributed edge is dead; anything about edges outside the
-declared set."""
+edge serves (family-level only); that an unattributed edge is dead; anything about edges outside
+the declared set; that the 41 INERT sweep candidates are unused — inert under THESE laws is not
+dead code; that any law family is irreducible, only that these two pairs are separable; anything
+about modules outside `SWEPT`."""
 import hashlib
 import os as _os
 import sys as _sys
@@ -142,6 +144,113 @@ def sensitivity(mod, attr, base=None):
     finally:
         setattr(m, attr, real)
     return tuple(out)
+
+
+#: The modules the synthesizer sweeps. Generation replaces hand-declaration because hand-declaration
+#: UNDER-REPORTS, twice measured: `storecost.serialize` carries both replay laws while not being
+#: imported by `compose` at all, and the sweep found `glide._fold`, `_grid_dims` and `_heights`
+#: carrying replay too. A table is a guess about what matters; a sweep is not.
+SWEPT = ("glide", "persist", "storecost", "worldstep")
+
+
+def severance_candidates():
+    """Every callable a swept module DEFINES, generated rather than listed. Sorted, because the
+    census is pinned and iteration order may not decide it."""
+    out = []
+    for mod in SWEPT:
+        m = _module(mod)
+        for a in sorted(dir(m)):
+            if a.startswith("__"):
+                continue
+            f = getattr(m, a, None)
+            if callable(f) and getattr(f, "__module__", None) == mod:
+                out.append((mod, a))
+    return tuple(out)
+
+
+def the_vector_census():
+    """THE SWEEP. Every candidate severed, grouped by sensitivity vector. Returns
+    ((vector, count, first_name), ...) sorted by count then name — the shape of the result rather
+    than 68 rows of it.
+
+    THE INERT COUNT IS FIRST-CLASS, NOT AN EMBARRASSMENT. Most perturbations teach nothing, and that
+    is what makes the ones that do teach something credible: a sweep where everything mattered would
+    be measuring the sweep. If this number ever collapses toward zero the instrument has broken, not
+    the architecture."""
+    base = _baseline()
+    groups = {}
+    for mod, a in severance_candidates():
+        try:
+            v = sensitivity(mod, a, base)
+        except Exception:
+            continue
+        groups.setdefault(v, []).append(f"{mod}.{a}")
+    return tuple(sorted(((v, len(n), sorted(n)[0]) for v, n in groups.items()),
+                        key=lambda r: (-r[1], r[2])))
+
+
+def the_inert_share():
+    """(perturbations that changed nothing, total). The tail is where the findings are."""
+    rows = the_vector_census()
+    inert = next((c for v, c, _f in rows if not any(v)), 0)
+    return inert, sum(c for _v, c, _f in rows)
+
+
+def the_declared_edges_are_a_subset():
+    """DECLARATION CHECKED AGAINST GENERATION. `EDGES` is kept as the curated set a reader should
+    look at first, but it may not contain anything the sweep does not — a hand-written table that
+    outruns the generator is a table nobody can check. Returns (declared, of_which_generated)."""
+    gen = set(severance_candidates())
+    return len(EDGES), sum(1 for e in EDGES if e in gen)
+
+
+def the_separating_witnesses():
+    """LAWS THAT MOVE TOGETHER ARE NOT NECESSARILY ONE LAW, AND THIS IS HOW YOU TELL.
+
+    Under the seven hand-declared edges, `replay` and `replay-plants` moved together in every case,
+    and so did `segmentation`, `identity` and `seg-plants`. That is consistent with each group being
+    a single fact wearing several green rows — which would be evidence inflation the gate cannot
+    otherwise see. A MINIMAL SEPARATING PERTURBATION settles it: one that breaks a law while its
+    partner survives.
+
+    The sweep found two, and they are not equally clean:
+
+      worldstep._fp_div      breaks segmentation + seg-plants, NOT identity.   CLEAN.
+      persist.PersistError   breaks replay-plants, NOT replay.                 DEGENERATE.
+
+    The first is a genuine path separation and `the_identity_law_never_divides` measures WHY. The
+    second substitutes an exception CLASS, so `except _P.PersistError` raises TypeError and the
+    plants break for a reason unrelated to what they test — a real separation with a witness that
+    proves less than it appears to. Recorded as such rather than counted alongside the first.
+
+    Returns ((name, vector, clean), ...)."""
+    return (("worldstep._fp_div", sensitivity("worldstep", "_fp_div"), True),
+            ("persist.PersistError", sensitivity("persist", "PersistError"), False))
+
+
+def the_identity_law_never_divides():
+    """THE MECHANISM BEHIND THE CLEAN SEPARATION, measured rather than reasoned. The identity law
+    runs an EMPTY event log, so no actor moves and fixed-point division is never reached; segmentation
+    drives real events and reaches it. That is why one perturbation can break one and not the other,
+    and stating it turns a coincidence in a table into an explanation. Returns
+    (calls_under_identity, calls_under_segmentation)."""
+    m = _module("worldstep")
+    real = m._fp_div
+    n = {"identity": 0, "seg": 0}
+    key = {"k": "identity"}
+
+    def counting(*a, **k):
+        n[key["k"]] += 1
+        return real(*a, **k)
+
+    m._fp_div = counting
+    try:
+        _CM.the_identity_law()
+        key["k"] = "seg"
+        _CM.the_segmentation_law()
+    finally:
+        m._fp_div = real
+    return n["identity"], n["seg"]
 
 
 def attribution_matrix():
@@ -266,6 +375,12 @@ def _scene_attribution():
     return ea_digest("attribution", f"{attribution_matrix()}:{the_families_are_disjoint()}")
 
 
+def _scene_sweep():
+    return ea_digest("sweep", f"{the_vector_census()}:{the_inert_share()}:"
+                              f"{the_separating_witnesses()}:{the_identity_law_never_divides()}:"
+                              f"{the_declared_edges_are_a_subset()}")
+
+
 def _scene_walls():
     return ea_digest("walls", f"{every_family_has_two_edges()}:{declared_edges_exist()}:"
                               f"{minimal_responsible_set('replay')}:"
@@ -273,8 +388,9 @@ def _scene_walls():
                               f"{an_unbreakable_edge_is_caught()}:{severance_leaves_no_residue()}")
 
 
-SCENES = ("attribution", "walls")
-_SCENES = {"attribution": _scene_attribution, "walls": _scene_walls}
+SCENES = ("attribution", "walls", "sweep")
+_SCENES = {"attribution": _scene_attribution, "walls": _scene_walls,
+           "sweep": _scene_sweep}
 
 
 def scene_result(name):

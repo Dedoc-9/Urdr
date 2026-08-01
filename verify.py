@@ -3120,6 +3120,39 @@ class Gate:
                     "`storecost.serialize` is a fact someone can act on"
                     if wl_ok else "an edgeattr wall did not hold")
 
+        sw_ok = True
+        try:
+            sw_ok = EA.the_inert_share() == (41, 68)
+            sw_ok = sw_ok and EA.the_declared_edges_are_a_subset() == (7, 7)
+            sw_ok = sw_ok and EA.the_identity_law_never_divides() == (0, 9)
+            sw_ok = sw_ok and EA.the_separating_witnesses() == (
+                ("worldstep._fp_div", (True, False, True, False, False), True),
+                ("persist.PersistError", (False, False, False, False, True), False))
+            sw_ok = sw_ok and len(EA.the_vector_census()) == 5
+            inert, total = EA.the_inert_share()
+            sw_ok = sw_ok and 0 < inert < total
+        except Exception:
+            sw_ok = False
+        self.record("edgeattr-sweep", sw_ok,
+                    "PERTURBATIONS ARE GENERATED, NOT LISTED, AND THE SWEEP SEPARATED TWO LAW PAIRS "
+                    "THAT HAND-DECLARATION COULD NOT. Every callable a swept module DEFINES is "
+                    "severed — 68 candidates, 5 distinct sensitivity vectors where the 7 curated "
+                    "edges produced 2. Under the curated set `replay` and `replay-plants` moved "
+                    "together in every case, as did segmentation/identity/seg-plants, which is "
+                    "consistent with each group being ONE fact wearing several green rows — evidence "
+                    "inflation the gate cannot otherwise see. Two minimal separating perturbations "
+                    "settle it and they are NOT equally clean: `worldstep._fp_div` breaks "
+                    "segmentation and seg-plants but NOT identity, and the mechanism is measured "
+                    "rather than argued — the identity law runs an EMPTY log so no actor moves and "
+                    "fixed-point division is reached 0 times against 9 under segmentation. "
+                    "`persist.PersistError` breaks replay-plants but not replay, and is recorded as "
+                    "DEGENERATE: severing an exception CLASS makes `except PersistError` raise "
+                    "TypeError, so the plants break for a reason unrelated to what they test. AND 41 "
+                    "OF 68 TAUGHT NOTHING, which is first-class rather than an embarrassment: a sweep "
+                    "in which everything mattered would be measuring the sweep, so the inert share is "
+                    "asserted to be strictly between 0 and the total"
+                    if sw_ok else "the edgeattr sweep did not hold")
+
         pl_ok = True
         try:
             pl_ok = EA.an_unbreakable_edge_is_caught() == (False,) * 5

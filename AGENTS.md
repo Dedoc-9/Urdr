@@ -337,7 +337,7 @@ of a fresh `Gate`. A licence to make no claim is still a claim about the harness
 
 Measured, so nobody has to guess: `--only autoroute` is 17.5s, `--only autoroute --diff` is 51.1s
 (the baseline is a SECOND real execution of the stage in a fresh worktree — the diff is not free),
-and it covers 8 of the gate's 847 rows against 579s for the two required passes. That is ~1% of the
+and it covers 8 of the gate's 848 rows against 579s for the two required passes. That is ~1% of the
 rows for ~9% of the cost. Its value is not coverage; it is that it answers the question a dev loop
 actually asks — *did my edit move this stage, and in what way* — nine minutes before the gate does.
 
@@ -352,7 +352,7 @@ refreshes (L46).
 Those files record what was measured on the day it was measured. `doc_currency._HISTORY` already
 exempts them from the staleness classes for exactly this reason, and the refresh must use the same
 set — a sweep that updates them is not correcting a stale claim, it is falsifying a record. Caught
-twice: L37's `8 of 836 rows` was rewritten three times, and a D5 entry ended up reading `1982 unit
+twice: L37's `8 of 836 rows` was rewritten three times, and a D5 entry ended up reading `1987 unit
 falsifiers and 836 rows`, a pairing that never existed. Review the diff hunk-by-hunk regardless; the
 cost is minutes and a corrupted record looks exactly like a correct one afterwards.
 
@@ -446,7 +446,7 @@ confusions were a drifted working directory.
 #
 #     <<<URDR
 #     HEAD=2d81bdf BR=main AM=none
-#     GATE=PASSED FAILROWS=0 FALS=1982/0red ROWS=847 DOCCUR=OK DOCSTALE=OK
+#     GATE=PASSED FAILROWS=0 FALS=1987/0red ROWS=848 DOCCUR=OK DOCSTALE=OK
 #     DET=BYTE-IDENTICAL BYTES=240028/240028 A=698E23C7 B=698E23C7
 #     PUSH=afaf3db..2d81bdf
 #     URDR>>>
@@ -462,7 +462,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 1982 unit falsifiers / 847 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1987 unit falsifiers / 848 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

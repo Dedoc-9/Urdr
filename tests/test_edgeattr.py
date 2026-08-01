@@ -101,6 +101,54 @@ class ThePlantsBite(unittest.TestCase):
         self.assertIn("that an unattributed edge is dead", doc)
 
 
+class TheSweepSeparatesLaws(unittest.TestCase):
+    """Generated perturbations, and the two law separations they found. Hand-declaration produced 2
+    distinct vectors; generation produced 5."""
+
+    def test_generation_beats_declaration(self):
+        self.assertEqual(len(EA.severance_candidates()), 68)
+        self.assertEqual(len(EA.the_vector_census()), 5,
+                         "the sweep no longer distinguishes what it did; the instrument changed")
+        declared, generated = EA.the_declared_edges_are_a_subset()
+        self.assertEqual((declared, generated), (7, 7),
+                         "a hand-declared edge is not in the generated set — a table nobody can check")
+
+    def test_the_inert_share_is_strictly_between_zero_and_all(self):
+        """41 of 68 taught nothing, and that is first-class. A sweep where everything mattered would
+        be measuring the sweep; one where nothing did would have broken. Both ends are asserted."""
+        inert, total = EA.the_inert_share()
+        self.assertEqual((inert, total), (41, 68))
+        self.assertGreater(inert, 0, "no perturbation was inert — the instrument is reporting itself")
+        self.assertLess(inert, total, "every perturbation was inert — nothing is being measured")
+
+    def test_a_clean_separation_with_its_mechanism(self):
+        """`segmentation` and `identity` moved together under every declared edge, which is
+        consistent with their being ONE fact wearing two rows. `worldstep._fp_div` breaks one and not
+        the other — and the reason is measured, not argued."""
+        witnesses = EA.the_separating_witnesses()
+        self.assertEqual(witnesses[0],
+                         ("worldstep._fp_div", (True, False, True, False, False), True))
+        under_identity, under_segmentation = EA.the_identity_law_never_divides()
+        self.assertEqual(under_identity, 0,
+                         "the identity law now reaches fixed-point division; the separation's stated "
+                         "mechanism is no longer why it separates")
+        self.assertGreater(under_segmentation, 0)
+
+    def test_a_degenerate_separation_is_labelled_degenerate(self):
+        """`persist.PersistError` separates replay-plants from replay by substituting an exception
+        CLASS, so `except PersistError` raises TypeError and the plants break for a reason unrelated
+        to what they test. A real separation whose witness proves less than it appears to — kept and
+        labelled rather than counted alongside the clean one."""
+        name, vector, clean = EA.the_separating_witnesses()[1]
+        self.assertEqual(name, "persist.PersistError")
+        self.assertFalse(clean, "a class-substitution witness must not be recorded as clean")
+        self.assertEqual(vector, (False, False, False, False, True))
+
+    def test_the_boundary_names_what_inert_does_not_mean(self):
+        doc = " ".join(EA.__doc__.split())
+        self.assertIn("does_not_show", doc)
+
+
 class TheCorpusIsPinned(unittest.TestCase):
     def test_emitted_matches_pinned(self):
         self.assertTrue(EA.emitted_matches_pinned())

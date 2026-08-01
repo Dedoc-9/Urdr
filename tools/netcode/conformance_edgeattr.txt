@@ -43,5 +43,48 @@
 # does_not_show: which INDIVIDUAL law an edge serves (family-level only); that an unattributed edge is
 # dead; anything about the ~313 edges outside the declared set -- an edge no law touches cannot be
 # attributed by a method that works by breaking laws.
+#
+# THE SWEEP — PERTURBATIONS ARE GENERATED, NOT LISTED.
+#
+# The seven hand-declared edges were a guess about what matters. Hand-declaration UNDER-REPORTS, and
+# that is measured twice: `storecost.serialize` carries both replay laws while not being imported by
+# `compose` at all, and the generated sweep found `glide._fold`, `_grid_dims` and `_heights` carrying
+# replay too. So every callable a swept module DEFINES is severed -- 68 candidates over glide,
+# persist, storecost and worldstep -- and grouped by what moved.
+#
+#     .....  x41   glide.GlideError, glide.cell_of, glide.floored, ...
+#     ...XX  x18   glide._fold, glide._fold_from, glide._grid_dims, ...
+#     XXX..  x 7   worldstep.arena_world, worldstep.collide_log, ...
+#     ....X  x 1   persist.PersistError
+#     X.X..  x 1   worldstep._fp_div
+#
+#     41 OF 68 TAUGHT NOTHING, AND THAT NUMBER IS FIRST-CLASS. Most perturbations are inert; that is
+#     what makes the ones that are not credible. A sweep in which everything mattered would be
+#     measuring the sweep. If this share ever collapses toward zero, the instrument has broken.
+#
+# TWO LAWS THAT MOVED TOGETHER ARE NOT ONE LAW, AND THE SWEEP PROVED IT.
+#
+# Under the declared edges, replay and replay-plants moved together in every case, as did
+# segmentation, identity and seg-plants. That is consistent with each group being a SINGLE fact
+# wearing several green rows -- evidence inflation the gate cannot otherwise see. A minimal
+# separating perturbation settles it, and the two found are NOT equally clean:
+#
+#     worldstep._fp_div     breaks segmentation + seg-plants, NOT identity      CLEAN
+#     persist.PersistError  breaks replay-plants, NOT replay                    DEGENERATE
+#
+#     THE CLEAN ONE COMES WITH ITS MECHANISM, MEASURED RATHER THAN REASONED. The identity law runs an
+#     EMPTY event log, so no actor moves and fixed-point division is never reached: 0 calls under
+#     identity, 9 under segmentation. That is why one perturbation breaks one law and not the other,
+#     and it turns a coincidence in a table into an explanation.
+#
+#     THE DEGENERATE ONE IS RECORDED AS DEGENERATE. Severing an exception CLASS makes
+#     `except _P.PersistError` raise TypeError, so the plants break for a reason unrelated to what
+#     they test. A real separation whose witness proves less than it appears to -- kept, labelled,
+#     and not counted alongside the first.
+#
+# does_not_show: that the 41 inert candidates are dead -- inert under THESE laws is not unused; that
+# any law family is irreducible, only that these two pairs are separable; anything about modules
+# outside SWEPT.
 attribution 6ba1a53c054a04ed02a128de837b5ab38abc412b3a4928fb1fb55ca73916fe55
 walls 68d188becc513c16798578e16f6380f5e10b1d4ce3364364fca54f12d5743930
+sweep 0375e261d9fc23d4a826e06757253485f2b2622dc32561cc4f017d7a34259b70
