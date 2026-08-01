@@ -82,7 +82,29 @@
 #     A certificate whose field disagrees with the occupancy it accompanies is not a malformed
 #     fixture -- it is a peer sending an inconsistent certificate, which is why `tilemin` carries a
 #     recomputation check at all.
+#
+# IRREDUNDANT, NOT MERELY SPANNING -- 60 -> 59, AND THE REMOVED MEMBER WAS ONE OF MINE.
+# Spanning ("every axis has an isolating witness") is a weaker property than a basis. The minimality
+# check found a generator that was not needed: dropping the dedicated `cert.binding` fixture left the
+# span at 8 of 8, because the OCCUPANCY member already covers that column -- _IN_TILE_FORBIDDEN and
+# _IN_TILE_CLEAN are the SAME tile, so they agree on prefix, region and token and differ only in the
+# lattice digest, hence only in `binding`. That axis measured TWO isolating pairs where every other
+# measured one, and the number was read as noise rather than as the redundancy it was reporting.
+#
+#     IRREDUNDANT IS STRICTLY WEAKER THAN MINIMUM, AND THE INVARIANT IS NAMED FOR WHAT IT PROVES. No
+#     SINGLE removal unspans the basis; a set with that property can still exceed minimum cardinality
+#     when two members jointly cover what a third covers alone. It does not bite here, because each
+#     surviving fixture is the unique cover of its own axis -- but that is a fact about this instance
+#     and not a theorem.
+#
+#     AND THE INCIDENCE MATRIX DECIDES SPANNING ONLY. The obvious minimality test over it -- "every
+#     fixture row is the SOLE support of some column" -- reports NOTHING for every fixture, because
+#     isolation is a property of a PAIR and one end of each pair is a grid member, so the grid row
+#     supports every column. A boolean row/column matrix has discarded which pairs the support came
+#     from. Irredundance is computed by removal-and-recompute; the matrix is a DISPLAY of the
+#     incidence structure rather than the structure itself. That was learned by building the wrong
+#     test first and watching it report five sole-supports of nothing.
 
 classification bde1b1ec2a95e3efa394d5e86fd3ad2635de753c4215c9a47dbf5eac29cf7a7d
 correction 63e7d821a8e519ed1d6e74f233ea387e0353b0829a560a35fa9c7895719d9b57
-family 178fde16c9029ef43bf63eef6ad79ee74786194ab14dc6749ede248405391b9f
+family 3c70ee33f1684dd61bfd6ecb21343177879ae67d0ef568cf8223d34935a28a4f

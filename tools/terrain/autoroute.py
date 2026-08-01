@@ -732,6 +732,93 @@ def basis_rank():
     return sum(1 for _a, n in rows if n > 0), len(rows)
 
 
+def _isolating(fam):
+    """The isolating pairs per axis, as index pairs. The primitive both invariants are built on: a
+    pair differing in exactly one declared axis."""
+    vals = [{ax: _axis_value(s, ax) for ax in SEMANTIC_AXES} for s in fam]
+    iso = {ax: [] for ax in SEMANTIC_AXES}
+    for i in range(len(fam)):
+        for j in range(i + 1, len(fam)):
+            diff = [ax for ax in SEMANTIC_AXES if vals[i][ax] != vals[j][ax]]
+            if len(diff) == 1:
+                iso[diff[0]].append((i, j))
+    return iso
+
+
+def witness_matrix(fam=None, extra=0):
+    """THE INCIDENCE MATRIX, first-class — `separation_basis` gives the column sums, this gives the
+    matrix. Rows are the enumerated grid collapsed to one, then each basis fixture; columns are
+    `SEMANTIC_AXES`; the entry is TRUE when the row participates in a pair isolating that axis.
+
+    IT DECIDES SPANNING AND NOT IRREDUNDANCE, and the distinction was learned by getting it wrong.
+    The obvious minimality test over a matrix is "every fixture row is the SOLE support of some
+    column" — and it reports NOTHING for every fixture here, because isolation is a property of a
+    PAIR and one end of each pair is a grid member, so the grid row supports every column. A boolean
+    row/column incidence matrix has thrown away which pairs the support came from. Column support is
+    enough for spanning; irredundance needs removal-and-recompute, which is what
+    `the_basis_is_irredundant` does. Read the matrix as a DISPLAY of the incidence structure, not as
+    the structure itself."""
+    fam = _IS.family() if fam is None else fam
+    grid_n = len(fam) - len(_IS.BASIS_LABELS) - extra
+    groups = [("grid", tuple(range(grid_n)))]
+    groups += [(f"fix:{lbl}", (grid_n + i,)) for i, lbl in enumerate(_IS.BASIS_LABELS)]
+    if extra:
+        groups.append(("fix:PLANTED",
+                       tuple(range(grid_n + len(_IS.BASIS_LABELS), len(fam)))))
+    iso = {ax: {i for pr in prs for i in pr} for ax, prs in _isolating(fam).items()}
+    return tuple((lbl, tuple(bool(set(idx) & iso[ax]) for ax in SEMANTIC_AXES))
+                 for lbl, idx in groups)
+
+
+def _spanned(fam):
+    return tuple(ax for ax, prs in _isolating(fam).items() if prs)
+
+
+def the_basis_spans():
+    """SPANNING AS A WALL RATHER THAN A PIN. `basis_rank() == (8, 8)` records what happened and can be
+    RE-PINNED to (7, 8) by whoever breaks it; this asserts what must remain true. Returns
+    (unsupported, spanned, declared)."""
+    have = set(_spanned(_IS.family()))
+    bad = tuple(ax for ax in SEMANTIC_AXES if ax not in have)
+    return bad, len(SEMANTIC_AXES) - len(bad), len(SEMANTIC_AXES)
+
+
+def _irredundance(fam, labels, extra=0):
+    grid_n = len(fam) - len(labels) - extra
+    full = set(_spanned(fam))
+    out = []
+    for i, lbl in enumerate(list(labels) + (["PLANTED"] if extra else [])):
+        idx = grid_n + i
+        lost = tuple(sorted(full - set(_spanned(fam[:idx] + fam[idx + 1:]))))
+        out.append((f"fix:{lbl}", lost))
+    return tuple(out)
+
+
+def the_basis_is_irredundant():
+    """IRREDUNDANT, WHICH IS STRICTLY WEAKER THAN MINIMUM, AND THE NAME SAYS SO. Removing any one
+    fixture must unspan some axis. A set can be irredundant — no SINGLE removal breaks it — and still
+    exceed minimum cardinality, when two rows jointly cover what a third covers alone; that does not
+    bite here but it is a fact about this instance, not a theorem, and Stage 5's integration suites
+    will meet the general case.
+
+    THIS IS THE CHECK THAT REMOVED A FIXTURE. A dedicated `cert.binding` member left the span intact
+    when dropped: `_IN_TILE_FORBIDDEN` and `_IN_TILE_CLEAN` are the SAME tile, so they share prefix,
+    region and token and differ only in `lattice_digest` — hence only in `binding` — so the OCCUPANCY
+    fixture already covered that column. It measured 2 isolating pairs where every other axis measured
+    1, and that number was read as noise. Returns ((row, axes_lost_if_removed), ...)."""
+    return _irredundance(_IS.family(), _IS.BASIS_LABELS)
+
+
+def a_redundant_fixture_is_caught():
+    """NON-VACUITY for the invariant above (L15): it is only evidence if it can fail. Plant the
+    fixture that was REMOVED — a certificate differing from the base's only in `binding` — and demand
+    it be reported as losing NOTHING. Returns (label, axes_lost_if_removed)."""
+    c = dict(_TM.certify(frozenset(_IS._BASIS_OCC), _IS._BASIS_TICK))
+    c["binding"] = "ff" * 32
+    planted = _IS.situation(_IS._BASIS_OCC, _IS._BASIS_TICK, (), (), cert=c)
+    return _irredundance(_IS.family() + (planted,), _IS.BASIS_LABELS, extra=1)[-1]
+
+
 def a_constant_quantity_is_droppable_for_a_reason():
     """The concrete consequence of an unspanned basis, named rather than left implicit. A quantity
     that takes ONE value across the whole family is determined by the EMPTY projection — by constancy,

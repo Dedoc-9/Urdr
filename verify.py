@@ -12000,8 +12000,12 @@ class Gate:
             # never SIZE (54 fully enumerated situations, six of eight directions unrepresented); it
             # was the absence of INDEPENDENT VARIATION, which is why this is a basis and not a bigger
             # corpus. Expressible only because the certificate became an input.
-            red_ok = red_ok and IS.family_separates_every_level() == (181, 174, 58)
-            red_ok = red_ok and len(IS.family()) == 60
+            # 60 -> 59: the IRREDUNDANCE invariant removed a fixture. A dedicated `cert.binding`
+            # member left the span intact when dropped, because the OCCUPANCY member already
+            # covered that column — same tile, so prefix/region/token agree and only the lattice
+            # digest moves. The basis is now spanning AND irredundant.
+            red_ok = red_ok and IS.family_separates_every_level() == (171, 168, 56)
+            red_ok = red_ok and len(IS.family()) == 59
             qfn = dict(IS.QUANTITIES)["occupancy_defect"]
             ok1, w1 = IS.determines("CERT", qfn)
             ok2, w2 = IS.determines("LATTICE", qfn)
@@ -12493,8 +12497,30 @@ class Gate:
             det_ok = det_ok and AR.separation_basis() == (
                 ("occupancy", 1), ("history", 54), ("cohort", 54),
                 ("cert.tile_prefix", 1), ("cert.jurisdiction_region", 1),
-                ("cert.liveness_token", 1), ("cert.tick", 1), ("cert.binding", 2))
+                ("cert.liveness_token", 1), ("cert.tick", 1), ("cert.binding", 1))
+            # basis_rank stays PINNED for the record, but the load-bearing assertions are the two
+            # below: a pin records what happened and can be re-pinned to (7, 8) by whoever breaks it.
             det_ok = det_ok and AR.basis_rank() == (8, 8)
+            # SPANNING, AS A WALL. Every declared axis has an isolating witness — asserted as a
+            # property, so a regression cannot be absorbed by editing a number.
+            det_ok = det_ok and AR.the_basis_spans() == ((), 8, 8)
+            # IRREDUNDANCE. Removing any fixture must unspan something. `fix:occupancy` loses TWO
+            # axes because it is the dual-support row that made the binding fixture redundant.
+            det_ok = det_ok and AR.the_basis_is_irredundant() == (
+                ("fix:occupancy", ("cert.binding", "occupancy")),
+                ("fix:cert.tile_prefix", ("cert.tile_prefix",)),
+                ("fix:cert.jurisdiction_region", ("cert.jurisdiction_region",)),
+                ("fix:cert.liveness_token", ("cert.liveness_token",)),
+                ("fix:cert.tick", ("cert.tick",)))
+            for _row, _lost in AR.the_basis_is_irredundant():
+                det_ok = det_ok and len(_lost) > 0
+            # NON-VACUITY: replant the fixture that was removed and demand it lose NOTHING.
+            det_ok = det_ok and AR.a_redundant_fixture_is_caught() == ("fix:PLANTED", ())
+            # And the matrix decides SPANNING only — the obvious "sole support of a column" test
+            # reports nothing for every fixture, because one end of each isolating pair is a grid
+            # member, so the grid row supports every column. Asserted so nobody rebuilds that mistake.
+            _m = dict(AR.witness_matrix())
+            det_ok = det_ok and all(_m["grid"][_k] for _k, _a in enumerate(AR.SEMANTIC_AXES))
             # ...and the concrete consequence, named rather than left as an abstraction: a quantity
             # taking ONE value across the family is determined by the EMPTY projection by CONSTANCY,
             # so the search calls its atom droppable and syntax must veto. That is the honest half of

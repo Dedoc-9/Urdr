@@ -192,11 +192,50 @@ class TheLatticeEnumerationOverreached(unittest.TestCase):
         self.assertEqual(rows, (
             ("occupancy", 1), ("history", 54), ("cohort", 54),
             ("cert.tile_prefix", 1), ("cert.jurisdiction_region", 1),
-            ("cert.liveness_token", 1), ("cert.tick", 1), ("cert.binding", 2)))
+            ("cert.liveness_token", 1), ("cert.tick", 1), ("cert.binding", 1)))
         self.assertEqual(AR.basis_rank(), (8, 8))
         for axis, n in rows:
             self.assertGreater(n, 0, f"{axis} has no isolating witness; a search positive about it "
                                      f"is vacuous however many situations were examined")
+
+    def test_the_basis_is_irredundant_and_that_is_weaker_than_minimum(self):
+        """Spanning is not a basis. Removing any fixture must unspan something — and the invariant
+        is named IRREDUNDANT rather than minimal because a set with that property can still exceed
+        minimum cardinality when two members jointly cover what a third covers alone."""
+        rows = AR.the_basis_is_irredundant()
+        self.assertEqual(rows, (
+            ("fix:occupancy", ("cert.binding", "occupancy")),
+            ("fix:cert.tile_prefix", ("cert.tile_prefix",)),
+            ("fix:cert.jurisdiction_region", ("cert.jurisdiction_region",)),
+            ("fix:cert.liveness_token", ("cert.liveness_token",)),
+            ("fix:cert.tick", ("cert.tick",))))
+        for row, lost in rows:
+            self.assertTrue(lost, f"{row} is redundant: removing it unspans nothing")
+
+    def test_a_redundant_fixture_is_caught(self):
+        """Non-vacuity (L15). Replant the fixture this invariant REMOVED — a certificate differing
+        from the base's only in `binding` — and it must be reported as losing nothing."""
+        self.assertEqual(AR.a_redundant_fixture_is_caught(), ("fix:PLANTED", ()))
+
+    def test_spanning_is_asserted_as_a_wall_not_a_pin(self):
+        """`basis_rank() == (8, 8)` is history and can be re-pinned by whoever breaks it. The
+        property is what must hold."""
+        unsupported, spanned, declared = AR.the_basis_spans()
+        self.assertEqual(unsupported, ())
+        self.assertEqual((spanned, declared), (8, 8))
+
+    def test_the_matrix_decides_spanning_only(self):
+        """The obvious minimality test over the incidence matrix — every fixture row is the SOLE
+        support of some column — reports nothing for every fixture, because isolation is a property
+        of a PAIR and one end of each pair is a grid member. Asserted so the mistake is not rebuilt:
+        the grid row supports EVERY column, which is exactly why sole-support can never hold."""
+        m = dict(AR.witness_matrix())
+        self.assertTrue(all(m["grid"]), "the grid row supports every column")
+        for lbl in [l for l in m if l.startswith("fix:")]:
+            others = [r for l, r in m.items() if l != lbl]
+            sole = [a for k, a in enumerate(AR.SEMANTIC_AXES)
+                    if m[lbl][k] and not any(r[k] for r in others)]
+            self.assertEqual(sole, [], "sole-support is vacuous here; use removal-and-recompute")
 
     def test_the_removed_positive_has_a_witness(self):
         """Extending a family can ONLY remove search positives, so over-skip falling proves nothing

@@ -204,6 +204,12 @@ def family():
 _BASIS_OCC, _BASIS_TICK = _IN_TILE_FORBIDDEN, 6
 
 
+#: Row labels for the witness matrix, in block order. Data, so the matrix can NAME a redundant row
+#: instead of reporting an index.
+BASIS_LABELS = ("occupancy", "cert.tile_prefix", "cert.jurisdiction_region",
+                "cert.liveness_token", "cert.tick")
+
+
 def _separation_basis_block():
     """SIX SITUATIONS THAT MAKE THE FAMILY A BASIS RATHER THAN MERELY A CORPUS.
 
@@ -235,11 +241,16 @@ def _separation_basis_block():
     # (2)-(6) one certificate FIELD alone. The tick variant is chosen OUTSIDE tilemin.HORIZON so
     #     `liveness_horizon` stops being constant across the family; that constancy is what made the
     #     empty projection determine it and the search call its atom droppable.
+    #: `binding` IS ABSENT DELIBERATELY, and the irredundance invariant is what removed it. A
+    #: dedicated binding fixture left rank at 8 when dropped, because the OCCUPANCY member above
+    #: already isolates that column: _IN_TILE_FORBIDDEN and _IN_TILE_CLEAN are the SAME tile, so they
+    #: share prefix, region and token and differ only in `lattice_digest` — hence only in `binding`.
+    #: It measured 2 isolating pairs where every other axis measured 1; the number was saying so and
+    #: was read as noise. `a_redundant_fixture_is_caught` keeps that plant live.
     for field, value in (("tile_prefix", base_cert["tile_prefix"] + 1),
                          ("jurisdiction_region", base_cert["jurisdiction_region"] + 1),
                          ("liveness_token", "00" * 16),
-                         ("tick", _BASIS_TICK - (_TM.HORIZON + 5)),
-                         ("binding", "ff" * 32)):
+                         ("tick", _BASIS_TICK - (_TM.HORIZON + 5))):
         c = dict(base_cert)
         c[field] = value
         out.append(situation(_BASIS_OCC, _BASIS_TICK, (), (), cert=c))
