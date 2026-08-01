@@ -218,8 +218,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | — |
 ## Status
 
-**MEASURED, as of this writing.** 103 modules under `tools/terrain/`, 173 falsifier suites, 1948 unit
-falsifiers with 0 red, 837 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 103 modules under `tools/terrain/`, 174 falsifier suites, 1966 unit
+falsifiers with 0 red, 841 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 
@@ -387,9 +387,9 @@ signatures certify a population the operator chose.
 acquisition problem, not a design problem, and it gates any honest claim about real-world capture
 error.
 
-**Stage 5 — the persistent-world composition.** The slices are proven individually; the arc has not
-yet demonstrated one persistent city standing on all of them at once, under load, with players
-joining and leaving. Composition is where declared boundaries meet.
+**Stage 5 — the persistent-world composition.** OPENED, not closed. The first composition laws are gated (`compose`, URDRCMP1): the SEGMENTATION law — a run cut at any tick and resumed from that tick's snapshot reproduces the tail exactly, 0 divergences over 158 cuts across two independent worlds — and the IDENTITY law at both boundaries, each with two plants that bite from different directions. That is what makes a checkpoint a checkpoint, and nothing asserted it before, because the property lives in the SEAM between `worldstep` and `persist` and no test inside either one can see it.
+
+What remains is the REPLAY law across the serialization boundary — a checkpoint actually WRITTEN by `persist` and READ BACK reproducing the tail, which segmentation does not show — and then one persistent city standing on all the slices at once, under load, with players joining and leaving. Composition is where declared boundaries meet. <!-- remains: compose-replay -->
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at

@@ -1,0 +1,30 @@
+# URDRCMP1 conformance — DO THE PROVEN SLICES COMPOSE. The first Stage 5 laws, stated BETWEEN
+# modules rather than inside one.
+#
+# THE SEGMENTATION LAW. simulate(w, log) cut at ANY tick k and resumed from the snapshot at k
+# reproduces the tail exactly, frame digest for frame digest. That is the associativity of
+# world-stepping over a linear log, and it is what makes a checkpoint a checkpoint: resuming must be
+# observationally identical to never having stopped. No amount of testing persist ALONE would reveal
+# a defect here, because the defect would live in the seam.
+#
+#     MEASURED: 0 divergences over EVERY cut of two independent worlds -- 39 on the collide world
+#     (body-body contact, T=40) and 119 on the arena world (T=120).
+#
+#     AND IT ESTABLISHES SOMETHING THE CODE DECLINED TO CLAIM. worldstep.simulate_trace documents its
+#     per-frame snapshots as DISPLAY-ONLY and says nothing there feeds back into the tick -- a
+#     caution written when nobody had checked whether it needed to be one. Those snapshots ARE valid
+#     resumption points. The caution was stronger than the code required.
+#
+# TWO PLANTS, ATTACKING FROM DIFFERENT DIRECTIONS, because they fail differently and one alone would
+# have left the other mode untested. Perturbing ONE WORD of a snapshot diverges at EXACTLY that cut
+# (1 of 39) -- the comparison is sensitive to the state it claims to compare. Carrying state OUTSIDE
+# the snapshot diverges at EVERY cut (39 of 39) -- which is the defect the law exists to catch and
+# the one a perturbation would never exercise.
+#
+# does_not_show: that the world state IS (pos, vel) in general -- no hidden state affects THESE runs,
+# which is a statement about these fixtures rather than a structural proof; that a checkpoint WRITTEN
+# by persist and READ BACK reproduces the tail, which is the replay law across the serialization
+# boundary and is the declared successor, NOT claimed here; anything about concurrency, joining or
+# leaving, which is Stage 5's remaining work.
+segmentation 8b63f68b290cf9547b37e7c125a33683d6d922afac56eba6c5b230e94c2c4bb3
+plants 6bd183e984eb5cccc3b3025eac9a43ef36cb870666b2d06a0fc2a1286be608de

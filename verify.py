@@ -66,6 +66,7 @@ STAGE_ORDER = (
     "netcode_auth",
     "netcode_world",
     "netcode_worldpeer",
+    "compose",
     "netcode_region",
     "regionprop",
     "netcode_field_desync",
@@ -2925,6 +2926,83 @@ class Gate:
         self.record("netcode-fraud-bisect", bisect_ok,
                     "bisection converges to the first divergence revealing %d of %d frames (O(log T)), then adjudicates to honest"
                     % (brev, len(hb)) if bisect_ok else "bisection broke")
+
+    # -- Stage 5: do the proven slices COMPOSE ---------------------------------
+    def compose(self):
+        """DO THE PROVEN SLICES COMPOSE (URDRCMP1) — the first Stage 5 laws, asserted BETWEEN modules
+        rather than inside one. The gate already carried 26 rows across rollback (10), lease (6),
+        persist (6) and boundary (4), and ZERO for identity, associativity or replay — the three that
+        exist only in the seams, which is exactly why nothing had them. Rows: scenes, segmentation,
+        identity, plants."""
+        nd = os.path.join(ROOT, "tools", "netcode")
+        for d in (nd, os.path.join(ROOT, "tools", "physics")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import compose as CM
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("compose", False, f"import failed: {exc}")
+            return
+        try:
+            ref_ok = all(CM.scene_result(n) == CM.golden(n) for n in CM.SCENES)
+            ref_ok = ref_ok and CM.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("compose:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("compose:scenes", ref_ok,
+                    "segmentation + plants reproduce URDRCMP1 digests, and the pinned corpus is "
+                    "exactly what `--emit` produces"
+                    if ref_ok else "a compose scene drifted from its digest")
+
+        seg_ok = True
+        try:
+            seg = CM.the_segmentation_law()
+            seg_ok = seg == (("collide", 0, 39), ("arena", 0, 119))
+            for _nm, bad, cuts in seg:
+                seg_ok = seg_ok and bad == 0 and cuts > 0
+        except Exception:
+            seg_ok = False
+        self.record("compose-segmentation", seg_ok,
+                    "THE SEGMENTATION LAW: a run cut at ANY tick and resumed from that tick's "
+                    "snapshot reproduces the tail EXACTLY, frame digest for frame digest. That is the "
+                    "associativity of world-stepping over a linear log, and it is what makes a "
+                    "checkpoint a checkpoint — resuming must be observationally identical to never "
+                    "having stopped, and no amount of testing `persist` ALONE would reveal a defect "
+                    "here because the defect would live in the SEAM. MEASURED: 0 divergences over "
+                    "every cut of two independent worlds, 39 on the collide world (body-body contact, "
+                    "T=40) and 119 on the arena (T=120). It also settles something the code declined "
+                    "to claim: `worldstep.simulate_trace` documents its per-frame snapshots as "
+                    "DISPLAY-ONLY and says nothing there feeds back into the tick — a caution written "
+                    "before anyone checked whether it had to be one. Those snapshots ARE valid "
+                    "resumption points"
+                    if seg_ok else "the segmentation law did not hold")
+
+        id_ok = True
+        try:
+            id_ok = CM.the_identity_law() == (("collide", True), ("arena", True))
+        except Exception:
+            id_ok = False
+        self.record("compose-identity", id_ok,
+                    "COMPOSING WITH NOTHING CHANGES NOTHING: an empty event list gives the "
+                    "physics-only chain, checked at BOTH boundaries (k=0 and k=T) rather than folded "
+                    "into segmentation, because that is where an off-by-one in a cut-and-resume lives"
+                    if id_ok else "the identity law did not hold")
+
+        pl_ok = True
+        try:
+            pl_ok = CM.the_law_can_fail() == (1, 39, 39)
+        except Exception:
+            pl_ok = False
+        self.record("compose-plants", pl_ok,
+                    "TWO PLANTS, ATTACKING FROM DIFFERENT DIRECTIONS, because they fail differently "
+                    "and either alone leaves the other mode untested. Perturbing ONE WORD of a "
+                    "snapshot diverges at EXACTLY that cut (1 of 39) — so the comparison is sensitive "
+                    "to the state it claims to compare, which a law reporting 0 on a broken "
+                    "comparison would not be. Carrying state OUTSIDE the snapshot diverges at EVERY "
+                    "cut (39 of 39) — that is the hidden-state defect the law exists to catch, and it "
+                    "is precisely the one a perturbation plant would never exercise"
+                    if pl_ok else "a compose plant did not bite")
+
 
     def doc_currency(self):
         """The tracked docs must quote the LIVE counts — docs must match reality

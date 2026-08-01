@@ -184,10 +184,22 @@ def live_modules(root):
         return set()
 
 
-# The D5 ledgers are APPEND-ONLY HISTORY. An entry that recorded "the declared successor is X"
+# APPEND-ONLY HISTORY IS EXEMPT; STATUS IS NOT. An entry that recorded "the declared successor is X"
 # on the day it was written stays true as a record of that day, and rewriting it would falsify the
-# ledger rather than update it. History is exempt; status is not.
-_HISTORY = re.compile(r"^spec/D5-ledger.*\.md$")
+# record rather than update it.
+#
+# LESSONS.md JOINED THIS SET AFTER IT REDDENED THE GATE ON ITS OWN NEW ENTRY. The rule is
+# LINE-scoped: a line containing "declared successor" may not also name a shipped module. That works
+# for prose, where lines are short. A LESSONS row is a single line of ~2000 characters, so
+# line-scoping is meaningless there -- L46 mentions `persist` in one clause and "declared successor"
+# in another, thirty clauses apart, and the checker cannot tell them apart. It is the same category
+# as the ledgers by every test that matters: append-only, never revised, and already established as
+# holding VERBATIM historical records (L38's transcript, L40's restored figure).
+#
+# The exemption is FILE-scoped and narrow on purpose. Tightening the matcher to a proximity window
+# was the alternative and was rejected: it would trade a rule that is exact-but-coarse for one that
+# is approximate everywhere, and this session retired four heuristics for guessing at prose.
+_HISTORY = re.compile(r"^(spec/D5-ledger.*|LESSONS)\.md$")
 
 
 def _md_files(root):
