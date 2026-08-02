@@ -15999,7 +15999,8 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen"
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
                                "rollstore", "glide",
-                               "splice", "disjoint", "storm")
+                               "splice", "disjoint", "storm",
+                               "voxlat", "nway", "commute")
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
 
