@@ -3270,30 +3270,31 @@ class Gate:
             bf = brief_falsifier_problems(live_rows)
         except Exception as exc:
             bf = [("brief_falsifier_problems", "error", str(exc), "")]
-        # NON-VACUITY: the checker must reject all three defect shapes, or a clean result means
-        # nothing. A row that only ever reports "no problems" over a corpus that never had any is
-        # the L23 defect, and this repo has paid for it three times.
-        _fake = frozenset({"autoroute-enforce"})
+        # DERIVE the evidence, never describe it: the count and the enumeration are read off the live
+        # markers/rows/bindings, so extending BRIEFS_REQUIRING_A_FALSIFIER cannot leave a stale
+        # sentence behind — the class of defect this row itself carried three times (L52).
         try:
-            planted = (
-                bool(brief_falsifier_problems(frozenset())) and              # (2) unknown row
-                bool([p for p in brief_falsifier_problems(_fake) if p[1] == "unknown-row"]))
+            evidence = brief_evidence(live_rows)
+            derive_ok = True
+        except BriefEvidenceError as exc:
+            evidence, derive_ok = None, False
+            bf = bf + [("brief-evidence", "derivation", str(exc), "required set")]
+        # NON-VACUITY, RED-FIRST: the derivation must BITE in five independent directions or a clean
+        # result means nothing (L23). Each is planted separately against synthetic markers.
+        try:
+            plants = brief_evidence_plants_bite(live_rows)
         except Exception:
-            planted = False
-        self.record("brief-falsifiers", (not bf) and planted,
-                    f"each of the {len(BRIEFS_REQUIRING_A_FALSIFIER)} enforced briefs (the certificate "
-                    "arc, the partition/authority arc, and the composition arc) names the gate row that "
-                    "would refute it, and "
-                    "the citation is CHECKED three ways: the marker appears exactly once, the row exists "
-                    "in this run's live row set, and the brief's module is genuinely imported by the "
-                    "stage that records that row — the third condition is what stops a syntactically "
-                    "valid citation to an unrelated always-green row. The row->stage map is derived "
-                    "from verify.py's own source rather than from a name prefix. Non-vacuity: "
-                    "stripping the live row set makes every citation unknown, so the checker is "
-                    "observed rejecting rather than assumed to"
-                    if (not bf) and planted else
-                    ("brief falsifier problems: " + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in bf[:4])
-                     if bf else "the brief-falsifier checker did not reject a planted defect"))
+            plants = False
+        ok = (not bf) and derive_ok and plants
+        self.record("brief-falsifiers", ok,
+                    (evidence + "; and the derivation is proved to BITE in all five directions — a "
+                     "nonexistent row, a real but unrelated row, an omitted brief, a count that "
+                     "disagrees, with reorder and whitespace-rewrap a semantic no-op — so it is "
+                     "observed rejecting rather than assumed to"
+                     if ok else
+                     ("brief falsifier problems: "
+                      + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in bf[:4])
+                      if bf else "the brief-evidence derivation did not bite a planted defect")))
 
         # ---- subset-withhold-honest: withholding must be a FACT, never a convenient excuse ----
         # `--only doc_currency` used to print a GUARANTEED FALSE RED; the fix withholds the row. A
@@ -16017,7 +16018,36 @@ def _rows_by_stage():
     return out
 
 
-def brief_falsifier_problems(row_names):
+def _stage_sources():
+    """stage method name -> its full source text, sliced out of verify.py's OWN source. Shared by the
+    brief-falsifier checker and the unrelated-row derivation so both read structure the same way."""
+    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+    out, cur, buf = {}, None, []
+    for line in src.splitlines(True):
+        m = re.match(r"    def (\w+)\(self\)", line)
+        if m:
+            if cur:
+                out[cur] = "".join(buf)
+            cur, buf = m.group(1), []
+        buf.append(line)
+    if cur:
+        out[cur] = "".join(buf)
+    return out
+
+
+def _read_brief_markers(mod):
+    """The brief-falsifier markers actually present in docs/{mod}_brief.md, or None if the brief is
+    missing. Factored out as the DEFAULT marker source so the self-test can inject synthetic markers
+    and plant each failure direction deterministically, without touching disk."""
+    rel = os.path.join("docs", f"{mod}_brief.md")
+    try:
+        text = io.open(os.path.join(ROOT, rel), encoding="utf-8").read()
+    except OSError:
+        return None
+    return _BRIEF_FALSIFIER.findall(text)
+
+
+def brief_falsifier_problems(row_names, marker_of=_read_brief_markers):
     """The three conditions a brief's falsifier marker must satisfy. Returns a list of problems.
 
     (1) the marker is present EXACTLY ONCE — zero means the brief makes no checkable claim, two means
@@ -16026,30 +16056,19 @@ def brief_falsifier_problems(row_names):
     (3) the brief's MODULE is genuinely among that row's measured inputs, established by finding the
         module imported inside the stage method that records the row. Without (3) a brief could cite
         any always-green row and be syntactically valid while explaining nothing — the citation would
-        be a decoration with a checkmark."""
-    src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
-    by_stage = _rows_by_stage()
-    stage_src = {}
-    cur, buf = None, []
-    for line in src.splitlines(True):
-        m = re.match(r"    def (\w+)\(self\)", line)
-        if m:
-            if cur:
-                stage_src[cur] = "".join(buf)
-            cur, buf = m.group(1), []
-        buf.append(line)
-    if cur:
-        stage_src[cur] = "".join(buf)
+        be a decoration with a checkmark.
 
+    `marker_of` supplies each module's markers (default: read the brief file); the self-test injects
+    it to plant nonexistent-row and unrelated-row defects deterministically and file-free."""
+    by_stage = _rows_by_stage()
+    stage_src = _stage_sources()
     out = []
     for mod in BRIEFS_REQUIRING_A_FALSIFIER:
         rel = os.path.join("docs", f"{mod}_brief.md")
-        try:
-            text = io.open(os.path.join(ROOT, rel), encoding="utf-8").read()
-        except OSError:
+        hits = marker_of(mod)
+        if hits is None:
             out.append((rel, "missing", mod, "no brief"))
             continue
-        hits = _BRIEF_FALSIFIER.findall(text)
         if len(hits) != 1:
             out.append((rel, "marker-count", str(len(hits)), "1"))
             continue
@@ -16062,6 +16081,126 @@ def brief_falsifier_problems(row_names):
         if not re.search(r"import\s+%s(\s|$|\s+as\s)" % re.escape(mod), body):
             out.append((rel, "row-does-not-measure", row, f"{st} never imports {mod}"))
     return out
+
+
+class BriefEvidenceError(Exception):
+    """The brief-falsifiers evidence could not be DERIVED cleanly — a brief was dropped from the
+    derivation, or a hand-supplied count disagreed with it. Raised so a stale number or a missing
+    brief reddens instead of quietly narrowing the enumeration."""
+
+
+def _an_unrelated_live_row(row_names, mod):
+    """A live gate row whose recording stage does NOT import `mod`, DERIVED (never named) from
+    verify.py's own source so it cannot rot when stages move. Used to plant direction (2): a brief
+    citing this real, live row is syntactically valid yet explains nothing about `mod`."""
+    by_stage = _rows_by_stage()
+    stage_src = _stage_sources()
+    for row in sorted(row_names):
+        st = by_stage.get(row)
+        if st is None:
+            continue
+        if not re.search(r"import\s+%s(\s|$|\s+as\s)" % re.escape(mod), stage_src.get(st, "")):
+            return row
+    return None
+
+
+def brief_evidence_facts(row_names, marker_of=_read_brief_markers):
+    """The DERIVED semantic content of the brief-falsifiers evidence: the canonical, SORTED tuple of
+    (module, row) pairs — each enforced brief that passes all three conditions paired with the gate
+    row its marker names. Sorting makes it order-invariant (reordering BRIEFS_REQUIRING_A_FALSIFIER
+    changes nothing); it is built from the live markers/rows/bindings, never described in prose. A
+    brief with ANY problem is absent, so the derived cover disagrees with the required set."""
+    bad = {p[0] for p in brief_falsifier_problems(row_names, marker_of)}
+    facts = []
+    for mod in BRIEFS_REQUIRING_A_FALSIFIER:
+        rel = os.path.join("docs", f"{mod}_brief.md")
+        if rel in bad:
+            continue
+        facts.append((mod, marker_of(mod)[0]))
+    return tuple(sorted(facts))
+
+
+def brief_evidence(row_names, marker_of=_read_brief_markers, claimed_count=None):
+    """DERIVE the brief-falsifiers evidence string from (markers, live rows, module bindings). The
+    count is len(facts) and the enumeration is the canonical facts — BOTH read off the derivation,
+    never hand-maintained. Raises BriefEvidenceError if the derivation does not cover every enforced
+    brief (a dropped or invalid brief) or if a supplied `claimed_count` disagrees with it."""
+    facts = brief_evidence_facts(row_names, marker_of)
+    covered = {m for m, _ in facts}
+    required = set(BRIEFS_REQUIRING_A_FALSIFIER)
+    if covered != required:
+        raise BriefEvidenceError(f"derivation omits {sorted(required - covered)}")
+    n = len(facts)
+    if claimed_count is not None and claimed_count != n:
+        raise BriefEvidenceError(f"count {claimed_count} disagrees with the derived {n}")
+    listing = ", ".join(f"{m}->{r}" for m, r in facts)
+    return (f"each of the {n} enforced briefs names the gate row that would refute it — an "
+            f"enumeration DERIVED from the live markers, rows and module bindings, not described in "
+            f"prose ({listing}) — and the citation is CHECKED three ways: the marker appears exactly "
+            f"once, the row exists in this run's live row set, and the brief's module is genuinely "
+            f"imported by the stage that records that row, the third condition stopping a "
+            f"syntactically valid citation to an unrelated always-green row. The row->stage map is "
+            f"derived from verify.py's own source rather than from a name prefix")
+
+
+def brief_evidence_plants_bite(row_names):
+    """RED-FIRST: the derived evidence must BITE in each independent failure direction, or a clean
+    derivation means nothing (L23, paid three times). Each direction is planted SEPARATELY against
+    synthetic markers, file-free:
+
+      (1) a brief names a NONEXISTENT row        -> unknown-row AND derivation incomplete;
+      (2) a brief names a real but UNRELATED row -> row-does-not-measure;
+      (3) a valid brief is OMITTED               -> derivation != required set;
+      (4) a hand-edited COUNT disagrees          -> BriefEvidenceError;
+      (5) REORDER + WHITESPACE-REWRAP is a no-op -> identical canonical facts (semantic, not text).
+
+    Returns True iff every RED direction reddens and the invariance control holds."""
+    real = {mod: _read_brief_markers(mod) for mod in BRIEFS_REQUIRING_A_FALSIFIER}
+    victim = BRIEFS_REQUIRING_A_FALSIFIER[0]
+
+    def swap(markers):
+        return lambda mod: markers if mod == victim else real.get(mod)
+
+    # (1) nonexistent row: both the checker (unknown-row) and the derivation (incomplete) must object.
+    m1 = swap(["no-such-row-000"])
+    d1_checker = any(p[1] == "unknown-row" for p in brief_falsifier_problems(row_names, m1))
+    try:
+        brief_evidence(row_names, m1); d1_derive = False
+    except BriefEvidenceError:
+        d1_derive = True
+    one = d1_checker and d1_derive
+
+    # (2) real but unrelated row, DERIVED not named, so the plant cannot rot when stages move.
+    unrelated = _an_unrelated_live_row(row_names, victim)
+    two = (unrelated is not None and
+           any(p[1] == "row-does-not-measure"
+               for p in brief_falsifier_problems(row_names, swap([unrelated]))))
+
+    # (3) a valid brief omitted from the derivation.
+    try:
+        brief_evidence(row_names, swap([])); three = False
+    except BriefEvidenceError:
+        three = True
+
+    # (4) a hand-edited count disagreeing with the derivation — the exact staleness this row carried.
+    try:
+        brief_evidence(row_names, _read_brief_markers,
+                       claimed_count=len(BRIEFS_REQUIRING_A_FALSIFIER) + 1)
+        four = False
+    except BriefEvidenceError:
+        four = True
+
+    # (5) reorder + whitespace-rewrap is a SEMANTIC no-op (the wrapped-phrase defect class, paid
+    #     repeatedly): the output is sorted (order-invariant), and re-parsing every marker with
+    #     padded whitespace yields the identical canonical facts.
+    canonical = brief_evidence_facts(row_names)
+    rewrapped = {mod: _BRIEF_FALSIFIER.findall(
+                     "<!--   brief-falsifier:   %s   -->" % (real[mod][0] if real[mod] else "x"))
+                 for mod in BRIEFS_REQUIRING_A_FALSIFIER}
+    five = (list(canonical) == sorted(canonical) and
+            brief_evidence_facts(row_names, lambda mod: rewrapped.get(mod)) == canonical)
+
+    return one and two and three and four and five
 
 
 def _numeric_signature(detail: str) -> str:
