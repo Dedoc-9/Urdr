@@ -317,13 +317,15 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **77 of 103 modules have no design brief, and the newest arcs are the whole of the gap.** All 20
-  modules of the city, authority and certificate arcs (`voxlat` … `blindscreen`) carry a gate stage,
-  falsifiers and — with the four named exceptions below — a pinned corpus, and NOT ONE carries a
-  `docs/<name>_brief.md`. The OODA passes that produced them live only in commit messages and module
-  headers, which means the *reasoning* is recoverable only by reading the header of each module
-  rather than from a document written to be read. Four briefs (`hardening`, `mesh_phase`,
-  `terrain_studio`, `wire_phase`) are phase-level rather than module-level and cover none of them.
+- **76 of 103 modules have no design brief — and the newest arcs are no longer the whole of the gap.**
+  Eleven modules across the certificate arc (`inputset`, `cohort`, `autoroute`, `blindscreen`, `tilemin`) and
+  the partition/authority arc (`partition`, `worldregion`, `chunkstate`, `chunkload`, `migrate`, `rannull`)
+  were briefed this session; each now carries a `docs/<name>_brief.md` whose falsifier the gate ENFORCES
+  (`brief-falsifiers`), so their OODA passes and D1 §20 rulings live in a document written to be read, not only
+  in commit messages and module headers. What remains is the OLDER substrate — the Stage-H durability and space
+  modules among it — which this pass has now begun to read; `storecost` is the first. For a still-unbriefed
+  module the *reasoning* is recoverable only by reading its header. Four briefs (`hardening`, `mesh_phase`,
+  `terrain_studio`, `wire_phase`) are phase-level rather than module-level.
 - **`cohort`'s min-cut is DECIDED only to `CUT_SEARCH_MAX = 3`.** The enumeration proves k for walls
   whose cut is at most 3 cells and returns `None` above that, which charges nothing and certifies
   nothing. For the pinned corpus this is exact; for a wall needing a larger cut the gate says only
@@ -395,9 +397,10 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 77
-modules have no `docs/*_brief.md`, all 20 of the city, authority and certificate arcs among them, and
-the D5 ledger needs entries for all three. That debt is not cosmetic: the briefs are where the OODA
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 76
+modules have no `docs/*_brief.md`. The certificate and partition/authority arcs have since been briefed
+(their falsifiers gate-enforced); the residual gap is the older substrate, and the D5 ledger still needs its
+entries. That debt is not cosmetic: the briefs are where the OODA
 passes and the D1 §20 rulings live, and unlike a boundary a brief cannot be transcribed from anywhere.
 
 **Stage 7 — the parallel substrates.** `parallel/` holds structures explored alongside the Euclidean

@@ -15996,7 +15996,8 @@ class Gate:
 #: rule.
 BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
-                               "chunkstate", "chunkload", "migrate", "rannull")
+                               "chunkstate", "chunkload", "migrate", "rannull",
+                               "storecost")
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
 
