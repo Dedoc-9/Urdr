@@ -3195,11 +3195,12 @@ class Gate:
             sys.path.insert(0, sdir)
         try:
             import doc_currency as DC
+            import provenance as PV
         except Exception as exc:  # pragma: no cover - import guard
             self.record("doc-currency", False, f"import failed: {exc}")
             self.record("doc-currency-selftest", False, "checker did not load")
             return
-        N_OWN = 6  # rows THIS method records below — keep == the record() count
+        N_OWN = 7  # rows THIS method records below — keep == the record() count
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
                               len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
@@ -3335,6 +3336,42 @@ class Gate:
                     "run_supplies=%s" % (gate_path_is_open, mechanism, reason_true, run_supplies))
         if SUBSET_ONLY is not None:  # pragma: no cover - restored above; asserted, never assumed
             self.record("subset-withhold-honest", False, "SUBSET_ONLY leaked out of the probe")
+
+        # ---- provenance: the discoveries themselves, made analyzable (READ-2 substrate) ----
+        # Each recorded discovery carries an operator, a contradicted representation, an evidence
+        # source, a repair, and an OPERATIONAL permanence. A claim to have ELIMINATED a defect class
+        # or built a MECHANISM must name a LIVE gate row that enforces it — checked against this run's
+        # rows, so "this can no longer happen" is a fact with a forbidder, not a boast. The check is
+        # proved to bite in four directions, and the distribution is DERIVED, never narrated.
+        try:
+            pv = PV.provenance_problems(live_rows)
+        except Exception as exc:
+            pv = [("provenance", "error", str(exc), "")]
+        try:
+            pv_plants = PV.plants_bite(live_rows)
+        except Exception:
+            pv_plants = False
+        try:
+            dist = PV.distribution()
+        except Exception as exc:
+            dist = {"n": -1, "by_operator": {}, "by_permanence": {}}
+            pv = pv + [("provenance", "distribution", str(exc), "")]
+        pv_ok = (not pv) and pv_plants
+        self.record("provenance", pv_ok,
+                    (f"the {dist['n']} recorded discoveries each carry an operator, a contradicted "
+                     f"representation, an evidence source, a repair and an OPERATIONAL permanence — "
+                     f"by operator {dist['by_operator']}, by permanence {dist['by_permanence']}. A "
+                     f"discovery claiming to have ELIMINATED a class or built a MECHANISM must name a "
+                     f"LIVE gate row that enforces it (checked against this run's rows), so a "
+                     f"class-elimination is a fact with a forbidder rather than an adjective; and the "
+                     f"check is proved to BITE four ways (a dead enforcer, an unenforced elimination, "
+                     f"a bad operator, a bad permanence all redden). The distribution is DERIVED here, "
+                     f"not narrated: recent discoveries are dominated by CONFIRMATION — the READ pass "
+                     f"finding modules already right, the convergence signal as a number"
+                     if pv_ok else
+                     ("provenance problems: "
+                      + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in pv[:4])
+                      if pv else "the provenance check did not bite a planted defect")))
 
 
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
