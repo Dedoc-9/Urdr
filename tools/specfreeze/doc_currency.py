@@ -199,7 +199,7 @@ def live_modules(root):
 # The exemption is FILE-scoped and narrow on purpose. Tightening the matcher to a proximity window
 # was the alternative and was rejected: it would trade a rule that is exact-but-coarse for one that
 # is approximate everywhere, and this session retired four heuristics for guessing at prose.
-_HISTORY = re.compile(r"^(spec/D5-ledger.*|LESSONS)\.md$")
+_HISTORY = re.compile(r"^(spec/D5-ledger.*|LESSONS|SURPRISES)\.md$")
 
 
 def _md_files(root):
