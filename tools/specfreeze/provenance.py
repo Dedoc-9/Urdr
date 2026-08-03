@@ -97,6 +97,11 @@ DISCOVERIES = (
        "(defect in cells) refusing regardless of the certificate, closing provbind's metadata-only lift attack, "
        "and the Kleene filtration is honestly graded forgeable — a one-sided screen, not integrity", "brief "
        "written", "CONFIRMATION"),
+    _d("read:layertheorem", "READ", "layertheorem",
+       "a potential-field reading: conservative circulation, monotone equipotential strata, its own type guard",
+       "the source refutes the field model — the seven 'layers' are ARCHITECTURAL roles and the theorem is "
+       "one-way authority flow (single source, outward, membrane/no-feedback), the Urðr certified instance of "
+       "the ANCESTRY principle, not a field-circulation claim", "brief written", "CONFIRMATION"),
 )
 
 
