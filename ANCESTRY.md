@@ -7,6 +7,11 @@ and the Ursprung `tre/` boundary work are **two projections of a single conserva
 objects. It is **recorded history and synthesis**, not a claim of new measured results. It **routes** the
 sibling's witnesses by grade and re-asserts none — the same routing discipline it describes. `declared ≠ verified`.
 
+> **Wider aperture.** This file is the `Ursprung ↔ Urðr` projection-pair in depth. The full four-repository
+> lineage it sits inside — `executable-epistemics → Dentatus → Ursprung → Urðr`, one conservation principle in
+> four projections, couplings verified against source — is in [`exe_epistemics/README.md`](exe_epistemics/README.md),
+> where the principle is named at its origin (Dentatus's *the field allocates attention, not truth*).
+
 ## Status / grade
 
 DESIGN + LINEAGE. No mechanism is built here. Every Ursprung result named below is graded **in Ursprung's own

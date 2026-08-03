@@ -199,7 +199,13 @@ def live_modules(root):
 # The exemption is FILE-scoped and narrow on purpose. Tightening the matcher to a proximity window
 # was the alternative and was rejected: it would trade a rule that is exact-but-coarse for one that
 # is approximate everywhere, and this session retired four heuristics for guessing at prose.
-_HISTORY = re.compile(r"^(spec/D5-ledger.*|LESSONS|SURPRISES|ANCESTRY)\.md$")
+# exe_epistemics/ is the executable-epistemics arc's HOME: its README is a dated external-repo
+# review (a record of the reference instrument as it stood when read, of the ANCESTRY species) and
+# PREDICTIONS is the pre-registration ledger (an append-only record of predictions frozen BEFORE the
+# READ). Both are history-class for the same reason the ledgers are: rewriting them to "stay current"
+# would falsify the record rather than update it.
+_HISTORY = re.compile(
+    r"^(spec/D5-ledger.*|LESSONS|SURPRISES|ANCESTRY|exe_epistemics/(PREDICTIONS|README))\.md$")
 
 
 def _md_files(root):
