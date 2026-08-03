@@ -88,11 +88,11 @@ DISCOVERIES = (
     _d("verify:storm-flink", "MEASURE", "storm_brief", "trust the module's Flink/DST characterization",
        "Carbone 2015 'effectively-once' confirms it; storm sharpens it to cross-host bytes",
        "cite the anchor precisely", "CONFIRMATION"),
-    _d("read:heightfield", "READ", "heightfield", "the most-depended-on hub module hides a defect",
+    _d("read:heightfield", "READ", "heightfield", "the most-depended-on hub is the likeliest carrier of a latent defect",
        "the T1 canon reads clean: exact-integer bytes, typed refusals, bool excluded on purpose, its own "
        "linear-fade non-vacuity plant, and terrain identity independent of presentation — the S11 datapoint",
        "brief written", "CONFIRMATION"),
-    _d("read:jurisdiction", "READ", "jurisdiction", "a structural authority joint hides a defect",
+    _d("read:jurisdiction", "READ", "jurisdiction", "admissibility attaches to the declaration a claim arrives with",
        "the joint holds AND already carries a graded authority-seam law: jurisdiction is a LATTICE predicate "
        "(defect in cells) refusing regardless of the certificate, closing provbind's metadata-only lift attack, "
        "and the Kleene filtration is honestly graded forgeable — a one-sided screen, not integrity", "brief "
@@ -102,6 +102,13 @@ DISCOVERIES = (
        "the source refutes the field model — the seven 'layers' are ARCHITECTURAL roles and the theorem is "
        "one-way authority flow (single source, outward, membrane/no-feedback), the Urðr certified instance of "
        "the ANCESTRY principle, not a field-circulation claim", "brief written", "CONFIRMATION"),
+    _d("read:opcost", "READ", "opcost",
+       "P1's frozen refutation risks: the cost seam is admission-in-disguise, or cost is a conserved invariant",
+       "the live rows measure both false — within_budget admits at/under and OPCOST-REFUSEs over (the budget "
+       "law), count <= bound STRICT on the wall scene (the envelope is non-vacuous), and the predicate input "
+       "is measured work, not canonical state; the first READ resolved against a frozen pre-registration "
+       "(P1: CONFIRMED-MODEL, the contamination note disclosed in the ledger)",
+       "brief written; P1 resolved in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

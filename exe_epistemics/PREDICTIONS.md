@@ -65,4 +65,41 @@ seam · `layertheorem` → propagation seam. Three post-hoc labels are a hypothe
 
 ## OBSERVED / RESOLVED — the delta ledger
 
-    (none yet — P1 awaits its blind READ)
+### P1 — resolved: **CONFIRMED-MODEL** (the frozen block above stays byte-intact as the witness)
+    read:             2026-08-03, the blind READ (Rung A). Classified from the LIVE gate rows and core
+                      law per the frozen success_rule — never from prose.
+    observed:         opcost's core law IS "cost <= envelope, refuse otherwise", as two inequalities:
+                      (1) ENVELOPE — glide_micro_count <= glide_micro_bound, STRICT on the wall scene
+                          (`opcost-bound`; the bound is non-vacuous, a wall witness);
+                      (2) BUDGET — within_budget(cost, budget) admits at/under the ceiling and raises a
+                          typed OPCOST-REFUSE over it (`opcost-budget`: "refuse, never overrun").
+                      Plus one structure the prediction did not anticipate: the WORK / WALL-CLOCK split —
+                      the certified half is the deterministic exact op-count (a pure function of input,
+                      byte-exact digests); wall-clock lives in bench.py, host-tagged, never gated. The
+                      seam certifies only the deterministic half of latency.
+    refutation risks: both named risks measured FALSE from the rows —
+                      (a) NOT admission-in-disguise: the predicate input is a measured resource quantity
+                          of the operation itself (an exact op-count), not canonical lattice state.
+                          jurisdiction refuses on WHERE truth lives; opcost refuses on HOW MUCH WORK the
+                          operation performs. Same refusal DISCIPLINE (typed, fail-closed), different
+                          measured object — a distinct seam, not the admission pattern repeating.
+                      (b) NOT conserved: cost is BOUNDED, not invariant — count < bound strictly when a
+                          wall bites. (Conservation appears downstream in govern: admitted + deferred ==
+                          all — a different quantity, actors not cost.)
+    delta:            none — CONFIRMED-MODEL; the residual_format goes unused, as designed.
+    outcome:          the COST seam exists as predicted. Seam labels now: representation / admission /
+                      propagation (post-hoc) + cost (PREREGISTERED, confirmed). Still a
+                      hypothesis-generator, not a basis — one preregistered confirmation and three
+                      post-hoc labels do not earn a seam taxonomy (L3).
+    contamination:    DISCLOSED — after the prediction text was frozen and gate-tested (2026-08-03
+                      ~19:43 UTC) but before the witness commit was pushed, a lineage chronology scan
+                      printed opcost's first-commit SUBJECT ("certified integer-work envelope +
+                      host-tagged wall-clock"), leaking the phrase "work envelope" into the session. The
+                      frozen text predates the leak (file mtime + session order); the commit witness
+                      ALONE would not prove that. Recorded per L1/L2: the leak is the immutable
+                      observation, the priority of the freeze is the interpretation. Rule forward: freeze
+                      commits land BEFORE any history scan of the target module.
+    law note:         the candidate Attentional-Epistemics law's UNLESS clause (a conserved gradient in
+                      unobserved regions) was bound to refutation risk (b) as its first discriminating
+                      test; (b) measured FALSE, so the law's first datapoint is NEGATIVE — no
+                      conserved-cost mechanism earned. The law stays stated-not-mechanized.

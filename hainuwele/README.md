@@ -173,7 +173,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`migrate.py`](../tools/terrain/migrate.py) | `URDRMIG1` | Authority migration as lease transfer (M2) | `migrate` | [test](../tests/test_migrate.py) | [conf](../tools/terrain/conformance_migrate.txt) | [brief](../docs/migrate_brief.md) |
 | [`nway.py`](../tools/terrain/nway.py) | `URDRNWY1` | N-way nullity + the independence lattice (M1) | `nway` | [test](../tests/test_nway.py) | [conf](../tools/terrain/conformance_nway.txt) | — |
 | [`oobprior.py`](../tools/terrain/oobprior.py) | `URDROOB1` | The out-of-band prior — closes the COLD-START residual | `oobprior` | [test](../tests/test_oobprior.py) | [conf](../tools/terrain/conformance_oobprior.txt) | [brief](../docs/oobprior_brief.md) |
-| [`opcost.py`](../tools/terrain/opcost.py) | `URDROPC1` | Certified integer-work envelope (T3.29, Stage H opener) | `opcost` | [test](../tests/test_opcost.py) | [conf](../tools/terrain/conformance_opcost.txt) | — |
+| [`opcost.py`](../tools/terrain/opcost.py) | `URDROPC1` | Certified integer-work envelope (T3.29, Stage H opener) | `opcost` | [test](../tests/test_opcost.py) | [conf](../tools/terrain/conformance_opcost.txt) | [brief](../docs/opcost_brief.md) |
 | [`panelight.py`](../tools/terrain/panelight.py) | `URDRPNL1` | THE WINDOWED LOOP (T3.52, V1) | `panelight` | [test](../tests/test_panelight.py) | [conf](../tools/terrain/conformance_panelight.txt) | — |
 | [`panewire.py`](../tools/terrain/panewire.py) | `URDRPNW1` | THE WIRED WINDOW (T3.53, V2) | `panewire` | [test](../tests/test_panewire.py) | [conf](../tools/terrain/conformance_panewire.txt) | — |
 | [`partition.py`](../tools/terrain/partition.py) | `URDRPRT1` | THE PARTITIONED MESH (M4) — the CP posture made executable | `partition` | [test](../tests/test_partition.py) | [conf](../tools/terrain/conformance_partition.txt) | [brief](../docs/partition_brief.md) |
@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **64 of 103 modules have no design brief — the centrality-ordered pass is working through the articulation joints: `heightfield` (T1, in-degree 28), `jurisdiction` (URDRJUR1, the lattice-predicate authority seam), and `layertheorem` (URDRISPL1, one-way authority flow across seven layers).**
+- **63 of 103 modules have no design brief — the centrality-ordered pass is working through the articulation joints: `heightfield` (T1, in-degree 28), `jurisdiction` (URDRJUR1, the lattice-predicate authority seam), `layertheorem` (URDRISPL1, one-way authority flow across seven layers), and `opcost` (URDROPC1, the certified work envelope — the first joint read blind against a frozen pre-registration, P1).**
   Eleven modules across the certificate arc (`inputset`, `cohort`, `autoroute`, `blindscreen`, `tilemin`) and
   the partition/authority arc (`partition`, `worldregion`, `chunkstate`, `chunkload`, `migrate`, `rannull`)
   were briefed this session; each now carries a `docs/<name>_brief.md` whose falsifier the gate ENFORCES
@@ -397,7 +397,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 64
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 63
 modules have no `docs/*_brief.md`. The certificate and partition/authority arcs have since been briefed
 (their falsifiers gate-enforced); the residual gap is the older substrate, and the D5 ledger still needs its
 entries. That debt is not cosmetic: the briefs are where the OODA
