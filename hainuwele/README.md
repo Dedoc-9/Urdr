@@ -152,7 +152,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`glide.py`](../tools/terrain/glide.py) | `URDRGLIDE1` | Continuous fixed-point movement (T3.18, Stage B) | `glide` | [test](../tests/test_glide.py) | [conf](../tools/terrain/conformance_glide.txt) | — |
 | [`govern.py`](../tools/terrain/govern.py) | `URDROPC2` | Per-tick work governor (T3.30) | `govern` | [test](../tests/test_govern.py) | [conf](../tools/terrain/conformance_govern.txt) | — |
 | [`hand.py`](../tools/terrain/hand.py) | `URDRHAND1` | Seamless cross-region authority handoff (T3.23) | `hand` | [test](../tests/test_hand.py) | [conf](../tools/terrain/conformance_hand.txt) | — |
-| [`heightfield.py`](../tools/terrain/heightfield.py) | `URDRHF1` | Deterministic integer heightfield canon (T1) | `terrain` | — | — | — |
+| [`heightfield.py`](../tools/terrain/heightfield.py) | `URDRHF1` | Deterministic integer heightfield canon (T1) | `terrain` | — | — | [brief](../docs/heightfield_brief.md) |
 | [`hitbox.py`](../tools/terrain/hitbox.py) | `URDRHIT1` | Server-authoritative hit validation (ACTIVE anti-cheat channel) | `hitbox` | [test](../tests/test_hitbox.py) | [conf](../tools/terrain/conformance_hitbox.txt) | [brief](../docs/hitbox_brief.md) |
 | [`horizon.py`](../tools/terrain/horizon.py) | `URDRLAT1` | Rollback-horizon reconcile window (T3.32) | `horizon` | [test](../tests/test_horizon.py) | [conf](../tools/terrain/conformance_horizon.txt) | — |
 | [`horn.py`](../tools/terrain/horn.py) | `URDRHRN1` | The Gabriel anchor ladder — rung count conserved, only the pitch changes | `horn` | [test](../tests/test_horn.py) | [conf](../tools/terrain/conformance_horn.txt) | — |
@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **67 of 103 modules have no design brief — and the newest arcs are no longer the whole of the gap.**
+- **66 of 103 modules have no design brief — and the gap is no longer only the newest arcs: `heightfield` (T1, the most-depended-on module) is the first older-substrate brief, read first under the centrality order.**
   Eleven modules across the certificate arc (`inputset`, `cohort`, `autoroute`, `blindscreen`, `tilemin`) and
   the partition/authority arc (`partition`, `worldregion`, `chunkstate`, `chunkload`, `migrate`, `rannull`)
   were briefed this session; each now carries a `docs/<name>_brief.md` whose falsifier the gate ENFORCES
@@ -397,7 +397,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 67
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 66
 modules have no `docs/*_brief.md`. The certificate and partition/authority arcs have since been briefed
 (their falsifiers gate-enforced); the residual gap is the older substrate, and the D5 ledger still needs its
 entries. That debt is not cosmetic: the briefs are where the OODA

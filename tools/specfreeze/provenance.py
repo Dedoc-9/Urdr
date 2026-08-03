@@ -88,6 +88,10 @@ DISCOVERIES = (
     _d("verify:storm-flink", "MEASURE", "storm_brief", "trust the module's Flink/DST characterization",
        "Carbone 2015 'effectively-once' confirms it; storm sharpens it to cross-host bytes",
        "cite the anchor precisely", "CONFIRMATION"),
+    _d("read:heightfield", "READ", "heightfield", "the most-depended-on hub module hides a defect",
+       "the T1 canon reads clean: exact-integer bytes, typed refusals, bool excluded on purpose, its own "
+       "linear-fade non-vacuity plant, and terrain identity independent of presentation — the S11 datapoint",
+       "brief written", "CONFIRMATION"),
 )
 
 
