@@ -109,6 +109,16 @@ DISCOVERIES = (
        "is measured work, not canonical state; the first READ resolved against a frozen pre-registration "
        "(P1: CONFIRMED-MODEL, the contamination note disclosed in the ledger)",
        "brief written; P1 resolved in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:terraform", "READ", "terraform",
+       "P2's frozen hypothesis: representation-equivalence is the WHOLE core law (chunked-apply == "
+       "monolith-apply, CAS-guarded)",
+       "the central row certifies the equivalence (edit == direct mutation byte-for-byte, exactly one "
+       "manifest slot moves) AND a half the prediction missed — anamnesis: parent and edited world "
+       "reassemble from ONE shared store, mint-never-mutate; the CAS stayed the guard (risk a did not "
+       "materialize) and ordering is structural in the chain row with commutation in the commute module "
+       "(risk b did not); the second blind READ under the freeze-before-history rule, resolved "
+       "CONFIRMED-MODEL with the under-prediction recorded",
+       "brief written; P2 resolved in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

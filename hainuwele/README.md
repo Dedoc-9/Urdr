@@ -200,7 +200,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`storecost.py`](../tools/terrain/storecost.py) | `URDRLAT4` | Snapshot-storage envelope (T3.35) | `storecost` | [test](../tests/test_storecost.py) | [conf](../tools/terrain/conformance_storecost.txt) | — |
 | [`storm.py`](../tools/terrain/storm.py) | `URDRSTM1` | Deterministic adversarial-transport loom (T3.48, W2) | `storm` | [test](../tests/test_storm.py) | [conf](../tools/terrain/conformance_storm.txt) | — |
 | [`stormprop.py`](../tools/terrain/stormprop.py) | `URDRSTP1` | Property-based falsifier for the storm's PREFIX PROPERTY | `stormprop` | [test](../tests/test_stormprop.py) | [conf](../tools/terrain/conformance_stormprop.txt) | — |
-| [`terraform.py`](../tools/terrain/terraform.py) | `URDRTFM1` | The mutable chunked world (T3.40) — the membrane's edit-law | `terraform` | [test](../tests/test_terraform.py) | [conf](../tools/terrain/conformance_terraform.txt) | — |
+| [`terraform.py`](../tools/terrain/terraform.py) | `URDRTFM1` | The mutable chunked world (T3.40) — the membrane's edit-law | `terraform` | [test](../tests/test_terraform.py) | [conf](../tools/terrain/conformance_terraform.txt) | [brief](../docs/terraform_brief.md) |
 | [`terrain_bridge.py`](../tools/terrain/terrain_bridge.py) | `URDROBJ2` | heightfield -> URDROBJ2 bridge (T2, the D14 admission rung) | `terrain` | — | — | — |
 | [`terrain_view.py`](../tools/terrain/terrain_view.py) | `URDRTVW1` | The D15 view-export FIREWALL (T3.0) | `terrain_view` | [test](../tests/test_terrain_view.py) | — | — |
 | [`testament.py`](../tools/terrain/testament.py) | `URDRTST1` | Durable intent (T3.44) — the write that survives its writer | `testament` | [test](../tests/test_testament.py) | [conf](../tools/terrain/conformance_testament.txt) | — |
@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **63 of 103 modules have no design brief — the centrality-ordered pass is working through the articulation joints: `heightfield` (T1, in-degree 28), `jurisdiction` (URDRJUR1, the lattice-predicate authority seam), `layertheorem` (URDRISPL1, one-way authority flow across seven layers), and `opcost` (URDROPC1, the certified work envelope — the first joint read blind against a frozen pre-registration, P1).**
+- **62 of 103 modules have no design brief — the centrality-ordered pass is working through the articulation joints: `heightfield` (T1, in-degree 28), `jurisdiction` (URDRJUR1, the lattice-predicate authority seam), `layertheorem` (URDRISPL1, one-way authority flow across seven layers), `opcost` (URDROPC1, the certified work envelope — the first joint read blind against a frozen pre-registration, P1), and `terraform` (URDRTFM1, the membrane's edit-law on the mutable world — the second blind read, P2, under the freeze-before-history rule).**
   Eleven modules across the certificate arc (`inputset`, `cohort`, `autoroute`, `blindscreen`, `tilemin`) and
   the partition/authority arc (`partition`, `worldregion`, `chunkstate`, `chunkload`, `migrate`, `rannull`)
   were briefed this session; each now carries a `docs/<name>_brief.md` whose falsifier the gate ENFORCES
@@ -397,7 +397,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 63
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 62
 modules have no `docs/*_brief.md`. The certificate and partition/authority arcs have since been briefed
 (their falsifiers gate-enforced); the residual gap is the older substrate, and the D5 ledger still needs its
 entries. That debt is not cosmetic: the briefs are where the OODA

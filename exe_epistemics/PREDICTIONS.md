@@ -160,3 +160,34 @@ seam · `layertheorem` → propagation seam. Three post-hoc labels are a hypothe
                       unobserved regions) was bound to refutation risk (b) as its first discriminating
                       test; (b) measured FALSE, so the law's first datapoint is NEGATIVE — no
                       conserved-cost mechanism earned. The law stays stated-not-mechanized.
+
+### P2 — resolved: **CONFIRMED-MODEL** (frozen block above byte-intact; the under-prediction recorded)
+    read:             2026-08-03, the second blind READ (Rung C). Classified from the LIVE `terraform*`
+                      rows per the frozen success_rule — never from prose.
+    observed:         the central row (`terraform-edit`, the module's namesake "membrane's edit-law")
+                      certifies the predicted equivalence: an edit equals the DIRECT MUTATION
+                      byte-for-byte, and moves EXACTLY the containing chunk's manifest slot
+                      (☿-locality). Plus a half the prediction did not anticipate: ANAMNESIS — an edit
+                      never mutates in place; it mints a new chunk record + manifest, and BOTH the
+                      parent and the edited world reassemble bit-for-bit from ONE shared store.
+                      Identity-by-address; "an address, not an undo". The CAS (stale parent /
+                      old-height, typed TERRAFORM-REFUSE) is the GUARD, exactly as predicted; the chain
+                      law (replay == head, order structural) and the certified blast radius live in
+                      `terraform-chain`; the refusal battery in `terraform-refuse`.
+    refutation risks: neither materialized — (a) the CAS is a guard row, not the central law; (b)
+                      ordering is structural inside the chain row, and commutation proper is the
+                      separate `commute` module, already briefed.
+    delta:            none under the frozen rule (neither (a) nor (b) occurred; the central row
+                      certifies the equivalence). Honest note: the hypothesis captured the CORRECTNESS
+                      half of the ☿-law and missed the PERSISTENCE half (anamnesis / structural
+                      sharing) — recorded as unanticipated structure, the P1 pattern repeating: both
+                      blind predictions so far were right about the law and blind to one structural
+                      dimension of it.
+    outcome:          CONFIRMED-MODEL. Census: 2 preregistered resolutions (cost, representation), both
+                      confirmed; representation now holds 1 preregistered + 1 post-hoc member
+                      (heightfield). Still below L3's bar — independent PREREGISTERED recurrence per
+                      family — so no taxonomy and no promotion.
+    contamination:    none — the freeze-before-history rule (L59) was applied structurally: the target
+                      was selected from import LINES alone, no git command touched it before the freeze,
+                      and the only pre-exposure was the role prose + nway's secondhand citation, both
+                      DISCLOSED in the frozen provenance.
