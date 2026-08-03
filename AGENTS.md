@@ -337,7 +337,7 @@ of a fresh `Gate`. A licence to make no claim is still a claim about the harness
 
 Measured, so nobody has to guess: `--only autoroute` is 17.5s, `--only autoroute --diff` is 51.1s
 (the baseline is a SECOND real execution of the stage in a fresh worktree — the diff is not free),
-and it covers 8 of the gate's 853 rows against 579s for the two required passes. That is ~1% of the
+and it covers 8 of the gate's 854 rows against 579s for the two required passes. That is ~1% of the
 rows for ~9% of the cost. Its value is not coverage; it is that it answers the question a dev loop
 actually asks — *did my edit move this stage, and in what way* — nine minutes before the gate does.
 
@@ -462,7 +462,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 1987 unit falsifiers / 853 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 1987 unit falsifiers / 854 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

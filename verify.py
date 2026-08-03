@@ -3271,11 +3271,12 @@ class Gate:
             import doc_currency as DC
             import provenance as PV
             import genesis as GN
+            import claimclass as CC
         except Exception as exc:  # pragma: no cover - import guard
             self.record("doc-currency", False, f"import failed: {exc}")
             self.record("doc-currency-selftest", False, "checker did not load")
             return
-        N_OWN = 8  # rows THIS method records below — keep == the record() count
+        N_OWN = 9  # rows THIS method records below — keep == the record() count
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
                               len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
@@ -3480,6 +3481,42 @@ class Gate:
                      ("formulated-from problems: "
                       + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in ff[:4])
                       if ff else "the formulated-from check did not bite a planted defect")))
+
+        # ---- claim-class-registry: L56/L57 mechanized — a type checker for evidence relations ----
+        # Each relation declares its epistemic CLASS and the row that ENFORCES it; each enforcing row
+        # declares which CAPABILITIES it certifies. The registry validates DECLARATIONS, never infers
+        # them: the class is in the live enum, the enforcer is a live row, and the row certifies NO
+        # MORE than the class admits. That last check is 'integrity is not truth' made mechanical — a
+        # HISTORICAL relation may not advertise the EQUIVALENCE guarantee only a DERIVED one earns.
+        try:
+            reg_rows = frozenset(n for n, _o, _d in self.rows) | live_rows
+            cc = CC.registry_problems(reg_rows)
+            cc_plants = CC.plants_bite(reg_rows)
+            cc_dist = CC.distribution()
+        except Exception as exc:
+            cc, cc_plants = [("claimclass", "error", str(exc), "")], False
+            cc_dist = {"relations": -1, "classes": -1, "capabilities": -1, "by_class": {}}
+        cc_ok = (not cc) and cc_plants
+        self.record("claim-class-registry", cc_ok,
+                    (f"L56/L57 mechanized — a TYPE CHECKER for the evidence graph's {cc_dist['relations']} "
+                     f"relations, not a claim-understander. Each relation declares its epistemic CLASS "
+                     f"and the row that ENFORCES it, and each enforcing row declares which CAPABILITIES "
+                     f"it certifies; by class {cc_dist['by_class']}. Only OBJECTIVE facts are checked "
+                     f"and no class is ever inferred: the declared class is one of the {cc_dist['classes']} "
+                     f"live classes, the enforcer is a LIVE row, and the row certifies NO MORE than the "
+                     f"class admits — a lattice of {cc_dist['capabilities']} permissible guarantees whose "
+                     f"top check is 'integrity is not truth' made mechanical, since a HISTORICAL relation "
+                     f"may not advertise the EQUIVALENCE guarantee only a DERIVED one earns. Proved to "
+                     f"BITE five ways: declaring PREDICTIVE today reddens (which is HOW the class stays "
+                     f"WITHHELD until its first instance), and a dead enforcer, an overclaiming "
+                     f"capability, an unknown capability, and an enforcer declaring none all redden. The "
+                     f"class is orthogonal to the mechanism: a new derivation for REQUIRES or richer "
+                     f"metadata on FORMULATED_FROM would not touch this registry, which validates the "
+                     f"CONTRACT, never the implementation"
+                     if cc_ok else
+                     ("claim-class-registry problems: "
+                      + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in cc[:4])
+                      if cc else "the claim-class registry did not bite a planted defect")))
 
 
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
