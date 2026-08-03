@@ -32,6 +32,14 @@ Urðr is two things at once:
 The reproducibility spine is the whole point. Do not add anything that can make an
 admitted result non-reproducible.
 
+Urðr is standalone but not un-fathered: the discipline it runs on — grade every
+claim, `declared ≠ verified`, integrity is not truth, refuse structure ahead of
+evidence — is inherited from the Ursprung `tre/` boundary work, its sibling. That
+lineage, and the single conservation principle the two projects project onto
+different objects (Urðr governs *how much* certainty a claim may inherit; `tre/`
+governs *where* a claim may come into existence), is recorded in
+[`ANCESTRY.md`](ANCESTRY.md) — append-only lineage, exempt from the prose checkers.
+
 ---
 
 ## 2. The stack (layers)
