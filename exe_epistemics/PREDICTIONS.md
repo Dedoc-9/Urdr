@@ -63,6 +63,63 @@ seam · `layertheorem` → propagation seam. Three post-hoc labels are a hypothe
                       OBSERVED→SURPRISE transition emits — so the blind READ has zero ambiguity in shape.
     witness:          the git commit introducing this row — dated before opcost.py is read.
 
+### P2 — `terraform`
+    state:            PREREGISTERED
+    target:           terraform — the highest-in-degree briefless joint (import in-degree 9). SELECTION
+                      PROCEDURE (the P1 contamination rule, applied): in-degree computed by scanning
+                      IMPORT LINES only across tools/terrain; module bodies unread; NO git-history scan
+                      of the target before this freeze.
+    provenance:       role-only. terraform is known to this session as: (i) AGENTS.md roles — "the CAS
+                      edit record" (the WRITE CALCULUS) and "the neutral monolith oracle"; (ii) the index
+                      line "The mutable chunked world (T3.40) — the membrane's edit-law"; and (iii)
+                      DISCLOSED secondhand exposure: nway's brief (written earlier this session) cites
+                      terraform as the independent lift used for nway's shard-head == global-head
+                      cross-check. terraform.py itself and its git history are UNREAD.
+    hypothesis:       a REPRESENTATION-EQUIVALENCE seam: the core law is chunked-apply ≡ monolith-apply
+                      (world identity independent of chunking — the heightfield pattern lifted from
+                      static terrain to the MUTABLE world), guarded by a CAS admission check (an edit is
+                      admitted iff its declared parent address matches canonical state).
+    refutation risks: named in advance — (a) ADMISSION-dominant: the CAS parent-address predicate IS the
+                      core law (the jurisdiction pattern on versions), with equivalence merely its test
+                      harness; (b) PROPAGATION: the core law is edit commutation / ordering across chunks
+                      (the commute family's object), not representation.
+    success_rule:     classify terraform's core seam from its LIVE gate rows and core law (the
+                      `terraform*` rows), never from prose. CONFIRMED-MODEL iff the central row certifies
+                      chunked ≡ monolith equivalence; a SURPRISE (residual recorded) if the central row
+                      is the CAS admission predicate (a) or a commutation/ordering law (b).
+    residual_format:  if SURPRISE — (predicted: representation-equivalence; observed: <actual core law>;
+                      delta: <admission (a) | propagation (b)>). Observed half immutable, label revisable.
+    witness:          the git commit introducing this row — dated before terraform.py is read, and before
+                      any history scan of it.
+
+## THEOREM CANDIDATES — stated, with executable witnesses
+
+### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
+    statement:        (1) SATISFIABILITY — a seam constraint system admits a perfect head-free strategy
+                      iff it is globally satisfiable (Cleve–Mittal); the canonical head achieves 1 on
+                      every satisfiable system by publishing the global section. (2) GAP — for an
+                      unsatisfiable system the head-free value is exactly computable and < 1; the head
+                      still achieves 1 by constructing a PER-ROUND LOCAL SECTION (it never needs the
+                      global one). (3) AUDIT — on a declared head-free run, an observed rate above the
+                      exact bound convicts an undeclared channel from the scoreboard alone.
+    measured (T1):    magic-square seam — 0/512 global sections, 9/9 context pairs locally satisfiable;
+                      head-free value EXACTLY 8/9 (4096 deterministic pairs enumerated, 144 optimal);
+                      head-ful 9/9; audit plant bites both directions (honest 8/9 not convicted,
+                      covert-channel 9/9 convicted). MEASURED — exhaustive, deterministic, rerun
+                      byte-identical: PYTHONHASHSEED=0 python exe_epistemics/seamgame.py
+    measured (T3):    N-party parity seam, N=2..5 — head-free values 1, 3/4, 3/4, 5/8, each EXACT and
+                      equal to the known classical bound 1/2 + 2^-ceil(N/2); the head holds 1 at every N.
+                      The worldscale reading: the seed-only ceiling FALLS as shards multiply; the
+                      canonical head's margin grows. MEASURED, same witness.
+    preregistered (T2): expectation — Urðr's LIVE seams (nway / geoquorum / worldregion seam2) are
+                      globally SATISFIABLE constraint systems (the CORE exists and publishes the
+                      section), so clause (3) has no live unsatisfiable seam to police. Deferred to its
+                      own rung; if a live seam measures UNSATISFIABLE, that is an architectural surprise
+                      worth its own S-row.
+    promotion rule:   W1 stays stated-not-gated (L58) until a live head-free seam run exists for the
+                      audit clause to police. The witness is executable today; the gate row is earned by
+                      a real seam, not by the plant.
+
 ## OBSERVED / RESOLVED — the delta ledger
 
 ### P1 — resolved: **CONFIRMED-MODEL** (the frozen block above stays byte-intact as the witness)
