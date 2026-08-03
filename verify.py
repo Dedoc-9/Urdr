@@ -3270,11 +3270,12 @@ class Gate:
         try:
             import doc_currency as DC
             import provenance as PV
+            import genesis as GN
         except Exception as exc:  # pragma: no cover - import guard
             self.record("doc-currency", False, f"import failed: {exc}")
             self.record("doc-currency-selftest", False, "checker did not load")
             return
-        N_OWN = 7  # rows THIS method records below — keep == the record() count
+        N_OWN = 8  # rows THIS method records below — keep == the record() count
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
                               len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
@@ -3446,6 +3447,39 @@ class Gate:
                      ("provenance problems: "
                       + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in pv[:4])
                       if pv else "the provenance check did not bite a planted defect")))
+
+        # ---- formulated-from: the evidence graph's first AUTHORED relation (the genesis rung) ----
+        # A theorem linked to the observation(s) it was formulated from: lattice-depth <- S9, S10,
+        # navigable both ways. It is the ONE relation that cannot be derived — motivation is history,
+        # not a property of any artifact — so the gate keeps it INTEGRAL, never TRUE: well-formed,
+        # mutual, and citing only observations the ledger actually holds. Chronology is emergent (an
+        # append-only ledger cannot cite an observation it has not recorded), not a parallel mechanism.
+        try:
+            obs_ids = GN.observation_ids(ROOT)
+            ff = GN.formulated_problems(live_rows, obs_ids)
+            ff_plants = GN.plants_bite(live_rows, obs_ids)
+        except Exception as exc:
+            obs_ids, ff, ff_plants = frozenset(), [("genesis", "error", str(exc), "")], False
+        ff_edges = sorted(f"{t}<-{','.join(sorted(GN.observations_of(t), key=lambda s: int(s[1:])))}"
+                          for t in GN.FORMULATED_FROM)
+        ff_ok = (not ff) and ff_plants
+        self.record("formulated-from", ff_ok,
+                    (f"the evidence graph's first AUTHORED relation — genesis edges linking a theorem "
+                     f"to the observation(s) it was formulated from ({'; '.join(ff_edges)}), navigable "
+                     f"in both directions and drawn from the {len(obs_ids)} recorded observations. "
+                     f"THREE invariants and only three: every cited theorem is a live gate row, every "
+                     f"cited observation is a live SURPRISES row, and the forward and reverse views "
+                     f"describe ONE identical edge set (symmetry) — proved to BITE three ways (a "
+                     f"missing theorem, a missing observation, an asymmetric reverse view all redden). "
+                     f"INTEGRITY IS NOT TRUTH here and the row says so: motivation cannot be derived "
+                     f"from an artifact, so the gate certifies the edge is well-formed and points at "
+                     f"real recorded observations — never that S9/S10 are the true or sole cause. "
+                     f"SUPPORTED_BY and TESTED_BY are withheld until a second support or a registered "
+                     f"prediction exists, so the schema stays exactly as large as its demonstrated rank"
+                     if ff_ok else
+                     ("formulated-from problems: "
+                      + "; ".join(f"{a} {b} {c}!={d}" for a, b, c, d in ff[:4])
+                      if ff else "the formulated-from check did not bite a planted defect")))
 
 
     # -- 2m5. rigidity verdict: exact observability of canonical objects -------
