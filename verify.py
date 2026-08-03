@@ -214,6 +214,7 @@ STAGE_ORDER = (
     "spec_freeze",
     "rejections",
     "tamper",
+    "lattice",
     "doc_currency",
 )
 
@@ -3170,6 +3171,79 @@ class Gate:
                     "the harder kind to notice"
                     if pl_ok else "an edgeattr plant did not bite")
 
+
+    def lattice(self):
+        """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
+        because they have different lifetimes: (1) a LIVE structural theorem — depth(REQUIRES) <= 13,
+        re-derived each run from the import graph and the sealed coverage partition, proved for all 92
+        law modules though only 79 have enumerated out-edges; (2) a SEALED historical snapshot — the
+        221-edge severance measurement at a named commit, bound by a digest over edges AND coverage,
+        durable evidence rather than a live claim; (3) a LIVE mechanism conformance — a severance
+        corpus + plants proving the instrument still catches a false edge and broken support, without
+        pretending to reproduce the 439s sweep. NOT gated: the edge count, the articulation set, the
+        hub degrees — snapshot results that legitimately drift; gating them would freeze the
+        architecture rather than verify it."""
+        sdir = os.path.join(ROOT, "tools", "specfreeze")
+        if sdir not in sys.path:
+            sys.path.insert(0, sdir)
+        try:
+            import lattice as LAT
+            snap = LAT.load()
+        except Exception as exc:
+            self.record("lattice-depth", False, f"lattice checker did not load: {exc}")
+            self.record("lattice-snapshot", False, "checker did not load")
+            self.record("lattice-conformance", False, "checker did not load")
+            return
+        D = snap["depth_ceiling"]
+        n_law = len(snap["eligible_laws"]) + len(snap["excluded_laws"])
+        try:
+            d_ok, d_probs = LAT.depth_proof()
+        except Exception as exc:
+            d_ok, d_probs = False, [("error", str(exc))]
+        self.record("lattice-depth", d_ok,
+                    (f"LIVE theorem, re-derived from the import graph: max REQUIRES depth <= {D} for "
+                     f"ALL {n_law} law modules though only {len(snap['eligible_laws'])} have enumerated "
+                     f"out-edges. Proved mechanically each run: every enumerated edge lies inside "
+                     f"transitive imports; the enumerated lattice's longest chain equals {D}; no "
+                     f"excluded or dynamically-wired module lies on any import chain longer than {D}, "
+                     f"and each excluded module's import-depth is below {D}, so an unswept module "
+                     f"cannot host a deeper chain; the coverage partition still covers every current "
+                     f"scene_result law; the dynamic modules are withheld. REQUIRES subset "
+                     f"transitive-imports bounds the chain, so this holds without the 439s sweep"
+                     if d_ok else
+                     "depth proof failed: " + "; ".join(f"{a}:{b}" for a, b in d_probs[:4])))
+        try:
+            s_ok, s_probs = LAT.snapshot_integrity()
+        except Exception as exc:
+            s_ok, s_probs = False, [("error", str(exc))]
+        self.record("lattice-snapshot", s_ok,
+                    (f"SEALED historical measurement at commit {snap['source_commit']} under protocol "
+                     f"'{snap['algorithm']}': the 79-law sweep produced {snap['n_edges']} REQUIRES "
+                     f"edges, bound by a digest over edges AND the coverage partition (a changed "
+                     f"eligible/excluded set under the old digest reddens). Coverage: {snap['coverage']}. "
+                     f"Its claim is HISTORICAL — this measurement happened — never that these are the "
+                     f"CURRENT graph; a sampled re-check cannot prove no unsampled edge changed, so the "
+                     f"edge set is archived and digest-checked, not re-derived live"
+                     if s_ok else
+                     "snapshot integrity failed: " + "; ".join(f"{a}:{b}" for a, b in s_probs[:4])))
+        try:
+            c_ok, c_probs = LAT.conformance()
+            p_ok, p_probs = LAT.plants_bite()
+        except Exception as exc:
+            c_ok, p_ok, c_probs, p_probs = False, False, [("error", str(exc))], []
+        self.record("lattice-conformance", c_ok and p_ok,
+                    "LIVE mechanism conformance: a pinned corpus of severance cases re-derived this "
+                    "run reproduces its REQUIRES verdicts (a direct and a deep-transitive requirement "
+                    "MOVE the law; a cross-family and a foundational non-edge do NOT), the corpus is "
+                    "non-vacuous (both polarities present), and the instrument is proved to BITE seven "
+                    "ways — an invented edge, a removed edge, a dynamic module falsely declared "
+                    "closure-safe, a changed coverage set under the sealed digest, a wrong depth "
+                    "ceiling, a deep module wrongly excluded, and the identity-wide alias control "
+                    "agreeing with setattr-only (S8) — so the severance mechanism still works without "
+                    "rerunning the whole measurement"
+                    if c_ok and p_ok else
+                    "conformance/plants failed: "
+                    + "; ".join(f"{a}:{b}" for a, b in (c_probs + p_probs)[:4]))
 
     def doc_currency(self):
         """The tracked docs must quote the LIVE counts — docs must match reality
