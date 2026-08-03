@@ -159,7 +159,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`interest.py`](../tools/terrain/interest.py) | `URDRAOI1` | Deterministic Area-of-Interest relevance (T3.21, Stage C) | `interest` | [test](../tests/test_interest.py) | [conf](../tools/terrain/conformance_interest.txt) | — |
 | [`inputset.py`](../tools/terrain/inputset.py) | `URDRINP1` | Which inputs determine a quantity — the arc-wide state-versus-path classifier, decided by witness | `inputset` | [test](../tests/test_inputset.py) | [conf](../tools/terrain/conformance_inputset.txt) | [brief](../docs/inputset_brief.md) |
 | [`lagcomp.py`](../tools/terrain/lagcomp.py) | `URDRLAG1` | Temporal lag-compensation for hit validation | `lagcomp` | [test](../tests/test_lagcomp.py) | [conf](../tools/terrain/conformance_lagcomp.txt) | [brief](../docs/lagcomp_brief.md) |
-| [`jurisdiction.py`](../tools/terrain/jurisdiction.py) | `URDRJUR1` | The Kleene fixed point — four predicates are one object, and filtration is a SCREEN | `jurisdiction` | [test](../tests/test_jurisdiction.py) | [conf](../tools/terrain/conformance_jurisdiction.txt) | — |
+| [`jurisdiction.py`](../tools/terrain/jurisdiction.py) | `URDRJUR1` | The Kleene fixed point — four predicates are one object, and filtration is a SCREEN | `jurisdiction` | [test](../tests/test_jurisdiction.py) | [conf](../tools/terrain/conformance_jurisdiction.txt) | [brief](../docs/jurisdiction_brief.md) |
 | [`latencyest.py`](../tools/terrain/latencyest.py) | `URDRLES1` | Latency estimator feeding clock-authority | `latencyest` | [test](../tests/test_latencyest.py) | [conf](../tools/terrain/conformance_latencyest.txt) | [brief](../docs/latencyest_brief.md) |
 | [`layertheorem.py`](../tools/terrain/layertheorem.py) | `URDRISPL1` | Integer Scalar Potential Layer Theorem (T3.22) | `layertheorem` | [test](../tests/test_layertheorem.py) | [conf](../tools/terrain/conformance_layertheorem.txt) | — |
 | [`liveness.py`](../tools/terrain/liveness.py) | `URDRLIV1` | Denial versus outage — the crashed-slow indistinguishability, authenticated to clockauth | `liveness` | [test](../tests/test_liveness.py) | [conf](../tools/terrain/conformance_liveness.txt) | — |
@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **66 of 103 modules have no design brief — and the gap is no longer only the newest arcs: `heightfield` (T1, the most-depended-on module) is the first older-substrate brief, read first under the centrality order.**
+- **65 of 103 modules have no design brief — the centrality-ordered pass is working through the articulation joints: `heightfield` (T1, in-degree 28), then `jurisdiction` (URDRJUR1, the lattice-predicate authority seam).**
   Eleven modules across the certificate arc (`inputset`, `cohort`, `autoroute`, `blindscreen`, `tilemin`) and
   the partition/authority arc (`partition`, `worldregion`, `chunkstate`, `chunkload`, `migrate`, `rannull`)
   were briefed this session; each now carries a `docs/<name>_brief.md` whose falsifier the gate ENFORCES
@@ -397,7 +397,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 66
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 65
 modules have no `docs/*_brief.md`. The certificate and partition/authority arcs have since been briefed
 (their falsifiers gate-enforced); the residual gap is the older substrate, and the D5 ledger still needs its
 entries. That debt is not cosmetic: the briefs are where the OODA

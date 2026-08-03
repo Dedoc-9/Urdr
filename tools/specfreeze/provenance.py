@@ -92,6 +92,11 @@ DISCOVERIES = (
        "the T1 canon reads clean: exact-integer bytes, typed refusals, bool excluded on purpose, its own "
        "linear-fade non-vacuity plant, and terrain identity independent of presentation — the S11 datapoint",
        "brief written", "CONFIRMATION"),
+    _d("read:jurisdiction", "READ", "jurisdiction", "a structural authority joint hides a defect",
+       "the joint holds AND already carries a graded authority-seam law: jurisdiction is a LATTICE predicate "
+       "(defect in cells) refusing regardless of the certificate, closing provbind's metadata-only lift attack, "
+       "and the Kleene filtration is honestly graded forgeable — a one-sided screen, not integrity", "brief "
+       "written", "CONFIRMATION"),
 )
 
 
