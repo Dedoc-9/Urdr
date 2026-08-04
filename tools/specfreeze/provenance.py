@@ -247,6 +247,35 @@ DISCOVERIES = (
        "same once-valid frame admits at its own pose, refuses at the advanced one — replay by "
        "construction); weights B-M 0.73 / B-A' 0.27; meta not-M-1 stands 13 for 13",
        "brief written; P14 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:panelight", "READ", "panelight",
+       "P15 (batch 3): view-firewall vs idle-economy centrality — which of the V-phase opener's laws "
+       "is the law",
+       "C-AB, three laws in three rows with no single center: INTERACTIVE == BATCH (the tick transcript "
+       "equals glide_cells bit-for-bit — playing it and folding it agree, the trust theorem of the "
+       "visible world), the ACCUMULATOR (alpha bounded; total ticks conserve time; each input consumed "
+       "EXACTLY ONCE with refusal on shortfall; the DECOUPLING law — render cadence never moves the "
+       "authority) and the INTERPOLATION FIREWALL (the witness over tick poses only — D15 on time); the "
+       "second consecutive v_D zero CLOSED run 4 here",
+       "brief written; P15 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:wardhom", "READ", "wardhom",
+       "P16 (post-closure): equivalence-vs-invariant centrality for the stated identity",
+       "C-EQ — wardhom-tie certifies warden.betti0 (union-find) == URDRPD1 F2-rank beta0 on every pinned "
+       "world including the 16x16 barrier, with the F2 computation CROSS-PLACED (Python == C99 == Rust, "
+       "digest bit-for-bit) and non-vacuity pinned in the topology itself (barrier beta0=3, cliff 2, "
+       "flat 1; the defect mode inflates beta0 and moves the digest) — the neutral-oracle pattern at the "
+       "anti-cheat's foundation",
+       "brief written; P16 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:ashdepth", "READ", "ashdepth",
+       "P17 (post-closure): floor-gate vs measurement centrality for the vacuity floor",
+       "C-FLOOR — and the handed-down design REFUTED by measurement: soundness NEVER breaks under "
+       "coarsening (0 unsound at every level; the proposed coarse-end k* passes vacuously at maximum "
+       "burn), so the guarded bound is INVERTED to k_min (the fast path must still distinguish "
+       "something), with VacuityError instead of quiet zeros and EMPTY_CORPUS pinned as a tripwire; the "
+       "module names the arc's characteristic-failure law after its fourth appearance — wrong answers "
+       "are rare, empty answers are common, and an empty answer is indistinguishable from a correct one "
+       "unless something asserts non-emptiness; approximation-axis CONTENT without the frozen R-O "
+       "trigger — the letter-vs-spirit question recorded for checkpoint 4",
+       "brief written; P17 resolved C-FLOOR in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

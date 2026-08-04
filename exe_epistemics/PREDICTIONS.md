@@ -1066,6 +1066,61 @@ it. Meta predicts ¬M-1 on all three (13 for 13). The suspended instrument makes
                       B-M:    C-FLOOR 35 · C-MEAS 20 · C-AB 30 · C-INV 5 · R-O 10
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P15 — resolved: **C-AB** · RUN 4 CLOSES HERE (second consecutive zero, after P14)
+    observed:         panelight ADDS three laws, certified in three rows — no single center:
+                      `panelight-equiv` (INTERACTIVE == BATCH: the tick transcript equals
+                      glide_cells BIT-FOR-BIT on a pure-move log — the theorem that lets a live
+                      game be trusted: playing it and folding it agree), `panelight-accum` (the
+                      integer-ms accumulator: alpha always in range; total ticks == floor(Σdt/TICK)
+                      — no time lost or invented; each input consumed EXACTLY ONCE; and the
+                      DECOUPLING law — two dt-logs with the same total ticks land the IDENTICAL
+                      authority witness: render cadence never moves the authority), and
+                      `panelight-firewall` (D15 on TIME: the witness is over tick poses only,
+                      invariant to the frame schedule; interpolation smooths the view, never the
+                      transcript). Weights unchanged (equal 30s); Briers ~0.65 all.
+    unnamed (M-0):    exactly-once as a refusal (a schedule short of the input refuses — no silent
+                      skip); the fixed-timestep anchoring (Source/Overwatch); the mints-nothing
+                      composition (glide._fold_from clocked, not reimplemented).
+
+### P16 — resolved (post-closure): **C-EQ** — the stated identity, certified
+    observed:         `wardhom-tie`: warden.betti0 (union-find) == URDRPD1 F2-rank β₀ on every
+                      pinned world including the 16×16 barrier — two independent methods, one
+                      invariant; and the F2 computation is CROSS-PLACED (Python == C99 == Rust,
+                      digest bit-for-bit). The neutral-oracle equivalence central, as everyone
+                      predicted (B-A′ 50 best; weights drift to ~0.71/0.29).
+    unnamed (M-0):    β₁ (independent cycles) certified alongside; the non-vacuity pins (barrier
+                      β₀=3, cliff β₀=2, flat β₀=1 — genuinely different topology the digest must
+                      separate); the URDRPD1 defect mode (dropping the rank subtraction inflates
+                      β₀ and moves the digest).
+
+### P17 — resolved (post-closure): **C-FLOOR** — and the handed-down design REFUTED by measurement
+    observed:         `ashdepth-law`: SOUNDNESS NEVER BREAKS as an abstraction coarsens (coarsening
+                      is strictly more conservative by level monotonicity — 0 unsound at every
+                      level) — so the proposed coarse-end guard k* passes VACUOUSLY at maximum burn,
+                      the exact point it was built to catch. THE INVERSION is the rung: the bound
+                      worth guarding is k_min (the finest level at which α still DISTINGUISHES
+                      something — fast path non-empty), guarded by a floor gate that refuses below
+                      it, with `VacuityError` raised rather than a zero quietly returned and
+                      EMPTY_CORPUS pinned as a hard tripwire asset. The module names the arc's
+                      characteristic-failure LAW after its FOURTH appearance: "wrong answers are
+                      rare and empty answers are common, and an empty answer is indistinguishable
+                      from a correct one unless something asserts non-emptiness."
+    axis tension (recorded for checkpoint 4): ashdepth is APPROXIMATION-AXIS CONTENT through and
+                      through (the precision/vacuity structure of the frontier/disjoint Galois
+                      stack) — but the frozen mint trigger was "an R-O with approximation content",
+                      and this resolved C-FLOOR. The letter is unmet; the spirit is a second
+                      sighting. The trigger is NOT bent mid-run; checkpoint 4 adjudicates the
+                      letter-vs-spirit question with both facts on the table. Note the resonance:
+                      the vacuity law is ALSO the interface instrument's fate (starved of events —
+                      an empty answer read as consistency) and W1's plant discipline.
+    tournament:       weights after the batch: w(B-M) = 0.68, w(B-A′) = 0.32 (P16 and P17 both
+                      mildly favored the challenger's sharper pricing). Meta ¬M-1: 16 for 16.
+    census:           run 4 CLOSED at P15; the batch completed post-closure. CHECKPOINT 4 fires
+                      next over NINETEEN read joints, inheriting: the approximation letter-vs-
+                      spirit question, the scheduling axis still at one sighting, the vacuity law
+                      as a cross-cutting candidate, and a tournament at 0.68/0.32 with the
+                      promoted basis unbeaten on discriminations but outpriced twice.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
