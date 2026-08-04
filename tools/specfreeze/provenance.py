@@ -128,6 +128,16 @@ DISCOVERIES = (
        "meta-prediction resolved INDETERMINATE by its own terms — its outcome partition was incomplete, "
        "the exhaustive-partition rule now queued for P4's freeze",
        "brief written; P3 resolved LOCAL-SURPRISE in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:warden", "READ", "warden",
+       "P4's frozen hypothesis under the first exhaustive outcome partition: claim-admission with typed "
+       "refusal, beta_0 as derived support for trajectory-checking",
+       "the core law held exactly (admit-or-typed-refuse, 4/4 sub-codes; honest walk and glide admit) and "
+       "P3's residual used PREDICTIVELY held too — warden refuses CLAIMS where stance measures WALKS; the "
+       "unnamed structure (meta M-0): beta_0 is not support but a SECOND ORTHOGONAL certificate refusing "
+       "BARE POSITION claims from the component structure alone, no trajectory to inspect — the fourth "
+       "blind READ, the first decidable second-order verdict, the first residual->prediction->confirmation "
+       "loop",
+       "brief written; P4 resolved W-C0 / meta M-0 in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

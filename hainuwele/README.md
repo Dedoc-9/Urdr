@@ -211,7 +211,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`traj.py`](../tools/terrain/traj.py) | `URDRTRAJ1` | Certified TRAJECTORY OBSERVER (T3.12) | `traj` | [test](../tests/test_traj.py) | [conf](../tools/terrain/conformance_traj.txt) | — |
 | [`view_witness.py`](../tools/terrain/view_witness.py) | `URDRTVW1` | The citation contract (T3.6) — the declared view must CITE | `view_witness` | [test](../tests/test_view_witness.py) | — | — |
 | [`voxlat.py`](../tools/terrain/voxlat.py) | `URDRVOX1` | The certified integer voxel lattice (S1) — clz LCA depth, attained 4*B^3 | `voxlat` | [test](../tests/test_voxlat.py) | [conf](../tools/terrain/conformance_voxlat.txt) | — |
-| [`warden.py`](../tools/terrain/warden.py) | `URDRWARD1` | Structural anti-cheat (T3.24, Stage E opener) | `warden` | [test](../tests/test_warden.py) | [conf](../tools/terrain/conformance_warden.txt) | — |
+| [`warden.py`](../tools/terrain/warden.py) | `URDRWARD1` | Structural anti-cheat (T3.24, Stage E opener) | `warden` | [test](../tests/test_warden.py) | [conf](../tools/terrain/conformance_warden.txt) | [brief](../docs/warden_brief.md) |
 | [`wardhom.py`](../tools/terrain/wardhom.py) | `URDRWARDH1` | Warden beta0 IS certified F2-homology beta0, cross-placed (T3.27) | `wardhom` | [test](../tests/test_wardhom.py) | [conf](../tools/terrain/conformance_wardhom.txt) | — |
 | [`wavefield.py`](../tools/terrain/wavefield.py) | `URDRWAV1` | Exact division-free traveling-wave field (T3.3) | `wavefield` | [test](../tests/test_wavefield.py) | — | — |
 | [`wire.py`](../tools/terrain/wire.py) | `URDRWIR1` | EQUAL-OR-REFUSE REPLICATION (T3.47, wire-phase opener) | `wire` | [test](../tests/test_wire.py) | [conf](../tools/terrain/conformance_wire.txt) | — |
@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **61 of 103 modules have no design brief — the centrality-ordered pass is working through the articulation joints: `heightfield` (T1, in-degree 28), `jurisdiction` (URDRJUR1, the lattice-predicate authority seam), `layertheorem` (URDRISPL1, one-way authority flow across seven layers), `opcost` (URDROPC1, the certified work envelope — the first joint read blind against a frozen pre-registration, P1), `terraform` (URDRTFM1, the membrane's edit-law on the mutable world — the second blind read, P2, under the freeze-before-history rule), and `stance` (URDRSTANCE1, the grounded step law — P3, the ledger's first preregistered residual: refuse ≠ measure).**
+- **60 of 103 modules have no design brief — the centrality-ordered pass is working through the articulation joints: `heightfield` (T1, in-degree 28), `jurisdiction` (URDRJUR1, the lattice-predicate authority seam), `layertheorem` (URDRISPL1, one-way authority flow across seven layers), `opcost` (URDROPC1, the certified work envelope — the first joint read blind against a frozen pre-registration, P1), `terraform` (URDRTFM1, the membrane's edit-law on the mutable world — the second blind read, P2, under the freeze-before-history rule), `stance` (URDRSTANCE1, the grounded step law — P3, the ledger's first preregistered residual: refuse ≠ measure), and `warden` (URDRWARD1, structural anti-cheat — P4, the residual's first predictive success: claims refuse, walks measure).**
   Eleven modules across the certificate arc (`inputset`, `cohort`, `autoroute`, `blindscreen`, `tilemin`) and
   the partition/authority arc (`partition`, `worldregion`, `chunkstate`, `chunkload`, `migrate`, `rannull`)
   were briefed this session; each now carries a `docs/<name>_brief.md` whose falsifier the gate ENFORCES
@@ -397,7 +397,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 61
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 60
 modules have no `docs/*_brief.md`. The certificate and partition/authority arcs have since been briefed
 (their falsifiers gate-enforced); the residual gap is the older substrate, and the D5 ledger still needs its
 entries. That debt is not cosmetic: the briefs are where the OODA

@@ -304,3 +304,37 @@ seam · `layertheorem` → propagation seam. Three post-hoc labels are a hypothe
                       rule's five-joint decision.
     contamination:    none — L59 applied (import lines only; the freeze commit predates the READ and
                       any history scan; role prose was the only declared exposure).
+
+### P4 — resolved: **W-C0, CONFIRMED-MODEL** · meta: **M-0, the first second-order confirmation**
+    read:             2026-08-04, the fourth blind READ (Rung E). Classified from the LIVE `warden*`
+                      rows under the run's first EXHAUSTIVE outcome partition — the verdict is
+                      decidable by construction, and it decided.
+    observed:         the predicted core law holds exactly: a claimed trajectory or position is
+                      ADMITTED or typed-REFUSED — "reconstruct-or-refuse turned against the cheater."
+                      An honest walk and an honest glide admit (`warden-kinematic`); a wall-climbing
+                      step is WARD-TUNNEL, a diagonal or >2-cell jump WARD-TELEPORT; the refusal
+                      battery is total and typed (`warden-refusal`: 4/4 sub-codes under one
+                      WARD-REFUSE code). P3's residual, used PREDICTIVELY in this freeze, held:
+                      warden polices CLAIMS and refuses; stance measures WALKS and never does. The
+                      question/answer split has its first predictive success.
+    unnamed structure (the M-0 half): the hypothesis framed β₀ as derived SUPPORT for
+                      trajectory-checking. The rows show it is a SECOND, ORTHOGONAL CERTIFICATE for a
+                      different claim TYPE: `admit_position` refuses a BARE POSITION claim from the
+                      component structure alone — no trajectory to inspect — "the cheat a per-tick
+                      replay cannot cheaply catch" (`warden-topological`: β₀ = 3, structural,
+                      non-vacuous). Kinematic certifies claimed PATHS; topological certifies claimed
+                      STATES. Also unnamed: the one-code/four-sub-codes refusal attribution, and the
+                      undirected (mutual-reachability) boundary with directed reachability deferred.
+    residual:         none — W-C0; the residual_format goes unused. Risks R1 (measure-not-refuse) and
+                      R2 (reachability-central) both measured FALSE; R3 (the catch-all) unneeded —
+                      but its EXISTENCE is what made the verdict total (L60).
+    secondary (META): M-0 — the resolution is W-C0 AND unnamed structure surfaced. The meta predicted
+                      outcome ∈ {M-0, M-2} (¬M-1: no blind prediction in this run lands perfectly
+                      clean); M-0 occurred. The first DECIDABLE second-order verdict, and it is a
+                      confirmation: the missed-dimension signature is now 4 for 4.
+    outcome:          census: 4 preregistered resolutions — cost CONFIRMED, representation CONFIRMED,
+                      admission-of-walks → LOCAL-SURPRISE (refuse ≠ measure), admission-of-claims
+                      CONFIRMED. One freeze remains (P5), then the stopping rule's five-joint
+                      decision. The run's first residual→prediction→confirmation loop closed this
+                      rung (n=1 — noted, not promoted; L3).
+    contamination:    none — L59, fifth application; the freeze commit predates the READ.
