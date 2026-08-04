@@ -366,6 +366,41 @@ DISCOVERIES = (
        "met: B-A'' RETIRES and the tournament collapses to B-M' sole; second consecutive triple zero "
        "CLOSED run 7; meta 24 for 24",
        "brief written; P26 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:priogov", "READ", "priogov",
+       "P27 (batch 7, the convergence-gating joint): certified-priority-ORDER vs govern-variant "
+       "centrality for the priority governor",
+       "C-ORD - priogov-priority-fair certifies a CERTIFIED priority order (fresh: top priority served "
+       "tick 1, lowest last, a priority-ordered PREFIX where no lower jumps a deferred higher) plus "
+       "NO-STARVATION (aging: effective priority = base + age_step*wait, every actor served <= N ticks), "
+       "with priogov-never-overrun (govern's cost law preserved) and a single-over-budget OPCOST-REFUSE; "
+       "the digest binds the served schedule so the ORDER is MEASURED not a policy knob. THE FROZEN MINT "
+       "CONDITION FIRES: govern (P10, carrier 1) + priogov (carrier 2) reach the two-carrier bar - THE "
+       "SCHEDULING AXIS MINTS, the arc's SECOND minted seam family after approximation; v_D=1",
+       "brief written; P27 resolved C-ORD, scheduling axis MINTS in exe_epistemics/PREDICTIONS.md",
+       "CONFIRMATION"),
+    _d("read:recirc", "READ", "recirc",
+       "P28: soundness-of-absence vs fixed-point-invariant centrality for the Kleene recirculation",
+       "C-FLOOR - recirc refutes two attached claims and both INVERT: (1) gamma.alpha is a closure "
+       "operator so idempotent BY THE ADJUNCTION - the Kleene iteration is ONE step for every input "
+       "(step counts 1,1,1,1,1,1,0,0), the count a CONSTANT that cannot encode a per-capture defect; "
+       "(2) the closure is COARSER so 400 raw sets collapse to 5 fixed points and an honest capture "
+       "collides with a doctored one - fixed-point equality is a STRICTLY WEAKER integrity check that "
+       "would raise false negatives on geoquorum's omission attack. THERE IS NO LOOP - forward-only is "
+       "sound, the residue a terminal hand-off; the ashdepth inversion (P17) recurring, a second "
+       "vacuity carrier (v_D=0); dangerous-elegance watched not minted",
+       "brief written; P28 resolved C-FLOOR in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:slo", "READ", "slo",
+       "P29 (run 8 closes): composite-latency-BOUND vs composition-equivalence centrality for the SLO",
+       "C-PRICE - slo composes the Stage-H arc into ONE certified worst-case number: slo-composition "
+       "(worst_case == admission_wait + rollback window, an EXACT identity), slo-soundness "
+       "(admission_wait UPPER-BOUNDS the governor's actual drain - a sound over-approximation, the "
+       "number a real guarantee) and slo-refuse (an over-target config is SLO-REFUSE, a promise kept or "
+       "declined never broken); the cost/latency family's FOURTH instance (opcost, horizon, govern, "
+       "slo), touching the approximation axis a fourth time; uses the FIFO uniform bound NOT priogov's "
+       "order so NOT a scheduling carrier (v_D=0). run-8 v_D=1,0,0 CLOSES run 8; CONVERGENCE DECLARED "
+       "(single-basis, caveated); meta 27 for 27",
+       "brief written; P29 resolved C-PRICE, convergence declared in exe_epistemics/PREDICTIONS.md",
+       "CONFIRMATION"),
 )
 
 

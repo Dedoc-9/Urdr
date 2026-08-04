@@ -1554,6 +1554,115 @@ Run-8 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on all three (24 
                       the composite == the composed worst-cases), C-EQ; else C-PRICE.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P27 — resolved: **C-ORD** — the SCHEDULING AXIS MINTS · the arc's second minted seam family
+    read:             2026-08-04, the blind READ (run 8, the convergence-gating joint). Classified from
+                      the LIVE `priogov*` gate rows per the frozen partition — never from prose.
+    observed:         `priogov` certifies a CERTIFIED PRIORITY ORDER, not a govern-variant. The rows:
+                      `priogov:scenes` (three schedules reproduce URDROPC3 digests); `priogov-never-
+                      overrun` (every admitted tick's work <= budget across budgets a..5a — govern's
+                      cost law, preserved); `priogov-priority-fair` (the NEW law: with fresh priorities
+                      the top actor is served tick 1 and the lowest last, a priority-ordered PREFIX
+                      where no lower jumps a deferred higher; and NO-STARVATION — aging raises effective
+                      priority = base + age_step*wait without bound, so every actor is served in <= N
+                      ticks); `priogov-refuse` (a single over-budget actor is a hard OPCOST-REFUSE). The
+                      `priogov_digest` binds the per-actor served schedule, so a defect in the ORDER
+                      moves it — the order is MEASURED, not an uncertified policy knob.
+    mint:             THE FROZEN MINT CONDITION FIRES. priogov admits work in a CERTIFIED ORDER
+                      (priority provably honoured: top served tick 1, digest-bound) with a BOUNDED WAIT
+                      (<= N via aging) — distinct from opcost's cost-ENVELOPE (a bound on total work)
+                      and govern's CONSERVATION (admitted + deferred == all). govern (P10, carrier 1,
+                      the scheduling sighting) + priogov (carrier 2, the certified-order carrier) reach
+                      the TWO-CARRIER bar the approximation axis was held to (checkpoint 4). **THE
+                      SCHEDULING AXIS MINTS — the arc's SECOND minted seam family after approximation.**
+                      v_D = 1.
+    unnamed (M-0):    priority-buys-ORDER-never-EXCLUSION (aging converts a priority preference into a
+                      liveness guarantee — structural, not a tuned anti-starvation patch); the
+                      clean-PREFIX discipline (a non-fitting actor STOPS the tick, it is not skipped for
+                      a lower one — the schedule stays a priority prefix, not a budget-filling packing).
+
+### P28 — resolved: **C-FLOOR** — "there is no loop"; the ashdepth inversion, a second vacuity carrier
+    read:             2026-08-04, the blind READ (run 8). Classified from the LIVE `recirc*` rows.
+    observed:         `recirc` refutes TWO claims attached to an elegant proposal, and both INVERT. The
+                      rows: `recirc:scenes` (closure/collapse/plants/salvage reproduce URDRRCC1
+                      digests); `recirc-law` (extensive + monotone + IDEMPOTENT — γ∘α is a closure
+                      operator by the adjunction, so the Kleene iteration reaches its fixed point in AT
+                      MOST ONE STEP for every input: step counts 1,1,1,1,1,1,0,0, a CONSTANT that cannot
+                      encode a per-capture defect; AND the COLLAPSE — 400 distinct raw capture-sets to 5
+                      fixed points, an honest capture and a doctored one with a single obligation
+                      dropped sharing the SAME closure); `recirc-selftest` (the plants bite: the
+                      step-count-as-defect is constant, and fixed-point equality conflates the
+                      honest/doctored pair raw equality distinguishes). The salvage (refine the LEVEL
+                      when the iteration stalls) is genuinely multi-step, bounded by the level ladder and
+                      floored at ashdepth's k_min.
+    class:            C-FLOOR — the soundness-of-absence result: THERE IS NO LOOP. The elegant
+                      recirculation collapses to a single forward step (idempotence) AND closing it
+                      would be DANGEROUS (fixed-point equality is a strictly WEAKER integrity check,
+                      raising false negatives on the omission attack geoquorum catches). The absence of
+                      a loop is the correct architecture; the residue is a terminal hand-off, not a
+                      queue. The ashdepth pattern (P17) recurring — a handed-down elaboration refuted by
+                      measurement, the empty answer made non-vacuous by MEASURING that the loop would
+                      HARM. v_D = 0: a second vacuity carrier (strengthens L61), does not mint.
+    unnamed (M-0):    the DANGEROUS-ELEGANCE observation (the more-principled-looking check is a
+                      regression) — a candidate to WATCH (like C-SPLIT), not a mint: it is the arc's
+                      measurement-refutes-seduction method, not a distinct seam family (L3).
+
+### P29 — resolved: **C-PRICE** — the Stage-H latency closer; the cost family's fourth instance · RUN 8 CLOSES
+    read:             2026-08-04, the blind READ (run 8). Classified from the LIVE `slo*` rows.
+    observed:         `slo` composes the Stage-H arc into ONE certified worst-case number. The rows:
+                      `slo:scenes` (meets/tight/fails reproduce URDRLAT2 digests); `slo-composition`
+                      (worst_case_latency == admission_wait + rollback window — the two bounded parts,
+                      an EXACT identity); `slo-soundness` (admission_wait UPPER-BOUNDS the governor's
+                      actual drain over a config corpus — a SOUND over-approximation, so the number is a
+                      real guarantee, not an optimistic estimate — and a within-target config admits);
+                      `slo-refuse` (an over-target config is SLO-REFUSE: a promise is kept or declined,
+                      never broken).
+    class:            C-PRICE — a composite worst-case latency BOUND with a refuse, the cost/latency
+                      family's FOURTH preregistered instance (opcost, horizon, govern, slo). Two
+                      supporting characters, neither minting: the composition is an EXACT identity
+                      (C-EQ-flavored assembly — worst_case == the sum of its two bounded parts), and the
+                      soundness is the APPROXIMATION axis touched a fourth time (admission_wait ⊇ actual
+                      drain). slo uses the FIFO governor's UNIFORM bound, NOT priogov's per-class order
+                      (stated in its does_not_show) — so it is NOT a scheduling-ORDER carrier. v_D = 0.
+    census:           run-8 v_D = 1, 0, 0 (P27 MINTS the scheduling axis; P28/P29 no new family) — RUN 8
+                      CLOSES. Meta ¬M-1: 27 for 27 (each of the three surfaced unanticipated structure —
+                      priogov's liveness-from-aging, recirc's dangerous-elegance, slo's approximation
+                      touch the frozen partition did not name). The scheduling axis is the arc's SECOND
+                      minted seam family, and B-A″ retired at P26 — so BOTH frozen convergence blockers
+                      are now cleared.
+
+## CONVERGENCE — DECLARED (single-basis, honestly caveated): the frozen conditions fired
+
+The two frozen blockers checkpoint 6 and checkpoint 7 named are both cleared, by RULE not fiat:
+  (1) B-A″ RETIRED at P26 — its dual condition fired (≥ 3 consecutive losing discriminations AND
+      w < 0.20). Sole surviving basis: B-M′ ("input × semantics").
+  (2) The SCHEDULING AXIS MINTED at P27 — govern (carrier 1) + priogov (carrier 2) reached the
+      two-carrier bar, the same bar the approximation axis met at checkpoint 4.
+
+The discovery engine has reached a FIXED POINT under its own frozen rules: a stable working basis
+(B-M′), a seam-family taxonomy with TWO members earned by independent preregistered recurrence
+(approximation, scheduling), and a meta signature 27-for-27 (¬M-1: no blind prediction lands perfectly
+clean — the missed-dimension law held across the whole run). **CONVERGENCE IS DECLARED.**
+
+THE HONEST CAVEATS, carried in the declaration, never traded away:
+  * SINGLE-BASIS. B-A″'s retirement means NO live rival remains to falsify B-M′; single-basis
+    convergence is STRICTLY WEAKER than rival-tested convergence (L61 — an answer nothing can
+    contradict is cheap). The DEFERRED strengthening is a fresh adversarial challenger, generated to
+    attack B-M′ on its own axes; it is NOT built speculatively (L58), and until it exists the
+    convergence is provisional against exactly that.
+  * A SMALL TAXONOMY. Two minted families is convergence of the ENGINE (it has stopped surfacing new
+    families under the frozen selector at this cadence), NOT a claim that the Urðr architecture is
+    fully mapped. Modules remain unread; the selector will keep proposing joints, and a future READ
+    that mints a THIRD family would REOPEN the engine — the convergence is falsifiable by its own
+    continued operation.
+  * WHAT CONVERGED. The DISCOVERY ENGINE converged, not the arc. The claim, MEASURED and gradable:
+    reading modules in frozen-selector order, under a single surviving basis, no longer changes the
+    basis or the family set — the predictions have become routine confirmations (the 27-for-27 meta).
+    That is all that is claimed.
+
+The engine does not stop; it changes PHASE. Post-convergence, further READs are CONFIRMATIONS under
+B-M′ until either a third family mints (reopening discovery) or the deferred challenger is built
+(re-arming the tournament). Both are frozen, decidable, and unbuilt — recorded, not performed.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
