@@ -1121,6 +1121,65 @@ it. Meta predicts ¬M-1 on all three (13 for 13). The suspended instrument makes
                       as a cross-cutting candidate, and a tournament at 0.68/0.32 with the
                       promoted basis unbeaten on discriminations but outpriced twice.
 
+## CHECKPOINT 4 — over NINETEEN read joints (2026-08-04): the approximation axis MINTS; both bases mutate
+
+**Test A — replay (20 modules):** B-A′ THREE exceptions (stance semantics; govern scheduling;
+frontier approximation). B-M ONE exception — frontier: the approximation axis is now B-M's ONLY
+gap. Both fail the zero bar; B-M's failure is a single pointer.
+**Test B:** both pass (B-M forward wins P8/P14; B-A′ wins P7/P9 and out-priced P16/P17).
+**Test C:** unique families 1,2,3,3,4,…,5(P8),…,6(P13) → G(17) = 6/17 ≈ 0.35, decreasing at the
+tail (6/15, 6/16, 6/17); runs 2–4 each closed on double zeros. Passes. **Test D:** four instances.
+
+**THE APPROXIMATION MINT — adjudicated MINTED.** The frozen trigger ("an R-O with approximation
+content") was met once by the letter (frontier, P13) and once by the spirit (ashdepth, P17: a
+C-FLOOR resolution whose entire subject is the abstraction stack's precision/vacuity structure).
+L3's real requirement is independent recurrence of CONTENT, and the trigger's letter was a proxy
+drafted too narrowly — recorded as a drafting lesson: FUTURE TRIGGERS NAME CONTENT, NOT OUTCOME
+CLASSES. Two independent carriers ⇒ the axis mints:
+    lineage: B-M → B-M′   appeared: approximation joins the input-family axis {representation ·
+             admission · propagation · cost · approximation}. disappeared: nothing.
+             REPLAY: ZERO exceptions over all twenty modules (frontier now classifies:
+             approximation × invariant + composition). Forward obligation inherited.
+    lineage: B-A′ → B-A″  the challenger takes the same repair (its frontier exception clears;
+             stance and govern remain — 2 exceptions). The tournament stays two-sided.
+    weights: inherited (additive mutation, no retroactive prediction change): B-M′ 0.68, B-A″ 0.32.
+**THE VACUITY RULE — adopted as a freeze requirement** (ashdepth's law lifted to the epistemic
+layer, first application at the batch-4 freeze below): every scoring instrument or prediction
+names its STARVATION MODE — what event stream feeds it, and that a starved resolution reads
+STARVED, never confirmed. The interface instrument's fate is the motivating instance; a LESSONS
+row waits for the rule's second application. **Scheduling axis:** still one sighting; holds.
+
+## BATCH 4 FREEZE — P18 + P19 + P20 (all sealed before any READ)
+
+**Batch rules**: as before (order auditgraph → cpredict → driftgaze; run-5 v_D starts fresh).
+Vacuity rule applied: each scoring resolution below must either cite non-empty censuses or read
+STARVED. Meta predicts ¬M-1 on both scoring joints (16 for 16).
+
+### P18 — `auditgraph` (SCORING) — role: "The exclusion price (kappa) — all-pairs is the only
+    unbreakable audit topology" (URDRAGR1); ambient disclosed: liveness's docstring ("auditgraph
+    priced undetected equivocation at kappa — converting an invisible INTEGRITY attack into a
+    visible AVAILABILITY one") and the ladder ("the server BUILDS the audit graph, so matchmaking
+    is the attack surface"). Body and history UNREAD.
+    partition:        C-PRICE (the κ bound central — the cost pattern on equivocation) · C-INV
+                      (a structural topology theorem central — all-pairs as the unique unbreakable
+                      audit graph) · C-AB · R-M · R-O.
+    credences:        author: C-PRICE 30 · C-INV 25 · C-AB 30 · R-M 5 · R-O 10
+                      B-A″:   C-PRICE 40 · C-INV 20 · C-AB 30 · R-M 3 · R-O 7
+                      B-M′:   C-PRICE 30 · C-INV 30 · C-AB 30 · R-M 3 · R-O 7
+### P19 — `cpredict` (NON-SCORING — contamination declared: horizon's read exposed
+    reconcile/reconstruct and the δ = 0 byte-exact property; the core law is effectively known).
+    Read for the brief pass; watched: the suffix-replay economy and the localization law.
+### P20 — `driftgaze` (SCORING) — role: "Interest shift (T3.50, W4) — the client that MOVES"
+    (URDRDGZ1); ambient disclosed: wire DEFERRED interest shift here ("chunkload's verified fetch
+    is the mechanism, the policy is operational"). Body and history UNREAD.
+    partition:        C-R (shift-admission central: regions acquired by verified fetch, releases
+                      typed — police) · C-CONS (a resident-set coverage/conservation invariant
+                      central) · C-AB · R-M · R-O.
+    credences:        author: C-R 30 · C-CONS 25 · C-AB 30 · R-M 5 · R-O 10
+                      B-A″:   C-R 35 · C-CONS 25 · C-AB 30 · R-M 3 · R-O 7
+                      B-M′:   C-R 30 · C-CONS 30 · C-AB 30 · R-M 3 · R-O 7
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
