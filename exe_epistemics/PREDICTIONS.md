@@ -92,6 +92,42 @@ seam · `layertheorem` → propagation seam. Three post-hoc labels are a hypothe
     witness:          the git commit introducing this row — dated before terraform.py is read, and before
                       any history scan of it.
 
+### P3 — `stance`
+    state:            PREREGISTERED
+    target:           stance — the highest-in-degree briefless joint (import in-degree 7). Selection per
+                      L59: in-degree from import LINES only, bodies unread, NO history scan of the
+                      target before this freeze.
+    provenance:       role-only — (i) the index line "The grounded step law (T3.9)" (URDRSTANCE1);
+                      (ii) AGENTS.md: the movement-chain opener (`stance` → `gaze` → `drive` → `traj`),
+                      named with "sprint gating by terrain, stride gaits, stance checks,
+                      walk-through-wall detection (`stance`/`drive`/`glide`, the warden family)".
+                      stance.py and its git history are UNREAD.
+    hypothesis:       an ADMISSION seam instance — the first preregistered test of a seam family
+                      RECURRING: the core law is a per-step admissibility predicate evaluated against
+                      canonical terrain (grounded: the step's height transition within a bound), with a
+                      typed refusal for ungrounded / wall-crossing steps. The jurisdiction pattern
+                      (admissibility from canonical state, never from the claimant) applied to
+                      locomotion.
+    refutation risks: named in advance — (a) REPRESENTATION: the central row is an equivalence /
+                      digest-canon law (stance as a derived canon reproducing pinned digests), not an
+                      admissibility predicate; (b) COST-or-COMPOSITION: the central row is a stride/gait
+                      envelope (the opcost pattern on movement) or a chain-composition law binding
+                      stance to its downstream consumers.
+    success_rule:     classify stance's core seam from its LIVE gate rows and core law (the `stance*`
+                      rows), never from prose. CONFIRMED-MODEL iff the central row certifies a
+                      step-admissibility predicate over terrain state with typed refusal; a SURPRISE
+                      (residual recorded) if the central row is (a) or (b).
+    secondary:        META, frozen with this row — the P1/P2 signature recurs: the resolution will
+                      CONFIRM the predicted core law AND surface >=1 structural dimension the
+                      hypothesis did not name. Falsified two ways: a clean (a)/(b) surprise (primary
+                      wrong), or a total confirmation with NO unanticipated structure (meta wrong).
+                      First second-order prediction in the ledger: the prediction process itself under
+                      test.
+    residual_format:  if SURPRISE — (predicted: step-admission; observed: <actual core law>;
+                      delta: <representation (a) | cost/composition (b)>). Observed half immutable.
+    witness:          the git commit introducing this row — dated before stance.py is read, before any
+                      history scan of it.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
