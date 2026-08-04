@@ -1937,7 +1937,449 @@ reads STARVED if it fails.
 parsing the frozen vectors from this ledger rather than from any hand-copied table, rerun
 byte-identical. **VERDICT: recorded in the resolution block below, written only after the run.**
 
+### CHECKPOINT 9 — resolved: **Δ_null > 0** — the incumbent carries EARNED predictive value
+
+    run:              2026-08-04, after the spec commit. Integer Brier (/10⁸ units), 22 joints.
+    verdict:          **Δ_null = null − incumbent = 1 889 667 650 − 1 336 458 804 = +553 208 846 > 0.**
+                      By the frozen partition this is branch one: **the incumbent carries earned
+                      predictive value over class frequencies.** The apparent convergence is NOT
+                      largely class-prior exploitation — the branch the preregistration named as the
+                      one that would have forced a re-grade of checkpoint 7's predictive leg.
+    panel (never one scalar): per-joint sign count **incumbent won 15, lost 7, tied 0** — so the total
+                      is not an outlier artifact; it is carried by a majority of joints.
+                      Leading-class accuracy: **incumbent 15/22, null 4/22.**
+                      Losses (the seed of the next rung's error corpus): P11, P12, P13, P15, P20,
+                      P26, P30.
+    THE PREREGISTRATION'S OWN CLAIM, FALSIFIED — recorded because it was wrong in this ledger's
+                      favour-checking direction: the spec asserted the catch-all mapping "bites at
+                      least once — P21 resolved C-SPLIT, a class its own partition never named."
+                      **It never bit.** P21's frozen partition DID name C-SPLIT (vector: C-SPLIT 35 ·
+                      C-AB 35 · C-R 20 · R-M 3 · R-O 7), and across all 22 joints the catch-all fired
+                      ZERO times. The rule stays frozen and correctly implemented; the factual
+                      parenthetical was simply false, and it is corrected here rather than edited out
+                      of the spec (the ledger is append-only; a freeze is refuted by a successor,
+                      never rewritten — the L23→L24 pattern). Consequence, stated because it cuts the
+                      right way: the anti-incumbent safeguard cost the incumbent NOTHING, so the
+                      favourable verdict is not an artifact of a lenient mapping.
+    calibration — the finding that matters for the next rung: the incumbent's mean maximum
+                      probability is **0.380** while its leading class is right **15/22 = 0.68**. The
+                      basis is **systematically UNDERCONFIDENT**: it is substantially more accurate
+                      than it claims to be. Its Brier is therefore beatable WITHOUT any new
+                      structural insight — a pure sharpening of the frozen vectors would improve it.
+                      That is a structured, mechanical residual, and it is the first direct evidence
+                      that the engine's errors are PREDICTABLE rather than noise.
+    sharpness:        incumbent 0.380, null 0.357 — the two are close, so the incumbent's advantage
+                      comes from being RIGHT, not from being bolder. (A basis can beat a null by
+                      confidence alone; this one did not.)
+    data quality:     TWO frozen vectors do not sum to 100 — P22 and P23 both sum to 95. They are
+                      normalized by their own totals and REPORTED rather than silently repaired; the
+                      defect is in the frozen record and stays visible there.
+    non-vacuity (L61): more than one observed class occurs, and the corpus is asserted
+                      ASSEMBLED-BY-RULE-ONLY by the witness (`corpus_is_by_rule` → True), so no joint
+                      was admitted or dropped case-by-case.
+    what this does NOT establish, stated at the same volume as the verdict:
+                      * NO SIGNIFICANCE. n = 22, retrospective. The numbers are DESCRIPTIVE; calling
+                        this difference significant would be the inflation the ledger refuses (L20).
+                      * NOT a blind test. The outcomes were known when the spec was written; only the
+                        DEGREES OF FREEDOM were protected. Strictly weaker than an L59 freeze.
+                      * NOT a validation of Urðr. This measures the DISCOVERY ENGINE's predictions,
+                        not the arc's correctness.
+                      * NOT a rival. Beating a null is a floor, not a tournament — L62's whole point
+                        is that clearing the floor and having no live rival are different facts, and
+                        both remain true simultaneously.
+    convergence status: the review's two legs are now BOTH addressed — structural saturation (three
+                      consecutive triple-zero runs, two minted families) and **predictive adequacy
+                      above the null (measured here)**. The declaration stands, still single-basis,
+                      and now with its predictive leg evidenced rather than assumed. The underconfidence
+                      finding is the honest crack in it: a basis that is beatable by sharpening alone
+                      has residual structure left to harvest.
+    next (frozen):    Rung 2 — the ERROR SURFACE. Build `prediction_residuals.py`: a canonical,
+                      byte-identical residual table over the 22 joints carrying, per joint, the frozen
+                      vector, observed class, both Brier losses, leading-class hit, first-to-second
+                      margin, whether unnamed structure appeared, and the mechanical error TYPE
+                      (ranking / support / partition / resolution / calibration miss). The seven
+                      recorded losses and the measured underconfidence are its first content. Only
+                      after that table exists — and only if a frozen predictor of the engine's own
+                      misses beats a null — does a synthesis operator earn existence (L58).
+
+## CHECKPOINT 10 — the ORBIT SCALAR, researched: one disproof, one confirmation, NOT adopted
+
+A reviewer proposed pairing the structural cost H = (R,F,D,C) with an ORBIT-RETURN scalar
+Ω_t = min_{j<t−ℓ} d(S_t,S_j) over S_t = (𝓑_t, Π_t, 𝓡_t, 𝓜_t), plus a predictive-gain scalar
+G_t = L_null − L_engine, combining into a STERILE-ORBIT detector: the engine returns near an earlier
+organizational state AND has not improved against the null. The motivating question is exactly the one
+this ledger could not answer after three triple-zero runs — **predictive fixed point, or single-basis
+orbit with no available opponent?** Witness: `orbitprobe.py` (stdlib-only, rerun byte-identical).
+
+**FINDING 1 — Ω AS SPECIFIED IS DEGENERATE HERE. A disproof, not a preference.** This ledger is
+APPEND-ONLY by L2: a freeze is never rewritten and a resolution never retracted. So for every j < t,
+𝓡_j ⊂ 𝓡_t and 𝓜_j ⊆ 𝓜_t, hence d_R = |𝓡_t \ 𝓡_j| = the joints resolved between them ≥ 3 per batch.
+Therefore
+
+    Ω_t ≥ 3(ℓ+1) > 0 for all t — the scalar can NEVER return to zero,
+
+and since d_R grows strictly with distance, the minimizing j is ALWAYS the most recent admissible one.
+**Ω_t measures ELAPSED BATCHES, not recurrence** — a clock wearing a topologist's clothes. The defect
+is in the STATE VECTOR, not the idea: a return detector may not contain monotone-accumulating
+components. THE REPAIR, stated and NOT built: define the state over the non-accumulating
+CONFIGURATION — the multiset of error TYPES (not instances), live-basis identity/count, the minted
+family SET, and the calibration shape. Return becomes possible then, because "sole basis,
+underconfident, v_D=0, error-types {ranking, ranking, clean}" is a configuration that CAN recur.
+
+**FINDING 2 — THE PROPOSAL'S PREMISE IS CONFIRMED BY MEASUREMENT.** Per-batch G, computed from the
+checkpoint-9 corpus under the same frozen proper score (G/joint, /10⁸ units):
+
+    b1 3.5M(—) · b2 10.1M(v_D=1) · b3 35.2M(1) · b4 8.5M(0) · b5 48.7M(0) · b6 21.8M(0) ·
+    b7 48.9M(1) · b8 11.7M(0)
+
+Across the three consecutive triple-zero runs G/joint is **21.8M → 48.9M → 11.7M — not monotone**, and
+the v_D=1 and v_D=0 batches OVERLAP almost completely (v_D=0 spans 8.5M–48.7M, containing both the
+worst and nearly the best). `vd_separates_gain()` → **False**. So the engine's own convergence census
+is BLIND to its predictive performance: v_D=0 is compatible with the best batch on record and with one
+of the worst. The gap the orbit proposal names is real and is now measured rather than asserted.
+
+**FINDING 3 — A NEAR-RETURN ALREADY EXISTS, and the census misclassifies it.** The closest
+non-adjacent pair under the repaired configuration projection is **b5 vs b7**: both 3/3 leading-class
+hits, G/joint 48 658 932 vs 48 932 240 — a 0.6% difference, predictively indistinguishable — yet v_D
+calls them DIFFERENT (0 vs 1). Minting a family and predicting well are ORTHOGONAL in the observed
+data. That pair is the repaired instrument's first test case if it is ever built.
+
+**NOT ADOPTED — and the precedent is why.** The arc already adopted an instrument mid-run before it
+earned existence: the coupling/interface Γ table (URDRQPR1 §5), ADOPTED at run 2 and SUSPENDED at
+checkpoint 3, starved of emergence events with its one directional call wrong. L58 (representation is
+earned, not designed) and L3 (no promotion without independent preregistered recurrence) both bind
+here, and this rung refuses to repeat the Γ mistake with a more elegant scalar. What is adopted today
+is NOTHING; what is recorded is a disproof, a confirmed premise, and a frozen prospective test.
+
+    FROZEN FALSIFIER for the REPAIRED orbit scalar (prospective — resolvable only by future batches,
+    never by refitting these eight). Ω-repaired earns existence IFF, over the next SIX v_D=0 batches
+    (n = 6 minimum, so no verdict can be bought with two noisy points): batches it classifies as
+    NEAR-RETURN show G/joint at or below the median of batches it classifies as DISTANT, with the
+    two groups NON-OVERLAPPING at their quartiles. If near-return and distant batches show
+    indistinguishable predictive improvement, the scalar carries no information and is REMOVED — not
+    retained as descriptive colour, which is how the Γ instrument survived three rungs past its
+    usefulness. If fewer than six v_D=0 batches occur before the engine stops, the test reads STARVED
+    (L61), never CONFIRMED.
+    ALSO FROZEN, so the classifier cannot be tuned to the answer: "near-return" means the repaired
+    configuration distance to some non-adjacent prior batch is ≤ the 25th percentile of all such
+    distances computed over the batches available AT THAT TIME — a rolling, leak-free threshold, the
+    same discipline checkpoint 9's null used.
+
+### CHECKPOINT 10, HARD-GROUNDED — the two blockers turned into a theorem and a decided test
+
+**BLOCKER 1 → W2, a negative THEOREM with a red-first plant (below, in THEOREM CANDIDATES).** The
+degeneracy is not "Ω needs tuning"; it is an impossibility with a proof and a witness. The plant the
+law required is built and BITES IN BOTH DIRECTIONS: two synthetic histories with IDENTICAL live
+organizational configuration (same sole basis, same two minted families, same frozen predictor) and
+ledger lengths 0 vs 30 archived resolutions —
+
+    specified metric d(A,B) = 30   ← nonzero PURELY from archived rows; the states are operationally
+                                     indistinguishable and the metric says otherwise
+    repaired live metric  =  0   ← the correct answer
+
+`append_only_plant_bites()` → True. A metric that reports distance 30 between two engines that
+predict identically on everything is not measuring organizational state.
+
+**THE ARCHITECTURAL CORRECTION, adopted as framing (not as an instrument): LINEAGE IS NOT STATE.**
+Split what the proposal fused:
+
+    S_live_t = (𝓑_t active bases, Π_t current frozen predictor, 𝓐_t active axes/families)
+    L_t      = (𝓡_≤t resolved signature, 𝓜_≤t minted lineage)     ← immutable PATH LABEL, not a coordinate
+
+The ledger is not discarded — it is demoted from state coordinate to path witness. Two live states may
+be equal while carrying different histories (S_live_i = S_live_j, L_i ≠ L_j); in a historical system
+that IS what recurrence means. This costs the ledger nothing it was using: no gate row, no claim, and
+no resolution depends on 𝓡 being a coordinate of a distance.
+
+**BLOCKER 2 → DECIDED, and it goes against the census.** Rather than eyeballing the b5/b7 pair, the
+four preregistered models were fitted LEAVE-ONE-BATCH-OUT over the 7 batches with a known v_D and a
+predecessor (exact rational least squares — no float enters the verdict). Mean absolute held-out error
+on G/joint:
+
+    null (mean)        17 854 727        ← the bar (L62: the null is seated from the start)
+    census (v_D)       19 036 400        ← WORSE than the null
+    history (G_{b−1})  17 498 120        ← best, and only ~2% better than the null
+    combined           28 959 563        ← far worse; the overfitting signature at n = 7
+
+`census_adds_predictive_information()` → **False.** Seating v_D makes held-out prediction of G WORSE
+than predicting the mean. The grounded statement, in the exact strength the evidence supports:
+
+    **CENSUS–PREDICTION NON-EQUIVALENCE.** New-family arrival (v_D) and gain over the null (G) measure
+    different properties, and neither may be substituted for the other. Equal predictive performance
+    coexists with different v_D (b5 vs b7: 3/3 leading hits each, G/joint within 0.6%, v_D 0 vs 1),
+    and v_D carries NO out-of-sample information about G on this corpus.
+
+**The four frozen relations, and their status now** — recorded so the claim cannot later be inflated:
+  * **Positive coupling** (v_D↑ ⇒ G↑) — **REJECTED** on this corpus (census model loses to the null
+    out-of-sample; the b5/b7 pair is a direct counterexample).
+  * **Negative coupling** (v_D↑ ⇒ G↓) — not supported either; the census model is worse than the null
+    in BOTH directions, which is what "no information" looks like.
+  * **Threshold relation** (only emergence above some count moves G) — **UNTESTED.** No batch in the
+    corpus has v_D ≥ 2, so the relation has never had an opportunity to show itself. STARVED (L61),
+    not refuted.
+  * **Operational orthogonality** (v_D adds nothing beyond batch identity and null structure) —
+    **CONSISTENT WITH the evidence, NOT ESTABLISHED.** n = 7, retrospective. One pair and one small
+    LOBO do not license an independence claim, and saying so would be the inflation L20 forbids.
+
+**A finding that tempers the whole thing, stated because it cuts against the engine:** the
+history-only model beats the null by roughly 2% — so G is very nearly UNPREDICTABLE at batch
+granularity from either the census or its own past. Whatever structure the underconfidence result
+(checkpoint 9) exposed lives at the JOINT level, not the batch level. Any future orbit instrument
+that predicts batch-level G must beat 17 498 120, and nothing currently does.
+
+**THE NEXT EXPERIMENT, frozen and NOT built: the live-state probe corpus.** The orbit question is
+worth answering, and the repaired metric still cannot reach zero if the incumbent's credences drift
+continuously. So the object to build is not another scalar over names but a BEHAVIOUR VECTOR over a
+frozen probe set Q:
+
+    Ψ_t = ( Π_t(q₁), …, Π_t(q_n) )   for a FROZEN set Q of probe joints,   Ω^Q_t = min_{j<t−ℓ} ‖Ψ_t − Ψ_j‖₁
+
+Two engine states occupy the same orbit position when they PREDICT THE SAME on every frozen probe —
+not when their accumulated records match. Because Ψ excludes append-only history it can actually
+return, and because it uses full distributions it captures more than active basis names.
+    FROZEN DECISIVE QUESTION (prospective; resolvable only by future batches, never by refitting
+    these eight): do batches with LOW behavioural orbit distance produce less gain over the null than
+    batches with HIGH behavioural orbit distance? Same evidentiary bar as the earlier freeze — ≥ 6
+    future v_D=0 batches, a rolling leak-free near-return threshold, non-overlapping quartiles, and
+    STARVED rather than CONFIRMED if under-supplied. If the two groups are indistinguishable, the
+    orbit instrument carries no information and is REMOVED, not retained as descriptive colour —
+    which is precisely how the Γ instrument survived three rungs past its usefulness.
+    Q MUST BE FROZEN BEFORE Ψ IS EVER COMPUTED, or the probe set becomes tunable to the answer.
+
+**What this changes about convergence: nothing yet, and that is the honest answer.** Checkpoint 9
+established the predictive-adequacy leg (Δ_null > 0). Checkpoint 10 establishes that the STRUCTURAL
+leg's own instrument (v_D) does not track predictive performance — so "three triple-zero runs" is
+weaker evidence for convergence than it reads, because triple-zero says nothing about G. The
+declaration still stands on checkpoint 9's measurement, not on the census. The distinction the orbit
+proposal exists to draw remains OPEN and is now frozen as a decidable question rather than an
+intuition.
+
+## RUNG 2 — the ERROR SURFACE, resolved: the residual is a CONSTANT, not a SIGNAL
+
+Built to the plan frozen at checkpoint 9, and it answers checkpoint 10's open question in the
+direction that blocks the ambitious path. Witness: `prediction_residuals.py`, rerun byte-identical.
+
+**The surface.** 22 joints, error types assigned by rule: **CLEAN 15, RANKING 7, SUPPORT 0,
+PARTITION 0.** Every miss is a RANKING miss — the observed class was always named and always carried
+real mass; the engine never missed by failing to consider a class, only by ordering it second. That
+is a narrower failure mode than the partition was built to allow.
+
+**THE GRANULARITY TEST — and reading (b) is REFUTED.** Checkpoint 10 left two readings of the
+near-unpredictable batch-level G: (a) the errors are noise, or (b) aggregation destroyed a signal that
+lives at the joint. Four preregistered covariates, leave-one-JOINT-out Brier on the miss event
+(×10⁴, lower better):
+
+    null (seated)  2380      ← the bar
+    topmass        2560
+    margin         2626
+    nclass         2663
+
+**No joint-level covariate beats the null.** `joint_level_beats_null()` → False. Worse for the
+standing hypothesis: "low margin ⇒ higher miss probability" fails DIRECTIONALLY — mean margin is
+**883 on hits and 928 on misses**, so misses ran slightly WIDER margins than hits. The hypothesis was
+flagged at freeze as carrying genuine failure risk (P30 missed at a margin of 18), and it failed.
+Reading (b) is not supported: the errors are unpredictable at BOTH granularities, and changing the
+statistical unit does not recover signal.
+
+**THE FROZEN RULE FIRES: Γ DOES NOT EARN EXISTENCE.** Checkpoint 9 froze it exactly: "only after that
+table exists — and only if a frozen predictor of the engine's own misses beats a null — does a
+synthesis operator earn existence (L58)." The table exists; no predictor beat the null. **So the
+synthesis operator is refused, and with it the theory-algebra program that would have stood on it.**
+This is the engine's own stopping rule working against the interesting answer, which is the only
+evidence that it was ever a rule.
+
+**THE PRECISE DISTINCTION, because two true findings look contradictory.** Checkpoint 9 measured a
+real exploitable residual: the basis is systematically UNDERCONFIDENT (mean max probability 0.380 vs
+0.68 leading-class accuracy). Rung 2 measures that nothing predicts WHICH joints miss. Both hold,
+because they are different objects:
+
+    the residual is a GLOBAL CALIBRATION OFFSET (a constant), not a CONDITIONAL SIGNAL (a function).
+
+Sharpening every frozen vector by one fixed transform would improve the Brier; no available covariate
+says where to spend the sharpening. **And a recalibration is a POST-PROCESSOR, not a rival basis** —
+it changes confidence, never the ordering, so it cannot produce a discrimination, cannot lose a
+tournament joint, and is not a challenger in L62's sense. The engine's one measured improvement path
+is therefore explicitly NOT the one that would re-arm the tournament.
+
+## THE ARCHITECTURAL REFRAME — Ψ as the OBSERVATIONAL QUOTIENT (corrected from a stronger claim)
+
+**A correction recorded rather than silently applied.** This section first stated "Ψ as the canonical
+state — Ψ IS the engine." That is too strong and is withdrawn. Ψ maps live organization to predictive
+behaviour over a frozen probe corpus, so it is the **observable image** of the engine, not the engine:
+
+    S₁ ∼ S₂  ⟺  Ψ(S₁) = Ψ(S₂)          canonical object: **S/∼**, the observational quotient
+
+The distinction is load-bearing, not pedantic. "Ψ is the engine" asserts that two organizations with
+identical probe behaviour ARE identical; "Ψ is the quotient" says only that they are
+**experimentally indistinguishable over the current Q** — which leaves room for a larger Q to separate
+them later, and makes the identifiability question below meaningful instead of vacuous. Adopting the
+stronger form would have quietly converted a limit of the instrument into a claim about the world,
+which is the exact move `integrity ≠ truth` exists to block. The over-claim survived roughly one
+checkpoint; it is recorded because a correction that leaves no trace teaches nothing (L2).
+
+A reviewer proposed elevating the predictive operator Ψ (the engine's distribution over a frozen probe
+corpus Q) to the canonical engine state, with live organization EXPLAINING Ψ, history explaining how Ψ
+came to be, and v_D / G / drift demoted to diagnostics OF those objects. **Accepted as framing**, on
+exactly two grounds, both measured in this ledger:
+
+  1. **W2** — history cannot serve as a state coordinate (append-only ⇒ any recurrence metric
+     containing it is a clock). So state must be live or behavioural.
+  2. **Census–prediction non-equivalence** — structural census does not predict predictive
+     performance out-of-sample (v_D loses to the null under LOBO). So structure cannot stand proxy
+     for behaviour, and the two need separate homes.
+
+    QUOTIENT:   Ψ_t = ( Π_t(q₁), …, Π_t(q_n) ) over a FROZEN corpus Q — the engine's observable image.
+    EXPLANANS:  S_live = (bases, predictor, active axes) explains Ψ; L = (𝓡, 𝓜) explains its history.
+    DIAGNOSTICS: v_D, G, and any drift quantity Δ_Ψ(t,k) = d(Ψ_t, Ψ_{t−k}) — never the objects.
+
+**THE THREE-CLASS PARTITION (RST's operational content).** Every variable in the engine belongs to
+exactly one class, and the class fixes what it may be used for:
+
+    class                evolution     admissible use
+    ─────────────────    ──────────    ─────────────────────────────────────────
+    live state           reversible    operational distance
+    behavioural (Ψ)      observable    predictive equivalence / the quotient
+    ledger (𝓡, 𝓜)       monotone      PROVENANCE ONLY — never operational geometry
+
+Mixing classes inside one metric is the defect W2/RST proves fatal. This is a stronger and cleaner
+constraint than "don't use append-only coordinates," because it says WHY and says what each coordinate
+is FOR.
+
+**DYNAMICS, replacing the scalar (frozen, unbuilt).** Recurrence is not scalar, so the checkpoint
+sequence is treated as a path in operator space Ψ₀, Ψ₁, …, Ψ_t with local drift d(Ψ_t, Ψ_{t−1}),
+cumulative drift d(Ψ_t, Ψ₀), velocity Ψ_t − Ψ_{t−1}, and acceleration (Ψ_t − Ψ_{t−1}) − (Ψ_{t−1} −
+Ψ_{t−2}). **And the orbit intuition survives if what orbits is changed**: with several checkpoints
+inducing near-identical Ψ, their centroid A = mean(Ψ_i) is an ATTRACTOR and r_t = d(Ψ_t, A) measures
+repeated approach to the same PREDICTIVE REGIME. That metric lives entirely in behaviour space, so it
+evades W2/RST by construction rather than by patching — which is the test of whether the reframe is
+real: it makes the previously impossible measurement well-posed.
+
+**A SCOPE LIMIT ON RUNG 2'S NEGATIVE, stated so the refutation cannot overreach.** Rung 2 refuted one
+specific claim: that joint-level COVARIATES (margin, top-mass, class count) predict a miss. It CANNOT
+address the repeated-measures questions — which joints are persistent bottlenecks, whether calibration
+improves on hard joints while flat elsewhere, whether seam families affect the same regions — because
+**the corpus has n = 1 per joint**: every joint is read exactly once and never re-measured. Those
+questions require Ψ over a FIXED Q evaluated at multiple t, which is precisely what does not exist
+yet. So "aggregation masks signal" is UNTESTED at the repeated-measures level, not refuted; only the
+covariate reading is dead. That distinction is the whole reason Q is the next build.
+
+**RESOLUTION EFFICIENCY — the replacement objective (frozen, denominator NOT yet fixed).** Replace
+"did we mint a family?" with "how much predictive gain per unit structural change?": E = ΔG /
+(ΔC + ΔR) for a preregistered structural-cost denominator. This evaluates whether structural changes
+PAY RENT, and it is a more stable research quantity than novelty — which v_D's LOBO failure already
+demonstrated. NOT computed here: the denominator must be frozen before E is ever evaluated, or the
+cost basis becomes tunable to the answer, the same trap the null and the probe corpus each carry.
+
+**NOT accepted on the reviewer's granularity argument**, and the difference matters: the case for Ψ
+was partly that batch aggregation destroyed signal recoverable at the joint. Rung 2 just refuted that.
+Ψ is adopted because the two blockers force a separation of concerns, NOT because a harvest is
+waiting. Adopting it for the refuted reason would have been the inflation this ledger exists to catch.
+
+**What is adopted today is still NOTHING executable.** Ψ requires Q, and Q must be FROZEN BEFORE Ψ is
+ever computed or the probe set becomes tunable to the answer. The drift quantities replace the word
+"orbit" (which carried geometric intuition that may not survive) with a measurable: evolution of the
+predictive operator itself. All of it remains frozen-and-unbuilt, under the same prospective bar.
+
+**W3 CANDIDATE — the FINITE PROBE IDENTIFIABILITY THEOREM.** The b5/b7 pair already hints at it, and
+the quotient formulation above is what makes it a real question rather than a definition:
+
+    STATEMENT: for any FINITE probe corpus Q there may exist distinct live organizations inducing
+    identical predictive operators on Q — S_live₁ ≠ S_live₂ while Ψ_Q(S₁) = Ψ_Q(S₂).
+    FALSIFIER: construct two live configurations that differ on at least one PREREGISTERED probe.
+    READING BOTH WAYS: if such pairs are found, Q's resolving power is bounded and the honest response
+    is to ENLARGE or REDESIGN Q — the theorem is then a stated LIMIT ON THE INSTRUMENT, not a defect
+    in the engine. If repeated attempts find none, the live representation is REDUNDANT: it carries
+    coordinates the behaviour does not have, which is W2/RST's lesson one level up (structure that no
+    measurement can see is provenance, not state).
+    This is why "Ψ IS the engine" had to be withdrawn: under that reading the theorem is vacuous —
+    indistinguishable would MEAN identical, and the limit could never be stated, let alone tested.
+
+## INSTRUMENT REGISTRY — every diagnostic's status under L63 (empirical admissibility)
+
+L63 is worthless as a declaration; it is only real if every instrument in the engine carries a status
+and the statuses were assigned by measurement. Each row registers ONE objective, its scoring rule, the
+incumbent it had to beat, and what happened. **EXPERIMENTAL** may be computed and reported but NOT
+reasoned from; **SEATED** is the current best on its objective; **RETIRED** is irreversible.
+
+| instrument | objective | scoring · incumbent | status | evidence |
+|---|---|---|---|---|
+| B-M′ (the basis) | joint-class prediction | Brier · rolling marginal null | **SEATED** | Δ_null = +553 208 846 over 22 joints; 15 won / 7 lost; leading 15/22 vs 4/22 (ck 9) |
+| rolling marginal null | — (the floor) | Brier · — | **SEATED** (as the bar) | seated by construction per L62; it is what everything must beat |
+| `v_D` (new-family census) | predict batch gain G | LOBO MAE · null (mean) | **RETIRED** from predictive use | 19 036 400 vs null 17 854 727 — worse than the mean (ck 10) |
+| history predictor G_{b−1} | predict batch gain G | LOBO MAE · null | **SEATED** (weakly) | 17 498 120 vs 17 854 727 — beats the null by ~2%, so it holds the seat |
+| combined (v_D + history) | predict batch gain G | LOBO MAE · history | **RETIRED** | 28 959 563 — the overfit signature at n = 7 |
+| B-C1 topological challenger | CONJ/SINGLE class form | accuracy · constant predictor | **RETIRED** | 10/27 vs 16/27 (ck 8) |
+| B-C2 phase-position challenger | CONJ/SINGLE class form | accuracy · constant predictor | **RETIRED** | 15/27 vs 16/27 (ck 8) |
+| margin (1st−2nd credence) | predict a leading-class miss | LOJO Brier · seated null | **RETIRED** | 2626 vs 2380, and fails DIRECTIONALLY (883 hits vs 928 misses) — Rung 2 |
+| top-mass | predict a leading-class miss | LOJO Brier · seated null | **RETIRED** | 2560 vs 2380 — Rung 2 |
+| class count | predict a leading-class miss | LOJO Brier · seated null | **RETIRED** | 2663 vs 2380 — Rung 2 |
+| Γ (synthesis operator) | generate a live challenger | ck-9 frozen gate · — | **RETIRED before construction** | its frozen precondition (a miss-predictor beating the null) failed at Rung 2 |
+| Γ coupling/interface table | predict emergence events | — · — (never set) | **RETIRED** | suspended at ck 3, starved, one directional call wrong — the L63 archetype |
+| Ω (specified orbit scalar) | certify state recurrence | — · — | **RETIRED (impossible)** | W2/RST: contains a monotone coordinate; Ω ≥ 3(ℓ+1) > 0 always |
+| Ω_live (live-quotient) | certify state recurrence | — · — | **EXPERIMENTAL** | non-degenerate (plant: 0 vs 30) but never shown INFORMATIVE |
+| Ψ drift Δ_Ψ(t,k) | detect operator evolution | — · — | **EXPERIMENTAL** | unbuilt; requires a frozen Q |
+| attractor radius r_t | detect predictive-regime return | — · — | **EXPERIMENTAL** | unbuilt; requires a frozen Q |
+| resolution efficiency E | value structural change | — · — | **EXPERIMENTAL** | unbuilt; denominator not yet frozen |
+
+**Two readings this table forces, both uncomfortable and both recorded.** First, the engine's own
+convergence census (`v_D`) is RETIRED from predictive use while remaining structurally informative —
+so every past sentence of the form "three triple-zero runs evidence convergence" was reasoning from an
+unseated diagnostic, and stands only as a STRUCTURAL claim, never a predictive one. Second, of
+seventeen registered instruments only **three are seated**, one of them the null itself and one
+beating it by ~2%. That is the honest inventory of what this engine has actually earned, and it is
+much smaller than the volume of prose about it would suggest — which is precisely the accumulation
+L63 exists to stop.
+
+**Zombie check (L63's no-zombies clause), applied to this ledger's own history:** retired instruments
+appear above as documented negative results and may not be cited as explanatory evidence going
+forward. Where earlier checkpoints reasoned from `v_D` or the Γ table, those inferences are hereby
+downgraded to structural observations; they are not retracted (the record is append-only) and they are
+not load-bearing.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
+
+### W2 — the REPRESENTATION SEPARATION THEOREM (RST) (a NEGATIVE theorem; witness: `orbitprobe.py`)
+    general form:     If a coordinate is MONOTONE UNDER THE TRANSITION RELATION, then no metric
+                      including that coordinate with positive weight can represent operational
+                      recurrence. Append-only is the special case that occurs here; the proof only
+                      needs monotonicity, so the theorem covers any coordinate that cannot decrease
+                      (accumulated evidence, minted lineage, spent budget, elapsed rungs).
+    corollary (the operational content): every variable partitions into exactly one class —
+                      LIVE STATE (reversible → admissible for operational distance), BEHAVIOURAL
+                      (observable → admissible for predictive equivalence), LEDGER/HISTORY (monotone →
+                      PROVENANCE ONLY). Mixing classes inside one metric is the fatal defect. This is
+                      stronger than "avoid append-only coordinates" because it says why, and says
+                      what each coordinate IS FOR.
+    statement (the instance proved here): Let d be a recurrence metric over engine states whose
+                      coordinates include a STRICTLY APPEND-ONLY component c (c_j ⊆ c_t for all
+                      j < t, with |c_t| strictly increasing in t) carried with positive weight w.
+                      Then for every lookback exclusion ℓ ≥ 0:
+                          Ω_t = min_{j < t−ℓ} d(S_t, S_j)  ≥  w · ( |c_t| − |c_{t−ℓ−1}| )  >  0,
+                      and since |c_t| − |c_j| is strictly increasing in (t − j), the minimum is
+                      attained at the MOST RECENT admissible j. Therefore Ω_t can never certify
+                      return (it is never 0) and is monotone in ELAPSED HISTORY rather than in
+                      organizational similarity. **A recurrence metric containing an append-only
+                      coordinate is a clock.**
+    corollary:        Recurrence must be defined on the LIVE quotient — S_live = (active bases,
+                      current predictor, active axes) — with the ledger (𝓡, 𝓜) retained as an
+                      immutable PATH LABEL rather than a state coordinate. Lineage is not state.
+    measured:         the plant, both directions. Two synthetic histories with identical live
+                      configuration and ledger lengths 0 vs 30: the specified metric returns 30, the
+                      live-quotient metric returns 0. `append_only_plant_bites()` → True. Also
+                      instantiated on the real engine: with 3 joints appended per batch, the bound
+                      gives Ω_t ≥ 3(ℓ+1) — 6 at ℓ=1 — matching the degeneracy observed.
+                      MEASURED, deterministic, rerun byte-identical:
+                      PYTHONHASHSEED=0 python3 exe_epistemics/orbitprobe.py
+    does_not_show:    that the LIVE-quotient metric is USEFUL — only that it is not impossible; a
+                      metric can be non-degenerate and still carry no information, which is the
+                      separate prospective test frozen at checkpoint 10. Nor does it show that
+                      append-only ledgers are a design error: the append-only property is what makes
+                      L2/L59 enforceable, and the theorem says only that such a coordinate may not
+                      appear inside a RECURRENCE metric.
+    promotion rule:   W2 stays a stated theorem with a witness, NOT a gate row, until a live orbit
+                      instrument exists for it to constrain (L58; the W1 precedent). It is a
+                      NEGATIVE result, and negative results are recorded, never built upon
+                      speculatively.
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
     statement:        (1) SATISFIABILITY — a seam constraint system admits a perfect head-free strategy

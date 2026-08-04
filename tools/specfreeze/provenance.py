@@ -438,6 +438,88 @@ DISCOVERIES = (
        "exogenous to any corpus BY CONSTRUCTION, so the missing corpus is a design choice not a debt. "
        "The batch's only clean leading call (45); run-9 triple zero, meta 30 for 30; v_D=0",
        "brief written; P32 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("checkpoint9:multinull", "MEASURE", "exe_epistemics/multinull.py",
+       "L62's open question: that the incumbent basis B-M' might beat its rivals while losing to a "
+       "null - explanatory power unearned, and invisible to head-to-head scoring",
+       "Delta_null = +553208846 > 0 over 22 scoring joints (integer Brier): the incumbent BEATS a "
+       "rolling empirical marginal (alpha=1, counting only outcomes strictly before each joint - no "
+       "future leakage), winning 15 joints, losing 7, tying 0, with leading-class accuracy 15/22 vs "
+       "the null's 4/22 and near-equal sharpness (0.380 vs 0.357), so the advantage comes from being "
+       "RIGHT not bolder. The spec was frozen and COMMITTED before the witness was written. Two "
+       "honest counter-findings recorded: the preregistration's own claim that the catch-all would "
+       "bite at P21 was FALSIFIED (it never fired - P21's partition did name C-SPLIT), which means "
+       "the anti-incumbent safeguard cost the incumbent nothing; and the basis is systematically "
+       "UNDERCONFIDENT (mean max probability 0.380 against 0.68 leading-class accuracy), so its Brier "
+       "is beatable by sharpening alone - a structured residual, the first direct evidence the "
+       "engine's errors are predictable rather than noise. No significance claimed at n=22; "
+       "retrospective, so degrees of freedom were protected but blindness was not",
+       "checkpoint 9 resolved in exe_epistemics/PREDICTIONS.md; convergence's predictive-adequacy leg "
+       "now evidenced rather than assumed; Rung 2 (the error surface) frozen as the successor",
+       "CONFIRMATION"),
+    _d("checkpoint10:orbitprobe", "MEASURE", "exe_epistemics/orbitprobe.py",
+       "a proposed ORBIT-RETURN scalar Omega_t = min_j d(S_t,S_j) over (bases, predictions, resolved "
+       "signature, minted lineage), to separate a predictive fixed point from a sterile single-basis "
+       "orbit - and the reading that three consecutive triple-zero runs evidence convergence",
+       "TWO results. (1) DISPROOF: Omega as specified is DEGENERATE in this engine. The ledger is "
+       "append-only (L2), so R_j subset R_t and d_R = |R_t \\ R_j| >= 3 per batch, forcing "
+       "Omega_t >= 3(l+1) > 0 always - it can never return to zero, and its minimizer is always the "
+       "most recent admissible j, so it measures ELAPSED BATCHES not recurrence. The defect is the "
+       "state vector, not the idea: a return detector may not contain monotone-accumulating "
+       "components. (2) CONFIRMATION of the proposal's premise, measured: per-batch G = null - "
+       "incumbent over the checkpoint-9 corpus is NOT monotone across the three triple-zero runs "
+       "(21.8M, 48.9M, 11.7M per joint) and v_D does NOT separate G (v_D=0 batches span 8.5M-48.7M, "
+       "containing both the worst and nearly the best) - so the engine's own convergence census is "
+       "BLIND to predictive performance, and 'three triple-zero runs' is weaker evidence for "
+       "convergence than it reads. Sharpest case: b5 and b7 are predictively indistinguishable "
+       "(both 3/3 leading, G/joint within 0.6%) while v_D calls them different",
+       "NOT ADOPTED - the repaired configuration-space Omega is stated, not built, with a prospective "
+       "falsifier frozen (>= 6 future v_D=0 batches, rolling leak-free near-return threshold, STARVED "
+       "if under-supplied); the suspended Gamma instrument is the precedent refused",
+       "CONFIRMATION"),
+    _d("checkpoint10:blockers", "MEASURE", "exe_epistemics/orbitprobe.py",
+       "that the two blockers were design inconveniences to be repaired silently - and that v_D "
+       "(new-family arrival) could stand proxy for predictive gain",
+       "BOTH hard-grounded. (1) W2, APPEND-ONLY ORBIT IMPOSSIBILITY, a negative theorem: any "
+       "recurrence metric carrying a strictly append-only coordinate at positive weight satisfies "
+       "Omega_t >= w(|c_t|-|c_{t-l-1}|) > 0 with the minimum always at the most recent admissible j, "
+       "so it is monotone in ELAPSED HISTORY and can never certify return - a recurrence metric "
+       "containing an append-only coordinate is a CLOCK. Plant bites both directions: two synthetic "
+       "histories with identical live configuration and ledger lengths 0 vs 30 give specified "
+       "distance 30 and live-quotient distance 0. Corollary adopted as framing: LINEAGE IS NOT STATE "
+       "- the ledger is demoted to an immutable path label. (2) CENSUS-PREDICTION NON-EQUIVALENCE, "
+       "decided by leave-one-batch-out over 7 batches with exact rational fits: null MAE 17854727, "
+       "census(v_D) 19036400 (WORSE than null), history(G-1) 17498120, combined 28959563 (the "
+       "overfit signature) - seating v_D makes held-out prediction of G worse than predicting the "
+       "mean, so v_D is structurally informative but NOT predictively informative. Positive coupling "
+       "REJECTED; threshold relation STARVED (no batch has v_D>=2); full orthogonality CONSISTENT "
+       "but NOT established at n=7. Tempering finding: history beats null by only ~2%, so G is nearly "
+       "unpredictable at BATCH granularity - the structure lives at the joint level",
+       "W2 recorded as a stated theorem with witness (not a gate row, L58); the live-state probe "
+       "corpus Q and its behaviour vector Psi frozen as the next experiment, Q to be sealed BEFORE "
+       "Psi is ever computed; nothing adopted",
+       "CONFIRMATION"),
+    _d("rung2:residuals", "MEASURE", "exe_epistemics/prediction_residuals.py",
+       "that the engine's near-unpredictable batch-level gain was an AGGREGATION artifact - that "
+       "signal destroyed at checkpoint granularity would reappear at the JOINT, earning a synthesis "
+       "operator; and the standing hypothesis that a low first-to-second margin predicts a miss",
+       "REFUTED, and the frozen rule fired against the interesting answer. Error surface over 22 "
+       "joints: CLEAN 15, RANKING 7, SUPPORT 0, PARTITION 0 - every miss is a RANKING miss (the "
+       "observed class was always named and always carried real mass). Leave-one-JOINT-out Brier on "
+       "the miss event: seated null 2380, topmass 2560, margin 2626, nclass 2663 - NO joint-level "
+       "covariate beats the null, and the margin hypothesis fails DIRECTIONALLY (mean margin 883 on "
+       "hits vs 928 on misses, the wrong way round). So the errors are unpredictable at BOTH "
+       "granularities and changing the statistical unit recovers nothing. Checkpoint 9's frozen "
+       "condition therefore REFUSES the synthesis operator Gamma, and with it the theory-algebra "
+       "program that would have stood on it. The precise reading: the residual is a GLOBAL "
+       "CALIBRATION OFFSET (systematic underconfidence, 0.380 mean max probability vs 0.68 accuracy) "
+       "and NOT a conditional signal - sharpening would improve Brier but nothing says where to "
+       "spend it, and a recalibration is a POST-PROCESSOR that changes confidence never ordering, so "
+       "it cannot produce a discrimination and is not a challenger",
+       "Rung 2 resolved in exe_epistemics/PREDICTIONS.md; Gamma refused by the frozen rule; Psi "
+       "accepted as the OBSERVATIONAL QUOTIENT on the W2 + census-prediction grounds ONLY, explicitly "
+       "NOT on the refuted granularity argument; L63 (empirical admissibility) minted from four "
+       "carriers and applied in the INSTRUMENT REGISTRY",
+       "CONFIRMATION"),
 )
 
 
