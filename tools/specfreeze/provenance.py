@@ -305,6 +305,39 @@ DISCOVERIES = (
        "currency, caught at the CAS), and the gap repair paying the storm's declared W4 debt; the second "
        "scoring v_D zero CLOSED run 5; meta not-M-1 18 for 18",
        "brief written; P20 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:geoquorum", "READ", "geoquorum",
+       "P21 (batch 5): single-predicate vs the coverage/integrity DISTINCTION as the central law",
+       "C-SPLIT — geoquorum-law is a distinction with a decided theorem under it: a self-consistent "
+       "DOCTORED capture has the SAME internal divergence (zero) as an honest one (self-consistency is "
+       "the one property a liar can always supply), so intent is invisible to any per-submission bound; "
+       "the only evidence a liar does not control is other people's captures (oobprior's excluded cohort "
+       "via voxlat Morton-prefix), and strict-majority consensus flips exactly at ceil(k/2) DECIDED by "
+       "enumeration (a floor(k/2)+1 draft was REFUSED), even cohorts buying nothing; the two refusals "
+       "UNAVAILABLE (coverage) vs FAILED (integrity) are the discriminability-of-refusal axis, watched "
+       "not minted; MIN_COHORT=5 is L61's seventh carrier, non-STARVED; weights 0.634/0.366",
+       "brief written; P21 resolved C-SPLIT in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:ghostsnap", "READ", "ghostsnap",
+       "P22: equal-or-refuse admission vs ghost-state identity centrality for the actor wire",
+       "C-R — ghostsnap-admit: a ghost is a 112-byte content-addressed per-tick pose record chained by "
+       "parent digest (terraform's chain law on the movement plane), admitted under the SAME "
+       "equal-or-refuse discipline as the terrain wire (tampered / foreign-parent genesis / "
+       "out-of-interest / out-of-order refuse ghost-map-byte-identical; duplicate refuses; in-order "
+       "retry admits) — a ghost that CANNOT LIE; police x representation, the wire pattern's third "
+       "instance (wire, driftgaze, ghostsnap); order-is-structural, no sequence numbers; weights "
+       "0.68/0.32",
+       "brief written; P22 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:hand", "READ", "hand",
+       "P23 (the batch's genuine discrimination): B-M' structural-invariant reading vs B-A'' admission "
+       "predicate for the cross-region handoff",
+       "C-INV — hand-equivalence is HANDOFF EQUIVALENCE: glide the prefix over F_A, resume the suffix "
+       "over F_B (a two-field splice, memoryless) EQUALS a single glide over the merged world "
+       "BIT-FOR-BIT (seamless not by blending — which hides float drift URDR lacks — but by being "
+       "bit-identical to one authority), with latency-invariance (any in-band tick) and one/many-point "
+       "scale, seam-agreement load-bearing (F_A != F_B or out-of-band is typed HAND-REFUSE); a "
+       "structural continuity invariant (no-gap/no-overlap, the lease/migration pattern) — B-M''s "
+       "founding axis, forward; the discrimination goes to B-M', weights 0.74/0.26; run-6 triple zero "
+       "CLOSED run 6; meta 21 for 21",
+       "brief written; P23 resolved C-INV in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

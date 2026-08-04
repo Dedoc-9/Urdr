@@ -1288,6 +1288,64 @@ Meta predicts ¬M-1 on all three (18 for 18).
                       strength); B-A″ the admission-predicate reading.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P21 — resolved: **C-SPLIT** — the coverage/integrity DISTINCTION is the law (a fifth-family probe)
+    observed:         `geoquorum-law` is not one predicate but a distinction with a THEOREM under it:
+                      a self-consistent DOCTORED capture has the SAME internal divergence (zero) as
+                      an honest one — "self-consistency is the one property a liar can always
+                      supply" — so intent is invisible to any per-submission bound; the only
+                      evidence a liar does not control is OTHER PEOPLE's captures (oobprior's
+                      structurally-excluded cohort, applied to geometry via voxlat's Morton-prefix
+                      "same place"), and strict-majority consensus flips exactly at ceil(k/2),
+                      DECIDED by enumeration (a first draft asserted floor(k/2)+1 and the enumeration
+                      REFUSED it) with the operational corollary EVEN COHORTS BUY NOTHING. The two
+                      refusals are categorically distinct: UNAVAILABLE (coverage — too few
+                      observers) vs FAILED (integrity — the cohort disagrees). Weights: B-M′ 35 vs
+                      B-A″ 30 → 0.634/0.366. Vacuity rule: MIN_COHORT = 5 is the module's OWN
+                      non-vacuity floor (a lone liar cannot frame an honest contributor) — L61's
+                      seventh carrier, and it read non-STARVED.
+    axis note:        C-SPLIT is close to the APPROXIMATION axis (sound-vs-complete → coverage-vs-
+                      integrity) but is really a distinct thing: the DISCRIMINABILITY-of-refusal
+                      axis (why a refusal fired: absence vs contradiction). Both bases classified
+                      it via existing cells (admission with a typed sub-reason), so NO new family —
+                      recorded as a candidate to watch, not a mint (L3).
+
+### P22 — resolved: **C-R** — the wire pattern on actors; the promoted basis wins
+    observed:         `ghostsnap-admit`: a ghost is a 112-byte content-addressed per-tick POSE
+                      record chained by parent digest (terraform's chain law on the movement
+                      plane), admitted under the SAME equal-or-refuse discipline as the terrain wire
+                      — "not a cheaper ghost, a ghost that CANNOT LIE." Tampered / foreign-parent
+                      genesis / out-of-interest / out-of-order each refuse with the ghost map
+                      byte-identical; a duplicate refuses (the parent moved); the in-order retry
+                      admits. Police × representation, central. Weights: B-M′ 35 vs B-A″ 25 →
+                      0.68/0.32.
+    unnamed (M-0):    order-is-structural (no sequence numbers — the parent chain IS the order, the
+                      wire pattern's signature a third time: wire, driftgaze, ghostsnap); the
+                      genesis-from-all-zeros spawn; the kinematic gate (ghostsnap-kinematic) reusing
+                      warden's step law on ghost motion.
+
+### P23 — resolved: **C-INV** — B-M′'s founding axis, forward; and the DISCRIMINATION goes to B-M′ · RUN 6 CLOSES
+    observed:         `hand-equivalence` is HANDOFF EQUIVALENCE: glide the prefix over F_A, resume
+                      the suffix over F_B (a two-field `splice`, memoryless) EQUALS a single glide
+                      over the merged world BIT-FOR-BIT — "seamless not because two authorities
+                      blend (that hides float drift URDR does not have) but because the handoff pose
+                      is bit-identical to what a single authority would produce." Latency-invariance
+                      (bit-identical for ANY in-band handoff tick — the bridge survives handoff
+                      latency) and one-point/many-points scale it; seam-agreement is load-bearing
+                      (F_A ≠ F_B at the seam, or an out-of-band tick, is typed HAND-REFUSE). A
+                      structural CONTINUITY invariant (no-gap/no-overlap authority transfer), the
+                      lease/migration pattern — B-M′'s founding structural-invariant reading, priced
+                      35 vs B-A″'s admission reading 20. Weights: w(B-M′) = 0.74, w(B-A″) = 0.26.
+    unnamed (M-0):    uses-B-terrain non-vacuity (the handoff diverges from a glide that stayed on
+                      F_A — B's terrain is really used); the Φ-band sync precondition; the refuse-
+                      never-blend discipline (blending imports the drift the arc structurally lacks).
+    tournament:       after batch 5 — w(B-M′) = 0.74, w(B-A″) = 0.26. B-M′ took both discriminations
+                      it was offered (P22, P23) on its founding axes; B-A″'s pricing edge did not
+                      recur. Meta ¬M-1: 21 for 21.
+    census:           run-6 v_D = 0, 0, 0 (P21, P22, P23 — no new family; C-SPLIT watched, not
+                      minted) — RUN 6 CLOSES on a triple zero, the run's cleanest convergence signal
+                      yet. CHECKPOINT 6 fires next over TWENTY-FIVE joints, with the promoted basis
+                      at 0.74 and the scheduling axis STILL the only open mint question.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
