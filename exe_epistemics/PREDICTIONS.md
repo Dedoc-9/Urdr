@@ -1346,6 +1346,71 @@ Meta predicts ¬M-1 on all three (18 for 18).
                       yet. CHECKPOINT 6 fires next over TWENTY-FIVE joints, with the promoted basis
                       at 0.74 and the scheduling axis STILL the only open mint question.
 
+## CHECKPOINT 6 — over TWENTY-FIVE joints (2026-08-04): L61 turned on the tournament; B-A″ retirement frozen
+
+**Gauntlet:** A — B-M′ clean (0 exceptions over 24 scored modules); B-A″ two (stance, govern).
+B, C, D pass. G(23) = 6/23 ≈ 0.26. **Verdict: promotion HOLDS; no basis change; convergence still
+pending** (scheduling axis unminted).
+
+**THE DISCRIMINABILITY CRITERION, AUDITED BY L61 — the checkpoint's real finding.** Test D of the
+epistemic stopping rule ("a plausible competing basis testable against future READs") can be
+satisfied TRIVIALLY by keeping a dead rival on life support — which is L61's vacuity law
+(an answer that cannot lose is empty) turned on the discovery engine's own convergence criterion.
+So the criterion must itself carry a non-vacuity precondition: **a rival must be able to LOSE its
+rival status, or the tournament is theater.** Frozen retirement condition for B-A″:
+
+    B-A″ RETIRES from the tournament when BOTH hold: (i) it has lost ≥ 3 CONSECUTIVE discriminations
+    (joints where the two bases predicted different central rows and the resolution matched B-M′),
+    and (ii) w(B-A″) < 0.20. Current: B-A″ has lost 2 consecutive (P22, P23) at w = 0.26 — NOT yet
+    retired, but one more losing discrimination plus a small weight drop triggers it.
+    ON RETIREMENT: convergence becomes declarable with B-M′ as the sole surviving basis, carrying
+    the honest caveat that single-basis convergence is STRICTLY WEAKER than rival-tested
+    convergence (no live alternative remains to falsify it) — recorded as such, never as a
+    stronger result than it is. A fresh challenger (adversarial synthesis) is the DEFERRED
+    alternative; it is not built speculatively (L58).
+
+So convergence now waits on TWO frozen questions, both decidable by future READs, neither bendable:
+the scheduling-axis mint (priogov) and B-A″'s rival-status (its next losing discrimination). The
+engine cannot declare victory by fiat; it must be driven there by the data or by a rule firing.
+
+## BATCH 6 FREEZE — P24 + P25 + P26 (all sealed before any READ)
+
+**Batch rules**: order interest → mesh → panewire (frozen selector). Run-7 v_D fresh. L61 vacuity
+rule applied. Meta predicts ¬M-1 on all three (21 for 21).
+
+### P24 — `interest` (SCORING) — role: "Deterministic Area-of-Interest relevance (T3.21, Stage C)"
+    (URDRAOI1); ambient disclosed: wire's `relevant` filter and driftgaze's "interest follows the
+    gaze" both compose interest; it is the AoI relevance predicate the wire family cites. Body and
+    history UNREAD.
+    partition:        C-R (a relevance/admission predicate central — police) · C-EQ (an
+                      irrelevant-edit ≡ unchanged equivalence central — the wire soundness pattern) ·
+                      C-AB · R-M · R-O.
+    credences:        author: C-R 25 · C-EQ 35 · C-AB 30 · R-M 5 · R-O 5
+                      B-A″:   C-R 30 · C-EQ 35 · C-AB 30 · R-M 2 · R-O 3
+                      B-M′:   C-R 25 · C-EQ 35 · C-AB 30 · R-M 5 · R-O 5   (NOT a discrimination —
+                      the bases agree; recorded so, so it cannot count toward retirement either way)
+### P25 — `mesh` (SCORING) — role states the identity: "THE MESHED SIMULATION (M3) — MESH ==
+    MONOLITH" (URDRMSH1); ambient: Phase M's certified mesh, nway/migrate/partition family. Body and
+    history UNREAD. A stated equivalence — convergence expected.
+    partition:        C-EQ (mesh == monolith equivalence central — the nway/hand bit-identity
+                      pattern at simulation scale) · C-INV (a mesh-composition structural invariant
+                      central) · C-AB · R-M · R-O.
+    credences:        author: C-EQ 40 · C-INV 20 · C-AB 30 · R-M 3 · R-O 7
+                      B-A″:   C-EQ 45 · C-INV 15 · C-AB 30 · R-M 3 · R-O 7
+                      B-M′:   C-EQ 40 · C-INV 20 · C-AB 30 · R-M 3 · R-O 7   (agree — not a
+                      discrimination)
+### P26 — `panewire` (SCORING) — role: "THE WIRED WINDOW (T3.53, V2)" (URDRPNW1); ambient: the
+    V-phase; panelight (V1, the windowed loop) is family; wire's equal-or-refuse over a live window.
+    Body and history UNREAD.
+    partition:        C-R (the windowed wire's equal-or-refuse admission central — police ×
+                      representation) · C-AB (the loop's interactive==batch fused with the wire's
+                      equal-or-refuse — a two-law join) · C-REP · R-M · R-O.
+    credences:        author: C-R 25 · C-AB 40 · C-REP 20 · R-M 5 · R-O 10
+                      B-A″:   C-REP 30 · C-R 25 · C-AB 35 · R-M 3 · R-O 7
+                      B-M′:   C-R 30 · C-AB 40 · C-REP 20 · R-M 3 · R-O 7   (DISCRIMINATION: B-A″
+                      prices representation-first; B-M′ police/AB — a retirement-eligible joint)
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
