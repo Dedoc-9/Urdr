@@ -1779,6 +1779,89 @@ on all three (27 for 27).
                       CITE" reads as police over representation — B-M′'s founding cell. v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P30 — resolved: **C-EQ** — death is invisible to the ANSWER; the author's leading call LOST
+    read:             2026-08-04, the blind READ (run 9). Classified from the LIVE `testament*` rows.
+    observed:         `testament-death` is the central row and it is an EQUALITY: a REAL successor
+                      process, given nothing but the store and an address, performs probate over a
+                      disk-only channel and its output is BIT-IDENTICAL to the never-died admission,
+                      twice. `testament-probate` states it inward — probate == the living admission ==
+                      the global reproof — so everything the lease law proved is INHERITED (lost-update
+                      impossibility, amortized == reproved, interval transport). The testament is 144
+                      bytes (MAGIC | regional record | SHA-256) and NOTHING more, because the lease is
+                      DERIVABLE from the record's parent digest + region. EXACTLY-ONCE is free rather
+                      than added (the admission moves the very authority the testament names, so a
+                      second probate refuses), and the refusal SPEAKS in three flavors — executed /
+                      distributed / unadjudicable — each earned from evidence, never guessed from its
+                      absence. `testament-refuse` holds the corruption battery; the executor is PURE (a
+                      refused probate leaves the store byte-identical).
+    class:            C-EQ. The author priced C-INV 40 (a durability/continuity structural invariant —
+                      B-M′'s founding axis) and C-EQ 22. **The leading credence LOST to its own
+                      second-place call.** Recorded plainly: "survives its writer" is the MOTIVATION;
+                      the certified law is a recovery EQUIVALENCE (persist/resurrect) extended from
+                      state to INTENT. A role sentence saying WHY a rung exists is weak evidence for
+                      WHAT its central row certifies — `claim ≠ code`, turned on the author's own
+                      prediction. v_D = 0 (the recovery-equivalence family is long established).
+    unnamed (M-0):    the three-flavor refusal adjudicated from RETAINED evidence (the geoquorum
+                      discipline — a refusal must say which kind it is — reaching the durability
+                      layer); the derivable-lease minimality (carrying it would invite incoherence;
+                      derived data is checkable data); executor purity.
+
+### P31 — resolved: **C-R** — the horizon observer polices; the second leading-class miss
+    read:             2026-08-04, the blind READ (run 9). Classified from the LIVE `traj*` rows.
+    observed:         `traj-properties` certifies an ADMISSION verdict: a sequence of partial views is
+                      admitted iff EVERY innovation ν(k) = image(k) − H(k)·trajectory(k) is exactly the
+                      zero vector, else the first nonzero tick is a typed REFUSE (`traj-refusal`). Exact
+                      integers, divisibility-free — confirmed or fought, never rounded. The observer
+                      reconstructs the authoritative trajectory ITSELF (the Φ-fold of lockstep inputs,
+                      the same law the authority runs), so a frame is checked against a LOCALLY-DERIVED
+                      truth, not a trusted one. Two things `gaze` structurally cannot do follow:
+                      PARTIAL COVERAGE is admissible (the dynamics carry unobserved axes into observed
+                      ones over the horizon; `gaze` refuses each such frame GAZE-NONCOVER) and TEMPORAL
+                      REPLAY is caught.
+    class:            C-R — police over representation, the `gaze` pattern extended from a SNAPSHOT to a
+                      HORIZON observer. The author priced C-REP 32 · C-R 25 · C-EQ 25, frozen
+                      deliberately near-flat because the observer family had split C-REP/C-R before;
+                      the leading call missed again, the batch's second. v_D = 0.
+    unnamed (M-0):    SAME-WHERE-DIFFERENT-**WHEN** — a frame that is entirely content-valid (a faithful
+                      view of a pose the actor genuinely held at ANOTHER tick, which is `gaze`'s own
+                      does_not_show, "identity is content") is REFUSED, because Φ predicts a different
+                      pose at this tick. The sequence IS Φ, closing a gap `gaze` explicitly deferred.
+                      Also: the locally-derived truth is the NEUTRAL-RULER pattern a fourth time
+                      (mesh's monolith oracle, wardhom's cross-language identity, terraform-as-oracle) —
+                      the checker structurally denied the option of trusting what it checks.
+
+### P32 — resolved: **C-R** — the citation contract; the leading call lands · RUN 9 CLOSES
+    read:             2026-08-04, the blind READ (run 9). Classified from the LIVE `view-witness*` rows.
+    observed:         `view-witness:cite` certifies that a DECLARED view may not MISQUOTE the authority
+                      it names: the digests the view prints as measured must EQUAL the live digests
+                      recomputed from the authority modules (an exact equality; a one-hex-flip forgery
+                      reddens), with typed VIEW-REFUSE for a missing blob, a non-hex or wrong-length
+                      witness, or a missing required citation. `view-witness-firewall` certifies the
+                      structural half: the declared knobs are a namespace DISJOINT from the authority
+                      and the presentation digest is anchored on the authority witness, so a knob moves
+                      the view and never the witness. Versioned overlays inherit the guarantee (VIEWS
+                      is a list). The render itself is NOT certified and is not claimed to be.
+    class:            C-R — police over representation, B-M′'s founding cell; the author's 45 landed,
+                      the batch's ONLY clean leading call. v_D = 0.
+    unnamed (M-0):    THE DUAL — D15/`terrain_view` proves the view cannot CONTAMINATE the authority
+                      (nothing flows inward); this proves it cannot MISQUOTE it (nothing false flows
+                      outward). Neither alone suffices: an honest one-way membrane still permits a lie
+                      about what is on the other side. Also structural: this is the first joint drawn
+                      from the arc's four TRUE CONFORMANCE GAPS (stage + falsifiers, no pinned corpus),
+                      and the read found nothing hiding there — the citation equality is exogenous to
+                      any corpus BY CONSTRUCTION (it recomputes the authority live rather than
+                      comparing to a pinned digest), so the missing corpus is a design choice, not a
+                      debt. One of the four named gaps is thereby explained rather than merely listed.
+    census:           run-9 v_D = 0, 0, 0 — RUN 9 CLOSES on a THIRD consecutive triple zero, the
+                      strongest convergence signal the census can emit. Meta ¬M-1: 30 for 30 (all three
+                      surfaced unanticipated structure). **BATCH SIGNATURE, recorded because it cuts
+                      against the incumbent: TWO of three leading credences MISSED (P30 C-INV→C-EQ,
+                      P31 C-REP→C-R).** Under a live tournament those two joints would have been
+                      discriminations with real information in them; with B-A″ retired and the
+                      checkpoint-8 challengers dead below baseline, there was no rival positioned to
+                      profit. That is the single-basis weakness made concrete rather than abstract — the
+                      sole basis mispriced two joints in a row and paid nothing for it.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)

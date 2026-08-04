@@ -401,6 +401,43 @@ DISCOVERIES = (
        "(single-basis, caveated); meta 27 for 27",
        "brief written; P29 resolved C-PRICE, convergence declared in exe_epistemics/PREDICTIONS.md",
        "CONFIRMATION"),
+    _d("read:testament", "READ", "testament",
+       "P30 (batch 8): durability/continuity INVARIANT vs recovery EQUIVALENCE centrality for durable "
+       "intent - the author's leading credence (C-INV 40) tested against its own second call (C-EQ 22)",
+       "C-EQ - testament-death: a REAL successor given nothing but the store and an address performs "
+       "probate over a disk-only channel and its output is BIT-IDENTICAL to the never-died admission, "
+       "twice; testament-probate states it inward (probate == living admission == global reproof) so "
+       "the lease law's guarantees are INHERITED; the testament is 144 bytes and nothing more because "
+       "the lease is DERIVABLE; exactly-once is free (the admission moves the authority the testament "
+       "names); the refusal SPEAKS in three flavors earned from RETAINED evidence, never guessed; the "
+       "executor is PURE. THE LEADING CALL LOST: 'survives its writer' is the motivation, the certified "
+       "law is a recovery equivalence - claim != code turned on the author's own prediction; v_D=0",
+       "brief written; P30 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:traj", "READ", "traj",
+       "P31: trajectory REPRESENTATION vs observer ADMISSION centrality - the observer family had split "
+       "C-REP/C-R before, so the partition was frozen near-flat",
+       "C-R - traj-properties: a sequence of partial views is ADMITTED iff every innovation "
+       "nu = image - H.trajectory is exactly the zero vector, else the first nonzero tick is a typed "
+       "REFUSE; exact integers, divisibility-free (confirmed or fought, never rounded); the observer "
+       "reconstructs the authoritative trajectory ITSELF by folding lockstep inputs with the authority's "
+       "own law, so frames are checked against LOCALLY-DERIVED truth - the neutral-ruler pattern a 4th "
+       "time; partial coverage becomes admissible (gaze refuses each such frame) and TEMPORAL REPLAY is "
+       "caught (same-where-different-WHEN: a content-valid frame from another tick is refused, closing "
+       "the gap gaze deferred). Leading call missed again (C-REP 32 vs C-R 25); v_D=0",
+       "brief written; P31 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:view_witness", "READ", "view_witness",
+       "P32 (run 9 closes): citation-police vs firewall-invariant centrality for the view contract",
+       "C-R - view-witness:cite: a DECLARED view may not MISQUOTE the authority it names - the digests "
+       "the view prints as measured must EQUAL the live digests recomputed from the authority modules "
+       "(a one-hex-flip forgery reddens), typed VIEW-REFUSE for a missing blob / malformed witness / "
+       "missing citation; view-witness-firewall holds the structural half (knobs a namespace DISJOINT "
+       "from the authority, the presentation digest anchored on the authority witness, so a knob moves "
+       "the view never the witness), versioned overlays inheriting. THE DUAL: D15 proves the view cannot "
+       "CONTAMINATE the authority, this proves it cannot MISQUOTE it - neither alone suffices. First "
+       "joint from the four TRUE CONFORMANCE GAPS and nothing hid there: the citation equality is "
+       "exogenous to any corpus BY CONSTRUCTION, so the missing corpus is a design choice not a debt. "
+       "The batch's only clean leading call (45); run-9 triple zero, meta 30 for 30; v_D=0",
+       "brief written; P32 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 
