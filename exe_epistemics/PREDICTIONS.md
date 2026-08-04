@@ -1663,6 +1663,122 @@ The engine does not stop; it changes PHASE. Post-convergence, further READs are 
 B-M′ until either a third family mints (reopening discovery) or the deferred challenger is built
 (re-arming the tournament). Both are frozen, decidable, and unbuilt — recorded, not performed.
 
+## CHECKPOINT 8 — the DEFERRED CHALLENGER, attempted and FAILED by measurement (2026-08-04)
+
+Checkpoint 7 declared convergence with one named deferred strengthening: a fresh adversarial
+challenger, to convert single-basis convergence into rival-tested convergence. **Checkpoint 8
+attempted it. The attempt failed, mechanically, and the failure is the checkpoint's finding.**
+Witness: `nullbase.py` (stdlib-only, exhaustive over the pinned joints, rerun byte-identical).
+
+**The construction, frozen before scoring.** Two challengers were built to attack B-M′ at its weakest
+RECORDED point — C-AB is the MODAL outcome (11 conjunctive of 27 scoring joints) yet B-M′ prices it
+with an auxiliary TIE RULE rather than a cell of its (input × semantics) grid. Each predicts the
+CONJ/SINGLE sub-question from data B-M′ does not use, so neither is a relabeling:
+
+    B-C1  TOPOLOGICAL (arity) — a central law preserving >= 2 already-certified laws is conjunctive;
+                               mechanized as import out-degree over tools/terrain (outdeg >= 2 -> CONJ).
+    B-C2  PHASE-POSITION     — a module at an arc boundary (its OWN docstring declaring opener /
+                               capstone / closes) is conjunctive; mid-phase rungs are single-semantics.
+
+Both scored MECHANICALLY — the prediction comes from the import graph or the module's own
+self-description, never from the author's judgment, which is precisely the bias the mechanization
+exists to remove. Scoring a rival I invented, by a rule I apply case-by-case, would be theater.
+
+**THE NULL BASELINE — the actual finding, and it is pointed at the method, not the rivals.** A
+tournament between bases says which RIVAL is better; it never says whether ANY of them is good. The
+trivial baseline is the CONSTANT PREDICTOR (always answer the majority class). MEASURED:
+
+    NULL (always SINGLE)   16/27 = 59%   <-- the bar
+    B-C2 phase-position    15/27 = 56%
+    B-C1 topological       10/27 = 37%
+
+**BOTH CONSTRUCTED CHALLENGERS SCORE BELOW THE CONSTANT PREDICTOR.** They are not weak rivals; they
+are anti-informative on this task. The challenger construction failed by MEASUREMENT — not by the
+author declining to build it (L58 would have licensed declining; it did not license pretending).
+
+**What this does and does not establish** — the boundary, stated before anyone can overread it:
+  * It does NOT upgrade the convergence. No live rival was produced, so B-M′ still stands
+    unfalsified-because-unopposed, exactly as checkpoint 7 recorded. Convergence remains SINGLE-BASIS.
+  * It DOES convert "no rival exists" from an ASSUMPTION into a MEASUREMENT over a named, frozen lens
+    set. Two independent structural readings were built to attack, and both landed below baseline.
+  * It does NOT prove no rival exists. Two lenses of unboundedly many, and both STRUCTURAL (graph
+    topology, declared phase position). SEMANTIC lenses are untested HERE precisely because scoring
+    them needs the author's judgment — the bias mechanization removed. An absence measured over two
+    lenses is evidence, not proof. `declared ≠ verified`.
+
+**L62 — THE NULL-ENTRANT LAW (minted, n=1 and applied in the same breath).** The ledger has scored
+bases against EACH OTHER since run 1 — Brier, posteriors, discriminations, retirement — and never once
+against a trivial baseline. A basis that beats its rivals while losing to the constant predictor has
+explanatory power that is UNEARNED, and no amount of head-to-head scoring can reveal it: the
+tournament is a RELATIVE instrument reporting an ABSOLUTE-sounding verdict. This is L61's vacuity law
+one level up — L61 asked whether a rival can LOSE; L62 asks whether a winner beats NOTHING-AT-ALL.
+The null entrant belongs in the tournament from the start.
+
+    APPLIED IMMEDIATELY, and the honest limit stated: B-M′ has NOT been scored against a null on its
+    OWN task. B-M′ predicts a multi-class CELL scored by Brier over frozen credences — not this binary
+    — so the 59% bar does not transfer, and claiming B-M′ passed or failed it would be a category
+    error. What is now known: the two challengers lose to the null on the binary task; whether B-M′
+    beats a null on its multi-class task is an OPEN, DECIDABLE question requiring a maximum-marginal
+    null (always predict the modal cell) scored by the same Brier rule over the same 27 joints. That
+    measurement is FROZEN as checkpoint 9's obligation and deliberately NOT run here — running it in
+    the same breath that minted the lesson would let the lesson's author choose its first verdict.
+
+**Selector edge case, ruled BEFORE it arrives (freeze-before-history applied to the selector itself).**
+The frozen selector's frontier after batch 8 falls to in-degree 0, where the ordering signal is gone
+and the order is pure lex. First in that tail is `bench` — which is DELIBERATELY UNGATED (wall-clock,
+MEASURED-on-named-host, and it may never enter a byte-identical gate). Ruling, frozen now while it is
+inconvenient rather than later when it is convenient: **`bench` is NOT READ-ELIGIBLE.** Classification
+in this pass is from LIVE GATE ROWS, and a module with no rows is unclassifiable — reading it would
+force classification from prose, which is the one thing this pass forbids (`claim ≠ code`). It is
+skipped with this reason recorded, not silently passed over. The in-degree-0 tail also means the
+centrality ordering has been EXHAUSTED — a structural fact about the read pass worth its own note at
+checkpoint 9.
+
+## BATCH 8 FREEZE — P30 + P31 + P32 (all sealed before any READ)
+
+**Batch rules**: order testament → traj → view_witness (frozen selector, recomputed fresh: in-degree 1
+each — the LAST three in-degree-1 modules — lex asc; `lease`=4 recalibrated the method against the P8
+erratum). Sole basis B-M′; no discrimination is possible, so all three are scored on the v_D
+(new-family) census and the meta only. Run-9 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1
+on all three (27 for 27).
+
+### P30 — `testament` (SCORING) — role: "Durable intent (T3.44) — the write that survives its writer"
+    (URDRTST1); ambient disclosed: the lease/rannull authority family (`lease` — P8, C-INV, the standing
+    lease; `rannull` RAN-0 authority nullity); durable-intent sits after the lease in the named chain.
+    Body and history UNREAD.
+    partition:        C-INV (a durability/survival structural invariant central — the write outlives the
+                      authority that made it, the lease family's continuation) · C-EQ (a
+                      replay/recovery equivalence central — the persist/resurrect pattern) · C-R (a
+                      typed admission of the durable write central) · C-AB · R-M · R-O.
+    credences:        author (= B-M′, sole basis): C-INV 40 · C-EQ 22 · C-R 20 · C-AB 10 · R-M 4 · R-O 4.
+                      "Survives its writer" reads as a structural continuity invariant — B-M′'s founding
+                      axis (hand, lease) — but the durable half could equally be a recovery equivalence.
+                      v_D=0 expected (the authority/continuity family is long established).
+
+### P31 — `traj` (SCORING) — role: "Certified TRAJECTORY OBSERVER (T3.12)" (URDRTRAJ1); ambient: the
+    observer family (`gaze` — P14, C-R, the certified first-person observer; `drive` — P9, C-REP, the
+    movement transcript; `view_witness` the citation contract). An OBSERVER, and the arc's observers
+    have been police (gaze) and representation (drive) in different rungs. Body and history UNREAD.
+    partition:        C-REP (a trajectory REPRESENTATION/transcript central — the drive pattern) · C-R
+                      (an observer-admission predicate central — the gaze pattern) · C-EQ (an
+                      observed-trajectory ≡ executed-trajectory equivalence central) · C-INV · R-M · R-O.
+    credences:        author (= B-M′): C-REP 32 · C-R 25 · C-EQ 25 · C-INV 10 · R-M 4 · R-O 4. The
+                      genuinely open one of this batch — the observer family has split C-REP/C-R before,
+                      and "certified observer" underdetermines which. Frozen deliberately near-flat so
+                      the READ decides. v_D=0 expected.
+
+### P32 — `view_witness` (SCORING) — role: "The citation contract (T3.6) — the declared view must CITE"
+    (URDRTVW1); ambient: the D15 view-export FIREWALL (`terrain_view`, same URDRTVW1 code — the MAGIC
+    collision the index pass found); the firewall/citation family. Body and history UNREAD. NOTE: one of
+    the four TRUE CONFORMANCE GAPS (gate stage + falsifiers, no pinned corpus of its own) — a
+    structurally different rung from the 29 read so far, and the first such joint in the pass.
+    partition:        C-R (a citation/admission predicate central — the declared view REFUSES without a
+                      citation) · C-INV (a firewall structural invariant central — no view escapes
+                      uncited) · C-EQ · C-FLOOR (a soundness-of-absence result) · R-M · R-O.
+    credences:        author (= B-M′): C-R 45 · C-INV 28 · C-EQ 10 · C-FLOOR 8 · R-M 4 · R-O 5. "Must
+                      CITE" reads as police over representation — B-M′'s founding cell. v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
