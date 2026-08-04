@@ -556,6 +556,41 @@ threshold — borderline noted): the instrument predicts BACKGROUND for P6.**
                       observed: <actual>; delta: <R-M | R-O:<named-after-reading>>).
     witness:          the git commit introducing this row — dated before horizon.py is read.
 
+### P7 — resolved: **P7-C-A (B-A′ right — the first discrimination)** · meta: **M-0 (7 for 7)** · RUN 2 CLOSES
+    read:             2026-08-04, run 2's second blind READ (Rung I). Classified from the LIVE
+                      `horizon*` rows.
+    observed:         the central row (`horizon-bound`) certifies the ENVELOPE: an admitted
+                      reconcile's depth ≤ H, and the worst-case reconcile window EQUALS H — a tight
+                      bound, not an inequality with slack. The refusal (`horizon-refuse`: a rollback
+                      deeper than the horizon is typed HORIZON-REFUSE — a stale correction is never
+                      served late) is the ENFORCEMENT of the envelope, exactly as in opcost. The
+                      DISCRIMINATOR the run has now earned, stated as a reusable rule: a predicate
+                      that reads a MEASURED MAGNITUDE against a DECLARED CEILING is the cost
+                      pattern (opcost, budget-exhaustion, horizon); one that reads STATE-LAWFULNESS
+                      is admission (jurisdiction, warden). Depth is computed (n − k via cpredict),
+                      never claimed; H is a policy number. B-A′'s prediction confirmed — the COST
+                      FAMILY'S THIRD PREREGISTERED INSTANCE (L3 recurrence satisfied for cost).
+    unnamed structure (M-0): (1) the OPODIS dependency — the envelope EXISTS BECAUSE reconciliation
+                      is byte-exact (`horizon-reconstruct`: δ = 0 on admit): byte-exactness
+                      collapsed every cost of a late input EXCEPT depth, so the window law RIDES on
+                      the representation seam. Neither rival named the dependency. (2) pure
+                      composition again — horizon mints nothing (cpredict's reconcile + opcost's
+                      counts), the mutants' composition axis classifying it natively a SECOND time.
+    weights:          realized C-A — B-A′ likelihood 45, B-B′ 15: posterior w(B-A′) = 3/4,
+                      w(B-B′) = 1/4. THE FIRST SEPARATION. Brier: B-A′ 0.4202, B-B′ 1.0202,
+                      author 0.7350.
+    instrument cell:  background predicted (horizon not high-adjacent) — RIGHT again (no new
+                      family). HONEST NOTE: both run-2 cells are non-high joints; the comparative
+                      claim still has an EMPTY high-Γ cell — the instrument is consistent, not yet
+                      tested on the side that could falsify it.
+    kills:            none fired (C-A is no rival's staked-zero or fails_if class).
+    census:           run-2 v_D = 0, 0 — TWO consecutive zero-arrival READs: the signed
+                      continuation rule STOPS RUN 2 at n = 2. CHECKPOINT 2 fires next, over ten
+                      read joints, with the gauntlet re-run, the coupling table updated, the weight
+                      posterior at 3/4 vs 1/4, and the cost family carrying three preregistered
+                      instances.
+    contamination:    none — L59, eighth application; the freeze commit predates the READ.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)

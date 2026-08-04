@@ -162,6 +162,18 @@ DISCOVERIES = (
        "attention axis neither rival carries; the interface instrument's background prediction was "
        "RIGHT (no new family); weights unchanged at 1/2 each; v_D = 0, run 2 continues",
        "brief written; P6 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:horizon", "READ", "horizon",
+       "P7's frozen rival predictions: B-A' time-envelope central vs B-B' time-adjudication central — "
+       "the first READ on which the rivals genuinely discriminated",
+       "the rows chose B-A': the central row certifies the ENVELOPE (admitted depth <= H, worst-case "
+       "window EQUALS H — tight) with the typed refusal as its enforcement, and the reusable "
+       "discriminator is earned — a predicate reading a MEASURED MAGNITUDE against a DECLARED CEILING "
+       "is cost (opcost, budget, horizon), one reading STATE-LAWFULNESS is admission (jurisdiction, "
+       "warden); the cost family's THIRD preregistered instance (L3 recurrence satisfied); unnamed: the "
+       "OPODIS dependency (the envelope exists because delta=0 collapsed every cost but depth — the "
+       "window rides the representation seam) and mints-nothing composition again; weights separate "
+       "3/4 vs 1/4; v_D = 0 twice consecutively — the signed rule CLOSES run 2; checkpoint 2 fires",
+       "brief written; P7 resolved C-A in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 
