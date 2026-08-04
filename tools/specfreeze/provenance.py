@@ -119,6 +119,15 @@ DISCOVERIES = (
        "(risk b did not); the second blind READ under the freeze-before-history rule, resolved "
        "CONFIRMED-MODEL with the under-prediction recorded",
        "brief written; P2 resolved in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:stance", "READ", "stance",
+       "P3's frozen hypothesis: an admission seam whose wall-crossing steps carry a TYPED REFUSAL",
+       "the rows confirm the predicate and refute the refusal semantics — a wall never refuses: blocking "
+       "is a MEASURED event (the first walled step index) and STANCE-REFUSE guards only the domain "
+       "boundary (8/8 typed, malformed declarations); the third blind READ produced the ledger's FIRST "
+       "residual (delta: refuse -> measure, a class neither pre-named risk covered) and the second-order "
+       "meta-prediction resolved INDETERMINATE by its own terms — its outcome partition was incomplete, "
+       "the exhaustive-partition rule now queued for P4's freeze",
+       "brief written; P3 resolved LOCAL-SURPRISE in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

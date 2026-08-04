@@ -227,3 +227,37 @@ seam · `layertheorem` → propagation seam. Three post-hoc labels are a hypothe
                       was selected from import LINES alone, no git command touched it before the freeze,
                       and the only pre-exposure was the role prose + nway's secondhand citation, both
                       DISCLOSED in the frozen provenance.
+
+### P3 — resolved: **LOCAL-SURPRISE** — the ledger's first residual (frozen block byte-intact)
+    read:             2026-08-04, the third blind READ (Rung D). Classified from the LIVE `stance*`
+                      rows per the frozen success_rule.
+    observed:         the central row (`stance-properties`) certifies the predicted PREDICATE exactly —
+                      a per-step admissibility gate over canonical terrain (a step is walled iff its
+                      rise exceeds MAX_STEP; "the gate is the terrain, not the model", pinned by one
+                      path that clears at MAX_STEP 40 and walls at 20) — but NOT the predicted
+                      semantics: a wall does not REFUSE. Blocking is a MEASURED EVENT — the result is
+                      the first walled step index, the walk returns where the terrain stopped it. The
+                      typed refusal (STANCE-REFUSE, 8/8 total) guards ONLY the domain boundary:
+                      malformed declarations refuse; walls MEASURE. Grading in the module's own terms:
+                      the movement MODEL is DECLARED, the walk is MEASURED — stance is the
+                      solid-ground sibling of buoyancy/crossing, a measurement instrument, not a court.
+    residual:         (predicted: admission-with-typed-refusal; observed: admission-FORM predicate
+                      whose blocking is a measured event, typed refusal only at the domain boundary;
+                      delta: REFUSE → MEASURE — a class NEITHER named risk covered; risks (a)
+                      representation-central and (b) cost/composition-central both measured FALSE).
+                      The residual's content: this repo separates ADMISSION OF THE QUESTION (domain
+                      membership — refuses) from THE ANSWER (a measured event — never refused).
+                      jurisdiction refuses inadmissible claims; stance measures where terrain blocks.
+    secondary (META): INDETERMINATE BY ITS OWN TERMS. Neither frozen falsifier fired (the resolution
+                      is not a clean (a)/(b) surprise, and not a total confirmation) — but the positive
+                      condition did not cleanly hold either: a named sub-claim was WRONG, which is
+                      stronger than a missed dimension. The meta's outcome partition was INCOMPLETE.
+                      Methodological finding, to be applied at P4's freeze: a frozen prediction must
+                      partition its outcome space EXHAUSTIVELY — every possible resolution maps to
+                      exactly one frozen class. (One instance; a LESSONS row waits for its application.)
+    outcome:          census: 3 preregistered resolutions — cost CONFIRMED-MODEL, representation
+                      CONFIRMED-MODEL, admission → LOCAL-SURPRISE (refuse ≠ measure). The ledger's
+                      first Stage-C residual object exists. Two freezes remain before the stopping
+                      rule's five-joint decision.
+    contamination:    none — L59 applied (import lines only; the freeze commit predates the READ and
+                      any history scan; role prose was the only declared exposure).
