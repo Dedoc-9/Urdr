@@ -306,6 +306,102 @@ recorded negative — the basis question stays open without an abstraction being
                       NO-PROMOTION.
     contamination:    none — L59, sixth application; the freeze commit predates the READ.
 
+## CHECKPOINT — the frozen gauntlet, EXECUTED (2026-08-04, after P5; the instrument predates the data)
+
+**Test A — COMPRESSION, by replay over all eight read joints** (3 post-hoc + 5 preregistered; an
+exception = a joint whose observed core law the basis cannot classify without a per-module patch):
+
+    joint          observed core law                        B-A (seam-type)      B-B (role×substrate)
+    heightfield    canon; identity ⊥ presentation           representation ✓     measure × representation ✓
+    jurisdiction   lattice predicate ⊥ certificate          admission ✓          police × canonical state ✓
+    layertheorem   one-way authority flow                   propagation ✓        EXCEPTION (no flow axis)
+    opcost   (P1)  cost ≤ envelope, refuse over             cost ✓               measure counts + police budget ✓
+    terraform(P2)  chunked ≡ monolith + anamnesis, CAS      representation ✓     police CAS × measure equiv ✓
+    stance   (P3)  admission-FORM gate; blocking MEASURED   EXCEPTION (axis      measure × terrain ✓ (native)
+                                                            silent on semantics)
+    warden   (P4)  claim-admission, typed refuse; 2 certs   admission ✓          police × claims ✓
+    budget   (P5)  well-founded descent + COMPOSITION       EXCEPTION            EXCEPTION
+                                                            (composition)        (composition)
+    exceptions:                                             2                    2
+    VERDICT: BOTH FAIL Test A's zero-exception bar. Neither is a basis; both are structured lists.
+
+**Test B — PREDICTION**: both bases froze one derivation each for P5 → partially confirmed (C-AB).
+The cost pattern recurred preregistered (opcost → budget) under B-A's reading. Weak pass, both.
+
+**Test C — STABILITY**: unique families invoked after each preregistered READ: 1, 2, 3, 3, 4 →
+G(n) = 1, 1, 1, 0.75, 0.8. New-family arrivals per READ (v_D) = 1, 1, 1, 0, 1. G is NOT decreasing
+(composition arrived at joint five); two consecutive zero-arrival READs never occurred. FAIL — the
+architecture is still teaching new families at the frontier; the continuation criterion says run 2
+proceeds.
+
+**Test D — COUNTERFACTUAL**: one instance adjudicated PASSED — P4's refuse-not-measure semantics are
+traceable to P3's residual, not to warden's role prose ("anti-cheat" does not entail the semantics).
+
+**CHECKPOINT VERDICT (from the frozen outcome space): NO-PROMOTION.** Promotion required surviving
+all four tests; both rivals failed A and C. The negative is recorded, no abstraction is minted, and
+the basis question stays OPEN — which the evidence demands: promoting a basis while G still rises
+would freeze a model mid-enrichment. The rivals survive as CANDIDATES via mutation:
+
+    lineage: B-A → B-A′   reason: the P5 composition residual. appeared: a composition axis (laws
+                          carry a composition signature: subadditive-priced / exact-on-disjoint).
+                          disappeared: nothing. REPLAY: 1 exception remains (stance semantics —
+                          deliberately NOT repaired this rung; one mutation per residual, and the
+                          semantics strain awaits its own recurrence).
+    lineage: B-B → B-B′   reason: the same residual. appeared: the same composition axis grafted
+                          onto role×substrate. disappeared: nothing. REPLAY: 1 exception remains
+                          (layertheorem's flow — no role/substrate cell carries direction).
+    Pareto panel (exceptions | predictions-made | confirmed | unexplained-residuals):
+        B-A  2|1|partial|1   →  B-A′ 1|1|partial|0   (dominates parent)
+        B-B  2|1|partial|1   →  B-B′ 1|1|partial|0   (dominates parent)
+    Both mutants REPLAY-survive and DOMINATE their parents. Replay can only kill, never promote
+    (the mutation was derived from the residual it explains): each mutant's Test B discharges only
+    via FORWARD frozen predictions at run 2's freezes. B-C (composition-primary) is NOT minted —
+    one observation cannot found a rival (L3); it becomes mintable if composition recurs.
+
+**Run-2 instruments, decided here** (proposed across the session, adjudicated at the checkpoint):
+    ADOPTED — the Marangoni interface atom: Γ(e) = |Φ(u)−Φ(v)| over the import graph from
+      ATTENTION-INDEPENDENT integer components only; the SELECTOR STAYS in-degree (L59) so the
+      test cannot self-fulfill; falsifier per the Discovery Interface Theorem: an interface that
+      stays maximal under the frozen selector while adjacent residual density rises is structurally
+      active; residual emergence indistinguishable from background falsifies it for that edge.
+    ADOPTED — the SIGNED continuation rule: track v_D's sign (new-family arrivals per READ);
+      direction only, no numeric thresholds (thresholds at n=5 are numerology).
+    ADOPTED — graded credences: run-2 freezes attach integer-percent credences to each frozen
+      outcome class, Brier-scored at resolution (a measurement of the predictor, not a fused
+      verdict; P5 scored at implicit 50/50/0 would have priced the composition blindness exactly).
+    ADOPTED — the coupling coefficient (URDRQPR1 §5): C(A,B) = |F_A ∩ F_B| / |F_A ∪ F_B| over
+      theorem-family feature sets — computed as a checkpoint statistic (descriptive at n=8:
+      does cost co-occur with typed refusal? composition with admission?), and FALSIFIABLE across
+      run 2 via frozen co-occurrence predictions.
+    ADOPTED — the frozen weight-update rule (URDRQPR1 §6–7): a running posterior over the rival
+      bases, updated per-resolution by a rule frozen at run 2's opening (Brier-scored). REPORTING
+      ONLY — the weights never decide anything; promotion runs exclusively through the gauntlet
+      (panel ≠ scalar).
+    DEFERRED — URDRQPR1 as a module, with two findings recorded at adjudication:
+      (1) THE BOOLEAN IDENTITY — at Boolean feature granularity the projection formalism IS the
+          executed replay table: ‖r‖² = the Test-A exception count (verified against budget:
+          x = {cost, flow, composition}, P_{B-A} spans {rep, adm, prop, cost}, ‖r‖² = 1 = the
+          recorded exception), and the Organizational Projection Theorem restates this rung's
+          mutation-admissibility rule clause for clause. By L5 it renames executed machinery;
+          the module earns existence only when a RICHER embedding demonstrably out-predicts the
+          plain exception count — the proposal's own closing criterion, adopted as the bar.
+      (2) THE DICTIONARY HORIZON — a feature must be NAMED before it can be a coordinate, so
+          r = x − P_B x can only point within the span of recognized features. Pre-P5, budget
+          would have embedded as {cost, flow} and ρ would have read SMALL at the exact moment
+          reality carried the run's largest unexplained structure; same for refuse ≠ measure
+          pre-P3. Any future URDRQPR1 carries this as its does_not_show: small ρ certifies the
+          basis explains NAMED structure, never that nothing unnamed remains — the out-of-
+          dictionary channel is and stays L60's mandatory catch-all class, which by construction
+          cannot be embedded. `integrity ≠ truth`, in vector clothing.
+    DEFERRED — the synthesis/tournament engine (earns when hand-mutation patterns recur in
+      lineage); URDRDF1 as a module (the umbrella enters as its atoms only); B-C (above).
+
+**Run 2 opens next**: target selection by in-degree under L59; the mutants' forward predictions,
+the interface atom's Γ table and edge predictions, and graded credences are frozen TOGETHER at the
+first run-2 freeze, before any seal breaks. Continuation per the signed rule; the next checkpoint
+fires when the frozen continuation criterion is met, and this gauntlet re-runs with the enlarged
+history.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
