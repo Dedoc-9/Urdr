@@ -755,6 +755,76 @@ forward record — the basis question stays open), and P8 on `drive` as the next
                       enrichment). Run 3 continues (one zero; the rule needs two).
     contamination:    none — L59, ninth application; the freeze commit predates the READ.
 
+## BATCH FREEZE — P9 + P10 + P11 (2026-08-04; the first multi-joint freeze, all sealed before any READ)
+
+**Batch rules, frozen**: targets are the entire in-degree-3 frontier in selector order (drive,
+govern, liveness — L59, import lines only, no history scans, bodies unread except as disclosed).
+Evaluation order = selector order. Weights update sequentially on SCORING joints only. If the
+stopping rule (two consecutive v_D zeros; currently at ONE from P8) fires mid-batch, run 3 CLOSES
+at that joint but the batch completes — post-closure resolutions are read, briefed, and recorded
+as post-closure. MT kills: standing conditions, plus one frozen here: **B-A′ is ELIMINATED if P9
+resolves measure-semantics-central (C-M)** — its second inexpressible measure row (stance was the
+first).
+
+### P9 — `drive` (SCORING; the interface instrument's FIRST high-Γ cell)
+    provenance:       role-only + disclosed ambient: index "Certified movement TRANSCRIPT (T3.11)"
+                      (URDRDRIVE1); the movement chain stance → gaze → drive → traj; warden's "the
+                      drive/glide step law (Δground ≤ MAX_STEP)"; glide's brief evidence "floored
+                      glide == drive over 640 cases" (drive is glide's discrete reference). Body
+                      and history UNREAD.
+    predictions:      B-A′ — REPRESENTATION-central: the certified transcript as an identity law
+                      (replay reproduces the transcript byte-exact, digest-bound — the canon
+                      pattern). B-M — splits its mass: transcript-identity as
+                      representation × structural-invariant OR the stance cell
+                      (cost-input × measure) for the driven walk.
+    partition:        C-REP (transcript/replay identity central) · C-M (driven-walk measurement
+                      central — the stance cell; KILLS B-A′) · C-R (gate-refuse central) ·
+                      C-AB (identity + measurement fused in one row) · R-O (catch-all).
+    credences:        author: C-REP 30 · C-M 25 · C-R 10 · C-AB 20 · R-O 15
+                      B-A′:   C-REP 45 · C-M 15 · C-R 15 · C-AB 15 · R-O 10
+                      B-M:    C-REP 30 · C-M 30 · C-R 5  · C-AB 25 · R-O 10
+    instrument:       drive IS in the frozen high-Γ set — the FIRST high cell: ELEVATED emergence
+                      predicted (a new family or R-class surprise). A clean confirmation with no
+                      new structure logs the high cell as no-emergence — evidence AGAINST the
+                      interface hypothesis. Either way the empty cell finally fills.
+
+### P10 — `govern` (NON-SCORING — contamination declared)
+    contamination:    DISCLOSED IN FULL: govern's gate-stage docstring was read during Rung A (it
+                      sits directly below opcost's stage): "the opcost envelope turned into LIVE
+                      enforcement — admit a FIFO prefix within the tick op-budget, defer the rest,
+                      refuse a single over-budget actor … never-overrun … progress-wait …
+                      admitted + deferred == all". The core law is effectively KNOWN. Per the
+                      frozen batch rule this joint moves NO weights and its resolution carries no
+                      tournament evidence — it is read for the brief pass and the record.
+    for the record:   expected: cost-input × refuse central (the envelope enforced live), with the
+                      progress/starvation content (progress-wait; conservation) as the thing to
+                      WATCH — if the central row is the scheduler's progress law rather than the
+                      budget enforcement, that hints a SCHEDULING axis no basis carries.
+    partition:        same five-class shape (C-COST · C-SCHED · C-R · C-AB · R-O), non-scoring.
+
+### P11 — `liveness` (SCORING)
+    provenance:       role-only — index: "Denial versus outage — the crashed-slow
+                      indistinguishability, authenticated to clockauth" (URDRLIV1); the authority
+                      arc's ladder line ("the horizon cannot be moved by the party it constrains");
+                      ambient disclosed: budget's docstring cites "the same well-founded descent on
+                      (ℕ, <) that liveness needed one rung earlier". Body and history UNREAD.
+    predictions:      B-A′ — COST-central: a timeout envelope (declared down iff silence exceeds a
+                      declared horizon — magnitude-vs-ceiling on the time axis). B-M —
+                      distinctively prices its invariant value again: the CRASHED-SLOW
+                      INDISTINGUISHABILITY itself as the central law (an impossibility theorem —
+                      structural-invariant), with the authenticated horizon as guard.
+    partition:        C-COST (timeout-envelope central) · C-INV (indistinguishability theorem
+                      central) · C-R (refusal-adjudication central) · C-AB · R-O.
+    credences:        author: C-COST 25 · C-INV 30 · C-R 10 · C-AB 20 · R-O 15
+                      B-A′:   C-COST 45 · C-INV 15 · C-R 15 · C-AB 15 · R-O 10
+                      B-M:    C-COST 25 · C-INV 40 · C-R 5  · C-AB 20 · R-O 10
+    instrument:       liveness is NOT in the high-Γ set → background predicted.
+
+    secondary (META, batch-wide, exhaustive): per scoring joint, M-0/M-1/M-2 as before; the meta
+                      predicts ¬M-1 on BOTH scoring joints (the signature is 8 for 8).
+    witness:          the git commit introducing these rows — dated before any of the three
+                      modules is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
