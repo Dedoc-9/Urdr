@@ -260,6 +260,52 @@ recorded negative — the basis question stays open without an abstraction being
     witness:          the git commit introducing this row — dated before budget.py is read, before
                       any history scan of it.
 
+### P5 — resolved: **P5-C-AB (the tie, recorded as the partition anticipated)** · meta: **M-0 (5 for 5)**
+    read:             2026-08-04, the fifth and final blind READ of the run (Rung F). Classified from
+                      the LIVE `budget*` rows.
+    observed:         ONE central row — `budget-descent` — certifies BOTH bases' predictions
+                      inseparably: "MONOTONE NON-INCREASING by pure integer subtraction with no
+                      clamp: exactly 6 succeed and the 7th refuses, the remainder never goes
+                      negative … A NEGATIVE CHARGE IS REFUSED AS A REFUND." The well-founded descent
+                      on (ℕ, <) IS both halves at once: never-up (B-B's monotone one-way law) and
+                      bottom-refusal (B-A's exhaustion envelope) are one law, not two. The module's
+                      own derivation order favors B-B's READING — "a quantity that can go back up has
+                      no termination argument and THEREFORE no bound" (monotonicity grounds the
+                      refusal) — and the refund PUMP is measured, not argued (`budget-selftest`:
+                      4 clean submissions buy a cost-4 violating block; reachable budget unbounded in
+                      submissions, 100→100, 1000→1000, against an honest cap of 6). But by the FROZEN
+                      central-row criterion the outcome is the tie class, and it is recorded as such.
+    unnamed structure (the M-0 half — the run's largest): NEITHER basis predicted budget's
+                      distinctive law: COMPOSITION-SOUNDNESS. `jurisdiction` proved
+                      defect(A∪B) ≤ defect(A)+defect(B) and left it a theorem; budget SPENDS it —
+                      per-part charging can only OVER-charge (55 pairs, 0 under-charges), the
+                      conservatism is PRICED (2 pairs over by at most 1 cell), and on PREFIX-DISJOINT
+                      shards it is EXACT (49/49, sum == union, no covariance term — what makes tiled
+                      city budgets compose). Also unnamed: "the cost is COMPUTED, never passed"
+                      (charge_for's signature admits no submitted number — the structural firewall),
+                      and the two measured design-refusals (modality credits; privilege as a
+                      firewall). A composition axis exists in the seam space and NO basis carries it
+                      — Test A evidence for the decision rung.
+    basis scoring:    B-A — prediction partially confirmed (C-AB); the cost pattern (bounded
+                      resource, typed refusal at exhaustion) has now RECURRED preregistered
+                      (opcost, budget). B-B — prediction partially confirmed (C-AB); the module's
+                      derivation order and the computed-never-passed substrate read natively in
+                      B-B's axes. BOTH leave the composition dimension unexplained. The
+                      discrimination P5 was designed for did not occur; the tie plus the shared
+                      unexplained residual is itself the datapoint the decision rung inherits.
+    secondary (META): M-0 — decidable, and the signature is now 5 for 5: every blind prediction in
+                      the run was right about the law it named and blind to at least one structural
+                      dimension of it.
+    outcome:          THE RUN IS COMPLETE. Five preregistered joints: P1 cost CONFIRMED · P2
+                      representation CONFIRMED · P3 admission-of-walks LOCAL-SURPRISE
+                      (refuse ≠ measure) · P4 admission-of-claims CONFIRMED (the loop closed) · P5
+                      the C-AB tie with the composition dimension unexplained by both bases. The
+                      five-joint checkpoint now fires: the next rung RUNS THE FROZEN GAUNTLET
+                      (A compression · B prediction · C stability/G(n) · D counterfactual) over this
+                      distribution and decides among PROMOTE-A / PROMOTE-B / KEEP-BOTH-AS-RIVALS /
+                      NO-PROMOTION.
+    contamination:    none — L59, sixth application; the freeze commit predates the READ.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)

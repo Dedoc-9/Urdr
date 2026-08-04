@@ -124,7 +124,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`bombtest.py`](../tools/terrain/bombtest.py) | `URDRBMB1` | Interaction-free tamper detection — certify an illegal step WITHOUT running it | `bombtest` | [test](../tests/test_bombtest.py) | [conf](../tools/terrain/conformance_bombtest.txt) | — |
 | [`boundedhist.py`](../tools/terrain/boundedhist.py) | `URDRBHO1` | Bounded-history optimizer (look-ahead with teeth; Belady vs LRU) | `boundedhist` | [test](../tests/test_boundedhist.py) | [conf](../tools/terrain/conformance_boundedhist.txt) | [brief](../docs/boundedhist_brief.md) |
 | [`buoyancy.py`](../tools/terrain/buoyancy.py) | `URDRBUOY1` | Exact integer flotation over the wave seam (T3.5) | `buoyancy` | [test](../tests/test_buoyancy.py) | — | — |
-| [`budget.py`](../tools/terrain/budget.py) | `URDRBGT1` | The defect budget as a first-class resource — pure subtraction, a refund voids the bound | `budget` | [test](../tests/test_budget.py) | [conf](../tools/terrain/conformance_budget.txt) | — |
+| [`budget.py`](../tools/terrain/budget.py) | `URDRBGT1` | The defect budget as a first-class resource — pure subtraction, a refund voids the bound | `budget` | [test](../tests/test_budget.py) | [conf](../tools/terrain/conformance_budget.txt) | [brief](../docs/budget_brief.md) |
 | [`byteacct.py`](../tools/terrain/byteacct.py) | `URDRBYT1` | Proof-carrying byte accounting (the Byte Budget Theorem) | `byteacct` | [test](../tests/test_byteacct.py) | [conf](../tools/terrain/conformance_byteacct.txt) | [brief](../docs/byteacct_brief.md) |
 | [`cayley.py`](../tools/terrain/cayley.py) | `URDRCAY1` | The Cayley-Menger determinant as a coordinate-free realizability law | `cayley` | [test](../tests/test_cayley.py) | [conf](../tools/terrain/conformance_cayley.txt) | — |
 | [`chunkload.py`](../tools/terrain/chunkload.py) | `URDRCHK1` | Certified terrain authority cut (T3.37, Stage I opener) | `chunkload` | [test](../tests/test_chunkload.py) | [conf](../tools/terrain/conformance_chunkload.txt) | [brief](../docs/chunkload_brief.md) |
@@ -317,7 +317,7 @@ rung 2 dismantles in one move.
 - **`bombtest`'s screen is evadable by anyone who reads it.** Detection is measured against a
   NON-ADAPTIVE tamperer; an adversary who knows the invariants picks a kernel delta and is caught 0
   of 70 times. It is a screen, never a verdict, and it does not replace the hash chain or the court.
-- **60 of 103 modules have no design brief — the centrality-ordered pass is working through the articulation joints: `heightfield` (T1, in-degree 28), `jurisdiction` (URDRJUR1, the lattice-predicate authority seam), `layertheorem` (URDRISPL1, one-way authority flow across seven layers), `opcost` (URDROPC1, the certified work envelope — the first joint read blind against a frozen pre-registration, P1), `terraform` (URDRTFM1, the membrane's edit-law on the mutable world — the second blind read, P2, under the freeze-before-history rule), `stance` (URDRSTANCE1, the grounded step law — P3, the ledger's first preregistered residual: refuse ≠ measure), and `warden` (URDRWARD1, structural anti-cheat — P4, the residual's first predictive success: claims refuse, walks measure).**
+- **59 of 103 modules have no design brief — the five-joint preregistered run is COMPLETE: `heightfield` (T1, in-degree 28), `jurisdiction` (URDRJUR1, the lattice-predicate authority seam), `layertheorem` (URDRISPL1, one-way authority flow across seven layers), `opcost` (URDROPC1, the certified work envelope — P1), `terraform` (URDRTFM1, the membrane's edit-law — P2), `stance` (URDRSTANCE1, the grounded step law — P3, the first preregistered residual: refuse ≠ measure), `warden` (URDRWARD1, structural anti-cheat — P4, the residual's first predictive success), and `budget` (URDRBGT1, the monotone defect budget — P5, the basis-discriminating read: the C-AB tie, with the composition axis unexplained by both rival bases). The frozen decision gauntlet fires next.**
   Eleven modules across the certificate arc (`inputset`, `cohort`, `autoroute`, `blindscreen`, `tilemin`) and
   the partition/authority arc (`partition`, `worldregion`, `chunkstate`, `chunkload`, `migrate`, `rannull`)
   were briefed this session; each now carries a `docs/<name>_brief.md` whose falsifier the gate ENFORCES
@@ -397,7 +397,7 @@ What remains is one persistent city standing on all the slices at once, under lo
 
 **Stage 6 — briefs and the D5 ledger.** The GRADING half of this stage is PAID: all 97 pinned
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
-zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 60
+zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 59
 modules have no `docs/*_brief.md`. The certificate and partition/authority arcs have since been briefed
 (their falsifiers gate-enforced); the residual gap is the older substrate, and the D5 ledger still needs its
 entries. That debt is not cosmetic: the briefs are where the OODA

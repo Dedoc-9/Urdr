@@ -138,6 +138,18 @@ DISCOVERIES = (
        "blind READ, the first decidable second-order verdict, the first residual->prediction->confirmation "
        "loop",
        "brief written; P4 resolved W-C0 / meta M-0 in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:budget", "READ", "budget",
+       "P5's frozen rival predictions: B-A exhaustion-envelope central (cost recurrence) vs B-B "
+       "monotone/no-refund central (one-way flow) — the first basis-discriminating experiment",
+       "the discrimination did NOT occur and the frozen partition recorded it honestly: ONE central row "
+       "(budget-descent) certifies both inseparably — a well-founded descent on (N,<): never up (a refund "
+       "is refused; the pump is measured, 4 clean submissions buy a violating block) and bottom-refusal "
+       "(exactly 6 unit charges succeed, the 7th raises) are one law; and the run's LARGEST unnamed "
+       "dimension surfaced — composition-soundness (subadditivity spent as enforcement: 0 under-charges "
+       "over 55 pairs, EXACT on 49 prefix-disjoint pairs, conservatism priced) which NEITHER basis "
+       "carried; the fifth blind READ closes the run (meta M-0, 5 for 5)",
+       "brief written; P5 resolved C-AB in exe_epistemics/PREDICTIONS.md; the checkpoint fires next",
+       "CONFIRMATION"),
 )
 
 
