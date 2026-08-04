@@ -890,6 +890,86 @@ first).
                       first sighting, the thrice-realized under-priced tie class, and the
                       interface instrument's contradicted high cell.
 
+## CHECKPOINT 3 — the gauntlet over THIRTEEN read joints (2026-08-04) — **THE FIRST PROMOTION**
+
+**Test A — compression replay (14 modules incl. non-scoring govern):**
+    B-A′: TWO exceptions — stance (measure semantics, standing) and govern's scheduler laws
+          (progress / bounded-wait / fairness fit no axis in {rep, adm, prop, cost} + composition).
+          FAILS.
+    B-M:  ZERO exceptions, TWO recorded strains — govern's scheduling filed as cost-input ×
+          structural-invariant (the drain bound as a process invariant; a strain, not a patch) and
+          drive filed as representation × invariant. All fourteen classify. PASSES.
+**Test B — prediction:** B-A′ two forward wins (P7, P9); B-M one (P8) plus tie-shares. Both PASS.
+**Test C — stability:** families over eleven preregistered READs: 1,2,3,3,4,4,4,4,4,4 →
+    G(n) → 4/11 ≈ 0.36, strictly decreasing since P5; runs 2 and 3 each closed on double zeros.
+    PASSES. **Test D — counterfactual:** three instances (P4 refuse≠measure; P7 same-prose
+    divergent predictions; P8 the invariant call traceable to the axis, not lease's prose). PASSES.
+
+**VERDICT (frozen outcome space): PROMOTE B-M.** The first basis to survive all four tests over
+the full history. What promotion MEANS, bounded honestly (L58): B-M becomes the WORKING BASIS —
+the default seam vocabulary for future briefs and freezes — and nothing more: no gate row is
+minted, MT stays armed (promotion is not immunity; B-M's fails_if survive), and **B-A′ is retained
+as the live challenger** (the discriminability criterion: a promoted basis without a rival is a
+narrative). The tournament continues: weights B-M 0.58 / B-A′ 0.42.
+
+**Also adjudicated here:**
+    TIE-PRICING RULE, frozen forward: C-AB is priced ≥ 30 for any target whose role prose names
+      two laws or composes two certified patterns — three realizations (P5, P6, P11), under-priced
+      all three times, end here.
+    SCHEDULING AXIS: one sighting (govern) — not minted (L3); the checkpoint's re-scan found no
+      second carrier among the fourteen. priogov, when its turn comes, is the natural test.
+    INTERFACE INSTRUMENT: SUSPENDED — not killed, starved. Runs 2–3 produced ZERO emergence
+      events, so its comparative claim is untestable on this corpus tail, and its single
+      directional call (drive's high cell: elevated predicted, clean delivered) was wrong. The Γ
+      table remains data; the instrument revives if an emergence event ever accrues. Recorded as
+      the honest fate of a hypothesis the world declined to feed.
+
+## BATCH 2 FREEZE — P12 + P13 + P14 (all sealed before any READ; B-M now predicts as working basis)
+
+**Batch rules**: as batch 1 (selector order wavefield → frontier → gaze; sequential scoring;
+run-4 v_D starts fresh; mid-batch closure completes the batch post-closure). MT: standing
+conditions. The suspended instrument makes no calls. Meta predicts ¬M-1 on all three (10 for 10).
+
+### P12 — `wavefield` (SCORING; heavy role-prose exposure disclosed)
+    provenance:       the AGENTS.md index entry is unusually detailed and was read twice this
+                      session (DISCLOSED): "the EXACT integer traveling-wave field (periodic
+                      parabolic profile, floor-mod phase, superposition; same components + tick →
+                      same bytes, no rounding) the GPU's declared Gerstner sinusoid draws from —
+                      DIVISION-FREE (tokenizer-asserted)". This is the sanctioned role-prose
+                      channel, but rich; the discrimination below is about what is CENTRAL, which
+                      the prose does not rank. Body and history UNREAD.
+    partition:        C-REP (exact-integer canon identity central — the heightfield pattern on a
+                      time-varying field) · C-INV (superposition linearity / division-free as the
+                      central structural law) · C-AB · R-M · R-O.
+    credences:        author: C-REP 30 · C-INV 20 · C-AB 30 · R-M 5 · R-O 15
+                      B-A′:   C-REP 45 · C-INV 10 · C-AB 30 · R-M 5 · R-O 10
+                      B-M:    C-REP 35 · C-INV 20 · C-AB 30 · R-M 5 · R-O 10
+
+### P13 — `frontier` (SCORING)
+    provenance:       role-only — the hygiene-rung line "frontier (the admission accelerator)".
+                      Body and history UNREAD. The candidates largely AGREE here (recorded: weak
+                      discrimination expected — an accelerator's honest law is usually
+                      fast-path ≡ slow-path).
+    partition:        C-EQ (accelerated ≡ unaccelerated equivalence central) · C-ADM
+                      (admission-gate central) · C-AB · R-M · R-O.
+    credences:        author: C-EQ 35 · C-ADM 20 · C-AB 30 · R-M 5 · R-O 10
+                      B-A′:   C-EQ 40 · C-ADM 20 · C-AB 30 · R-M 3 · R-O 7
+                      B-M:    C-EQ 45 · C-ADM 15 · C-AB 30 · R-M 3 · R-O 7
+
+### P14 — `gaze` (SCORING; partial exposure disclosed — the stage docstring's first line leaked
+                      during an earlier Read: "the certified first-person OBSERVER over the
+                      terrain"; stance/drive prose adds "certifies a view reconstructs to
+                      trajectory[k], or refuses it")
+    partition:        C-R (view-admission central: reconstruct-or-refuse — the warden pattern on
+                      observers) · C-REP (view-reconstruction identity central) · C-AB · R-M · R-O.
+    credences:        author: C-R 30 · C-REP 25 · C-AB 30 · R-M 5 · R-O 10
+                      B-A′:   C-REP 40 · C-R 20 · C-AB 30 · R-M 3 · R-O 7
+                      B-M:    C-R 40 · C-REP 20 · C-AB 30 · R-M 3 · R-O 7
+                      GENUINE DISCRIMINATION: the promoted basis reads the observer as police ×
+                      representation; the challenger as identity-first.
+    witness:          the git commit introducing these rows — dated before any of the three
+                      modules is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
