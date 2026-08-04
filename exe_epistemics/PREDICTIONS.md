@@ -1463,6 +1463,97 @@ rule applied. Meta predicts ¬M-1 on all three (21 for 21).
                       mint (priogov) between the engine and a declared — single-basis, honestly
                       caveated — convergence.
 
+## CHECKPOINT 7 — the CONVERGENCE DECISION opens (2026-08-04): sole basis, one mint question
+
+**Gauntlet.** B-M′ is now the SOLE surviving basis (B-A″ retired at P26 under its frozen dual
+condition: ≥3 consecutive losing discriminations AND w < 0.20). Test A (compression): B-M′ clean —
+0 exceptions over the scored joints. Tests B (prediction) and C (stability, G(n) turning) pass. Test
+D — "a plausible competing basis testable against future READs" — is now VACUOUS BY RETIREMENT: no
+live rival remains to falsify B-M′, which is exactly L61's empty answer turned on the engine's own
+convergence criterion. **This is the honest cost of the retirement, recorded as such: single-basis
+convergence is STRICTLY WEAKER than rival-tested convergence — nothing alive can now contradict the
+sole basis, so its survival is cheap.** The retirement was earned by rule (three losses + weight
+floor), not chosen; the weakness it introduces is stated, not hidden.
+
+**The last open mint question.** Convergence had TWO frozen blockers; the retirement cleared one. The
+other is the SCHEDULING-AXIS mint. That axis has ONE preregistered sighting — `govern` (P10,
+non-scoring: "a per-tick conservation of work, admitted + deferred == all"). By the SAME mint rule the
+approximation axis was held to (checkpoint 4: TWO independent preregistered carriers → mint), the
+scheduling axis needs a SECOND carrier. Computed fresh this checkpoint (never carried from prose — the
+operator drift the P8 erratum caught): the frozen selector's next joint is `priogov` (URDROPC3,
+"PRIORITY work governor"), in-degree 1, lex-first of the six in-degree-1 unbriefed modules {priogov,
+recirc, slo, testament, traj, view_witness} — the OPC family's THIRD member (opcost → govern →
+priogov) and the natural second carrier. So the convergence decision is DECIDABLE by the very next
+READ, neither bendable nor pre-decidable:
+
+    FROZEN MINT CONDITION (scheduling axis). The scheduling axis MINTS iff `priogov` reads as an
+    INDEPENDENT carrier of a scheduling seam — a PRIORITY/DEADLINE-ordered admission of work, distinct
+    from opcost's cost-ENVELOPE (a bound on total work) and from govern's CONSERVATION (admitted +
+    deferred == all): priogov must certify that work is admitted in a CERTIFIED ORDER (priority or
+    deadline is provably honoured), not merely bounded or conserved. If it does, govern (carrier 1) +
+    priogov (carrier 2) reach the two-carrier bar and the axis mints — the arc's SECOND minted seam
+    family after approximation. If priogov reads as a govern-VARIANT (the same conservation law with
+    priority as an uncertified policy knob), it is NOT a second carrier, the axis does NOT mint, and
+    convergence stays blocked pending a later scheduling carrier (schedule / slo / clslo). Recorded
+    either way; the engine may not declare the mint by fiat.
+
+    ON MINT: with the sole-basis caveat already carried, convergence becomes DECLARABLE — both frozen
+    blockers cleared (B-A″ retired, scheduling axis minted). The declaration is single-basis, honestly
+    weaker than rival-tested, and names its DEFERRED strengthening: a fresh adversarial challenger,
+    NOT built speculatively (L58).
+
+Checkpoint 7 does not declare convergence; it FRAMES the decision and freezes its one remaining input.
+Batch 7 reads that input.
+
+## BATCH 7 FREEZE — P27 + P28 + P29 (all sealed before any READ)
+
+**Batch rules**: order priogov → recirc → slo (frozen selector: in-degree 1 each, lex asc, priogov <
+recirc < slo). Sole basis B-M′ (B-A″ retired) — no discrimination is possible, so every joint is
+retirement-neutral by construction and is scored only on the v_D (new-family) census and the meta.
+Run-8 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on all three (24 for 24).
+
+### P27 — `priogov` (SCORING) — role: "PRIORITY work governor (T3.31)" (URDROPC3); ambient disclosed:
+    the OPC family (opcost URDROPC1 cost-envelope — P1; govern URDROPC2 conservation — P10, the
+    scheduling-axis first sighting); `schedule` (age-first, starvation-free) is family; the LAT chain
+    (horizon/slo/clslo) is adjacent. Body and history UNREAD. **THE CONVERGENCE-GATING JOINT.**
+    partition:        C-ORD (a certified priority/deadline ORDER of admitted work central — the
+                      scheduling axis's second carrier; v_D=1, MINTS the axis) · C-PRICE (a per-tick
+                      work PRICE/budget central — the cost family repeating, a govern-variant; v_D=0,
+                      no mint) · C-EQ (a priority-schedule ≡ reference-schedule equivalence central) ·
+                      C-INV (a work-conservation structural invariant central — govern's law verbatim;
+                      v_D=0) · R-M · R-O.
+    credences:        author (= B-M′, sole basis): C-ORD 45 · C-PRICE 25 · C-EQ 10 · C-INV 12 · R-M 4 ·
+                      R-O 4. The role's word "PRIORITY" and the distinct URDROPC3 code weight C-ORD over
+                      the govern-variant readings — but the mint is EARNED only if the source certifies
+                      an ORDER, not merely a priority-labeled budget. Frozen so the READ decides, not
+                      the credence.
+    mint call:        v_D=1 (scheduling axis mints) is the author's call at 0.45; the FROZEN condition
+                      above, not this number, adjudicates it on the READ.
+
+### P28 — `recirc` (SCORING) — role: "Kleene recirculation — THERE IS NO LOOP, and closing it would
+    weaken fraud detection" (URDRRCC1); ambient: `jurisdiction`'s Kleene fixed point (four predicates
+    one object) is family; the role STATES a negative. Body and history UNREAD.
+    partition:        C-FLOOR (a soundness-of-absence result central — "no loop is the correct answer
+                      and a closed loop would be worse"; the ashdepth/vacuity-law inversion pattern) ·
+                      C-INV (a fixed-point structural invariant central — the closure already sits at
+                      its least fixed point) · C-R (a refusal/admission predicate central) · R-M · R-O.
+    credences:        author (= B-M′): C-FLOOR 45 · C-INV 30 · C-R 12 · R-M 6 · R-O 7. The role states a
+                      negative, so soundness-of-absence leads; v_D=0 expected — recirc strengthens L61's
+                      vacuity carriers rather than minting a family.
+
+### P29 — `slo` (SCORING) — role: "Composite worst-case latency SLO (T3.33)" (URDRLAT2); ambient: the
+    LAT family (horizon URDRLAT1 — P7, the cost family's third instance; clslo URDRLAT3;
+    storecost/persist/resurrect LAT4–6); a COMPOSITE bound. Body and history UNREAD.
+    partition:        C-PRICE (a worst-case latency BOUND/price central — the cost family, a fourth
+                      preregistered instance; v_D=0) · C-EQ (a composite-bound ≡ sum-of-parts
+                      equivalence central — the composition pattern) · C-ORD (if slo certifies a
+                      scheduling ORDER, a third scheduling carrier; v_D=1) · C-INV · R-M · R-O.
+    credences:        author (= B-M′): C-PRICE 40 · C-EQ 30 · C-ORD 10 · C-INV 8 · R-M 6 · R-O 6. A
+                      "composite worst-case bound" reads as cost/price composition — the LAT family's
+                      bound arithmetic; v_D=0 expected. If the composite bound is EXACT (worst-case of
+                      the composite == the composed worst-cases), C-EQ; else C-PRICE.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
