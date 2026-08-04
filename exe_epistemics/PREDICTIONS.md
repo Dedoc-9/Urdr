@@ -714,6 +714,47 @@ forward record — the basis question stays open), and P8 on `drive` as the next
                       invariant>; observed: <actual>; delta: <R-M | R-O:<named-after-reading>>).
     witness:          the git commit introducing this row — dated before lease.py is read.
 
+### P8 — resolved: **P8-C-INV — B-M's first forward confirmation** · **B-B′ ELIMINATED (MT)** · meta: **M-0 (8 for 8)**
+    read:             2026-08-04, run 3's first blind READ (Rung K). Classified from the LIVE
+                      `lease*` rows.
+    observed:         the module names its own keystone and the central row certifies it:
+                      `lease-interval` — INTERVAL COMMUTATION (the leased edit admits at EVERY
+                      insertion position of a disjoint-authority chain, bytes unchanged, ONE final
+                      head — "RAN-0's diamond, iterated without re-proving": the nullity lifted to
+                      time as a STRUCTURAL law) plus AMORTIZATION (the cheap admission equals the
+                      full global reproof bit-for-bit at every interval head — the proof paid once
+                      at mint, admissions inheriting it). The admission machinery (`lease-validity`
+                      state-free in one manifest slot; `lease-refuse`, six-way typed) is the GUARD,
+                      exactly as B-M's frozen wording had it. Self-expiry completes the exclusivity
+                      content: a lease dies at its own use, renewal is the chain, the chain is the
+                      region's write history.
+    tournament:       B-M's structural-invariant value did distinctive, confirmed, forward work —
+                      the merge out-predicted its parents at the first opportunity (C-INV 35 vs
+                      their 15). MT KILL FIRED: classifying an order-free structural law requires
+                      the invariant cell B-B′ lacks — its second structural exception (layertheorem
+                      standing) — B-B′ IS ELIMINATED from the admissible space per the frozen
+                      condition. B-A′ survives with a wrong central-row call (C-R 55, Brier 1.06)
+                      and a strained-but-expressible classification (order-free files under
+                      propagation, no new axis). The structural-invariant axis gains its second
+                      member (layertheorem, lease).
+    weights:          Bayes on C-INV (15/15/35), then MT-removal of B-B′, renormalized:
+                      w(B-M) = 0.61, w(B-A′) = 0.39. Brier: B-M 0.58, B-A′ 1.06, B-B′ 1.06
+                      (final), author 0.75.
+    unnamed structure (M-0): THE LOST-UPDATE LAW — the run's first CROSS-LAW HAZARD: anamnesis
+                      (P2's celebrated virtue — the store retains old chunks forever) COMPOSES
+                      ADVERSELY with admission: fetching by the lease's own digest would find stale
+                      bytes, apply cleanly, and silently revert the interval's edits. The repair is
+                      two individually-redundant, jointly-load-bearing layers (valid()'s cheap
+                      manifest check + the shard CAS), with plants proving both-gutted lands the
+                      lost update. Composition's ADVERSE face: two certified virtues composing into
+                      a hazard — an enrichment of the composition axis, noted not minted. Also
+                      unnamed: state-free O(1) validity; single-shot self-expiry.
+    instrument cell:  background predicted (lease not high-adjacent) — RIGHT (3 for 3, all cells
+                      still non-high; the high cell stays empty per the erratum).
+    census:           v_D = 0 (no new family; the composition axis absorbs the hazard as
+                      enrichment). Run 3 continues (one zero; the rule needs two).
+    contamination:    none — L59, ninth application; the freeze commit predates the READ.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)

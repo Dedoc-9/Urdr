@@ -174,6 +174,19 @@ DISCOVERIES = (
        "window rides the representation seam) and mints-nothing composition again; weights separate "
        "3/4 vs 1/4; v_D = 0 twice consecutively — the signed rule CLOSES run 2; checkpoint 2 fires",
        "brief written; P7 resolved C-A in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:lease", "READ", "lease",
+       "P8's three-way frozen predictions: the parents (converging) called an interval-admission gate "
+       "central; the merged basis B-M distinctively priced a structural EXCLUSIVITY/COMMUTATION "
+       "invariant",
+       "the module names its own keystone and the central row certifies it — INTERVAL COMMUTATION "
+       "(the leased edit admits at every insertion position, bytes unchanged, one head: RAN-0's diamond "
+       "iterated without re-proving) plus AMORTIZATION (cheap admit == full reproof bit-for-bit), gates "
+       "as guards — B-M's first FORWARD confirmation (C-INV 35 vs the parents' 15), and the frozen MT "
+       "kill fired: an order-free structural law needs the invariant cell B-B' lacks (second structural "
+       "exception) — B-B' ELIMINATED, the tournament's first death; unnamed: the LOST-UPDATE cross-law "
+       "hazard (anamnesis composing adversely with admission, repaired by two jointly-load-bearing "
+       "layers, plants proving both-gutted lands it); weights B-M 0.61 / B-A' 0.39; meta M-0, 8 for 8",
+       "brief written; P8 resolved C-INV in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 
