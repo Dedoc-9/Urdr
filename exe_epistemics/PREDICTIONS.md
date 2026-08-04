@@ -171,6 +171,95 @@ seam · `layertheorem` → propagation seam. Three post-hoc labels are a hypothe
     witness:          the git commit introducing this row — dated before warden.py is read, before any
                       history scan of it.
 
+## DECISION INSTRUMENT — frozen BEFORE P5 resolves (the five-joint checkpoint's procedure)
+
+The run's stopping rule (header) is IMPLEMENTED here, not replaced: "the class distribution decides"
+was underspecified, and this section — frozen while one joint remains unread — is the decision
+procedure that rung will run. Choosing it after P5 would be post-hoc model selection; the L59/L60
+logic applied to the decision layer itself.
+
+**The four-test promotion gauntlet** (a candidate basis is promoted only if it survives all four):
+  A COMPRESSION      each candidate basis must classify EVERY read joint (post-hoc and preregistered)
+                     with ZERO per-module exceptions; exceptions are counted; a basis with exceptions
+                     is a list, not a basis.
+  B PREDICTION       at least one basis-DERIVED frozen prediction confirmed before promotion. P5 is
+                     the live instance: both bases below derive a prediction for `budget`, frozen
+                     here, and the resolution scores both.
+  C STABILITY        G(n) = unique seam families / preregistered READs, computed over the run;
+                     promotion requires G decreasing by the checkpoint. CONTINUATION RULE (governs
+                     runs AFTER this one, never this one retroactively): keep freezing joints until
+                     two consecutive READs introduce no new family AND compression holds — then stop.
+  D COUNTERFACTUAL   operationalized (the "delete the basis" test made checkable): the basis must
+                     hold >=1 CONFIRMED prediction whose content is traceable to the BASIS and not to
+                     the target's role prose. Candidate instance on record: P4's refuse-not-measure
+                     semantics came from P3's residual, not from "anti-cheat" prose. The decision
+                     rung adjudicates.
+**Checkpoint outcome space (exhaustive, L60)**: PROMOTE-A · PROMOTE-B · KEEP-BOTH-AS-RIVALS (neither
+dominates; both stay alive, scored against the next run) · NO-PROMOTION (a failed gauntlet is a
+recorded negative — the basis question stays open without an abstraction being minted).
+
+**The competing bases** (executable objects; rivals, not cumulative discoveries):
+
+    basis: B-A ("seam-type")
+      members:   representation · admission · propagation · cost
+      supports:  heightfield(rep, post-hoc) · jurisdiction(adm, post-hoc) · layertheorem(prop,
+                 post-hoc) · opcost(cost, P1) · terraform(rep, P2) · warden(adm, P4);
+                 STRAIN on stance (P3): the type axis is silent on refuse-vs-measure — the residual
+                 had to be patched in as a semantics note, which is an exception Test A counts.
+      predicts:  budget → COST-family recurrence: the central row is a bounded-envelope /
+                 exhaustion-refusal law (the opcost within_budget pattern; the cost family's second
+                 preregistered member — the L3 recurrence test).
+      fails_if:  P5 lands C-B (the role axis load-bearing where the type axis is silent); a sixth
+                 independent family is needed; G(n) non-decreasing at the checkpoint.
+
+    basis: B-B ("role × substrate")
+      members:   role ∈ {police-the-question, measure-the-answer} × substrate ∈ {canonical state,
+                 measured resource, claims, representation}
+      supports:  jurisdiction (police × canonical state) · stance (measure × terrain) · warden
+                 (police × claims) · opcost (measure counts, police budget — factors with no
+                 exception) · terraform (police CAS, measure equivalence). B-B explains P3's surprise
+                 NATIVELY: stance-vs-warden is an axiom of the basis, not an anomaly.
+      predicts:  budget → the MONOTONE ONE-WAY law central: "a refund voids the bound" is the
+                 load-bearing clause — allowance flows one way (pure subtraction), a credit attempt
+                 is structurally forbidden (the layertheorem flow pattern on a resource), with
+                 spend-refusal as the guard.
+      fails_if:  P5 lands C-A with monotonicity absent or peripheral; role assignment needs
+                 per-module exceptions; a third role is required immediately.
+
+    scoring (both): modules-explained · predictions-made · predictions-confirmed ·
+                    residuals-unexplained. The gate is the tournament; no scorer engine is built
+                    (L58) — two ledger objects and their frozen predictions are the n=2 embryo.
+
+### P5 — `budget` (the run's final freeze; the first BASIS-DISCRIMINATING experiment)
+    state:            PREREGISTERED
+    target:           budget — frontier tie at in-degree 5 (budget, wire); TIE-BREAK RULE, frozen:
+                      lexicographic ascending on module name. Selection per L59: import LINES only,
+                      bodies unread, no history scan before this freeze.
+    provenance:       role-only — the index line "The defect budget as a first-class resource — pure
+                      subtraction, a refund voids the bound" (URDRBGT1). Ambient disclosed exposure:
+                      AGENTS.md prose elsewhere associates budget-bounded testing with "the OPCOST
+                      discipline" (a phrase about another module's test harness). budget.py and its
+                      git history are UNREAD.
+    hypothesis:       DERIVED FROM THE BASES, not authored fresh — B-A and B-B disagree about the
+                      central row (above), and P5's job is to discriminate.
+    outcome partition (EXHAUSTIVE, L60 — every resolution maps to exactly one):
+                      P5-C-A   central row = exhaustion/envelope refusal (cost recurrence), with
+                               refund-forbidding peripheral or absent → B-A's prediction.
+                      P5-C-B   central row = the monotone/no-refund one-way law, with exhaustion
+                               refusal as guard → B-B's prediction.
+                      P5-C-AB  ONE central row certifies both inseparably → both partially right,
+                               NOT discriminating (the tie is recorded as such).
+                      P5-R-M   the semantics are MEASURE-not-refuse (the stance pattern: budget
+                               reports; only the domain refuses) → surprises BOTH bases.
+                      P5-R-O   OTHER — catch-all; residual free-form, delta named after reading.
+    secondary (META — exhaustive): M-0 resolution ∈ {C-A, C-B, C-AB} AND >=1 unnamed structural
+                      dimension surfaced · M-1 same set with NONE · M-2 resolution ∈ {R-M, R-O}.
+                      The meta predicts ¬M-1 (the signature is 4 for 4).
+    residual_format:  if R-M / R-O — (predicted: A=<cost-envelope> B=<monotone-flow>; observed:
+                      <actual>; delta: <R-M | R-O:<named-after-reading>>).
+    witness:          the git commit introducing this row — dated before budget.py is read, before
+                      any history scan of it.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
