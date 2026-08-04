@@ -276,6 +276,35 @@ DISCOVERIES = (
        "unless something asserts non-emptiness; approximation-axis CONTENT without the frozen R-O "
        "trigger — the letter-vs-spirit question recorded for checkpoint 4",
        "brief written; P17 resolved C-FLOOR in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:auditgraph", "READ", "auditgraph",
+       "P18 (batch 4): kappa-price vs topology-theorem centrality for the exclusion price",
+       "C-PRICE — auditgraph-law is the theorem chain: splitview's gossip graph was EXOGENOUS but an "
+       "official server BUILDS its own (matchmaking is the attack surface; Bell(k)-1 partitions "
+       "disconnect and the server picks), committing topology to CLIENT IDENTITY collapses that to 0/1 "
+       "leaving only ADMISSION, and the price of undetected equivocation is exactly kappa the VERTEX "
+       "connectivity (attack census == Menger max-flow, 771 graphs to order 5, 0 exceptions; all-pairs "
+       "uniquely unbreakable, reversing splitview); the RECORDED LIE (a cross-check comparing two copies "
+       "of one loop, shipped 3x, refuted BY MUTATION and now falsified every gate pass) is L23 "
+       "self-applied, and the denominator defect is the VACUITY LAW's fifth carrier; challenger pricing "
+       "wins, weights 0.614/0.386",
+       "brief written; P18 resolved C-PRICE in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:cpredict", "READ", "cpredict",
+       "P19, NON-SCORING: horizon's read had exposed reconcile/reconstruct and delta=0",
+       "the disclosed law certified — cpredict-equivalence (reconstruct == authoritative glide "
+       "bit-for-bit, delta=0, which is what makes rollback cost purely a function of depth) and "
+       "cpredict-refines (localize the first mispredict boundary, replay only the suffix, memoryless "
+       "byte-exact resume); read for the brief pass, weights untouched",
+       "brief written; P19 recorded non-scoring in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:driftgaze", "READ", "driftgaze",
+       "P20: shift-admission vs resident-set-conservation centrality for the client that MOVES",
+       "C-AB — driftgaze-shift fuses the two: the mover CHUNK-REFUSEs on unloaded demand then runs on "
+       "the resident view EQUAL to the full-field glide bit-for-bit after the verified acquire, interest "
+       "following the gaze over a resident set that changes beneath the walk (police + equality in one "
+       "law); mints nothing (wire replica + grid dims); unnamed: re-acquisition carries history "
+       "(catching up is a FETCH not a replay), the stale-acquisition split (fetch checks integrity not "
+       "currency, caught at the CAS), and the gap repair paying the storm's declared W4 debt; the second "
+       "scoring v_D zero CLOSED run 5; meta not-M-1 18 for 18",
+       "brief written; P20 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

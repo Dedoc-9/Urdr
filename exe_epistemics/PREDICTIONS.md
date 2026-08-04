@@ -1180,6 +1180,53 @@ STARVED. Meta predicts ¬M-1 on both scoring joints (16 for 16).
                       B-M′:   C-R 30 · C-CONS 30 · C-AB 30 · R-M 3 · R-O 7
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P18 — resolved: **C-PRICE** — the challenger's sharper pricing wins
+    observed:         `auditgraph-law` is the theorem chain entire: splitview's gossip graph was
+                      EXOGENOUS and an official server BUILDS its own — matchmaking is the attack
+                      surface (Bell(k)−1 of the Bell(k) session partitions leave the audit graph
+                      disconnected, and the server picks); committing the topology to CLIENT
+                      IDENTITY collapses that to 0 of 1, leaving only ADMISSION; and under a
+                      committed topology THE PRICE OF UNDETECTED EQUIVOCATION IS EXACTLY κ(T), the
+                      vertex connectivity — decided by RUNNING THE ATTACK over every exclusion set
+                      and comparing against Menger max-flow, 771 connected labelled graphs to
+                      order 5, 0 exceptions. Corollary reversing splitview's recommendation: the
+                      graphs the server can NEVER split are EXACTLY the complete ones — all-pairs
+                      costs the adversary infinity. Weights: B-A″ 40 vs B-M′ 30 → 0.614 / 0.386.
+    unnamed (M-0):    THE RECORDED LIE — the first cross-check compared two copies of the same
+                      loop and "shipped three times before an audit caught it"; refuted BY
+                      MUTATION (corrupt `components`: the old census still reports 0 exceptions,
+                      merely SHRINKING ITS OWN DENOMINATOR, while the Menger census reports 181),
+                      and `cross_check_is_falsifiable` now runs that mutation ON EVERY GATE PASS —
+                      L23 self-applied inside a module. And the denominator defect is the VACUITY
+                      LAW'S FIFTH CARRIER (a fault that narrows the world without causing
+                      disagreements — an empty answer wearing a clean census's clothes), now
+                      guarded by max-flow cross-check (1099/1099) and typed refusals in
+                      validate_graph. Vacuity rule: censuses non-empty, cited — satisfied.
+
+### P19 — resolved (NON-SCORING): the disclosed law, certified
+    observed:         `cpredict-equivalence` and `cpredict-refines` certify what horizon's read had
+                      exposed: reconcile localizes the first mispredict boundary, replays only the
+                      suffix, and reconstruct lands on the authority byte-exactly (δ = 0). Read
+                      for the brief pass; no weights moved.
+
+### P20 — resolved: **C-AB** · RUN 5 CLOSES (two consecutive scoring zeros) · meta ¬M-1: 18 for 18
+    observed:         `driftgaze-shift` fuses the two predicted centers: the mover CHUNK-REFUSEs
+                      on unloaded demand, then runs on the resident view EQUAL to the full-field
+                      glide BIT-FOR-BIT after the verified acquire, with interest following the
+                      gaze — police and equality in one law, over a resident set that changes
+                      beneath the walk, driven by the walk's own demand. `driftgaze-fetch` (five
+                      refusal shapes, all pure) and `driftgaze-repair` (the gap repair) guard it.
+                      Weights unchanged (equal 30s): B-M′ 0.614 / B-A″ 0.386.
+    unnamed (M-0):    RE-ACQUISITION CARRIES HISTORY (missed updates are never replayed — they
+                      arrive as already-history and refuse at the CAS; catching up is a FETCH, not
+                      a replay); the stale-acquisition split (the fetch checks INTEGRITY, not
+                      CURRENCY — currency is state, caught by the next admission's CAS); and the
+                      GAP REPAIR as cross-module debt settlement — the storm's declared W4 debt,
+                      paid on schedule and cited both ways.
+    census:           run-5 v_D = 0, 0 (P18, P20) — RUN 5 CLOSES. CHECKPOINT 5 fires next over
+                      twenty-two read joints, with B-M′ replay-clean, the tournament at
+                      0.614/0.386, and the vacuity law now at five carriers.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
