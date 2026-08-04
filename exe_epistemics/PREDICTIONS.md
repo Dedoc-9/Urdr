@@ -402,6 +402,79 @@ first run-2 freeze, before any seal breaks. Continuation per the signed rule; th
 fires when the frozen continuation criterion is met, and this gauntlet re-runs with the enlarged
 history.
 
+## RUN 2 — OPENING FREEZE (2026-08-04; everything below binds BEFORE wire.py is read)
+
+**URDRMT1 adopted — modus tollens as elimination semantics.** The checkpoint verdict was already MT
+in contrapositive form (complete → four passes; A∧C failed; ∴ ¬complete); what MT adds is that
+`fails_if` becomes an EXECUTABLE KILL: a rival whose frozen refutation condition realizes is REMOVED
+from the admissible space, not down-weighted. Kill conditions, frozen and decidable:
+  - B-A′ is ELIMINATED when TWO run-2 resolutions land R-O naming a new family axis (its fails_if —
+    "a sixth independent family is needed" — realized; composition was the fifth).
+  - B-B′ is ELIMINATED when a SECOND flow-type exception accrues (layertheorem is the standing
+    first; its fails_if — role/substrate cells cannot carry direction — realized twice).
+  - the interface instrument is ELIMINATED (for this Φ) when run-2 residual emergence at
+    high-Γ-adjacent joints is ≤ the rate at non-high joints over the full run.
+  BOUNDARY (Duhem–Quine, recorded): a refuted prediction eliminates the CONJUNCTION of basis +
+  auxiliaries (classification, dictionary, selector); each resolution records where the failure
+  lodged, and a kill fires only when it lodges in the basis.
+
+**URDRQOE1 adjudicated.** (1) The organizational-entanglement inequality R(A)+R(B) ≥ R(A,B) is
+residual SUBADDITIVITY — structurally identical to budget's composition law: the axis the rivals
+lack keeps reappearing as a law of the epistemic layer itself. Recorded as a rhyme (n=1, not
+promoted). (2) The organizational Hamiltonian H = R+E+C is scalar fusion — REFUSED (panel ≠
+scalar); the terms remain panel axes. (3) The decoherence law (dim R monotonically decreases under
+successful replay) is REFUTED BY THE RUN'S OWN HISTORY via MT: the dictionary grew at P3 and P5.
+Its conditional form — monotone within a FIXED dictionary — survives, and is the dictionary-horizon
+finding restated. (4) The L1 integer distance is house-compatible and waits with the embedding.
+
+**The weight posterior, frozen.** w(B-A′) = w(B-B′) = 1/2. Update rule (frozen now, applied at each
+resolution): multiply each rival's weight by its frozen likelihood on the REALIZED class,
+renormalize; Brier scores reported alongside. REPORTING ONLY — promotion and elimination run through
+the gauntlet and MT, never through w.
+
+**The interface instrument, frozen numbers** (Φ = total degree over import edges; import lines only;
+103 modules, 242 edges): top-decile threshold Γ ≥ 17; high-interface-adjacent set (26 modules):
+chunkload chunkstate commute cpredict crosswarden dirward driftgaze drive fpcap gaze glide hand
+heightfield layertheorem meshattest panelight predict quintessence resurrect sealframe sealwrit
+storm testament traj view_witness wireattest. CAVEAT recorded: under this Φ the top edges are
+dominated by heightfield's hub contrast — the instrument tests THIS Φ's interfaces, nothing more.
+PREDICTION (direction-only, comparative): run-2 residual emergence concentrates at high-Γ-adjacent
+joints. Run-1 base rate: 2 of 5. **wire is NOT high-adjacent (max incident Γ = 16, one under
+threshold — borderline noted): the instrument predicts BACKGROUND for P6.**
+
+### P6 — `wire`
+    state:            PREREGISTERED
+    target:           wire — top of the briefless frontier by the FROZEN selector (in-degree 5;
+                      lease 4, horizon 4). L59: import lines only, body unread, no history scan.
+    provenance:       role-only — the index line "EQUAL-OR-REFUSE REPLICATION (T3.47, wire-phase
+                      opener)" (URDRWIR1). Ambient disclosed: panewire ("THE WIRED WINDOW", T3.53)
+                      is family; stage names wireattest / wirephase_placement appear in gate logs.
+                      wire.py and its git history are UNREAD.
+    rival predictions (both frozen; they disagree about the central row):
+      B-A′:           PROPAGATION-central — replication is state TRANSPORT: the central row
+                      certifies source-authority / direction / ordering of replicated state, with
+                      equality as transport's verification instrument.
+      B-B′:           POLICE × REPRESENTATION-central — an equality-ADJUDICATION predicate: a
+                      replica equal to the source ADMITS, divergence typed-REFUSES — the
+                      jurisdiction pattern pointed at replicas.
+    outcome partition (EXHAUSTIVE, L60):
+                      P6-C-A   transport/propagation law central (B-A′)
+                      P6-C-B   equality-adjudication predicate central (B-B′)
+                      P6-C-AB  one central row certifies both inseparably
+                      P6-R-M   measure-not-refuse semantics central (the stance pattern)
+                      P6-R-O   OTHER — catch-all; names a new axis if one appears
+    credences (frozen, integer %):
+                      author:  C-A 30 · C-B 30 · C-AB 20 · R-M 5 · R-O 15
+                      B-A′ likelihoods: 55 · 15 · 20 · 3 · 7
+                      B-B′ likelihoods: 15 · 55 · 20 · 3 · 7
+    secondary (META — exhaustive): M-0 ∈{C-A,C-B,C-AB} with ≥1 unnamed dimension · M-1 same set,
+                      none · M-2 ∈{R-M,R-O}. The meta predicts ¬M-1 (the signature is 5 for 5).
+    interface instrument: predicts BACKGROUND (wire not high-adjacent) — this resolution feeds the
+                      instrument's comparative cell, and its Brier is scored like the rivals'.
+    residual_format:  if R-M / R-O — (predicted: A′=<transport> B′=<equality-adjudication>;
+                      observed: <actual>; delta: <R-M | R-O:<named-after-reading>>).
+    witness:          the git commit introducing this row — dated before wire.py is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
