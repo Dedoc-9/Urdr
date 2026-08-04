@@ -217,6 +217,36 @@ DISCOVERIES = (
        "win, recorded); unnamed: the BaseException gate-law measurement, the masking ladder, the exact "
        "1-tick replay window; weights B-M 0.58 / B-A' 0.42; meta M-0 on both scoring joints (10 for 10)",
        "brief written; P11 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:wavefield", "READ", "wavefield",
+       "P12 (batch 2, post-promotion): canon-identity vs superposition-invariant central, tie priced 30 "
+       "under the new rule",
+       "C-AB — wavefield-properties fuses the physics invariant (bounded by sum|A|; swell travels, still "
+       "is static; SUPERPOSITION EXACT, field(sum)==sum(field), no rounding) with the scenes canon (same "
+       "components+tick -> same bytes); unnamed: shift-based doubling arithmetic (exact O(log), where a "
+       "Q16 reciprocal would round), the 8A=cP^2 admissibility tie, and the tokenizer assertion making "
+       "cross-placement parity STRUCTURAL; the tie rule paid on its first outing (Briers ~0.65-0.72)",
+       "brief written; P12 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:frontier", "READ", "frontier",
+       "P13: both bases predicted fast-path == slow-path equivalence for the admission accelerator",
+       "R-O — the first residual since P3, minting the APPROXIMATION axis's first sighting: the module "
+       "is a VERIFIED Galois connection (adjunction 63/63; sound, reductive, deliberately incomplete) "
+       "whose precision loss is the COUNTED obligation signature — frontier-law certifies component "
+       "commutation against the SEMANTICS (not the predicate that built the graph), conservation "
+       "(proved + obligations == total, nothing silently dropped) and monotonicity; neither basis "
+       "carries sound-over-approximation-with-obligation-accounting; the suspended interface instrument "
+       "received its first emergence event AT A NON-HIGH JOINT (cells: high 1/0, non-high 7/1 — against "
+       "the interface hypothesis)",
+       "brief written; P13 resolved R-O in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:gaze", "READ", "gaze",
+       "P14: the batch's genuine discrimination — the promoted basis read the observer police-first "
+       "(reconstruct-or-refuse), the challenger identity-first",
+       "C-R — B-M's win as working basis, on the axis that created it: a frame is ADMITTED iff covering "
+       "(the Kalman full-column-rank condition — coverage decided by linear algebra) AND its "
+       "reconstruction's digest equals the CURRENT authority's, else typed refuse (GAZE-NONCOVER / "
+       "GAZE-LAUNDER — one mechanism, two threat models); the advancing authority is load-bearing (the "
+       "same once-valid frame admits at its own pose, refuses at the advanced one — replay by "
+       "construction); weights B-M 0.73 / B-A' 0.27; meta not-M-1 stands 13 for 13",
+       "brief written; P14 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

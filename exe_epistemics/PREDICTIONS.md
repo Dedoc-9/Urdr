@@ -970,6 +970,62 @@ conditions. The suspended instrument makes no calls. Meta predicts ¬M-1 on all 
     witness:          the git commit introducing these rows — dated before any of the three
                       modules is read.
 
+### P12 — resolved: **C-AB** (the tie rule pays on its first outing)
+    observed:         `wavefield-properties` fuses the physics-invariant half — cells bounded by
+                      Σ|A|, swell travels while still is static, and SUPERPOSITION IS EXACT
+                      (field(Σcomp) == Σfield(comp), no rounding — linearity as a structural law)
+                      — while `wavefield:scenes` pins the canon identity (same components + tick →
+                      same bytes). Representation fused with invariant: C-AB, priced 30 by all
+                      three predictors under the new rule (Brier: author 0.645, B-M 0.665,
+                      B-A′ 0.715 — versus the 0.9+ the old 20-pricing produced on ties).
+    unnamed (M-0):    the shift-based DOUBLING arithmetic (curvature and phase wrap computed with
+                      << >> + − comparisons only, exact and O(log) — a Q16 reciprocal would round
+                      and could not claim EXACT); the 8A = cP² admissibility tie; the tokenizer
+                      assertion as STRUCTURAL cross-placement parity (operator absence proven, not
+                      documented). Weights unchanged (equal likelihoods).
+
+### P13 — resolved: **R-O — the APPROXIMATION AXIS, first sighting** (the first residual since P3)
+    observed:         "the admission accelerator" is a VERIFIED GALOIS CONNECTION: α(P) ≤ O ⟺
+                      P ≤ γ(O) holds 63/63; the abstraction is SOUND, REDUCTIVE, and deliberately
+                      NOT COMPLETE, with the precision loss COUNTED as the obligation signature.
+                      The central row (`frontier-law`): edits in different connected components of
+                      the conflict graph commute — checked against the commutation SEMANTICS, not
+                      the predicate that built the graph — and the obligation signature CONSERVES
+                      (proved + obligations == total: nothing silently dropped, "the failure an
+                      accelerator invites") and is MONOTONE (refinement moves pairs obligation →
+                      proved). The module's own prior-art scoping names the discipline: abstract
+                      interpretation, Cousot & Cousot 1977 — NOT claimed, verified locally.
+    residual:         (predicted: fast-path ≡ slow-path equivalence (both bases); observed:
+                      sound-incomplete order-theoretic abstraction with conserved, monotone,
+                      COUNTED residue; delta: R-O — the APPROXIMATION axis: neither basis carries
+                      "sound over-approximation with obligation accounting"). First sighting;
+                      mintable at the second (L3). Weights unchanged (equal R-O likelihoods);
+                      Briers poor for all (author 1.065, B-A′ 1.156, B-M 1.181) — the honest cost
+                      of an axis nobody had.
+    instrument note:  the suspended interface instrument finally receives an emergence event — at
+                      a NON-high joint. Cells: high 1/0 emergence, non-high 7/1. The first
+                      non-degenerate datapoint points AGAINST the interface hypothesis.
+
+### P14 — resolved: **C-R — the promoted basis WINS the genuine discrimination** · meta ¬M-1: 13 for 13
+    observed:         gaze is reconstruct-or-refuse on views, exactly as B-M read it: a frame is
+                      ADMITTED iff it is COVERING (the atlas observes every pose axis — the
+                      Kálmán full-column-rank condition) AND its reconstruction's digest equals
+                      the CURRENT authority's; else typed refuse (GAZE-NONCOVER / GAZE-LAUNDER —
+                      one mechanism, two threat models: a substituted pose and a stale one).
+                      `gaze-selftest` pins the advancing authority as load-bearing: the same
+                      once-valid frame admits at its own pose and refuses at the advanced one —
+                      replay caught by construction.
+    tournament:       B-M 40 vs B-A′ 20 on C-R → weights w(B-M) = 0.73, w(B-A′) = 0.27 (Brier:
+                      B-M 0.496, B-A′ 0.896, author 0.655). The promoted basis's first win AS the
+                      working basis, on the exact axis that created it (police × representation —
+                      the P3/P4 split, now predicting observers).
+    unnamed (M-0):    the RANK condition as admissibility (observability = full column rank — a
+                      linear-algebra criterion deciding coverage); same-mechanism-two-threats;
+                      membrane purity (admit never mutates authority or frame). P12 M-0, P13 M-2,
+                      P14 M-0 — the meta's ¬M-1 stands 13 for 13.
+    census:           run-4 v_D: 0 (P12), 1 (P13 — the approximation axis), 0 (P14). One
+                      consecutive zero; run 4 CONTINUES. Checkpoint 4 waits for the closure rule.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
