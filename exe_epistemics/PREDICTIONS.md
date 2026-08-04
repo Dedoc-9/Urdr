@@ -128,6 +128,49 @@ seam · `layertheorem` → propagation seam. Three post-hoc labels are a hypothe
     witness:          the git commit introducing this row — dated before stance.py is read, before any
                       history scan of it.
 
+### P4 — `warden`
+    state:            PREREGISTERED
+    target:           warden — the highest-in-degree briefless joint (import in-degree 6). Selection per
+                      L59: import LINES only, bodies unread, no history scan before this freeze.
+    provenance:       role-only — (i) the index line "Structural anti-cheat (T3.24, Stage E opener)"
+                      (URDRWARD1); (ii) AGENTS.md: "wardens (topology-grade police)", "warden regions
+                      as the interest filter", "teleports, speed-hacks, or wall-clips, reusing warden's
+                      gait bound + walkable-component β₀". DISCLOSED secondhand exposure from opcost's
+                      read (Rung A): warden.components examines (W-1)H + W(H-1) grid adjacencies
+                      (MAX_STEP changes union decisions, never the check count); warden.admit_trajectory
+                      performs Σ|dx|+|dy| sub-step checks over a CLAIMED trajectory. warden.py and its
+                      git history are UNREAD.
+    hypothesis:       the TRUE jurisdiction-pattern recurrence, sharpened by P3's residual: warden
+                      polices CLAIMS, not walks — so unlike stance (which MEASURES where terrain blocks
+                      an honest walk), warden's core law is claim-admission WITH TYPED REFUSAL: a
+                      client-claimed trajectory is admitted iff every sub-step obeys the gait/step
+                      bound over canonical terrain, else a typed refusal (a teleport, speed-hack, or
+                      wall-clip is REFUSED, not measured). The walkable-component structure (β₀) is
+                      the derived support (a teleport crosses components), not the central law.
+    outcome partition (EXHAUSTIVE — the P3 meta-finding, applied; every resolution maps to exactly one):
+                      W-C0  CONFIRMED-MODEL — the central row certifies claim-admission with typed
+                            refusal (admit iff the claimed trajectory obeys the bound; violation
+                            refuses, typed).
+                      W-R1  MEASURE-not-refuse — the central law marks or measures claims (the stance
+                            semantics) rather than refusing them.
+                      W-R2  REACHABILITY-central — the central law is the components/β₀ structure (a
+                            derived representation law), with admission peripheral.
+                      W-R3  OTHER — anything else; residual recorded free-form, delta named after the
+                            reading and marked post-hoc.
+    secondary (META — exhaustive this time):
+                      M-0   resolution = W-C0 AND >=1 structural dimension surfaced that this
+                            hypothesis did not name (the P1/P2 signature recurs).
+                      M-1   resolution = W-C0 with NO unanticipated structure (a perfectly clean
+                            confirmation).
+                      M-2   resolution ∈ {W-R1, W-R2, W-R3} (a primary residual).
+                      The meta PREDICTS: outcome ∈ {M-0, M-2} — no blind prediction in this run lands
+                      perfectly clean. Falsified iff M-1. The partition is total: M-0/M-1/M-2 cover
+                      every possible resolution.
+    residual_format:  if W-R1/W-R2/W-R3 — (predicted: claim-admission-with-typed-refusal; observed:
+                      <actual core law>; delta: <R1 | R2 | R3:<named-after-reading>>).
+    witness:          the git commit introducing this row — dated before warden.py is read, before any
+                      history scan of it.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
