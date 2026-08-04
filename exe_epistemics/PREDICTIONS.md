@@ -1227,6 +1227,67 @@ STARVED. Meta predicts ¬M-1 on both scoring joints (16 for 16).
                       twenty-two read joints, with B-M′ replay-clean, the tournament at
                       0.614/0.386, and the vacuity law now at five carriers.
 
+## CHECKPOINT 5 — over TWENTY-TWO joints (2026-08-04): promotion holds; the vacuity law mints L61; NOT converged
+
+**Gauntlet:** A — B-M′ replays CLEAN over all 21 scored modules (zero exceptions); B-A″ keeps two
+(stance, govern). B — both pass. C — G(20) = 6/20 = 0.30, decreasing; runs 2–5 each double-zero.
+D — B-A″ is a LIVE rival (it out-priced B-M′ on P16/P17/P18 — the discriminability criterion is
+doing real work, not a formality). **Verdict: promotion HOLDS (B-M′ working basis, B-A″ retained);
+no basis change.**
+
+**Convergence — explicitly NOT declared, and why (the honest call over an easy one):** three of the
+four epistemic stopping criteria are met (prediction, stability, discriminability), and B-M′ passes
+compression. But convergence requires the BASIS to be stable, and it is not: the approximation axis
+minted only one checkpoint ago (a basis that grew last round has not shown it won't grow again), and
+the SCHEDULING axis is a live mint candidate at one sighting — `priogov`, when the frozen selector
+reaches it, is its decisive second test. Declaring convergence now would be the L58 premature-
+abstraction trap wearing a stopping rule's clothes. Convergence is PENDING the scheduling question.
+
+**L61 MINTED** (vacuity law → LESSONS): the rule adopted at checkpoint 4 and applied at the batch-4
+and (below) batch-5 freezes now has FIVE independent module carriers (disjoint, frontier, ashdepth,
+the level-table corpus, auditgraph's denominator) plus two freeze-applications — past L3's bar. See
+LESSONS L61. The interface instrument is its self-referential sixth carrier: an instrument starved
+of emergence events reads CONSISTENT, which is an empty answer wearing a confirmation's clothes.
+
+## BATCH 5 FREEZE — P21 + P22 + P23 (all sealed before any READ)
+
+**Batch rules**: order geoquorum → ghostsnap → hand (frozen selector: in-degree 1, lex). Run-6 v_D
+fresh. Vacuity rule (L61) applied: each scoring resolution cites non-empty censuses or reads STARVED.
+Meta predicts ¬M-1 on all three (18 for 18).
+
+### P21 — `geoquorum` (SCORING) — role: "Multi-observer capture consensus (S4) — coverage refusal
+    vs INTEGRITY refusal" (URDRGEO1); ambient disclosed: cohort's brief cited geoquorum's
+    THIN-vs-DEVIATE split (UNAVAILABLE = coverage vs FAILED = integrity). The role LINE already
+    names two refusal kinds — a strong C-AB / two-law signal (tie priced ≥ 30 per the rule). Body
+    and history UNREAD.
+    partition:        C-R (a single admission/consensus predicate central) · C-SPLIT (the
+                      coverage-vs-integrity DISTINCTION itself as the central law — a two-refusal
+                      taxonomy) · C-AB · R-M · R-O.
+    credences:        author: C-R 20 · C-SPLIT 30 · C-AB 35 · R-M 5 · R-O 10
+                      B-A″:   C-R 25 · C-SPLIT 30 · C-AB 35 · R-M 3 · R-O 7
+                      B-M′:   C-R 20 · C-SPLIT 35 · C-AB 35 · R-M 3 · R-O 7
+### P22 — `ghostsnap` (SCORING) — role: "The actor wire (T3.54, V3) — equal-or-refuse ghosts"
+    (URDRGHS1); ambient disclosed: the V3 actor-wire; wire's equal-or-refuse pattern named. Body
+    and history UNREAD. Candidates converge toward the wire pattern (recorded).
+    partition:        C-R (equal-or-refuse replica admission central — police × representation,
+                      the wire pattern on actors) · C-REP (ghost-state identity central) · C-AB ·
+                      R-M · R-O.
+    credences:        author: C-R 30 · C-REP 25 · C-AB 30 · R-M 5 · R-O 10
+                      B-A″:   C-REP 35 · C-R 25 · C-AB 30 · R-M 3 · R-O 7
+                      B-M′:   C-R 35 · C-REP 20 · C-AB 30 · R-M 3 · R-O 7
+### P23 — `hand` (SCORING) — role: "Seamless cross-region authority handoff (T3.23)" (URDRHAND1);
+    ambient disclosed: the mesh phase's "certified authority migration as lease transfer"; chain
+    position near crosswarden/dirward. Body and history UNREAD.
+    partition:        C-INV (a handoff exclusivity/continuity invariant central — no-gap/no-overlap
+                      authority transfer, the lease/migration structural pattern) · C-R
+                      (handoff-admission predicate central) · C-AB · R-M · R-O.
+    credences:        author: C-INV 30 · C-R 25 · C-AB 30 · R-M 5 · R-O 10
+                      B-A″:   C-R 35 · C-INV 20 · C-AB 30 · R-M 3 · R-O 7
+                      B-M′:   C-INV 35 · C-R 20 · C-AB 30 · R-M 3 · R-O 7
+                      DISCRIMINATION: B-M′ prices the structural-invariant reading (its founding
+                      strength); B-A″ the admission-predicate reading.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
