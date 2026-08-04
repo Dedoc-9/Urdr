@@ -591,6 +591,75 @@ threshold — borderline noted): the instrument predicts BACKGROUND for P6.**
                       instances.
     contamination:    none — L59, eighth application; the freeze commit predates the READ.
 
+## CHECKPOINT 2 — the gauntlet re-run over TEN joints (2026-08-04, after run 2 closed at v_D = 0, 0)
+
+**Test A — COMPRESSION, by replay over all ten read joints** (checkpoint 1's eight + wire + horizon;
+the candidates are the mutants — the parents are retired lineage):
+
+    joint          B-A′ (seam-type + composition)       B-B′ (role×substrate + composition)
+    heightfield    representation ✓                      measure × representation ✓
+    jurisdiction   admission ✓                           police × canonical state ✓
+    layertheorem   propagation ✓                         EXCEPTION (standing — no flow axis)
+    opcost         cost ✓                                measure counts + police budget ✓
+    terraform      representation ✓                      police CAS × measure equivalence ✓
+    stance         EXCEPTION (standing — semantics)      measure × terrain ✓
+    warden         admission ✓                           police × claims ✓
+    budget         cost + composition ✓ (REPAIRED)       police × resource + composition ✓ (REPAIRED)
+    wire           propagation+representation compound ✓ police × replica-claims compound ✓
+    horizon        cost ✓ (the confirmed discrimination) police × measured-depth ✓ (classifies,
+                                                         though its central-row prediction was wrong)
+    exceptions:    1 (stance)                            1 (layertheorem)
+    VERDICT: both still fail the zero-exception bar — each carries exactly the exception the OTHER
+    repairs natively. The failure is no longer diffuse; it is a pointer.
+
+**Test B — PREDICTION**: B-A′ PASSES — P7 was a full basis-derived frozen discrimination, confirmed
+(plus the P6 forward classification of mints-nothing composition). B-B′ WEAK — one partial (P6),
+one refuted central-row call (P7). **Test C — STABILITY**: families after P1..P7 = 1,2,3,3,4,4,4 →
+G = 1, 1, 1, .75, .8, .667, .571 — STRICTLY DECREASING over the last three READs; v_D ended 0, 0.
+PASSES. **Test D — COUNTERFACTUAL**: two instances now — P4 (refuse≠measure from the residual, not
+prose) and P7 (both rivals held the same role prose and predicted DIFFERENTLY; the confirmed call is
+traceable to B-A′'s cost axis, by construction of the experiment). PASSES.
+
+**CHECKPOINT VERDICT (frozen outcome space): NO-PROMOTION — again, and for the last simple reason.**
+B-A′ survives B, C, D and fails A by exactly one localized exception. No kill fired (MT conditions
+unmet: one flow exception, zero R-O resolutions in run 2).
+
+**The MERGE mutation — minted, because the convergence is now bidirectional.** B-A′'s one exception
+(stance) is repaired by B-B′'s semantics axis; B-B′'s one exception (layertheorem) is repaired by
+B-A′'s family axis. Two rivals that each patch precisely the other's failure are one basis seen from
+two sides:
+
+    lineage: B-A′ + B-B′ → B-M ("input × semantics")
+      axes:      predicate-INPUT family {representation · admission (state-lawfulness) ·
+                 propagation (flow) · cost (measured magnitude vs declared ceiling)}
+                 × SEMANTICS {refuse (police) · measure · structural-invariant}
+                 + the composition signature.
+                 The P7 discriminator is B-M's first axis, verbatim; P3's residual is its second.
+      appeared:  the semantics axis (from B-B′); the structural-invariant value (earned by
+                 layertheorem: a theorem, not a gate). disappeared: nothing.
+      REPLAY over ten joints: ZERO exceptions — stance = cost-input × measure; layertheorem =
+                 propagation × structural-invariant; horizon = cost × refuse; wire = compound ×
+                 refuse; budget = cost × refuse + composition. First candidate to replay clean.
+      HONEST LIMIT: B-M was assembled FROM all ten observations — replay can only kill, never
+                 promote (the retrofit rule). B-M has ZERO forward confirmations; its promotion
+                 path runs exclusively through run-3 frozen predictions.
+
+**Weights (rule frozen at entry):** a new entrant takes 1/3; incumbents split the remaining 2/3 by
+the standing posterior → w(B-M) = 1/3, w(B-A′) = 1/2, w(B-B′) = 1/6.
+
+**Coupling table (adopted instrument, first computation, 10 joints):** composition co-occurs with
+cost in 2 of its 3 sightings (budget, horizon) and with replication-compounds once (wire);
+refuse-semantics co-occurs with EVERY family except representation-alone; the two C-AB ties both
+paired {adjudication, transport} — the pairing B-M's product structure now explains rather than
+records. **Interface instrument:** both run-2 cells were non-high joints (both correct); the
+high-Γ cell is STILL EMPTY — and the run-3 frontier joint (`drive`, in-degree 3, lexicographic
+tie-break over govern/liveness) IS in the frozen high-Γ set: P8 finally tests the instrument's
+falsifying side.
+
+**RUN 3 OPENS NEXT** with three candidates (B-M must out-predict its parents, not just out-replay
+them), the epistemic continuation criteria unmet (compression holds only for a candidate with no
+forward record — the basis question stays open), and P8 on `drive` as the next freeze.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
