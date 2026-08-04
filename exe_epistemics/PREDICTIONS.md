@@ -1026,6 +1026,46 @@ conditions. The suspended instrument makes no calls. Meta predicts ¬M-1 on all 
     census:           run-4 v_D: 0 (P12), 1 (P13 — the approximation axis), 0 (P14). One
                       consecutive zero; run 4 CONTINUES. Checkpoint 4 waits for the closure rule.
 
+## BATCH 3 FREEZE — P15 + P16 + P17 (all sealed before any READ)
+
+**Batch rules**: as before (selector order panelight → wardhom → ashdepth; sequential scoring;
+run-4 v_D stands at one zero from P14; mid-batch closure completes post-closure). MT standing.
+The APPROXIMATION AXIS watch: any R-O with approximation content is its second sighting and MINTS
+it. Meta predicts ¬M-1 on all three (13 for 13). The suspended instrument makes no calls
+(panelight sits in the old high-Γ set; recorded as data only).
+
+### P15 — `panelight` (SCORING) — role: "THE WINDOWED LOOP (T3.52, V1)"; ambient: the V-phase
+    opener; the D15 view-firewall pattern and the idle law ("zero frames while idle") are known
+    from AGENTS prose. Body and history UNREAD.
+    partition:        C-R (witness-binding/admission central — the view firewall as police ×
+                      representation) · C-COST (the idle/frame-economy law central) · C-AB ·
+                      R-M · R-O.
+    credences:        author: C-R 30 · C-COST 25 · C-AB 30 · R-M 5 · R-O 10
+                      B-A′:   C-R 25 · C-COST 30 · C-AB 30 · R-M 5 · R-O 10
+                      B-M:    C-R 35 · C-COST 20 · C-AB 30 · R-M 5 · R-O 10
+
+### P16 — `wardhom` (SCORING) — role states the identity outright: "Warden β₀ IS certified
+    F2-homology β₀, cross-placed (T3.27)"; ambient: opcost counts its F2 boundary columns (n1, one
+    per legal edge). Body and history UNREAD. The candidates converge (recorded): a stated
+    equivalence is hard to disagree about; the discrimination here is only equivalence-vs-invariant
+    centrality.
+    partition:        C-EQ (two independent computations agree — the neutral-oracle equivalence
+                      central) · C-INV (the homology invariant itself central) · C-AB · R-M · R-O.
+    credences:        author: C-EQ 45 · C-INV 15 · C-AB 25 · R-M 5 · R-O 10
+                      B-A′:   C-EQ 50 · C-INV 12 · C-AB 25 · R-M 3 · R-O 10
+                      B-M:    C-EQ 45 · C-INV 17 · C-AB 25 · R-M 3 · R-O 10
+
+### P17 — `ashdepth` (SCORING) — role: "The VACUITY FLOOR — a level that distinguishes nothing is
+    not a result" (URDRASH1, a hygiene rung). Body and history UNREAD.
+    partition:        C-FLOOR (a threshold gate central: measured discrimination depth vs a
+                      declared floor, refuse below — the cost discriminator inverted) · C-MEAS
+                      (the vacuity measurement central, stance semantics) · C-AB · C-INV
+                      (a structural non-vacuity invariant central) · R-O.
+    credences:        author: C-FLOOR 30 · C-MEAS 20 · C-AB 30 · C-INV 5 · R-O 15
+                      B-A′:   C-FLOOR 40 · C-MEAS 15 · C-AB 30 · C-INV 5 · R-O 10
+                      B-M:    C-FLOOR 35 · C-MEAS 20 · C-AB 30 · C-INV 5 · R-O 10
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
