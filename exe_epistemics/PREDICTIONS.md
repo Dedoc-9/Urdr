@@ -518,6 +518,44 @@ threshold — borderline noted): the instrument predicts BACKGROUND for P6.**
                       TWO consecutive zeros to stop: run 2 CONTINUES.
     contamination:    none — L59, seventh application; the freeze commit predates the READ.
 
+### P7 — `horizon`
+    state:            PREREGISTERED
+    target:           horizon — frontier tie at in-degree 4 (horizon, lease); the FROZEN tie-break
+                      (lexicographic ascending) selects horizon. L59: import lines only, body
+                      unread, no history scan.
+    provenance:       role-only — the index line "Rollback-horizon reconcile window (T3.32)"
+                      (URDRLAT1); ambient disclosed: horizon sits in the Stage-H latency family
+                      ("opcost/govern/priogov/horizon/slo/clslo for time"); "rollback" associates
+                      with the reconcile arc (splice/predict) and rollstore. horizon.py and its git
+                      history are UNREAD.
+    stakes:           v_D stands at ONE consecutive zero. If this READ mints no new family, the
+                      signed continuation rule STOPS run 2 and checkpoint 2 fires on the enlarged
+                      history.
+    rival predictions (frozen; the disagreement is arithmetic-vs-adjudication):
+      B-A′:           COST-central — the window is a bounded ENVELOPE on the time axis: reconcile
+                      depth ≤ horizon, the opcost pattern pointed at rollback reach (the cost
+                      family's third preregistered instance if confirmed).
+      B-B′:           POLICE × TIME-CLAIMS central — the window is an ADMISSION predicate on
+                      history: a reconcile claim within the horizon admits, beyond it typed-REFUSES
+                      (jurisdiction on the time axis).
+    outcome partition (EXHAUSTIVE, L60):
+                      P7-C-A   envelope/bound arithmetic central (B-A′)
+                      P7-C-B   claim-adjudication on the time axis central (B-B′)
+                      P7-C-AB  one central row certifies both inseparably
+                      P7-R-M   measure-not-refuse semantics central
+                      P7-R-O   OTHER — catch-all; names a new axis if one appears
+    credences (frozen, integer % — the P6 lesson APPLIED: the tie class priced at the measured
+                      co-occurrence, 20 → 30):
+                      author:  C-A 25 · C-B 25 · C-AB 30 · R-M 10 · R-O 10
+                      B-A′ likelihoods: 45 · 15 · 30 · 4 · 6
+                      B-B′ likelihoods: 15 · 45 · 30 · 4 · 6
+    secondary (META — exhaustive): M-0 ∈{C-A,C-B,C-AB} with ≥1 unnamed dimension · M-1 same set,
+                      none · M-2 ∈{R-M,R-O}. The meta predicts ¬M-1 (the signature is 6 for 6).
+    interface instrument: horizon is NOT in the frozen high-Γ set → BACKGROUND predicted (cell 2).
+    residual_format:  if R-M / R-O — (predicted: A′=<time-envelope> B′=<time-adjudication>;
+                      observed: <actual>; delta: <R-M | R-O:<named-after-reading>>).
+    witness:          the git commit introducing this row — dated before horizon.py is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
