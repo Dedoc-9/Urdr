@@ -475,6 +475,49 @@ threshold — borderline noted): the instrument predicts BACKGROUND for P6.**
                       observed: <actual>; delta: <R-M | R-O:<named-after-reading>>).
     witness:          the git commit introducing this row — dated before wire.py is read.
 
+### P6 — resolved: **P6-C-AB (the second consecutive tie)** · meta: **M-0 (6 for 6)**
+    read:             2026-08-04, run 2's first blind READ (Rung H). Classified from the LIVE
+                      `wire*` rows.
+    observed:         the central row (`wire-replicate`) again certifies BOTH rivals inseparably:
+                      per-step BYTE EQUALITY of replica and authority — the client admits each
+                      104-byte essence-record under the authority's own laws, "a verifier, not a
+                      believer", every refusal typed and leaving the replica byte-identical
+                      (B-B′'s adjudication) — fused with DERIVED-NEVER-SHIPPED transport and
+                      ordering law (B-A′): in-region order is STRUCTURAL (terraform's parent chain
+                      on the wire; duplicates refuse at-most-once for free), cross-region order is
+                      provably IRRELEVANT (RAN-0 nullity as the wire's interleaving invariance).
+    the tie as data:  TWO consecutive C-AB resolutions are input to the adopted coupling
+                      coefficient: the police/equality axes and the transport/ordering axes have
+                      co-occurred in every replication-adjacent central law read so far. A COMPOUND
+                      basis element ("verified essence-replication": adjudicated admission +
+                      derived transport + byte-equality as one pattern) becomes a MINTABLE mutation
+                      if a third C-AB accrues (L3 — two occurrences noted, not promoted).
+    unnamed structure (M-0): (1) "THE MODULE MINTS NOTHING" — pure composition, each absence a
+                      theorem already paid for (no snapshots ← the frame property; no sequence
+                      numbers ← the chain law + nullity; the filter ← the essence's spatial axis).
+                      The COMPOSITION AXIS RECURRED — and the mutants' P5-derived axis classified
+                      it correctly ON ITS FIRST FORWARD OUTING: the parents would have logged an
+                      exception here; B-A′/B-B′ did not. The mutation paid off prospectively.
+                      (2) the INTEREST law — the filter is sound AND necessary-with-DETECTION
+                      (a withheld relevant update is caught by the next admission's CAS; drift
+                      refused, never absorbed): an attention axis neither rival carries. Noted,
+                      not minted (L3). (3) refuse-purity (never half-applies) and at-most-once-
+                      for-free — refinements of refusal semantics.
+    weights:          realized class C-AB — both rivals' frozen likelihoods equal (20): posterior
+                      UNCHANGED at 1/2, 1/2. Brier: B-A′ 0.9708, B-B′ 0.9708, author 0.8450.
+                      Lesson recorded for the next freeze: C-AB has realized twice while credenced
+                      at 20% — the tie class is systematically underweighted; future credences
+                      must price the co-occurrence the coupling data now shows.
+    instrument cell:  the interface atom predicted BACKGROUND for wire (not high-adjacent, max
+                      Γ = 16) and was RIGHT: no new family emerged (composition recurred — already
+                      in the mutants' dictionary; interest noted-not-minted). First cell: non-high
+                      joint, no emergence.
+    kills:            none fired — the resolution is C-AB (not R-O), no staked zero realized, no
+                      second flow-type exception.
+    census:           run-2 v_D = 0 (first zero-arrival READ). The signed continuation rule needs
+                      TWO consecutive zeros to stop: run 2 CONTINUES.
+    contamination:    none — L59, seventh application; the freeze commit predates the READ.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)

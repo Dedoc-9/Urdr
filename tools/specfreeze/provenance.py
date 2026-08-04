@@ -150,6 +150,18 @@ DISCOVERIES = (
        "carried; the fifth blind READ closes the run (meta M-0, 5 for 5)",
        "brief written; P5 resolved C-AB in exe_epistemics/PREDICTIONS.md; the checkpoint fires next",
        "CONFIRMATION"),
+    _d("read:wire", "READ", "wire",
+       "P6's frozen rival predictions: B-A' transport/ordering central vs B-B' equality-adjudication "
+       "central — run 2's first READ, frozen with credences, MT kills, and the interface instrument's "
+       "risked background call",
+       "the second consecutive C-AB: the central row fuses byte-equality adjudication (a verifier, not "
+       "a believer; refuse-purity) with derived-never-shipped transport and structural ordering (the "
+       "parent chain as sequence number, RAN-0 nullity as interleaving invariance) — now COUPLING data; "
+       "the mutants' P5-derived composition axis classified wire's mints-nothing structure correctly on "
+       "its FIRST forward outing; the interest law (sound and necessary-with-detection) noted as an "
+       "attention axis neither rival carries; the interface instrument's background prediction was "
+       "RIGHT (no new family); weights unchanged at 1/2 each; v_D = 0, run 2 continues",
+       "brief written; P6 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 
