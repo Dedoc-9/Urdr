@@ -660,6 +660,60 @@ falsifying side.
 them), the epistemic continuation criteria unmet (compression holds only for a candidate with no
 forward record — the basis question stays open), and P8 on `drive` as the next freeze.
 
+### ERRATUM (2026-08-04, pre-P8): checkpoint 2's closing line named `drive` as run 3's frontier
+    joint. WRONG — the frozen selector, recomputed at freeze time, says `lease` (in-degree 4)
+    stands alone above drive (3). The error is instructive and recorded: drive was ATTRACTIVE
+    because it sits in the interface instrument's high-Γ set — the exact operator drift toward
+    instrument-convenient targeting the frozen-selector design exists to forbid. The selector
+    caught it because selection is RECOMPUTED, never carried from prose. The instrument's high-Γ
+    cell honestly stays empty until a high-Γ joint tops the frontier on its own. The hainuwele
+    sentence is corrected in this rung's commit.
+
+### P8 — `lease` (run 3's opening freeze; THREE candidates, every outcome moves the tournament)
+    state:            PREREGISTERED
+    target:           lease — top of the briefless frontier by the frozen selector (in-degree 4;
+                      drive/govern/liveness at 3). L59: import lines only, body unread, no history
+                      scan.
+    provenance:       role-only — the index line "The standing lease (T3.43) — RAN-0's temporal
+                      extension" (URDRLSE1); AGENTS.md ambient, disclosed: "`lease` (proof as an
+                      interval)"; "lease interval arithmetic" named alongside the cost cluster
+                      (storecost/opcost/slo); Phase M's "certified authority migration as lease
+                      transfer". Chain position rannull → lease → testament. lease.py and its git
+                      history are UNREAD.
+    rival predictions (the tournament's first three-way freeze):
+      B-A′ + B-B′:    the parents CONVERGE here (their axes do not distinguish this target —
+                      honest, and itself evidence for the merge): the central row is an
+                      INTERVAL-ADMISSION gate — a claim admits iff within the claimant's standing
+                      lease, expired or foreign claims typed-refuse (jurisdiction on the temporal
+                      holder).
+      B-M:            distinctively prices its STRUCTURAL-INVARIANT value: the central row is an
+                      EXCLUSIVITY / TRANSFER invariant — no-overlap (at most one holder per region
+                      per moment), no-gap or clean-handoff on transfer, disjoint-lease operations
+                      commuting (RAN-0's nullity lifted to time as a STRUCTURAL law), with the
+                      admission gate as its guard.
+    outcome partition (EXHAUSTIVE, L60):
+                      P8-C-R     interval-admission gate central, refuse semantics
+                      P8-C-INV   exclusivity/transfer invariant central (structural; gates guard)
+                      P8-C-ARITH interval arithmetic/envelope central (the cost pattern on time)
+                      P8-R-M     measure-semantics central
+                      P8-R-O     OTHER — catch-all
+    credences (frozen, integer %):
+                      author:  C-R 35 · C-INV 25 · C-ARITH 20 · R-M 5 · R-O 15
+                      B-A′:    C-R 55 · C-INV 15 · C-ARITH 15 · R-M 5 · R-O 10
+                      B-B′:    C-R 55 · C-INV 15 · C-ARITH 15 · R-M 5 · R-O 10
+                      B-M:     C-R 35 · C-INV 35 · C-ARITH 15 · R-M 5 · R-O 10
+    MT kills (frozen): B-A′ ELIMINATED if R-M realizes (a SECOND measure-semantics central row its
+                      taxonomy cannot express — stance was the first). B-B′ ELIMINATED if C-INV
+                      realizes with a classification requiring the structural-invariant cell it
+                      lacks (its SECOND structural exception — layertheorem was the first). B-M has
+                      no standing exception; its kill is inherited fails_if only.
+    secondary (META — exhaustive): M-0 / M-1 / M-2 as before; the meta predicts ¬M-1 (7 for 7).
+    interface instrument: lease is NOT in the frozen high-Γ set → BACKGROUND predicted (cell 3);
+                      the high cell remains empty, per the erratum above.
+    residual_format:  if R-M / R-O — (predicted: parents=<interval-admission> B-M=<exclusivity
+                      invariant>; observed: <actual>; delta: <R-M | R-O:<named-after-reading>>).
+    witness:          the git commit introducing this row — dated before lease.py is read.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
