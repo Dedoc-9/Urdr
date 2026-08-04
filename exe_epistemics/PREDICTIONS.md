@@ -825,6 +825,71 @@ first).
     witness:          the git commit introducing these rows — dated before any of the three
                       modules is read.
 
+### P9 — resolved: **C-REP (B-A′ right)** · **RUN 3 CLOSES** · instrument's first high cell CONTRADICTS
+    observed:         drive's two NOVEL exact facts are transcript identity: DETERMINISM (the
+                      trajectory is a pure fold over the input log — "the netcode lockstep witness,
+                      on terrain") and TAMPER-EVIDENCE (the digest binds start + log + trajectory;
+                      "input integrity is a digest equality, not a promise"). The step law is
+                      explicitly INHERITED from stance as the fold's per-cell gate (composition).
+                      Central row `drive-properties`; the kill did not fire (C-M did not realize).
+    tournament:       B-A′ right at 45 vs B-M's 30 — the incumbent wins a joint; weights tighten
+                      to B-M 0.51 / B-A′ 0.49. Brier: B-A′ 0.38, B-M 0.655, author 0.625.
+    unnamed (M-0):    input-integrity as anti-cheat (a forged, replayed, or reordered COMMAND moves
+                      the digest — warden polices claimed trajectories, drive makes the input log
+                      itself tamper-evident); gait as derived-in-input (sprint = 2 cells, not a
+                      pose axis, per-cell gated); the WHERE/WHEN seam with gaze.
+    instrument:       the FIRST high-Γ cell: ELEVATED emergence predicted, CLEAN CONFIRMATION
+                      delivered — the cell contradicts the interface hypothesis. Cells now: high
+                      1 (0 emergence), non-high 3 (0 emergence) — the comparison is degenerate
+                      (nothing has emerged anywhere), so the MT kill does not fire on 0 ≤ 0 with
+                      n = 1, but the instrument's only directional call on its own ground was
+                      wrong. Checkpoint 3 adjudicates.
+    census:           v_D = 0 — the SECOND consecutive zero: RUN 3 CLOSES AT DRIVE. govern and
+                      liveness proceed as post-closure batch reads per the frozen rule.
+
+### P10 — resolved (NON-SCORING, post-closure): the disclosed law, plus a SCHEDULING-axis sighting
+    observed:         exactly as the contamination predicted — "refuse-or-defer, never overrun;
+                      serve-in-order, never starve": `govern-never-overrun` (spent ≤ budget across
+                      budgets), `govern-refuse` (a single over-budget actor is OPCOST-REFUSE;
+                      admitted + deferred == all, in-order — conservation). AND the watched thing
+                      materialized: `govern-progress-wait` certifies genuine SCHEDULER laws —
+                      progress (every tick admits ≥ 1), bounded-wait (drain ≤ N ticks, FIFO
+                      non-decreasing, no starvation) — liveness properties no basis carries. A
+                      SCHEDULING-axis candidate, FIRST sighting recorded; non-scoring, so nothing
+                      mints and no weights move. Checkpoint 3 inherits it.
+
+### P11 — resolved: **C-AB (the third under-priced tie)** · meta: **M-0 on both scoring joints (10 for 10)**
+    observed:         the module's TITLE conjoins its two certified laws: THE KEYED HEARTBEAT
+                      (`liveness-auth` — possession, not recomputability: unkeyed tokens forged
+                      12 of 12 by any observer, keyed 0 of 12 — the counterfeit reset closed;
+                      bound to clockauth's server-attested tick) and THE WELL-FOUNDED COUNTDOWN
+                      (`liveness-descent` — pure integer subtraction over the naturals, no
+                      defensive clamp, exactly PATIENCE−1 survivors then the fault — the
+                      budget-descent pattern VERBATIM on the time axis). Claim-adjudication fused
+                      with cost-descent: C-AB. B-M's C-INV 40 was WRONG — the crashed-slow
+                      indistinguishability is the module's DECLARED BOUNDARY ("indistinguishable
+                      in CAUSE; this rung makes the CONSEQUENCE deterministic"), not its law.
+                      B-M overfit to its lease win; recorded.
+    tournament:       C-AB likelihoods 15 (B-A′) / 20 (B-M): weights B-M 0.58 / B-A′ 0.42.
+                      Brier: B-M 0.875, B-A′ 0.98, author 0.825. THE TIE LESSON RECURS: C-AB has
+                      now realized THREE times (P5, P6, P11), under-priced every time — the next
+                      freeze must price it as the modal outcome for conjunction-shaped modules.
+    unnamed (M-0):    the BaseException measurement — a law about THE GATE ITSELF (a BaseException
+                      subclass ABORTS the process instead of reddening a row, silently destroying
+                      the byte-identity spine; pinned as data, the anti-swallowing guarantee
+                      obtained by plant + assertion instead); the masking ladder (what each
+                      relaxation buys an adversary holding one intercepted token: 4 ticks honest,
+                      8 windowed, 40 any-historical); the exact 1-tick replay window ("the
+                      adversary gains no tick he did not already have"); emit-pin-compare on the
+                      goldens (L23 applied to conformance itself).
+    instrument:       background predicted (liveness non-high) — right; cells: high 1/0,
+                      non-high 5/0.
+    batch summary:    run 3 CLOSED at P9; the batch completed per the frozen rule; CHECKPOINT 3
+                      fires next over THIRTEEN read joints, inheriting: the tightened tournament
+                      (B-M 0.58 / B-A′ 0.42, one kill each side of even), the scheduling-axis
+                      first sighting, the thrice-realized under-priced tie class, and the
+                      interface instrument's contradicted high cell.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)

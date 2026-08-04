@@ -187,6 +187,36 @@ DISCOVERIES = (
        "hazard (anamnesis composing adversely with admission, repaired by two jointly-load-bearing "
        "layers, plants proving both-gutted lands it); weights B-M 0.61 / B-A' 0.39; meta M-0, 8 for 8",
        "brief written; P8 resolved C-INV in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:drive", "READ", "drive",
+       "P9's frozen rival predictions (the first batch freeze): B-A' transcript-identity central vs B-M "
+       "splitting identity/measurement — with the interface instrument's FIRST high-Gamma cell at stake",
+       "transcript identity central, B-A' right: the module's two NOVEL facts are DETERMINISM (the "
+       "trajectory is a pure fold over the input log — the lockstep witness on terrain) and "
+       "TAMPER-EVIDENCE (the digest binds start+log+trajectory; a forged, replayed, or reordered command "
+       "moves it — anti-cheat moved down to the command stream), the step law inherited from stance; the "
+       "second consecutive v_D zero CLOSED run 3; the instrument's first high cell CONTRADICTED its "
+       "elevated-emergence call (clean confirmation delivered); weights tightened to B-M 0.51 / B-A' 0.49",
+       "brief written; P9 resolved C-REP in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:govern", "READ", "govern",
+       "P10, declared NON-SCORING before the seal broke: the stage docstring had been read in an earlier "
+       "rung, so the core law was exposed and no tournament evidence could be earned",
+       "the disclosed law confirmed (refuse-or-defer never overrun; serve-in-order never starve; "
+       "conservation admitted+deferred==all) AND the watched thing materialized: govern-progress-wait "
+       "certifies genuine SCHEDULER laws — progress (every tick admits >= 1) and bounded-wait (drain <= N "
+       "ticks, FIFO, no starvation) — a SCHEDULING-axis candidate no basis carries, first sighting "
+       "recorded for checkpoint 3; read for the brief pass, weights untouched",
+       "brief written; P10 recorded non-scoring in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:liveness", "READ", "liveness",
+       "P11's frozen rival predictions: B-A' timeout-envelope central vs B-M the crashed-slow "
+       "indistinguishability as the central theorem",
+       "C-AB, the third under-priced tie: the TITLE conjoins the two certified laws — the KEYED heartbeat "
+       "(possession not recomputability: unkeyed forged 12/12, keyed 0/12, the counterfeit reset closed, "
+       "bound to clockauth's attested tick) and the WELL-FOUNDED countdown (pure subtraction on (N,<), "
+       "PATIENCE-1 survivors then the fault — the budget-descent pattern verbatim on time); B-M's "
+       "indistinguishability call was the module's DECLARED BOUNDARY, not its law (overfit to the lease "
+       "win, recorded); unnamed: the BaseException gate-law measurement, the masking ladder, the exact "
+       "1-tick replay window; weights B-M 0.58 / B-A' 0.42; meta M-0 on both scoring joints (10 for 10)",
+       "brief written; P11 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 
