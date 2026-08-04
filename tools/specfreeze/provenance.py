@@ -338,6 +338,34 @@ DISCOVERIES = (
        "founding axis, forward; the discrimination goes to B-M', weights 0.74/0.26; run-6 triple zero "
        "CLOSED run 6; meta 21 for 21",
        "brief written; P23 resolved C-INV in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:interest", "READ", "interest",
+       "P24 (batch 6): relevance-predicate vs broad/narrow-equivalence centrality for AoI",
+       "C-EQ (bases agreed) - interest-soundness: the BROAD phase (bucket 3x3, bucket = x >> k, an exact "
+       "shift) CONTAINS the NARROW phase (Chebyshev <= R) for R <= 2^k, so the acceleration NEVER MISSES "
+       "a relevant actor (a miss is a desync; an extra is only wasted bandwidth); R<=2^k load-bearing "
+       "(the R>2^k miss is planted), strict>0 the non-vacuity floor (L61's eighth carrier); the "
+       "approximation axis's THIRD carrier (frontier, ashdepth, interest), strengthening not minting; "
+       "retirement-neutral",
+       "brief written; P24 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:mesh", "READ", "mesh",
+       "P25: the role states MESH == MONOLITH - equivalence-vs-invariant centrality",
+       "C-EQ (bases agreed) - mesh-law: a concurrent multi-steward simulation with authority MIGRATING "
+       "equals the monolith BIT-FOR-BIT (a theorem re-derived in bytes, not best-effort convergence), a "
+       "composition of nway (one independence round) + migrate (witness-neutral authority move) + "
+       "terraform as the MONOLITH ORACLE that ignores custody so a meshed bug cannot hide in its own "
+       "answer; generalizes reunify==monolith from static to MIGRATING partition, reject-whole; "
+       "retirement-neutral",
+       "brief written; P25 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:panewire", "READ", "panewire",
+       "P26 (the retirement discrimination): B-M' police/AB vs B-A'' representation-first for the wired window",
+       "C-AB - panewire-concord: two windows one authority, the same (input,edits) run twice lands the "
+       "IDENTICAL composed witness (an edit in one view seen in the other) while a different stream "
+       "diverges, and a tampered edit refuses mid-loop replica-byte-unchanged (equal-or-refuse UNDER "
+       "PLAY); the whole arc composed (panelight tick + wire admission + driftgaze acquisition); B-M' won "
+       "the discrimination, B-A'' third consecutive loss at w=0.198<0.20 so BOTH retirement conditions "
+       "met: B-A'' RETIRES and the tournament collapses to B-M' sole; second consecutive triple zero "
+       "CLOSED run 7; meta 24 for 24",
+       "brief written; P26 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
 )
 
 

@@ -1411,6 +1411,58 @@ rule applied. Meta predicts ¬M-1 on all three (21 for 21).
                       prices representation-first; B-M′ police/AB — a retirement-eligible joint)
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P24 — resolved: **C-EQ** (bases agreed — no discrimination) · the broad/narrow soundness law
+    observed:         `interest-soundness` is the keystone: the BROAD phase (bucket 3×3 neighborhood,
+                      bucket = x >> k, an exact shift) CONTAINS the NARROW phase (Chebyshev
+                      max(|Δx|,|Δy|) ≤ R) for any R ≤ 2^k — the acceleration NEVER MISSES a relevant
+                      actor (a missed relevant actor is a desync; an extra candidate is only wasted
+                      bandwidth the narrow phase filters). The R ≤ 2^k precondition is load-bearing
+                      (the gate plants the R > 2^k miss). `interest-exactness` adds symmetry +
+                      tamper-evidence. Sound-over-approximation with the narrow phase as the exact
+                      filter — the APPROXIMATION AXIS'S THIRD CARRIER (frontier, ashdepth, interest),
+                      but already-minted, so it strengthens the axis rather than minting. Both bases
+                      priced C-EQ 35; not a discrimination (retirement-neutral). Weights unchanged.
+    vacuity:          `strict > 0` is the module's OWN non-vacuity floor (the broad phase must
+                      strictly over-approximate somewhere, else the containment is vacuous) — L61's
+                      eighth carrier, non-STARVED.
+
+### P25 — resolved: **C-EQ** (bases agreed) — MESH == MONOLITH, the capstone theorem
+    observed:         `mesh-law`: a concurrent multi-steward simulation with authority MIGRATING
+                      equals the monolith BIT-FOR-BIT — "not a best-effort convergence, but a
+                      THEOREM, re-derived in bytes." A composition (nway schedules the concurrent
+                      writes as one independence round; migrate moves authority witness-neutrally;
+                      terraform is the monolith oracle / neutral ruler that ignores custody so a
+                      meshed bug cannot hide in its own answer), generalizing regionprop's
+                      reunify==monolith from a STATIC partition to a MIGRATING one. Reject-whole
+                      refusal (non-steward write / overlapping batch / theft migration each refuse
+                      the WHOLE tick). C-EQ 40 both bases; not a discrimination. Weights unchanged.
+    unnamed (M-0):    the neutral-ruler oracle (terraform ignores custody entirely — Goodhart
+                      resistance built into the check's structure); work-partition fixed while
+                      authority-partition migrates, the witness invariant to both.
+
+### P26 — resolved: **C-AB** — the retirement DISCRIMINATION: B-M′ right, B-A″ loses its THIRD · RUN 7 CLOSES
+    observed:         `panewire-concord`: two windows, one authority — the same (input, edits) run
+                      twice lands the IDENTICAL composed witness (an edit in one view seen in the
+                      other) while a different edit stream diverges, AND a tampered edit woven into
+                      the stream refuses mid-loop with the replica byte-unchanged and the avatar's
+                      walk unperturbed — "equal-or-refuse under play." The whole arc composed:
+                      panelight's tick + wire's equal-or-refuse + driftgaze's verified acquisition —
+                      interactive==batch FUSED with equal-or-refuse, the two-law C-AB join B-M′
+                      priced 40. B-A″ priced representation-first (C-REP 30) and LOST.
+    tournament / RETIREMENT: this was a retirement-eligible discrimination and B-M′ won it — B-A″'s
+                      THIRD consecutive losing discrimination (P22, P23, P26). Weights: B-M′ ~0.78,
+                      B-A″ ~0.22 — now BELOW the 0.20-adjacent floor... EXACTLY: recompute — C-AB
+                      likelihoods B-A″ 35 / B-M′ 40 give w(B-A″) = 0.22 × 35 / (0.22×35 + 0.78×40) =
+                      0.198 < 0.20. BOTH retirement conditions MET (≥3 consecutive losses AND
+                      w < 0.20). **B-A″ RETIRES.** The tournament collapses to a single surviving
+                      basis, B-M′.
+    census:           run-7 v_D = 0,0,0 (P24/P25/P26 — approximation strengthened not minted; no new
+                      family) — RUN 7 CLOSES on a second consecutive triple zero. Meta ¬M-1: 24 for
+                      24. CHECKPOINT 7 fires next and faces the CONVERGENCE DECISION: B-A″ retired
+                      (one of the two blocking questions resolved), leaving only the scheduling-axis
+                      mint (priogov) between the engine and a declared — single-basis, honestly
+                      caveated — convergence.
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
