@@ -1862,6 +1862,81 @@ on all three (27 for 27).
                       profit. That is the single-basis weakness made concrete rather than abstract — the
                       sole basis mispriced two joints in a row and paid nothing for it.
 
+## CHECKPOINT 9 — PREREGISTRATION (frozen BEFORE any score exists): the incumbent against its own null
+
+L62 obliged this and deliberately left it unrun, because minting a lesson and choosing its first
+verdict in the same breath is the conflict the lesson forbids. This block is the SPEC, frozen and
+committed before `multinull.py` is written or executed. Everything below is decided in advance; the
+verdict section is empty until the run fills it.
+
+**Unavoidable disclosure, stated first.** This is a RETROSPECTIVE scoring of already-resolved joints,
+so the outcomes were necessarily known to the author before the spec was written — the blindness L59
+protects cannot apply here and is not claimed. What CAN be protected is the DEGREES OF FREEDOM: the
+pseudocount, the class space, the catch-all mapping, the incumbent selection rule, the corpus, and the
+reporting are all fixed HERE, so the one thing the author cannot do is tune them until the answer is
+agreeable. That is the honest form of preregistration available to a retrospective measurement, and it
+is weaker than a blind freeze. `declared ≠ verified`.
+
+**THE CORPUS — 22 scoring joints, and why exactly these.** Every joint carrying BOTH a frozen credence
+vector and a resolved outcome: P9, P11–P18, P20–P32. P10 (`govern`) and P19 (`cpredict`) are excluded
+because the LEDGER declared them NON-SCORING for disclosed contamination at their own freeze — the
+exclusion is the ledger's rule applied, not a selection made now. P1–P8 carry no multiclass credence
+vector (run-1 predates the credence format; the format was adopted at run 2) and are excluded as
+UNSCORABLE-BY-FORMAT, not as inconvenient. The corpus is thereby determined by two pre-existing rules
+and contains no case-by-case admission.
+
+**THE INCUMBENT — the B-M-lineage vector of record at each freeze.** P9–P17 use `B-M`; P18–P26 use
+`B-M′`; P27–P32 use the sole-basis line the ledger itself labels `author (= B-M′)`. No joint's
+incumbent is chosen; each is the merged basis's own frozen row at that time. Where a vector's integer
+percents do not sum to 100 it is NORMALIZED by its own total, and any such joint is REPORTED (a
+malformed frozen vector is a data-quality fact, not something to silently repair).
+
+**THE NULL — a rolling empirical marginal, no future leakage.** For joint j in chronological order,
+over that joint's OWN frozen class set C_j:
+
+    q_j(c) = ( N_{j-1}(c) + α ) / ( Σ_{c' ∈ C_j} N_{j-1}(c') + α·|C_j| )   for c ∈ C_j,  **α = 1**
+
+where N_{j-1}(c) counts how often class c was the OBSERVED outcome across joints strictly BEFORE j.
+The null therefore knows only the frozen partition (available pre-outcome) and the history to date. It
+is explicitly NOT the retrospective modal class over all 22 — that would leak later outcomes into
+earlier predictions, and the first joint's null is deliberately uniform because nothing precedes it.
+α = 1 (Laplace) is fixed now and is not tuned.
+
+**THE CATCH-ALL MAPPING, frozen because it cuts against the incumbent.** L60 mandates a catch-all
+OTHER in every partition. If a joint's observed class is NOT among its frozen named classes, it maps
+to that catch-all (`R-O`, else `R-M` if `R-O` is absent). This is known to bite at least once — P21
+resolved C-SPLIT, a class its own partition never named — and the rule PENALIZES the incumbent there
+(it priced the catch-all at 5). Frozen in this direction deliberately: the alternative (crediting the
+incumbent for a class it did not name) would be scoring the author's hindsight, not the basis.
+
+**THE RULE — the same proper score for both, no exceptions.** Brier over C_j:
+
+    BS(p_j, y_j) = Σ_{c ∈ C_j} ( p_j(c) − 1[c = y_j] )²        Δ_null = Σ_j BS(q_j,y_j) − Σ_j BS(p_j,y_j)
+
+**THE VERDICT PARTITION (exhaustive, L60), frozen with its meaning:**
+  * **Δ_null > 0** — the incumbent carries earned predictive value over class frequencies. Convergence
+    keeps its predictive-adequacy leg; the structural leg was already recorded.
+  * **Δ_null = 0** — no earned predictive value; the basis is a redescription of the class prior.
+  * **Δ_null < 0** — the basis is WORSE than ignorance-with-frequencies. Convergence would then be
+    largely CLASS-PRIOR EXPLOITATION, and the declaration of checkpoint 7 would have to be re-graded
+    on its predictive leg — the structural findings (two minted families) would stand, since they rest
+    on recurrence, not on scoring.
+
+**ALSO REPORTED, because a single scalar hides the failure modes** (`panel ≠ scalar`): leading-class
+accuracy for both; per-joint paired differences and the SIGN COUNT (joints won/lost/tied), so a total
+driven by one outlier is visible; calibration and sharpness reported SEPARATELY, since a basis can beat
+the null while being badly calibrated. **No significance claim is made at n = 22** — the numbers are
+DESCRIPTIVE, and calling a 22-joint retrospective difference significant would be the inflation this
+ledger exists to refuse (L20 sample ≠ universal).
+
+**NON-VACUITY (L61).** The corpus must contain more than one distinct observed class, or "the null
+wins" would be an artifact of a one-class corpus rather than a result; the witness asserts this and
+reads STARVED if it fails.
+
+**Witness**: `exe_epistemics/multinull.py` — stdlib-only, deterministic, exhaustive over the corpus,
+parsing the frozen vectors from this ledger rather than from any hand-copied table, rerun
+byte-identical. **VERDICT: recorded in the resolution block below, written only after the run.**
+
 ## THEOREM CANDIDATES — stated, with executable witnesses
 
 ### W1 — the Wagenburg Bound (stated, NOT mechanized; witness: `seamgame.py`)
