@@ -2613,6 +2613,81 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## BATCH 17 FREEZE — P57 + P58 + P59; the ladder repaired TWICE more, and one module RECOVERED
+
+**Continued use found two more defects, and the pattern is now the finding.** The ladder has needed
+repair at P48 (excluded by NAME where it meant by ROLE) and twice again here. **Every defect was found
+by USING the instrument, never by inspecting it** — which is the same lesson `sea-marangoni` taught at
+a different level: an invariant nobody exercises is not evidence.
+
+**DEFECT 2 — the double-record signature has a FALSE POSITIVE.** Batch 15 established that a
+reference/scenes row is recorded twice. True, but so is a law row whose name is reused by the module's
+IMPORT GUARD. `stormprop` has exactly two rows — `storm-property` (recorded twice) and its selftest —
+so the v2 ladder excluded everything and returned **no central row at all**. The discriminator, still
+structural because it reads only GUARD BOILERPLATE and never a law's meaning:
+
+    an IMPORT guard's detail begins  "import failed"
+    a REFERENCE guard's detail begins "reference failed"  or  "<...> scene failed"
+    → a row is a REFERENCE row iff one of its records carries a REFERENCE guard.
+      A row whose only duplicate is an IMPORT guard is a LAW row.
+
+Verified: `magicdiv:scenes`, `sea:island` (reference failed) and `sea:wide` (wide scene failed) are
+reference rows; `storm-property` and `commute-property` are law rows. **This retroactively vindicates
+P37**, where `commute-property` was chosen as central by judgment before any ladder existed — the rule
+now derives what judgment had reached, which is the right direction for a rule to travel.
+
+**DEFECT 3 — the eligibility test was wrong, and it had silently EXCLUDED a briefable module.**
+Read-eligibility was "the module has its own gate method". `terrain_bridge` has none — it is covered by
+the shared `terrain` stage — so it was skipped this rung as if unclassifiable. But that stage IMPORTS
+`terrain_bridge` and records `terrain:object`, `terrain-object-provenance` and `terrain-object-selftest`,
+which are its rows; and the brief-falsifier check's binding condition (the citing stage imports the
+module) is satisfiable. **Corrected rule: a module is READ-ELIGIBLE iff some gate stage imports it and
+records rows.** `bench` is imported by NO stage and stays ineligible — now for a reason that is
+measured rather than assumed.
+
+**This changes the batch.** Under the corrected rule `terrain_bridge` re-enters the frontier ahead of
+`terrain_view` lexically, so batch 17 is `splitview` → `stormprop` → `terrain_bridge`. Recorded because
+a corrected instrument that quietly changed a selection without saying so would be worse than the
+defect.
+
+    LADDER v3 (step 1–2 unchanged; step 3 amended; step 4 added):
+    3. else the FIRST substantive row in gate-method SOURCE ORDER, excluding the import-guard row,
+       `-selftest`, and REFERENCE rows (identified by the guard idiom above).
+    4. else, if exactly ONE non-selftest row remains, it is central.          → storm-property
+
+**Selector**: lex over read-eligible unbriefed → `splitview` → `stormprop` → `terrain_bridge`.
+**Batch rules**: sole basis B-M′; scoring is the v_D census and the meta. FP-ROW stays retired. Run-18
+v_D fresh. L61 applied. Meta predicts ¬M-1 on all three (52 for 52).
+
+### P57 — `splitview` (SCORING) — role: "The official server's own audit — the lonely-client and cut
+    theorems" (URDRSPV1); ambient DISCLOSED: the authority arc's first rung, and the README summarises
+    it ("a fork is detectable only by comparison, never by verification"). That states the FINDING,
+    which is the P33/P49 situation → **NON-SCORING**. Read and briefed; enters no census, no meta.
+    reading (unscored): C-FLOOR — a detectability guarantee shown absent for a lonely client.
+
+### P58 — `stormprop` (SCORING) — role: "Property-based falsifier for the storm's PREFIX PROPERTY"
+    (URDRSTP1); ambient: `storm` (W2, the adversarial-transport loom, UNREAD) and the sibling
+    `commuteprop` (P37, C-EQ — a property falsifier whose central law was the property itself, with
+    non-vacuity established rather than central). Central row: **`storm-property`** (ladder step 4).
+    Body UNREAD.
+    partition:        C-EQ (the prefix property itself central — the `commuteprop` precedent) · C-INV
+                      (a structural invariant of the prefix) · C-FLOOR (the falsifier's own
+                      non-vacuity central) · C-R · R-M · R-O.
+    credences:        C-EQ 40 · C-INV 22 · C-FLOOR 20 · C-R 10 · R-M 4 · R-O 4. **Prior transferred
+                      from resolved P37 and DISCLOSED** — the sibling falsifier module resolved C-EQ
+                      with C-FLOOR established-not-central. Transfer stands at 1 hurt / 1 helped, so it
+                      is priced ahead but not confidently. v_D=0 expected.
+
+### P59 — `terrain_bridge` (SCORING) — role: "heightfield → URDROBJ2 bridge (T2, the D14 admission
+    rung)" (URDRDOBJ2); ambient: `heightfield` (P-series, the T1 canon, briefed) shares its gate stage.
+    Central row by ladder step 3 over the SHARED `terrain` stage, restricted to rows this module owns:
+    **`terrain:object`** — the first substantive object-row in source order. Body UNREAD.
+    partition:        C-R (an ADMISSION rung — the role says "the D14 admission rung" outright) ·
+                      C-EQ (a bridge identity: the object view ≡ the heightfield) · C-REP (the object
+                      as a certified representation) · C-INV · R-M · R-O.
+    credences:        C-R 40 · C-EQ 24 · C-REP 20 · C-INV 10 · R-M 3 · R-O 3. v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## BATCH 16 FREEZE — P54 + P55 + P56 (sealed before any READ)
 
 **Selector**: lex successor reapplied → `sealframe` → `sealsession` → `sealwrit`. `bench` skipped by
