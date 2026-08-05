@@ -58,7 +58,9 @@ LEDGER = os.path.join(_HERE, "PREDICTIONS.md")
 SCALE = 10000                      # probabilities as integer ten-thousandths
 ALPHA = 1                          # the preregistered Laplace pseudocount
 #: Excluded by the LEDGER's own non-scoring declaration (disclosed contamination at their freeze).
-NON_SCORING = ("P10", "P19")
+#: P33 (`bombtest`) joins P10/P19 -- named EXPLICITLY rather than relying on its freeze carrying no
+#: credence block, so the exclusion is asserted by rule and survives any later edit to that block.
+NON_SCORING = ("P10", "P19", "P33")
 #: The catch-all preference order, per L60's mandatory OTHER class.
 CATCH_ALL = ("R-O", "R-M")
 
@@ -249,6 +251,54 @@ def non_vacuous(rows):
     return len(set(r["y"] for r in rows)) > 1
 
 
+# ---- the MDL re-score: log loss = code length (Kraft-McMillan) -----------------------------------
+#: Reported in MILLIBITS (bits x 1000, rounded) rather than raw floats. Log loss is the one quantity
+#: in this ledger that cannot be integer-exact -- it needs a logarithm -- so the float is confined to
+#: the computation and the REPORTED value is rounded well above any plausible last-ULP difference,
+#: keeping the gate byte-identical. The deviation from the integer discipline is recorded, not hidden.
+MILLIBIT = 1000
+
+
+def log_loss_millibits(p, y):
+    """-log2 p(y), in millibits. Log loss IS code length: by Kraft-McMillan a distribution and a code
+    are interchangeable, so this measures the BITS needed to describe the observed outcome under the
+    predictor -- the unit MDL requires, and the reason E must be a DIFFERENCE of code lengths rather
+    than a ratio of incommensurable quantities."""
+    import math
+    m = p.get(y, 0)
+    if m <= 0:
+        return None                       # an infinite loss; asserted absent rather than clamped
+    return int(round(-math.log2(m / float(SCALE)) * MILLIBIT))
+
+
+def rescore_logloss(rows=None):
+    """Re-score the SAME 22-joint corpus under log loss, so an MDL-grounded objective has a valid
+    incumbent comparison. Returns (total_incumbent, total_null, per-joint list) or None if any joint
+    assigns zero mass to its observed class (which would make the total infinite)."""
+    rows = run() if rows is None else rows
+    per = []
+    for r in rows:
+        li = log_loss_millibits(r["p"], r["y"])
+        ln = log_loss_millibits(r["q"], r["y"])
+        if li is None or ln is None:
+            return None
+        per.append((r["pid"], li, ln))
+    return sum(x[1] for x in per), sum(x[2] for x in per), per
+
+
+def logloss_agrees_with_brier(rows=None):
+    """Does the MDL rescore CHANGE the seated verdict? The scoring rule may not be swapped silently:
+    if log loss reversed the incumbent-beats-null finding, checkpoint 9's conclusion would be
+    rule-dependent and would have to be re-graded. Returns (agrees, delta_brier, delta_logloss)."""
+    rows = run() if rows is None else rows
+    t = totals(rows)
+    rl = rescore_logloss(rows)
+    if rl is None:
+        return None
+    inc, nul, _ = rl
+    return ((t["delta"] > 0) == ((nul - inc) > 0), t["delta"], nul - inc)
+
+
 def main():
     rows = run()
     freezes, outcomes = load_ledger()
@@ -277,6 +327,19 @@ def main():
     print()
     print("corpus assembled by rule only: %s" % corpus_is_by_rule(rows, freezes, outcomes))
     print("non-vacuous (more than one observed class): %s" % non_vacuous(rows))
+    print()
+    rl = rescore_logloss(rows)
+    if rl is not None:
+        inc, nul, _per = rl
+        agrees, db, dl = logloss_agrees_with_brier(rows)
+        print()
+        print("MDL RE-SCORE -- the same 22 joints under LOG LOSS (millibits; log loss == code length)")
+        print("  TOTAL incumbent %d mb   null %d mb" % (inc, nul))
+        print("  DELTA_null (log loss) = %d mb   (>0 incumbent beats null)" % dl)
+        print("  agrees with the Brier verdict: %s   (Brier delta %d, log-loss delta %d mb)"
+              % (agrees, db, dl))
+        print("  -> the seated verdict is NOT rule-dependent" if agrees else
+              "  -> WARNING: the verdict REVERSES under log loss; checkpoint 9 must be re-graded")
     print()
     print("NO SIGNIFICANCE CLAIM: n = %d, retrospective. These numbers are DESCRIPTIVE." % t["n"])
     return 0

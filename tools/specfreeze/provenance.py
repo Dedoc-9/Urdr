@@ -582,6 +582,42 @@ DISCOVERIES = (
        "RELATIONSHIPS possible', needing no coordinates, frame or trusted origin; v_D=0",
        "brief written; P35 resolved C-EQ in exe_epistemics/PREDICTIONS.md; run 10 closes, meta 32/32",
        "CONFIRMATION"),
+    _d("rung4:repeatability", "MEASURE", "exe_epistemics/probes.py",
+       "that Psi drift could be read at all before the author-emission noise floor was measured - and "
+       "that accumulating more batches would eventually make a drift number interpretable",
+       "eps_author = ||Psi_0' - Psi_0||_1 = 2800 over a corpus carrying 100000 total mass (2.8%), "
+       "measured by re-emitting against the SAME engine state with the corpus traversed in scrambled "
+       "order. Standard practice requires a repeatability coefficient before any change is called "
+       "real (CR = 2.77 x SEM; a difference below it is indistinguishable from the tool's own error), "
+       "so until this existed EVERY drift number was uninterpretable no matter how many batches "
+       "accumulated. The confound was frozen BEFORE the number: same-session emission means anchoring "
+       "is unavoidable and pushes the difference DOWN, so the reading rule was made asymmetric - "
+       "eps>0 INFORMATIVE (disagreement surviving anchoring is real noise, a genuine lower bound), "
+       "eps=0 UNINFORMATIVE (a zero is what perfect anchoring produces). The informative branch fired. "
+       "SHARP FINDING: a leading-class FLIP at QP06 (C-REP -> C-R), the probe whose margin was the "
+       "corpus's narrowest at 200 - on a low-margin probe the leading class is NOT STABLE under "
+       "re-emission. Deliberately NOT inflated to a 2.77x CR: one anchored pair supports no SEM "
+       "estimate, and manufacturing a coefficient would fabricate precision the control cannot supply",
+       "smallest detectable drift = 2800 recorded in the registry; the KILL CONDITION is NOT YET "
+       "EVALUABLE (it needs the scale of real dispositional shifts, unknown until two genuine "
+       "post-work emissions exist) so Psi is neither cleared nor killed; the valid unanchored control "
+       "requires a FRESH SESSION with no access to Psi_0, named and NOT claimed",
+       "CONFIRMATION"),
+    _d("rung4:mdl-rescore", "MEASURE", "exe_epistemics/multinull.py",
+       "the frozen resolution-efficiency metric E = dG/(dC+dR) - a RATIO of INCOMMENSURABLE units "
+       "(Brier points over structural counts) that diverges when a batch makes no structural change",
+       "MDL expresses the complexity/fit tradeoff as an ADDITIVE code length in common units (bits), "
+       "not a ratio, and log loss IS code length by Kraft-McMillan - so the same corpus was re-scored "
+       "under log loss: incumbent 40535 mb vs null 61178 mb, Delta_null = +20643 millibits. IT AGREES "
+       "WITH THE BRIER VERDICT (logloss_agrees_with_brier -> True), which matters more than the "
+       "number: had it reversed, checkpoint 9's conclusion would have been an artifact of the scoring "
+       "rule and needed re-grading. The incumbent-beats-null finding survives a change of proper "
+       "scoring rule - a robustness check the original measurement never had",
+       "E re-frozen as E = dL_data - lambda*dL_model, both in millibits, lambda = 1 (the canonical "
+       "two-part code; a free lambda is a knob that could be tuned until any structural change looked "
+       "efficient). dL_model stays OPEN and must be a real code length, never a count of edits; E "
+       "remains uncomputed and EXPERIMENTAL under L63",
+       "CONFIRMATION"),
 )
 
 

@@ -2483,6 +2483,78 @@ unmeasured floor means nothing, and a first drift reading will not distinguish t
 but MAY NOT be reasoned from until one of them beats a seated incumbent on a declared objective. The
 registry below records it as such. Nothing about convergence changes on this rung.
 
+## RUNG 4 — the REPEATABILITY CONTROL, and the MDL re-score
+
+Two results, one of which corrects a quantity this ledger had already frozen. Witnesses: `probes.py`
+(the control) and `multinull.py` (the re-score), both rerun byte-identical.
+
+### The noise floor: ε_author = 2800, and it is INFORMATIVE
+
+Standard measurement practice requires a repeatability coefficient before any observed change can be
+called real: **CR = 2.77 × SEM**, and a difference below it "might simply be due to the inherent
+mechanical inaccuracy of the tool." Ψ is author-emitted, therefore it has measurement error, and until
+that floor was measured **every drift number was uninterpretable no matter how many batches
+accumulated** — which is why Batch 10 was not the right next move.
+
+    eps_author = ||Ψ_0' − Ψ_0||₁ = 2800   over a corpus carrying 100000 total mass  (2.8%)
+
+**The confound was frozen before the number.** The control was emitted in the SAME session that
+produced Ψ₀, so the originals were visible; anchoring is unavoidable and pushes the difference DOWN.
+The frozen reading rule was therefore asymmetric: **ε > 0 is INFORMATIVE** (disagreement that survives
+anchoring is real emission noise, hence a genuine lower bound), while **ε = 0 would have been
+UNINFORMATIVE** (a zero is exactly what perfect anchoring produces). The result is ε = 2800 > 0, so
+the informative branch fired and the floor is a real lower bound.
+
+**THE SHARP FINDING — a leading-class FLIP inside the noise.** QP06 (the echo-transcript probe,
+representation vs police) led **C-REP at 3200 in Ψ₀ and C-R in Ψ₀′**, its margin having been the
+corpus's narrowest at 200. So on a low-margin probe **the leading class is not stable under
+re-emission**. Recorded as measured. The tempting connection — that batches 8–9's four leading-class
+misses were concentrated where the basis was near-tied — is POST HOC and unfrozen, and under L63 has
+no standing; it is an observation with a decidable forward test, not a finding.
+
+**Deliberately NOT inflated to a CR.** The 2.77 multiplier presumes an SEM estimated from many
+independent pairs; one anchored pair supports no such estimate, so the smallest detectable drift is
+recorded as the raw ε. Manufacturing a coefficient here would fabricate precision the control cannot
+supply.
+
+**The kill condition is NOT YET EVALUABLE, and that is recorded rather than resolved favourably.**
+Retiring Ψ requires knowing ε is large *relative to the dispositional shifts Ψ must detect* — and that
+scale is unknown until at least two genuine (post-work) emissions exist. Ψ is neither cleared nor
+killed; it stays EXPERIMENTAL with a floor attached.
+
+**The valid experiment is named, not claimed.** An unanchored control requires a FRESH SESSION with no
+access to Ψ₀ — emitted before the ledger is read — or emission by a different agent. Until then 2800
+is a lower bound and is labelled one.
+
+### The MDL re-score: the seated verdict is NOT rule-dependent
+
+The frozen E = ΔG/(ΔC+ΔR) was malformed twice: a RATIO where MDL's tradeoff is an additive code
+length, and a quotient of INCOMMENSURABLE units (Brier points over structural counts), diverging when
+a batch makes no structural change. MDL requires both terms in the same unit, and log loss IS code
+length by Kraft–McMillan. So the corpus was re-scored under log loss:
+
+    TOTAL incumbent 40535 mb   ·   null 61178 mb   ·   Δ_null = +20643 millibits  (>0)
+
+**It agrees with the Brier verdict** (`logloss_agrees_with_brier()` → True). This matters more than
+the number: had the verdict reversed, checkpoint 9's conclusion would have been an artifact of the
+scoring rule and would have needed re-grading. It did not. The incumbent-beats-null finding survives a
+change of proper scoring rule, which is a robustness check the original measurement never had.
+
+    FROZEN E SPEC (form and units fixed; one term still open):
+        E = ΔL_data − λ·ΔL_model,   both in millibits,   **λ = 1** (the canonical two-part code).
+    λ is fixed at 1 deliberately: a free λ is a knob that could be tuned until any structural change
+    looked efficient, which is the discretion the ratio form already smuggled in. ΔL_model — the code
+    length of a structural modification — is the OPEN term, and it must be a real code length (bits to
+    DESCRIBE the change), never a count of edits wearing a bit's clothing. E is not computed here and
+    is EXPERIMENTAL under L63.
+
+**A corpus note, because the witnesses recompute live.** Batch 9 added P34/P35, so the scoring corpus
+is now **24 joints** and a fresh run reports Δ_null = +569 905 364 (Brier). Checkpoint 9's recorded
++553 208 846 stands as the measurement **as of its date over 22 joints** — the ledger records
+measurements at their date; the scripts report the live corpus. P33 is now named explicitly in
+`NON_SCORING` so its exclusion is asserted by rule rather than resting on its freeze happening to
+carry no credence block.
+
 ## INSTRUMENT REGISTRY — every diagnostic's status under L63 (empirical admissibility)
 
 L63 is worthless as a declaration; it is only real if every instrument in the engine carries a status
@@ -2507,7 +2579,9 @@ reasoned from; **SEATED** is the current best on its objective; **RETIRED** is i
 | Ω (specified orbit scalar) | certify state recurrence | — · — | **RETIRED (impossible)** | W2/RST: contains a monotone coordinate; Ω ≥ 3(ℓ+1) > 0 always |
 | Ω_live (live-quotient) | certify state recurrence | — · — | **EXPERIMENTAL** | non-degenerate (plant: 0 vs 30) but never shown INFORMATIVE |
 | Ψ (the operator over Q) | observational quotient | — · — | **EXPERIMENTAL** | Q frozen + Ψ₀ emitted (Rung 3); author-emitted, so DECLARED not measured |
-| Ψ drift Δ_Ψ(t,k) | detect operator evolution | — · — | **EXPERIMENTAL** | domain now exists; needs ≥ 2 emissions, and a noise floor that is not yet estimable |
+| Ψ drift Δ_Ψ(t,k) | detect operator evolution | — · — | **EXPERIMENTAL** | floor MEASURED at Rung 4: ε_author = 2800 (lower bound, anchored). Drift ≤ 2800 is uninterpretable |
+| E (resolution efficiency) | value structural change | log loss (millibits) · — | **EXPERIMENTAL** | form frozen as ΔL_data − λ·ΔL_model, λ=1; ΔL_model still undefined, so uncomputed |
+| log loss (MDL rescore) | joint-class prediction | log loss · rolling marginal null | **SEATED** (co-rule) | Δ_null = +20643 mb; AGREES with Brier, so the verdict is not rule-dependent |
 | attractor radius r_t | detect predictive-regime return | — · — | **EXPERIMENTAL** | domain now exists; needs ≥ 3 emissions for a meaningful centroid |
 | resolution efficiency E | value structural change | — · — | **EXPERIMENTAL** | unbuilt; denominator not yet frozen |
 

@@ -112,6 +112,30 @@ def _v(**kw):
     return vec
 
 
+#: RUNG 4 -- THE REPEATABILITY CONTROL, and its reading rule FROZEN BEFORE the control was emitted.
+#:
+#: WHY: standard measurement practice requires a repeatability coefficient before any observed change
+#: can be called real -- CR = 2.77 x SEM, and a difference below CR is indistinguishable from the
+#: instrument's own error. Psi is AUTHOR-EMITTED, so it has measurement error, and until that floor is
+#: measured every drift number is uninterpretable no matter how many batches accumulate.
+#:
+#: THE CONFOUND, stated before the number: this control was emitted in the SAME session that produced
+#: Psi_0, so the original vectors were visible in context. Anchoring is therefore unavoidable and
+#: pushes the measured difference DOWN. The result is a LOWER BOUND on author-emission noise, and a
+#: weak one.
+#:
+#: FROZEN READING RULE (asymmetric, because the confound is one-directional):
+#:   * eps_author > 0  -- INFORMATIVE. Disagreement that survives anchoring is real emission noise, so
+#:                        it is a genuine lower bound on the floor. Any future ||Psi_k - Psi_j||_1 at
+#:                        or below it is uninterpretable and treated as system noise (L63).
+#:   * eps_author == 0 -- UNINFORMATIVE, and must NOT be read as "the instrument is stable". A zero is
+#:                        exactly what perfect anchoring produces. It would establish nothing.
+#: A VALID (unanchored) control requires a FRESH SESSION with no access to Psi_0 -- emitted before the
+#: ledger is read -- or emission by a different agent. That experiment is named here and NOT claimed.
+#:
+#: KILL CONDITION (frozen): if eps_author is large relative to the dispositional shifts Psi would need
+#: to detect, Psi is RETIRED under L63 as an uncalibrated instrument, before anything is built on it.
+
 #: RECORDED OPERATORS. `PSI[t]` maps probe id -> {class: integer ten-thousandths}. EMPTY at the
 #: commit that freezes Q; each checkpoint appends exactly one emission, committed before the next is
 #: computed. A vector must cover CLASSES exactly and sum to SCALE.
@@ -141,7 +165,36 @@ PSI = {
         "QP10": _v(C_R=2800, C_INV=2400, C_FLOOR=1800, C_REP=1200, C_EQ=800, C_AB=500,
                    C_PRICE=200, C_ORD=100, R_M=100, R_O=100),
     },
+    # Psi_0' -- THE REPEATABILITY CONTROL (Rung 4). Same engine state as Psi_0 (post-batch-9, no
+    # intervening work), re-derived from the probe TEXT with the corpus traversed in a scrambled order
+    # (QP07, QP02, QP10, QP05, QP01, QP09, QP03, QP08, QP04, QP06) rather than in index order. The
+    # anchoring confound above applies in full.
+    "0'": {
+        "QP01": _v(C_PRICE=3700, C_R=3100, C_AB=1200, C_INV=800, C_EQ=400, C_ORD=300,
+                   C_REP=200, C_FLOOR=100, R_M=100, R_O=100),
+        "QP02": _v(C_EQ=3700, C_R=2600, C_AB=1700, C_INV=900, C_REP=400, C_PRICE=200,
+                   C_FLOOR=200, C_ORD=100, R_M=100, R_O=100),
+        "QP03": _v(C_INV=3700, C_R=2900, C_EQ=1200, C_AB=1000, C_PRICE=400, C_REP=300,
+                   C_FLOOR=200, C_ORD=100, R_M=100, R_O=100),
+        "QP04": _v(C_EQ=3500, C_FLOOR=2100, C_R=1600, C_AB=1200, C_INV=700, C_REP=300,
+                   C_PRICE=200, C_ORD=100, R_M=150, R_O=150),
+        "QP05": _v(C_ORD=4300, C_PRICE=2100, C_INV=1200, C_R=1000, C_AB=700, C_EQ=300,
+                   C_REP=200, C_FLOOR=100, R_M=50, R_O=50),
+        "QP06": _v(C_R=3100, C_REP=3100, C_AB=1500, C_EQ=1000, C_INV=700, C_PRICE=200,
+                   C_FLOOR=200, C_ORD=100, R_M=50, R_O=50),
+        "QP07": _v(C_FLOOR=3400, C_EQ=3000, C_INV=1200, C_R=900, C_AB=700, C_REP=200,
+                   C_PRICE=200, C_ORD=100, R_M=150, R_O=150),
+        "QP08": _v(C_EQ=3900, C_AB=2500, C_INV=1400, C_R=900, C_REP=400, C_PRICE=300,
+                   C_ORD=200, C_FLOOR=200, R_M=100, R_O=100),
+        "QP09": _v(C_PRICE=3300, C_INV=2500, C_AB=1600, C_R=1000, C_EQ=700, C_REP=300,
+                   C_ORD=300, C_FLOOR=100, R_M=100, R_O=100),
+        "QP10": _v(C_R=2700, C_INV=2300, C_FLOOR=1900, C_REP=1300, C_EQ=800, C_AB=500,
+                   C_PRICE=200, C_ORD=100, R_M=100, R_O=100),
+    },
 }
+
+#: The control pair. Named so the repeatability computation cannot silently drift onto other keys.
+CONTROL_PAIR = ("0", "0'")
 
 
 class ProbeError(Exception):
@@ -232,6 +285,47 @@ def spread():
     return out
 
 
+def leading(vec):
+    """The argmax, tie-broken lexically so a tie is resolved deterministically rather than by dict
+    order. A leading class that FLIPS between the control pair is inside the noise floor."""
+    return max(sorted(vec), key=lambda c: vec[c])
+
+
+def repeatability():
+    """RUNG 4. eps_author = ||Psi_0' - Psi_0||_1 over the whole corpus, plus the per-probe breakdown
+    and any leading-class FLIPS. Returns (eps, per_probe, flips). Read under the FROZEN asymmetric
+    rule above: a positive value is a genuine lower bound; a zero establishes nothing."""
+    a, b = CONTROL_PAIR
+    if a not in PSI or b not in PSI:
+        return None
+    per, flips = {}, []
+    for pid, *_ in Q:
+        d = sum(abs(PSI[b][pid][c] - PSI[a][pid][c]) for c in CLASSES)
+        per[pid] = d
+        la, lb = leading(PSI[a][pid]), leading(PSI[b][pid])
+        if la != lb:
+            flips.append((pid, la, lb))
+    return sum(per.values()), per, flips
+
+
+def smallest_detectable_drift():
+    """The floor a future drift must EXCEED to be interpretable. Deliberately the raw eps rather than
+    a 2.77x repeatability coefficient: the standard CR multiplier assumes an SEM estimated from many
+    independent pairs, and one anchored pair supports no such estimate. Inflating a single anchored
+    difference into a CR would manufacture precision this control cannot supply."""
+    r = repeatability()
+    return None if r is None else r[0]
+
+
+def drift_is_interpretable(t, k):
+    """DECIDED: is ||Psi_t - Psi_k||_1 above the measured floor? False means the observed movement is
+    indistinguishable from author-emission noise and may NOT be reasoned from (L63)."""
+    floor = smallest_detectable_drift()
+    if floor is None or t not in PSI or k not in PSI:
+        return None
+    return l1(PSI[t], PSI[k]) > floor
+
+
 def main():
     print("FROZEN PROBE CORPUS Q -- %d synthetic probes, fixed class space of %d"
           % (len(Q), len(CLASSES)))
@@ -270,6 +364,23 @@ def main():
             print("  Psi_%s  local drift %s  cumulative %s  radius %s"
                   % (t, local_drift(t), cumulative_drift(t), attractor_radius(t)))
         print("  corpus spread (L61): %s" % spread())
+    r = repeatability()
+    if r is not None:
+        eps, per, flips = r
+        print()
+        print("RUNG 4 -- THE REPEATABILITY CONTROL (Psi_0' vs Psi_0, same engine state)")
+        print("  per-probe L1: %s" % ", ".join("%s=%d" % (k, per[k]) for k in sorted(per)))
+        print("  eps_author = %d   (total mass across corpus = %d, so %.1f%%)"
+              % (eps, len(Q) * SCALE, 100.0 * eps / (len(Q) * SCALE)))
+        print("  leading-class FLIPS: %s"
+              % (", ".join("%s %s->%s" % f for f in flips) if flips else "none"))
+        print("  reading (frozen rule): %s"
+              % ("INFORMATIVE -- disagreement survived anchoring, so this is a genuine LOWER BOUND"
+                 if eps > 0 else
+                 "UNINFORMATIVE -- a zero is what perfect anchoring produces; establishes nothing"))
+        print("  smallest detectable drift = %s (raw eps; NOT inflated to a 2.77x CR, which would"
+              % smallest_detectable_drift())
+        print("     manufacture precision one anchored pair cannot supply)")
     print()
     print("STATUS: EXPERIMENTAL under L63 -- may be computed and reported, may NOT be reasoned from")
     print("until it beats a seated incumbent on a declared objective.")
