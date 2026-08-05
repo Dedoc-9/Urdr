@@ -132,14 +132,14 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`citation.py`](../tools/terrain/citation.py) | `URDRCIT1` | Deterministic cross-tick citation protocol | `citation` | [test](../tests/test_citation.py) | [conf](../tools/terrain/conformance_citation.txt) | [brief](../docs/citation_brief.md) |
 | [`clockauth.py`](../tools/terrain/clockauth.py) | `URDRCLK1` | Clock-authority: bounds the client's asserted VIEW-TICK | `clockauth` | [test](../tests/test_clockauth.py) | [conf](../tools/terrain/conformance_clockauth.txt) | [brief](../docs/clockauth_brief.md) |
 | [`clslo.py`](../tools/terrain/clslo.py) | `URDRLAT3` | Per-CLASS worst-case latency SLO (T3.34) | `clslo` | [test](../tests/test_clslo.py) | [conf](../tools/terrain/conformance_clslo.txt) | [brief](../docs/clslo_brief.md) |
-| [`commute.py`](../tools/terrain/commute.py) | `URDRCMU1` | Commutation certificate (T3.41) — the proof-object turn | `commute` | [test](../tests/test_commute.py) | [conf](../tools/terrain/conformance_commute.txt) | — |
+| [`commute.py`](../tools/terrain/commute.py) | `URDRCMU1` | Commutation certificate (T3.41) — the proof-object turn | `commute` | [test](../tests/test_commute.py) | [conf](../tools/terrain/conformance_commute.txt) | [brief](../docs/commute_brief.md) |
 | [`cohort.py`](../tools/terrain/cohort.py) | `URDRCOH1` | The COHORT fetch protocol with the gap DERIVED — agreement is Menger's min-cut, not a threshold | `cohort` | [test](../tests/test_cohort.py) | [conf](../tools/terrain/conformance_cohort.txt) | [brief](../docs/cohort_brief.md) |
 | [`commuteprop.py`](../tools/terrain/commuteprop.py) | `URDRCPS1` | Property-based falsifier for the commute diamond (Tier-2) | `commuteprop` | [test](../tests/test_commuteprop.py) | [conf](../tools/terrain/conformance_commuteprop.txt) | [brief](../docs/commuteprop_brief.md) |
 | [`cpredict.py`](../tools/terrain/cpredict.py) | `URDRCPRED1` | Continuous client-prediction reconcile (T3.20) | `cpredict` | [test](../tests/test_cpredict.py) | [conf](../tools/terrain/conformance_cpredict.txt) | [brief](../docs/cpredict_brief.md) |
 | [`crossing.py`](../tools/terrain/crossing.py) | `URDRCROSS1` | Wave-crossing timing (T3.7) | `crossing` | [test](../tests/test_crossing.py) | — | [brief](../docs/crossing_brief.md) |
 | [`crosswarden.py`](../tools/terrain/crosswarden.py) | `URDRWARD2` | Cross-region structural anti-cheat (T3.25) | `crosswarden` | [test](../tests/test_crosswarden.py) | [conf](../tools/terrain/conformance_crosswarden.txt) | [brief](../docs/crosswarden_brief.md) |
 | [`dirward.py`](../tools/terrain/dirward.py) | `URDRWARD3` | Directed-reachability structural anti-cheat (T3.26) | `dirward` | [test](../tests/test_dirward.py) | [conf](../tools/terrain/conformance_dirward.txt) | [brief](../docs/dirward_brief.md) |
-| [`disjoint.py`](../tools/terrain/disjoint.py) | `URDRDSJ1` | Prefix-disjointness IS commutation (task 58, Half B) | `disjoint` | [test](../tests/test_disjoint.py) | [conf](../tools/terrain/conformance_disjoint.txt) | — |
+| [`disjoint.py`](../tools/terrain/disjoint.py) | `URDRDSJ1` | Prefix-disjointness IS commutation (task 58, Half B) | `disjoint` | [test](../tests/test_disjoint.py) | [conf](../tools/terrain/conformance_disjoint.txt) | [brief](../docs/disjoint_brief.md) |
 | [`divergence.py`](../tools/terrain/divergence.py) | `URDRDVG1` | The quantization defect in CELLS (S2) — the largest connected RUN, never a rate | `divergence` | [test](../tests/test_divergence.py) | [conf](../tools/terrain/conformance_divergence.txt) | [brief](../docs/divergence_brief.md) |
 | [`driftgaze.py`](../tools/terrain/driftgaze.py) | `URDRDGZ1` | Interest shift (T3.50, W4) — the client that MOVES | `driftgaze` | [test](../tests/test_driftgaze.py) | [conf](../tools/terrain/conformance_driftgaze.txt) | [brief](../docs/driftgaze_brief.md) |
 | [`drive.py`](../tools/terrain/drive.py) | `URDRDRIVE1` | Certified movement TRANSCRIPT (T3.11) | `drive` | [test](../tests/test_drive.py) | [conf](../tools/terrain/conformance_drive.txt) | [brief](../docs/drive_brief.md) |
@@ -149,12 +149,12 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`gaze.py`](../tools/terrain/gaze.py) | `URDRGAZE1` | Certified first-person OBSERVER over terrain (T3.10) | `gaze` | [test](../tests/test_gaze.py) | [conf](../tools/terrain/conformance_gaze.txt) | [brief](../docs/gaze_brief.md) |
 | [`geoquorum.py`](../tools/terrain/geoquorum.py) | `URDRGEO1` | Multi-observer capture consensus (S4) — coverage refusal vs INTEGRITY refusal | `geoquorum` | [test](../tests/test_geoquorum.py) | [conf](../tools/terrain/conformance_geoquorum.txt) | [brief](../docs/geoquorum_brief.md) |
 | [`ghostsnap.py`](../tools/terrain/ghostsnap.py) | `URDRGHS1` | The actor wire (T3.54, V3) — equal-or-refuse ghosts | `ghostsnap` | [test](../tests/test_ghostsnap.py) | [conf](../tools/terrain/conformance_ghostsnap.txt) | [brief](../docs/ghostsnap_brief.md) |
-| [`glide.py`](../tools/terrain/glide.py) | `URDRGLIDE1` | Continuous fixed-point movement (T3.18, Stage B) | `glide` | [test](../tests/test_glide.py) | [conf](../tools/terrain/conformance_glide.txt) | — |
+| [`glide.py`](../tools/terrain/glide.py) | `URDRGLIDE1` | Continuous fixed-point movement (T3.18, Stage B) | `glide` | [test](../tests/test_glide.py) | [conf](../tools/terrain/conformance_glide.txt) | [brief](../docs/glide_brief.md) |
 | [`govern.py`](../tools/terrain/govern.py) | `URDROPC2` | Per-tick work governor (T3.30) | `govern` | [test](../tests/test_govern.py) | [conf](../tools/terrain/conformance_govern.txt) | [brief](../docs/govern_brief.md) |
 | [`hand.py`](../tools/terrain/hand.py) | `URDRHAND1` | Seamless cross-region authority handoff (T3.23) | `hand` | [test](../tests/test_hand.py) | [conf](../tools/terrain/conformance_hand.txt) | [brief](../docs/hand_brief.md) |
 | [`heightfield.py`](../tools/terrain/heightfield.py) | `URDRHF1` | Deterministic integer heightfield canon (T1) | `terrain` | — | — | [brief](../docs/heightfield_brief.md) |
 | [`hitbox.py`](../tools/terrain/hitbox.py) | `URDRHIT1` | Server-authoritative hit validation (ACTIVE anti-cheat channel) | `hitbox` | [test](../tests/test_hitbox.py) | [conf](../tools/terrain/conformance_hitbox.txt) | [brief](../docs/hitbox_brief.md) |
-| [`horizon.py`](../tools/terrain/horizon.py) | `URDRLAT1` | Rollback-horizon reconcile window (T3.32) | `horizon` | [test](../tests/test_horizon.py) | [conf](../tools/terrain/conformance_horizon.txt) | — |
+| [`horizon.py`](../tools/terrain/horizon.py) | `URDRLAT1` | Rollback-horizon reconcile window (T3.32) | `horizon` | [test](../tests/test_horizon.py) | [conf](../tools/terrain/conformance_horizon.txt) | [brief](../docs/horizon_brief.md) |
 | [`horn.py`](../tools/terrain/horn.py) | `URDRHRN1` | The Gabriel anchor ladder — rung count conserved, only the pitch changes | `horn` | [test](../tests/test_horn.py) | [conf](../tools/terrain/conformance_horn.txt) | [brief](../docs/horn_brief.md) |
 | [`interest.py`](../tools/terrain/interest.py) | `URDRAOI1` | Deterministic Area-of-Interest relevance (T3.21, Stage C) | `interest` | [test](../tests/test_interest.py) | [conf](../tools/terrain/conformance_interest.txt) | [brief](../docs/interest_brief.md) |
 | [`inputset.py`](../tools/terrain/inputset.py) | `URDRINP1` | Which inputs determine a quantity — the arc-wide state-versus-path classifier, decided by witness | `inputset` | [test](../tests/test_inputset.py) | [conf](../tools/terrain/conformance_inputset.txt) | [brief](../docs/inputset_brief.md) |
@@ -171,7 +171,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`meshattest.py`](../tools/terrain/meshattest.py) | `URDRMAT1` | Mesh reality attestation (M2.5) — real sockets, real processes | `meshattest` | [test](../tests/test_meshattest.py) | — | [brief](../docs/meshattest_brief.md) |
 | [`meshsession.py`](../tools/terrain/meshsession.py) | `URDRMSS1` | Attested mesh session (M5) — the Phase M capstone | `meshsession` | [test](../tests/test_meshsession.py) | [conf](../tools/terrain/conformance_meshsession.txt) | [brief](../docs/meshsession_brief.md) |
 | [`migrate.py`](../tools/terrain/migrate.py) | `URDRMIG1` | Authority migration as lease transfer (M2) | `migrate` | [test](../tests/test_migrate.py) | [conf](../tools/terrain/conformance_migrate.txt) | [brief](../docs/migrate_brief.md) |
-| [`nway.py`](../tools/terrain/nway.py) | `URDRNWY1` | N-way nullity + the independence lattice (M1) | `nway` | [test](../tests/test_nway.py) | [conf](../tools/terrain/conformance_nway.txt) | — |
+| [`nway.py`](../tools/terrain/nway.py) | `URDRNWY1` | N-way nullity + the independence lattice (M1) | `nway` | [test](../tests/test_nway.py) | [conf](../tools/terrain/conformance_nway.txt) | [brief](../docs/nway_brief.md) |
 | [`oobprior.py`](../tools/terrain/oobprior.py) | `URDROOB1` | The out-of-band prior — closes the COLD-START residual | `oobprior` | [test](../tests/test_oobprior.py) | [conf](../tools/terrain/conformance_oobprior.txt) | [brief](../docs/oobprior_brief.md) |
 | [`opcost.py`](../tools/terrain/opcost.py) | `URDROPC1` | Certified integer-work envelope (T3.29, Stage H opener) | `opcost` | [test](../tests/test_opcost.py) | [conf](../tools/terrain/conformance_opcost.txt) | [brief](../docs/opcost_brief.md) |
 | [`panelight.py`](../tools/terrain/panelight.py) | `URDRPNL1` | THE WINDOWED LOOP (T3.52, V1) | `panelight` | [test](../tests/test_panelight.py) | [conf](../tools/terrain/conformance_panelight.txt) | [brief](../docs/panelight_brief.md) |
@@ -179,38 +179,38 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 | [`partition.py`](../tools/terrain/partition.py) | `URDRPRT1` | THE PARTITIONED MESH (M4) — the CP posture made executable | `partition` | [test](../tests/test_partition.py) | [conf](../tools/terrain/conformance_partition.txt) | [brief](../docs/partition_brief.md) |
 | [`patience.py`](../tools/terrain/patience.py) | `URDRPAT1` | The price of the price — the exclusion ladder holds only at T >= Delta | `patience` | [test](../tests/test_patience.py) | [conf](../tools/terrain/conformance_patience.txt) | [brief](../docs/patience_brief.md) |
 | [`perception.py`](../tools/terrain/perception.py) | `URDRPCP1` | Witnessed absence as server-authoritative AoI (Band A) | `perception` | [test](../tests/test_perception.py) | [conf](../tools/terrain/conformance_perception.txt) | [brief](../docs/perception_brief.md) |
-| [`persist.py`](../tools/terrain/persist.py) | `URDRLAT5` | Persistent snapshot checkpoint (T3.36) | `persist` | [test](../tests/test_persist.py) | [conf](../tools/terrain/conformance_persist.txt) | — |
+| [`persist.py`](../tools/terrain/persist.py) | `URDRLAT5` | Persistent snapshot checkpoint (T3.36) | `persist` | [test](../tests/test_persist.py) | [conf](../tools/terrain/conformance_persist.txt) | [brief](../docs/persist_brief.md) |
 | [`pingpolicy.py`](../tools/terrain/pingpolicy.py) | `URDRPNG1` | The ping policy — monotone disadvantage (conditional) | `pingpolicy` | [test](../tests/test_pingpolicy.py) | [conf](../tools/terrain/conformance_pingpolicy.txt) | [brief](../docs/pingpolicy_brief.md) |
 | [`predict.py`](../tools/terrain/predict.py) | `URDRPRED1` | Client-prediction RECONCILE primitive (T3.17, Stage A) | `predict` | [test](../tests/test_predict.py) | [conf](../tools/terrain/conformance_predict.txt) | [brief](../docs/predict_brief.md) |
-| [`priogov.py`](../tools/terrain/priogov.py) | `URDROPC3` | PRIORITY work governor (T3.31) | `priogov` | [test](../tests/test_priogov.py) | [conf](../tools/terrain/conformance_priogov.txt) | — |
+| [`priogov.py`](../tools/terrain/priogov.py) | `URDROPC3` | PRIORITY work governor (T3.31) | `priogov` | [test](../tests/test_priogov.py) | [conf](../tools/terrain/conformance_priogov.txt) | [brief](../docs/priogov_brief.md) |
 | [`provbind.py`](../tools/terrain/provbind.py) | `URDRPRV1` | Provenance binding (S3) — a certificate bound to its lattice, or refused | `provbind` | [test](../tests/test_provbind.py) | [conf](../tools/terrain/conformance_provbind.txt) | [brief](../docs/provbind_brief.md) |
 | [`quintessence.py`](../tools/terrain/quintessence.py) | `URDRQNT1` | ID-0 representation theorem (T3.46) — the fifth essence | `quintessence` | [test](../tests/test_quintessence.py) | [conf](../tools/terrain/conformance_quintessence.txt) | [brief](../docs/quintessence_brief.md) |
 | [`rannull.py`](../tools/terrain/rannull.py) | `URDRRAN0` | RAN-0 authority-nullity certificate (T3.42) — proof of ABSENCE | `rannull` | [test](../tests/test_rannull.py) | [conf](../tools/terrain/conformance_rannull.txt) | [brief](../docs/rannull_brief.md) |
-| [`recirc.py`](../tools/terrain/recirc.py) | `URDRRCC1` | Kleene recirculation — THERE IS NO LOOP, and closing it would weaken fraud detection | `recirc` | [test](../tests/test_recirc.py) | [conf](../tools/terrain/conformance_recirc.txt) | — |
-| [`resurrect.py`](../tools/terrain/resurrect.py) | `URDRLAT6` | Resurrection law (T3.38) — recovery half of persist | `resurrect` | [test](../tests/test_resurrect.py) | [conf](../tools/terrain/conformance_resurrect.txt) | — |
+| [`recirc.py`](../tools/terrain/recirc.py) | `URDRRCC1` | Kleene recirculation — THERE IS NO LOOP, and closing it would weaken fraud detection | `recirc` | [test](../tests/test_recirc.py) | [conf](../tools/terrain/conformance_recirc.txt) | [brief](../docs/recirc_brief.md) |
+| [`resurrect.py`](../tools/terrain/resurrect.py) | `URDRLAT6` | Resurrection law (T3.38) — recovery half of persist | `resurrect` | [test](../tests/test_resurrect.py) | [conf](../tools/terrain/conformance_resurrect.txt) | [brief](../docs/resurrect_brief.md) |
 | [`schedule.py`](../tools/terrain/schedule.py) | `URDRSCH1` | Adaptive priority scheduler (age-first, starvation-free) | `schedule` | [test](../tests/test_schedule.py) | [conf](../tools/terrain/conformance_schedule.txt) | [brief](../docs/schedule_brief.md) |
 | [`sea.py`](../tools/terrain/sea.py) | `URDRFLD1` | Terrain sea as certified field state (S1/S2) | `sea` | [test](../tests/test_sea.py) | [conf](../tools/terrain/conformance_sea.txt) | [brief](../docs/sea_brief.md) |
 | [`sealframe.py`](../tools/terrain/sealframe.py) | `URDRSFR1` | THE SEALED FRAME (T3.55, V4) | `sealframe` | [test](../tests/test_sealframe.py) | [conf](../tools/terrain/conformance_sealframe.txt) | [brief](../docs/sealframe_brief.md) |
 | [`sealsession.py`](../tools/terrain/sealsession.py) | `URDRSSN1` | THE ATTESTED SESSION (T3.56, V5) — visible-world CAPSTONE | `sealsession` | [test](../tests/test_sealsession.py) | [conf](../tools/terrain/conformance_sealsession.txt) | [brief](../docs/sealsession_brief.md) |
 | [`sealwrit.py`](../tools/terrain/sealwrit.py) | `URDRSWT1` | THE SIGNED WIRE (T3.49, W3) — WHO may write x WHAT may change | `sealwrit` | [test](../tests/test_sealwrit.py) | [conf](../tools/terrain/conformance_sealwrit.txt) | [brief](../docs/sealwrit_brief.md) |
-| [`slo.py`](../tools/terrain/slo.py) | `URDRLAT2` | Composite worst-case latency SLO (T3.33) | `slo` | [test](../tests/test_slo.py) | [conf](../tools/terrain/conformance_slo.txt) | — |
-| [`splice.py`](../tools/terrain/splice.py) | `URDRSPLICE1` | Glide resumption — the memoryless property | `splice` | [test](../tests/test_splice.py) | [conf](../tools/terrain/conformance_splice.txt) | — |
+| [`slo.py`](../tools/terrain/slo.py) | `URDRLAT2` | Composite worst-case latency SLO (T3.33) | `slo` | [test](../tests/test_slo.py) | [conf](../tools/terrain/conformance_slo.txt) | [brief](../docs/slo_brief.md) |
+| [`splice.py`](../tools/terrain/splice.py) | `URDRSPLICE1` | Glide resumption — the memoryless property | `splice` | [test](../tests/test_splice.py) | [conf](../tools/terrain/conformance_splice.txt) | [brief](../docs/splice_brief.md) |
 | [`splitview.py`](../tools/terrain/splitview.py) | `URDRSPV1` | The official server's own audit — the lonely-client and cut theorems | `splitview` | [test](../tests/test_splitview.py) | [conf](../tools/terrain/conformance_splitview.txt) | [brief](../docs/splitview_brief.md) |
 | [`stance.py`](../tools/terrain/stance.py) | `URDRSTANCE1` | The grounded step law (T3.9) | `stance` | [test](../tests/test_stance.py) | [conf](../tools/terrain/conformance_stance.txt) | [brief](../docs/stance_brief.md) |
-| [`storecost.py`](../tools/terrain/storecost.py) | `URDRLAT4` | Snapshot-storage envelope (T3.35) | `storecost` | [test](../tests/test_storecost.py) | [conf](../tools/terrain/conformance_storecost.txt) | — |
-| [`storm.py`](../tools/terrain/storm.py) | `URDRSTM1` | Deterministic adversarial-transport loom (T3.48, W2) | `storm` | [test](../tests/test_storm.py) | [conf](../tools/terrain/conformance_storm.txt) | — |
+| [`storecost.py`](../tools/terrain/storecost.py) | `URDRLAT4` | Snapshot-storage envelope (T3.35) | `storecost` | [test](../tests/test_storecost.py) | [conf](../tools/terrain/conformance_storecost.txt) | [brief](../docs/storecost_brief.md) |
+| [`storm.py`](../tools/terrain/storm.py) | `URDRSTM1` | Deterministic adversarial-transport loom (T3.48, W2) | `storm` | [test](../tests/test_storm.py) | [conf](../tools/terrain/conformance_storm.txt) | [brief](../docs/storm_brief.md) |
 | [`stormprop.py`](../tools/terrain/stormprop.py) | `URDRSTP1` | Property-based falsifier for the storm's PREFIX PROPERTY | `stormprop` | [test](../tests/test_stormprop.py) | [conf](../tools/terrain/conformance_stormprop.txt) | [brief](../docs/stormprop_brief.md) |
 | [`terraform.py`](../tools/terrain/terraform.py) | `URDRTFM1` | The mutable chunked world (T3.40) — the membrane's edit-law | `terraform` | [test](../tests/test_terraform.py) | [conf](../tools/terrain/conformance_terraform.txt) | [brief](../docs/terraform_brief.md) |
 | [`terrain_bridge.py`](../tools/terrain/terrain_bridge.py) | `URDROBJ2` | heightfield -> URDROBJ2 bridge (T2, the D14 admission rung) | `terrain` | — | — | [brief](../docs/terrain_bridge_brief.md) |
 | [`terrain_view.py`](../tools/terrain/terrain_view.py) | `URDRTVW1` | The D15 view-export FIREWALL (T3.0) | `terrain_view` | [test](../tests/test_terrain_view.py) | — | [brief](../docs/terrain_view_brief.md) |
-| [`testament.py`](../tools/terrain/testament.py) | `URDRTST1` | Durable intent (T3.44) — the write that survives its writer | `testament` | [test](../tests/test_testament.py) | [conf](../tools/terrain/conformance_testament.txt) | — |
+| [`testament.py`](../tools/terrain/testament.py) | `URDRTST1` | Durable intent (T3.44) — the write that survives its writer | `testament` | [test](../tests/test_testament.py) | [conf](../tools/terrain/conformance_testament.txt) | [brief](../docs/testament_brief.md) |
 | [`throttle.py`](../tools/terrain/throttle.py) | `URDRTHR1` | Clarity-bounded update throttle (sim-rate decoupling) | `throttle` | [test](../tests/test_throttle.py) | [conf](../tools/terrain/conformance_throttle.txt) | [brief](../docs/throttle_brief.md) |
 | [`tilecert.py`](../tools/terrain/tilecert.py) | `URDRTIL1` | The tile certificate and what it actually proves — attribution, not verification | `tilecert` | [test](../tests/test_tilecert.py) | [conf](../tools/terrain/conformance_tilecert.txt) | [brief](../docs/tilecert_brief.md) |
 | [`tilemin.py`](../tools/terrain/tilemin.py) | `URDRTMN1` | The minimal certificate — 3 of 3 fields lattice-free, integrity split from policy | `tilemin` | [test](../tests/test_tilemin.py) | [conf](../tools/terrain/conformance_tilemin.txt) | [brief](../docs/tilemin_brief.md) |
 | [`tierview.py`](../tools/terrain/tierview.py) | `URDRTIR1` | Visual asymmetry ZERO BY CONSTRUCTION (S6) — the predicate cannot take a tier | `tierview` | [test](../tests/test_tierview.py) | [conf](../tools/terrain/conformance_tierview.txt) | [brief](../docs/tierview_brief.md) |
-| [`traj.py`](../tools/terrain/traj.py) | `URDRTRAJ1` | Certified TRAJECTORY OBSERVER (T3.12) | `traj` | [test](../tests/test_traj.py) | [conf](../tools/terrain/conformance_traj.txt) | — |
-| [`view_witness.py`](../tools/terrain/view_witness.py) | `URDRTVW1` | The citation contract (T3.6) — the declared view must CITE | `view_witness` | [test](../tests/test_view_witness.py) | — | — |
-| [`voxlat.py`](../tools/terrain/voxlat.py) | `URDRVOX1` | The certified integer voxel lattice (S1) — clz LCA depth, attained 4*B^3 | `voxlat` | [test](../tests/test_voxlat.py) | [conf](../tools/terrain/conformance_voxlat.txt) | — |
+| [`traj.py`](../tools/terrain/traj.py) | `URDRTRAJ1` | Certified TRAJECTORY OBSERVER (T3.12) | `traj` | [test](../tests/test_traj.py) | [conf](../tools/terrain/conformance_traj.txt) | [brief](../docs/traj_brief.md) |
+| [`view_witness.py`](../tools/terrain/view_witness.py) | `URDRTVW1` | The citation contract (T3.6) — the declared view must CITE | `view_witness` | [test](../tests/test_view_witness.py) | — | [brief](../docs/view_witness_brief.md) |
+| [`voxlat.py`](../tools/terrain/voxlat.py) | `URDRVOX1` | The certified integer voxel lattice (S1) — clz LCA depth, attained 4*B^3 | `voxlat` | [test](../tests/test_voxlat.py) | [conf](../tools/terrain/conformance_voxlat.txt) | [brief](../docs/voxlat_brief.md) |
 | [`warden.py`](../tools/terrain/warden.py) | `URDRWARD1` | Structural anti-cheat (T3.24, Stage E opener) | `warden` | [test](../tests/test_warden.py) | [conf](../tools/terrain/conformance_warden.txt) | [brief](../docs/warden_brief.md) |
 | [`wardhom.py`](../tools/terrain/wardhom.py) | `URDRWARDH1` | Warden beta0 IS certified F2-homology beta0, cross-placed (T3.27) | `wardhom` | [test](../tests/test_wardhom.py) | [conf](../tools/terrain/conformance_wardhom.txt) | [brief](../docs/wardhom_brief.md) |
 | [`wavefield.py`](../tools/terrain/wavefield.py) | `URDRWAV1` | Exact division-free traveling-wave field (T3.3) | `wavefield` | [test](../tests/test_wavefield.py) | — | [brief](../docs/wavefield_brief.md) |
@@ -219,7 +219,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate).
 ## Status
 
 **MEASURED, as of this writing.** 103 modules under `tools/terrain/`, 175 falsifier suites, 1987 unit
-falsifiers with 0 red, 848 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+falsifiers with 0 red, 854 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 
@@ -242,7 +242,9 @@ cohort agreement predicate is a THEOREM (Menger's min-cut) rather than a tuned t
 
 ## Current
 
-The live edge is the **certificate arc**, which grew out of the authority arc and now carries it. Both
+The certificate arc CLOSED at `blindscreen`; the live edge is now Stage 5 composition (`compose`) and
+the COMPLETED executable-epistemics READ pass ([`../exe_epistemics/PREDICTIONS.md`](../exe_epistemics/PREDICTIONS.md)
+— 63 preregistered joints over 19 runs). The certificate arc grew out of the authority arc and carries it. Both
 are chains of scope corrections rather than stacks of features — which is the most useful thing to
 know about them. Each rung was true in its own model and each was undermined by the next one's model,
 on purpose.
@@ -323,8 +325,9 @@ rung 2 dismantles in one move.
   were briefed this session; each now carries a `docs/<name>_brief.md` whose falsifier the gate ENFORCES
   (`brief-falsifiers`), so their OODA passes and D1 §20 rulings live in a document written to be read, not only
   in commit messages and module headers. What remains is the OLDER substrate — the Stage-H durability and space
-  modules among it — which this pass has now begun to read; `storecost` is the first. For a still-unbriefed
-  module the *reasoning* is recoverable only by reading its header. Four briefs (`hardening`, `mesh_phase`,
+  modules among it — which the READ pass has since read to COMPLETION (`storecost` was the first). Only
+  `bench` is unbriefed, by rule rather than omission: it is a measurement harness with no law to certify.
+  Four briefs (`hardening`, `mesh_phase`,
   `terrain_studio`, `wire_phase`) are phase-level rather than module-level.
 - **`cohort`'s min-cut is DECIDED only to `CUT_SEARCH_MAX = 3`.** The enumeration proves k for walls
   whose cut is at most 3 cells and returns `None` above that, which charges nothing and certifies
@@ -399,8 +402,8 @@ What remains is one persistent city standing on all the slices at once, under lo
 conformance corpora carry a `does_not_show` boundary, and `grading-ratchet` holds both backlogs at
 zero as walls rather than ratchets. What remains is documentation the ratchet cannot manufacture — 1
 module has no `docs/*_brief.md`. The certificate and partition/authority arcs have since been briefed
-(their falsifiers gate-enforced); the residual gap is the older substrate, and the D5 ledger still needs its
-entries. That debt is not cosmetic: the briefs are where the OODA
+(their falsifiers gate-enforced); the older substrate has since been briefed too, so the residual brief gap is
+`bench` alone — unbriefable by rule. The D5 ledger still needs its entries (`voxlat` has none in either volume). That debt is not cosmetic: the briefs are where the OODA
 passes and the D1 §20 rulings live, and unlike a boundary a brief cannot be transcribed from anywhere.
 
 **Stage 7 — the parallel substrates.** `parallel/` holds structures explored alongside the Euclidean

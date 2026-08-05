@@ -223,13 +223,21 @@ These are non-negotiable. Every rung in this repo was built under them.
    the invariants and that the wrong outcome would have passed.
 5. **Add a gate stage** in `verify.py` (determinism ×2 + golden match + a
    `*-selftest` non-vacuity control) and wire it into `main()`.
-6. **Grade honestly** in `spec/D5-ledger.md`; update `spec/D11` (contract) and
-   `spec/D12` (version) as needed.
-7. **Cross-place**: extend/author a `std`-only Rust file to reproduce the digests;
+6. **Write the design brief** `docs/<module>_brief.md` — the OODA pass, the D1 §20
+   glyph ruling, a `does_not_show` boundary, and a `<!-- brief-falsifier: <row> -->`
+   marker naming the gate row whose reddening would kill the brief's central claim.
+   Add the module to `BRIEFS_REQUIRING_A_FALSIFIER` in `verify.py` so the binding is
+   enforced rather than hoped. (Omitted from this list until 2026-08-05, by which time
+   88 modules were already enforced this way — the step was universal in practice and
+   absent from the instructions.)
+7. **Grade honestly** in `spec/D5-ledger-2.md` — Volume I (`spec/D5-ledger.md`) is
+   SEALED and takes corrections of record only; all new entries append to Volume II.
+   Update `spec/D11` (contract) and `spec/D12` (version) as needed.
+8. **Cross-place**: extend/author a `std`-only Rust file to reproduce the digests;
    cross-check the port logic (mirror it) before compiling. It is `SPECULATIVE`
    until a host recompiles and prints `ADMITTED` twice + defect caught; then flip
    to `MEASURED` on that named host.
-8. **Gate green → commit → push.** Keep commits scoped; the commit message states
+9. **Gate green → commit → push.** Keep commits scoped; the commit message states
    what is MEASURED vs DECLARED and the scope caveat.
 
 ---
@@ -246,14 +254,22 @@ These are non-negotiable. Every rung in this repo was built under them.
 | `tools/physics/` | exact dynamics, LCP, joints, `field.py`; the `Q`/`Vec` exact substrate; **`fp_dynamics.py`** bounded fixed-point steppers (rung 5) |
 | `tools/render/` | fixed-point rasterizer (`raster.py`) + 3D depth (`raster3d.py`) |
 | `tools/terrain/` | `urdr-terrain` T1: the `URDRHF1` deterministic heightfield canon (SHA-seeded lattice noise, Q16 quintic FBM, sqrt-free island falloff; same seed → same bytes on any host) — the D14 procedural modality — plus **T2**: `terrain_bridge.py`, the heightfield → `URDROBJ2` wireframe bridge (own canon ≡ `canon_ref`, provenance-inert); ladder + the idle law in `docs/terrain_studio_brief.md`; **S1**: `sea.py` — the island's sea as certified field state (bathymetry adapter + masked flux-form transport on the frozen urdr-field substrate; the coastline is boundary); **S2**: the masked Marangoni step — surface tension on the wide-sea scene (scene level 130 by rule, κ audited monotone tick-by-tick); **T3.0**: `terrain_view.py` — the view-export FIREWALL (D15 applied to terrain: the view carries the witness, presentation moves the view digest never the witness; the measurable half of the presentation layer) + `terrain_view.html`, the on-demand renderer (idle law: zero frames while idle). Doctrine: `docs/presentation_doctrine.md`; **T3.3 authority**: `wavefield.py` — the EXACT integer traveling-wave field (periodic parabolic profile, P²|8A, floor-mod phase, superposition; same components+tick → same bytes, no rounding) the GPU's declared Gerstner sinusoid draws from — DIVISION-FREE (no `/`/`//`/`%` operator, tokenizer-asserted: structural cross-placement parity); **T3.2/T3.3 view** `terrain_view3d.html` — a dependency-free WebGL2 3D render of the certified island + a float Gerstner water surface (analytic normals) from the SAME wave params (DECLARED presentation, off-gate, idle law); **T3.5 consumer**: `buoyancy.py` — MEASURED wave-field buoyancy (a raft's exact integer waterline `z*` on the field by division-free bisection satisfying the Archimedes bracket; the flotation law is a declared model, `z*` is measured); **T3.6**: `view_witness.py` — the citation contract (the declared view's embedded `hf_witness`/`wave_witness` must equal the live authority recomputed from the modules; knobs walled from the witness; a one-hex forgery reddens — the render stays declared, only the citation is measured); **T3.7 consumer**: `crossing.py` — MEASURED wave-crossing timing (a moving agent's exact first-overtopping tick through the traveling field; both agent and wave move, so travel is load-bearing). The arc then CONTINUES through the MMO stages: movement + observers (`stance`/`gaze`/`drive`/`traj`, `fpface`/`fpcap`), the continuous fold and its reconciles (`glide`/`splice`/`predict`/`cpredict`, Stages A–B), scale/handoff/anti-cheat (`interest`/`layertheorem`/`hand`/`warden`/`crosswarden`/`dirward`/`wardhom`, Stages C–E), the Stage-H latency guarantee on both axes (`opcost`/`govern`/`priogov`/`horizon`/`slo`/`clslo` for time, `storecost` for space), durability + recovery (`persist`/`resurrect`), and the Stage-I streaming openers (`chunkload`/`chunkstate`) — the module-by-module index is [`tools/terrain/README.md`](tools/terrain/README.md) |
-| `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics, the N1–N5 netcode stack, D16 regional authority, the seven-stage frontfps ladder, the URDRPD1 persistent-homology / OOB witness, the toric/rigidity detectors, and the five terrain-arc placements — `heightfield_rs`, `latstore_rs`, `glide_rs`, `streamstate_rs`, `latarith_rs` — each re-verified LIVE by the gate's placement stages wherever `rustc` exists, SKIPPED honestly where it does not) |
+| `tools/*/*_rs/` | independent `std`-only Rust placements (kernel, render, physics, math, fixed-point dynamics, the N1–N5 netcode stack, D16 regional authority, the seven-stage frontfps ladder, the URDRPD1 persistent-homology / OOB witness, the toric/rigidity detectors, and the eight terrain-arc placements — `heightfield_rs`, `latstore_rs`, `glide_rs`, `streamstate_rs`, `latarith_rs`, `writecalc_rs`, `wirephase_rs`, `wardhom_rs` — each re-verified LIVE by the gate's placement stages wherever `rustc` exists, SKIPPED honestly where it does not; `tools/netcode/` adds `fraud_rs` and `rollstore_rs`, `tools/intla/` adds `winding_rs`) |
 | `tools/netcode/` | The N1–N5 stack: **`lockstep.py`** (peers exchange inputs only, one `URDRLST1` witness chain, desyncs localized), **`rollback.py`** (canonical snapshots; late inputs rewind + replay and converge to the N1 chain; `ROLLBACK-REFUSE`/`ROLLBACK-CONFLICT`), **`authinput.py`** (Lamport-OTS envelopes gate admission; `AUTH-REFUSE`), **`worldstep.py`** (authored `URDR-WORLD-3` scenes in the loop; `WORLD-REFUSE`; **N4.1** opt-in sqrt-free body-body contact), **`worldpeer.py`** (N5 — the composed contract: authored world + authenticated transcript → one witness or one typed refusal; `URDRWPN1` world pin), and **`worldregion.py`** (**D16** regional authority: partition by integer x-seams → deterministic reunification reproduces the monolith witness, `REGION-REFUSE`); six corpora + Rust placements `{lockstep,rollback,authinput,worldstep,worldpeer}_rs` + `worldregion_{rs,c}`; all frozen at 0.1 in D12 |
 | `tools/editor/` | browser authoring + deterministic-replay front-end (`urdr_designer.html`, `replay.py`, `load_world.py`) — **exploratory** consumer; the `--fp` stepping it demos is the gated rung 5 |
 | `tools/frontfps/` | **`frontfps.py`** — the consolidated FPS/MMO authoring canon (**URDR-FPSW-1**, Stage 1): meshes + rigs + capsule hitboxes + actors + spawns + D16 seams under ONE world-identity law (provenance excluded, `FPSW-REFUSE` total, no digest for an inadmissible world), plus the first auto-affordance (`auto_capsule`, containment-certified, defect-checked) and **`fpquat.py`** — the Stage-2 Q32.32 rotation substrate (URDRFPQ1: qmul/norm2/rsqrt/normalize/rotate/nlerp on the frozen FIELDFP laws; C99 placement `fpquat_c/` golden+defect parity; Rust `fpquat_rs/` ADMITTED on the owner's Windows host — three placements, two OSes) and **`fpclip.py`** — the Stage-3 pose & clip canon (URDRCLP1: keyframed Q32.32 rotation tracks, canonical minimum-priority state machine, `auto_loopable` seam certificate, pinned 55-op pose budget proxy; bench protocol in `docs/bench_protocol.md`) and **`fppose.py`** — Stage-4 posed world transforms + hitbox capsules (URDRPSE1: normalize-per-compose hierarchy, exact point-in-capsule coverage certificate, one-tick-late IK contract DECLARED). Staged FPS/MMO plan + OODA reports in its README |
 | `tools/world_host/` | multi-actor deterministic world (weave, history) — the layer beneath the netcode stack |
 | `tools/specfreeze/` | the D12 freeze manifest checker + `doc_currency.py` (the stale-count detector the gate runs on every pass) |
 | `spec/` | the normative documents: D1 (language), D5 volumes (the graded ledger), D11 (layer contracts), D12 (versions/freeze), D16/D17/D19 (regional authority, detectors, winding) — plus `spec/attest/` (the pinned reality-attestation traces, each a named-host log re-verified by the gate forever) |
-| `docs/` | the papers and briefs: `PAPER.md` (systems overview), `THEOREMS.md` (what is proved), `wire_phase_brief.md` (the sealed wire phase's map), `terrain_studio_brief.md` (the arc's realized ladder), `bench_protocol.md` (the named-host performance law), `presentation_doctrine.md` (the D15 firewall) |
+| `docs/` | the papers and the **108** per-module design briefs (`docs/<module>_brief.md`, each carrying a `<!-- brief-falsifier: <row> -->` marker the gate ENFORCES for 88 of them): `PAPER.md` (systems overview), `THEOREMS.md` (what is proved), `hardening_brief.md` + `mesh_phase_brief.md` (phase-level reviews), `wire_phase_brief.md` (the sealed wire phase's map), `terrain_studio_brief.md` (the arc's realized ladder), `bench_protocol.md` (the named-host performance law), `presentation_doctrine.md` (the D15 firewall); index in [`docs/README.md`](docs/README.md) |
+| `hainuwele/` | **the terrain/MMO arc, indexed and narrated** — `README.md` (the live per-module index: all 103 `tools/terrain/` modules with code, gate stage, falsifiers, conformance, brief), `WHITEPAPER.md` (the thesis and its honest boundaries), `DEVNOTES.md` (per-rung notes), `CITYSCALE.md` + `COMMUTING-DEFECT.md` (dated design studies, several of whose proposals have since LANDED), `parallel/` (substrates explored alongside the Euclidean arc). It grades nothing — grades live in the D5 volumes |
+| `exe_epistemics/` | **the executable-epistemics arc** — the repo reading ITSELF under preregistration. `PREDICTIONS.md` is an append-only ledger of credences frozen BEFORE each module was read (63 joints P1–P63 over 19 runs; **the READ pass is COMPLETE**); `probes.py`/`probes2.py` (the frozen probe corpora Q and Q′), `mdl.py` (the MDL model-cost term), `multinull.py`/`nullbase.py` (scoring against a rolling empirical null), `orbitprobe.py`, `prediction_residuals.py`, `UNANCHORED_FLOOR_PROTOCOL.md` (a measurement REFUSED from inside this arc, with the protocol a fresh session would need). **Off-gate by design** — it scores the gate, so gating it would close the loop |
+| `demo/` | `prove_it.py` (one-command self-checking reproduction proof) + `lockstep_demo.py` + `world_highway.json` |
+| `scripts/` | `run_gates.py` (the `gates.txt` manifest runner) + `gate_once.py` (asserts the LITERAL tail line, not the exit code) |
+| `tools/anticheat/` | the Band A anti-cheat rungs (all eight landed) |
+| `tools/homology/` | `URDRPD1` — 𝔽₂ persistent homology + the topological OOB witness, three placements |
+| `LESSONS.md` / `SURPRISES.md` / `ANCESTRY.md` | append-only records: the transferable laws L1–L64; the times READING redirected the planned work; the verified four-repository lineage. **Never swept by a currency refresh** — see rule 10 |
+| `urdr.py` / `gates.txt` | the CLI (`run`/`check`/`fmt`); the two-pass gate manifest |
 
 ---
 
@@ -356,13 +372,18 @@ paper as 1951 in four places). Anchor on the COUNT PHRASE — `N unit falsifiers
 `FALS=N`, `**N**` — and sweep the LINE-WRAPPED form too, since `1948 unit\nfalsifiers` escaped three
 refreshes (L46).
 
-**And exempt APPEND-ONLY HISTORY from the refresh entirely: `LESSONS.md` and `spec/D5-ledger*.md`.**
+**And exempt APPEND-ONLY HISTORY from the refresh entirely — the full set, which is `LESSONS.md`,
+`SURPRISES.md`, `ANCESTRY.md`, `spec/D5-ledger*.md`, and `exe_epistemics/{PREDICTIONS,README}.md`.**
 Those files record what was measured on the day it was measured. `doc_currency._HISTORY` already
 exempts them from the staleness classes for exactly this reason, and the refresh must use the same
-set — a sweep that updates them is not correcting a stale claim, it is falsifying a record. Caught
-twice: L37's `8 of 836 rows` was rewritten three times, and a D5 entry ended up reading `1987 unit
-falsifiers and 836 rows`, a pairing that never existed. Review the diff hunk-by-hunk regardless; the
-cost is minutes and a corrupted record looks exactly like a correct one afterwards.
+set — a sweep that updates them is not correcting a stale claim, it is falsifying a record. This
+paragraph itself named only two of the six until 2026-08-05, so a reader following it literally
+would have swept four append-only records; read `_HISTORY` in `tools/specfreeze/doc_currency.py` as
+the source and treat this list as a copy that can drift. Caught three times: L37's `8 of 836 rows`
+was rewritten three times; a D5 entry ended up reading `1987 unit falsifiers and 836 rows`, a
+pairing that never existed; and the `<<<URDR` example block above was swept into a composite
+transcript across fourteen commits (L64). Review the diff hunk-by-hunk regardless; the cost is
+minutes and a corrupted record looks exactly like a correct one afterwards.
 
 **The manifest.** `gates.txt` + `python scripts/run_gates.py` is the one-command form of "is this
 done", and it is deliberately thin: two passes through `scripts/gate_once.py`, the second comparing
@@ -453,14 +474,31 @@ confusions were a drifted working directory.
 # It prints exactly one block, and that block is the whole report:
 #
 #     <<<URDR
-#     HEAD=2d81bdf BR=main AM=none
-#     GATE=PASSED FAILROWS=0 FALS=1987/0red ROWS=848 DOCCUR=OK DOCSTALE=OK
-#     DET=BYTE-IDENTICAL BYTES=240028/240028 A=698E23C7 B=698E23C7
-#     PUSH=afaf3db..2d81bdf
+#     HEAD=<sha> BR=main AM=none
+#     GATE=PASSED FAILROWS=0 FALS=<n>/0red ROWS=<m> DOCCUR=OK DOCSTALE=OK
+#     DET=BYTE-IDENTICAL BYTES=<b>/<b> A=<crc> B=<crc>
+#     PUSH=<old>..<new>
 #     URDR>>>
 #
-# The block above is a REAL run — MEASURED on the named Windows host (2026-07-25), not a
-# mock. On failure it appends ONLY the [FAIL] rows, which is the part that needs reading.
+# THE FIELDS ABOVE ARE PLACEHOLDERS, AND THAT IS A CORRECTION, NOT A SIMPLIFICATION.
+# Until 2026-08-05 this block carried the literal fields of a real run on the named Windows
+# host (2026-07-25) and the prose called it "a REAL run — MEASURED, not a mock". It was one,
+# once. Then fourteen successive commits SWEPT its FALS= and ROWS= fields forward with the
+# growing gate (FALS=1915/ROWS=832 through FALS=1987/ROWS=848) while HEAD=, BYTES= and both
+# CRCs stayed frozen at the original run's values. Two passes at ONE head cannot yield
+# different row counts AND identical output lengths AND identical CRCs, so what the block
+# asserted had stopped being a measurement and become a COMPOSITE — a real frame with
+# fabricated contents, still labelled MEASURED. It was also, by then, stale anyway.
+#
+# The defect is the exact shape this file warns about eighty lines above ("a pairing that
+# never existed"), reached from the opposite direction: there it was history falsified by a
+# refresh, here it was an EXAMPLE falsified by one. A transcript that carries live numbers is
+# a sweep target, and a sweep cannot tell an illustration from an observation. Placeholders
+# remove the target permanently — the block still teaches the FORMAT, which is all it was
+# ever for, and it can no longer be edited into a claim about a run that never happened.
+# Recorded as L64. `example ≠ observation`.
+#
+# On failure the block appends ONLY the [FAIL] rows, which is the part that needs reading.
 # The rule: paste between the <<<URDR and URDR>>> markers and nothing else. Everything the
 # gate certifies is in there — verdict, byte-identity of the two runs, both output lengths and
 # hash prefixes, the live falsifier/row counts, and the two doc-currency verdicts. A run

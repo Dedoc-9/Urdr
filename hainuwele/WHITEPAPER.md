@@ -58,9 +58,12 @@ executable evidence that the check has teeth.
 **Validity, not outcome.** A test asserts the *apparatus*, never the hoped result. The
 distinguishing question is: would this test fail on a real defect? If a property is asserted
 universally, it must be *true* universally — and where it is not, the honest move is to count
-rather than assert. Two properties in `pingpolicy` and two in `oobprior` are reported as counts
-(86/120, 110/120) precisely because asserting them as universals would have been false, and the
-sweep refused to pass until they were downgraded.
+rather than assert. Two properties in `oobprior` are reported as counts (`strict_seen` 86/120,
+`fragile_seen` 110/120) precisely because asserting them as universals would have been false, and
+the sweep refused to pass until they were downgraded. (`pingpolicy`'s six properties all hold at
+120/120 and are asserted as universals — this sentence named it as a second counted case for three
+revisions, which OVERSTATED how much downgrading the arc had actually done. Corrected 2026-08-05
+against the live `sweep()` of both modules; an inflation of one's own honesty is still inflation.)
 
 **Grade every claim.** ESTABLISHED / MEASURED / UNDERDETERMINED / SPECULATIVE, each with the
 mechanism it rests on, a `does_not_show` boundary, and a falsifier. Ungraded claims are defects.
