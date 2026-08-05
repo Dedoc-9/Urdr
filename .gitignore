@@ -16,3 +16,5 @@ tools/editor/runB.json
 tools/editor/wB.json
 _gate1.log
 _gate2.log
+_g*.log
+_g*.out
