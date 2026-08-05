@@ -2483,6 +2483,63 @@ unmeasured floor means nothing, and a first drift reading will not distinguish t
 but MAY NOT be reasoned from until one of them beats a seated incumbent on a declared objective. The
 registry below records it as such. Nothing about convergence changes on this rung.
 
+## BATCH 10 FREEZE — P36 + P37 + P38 (sealed before any READ)
+
+**Selector**: the frozen successor rule (pure LEX over read-eligible unbriefed modules) reapplied
+without amendment → `clslo` → `commuteprop` → `crossing`. `bench` remains lex-first and remains
+SKIPPED by the same mechanical test that disqualified it at batch 9 (no gate method ⇒ no rows ⇒
+unclassifiable), re-verified this rung rather than carried forward on memory.
+
+**Ψ₁ IS PLANNED NOW, not after seeing the results.** On this batch's completion Ψ₁ will be emitted
+against the sealed corpus Q, giving the drift series its first post-work reading. Rung 4 measured the
+floor at ε_author = 2800, so the reading is already decidable: **‖Ψ₁ − Ψ₀‖₁ ≤ 2800 is uninterpretable
+and may not be reasoned from; only a drift exceeding it is a candidate signal.** Declaring this before
+the batch closes prevents the floor from being reinterpreted once a number exists.
+
+**Batch rules**: sole basis B-M′; no discrimination possible, so scoring is the v_D census and the
+meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on all three (32 for 32).
+
+### P36 — `clslo` (SCORING) — role: "Per-CLASS worst-case latency SLO (T3.34)" (URDRLAT3); ambient
+    disclosed: `slo` (P29, C-PRICE, the composite worst-case) whose own `does_not_show` NAMED this as
+    the follow-on ("priority-class latency — uses the FIFO governor's uniform bound, not `priogov`'s
+    per-class one"); the LAT family (`horizon` LAT1, `slo` LAT2). Row NAMES seen during eligibility
+    checking (`clslo-refinement`, `clslo-soundness`, `clslo-refuse`) — disclosed as exposure, though
+    no row CONTENT was read. Body and history UNREAD.
+    partition:        C-PRICE (a per-class worst-case BOUND central — the cost/latency family's fifth
+                      preregistered instance) · C-EQ (a refinement IDENTITY central — per-class bounds
+                      composing to the uniform one) · C-ORD (a certified per-class ORDER central — the
+                      scheduling axis's third carrier, which would be a mint) · C-R · R-M · R-O.
+    credences:        author (= B-M′): C-PRICE 38 · C-EQ 24 · C-ORD 14 · C-R 14 · R-M 5 · R-O 5.
+                      v_D=0 expected; but C-ORD is the live mint risk — if clslo certifies a per-class
+                      ORDER rather than a per-class BOUND, the scheduling axis gains a third carrier.
+
+### P37 — `commuteprop` (SCORING) — role: "Property-based falsifier for the commute diamond (Tier-2)"
+    (URDRCPS1); ambient: `commute` (T3.41, the commutation certificate, "the proof-object turn",
+    itself unbriefed). A module whose PURPOSE is to falsify another module's law. Body and history
+    UNREAD.
+    partition:        C-EQ (the diamond itself central — both orders agree, an equivalence) · C-FLOOR
+                      (a non-vacuity/coverage result central — a property-based falsifier that never
+                      generates a biting case proves nothing, the L61 shape) · C-INV (a structural
+                      invariant central) · C-R · R-M · R-O.
+    credences:        author (= B-M′): C-EQ 40 · C-FLOOR 20 · C-INV 20 · C-R 10 · R-M 5 · R-O 5.
+                      The genuinely interesting one: a falsifier module's central law could equally be
+                      the property it checks (C-EQ) or the demonstration that its generator BITES
+                      (C-FLOOR). v_D=0 expected.
+
+### P38 — `crossing` (SCORING) — role: "Wave-crossing timing (T3.7)" (URDRCROSS1); ambient: the
+    foundation wave family (`sea`, `wavefield` — P12 C-AB, `buoyancy` — P34 C-INV); conformance under
+    a different name (`conformance_cross.txt`). Body and history UNREAD.
+    partition:        C-INV (a characterizing bracket/invariant central — the `buoyancy` shape one
+                      layer over) · C-EQ (an exact timing identity central) · C-R (a typed admission
+                      central) · C-PRICE · R-M · R-O.
+    credences:        author (= B-M′): C-INV 32 · C-EQ 30 · C-R 22 · C-PRICE 6 · R-M 5 · R-O 5.
+                      **Prior updated from a RESOLVED joint, disclosed as such**: P34 (`buoyancy`)
+                      taught that this layer certifies BRACKETS characterizing measured answers rather
+                      than identities, and that "exact" names the arithmetic not the semantics. Using
+                      a resolved outcome to price a later freeze is legitimate learning, not
+                      contamination — the two modules are independent and P34 is closed. v_D=0.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## RUNG 4 — the REPEATABILITY CONTROL, and the MDL re-score
 
 Two results, one of which corrects a quantity this ledger had already frozen. Witnesses: `probes.py`
