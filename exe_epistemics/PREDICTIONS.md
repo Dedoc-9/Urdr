@@ -2613,6 +2613,69 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## BATCH 18 FREEZE — P60–P63, THE FINAL BATCH; and the closing ruling on `bench`
+
+**A DECLARED DEVIATION: this batch is FOUR joints, not three.** Every prior batch was three by
+convention. Four eligible modules remain, and splitting them 3+1 would leave a final rung whose single
+joint carries no batch-level census. The deviation is stated here, before any read, rather than
+discovered in the closing prose — it changes nothing about how each joint is frozen or scored.
+
+**THE CLOSING RULING ON `bench`, and why the pass ends with a module unbriefed.** `bench` is the fifth
+remaining module and it will NOT be briefed. The ruling was first frozen at checkpoint 8 and is now
+MEASURED rather than assumed: **no gate stage imports `bench`**, so it records no rows, so there is
+nothing to classify from — and classification in this pass is from LIVE ROWS, never prose
+(`claim ≠ code`). That is not a gap in the pass; it is the pass respecting its own rule. `bench`
+measures WALL-CLOCK, which is MEASURED-on-named-host and may never enter a byte-identical gate, so its
+ungatedness is a deliberate design property. **The arc ends at 1 of 103 unbriefed, and that 1 is a
+decision, not a debt.**
+
+**Selector**: lex over read-eligible unbriefed → `terrain_view` → `tierview` → `tilecert` →
+`wireattest`. Ladder v3 applied mechanically; central rows **`terrain-view:bind`**, **`tierview-law`**
+(step 1), **`tilecert-taxonomy`**, **`wireattest:laws`** (step 2). Row names are structural exposure;
+contents UNREAD.
+
+**Batch rules**: sole basis B-M′; scoring is the v_D census and the meta. FP-ROW stays retired. Run-19
+v_D fresh. L61 applied. Meta predicts ¬M-1 on all four (54 for 54).
+
+### P60 — `terrain_view` (SCORING) — role: "The D15 view-export FIREWALL (T3.0)" (URDRTVW1); ambient
+    DISCLOSED and substantial: `view_witness` (P32, C-R) is this rung's DUAL and its brief states the
+    pairing outright — D15 proves the view cannot CONTAMINATE the authority, `view_witness` that it
+    cannot MISQUOTE it. That is exposure to this module's ROLE in a pair, not to its central row's
+    content; the joint stays SCORING under P41's ruling. Central row: `terrain-view:bind`. Body UNREAD.
+    partition:        C-INV (a one-way firewall structural invariant central — nothing flows inward) ·
+                      C-R (an export admission predicate central) · C-EQ (a bind identity: the exported
+                      view ≡ the authority it cites) · C-REP · R-M · R-O.
+    credences:        C-INV 34 · C-R 28 · C-EQ 24 · C-REP 8 · R-M 3 · R-O 3. v_D=0 expected.
+
+### P61 — `tierview` (SCORING) — role: "Visual asymmetry ZERO BY CONSTRUCTION (S6) — the predicate
+    cannot take a tier" (URDRTIR1); ambient: the city arc. The role states the mechanism outright —
+    zero BY CONSTRUCTION, because the predicate cannot receive a tier. Central row: `tierview-law`
+    (ladder step 1). Body UNREAD.
+    partition:        C-FLOOR (a soundness-of-absence result central — the asymmetry is zero and the
+                      zero is STRUCTURAL, the `splitview`/`ashdepth` shape) · C-INV (a structural
+                      invariant central) · C-EQ (an equality across tiers) · C-R · R-M · R-O.
+    credences:        C-FLOOR 32 · C-INV 30 · C-EQ 26 · C-R 6 · R-M 3 · R-O 3. Frozen near-flat across
+                      the leading three: "zero by construction" is genuinely between a measured absence
+                      (C-FLOOR), a structural invariant (C-INV), and an equality across tiers (C-EQ),
+                      and the arc has resolved all three. v_D=0 expected.
+
+### P62 — `tilecert` (SCORING) — role: "The tile certificate and what it actually proves — attribution,
+    not verification" (URDRTIL1); ambient DISCLOSED: the README states this module's finding ("the
+    estimator that looked correlated was an artifact of the fixture and is refuted twice"), which is
+    the P33/P49 situation → **NON-SCORING**. Read and briefed; enters no census, no meta.
+    reading (unscored): C-FLOOR — an inherited claim (that a certificate verifies) refuted, leaving
+                      attribution as what survives.
+
+### P63 — `wireattest` (SCORING) — role: "THE REALITY ATTESTATION (T3.51, W5) — real sockets"
+    (URDRWAT1); ambient: `meshattest` (P47, C-EQ) is its Phase-M sibling and resolved on exactly the
+    attestation question — real transport shown to satisfy the unmodified law. Central row:
+    `wireattest:laws` (ladder step 2). Body UNREAD. **PRIOR TRANSFERRED from resolved P47 and
+    DISCLOSED**; transfer stands at 1 hurt / 2 helped, so it is priced ahead but not confidently.
+    partition:        C-EQ (a real-transport run ≡ the in-process law — the `meshattest` shape) · C-R
+                      (an attestation as admission) · C-AB · C-INV · R-M · R-O.
+    credences:        C-EQ 42 · C-R 28 · C-AB 16 · C-INV 8 · R-M 3 · R-O 3. v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the four is read.
+
 ## BATCH 17 FREEZE — P57 + P58 + P59; the ladder repaired TWICE more, and one module RECOVERED
 
 **Continued use found two more defects, and the pattern is now the finding.** The ladder has needed
