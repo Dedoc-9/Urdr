@@ -2613,6 +2613,67 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## BATCH 12 FREEZE — P42 + P43 + P44 (sealed before any READ)
+
+**ERRATUM, recorded because it is the P8 pattern recurring in miniature.** The closing note of the
+previous rung stated batch 12 would be `disjoint` → `fpcap` → `fpface`, from memory. **`disjoint` is
+already briefed** (its record sits in the provenance ledger), so the recomputed selector returns
+`fpcap` → `fpface` → `horn`. Nothing was frozen on the wrong list and no prediction was contaminated —
+the drift lived only in a prose sentence — but it is the identical failure the P8 erratum caught: an
+operator naming a joint from recollection instead of from the computation. Recorded rather than
+silently corrected, because the ledger's rule is that the selector is RECOMPUTED FRESH every rung and
+prose is never its source.
+
+**Selector**: the frozen lex successor reapplied → `fpcap` → `fpface` → `horn`. `bench` skipped by the
+same mechanical eligibility test, re-verified.
+
+**Batch rules**: sole basis B-M′; scoring is the v_D census and the meta only. Run-13 v_D fresh. L61
+applied. Meta predicts ¬M-1 on all three (38 for 38).
+
+**A standing caution carried INTO this freeze, and deliberately not "corrected" for.** Three of the
+last four batches produced a leading-class miss whose cause was the same — weighing the module's JOB
+(what the rung is *for*) over what its central ROW certifies. Under L63 that observation has no
+standing (no frozen prediction has named it in advance), so the credences below are NOT adjusted to
+compensate. What is done instead is legitimate: where the role prose underdetermines the semantics,
+the partition is frozen FLAT rather than confidently, so the READ decides rather than the recollection.
+
+### P42 — `fpcap` (SCORING) — role: "Capsule/body seam (T3.16)" (URDRCAP1); ambient disclosed: the
+    first-person foundation seam (`fpface` T3.15 — this batch's sibling, `gaze` P14 C-R, `stance` P3
+    the refuse≠measure residual, `drive` P9 C-REP). Body and history UNREAD.
+    partition:        C-R (an admission predicate over a claimed capsule pose central — the gaze/warden
+                      shape) · C-EQ (a capsule ≡ body equivalence central — the two representations
+                      agreeing) · C-INV (a structural invariant of the seam central) · C-REP (the
+                      capsule as a certified REPRESENTATION of the body — the drive shape) · R-M · R-O.
+    credences:        author (= B-M′): C-R 30 · C-EQ 25 · C-INV 22 · C-REP 13 · R-M 5 · R-O 5. Frozen
+                      flat across the leading three: "seam" names a JOINT, not a semantics, and this
+                      layer has produced measure, police and equivalence readings. v_D=0 expected.
+
+### P43 — `fpface` (SCORING) — role: "Exact-integer facing seam (T3.15)" (URDRFACE1); ambient: the same
+    foundation seam; `traj` (P31, C-R) recorded that "facing is the direction of the position delta
+    when the actor moves", which is secondhand exposure to the CONCEPT and is disclosed as such — the
+    module's own rows are UNREAD. Body and history UNREAD.
+    partition:        C-EQ (an exact facing IDENTITY central — facing computed two ways agreeing) ·
+                      C-R (an admission of a claimed facing central) · C-INV (a structural invariant —
+                      facing preserved under some transformation) · C-REP · R-M · R-O.
+    credences:        author (= B-M′): C-EQ 32 · C-R 28 · C-INV 20 · C-REP 10 · R-M 5 · R-O 5. "Exact
+                      integer" names the ARITHMETIC and P34 already taught that this is weak evidence
+                      about semantics — so C-EQ leads only narrowly. v_D=0 expected.
+
+### P44 — `horn` (SCORING) — role: "The Gabriel anchor ladder — rung count conserved, only the pitch
+    changes" (URDRHRN1); ambient: the city arc, alongside `disjoint`; the name invokes Gabriel's horn
+    (finite volume, infinite surface). The role STATES a conservation outright. Body and history UNREAD.
+    partition:        C-INV (a CONSERVATION/structural invariant central — the rung count preserved
+                      while pitch varies, exactly as the role states) · C-EQ (an identity between
+                      ladders at different pitches central) · C-FLOOR (a soundness-of-absence or a
+                      refuted handed-down intuition — the Gabriel paradox shape, where the intuitive
+                      quantity misleads) · C-PRICE · R-M · R-O.
+    credences:        author (= B-M′): C-INV 40 · C-EQ 25 · C-FLOOR 15 · C-PRICE 10 · R-M 5 · R-O 5.
+                      The role states the invariant outright, so C-INV leads — but a module named for a
+                      PARADOX is a live C-FLOOR candidate (`ashdepth`/`recirc`/`divergence` all
+                      refuted an inherited intuition), which is why C-FLOOR is priced above noise.
+                      v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## BATCH 11 FREEZE — P39 + P40 + P41 (sealed before any READ)
 
 **Why the READ arc and not more Ψ infrastructure — the decision recorded, because it is the project's
