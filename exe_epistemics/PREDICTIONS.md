@@ -2294,6 +2294,47 @@ the quotient formulation above is what makes it a real question rather than a de
     This is why "Ψ IS the engine" had to be withdrawn: under that reading the theorem is vacuous —
     indistinguishable would MEAN identical, and the limit could never be stated, let alone tested.
 
+## RUNG 3 — Q FROZEN, Ψ₀ EMITTED: the repeated-measures instrument now exists
+
+Witness: `probes.py`. Two commits, in the order the discipline requires — Q sealed with `PSI` empty,
+then Ψ₀ emitted against the sealed corpus. The same spec-then-run split checkpoint 9 used, for the
+same reason: a probe set chosen after seeing an operator is tunable to the answer.
+
+**Q — ten SYNTHETIC probes, one fixed class space.** Every probe is a fabricated module (QP prefix)
+that does not exist and will never be built, so no answer exists and none can leak. A probe drawn
+from a READ module would measure recall, not disposition; a probe drawn from a module about to be
+read would contaminate the READ pass itself (L59). Each is written to sit on a seam the engine has
+historically SPLIT on — price/admission, equivalence/police, invariant/admission, order/price,
+representation/police, floor/equivalence — because L61 turned on the corpus says **a probe every
+operator answers identically cannot detect drift**. One fixed class vocabulary across all ten (unlike
+the per-joint partitions of the READ freezes), so Ψ_t is a point in a common simplex and L1 distance
+between operators is well defined.
+
+**Ψ₀ — the seated basis, on the record.** All ten vectors valid (cover the class space, sum to 10⁴).
+Leading classes: QP01 C-PRICE, QP02 C-EQ, QP03 C-INV, QP04 C-EQ, QP05 C-ORD, QP06 C-REP, QP07
+C-FLOOR, QP08 C-EQ, QP09 C-PRICE, QP10 C-R. The corpus discriminates as designed — six distinct
+leading classes, and margins spanning 200 (QP06, representation vs police, near-tied) to 2000 (QP05,
+the scheduling axis, where the engine is most committed). A corpus that produced one leading class
+everywhere would have been the vacuous instrument L61 warns of.
+
+**What is now possible that was not.** Drift Δ_Ψ(t,k), the attractor radius r_t = d(Ψ_t, A), and W3's
+identifiability test all have a domain. Critically, r_t lives ENTIRELY IN BEHAVIOUR SPACE, so it
+evades W2/RST by construction rather than by patching — which is the test of whether the reframe was
+real, and it passes: the measurement RST proved impossible in checkpoint space is well-posed here.
+
+**The honest boundary, recorded before any drift number exists.** Ψ is AUTHOR-EMITTED — B-M′ is a
+reading heuristic, not executable code — so every emitted credence is **DECLARED, not MEASURED**. The
+arithmetic over recorded vectors is what `probes.py` measures. A re-emitted Ψ can therefore drift for
+reasons that have nothing to do with the engine (memory, phrasing, the day), and that noise floor is
+NOT estimable from a single emission. The mitigation is structural rather than hopeful: fixed public
+probes, a fixed class space, and each emission committed before the next is computed, so any drift
+claim is auditable against the record that produced it. A future emission that moves less than this
+unmeasured floor means nothing, and a first drift reading will not distinguish the two.
+
+**Status: EXPERIMENTAL under L63.** Ψ and every quantity derived from it may be computed and reported
+but MAY NOT be reasoned from until one of them beats a seated incumbent on a declared objective. The
+registry below records it as such. Nothing about convergence changes on this rung.
+
 ## INSTRUMENT REGISTRY — every diagnostic's status under L63 (empirical admissibility)
 
 L63 is worthless as a declaration; it is only real if every instrument in the engine carries a status
@@ -2317,8 +2358,9 @@ reasoned from; **SEATED** is the current best on its objective; **RETIRED** is i
 | Γ coupling/interface table | predict emergence events | — · — (never set) | **RETIRED** | suspended at ck 3, starved, one directional call wrong — the L63 archetype |
 | Ω (specified orbit scalar) | certify state recurrence | — · — | **RETIRED (impossible)** | W2/RST: contains a monotone coordinate; Ω ≥ 3(ℓ+1) > 0 always |
 | Ω_live (live-quotient) | certify state recurrence | — · — | **EXPERIMENTAL** | non-degenerate (plant: 0 vs 30) but never shown INFORMATIVE |
-| Ψ drift Δ_Ψ(t,k) | detect operator evolution | — · — | **EXPERIMENTAL** | unbuilt; requires a frozen Q |
-| attractor radius r_t | detect predictive-regime return | — · — | **EXPERIMENTAL** | unbuilt; requires a frozen Q |
+| Ψ (the operator over Q) | observational quotient | — · — | **EXPERIMENTAL** | Q frozen + Ψ₀ emitted (Rung 3); author-emitted, so DECLARED not measured |
+| Ψ drift Δ_Ψ(t,k) | detect operator evolution | — · — | **EXPERIMENTAL** | domain now exists; needs ≥ 2 emissions, and a noise floor that is not yet estimable |
+| attractor radius r_t | detect predictive-regime return | — · — | **EXPERIMENTAL** | domain now exists; needs ≥ 3 emissions for a meaningful centroid |
 | resolution efficiency E | value structural change | — · — | **EXPERIMENTAL** | unbuilt; denominator not yet frozen |
 
 **Two readings this table forces, both uncomfortable and both recorded.** First, the engine's own

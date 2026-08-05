@@ -100,10 +100,48 @@ Q = (
      "police vs representation vs floor -- absence that must still be certified"),
 )
 
+def _v(**kw):
+    """A Psi entry: named classes carry mass, every unnamed class is explicitly zero. Written this
+    way so an omitted class is a ZERO on the record rather than a hole in the vector."""
+    vec = dict((c, 0) for c in CLASSES)
+    for k, val in kw.items():
+        cls = k.replace("_", "-")
+        if cls not in vec:
+            raise ProbeError("unknown class %s" % cls)
+        vec[cls] = val
+    return vec
+
+
 #: RECORDED OPERATORS. `PSI[t]` maps probe id -> {class: integer ten-thousandths}. EMPTY at the
 #: commit that freezes Q; each checkpoint appends exactly one emission, committed before the next is
 #: computed. A vector must cover CLASSES exactly and sum to SCALE.
-PSI = {}
+#:
+#: Psi_0 -- emitted 2026-08-04 by the SEATED basis B-M' ("input x semantics" + the approximation and
+#: scheduling axes), against the corpus frozen in the preceding commit. DECLARED, not measured.
+PSI = {
+    "0": {
+        "QP01": _v(C_PRICE=3800, C_R=3000, C_AB=1200, C_INV=800, C_EQ=400, C_ORD=300,
+                   C_REP=200, C_FLOOR=100, R_M=100, R_O=100),
+        "QP02": _v(C_EQ=3800, C_R=2500, C_AB=1800, C_INV=800, C_REP=400, C_PRICE=200,
+                   C_FLOOR=200, C_ORD=100, R_M=100, R_O=100),
+        "QP03": _v(C_INV=3800, C_R=2800, C_EQ=1200, C_AB=1000, C_PRICE=400, C_REP=300,
+                   C_FLOOR=200, C_ORD=100, R_M=100, R_O=100),
+        "QP04": _v(C_EQ=3600, C_FLOOR=2000, C_R=1600, C_AB=1200, C_INV=700, C_REP=300,
+                   C_PRICE=200, C_ORD=100, R_M=150, R_O=150),
+        "QP05": _v(C_ORD=4200, C_PRICE=2200, C_INV=1200, C_R=1000, C_AB=700, C_EQ=300,
+                   C_REP=200, C_FLOOR=100, R_M=50, R_O=50),
+        "QP06": _v(C_REP=3200, C_R=3000, C_AB=1500, C_EQ=1000, C_INV=700, C_PRICE=200,
+                   C_FLOOR=200, C_ORD=100, R_M=50, R_O=50),
+        "QP07": _v(C_FLOOR=3600, C_EQ=2800, C_INV=1200, C_R=900, C_AB=800, C_REP=200,
+                   C_PRICE=200, C_ORD=100, R_M=100, R_O=100),
+        "QP08": _v(C_EQ=3800, C_AB=2600, C_INV=1400, C_R=900, C_REP=400, C_PRICE=300,
+                   C_ORD=200, C_FLOOR=200, R_M=100, R_O=100),
+        "QP09": _v(C_PRICE=3400, C_INV=2400, C_AB=1600, C_R=1000, C_EQ=700, C_REP=300,
+                   C_ORD=300, C_FLOOR=100, R_M=100, R_O=100),
+        "QP10": _v(C_R=2800, C_INV=2400, C_FLOOR=1800, C_REP=1200, C_EQ=800, C_AB=500,
+                   C_PRICE=200, C_ORD=100, R_M=100, R_O=100),
+    },
+}
 
 
 class ProbeError(Exception):
@@ -205,6 +243,25 @@ def main():
         print("      seam:    %s" % seam)
     print()
     print("corpus sealed and well-formed: %s" % corpus_is_sealed())
+    bad = []
+    for t in emissions():
+        for pid in sorted(PSI[t]):
+            try:
+                validate(PSI[t][pid])
+            except ProbeError as exc:
+                bad.append("%s/%s: %s" % (t, pid, exc))
+    print("every recorded vector valid (covers CLASSES, sums to %d): %s"
+          % (SCALE, not bad if not bad else bad))
+    if emissions():
+        t0 = emissions()[0]
+        print()
+        print("Psi_%s leading class per probe:" % t0)
+        for pid, *_ in Q:
+            v = PSI[t0][pid]
+            top = max(sorted(v), key=lambda c: v[c])
+            ranked = sorted(v, key=lambda c: (-v[c], c))
+            print("   %-5s %-8s %5d   (2nd %-8s %5d, margin %d)"
+                  % (pid, top, v[top], ranked[1], v[ranked[1]], v[top] - v[ranked[1]]))
     print("recorded emissions: %s" % (emissions() or "NONE -- Q is frozen; Psi_0 is emitted in the"
                                       " NEXT commit, never in the one that seals the corpus"))
     if len(emissions()) >= 2:

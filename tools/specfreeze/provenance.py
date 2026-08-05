@@ -520,6 +520,28 @@ DISCOVERIES = (
        "NOT on the refuted granularity argument; L63 (empirical admissibility) minted from four "
        "carriers and applied in the INSTRUMENT REGISTRY",
        "CONFIRMATION"),
+    _d("rung3:probes", "MEASURE", "exe_epistemics/probes.py",
+       "that the repeated-measures questions Rung 2 left UNTESTED (persistent bottlenecks, "
+       "calibration on hard joints, whether aggregation masks joint-level signal) could be answered "
+       "from the READ corpus - which has n=1 per joint and therefore cannot answer them at all",
+       "Q FROZEN and Psi_0 EMITTED, in two commits in that order (the corpus sealed with PSI empty "
+       "before any operator was emitted against it - a probe set chosen after seeing an operator is "
+       "tunable to the answer, the same discipline the checkpoint-9 null spec followed). Ten "
+       "SYNTHETIC probes (QP prefix, fabricated modules never to be built, so no answer exists and "
+       "none can leak - a probe from a READ module would measure recall, one from a module about to "
+       "be read would contaminate the READ pass under L59), each written to sit on a seam the engine "
+       "has historically SPLIT on, because L61 turned on the corpus says a probe every operator "
+       "answers identically cannot detect drift. ONE fixed class space across all probes so Psi_t is "
+       "a point in a common simplex and L1 distance is well defined. All ten Psi_0 vectors valid; the "
+       "corpus discriminates as designed - six distinct leading classes, margins from 200 (QP06, "
+       "representation vs police, near-tied) to 2000 (QP05, the scheduling axis). The attractor "
+       "radius r_t now lives ENTIRELY in behaviour space, so the measurement W2/RST proved impossible "
+       "in checkpoint space is well-posed - the reframe passes its own test",
+       "drift, attractor radius and W3 identifiability now have a domain; Psi is AUTHOR-EMITTED so "
+       "every credence is DECLARED not measured, and the resulting noise floor is not estimable from "
+       "one emission - recorded before any drift number exists. STATUS: EXPERIMENTAL under L63, "
+       "computable and reportable but NOT reasonable-from until it beats a seated incumbent",
+       "CONFIRMATION"),
 )
 
 
