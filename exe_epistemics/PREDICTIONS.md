@@ -2678,6 +2678,76 @@ applied. Meta predicts ¬M-1 on all three (35 for 35).
                       measure (C-PRICE), and the arc has resolved both shapes. v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P39 — resolved: **C-R** — police at the seam, with an INSUFFICIENCY PROOF as the instrument
+    read:             2026-08-05, the blind READ (run 12). Classified from the LIVE `crosswarden*` rows.
+    observed:         `crosswarden-insufficient` is the distinguishing row: **a shard-local warden
+                      ADMITS both boundary exploits that crosswarden refuses** — the module certifies
+                      the NECESSITY OF ITS OWN EXISTENCE by measurement rather than by argument. A
+                      desynced seam is WARD-SEAM; 4/4 typed WARD-REFUSE sub-codes.
+                      `crosswarden-kinematic`: an honest seam crossing admits, a through-wall sprint is
+                      WARD-TUNNEL, and an honest handoff admits AND EQUALS THE MERGED GLIDE (binding
+                      Stage D to Stage E). `crosswarden-topological`: merge == `hand.merge`, β₀ RISES
+                      across the merge (B's wall becomes visible only in the merged field), so a
+                      beyond-wall position is WARD-UNREACH from the merged field ALONE.
+    class:            C-R; leading credence (35) CORRECT. The family had produced all three shapes
+                      (warden C-R, wardhom C-EQ, hand C-INV), so the joint was genuinely open. v_D = 0.
+    unnamed (M-0):    THE INSUFFICIENCY PROOF — running the WEAKER predecessor against the same
+                      exploits and showing it admit them, converting "this rung is necessary" from a
+                      design claim into a measured one; and the β₀-rises-across-merge detail, where the
+                      topological evidence for the wall exists in NEITHER region alone.
+
+### P40 — resolved: **C-R** — the deferred boundary closed; refusal gains a sub-reason
+    read:             2026-08-05, the blind READ (run 12). Classified from the LIVE `dirward*` rows.
+    observed:         `dirward-insufficient`: the undirected warden fails in BOTH directions at once —
+                      it **FALSE-REFUSES the legal descent** (rejecting a legitimate move, worse than a
+                      miss) and returns **one WARD-UNREACH for both a one-way cliff and a genuine
+                      wall**. `dirward` admits the descent and SEPARATES WARD-ONEWAY from WARD-UNREACH.
+                      `dirward-admission` holds the law (descent admits, climb-back is WARD-ONEWAY, a
+                      wall is WARD-UNREACH, an honest glide descent admits kinematically).
+                      `dirward-asymmetry` supplies the structure: directed reach is genuinely
+                      asymmetric on the cliff and **collapses to 0 with num_scc == betti0 on FLAT
+                      terrain** — the refinement reduces exactly to its predecessor where terrain is
+                      symmetric.
+    class:            C-R; leading credence (38) CORRECT. The C-FLOOR tail risk (a deferred boundary
+                      that turns out not to need closing) did NOT fire — it needed closing. v_D = 0.
+    axis sighting, NOT a mint: WARD-ONEWAY vs WARD-UNREACH is the DISCRIMINABILITY-OF-REFUSAL shape
+                      `geoquorum` (P21) recorded as a candidate to WATCH — a typed sub-reason turning
+                      one verdict into two, exactly as UNAVAILABLE vs FAILED did. **Second sighting,
+                      and it may not mint**: the axis was NOT named in this joint's frozen partition,
+                      so under L3 a post-hoc recurrence cannot promote it. A mint requires a FUTURE
+                      FROZEN prediction naming the axis in advance — the bar the approximation axis
+                      cleared at checkpoint 4. Recorded so the temptation is visible and refused.
+    unnamed (M-0):    the insufficiency proof AGAIN (second in two rungs — a family habit, not a
+                      flourish); and the flat-terrain collapse, which is `clslo`'s reduction move.
+
+### P41 — resolved: **C-FLOOR** — the rate metric REFUTED · RUN 12 CLOSES
+    read:             2026-08-05, the blind READ (run 12). Classified from the LIVE `divergence*` rows.
+    observed:         `divergence-law`: the quantization defect is measured in CELLS and specifically
+                      as the **LARGEST CONNECTED RUN** of flipped cells, **because an adversary does
+                      not attack the mean** — two perturbations with the IDENTICAL RATE 2/35 have runs
+                      1 and 2, and only one breaches the wall. `divergence-selftest` states the
+                      refutation as a plant: **the rate plant assigns the SAME defect to a perturbation
+                      that leaves the wall standing and one that opens it**. It also records why the
+                      maximum is ENUMERATED rather than sampled — a sampled MEAN run is strictly below
+                      the attained worst case.
+    class:            C-FLOOR. The author priced C-PRICE 30 · C-FLOOR 28 — **a two-point miss**. The
+                      module SUPPLIES a measure, but what the gate CERTIFIES is that the intuitive
+                      measure is WRONG; the negative is the load-bearing content. v_D = 0.
+    pattern:          the `ashdepth` shape's THIRD carrier (ashdepth: a void is sound, the handed-down
+                      guard refuted; recirc: there is no loop, and closing it would harm; divergence:
+                      the rate metric cannot distinguish a breach from a non-breach). Measurement
+                      overturning an inherited design, three times.
+    unnamed (M-0):    enumerate-don't-sample as a family habit — `voxlat` decided its overflow bound
+                      exhaustively, `cayley` swept every configuration, `divergence` enumerates the
+                      maximum. L20 (sample ≠ universal) turned into code three times.
+    census:           run-12 v_D = 0, 0, 0 — RUN 12 CLOSES on a triple zero. Meta ¬M-1: 38 for 38.
+                      Leading calls 2/3 — the SECOND consecutive batch at 2/3 with the miss being a
+                      TWO-POINT one (P38 C-INV/C-EQ 32-30, P41 C-PRICE/C-FLOOR 30-28). Both misses
+                      came from weighing "the module's JOB" over "what the ROW certifies", which is
+                      also P34's error. Three instances in four batches. NOT minted and NOT acted on:
+                      no frozen prediction has named this failure mode in advance, so under L3 and L63
+                      it is a recorded observation with a decidable forward test, nothing more.
+
 ## RUNG 5 FREEZE — the W3 IDENTIFIABILITY PROBE (spec sealed before the ablated operator is emitted)
 
 **The insight that unblocks this, stated first because it is the whole reason the rung is possible.**

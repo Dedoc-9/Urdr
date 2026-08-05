@@ -1,0 +1,59 @@
+  ...    0s  starting
+  ...   15s  starting
+  ...   30s  starting
+  ...   45s  starting
+  ...   60s  starting
+  ...   75s  starting
+  ...   90s  starting
+  ...  105s  starting
+  ...  120s  starting
+  ...  135s  starting
+  ...  150s  starting
+  ...  165s  starting
+  ...  180s  starting
+  ...  195s  starting
+  ...  210s  starting
+  ...  225s  starting
+  ...  240s  starting
+  ...  255s  starting
+  ...  270s  starting
+  ...  285s  starting
+  ...  300s  starting
+  ...  315s  starting
+  ...  330s  starting
+  ...  345s  starting
+  ...  360s  starting
+  ...  375s  starting
+  ...  390s  starting
+  ...  405s  starting
+  ...  420s  starting
+  ...  435s  starting
+  442.16s  unit_tests
+  ...  450s  442.16s  unit_tests
+  11.32s  examples
+  10.49s  oracle
+  ...  465s  10.49s  oracle
+  1.70s  oracle_generators
+  0.00s  modules
+  0.00s  atlas_injective
+  0.00s  atlas_reconstruct
+  0.00s  math_conformance
+  0.00s  registry
+  0.00s  render
+  0.01s  render3d
+  0.01s  render_perspective
+  0.00s  physics
+  0.00s  physics_nd
+  0.00s  physics_lcp
+  0.00s  physics_joint
+  0.04s  physics_stress
+  0.07s  physics_fp
+  0.01s  netcode_lockstep
+  0.01s  netcode_rollback
+  0.03s  netcode_auth
+  0.03s  netcode_world
+  0.05s  netcode_worldpeer
+  0.72s  compose
+  ...  480s  0.72s  compose
+  ...  495s  0.72s  compose
+  ...  510s  0.72s  compose

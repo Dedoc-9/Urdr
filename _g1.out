@@ -1,0 +1,231 @@
+  ...    0s  starting
+  ...   15s  starting
+  ...   30s  starting
+  ...   45s  starting
+  ...   60s  starting
+  ...   75s  starting
+  ...   90s  starting
+  ...  105s  starting
+  ...  120s  starting
+  ...  135s  starting
+  ...  150s  starting
+  ...  165s  starting
+  ...  180s  starting
+  ...  195s  starting
+  ...  210s  starting
+  ...  225s  starting
+  ...  240s  starting
+  ...  255s  starting
+  ...  270s  starting
+  ...  285s  starting
+  ...  300s  starting
+  ...  315s  starting
+  ...  330s  starting
+  ...  345s  starting
+  ...  360s  starting
+  ...  375s  starting
+  ...  390s  starting
+  ...  405s  starting
+  ...  420s  starting
+  422.85s  unit_tests
+  11.16s  examples
+  ...  435s  11.16s  examples
+  9.96s  oracle
+  1.67s  oracle_generators
+  0.00s  modules
+  0.00s  atlas_injective
+  0.00s  atlas_reconstruct
+  0.00s  math_conformance
+  0.00s  registry
+  0.00s  render
+  0.01s  render3d
+  0.01s  render_perspective
+  0.00s  physics
+  0.00s  physics_nd
+  0.00s  physics_lcp
+  0.00s  physics_joint
+  0.04s  physics_stress
+  0.07s  physics_fp
+  0.01s  netcode_lockstep
+  0.01s  netcode_rollback
+  0.03s  netcode_auth
+  0.03s  netcode_world
+  0.05s  netcode_worldpeer
+  0.66s  compose
+  ...  450s  0.66s  compose
+  ...  465s  0.66s  compose
+  ...  480s  0.66s  compose
+  ...  495s  0.66s  compose
+  ...  510s  0.66s  compose
+  ...  525s  0.66s  compose
+  ...  540s  0.66s  compose
+  ...  555s  0.66s  compose
+  ...  570s  0.66s  compose
+  134.37s  edgeattr
+  0.02s  netcode_region
+  0.66s  regionprop
+  0.01s  netcode_field_desync
+  0.01s  netcode_fraud
+  0.00s  photo_trace
+  0.00s  frontend_contract
+  0.00s  svg_import
+  0.00s  frontfps
+  0.00s  frontfps_quat
+  0.04s  frontfps_clip
+  0.00s  frontfps_pose
+  0.00s  frontfps_view
+  0.06s  frontfps_text
+  0.02s  frontbench
+  0.00s  homology
+  0.00s  rigidity_verdict
+  0.00s  view_export
+  0.18s  field
+  0.00s  marangoni
+  0.00s  field_coupling
+  0.00s  field_body_loop
+  0.03s  criticality
+  0.00s  toric
+  0.00s  persim
+  0.00s  winding
+  0.00s  tellegen
+  0.25s  terrain
+  1.21s  sea
+  0.00s  terrain_view
+  0.02s  wavefield
+  0.04s  buoyancy
+  0.10s  view_witness
+  0.00s  crossing
+  0.26s  stance
+  0.45s  gaze
+  0.11s  drive
+  0.01s  traj
+  0.16s  kernel_crosscheck
+  0.01s  lockstep_crosscheck
+  0.00s  fpface
+  ...  585s  0.00s  fpface
+  0.10s  fpcap
+  0.02s  predict
+  0.11s  glide
+  0.15s  splice
+  0.08s  cpredict
+  0.06s  interest
+  0.35s  layertheorem
+  0.00s  hand
+  0.00s  warden
+  0.00s  crosswarden
+  0.59s  dirward
+  0.87s  wardhom
+  0.00s  opcost
+  0.00s  govern
+  0.00s  priogov
+  0.00s  horizon
+  0.01s  slo
+  0.01s  clslo
+  0.00s  storecost
+  0.01s  persist
+  0.39s  chunkload
+  0.11s  resurrect
+  0.20s  chunkstate
+  0.22s  terraform
+  0.85s  commute
+  4.64s  commuteprop
+  0.24s  rannull
+  ...  600s  0.24s  rannull
+  10.75s  nway
+  1.57s  migrate
+  0.05s  meshattest
+  ...  615s  0.05s  meshattest
+  10.40s  mesh
+  4.15s  partition
+  0.75s  meshsession
+  0.03s  perception
+  0.06s  audible
+  0.02s  hitbox
+  0.05s  lagcomp
+  0.05s  clockauth
+  0.03s  latencyest
+  0.47s  pingpolicy
+  0.13s  oobprior
+  0.40s  magicdiv
+  0.33s  cayley
+  1.97s  horn
+  ...  630s  1.97s  horn
+  ...  645s  1.97s  horn
+  ...  660s  1.97s  horn
+  39.03s  voxlat
+  0.00s  geoquorum
+  4.74s  disjoint
+  0.24s  tierview
+  0.00s  provbind
+  4.37s  frontier
+  0.33s  membrane
+  ...  675s  0.33s  membrane
+  6.05s  ashdepth
+  1.18s  syntaxclean
+  ...  690s  1.18s  syntaxclean
+  10.57s  recirc
+  1.76s  divergence
+  0.64s  splitview
+  1.80s  auditgraph
+  0.63s  patience
+  1.32s  bombtest
+  0.05s  magicuniq
+  0.01s  grading
+  0.00s  boolport
+  0.01s  liveness
+  0.22s  jurisdiction
+  0.03s  budget
+  0.00s  tilecert
+  ...  705s  0.00s  tilecert
+  7.07s  tilemin
+  0.68s  inputset
+  0.35s  cohort
+  0.98s  autoroute
+  0.48s  blindscreen
+  0.08s  anamorphosis
+  0.29s  throttle
+  2.25s  schedule
+  2.44s  byteacct
+  0.95s  citation
+  1.86s  adaptcite
+  1.02s  lookahead
+  0.03s  boundedhist
+  0.03s  lease
+  0.15s  testament
+  0.22s  rollstore
+  0.04s  quintessence
+  0.01s  wire
+  0.04s  storm
+  0.88s  stormprop
+  0.07s  sealwrit
+  0.01s  driftgaze
+  0.32s  wireattest
+  0.09s  panelight
+  0.04s  panewire
+  0.01s  ghostsnap
+  0.00s  sealframe
+  0.09s  sealsession
+  1.24s  heightfield_placement
+  ...  720s  1.24s  heightfield_placement
+  1.99s  latstore_placement
+  3.57s  glide_placement
+  8.40s  streamstate_placement
+  ...  735s  8.40s  streamstate_placement
+  5.60s  latarith_placement
+  ...  750s  5.60s  latarith_placement
+  12.41s  writecalc_placement
+  5.39s  rollstore_placement
+  ...  765s  5.39s  rollstore_placement
+  21.49s  wirephase_placement
+  0.00s  invariant_detectors
+  0.00s  spec_freeze
+  ...  780s  0.00s  spec_freeze
+  5.27s  rejections
+  0.12s  tamper
+  0.75s  lattice
+  0.89s  doc_currency
+========================================================================
+GATE PASSED
+(a green gate certifies these tests on this code — never that a name means what it says)
+OK: gate passed and printed 'GATE PASSED' (216998 bytes)
+EXIT:0

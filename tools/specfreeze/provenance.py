@@ -697,6 +697,49 @@ DISCOVERIES = (
        "FROZEN (a corpus edited in response to its own verdict is tunable to the answer); a successor "
        "Q' with >= 2 probes per named axis is named and UNBUILT (L58)",
        "CONFIRMATION"),
+    _d("read:crosswarden", "READ", "crosswarden",
+       "P39 (batch 11): admission vs equivalence vs invariant centrality at the region seam - the "
+       "warden family had produced ALL THREE shapes (warden C-R, wardhom C-EQ, hand C-INV), so the "
+       "joint was genuinely open",
+       "C-R (leading credence 35 CORRECT) - crosswarden-insufficient is the distinguishing row: a "
+       "SHARD-LOCAL warden ADMITS both boundary exploits that crosswarden refuses, so the module "
+       "certifies the NECESSITY OF ITS OWN EXISTENCE by measurement rather than argument; desynced "
+       "seam is WARD-SEAM, 4/4 typed sub-codes. crosswarden-kinematic: honest crossing admits, "
+       "through-wall sprint is WARD-TUNNEL, honest handoff admits AND EQUALS THE MERGED GLIDE (Stage D "
+       "to E). crosswarden-topological: merge == hand.merge, beta0 RISES across the merge so the "
+       "topological evidence for the wall exists in NEITHER region alone; v_D=0",
+       "brief written; P39 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:dirward", "READ", "dirward",
+       "P40: the deferred boundary warden's own does_not_show named at P4 - and the C-FLOOR tail risk "
+       "that a deferred boundary turns out not to need closing (the recirc shape)",
+       "C-R (leading credence 38 CORRECT; the C-FLOOR tail risk did NOT fire - it needed closing) - "
+       "dirward-insufficient: the undirected warden fails in BOTH directions at once, FALSE-REFUSING "
+       "the legal descent (rejecting a legitimate move, worse than a miss) and returning ONE "
+       "WARD-UNREACH for both a one-way cliff and a genuine wall; dirward admits the descent and "
+       "SEPARATES WARD-ONEWAY from WARD-UNREACH. dirward-asymmetry: directed reach is genuinely "
+       "asymmetric on the cliff and COLLAPSES to 0 with num_scc == betti0 on FLAT terrain, so the "
+       "refinement reduces exactly to its predecessor where terrain is symmetric. AXIS SIGHTING NOT A "
+       "MINT: ONEWAY vs UNREACH is geoquorum's discriminability-of-refusal shape a second time, but "
+       "the axis was NOT named in this joint's frozen partition so under L3 a post-hoc recurrence "
+       "cannot promote it - a mint needs a FUTURE FROZEN prediction naming it in advance; v_D=0",
+       "brief written; P40 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:divergence", "READ", "divergence",
+       "P41 (run 12 closes): that the module's JOB (supplying a defect measure, C-PRICE 30) is what "
+       "its central row certifies - against C-FLOOR 28, the refutation reading",
+       "C-FLOOR, a TWO-POINT MISS - divergence-law: the defect is measured in CELLS as the LARGEST "
+       "CONNECTED RUN of flipped cells BECAUSE AN ADVERSARY DOES NOT ATTACK THE MEAN; two "
+       "perturbations with the IDENTICAL RATE 2/35 have runs 1 and 2 and only one breaches the wall. "
+       "divergence-selftest states the refutation as a plant: the rate plant assigns the SAME defect "
+       "to a perturbation that leaves the wall standing and one that opens it; and the maximum is "
+       "ENUMERATED not sampled because a sampled MEAN run is strictly below the attained worst case. "
+       "The module supplies a measure but the gate CERTIFIES that the intuitive measure is WRONG - the "
+       "ashdepth shape's THIRD carrier (ashdepth, recirc, divergence). Enumerate-don't-sample is a "
+       "family habit (voxlat, cayley, divergence) - L20 turned into code three times; v_D=0",
+       "brief written; P41 resolved C-FLOOR in exe_epistemics/PREDICTIONS.md; run 12 closes on a "
+       "triple zero, meta 38/38, leading calls 2/3 - the miss again a two-pointer from weighing the "
+       "module's JOB over what the ROW certifies, three instances in four batches, recorded and NOT "
+       "acted on since no frozen prediction has named the failure mode in advance",
+       "CONFIRMATION"),
 )
 
 
