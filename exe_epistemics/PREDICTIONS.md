@@ -2688,6 +2688,80 @@ v_D fresh. L61 applied. Meta predicts ¬M-1 on all three (52 for 52).
     credences:        C-R 40 · C-EQ 24 · C-REP 20 · C-INV 10 · R-M 3 · R-O 3. v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P57 — resolved (NON-SCORING, contamination declared): the zero is a property of the INPUT
+    observed:         `splitview-law`: a forked server is **NOT detectable by verification and IS
+                      detectable only by comparison** — the strongest solo detector flags **0 of 240**
+                      forks while one crossing comparison flags **240 of 240** — and the decisive
+                      clause, **the zero is a property of the INPUT, not a weakness of the detector**:
+                      a confined client's transcript is BIT-IDENTICAL to the honest one, so there is
+                      nothing in it to find and no cleverer verifier helps.
+    scoring:          NONE — declared at the freeze under the P33/P49 rule.
+    unnamed:          two plants worth naming. The **root-inequality detector is INVERTED**, crying
+                      fork on **258 of 258 HONEST pairs** because differing roots are the resting state
+                      rather than evidence — anti-correlated, and it would have looked SENSITIVE to
+                      anyone who never ran it against honest input (L62's null-entrant lesson arriving
+                      from a different direction). And **the cut theorem stated without its depth
+                      hypothesis over-claims 3232 times** — true, and true only with the hypothesis.
+    pattern:          the arc's cleanest instance of A ZERO THAT IS A RESULT: `sea-marangoni` insisted
+                      a zero be earned by a plant that could have made it nonzero; here it is earned by
+                      showing the INPUT is bit-identical, so no detector could have done better. *The
+                      evidence is absent* versus *my instrument missed it* is the whole rung.
+
+### P58 — resolved: **C-EQ** — lossy storms yield a PREFIX, not a corruption
+    read:             2026-08-05, the blind READ (run 18). Classified from `storm-property` (ladder
+                      step 4 — the row the v3 repair recovered).
+    observed:         **loss-free storms converge to the authority witness (exactly-once); lossy storms
+                      EQUAL THE AUTHORITY PREFIX**, verified against **`storm.prefix_witness`, an
+                      independent oracle**, **with the prefix STRICTLY BELOW the full log**. The lossy
+                      clause is the content: a client that missed messages gets a genuine PREFIX —
+                      everything it has is true, it simply has less — not a corrupted or best-effort
+                      view. The strictness clause is L61: a prefix equal to the full log would hold
+                      trivially. `storm-property-selftest`: replacing the honest prefix oracle with the
+                      FULL-LOG witness makes a lossy storm raise STORMPROP-FALSIFIED, and the module is
+                      clean after the revert.
+    class:            C-EQ; leading credence (40) CORRECT. v_D = 0.
+    TRANSFER PAID AGAIN: the freeze disclosed the prior from P37 (`commuteprop`, the sibling falsifier,
+                      C-EQ with non-vacuity established-not-central) and priced it ahead but not
+                      confidently. **Cross-joint transfer now stands at 1 hurt (P38) / 2 helped (P55,
+                      P58)** — kept as a record precisely because it is still small enough to state
+                      honestly.
+    unnamed (M-0):    the two falsifier modules are structurally identical — property as the central
+                      law, non-vacuity discharged in the SELFTEST rather than the law row, and an
+                      INDEPENDENT ORACLE (brute-permutation there, `prefix_witness` here). The
+                      neutral-ruler pattern's NINTH instance.
+
+### P59 — resolved: **C-EQ** — identity behind an admission rung · RUN 18 CLOSES
+    read:             2026-08-05, the blind READ (run 18). Classified from `terrain:object` (ladder
+                      step 3 over the SHARED `terrain` stage — the module the eligibility repair
+                      recovered).
+    observed:         the island and blank presets **bridge to pinned URDROBJ2 goldens ×2, the bridge's
+                      OWN canon is IDENTICAL to `canon_ref`, and D14 ADMITs.** The middle clause is
+                      load-bearing: the bridge produces an object whose canonical form equals the
+                      independently held reference canon, so the conversion cannot drift into a private
+                      notion of canonical. `terrain-object-provenance` carries the sharper law —
+                      **identical geometry with DIFFERING PROVENANCE yields ONE URDROBJ2 identity**
+                      (D14 clause 5), reddening on "provenance leaked into the object identity".
+                      `terrain-refusal` is 6/6 typed under a stated principle: **refuse, never clamp**.
+    class:            C-EQ. Author priced C-R 40 · C-EQ 24 — **the leading call missed**, on the role
+                      line's word "admission"; the admission verdict is the CONSEQUENCE of the identity
+                      holding, not the law. Recorded descriptively only: the prediction that tried to
+                      generalize this recurrence (FP-ROW) was falsified and retired, so no claim is
+                      drawn from it. v_D = 0.
+    unnamed (M-0):    **IDENTITY MUST NOT ENCODE HISTORY.** A bridge that let provenance into the digest
+                      would make two byte-identical terrains non-interchangeable, quietly breaking every
+                      downstream comparison — and the gate NAMES that failure rather than trusting the
+                      implementation to avoid it.
+    LADDER DEFECT 4, found by use again: `terrain:object` is guarded by `f"bridge failed: {exc}"`, which
+                      matches NEITHER frozen reference-guard idiom ("reference failed", "<...> scene
+                      failed"), so v3 treated it as a law row. **Applied AS FROZEN** — and here the
+                      frozen rule happened to select the row a corrected rule would also want, since
+                      `terrain:object` carries the bridge identity rather than a bare digest
+                      reproduction. The enumeration of guard idioms is nonetheless incomplete, and that
+                      is the successor's obligation. Fourth defect, fourth time found by USING the
+                      instrument rather than inspecting it.
+    census:           run-18 v_D = 0, 0 (two scoring; P57 non-scoring) — RUN 18 CLOSES with no new
+                      family, the tenth consecutive run. Meta ¬M-1: 54 for 54. Leading calls 1/2.
+
 ## BATCH 16 FREEZE — P54 + P55 + P56 (sealed before any READ)
 
 **Selector**: lex successor reapplied → `sealframe` → `sealsession` → `sealwrit`. `bench` skipped by

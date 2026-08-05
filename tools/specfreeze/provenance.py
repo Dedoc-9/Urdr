@@ -1005,6 +1005,71 @@ DISCOVERIES = (
        "brief written; P56 resolved C-R in exe_epistemics/PREDICTIONS.md; run 17 closes on a triple "
        "zero, the ninth consecutive run with no new family, meta 52/52, leading calls 2/3",
        "CONFIRMATION"),
+    _d("rung7:ladder-v3", "DERIVE", "the fallback ladder + the eligibility test",
+       "that the batch-15 double-record signature was sufficient, and that read-eligibility means a "
+       "module HAS ITS OWN GATE METHOD",
+       "TWO MORE DEFECTS, both found by USE rather than inspection. (1) FALSE POSITIVE: a law row whose "
+       "name is reused by the module's IMPORT GUARD also records twice, so the v2 ladder excluded "
+       "everything in stormprop and returned NO central row. Discriminator, still structural because "
+       "it reads only guard boilerplate: an IMPORT guard's detail begins 'import failed' while a "
+       "REFERENCE guard's begins 'reference failed' or '<...> scene failed'. This RETROACTIVELY "
+       "VINDICATES P37, where commute-property was chosen by judgment before any ladder existed - the "
+       "rule now derives what judgment reached. (2) ELIGIBILITY had SILENTLY EXCLUDED a briefable "
+       "module: terrain_bridge has no gate method of its own but the shared terrain stage IMPORTS it "
+       "and records terrain:object / terrain-object-provenance / terrain-object-selftest, and the "
+       "brief-falsifier binding condition is satisfiable. Corrected: read-eligible iff SOME gate stage "
+       "imports it and records rows - bench is imported by NO stage and stays ineligible for a "
+       "MEASURED reason. The correction CHANGED THE BATCH (terrain_bridge re-entered ahead of "
+       "terrain_view), which is recorded because a corrected instrument that quietly changed a "
+       "selection would be worse than the defect",
+       "ladder v3 frozen in the batch-17 freeze with step 4 (a single remaining non-selftest row is "
+       "central); a FOURTH defect was then found in the same batch - terrain:object is guarded by "
+       "'bridge failed', matching neither enumerated idiom - and is left to the successor",
+       "CORRECTION", ""),
+    _d("read:splitview", "READ", "splitview",
+       "P57 (batch 17, NON-SCORING under the P33/P49 rule): that a fork detector could be built well "
+       "enough to catch a forked server from one client's transcript",
+       "splitview-law: a forked server is NOT detectable by verification and IS detectable only by "
+       "comparison - the strongest solo detector flags 0 OF 240 forks while one crossing comparison "
+       "flags 240 OF 240, and THE ZERO IS A PROPERTY OF THE INPUT, not a weakness of the detector: a "
+       "confined client's transcript is BIT-IDENTICAL to the honest one, so no cleverer verifier "
+       "helps. Two plants worth naming: the root-inequality detector is INVERTED and cries fork on 258 "
+       "OF 258 HONEST pairs because differing roots are the resting state rather than evidence - "
+       "anti-correlated, and it would have looked SENSITIVE to anyone who never ran it against honest "
+       "input (L62 from a different direction); and the cut theorem stated WITHOUT its depth "
+       "hypothesis over-claims 3232 times. The arc's cleanest instance of A ZERO THAT IS A RESULT: the "
+       "evidence is ABSENT, versus my instrument missed it",
+       "brief written; P57 recorded NON-SCORING in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:stormprop", "READ", "stormprop",
+       "P58: whether a property-falsifier module's central law is the PROPERTY or its own NON-VACUITY "
+       "- with the prior transferred from resolved P37 (commuteprop) and DISCLOSED",
+       "C-EQ (leading credence 40 CORRECT) - storm-property: loss-free storms converge to the "
+       "authority witness (exactly-once); LOSSY STORMS EQUAL THE AUTHORITY PREFIX, verified against "
+       "storm.prefix_witness, an INDEPENDENT ORACLE, with the prefix STRICTLY BELOW the full log. The "
+       "lossy clause is the content - a client that missed messages gets a genuine PREFIX, everything "
+       "it has is true and it simply has less, never a corrupted or best-effort view - and the "
+       "strictness clause is L61 (a prefix equal to the full log would hold trivially). The selftest "
+       "bites: replacing the honest prefix oracle with the FULL-LOG witness makes a lossy storm raise "
+       "STORMPROP-FALSIFIED. TRANSFER PAID AGAIN, now 1 hurt (P38) / 2 helped (P55, P58). Both "
+       "falsifier modules are structurally identical - property as central law, non-vacuity in the "
+       "SELFTEST, an INDEPENDENT ORACLE (neutral ruler, 9th instance); v_D=0",
+       "brief written; P58 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:terrain_bridge", "READ", "terrain_bridge",
+       "P59 (run 18 closes): the role line calls it 'the D14 ADMISSION rung' (C-R priced 40) - and "
+       "this module had been SILENTLY EXCLUDED from the pass by the defective eligibility rule",
+       "C-EQ, leading call MISSED - terrain:object: the island and blank presets bridge to pinned "
+       "URDROBJ2 goldens x2, THE BRIDGE'S OWN CANON IS IDENTICAL TO canon_ref, and D14 ADMITs; the "
+       "middle clause is load-bearing, since the conversion cannot drift into a private notion of "
+       "canonical. The admission verdict is the CONSEQUENCE of the identity holding, not the law. "
+       "terrain-object-provenance carries the sharper law: IDENTITY MUST NOT ENCODE HISTORY - "
+       "identical geometry with DIFFERING PROVENANCE yields ONE URDROBJ2 identity (D14 clause 5), "
+       "reddening on 'provenance leaked into the object identity', because a bridge that let "
+       "provenance into the digest would make two byte-identical terrains non-interchangeable and "
+       "quietly break every downstream comparison. terrain-refusal is 6/6 typed under a stated "
+       "principle: REFUSE, NEVER CLAMP; v_D=0",
+       "brief written; P59 resolved C-EQ in exe_epistemics/PREDICTIONS.md; run 18 closes with no new "
+       "family (the tenth consecutive), meta 54/54, leading calls 1/2",
+       "CONFIRMATION"),
 )
 
 
