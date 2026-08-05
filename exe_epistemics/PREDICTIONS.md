@@ -2613,6 +2613,80 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## BATCH 14 FREEZE — P48 + P49 + P50; FP-ROW re-frozen with the branch `membrane` proved it needed
+
+**ERRATUM, the SECOND of its exact kind — and the pattern is now the finding.** The previous rung's
+closing note stated batch 14 would be `meshsession` → `oobprior` → `patience`. **`oobprior` is already
+briefed**; the recomputed selector returns `meshsession` → `patience` → `predict`. Batch 12's freeze
+recorded the identical failure (naming `disjoint`, already briefed). Two consecutive rungs, same
+mechanism: **the operator states a joint from recollection in the CLOSING PROSE, where no gate looks.**
+Both were caught by the next rung's mandatory recomputation, so nothing was ever frozen wrong — but the
+concentration is the point. Every error of this class in the whole pass (P8's drift, batch 12's, this
+one) has occurred in narrative text outside the frozen artifacts. The gate covers the ledger; nothing
+covers the summary. Recorded, and the operational fix is stated rather than promised: **a closing note
+may not name the next batch unless the selector was recomputed to produce it.**
+
+**FP-ROW v2 — re-frozen with the mandatory catch-all.** `membrane` (P46) resolved to a class NEITHER
+pre-declared reading named, an outcome FP-ROW v1's partition did not cover — L60's own lesson landing
+on L60's own instrument. The successor carries the branch, exactly as P4 carried R3:
+
+    FP-ROW v2, per joint: declare a ROLE-reading and a ROW-reading in advance. Outcomes are TOTAL:
+      ROW      — resolves to the ROW-reading            → supports the directional claim
+      ROLE     — resolves to the ROLE-reading           → FALSIFIES the directional claim
+      NEITHER  — resolves to some third class           → directional claim UNTOUCHED, PRECISION fails
+      SAME     — the two readings agree                 → NON-DISCRIMINATING, tests nothing
+    Standing after batch 13: directional 1-for-1 (P47 ROW); precision 1 NEITHER (P46), 1 SAME (P45).
+
+**THE FALLBACK LADDER, extended and frozen BEFORE any content is read.** Two of this batch's three
+modules have no `<module>-law` row, and `meshsession` has no `:laws` row either, so the P47 fallback is
+insufficient. The ladder is fixed now, while it is still inconvenient — and each step is STRUCTURAL
+(row names and source order), never content:
+
+    1. `<module>-law` if present.                              → patience
+    2. else `<module>:laws` if present.                        → (meshattest, P47)
+    3. else the FIRST substantive row in the gate method's SOURCE ORDER, excluding the import guard,
+       `:scenes` and `-selftest` — the author's own sequencing of the module's claims.
+                                                               → meshsession:sessions · predict-equivalence
+
+**Selector**: lex successor reapplied → `meshsession` → `patience` → `predict`. `bench` skipped by the
+same mechanical test. **Batch rules**: sole basis B-M′; scoring is v_D, the meta, and FP-ROW v2.
+Run-15 v_D fresh. L61 applied. Meta predicts ¬M-1 on all three (44 for 44).
+
+### P48 — `meshsession` (SCORING) — role: "Attested mesh session (M5) — the Phase M capstone"
+    (URDRMSS1); ambient: Phase M (`nway` M1, `migrate` M2, `meshattest` M2.5 — P47 C-EQ, `mesh` M3 —
+    P25 C-EQ, `partition` M4). Central row by ladder step 3: **`meshsession:sessions`**. Body UNREAD.
+    ROLE-reading:     **C-AB** — a CAPSTONE composes previously-certified laws and shows them holding
+                      together, which is `panelight`/`panewire`'s shape (both C-AB).
+    ROW-reading:      **C-EQ** — the Phase M family has resolved C-EQ twice running (`mesh`,
+                      `meshattest`), and a `:sessions` row over an attested session most plausibly
+                      certifies that a full session replays equal to its law.
+    FP-ROW status:    **DISCRIMINATING.** FP-ROW v2 predicts C-EQ.
+    partition:        C-EQ · C-AB · C-R · C-INV · R-M · R-O.
+    credences:        C-EQ 34 · C-AB 30 · C-R 18 · C-INV 10 · R-M 4 · R-O 4. v_D=0 expected.
+
+### P49 — `patience` (SCORING) — role: "The price of the price — the exclusion ladder holds only at
+    T ≥ Δ" (URDRPAT1); ambient DISCLOSED and substantial: the authority arc's third rung, and
+    `hainuwele/README.md` summarises it ("a server that STALLS rather than excludes gets the same
+    partition at a visible cost of zero, collapsing the 1/2/∞ ladder to 0/0/0 below the delay
+    envelope"). That is a statement of the FINDING, not merely a boundary — the P33 (`bombtest`)
+    situation. **Recorded NON-SCORING for FP-ROW and for the v_D census**; it is read and briefed, and
+    it enters no count. The line stays auditable: README text that states a finding ⇒ non-scoring;
+    README text that states a `does_not_show` ⇒ scoring (P41's ruling).
+    reading (unscored): C-FLOOR — a ladder collapsing to 0/0/0 is an inherited guarantee refuted.
+
+### P50 — `predict` (SCORING) — role: "Client-prediction RECONCILE primitive (T3.17, Stage A)"
+    (URDRPRED1); ambient: `cpredict` (P19, NON-SCORING, the continuous sibling), `glide`, `splice`.
+    Central row by ladder step 3: **`predict-equivalence`**. Body and history UNREAD.
+    ROLE-reading:     **C-R** — "reconcile" suggests adjudicating a client claim, i.e. admission.
+    ROW-reading:      **C-EQ** — the row NAME is `predict-equivalence`, and step 3 of the ladder
+                      selects it; a reconcile primitive whose central row is named for an equivalence
+                      most plausibly certifies that predicted-then-reconciled equals authoritative.
+    FP-ROW status:    **DISCRIMINATING** — though weakly, since the row NAME leaks its own class here,
+                      which is disclosed: this joint is an easier test than P48 and is scored as such.
+    partition:        C-EQ · C-R · C-REP · C-INV · R-M · R-O.
+    credences:        C-EQ 46 · C-R 24 · C-REP 14 · C-INV 8 · R-M 4 · R-O 4. v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## BATCH 13 FREEZE — P45 + P46 + P47, and FP-ROW: the first prediction about the READER
 
 **FP-ROW — the frozen forward prediction the previous rung obliged.** The role-prose-over-row failure
