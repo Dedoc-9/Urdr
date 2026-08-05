@@ -1070,6 +1070,70 @@ DISCOVERIES = (
        "brief written; P59 resolved C-EQ in exe_epistemics/PREDICTIONS.md; run 18 closes with no new "
        "family (the tenth consecutive), meta 54/54, leading calls 1/2",
        "CONFIRMATION"),
+    _d("read:terrain_view", "READ", "terrain_view",
+       "P60 (batch 18, the final batch): that a FIREWALL rung's central row certifies a structural "
+       "invariant (C-INV 34) rather than an identity (C-EQ priced THIRD at 24)",
+       "C-EQ, leading call MISSED - terrain-view:bind: THE VIEW CARRIES THE RECORDED WITNESS VERBATIM, "
+       "bound and subordinate, the authority's own bytes carried through unchanged so the view is "
+       "structurally a READER rather than a second source. The invariant is real but lives in "
+       "terrain-view-observational: 6/6 declared knobs move the VIEW digest, NONE moves the WITNESS, "
+       "knob order inert - both halves load-bearing, since knobs that moved nothing would certify "
+       "nothing. THE D15 PAIR CLOSES with view_witness (P32): one rung proves the view cannot "
+       "CONTAMINATE the authority, the other that it cannot MISQUOTE it, and neither alone suffices "
+       "because an honest one-way membrane still permits a lie about the far side; v_D=0",
+       "brief written; P60 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:tierview", "READ", "tierview",
+       "P61: whether 'zero by construction' is a measured absence (C-FLOOR), a structural invariant "
+       "(C-INV) or an equality across tiers (C-EQ) - frozen near-flat across all three",
+       "C-FLOOR (leading credence 32 CORRECT, narrowly) - tierview-law: the authoritative visibility "
+       "predicate TAKES NO TIER ARGUMENT, so asymmetry between quality tiers is ZERO BY CONSTRUCTION "
+       "rather than bounded by a budget, decided over every observer on both pinned walls and every "
+       "ordered tier pair, and THE DECOUPLING IS STRUCTURAL RATHER THAN DISCIPLINARY - the predicate "
+       "cannot read a tier because it cannot receive one. THE ZERO IS EARNED: a tier-reading authority "
+       "path costs 1152 CELLS of asymmetry across the very census the law scores zero on, and is "
+       "REFUSED rather than warned about because a tier pair resolving different cells is AN UNEQUAL "
+       "GAME not a cosmetic difference; the handed-down luminance measure is refuted in the same row. "
+       "The gap between 1152 and 0 is the content and neither number means anything alone. STRUCTURAL "
+       "BEATS DISCIPLINARY: a bounded asymmetry needs enforcement, an auditor and a story about "
+       "exceeding the bound, while a predicate that cannot take a tier needs none and the policy "
+       "question DISAPPEARS - the autoroute/provbind move, deny the input rather than police the use; "
+       "v_D=0",
+       "brief written; P61 resolved C-FLOOR in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:tilecert", "READ", "tilecert",
+       "P62 (NON-SCORING, contamination declared under the P33/P49 rule): that a signed tile "
+       "certificate is proof-carrying code and verifies content before download",
+       "tilecert-taxonomy: Necula's proof-carrying code has ONE defining property - the consumer "
+       "CHECKS the proof against the artifact and trusts the producer for nothing - so A CERTIFICATE "
+       "ASSERTING A PROPERTY OF DATA THE VERIFIER DOES NOT HAVE IS NOT A PROOF BUT A SIGNED CLAIM, "
+       "where a signature establishes WHO SAID IT and never whether it is true. tilecert-attribution: "
+       "what it buys is ATTRIBUTION - a bound signed certificate whose recomputable field later "
+       "disagrees with the lattice is NON-REPUDIABLE EVIDENCE of server misbehaviour reproducible by "
+       "any third party - real value, arriving after the fact, evidentiary not preventive. THE "
+       "ESTIMATOR IS REFUTED TWICE: it saves no work (reading every occupied cell's prefix depth IS "
+       "the same single pass charge_for already makes, equal visits, saving 0, so 'refuse before "
+       "processing' processes) and it predicts nothing about the charged defect. The self-directed "
+       "extreme of the ashdepth/recirc/divergence/horn shape, and the arc's clearest refusal of a "
+       "BORROWED WORD since 'proof' would import guarantees the mechanism lacks",
+       "brief written; P62 recorded NON-SCORING in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:wireattest", "READ", "wireattest",
+       "P63, THE FINAL JOINT OF THE PASS: whether an ATTESTATION is a certificate that admits or "
+       "refuses (C-R 28) or an equivalence (C-EQ 42) - with the prior transferred from resolved P47 "
+       "(meshattest) and DISCLOSED",
+       "C-EQ (leading credence CORRECT) - wireattest:laws: the synthetic gale (chaos + malice, zero "
+       "stalls), the tempest (real loss with a verified repair fetch) and the stalled no-repair "
+       "variant EACH REPLAY LAWFUL UNDER THE UNMODIFIED WIRE LAW, deterministically, and THE CHECKER "
+       "ACCEPTS EXACTLY WHAT THE LAW ADMITS - not a relaxed law for real conditions, not a checker "
+       "tuned until reality passes. wireattest:forges refuses seven attacks typed, the sharpest being "
+       "A STALLED CLIENT CLAIMING THE AUTHORITY'S WITNESS - a well-formed claim with absent evidence. "
+       "AN ATTESTATION IN THIS ARC IS AN EQUIVALENCE, NOT A CERTIFICATE, confirmed on its second "
+       "carrier with both phrasing it identically. Cross-joint transfer CLOSES THE PASS at 1 hurt / 3 "
+       "helped - small enough to state honestly, not large enough to license the practice; v_D=0",
+       "brief written; P63 resolved C-EQ in exe_epistemics/PREDICTIONS.md. RUN 19 CLOSES and THE READ "
+       "PASS IS COMPLETE: 63 preregistered joints over 19 runs, 102 of 103 modules briefed with "
+       "gate-enforced falsifiers, meta 57/57 (no blind prediction in the entire pass landed perfectly "
+       "clean), eleven consecutive runs with no new family. bench is unbriefed BY RULE - no stage "
+       "imports it, so it records no rows, so there is nothing to classify from",
+       "CONFIRMATION"),
 )
 
 

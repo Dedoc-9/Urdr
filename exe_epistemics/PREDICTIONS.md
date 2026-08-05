@@ -2676,6 +2676,108 @@ v_D fresh. L61 applied. Meta predicts ¬M-1 on all four (54 for 54).
     credences:        C-EQ 42 · C-R 28 · C-AB 16 · C-INV 8 · R-M 3 · R-O 3. v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the four is read.
 
+### P60 — resolved: **C-EQ** — carrying verbatim is an identity; the D15 pair closes
+    observed:         `terrain-view:bind`: **the view carries the recorded witness VERBATIM — bound,
+                      and subordinate** — the authority's own bytes carried through unchanged, so the
+                      view is structurally a READER rather than a second source.
+                      `terrain-view-observational` states the firewall as a measurement: **6/6 declared
+                      knobs move the view digest, NONE moves the witness, knob order inert.** Both
+                      halves load-bearing — that the knobs move the VIEW digest is the non-vacuity
+                      witness, that none moves the WITNESS is the firewall. The selftest bites (the
+                      fold-into-witness defect diverges); 4/4 typed VIEW-REFUSE.
+    class:            C-EQ. Author priced C-INV 34 · C-R 28 · C-EQ **third at 24** — leading call
+                      missed. The invariant is real but lives in the observational row; `:bind`
+                      asserts an equality. v_D = 0.
+    THE D15 PAIR CLOSES: with `view_witness` at P32, **one rung proves the view cannot CONTAMINATE the
+                      authority, the other that it cannot MISQUOTE it.** An honest one-way membrane
+                      still permits a lie about the far side; an honest citation still permits
+                      contamination. The arc needed both and built them separately.
+
+### P61 — resolved: **C-FLOOR** — zero by construction, and the zero is EARNED
+    observed:         `tierview-law`: **the authoritative visibility predicate takes NO TIER ARGUMENT,
+                      so asymmetry between quality tiers is ZERO BY CONSTRUCTION rather than bounded by
+                      a budget** — decided over every observer on both pinned walls and every ordered
+                      tier pair — and **the decoupling is STRUCTURAL rather than disciplinary**: the
+                      predicate cannot read a tier because it cannot receive one.
+    class:            C-FLOOR; leading credence (32) CORRECT, narrowly, over a partition frozen flat
+                      across C-FLOOR/C-INV/C-EQ. v_D = 0.
+    THE ZERO IS EARNED: `tierview-selftest` shows **a tier-reading authority path costs 1152 CELLS of
+                      asymmetry across the very census the law scores zero on** — so the zero is a
+                      result, not an artifact of a census too weak to show anything — and that path is
+                      **REFUSED rather than warned about**, on the stated ground that a tier pair
+                      resolving different cells is AN UNEQUAL GAME, not a cosmetic difference. The
+                      handed-down luminance measure is refuted in the same row. The gap between 1152
+                      and 0 is the content; neither number means anything alone.
+    unnamed (M-0):    STRUCTURAL beats DISCIPLINARY — a bounded asymmetry needs enforcement, an
+                      auditor, and a story about exceeding the bound; a predicate that cannot take a
+                      tier needs none, and the policy question DISAPPEARS rather than being answered.
+                      The same move as `autoroute`'s capability projection and `provbind`'s serve-time
+                      recomputation: **deny the input rather than police the use.**
+
+### P62 — resolved (NON-SCORING, contamination declared): a signed claim is not a proof
+    observed:         `tilecert-taxonomy`: **Necula's proof-carrying code has one defining property —
+                      the consumer CHECKS the proof against the artifact and trusts the producer for
+                      nothing — and a certificate asserting a property of data the verifier DOES NOT
+                      HAVE is not a proof but a SIGNED CLAIM**, where a signature establishes who said
+                      it. `tilecert-attribution`: what the certificate buys is **ATTRIBUTION** — a
+                      bound, signed certificate whose recomputable field later disagrees with the
+                      lattice is **NON-REPUDIABLE EVIDENCE of server misbehaviour, reproducible by any
+                      third party** — real value, arriving after the fact and evidentiary rather than
+                      preventive.
+    scoring:          NONE — declared at the freeze under the P33/P49 rule.
+    unnamed:          **THE ESTIMATOR IS REFUTED TWICE** — it saves no work (reading every occupied
+                      cell's prefix depth IS the same single pass `charge_for` already makes, measured
+                      at equal visits, saving **0**, so "refuse before processing" processes), and it
+                      predicts nothing about the charged defect. Two independent refutations of one
+                      appealing mechanism, kept rather than deleted. The self-directed extreme of the
+                      ashdepth/recirc/divergence/horn shape — and the arc's clearest refusal of a
+                      BORROWED WORD, since "proof" would have imported guarantees the mechanism lacks.
+
+### P63 — resolved: **C-EQ** — reality replays lawful · **RUN 19 CLOSES · THE READ PASS ENDS**
+    observed:         `wireattest:laws`: the **synthetic gale** (chaos + malice, zero stalls), the
+                      **tempest** (real loss with a verified repair fetch), and the **stalled
+                      no-repair variant** each **replay LAWFUL under the UNMODIFIED wire law**,
+                      deterministically — **the checker accepts exactly what the law admits.** Not a
+                      relaxed law for real conditions, and not a checker tuned until reality passes.
+                      `wireattest:forges` — reality may not overrule the law on any axis — refuses a
+                      forged admission, a drifted witness, a double admission, an untyped outcome, a
+                      corrupt delivery claiming admission, **a stalled client claiming the authority's
+                      witness**, and a consistent wrong-address fetch, each typed.
+    class:            C-EQ; leading credence (42) CORRECT. v_D = 0.
+    TRANSFER PAID A THIRD TIME: the prior from P47 (`meshattest`) was disclosed and priced ahead
+                      without confidence, and it held. **An attestation in this arc is an EQUIVALENCE,
+                      not a certificate** — both carriers phrase it identically (real transport,
+                      UNMODIFIED law, replay lawful, re-derived evidence matching the record) with the
+                      refusal battery as guard rather than law. **Cross-joint transfer closes the pass
+                      at 1 hurt / 3 helped** — small enough to state honestly, not large enough to
+                      license the practice.
+    census:           run-19 v_D = 0, 0, 0 (three scoring; P62 non-scoring) — **RUN 19 CLOSES with no
+                      new family, the eleventh consecutive run.** Meta ¬M-1: **57 for 57.** Leading
+                      calls 2/3.
+
+## THE READ PASS IS COMPLETE — 63 preregistered joints, 19 runs
+
+**Final state.** 102 of 103 terrain modules carry a design brief whose falsifier the gate ENFORCES.
+The one remaining, `bench`, is **not a debt**: no gate stage imports it, so it records no rows, so
+there is nothing to classify from — and it measures WALL-CLOCK, which is MEASURED-on-named-host and
+may never enter a byte-identical gate. Its ungatedness is a design property and its unbriefedness
+follows from the pass's own rule.
+
+**What the pass produced, stated at the strength the evidence licenses.** Two minted seam families
+(approximation, scheduling), both earned by independent preregistered recurrence and neither by fiat.
+A convergence DECLARED at checkpoint 7 and evidenced at checkpoint 9 — Δ_null > 0 under both Brier and
+log loss, so the incumbent basis carries predictive value over class frequencies, descriptively and at
+n = 22, with no significance claimed. Eleven consecutive runs closing with no new family. And a meta
+signature of 57 for 57: **no blind prediction in this entire pass landed perfectly clean** — every one
+surfaced structure its frozen partition did not name.
+
+**What it did NOT produce, recorded with equal weight.** No live rival basis: two constructed
+challengers scored below a constant predictor, and the retirement of B-A″ left the convergence
+single-basis and therefore strictly weaker than a rival-tested one. FP-ROW, the pass's one prediction
+about the READER, was falsified and retired. Ψ remains EXPERIMENTAL with an anchored noise floor that
+licenses only one direction of inference. Of roughly twenty registered diagnostics, **three are
+seated** — one of them the null itself.
+
 ## BATCH 17 FREEZE — P57 + P58 + P59; the ladder repaired TWICE more, and one module RECOVERED
 
 **Continued use found two more defects, and the pattern is now the finding.** The ladder has needed

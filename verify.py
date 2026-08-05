@@ -16196,7 +16196,8 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen"
                                "meshsession", "patience", "predict",
                                "provbind", "quintessence", "sea",
                                "sealframe", "sealsession", "sealwrit",
-                               "splitview", "stormprop", "terrain_bridge")
+                               "splitview", "stormprop", "terrain_bridge",
+                               "terrain_view", "tierview", "tilecert", "wireattest")
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
 
