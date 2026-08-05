@@ -897,6 +897,65 @@ DISCOVERIES = (
        "enough to be worth declaring separately and NEITHER dominates. FP-ROW is RETIRED under L63, "
        "irreversibly, and may not be reinstated by adjusting its wording",
        "CONFIRMATION"),
+    _d("rung6:ladder-repair", "DERIVE", "the fallback ladder",
+       "P48's defect: the ladder excluded reference rows by NAME (:scenes) where it meant to exclude "
+       "them by ROLE, wrongly selecting meshsession:sessions as a central row",
+       "REPAIRED BEFORE THE NEXT READ, by a structural content-free signature: a reference/scenes row "
+       "is recorded TWICE in its gate method (once in the except branch, once in the success branch). "
+       "Verified across every module read - magicdiv:scenes, predict:scenes, provbind:scenes, "
+       "quintessence:scenes, sea:island, sea:wide and meshsession:sessions all record twice, while "
+       "meshattest:laws, predict-equivalence and magicdiv-law record once - so the signature separates "
+       "them exactly while reading the SHAPE of the gate method, never a row's content. IT CHANGED THE "
+       "BATCH: the old ladder would have selected the reference row sea:island; the repaired one "
+       "selects sea-conservation",
+       "ladder v2 recorded in the batch-15 freeze; the successor obligation P48 created is discharged",
+       "CORRECTION", ""),
+    _d("read:provbind", "READ", "provbind",
+       "P51 (batch 15): whether a role line saying 'bound to its lattice, OR REFUSED' predicts an "
+       "admission predicate",
+       "C-R (leading credence 42 CORRECT) - provbind-law: the certificate is BOUND to the geometry by "
+       "H(cert | lattice_digest) with the lattice digest RECOMPUTED AT SERVE TIME, so THE BINDING "
+       "CANNOT BE ASSERTED BY WHOEVER SUPPLIED IT, and every carried field including the capture-time "
+       "buffer distance enters the digest. provbind-selftest: the metadata-only digest - THE "
+       "HANDED-DOWN FORM - matches a DIFFERENT block's geometry, so a permissive certificate lifted "
+       "off a public-domain block and stapled to a restricted capture is ADMITTED; the inherited design "
+       "admits exactly the attack the layer exists to stop. Recompute-rather-than-trust is the "
+       "neutral-ruler pattern's EIGHTH instance, and grade-what-you-inherit its fourth; v_D=0",
+       "brief written; P51 resolved C-R in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:quintessence", "READ", "quintessence",
+       "P52: that a REPRESENTATION THEOREM's central row certifies the equivalence it enables (C-EQ "
+       "38) rather than the representation itself (C-REP 26)",
+       "C-REP, leading call MISSED - quintessence-essence: the extractor is TOTAL and DETERMINISTIC "
+       "over the five families with FULL-TUPLE INJECTIVITY, so nothing that distinguishes two records "
+       "is discarded; within a family history and validity are the SAME ADDRESS AT A SCOPE (the RAN-0 "
+       "rebinding, visible in the tuple) and the scope difference PREDICTS the transport theorem. The "
+       "equivalence IS there - quintessence-lineage has heads in BIJECTION with lineages, the lineage "
+       "being the equivalence class not the path - but in a SEPARATE row: the arc splits "
+       "representation from the equivalence it enables. quintessence-refuse adds the FIVE-AXIS "
+       "CONSERVATION ABLATION: degrade any ONE axis (parent/region/height/currency/byte) and admission "
+       "refuses, so the conservation is not a conjunction anyone can partially satisfy; v_D=0",
+       "brief written; P52 resolved C-REP in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:sea", "READ", "sea",
+       "P53 (run 16 closes): the conservation reading, DISCLOSED IN ADVANCE as an easy call since the "
+       "row is named sea-conservation and the name leaks its class",
+       "C-INV (leading credence 44 correct, scored at the reduced weight the freeze declared) - "
+       "sea-conservation: total mass EXACT across 40 masked ticks AND THE FIELD GENUINELY MOVED, the "
+       "second clause being L61's non-vacuity witness against a frozen field satisfying conservation "
+       "trivially; sea-coast has land identically zero and an all-sea mask BIT-FOR-BIT identical to the "
+       "frozen step; sea-selftest makes the mask load-bearing. THE FINDING: THE ARC ALREADY HAS A "
+       "MARANGONI LAW - sea-marangoni certifies mass EXACT + monotone 30/30 ticks (AUDITED, NOT "
+       "ESTIMATED) + THE PEAK PERSISTS ABOVE PURE DIFFUSION + land dry, surface tension on the masked "
+       "domain, the peak clause being the Marangoni signature proper. A substantial part of the "
+       "URDRMRG1 proposal authored earlier this session ALREADY EXISTS, gated - the strongest argument "
+       "yet for finishing the READ pass before proposing new theory, since the proposal was written "
+       "against an incomplete map of what was already built. sea-marangoni-selftest plants the sharp "
+       "case: an over-bound kappa that overshoots negative YET CONSERVES MASS, so a defect satisfying "
+       "the headline invariant would pass a conservation-only check - AN INVARIANT A DEFECT CAN SATISFY "
+       "IS NOT SUFFICIENT EVIDENCE, the same reasoning as magicdiv's powers-of-two multiplier and "
+       "divergence's identical-rate perturbations, now on a physical bound; v_D=0",
+       "brief written; P53 resolved C-INV in exe_epistemics/PREDICTIONS.md; run 16 closes on a triple "
+       "zero, the eighth consecutive run with no new family, meta 49/49, leading calls 2/3",
+       "CONFIRMATION"),
 )
 
 

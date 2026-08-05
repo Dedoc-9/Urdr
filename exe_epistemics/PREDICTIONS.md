@@ -2683,6 +2683,81 @@ than a description of what `sea` certifies. Recorded, and the joint stays SCORIN
                       advance; a hit here is worth less than a hit at P52. v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P51 — resolved: **C-R** — bound by a digest the supplier cannot assert
+    read:             2026-08-05, the blind READ (run 16). Classified from `provbind-law` (ladder 1).
+    observed:         the provenance certificate is **BOUND to the geometry it certifies by
+                      H(cert | lattice_digest) with the lattice digest RECOMPUTED AT SERVE TIME**, so
+                      **the binding cannot be asserted by whoever supplied it**; every carried field,
+                      including the capture-time buffer distance, enters the digest.
+                      `provbind-selftest`: the **metadata-only digest — the handed-down form — matches
+                      a DIFFERENT block's geometry**, so a permissive certificate lifted off a
+                      public-domain block and stapled to a restricted capture is **ADMITTED**. The
+                      inherited design admits exactly the attack the layer exists to stop.
+    class:            C-R; leading credence (42) CORRECT. v_D = 0.
+    unnamed (M-0):    RECOMPUTE-RATHER-THAN-TRUST — the neutral-ruler pattern's EIGHTH instance (mesh's
+                      monolith, traj's locally-derived truth, cayley's two algorithms, commuteprop's
+                      brute-permutation oracle, horn's independent sweep, meshattest's re-minted
+                      certificate, wardhom, this); and grade-what-you-inherit a fourth time, the
+                      handed-down form refuted by exhibiting the admission it permits.
+
+### P52 — resolved: **C-REP** — the extractor is faithful; the equivalence is downstream
+    read:             2026-08-05, the blind READ (run 16). Classified from `quintessence-essence`
+                      (ladder step 3).
+    observed:         **the extractor is TOTAL and DETERMINISTIC over the five families with FULL-TUPLE
+                      INJECTIVITY** — every record has an essence, the same record always yields the
+                      same one, and distinct records never collide, so nothing that distinguishes two
+                      records is discarded. Within a family, **history and validity are the SAME
+                      address at a SCOPE** (world vs chunk, the RAN-0 rebinding, visible in the tuple),
+                      and **the scope difference PREDICTS the transport theorem**.
+                      `quintessence-lineage` carries the theorem's other half: every order of one edit
+                      set carries the same essence set to the same head — **the lineage is the
+                      equivalence class, not the path** — with **heads in BIJECTION with lineages**.
+                      `quintessence-refuse`: nothing is guessed outside the five families, and the
+                      **five-axis conservation ablation** holds — degrade any ONE axis (parent /
+                      region / height / currency / byte) and admission refuses. No authority without
+                      every axis.
+    class:            C-REP. The author priced C-EQ 38 · C-REP 26 — **the leading call missed**. The
+                      reasoning that "a representation theorem IS an equivalence" is sound about the
+                      THEOREM, and the bijection in `-lineage` is exactly that; but the row the ladder
+                      selects certifies the extractor's FAITHFULNESS. The arc splits representation
+                      from the equivalence it enables, into separate rows. v_D = 0.
+    unnamed (M-0):    the ablation — five axes each individually load-bearing, so the conservation is
+                      not a conjunction anyone can partially satisfy.
+
+### P53 — resolved: **C-INV** — exact conservation · and a MARANGONI law already in the arc · RUN 16 CLOSES
+    read:             2026-08-05, the blind READ (run 16). Classified from `sea-conservation` (ladder
+                      step 3, **repaired** — the old ladder would have selected the reference row
+                      `sea:island`).
+    observed:         **total mass EXACT across 40 masked ticks — and the field genuinely moved**, the
+                      second clause being the L61 non-vacuity witness that stops a frozen field from
+                      satisfying conservation trivially. `sea-coast`: land identically zero at init and
+                      after evolution, and an **all-sea mask is bit-for-bit identical to the frozen
+                      step**. `sea-selftest`: the UNMASKED evolution wets land and diverges, so the
+                      mask is load-bearing. 4/4 typed refusals.
+    class:            C-INV; leading credence (44) correct — and **disclosed in advance as an EASY
+                      call**, since the row name leaks its class. Scored as the freeze said: worth less
+                      than P52's. v_D = 0.
+    **THE FINDING: THE ARC ALREADY HAS A MARANGONI LAW.** `sea-marangoni` certifies **mass EXACT +
+                      monotone 30/30 ticks (audited, not estimated) + THE PEAK PERSISTS ABOVE PURE
+                      DIFFUSION + land dry — surface tension on the masked domain.** The peak clause is
+                      the Marangoni signature proper: surface-tension-driven transport sustaining a
+                      concentration peak that diffusion alone would flatten. Earlier this session the
+                      operator proposed a "Discrete Marangoni Interface Theorem (URDRMRG1)" as NEW
+                      work; the freeze disclosed the exposure, and the READ now supplies the correction
+                      — **a substantial part of that proposal already exists, gated, in `sea`.**
+                      Recorded as a finding about the ARC's inventory, and it is the strongest argument
+                      yet for finishing the READ pass before proposing new theory: the proposal was
+                      authored against an incomplete map of what was already built.
+    unnamed (M-0):    `sea-marangoni-selftest` plants the sharp case — **the over-bound κ overshoots
+                      negative YET CONSERVES MASS.** A defect that satisfies the headline invariant
+                      would pass a conservation-only check, so the CFL bound is tested by a plant
+                      conservation cannot catch. **An invariant a defect can satisfy is not sufficient
+                      evidence** — the same reasoning as `magicdiv`'s powers-of-two multiplier and
+                      `divergence`'s identical-rate perturbations, now on a physical bound.
+    census:           run-16 v_D = 0, 0, 0 — RUN 16 CLOSES on a triple zero, the eighth consecutive run
+                      with no new family. Meta ¬M-1: 49 for 49. Leading calls 2/3, one of them
+                      pre-disclosed as easy.
+
 ## BATCH 14 FREEZE — P48 + P49 + P50; FP-ROW re-frozen with the branch `membrane` proved it needed
 
 **ERRATUM, the SECOND of its exact kind — and the pattern is now the finding.** The previous rung's
