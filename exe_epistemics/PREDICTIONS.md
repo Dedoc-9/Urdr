@@ -2540,6 +2540,109 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       contamination — the two modules are independent and P34 is closed. v_D=0.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P36 — resolved: **C-PRICE** — a price refined by class; the mint risk did NOT fire
+    read:             2026-08-05, the blind READ (run 11). Classified from the LIVE `clslo*` rows.
+    observed:         `clslo-refinement` certifies that a higher-priority class carries a
+                      TIGHTER-OR-EQUAL bound (premium beats free) and that the ONE-CLASS CASE REDUCES
+                      EXACTLY to the composite `slo`'s uniform number — a strict generalization, not a
+                      replacement. `clslo-soundness` makes the bound real rather than optimistic: the
+                      per-class bound EQUALS `priogov`'s actual per-class drain over the config corpus
+                      (exact for equal-cost), so the promise is derived from the scheduler that keeps
+                      it. `clslo-refuse`: a tier exceeding ITS OWN target is CLSLO-REFUSE, named — a
+                      config cannot meet the aggregate while failing a class.
+    class:            C-PRICE; the author's leading credence (38) CORRECT. The cost/latency family's
+                      FIFTH preregistered instance (opcost, horizon, govern, slo, clslo). v_D = 0.
+    THE MINT RISK, resolved NEGATIVE: the freeze named C-ORD as the outcome that would give the
+                      scheduling axis a third carrier. It did not fire, for a structural reason worth
+                      recording: `priogov` certifies the ORDER work is admitted in; `clslo` certifies
+                      that the resulting BOUNDS respect the class ordering. Monotonicity of prices
+                      across classes is NOT a certified order. **The scheduling axis stays at two
+                      carriers.**
+    unnamed (M-0):    the reduction-to-`slo` clause — a refinement that does not reproduce its
+                      predecessor at the degenerate case is a different guarantee wearing the same
+                      name, and this one is CHECKED rather than claimed.
+
+### P37 — resolved: **C-EQ** — the diamond against a brute-permutation oracle
+    read:             2026-08-05, the blind READ (run 11). Classified from the LIVE `commute-property*`
+                      rows (note the row names are `commute-property*`, not `commuteprop-*`).
+    observed:         `commute-property`: across the seeded adversarial sweep EVERY ORDER LANDS ONE
+                      HEAD + FIELD, verified against a BRUTE-PERMUTATION ORACLE that enumerates the
+                      orders independently; closure agrees; `predict` matches independent chunk
+                      geometry; every same-cell pair is checked. `commute-property-selftest`: a
+                      mutated `commute.predict` (always rank 0) makes the sweep raise
+                      COMMUTEPROP-FALSIFIED, and the module reads clean after the revert — the
+                      generator provably bites, on a real mutation of the module it guards.
+    class:            C-EQ; the author's leading credence (40) CORRECT. v_D = 0.
+    the C-FLOOR alternative, resolved: the freeze priced C-FLOOR at 20 on the reasoning that a
+                      property falsifier which never generates a biting case proves nothing (L61's
+                      shape). The module answers that directly with the mutation test, so its
+                      non-vacuity is ESTABLISHED rather than CENTRAL, and the equivalence keeps the
+                      joint.
+    unnamed (M-0):    the brute-permutation oracle — the NEUTRAL-RULER pattern's SIXTH instance (mesh's
+                      monolith, wardhom's three languages, traj's locally-derived truth, cayley's two
+                      algorithms, terraform-as-oracle, this) — the checker structurally denied the
+                      option of trusting what it checks.
+
+### P38 — resolved: **C-EQ** — the moving-sample identity · RUN 11 CLOSES
+    read:             2026-08-05, the blind READ (run 11). Classified from the LIVE `crossing*` rows.
+    observed:         `crossing-properties`: **the trace IS `wavefield.height` at the MOVING cell and
+                      tick** — the agent samples the field along its trajectory at the tick it is
+                      actually there, not a snapshot and not the start cell — with the result being
+                      the FIRST overtop and CLEARANCE LOAD-BEARING (one path clears high and swamps
+                      low, so the predicate distinguishes something). `crossing-selftest` pins the
+                      identity: FREEZING THE WAVE (every tick at t=0) changes when the agent is
+                      overtopped, so travel is load-bearing and a static-field implementation is a
+                      detectably different module. `crossing-refusal`: 6/6 CROSS-REFUSE, typed, total.
+    class:            C-EQ. The author priced C-INV 32 · C-EQ 30 — **a two-point miss**. v_D = 0.
+    AN HONEST NEGATIVE ABOUT CROSS-JOINT LEARNING, recorded because it cuts against the practice:
+                      the freeze DISCLOSED that it moved weight toward C-INV on the strength of P34
+                      (`buoyancy` had just taught that this layer certifies BRACKETS characterizing
+                      measured answers, and that "exact" names the arithmetic not the semantics). The
+                      lesson was real and it TRANSFERRED BADLY — buoyancy's central row is a two-sided
+                      INEQUALITY, crossing's is an EQUALITY; same layer, same vocabulary, different
+                      shape. The disclosure stands (using a CLOSED joint to price a later freeze is
+                      legitimate learning, not contamination) but the update moved the credence the
+                      wrong way. That is a datapoint about the VALUE of cross-joint learning, not its
+                      propriety, and it is the first time this ledger has measured one.
+    what DID transfer: the question/answer split — the answer (a tick, a waterline) is MEASURED and
+                      never refused; typed refusals guard only the domain. Fourth carrier (stance,
+                      traj, buoyancy, crossing).
+    census:           run-11 v_D = 0, 0, 0 — RUN 11 CLOSES on a triple zero. Meta ¬M-1: 35 for 35.
+                      Leading calls 2/3 correct (P36, P37 landed; P38 missed by two points) — an
+                      improvement on batch 9's 0/2, and NOT read as a trend: two batches under the lex
+                      selector is not a series, and under L63 the elevated-miss story from batch 9
+                      still has no standing either way.
+
+### Ψ₁ — the first post-work drift, read against the floor declared in advance
+
+    ‖Ψ₁ − Ψ₀‖₁ = 3000        floor ε_author = 2800        ratio 1.07
+
+**The frozen rule says this clears the bar. The honest reading says it is not a signal, and both are
+recorded.** `drift_is_interpretable("1","0")` → True by the letter of the rule declared in the
+batch-10 freeze. But ε_author is a **LOWER BOUND** (Rung 4's control was anchored, which pushes the
+measured floor DOWN), so the true floor is very likely above 2800 — and a drift exceeding a
+lower-bound floor by 7% is exactly the region where the instrument cannot distinguish movement from
+its own error. **Verdict: technically above the floor, substantively indistinguishable from noise.**
+Nothing is concluded about the operator having moved. This is the intended behaviour of the rule, not
+a disappointment: the alternative — reporting 3000 as "measurable drift after batch 10" — is precisely
+what the floor exists to prevent.
+
+**THE CONTROL EARNED ITS KEEP IMMEDIATELY, and this is the rung's real result.** QP06's leading class
+flipped C-REP → C-R between Ψ₀ and Ψ₁. Without Rung 4 that is a headline: *the engine's disposition
+shifted on the representation-vs-police probe after reading batch 10*. With Rung 4 it is nothing —
+**QP06 flipped identically in the repeatability control**, under zero intervening work. The flip is a
+property of that probe's 200-point margin, not of anything batch 10 did. A control that disqualifies a
+finding one rung after being built is a control doing its job.
+
+**Per-probe**: QP08 800 (the braid/interleaving probe, where `commuteprop`'s oracle-verified diamond is
+the closest live analogue), QP01/QP02/QP05/QP09 400 each, QP04/QP06/QP07 200, **QP03 and QP10 exactly
+0**. Two probes did not move at all, which is itself a small non-vacuity check on the corpus: the
+emission is not uniformly jittering everything.
+
+**What would make the next reading decisive**: an unanchored floor from a FRESH SESSION (named at Rung
+4, still unbuilt), or a drift large enough that no plausible tightening of the floor could swallow it.
+Neither exists yet, so Ψ stays EXPERIMENTAL under L63 with its floor attached.
+
 ## RUNG 4 — the REPEATABILITY CONTROL, and the MDL re-score
 
 Two results, one of which corrects a quantity this ledger had already frozen. Witnesses: `probes.py`

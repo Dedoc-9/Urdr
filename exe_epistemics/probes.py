@@ -196,6 +196,32 @@ PSI = {
 #: The control pair. Named so the repeatability computation cannot silently drift onto other keys.
 CONTROL_PAIR = ("0", "0'")
 
+#: Psi_1 -- THE FIRST POST-WORK EMISSION (after batch 10 / run 11). Planned and its reading rule
+#: declared in the batch-10 FREEZE, before any result existed: ||Psi_1 - Psi_0||_1 <= eps_author is
+#: UNINTERPRETABLE and may not be reasoned from. Emitted against the same sealed corpus.
+PSI["1"] = {
+    "QP01": _v(C_PRICE=4000, C_R=2900, C_AB=1200, C_INV=800, C_EQ=400, C_ORD=300,
+               C_REP=200, C_FLOOR=100, R_M=50, R_O=50),
+    "QP02": _v(C_EQ=4000, C_R=2400, C_AB=1700, C_INV=800, C_REP=400, C_PRICE=200,
+               C_FLOOR=200, C_ORD=100, R_M=100, R_O=100),
+    "QP03": _v(C_INV=3800, C_R=2800, C_EQ=1200, C_AB=1000, C_PRICE=400, C_REP=300,
+               C_FLOOR=200, C_ORD=100, R_M=100, R_O=100),
+    "QP04": _v(C_EQ=3700, C_FLOOR=1900, C_R=1600, C_AB=1200, C_INV=700, C_REP=300,
+               C_PRICE=200, C_ORD=100, R_M=150, R_O=150),
+    "QP05": _v(C_ORD=4000, C_PRICE=2400, C_INV=1200, C_R=1000, C_AB=700, C_EQ=300,
+               C_REP=200, C_FLOOR=100, R_M=50, R_O=50),
+    "QP06": _v(C_REP=3100, C_R=3100, C_AB=1500, C_EQ=1000, C_INV=700, C_PRICE=200,
+               C_FLOOR=200, C_ORD=100, R_M=50, R_O=50),
+    "QP07": _v(C_FLOOR=3500, C_EQ=2900, C_INV=1200, C_R=900, C_AB=800, C_REP=200,
+               C_PRICE=200, C_ORD=100, R_M=100, R_O=100),
+    "QP08": _v(C_EQ=4200, C_AB=2300, C_INV=1300, C_R=900, C_REP=400, C_PRICE=300,
+               C_ORD=200, C_FLOOR=200, R_M=100, R_O=100),
+    "QP09": _v(C_PRICE=3600, C_INV=2300, C_AB=1500, C_R=1000, C_EQ=700, C_REP=300,
+               C_ORD=300, C_FLOOR=100, R_M=100, R_O=100),
+    "QP10": _v(C_R=2800, C_INV=2400, C_FLOOR=1800, C_REP=1200, C_EQ=800, C_AB=500,
+               C_PRICE=200, C_ORD=100, R_M=100, R_O=100),
+}
+
 
 class ProbeError(Exception):
     pass

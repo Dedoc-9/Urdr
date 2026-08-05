@@ -618,6 +618,62 @@ DISCOVERIES = (
        "efficient). dL_model stays OPEN and must be a real code length, never a count of edits; E "
        "remains uncomputed and EXPERIMENTAL under L63",
        "CONFIRMATION"),
+    _d("read:clslo", "READ", "clslo",
+       "P36 (batch 10): per-class BOUND vs certified per-class ORDER - the batch's live mint risk, "
+       "since an ORDER would have given the scheduling axis a third carrier",
+       "C-PRICE (leading credence 38 CORRECT) - clslo-refinement: a higher-priority class carries a "
+       "TIGHTER-OR-EQUAL bound and the ONE-CLASS case reduces EXACTLY to the composite slo's uniform "
+       "number (a strict generalization, checked not claimed); clslo-soundness: the per-class bound "
+       "EQUALS priogov's actual per-class drain (exact for equal-cost), so the promise is derived from "
+       "the scheduler that keeps it; clslo-refuse: a tier exceeding ITS OWN target is CLSLO-REFUSE, so "
+       "a config cannot meet the aggregate while failing a class. THE MINT RISK RESOLVED NEGATIVE: "
+       "priogov certifies the ORDER work is admitted in, clslo certifies that the resulting BOUNDS "
+       "respect the class ordering - monotonicity of prices is NOT a certified order, so the "
+       "scheduling axis STAYS AT TWO CARRIERS; cost/latency family's 5th instance; v_D=0",
+       "brief written; P36 resolved C-PRICE in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:commuteprop", "READ", "commuteprop",
+       "P37: the diamond property itself vs the falsifier's own NON-VACUITY as the central law - a "
+       "property-based falsifier that never generates a biting case proves nothing (L61's shape)",
+       "C-EQ (leading credence 40 CORRECT) - commute-property: across the seeded adversarial sweep "
+       "EVERY ORDER LANDS ONE HEAD+FIELD, verified against a BRUTE-PERMUTATION ORACLE enumerating the "
+       "orders independently, with closure agreeing and predict matching independent chunk geometry - "
+       "nothing in the verification path consults the thing verified. The C-FLOOR alternative resolved: "
+       "commute-property-selftest shows a mutated commute.predict (always rank 0) makes the sweep raise "
+       "COMMUTEPROP-FALSIFIED and the module clean after revert, so non-vacuity is ESTABLISHED rather "
+       "than CENTRAL. Neutral-ruler pattern's SIXTH instance; v_D=0",
+       "brief written; P37 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:crossing", "READ", "crossing",
+       "P38 (run 11 closes): a characterizing BRACKET (the buoyancy shape, which the freeze explicitly "
+       "primed on) vs an IDENTITY as the central law for wave-crossing timing",
+       "C-EQ - crossing-properties: the trace IS wavefield.height at the MOVING cell and tick (not a "
+       "snapshot, not the start cell), the result is the FIRST overtop, and clearance is load-bearing; "
+       "crossing-selftest pins it - FREEZING THE WAVE changes when the agent is overtopped, so travel "
+       "is load-bearing and a static-field implementation is detectably different; 6/6 CROSS-REFUSE. "
+       "AN HONEST NEGATIVE ABOUT CROSS-JOINT LEARNING: the freeze DISCLOSED moving weight to C-INV 32 "
+       "on P34's lesson (this layer certifies brackets, 'exact' names the arithmetic) and the lesson "
+       "TRANSFERRED BADLY - buoyancy's row is a two-sided INEQUALITY, crossing's an EQUALITY, same "
+       "layer and vocabulary. Legitimate learning from a CLOSED joint, but it moved the credence the "
+       "wrong way - a datapoint about the VALUE of cross-joint learning, the first this ledger has "
+       "measured. What DID transfer: the question/answer split, 4th carrier; run-11 triple zero, meta "
+       "35/35, leading calls 2/3; v_D=0",
+       "brief written; P38 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("rung3:psi1-drift", "MEASURE", "exe_epistemics/probes.py",
+       "that the first post-work operator drift would be readable as a dispositional shift - and "
+       "specifically that QP06's leading-class flip after batch 10 was evidence the engine moved",
+       "||Psi_1 - Psi_0||_1 = 3000 against the Rung-4 floor eps_author = 2800: it clears the frozen bar "
+       "by 7%, so drift_is_interpretable returns True BY THE LETTER, but eps_author is a LOWER BOUND "
+       "(the control was anchored, pushing it down) so the true floor is very likely above 3000 - "
+       "technically above the floor, SUBSTANTIVELY indistinguishable from noise, and nothing is "
+       "concluded about the operator having moved. THE CONTROL EARNED ITS KEEP IMMEDIATELY: QP06's "
+       "leading class flipped C-REP->C-R between Psi_0 and Psi_1, which without Rung 4 reads as a "
+       "headline dispositional shift on the representation-vs-police probe - but the SAME probe "
+       "flipped identically in the repeatability control under ZERO intervening work, so the flip is a "
+       "property of its 200-point margin, not of batch 10. Per-probe: QP08 800, four at 400, three at "
+       "200, and QP03/QP10 exactly 0 (so the emission is not uniformly jittering everything)",
+       "the drift reading was declared UNINTERPRETABLE-IN-SUBSTANCE and a candidate finding was "
+       "DISQUALIFIED by the control one rung after it was built; Psi stays EXPERIMENTAL under L63 with "
+       "its floor attached, pending an unanchored floor from a fresh session",
+       "CONFIRMATION"),
 )
 
 
