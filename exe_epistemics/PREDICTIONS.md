@@ -2294,6 +2294,72 @@ the quotient formulation above is what makes it a real question rather than a de
     This is why "Ψ IS the engine" had to be withdrawn: under that reading the theorem is vacuous —
     indistinguishable would MEAN identical, and the limit could never be stated, let alone tested.
 
+## BATCH 9 FREEZE — the SELECTOR SUCCESSOR, and P33 + P34 + P35 (sealed before any READ)
+
+**THE CENTRALITY SIGNAL IS EXHAUSTED, and the successor rule is frozen before the candidates were
+ranked.** Recomputed fresh this rung (`lease` = 4 recalibrates the method against the P8 erratum):
+all 32 remaining unbriefed modules have **in-degree 0**. The ordering that drove P1–P32 has no
+remaining signal — a structural fact checkpoint 8 anticipated and deferred to here.
+
+    FROZEN SUCCESSOR RULE: pure LEX order over read-eligible unbriefed modules.
+
+**Why lex and not out-degree, stated because the alternative was tempting.** Out-degree (how many
+certified laws a module composes) is also computable and would surface the composed capstones — which
+is exactly the problem. Preferring it would smuggle in an untested claim ("composed modules are more
+informative to read"), and under L63 an untested claim has NO STANDING. The selector's purpose was
+never to be optimal; it was to REMOVE OPERATOR DISCRETION, and the P8 erratum exists because
+discretion crept toward the instrument-convenient joint. Pure lex preserves that purpose exactly while
+carrying zero theoretical content. It is arbitrary — and it is arbitrary in a way no argument of mine
+can bend, which is the property that matters.
+
+    READ-ELIGIBILITY, applied mechanically (checkpoint 8's rule): a module with NO gate method has no
+    rows, and classification in this pass is from LIVE ROWS never prose (`claim ≠ code`), so it is
+    unclassifiable and SKIPPED with the reason recorded. `bench` is lex-first and was confirmed
+    ineligible by that test (no gate method — verified, not assumed). It is skipped, not passed over
+    silently. All three joints below were confirmed to carry gate rows before selection closed.
+
+**Batch rules**: order bombtest → buoyancy → cayley (pure lex, `bench` skipped). Sole basis B-M′; no
+discrimination is possible, so scoring is on the v_D census and the meta only. Run-10 v_D fresh. L61
+vacuity rule applied. Meta predicts ¬M-1 on all scoring joints (30 for 30).
+
+### P33 — `bombtest` — **NON-SCORING, CONTAMINATION DECLARED.** Role: "Interaction-free tamper
+    detection — certify an illegal step WITHOUT running it" (URDRBMB1). **The contamination is
+    substantial and disclosed rather than absorbed**: `hainuwele/README.md`'s "Weak spots, named"
+    section — read in full this session, before this freeze — states the module's central finding
+    outright ("`bombtest`'s screen is evadable by anyone who reads it… an adversary who knows the
+    invariants picks a kernel delta and is caught 0 of 70 times. It is a screen, never a verdict").
+    A prediction authored after reading the resolution is not a prediction. Recorded NON-SCORING under
+    the same rule that excluded P10 (`govern`) and P19 (`cpredict`); it is read and briefed, but it
+    scores nothing and enters no census. The exposure is the immutable observation; the exclusion is
+    the interpretation (L1/L2).
+
+### P34 — `buoyancy` (SCORING) — role: "Exact integer flotation over the wave seam (T3.5)"
+    (URDRBUOY1); ambient disclosed: the foundation wave family (`sea` field state, `wavefield` — P12,
+    C-AB exact superposition, `crossing` wave-crossing timing); conformance lives under a different
+    name (`conformance_buoy.txt`), a naming fact from the index, not a body fact. Body and history
+    UNREAD.
+    partition:        C-EQ (an exact flotation identity central — the wavefield exact-arithmetic
+                      pattern) · C-INV (a displacement/conservation structural invariant central) ·
+                      C-R (a typed admission of float state central — `buoyancy-refusal` exists) ·
+                      C-AB · R-M · R-O.
+    credences:        author (= B-M′): C-EQ 30 · C-INV 25 · C-R 25 · C-AB 8 · R-M 6 · R-O 6. Frozen
+                      near-flat across the leading three: "exact integer flotation" names the
+                      ARITHMETIC, not the law's semantics, and the foundation layer has produced all
+                      three shapes. v_D=0 expected (the wave family is long established).
+
+### P35 — `cayley` (SCORING) — role: "The Cayley-Menger determinant as a coordinate-free
+    realizability law" (URDRCAY1); ambient: the exact-arithmetic substrate (`magicdiv` division by an
+    invariant constant); a hygiene rung, not a chain member. Body and history UNREAD.
+    partition:        C-INV (a coordinate-free structural invariant central — realizability
+                      independent of embedding) · C-R (an admission predicate central — a distance
+                      matrix is realizable or REFUSED) · C-EQ (a determinant identity central) ·
+                      C-FLOOR · R-M · R-O.
+    credences:        author (= B-M′): C-INV 35 · C-R 25 · C-EQ 22 · C-FLOOR 8 · R-M 5 · R-O 5.
+                      "Coordinate-free realizability" reads as a structural invariant — B-M′'s
+                      founding axis — but a determinant test that gates admission is equally the
+                      police reading, and the arc has resolved that split both ways. v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## RUNG 3 — Q FROZEN, Ψ₀ EMITTED: the repeated-measures instrument now exists
 
 Witness: `probes.py`. Two commits, in the order the discipline requires — Q sealed with `PSI` empty,
