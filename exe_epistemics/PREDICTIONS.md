@@ -2613,6 +2613,76 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## BATCH 15 FREEZE — P51 + P52 + P53; the ladder defect REPAIRED by role, not by name
+
+**THE SUCCESSOR OBLIGATION, discharged.** P48 recorded that the fallback ladder excluded reference rows
+by NAME (`:scenes`) where it meant to exclude them by ROLE, and that `meshsession:sessions` — a
+reference row wearing another name — was wrongly selected as central. That defect is repaired here,
+BEFORE any of this batch is read, with a test that is **structural and content-free**:
+
+    A reference/scenes row is recorded TWICE in its gate method — once in the `except` branch
+    ("reference failed: {exc}") and once in the success branch. **Any row recorded more than once is
+    a reference row and is excluded from ladder step 3.**
+
+Verified against every module read so far: `magicdiv:scenes`, `predict:scenes`, `provbind:scenes`,
+`quintessence:scenes`, `sea:island`, `sea:wide` and **`meshsession:sessions` all record twice**, while
+`meshattest:laws`, `predict-equivalence`, `magicdiv-law` and every other substantive row records once.
+The signature separates them exactly, and it reads the SHAPE of the gate method rather than any row's
+content. **It changes this batch**: the old ladder would have selected `sea:island` (a reference row);
+the repaired one selects `sea-conservation`.
+
+    THE LADDER, v2 (steps 1 and 2 unchanged):
+    1. `<module>-law` if present.                                            → provbind
+    2. else `<module>:laws` if present.
+    3. else the FIRST substantive row in gate-method SOURCE ORDER, excluding the import guard,
+       `-selftest`, and ANY ROW RECORDED MORE THAN ONCE.                     → quintessence-essence · sea-conservation
+
+**FP-ROW IS NOT RUN.** It was retired irreversibly at batch 14 and may not be reinstated by rewording;
+no role-vs-row readings are declared below. What survives from it is the narrow true statement already
+recorded — the two disagree often enough to be worth distinguishing, and neither dominates — and that
+statement makes no prediction, so it licenses none.
+
+**Selector**: lex successor reapplied → `provbind` → `quintessence` → `sea`. `bench` skipped by the
+same mechanical test. **Batch rules**: sole basis B-M′; scoring is the v_D census and the meta. Run-16
+v_D fresh. L61 applied. Meta predicts ¬M-1 on all three (46 for 46).
+
+**CONTAMINATION DISCLOSED for P53.** `sea` carries rows named `sea-marangoni` and
+`sea-marangoni-selftest` (names seen during the ladder computation; contents UNREAD). Earlier in this
+session the operator proposed a "Discrete Marangoni Interface Theorem (URDRMRG1)" as NEW work, in
+ignorance that the arc already had a Marangoni row. That is prior exposure to a Marangoni FRAMING from
+the conversation — but not to this module's finding, since the proposal was a new construction rather
+than a description of what `sea` certifies. Recorded, and the joint stays SCORING under P41's ruling.
+
+### P51 — `provbind` (SCORING) — role: "Provenance binding (S3) — a certificate bound to its lattice,
+    or refused" (URDRPRV1); ambient: the city arc (`voxlat` S1, `divergence` S2 — P41 C-FLOOR,
+    `geoquorum` S4 — P21 C-SPLIT). Central row: **`provbind-law`** (ladder step 1). Body UNREAD.
+    partition:        C-R (a binding predicate that admits or REFUSES central — the role says "or
+                      refused" outright) · C-INV (a binding structural invariant) · C-EQ (a
+                      certificate ≡ lattice identity) · C-FLOOR · R-M · R-O.
+    credences:        C-R 42 · C-INV 20 · C-EQ 18 · C-FLOOR 10 · R-M 5 · R-O 5. v_D=0 expected.
+
+### P52 — `quintessence` (SCORING) — role: "ID-0 representation theorem (T3.46) — the fifth essence"
+    (URDRQNT1); ambient: the named chain after `testament` (P30, C-EQ) and before the wire phase.
+    Central row: **`quintessence-essence`** (ladder step 3). Body and history UNREAD.
+    partition:        C-EQ (a REPRESENTATION THEOREM states an equivalence between two descriptions —
+                      the strongest reading) · C-REP (a certified representation central) · C-INV ·
+                      C-R · R-M · R-O.
+    credences:        C-EQ 38 · C-REP 26 · C-INV 16 · C-R 12 · R-M 4 · R-O 4. The honest tension: a
+                      "representation theorem" in mathematics IS an equivalence (every object of a
+                      class is isomorphic to a canonical one), but this arc has a live C-REP class that
+                      the words invite. v_D=0 expected.
+
+### P53 — `sea` (SCORING) — role: "Terrain sea as certified field state (S1/S2)" (URDRFLD1); ambient:
+    the foundation wave family (`wavefield` P12 C-AB, `buoyancy` P34 C-INV, `crossing` P38 C-EQ).
+    Central row: **`sea-conservation`** (ladder step 3, repaired). Body UNREAD.
+    partition:        C-INV (a CONSERVATION invariant central) · C-EQ (a field identity) · C-R ·
+                      C-PRICE · R-M · R-O.
+    credences:        C-INV 44 · C-EQ 20 · C-R 16 · C-PRICE 10 · R-M 5 · R-O 5. **Disclosed weakness of
+                      this call**: the row is NAMED `sea-conservation`, so its name leaks its class,
+                      exactly as `predict-equivalence` did at P50. Recorded as an easy joint in
+                      advance; a hit here is worth less than a hit at P52. v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## BATCH 14 FREEZE — P48 + P49 + P50; FP-ROW re-frozen with the branch `membrane` proved it needed
 
 **ERRATUM, the SECOND of its exact kind — and the pattern is now the finding.** The previous rung's
