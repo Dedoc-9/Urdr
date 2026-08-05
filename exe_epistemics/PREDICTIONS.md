@@ -2613,6 +2613,53 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## RUNG 5 FREEZE — the W3 IDENTIFIABILITY PROBE (spec sealed before the ablated operator is emitted)
+
+**The insight that unblocks this, stated first because it is the whole reason the rung is possible.**
+ε_author = 2800 is a LOWER BOUND on emission noise (ε_true ≥ 2800). That makes it **useless in one
+direction and valid in the other**:
+
+    d > 2800  ⇒  NOTHING follows. ε_true may exceed d, so apparent movement may still be noise.
+                 (This is why Ψ₁'s 3000 was declared substantively uninterpretable.)
+    d ≤ 2800  ⇒  INDISTINGUISHABLE, and this IS licensed: d ≤ 2800 ≤ ε_true, so the difference is
+                 inside the instrument's own error however the floor is later tightened.
+
+W3 asks whether distinct live organizations can induce identical predictive operators over a finite Q.
+Supporting it requires exhibiting a pair that is INDISTINGUISHABLE — **exactly the direction the
+anchored floor licenses.** No better floor is needed for this one question.
+
+**THE TWO CONFIGURATIONS.** The contrast must be a real structural difference, not one manufactured to
+match. It is an **ABLATION**: the seated basis with the scheduling axis removed — i.e. B-M′ exactly as
+it stood at checkpoint 6, before P27 minted that axis. That is a configuration this engine genuinely
+occupied, so the difference is historical fact rather than invention.
+
+    S_full   = B-M′ as seated now (input × semantics + the approximation and scheduling axes)  → Ψ₁
+    S_ablate = the same basis WITHOUT the scheduling axis (its checkpoint-6 form)              → Ψ_abl
+
+**Why an ablation and not the retired challenger B-A″.** L63's no-zombies clause forbids reasoning
+from a retired diagnostic as explanatory evidence. Emitting Ψ under B-A″ would sail close to that even
+if framed as structural rather than evidential, so the contrast is drawn against a PRIOR FORM OF THE
+SEATED BASIS instead. The rule is respected in substance, not just in letter.
+
+    FROZEN READING RULE (one-sided by construction, and labelled so):
+      * ‖Ψ_abl − Ψ₁‖₁ ≤ 2800 → **W3 SUPPORTED**: a real structural difference that Q cannot see. The
+        scheduling axis would then be carrying organizational structure with NO behavioural content
+        over this corpus — v_D's fate one level up, and a result about the REPRESENTATION.
+      * ‖Ψ_abl − Ψ₁‖₁ > 2800 → **INCONCLUSIVE**, never "distinguishable". Reported with the per-probe
+        pattern as description only. Q's resolving power on this axis would be UNREFUTED, not shown.
+    FROZEN DIRECTIONAL PREDICTION (falsifiable, and the author expects it to fire): QP05 — the cadence
+    probe, "work admitted in a certified deadline order with a proven bound on the wait" — is the only
+    probe squarely on the scheduling seam, so if the axis carries behavioural content QP05 must move
+    MOST, and by ≥ 800. If the axis is behaviourally inert, QP05 moves like the others.
+    AUTHOR'S CALL, frozen: total > 2800 (INCONCLUSIVE) with QP05 moving most. Recorded so the rung can
+    embarrass the author rather than confirm him.
+
+    CONTAMINATION NOTE: the ablated emission is authored by someone who knows Ψ₁ and knows what the
+    scheduling axis is for. Anchoring applies here exactly as it did to Ψ₀′, and it biases the
+    difference DOWNWARD — i.e. TOWARD the "supported" verdict. That cuts against the author's own
+    frozen call, so the bias and the prediction point in opposite directions, which is the most
+    honest configuration available in a single-author setting. It is disclosed, not neutralised.
+
 ### Ψ₁ — the first post-work drift, read against the floor declared in advance
 
     ‖Ψ₁ − Ψ₀‖₁ = 3000        floor ε_author = 2800        ratio 1.07
