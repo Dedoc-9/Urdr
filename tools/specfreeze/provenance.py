@@ -740,6 +740,55 @@ DISCOVERIES = (
        "module's JOB over what the ROW certifies, three instances in four batches, recorded and NOT "
        "acted on since no frozen prediction has named the failure mode in advance",
        "CONFIRMATION"),
+    _d("read:fpcap", "READ", "fpcap",
+       "P42 (batch 12): that a 'seam' module is POLICED (C-R 30) rather than certifying a containment",
+       "C-EQ, leading call MISSED - fpcap-collision: the capsule COVERS its joints with the boundary "
+       "exact and load-bearing (a point just inside the radius is covered, one just outside is not, by "
+       "fppose's exact division-free certificate) and A SHRUNK RADIUS UNCOVERS A JOINT, the non-vacuity "
+       "witness. A containment certified with a strictness witness is interest's broad-phase shape "
+       "(P24 C-EQ), not warden's; the refusals guard the DOMAIN not the answer. Unnamed: it is a "
+       "THREE-WAY binding - the capsule answers to the joints below (collision), the terrain beneath "
+       "(the foot rests at exact ground, stance's step law biting at rise > MAX_STEP) and the pose "
+       "above (cardinal pitch exact, mouse-look pitch ROUNDS - the exactness boundary stated); v_D=0",
+       "brief written; P42 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:fpface", "READ", "fpface",
+       "P43: whether 'exact integer' in a role line predicts the semantics - P34 had shown it is weak "
+       "evidence, so C-EQ was priced only narrowly ahead",
+       "C-EQ (leading credence 32 CORRECT - the batch's only clean leading call) - fpface-exact: the "
+       "four cardinal facings lift to their exact direction vectors at ZERO ulp and the cyclic group "
+       "E-N-W-S-E PERMUTES EXACTLY over drive's facing map, group structure preserved under the lift. "
+       "fpface-boundary states where exactness ENDS: mouse-look interiors round deterministically, "
+       "accumulation drifts a BOUNDED non-zero ulp count, and sqrt2/2 is a trig-free frozen isqrt so no "
+       "transcendental enters the authority path - cayley's cross-placement reasoning again. The module "
+       "MEASURES its own imprecision rather than claiming it away. Logged as the COUNTER-INSTANCE to "
+       "P34's caution so the caution is held with the right strength; v_D=0",
+       "brief written; P43 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:horn", "READ", "horn",
+       "P44 (run 13 closes): the index role line states a CONSERVATION ('rung count conserved, only "
+       "the pitch changes') and the freeze let it drive C-INV to 40 with C-PRICE priced FOURTH at 10",
+       "C-PRICE - THE SESSION'S LARGEST MISS. horn-law: the geometric ladder is the EXHAUSTIVE MINIMAX "
+       "OPTIMUM over every integer anchor schedule at each pinned (T,B), DECIDED not sampled; the "
+       "continuous bound max-ratio-1 is STRICT on the integer lattice rather than an identity AND THE "
+       "CHECK REFUSED THE EQUALITY AN EARLIER DRAFT ASSERTED (the gate caught the author's own "
+       "overclaim); the closed form agrees with an INDEPENDENT BRUTE-FORCE ORACLE sweeping every depth "
+       "(neutral ruler, 7th instance); reach is EXPONENTIAL in slot count (8 slots reach 64 ticks where "
+       "a fixed window reaches 8). THE CAUSE is the failure mode the freeze itself named: the role line "
+       "is horn-TWIST verbatim while the -law row carries the theorem. The tie-break was applied "
+       "MECHANICALLY (<module>-law is central, consistent with mesh/recirc/cayley/divergence/bombtest) "
+       "precisely so the reading was not selectable after seeing which answer flattered the author - "
+       "under the alternative reading it would have been a hit, and the rule decided it. Second "
+       "theorem: under starvation the ladder TWISTS rather than grows, rung count CONSERVED, reach = "
+       "W*r^(B-W) exactly with the price strictly under r-1 BY THE THEOREM rather than dialled, "
+       "REMOVABLE as EQUALITY OF LADDERS not merely equivalent behaviour, and DECOUPLED from the view "
+       "band (zero extra view-ticks vs clockauth's band while the coupling plant buys four, so THE ZERO "
+       "IS A RESULT NOT A REASSURANCE). Insufficiency proof a 3rd time in two batches; v_D=0",
+       "brief written; P44 resolved C-PRICE in exe_epistemics/PREDICTIONS.md; run 13 closes on a fifth "
+       "consecutive triple zero, meta 41/41, leading calls 1/3 - and the role-prose-over-row failure "
+       "now has FIVE consecutive instances, which is the recurrence that licenses a FROZEN FORWARD "
+       "PREDICTION: batch 13's freeze is OBLIGED to name it in advance (does the role prose point at a "
+       "different class than the -law row, and does the row win), converting a recorded complaint into "
+       "a testable claim - the path the approximation axis took to its mint",
+       "CONFIRMATION"),
 )
 
 

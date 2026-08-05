@@ -2674,6 +2674,88 @@ the partition is frozen FLAT rather than confidently, so the READ decides rather
                       v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P42 — resolved: **C-EQ** — a containment with a strict witness, not a police predicate
+    read:             2026-08-05, the blind READ (run 13). Classified from the LIVE `fpcap*` rows.
+    observed:         `fpcap-collision`: **the capsule COVERS its joints**, with the boundary exact and
+                      load-bearing — a point just inside the radius is covered and one just outside is
+                      not (`fppose`'s exact division-free certificate), and **a shrunk radius uncovers
+                      a joint**, the non-vacuity witness. `fpcap-terrain` binds downward (the foot
+                      rests at the exact ground · ONE; `stance`'s step law bites at the exact
+                      rise > MAX_STEP boundary). `fpcap-pose` binds upward (upright and 90° cardinal
+                      pitch EXACT, ~45° mouse-look pitch ROUNDS — the exactness boundary stated) with
+                      5/5 typed CAP-REFUSE.
+    class:            C-EQ. The author priced C-R 30 · C-EQ 25 — **the leading call missed**. A
+                      containment certified with a strictness witness is `interest`'s broad-phase
+                      shape (P24, C-EQ), not `warden`'s. The refusals guard the domain, not the answer.
+                      v_D = 0.
+    unnamed (M-0):    it is a THREE-WAY binding — the capsule answers to the joints below, the terrain
+                      beneath and the pose above, and the gate checks all three seams rather than only
+                      the one the module is named for.
+
+### P43 — resolved: **C-EQ** — the exact embedding, and its boundary measured
+    read:             2026-08-05, the blind READ (run 13). Classified from the LIVE `fpface*` rows.
+    observed:         `fpface-exact`: the four cardinal facings lift to their exact direction vectors
+                      at **ZERO ulp**, and the cyclic group E→N→W→S→E **permutes EXACTLY** over
+                      `drive`'s facing map — the exact embedding, with group structure preserved under
+                      the lift. `fpface-boundary` states where exactness ENDS: mouse-look interiors
+                      round (deterministically), accumulation drifts a **bounded non-zero ulp count**,
+                      and **√2/2 is a trig-free frozen `isqrt`** so no transcendental enters the
+                      authority path. 5/5 typed FACE-REFUSE.
+    class:            C-EQ; leading credence (32) CORRECT — the batch's only clean leading call. v_D=0.
+    counter-instance, recorded: the freeze noted P34 had shown "exact integer" in a role line is weak
+                      evidence about semantics, and priced C-EQ only narrowly ahead. Here it DID
+                      predict. One joint does not overturn the caution; it is logged as the
+                      counter-instance so the caution is held with the right strength.
+    unnamed (M-0):    the module MEASURES its own imprecision rather than claiming it away; and the
+                      trig-free constant is `cayley`'s cross-placement reasoning again — a seam that
+                      avoids sin/cos cross-places with no rounding question to answer.
+
+### P44 — resolved: **C-PRICE** — the exhaustive minimax optimum · RUN 13 CLOSES · the session's worst call
+    read:             2026-08-05, the blind READ (run 13). Classified from the LIVE `horn*` rows.
+    observed:         `horn-law`: **the geometric ladder is the EXHAUSTIVE MINIMAX OPTIMUM over every
+                      integer anchor schedule at each pinned (T,B) — decided, not sampled.** The
+                      continuous bound max-ratio−1 is **STRICT on the integer lattice rather than an
+                      identity, and the check REFUSED THE EQUALITY AN EARLIER DRAFT ASSERTED** (the
+                      gate caught the author's own overclaim); the closed form for the discrete
+                      supremum **agrees with an independent brute-force oracle** sweeping every depth;
+                      reach is **exponential in slot count** (8 slots reach 64 ticks where a fixed
+                      window reaches 8), ladder monotone and covering.
+    class:            **C-PRICE, priced FOURTH at 10** against C-INV 40. The session's largest miss.
+    THE CAUSE, and it is the failure mode this very freeze named: the index role line — "rung count
+                      conserved, only the pitch changes" — is `horn-twist` VERBATIM, and the freeze let
+                      it drive C-INV to 40. The `-law` row certifies an OPTIMALITY result.
+                      **The tie-break was applied mechanically**: `<module>-law` is central, consistent
+                      with `mesh`, `recirc`, `cayley`, `divergence` and `bombtest` — chosen that way
+                      precisely so the reading was not selectable after seeing which answer flattered
+                      the author. Under the alternative reading (twist central) the call would have
+                      been a hit; the rule decided it, not the author.
+    the second theorem (horn-twist): under starvation the ladder **TWISTS rather than grows** — rung
+                      count B−W CONSERVED, only pitch changes, a flat ribbon becoming a cylinder with
+                      the same material and a different rise; reach = W·r^(B−W) exactly and the price
+                      is strictly under r−1 **by the same integer-lattice bound, so the twist is PRICED
+                      BY THE THEOREM rather than dialled**; REMOVABLE by two independent paths **as
+                      equality of ladders, not merely equivalent behaviour**; and DECOUPLED from the
+                      view band — a stressed client is bought ZERO extra view-ticks against
+                      `clockauth`'s band while the coupling plant buys four, **so the zero is a result
+                      and not a reassurance**.
+    unnamed (M-0):    the insufficiency proof a THIRD time in two batches (crosswarden, dirward, horn):
+                      the fixed-window policy REFUSES starvations of 9, 40 and 300 ticks the ladder
+                      anchors — the cliff becomes a slope — while **past the ladder's reach the ladder
+                      ALSO refuses, so the boundary is EXTENDED rather than REMOVED**. Also the
+                      independent brute-force oracle: the NEUTRAL-RULER pattern's SEVENTH instance.
+    census:           run-13 v_D = 0, 0, 0 — RUN 13 CLOSES on a triple zero (the fifth consecutive).
+                      Meta ¬M-1: 41 for 41. **Leading calls 1/3 — the worst of the pass.**
+    THE OBSERVATION IS NOW RIPE TO FREEZE, and that is the rung's methodological result. The
+                      role-prose-over-row failure has now recurred in FIVE consecutive batches (P34,
+                      P38, P41, P42, P44). This freeze DECLINED to correct for it — correctly, since
+                      under L63 an unfrozen observation has no standing and adjusting credences on it
+                      would be tuning. But five instances is exactly the recurrence that licenses a
+                      FROZEN FORWARD PREDICTION, the same path the approximation axis took to its mint
+                      at checkpoint 4. **Batch 13's freeze is obliged to name it in advance**: for each
+                      joint, state whether the role prose and the `-law` row point at DIFFERENT classes
+                      and predict the row wins. That is falsifiable, decidable on the next READ, and it
+                      converts a recorded complaint into a testable claim.
+
 ## BATCH 11 FREEZE — P39 + P40 + P41 (sealed before any READ)
 
 **Why the READ arc and not more Ψ infrastructure — the decision recorded, because it is the project's
