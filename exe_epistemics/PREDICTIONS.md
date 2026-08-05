@@ -4367,3 +4367,99 @@ FALSIFIER. `winner_is_named_by_score()` in `prediction_residuals.py`: it plants 
 alphabetically-first covariate scores worst and demands the reported winner be the argmin by score.
 If that plant ever passes with the naming line restored to `min(k for k in res ...)`, the falsifier
 is vacuous and this rung's central claim dies with it.
+
+
+## RUNG 10 — SELECTION made explicit, and the winner made VERIFIABLE (2026-08-05)
+
+THE LICENCE, stated first because it is the only reason this rung is not an L63 violation. A review
+of Rung 9 proposed six extensions built on one observation: between `tournament` and `winner` there
+was always a FUNCTIONAL, and it was never an object. The observation is correct. It is also, unlike
+the eleven proposals ruled on at Rung 9, NOT A NEW CLAIM -- and that distinction is doing all the
+work here:
+
+    L63 governs objects that CLAIM TO EXPLAIN OR PREDICT. A selector explains nothing and predicts
+    nothing. It was ALREADY OPERATING, in every tournament this arc has ever run, as an unnamed
+    call to `min`. Making an already-operating mechanism EXPLICIT adds no claim; it makes an
+    existing one checkable. That is apparatus in the L5/L15 sense, and the bar apparatus must clear
+    is that it BITES, never that it wins.
+
+Rung 9 is the proof the mechanism was operating and unaudited: `argmin(score)` was silently
+substituted by `argmin(name)` and there was nothing to diff, nothing to hash, nothing to audit.
+
+BUILT (`selection.py`, stdlib-only, off-gate, 1.2s, rerun byte-identical):
+  * THE SELECTOR AS DATA. `objective`, `metric`, `tie_break`, `exclude`, `baseline` -- every field a
+    decision that was previously implicit in a call to `min`. A change of direction is now a change
+    of DATA and appears in a diff. `metric` names what is being minimised, so a selector cannot be
+    silently reused against a score it was not written for.
+  * THE CERTIFICATE. The winner is never returned alone: it arrives with the winning score, the
+    closest competitor, the baseline it must also beat, the declared field, and the selector used.
+  * VERIFICATION BY PROPERTY, NOT BY PROCEDURE -- and this is the load-bearing design choice. L23 is
+    explicit that two computations agreeing is a measurement only when they share no primitive; one
+    computation restated is a definition. So `verify` does NOT call `select` again and compare. It
+    checks the DEFINING PROPERTY of an argmin directly: the winner lies in the declared field, no
+    candidate scores strictly better, and among ties the winner is lexicographically first. **A
+    certificate that passes is correct even if `select` is wrong** -- which is the independence the
+    neutral-ruler discipline asks for, applied to the adjudicator rather than to a policy.
+  * THREE RED-FIRST PLANTS, each a defect this arc has actually suffered in some form: a FORGED
+    winner (the certificate must refuse a loser, a tie-loser, and an excluded candidate swapped into
+    the winner field); the BASELINE CANNOT WIN (L62 made structural -- the seated null is scored and
+    displayed but excluded from the field, and the plant makes it the best number on the table and
+    demands it still not be crowned); and FRAGILITY IS DETECTABLE (or "STABLE" means nothing, L61).
+
+THE MEASUREMENT, and it is the interesting part. WINNER STABILITY is Rung 5's instrument transferred
+one level up: Rung 5 deleted each PROBE and asked whether the W3 verdict flipped, finding it
+ONE-PROBE FRAGILE with QP05 carrying 73% of the ablation difference. Here each JOINT is deleted, the
+whole leave-one-joint-out table recomputed, and the WINNER re-selected.
+
+    winner (full corpus)  topmass          joints  33
+    winner census         {topmass: 33}    flips   0
+    VERDICT               STABLE
+
+The same instrument returns the OPPOSITE verdict one level up. `topmass` wins on all 33 single-joint
+deletions and continues to beat the baseline on every one of them -- so Rung 9's recorded win is not
+carried by any single joint, which is precisely what Q's W3 verdict could not say about itself.
+
+WHAT THIS DOES NOT BUY, stated because the temptation is exactly here. Stability is NOT standing.
+L63 requires REPEATED and PREREGISTERED improvement over the seated incumbent, and a verdict that is
+robust to deletion within ONE retrospective corpus is still one corpus, read after the fact. A
+stable wrong answer is stable. `topmass` remains EXPERIMENTAL, and the INSTRUMENT REGISTRY is
+unchanged by this rung. What the measurement supplies is a BOUNDARY on Rung 9's claim -- a
+`does_not_show` made numerical -- which is why it, too, needs no standing.
+
+REFUSED, from the same six proposals:
+  * TOURNAMENT MORPHISMS -- refused on the Rung 9 ruling, unchanged. Four tournaments sharing a TYPE
+    (objects, objective, comparator, winner) does not give morphisms CONTENT. A morphism earns its
+    name by preserving something non-trivially, on an exhibited non-identity instance; none exists,
+    so none is claimed. This is the detector "algebra" defect a second time, and recognising it
+    twice is worth more than building it once.
+  * SELECTOR EQUIVALENCE -- the same shape, deferred with it.
+  * OPTIMIZATION PROVENANCE -- not refused, ABSORBED. A provenance chain (selector + metric + corpus
+    + tie rule -> hash) is the certificate plus the selector object, serialized. Building it as a
+    separate object would multiply the apparatus without adding a check, and the arc has a standing
+    preference against that (L58: representation earned, not designed).
+
+REDUCED, and this one is worth a successor rung. DORMANT-STATE ANALYSIS -- "values whose correctness
+is never exercised because every reachable execution keeps some guarding predicate false" -- names
+Rung 9's defect exactly and is UNDECIDABLE in general (it is reachability). A sound approximation
+over-reports every error branch and every fallback, and this arc has retired four heuristics for
+guessing at prose already. The DECIDABLE restriction is not "which values are dormant" but "which
+values did THIS RUN not exercise", and it lands on a measured hole: there is NO COVERAGE
+INSTRUMENTATION ANYWHERE IN THIS REPOSITORY (verified this rung -- every `coverage` hit in the tree
+is a capsule-containment certificate or prose, and there is no `.coveragerc`, no `pytest-cov`, no
+`trace.Trace`). 854 gate rows and zero measurement of what they exercise. A dormancy detector
+restricted to output-exercise over the gate's own run would have caught Rung 9's defect, and it is
+buildable. NOT BUILT HERE, and named so a successor tests it rather than inherits it.
+
+GRADE. MEASURED: the certificate and its property-based verification, the three red-first plants
+(all bite), the stability census over 33 deletions, determinism (stdlib-only, exact integer/rational
+arithmetic, rerun byte-identical). DECLARED: that a selector is apparatus rather than a diagnostic --
+the argument for the licence above, which is a reading of L63's scope, not a measurement.
+does_not_show: that `topmass` predicts anything; that stability implies validity (a stable wrong
+answer is stable); that a retrospective verdict survives prospectively; that no OTHER inline
+selection functional remains unaudited in the arc -- one was found and made explicit, and
+`sample != universal`.
+
+FALSIFIER. `forged_winner_is_caught()` and `baseline_cannot_win()` in `selection.py`. If a
+certificate ever verifies with a losing candidate swapped into its winner field, or a tournament
+ever crowns its own excluded baseline, the certificate certifies nothing and every verdict resting
+on one -- including this rung's stability verdict -- is unsupported.
