@@ -2613,6 +2613,72 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## BATCH 13 FREEZE — P45 + P46 + P47, and FP-ROW: the first prediction about the READER
+
+**FP-ROW — the frozen forward prediction the previous rung obliged.** The role-prose-over-row failure
+recurred in five consecutive batches (P34, P38, P41, P42, P44), which is the recurrence that licenses
+a frozen claim rather than a recorded complaint. It is stated here as **two SEPARATELY PRE-DECLARED
+readings per joint** — a role-based class and a row-based class — so the adjudication is between two
+predictions made in advance, never between a resolution and a story told afterwards:
+
+    FP-ROW: where the ROLE-reading and the ROW-reading differ, the ROW-reading wins.
+    CORRECT iff every joint resolves to its declared ROW-reading.
+    FALSIFIED iff any joint where the two differ resolves to the ROLE-reading.
+    (A joint where both readings agree tests nothing and is marked NON-DISCRIMINATING.)
+
+This is the pass's **first prediction about the reader rather than the code**, and it can fail: if the
+role prose is actually a good guide and the last five batches were a run of bad luck, FP-ROW loses.
+
+**THE `-law` FALLBACK, frozen BEFORE reading because P47 forces it.** The tie-break used through P44
+was "`<module>-law` is the central row". `meshattest` has NO such row — its rows are `meshattest:laws`,
+`:forges`, `:trace`, `-selftest` (names seen during eligibility checking; contents UNREAD, disclosed as
+exposure exactly as batch 11 disclosed `clslo`'s). The fallback is fixed now, while it is still
+inconvenient: **absent a `<module>-law` row, the central row is the one whose NAME denotes the module's
+laws — here `meshattest:laws`.** Frozen in advance so the choice cannot be made after seeing which row
+flatters the prediction.
+
+**Selector**: lex successor reapplied → `magicdiv` → `membrane` → `meshattest`. `bench` skipped by the
+same mechanical test, re-verified. **Batch rules**: sole basis B-M′; scoring is the v_D census, the
+meta, and FP-ROW. Run-14 v_D fresh. L61 applied. Meta predicts ¬M-1 on all three (41 for 41).
+
+### P45 — `magicdiv` (SCORING) — role: "Division by an invariant constant, exact and exhaustively
+    proven" (URDRMAG1); ambient: the exact-arithmetic substrate alongside `cayley` (P35, C-EQ). Body
+    and history UNREAD.
+    ROLE-reading:     **C-EQ** — "exact and exhaustively proven" names an identity discharged by
+                      exhaustion (the multiply-shift equalling true division).
+    ROW-reading:      **C-EQ** — `magicdiv-law` would carry that same identity.
+    FP-ROW status:    **NON-DISCRIMINATING** (the two agree; this joint tests the meta and v_D only).
+    partition:        C-EQ · C-PRICE (a cost/speed claim central) · C-INV · C-FLOOR · R-M · R-O.
+    credences:        C-EQ 48 · C-INV 16 · C-PRICE 14 · C-FLOOR 12 · R-M 5 · R-O 5. v_D=0 expected.
+
+### P46 — `membrane` (SCORING) — role: "The semantic membrane — advisory, structural, and unable to
+    starve" (URDRMEM1); ambient: a hygiene rung alongside `frontier` (P13, R-O, the approximation
+    axis's first sighting) and `ashdepth` (P17, C-FLOOR). Body and history UNREAD.
+    ROLE-reading:     **C-FLOOR** — the leading adjective is ADVISORY, i.e. it deliberately does NOT
+                      decide, which is the shape `recirc` ("there is no loop") and `ashdepth` ("a void
+                      is sound") both resolved: an inherited expectation of enforcement, refused.
+    ROW-reading:      **C-INV** — a row named `membrane-law` should carry a POSITIVE structural law,
+                      and the role's own third clause ("unable to STARVE") is a liveness invariant.
+                      The advisory framing would then be `does_not_show` material rather than the law.
+    FP-ROW status:    **DISCRIMINATING — the batch's live test.** FP-ROW predicts C-INV.
+    partition:        C-INV · C-FLOOR · C-R · C-EQ · R-M · R-O.
+    credences:        C-INV 32 · C-FLOOR 30 · C-R 16 · C-EQ 12 · R-M 5 · R-O 5. Frozen near-flat on
+                      purpose: FP-ROW is what carries the call here, not the credence spread. v_D=0.
+
+### P47 — `meshattest` (SCORING) — role: "Mesh reality attestation (M2.5) — real sockets, real
+    processes" (URDRMAT1); ambient: Phase M (`nway` M1, `migrate` M2, `mesh` M3 — P25 C-EQ); the arc's
+    sibling `wireattest` (W5, "THE REALITY ATTESTATION — real sockets") is UNREAD. One of the four
+    TRUE CONFORMANCE GAPS (gate stage + falsifiers, no pinned corpus). Body and history UNREAD.
+    ROLE-reading:     **C-R** — an ATTESTATION reads as a certificate that admits or refuses.
+    ROW-reading:      **C-EQ** — under the frozen fallback the central row is `meshattest:laws`, and
+                      the arc's attestation pattern is an EQUIVALENCE (what a real-socket, real-process
+                      run computes equals what the in-process run computes), the `mesh`/`hand`
+                      bit-identity shape carried across a real transport.
+    FP-ROW status:    **DISCRIMINATING.** FP-ROW predicts C-EQ.
+    partition:        C-EQ · C-R · C-AB · C-INV · R-M · R-O.
+    credences:        C-EQ 35 · C-R 30 · C-AB 15 · C-INV 10 · R-M 5 · R-O 5. v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## BATCH 12 FREEZE — P42 + P43 + P44 (sealed before any READ)
 
 **ERRATUM, recorded because it is the P8 pattern recurring in miniature.** The closing note of the
