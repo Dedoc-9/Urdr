@@ -2613,6 +2613,71 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## BATCH 11 FREEZE — P39 + P40 + P41 (sealed before any READ)
+
+**Why the READ arc and not more Ψ infrastructure — the decision recorded, because it is the project's
+own rules deciding it rather than preference.** Three model-laboratory continuations were available
+and each is blocked by something the ledger already established:
+  * **Q′ (per-axis redundancy)** — would build MORE Ψ apparatus while Ψ is still EXPERIMENTAL and has
+    never beaten a seated incumbent on any declared objective. Under L63 that is precisely the
+    accumulation the law exists to stop: a diagnostic earns standing before it earns successors.
+  * **The unanchored floor** — requires a FRESH SESSION emitting against Q before reading the ledger.
+    Structurally unavailable from inside the session that authored Ψ₀, and naming it again does not
+    make it reachable.
+  * **E / ΔL_model** — has no seated incumbent to beat, and Rung 4 measured G as very nearly
+    unpredictable at BATCH granularity (history beats the null by ~2%), so E computed per batch would
+    be noise-dominated by construction.
+Meanwhile 26 modules carry documentation debt the gate enforces and the D5 ledger still owes. The
+model-laboratory arc is PARKED on a named external precondition, not abandoned.
+
+**Selector**: the frozen lex successor reapplied → `crosswarden` → `dirward` → `divergence`. `bench`
+remains skipped by the same mechanical eligibility test, re-verified this rung.
+
+**Batch rules**: sole basis B-M′; scoring is the v_D census and the meta only. Run-12 v_D fresh. L61
+applied. Meta predicts ¬M-1 on all three (35 for 35).
+
+### P39 — `crosswarden` (SCORING) — role: "Cross-region structural anti-cheat (T3.25)" (URDRWARD2);
+    ambient disclosed: the warden family — `warden` (P4, CONFIRMED-MODEL, admission-of-claims with
+    typed refusal), `wardhom` (P16, C-EQ, β₀ IS certified F₂-homology β₀ across three languages),
+    `hand` (P23, C-INV, cross-region handoff equivalence). Body and history UNREAD. **The family has
+    produced all three shapes, so this is genuinely open rather than rhetorically open.**
+    partition:        C-R (a cross-region admission/refusal predicate central — the warden pattern
+                      extended) · C-EQ (a cross-region ≡ single-region equivalence central — the
+                      hand/mesh bit-identity pattern) · C-INV (a structural invariant spanning regions
+                      central) · C-AB · R-M · R-O.
+    credences:        author (= B-M′): C-R 35 · C-EQ 25 · C-INV 22 · C-AB 8 · R-M 5 · R-O 5. v_D=0
+                      expected (the anti-cheat family is long established).
+
+### P40 — `dirward` (SCORING) — role: "Directed-reachability structural anti-cheat (T3.26)"
+    (URDRWARD3); ambient disclosed AND load-bearing: `warden`'s own `does_not_show` NAMED this as the
+    deferred follow-on ("the undirected (mutual-reachability) boundary, with directed reachability
+    deferred"), recorded at P4. Body and history UNREAD.
+    partition:        C-R (a directed-reachability admission predicate central) · C-INV (a directed
+                      structural invariant central) · C-EQ (directed ≡ undirected on some class, or a
+                      stated identity) · C-FLOOR (an honest negative — directed reachability turning
+                      out strictly weaker, or catching nothing undirected misses) · R-M · R-O.
+    credences:        author (= B-M′): C-R 38 · C-INV 25 · C-EQ 18 · C-FLOOR 9 · R-M 5 · R-O 5.
+                      C-FLOOR is the live tail risk: a follow-on that closes a deferred boundary
+                      sometimes finds the boundary did not need closing (the `recirc` shape). v_D=0.
+
+### P41 — `divergence` (SCORING) — role: "The quantization defect in CELLS (S2) — the largest
+    connected RUN, never a rate" (URDRDVG1); ambient: the city arc (`voxlat` S1, `provbind` S3,
+    `geoquorum` S4 — P21 C-SPLIT). **EXPOSURE DISCLOSED**: `hainuwele/README.md`'s weak-spots section,
+    read earlier this session, states this module's DATA BOUNDARY ("the number in the repo bounds a
+    synthetic wall; it is not a prediction about a real one"). That is a `does_not_show` statement,
+    NOT the central law, so the joint stays SCORING — unlike P33 (`bombtest`), where the README stated
+    the finding itself. The distinction is recorded so the scoring/non-scoring line stays auditable
+    rather than discretionary. Body and history UNREAD.
+    partition:        C-PRICE (a defect MAGNITUDE/measure central — the largest connected run as a
+                      priced quantity) · C-FLOOR (a handed-down metric REFUTED by measurement — "never
+                      a rate" as the load-bearing negative, the `ashdepth`/`recirc` shape) · C-INV (a
+                      structural invariant of the quantization central) · C-EQ · R-M · R-O.
+    credences:        author (= B-M′): C-PRICE 30 · C-FLOOR 28 · C-INV 18 · C-EQ 12 · R-M 6 · R-O 6.
+                      Frozen near-flat across the leading two: the role's "never a rate" reads as a
+                      refutation of a rate metric (C-FLOOR), but the module's job is to SUPPLY a
+                      measure (C-PRICE), and the arc has resolved both shapes. v_D=0 expected.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## RUNG 5 FREEZE — the W3 IDENTIFIABILITY PROBE (spec sealed before the ablated operator is emitted)
 
 **The insight that unblocks this, stated first because it is the whole reason the rung is possible.**
