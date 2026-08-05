@@ -542,6 +542,46 @@ DISCOVERIES = (
        "one emission - recorded before any drift number exists. STATUS: EXPERIMENTAL under L63, "
        "computable and reportable but NOT reasonable-from until it beats a seated incumbent",
        "CONFIRMATION"),
+    _d("read:bombtest", "READ", "bombtest",
+       "P33 (batch 9, NON-SCORING - contamination declared before the freeze): that interaction-free "
+       "detection imports something from the physics",
+       "bombtest-law: 'interaction-free' means exactly one MEASURED thing - the audit path invokes "
+       "the rule EXACTLY ZERO times, instrumented as a call count - a claim about ACCESS AND COST, "
+       "never about physics. Re-execution is the detonation (the Replay Court's bit-for-bit re-run is "
+       "unpayable for embargoed data, a licensed model, a week of cluster time). Soundness is a "
+       "NEVER-CLAIM in Holzmann's SPIN shape, discharged EXHAUSTIVELY: 4096 states, 13824 legal "
+       "transitions, 0 acceptances; one-sided, so firing certifies and SILENCE IS INCONCLUSIVE. Plant "
+       "bites: a non-conserved arm accepts 4608 times against 0 honest. Scores nothing - no census, "
+       "no meta, no weight movement - so the exclusion is auditable rather than invisible",
+       "brief written; P33 recorded NON-SCORING in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:buoyancy", "READ", "buoyancy",
+       "P34: exact-identity vs characterizing-bracket centrality for integer flotation - the author's "
+       "leading credence (C-EQ 30) tested against C-INV 25",
+       "C-INV - buoyancy-properties certifies the exact ARCHIMEDES BRACKET Delta(z*) >= W > "
+       "Delta(z*+1) (the characterizing property of the integer waterline) plus Delta's monotonicity "
+       "(which licenses the division-free bisection) and the non-vacuity pair (the raft HEAVES on "
+       "swell, RESTS on still); selftest makes the clamp load-bearing, refusals total and typed 6/6. "
+       "THE LEADING CALL MISSED: 'exact integer flotation' names the ARITHMETIC not the semantics. "
+       "The QUESTION/ANSWER split's THIRD carrier (stance, traj, buoyancy) - blocking is a MEASURED "
+       "event and typed refusals guard only the domain boundary; the LAW is a DECLARED model while "
+       "the COMPUTATION is measured; v_D=0",
+       "brief written; P34 resolved C-INV in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:cayley", "READ", "cayley",
+       "P35 (run 10 closes): coordinate-free INVARIANT vs verified IDENTITY centrality for the "
+       "Cayley-Menger realizability law - the author priced C-INV 35 and C-EQ third at 22",
+       "C-EQ - cayley-law certifies EQUALITIES against INDEPENDENTLY computed quantities: Heron in "
+       "determinant form reproduces a separately computed area (-det = 16*area^2, 3-4-5 -> 576), the "
+       "simplex volume reproduces a separately computed volume (288*vol^2 -> 373248), and any 5 "
+       "points in 3-space give a VANISHING 6x6 determinant - a tautology holding without exception "
+       "and without any coordinate frame, broken exactly by a forged distance (ring scene 0 -> -8944). "
+       "THE LEADING CALL MISSED AND THE WINNER WAS PRICED THIRD. Unnamed: bareiss and leibniz_det as "
+       "ORACLES FOR EACH OTHER (the neutral-ruler pattern a 5th time); the Leibniz form travels "
+       "because integer division semantics differ across languages for negative operands, so "
+       "division-freeness is a CROSS-PLACEMENT property; and the check asks a strictly WEAKER "
+       "question than every other admission - not 'is your POSITION lawful' but 'is your set of "
+       "RELATIONSHIPS possible', needing no coordinates, frame or trusted origin; v_D=0",
+       "brief written; P35 resolved C-EQ in exe_epistemics/PREDICTIONS.md; run 10 closes, meta 32/32",
+       "CONFIRMATION"),
 )
 
 

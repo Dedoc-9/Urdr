@@ -2360,6 +2360,88 @@ vacuity rule applied. Meta predicts ¬M-1 on all scoring joints (30 for 30).
                       police reading, and the arc has resolved that split both ways. v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P33 — resolved (NON-SCORING, contamination declared): the one-sided screen, and a COST claim
+    observed:         `bombtest-law` certifies that "interaction-free" means exactly one MEASURED
+                      thing — **the audit path invokes the rule EXACTLY ZERO times, instrumented as a
+                      call count** — a claim about ACCESS AND COST, not about physics. Re-execution is
+                      the detonation: the Replay Court's bit-for-bit re-run is unpayable for embargoed
+                      data, a licensed model, or a week of cluster time. Soundness is a NEVER-CLAIM
+                      (Holzmann's SPIN shape: a detector wired so the honest case cannot fire, an
+                      accepting run IS the counterexample) discharged EXHAUSTIVELY — 4096 states,
+                      13824 legal transitions, 0 acceptances. One-sided: firing certifies, SILENCE IS
+                      INCONCLUSIVE. `bombtest-selftest`: a planted non-conserved arm accepts 4608
+                      times against 0 honest.
+    scoring:          NONE. The freeze declared this joint non-scoring because the README's
+                      weak-spots section (read before the freeze) states the finding outright. No
+                      census entry, no meta entry, no weight movement — recorded so the exclusion is
+                      auditable rather than invisible.
+    noted:            the module corrects its own arithmetic in place (a first draft said 24576 =
+                      4096 × 6, every state times every rule, counting boundary-blocked moves that
+                      never fire) on the stated grounds that writing a product instead of reading the
+                      counter is the same class of error as reporting a sample as a universal.
+
+### P34 — resolved: **C-INV** — the Archimedes bracket; the question/answer split's THIRD carrier
+    read:             2026-08-05, the blind READ (run 10). Classified from the LIVE `buoyancy*` rows.
+    observed:         `buoyancy-properties` certifies the **exact Archimedes bracket**
+                      Δ(z*) ≥ W > Δ(z*+1) — the characterizing property of the integer waterline —
+                      together with Δ's monotonicity (which is what licenses the bisection) and the
+                      behavioural pair that keeps it non-vacuous (the raft HEAVES on swell, RESTS on
+                      still). z* is found by division-free integer bisection, so the result is EXACT.
+                      `buoyancy-selftest` makes the clamp load-bearing (an unclamped-displacement
+                      defect diverges from the heave); `buoyancy-refusal` is total and typed (6/6
+                      BUOY-REFUSE: empty · out-of-grid · duplicate · weight ≤ 0 · bool · non-int).
+    class:            C-INV. The author priced C-EQ 30 · C-INV 25 · C-R 25 and **the leading call
+                      missed**: "exact integer flotation" names the ARITHMETIC, not the semantics, and
+                      the freeze mistook one for the other. What is certified is a BRACKET
+                      characterizing a measured answer, not an equality between two computations.
+                      v_D = 0.
+    unnamed (M-0):    THE QUESTION/ANSWER SPLIT, third carrier. Blocking is not refused — z* is a
+                      MEASURED EVENT and the typed refusals guard only the DOMAIN boundary. That is
+                      P3's `stance` residual recurring (`stance` measures where terrain blocks, `traj`
+                      measures innovation, `buoyancy` measures where water holds). Also: the LAW is a
+                      DECLARED model (a discrete Archimedes) walled off from the D5 ledger while the
+                      COMPUTATION is measured — the grading split stated inside the module.
+
+### P35 — resolved: **C-EQ** — identities verified, not quoted · RUN 10 CLOSES
+    read:             2026-08-05, the blind READ (run 10). Classified from the LIVE `cayley*` rows.
+    observed:         `cayley-law` certifies EQUALITIES against INDEPENDENTLY computed quantities:
+                      Heron in determinant form reproduces a separately computed area (−det = 16·area²,
+                      3-4-5 → 576), the simplex volume reproduces a separately computed volume
+                      (det = 288·vol² → 373248), and the operative identity — any 5 points in 3-space
+                      span at most a degenerate 4-simplex, so their 6×6 determinant VANISHES
+                      IDENTICALLY, a tautology holding without exception and without reference to any
+                      coordinate frame. `cayley-property` holds it exactly across the whole sweep (one
+                      non-zero residue would falsify the implementation) with a forged distance
+                      breaking it every time; `cayley-selftest` shows a credulous verifier admitting
+                      what the determinant refuses, so the law is a live falsifier.
+    class:            C-EQ. The author priced C-INV 35 · C-R 25 · C-EQ 22 — **the leading call missed
+                      and the winner was priced THIRD**, the batch's second miss. "Coordinate-free
+                      realizability" read as a structural invariant; the row certifies identities,
+                      which is the arc's C-EQ signature (wardhom's three languages, mesh == monolith).
+                      An identity that happens to police, not a police predicate built on an identity.
+                      v_D = 0.
+    unnamed (M-0):    two independent algorithms as ORACLES FOR EACH OTHER (`bareiss`, fraction-free
+                      but dividing, vs `leibniz_det`, division-free) required to agree on every
+                      configuration with neither reading the other's intermediate state — the
+                      neutral-ruler pattern a FIFTH time; the Leibniz form is "the one that travels"
+                      because integer division semantics differ between languages for negative
+                      operands, so division-freeness is a CROSS-PLACEMENT property not an aesthetic
+                      one; and the check asks a strictly WEAKER question than every other admission in
+                      the arc — not "is your claimed POSITION lawful?" but "is your claimed set of
+                      RELATIONSHIPS even possible?", needing no coordinates, frame, or trusted origin.
+    census:           run-10 v_D = 0, 0 (two scoring joints; P33 non-scoring) — RUN 10 CLOSES with no
+                      new family. Meta ¬M-1: 32 for 32.
+    BATCH SIGNATURE, recorded because it repeats batch 8's: **BOTH scoring leading calls MISSED**
+                      (P34 C-EQ→C-INV, P35 C-INV→C-EQ — and note they missed in OPPOSITE directions,
+                      which is not a consistent bias that could be corrected by a fixed transform).
+                      Batches 8 and 9 have now produced four leading-class misses in six scoring
+                      joints. An obvious story is available — the successor selector moved the
+                      frontier from central chain modules to foundation/hygiene rungs, and the basis
+                      was formed on the former — but that story is POST HOC and unfrozen, and under
+                      L63 it has no standing. It is recorded as an observation with a decidable
+                      forward test (do misses stay elevated on lex-selected joints?) and nothing is
+                      concluded from it here.
+
 ## RUNG 3 — Q FROZEN, Ψ₀ EMITTED: the repeated-measures instrument now exists
 
 Witness: `probes.py`. Two commits, in the order the discipline requires — Q sealed with `PSI` empty,
