@@ -1134,6 +1134,60 @@ DISCOVERIES = (
        "clean), eleven consecutive runs with no new family. bench is unbriefed BY RULE - no stage "
        "imports it, so it records no rows, so there is nothing to classify from",
        "CONFIRMATION"),
+    _d("rung8:refused-unanchored-floor", "MEASURE", "exe_epistemics/UNANCHORED_FLOOR_PROTOCOL.md",
+       "a direction to execute a fresh-session evaluation establishing an unbiased Psi baseline - in "
+       "the session that AUTHORED Psi_0",
+       "REFUSED, and the refusal is the result. Any emission this session produces against Q is "
+       "ANCHORED BY CONSTRUCTION, since the original vectors are in its context - which is precisely "
+       "the contamination that made eps_author = 2800 a LOWER BOUND rather than a floor. Running it "
+       "would produce a number that LOOKS like an unanchored baseline and is in fact a second anchored "
+       "control, and recording it as the former would be the exact inflation this ledger exists to "
+       "refuse. NO NUMBER WAS PRODUCED. What was produced instead is the protocol, written to be "
+       "executed by a session that has NOT seen Psi_0 and structured so that following it does not "
+       "contaminate it (step 1 is an explicit instruction not to read the recorded vectors or the "
+       "Rung 3/4/5 sections), with its reading rule frozen in BOTH directions including the surprising "
+       "one - eps_unanchored <= eps_author would REFUTE the reasoning that made the anchored figure a "
+       "lower bound and must be recorded as a refutation rather than explained away",
+       "protocol FROZEN and UNRUN; it names the stronger variant it is not - emission by a DIFFERENT "
+       "AGENT, which measures operator variance rather than session variance and is the only form "
+       "that would let Psi be called an instrument rather than one author's habit",
+       "CONFIRMATION"),
+    _d("rung8:dl-model", "DERIVE", "exe_epistemics/mdl.py",
+       "E's last open term dL_model, left undefined at Rung 4 with one constraint - it must be a REAL "
+       "CODE LENGTH, never a count of edits wearing a bit's clothing",
+       "CLOSED by the standard two-part code. The engine's model is a CATEGORICAL PREDICTOR and "
+       "minting a family ENLARGES its class vocabulary, so the cost is Rissanen's parametric "
+       "complexity for a multinomial over K classes fitted on n observations: L_model(K,n) = "
+       "((K-1)/2)*log2(n) bits, hence dL_model = ((K'-K)/2)*log2(n). Measured for the arc's two mints: "
+       "approximation axis 2043 millibits (K 7->8, n 17) and scheduling axis 2378 millibits (K 8->9, "
+       "n 27). The property that matters is DECIDED rather than asserted - a family explaining NOTHING "
+       "still costs, so E goes NEGATIVE for a mint buying no predictive improvement, which the refuted "
+       "ratio form could not express at all",
+       "dL_data deliberately NOT computed: measuring it for a past mint needs a COUNTERFACTUAL pre-mint "
+       "model, and how that counterfactual redistributes the minted class's mass is a modelling choice "
+       "that would decide the answer. Protocol frozen (proportional max-entropy redistribution; scope "
+       "restricted to joints scored strictly AFTER the mint, since earlier ones would credit a family "
+       "for the outcomes it was minted FROM - L58's retrofit trap; log loss in millibits) and left "
+       "unrun. E remains uncomputed and EXPERIMENTAL under L63",
+       "CORRECTION", ""),
+    _d("rung8:successor-corpus", "DERIVE", "exe_epistemics/probes2.py",
+       "Rung 5's measured defect that Q is ONE-PROBE FRAGILE - QP05 alone carried 73% of the W3 "
+       "ablation difference and removing it flips the verdict",
+       "Q' SEALED with 16 probes, TWO per named axis, and the pairs deliberately NOT PARAPHRASES: each "
+       "pair places its axis in two structurally different settings (authority vs measurement, "
+       "concurrency vs serialization, resource vs latency), because two probes differing only in "
+       "wording give redundancy of FORM without redundancy of EVIDENCE and would fail together. "
+       "corpus_is_sealed() enforces both conditions mechanically including the no-paraphrase check. Q "
+       "IS NOT EDITED - a corpus revised in response to a verdict it produced is tunable to the answer "
+       "- and both are retained so they can be compared rather than one quietly replacing the other; "
+       "PSI2 is empty at sealing, as Q's was",
+       "THE L63 TENSION IS RECORDED NOT STEPPED AROUND: batch 11 explicitly REFUSED to build Q' on the "
+       "grounds that it is more Psi apparatus while Psi holds no standing, and THAT OBJECTION IS NOT "
+       "ANSWERED. What changed is narrower and is all that is claimed - the READ pass is complete, so "
+       "the competing use of effort the refusal partly rested on no longer exists. Q' is EXPERIMENTAL "
+       "and may not be reasoned from; a successor that quietly outgrew a refusal would be worse than "
+       "the refusal",
+       "CORRECTION", ""),
 )
 
 

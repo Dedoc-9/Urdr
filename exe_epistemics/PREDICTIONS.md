@@ -2613,6 +2613,68 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## RUNG 8 — the post-pass instruments: one term CLOSED, one corpus SEALED, one measurement REFUSED
+
+Three items were directed after the READ pass closed. Two were executed; **one was refused, and the
+refusal is the substantive result.**
+
+### REFUSED — the unanchored Ψ floor cannot be produced by this session
+
+The instruction was to execute a fresh-session evaluation establishing an unbiased Ψ baseline.
+**This session authored Ψ₀.** Any emission it produces against Q is anchored by construction — the
+original vectors are in its context — which is precisely the contamination that made ε_author = 2800 a
+LOWER BOUND rather than a floor. Running it here would produce a number that LOOKS like an unanchored
+baseline and is in fact a second anchored control, and recording it as the former would be the exact
+inflation this ledger exists to refuse. **No number is produced.**
+
+What is produced instead is the protocol: `UNANCHORED_FLOOR_PROTOCOL.md`, written to be executed by a
+session that has NOT seen Ψ₀ and structured so that following it does not contaminate it — step 1 is
+an explicit instruction not to read the recorded vectors or the Rung 3/4/5 sections. Its reading rule
+is frozen in both directions, including the surprising one (ε_unanchored ≤ ε_author would REFUTE the
+reasoning that made the anchored figure a lower bound, and must be recorded as such rather than
+explained away). It also names the stronger variant it is not: **emission by a DIFFERENT AGENT**, which
+measures operator variance rather than session variance and is the only form that would let Ψ be called
+an instrument rather than one author's habit.
+
+### CLOSED — ΔL_model, E's last open term (`mdl.py`)
+
+Rung 4 left E as `ΔL_data − λ·ΔL_model` with λ = 1 and one constraint on the open term: it must be a
+REAL CODE LENGTH, never an edit count wearing a bit's clothing. Closed by the standard two-part code —
+the engine's model is a categorical predictor, minting a family ENLARGES its class vocabulary, and the
+parametric complexity of a multinomial over K classes fitted on n observations is Rissanen's
+
+    L_model(K, n) = ((K−1)/2)·log2(n) bits    ⇒    ΔL_model = ((K′−K)/2)·log2(n)
+
+Measured for the arc's two mints: **approximation axis 2043 mb** (K 7→8, n 17), **scheduling axis
+2378 mb** (K 8→9, n 27). The property that matters is decided rather than asserted: **a family
+explaining NOTHING still costs, so E goes NEGATIVE for a mint that buys no predictive improvement** —
+behaviour the refuted ratio form could not express at all.
+
+**ΔL_data is NOT computed, and that is a discipline point.** Measuring it for a past mint requires a
+COUNTERFACTUAL pre-mint model, and how that counterfactual redistributes the minted class's mass is a
+modelling choice that would decide the answer. The protocol is frozen — proportional (max-entropy)
+redistribution, scope restricted to joints scored strictly AFTER the mint (including earlier ones would
+credit a family for the outcomes it was minted FROM, the retrofit trap L58 names), log loss in
+millibits — and left unrun. **E remains uncomputed and EXPERIMENTAL.**
+
+### SEALED — Q′, the successor corpus with per-axis redundancy (`probes2.py`)
+
+Rung 5 found Q ONE-PROBE FRAGILE: QP05 alone carried 73% of the W3 ablation difference, and removing it
+flips the verdict. Q′ carries **16 probes, two per named axis**, and the pairs are deliberately **not
+paraphrases** — each pair places its axis in two structurally different settings (authority vs
+measurement, concurrency vs serialization, resource vs latency), because two probes differing only in
+wording give redundancy of form without redundancy of evidence and would fail together. `corpus_is_sealed()`
+enforces both conditions mechanically, including the no-paraphrase check. **Q is NOT edited** — a corpus
+revised in response to a verdict it produced is tunable to the answer — and both are retained so they
+can be compared rather than one quietly replacing the other. `PSI2` is empty, as Q's was at sealing.
+
+**THE L63 TENSION IS RECORDED, NOT STEPPED AROUND.** Batch 11 explicitly REFUSED to build Q′ on the
+grounds that it is more Ψ apparatus while Ψ holds no standing. **That objection is not answered here.**
+What changed is narrower and is all that is claimed: the READ pass is complete, so the competing use of
+effort the refusal partly rested on no longer exists. Q′ is EXPERIMENTAL, may be computed and reported,
+and may NOT be reasoned from. A successor that quietly outgrew a refusal would be worse than the
+refusal.
+
 ## BATCH 18 FREEZE — P60–P63, THE FINAL BATCH; and the closing ruling on `bench`
 
 **A DECLARED DEVIATION: this batch is FOUR joints, not three.** Every prior batch was three by
