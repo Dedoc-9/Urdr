@@ -311,6 +311,69 @@ def spread():
     return out
 
 
+#: Psi_abl -- RUNG 5, THE W3 IDENTIFIABILITY PROBE. The seated basis with the SCHEDULING AXIS ablated
+#: (B-M' as it stood at checkpoint 6, before P27 minted that axis) -- a configuration this engine
+#: genuinely occupied. Emitted against the same sealed corpus, spec frozen in the preceding commit.
+PSI["abl"] = {
+    "QP01": _v(C_PRICE=4150, C_R=2900, C_AB=1200, C_INV=800, C_EQ=400, C_ORD=150,
+               C_REP=200, C_FLOOR=100, R_M=50, R_O=50),
+    "QP02": _v(C_EQ=4050, C_R=2400, C_AB=1700, C_INV=800, C_REP=400, C_PRICE=200,
+               C_FLOOR=200, C_ORD=50, R_M=100, R_O=100),
+    "QP03": _v(C_INV=3850, C_R=2800, C_EQ=1200, C_AB=1000, C_PRICE=400, C_REP=300,
+               C_FLOOR=200, C_ORD=50, R_M=100, R_O=100),
+    "QP04": _v(C_EQ=3750, C_FLOOR=1900, C_R=1600, C_AB=1200, C_INV=700, C_REP=300,
+               C_PRICE=200, C_ORD=50, R_M=150, R_O=150),
+    "QP05": _v(C_PRICE=3800, C_ORD=2100, C_INV=1300, C_R=1100, C_AB=800, C_EQ=350,
+               C_REP=200, C_FLOOR=150, R_M=100, R_O=100),
+    "QP06": _v(C_R=3150, C_REP=3100, C_AB=1500, C_EQ=1000, C_INV=700, C_PRICE=200,
+               C_FLOOR=200, C_ORD=50, R_M=50, R_O=50),
+    "QP07": _v(C_FLOOR=3550, C_EQ=2900, C_INV=1200, C_R=900, C_AB=800, C_REP=200,
+               C_PRICE=200, C_ORD=50, R_M=100, R_O=100),
+    "QP08": _v(C_EQ=4300, C_AB=2300, C_INV=1300, C_R=900, C_REP=400, C_PRICE=300,
+               C_ORD=100, C_FLOOR=200, R_M=100, R_O=100),
+    "QP09": _v(C_PRICE=3750, C_INV=2300, C_AB=1500, C_R=1000, C_EQ=700, C_REP=300,
+               C_ORD=150, C_FLOOR=100, R_M=100, R_O=100),
+    "QP10": _v(C_R=2850, C_INV=2400, C_FLOOR=1800, C_REP=1200, C_EQ=800, C_AB=500,
+               C_PRICE=200, C_ORD=50, R_M=100, R_O=100),
+}
+
+#: The W3 contrast pair: the seated operator vs its scheduling-axis ablation.
+W3_PAIR = ("1", "abl")
+
+
+def w3_probe():
+    """RUNG 5. Is a real structural difference (the scheduling axis) VISIBLE over the finite corpus Q?
+
+    Read under the FROZEN one-sided rule, which exploits the floor's licensed direction:
+      d <= eps  -> W3 SUPPORTED (indistinguishable; valid because d <= eps <= eps_true)
+      d >  eps  -> INCONCLUSIVE, never 'distinguishable' (eps_true may exceed d)
+
+    Returns (d, eps, verdict, per_probe, share_of_top_probe)."""
+    a, b = W3_PAIR
+    if a not in PSI or b not in PSI:
+        return None
+    eps = smallest_detectable_drift()
+    per = {}
+    for pid, *_ in Q:
+        per[pid] = sum(abs(PSI[b][pid][c] - PSI[a][pid][c]) for c in CLASSES)
+    d = sum(per.values())
+    verdict = "W3 SUPPORTED (indistinguishable)" if d <= eps else "INCONCLUSIVE (not 'distinguishable')"
+    top = max(per, key=lambda k: (per[k], k))
+    share = (100 * per[top]) // d if d else 0
+    return d, eps, verdict, per, (top, share)
+
+
+def w3_leave_one_out():
+    """ROBUSTNESS OF THE W3 VERDICT. If dropping a SINGLE probe flips the verdict, the corpus does not
+    robustly resolve the axis under test -- the finding rests on one probe rather than on Q. Returns
+    the list of probes whose removal would flip INCONCLUSIVE to SUPPORTED."""
+    r = w3_probe()
+    if r is None:
+        return None
+    d, eps, _v, per, _t = r
+    return [pid for pid in sorted(per) if (d - per[pid]) <= eps]
+
+
 def leading(vec):
     """The argmax, tie-broken lexically so a tie is resolved deterministically rather than by dict
     order. A leading class that FLIPS between the control pair is inside the noise floor."""
@@ -407,6 +470,19 @@ def main():
         print("  smallest detectable drift = %s (raw eps; NOT inflated to a 2.77x CR, which would"
               % smallest_detectable_drift())
         print("     manufacture precision one anchored pair cannot supply)")
+    w3 = w3_probe()
+    if w3 is not None:
+        d, eps, verdict, per, (top, share) = w3
+        print()
+        print("RUNG 5 -- THE W3 IDENTIFIABILITY PROBE (scheduling-axis ablation vs the seated basis)")
+        print("  ||Psi_abl - Psi_1||_1 = %d   floor eps = %d" % (d, eps))
+        print("  VERDICT: %s" % verdict)
+        print("  per-probe: %s" % ", ".join("%s=%d" % (k, per[k]) for k in sorted(per)))
+        print("  concentration: %s carries %d%% of the total" % (top, share))
+        loo = w3_leave_one_out()
+        print("  probes whose REMOVAL would flip the verdict to SUPPORTED: %s" % (loo or "none"))
+        print("  -> the verdict is %s" % ("ONE-PROBE FRAGILE: Q does not robustly resolve this axis"
+                                          if loo else "robust to dropping any single probe"))
     print()
     print("STATUS: EXPERIMENTAL under L63 -- may be computed and reported, may NOT be reasoned from")
     print("until it beats a seated incumbent on a declared objective.")

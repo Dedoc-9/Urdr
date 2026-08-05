@@ -2660,6 +2660,42 @@ SEATED BASIS instead. The rule is respected in substance, not just in letter.
     frozen call, so the bias and the prediction point in opposite directions, which is the most
     honest configuration available in a single-author setting. It is disclosed, not neutralised.
 
+### RUNG 5 RESOLVED — W3 not supported here, and the corpus turns out ONE-PROBE FRAGILE
+
+    ‖Ψ_abl − Ψ₁‖₁ = 5200        floor ε = 2800        VERDICT: **INCONCLUSIVE**
+
+**Both frozen calls fired.** The author's call (total > 2800, hence inconclusive) and the directional
+prediction (QP05 moves most, by ≥ 800) were both correct — QP05 moved **3800**, an order above every
+other probe. So the scheduling axis is NOT shown invisible to Q: W3 gains no support from this pair,
+and the ablation is *not* licensed as "distinguishable" either. The one-sided rule was honoured in
+both directions; the rung produces no identifiability claim at all, which is the correct outcome when
+a difference lands on the unlicensed side of the floor.
+
+**THE ACTUAL FINDING, which is about the INSTRUMENT rather than the engine.** QP05 alone carries
+**73%** of the total difference (3800 of 5200). So the leave-one-out check was run, and it is decisive:
+
+    probes whose REMOVAL flips the verdict to SUPPORTED: ['QP05']    → the verdict is ONE-PROBE FRAGILE
+
+Dropping the single probe on the scheduling seam leaves 1400 — comfortably *under* the floor — and the
+ablation would then read as INDISTINGUISHABLE. **Q's ability to resolve the scheduling axis rests
+entirely on one probe.** That is a corpus-design defect, not an engine finding, and it generalizes:
+a probe corpus needs REDUNDANCY PER AXIS, or every identifiability verdict it issues is hostage to a
+single row. The ten probes were each written to sit on a distinct seam (L61: a probe everyone answers
+identically detects nothing), and that very distinctness is what left each axis with a single witness.
+The two design goals — discriminating breadth and per-axis redundancy — pull against each other, and
+Q was built for the first without noticing the second.
+
+**Consequence, recorded and NOT acted on speculatively (L58).** Q is FROZEN and stays frozen; a corpus
+edited in response to a verdict it produced is tunable to the answer, which is the trap the freeze
+exists to prevent. The honest response is a SUCCESSOR corpus Q′ designed with ≥ 2 probes per named
+axis, frozen before use, with Q retained so the two can be compared. Q′ is named here and unbuilt.
+
+**A note on the contamination that did NOT rescue the author.** The freeze disclosed that anchoring
+biases the ablated emission DOWNWARD, i.e. toward the "supported" verdict, and against the author's
+own frozen call. The result went the author's way despite that bias — which is the strongest form
+available in a single-author setting, and it is why the disclosure was worth making in advance rather
+than after.
+
 ### Ψ₁ — the first post-work drift, read against the floor declared in advance
 
     ‖Ψ₁ − Ψ₀‖₁ = 3000        floor ε_author = 2800        ratio 1.07
@@ -2786,6 +2822,7 @@ reasoned from; **SEATED** is the current best on its objective; **RETIRED** is i
 | Ω (specified orbit scalar) | certify state recurrence | — · — | **RETIRED (impossible)** | W2/RST: contains a monotone coordinate; Ω ≥ 3(ℓ+1) > 0 always |
 | Ω_live (live-quotient) | certify state recurrence | — · — | **EXPERIMENTAL** | non-degenerate (plant: 0 vs 30) but never shown INFORMATIVE |
 | Ψ (the operator over Q) | observational quotient | — · — | **EXPERIMENTAL** | Q frozen + Ψ₀ emitted (Rung 3); author-emitted, so DECLARED not measured |
+| Q (the probe corpus) | resolve named axes | leave-one-out · — | **EXPERIMENTAL, defect recorded** | Rung 5: ONE-PROBE FRAGILE — removing QP05 flips the W3 verdict; needs ≥2 probes per axis |
 | Ψ drift Δ_Ψ(t,k) | detect operator evolution | — · — | **EXPERIMENTAL** | floor MEASURED at Rung 4: ε_author = 2800 (lower bound, anchored). Drift ≤ 2800 is uninterpretable |
 | E (resolution efficiency) | value structural change | log loss (millibits) · — | **EXPERIMENTAL** | form frozen as ΔL_data − λ·ΔL_model, λ=1; ΔL_model still undefined, so uncomputed |
 | log loss (MDL rescore) | joint-class prediction | log loss · rolling marginal null | **SEATED** (co-rule) | Δ_null = +20643 mb; AGREES with Brier, so the verdict is not rule-dependent |

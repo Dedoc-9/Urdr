@@ -674,6 +674,29 @@ DISCOVERIES = (
        "DISQUALIFIED by the control one rung after it was built; Psi stays EXPERIMENTAL under L63 with "
        "its floor attached, pending an unanchored floor from a fresh session",
        "CONFIRMATION"),
+    _d("rung5:w3-identifiability", "MEASURE", "exe_epistemics/probes.py",
+       "that the anchored noise floor was useless for every question - and that a finite probe corpus "
+       "resolving a named axis does so with the whole corpus rather than with one row",
+       "THE FLOOR IS ONE-SIDED AND THAT UNBLOCKED THE RUNG: eps_author = 2800 is a LOWER BOUND, so "
+       "d > eps licenses nothing (eps_true may exceed d - why Psi_1 was uninterpretable) but d <= eps "
+       "licenses INDISTINGUISHABLE, since d <= eps <= eps_true however the floor is later tightened. "
+       "W3 needs exactly an indistinguishable pair, so the anchored floor suffices for it. The "
+       "contrast was an ABLATION (the seated basis minus the scheduling axis - B-M' as it stood at "
+       "checkpoint 6), a configuration the engine genuinely occupied; explicitly NOT the retired "
+       "challenger B-A'', because L63's no-zombies clause forbids reasoning from a retired diagnostic "
+       "and emitting Psi under it would sail close to that. RESULT: ||Psi_abl - Psi_1||_1 = 5200 > "
+       "2800, INCONCLUSIVE - W3 gains no support and the pair is NOT licensed as distinguishable "
+       "either. Both frozen calls fired (author: total > 2800; directional: QP05 moves most by >= 800, "
+       "it moved 3800). THE ACTUAL FINDING IS ABOUT THE INSTRUMENT: QP05 alone carries 73% of the "
+       "difference, and leave-one-out shows removing that single probe FLIPS the verdict to SUPPORTED "
+       "(1400 < 2800) - Q's ability to resolve the scheduling axis rests entirely on ONE PROBE",
+       "the verdict recorded as ONE-PROBE FRAGILE; the generalization is that a probe corpus needs "
+       "REDUNDANCY PER AXIS or every identifiability verdict is hostage to a single row - and the two "
+       "design goals pull against each other, since Q's ten probes were each written on a DISTINCT "
+       "seam (L61) and that distinctness is exactly what left each axis with one witness. Q stays "
+       "FROZEN (a corpus edited in response to its own verdict is tunable to the answer); a successor "
+       "Q' with >= 2 probes per named axis is named and UNBUILT (L58)",
+       "CONFIRMATION"),
 )
 
 
