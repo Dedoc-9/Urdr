@@ -2613,6 +2613,51 @@ meta only. Run-11 v_D fresh. L61 vacuity rule applied. Meta predicts ¬M-1 on al
                       selector is not a series, and under L63 the elevated-miss story from batch 9
                       still has no standing either way.
 
+## BATCH 16 FREEZE — P54 + P55 + P56 (sealed before any READ)
+
+**Selector**: lex successor reapplied → `sealframe` → `sealsession` → `sealwrit`. `bench` skipped by
+the same mechanical test. **Ladder v2 applied mechanically**, all three at step 3 (no `-law`, no
+`:laws`, reference rows excluded by the double-record signature): central rows are
+**`sealframe-envelope`**, **`sealsession-lawful`**, **`sealwrit-provenance`**. Row names are structural
+exposure as always; contents UNREAD.
+
+**Batch rules**: sole basis B-M′; scoring is the v_D census and the meta. FP-ROW remains retired and is
+not run. Run-17 v_D fresh. L61 applied. Meta predicts ¬M-1 on all three (49 for 49).
+
+### P54 — `sealframe` (SCORING) — role: "THE SEALED FRAME (T3.55, V4)" (URDRSFR1); ambient: the
+    visible phase (`panelight` V1 — P15 C-AB, `panewire` V2 — P26 C-AB, `ghostsnap` V3 — P22 C-R).
+    Central row: `sealframe-envelope`. Body UNREAD.
+    partition:        C-R (an admission of a sealed frame central) · C-EQ (a seal/replay identity) ·
+                      C-INV (a structural invariant of the envelope) · C-PRICE (an ENVELOPE in
+                      `opcost`'s sense — a bound on frame cost) · R-M · R-O.
+    credences:        C-R 32 · C-EQ 26 · C-INV 20 · C-PRICE 14 · R-M 4 · R-O 4. **The word "envelope"
+                      is genuinely ambiguous here** and the freeze refuses to resolve it: `opcost` used
+                      "envelope" for a COST bound, while a sealing context invites the CONTAINER
+                      reading. Frozen flat rather than guessing which sense the row means. v_D=0.
+
+### P55 — `sealsession` (SCORING) — role: "THE ATTESTED SESSION (T3.56, V5) — visible-world CAPSTONE"
+    (URDRSSN1); ambient: the visible phase above it. Central row: `sealsession-lawful`. Body UNREAD.
+    partition:        C-AB (a CAPSTONE composing already-certified laws central — the
+                      `meshsession`/`panewire` shape) · C-R (a lawfulness admission — the row is named
+                      `-lawful`) · C-EQ · C-INV · R-M · R-O.
+    credences:        C-AB 34 · C-R 30 · C-EQ 20 · C-INV 12 · R-M 2 · R-O 2.
+                      **PRIOR TRANSFERRED FROM A RESOLVED JOINT, disclosed**: P48 (`meshsession`, the
+                      OTHER capstone) resolved C-AB — a capstone composes — and that moves weight here.
+                      Legitimate learning from a closed joint, but P38 recorded that such transfer can
+                      hurt (`buoyancy` → `crossing` moved the credence the wrong way), so it is priced
+                      only four points ahead of the row-name reading rather than confidently.
+
+### P56 — `sealwrit` (SCORING) — role: "THE SIGNED WIRE (T3.49, W3) — WHO may write × WHAT may change"
+    (URDRSWT1); ambient: the wire phase (`wire` P6 C-AB, `storm` W2, `driftgaze` W4 — P20 C-AB).
+    Central row: `sealwrit-provenance`. Body UNREAD.
+    partition:        C-R (an admission predicate — WHO may write, the `provbind` shape one phase
+                      over) · C-AB (the role states a PRODUCT of two authorities, WHO × WHAT, which is
+                      a two-law join) · C-EQ · C-INV · R-M · R-O.
+    credences:        C-R 36 · C-AB 30 · C-EQ 18 · C-INV 12 · R-M 2 · R-O 2. The role's "×" is the
+                      honest tension: it literally names two dimensions, which is C-AB's signature,
+                      while the central row is named for provenance, which at P51 meant admission.
+    witness:          the git commit introducing these rows — dated before any of the three is read.
+
 ## BATCH 15 FREEZE — P51 + P52 + P53; the ladder defect REPAIRED by role, not by name
 
 **THE SUCCESSOR OBLIGATION, discharged.** P48 recorded that the fallback ladder excluded reference rows
