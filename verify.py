@@ -16192,7 +16192,8 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen"
                                "clslo", "commuteprop", "crossing",
                                "crosswarden", "dirward", "divergence",
                                "fpcap", "fpface", "horn",
-                               "magicdiv", "membrane", "meshattest")
+                               "magicdiv", "membrane", "meshattest",
+                               "meshsession", "patience", "predict")
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
 

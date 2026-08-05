@@ -839,6 +839,64 @@ DISCOVERIES = (
        "NON-DISCRIMINATING / one CORRECT / one NEITHER - PARTIALLY SUPPORTED, its directional claim "
        "(role never beats row) standing at 1-for-1 while its precision failed on membrane",
        "CONFIRMATION"),
+    _d("read:meshsession", "READ", "meshsession",
+       "FP-ROW's directional claim that where the ROLE-reading and the ROW-reading differ, the ROW "
+       "wins - declared role C-AB (a capstone composes, the panelight/panewire shape) vs row C-EQ "
+       "(Phase M had resolved C-EQ twice running at mesh and meshattest)",
+       "C-AB - THE ROLE-READING WON, so FP-ROW's DIRECTIONAL CLAIM IS FALSIFIED by its own frozen "
+       "terms. meshsession:sessions: concurrency (M1), migration (M2) and a partition episode (M4) "
+       "COMPOSED into one attested timeline, the campaign and skirmish multi-authority playthroughs "
+       "reproducing checkpoint-chain digests deterministically - the distinctive claim is the "
+       "COMPOSITION, not that each law holds. meshsession:forges carries meshattest's principle "
+       "forward (reality may not overrule the COMPOSED mesh law on any axis) with five forgeries "
+       "refusing. The five-batch pattern that motivated FP-ROW does NOT generalize; one counter- "
+       "instance ends a claim stated that strongly. LADDER DEFECT recorded because the selection was "
+       "load-bearing: the frozen ladder excludes rows NAMED :scenes, but meshsession:sessions IS this "
+       "module's scenes row under another name - it excludes by NAME where it meant to exclude by "
+       "ROLE. Applied AS FROZEN anyway, since a ladder rewritten after seeing which row flatters the "
+       "prediction is not a ladder; a corrected ladder would have reached :forges, plausibly C-R. "
+       "Leading call missed by four (C-EQ 34 vs C-AB 30); v_D=0",
+       "brief written; P48 resolved C-AB in exe_epistemics/PREDICTIONS.md; the ladder defect is the "
+       "SUCCESSOR's obligation, not this rung's licence to re-pick",
+       "CONFIRMATION"),
+    _d("read:patience", "READ", "patience",
+       "P49 (NON-SCORING, contamination declared at the freeze under the P33 rule): auditgraph's sale "
+       "that pricing equivocation at kappa converts an INVISIBLE INTEGRITY attack into a VISIBLE "
+       "AVAILABILITY one",
+       "patience-law: every word of that trade rests on 'visible', WHICH BOTH auditgraph AND splitview "
+       "DECLARED RATHER THAN ESTABLISHED. Chandra-Toueg is the reason - a crashed process and an "
+       "arbitrarily slow one are indistinguishable to an asynchronous observer - so a server that "
+       "STALLS rather than excludes takes the same partition at a VISIBLE COST OF ZERO; the exclusion "
+       "ladder holds only at T >= Delta and below the envelope 1/2/infinity collapses to 0/0/0. "
+       "patience-selftest names a class this repo had no cell for: LINEAR patience growth is SOUND (it "
+       "terminates, and the test asserts it) and LOSES ON PRICE ALONE - 63 false alarms where doubling "
+       "costs 6, 199 against 8 at Delta/T0 = 200 - so a correct alternative rejected purely on cost is "
+       "a different refutation from a wrong one. This is the ashdepth/recirc/divergence refutation "
+       "shape aimed at a SIBLING RUNG rather than at handed-down literature, the first such instance. "
+       "Scores nothing: no census, no meta, no FP-ROW entry",
+       "brief written; P49 recorded NON-SCORING in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:predict", "READ", "predict",
+       "P50 (run 15 closes): FP-ROW discriminating - role C-R ('reconcile' as adjudicating a client "
+       "claim) vs row C-EQ, with the freeze DISCLOSING that the row name leaks its class so this is a "
+       "weaker test than P48",
+       "C-EQ (leading credence 46 CORRECT; FP-ROW = ROW at the reduced weight the freeze declared) - "
+       "predict-equivalence: reconstruct == drive(auth) for every prediction, and the sharper half, "
+       "THE REUSABLE PREFIX IS BIT-IDENTICAL TO THE AUTHORITY so PARTIAL ROLLBACK == FULL "
+       "RE-SIMULATION - the optimization that makes prediction affordable proven equal to the "
+       "exhaustive alternative, which is exactly the claim an implementation is most tempted to "
+       "assume. predict-localize: reconcile IS lockstep.first_desync, a correct prediction needs no "
+       "rollback, and a DIFFERENT-INPUT SAME-POSE prediction needs none either - the reconcile is "
+       "POSE-level not input-level, so a client that reached the right place by a different route is "
+       "not punished for the route, which is what splice's memorylessness needs downstream; v_D=0",
+       "brief written; P50 resolved C-EQ in exe_epistemics/PREDICTIONS.md; run 15 closes with no new "
+       "family (the seventh consecutive), meta 46/46. FP-ROW v2 FINAL: directional claim FALSIFIED "
+       "(P48), precision one NEITHER (P46), two wins one of them weakened by a leaking row name - the "
+       "instrument was built to be falsifiable and was falsified in two rungs, which beats a third "
+       "confirmation because the alternative was carrying an unfrozen five-batch grievance "
+       "indefinitely. What survives is narrower and true: role prose and central rows disagree often "
+       "enough to be worth declaring separately and NEITHER dominates. FP-ROW is RETIRED under L63, "
+       "irreversibly, and may not be reinstated by adjusting its wording",
+       "CONFIRMATION"),
 )
 
 

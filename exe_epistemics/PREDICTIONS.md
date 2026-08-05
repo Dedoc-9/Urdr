@@ -2687,6 +2687,86 @@ Run-15 v_D fresh. L61 applied. Meta predicts ¬M-1 on all three (44 for 44).
     credences:        C-EQ 46 · C-R 24 · C-REP 14 · C-INV 8 · R-M 4 · R-O 4. v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P48 — resolved: **C-AB** — the capstone composes · **FP-ROW's DIRECTIONAL CLAIM FALSIFIED**
+    read:             2026-08-05, the blind READ (run 15). Classified from `meshsession:sessions`, the
+                      row the frozen fallback ladder selected before any content was read.
+    observed:         **concurrency (M1), migration (M2) and a partition episode (M4) COMPOSED into one
+                      attested timeline** — the campaign and skirmish multi-authority playthroughs
+                      reproducing URDRMSS1 checkpoint-chain digests, deterministically. The distinctive
+                      claim is the COMPOSITION: not that each law holds, which its own rung
+                      established, but that a session exercising all three produces one chain no member
+                      contradicts. `meshsession:forges` carries `meshattest`'s principle forward —
+                      **reality may not overrule the COMPOSED mesh law on any axis** — with five
+                      forgeries refusing; `meshsession-selftest` refuses a single byte flip.
+    class:            C-AB (the `panelight`/`panewire` capstone shape). Author priced C-EQ 34 · C-AB 30
+                      — the leading call missed by four. v_D = 0.
+    **FP-ROW v2 = ROLE. THE DIRECTIONAL CLAIM IS FALSIFIED** by its own frozen terms ("FALSIFIED iff
+                      any joint where the two differ resolves to the ROLE-reading"). The freeze
+                      declared role C-AB (a capstone composes) against row C-EQ (Phase M had resolved
+                      C-EQ twice running). **The role prose was the better guide.** The five-batch
+                      pattern that motivated FP-ROW does NOT generalize into "the row always wins", and
+                      one counter-instance stated that strongly is enough to end the claim. Standing:
+                      2 ROW (P47, P50) · 1 ROLE (P48) · 1 NEITHER (P46) · 1 SAME (P45).
+    LADDER DEFECT, recorded because the selection was load-bearing: the frozen ladder takes the first
+                      substantive row in source order **excluding rows NAMED `:scenes`** — and
+                      `meshsession:sessions` IS this module's scenes row under another name, carrying
+                      the digest-reproduction pattern verbatim. **The ladder excludes by NAME where it
+                      meant to exclude by ROLE.** It was applied AS FROZEN (a ladder rewritten after
+                      seeing which row flatters the prediction is not a ladder), but a corrected ladder
+                      would have reached `meshsession:forges` — plausibly C-R — and the FP-ROW verdict
+                      could have differed. The defect is the successor's obligation, not this rung's
+                      licence to re-pick.
+
+### P49 — resolved (NON-SCORING, contamination declared): the visibility auditgraph sold was DECLARED
+    observed:         `patience-law`: `auditgraph` priced undetected equivocation at kappa and sold it
+                      as converting an INVISIBLE INTEGRITY attack into a VISIBLE AVAILABILITY one —
+                      **and every word rests on "visible", which both it and `splitview` DECLARED
+                      rather than established.** Chandra–Toueg is the reason: a crashed process and an
+                      arbitrarily slow one are indistinguishable to an asynchronous observer, so a
+                      server that STALLS rather than excludes takes the same partition at a visible
+                      cost of ZERO. The ladder holds only at T ≥ Δ; below the envelope 1/2/∞ collapses
+                      to **0/0/0**.
+    scoring:          NONE — declared at the freeze under the P33 rule (the README states the FINDING,
+                      not a boundary). No census, no meta, no FP-ROW entry.
+    unnamed:          `patience-selftest` names a class the repo had no cell for — **LINEAR patience
+                      growth is SOUND** (it terminates, and the test asserts it) **and loses on PRICE
+                      ALONE**: 63 false alarms where doubling costs 6, and 199 against 8 at Δ/T₀ = 200.
+                      A correct alternative rejected purely on cost is a different refutation from a
+                      wrong one. Also: this is the ashdepth/recirc/divergence refutation shape aimed at
+                      a SIBLING RUNG rather than at handed-down literature — the first such instance.
+
+### P50 — resolved: **C-EQ** — rollback-replay equivalence · FP-ROW's second win · RUN 15 CLOSES
+    read:             2026-08-05, the blind READ (run 15). Classified from `predict-equivalence`, the
+                      row the frozen ladder selected.
+    observed:         **`reconstruct == drive(auth)` for every prediction**, and the sharper half —
+                      **the reusable prefix is BIT-IDENTICAL to the authority, so partial rollback ==
+                      full re-simulation**: the optimization that makes prediction affordable is proven
+                      to equal the exhaustive alternative, which is the claim an implementation is most
+                      tempted to assume. `predict-localize`: **reconcile IS `lockstep.first_desync`**; a
+                      correct prediction needs no rollback; and a **different-input, same-pose**
+                      prediction needs none either — the reconcile is POSE-level, not input-level.
+                      `predict-refusal`: the lazy-reconcile defect diverges, 3/3 typed PRED-REFUSE.
+    class:            C-EQ; leading credence (46) CORRECT.
+    FP-ROW v2 = ROW, at REDUCED WEIGHT as disclosed at the freeze: the row is NAMED
+                      `predict-equivalence`, so its name leaks its class and the test was easier than
+                      P48's. Counted as a win, weighted as the freeze said it would be.
+    unnamed (M-0):    the POSE-LEVEL clause — a reconcile comparing INPUTS would refuse a client whose
+                      different keystrokes produced an identical pose, punishing the route rather than
+                      the destination; certifying at pose level is exactly what `splice`'s
+                      memorylessness needs downstream.
+    census:           run-15 v_D = 0, 0 (two scoring joints; P49 non-scoring) — RUN 15 CLOSES with no
+                      new family, the seventh consecutive run without one. Meta ¬M-1: 46 for 46.
+                      Leading calls 1/2 scoring.
+    **FP-ROW v2, FINAL SCORE AND WHAT IT BOUGHT.** Directional claim: **FALSIFIED** (P48). Precision:
+                      one NEITHER (P46). Wins: two, one of them weakened by a leaking row name (P50).
+                      The instrument was built to be falsifiable and it was falsified in two rungs —
+                      which is a better outcome than a third confirmation, because the alternative was
+                      carrying an unfrozen five-batch grievance indefinitely. **What survives is
+                      narrower and true: role prose and central rows disagree often enough to be worth
+                      declaring separately, and NEITHER one dominates.** FP-ROW is RETIRED under L63 —
+                      irreversibly, and it may not be reinstated by adjusting its wording. A successor
+                      would need a fresh preregistration with a genuinely different claim.
+
 ## BATCH 13 FREEZE — P45 + P46 + P47, and FP-ROW: the first prediction about the READER
 
 **FP-ROW — the frozen forward prediction the previous rung obliged.** The role-prose-over-row failure
@@ -3320,6 +3400,8 @@ reasoned from; **SEATED** is the current best on its objective; **RETIRED** is i
 | Ω_live (live-quotient) | certify state recurrence | — · — | **EXPERIMENTAL** | non-degenerate (plant: 0 vs 30) but never shown INFORMATIVE |
 | Ψ (the operator over Q) | observational quotient | — · — | **EXPERIMENTAL** | Q frozen + Ψ₀ emitted (Rung 3); author-emitted, so DECLARED not measured |
 | Q (the probe corpus) | resolve named axes | leave-one-out · — | **EXPERIMENTAL, defect recorded** | Rung 5: ONE-PROBE FRAGILE — removing QP05 flips the W3 verdict; needs ≥2 probes per axis |
+| FP-ROW (role vs row) | predict the reader's own miss | resolution class · role-reading | **RETIRED** | batch 14: directional claim FALSIFIED at P48 (role won); 2 ROW · 1 ROLE · 1 NEITHER · 1 SAME |
+| the `-law` fallback ladder | select the central row | — · — | **EXPERIMENTAL, defect recorded** | P48: excludes by NAME (`:scenes`) where it meant to exclude by ROLE; selection was load-bearing |
 | Ψ drift Δ_Ψ(t,k) | detect operator evolution | — · — | **EXPERIMENTAL** | floor MEASURED at Rung 4: ε_author = 2800 (lower bound, anchored). Drift ≤ 2800 is uninterpretable |
 | E (resolution efficiency) | value structural change | log loss (millibits) · — | **EXPERIMENTAL** | form frozen as ΔL_data − λ·ΔL_model, λ=1; ΔL_model still undefined, so uncomputed |
 | log loss (MDL rescore) | joint-class prediction | log loss · rolling marginal null | **SEATED** (co-rule) | Δ_null = +20643 mb; AGREES with Brier, so the verdict is not rule-dependent |
