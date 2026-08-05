@@ -4267,3 +4267,103 @@ not load-bearing.
                       decision. The run's first residual→prediction→confirmation loop closed this
                       rung (n=1 — noted, not promoted; L3).
     contamination:    none — L59, fifth application; the freeze commit predates the READ.
+
+
+## RUNG 9 — the ADJUDICATOR was naming the wrong winner, and the defect was invisible until the answer changed (2026-08-05)
+
+WHAT HAPPENED. A theoretical review proposed eleven candidate extensions to the discovery engine
+(basis lattices, a detector interaction algebra, seam hypergraphs, fork ensembles, minimal-witness
+search, detector mutation, an evidence simplicial complex, detector Shapley values, a counterfactual
+repository generator, an architecture phase diagram, and combinatorial shadowing). Before evaluating
+any of them the existing instruments were RE-RUN against the grown corpus, on the principle that a
+proposal to extend an instrument is worth nothing until the instrument is known to be sound. It was
+not.
+
+    prediction_residuals.joint_level_beats_null:
+        best = min(k for k in res if k != "null")        # WRONG: lexicographic min of the KEY NAMES
+
+The line answers the question L63 exists to adjudicate -- WHICH diagnostic beat the seated
+incumbent -- and it answered it by alphabetical order. It returns "margin" for every corpus that has
+ever existed or ever could.
+
+WHY NO RUN COULD HAVE CAUGHT IT. The value was CONDITIONALLY DEAD. While no covariate beat the null,
+`beats` was False and nothing consulted `best`; a wrong label with no reader has no observable
+consequence, so every previous green run is silent evidence. The defect became load-bearing at the
+FIRST run that flipped `beats` to True -- and that same run reported the winner wrongly. The
+instrument went from correct to incorrect with no code change, purely because the data moved.
+
+    n = 33 scoring joints (was 22 at Rung 8)
+    null 2539   margin 2651   nclass 2586   topmass 2433        (LOJO Brier on the miss event, /10000)
+
+    reported by the defective line : margin   -- LOSES to the null by 112
+    true argmin                    : topmass  -- BEATS the null by 106
+
+The mis-naming was maximally unlucky: it crowned the one covariate whose standing hypothesis this
+corpus had already embarrassed, in the run that first produced a genuine winner.
+
+REPAIRED, with the falsifier the line never had. `best` is now `min(others, key=lambda k: (res[k],
+k))` -- argmin by score, ties broken lexicographically so the answer is deterministic. A red-first
+plant (`winner_is_named_by_score`) supplies a synthetic result whose alphabetically-first covariate
+is the WORST and demands the reported winner be the lowest-scoring one; the pre-repair implementation
+returns "aaa" and fails it. Rerun byte-identical under PYTHONHASHSEED=0.
+
+THE L63 CONSEQUENCE, stated so it is NOT over-read. `topmass` -- the probability assigned to the
+leading class -- now holds ONE out-of-sample win over the seated null, the first any joint-level
+covariate has recorded. Under L63 that is NOT STANDING: the law requires REPEATED and PREREGISTERED
+improvement over the seated incumbent, and one win on a retrospective corpus is a single
+observation. `topmass` therefore stays EXPERIMENTAL -- computable and reportable, NOT reasonable-from
+-- and the INSTRUMENT REGISTRY entry that says so is unchanged by this rung. Rung 2's recorded
+finding ("the residual is a CONSTANT, not a SIGNAL") was true at n=22 and is NOT retro-edited; what
+is added is that it did not survive to n=33, which is exactly what an append-only ledger is for.
+Note also that the "low margin => miss" hypothesis is now DIRECTIONALLY correct (mean margin: hits
+967, misses 800) while `margin` remains a WORSE predictor than the constant null -- direction is not
+prediction, and a corpus can supply the first without the second.
+
+THE LAW CANDIDATE, tracked and NOT MINTED. The shape -- *an output consulted only under a condition
+that has never held is untested by every run made so far, and the run that first makes it
+load-bearing is also the first run that can be wrong* -- is distinct from L61 (empty DATA read as a
+confirmation), from L62 (a tournament with no baseline) and from L23 (a checker that cannot fail):
+here the check was sound, the data non-empty, and the tournament properly seated. What was wrong was
+a LABEL nobody had yet had reason to read. It has ONE carrier. Under L3 that is not a lesson, and
+minting it on a single instance is the precise error this rung was created by. It is recorded as a
+CANDIDATE and earns L-status only on an independently discovered second carrier -- and if none
+appears, its absence is the result. `vacuous != correct`.
+
+THE ELEVEN PROPOSALS, ruled on by the same law they would be judged under. L63: architectural
+concepts are downstream of empirical winners, never upstream. Four of the eleven are separable:
+  * BASIS LATTICE -- ADMISSIBLE, and the only one that needs no new epistemics. It is not a new
+    concept requiring standing; it is a LARGER TOURNAMENT in a format that already has a seated
+    incumbent (B-M') and a declared objective (log loss / integer Brier against the rolling null).
+    Its one constraint is decisive: the 63 joints are RESOLVED, so scoring new bases on them is
+    retrodiction. The lattice can earn standing only on joints not yet read -- so it must be FROZEN
+    NOW and scored on the successor corpus, which makes it a natural fit for the portability rung
+    rather than a competitor with it.
+  * COMBINATORIAL SHADOWING -- cheapest, and the substrate already exists: the shadow (classes
+    PRICED but never OBSERVED) is the complement of the PARTITION error type already computed here,
+    over a partition L60 guarantees is exhaustive. It can be run on data in hand and contaminates
+    nothing. It buys a null cheaply in the S11 tradition; it cannot earn standing retrospectively.
+  * DETECTOR INTERACTION ALGEBRA -- the MEASUREMENT is admissible, the ALGEBRA is not yet.
+    `D : Repository -> Evidence` does not compose with itself: `D_j . D_i` is a type error as
+    stated, since Evidence is not a Repository. What is well-typed is a FACTORIAL design over joint
+    application (redundancy, subsumption, and interaction of detectors applied together), which is a
+    contingency table, not an algebra. Calling it an algebra before a composition law is exhibited
+    is L21 (wrong units) dressed as elegance (L22).
+  * FORK ENSEMBLE -- real, and BLOCKED on the same thing as the unanchored Psi floor. Independence
+    cannot be manufactured by the author: five forks made here are five anchored controls, exactly
+    as a second same-session emission was. It becomes available only for repositories with
+    genuinely independent fork histories, i.e. AFTER portability, never before it.
+The remaining seven are not refused, they are UNRANKED: each would add another EXPERIMENTAL object
+to a registry in which zero challengers currently hold standing, and L63 exists because Gamma was
+seated by adoption rather than evidence and survived three rungs past its usefulness.
+
+GRADE. MEASURED: the defect (exhibited, with the pre-repair line returning "margin" on every input),
+the repair, the red-first plant, the LOJO table at n=33, determinism. DECLARED: that the eleven
+proposals divide as above -- a reading of their type structure, not a measurement of their value.
+does_not_show: that `topmass` predicts anything (one retrospective win); that the other seven
+proposals are bad (they are unranked, which is not a verdict); that no OTHER conditionally-dead
+output exists in the arc -- one was found by running one instrument, and `sample != universal`.
+
+FALSIFIER. `winner_is_named_by_score()` in `prediction_residuals.py`: it plants a result whose
+alphabetically-first covariate scores worst and demands the reported winner be the argmin by score.
+If that plant ever passes with the naming line restored to `min(k for k in res ...)`, the falsifier
+is vacuous and this rung's central claim dies with it.

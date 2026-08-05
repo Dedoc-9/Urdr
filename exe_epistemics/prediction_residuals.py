@@ -134,10 +134,38 @@ def lojo(rows=None):
 def joint_level_beats_null(res=None):
     """THE DECISIVE QUESTION. Does ANY preregistered joint-level covariate beat the seated null
     out-of-sample? If False, the errors are noise at this granularity too, and reading (b) --
-    'aggregation destroyed the signal' -- is NOT supported by this corpus."""
+    'aggregation destroyed the signal' -- is NOT supported by this corpus.
+
+    THE WINNER IS NAMED BY SCORE. Until 2026-08-05 this line read `best = min(k for k in res if k
+    != "null")`, which is the lexicographic minimum of the key STRINGS, not the argmin of the
+    scores -- it returned "margin" for any corpus whatever. The defect was VACUOUS while every
+    covariate lost to the null: nothing consulted `best` when `beats` was False, so a wrong answer
+    had no observable consequence. It became load-bearing at the exact run that first flipped
+    `beats` to True (n=33: topmass 2433 beats the null's 2539 by 106) and reported the winner as
+    `margin`, which LOSES by 112 -- naming as victor the one covariate whose standing hypothesis
+    this corpus had already embarrassed. A defect that is only observable once the result changes
+    is not caught by re-running a green instrument; `vacuous != correct`.
+
+    Ties break lexicographically so the answer is deterministic (`PYTHONHASHSEED=0` is not enough
+    when the tiebreak is unspecified)."""
     res = lojo() if res is None else res
-    best = min(k for k in res if k != "null")
-    return min(res[k] for k in res if k != "null") < res["null"], best
+    others = [k for k in res if k != "null"]
+    best = min(others, key=lambda k: (res[k], k))
+    return res[best] < res["null"], best
+
+
+def winner_is_named_by_score(res=None):
+    """RED-FIRST: the falsifier the naming line never had. Plants a synthetic result whose
+    alphabetically-FIRST covariate is the WORST, and demands the reported winner be the
+    lowest-scoring one. The pre-2026-08-05 implementation returns "aaa" here and fails."""
+    plant = {"null": 5000, "aaa": 9999, "zzz": 1000}
+    beats, best = joint_level_beats_null(plant)
+    caught = (best == "zzz" and beats is True)
+    tie = joint_level_beats_null({"null": 5000, "bbb": 1000, "aaa": 1000})[1] == "aaa"
+    live = joint_level_beats_null(res)
+    consistent = live[0] == (min(res[k] for k in res if k != "null") < res["null"]) \
+        if res else True
+    return caught and tie and consistent
 
 
 def non_vacuous(rows=None):
@@ -163,8 +191,16 @@ def main():
         print("   %-9s %6d%s" % (k, res[k], "   <- seated null" if k == "null" else ""))
     beats, best = joint_level_beats_null(res)
     print()
-    print("ANY joint-level covariate beats the null out-of-sample: %s  (best non-null: %s)"
-          % (beats, best))
+    print("ANY joint-level covariate beats the null out-of-sample: %s  (best non-null: %s, %d vs "
+          "null %d)" % (beats, best, res[best], res["null"]))
+    print("winner named by SCORE, not by name (red-first plant caught): %s"
+          % winner_is_named_by_score(res))
+    if beats:
+        print("L63 STATUS: `%s` has ONE out-of-sample win on record. That is NOT standing --"
+              % best)
+        print("  L63 requires REPEATED preregistered improvement over the seated incumbent, so")
+        print("  `%s` stays EXPERIMENTAL: it may be computed and reported, and may NOT be" % best)
+        print("  reasoned from. The corpus that produced this win is also retrospective (L20).")
     misses = [r["pid"] for r in rows if not r["hit"]]
     print("misses: %s" % misses)
     hit_m = _mean([r["margin"] for r in rows if r["hit"]])
