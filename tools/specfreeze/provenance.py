@@ -956,6 +956,55 @@ DISCOVERIES = (
        "brief written; P53 resolved C-INV in exe_epistemics/PREDICTIONS.md; run 16 closes on a triple "
        "zero, the eighth consecutive run with no new family, meta 49/49, leading calls 2/3",
        "CONFIRMATION"),
+    _d("read:sealframe", "READ", "sealframe",
+       "P54 (batch 16): that a SEALED frame is something POLICED (C-R 32) rather than certifying an "
+       "identity - and that a renderer's cost model necessarily sits beside the code that pays it",
+       "C-EQ, leading call MISSED - sealframe-envelope: the op envelope IS the loop's ACTUAL work, "
+       "micro-steps == the glide trajectory's own count, MODEL == EXECUTION, so the budget cannot "
+       "drift from the thing it budgets; sprint costs EXACTLY twice the walk and the envelope FITS the "
+       "60Hz budget under the measured native tick rate. THE FINDING: sealframe-honesty turns this "
+       "repository's own CLAIM-GRADING LADDER into a gate row - every MEASURED frame-budget entry must "
+       "cite a NAMED-HOST log (the unlogged-MEASURED defect is caught), input->photon stays "
+       "NOT_MEASURED until a section-3 run exists, and a host log GRADUATES a claim to MEASURED only "
+       "when it NAMES a host AND its input->photon is under target, with the selftest refusing a "
+       "tampered log on its self-digest and refusing an anonymous log the graduation. The discipline "
+       "the entire arc is written under is here ENFORCED BY THE GATE rather than by the author's care "
+       "- everywhere else the ladder is a convention prose obeys, in this module it is a row that "
+       "reddens; the strongest instance of attestation != authority made executable; v_D=0",
+       "brief written; P54 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:sealsession", "READ", "sealsession",
+       "P55: whether the visible-world CAPSTONE certifies a lawfulness admission (the row is named "
+       "-lawful) or COMPOSITION - with the prior transferred from resolved P48 and DISCLOSED",
+       "C-AB (leading credence 34 CORRECT) - sealsession-lawful: a genuine movement session, a wired "
+       "session (live edits + streaming) and a multiplayer session (ghost stream) each REPLAY THROUGH "
+       "THE UNMODIFIED loop, wire and ghost laws TO THEIR OWN RECORDED WITNESSES, the whole visible "
+       "world attested in one trace, deterministically. sealsession-forge refuses a forged avatar / "
+       "world / ghost witness and a cheater's MALICE-CLAIMED EDIT (an illegal edit dressed as "
+       "admitted). CROSS-JOINT TRANSFER PAID here having COST at P38, so the practice now stands at 1 "
+       "hurt / 1 helped - the honest state of it, not a vindication. BOTH capstones certify "
+       "COMPOSITION rather than a new mechanism and phrase it identically (laws UNMODIFIED, composed "
+       "into ONE attested trace): a capstone in this arc is the claim that existing laws do not "
+       "interfere; v_D=0",
+       "brief written; P55 resolved C-AB in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:sealwrit", "READ", "sealwrit",
+       "P56 (run 17 closes): the role states WHO may write x WHAT may change, literally naming two "
+       "dimensions, which is C-AB's signature (priced 30) against the provenance-as-admission reading",
+       "C-R (leading credence 36 CORRECT) - sealwrit-provenance: an unregistered, wrong-keyed, "
+       "mis-signed or tail-collision-forged writ REFUSES BEFORE THE STATE LAW with replica and ledger "
+       "BYTE-IDENTICAL, and the genuine writ still admits - A FAILED SIGNATURE BLOCKS NOTHING HONEST; "
+       "the plant is pointed, the first-byte defect verifier ACCEPTS the forgery the real one refuses. "
+       "THE ORDERING IS THE THEOREM: sealwrit-order proves ELIGIBILITY PRECEDES ADMISSION (a writ both "
+       "mis-signed and state-unlawful refuses SEAL, since a state-first system would report the other "
+       "code), A SIGNATURE CANNOT LAUNDER STATE (a perfectly signed stale record refuses WIRE), and "
+       "ELIGIBILITY IS CONSUMED BY ADMISSION NEVER BY ATTESTATION - closing the attack of presenting a "
+       "writ, having it refused on state, and treating the signature as spent-and-verified. So WHO x "
+       "WHAT is real but NOT a two-law join: the axes are kept in a strict ORDER with a proof the "
+       "order holds. sealwrit-reuse: the first admission SEALS THE KEYPAIR TO ITS DIGEST, so an "
+       "identical redelivery rides free to the CAS while a verified-DISTINCT state-lawful record under "
+       "a sealed keypair refuses on the ledger - the reuse leak's exact exploit contained; v_D=0",
+       "brief written; P56 resolved C-R in exe_epistemics/PREDICTIONS.md; run 17 closes on a triple "
+       "zero, the ninth consecutive run with no new family, meta 52/52, leading calls 2/3",
+       "CONFIRMATION"),
 )
 
 

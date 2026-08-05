@@ -2658,6 +2658,74 @@ not run. Run-17 v_D fresh. L61 applied. Meta predicts ¬M-1 on all three (49 for
                       while the central row is named for provenance, which at P51 meant admission.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P54 — resolved: **C-EQ** — MODEL == EXECUTION; and the honesty ladder MECHANIZED
+    read:             2026-08-05, the blind READ (run 17). Classified from `sealframe-envelope`.
+    observed:         **the op envelope IS the loop's ACTUAL work — micro-steps == the glide
+                      trajectory's own count, MODEL == EXECUTION** — so the budget cannot drift from
+                      the thing it budgets. Two consequences ride on the identity: sprint costs
+                      EXACTLY twice the walk, and the envelope FITS the 60Hz budget under the measured
+                      native tick rate, stated as an inequality.
+    class:            C-EQ. Author priced C-R 32 · C-EQ 26 — the leading call missed; "sealed frame"
+                      read as something policed, and the row certifies an identity. v_D = 0.
+    **THE FINDING — `sealframe-honesty` turns this repository's own CLAIM-GRADING LADDER into a gate
+                      row.** Every MEASURED frame-budget entry must cite a NAMED-HOST log (the
+                      unlogged-MEASURED defect is caught); `input→photon` stays NOT_MEASURED until a §3
+                      run exists; and a host log GRADUATES a claim to MEASURED only when it NAMES a
+                      host AND its input→photon is under target. `sealframe-selftest` bites: a tampered
+                      host log refuses on its self-digest, an anonymous log cannot graduate a MEASURED
+                      claim. **The discipline this entire arc is written under — no claim exceeding
+                      what its evidence licenses — is here ENFORCED BY THE GATE rather than by the
+                      author's care.** Everywhere else the ladder is a convention prose obeys; in this
+                      module it is a row that reddens. The strongest instance in the arc of
+                      `attestation ≠ authority` made executable.
+
+### P55 — resolved: **C-AB** — the visible-world capstone composes
+    read:             2026-08-05, the blind READ (run 17). Classified from `sealsession-lawful`.
+    observed:         a genuine movement session, a wired session (live edits + streaming) and a
+                      multiplayer session (ghost stream) **each replay through the UNMODIFIED loop,
+                      wire and ghost laws to their OWN recorded witnesses — the whole visible world
+                      attested in one trace, deterministically.** `sealsession-forge`: a forged avatar
+                      / world / ghost witness (a session claiming an outcome the recorded input does
+                      not produce) and **a cheater's malice-claimed edit — an illegal edit dressed as
+                      admitted** — each refuse. `sealsession-selftest`: a tampered session refuses on
+                      its self-digest, an anonymous one on the named-host law.
+    class:            C-AB; leading credence (34) CORRECT. v_D = 0.
+    CROSS-JOINT TRANSFER PAID, having cost at P38: the freeze DISCLOSED moving weight on P48
+                      (`meshsession`, the other capstone, C-AB) while pricing it only four points ahead
+                      because P38 recorded the same practice moving a credence the wrong way. **Transfer
+                      between resolved joints now stands at 1 hurt, 1 helped** — the honest state of
+                      that practice, not a vindication of it.
+    unnamed (M-0):    BOTH capstones certify COMPOSITION rather than a new mechanism, and both phrase
+                      it identically — laws UNMODIFIED, composed into ONE attested trace. A capstone in
+                      this arc is not a new law; it is the claim that the existing ones do not
+                      interfere.
+
+### P56 — resolved: **C-R** — provenance refuses before the state law · RUN 17 CLOSES
+    read:             2026-08-05, the blind READ (run 17). Classified from `sealwrit-provenance`.
+    observed:         an unregistered, wrong-keyed, mis-signed or tail-collision-forged writ **refuses
+                      BEFORE the state law with replica and ledger BYTE-IDENTICAL**, and the genuine
+                      writ still admits — **a failed signature blocks nothing honest**. The plant is
+                      pointed: **the first-byte defect verifier ACCEPTS the forgery the real one
+                      refuses.**
+    class:            C-R; leading credence (36) CORRECT. v_D = 0.
+    **THE ORDERING IS THE THEOREM.** `sealwrit-order`: **eligibility precedes admission** — a writ that
+                      is BOTH mis-signed and state-unlawful refuses SEAL (the ordering proof, since a
+                      state-first system would have reported the other code); a perfectly signed stale
+                      record refuses WIRE, because **a signature cannot launder state**; and neither
+                      refusal seals anything — **eligibility is consumed by admission, never by
+                      attestation**, which closes the attack of presenting a writ, having it refused on
+                      state, and treating the signature as spent-and-therefore-verified. So the role's
+                      "WHO × WHAT" is real but is NOT a two-law join: the axes are kept in a strict
+                      ORDER with a proof that the order holds — which is why the central row reads as
+                      admission rather than composition.
+    unnamed (M-0):    `sealwrit-reuse` — the first admission SEALS THE KEYPAIR TO ITS DIGEST, so an
+                      identical redelivery rides free to the CAS (at-most-once, inherited from the
+                      wire) while a verified-DISTINCT state-lawful record under a sealed keypair
+                      refuses on the ledger: the reuse leak's exact exploit, contained rather than
+                      argued away.
+    census:           run-17 v_D = 0, 0, 0 — RUN 17 CLOSES on a triple zero, the ninth consecutive run
+                      with no new family. Meta ¬M-1: 52 for 52. Leading calls 2/3.
+
 ## BATCH 15 FREEZE — P51 + P52 + P53; the ladder defect REPAIRED by role, not by name
 
 **THE SUCCESSOR OBLIGATION, discharged.** P48 recorded that the fallback ladder excluded reference rows
