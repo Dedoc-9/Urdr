@@ -789,6 +789,56 @@ DISCOVERIES = (
        "different class than the -law row, and does the row win), converting a recorded complaint into "
        "a testable claim - the path the approximation axis took to its mint",
        "CONFIRMATION"),
+    _d("read:magicdiv", "READ", "magicdiv",
+       "P45 (batch 13): whether an 'exact and exhaustively proven' role line predicts the semantics - "
+       "role-reading and row-reading BOTH said C-EQ, so the joint is non-discriminating for FP-ROW",
+       "C-EQ (leading credence 48 CORRECT) - magicdiv-law: floor(n/d) == (m*n) >> s DECIDED "
+       "EXHAUSTIVELY over the whole word, every divisor x every dividend, 0 failures - a decided finite "
+       "statement, not a sampled sweep; and the handed-down corollaries are GRADED rather than "
+       "repeated, the Hausdorff-dimension claim REFUTED by definition. The selftest is the point: the "
+       "floor-instead-of-ceil multiplier fails on some divisors WHILE REMAINING CORRECT FOR POWERS OF "
+       "TWO, so the plant is exactly the one a sampled check would have passed. Enumerate-don't-sample "
+       "on its FOURTH carrier (voxlat, cayley, divergence, magicdiv); v_D=0",
+       "brief written; P45 resolved C-EQ in exe_epistemics/PREDICTIONS.md", "CONFIRMATION"),
+    _d("read:membrane", "READ", "membrane",
+       "P46: FP-ROW's live test - role-reading C-FLOOR ('advisory' as the recirc/ashdepth shape) vs "
+       "row-reading C-INV (a -law row carrying a positive structural law, 'unable to starve')",
+       "C-EQ, PRICED FOURTH AT 12, AND NEITHER PRE-DECLARED READING WAS RIGHT - membrane-law: EVERY "
+       "LAWFUL MEMBRANE PRODUCES THE IDENTICAL ADMITTED SET, decided against NINE including reversed, "
+       "both-ends-interleaved adversarial, and one that puts a chosen obligation last every time to "
+       "STARVE it, so an adaptive layer changes how efficiently truth is reached and never what truth "
+       "is. The same-quantity-under-nine-orderings shape is commuteprop's and mesh's, both C-EQ; "
+       "'advisory' is the CONSEQUENCE of the invariance and 'unable to starve' its non-vacuity "
+       "witness, neither being the law. membrane-selftest refuses three plants EACH WITH ITS OWN NAME - "
+       "the filtering membrane DROPS obligations, named as the accelerator's characteristic failure "
+       "since silently discarding what you cannot handle looks exactly like handling it. FP-ROW's "
+       "OUTCOME SPACE WAS INCOMPLETE: not falsified (the role-reading did not win) and not correct "
+       "(not the row-reading either) - the L60 failure P3's meta suffered, recurring at a new level, "
+       "since the prediction assumed the true class must be one of the two readings on offer; v_D=0",
+       "brief written; P46 resolved C-EQ in exe_epistemics/PREDICTIONS.md; the frozen FP-ROW text "
+       "STANDS and the successor freeze must carry a mandatory NEITHER-READING branch, exactly as P4 "
+       "carried R3",
+       "CONFIRMATION"),
+    _d("read:meshattest", "READ", "meshattest",
+       "P47 (run 14 closes): FP-ROW discriminating - role-reading C-R (an attestation admits or "
+       "refuses) vs row-reading C-EQ (the arc's attestation pattern is an equivalence across a real "
+       "transport), classified from meshattest:laws, the row the FROZEN FALLBACK named before any "
+       "content was read since this module has NO <module>-law row",
+       "C-EQ - FP-ROW'S FIRST GENUINE WIN, the row-reading beating the role-reading on a joint where "
+       "they differed. meshattest:laws: the synthetic handoff (A->B, usurper refused, disjoint region "
+       "untouched) and the relay (A->B->C custody chain, mid-chain usurper refused) each REPLAY LAWFUL "
+       "UNDER THE UNMODIFIED MIGRATE LAW, deterministically, and THE MIGRATION CERTIFICATE THE CHECKER "
+       "RE-MINTS MATCHES REALITY'S RECORD - the law is not adapted for the real transport, the real "
+       "transport is shown to satisfy it already. meshattest:forges under one principle, REALITY MAY "
+       "NOT OVERRULE THE LAW: seven attacks each refusing typed. A second TRUE-CONFORMANCE-GAP module "
+       "EXPLAINED rather than listed (after view_witness): an attestation whose subject is a live "
+       "socket run cannot have its evidence pinned in advance without ceasing to be an attestation, so "
+       "the missing corpus is a consequence of what the module IS, not a debt; v_D=0",
+       "brief written; P47 resolved C-EQ in exe_epistemics/PREDICTIONS.md; run 14 closes on a sixth "
+       "consecutive triple zero, meta 44/44, leading calls 2/3, and FP-ROW scores one "
+       "NON-DISCRIMINATING / one CORRECT / one NEITHER - PARTIALLY SUPPORTED, its directional claim "
+       "(role never beats row) standing at 1-for-1 while its precision failed on membrane",
+       "CONFIRMATION"),
 )
 
 

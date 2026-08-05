@@ -2679,6 +2679,85 @@ meta, and FP-ROW. Run-14 v_D fresh. L61 applied. Meta predicts ¬M-1 on all thre
     credences:        C-EQ 35 · C-R 30 · C-AB 15 · C-INV 10 · R-M 5 · R-O 5. v_D=0 expected.
     witness:          the git commit introducing these rows — dated before any of the three is read.
 
+### P45 — resolved: **C-EQ** — the identity decided over the whole word (NON-DISCRIMINATING for FP-ROW)
+    read:             2026-08-05, the blind READ (run 14). Classified from the LIVE `magicdiv*` rows.
+    observed:         `magicdiv-law`: **floor(n/d) == (m*n) >> s, DECIDED EXHAUSTIVELY over the whole
+                      word** — every divisor × every dividend, 0 failures, "a decided finite statement,
+                      not a sampled sweep". The row also GRADES the handed-down corollaries rather than
+                      repeating them: the Hausdorff-dimension claim that arrived with the technique is
+                      **REFUTED by definition**. `magicdiv-selftest`: the floor-instead-of-ceil
+                      multiplier fails on some divisors **while remaining CORRECT for powers of two** —
+                      the plant is chosen to be exactly the one a sampled check would have passed.
+    class:            C-EQ; leading credence (48) CORRECT. Both pre-declared readings said C-EQ, so
+                      this joint is NON-DISCRIMINATING for FP-ROW by its own frozen terms. v_D = 0.
+    unnamed (M-0):    enumerate-don't-sample on its FOURTH carrier (voxlat, cayley, divergence,
+                      magicdiv) — L20 turned into code four times; and GRADE-WHAT-YOU-INHERIT, the same
+                      move `divergence` made against the rate metric and `horn` against the continuous
+                      bound.
+
+### P46 — resolved: **C-EQ** — invariance of the admitted set; **NEITHER pre-declared reading was right**
+    read:             2026-08-05, the blind READ (run 14). Classified from the LIVE `membrane*` rows.
+    observed:         `membrane-law`: **every lawful membrane produces the IDENTICAL admitted set** —
+                      decided against NINE, including a reversed order, a both-ends-interleaved
+                      adversarial order, and **one that puts a chosen obligation last every time
+                      specifically to starve it** — so "an adaptive layer changes how efficiently truth
+                      is reached and never what truth is". `membrane-selftest` refuses three plants
+                      EACH WITH ITS OWN NAME rather than tolerating them: the FILTERING membrane drops
+                      obligations (named as the accelerator's characteristic failure, since silently
+                      discarding what you cannot handle looks exactly like handling it), the INJECTING
+                      membrane creates state, and the third likewise reddens.
+    class:            C-EQ, **priced FOURTH at 12**. The same-quantity-under-nine-orderings shape is
+                      `commuteprop`'s (every order lands one head+field) and `mesh`'s — both C-EQ.
+                      "Advisory" is the CONSEQUENCE of the invariance, not the law; "unable to starve"
+                      is the adversarial witness that the invariance is non-vacuous, not a separate
+                      claim. v_D = 0.
+    **FP-ROW: THE OUTCOME ITS OWN PARTITION DID NOT NAME.** The freeze declared role-reading C-FLOOR
+                      and row-reading C-INV, and predicted the row wins. The joint resolved to
+                      **NEITHER**. Under the frozen rule this is not FALSIFIED (the role-reading did
+                      not win) and not CORRECT (it did not resolve to the row-reading) — the outcome
+                      space was **INCOMPLETE**. That is precisely the L60 failure P3's meta suffered,
+                      recurring at a new level: the pass's first prediction ABOUT THE READER was itself
+                      non-exhaustive, because it assumed the true class must be one of the two readings
+                      on offer. **L60's own lesson, applied to L60's own instrument.** Recorded, not
+                      repaired: the frozen text stands and the successor freeze must carry a
+                      mandatory third branch (NEITHER-READING), exactly as P4 carried R3.
+
+### P47 — resolved: **C-EQ** — reality replays lawful · FP-ROW's FIRST WIN · RUN 14 CLOSES
+    read:             2026-08-05, the blind READ (run 14). Classified from `meshattest:laws`, the row
+                      the FROZEN FALLBACK named before any content was read.
+    observed:         the synthetic handoff (A→B, a usurper refused, a disjoint region untouched) and
+                      the relay (A→B→C custody chain, a mid-chain usurper refused) **each replay LAWFUL
+                      under the UNMODIFIED migrate law, deterministically** — and the decisive clause,
+                      **the migration certificate the checker re-mints MATCHES reality's record**. The
+                      law is not adapted for the real transport; the real transport is shown to satisfy
+                      it already. `meshattest:forges` supplies the adversarial half under one principle
+                      — **reality may not overrule the law** — with seven attacks each refusing typed;
+                      `meshattest-selftest` shows a single byte flip refusing on the self-digest and an
+                      anonymized re-seal refusing on the named-host law.
+    class:            C-EQ; leading credence (35) correct.
+    **FP-ROW: CORRECT, and genuinely discriminating.** Role-reading C-R (an attestation reads as
+                      something that admits or refuses) vs row-reading C-EQ (the arc's attestation
+                      pattern is an equivalence across a real transport). The ROW WON. This is the
+                      first joint where the two readings differed and the row-reading was vindicated —
+                      the claim about the reader earning its first evidence.
+    unnamed (M-0):    a second TRUE-CONFORMANCE-GAP module explained rather than merely listed (after
+                      `view_witness`, P32): an attestation whose subject is a live socket run cannot
+                      have its evidence pinned in advance without ceasing to be an attestation, so the
+                      missing corpus is a consequence of what the module IS, not a debt.
+    census:           run-14 v_D = 0, 0, 0 — RUN 14 CLOSES on a sixth consecutive triple zero. Meta
+                      ¬M-1: 44 for 44. Leading calls 2/3. **All three joints resolved C-EQ** — the
+                      pass's first uniform batch, and worth noting only as a description: with the
+                      selector now lex and the frontier drawn from substrate and hygiene rungs, exact
+                      identities are what these modules mostly certify.
+    **FP-ROW, SCORED HONESTLY:** one NON-DISCRIMINATING (P45), one CORRECT (P47), one NEITHER (P46).
+                      Not falsified — the role-reading won nowhere — but not correct either, and its
+                      partition was incomplete. Verdict: **PARTIALLY SUPPORTED, and the instrument
+                      needs its own catch-all before it is scored again.** The successor obligation is
+                      exact: batch 14's freeze carries FP-ROW with a mandatory NEITHER branch, and a
+                      joint resolving there counts against the prediction's PRECISION (it named the
+                      wrong two candidates) while leaving its DIRECTIONAL claim (role never beats row)
+                      still standing at 1-for-1.
+
 ## BATCH 12 FREEZE — P42 + P43 + P44 (sealed before any READ)
 
 **ERRATUM, recorded because it is the P8 pattern recurring in miniature.** The closing note of the
