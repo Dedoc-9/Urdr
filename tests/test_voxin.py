@@ -108,15 +108,31 @@ class OccupancyIsAFunctionOfGeometry(unittest.TestCase):
 
 
 class AgainstTheOracle(unittest.TestCase):
-    def test_every_emitted_voxel_satisfies_voxlats_own_test(self):
-        """Checked against `voxlat.tri_box_overlap` — an INDEPENDENT route — rather than against
-        this module's traversal, so a bug in the loop cannot hide behind its own digest (L23)."""
+    def test_agreement_is_bidirectional_over_the_swept_scene(self):
+        """EXECUTED over the pinned scene, not proved for all geometry. Both directions: no
+        overlapping voxel omitted, and no emitted voxel that overlaps nothing."""
         self.assertTrue(VI.occupancy_agrees_with_voxlat(VI.SCENE))
+        self.assertTrue(VI.occupancy_agrees_with_voxlat((((0, 0, 0), (4, 0, 0), (0, 4, 2)),)))
 
-    def test_no_overlapping_voxel_is_omitted(self):
-        """The converse direction: the oracle finds nothing the importer missed."""
-        soup = (((0, 0, 0), (4, 0, 0), (0, 4, 2)),)
-        self.assertTrue(VI.occupancy_agrees_with_voxlat(soup))
+    def test_a_spurious_key_is_caught(self):
+        """THE PLANT THE FIRST VERSION LACKED. A key overlapping nothing must fail agreement; the
+        one-directional check returned True for it, which is how the traversal bug survived."""
+        self.assertTrue(VI.spurious_key_is_caught())
+
+    def test_an_omitted_key_is_caught(self):
+        self.assertTrue(VI.omitted_key_is_caught())
+
+    def test_boundary_touching_voxel_on_the_low_side_is_emitted(self):
+        """THE REGRESSION. Voxel `x` covers [x, x+1], so a triangle whose MINIMUM vertex sits at x
+        touches voxel x-1. The first traversal used `min(verts)` as the low bound and dropped every
+        such voxel — 41 of 51 emitted on the pinned scene, a silent 20% under-report."""
+        tri = ((1, 1, 1), (3, 1, 1), (1, 3, 1))
+        keys = set(VI.occupancy([tri]))
+        d = [[2 * a for a in v] for v in tri]
+        self.assertTrue(VX.tri_box_overlap(d[0], d[1], d[2], (1, 3, 3), (1, 1, 1)),
+                        "fixture invalid: the oracle must consider voxel x=0 touched")
+        self.assertIn(VX.morton(0, 1, 1, VI.LEVELS), keys,
+                      "boundary-touching voxel on the low side was dropped")
 
     def test_emitted_keys_are_valid_morton_codes(self):
         for k in VI.occupancy(VI.SCENE):

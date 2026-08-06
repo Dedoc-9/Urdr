@@ -30,10 +30,19 @@ rather than restating it — a bound written in two places is a bound that can d
 and refuses any coordinate past it. The refusal is not a safety margin someone picked. It is the
 theorem, applied to real data.
 
-`voxin-property` checks the traversal against the **oracle**: every emitted voxel independently
-satisfies `voxlat.tri_box_overlap`, and no overlapping voxel in the bounding box is omitted. The
-check runs by an independent route rather than against this module's own loop, so a bug in the
-traversal cannot hide behind its digest agreeing with itself (L23).
+`voxin-property` checks the traversal against the **oracle**, in **both directions** and **EXECUTED
+over the pinned scene** rather than proved for all geometry: no overlapping voxel is omitted, and no
+emitted voxel overlaps nothing. Each direction carries its own plant — a spurious key and a dropped
+key must both redden.
+
+**The first version checked one direction while its row claimed two, and it mattered within a day.**
+A spurious key passed. Repairing the check immediately exposed a real defect in the traversal: voxel
+`x` covers the region `[x, x+1]`, so a triangle whose *minimum* vertex sits at `x` still touches
+voxel `x−1` — and the low bound was `min(verts)`, dropping every boundary-touching voxel on the low
+side. **41 of 51 voxels on the pinned scene, a silent 20% under-report**, which in a city is a hole
+in a wall. It was not found by inspection; it was found because the check was made bidirectional.
+A one-directional check compared each triangle's hits against the same too-small box that produced
+them, so it could not have seen it.
 
 ## The door, and why it is typed
 

@@ -89,6 +89,24 @@ def _check_vertex(v, limit):
     return tuple(v)
 
 
+def _voxel_box(v0, v1, v2, side):
+    """The candidate voxel range for a triangle, and THE MINUS ONE IS A BUG FIX RATHER THAN A MARGIN.
+
+    Voxel index `x` covers the half-open region [x, x+1] — the box is centred at `2x+1` with
+    half-extent 1 in doubled coordinates. So a triangle whose MINIMUM vertex sits exactly at `x`
+    still touches voxel `x-1`, whose region ends at `x`. The first version used `min(verts)` as the
+    low bound and therefore MISSED every boundary-touching voxel on the low side — an importer that
+    silently under-reports occupancy, which for a city is a hole in a wall.
+
+    It was not found by inspection. It was found because the ORACLE CHECK was repaired to run in
+    BOTH directions: once the sweep asked "does any triangle hit this voxel" over the union of the
+    boxes, the missed voxels appeared immediately. A one-directional check could not see it, because
+    it compared each triangle's hits against the same too-small box that produced them."""
+    lo = [max(0, min(v0[i], v1[i], v2[i]) - 1) for i in range(3)]
+    hi = [min(side - 1, max(v0[i], v1[i], v2[i])) for i in range(3)]
+    return lo, hi
+
+
 def occupancy(triangles, levels=LEVELS, word=VX.WORD64):
     """Geometry -> the SORTED set of Morton keys whose unit voxel the geometry touches.
 
@@ -106,8 +124,7 @@ def occupancy(triangles, levels=LEVELS, word=VX.WORD64):
         v0, v1, v2 = (_check_vertex(v, limit) for v in t)
         if v0 == v1 or v1 == v2 or v0 == v2:
             raise VoxinError(f"degenerate triangle (repeated vertex): {(v0, v1, v2)}")
-        lo = [max(0, min(v0[i], v1[i], v2[i])) for i in range(3)]
-        hi = [min(side - 1, max(v0[i], v1[i], v2[i])) for i in range(3)]
+        lo, hi = _voxel_box(v0, v1, v2, side)
         for x in range(lo[0], hi[0] + 1):
             for y in range(lo[1], hi[1] + 1):
                 for z in range(lo[2], hi[2] + 1):
@@ -176,24 +193,70 @@ def degenerate_is_refused():
         return True
 
 
-def occupancy_agrees_with_voxlat(triangles, levels=LEVELS):
-    """Every emitted key must independently satisfy `voxlat.tri_box_overlap`, and no unemitted voxel
-    in the bounding box may satisfy it. Checked against the ORACLE rather than against this module's
-    own loop, so a bug in the traversal cannot hide behind the digest agreeing with itself (L23)."""
-    keys = set(occupancy(triangles, levels))
+def _oracle_hit(triangles, x, y, z):
+    """Does the ORACLE say this voxel is touched by any triangle? Independent of the traversal: it
+    asks about a voxel the caller names, rather than about the voxels the traversal chose to test."""
+    c = (2 * x + 1, 2 * y + 1, 2 * z + 1)
+    for t in triangles:
+        d0, d1, d2 = ([2 * a for a in v] for v in t)
+        if VX.tri_box_overlap(d0, d1, d2, c, (1, 1, 1)):
+            return True
+    return False
+
+
+def occupancy_agrees_with_voxlat(triangles, levels=LEVELS, keys=None):
+    """BIDIRECTIONAL agreement with the oracle, over the union of the triangles' bounding boxes.
+
+    THE SECOND VERSION, AND THE FIRST CHECKED ONE DIRECTION WHILE CLAIMING TWO. It verified only
+    `oracle hit => key emitted`, so a SPURIOUS key — one overlapping nothing at all — passed. The
+    gate row said "every emitted voxel independently satisfies voxlat.tri_box_overlap AND no
+    overlapping voxel is omitted"; only the second clause was checked. The first was true by
+    CONSTRUCTION (`occupancy` adds a key only on a hit), which is exactly what L23 forbids counting
+    as verification: one computation restated is a definition, not a check. Now both directions run,
+    and the emitted direction re-asks the oracle about each emitted voxel rather than trusting the
+    traversal that produced it.
+
+    SCOPE, stated because the previous version's row did not: this is EXECUTED over the triangles
+    given, not proved for all geometry."""
+    keys = set(occupancy(triangles, levels)) if keys is None else set(keys)
     side = 1 << levels
+    seen = set()
     for t in triangles:
         v0, v1, v2 = (tuple(v) for v in t)
-        d0, d1, d2 = ([2 * a for a in v] for v in (v0, v1, v2))
-        lo = [max(0, min(v0[i], v1[i], v2[i])) for i in range(3)]
-        hi = [min(side - 1, max(v0[i], v1[i], v2[i])) for i in range(3)]
+        lo, hi = _voxel_box(v0, v1, v2, side)
         for x in range(lo[0], hi[0] + 1):
             for y in range(lo[1], hi[1] + 1):
                 for z in range(lo[2], hi[2] + 1):
-                    hit = VX.tri_box_overlap(d0, d1, d2, (2 * x + 1, 2 * y + 1, 2 * z + 1), (1, 1, 1))
-                    if hit and VX.morton(x, y, z, levels) not in keys:
-                        return False
-    return True
+                    seen.add((x, y, z))
+    for (x, y, z) in seen:
+        hit = _oracle_hit(triangles, x, y, z)
+        emitted = VX.morton(x, y, z, levels) in keys
+        if hit != emitted:
+            return False                      # BOTH directions: omission AND spurious emission
+    # a key outside every bounding box cannot overlap anything, so it is spurious by definition
+    inbox = {VX.morton(x, y, z, levels) for (x, y, z) in seen}
+    return keys.issubset(inbox)
+
+
+def spurious_key_is_caught(triangles=None, levels=LEVELS):
+    """RED-FIRST for the repaired direction: a key set polluted with a voxel that overlaps NOTHING
+    must fail agreement. The first version of `occupancy_agrees_with_voxlat` returned True here."""
+    triangles = SCENE if triangles is None else triangles
+    honest = set(occupancy(triangles, levels))
+    far = VX.morton((1 << levels) - 1, (1 << levels) - 1, (1 << levels) - 1, levels)
+    if far in honest:
+        return False                          # the plant must actually be spurious
+    return (occupancy_agrees_with_voxlat(triangles, levels, honest)
+            and not occupancy_agrees_with_voxlat(triangles, levels, honest | {far}))
+
+
+def omitted_key_is_caught(triangles=None, levels=LEVELS):
+    """RED-FIRST for the direction the first version did check, kept so both are proved."""
+    triangles = SCENE if triangles is None else triangles
+    honest = sorted(occupancy(triangles, levels))
+    if not honest:
+        return False
+    return not occupancy_agrees_with_voxlat(triangles, levels, set(honest[1:]))
 
 
 #: A small pinned scene — an axis-aligned wedge and a slanted face, chosen to touch several voxels.
@@ -217,8 +280,10 @@ def main():
     print()
     print("LAW  permutation invariance (reverse + rotate)     : %s"
           % occupancy_is_permutation_invariant(SCENE))
-    print("LAW  agrees with voxlat.tri_box_overlap (oracle)   : %s"
+    print("LAW  agrees with oracle, BOTH directions           : %s"
           % occupancy_agrees_with_voxlat(SCENE))
+    print("RED  a SPURIOUS key (overlaps nothing) is caught   : %s" % spurious_key_is_caught())
+    print("RED  an OMITTED key is caught                      : %s" % omitted_key_is_caught())
     print()
     print("RED  geometry past the derived bound is refused    : %s" % over_bound_geometry_is_refused())
     print("RED  a float coordinate is refused, never rounded  : %s" % float_is_refused())

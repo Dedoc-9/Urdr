@@ -3220,12 +3220,21 @@ class Gate:
                     "law broken: derived-bound=%s permutation-invariant=%s" % (derived, perm))
 
         oracle = VI.occupancy_agrees_with_voxlat(VI.SCENE)
-        self.record("voxin-property", oracle,
-                    "every emitted voxel independently satisfies voxlat.tri_box_overlap and no "
-                    "overlapping voxel in the bounding box is omitted — checked against the ORACLE "
-                    "by an independent route, never against this module's own traversal, so a bug "
-                    "in the loop cannot hide behind its digest agreeing with itself (L23)"
-                    if oracle else "importer disagrees with voxlat.tri_box_overlap")
+        spur = VI.spurious_key_is_caught()
+        omit = VI.omitted_key_is_caught()
+        prop_ok = oracle and spur and omit
+        self.record("voxin-property", prop_ok,
+                    "BIDIRECTIONAL agreement with voxlat.tri_box_overlap, EXECUTED over the pinned "
+                    "scene and not proved for all geometry: no overlapping voxel is omitted AND no "
+                    "emitted voxel overlaps nothing, each direction proved by its own plant (a "
+                    "spurious key and a dropped key both redden). The first version checked ONE "
+                    "direction while its row claimed two, and could not have caught what it was "
+                    "for: repairing it immediately exposed an off-by-one in the traversal that was "
+                    "silently dropping every boundary-touching voxel on the low side — 41 of 51 on "
+                    "this scene, a 20% under-report, which in a city is a hole in a wall"
+                    if prop_ok else
+                    "oracle disagreement: bidirectional=%s spurious-plant=%s omitted-plant=%s"
+                    % (oracle, spur, omit))
 
         over = VI.over_bound_geometry_is_refused()
         flt = VI.float_is_refused()
