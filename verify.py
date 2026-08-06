@@ -215,6 +215,7 @@ STAGE_ORDER = (
     "rejections",
     "tamper",
     "voxin",
+    "voxin_placement",
     "authority",
     "lattice",
     "epistemics_apparatus",
@@ -3249,6 +3250,91 @@ class Gate:
                     "— an importer that admits everything has no boundary to certify"
                     if bites else
                     "a plant does not bite: over-bound=%s float=%s degenerate=%s" % (over, flt, deg))
+
+    def voxin_placement(self):
+        """The voxin_rs CROSS-PLACEMENT, RE-VERIFIED LIVE — the arc's central claim is not that this
+        Python works but that THE LAWS ARE IMPLEMENTATION-INDEPENDENT, and the milestone sentence (a
+        world reproduced on another machine) stayed only partly realised while the FRONT of the
+        pipeline existed in one language. Every downstream witness rests on the importer agreeing
+        with itself across toolchains.
+
+        The gate COMPILES tools/terrain/voxin_rs and asserts its occupancy digest equals the LIVE
+        Python one, so re-pinning either side FORCES the other to keep up. Requires rustc; absent it
+        both rows are recorded SKIPPED and honestly labelled, so the row count stays host-stable for
+        doc-currency."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        if tdir not in sys.path:
+            sys.path.insert(0, tdir)
+        try:
+            import voxin as VI
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("voxin-placement", False, f"import failed: {exc}")
+            self.record("voxin-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(tdir, "voxin_rs", "voxin.rs")
+        if not rustc or not os.path.exists(src):
+            why = "rustc absent" if not rustc else "voxin_rs source missing"
+            self.record("voxin-placement", True, f"SKIPPED ({why}) — honestly labelled, not passed")
+            self.record("voxin-placement-selftest", True, f"SKIPPED ({why})")
+            return
+        py_digest = VI.occupancy_digest(VI.SCENE)
+        py_keys = len(VI.occupancy(VI.SCENE))
+        out = {}
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                exe = os.path.join(td, "voxin_rs")
+                cp = subprocess.run([rustc, "-O", src, "-o", exe], stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, timeout=300)
+                if cp.returncode != 0:
+                    self.record("voxin-placement", False,
+                                "rustc failed: %s" % cp.stdout.decode("utf-8", "replace")[:200])
+                    self.record("voxin-placement-selftest", False, "port did not build")
+                    return
+                rp = subprocess.run([exe], stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                    timeout=300)
+                for line in rp.stdout.decode("utf-8", "replace").splitlines():
+                    parts = line.split()
+                    if len(parts) == 2:
+                        out[parts[0]] = parts[1]
+        except Exception as exc:  # pragma: no cover
+            self.record("voxin-placement", False, f"placement run failed: {exc}")
+            self.record("voxin-placement-selftest", False, "port did not run")
+            return
+
+        agree = (out.get("voxin-scene-digest") == py_digest
+                 and out.get("voxin-scene-voxels") == str(py_keys))
+        self.record(
+            "voxin-placement", agree,
+            "a std-only Rust build sharing NO code with the Python reproduces the URDRVXI1 occupancy "
+            "digest BIT-FOR-BIT (%s..., %d voxels) — an independent toolchain, hand-rolled SHA-256, "
+            "its own Morton encoder and its own exact-integer Akenine-Moller overlap test, "
+            "recompiled LIVE this run so re-pinning either side forces the other to keep up. This is "
+            "the front of the pipeline becoming implementation-independent: the milestone is a world "
+            "reproduced on another machine, and until now the importer existed in one language"
+            % (py_digest[:12], py_keys)
+            if agree else
+            "placement DIVERGES: rust=%s/%s python=%s/%d"
+            % (out.get("voxin-scene-digest"), out.get("voxin-scene-voxels"), py_digest, py_keys))
+
+        perm = out.get("voxin-permutation-invariant") == "true"
+        bites = out.get("voxin-plant-bites") == "true"
+        narrowed = out.get("voxin-plant-narrowed-voxels")
+        self_ok = perm and bites and narrowed == "41"
+        self.record(
+            "voxin-placement-selftest", self_ok,
+            "the port derives permutation invariance INDEPENDENTLY, and its planted defect BITES: "
+            "dropping voxin's load-bearing `min(verts) - 1` yields %s voxels against the correct %d "
+            "and a different digest. That minus one is exactly what a port would 'tidy away' as an "
+            "off-by-one — voxel x covers [x, x+1], so a triangle whose MINIMUM vertex sits at x "
+            "still touches voxel x-1 — and the Python only found it by repairing a one-directional "
+            "oracle check. A cross-placement that could not fail here would certify nothing"
+            % (narrowed, py_keys)
+            if self_ok else
+            "port selftest: permutation=%s plant-bites=%s narrowed=%s" % (perm, bites, narrowed))
 
     def authority(self):
         """NOTHING AUTHORITATIVE HAPPENS IMPLICITLY — the arc's founding sentence, made enforceable.

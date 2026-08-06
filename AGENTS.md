@@ -84,7 +84,7 @@ invariant detectors `tools/intla/{toric,rigidity}_{rs,c}/` (the toric-code dimen
 the rigidity verdict) — each ADMITTED on Windows/`rustc`, MEASURED both placements, with
 its port logic first validated by an independent C99 cross-check that agrees on the golden
 AND the defect digests. Counting the math spine's `tools/intla/urdr_math_c/` (std-only,
-`__int128`), that is **32 Rust placements and 14 C99 runtimes** — three
+`__int128`), that is **33 Rust placements and 14 C99 runtimes** — three
 languages, two OSes, one digest.
 
 ---
@@ -361,7 +361,7 @@ of a fresh `Gate`. A licence to make no claim is still a claim about the harness
 
 Measured, so nobody has to guess: `--only autoroute` is 17.5s, `--only autoroute --diff` is 51.1s
 (the baseline is a SECOND real execution of the stage in a fresh worktree — the diff is not free),
-and it covers 8 of the gate's 864 rows against 579s for the two required passes. That is ~1% of the
+and it covers 8 of the gate's 866 rows against 579s for the two required passes. That is ~1% of the
 rows for ~9% of the cost. Its value is not coverage; it is that it answers the question a dev loop
 actually asks — *did my edit move this stage, and in what way* — nine minutes before the gate does.
 
@@ -510,7 +510,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 2022 unit falsifiers / 864 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 2022 unit falsifiers / 866 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
