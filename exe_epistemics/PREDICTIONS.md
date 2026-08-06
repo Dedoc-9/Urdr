@@ -5284,3 +5284,98 @@ design space and not measured.
 FALSIFIER. `plants_bite()` in `collapse.py`: a cyclic relation must be refused a collapse, an
 acyclic one accepted, a non-extensional relation reported and an extensional one not. If a cycle
 ever collapses, every number above is unsupported.
+
+
+## RUNG 17 — the brake flags ITSELF, the prior art is larger than credited, and the arc STOPS HERE
+
+An OODA on "keep refining the collapse path, or return to hainuwele". Three observations decided it,
+and two of them are against continuing.
+
+### OBSERVE 1 — the brake went stale in ONE rung, and it is reporting on itself
+
+`apparatus.py` printed, as present tense: *"no gate row EXERCISES the code here, and that is what the
+new apparatus stage in verify.py changes."* That sentence was written at Rung 12 and was false the
+moment Rung 12 landed — a forward-looking clause left standing beside a present-tense claim, in the
+same paragraph. Four rows now import and exercise `selection.py` and `apparatus.py`. The
+direct-PATH count is still honestly 0/12, because the stage imports by MODULE NAME rather than by
+path, which is precisely the gap that measure was renamed to admit at Rung 12 — so the NAME stayed
+accurate while the READING went wrong. `named accurately != read accurately`.
+
+The brake built to say STOP is now the thing showing drift fastest: **12 modules, ~2900 lines, and
+its own self-description survived one rung.** That is the signal it exists to produce, pointed at
+the arc that built it.
+
+### OBSERVE 2 — the prior art is larger than this arc has credited, and the debt is now recorded
+
+`reproduced != discovered` has been owed since the hainuwele WHITEPAPER was combed at Rung 1 of this
+session and has never been paid. Paying it:
+
+  * **Merkle-CRDTs** (Psaras & Dias, Protocol Labs, 2020). Merkle-DAGs act as logical clocks;
+    content-addressing OBVIATES causal delivery. That is hainuwele's own thesis — "every living
+    capability grows from content-addressed records buried under their own digests" — published six
+    years earlier. Its named limitations map onto the arc's unmeasured surface almost one-for-one:
+    ever-growing DAG size, cold-sync cost, and garbage collection before universal awareness.
+  * **Provenance semirings** (Green, Karvounarakis & Tannen, PODS 2007). The established formalism
+    for an evidence graph whose meaning is COMPUTED: annotations propagate through union (+) and
+    join (·), and Theorem 4.3 establishes the polynomial semiring N[X] as UNIVERSAL — every other
+    semiring's semantics factors through it. **That is the uniqueness property Rung 16 reached for,
+    obtained nineteen years earlier for a different structure.** The paper explicitly does NOT
+    address recomputation when sources change, which is a real gap and is exactly where the
+    reviewer's "memory becomes recomputation instead of editing" proposal sits.
+  * **Mostowski (1949)** is the set-theoretic ancestor of the uniqueness half, and Rung 16 already
+    measured its hypotheses rather than assuming them.
+
+Nothing in Rung 16 is refuted by this. But the honest position changes: the collapse framing is a
+SYNTHESIS of three published results, not a discovery, and the next step on that path would be a
+literature review, not another module. This arc is not equipped to do that well and does not need to.
+
+### OBSERVE 3 — hainuwele's debts are concrete and unpaid
+
+Measured at the comb and still open: **placement batch #4** (std-only Rust of the mesh families,
+which the covenant's own law says fell due AT the Phase M seal and is therefore already late);
+**`voxlat` has no D5 entry in either volume** while being foundational to the whole city arc; and
+`WHITEPAPER.md` / `DEVNOTES.md` stopped tracking roughly 26 modules across the authority,
+certificate, city and hygiene arcs.
+
+### DECIDE — the epistemics arc STOPS, and the collapse work is not abandoned but RELOCATED
+
+Continuing here would add architecture to a directory where **zero diagnostics hold standing under
+L63**, whose brake is flagging itself, and whose newest framing is anticipated by two published
+literatures. L63's own sentence answers it: *architectural concepts are downstream of empirical
+winners, never upstream.*
+
+**The bridge, and it is why this is a relocation rather than a retreat.** The reviewer's sharpest
+application was "anti-cheat becomes structural: can this claimed state exist given the dependency
+graph? — no collapse, reject." **Hainuwele already does this.** `rannull` (RAN-0) is a proof of
+ABSENCE — no shared semantic authority exists, so synchronisation is shown unnecessary BY
+CONSTRUCTION. `commute` issues a 233-byte certificate that order cannot matter. `lease`'s cheap
+admission provably equals the full global reproof. The arc's founding sentence is *admit rather than
+trust: every byte is either reconstructible from a content address the receiver can verify, or it is
+refused* — which is "collapses, or does not exist" in the arc's own vocabulary, written before
+anyone said Mostowski.
+
+So the testable question is not "what could a collapse-oriented engine look like" (architecture,
+unearned) but **"does hainuwele's existing admission machinery satisfy the collapse hypotheses?"**
+(measurement, on code that already ships). It is decidable per module: is the admission relation
+well-founded, is it extensional, and does a refused state correspond to a missing predecessor. That
+work pays down the WHITEPAPER/DEVNOTES drift as a side effect, because answering it requires reading
+the ~26 untracked modules.
+
+### THE FROZEN NEXT BATCH, so a closing note cannot drift (the P8 rule)
+
+    1. `voxlat` D5 entry — foundational, ungraded in both volumes, cheapest of the three.
+    2. The collapse question against the admission modules, starting where the arc's own prose
+       already claims the property: `rannull`, `commute`, `lease`.
+    3. Placement batch #4 — named, late, and Rust grind that gates nothing; scheduled, not next.
+
+GRADE. MEASURED: the stale brake paragraph (exhibited, repaired), the live reference census (0/12
+direct, 3 transitive files, 4 gate rows exercising 2 modules), the three citations against their
+sources. DECLARED: the decision to stop, which is a judgement; that hainuwele's admission machinery
+is a collapse candidate — the arc's PROSE says so and no measurement here confirms it, which is the
+whole point of proposing it as the next test rather than as a finding. does_not_show: that the
+collapse framing is wrong; that the prior art subsumes it; that hainuwele satisfies any hypothesis.
+
+FALSIFIER. The relocation's first claim is falsifiable and that is why it is next rather than now:
+if `rannull`'s admission relation turns out NOT to be well-founded, or its refusals do NOT correspond
+to missing predecessors, then "hainuwele already implements a collapse" is false and the bridge
+fails — which would be a cleaner result than any amount of further construction here.
