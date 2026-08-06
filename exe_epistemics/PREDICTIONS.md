@@ -4905,3 +4905,88 @@ FALSIFIER. `coupling_guard_bites()` over the eight scope fixtures, and the certi
 refusals on `epistemics-certificate`. If a certificate with an extra advertised key ever verifies, or
 the visitor stops catching an `if`-nested corpus import, these rows redden and this rung's claims die
 with them.
+
+
+## RUNG 15 FREEZE — the OUT-OF-SEQUENCE test, preregistered BEFORE any expression is read (2026-08-06)
+
+**THIS SECTION IS COMMITTED BEFORE THE MEASUREMENT EXISTS.** Rungs 13 and 14 both named the same
+honest test and both declined to run it inside the rung that named it: *does the name-claims-more-
+than-the-return-checks shape appear in code NOT written during this sequence?* Six carriers from one
+author, one directory and three days cannot answer it. This freeze fixes the rule, the sample, the
+prediction and the refutation condition; the run follows in a LATER commit, and the git order is the
+evidence that it did (L59).
+
+Having formed the hypothesis, looking first and defining the rule afterwards would be exactly the
+p-hacking S11 caught one step from promotion: *"a second predictor tested only after eyeballing the
+roster."* Nothing below was written with any `-selftest` expression in view. The sample was fixed by
+reading ROW NAMES only.
+
+### THE SAMPLE, fixed now
+
+The **119** `*-selftest` gate rows in `verify.py` that predate this sequence — every `-selftest` name
+in the live gate except `epistemics-apparatus-selftest`, which this sequence authored and which is
+therefore excluded. This population is the right one because `-selftest` is THE REPO'S OWN
+CONVENTION for the object at issue: a row whose NAME claims a property ("the planted defect is
+caught", "this check can go red") about code the same author wrote. If a name is a claim that no
+test checks, these 119 are where it lives at scale.
+
+### THE RULE, fixed now — decidable, and its narrowness stated
+
+For each row, the boolean passed as `record()`'s SECOND argument is extracted by AST and classified
+into an EXHAUSTIVE partition (L60), by construction and never by judgement:
+
+    VACUOUS-BY-CONSTRUCTION   the expression cannot be False once control reaches it: a literal
+                              True, a bare `isinstance(...)`, `len(...) >= 0`, `x == x`, or a
+                              truthiness test on a container built non-empty in the same expression.
+    DELEGATED                 the expression is a call to a named function — the check lives
+                              elsewhere and is NOT decidable from the call site.
+    INLINE-COMPOUND           a boolean expression over comparisons, membership tests or calls;
+                              presumed capable of being False.
+    UNPARSEABLE               the second argument could not be extracted (a failure of the
+                              instrument, counted separately so it can never be scored as a result).
+
+**WHAT THIS RULE CAN AND CANNOT SEE, stated before it runs.** It detects one DECIDABLE SUB-SHAPE of
+the pattern — carrier 2 (`isinstance(out.get("n_flips"), int)`) is exactly this shape. It CANNOT see
+carriers 1, 3, 4, 5 or 6: "returned argmin over names", "checked 3 of 5 fields", "no schema on the
+enclosing object", "depth-one instead of scope" are all semantic mismatches between a name and a
+body, and no AST rule decides them. The asymmetry is therefore FROZEN HERE:
+
+    a POSITIVE result (VACUOUS rows found outside this sequence)  SUPPORTS generality.
+    a NULL result     (none found)                                REFUTES NOTHING about the pattern
+                                                                  as a whole; it refutes only that
+                                                                  THIS SUB-SHAPE occurs outside.
+
+A null may not be reported as "the pattern is sequence-local". It may only be reported as "the
+decidable sub-shape does not occur in the gated population".
+
+### THE CONFOUND, named before it can be used to explain a result
+
+The two populations differ in the one way most likely to matter: **the 119 are GATED and were written
+under L15 (the plant bites before the golden pins); the six carriers were written in an UNGATED
+directory.** So a low rate among the 119 is equally consistent with (a) the pattern being
+sequence-local and (b) gating working exactly as intended. **This test cannot separate those two**,
+and whichever way the number falls, that inability is part of the result rather than a caveat added
+afterwards. S11 was confounded by attention-selection in precisely this way and said so.
+
+### THE PREDICTION, frozen — credences over the VACUOUS count among 119
+
+    0            35
+    1-2          30
+    3-5          20
+    6-10         10
+    11+           5
+
+Leading credence: ZERO. The reasoning, on record so it can be scored: `-selftest` rows exist BECAUSE
+L15 demanded a plant that bites, they are re-run on every gate pass, and a vacuous one would have had
+many opportunities to be noticed — whereas the six carriers lived in code no row exercised. If the
+count comes back at 3 or more, my model of why this repo's gated apparatus is healthier than its
+ungated apparatus is wrong, and the "concentrated in guard-writing" reading from Rung 14 is too
+narrow: it would be concentrated in UNGATED guard-writing specifically.
+
+### WHAT IS NOT PROMISED
+
+That the classifier is itself free of the defect it hunts. It is a guard, written by the author who
+has produced six carriers while writing guards, in the same sequence. It ships with its own plants
+(a synthetic vacuous expression must be classified VACUOUS; a synthetic compound one must not), and
+that is necessary rather than sufficient. If the classifier is wrong, it will be wrong in this
+rung's own recorded shape, and the reviewer who has found six will find the seventh.
