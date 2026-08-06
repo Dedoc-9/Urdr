@@ -5085,3 +5085,95 @@ every future `-selftest` row anyone adds, which converts a historical sample int
 FALSIFIER. `classifier_plants_bite()`: five expressions that must classify VACUOUS and six that must
 not. If a compound expression ever classifies VACUOUS, every count above is unsupported and this
 rung's null dies with it.
+
+
+## RUNG 15 ADDENDUM — the preregistration claim, CHECKED; and three corrections adopted from review
+
+### 1. THE CHALLENGE, and the evidence rather than the assertion
+
+A reviewer put the right question to the strongest claim in Rung 15: *"That is a good preregistered
+prediction only if that wording really existed before the experiment. If the wording was refined
+afterward, it becomes a retrospective fit."* Correct, and the whole sequence has been about not
+letting that pass. The record, in three tiers of decreasing strength:
+
+**STRONG, and checkable by anyone with the repository.** The freeze commit touched exactly ONE file:
+
+    e7025e4  exe_epistemics/PREDICTIONS.md | 85 +++++     1 file changed, 85 insertions(+)
+    git cat-file -e e7025e4:exe_epistemics/selftest_census.py  ->  NO SUCH OBJECT
+
+**`selftest_census.py` did not exist when the prediction was committed.** No timestamp is involved,
+so no timestamp can be gamed: the classifier the sentence predicts the failure of was not yet
+written. The result commit is what introduced it (219 lines) alongside the reading.
+
+**STRONG.** The sentence is verbatim in the freeze commit, not paraphrased afterward:
+
+    "If the classifier is wrong, it will be wrong in this rung's own recorded shape, and the
+     reviewer who has found six will find the seventh."
+
+**WEAKER, and marked as such because it is self-attestation.** That I read only ROW NAMES and no
+expression before writing the freeze is supported by the session's tool record (a `grep` for
+`"<name>-selftest"` names, printing eight of them) but it is my account of my own process, and
+`attestation != authority`. The commit structure is the part a stranger can check; this part is not.
+Recording the difference rather than letting the strong evidence cover the weak claim.
+
+**One thing the freeze did NOT predict, stated so the successful half is not read as more than it
+is.** It predicted the classifier would be wrong in the recorded shape. It did NOT predict the
+specific mechanism (call-site versus row aggregation), nor that the SAMPLE-IDENTITY guard rather
+than a reader would be what caught it. The second of those is the more useful fact and it was
+lucky rather than designed.
+
+### 2. THREE CORRECTIONS ADOPTED, each sharper than what Rung 15 wrote
+
+**(a) The null had LOW DISCRIMINATIVE POWER BY CONSTRUCTION, not merely a confound.** Rung 15 said
+the test could not separate "sequence-local" from "gating worked". The sharper statement is that
+*both hypotheses predicted approximately the same observation*, so the experiment had little power to
+distinguish them whatever it returned. A confound is something that muddies a signal; this design
+had almost no signal to muddy. That is a criticism of the test, not of its reading.
+
+**(b) CARRIER 7 IS INTERESTING FOR A DIFFERENT REASON THAN RUNG 15 GAVE.** It was recorded as "the
+seventh instance of the same shape", which flattens it. Structurally it belongs to the same mismatch
+family — intended predicate *this row is vacuous*, implemented predicate *this expression is a
+literal constant* — but it occurred in a NEW SUBSYSTEM: **the measuring instrument, not the guarded
+application logic.** Carriers 1-6 were all verifiers inside the thing being built. Carrier 7 is in
+the thing doing the measuring. That is a wider spread than "seven of the same", and it is the more
+interesting fact.
+
+**(c) THE REASON NOT TO MINT IS NOW METHODOLOGICAL, NOT STATISTICAL — and the review's formulation
+is adopted as the record's.** Rung 14 objected on sample size (`sample != universal`). The stronger
+objection: *a repaired measuring instrument should not be the principal evidence for a universal
+claim until it has accumulated observations AFTER the repair.* The census has exactly zero
+post-repair observations on any population other than the one that exposed its defect. That is a
+more fundamental limitation than n being small, and it is the standing reason.
+
+### 3. WHERE THE NEXT CARRIERS WOULD HAVE TO COME FROM
+
+The review's closing framing is adopted: a phenomenon that reproduces across authors, codebases and
+review styles is qualitatively different from one recurring inside a single repair chain. Ranking
+what this repository can and cannot supply:
+
+    CAN address    the RECURSION confound (each carrier introduced by the previous repair) — the
+                   hainuwele arc's ~103 modules were written across months in separate rungs, so a
+                   carrier found there is not part of this chain.
+    CAN address    the DOMAIN confound. Carriers 1-7 are verifiers of STATIC objects (certificates,
+                   selectors, ASTs). The arc is full of validators over STREAMS — packet parsing,
+                   replay verification, rollback, anti-cheat, state sync, admission predicates.
+                   "Does the checker verify the semantic property it names, or a nearby syntactic
+                   one?" transfers to those directly, and the shapes are already named: a totality
+                   claim implemented as a fixed case list; a guard that validates AFTER applying;
+                   an advertised field no consumer validates.
+    CANNOT address the AUTHOR confound. Every module in this repository has one author. No test run
+                   here can separate "a property of guard-writing" from "a property of this author's
+                   guard-writing", and no amount of additional internal evidence will.
+
+So the honest statement of what is missing has not changed and is now precise: **the outstanding
+evidence is a carrier found by someone who did not write the code.** Every one of the seven was
+found by a reader; four of the last five were found by THIS reviewer. That is itself the datum — the
+detection mechanism that has actually worked, seven times out of seven, is a second party reading
+the claim next to the code. Whatever the law turns out to be, that is the finding this sequence can
+defend.
+
+GRADE. MEASURED: the commit-structure evidence above (checkable in the repository), the verbatim
+freeze text. DECLARED: the three adopted corrections, which are readings rather than measurements;
+the confound ranking. does_not_show: that I read no expression before the freeze — self-attested,
+marked weaker; anything about streaming validators, which are NAMED as a next population and NOT
+measured here.
