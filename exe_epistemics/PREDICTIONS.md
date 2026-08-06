@@ -5177,3 +5177,110 @@ freeze text. DECLARED: the three adopted corrections, which are readings rather 
 the confound ranking. does_not_show: that I read no expression before the freeze — self-attested,
 marked weaker; anything about streaming validators, which are NAMED as a next population and NOT
 measured here.
+
+
+## RUNG 16 — MOSTOWSKI'S HYPOTHESES, measured rather than invoked (2026-08-06)
+
+A reviewer offered two words: *Mostowski's Collapsing Lemma*. It is the right object, and the reason
+is precise rather than decorative. Given a relation R on X that is WELL-FOUNDED, EXTENSIONAL and
+SET-LIKE, there is a UNIQUE isomorphism onto a transitive set:
+
+    pi(x) = { pi(y) : y R x }
+
+**A thing IS its extension.** A name contributes nothing beyond what stands in relation to it, and an
+element with no predecessors goes to the empty set whatever it is called. That is the anti-inflation
+law in set theory, and the three hypotheses line up with three laws this arc already had:
+
+    WELL-FOUNDED  <->  every claim grounds out in a measurement. A claim justified only by other
+                       claims forever is a non-well-founded structure and HAS NO COLLAPSE.
+    EXTENSIONAL   <->  `declared != verified`. Two claims with identical evidence ARE one claim;
+                       a name whose denotation exceeds its extension is an extensionality failure,
+                       which is exactly the shape of all seven recorded carriers.
+    SET-LIKE      <->  L60's exhaustive partition: the evidence must be enumerable.
+
+And the payoff is UNIQUENESS. Where the hypotheses hold, "what this structure means" has exactly one
+answer and no interpretive freedom -- the arc's determinism ambition raised from bytes to meaning.
+
+### THE DISCIPLINE POINT, WHICH IS WHY THIS RUNG EXISTS
+
+**Naming a theorem is not satisfying its hypotheses.** Writing "our evidence graph collapses
+uniquely" would be this sequence's own failure mode in its purest form: a claim whose denotation
+exceeds what was checked. So the hypotheses were MEASURED, on the two relations this repository
+actually has, and the first thing to report is that the evidence graph is far too small to ask:
+`genesis.FORMULATED_FROM` holds ONE edge and `claimclass.RELATIONS` holds two. Running a collapse
+theorem on a one-edge graph would be theatre. The two relations with real size:
+
+    THE IMPORT LATTICE                    135 nodes   325 edges
+      WELL-FOUNDED   True
+      EXTENSIONAL    FALSE — 18 classes identify 58 of 135 elements
+      empty extension                     15
+      COLLAPSE       75/135 distinct images
+
+    DISCOVERY -> ENFORCING GATE ROW       100 nodes     5 edges
+      WELL-FOUNDED   True
+      EXTENSIONAL    FALSE — 2 classes identify 97 of 100
+      COLLAPSE       2/100 distinct images
+
+    THE 96 DISCOVERIES, on their FULL record (contradicted, evidence, repair, enforces)
+      EXTENSIONAL    TRUE — no two records share an extension; pairwise distinguishable
+
+### READING THE THREE NUMBERS, and one of them is not a finding
+
+**The import quotient (75/135) is a real measurement and it re-derives an existing lesson with a new
+number.** The import relation distinguishes 75 of 135 modules; 58 are identified by the collapse and
+15 collapse to the empty set outright. This is NOT an indictment -- imports were never meant to
+determine module identity -- but it quantifies exactly how weak they are as an attribution mechanism,
+which is L48 ("attribute by SEVERANCE, not imports", found by severing edges) arriving from a
+completely different direction with a figure the severance work never produced.
+
+**The discovery-to-enforcer quotient (2/100) IS NOT A FINDING, and saying so is the point.** That
+relation has 5 edges over 100 nodes because the provenance rule requires an enforcer only of
+ELIMINATION and MECHANISM records; 95 nodes therefore have no predecessors and all collapse to the
+empty set together. A quotient of 2/100 is a statement about the relation's SPARSITY, not about the
+ledger's quality, and reporting it as though the ledger were 98% degenerate would be inflating a
+triviality into a result -- the exact operation this arc exists to refuse. It is recorded because
+the measurement was made, and labelled because the number invites a reading it does not support.
+
+**The one positive: the 96 discoveries are pairwise extensional.** No two share an identical
+(contradicted, evidence, repair, enforces) tuple, so no record is another record entered twice. That
+is the only place in this repository where an extensionality hypothesis has been checked and HELD.
+
+### WHAT THE THEOREM BUYS THE STREAMING DESIGN SPACE
+
+The reviewer's seven proposals sort cleanly once the collapse is in hand, and two of them are where
+it does real work:
+
+  * **"Did every advertised property participate in a downstream decision?"** is literally *does this
+    field collapse to the empty set?* A telemetry field with no consumers has an empty extension and
+    the collapse sends it to nothing, however rich its name. That is decidable, cheap, and the
+    theorem supplies the vocabulary rather than a slogan. STRONGEST of the seven.
+  * **Comparing design intent / implementation / runtime behaviour** is three structures. If each is
+    well-founded and extensional, each has a UNIQUE collapse -- and "do these three mean the same
+    thing" becomes "are the three collapses isomorphic", a decidable question rather than a matter
+    of taste. Uniqueness is what makes the comparison well-posed. This is where naming Mostowski
+    earns more than gesturing at "semantic drift" would.
+  * **Repair-recursion detection** is genuinely novel and is the only proposal grounded in this
+    sequence's own data (four of seven carriers were introduced by the repair of the previous one).
+    But the sketch is a confidence heuristic, and this arc has retired four heuristics for guessing
+    at intent. It needs a decidable form before it is anything.
+  * **Self-describing protocols, confidence maps and adaptive replay** are one idea in three costumes
+    -- declared scope versus implemented scope -- and it is the same idea as `_SELECTOR_KEYS` and
+    `_CERTIFICATE_KEYS` generalised to streams. Real, useful, not new.
+  * **Design-drift mining** is the largest ambition and the least decidable; named, not ranked.
+
+**AND THE HYPOTHESES MUST BE EARNED EVERY TIME.** The measurement above found one of two real
+relations failing extensionality. So the theorem applies nowhere for free -- which is the same
+discipline the seven carriers taught, arriving now as a precondition rather than as a defect.
+
+GRADE. MEASURED: acyclicity, extensionality, empty-extension counts and collapse quotients for both
+relations; the ledger's pairwise extensionality; the four red-first plants (a cyclic relation is
+refused a collapse; a non-extensional one is reported; both directions checked). DECLARED: that
+these two relations are the right ones to ask about; the correspondence between the three hypotheses
+and the three laws, which is an argument. does_not_show: that any collapse-identified pair is a
+DEFECT; that the seven carriers are reachable by this instrument -- they live in code, not in these
+relations, and nothing here detects them; anything about streaming validators, which are named as a
+design space and not measured.
+
+FALSIFIER. `plants_bite()` in `collapse.py`: a cyclic relation must be refused a collapse, an
+acyclic one accepted, a non-extensional relation reported and an extensional one not. If a cycle
+ever collapses, every number above is unsupported.
