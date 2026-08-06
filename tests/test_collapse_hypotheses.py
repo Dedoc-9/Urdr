@@ -19,6 +19,24 @@ SET-LIKE relation collapses onto a unique transitive image by pi(x) = {pi(y) : y
     UNIQUE RECONSTRUCTION  the admitted state is recoverable from its record, and no two distinct
                            states share a record.
 
+EVIDENCE TYPE IS ITS OWN DIMENSION, adopted from review after the first version collapsed five
+distinct epistemic statuses into two words. "MEASURED" was doing the work of three different things
+-- a sampled sweep, an exhaustive decision over a bounded domain, and a round-trip -- and "DECLARED"
+was doing the work of two, since a structural argument from content-addressing is not the same object
+as a bare assumption. The five statuses, and every cell of the matrix now carries one:
+
+    EXECUTED       run over a SAMPLE of the domain. Honest and weak: `sample != universal` (L20).
+    EXHAUSTIVE     run over EVERY point of a bounded domain, so within that bound there is no
+                   sample to generalise from. Strictly stronger than EXECUTED and worth the
+                   separate word: `commute`'s 256-point sweep decides its bound, it does not
+                   estimate it.
+    STRUCTURAL     an argument from construction, unformalised and unmechanised. Stronger than an
+                   assumption, weaker than a proof, and it must not borrow the word "proven": a
+                   self-parenting record needs a hash fixed point, which is a reason to believe and
+                   not a thing this suite ran.
+    DECLARED       assumed, with the assumption named. No evidence offered here at all.
+    N/A            the hypothesis is not the right question for this module's structure.
+
 **NO REPOSITORY-WIDE VERDICT IS ASSERTED, and that is deliberate.** A reviewer's correction, adopted:
 different modules may satisfy different subsets, so the result is a MATRIX with per-cell evidence,
 not a yes/no. A cell that fails is informative rather than damning -- `lease` deliberately admits
@@ -46,6 +64,19 @@ import lease as LS                                                         # noq
 import rannull as RN                                                       # noqa: E402
 
 PARENT = "a" * 64
+
+#: THE MATRIX, as DATA rather than as prose in a docstring — so the falsifiers below can check it.
+#: A matrix that lives only in a comment is a claim no test can reach, which is the shape this whole
+#: sequence has been recording.
+MATRIX_STATUSES = ("EXECUTED", "EXHAUSTIVE", "STRUCTURAL", "DECLARED", "N/A")
+MATRIX = {
+    "rannull": {"wellfounded": "STRUCTURAL", "extensional": "EXECUTED",
+                "partition": "EXECUTED", "reconstruction": "EXECUTED"},
+    "commute": {"wellfounded": "STRUCTURAL", "extensional": "EXECUTED",
+                "partition": "EXHAUSTIVE", "reconstruction": "N/A"},
+    "lease": {"wellfounded": "STRUCTURAL", "extensional": "EXECUTED",
+              "partition": "EXECUTED", "reconstruction": "EXECUTED"},
+}
 
 
 class RannullCollapse(unittest.TestCase):
@@ -199,6 +230,38 @@ class TheMatrixIsHonest(unittest.TestCase):
                  for m in dir(cls) if m.startswith("test_")]
         self.assertFalse([n for n in names if "well_founded" in n],
                          "no test may be named for a hypothesis this suite does not measure")
+
+    def test_evidence_types_are_the_declared_five(self):
+        """The taxonomy must not grow a sixth status by accident. Any cell status this suite reports
+        has to be one of the five named in the module docstring — a matrix whose vocabulary drifts
+        is a matrix whose earlier rows mean something different from its later ones."""
+        declared = {"EXECUTED", "EXHAUSTIVE", "STRUCTURAL", "DECLARED", "N/A"}
+        self.assertEqual(set(MATRIX_STATUSES), declared)
+        for mod, cells in MATRIX.items():
+            for hypothesis, status in cells.items():
+                self.assertIn(status, declared,
+                              "%s/%s reports an undeclared evidence type %r"
+                              % (mod, hypothesis, status))
+
+    def test_no_cell_claims_more_than_this_suite_runs(self):
+        """The honesty falsifier, generalised from the well-foundedness case. A cell may claim
+        EXECUTED or EXHAUSTIVE only if a test method exists whose name carries that hypothesis for
+        that module. STRUCTURAL, DECLARED and N/A cells must have NO such method — otherwise the
+        matrix is claiming evidence the suite does not produce."""
+        by_module = {"rannull": RannullCollapse, "commute": CommuteCollapse, "lease": LeaseCollapse}
+        for mod, cells in MATRIX.items():
+            names = [m for m in dir(by_module[mod]) if m.startswith("test_")]
+            for hypothesis, status in cells.items():
+                key = hypothesis.split("_")[0]
+                has_test = any(key in n for n in names)
+                if status in ("EXECUTED", "EXHAUSTIVE"):
+                    self.assertTrue(has_test,
+                                    "%s/%s claims %s with no test naming it"
+                                    % (mod, hypothesis, status))
+                else:
+                    self.assertFalse(has_test,
+                                     "%s/%s is %s yet a test is named for it — the cell claims "
+                                     "evidence this suite does not produce" % (mod, hypothesis, status))
 
     def test_every_module_under_test_has_a_typed_refusal_class(self):
         for mod, code in ((RN, "RAN-REFUSE"), (CM, "COMMUTE-REFUSE"), (LS, "LEASE-REFUSE")):

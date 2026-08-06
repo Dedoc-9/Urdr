@@ -5469,3 +5469,87 @@ claims the property for them (`sample != universal`); that satisfying these cell
 FALSIFIER. `TheMatrixIsHonest.test_well_foundedness_is_declared_not_measured` — if any test in the
 suite is ever NAMED for well-foundedness while the suite still cannot construct a self-parenting
 record, that row reddens. The matrix's honesty is itself gated.
+
+
+## RUNG 19 — `voxlat` GRADED (the backfill), and EVIDENCE TYPE promoted to a dimension (2026-08-06)
+
+The frozen batch's first item, paid; and one reviewer correction adopted that improves the object
+shipped at Rung 18.
+
+### 1. `voxlat` — the only ungraded module the comb found, now in D5 Volume II
+
+Landed 2026-07-26 (`727df1a`), foundational to the entire city arc, and absent from BOTH ledger
+volumes — the single such module in the repository. The entry records what the module's own rows
+already certify: the octree LCA closed form measured against an independent brute-force walk over a
+pinned 120-key corpus (leading form 100%, the handed-down 2-adic form under half, INVERTING on the
+sharpest case — two leaf siblings one bit apart reported as diverging at the root); the zero case
+closed by an explicit branch because `a == b` is exactly where x86 `BSF` is UNDEFINED, `TZCNT`
+returns operand size, ARM `CLZ` returns width and C's `__builtin_ctz(0)` is UB; and the overflow law
+`max |n·u0| = 4·B³` DECIDED EXHAUSTIVELY over every ordered triple at B = 1..5, measuring
+4/32/108/256/500 against 4·B³, the triple loop collapsing by the scalar triple product identity so
+the inner maximisation is linear and attained at a corner — which is the only reason exhaustion is
+cheap enough to gate.
+
+The sharpest figure, and the reason this module was worth grading rather than noting: at city scale
+(B = 32,000 voxels, 4 km at 12.5 cm, k = 12) the decided law needs **84 bits** where the handed-down
+quadratic estimate reports **57** and concludes "fits in `uint64_t`". It does not fit at any k. **The
+symptom of shipping the estimate would be mis-adjudicated hits at long range — indistinguishable
+from cheating**, which is the exact failure this arc exists to make impossible.
+
+**THE BACKFILL IS LABELLED AS ONE.** Every other D5 entry carries a delta (`N → M unit falsifiers,
+A → B rows`). This one does not, and the omission is deliberate: recovering the gate totals as they
+stood at landing would be archaeology and inventing them would be worse. **A grade written a
+fortnight after the rung is not the same object as a grade written at it**, and an entry that hid
+that difference would be a small forgery of exactly the L64 kind.
+
+### 2. EVIDENCE TYPE is now a dimension, and the matrix is DATA
+
+Rung 18's matrix used two words where a reviewer correctly counted five statuses. "MEASURED" was
+carrying a sampled sweep, an exhaustive decision over a bounded domain, and a round-trip; "DECLARED"
+was carrying both a structural argument and a bare assumption. The five, now explicit:
+
+    EXECUTED     run over a SAMPLE. Honest and weak — `sample != universal` (L20).
+    EXHAUSTIVE   run over EVERY point of a bounded domain. Strictly stronger, and worth its own
+                 word: `commute`'s 256-point sweep DECIDES its bound rather than estimating it.
+    STRUCTURAL   an argument from construction, unformalised. Stronger than an assumption, weaker
+                 than a proof, and specifically FORBIDDEN from borrowing the word "proven" — a
+                 self-parenting record needs a hash fixed point, which is a reason to believe and
+                 not a thing this suite ran.
+    DECLARED     assumed, with the assumption named.
+    N/A          the hypothesis is not the right question for this module's structure.
+
+    module    wellfounded   extensional   partition     reconstruction
+    rannull   STRUCTURAL    EXECUTED      EXECUTED      EXECUTED
+    commute   STRUCTURAL    EXECUTED      EXHAUSTIVE    N/A
+    lease     STRUCTURAL    EXECUTED      EXECUTED      EXECUTED
+
+**THE MATRIX NOW LIVES AS DATA, NOT AS PROSE IN A DOCSTRING**, and that is the load-bearing change.
+A matrix in a comment is a claim no test can reach — the precise shape this sequence has recorded
+seven times. Two falsifiers now hold it: the vocabulary cannot silently grow a sixth status, and
+**no cell may claim EXECUTED or EXHAUSTIVE unless a test method exists naming that hypothesis for
+that module, nor STRUCTURAL/DECLARED/N/A if one does.** Both directions are proved to bite by
+planting: claiming `commute` has reconstruction evidence reddens ("claims EXECUTED with no test
+naming it"), and downgrading `rannull`'s extensional cell while its test still exists reddens too
+("is STRUCTURAL yet a test is named for it").
+
+### 3. A CORRECTION TO RUNG 18's OWN REPORTING
+
+Rung 18 was summarised as "the matrix framing was vindicated by the measurement itself". That is an
+overclaim of the kind this sequence tracks, and the narrower true statement is adopted: **the matrix
+ACCOMMODATED a genuine structural difference in these three modules — `commute`'s inapplicable
+reconstruction cell — where a single repository-wide verdict would have obscured it.** That is
+evidence the matrix was an appropriate representation FOR THESE MEASURED MODULES. It is not evidence
+that the decomposition generalises; another domain might need a different one.
+
+GRADE. MEASURED: the `voxlat` entry's every figure, transcribed from live gate rows rather than from
+the module's prose and checked against them; the two new matrix falsifiers, each proved to bite in
+both directions by planting; GATE PASSED twice byte-identical (223245 bytes, 858 rows, **2004 unit
+falsifiers**, 0 FAIL). DECLARED: that the five evidence types are the right partition — a taxonomy,
+not a measurement, and the falsifier only enforces that it is used consistently, never that it is
+correct. does_not_show: that `voxlat` is CORRECT (its own entry says only canonical and reproducible,
+and it has no Rust or C99 port, so every figure is single-implementation); that the other ~100
+terrain modules resemble the three measured; that any module satisfies Mostowski's hypotheses as a
+whole — three of twelve cells remain STRUCTURAL and one N/A.
+
+REMAINING IN THE FROZEN BATCH: extend the matrix to the ~26 modules the WHITEPAPER stopped tracking
+(which pays the documentation debt as a side effect), then placement batch #4.
