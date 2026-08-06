@@ -214,6 +214,7 @@ STAGE_ORDER = (
     "spec_freeze",
     "rejections",
     "tamper",
+    "voxin",
     "lattice",
     "epistemics_apparatus",
     "doc_currency",
@@ -3172,6 +3173,72 @@ class Gate:
                     "the harder kind to notice"
                     if pl_ok else "an edgeattr plant did not bite")
 
+
+    def voxin(self):
+        """The IMPORT BOUNDARY (URDRVXI1): authored geometry becomes lattice occupancy, or a typed
+        refusal. `voxlat` named this rung in its own `does_not_show` — "any splat-to-occupancy
+        derivation (the next rung)" — and until now the arc had no front end: every downstream stage
+        began at a synthetic scene or a certified heightfield.
+
+        The admission bound is DERIVED, never chosen. `voxlat` decided the exact-integer overlap
+        overflow maximum to be 4*B^3 and drew the corollary 3*coord_bits + 2 <= 64, so coord_bits
+        <= 20; this stage asserts the importer reads that bound FROM voxlat rather than restating
+        it, and refuses geometry one past it — the exact shape voxlat measured would need 84 bits
+        where the refuted quadratic estimate claims 57."""
+        vdir = os.path.join(ROOT, "tools", "terrain")
+        if vdir not in sys.path:
+            sys.path.insert(0, vdir)
+        try:
+            import voxin as VI
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("voxin:scenes", "voxin-law", "voxin-property", "voxin-selftest"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        d1 = VI.occupancy_digest(VI.SCENE)
+        d2 = VI.occupancy_digest(VI.SCENE)
+        keys = VI.occupancy(VI.SCENE)
+        scenes_ok = (d1 == d2 and len(keys) > 0)
+        self.record("voxin:scenes", scenes_ok,
+                    "the pinned %d-triangle scene imports to %d occupied voxels and re-digests "
+                    "IDENTICALLY (%s...) — determinism x2, and non-empty, without which every "
+                    "invariance law below would hold vacuously (L61)"
+                    % (len(VI.SCENE), len(keys), d1[:12])
+                    if scenes_ok else "scene digest unstable or empty")
+
+        derived = VI.bound_is_derived_not_restated()
+        perm = VI.occupancy_is_permutation_invariant(VI.SCENE)
+        law_ok = derived and perm
+        self.record("voxin-law", law_ok,
+                    "OCCUPANCY IS A FUNCTION OF THE GEOMETRY ALONE — reversing and rotating the "
+                    "triangle list moves not one bit of the emitted key set or its digest, which is "
+                    "what makes an import reproducible on another machine rather than merely "
+                    "repeatable on this one; AND the %d-bit coordinate bound is READ FROM voxlat's "
+                    "decided 4*B^3 corollary rather than restated here, so the two cannot disagree"
+                    % VI.admissible_coord_bits()
+                    if law_ok else
+                    "law broken: derived-bound=%s permutation-invariant=%s" % (derived, perm))
+
+        oracle = VI.occupancy_agrees_with_voxlat(VI.SCENE)
+        self.record("voxin-property", oracle,
+                    "every emitted voxel independently satisfies voxlat.tri_box_overlap and no "
+                    "overlapping voxel in the bounding box is omitted — checked against the ORACLE "
+                    "by an independent route, never against this module's own traversal, so a bug "
+                    "in the loop cannot hide behind its digest agreeing with itself (L23)"
+                    if oracle else "importer disagrees with voxlat.tri_box_overlap")
+
+        over = VI.over_bound_geometry_is_refused()
+        flt = VI.float_is_refused()
+        deg = VI.degenerate_is_refused()
+        bites = over and flt and deg
+        self.record("voxin-selftest", bites,
+                    "the door can CLOSE, three ways: geometry one past the derived bound is refused "
+                    "(the theorem acting as a gate on real data rather than as arithmetic); a FLOAT "
+                    "coordinate is refused and never rounded, because a silent quantization here "
+                    "would be an authority act with no record; and a degenerate triangle is refused "
+                    "— an importer that admits everything has no boundary to certify"
+                    if bites else
+                    "a plant does not bite: over-bound=%s float=%s degenerate=%s" % (over, flt, deg))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -16391,7 +16458,9 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen"
                                "provbind", "quintessence", "sea",
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
-                               "terrain_view", "tierview", "tilecert", "wireattest")
+                               "terrain_view", "tierview", "tilecert", "wireattest",
+    "voxin",
+)
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
 
