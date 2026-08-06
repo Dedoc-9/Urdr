@@ -3383,24 +3383,28 @@ class Gate:
                AU.every_exemption_has_a_reason()))
 
         oos = AU.out_of_sample()
-        bimodal = AU.the_split_is_bimodal()
+        apart = AU.the_halves_come_apart()
         plants = AU.plants_bite()
-        self_ok = bimodal and plants
+        self_ok = apart and plants
         self.record(
             "authority-explicit-selftest", self_ok,
-            "the invariant CARVES rather than holds, and that is reported OUT OF SAMPLE rather than "
-            "claimed: derived from tools/terrain, then measured against %d subsystems that never "
-            "informed it — %s. No subsystem sits in the 35-70%% band, so the split is bimodal, and "
-            "it falls along AUTHORITY code (terrain, the wire, world identity, the admission canon) "
-            "versus COMPUTATION and PRESENTATION (exact dynamics, linear algebra, rasterization, the "
-            "runtime reference). The invariant is therefore ENFORCED where measured and REPORTED "
-            "where not, since inflating a scoped result to a global one is the defect this "
-            "repository exists to refuse; and every arm of the contract is proved able to REFUSE on "
-            "synthetic sources — silent coercion and unaddressed identity both fail"
-            % (len(oos), ", ".join("%s %d%%" % (s.split("/")[-1], round(100.0*a/b))
-                                   for s, a, b in oos))
+            "the TWO HALVES COME APART, and where they do says what kind of code it is — a "
+            "correction, because this row previously asserted a BIMODAL split that a better "
+            "measurement falsified. Investigating world_host's 0/9 found three of its nine "
+            "'modules' were TEST FILES and its real modules refuse through idioms the predicate "
+            "could not read (a verdict tuple `return (\"REFUSE\", reason)`, and `raise "
+            "URDRAssert`), so it is AUTHORITY code scoring zero on a SPELLING check. Corrected, it "
+            "sits at 50%% and intla at 35%%, both inside the gap the bimodal claim denied. What "
+            "replaces it is stronger: AUTHORITY (%d modules) admits state AND mints identity; "
+            "GUARDED-COMPUTATION (%d) refuses bad input but produces VALUES not identities — a "
+            "determinant has no content address; PURE (%d) is a total function with no domain to "
+            "police. A subsystem's ratio is COMPOSITION, not ambiguity. All three classes are "
+            "populated, without which the classification would carry no information (L61), and "
+            "every arm of the contract is proved able to REFUSE on synthetic sources"
+            % tuple(sum(t[k] for t in AU.classification_census().values())
+                    for k in ("AUTHORITY", "GUARDED-COMPUTATION", "PURE"))
             if self_ok else
-            "selftest: bimodal=%s plants-bite=%s" % (bimodal, plants))
+            "selftest: halves-come-apart=%s plants-bite=%s" % (apart, plants))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart

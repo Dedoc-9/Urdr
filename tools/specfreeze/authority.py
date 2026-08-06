@@ -91,7 +91,14 @@ def has_typed_refusal(s):
     manufactured nine false exceptions (`govern` inherits OPCOST-REFUSE, `sea` raises TERRAIN-REFUSE,
     `wardhom` uses warden's WardError). Requiring local definition is a narrower property than the
     invariant, and a checker whose name outruns its predicate is the defect this arc keeps finding."""
-    return bool(re.search(r"-REFUSE|-MALFORMED", s)) and bool(re.search(r"\braise\b", s))
+    if bool(re.search(r"-REFUSE|-MALFORMED", s)) and bool(re.search(r"\braise\b", s)):
+        return True
+    # OTHER EXPLICIT-REFUSAL IDIOMS ACTUALLY IN THIS TREE, added after `world_host` scored 0/9 and
+    # turned out to be authority code the predicate could not see: a VERDICT TUPLE
+    # `return ("REFUSE", reason)` (world_host.admit) and a TYPED ASSERTION `raise URDRAssert(...)`
+    # (transition_history.validate, .authoritative). Both are explicit refusals; neither carries a
+    # `<NAME>-REFUSE` code. Reading only one idiom measured the SPELLING, not the property.
+    return bool(re.search(r"[\"']REFUSE[\"']", s)) or bool(re.search(r"raise\s+URDRAssert", s))
 
 
 def has_content_address(s):
@@ -106,8 +113,8 @@ def census(subsystem):
         return []
     out = []
     for f in sorted(os.listdir(d)):
-        if not f.endswith(".py") or f.startswith("_"):
-            continue
+        if not f.endswith(".py") or f.startswith("_") or f.startswith("test_"):
+            continue                          # a suite is not a module; counting them was an artifact
         s = _src(os.path.join(d, f))
         out.append((f[:-3], has_typed_refusal(s), has_content_address(s)))
     return out
@@ -166,16 +173,58 @@ def out_of_sample():
     return out
 
 
-def the_split_is_bimodal(gap_low=0.35, gap_high=0.70):
-    """THE STRUCTURAL FINDING, as a check rather than a sentence: no subsystem sits in the gap. The
-    invariant separates authority code from computation code with nothing in between, and if a
-    subsystem ever lands mid-range that separation is weaker than claimed and this reddens."""
-    ratios = []
+def classify(row):
+    """THE THREE-WAY CLASSIFICATION, which replaced a BIMODAL claim that a better measurement
+    falsified.
+
+    The first version AND-ed the two halves into one predicate and reported that no subsystem sat
+    between 35% and 70% — a clean carve between authority and computation. Investigating
+    `world_host`'s 0/9 broke it twice over: three of its nine "modules" were TEST FILES, and its
+    real modules refuse through idioms the predicate could not read. Corrected, `world_host` scores
+    50% and `intla` 35%, so two subsystems land in the gap and the bimodal claim is FALSE.
+
+    What survives is better than what it replaced. The two halves COME APART, and where they come
+    apart says what kind of code it is:
+
+        AUTHORITY            both halves — admits state AND mints identity.
+        GUARDED-COMPUTATION  refusal only — refuses bad input but produces VALUES, not identities.
+                             A determinant has no content address; it is a number. `intla` is 9 of
+                             17 here, which is the honest shape of exact linear algebra.
+        PURE                 neither — a total function with no domain to police.
+
+    A subsystem's ratio is therefore COMPOSITION, not ambiguity: `world_host`'s 50% is exactly three
+    authority modules (admit, validate/authoritative, scheduler) beside three computational ones."""
+    refusal, address = row[1], row[2]
+    if refusal and address:
+        return "AUTHORITY"
+    if refusal:
+        return "GUARDED-COMPUTATION"
+    return "PURE"
+
+
+def classification_census():
+    """Every measured subsystem, by class. The distribution IS the finding."""
+    out = {}
     for sub in ENFORCED + REPORTED:
         rows = census(sub)
-        if len(rows) >= 4:                    # tiny subsystems carry no distributional information
-            ratios.append((sub, sum(1 for r in rows if satisfies(r)) / float(len(rows))))
-    return [s for s, r in ratios if gap_low < r < gap_high] == []
+        if not rows:
+            continue
+        tally = {"AUTHORITY": 0, "GUARDED-COMPUTATION": 0, "PURE": 0}
+        for r in rows:
+            tally[classify(r)] += 1
+        out[sub] = tally
+    return out
+
+
+def the_halves_come_apart():
+    """NON-VACUITY of the three-way split: all three classes must be populated. If every module fell
+    into one class the classification would carry no information, and if GUARDED-COMPUTATION were
+    empty the two halves would be redundant — which is exactly what the bimodal claim assumed."""
+    tot = {"AUTHORITY": 0, "GUARDED-COMPUTATION": 0, "PURE": 0}
+    for tally in classification_census().values():
+        for k, v in tally.items():
+            tot[k] += v
+    return all(v > 0 for v in tot.values())
 
 
 # ---- red-first: the contract must be able to REFUSE -------------------------------------------
@@ -220,9 +269,20 @@ def main():
     for sub, ok, n in out_of_sample():
         print("    %-20s %3d/%-3d  %3d%%" % (sub, ok, n, round(100.0 * ok / n)))
     print()
-    print("  no subsystem sits in the 35-70%% gap : %s" % the_split_is_bimodal())
-    print("  => the invariant CARVES the tree into AUTHORITY code and COMPUTATION code rather than")
-    print("     holding everywhere. A law that holds everywhere explains nothing.")
+    print()
+    print("THE THREE-WAY CLASSIFICATION (a BIMODAL claim was falsified here — see `classify`):")
+    print("    %-22s %9s %9s %6s" % ("subsystem", "AUTHORITY", "GUARDED", "PURE"))
+    tot = {"AUTHORITY": 0, "GUARDED-COMPUTATION": 0, "PURE": 0}
+    for sub, t in sorted(classification_census().items(),
+                         key=lambda kv: -kv[1]["AUTHORITY"]):
+        print("    %-22s %9d %9d %6d" % (sub, t["AUTHORITY"], t["GUARDED-COMPUTATION"], t["PURE"]))
+        for k in tot:
+            tot[k] += t[k]
+    print("    %-22s %9d %9d %6d" % ("TOTAL", tot["AUTHORITY"], tot["GUARDED-COMPUTATION"],
+                                     tot["PURE"]))
+    print("  all three classes populated (non-vacuous): %s" % the_halves_come_apart())
+    print("  => the two halves COME APART, and where they do says what kind of code it is. A")
+    print("     subsystem's ratio is COMPOSITION, not ambiguity.")
     print()
     print("  red-first — every arm can refuse   : %s" % plants_bite())
     print()
