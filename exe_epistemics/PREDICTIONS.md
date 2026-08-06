@@ -5553,3 +5553,91 @@ whole — three of twelve cells remain STRUCTURAL and one N/A.
 
 REMAINING IN THE FROZEN BATCH: extend the matrix to the ~26 modules the WHITEPAPER stopped tracking
 (which pays the documentation debt as a side effect), then placement batch #4.
+
+
+## RUNG 20 — the THREAT MODEL, corroborated from OUTSIDE the repository (2026-08-06)
+
+Two reviewer narrowings adopted first, then a websearch OODA on returning to hainuwele produced a
+finding worth more than the question that prompted it.
+
+### 1. TWO NARROWINGS, ADOPTED
+
+**"The matrix now lives as data, not as prose" was too strong.** The honest form: it lives as
+EXECUTABLE DATA WITH PROSE EXPLAINING ITS SEMANTICS. The executable part knows status strings and
+consistency rules; it does NOT know what `STRUCTURAL` MEANS. Merging the two overstates what the gate
+enforces, and separating them is the stronger description because it distinguishes the executable
+invariant from the human interpretation.
+
+**"Two falsifiers now hold it" was too strong.** They hold CONSISTENCY, not the taxonomy's
+CORRECTNESS — that the vocabulary does not drift and that no cell claims evidence the suite does not
+produce. Whether those five categories are the right ontology is DECLARED, and the five are a
+PROJECT-SPECIFIC taxonomy answering a maintenance question, not an epistemology: formal proof, model
+checking, statistical inference, independent replication and operational telemetry are all evidence
+modes they do not fit. Same narrowing as L63's, for the same reason.
+
+### 2. THE FINDING — the arc's `does_not_show` boundaries were corroborated from outside
+
+An OODA/websearch on the state of server-side anti-cheat returned a 2026 Hacker News thread on
+CS2FOW, a community server-side occlusion-culling anti-wallhack. Three practitioner objections were
+raised there independently. **Two of them are written verbatim into this repository's declared
+boundaries, and predate the thread.**
+
+    PRACTITIONER (2026, HN):  "hard to obfuscate hitboxes since you still need them for collision
+                               checking (e.g. if a grenade bounces off an enemy player behind a wall)"
+    docs/perception_brief.md: "a grenade must still bounce off a hidden enemy -> a real hitbox in
+                               memory"
+
+    PRACTITIONER (2026, HN):  the system "reveals enemies slightly before exact visibility", which
+                               disproportionately benefits the peeker
+    tools/terrain/perception.py: "peeker's-advantage asymmetry is latency-inherent and NOT solved here"
+
+    PRACTITIONER (2026, HN):  "Hard to fully obfuscate audio sources"
+    tools/terrain/perception.py: audio named as an independent channel needing separate treatment
+                               -> and SUBSEQUENTLY BUILT as `audible` (witnessed absence for
+                               positional sound; a sub-threshold sound is an un-addressed absence,
+                               so an audio-ESP replayed against the listener transcript finds nothing)
+
+**What this is evidence FOR, stated narrowly.** That the arc's threat model matches what independent
+practitioners identify as the hard channels, and that its `does_not_show` discipline bounded the
+claim IN ADVANCE rather than after being challenged. Three channels named externally: one closed
+since (`audible`), one explicitly declared out of scope and still open (physics/hitbox), one
+declared latency-inherent and unsolved (peeker's advantage).
+
+**What it is NOT evidence for.** That the arc's implementations are correct, performant, or
+integrable; that the coverage is complete (three channels is what one thread named, not an
+enumeration); that anyone would adopt it. It is corroboration of a THREAT MODEL, which is the
+cheapest thing to be right about and the furthest from a working product.
+
+**AND THE SAME SOURCE NAMED THE GAP IN THE WHOLE CATEGORY.** Of CS2FOW: *"No verification mechanism
+is discussed. The system implements technical measures but provides no cryptographic proof or
+certificate that occlusion actually prevented information leakage — it relies on trust that the
+server implementation is correct."* That sentence describes VALORANT's Fog of War and Bungie's
+Marathon equally well: server-side occlusion is CONVERGING to standard practice, and none of the
+implementations produce a witness. `perception-law` produces exactly that witness — a change to a
+hidden entity yields a BYTE-IDENTICAL transcript, a wallhack probe finds NOTHING, and a manifest
+that leaks the hidden set raises `PERCEPTION-REFUSE` under a 120-world seeded sweep.
+
+**The competitive reading built on this is DELIBERATELY NOT RECORDED HERE**, under the standing rule
+that strategic identification stays private until there is consensus to publish. What is recorded is
+the technical fact: three externally-named channels, mapped against declared boundaries, one closed,
+one open, one declared unsolvable at this layer.
+
+### 3. THE OPEN CHANNEL, now externally corroborated and therefore promoted
+
+The physics/hitbox channel — an occluded entity that a projectile must still collide with — was
+declared out of scope by `perception` and is now independently confirmed as a channel practitioners
+consider hard. It is the arc's sharpest open technical question and it is FALSIFIABLE: either an
+occluded entity's collision consequences are observable to the thrower (the leak is real and
+unclosed) or they are not (and the boundary was over-cautious). Neither is known here. **Not
+attempted this rung, and named rather than estimated.**
+
+GRADE. MEASURED: the three quotations, each read from the live source file and the live gate row
+against the fetched thread. DECLARED: that these three channels are the important ones — one thread
+is not an enumeration (L20); that threat-model corroboration is worth what this rung says it is.
+does_not_show: correctness, performance, or integrability of any module; that the physics channel is
+actually exploitable; anything about adoption or markets, which this repository measures nothing
+about.
+
+FALSIFIER. `perception-property-selftest` is the row this rung leans on: a manifest that leaks the
+hidden set must raise `PERCEPTION-REFUSE` under the seeded sweep. If witnessed absence ever stops
+being a live falsifier, the one thing the arc has that the converging category lacks is gone.

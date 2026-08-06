@@ -65,9 +65,20 @@ import rannull as RN                                                       # noq
 
 PARENT = "a" * 64
 
-#: THE MATRIX, as DATA rather than as prose in a docstring — so the falsifiers below can check it.
-#: A matrix that lives only in a comment is a claim no test can reach, which is the shape this whole
-#: sequence has been recording.
+#: THE MATRIX, as EXECUTABLE DATA WITH PROSE EXPLAINING ITS SEMANTICS — and the distinction is the
+#: honest form, adopted from review. The executable part knows STATUS STRINGS and CONSISTENCY RULES.
+#: It does NOT know what `STRUCTURAL` MEANS; that meaning lives in the docstring above and is human
+#: interpretation. Merging the two would overstate what the gate enforces. What is genuinely bought
+#: is that a matrix living only in a comment is a claim no test can reach — which is the shape this
+#: sequence has recorded seven times — and that is now fixed for the CONSISTENCY of the cells only.
+#:
+#: THE FALSIFIERS BELOW HOLD CONSISTENCY, NOT CORRECTNESS. They check that the vocabulary does not
+#: drift and that no cell claims evidence the suite does not produce. They do NOT validate that these
+#: five categories are the right ontology — that is DECLARED. Outside this repository there are
+#: evidence modes these five do not fit (formal proof, model checking, statistical inference,
+#: independent replication, operational telemetry), so this is a PROJECT-SPECIFIC taxonomy answering
+#: a concrete maintenance question — *what kind of evidence supports this cell?* — and not an
+#: epistemology. Same narrowing as L63's, and for the same reason.
 MATRIX_STATUSES = ("EXECUTED", "EXHAUSTIVE", "STRUCTURAL", "DECLARED", "N/A")
 MATRIX = {
     "rannull": {"wellfounded": "STRUCTURAL", "extensional": "EXECUTED",
