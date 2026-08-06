@@ -197,6 +197,134 @@ def stability_detects_a_knife_edge():
     return isinstance(out.get("n_flips"), int)
 
 
+# ---- selector SENSITIVITY: perturb the SELECTOR, not the data ------------------------------------
+#: THE ADMISSIBLE POLYTOPE, DECLARED BEFORE IT IS EXPLORED. Winner stability perturbs the CORPUS;
+#: this perturbs the SELECTOR, and asks how much selector freedom exists before the winner moves.
+#:
+#: The critical discipline is that a variant must be DEFENSIBLE A PRIORI, never merely different --
+#: a search over arbitrary selectors would find one that changes the answer and prove nothing. Most
+#: of the selector's apparent degrees of freedom turn out to be CONSTRAINED BY LAWS ALREADY ON THE
+#: BOOKS, and that is itself the finding:
+#:
+#:   objective  FIXED by the metric. Both scores are losses (lower is better), so `max` is not a
+#:              variant, it is an error. The metric determines the direction.
+#:   exclude    FIXED by L62. The seated baseline may not be able to win its own contest; dropping
+#:              the exclusion is not an admissible selector, it is the defect L62 names.
+#:   baseline   FIXED. The rolling empirical marginal null is the seated incumbent (checkpoint 9);
+#:              a different baseline is a different tournament, not a different selector over it.
+#:   metric     FREE, 2 values. Brier and log loss are both PROPER scoring rules. multinull already
+#:              established that the INCUMBENT verdict is not rule-dependent; this asks the identical
+#:              question of the COVARIATE verdict, which no rung has asked.
+#:   tie_break  FREE, 2 values. Both are arbitrary but deterministic; if the winner moves under a
+#:              tie-break change, the verdict rests on an exact tie and should say so.
+#:
+#: So the admissible polytope has FOUR points, not dozens. The smallness is not a limitation of the
+#: analysis -- it is a measurement of how much the existing laws already pin down.
+FREE_AXES = {
+    "metric": ("lojo_brier_miss_x10000", "lojo_logloss_miss_millibits"),
+    "tie_break": ("lexicographic", "reverse_lexicographic"),
+}
+
+
+def _select_general(scores, selector):
+    """`select` widened to the admissible tie-break variants only."""
+    field = [k for k in scores if k not in selector["exclude"]]
+    if not field:
+        raise SelectionError("empty field")
+    sign = 1 if selector["objective"] == "min" else -1
+    if selector["tie_break"] == "lexicographic":
+        return min(field, key=lambda k: (sign * scores[k], k))
+    if selector["tie_break"] == "reverse_lexicographic":
+        return min(field, key=lambda k: (sign * scores[k], [-ord(c) for c in k]))
+    raise SelectionError("unknown tie_break %r" % (selector["tie_break"],))
+
+
+def lojo_logloss(rows=None):
+    """The SAME leave-one-joint-out design as `prediction_residuals.lojo`, scored by LOG LOSS in
+    millibits instead of Brier. Log loss is code length by Kraft-McMillan, so this is the MDL-side
+    reading of the identical experiment.
+
+    THE BOUNDARY RULE WAS FIXED BEFORE COMPUTING, and then found unnecessary: log loss diverges if a
+    prediction reaches exactly 0 or 1, so a clamp would have been a modelling choice that decides the
+    answer. It was checked first -- predictions on this corpus lie in [0.025, 0.670], strictly
+    interior -- so NO CLAMP IS APPLIED and none is hidden. Were a future corpus to hit the boundary
+    this function must RAISE rather than silently clamp."""
+    import math
+    import prediction_residuals as PR
+    rows = PR.surface() if rows is None else rows
+    out = {}
+    for name, feat in (("null", None), ("margin", "margin"), ("nclass", "nclass"),
+                       ("topmass", "topmass")):
+        total = 0
+        for i, r in enumerate(rows):
+            train = rows[:i] + rows[i + 1:]
+            p = PR._predict(train, r, feat)
+            p_y = p if not r["hit"] else 1 - p
+            if p_y <= 0:
+                raise SelectionError("log loss undefined: p_y <= 0 at %s/%s" % (name, r["pid"]))
+            total += -math.log2(float(p_y))
+        out[name] = int(round(total / len(rows) * 1000))
+    return out
+
+
+def _scores_for(metric, rows=None):
+    import prediction_residuals as PR
+    if metric == "lojo_brier_miss_x10000":
+        return PR.lojo(rows)
+    if metric == "lojo_logloss_miss_millibits":
+        return lojo_logloss(rows)
+    raise SelectionError("unknown metric %r" % (metric,))
+
+
+def admissible_selectors():
+    """The four points of the declared polytope, in a deterministic order."""
+    out = []
+    for metric in FREE_AXES["metric"]:
+        for tb in FREE_AXES["tie_break"]:
+            out.append(dict(LOJO_MISS, metric=metric, tie_break=tb))
+    return out
+
+
+def sensitivity(rows=None):
+    """WINNER UNDER EVERY ADMISSIBLE SELECTOR, plus the minimum selector EDIT DISTANCE to a different
+    winner. Reports `INVARIANT` when no admissible selector changes the answer -- which is a stronger
+    statement than winner stability, because it says the verdict is not an artefact of how the
+    contest was scored OR how ties were broken."""
+    ref = LOJO_MISS
+    ref_scores = _scores_for(ref["metric"], rows)
+    ref_winner = _select_general(ref_scores, ref)
+    table, distances = [], []
+    for sel in admissible_selectors():
+        sc = _scores_for(sel["metric"], rows)
+        w = _select_general(sc, sel)
+        edits = sum(1 for k in FREE_AXES if sel[k] != ref[k])
+        beats = sc[w] < sc[sel["baseline"]]
+        table.append({"metric": sel["metric"], "tie_break": sel["tie_break"], "winner": w,
+                      "score": sc[w], "baseline": sc[sel["baseline"]], "beats_baseline": beats,
+                      "edits": edits})
+        if w != ref_winner:
+            distances.append(edits)
+    return {
+        "reference_winner": ref_winner,
+        "table": table,
+        "n_selectors": len(table),
+        "min_edit_to_change_winner": min(distances) if distances else None,
+        "verdict": ("INVARIANT across the admissible polytope" if not distances else
+                    "SELECTOR-SENSITIVE (%d edit(s) suffice)" % min(distances)),
+        "always_beats_baseline": all(r["beats_baseline"] for r in table),
+    }
+
+
+def sensitivity_can_report_sensitivity():
+    """Non-vacuity (L61): the analysis must be ABLE to return SELECTOR-SENSITIVE, or INVARIANT is an
+    empty answer. A synthetic score table whose winner differs by tie-break is constructed and the
+    tie-break axis alone must flip it."""
+    tied = {"null": 9000, "aaa": 1000, "zzz": 1000}
+    lex = _select_general(tied, dict(LOJO_MISS, tie_break="lexicographic"))
+    rev = _select_general(tied, dict(LOJO_MISS, tie_break="reverse_lexicographic"))
+    return lex == "aaa" and rev == "zzz" and lex != rev
+
+
 def main():
     import prediction_residuals as PR
     print("SELECTION — the functional between a tournament and its winner, as an object")
@@ -229,10 +357,27 @@ def main():
               % (pid, w, s, b, "  (NO LONGER BEATS BASELINE)" if s >= b else ""))
     print("  VERDICT              : %s" % st["verdict"])
     print()
+    sen = sensitivity()
+    print("SELECTOR SENSITIVITY — perturbing the SELECTOR instead of the corpus")
+    print("  free axes: %s" % {k: list(v) for k, v in sorted(FREE_AXES.items())})
+    print("  fixed by law: objective (by the metric), exclude (L62), baseline (checkpoint 9)")
+    print()
+    print("  %-32s %-22s %-9s %8s %9s %6s" % ("metric", "tie_break", "winner", "score",
+                                              "baseline", "edits"))
+    for r in sen["table"]:
+        print("  %-32s %-22s %-9s %8d %9d %6d"
+              % (r["metric"], r["tie_break"], r["winner"], r["score"], r["baseline"], r["edits"]))
+    print()
+    print("  red-first — sensitivity is reportable : %s" % sensitivity_can_report_sensitivity())
+    print("  min selector edits to change winner   : %s" % sen["min_edit_to_change_winner"])
+    print("  beats the baseline under ALL of them  : %s" % sen["always_beats_baseline"])
+    print("  VERDICT                               : %s" % sen["verdict"])
+    print()
     print("BOUNDARY, NOT A CHALLENGER. This proposes nothing and competes with nothing; it reports")
-    print("how much of Rung 9's recorded verdict rests on any single joint. does_not_show: that the")
-    print("winner predicts anything, that stability implies validity, or that a stable winner on a")
-    print("RETROSPECTIVE corpus would survive prospectively — that is the forward test (L20).")
+    print("how much of Rung 9's recorded verdict rests on any single joint, and how much on how the")
+    print("contest was scored. does_not_show: that the winner predicts anything, that stability or")
+    print("invariance implies validity (a stable wrong answer is stable), or that a RETROSPECTIVE")
+    print("verdict survives prospectively — that is the forward test (L20).")
     return 0
 
 

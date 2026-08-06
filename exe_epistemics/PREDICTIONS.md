@@ -4463,3 +4463,126 @@ FALSIFIER. `forged_winner_is_caught()` and `baseline_cannot_win()` in `selection
 certificate ever verifies with a losing candidate swapped into its winner field, or a tournament
 ever crowns its own excluded baseline, the certificate certifies nothing and every verdict resting
 on one -- including this rung's stability verdict -- is unsupported.
+
+
+## RUNG 11 — the Rung 9 verdict is METRIC-DEPENDENT, and the brake reports 0/10 (2026-08-05)
+
+TWO INSTRUMENTS, AND THE FIRST ONE FALSIFIED THE HEADLINE OF THE RUNG BEFORE IT.
+
+### 1. SELECTOR SENSITIVITY — perturbing the SELECTOR instead of the corpus
+
+Rung 10 measured WINNER STABILITY by deleting each joint: `topmass` won all 33 deletions, verdict
+STABLE. That perturbs the DATA. This perturbs the SELECTOR, over a polytope DECLARED BEFORE IT WAS
+EXPLORED -- and the declaration is most of the result, because nearly every apparent degree of
+freedom is already pinned by laws on the books:
+
+    objective   FIXED by the metric. Both scores are losses; `max` is not a variant, it is an error.
+    exclude     FIXED by L62. A baseline that can win its own contest is the defect L62 names.
+    baseline    FIXED. The rolling empirical marginal null is the seated incumbent (checkpoint 9).
+    metric      FREE, 2 values -- Brier and log loss, both PROPER scoring rules.
+    tie_break   FREE, 2 values -- both arbitrary but deterministic.
+
+FOUR admissible selectors, not dozens. The smallness is a measurement of how much the existing laws
+already determine.
+
+                                        BRIER (x10000)      LOG LOSS (millibits)
+        null   (seated)                        2539                      1013
+        margin                                 2651                      1050
+        nclass                                 2586                      1033
+        topmass                                2433                      1043
+
+        BRIER    -> beats the null: topmass          LOG LOSS -> beats the null: NONE
+
+**MIN SELECTOR EDIT DISTANCE TO A DIFFERENT WINNER: 1.** Changing the metric alone -- Brier to log
+loss, both proper, neither privileged -- moves the winner from `topmass` to `nclass` AND removes the
+win entirely: under log loss NO covariate beats the seated null, and `topmass` falls from FIRST of
+three to THIRD, scoring worse than the null it was recorded as beating.
+
+    Rung 9 recorded: "`topmass` holds ONE out-of-sample win, the first any joint-level covariate has
+    recorded." That sentence is TRUE UNDER BRIER AND FALSE UNDER LOG LOSS, and Rung 9 did not say so
+    because the check was never run. The claim is hereby BOUNDED, not withdrawn: it was correctly
+    scored under the rule it named, and it is now known to be rule-dependent.
+
+WHY THIS IS A RECURRENCE OF L20 AND NOT A NEW LAW. `multinull` established at checkpoint 9 that the
+INCUMBENT verdict is not rule-dependent -- Brier and log loss agree that the incumbent beats the
+null -- and printed "the seated verdict is NOT rule-dependent". That agreement was measured on ONE
+comparison and, without anyone claiming it, functioned as background permission to report a DIFFERENT
+comparison under a single rule. A property measured on one sample, operating as though universal:
+that is L20 exactly, and the arc's own apparatus was sitting one file away the whole time. Recorded
+as a recurrence (L3), not minted.
+
+THE TWO ROBUSTNESS AXES ARE ORTHOGONAL, and this is the general finding worth keeping:
+
+        perturb the DATA     (leave-one-joint-out)  -> STABLE          (33/33, no flips)
+        perturb the SELECTOR (admissible polytope)  -> SENSITIVE       (1 edit suffices)
+
+A verdict can be robust to every observation and fragile to the rule that read them. Neither axis
+substitutes for the other, and reporting only the first -- which Rung 10 did -- overstates
+robustness while being entirely correct about what it measured.
+
+### 2. APPARATUS — the cost side measured, the gain side REFUSED
+
+The only proposal in a long sequence that could return an instruction to STOP, so it was built among
+its batch rather than after it.
+
+        10 modules      2625 lines      2091 code      112 defs
+        GATE COVERAGE OF THIS ARC: 0/10
+
+`exe_epistemics` appears ZERO times in `verify.py`. The arc that scores the gate is itself ungated --
+defensible, since gating the scorer would close the loop it exists to open, but it means every
+falsifier in this directory is enforced by nothing except an author choosing to run it, and that
+unenforced surface is now 2625 lines.
+
+THE GAIN SIDE IS REFUSED, NOT DEFERRED. Any numerator -- claims enabled, quantities produced, defects
+found -- would be chosen by the author of the apparatus being scored, with outcomes known. That is
+the freedom checkpoint 9's preregistration exists to remove, and a ratio with a fabricated numerator
+is WORSE than no ratio because it looks like a measurement. The licence is named instead: a numerator
+PREREGISTERED and frozen before anything is scored against it. `count != value`.
+
+THE BRAKE WAS WRONG ABOUT ITSELF TWICE, WHICH IS RECORDED RATHER THAN TIDIED AWAY. (a) It measures
+every module in its directory BY RUNNING IT, and it lives in that directory -- the first run spawned
+itself recursively and hung. (b) Its gate-coverage test searched `verify.py` for the bare module
+STEM and reported 2 of 10 gated; both hits were unrelated prose ("all n_probes pinned probes across
+the Loewner scenes"; "adaptive representation selection"). **The instrument built to prevent
+overstatement overstated enforcement by exactly two on its first run.** Both are repaired, the second
+with a red-first plant (`gated_test_rejects_bare_prose`) that fails on the shipped version. A brake
+that has been wrong about itself twice in one rung is the correct amount of evidence that brakes
+need falsifiers too.
+
+### RULINGS on the remaining proposals
+
+  * APPARATUS DEPENDENCY GRAPH -- ALREADY EXISTS, and naming it would duplicate machinery. The
+    evidence graph carries FORMULATED_FROM and SUPPORTED_BY; `claim-class-registry` is a live gate
+    row that TYPE-CHECKS those relations, requiring each to declare its epistemic class and the row
+    that ENFORCES it, and forbidding a HISTORICAL relation from advertising a DERIVED one's
+    guarantee; `provenance.py` requires any ELIMINATION or MECHANISM to name a LIVE gate row. The
+    proposed rule -- reasoning may cite only downstream objects -- is what those three already
+    enforce. This is renaming, not structure.
+  * CERTIFICATE LATTICE -- PREMATURE. There is ONE tournament and ONE certificate; a partial order
+    over a single element is trivial, and designing the lattice before the elements exist is L58
+    inverted (representation designed, not earned). It earns its name at three or more certificates
+    over comparable fields.
+  * WITNESS COMPRESSION / MINIMAL WITNESS -- REDUCED and not built. Exact minimality over 33 joints
+    is a subset search; the decidable cheap form is a GREEDY CORE (drop joints while the verdict
+    holds), which yields an upper bound on the core, never the minimum. Worth a successor, and the
+    approximation must be labelled as one.
+  * OBSERVER FUNCTORS -- the TYPE FIX IS CORRECT and the ADOPTION IS UNEARNED. Composing over a
+    shared observation schema genuinely repairs the `Repository -> Evidence` non-composition Rung 9
+    named; that is a real diagnosis. But a unifying abstraction adopted across the whole arc on zero
+    measured need is exactly what Gamma was -- seated by appeal rather than by evidence, and L63
+    exists because it survived three rungs that way. The licence is stated so a successor can earn
+    it rather than argue for it: TWO DISTINCT OBSERVERS whose composition over a shared schema
+    yields something neither yields alone, EXHIBITED. One instance, and the abstraction is earned.
+
+GRADE. MEASURED: the four-point sensitivity table, both LOJO scorings, the min edit distance, the
+apparatus census, the gate coverage (0/10), and every red-first plant (all bite). DECLARED: the
+admissibility of the polytope's axes -- an argument from the existing laws, not a measurement; and
+that lines are a proxy for cost, stated as crude. does_not_show: that `nclass` is any better than
+`topmass` (it loses to the null too); that either scoring rule is the RIGHT one -- the point is that
+the verdict differs between two defensible rules, not that one is correct; that the arc's apparatus
+is too large or too small, which no number here measures.
+
+FALSIFIER. `sensitivity_can_report_sensitivity()` and `gated_test_rejects_bare_prose()`. If the
+sensitivity analysis can no longer return SELECTOR-SENSITIVE on a tie-broken plant, INVARIANT means
+nothing; if bare prose again counts as enforcement, the gate-coverage number is unsupported and the
+brake's headline dies with it.
