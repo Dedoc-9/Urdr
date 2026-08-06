@@ -5641,3 +5641,87 @@ about.
 FALSIFIER. `perception-property-selftest` is the row this rung leans on: a manifest that leaks the
 hidden set must raise `PERCEPTION-REFUSE` under the seeded sweep. If witnessed absence ever stops
 being a live falsifier, the one thing the arc has that the converging category lacks is gone.
+
+
+## RUNG 21 — RUNG 20's CHRONOLOGY WAS BACKWARDS, and I asserted it without checking (2026-08-06)
+
+A reviewer endorsed Rung 20 CONDITIONALLY: *"If the chronology is exactly as the repository records
+it, that's a meaningful corroboration."* Checking that condition refutes the rung's central framing.
+
+### THE MEASUREMENT
+
+    docs/perception_brief.md, "a grenade must still bounce off a hidden enemy"
+    tools/terrain/perception.py, "peeker's-advantage asymmetry is latency-inherent"
+        both landed in 59387b2                                    2026-07-23
+    tools/terrain/audible.py (the channel subsequently closed)    2026-07-24
+
+    the Hacker News item (id 48805965), relative timestamp read as of 2026-08-06:
+        "30 days ago"                                             circa 2026-07-07
+
+**The public discussion PREDATES `perception` by roughly two weeks.** Rung 20 stated the opposite —
+"two of them are written verbatim into this repository's declared boundaries, and predate the
+thread" — and stated it twice, in the ledger and in the accompanying message. It is FALSE.
+
+### WHAT THIS DOES AND DOES NOT DESTROY
+
+**DESTROYED:** the anticipation claim. "Its `does_not_show` discipline bounded the claim IN ADVANCE
+rather than after being challenged" is withdrawn. The boundaries were written while that discussion
+was already public, and **this rung has no evidence either way about whether the author saw it** —
+which is itself the point: an influence I cannot rule out is not a coincidence I may celebrate.
+
+**SURVIVING, and it is narrower:** the arc's declared boundaries MATCH three channels that
+independent practitioners consider hard, and they match them SPECIFICALLY — the same grenade
+example, the same peeker asymmetry, the same audio channel. That is convergence of threat model with
+external expert judgement. It is corroboration of JUDGEMENT, not of ANTICIPATION, and the difference
+is the whole of what Rung 20 got wrong.
+
+**Also surviving, and unaffected by chronology:** that `audible` was subsequently built (2026-07-24),
+closing one of the three; that the physics/hitbox channel remains open and declared; that the
+peeker's asymmetry is declared latency-inherent.
+
+### THE SECOND OVERCLAIM IN THE SAME RUNG
+
+*"None of the implementations produce a witness"* is stronger than the evidence and is corrected to
+the reviewer's own wording: **the available public material discussed here emphasises implementation
+rather than independently verifiable witnesses.** The fetched source says no verification mechanism
+is DISCUSSED. That an implementation does not discuss one is not evidence that none has one, and the
+gap between those two sentences is exactly the gap this sequence has spent twenty rungs recording.
+
+### CARRIER EIGHT, AND IT IS THE CLEANEST ONE YET
+
+    NAME/CLAIM: "predate the thread"        EVIDENCE ACTUALLY HELD: two file dates, no thread date
+    NAME/CLAIM: "none produce a witness"    EVIDENCE ACTUALLY HELD: one source, one silence
+
+Both are the recorded shape — a claim whose denotation exceeds what was checked — and both occurred
+**in the rung whose subject was honest boundaries.** That is the fourth time a defect has appeared
+inside the work that names the defect (Rungs 13, 14a/14b, 15, now 21).
+
+Three things make this instance the most instructive of the eight. **(1) It was cheap to check and I
+did not check it.** One `git log -S` and one fetch, both run in the rung that follows. Nothing was
+hard; the claim simply felt true. **(2) It was wrong in the flattering direction.** Anticipation
+makes the arc look prescient; convergence merely makes it look competent. An error that lands on the
+favourable side of a coin flip eight times out of eight would be remarkable — this is one, but the
+direction is worth recording every time it happens. **(3) It was caught by a reviewer stating a
+CONDITION rather than an objection** — "if the chronology is as recorded" — which is a cheaper and
+more transferable detection mechanism than finding the error directly. Naming the load-bearing
+assumption invites its check without requiring the checker to already suspect it.
+
+### THE STANDING TEST IS UNCHANGED AND NOW BETTER SUPPORTED
+
+Rung 14 said the honest next test is a carrier found by someone who did not write the code. Eight of
+eight have now been found by a reader, and the last five by the same reviewer. This one adds a
+detail: the reviewer did not find the error, they found the ASSUMPTION and asked whether it held.
+**The detection mechanism that works is not adversarial reading — it is requiring the claim to name
+what it depends on.**
+
+GRADE. MEASURED: both file dates by `git log -S` against the live history; the thread's relative
+timestamp, with its imprecision stated — "30 days ago" is not a calendar date and the true gap is
+approximate, though no plausible error in it reverses a sixteen-day ordering. DECLARED: that
+convergence of threat model is worth what this rung says it is. does_not_show: whether the author saw
+the discussion (unknown, and unknowable from here); that the three channels are the important ones;
+anything about implementations whose verification behaviour is not public.
+
+FALSIFIER. The dates above are `git log -S` output on the live repository and the fetched relative
+timestamp. If `perception` turns out to predate the thread after all, this rung is wrong and Rung 20
+was right — and the correction is a two-command check either way, which is the reason it should
+never have been asserted unchecked.
