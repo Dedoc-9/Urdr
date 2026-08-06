@@ -97,18 +97,27 @@ def certify(scores, selector):
 
 
 def verify(cert, scores):
-    """VERIFY THE PROPERTY, NEVER RE-RUN THE PROCEDURE.
+    """VERIFY THE PROPERTY, NEVER RE-RUN THE PROCEDURE -- and verify EVERY FIELD THE CERTIFICATE
+    ADVERTISES, not merely the winner.
 
     L23 is explicit that two computations agreeing is a measurement only when they share no
     primitive -- one computation restated is a definition, not a check. So this does NOT call
-    `select` again and compare. It checks the DEFINING PROPERTY of an argmin directly: the claimed
-    winner is in the declared field, and no candidate in that field scores strictly better; among
-    any that tie, the winner is the lexicographically first. A certificate that passes this is
-    correct even if `select` is wrong, which is exactly the independence the neutral-ruler
-    discipline asks for."""
+    `select` again and compare. It checks DEFINING PROPERTIES directly, and a certificate that
+    passes is correct even if `select` is wrong.
+
+    THE SECOND VERSION OF THIS FUNCTION. The first checked `winner`, `score` and `field` and
+    ignored `runner_up`, `runner_up_score`, `baseline`, `baseline_score` and `beats_baseline` --
+    so a certificate could pass with an AUTHENTIC WINNER AND FORGED SURROUNDINGS, which is exactly
+    the shape a certificate exists to prevent. A verifier that checks a subset of what its object
+    advertises is not a verifier of that object; it is a verifier of the subset, and the name
+    over-claims the difference. Either every advertised field is checked or the object is renamed
+    to what it actually certifies. This checks every field."""
     sel = cert["selector"]
+    if sel["objective"] not in ("min", "max"):
+        return False
     sign = 1 if sel["objective"] == "min" else -1
     field = [k for k in scores if k not in sel["exclude"]]
+    # ---- the winner is a genuine argmin of the declared field -----------------------------------
     if cert["winner"] not in field:
         return False
     if tuple(sorted(field)) != tuple(cert["field"]):
@@ -121,22 +130,60 @@ def verify(cert, scores):
             return False                      # someone strictly better: not an argmin
         if sign * scores[k] == w and k < cert["winner"]:
             return False                      # a tie the lexicographic rule should have taken
+    # ---- the runner-up is a genuine argmin of the field MINUS the winner ------------------------
+    rivals = [k for k in field if k != cert["winner"]]
+    if not rivals:
+        if cert["runner_up"] is not None or cert["runner_up_score"] is not None:
+            return False
+    else:
+        ru = cert["runner_up"]
+        if ru not in rivals or scores[ru] != cert["runner_up_score"]:
+            return False
+        r = sign * scores[ru]
+        for k in rivals:
+            if sign * scores[k] < r:
+                return False
+            if sign * scores[k] == r and k < ru:
+                return False
+    # ---- the baseline and the comparison against it ---------------------------------------------
+    base = cert["baseline"]
+    if base is not None:
+        if base not in scores:
+            return False
+        if scores[base] != cert["baseline_score"]:
+            return False
+        if cert["beats_baseline"] != (sign * scores[cert["winner"]] < sign * scores[base]):
+            return False
+        if base not in sel["exclude"]:
+            return False                      # L62: a baseline that can compete is the defect
     return True
 
 
 # ---- red-first: the certificate must REFUSE a forged winner -------------------------------------
 def forged_winner_is_caught():
-    """The plant. A certificate is issued honestly, then its winner is REPLACED by a loser (and by a
-    tie-loser), and `verify` must reject both. If a forgery verifies, the certificate certifies
-    nothing and every verdict resting on one is unsupported."""
+    """The plant. A certificate is issued honestly, then EVERY advertised field is forged in turn and
+    `verify` must reject each one. If any forgery verifies, the certificate certifies nothing and
+    every verdict resting on one is unsupported.
+
+    THE SURROUNDING-FIELD FORGERIES ARE THE POINT of the second version: a certificate whose winner
+    is authentic but whose runner-up, baseline or `beats_baseline` verdict is fabricated is exactly
+    what the first `verify` would have waved through."""
     scores = {"null": 5000, "aaa": 9999, "mmm": 1000, "zzz": 1000}
     cert = certify(scores, LOJO_MISS)
-    honest = verify(cert, scores) and cert["winner"] == "mmm"      # ties -> lexicographic
-    loser = dict(cert, winner="aaa", score=9999)
-    tie_loser = dict(cert, winner="zzz", score=1000)
-    excluded = dict(cert, winner="null", score=5000)
-    return (honest and not verify(loser, scores) and not verify(tie_loser, scores)
-            and not verify(excluded, scores))
+    honest = (verify(cert, scores) and cert["winner"] == "mmm"     # ties -> lexicographic
+              and cert["runner_up"] == "zzz" and cert["beats_baseline"] is True)
+    forgeries = [
+        dict(cert, winner="aaa", score=9999),                      # a loser crowned
+        dict(cert, winner="zzz", score=1000),                      # the tie-loser crowned
+        dict(cert, winner="null", score=5000),                     # an EXCLUDED candidate crowned
+        dict(cert, score=1),                                       # winner right, score forged
+        dict(cert, runner_up="aaa", runner_up_score=9999),         # runner-up forged
+        dict(cert, runner_up_score=7),                             # runner-up score forged
+        dict(cert, baseline_score=1),                              # baseline score forged
+        dict(cert, beats_baseline=False),                          # the VERDICT itself forged
+        dict(cert, field=("aaa", "mmm")),                          # the declared field forged
+    ]
+    return honest and not any(verify(f, scores) for f in forgeries)
 
 
 def baseline_cannot_win():
@@ -149,6 +196,80 @@ def baseline_cannot_win():
 
 
 # ---- winner stability: leave-one-out, transferred from the PROBE corpus to the TOURNAMENT --------
+def ablation_stability(items, score_fn, selector, baseline=True):
+    """THE COMBINATORIAL ENGINE, DECOUPLED FROM THE STATISTICAL MODEL.
+
+    Delete each item, rescore with `score_fn`, re-select, and report which deletions move the
+    winner. `score_fn` is a parameter rather than a hard-wired call to `prediction_residuals.lojo`
+    precisely so the engine can be tested against a HAND-BUILT scorer whose answers are known
+    exactly -- which is the only way to plant a knife edge and prove the instrument sees it. While
+    the ablation was welded to the live corpus, the only fixtures available were real ones, and a
+    fixture whose behaviour you cannot state in advance cannot falsify anything."""
+    full = score_fn(items)
+    full_winner = _select_general(full, selector)
+    flips, winners = [], {}
+    for i, item in enumerate(items):
+        reduced = items[:i] + items[i + 1:]
+        if not reduced:
+            continue
+        sc = score_fn(reduced)
+        w = _select_general(sc, selector)
+        winners[w] = winners.get(w, 0) + 1
+        lost = baseline and selector.get("baseline") in sc and \
+            not (sc[w] < sc[selector["baseline"]])
+        if w != full_winner or lost:
+            flips.append((item.get("pid", i) if isinstance(item, dict) else i,
+                          w, sc[w], sc.get(selector.get("baseline"))))
+    return {"winner": full_winner, "n": len(items), "flips": flips, "n_flips": len(flips),
+            "stable": len(flips) == 0, "winner_census": dict(sorted(winners.items()))}
+
+
+def stability_detects_a_knife_edge():
+    """RED-FIRST, AND THE SECOND VERSION. The first read
+
+        return isinstance(out.get("n_flips"), int)
+
+    which is TRUE for every possible result, including one with zero flips. It asserted the RETURN
+    TYPE of the function while its name promised the DETECTION OF FRAGILITY, so Rung 10's claim
+    that fragility was provably detectable rested on a check that could not fail (L23). It happened
+    to run on a fragile fixture, which is luck, not evidence.
+
+    This version plants a scorer whose answers are known exactly: `alpha` wins on the full set, and
+    deleting the single item `KNIFE` -- and only `KNIFE` -- hands the win to `beta`. The plant must
+    report exactly one flip, name it, and the CONTROL scorer (a constant, where nothing can move)
+    must report zero. A check that reports fragility everywhere is as useless as one that reports it
+    nowhere, so both directions are demanded."""
+    knife = [{"pid": "KNIFE"}, {"pid": "A"}, {"pid": "B"}]
+
+    def knife_scores(items):
+        pids = {i["pid"] for i in items}
+        # alpha wins only while KNIFE is present; drop it and beta takes the lead.
+        return {"null": 900, "alpha": 100 if "KNIFE" in pids else 500, "beta": 300}
+
+    def flat_scores(items):
+        return {"null": 900, "alpha": 100, "beta": 300}
+
+    hot = ablation_stability(knife, knife_scores, LOJO_MISS)
+    cold = ablation_stability(knife, flat_scores, LOJO_MISS)
+    return (hot["winner"] == "alpha" and hot["n_flips"] == 1
+            and hot["flips"][0][0] == "KNIFE" and hot["flips"][0][1] == "beta"
+            and hot["stable"] is False
+            and cold["stable"] is True and cold["n_flips"] == 0)
+
+
+def stability_detects_a_lost_baseline():
+    """The OTHER flip this instrument must see: the winner does not change, but it stops beating the
+    baseline. A verdict can die without the crown moving, and an ablation that only watches the
+    crown would call that STABLE."""
+    items = [{"pid": "P"}, {"pid": "Q"}]
+
+    def scores(its):
+        return {"null": 300 if len(its) == 2 else 90, "alpha": 100, "beta": 500}
+
+    out = ablation_stability(items, scores, LOJO_MISS)
+    return out["winner"] == "alpha" and out["n_flips"] == 2 and out["stable"] is False
+
+
 def winner_stability(rows=None, selector=LOJO_MISS):
     """HOW FRAGILE IS THE VERDICT? Rung 5 measured Q's W3 identifiability as ONE-PROBE FRAGILE by
     deleting each probe and asking whether the verdict flipped; QP05 alone carried it. This is the
@@ -157,44 +278,19 @@ def winner_stability(rows=None, selector=LOJO_MISS):
 
     **This is a BOUNDARY, not a challenger.** It proposes no hypothesis and competes with nothing;
     it reports how much of a recorded verdict rests on a single row. That is a `does_not_show`
-    made numerical, which is why it needs no standing under L63 either."""
+    made numerical, which is why it needs no standing under L63 either.
+
+    THE LIVE-CORPUS APPLICATION of `ablation_stability`, which holds the combinatorics. The split is
+    what makes the instrument testable: the engine takes a `score_fn`, so it can be run against a
+    hand-built scorer whose answers are known in advance, while this wrapper supplies the real one."""
     import prediction_residuals as PR
     rows = PR.surface() if rows is None else rows
-    full = PR.lojo(rows)
-    base_cert = certify(full, selector)
-    flips, winners = [], {}
-    for i, r in enumerate(rows):
-        held = rows[:i] + rows[i + 1:]
-        res = PR.lojo(held)
-        w = select(res, selector)
-        winners[w] = winners.get(w, 0) + 1
-        beats = res[w] < res[selector["baseline"]]
-        if w != base_cert["winner"] or not beats:
-            flips.append((r["pid"], w, res[w], res[selector["baseline"]]))
-    n = len(rows)
-    return {
-        "winner": base_cert["winner"],
-        "n": n,
-        "flips": flips,
-        "n_flips": len(flips),
-        "stable": len(flips) == 0,
-        "winner_census": dict(sorted(winners.items())),
-        "verdict": ("STABLE" if not flips else
-                    "ONE-JOINT FRAGILE" if len(flips) == 1 else
-                    "FRAGILE (%d of %d joints flip it)" % (len(flips), n)),
-    }
-
-
-def stability_detects_a_knife_edge():
-    """Non-vacuity: the measure must be ABLE to report fragility, or 'STABLE' means nothing. A
-    synthetic two-row tournament whose winner changes under deletion must come back not-stable."""
-    fake = [{"pid": "X1", "hit": True, "margin": 100, "nclass": 3, "topmass": 5000},
-            {"pid": "X2", "hit": False, "margin": 100, "nclass": 3, "topmass": 5000}]
-    try:
-        out = winner_stability(fake)
-    except Exception:
-        return False
-    return isinstance(out.get("n_flips"), int)
+    out = ablation_stability(rows, PR.lojo, selector)
+    n = out["n"]
+    out["verdict"] = ("STABLE" if not out["flips"] else
+                      "ONE-JOINT FRAGILE" if out["n_flips"] == 1 else
+                      "FRAGILE (%d of %d joints flip it)" % (out["n_flips"], n))
+    return out
 
 
 # ---- selector SENSITIVITY: perturb the SELECTOR, not the data ------------------------------------

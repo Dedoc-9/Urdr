@@ -215,6 +215,7 @@ STAGE_ORDER = (
     "rejections",
     "tamper",
     "lattice",
+    "epistemics_apparatus",
     "doc_currency",
 )
 
@@ -3244,6 +3245,116 @@ class Gate:
                     if c_ok and p_ok else
                     "conformance/plants failed: "
                     + "; ".join(f"{a}:{b}" for a, b in (c_probs + p_probs)[:4]))
+
+    def epistemics_apparatus(self):
+        """The epistemics arc's ADJUDICATION MACHINERY, gated on SYNTHETIC fixtures only.
+
+        WHY THIS STAGE EXISTS, AND WHY IT IS NOT A CONTRADICTION. `exe_epistemics/` scores this
+        gate, so its EMPIRICAL VERDICTS must stay off-gate — a row certifying that `topmass` beats
+        the null would be the engine grading its own homework, and the arc has said so since it
+        began. But that argument was stretched to cover the arc's MECHANICAL OBLIGATIONS too, and
+        those are a different thing entirely: that a selector picks by score rather than by name,
+        that an excluded baseline cannot be crowned, that a forged certificate fails, that
+        tie-breaking is deterministic, that an ablation can exhibit fragility. Those are apparatus
+        laws. They are provable on fixtures whose answers are known in advance, they touch no
+        corpus, and gating them certifies NO empirical claim whatever.
+
+        The distinction was paid for. Rung 9 shipped a selector that named the winner alphabetically
+        and no green run could catch it; Rung 10 shipped a fragility falsifier whose return
+        condition was `isinstance(n_flips, int)`, true of every possible result; Rung 11 shipped a
+        certificate verifier that checked the winner and ignored every other field it advertised.
+        Three defects of one kind — a function whose NAME claims more than its RETURN checks — in
+        three consecutive rungs of the machinery that adjudicates every other claim in the arc.
+        Each was found by a reader, never by a run. This stage is the mechanism that makes the next
+        one findable by a run. `ungated as evidence ≠ untested as machinery`.
+
+        NOTHING HERE READS THE LEDGER. Every fixture below is constructed in this method or inside
+        the arc's own red-first plants; `prediction_residuals` is never imported, `PREDICTIONS.md`
+        is never opened, and the row detail contains no corpus number. If a future edit makes this
+        stage depend on the corpus, the gate begins moving when the ledger is appended and the
+        determinism guarantee dies quietly — so that coupling is forbidden, not merely discouraged."""
+        edir = os.path.join(ROOT, "exe_epistemics")
+        if edir not in sys.path:
+            sys.path.insert(0, edir)
+        try:
+            import selection as SEL
+            import apparatus as APP
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("epistemics-selector", False, f"import failed: {exc}")
+            self.record("epistemics-certificate", False, "apparatus did not load")
+            self.record("epistemics-ablation", False, "apparatus did not load")
+            self.record("epistemics-apparatus-selftest", False, "apparatus did not load")
+            return
+
+        # ---- 1. the SELECTOR chooses by SCORE, and the baseline cannot win --------------------
+        named_by_score = SEL.select({"null": 5000, "aaa": 9999, "zzz": 1000}, SEL.LOJO_MISS) == "zzz"
+        alpha_trap = SEL.select({"null": 5000, "aaa": 1000, "zzz": 9999}, SEL.LOJO_MISS) == "aaa"
+        tie_det = SEL.select({"null": 9, "bbb": 1, "aaa": 1}, SEL.LOJO_MISS) == "aaa"
+        base_walled = SEL.baseline_cannot_win()
+        sel_ok = named_by_score and alpha_trap and tie_det and base_walled
+        self.record(
+            "epistemics-selector", sel_ok,
+            "the selection functional is DATA and picks by SCORE: the argmin is named even when it "
+            "is alphabetically last (the Rung 9 defect, which returned the alphabetically first "
+            "candidate for every corpus that could exist), the alphabetically-first candidate IS "
+            "returned when it genuinely wins (so the repair is not an inverted hard-code), ties "
+            "break deterministically, and an EXCLUDED baseline cannot be crowned even when it holds "
+            "the best score on the table (L62 made structural rather than remembered)"
+            if sel_ok else
+            "selector law broken: by-score=%s alpha-trap=%s tie=%s baseline-walled=%s"
+            % (named_by_score, alpha_trap, tie_det, base_walled))
+
+        # ---- 2. the CERTIFICATE verifies EVERY field it advertises ----------------------------
+        cert_ok = SEL.forged_winner_is_caught()
+        self.record(
+            "epistemics-certificate", cert_ok,
+            "a winner is never asserted, only certified: nine forgeries are refused — a loser "
+            "crowned, a tie-loser crowned, an EXCLUDED candidate crowned, a forged winning score, a "
+            "forged runner-up, a forged runner-up score, a forged baseline score, a forged "
+            "beats-baseline VERDICT, and a forged field. Verification checks the DEFINING PROPERTY "
+            "of an argmin rather than re-running the selector (L23: one computation restated is a "
+            "definition), so a certificate passes even if `select` is wrong"
+            if cert_ok else "a forged certificate verified — the certificate certifies nothing")
+
+        # ---- 3. the ABLATION can exhibit fragility, in BOTH of its forms ----------------------
+        knife = SEL.stability_detects_a_knife_edge()
+        lost_base = SEL.stability_detects_a_lost_baseline()
+        sens = SEL.sensitivity_can_report_sensitivity()
+        abl_ok = knife and lost_base and sens
+        self.record(
+            "epistemics-ablation", abl_ok,
+            "the fragility instruments can REPORT fragility, proved on scorers whose answers are "
+            "known in advance rather than on live data: a planted knife edge is found and NAMED "
+            "(exactly one deletion flips the winner) while a constant control reports zero flips; a "
+            "verdict that keeps its winner but STOPS BEATING THE BASELINE is also caught, which an "
+            "ablation watching only the crown would call stable; and selector sensitivity can "
+            "return SENSITIVE, without which INVARIANT is an empty answer (L61)"
+            if abl_ok else
+            "fragility not detectable: knife=%s lost-baseline=%s sensitivity=%s"
+            % (knife, lost_base, sens))
+
+        # ---- 4. SELFTEST: the repaired checks would REDDEN on the code that shipped -----------
+        scores = {"null": 5000, "aaa": 9999, "mmm": 1000, "zzz": 1000}
+        cert = SEL.certify(scores, SEL.LOJO_MISS)
+        forged = dict(cert, beats_baseline=(not cert["beats_baseline"]))
+        winner_only = (forged["winner"] in cert["field"]
+                       and scores[forged["winner"]] == forged["score"])
+        cert_bites = winner_only and not SEL.verify(forged, scores)
+        vacuous_old = isinstance({"n_flips": 0}.get("n_flips"), int)
+        scanner_bites = APP.reference_test_runs_the_real_scanner()
+        bites = cert_bites and vacuous_old and scanner_bites
+        self.record(
+            "epistemics-apparatus-selftest", bites,
+            "each repair is proved to BITE against the code it replaced: a certificate whose winner "
+            "and score are authentic but whose beats-baseline VERDICT is inverted passes the "
+            "shipped winner-only criterion and is REFUSED here; the shipped fragility predicate "
+            "`isinstance(n_flips, int)` is confirmed true of a zero-flip result, which is why it "
+            "could never fail; and the reference scanner is exercised by its own plant rather than "
+            "by a reimplementation of it, since a falsifier that does not run the thing it "
+            "falsifies guards a copy"
+            if bites else
+            "a repair does not bite: certificate=%s vacuous-demo=%s scanner=%s"
+            % (cert_bites, vacuous_old, scanner_bites))
 
     def doc_currency(self):
         """The tracked docs must quote the LIVE counts — docs must match reality

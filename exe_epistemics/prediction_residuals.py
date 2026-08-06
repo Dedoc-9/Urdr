@@ -147,10 +147,18 @@ def joint_level_beats_null(res=None):
     is not caught by re-running a green instrument; `vacuous != correct`.
 
     Ties break lexicographically so the answer is deterministic (`PYTHONHASHSEED=0` is not enough
-    when the tiebreak is unspecified)."""
+    when the tiebreak is unspecified).
+
+    THE SELECTION IS NOW DELEGATED, NOT REIMPLEMENTED. This function used to hold its own argmin,
+    which is how it came to hold its own BUG. `selection.select` is the single selection functional
+    for the arc, driven by a selector that is DATA -- so there is exactly one place for this class of
+    defect to live, and it is gated (`epistemics-selector`). A tournament that rolls its own `min`
+    is a tournament whose selector nobody can audit. The import is deferred to call time because
+    `selection` lazily imports THIS module for the live corpus; deferring keeps that mutual use
+    acyclic at import."""
     res = lojo() if res is None else res
-    others = [k for k in res if k != "null"]
-    best = min(others, key=lambda k: (res[k], k))
+    import selection as SEL
+    best = SEL.select(res, SEL.LOJO_MISS)
     return res[best] < res["null"], best
 
 

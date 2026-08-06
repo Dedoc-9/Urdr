@@ -4586,3 +4586,120 @@ FALSIFIER. `sensitivity_can_report_sensitivity()` and `gated_test_rejects_bare_p
 sensitivity analysis can no longer return SELECTOR-SENSITIVE on a tie-broken plant, INVARIANT means
 nothing; if bare prose again counts as enforcement, the gate-coverage number is unsupported and the
 brake's headline dies with it.
+
+
+## RUNG 12 — three consecutive rungs shipped the SAME defect, and the paradox that hid it was false (2026-08-06)
+
+A review of Rung 11 found two blockers. Both are real, both were verified before repair, and the
+second is worse than the review knew.
+
+### BLOCKER 1 — the fragility falsifier did not test fragility
+
+    def stability_detects_a_knife_edge():
+        ...
+        return isinstance(out.get("n_flips"), int)          # TRUE of every possible result
+
+It asserted the RETURN TYPE while its name promised the DETECTION OF FRAGILITY. Rung 10's claim that
+fragility was provably detectable therefore rested on a check that could not fail (L23). It happened
+to run on a fragile fixture, which is luck rather than evidence -- confirmed by evaluating the same
+predicate against a zero-flip result, where it still returns True.
+
+THE DEEPER CAUSE WAS COUPLING. The ablation was welded to `prediction_residuals.lojo`, so the only
+fixtures available were REAL ones, and a fixture whose behaviour cannot be stated in advance cannot
+falsify anything. The repair is the review's: `ablation_stability(items, score_fn, selector)` takes
+the scorer as a PARAMETER, so the combinatorial instrument is testable independently of the
+statistical model. The plant now supplies a scorer whose answers are known exactly -- `alpha` leads,
+deleting the single item `KNIFE` and only `KNIFE` hands the lead to `beta` -- and demands exactly one
+flip, NAMED, plus a constant control that must report zero. A second plant catches the other form of
+death: the winner does not move but STOPS BEATING THE BASELINE, which an ablation watching only the
+crown calls stable.
+
+### BLOCKER 2 — "gate coverage" measured string co-occurrence, and the plant guarded a copy
+
+`_gated` returned `"exe_epistemics" in src and stem in src` -- co-occurrence anywhere in a
+one-megabyte file, sharing no expression, import, statement or executable path. It returned the right
+number only because the arc's name appears in `verify.py` zero times, so nothing could co-occur with
+anything. And `gated_test_rejects_bare_prose` never called it: the plant reimplemented the substring
+logic inline against two local strings, so the function could have been arbitrarily wrong while the
+plant passed. **A falsifier that does not execute the thing it falsifies guards a copy of it.**
+
+**WORSE THAN THE REVIEW KNEW.** The strong claim -- "every falsifier in this directory is enforced by
+nothing except an author choosing to run it" -- was not merely unlicensed, it was FALSE by a
+one-hop search never run:
+
+    tools/specfreeze/doc_currency.py    names the arc  2 times   (the _HISTORY exemption)
+    tools/specfreeze/provenance.py      names the arc 77 times   (evidence strings, P1..P63)
+
+Both are imported by `verify.py`. The gate DOES touch this arc. Renamed to what it measures --
+DIRECT TEXTUAL PATH REFERENCES FROM verify.py: 0/10 -- with the transitive census reported beside
+it, and the plant now RUNS `_directly_referenced` against six synthetic sources (prose-only stem;
+name and stem co-occurring but unrelated; a real path; a dotted reference; neither; the stem inside
+a longer identifier).
+
+### THE THIRD INSTANCE, AND THE PATTERN
+
+`selection.verify` checked `winner`, `score` and `field` and ignored `runner_up`,
+`runner_up_score`, `baseline`, `baseline_score` and `beats_baseline` -- so a certificate could pass
+with an AUTHENTIC WINNER AND FORGED SURROUNDINGS, which is precisely what a certificate exists to
+prevent. It now checks every advertised field, and the plant forges NINE of them in turn.
+
+    Rung  9  a selector whose NAME said argmin-by-score and whose RETURN was argmin-by-name
+    Rung 10  a falsifier whose NAME said detects-fragility and whose RETURN was is-an-int
+    Rung 11  a verifier whose NAME said verify-certificate and whose RETURN checked one field
+
+Three consecutive rungs, one shape: **a function whose name claims more than its return checks**, in
+the machinery that adjudicates every other claim in the arc. Each was found by a READER, never by a
+run. That is now enough carriers to say what the tracked candidate could not say at one: the
+recurrence is not about conditionally-dead outputs specifically, it is `claim != code` applied to
+FUNCTION NAMES, and the reason the arc kept producing it is structural -- an ungated instrument is
+proof-read, and prose review catches what the author already believes.
+
+### THE PARADOX WAS FALSE, AND THAT IS THE RUNG'S REAL CONTENT
+
+Rung 11 wrote that gating the scorer "would close the loop it exists to open." That conflates two
+separable things, and the review is right that the split is clean:
+
+    OFF-GATE, and must stay so -- the arc's EMPIRICAL VERDICTS. A row certifying that `topmass`
+        beats the null would be the engine grading its own homework.
+    GATEABLE, and now gated -- the arc's MECHANICAL OBLIGATIONS. That the selector picks by score,
+        that an excluded baseline cannot be crowned, that forged certificates fail, that ties break
+        deterministically, that the ablation can exhibit fragility in both its forms.
+
+Those are apparatus laws provable on fixtures whose answers are known in advance. They touch no
+corpus and certify no empirical claim. **`epistemics_apparatus` is now a live gate stage, 4 rows,
+and the gate stands at 858.**
+
+    epistemics-selector             argmin by score; the alphabetically-first candidate still wins
+                                    when it genuinely wins (the repair is not an inverted hard-code);
+                                    deterministic ties; an excluded baseline cannot be crowned
+    epistemics-certificate          nine forgeries refused, including three surrounding-field forgeries
+    epistemics-ablation             a planted knife edge found and NAMED, a constant control at zero,
+                                    a lost baseline caught, sensitivity able to report SENSITIVE
+    epistemics-apparatus-selftest   each repair proved to BITE against the code it replaced
+
+THE COUPLING IS FORBIDDEN, NOT MERELY AVOIDED: the stage imports `selection` and `apparatus` only,
+never `prediction_residuals`, and opens no ledger. If a future edit makes it read the corpus, the
+gate begins moving whenever PREDICTIONS.md is appended and determinism dies quietly.
+
+ONE SELECTION FUNCTIONAL, NOT A COPY PER TOURNAMENT. `prediction_residuals.joint_level_beats_null`
+held its own argmin, which is how it came to hold its own bug; it now delegates to
+`selection.select`. There is exactly one place for this defect class to live and it is gated.
+
+### WHAT DOES NOT CHANGE
+
+The Rung 11 empirical result stands unaltered, and the review's closing statement of it is adopted
+verbatim as the honest form: **the Rung 9 `topmass` result is stable under single-joint deletion but
+sensitive to one admissible selector edit -- the proper scoring rule. It is a Brier-specific
+retrospective observation, not a rule-robust diagnostic win.**
+
+GRADE. MEASURED: every repair and every plant (all bite, all gated), the transitive reference census,
+GATE PASSED twice byte-identical at 858 rows / 0 FAIL. DECLARED: that the four gated obligations are
+the RIGHT set -- they are the ones whose absence produced the three defects above, which is a reason,
+not a proof of completeness. does_not_show: that the apparatus is now correct -- three defects of one
+shape were found by readers in three rungs and the fourth is not ruled out by gating the first three;
+that direct-reference counting establishes unreachability; anything empirical whatever.
+
+FALSIFIER. The `epistemics-apparatus-selftest` row: a certificate whose winner and score are
+authentic but whose beats-baseline verdict is inverted must pass the shipped winner-only criterion
+and be REFUSED by the current verifier. If that row ever passes with the repairs reverted, the stage
+is decorative.
