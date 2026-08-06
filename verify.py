@@ -215,6 +215,7 @@ STAGE_ORDER = (
     "rejections",
     "tamper",
     "voxin",
+    "authority",
     "lattice",
     "epistemics_apparatus",
     "doc_currency",
@@ -3248,6 +3249,72 @@ class Gate:
                     "— an importer that admits everything has no boundary to certify"
                     if bites else
                     "a plant does not bite: over-bound=%s float=%s degenerate=%s" % (over, flt, deg))
+
+    def authority(self):
+        """NOTHING AUTHORITATIVE HAPPENS IMPLICITLY — the arc's founding sentence, made enforceable.
+
+        A census of the 104 shipped terrain modules looked for properties surviving every lawful
+        computation. Two did, and both are refusal/identity rather than dynamics: identity is
+        COMPUTED (content-addressed) and admission failure is TYPED (never silently coerced). Those
+        are the two halves of "admit rather than trust", recovered as a MEASURED property of the code
+        rather than an aspiration in a README.
+
+        THE EXCEPTION SET IS THE EVIDENCE. The census was not told where the boundary was; it found
+        `bench` failing both halves and `stormprop` failing one, and both had already been ruled
+        outside on independent grounds. An invariant whose exceptions must be explained after the
+        fact is weak; one whose exceptions were already known is evidence. So each exemption carries
+        a REASON that is part of the contract, a THIRD exception reddens this stage, and an exemption
+        that stops being needed reddens it too — an exception list that only grows stops meaning
+        anything."""
+        sdir = os.path.join(ROOT, "tools", "specfreeze")
+        if sdir not in sys.path:
+            sys.path.insert(0, sdir)
+        try:
+            import authority as AU
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("authority-explicit", False, f"import failed: {exc}")
+            self.record("authority-explicit-selftest", False, "checker did not load")
+            return
+
+        rows = AU.census("tools/terrain")
+        ok_n = sum(1 for r in rows if AU.satisfies(r))
+        holds = AU.contract_holds()
+        self.record(
+            "authority-explicit", holds,
+            "%d of %d shipped terrain modules satisfy BOTH halves of explicit authority — identity "
+            "COMPUTED (content-addressed) and admission failure TYPED (never silently coerced) — "
+            "with exactly %d declared exceptions, each carrying the reason that makes it one: "
+            "`bench` is a measurement harness that admits no state and issues no verdict, and "
+            "`stormprop` is a property falsifier over `storm` whose STORMPROP-FALSIFIED is a test "
+            "verdict rather than an admission refusal. Both were ruled outside on INDEPENDENT "
+            "grounds before this census existed, which is what makes the exception set evidence "
+            "rather than curve-fitting. A third exception reddens this row; so does an exemption "
+            "that has stopped being needed, because a list that only grows stops meaning anything"
+            % (ok_n, len(rows), len(AU.EXEMPT))
+            if holds else
+            "authority contract broken: violations=%s stale-exemptions=%s unknown=%s reasons=%s"
+            % (AU.violations(), AU.stale_exemptions(), AU.unknown_exemptions(),
+               AU.every_exemption_has_a_reason()))
+
+        oos = AU.out_of_sample()
+        bimodal = AU.the_split_is_bimodal()
+        plants = AU.plants_bite()
+        self_ok = bimodal and plants
+        self.record(
+            "authority-explicit-selftest", self_ok,
+            "the invariant CARVES rather than holds, and that is reported OUT OF SAMPLE rather than "
+            "claimed: derived from tools/terrain, then measured against %d subsystems that never "
+            "informed it — %s. No subsystem sits in the 35-70%% band, so the split is bimodal, and "
+            "it falls along AUTHORITY code (terrain, the wire, world identity, the admission canon) "
+            "versus COMPUTATION and PRESENTATION (exact dynamics, linear algebra, rasterization, the "
+            "runtime reference). The invariant is therefore ENFORCED where measured and REPORTED "
+            "where not, since inflating a scoped result to a global one is the defect this "
+            "repository exists to refuse; and every arm of the contract is proved able to REFUSE on "
+            "synthetic sources — silent coercion and unaddressed identity both fail"
+            % (len(oos), ", ".join("%s %d%%" % (s.split("/")[-1], round(100.0*a/b))
+                                   for s, a, b in oos))
+            if self_ok else
+            "selftest: bimodal=%s plants-bite=%s" % (bimodal, plants))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
