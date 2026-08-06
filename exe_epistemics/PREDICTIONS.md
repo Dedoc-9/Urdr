@@ -4990,3 +4990,98 @@ has produced six carriers while writing guards, in the same sequence. It ships w
 (a synthetic vacuous expression must be classified VACUOUS; a synthetic compound one must not), and
 that is necessary rather than sufficient. If the classifier is wrong, it will be wrong in this
 rung's own recorded shape, and the reviewer who has found six will find the seventh.
+
+
+## RUNG 15 RESULT — NULL, the frozen credence was right, and the instrument produced carrier SEVEN
+
+Run against the Rung 15 FREEZE, which was committed (`e7025e4`) before any `-selftest` expression had
+been read. `selftest_census.py`, stdlib-only, rerun byte-identical.
+
+    sample: 119 pre-existing `-selftest` gate rows        (frozen count 119: MATCHED)
+    classifier plants bite (5 vacuous + 6 non-vacuous shapes): True
+
+        VACUOUS-BY-CONSTRUCTION      0
+        DELEGATED                  100
+        INLINE-COMPOUND             19
+        UNPARSEABLE                  0
+        TOTAL                      119
+
+**NULL.** The decidable sub-shape does not occur in the gated population. Scoring the frozen
+prediction: leading credence was ZERO at 35, and zero occurred.
+
+### HOW THE NUMBER MAY BE READ, per the freeze and not one step past it
+
+This REFUTES NOTHING about the pattern as a whole. The rule sees carrier 2's shape and is blind to
+carriers 1, 3, 4, 5 and 6 — "argmin over names", "3 of 5 fields", "no schema on the enclosing
+object", "depth-one instead of scope" are semantic mismatches between a name and a body, and no AST
+rule decides them. The licensed statement is exactly: *the decidable sub-shape does not occur in the
+gated population.*
+
+**AND THE CONFOUND STANDS, UNRESOLVED BY DESIGN.** These 119 are GATED and were written under L15
+(the plant bites before the golden pins); the six carriers were written UNGATED. A null is equally
+consistent with (a) the pattern being sequence-local and (b) gating working exactly as intended.
+This instrument cannot separate them, which was written down before the number existed, so it is
+part of the result rather than a caveat bolted on after. S11 was confounded the same way and said so;
+the difference here is that the confound was named in the freeze rather than discovered in the
+reading.
+
+### CARRIER SEVEN — the instrument, and the freeze's own guard caught it
+
+The first run reported **9 VACUOUS rows** and printed POSITIVE. It was wrong, in this sequence's
+recorded shape, for the seventh time:
+
+    tamper-selftest has FOUR record() call sites — three record False with a stated reason, one
+    records the literal True in the success branch of an if/elif/else. The row can obviously go red;
+    the conditional IS the check. All nine "findings" were success branches of conditionals.
+
+`census()` classified each CALL SITE independently and reported a property of ROWS. The name said
+"this row cannot go red"; the code checked "this expression is a constant". Repaired by aggregating
+call sites by row name first: a row is VACUOUS only if EVERY path that records it is vacuous by
+construction.
+
+**WHAT CAUGHT IT IS THE POINT.** The freeze fixed the sample at 119 ROWS. The instrument enumerated
+151 CALL SITES and `sample_is_the_frozen_one()` returned False — refusing to score a population other
+than the preregistered one. Without that guard the run would have reported a POSITIVE result,
+falsified its own leading credence, and supplied nine fabricated carriers as evidence for the very
+hypothesis it was built to test. **The preregistration did not merely discipline the reading; it
+caught the instrument.** That is the strongest argument this arc has produced for freezing a sample
+before building the thing that measures it, and it was bought by an error rather than by an argument.
+
+Rung 15's freeze predicted this in as many words: *"If the classifier is wrong, it will be wrong in
+this rung's own recorded shape."* It was.
+
+### THE CARRIER COUNT, AND WHY IT STILL DOES NOT MINT
+
+    1  Rung  9   argmin-by-score            -> argmin-by-name
+    2  Rung 10   detects-fragility          -> is-an-int
+    3  Rung 11   verify-certificate         -> one field
+    4  Rung 13   verify-EVERY-field         -> 3 of 5 selector fields
+    5  Rung 14a  verify-every-field         -> no certificate schema; KeyError not False
+    6  Rung 14b  module-scope-imports       -> depth-one imports
+    7  Rung 15   row-cannot-go-red          -> expression-is-a-constant
+
+Seven carriers, four of them introduced by the repair of a previous one, and the seventh by the
+instrument built to test whether the first six generalise. Still one author, one directory, one
+sequence. The measurement just run is the only evidence from outside it, and it is NULL on the one
+sub-shape it can see, with a confound it cannot resolve. **Minting a lesson here would assert
+generality on the strength of a test that returned nothing and could not have returned much** — which
+is L20 with the sample size written on it. The candidate stands at seven, unmintable, and the honest
+next test is not another rule over this repository: it is the same shape found by someone who did not
+write it.
+
+GRADE. MEASURED: the classification of all 119 rows, the sample-identity match, the classifier's
+eleven plants, determinism. DECLARED: that the four classes carve the space usefully; that
+`-selftest` rows are the right out-of-sequence population. does_not_show: that DELEGATED or
+INLINE-COMPOUND rows actually BITE — only that they are not vacuous at the point of record; the five
+carrier shapes no AST rule decides; anything about ungated code, which is where all seven carriers
+live.
+
+STATUS OF THE INSTRUMENT: OFF-GATE, deliberately. It is an EMPIRICAL instrument — it measures a
+population — and the Rung 12 split keeps empirical findings off the gate. Its MECHANICAL half
+(`classifier_plants_bite`) is gateable and is named for a successor, with one trap recorded so the
+successor does not walk into it: pinning the sample size at 119 in a gate row would redden the gate on
+every future `-selftest` row anyone adds, which converts a historical sample into a permanent tax.
+
+FALSIFIER. `classifier_plants_bite()`: five expressions that must classify VACUOUS and six that must
+not. If a compound expression ever classifies VACUOUS, every count above is unsupported and this
+rung's null dies with it.
