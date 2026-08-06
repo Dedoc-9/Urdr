@@ -98,7 +98,14 @@ def _directly_referenced(name, src=None):
     WHAT THIS MEASURES, exactly, so the name cannot outrun it: DIRECT TEXTUAL PATH REFERENCES. It
     does NOT establish that a module is unreached -- dynamic imports, subprocess invocation through
     a variable, CI configuration outside this file, and transitive imports through another module
-    all escape it. The transitive question is answered separately by `transitive_references`."""
+    all escape it. The transitive question is answered separately by `transitive_references`.
+
+    THE PREFIX HOLE, FOUND BY A REVIEWER IN THE REPAIR ITSELF. Version 3 matched the bare needle
+    `exe_epistemics/<stem>`, so a reference to `exe_epistemics/probes_extra.py` -- or, worse,
+    `exe_epistemics/probes2.py`, WHICH IS A REAL SIBLING MODULE IN THIS DIRECTORY -- counted as a
+    reference to `probes.py`. Substring containment is not path equality, and the two modules whose
+    names nest are exactly the two most likely to be confused. The match is now BOUNDARY-AWARE: the
+    character after the stem must not continue an identifier or a path segment."""
     stem = name[:-3] if name.endswith(".py") else name
     if src is None:
         try:
@@ -106,9 +113,12 @@ def _directly_referenced(name, src=None):
                 src = fh.read()
         except OSError:
             return False
-    needles = ("exe_epistemics/%s.py" % stem, "exe_epistemics/%s" % stem,
-               "exe_epistemics.%s" % stem)
-    return any(n in src for n in needles)
+    import re
+    # the stem, optionally followed by its OWN `.py`, and then nothing that continues an identifier
+    # or another extension. `probes.py` and `probes` match; `probes2.py`, `probes_extra.py`,
+    # `probes.md` and `probesque` do not.
+    pat = re.compile(r"exe_epistemics[/.]%s(\.py)?(?![\w.])" % re.escape(stem))
+    return bool(pat.search(src))
 
 
 #: Files OUTSIDE this arc that name it, discovered by searching the tree rather than one file. The
@@ -154,8 +164,98 @@ def reference_test_runs_the_real_scanner():
         ("mod = 'exe_epistemics.probes'", True),
         ("nothing to see here", False),
         ("microprobes and exe_epistemics_other are unrelated identifiers", False),
+        # ---- the PREFIX cases, added after a reviewer found them live in version 3 --------------
+        ("exe_epistemics/probes_extra.py", False),   # a longer sibling name
+        ("exe_epistemics/probes2.py", False),        # a REAL sibling module in this directory
+        ("exe_epistemics/probes.md", False),         # same stem, different artifact
+        ("exe_epistemics/probesque", False),         # stem continued by identifier characters
+        ("exe_epistemics/probes.py", True),          # the control: still a genuine hit
     ]
     return all(_directly_referenced("probes.py", src) is expect for src, expect in cases)
+
+
+#: Modules that would COUPLE the gate to the empirical corpus. If any of these is imported at MODULE
+#: scope by the apparatus the gate loads, then appending to the ledger can move a gate row, and the
+#: two-run byte-identity guarantee starts depending on a file nobody thinks of as code.
+_CORPUS_MODULES = ("prediction_residuals", "multinull", "nullbase", "orbitprobe", "seamgame")
+_CORPUS_FILES = ("PREDICTIONS.md",)
+
+
+def _module_scope_imports(path):
+    """Every name imported at MODULE SCOPE (column 0), by AST. Function-local imports are excluded
+    deliberately: `selection` imports `prediction_residuals` INSIDE `winner_stability`, which is what
+    keeps the live-corpus application available without dragging the corpus into every import of the
+    module. Scope is the whole distinction, so the check has to see scope -- which a text search
+    cannot, and which is why this is an AST walk rather than a grep."""
+    import ast
+    try:
+        with open(path, encoding="utf-8") as fh:
+            tree = ast.parse(fh.read(), filename=path)
+    except (OSError, SyntaxError):
+        return None
+    out = set()
+    for node in tree.body:                      # top level ONLY -- not ast.walk
+        if isinstance(node, ast.Import):
+            out.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                out.add(node.module.split(".")[0])
+    return out
+
+
+def corpus_coupling(modules=("selection.py", "apparatus.py")):
+    """Do the modules the gate loads reach the corpus at import time? Returns the offending
+    (module, name) pairs -- empty means the gate stage cannot be moved by appending to the ledger.
+
+    This converts Rung 12's DECLARED prohibition into a checked one. That rung wrote that the
+    coupling was 'forbidden, not merely discouraged' while nothing whatever prevented a later edit
+    from adding a module-scope `import prediction_residuals`. A prohibition with no mechanism is a
+    preference, and saying 'forbidden' louder does not add the mechanism."""
+    bad = []
+    for m in modules:
+        names = _module_scope_imports(os.path.join(_HERE, m))
+        if names is None:
+            bad.append((m, "unparseable"))
+            continue
+        for n in sorted(names):
+            if n in _CORPUS_MODULES:
+                bad.append((m, n))
+        try:
+            with open(os.path.join(_HERE, m), encoding="utf-8") as fh:
+                body = fh.read()
+        except OSError:
+            continue
+        for f in _CORPUS_FILES:
+            # a ledger filename in a STRING is a read waiting to happen; docstrings mention it in
+            # prose, so only flag it outside comment/docstring context by requiring an open( nearby
+            if ("open(" in body and f in body and
+                    any(f in ln and "open(" in ln for ln in body.splitlines())):
+                bad.append((m, f))
+    return bad
+
+
+def coupling_guard_bites():
+    """RED-FIRST: the guard must catch a module-scope corpus import. A synthetic module is written to
+    a temporary file with exactly that defect and the AST scan must report it, while a function-local
+    import of the same name must NOT be reported -- the scope distinction is the entire check, and a
+    guard that flagged both would forbid the arc's legitimate lazy use."""
+    import tempfile
+    bad_src = "import os\nimport prediction_residuals\n\n\ndef f():\n    return 1\n"
+    ok_src = "import os\n\n\ndef f():\n    import prediction_residuals\n    return 1\n"
+    outs = []
+    for src in (bad_src, ok_src):
+        d = tempfile.mkdtemp()
+        p = os.path.join(d, "probe_mod.py")
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(src)
+        names = _module_scope_imports(p)
+        outs.append(names is not None and "prediction_residuals" in names)
+        try:
+            os.remove(p)
+            os.rmdir(d)
+        except OSError:
+            pass
+    return outs == [True, False] and corpus_coupling() == []
 
 
 #: SELF-EXCLUSION, and it is load-bearing rather than tidy. This module measures every module in the

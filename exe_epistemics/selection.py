@@ -56,20 +56,57 @@ class SelectionError(Exception):
     """Raised when a selector is applied to scores it was not written for."""
 
 
+#: THE SELECTOR SCHEMA. A certificate advertises its whole selector, so a verifier that interprets
+#: only some of those fields lets the rest be forged freely -- the certificate would then certify a
+#: winner while lying about the rule that chose it. Exact key equality is required (not a subset):
+#: an unexpected key is a selector this verifier does not understand, and silently ignoring it is
+#: how a field stops being checked.
+_SELECTOR_KEYS = frozenset(("objective", "metric", "tie_break", "exclude", "baseline"))
+_OBJECTIVES = ("min", "max")
+_TIE_BREAKS = ("lexicographic", "reverse_lexicographic")
+
+
+def validate_selector(selector):
+    """Is this a well-formed selector? Schema first, so every advertised field has a checked meaning
+    before any of them is used. `baseline in exclude` is L62 as a TYPE constraint rather than a
+    remembered convention: a selector whose baseline can compete is not a strict selector with a
+    quirk, it is malformed."""
+    if not isinstance(selector, dict) or set(selector) != set(_SELECTOR_KEYS):
+        return False
+    if selector["objective"] not in _OBJECTIVES:
+        return False
+    if selector["tie_break"] not in _TIE_BREAKS:
+        return False
+    if not isinstance(selector["metric"], str) or not selector["metric"]:
+        return False
+    if not isinstance(selector["exclude"], tuple):
+        return False
+    if selector["baseline"] is not None and selector["baseline"] not in selector["exclude"]:
+        return False
+    return True
+
+
+def _tie_precedes(a, b, tie_break):
+    """Under the DECLARED tie rule, does candidate `a` come before `b`? Used by verification so the
+    tie check follows the selector rather than a hard-coded `<`. The first verifier hard-coded
+    lexicographic order while advertising `tie_break`, so a certificate could carry
+    `reverse_lexicographic` and still verify -- the advertised rule and the enforced rule were
+    different rules."""
+    if tie_break == "lexicographic":
+        return a < b
+    if tie_break == "reverse_lexicographic":
+        return a > b
+    raise SelectionError("unknown tie_break %r" % (tie_break,))
+
+
 def select(scores, selector):
     """Apply a SELECTOR (data) to a score table. Returns the winning candidate name.
 
     The objective is read from the selector rather than compiled in, so a change of direction is a
     change of DATA and shows up in a diff."""
-    if selector["objective"] not in ("min", "max"):
-        raise SelectionError("unknown objective %r" % (selector["objective"],))
-    field = [k for k in scores if k not in selector["exclude"]]
-    if not field:
-        raise SelectionError("empty field: every candidate is excluded")
-    if selector["tie_break"] != "lexicographic":
-        raise SelectionError("unknown tie_break %r" % (selector["tie_break"],))
-    sign = 1 if selector["objective"] == "min" else -1
-    return min(field, key=lambda k: (sign * scores[k], k))
+    if not validate_selector(selector):
+        raise SelectionError("malformed selector %r" % (selector,))
+    return _select_general(scores, selector)
 
 
 def certify(scores, selector):
@@ -81,7 +118,7 @@ def certify(scores, selector):
     field = [k for k in scores if k not in selector["exclude"]]
     rivals = [k for k in field if k != winner]
     sign = 1 if selector["objective"] == "min" else -1
-    runner_up = min(rivals, key=lambda k: (sign * scores[k], k)) if rivals else None
+    runner_up = _select_general({k: scores[k] for k in rivals}, selector) if rivals else None
     base = selector.get("baseline")
     return {
         "winner": winner,
@@ -96,7 +133,7 @@ def certify(scores, selector):
     }
 
 
-def verify(cert, scores):
+def verify(cert, scores, expect_metric):
     """VERIFY THE PROPERTY, NEVER RE-RUN THE PROCEDURE -- and verify EVERY FIELD THE CERTIFICATE
     ADVERTISES, not merely the winner.
 
@@ -113,9 +150,12 @@ def verify(cert, scores):
     over-claims the difference. Either every advertised field is checked or the object is renamed
     to what it actually certifies. This checks every field."""
     sel = cert["selector"]
-    if sel["objective"] not in ("min", "max"):
+    if not validate_selector(sel):
+        return False                          # an unverifiable selector verifies nothing
+    if sel["metric"] != expect_metric:
         return False
     sign = 1 if sel["objective"] == "min" else -1
+    tb = sel["tie_break"]
     field = [k for k in scores if k not in sel["exclude"]]
     # ---- the winner is a genuine argmin of the declared field -----------------------------------
     if cert["winner"] not in field:
@@ -128,8 +168,8 @@ def verify(cert, scores):
     for k in field:
         if sign * scores[k] < w:
             return False                      # someone strictly better: not an argmin
-        if sign * scores[k] == w and k < cert["winner"]:
-            return False                      # a tie the lexicographic rule should have taken
+        if sign * scores[k] == w and _tie_precedes(k, cert["winner"], tb):
+            return False                      # a tie the DECLARED rule should have taken
     # ---- the runner-up is a genuine argmin of the field MINUS the winner ------------------------
     rivals = [k for k in field if k != cert["winner"]]
     if not rivals:
@@ -143,7 +183,7 @@ def verify(cert, scores):
         for k in rivals:
             if sign * scores[k] < r:
                 return False
-            if sign * scores[k] == r and k < ru:
+            if sign * scores[k] == r and _tie_precedes(k, ru, tb):
                 return False
     # ---- the baseline and the comparison against it ---------------------------------------------
     base = cert["baseline"]
@@ -154,8 +194,6 @@ def verify(cert, scores):
             return False
         if cert["beats_baseline"] != (sign * scores[cert["winner"]] < sign * scores[base]):
             return False
-        if base not in sel["exclude"]:
-            return False                      # L62: a baseline that can compete is the defect
     return True
 
 
@@ -170,7 +208,8 @@ def forged_winner_is_caught():
     what the first `verify` would have waved through."""
     scores = {"null": 5000, "aaa": 9999, "mmm": 1000, "zzz": 1000}
     cert = certify(scores, LOJO_MISS)
-    honest = (verify(cert, scores) and cert["winner"] == "mmm"     # ties -> lexicographic
+    m0 = LOJO_MISS["metric"]
+    honest = (verify(cert, scores, m0) and cert["winner"] == "mmm"     # ties -> lexicographic
               and cert["runner_up"] == "zzz" and cert["beats_baseline"] is True)
     forgeries = [
         dict(cert, winner="aaa", score=9999),                      # a loser crowned
@@ -183,7 +222,46 @@ def forged_winner_is_caught():
         dict(cert, beats_baseline=False),                          # the VERDICT itself forged
         dict(cert, field=("aaa", "mmm")),                          # the declared field forged
     ]
-    return honest and not any(verify(f, scores) for f in forgeries)
+    return honest and not any(verify(f, scores, m0) for f in forgeries)
+
+
+def forged_selector_is_caught():
+    """THE FOURTH INSTANCE OF THE PATTERN, PLANTED. A certificate advertises its whole selector, and
+    the previous verifier interpreted only `objective`, `exclude` and `baseline` -- so a certificate
+    could carry an AUTHENTIC WINNER while lying about the rule that chose it. Worse, the tie check
+    hard-coded `<` while the selector advertised `tie_break`, so the advertised rule and the enforced
+    rule were simply different rules.
+
+    Every forgery below keeps the winner and every score honest and corrupts only the SELECTOR."""
+    scores = {"null": 5000, "aaa": 9999, "mmm": 1000, "zzz": 1000}
+    cert = certify(scores, LOJO_MISS)
+    honest = verify(cert, scores, expect_metric=LOJO_MISS["metric"])
+    forgeries = [
+        dict(cert["selector"], tie_break="reverse_lexicographic"),   # advertised rule flipped
+        dict(cert["selector"], metric="totally_different_metric"),   # metric fabricated
+        dict(cert["selector"], objective="max"),                     # direction flipped
+        dict(cert["selector"], bogus="x"),                           # unknown key smuggled in
+        {k: v for k, v in cert["selector"].items() if k != "baseline"},          # key removed
+        dict(cert["selector"], exclude=()),                          # L62: baseline freed to compete
+        dict(cert["selector"], metric=""),                           # empty metric
+        dict(cert["selector"], exclude=["null"]),                    # wrong type for exclude
+    ]
+    m = LOJO_MISS["metric"]
+    caught = not any(verify(dict(cert, selector=f), scores, expect_metric=m) for f in forgeries)
+    metric_checked = not verify(cert, scores, expect_metric="some_other_metric")
+    return honest and caught and metric_checked
+
+
+def tie_rule_is_the_declared_one():
+    """The tie check must FOLLOW the certificate's declared rule, not a fixed `<`. Under
+    `reverse_lexicographic` the tied winner is `zzz`; a certificate declaring that rule while naming
+    `aaa` must FAIL, and the honest one must pass. The old hard-coded verifier accepted both."""
+    tied = {"null": 9000, "aaa": 1000, "zzz": 1000}
+    rev = dict(LOJO_MISS, tie_break="reverse_lexicographic")
+    cert = certify(tied, rev)
+    honest = verify(cert, tied, expect_metric=rev["metric"]) and cert["winner"] == "zzz"
+    swapped = dict(cert, winner="aaa", score=1000, runner_up="zzz", runner_up_score=1000)
+    return honest and not verify(swapped, tied, expect_metric=rev["metric"])
 
 
 def baseline_cannot_win():
@@ -435,7 +513,7 @@ def main():
     for k in ("winner", "score", "runner_up", "runner_up_score", "baseline", "baseline_score",
               "beats_baseline", "field"):
         print("  %-16s %s" % (k, cert[k]))
-    print("  %-16s %s" % ("verified", verify(cert, res)))
+    print("  %-16s %s" % ("verified", verify(cert, res, LOJO_MISS["metric"])))
     print()
     print("red-first — a forged winner is REFUSED : %s" % forged_winner_is_caught())
     print("red-first — the baseline cannot win    : %s" % baseline_cannot_win())

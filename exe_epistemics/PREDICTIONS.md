@@ -4703,3 +4703,115 @@ FALSIFIER. The `epistemics-apparatus-selftest` row: a certificate whose winner a
 authentic but whose beats-baseline verdict is inverted must pass the shipped winner-only criterion
 and be REFUSED by the current verifier. If that row ever passes with the repairs reverted, the stage
 is decorative.
+
+
+## RUNG 13 — the FOURTH instance, found inside the repair of the third (2026-08-06)
+
+Rung 12 closed with an explicit does_not_show: *"three defects of one shape were found by readers in
+three rungs, and a fourth is not ruled out by gating the first three."* The fourth was in that
+rung's own repair, and a reviewer found it the same day. The boundary was correct and it was not
+idle caution.
+
+### THE FOURTH INSTANCE — a certificate that verified its winner and TRUSTED ITS SELECTOR
+
+`selection.verify` was rewritten at Rung 12 to check "every advertised field". It checked every
+top-level RESULT field and interpreted only three of the five SELECTOR fields (`objective`,
+`exclude`, `baseline`), leaving `tie_break` and `metric` carried but unchecked. Worse, the tie test
+hard-coded `<` while the certificate advertised `tie_break` -- **the advertised rule and the enforced
+rule were different rules.** Measured before repair, every one of these forgeries VERIFIED with the
+winner and all scores authentic:
+
+    tie_break flipped to reverse_lexicographic   -> verify TRUE
+    metric replaced by a fabricated name         -> verify TRUE
+    an unknown key smuggled into the selector    -> verify TRUE
+    the `baseline` key removed entirely          -> verify TRUE
+
+So the pattern is now at four, and the fourth is the sharpest because it occurred *in the act of
+fixing the third*, with the docstring asserting completeness:
+
+    Rung  9  NAME said argmin-by-score,       RETURN was argmin-by-name
+    Rung 10  NAME said detects-fragility,     RETURN was is-an-int
+    Rung 11  NAME said verify-certificate,    RETURN checked one field
+    Rung 13  NAME said verify-EVERY-field,    RETURN checked every RESULT field and 3 of 5 SELECTOR fields
+
+REPAIRED: `validate_selector` enforces the schema by EXACT key equality (a subset check is how a
+field stops being checked), `_tie_precedes` makes verification follow the DECLARED rule, `certify`
+computes its runner-up under that rule too, and `select` now validates before selecting so the
+schema cannot be bypassed by the producer.
+
+**AND ONE DESIGN CORRECTION THE REVIEW DID NOT ASK FOR BUT THE PATTERN DEMANDED.** The first repair
+gave `verify` an optional `expect_metric=None`, unchecked when omitted. That is the same defect
+wearing a keyword argument: an optional check defaults to OFF, so the field stays unverified in every
+existing call site while the signature advertises otherwise. `expect_metric` is now REQUIRED. A
+verifier cannot check that a score table came from a declared metric -- scores carry no provenance --
+so the caller must state which metric it believes produced them, and the belief is checked against
+the certificate rather than assumed.
+
+### THE PREFIX HOLE, in the scanner repaired at Rung 12
+
+`_directly_referenced` matched the bare needle `exe_epistemics/<stem>`, so:
+
+    exe_epistemics/probes_extra.py   counted as a reference to probes.py
+    exe_epistemics/probes2.py        counted as a reference to probes.py   <- A REAL SIBLING MODULE
+    exe_epistemics/probes.md         counted as a reference to probes.py
+    exe_epistemics/probesque         counted as a reference to probes.py
+
+Substring containment is not path equality, and the two modules whose names NEST (`probes`,
+`probes2`) are precisely the two most likely to be confused. Now boundary-aware, with the reviewer's
+three fixtures plus two more and a positive control -- eleven in total, all run against the real
+scanner.
+
+### "FORBIDDEN" WAS A PREFERENCE, AND IS NOW A MECHANISM
+
+Rung 12 wrote that corpus coupling was "forbidden, not merely discouraged" while NOTHING prevented a
+later edit from adding a module-scope `import prediction_residuals`. A prohibition with no mechanism
+is a preference, and saying "forbidden" louder does not supply the mechanism -- which is the same
+`claim != code` failure as the other four, applied to a policy instead of a function.
+
+`corpus_coupling()` now walks the AST of the modules the gate stage loads and reports any
+MODULE-SCOPE import of a ledger-reading module. Scope is the entire distinction -- `selection`
+legitimately imports `prediction_residuals` INSIDE `winner_stability`, which is what keeps the
+live-corpus application available without dragging the corpus into every import -- and a text search
+cannot see scope, which is why this is an AST walk. `coupling_guard_bites()` proves it on a synthetic
+module carrying exactly the banned import, and proves it does NOT fire on the legal function-local
+form.
+
+WHAT IS STILL NOT ENFORCED, stated rather than glossed: an indirect read through a helper the scan
+does not follow, or a corpus dependency introduced transitively. The bounded claim, adopted from the
+review nearly verbatim: **this gate stage currently executes only synthetic apparatus paths and
+contains no module-scope corpus import** -- not that a corpus read is impossible.
+
+### WHAT THE FOUR INSTANCES NOW SUPPORT
+
+Four carriers, each independently discovered, each in the arc's own adjudication machinery, and every
+one found by a READER rather than by a run. Two structural readings, and the second is the one worth
+keeping:
+
+  1. The defects cluster where the code was UNGATED. Three of the four lived in modules no row
+     exercised; the mechanism now exists (Rung 12, extended here).
+  2. **A name is a claim, and it is the only claim in a codebase that no test checks by
+     construction.** A test asserts what the author wrote down; the NAME asserts what the author
+     believed. When they diverge the test still passes, because the test was written from the same
+     belief. That is why every one of these was found by a reader and none by a run -- and why the
+     repair is not "write more tests" but "make the name's claim explicit enough to be falsifiable",
+     which is what a schema, a required argument and a declared tie rule each do.
+
+STILL NOT MINTED as a lesson. Four carriers is enough for the pattern to be real and NOT enough to
+know its repair generalises: every instance so far is in ONE directory, written by ONE author, in
+ONE arc, over three days. `sample != universal` (L20) is exactly the law that would be violated by
+minting now, and it is the law this arc has broken most often. The candidate stands with its carrier
+count recorded, and the honest next test is whether the same shape appears in a module NOT written
+during this sequence.
+
+GRADE. MEASURED: all four selector forgeries verified before repair and are refused after; the four
+prefix false positives; the AST coupling guard biting on the banned form and not on the legal one;
+GATE PASSED twice byte-identical, 858 rows, 0 FAIL. DECLARED: the two structural readings above, and
+that the gated obligation set is the right one. does_not_show: that a FIFTH instance does not exist
+-- the fourth was found inside the repair of the third, which is the strongest available evidence
+that this boundary should stay open; that the coupling guard makes a corpus read impossible.
+
+FALSIFIER. `forged_selector_is_caught()` and `tie_rule_is_the_declared_one()` in `selection.py`,
+`coupling_guard_bites()` in `apparatus.py`, all three on `epistemics-certificate` /
+`epistemics-apparatus-selftest`. If a certificate ever verifies while carrying a forged tie rule or a
+fabricated metric, or the AST guard stops firing on a module-scope corpus import, these rows redden
+and this rung's central claim dies with them.

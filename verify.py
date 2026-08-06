@@ -3268,11 +3268,18 @@ class Gate:
         Each was found by a reader, never by a run. This stage is the mechanism that makes the next
         one findable by a run. `ungated as evidence ≠ untested as machinery`.
 
-        NOTHING HERE READS THE LEDGER. Every fixture below is constructed in this method or inside
-        the arc's own red-first plants; `prediction_residuals` is never imported, `PREDICTIONS.md`
-        is never opened, and the row detail contains no corpus number. If a future edit makes this
-        stage depend on the corpus, the gate begins moving when the ledger is appended and the
-        determinism guarantee dies quietly — so that coupling is forbidden, not merely discouraged."""
+        NOTHING HERE READS THE LEDGER, and that is now CHECKED rather than promised. Every fixture
+        below is constructed in this method or inside the arc's own red-first plants. Rung 12 wrote
+        that the coupling was "forbidden, not merely discouraged" while nothing whatever prevented a
+        later edit from adding a module-scope `import prediction_residuals` — a prohibition with no
+        mechanism is a preference, and saying "forbidden" louder does not supply the mechanism. The
+        selftest row now runs an AST walk over the modules this stage loads and reddens if any of
+        them imports a ledger-reading module at MODULE scope. Function-local imports remain legal
+        (`selection` uses one for its live-corpus application), so the check is scope-aware, which a
+        text search cannot be. WHAT IS STILL NOT ENFORCED, stated rather than glossed: an indirect
+        read through a helper this scan does not follow, or a corpus dependency introduced in a
+        module the stage imports transitively. The claim is that these calls execute synthetic paths
+        and no module-scope corpus import exists — not that a corpus read is impossible."""
         edir = os.path.join(ROOT, "exe_epistemics")
         if edir not in sys.path:
             sys.path.insert(0, edir)
@@ -3305,7 +3312,8 @@ class Gate:
             % (named_by_score, alpha_trap, tie_det, base_walled))
 
         # ---- 2. the CERTIFICATE verifies EVERY field it advertises ----------------------------
-        cert_ok = SEL.forged_winner_is_caught()
+        cert_ok = (SEL.forged_winner_is_caught() and SEL.forged_selector_is_caught()
+                   and SEL.tie_rule_is_the_declared_one())
         self.record(
             "epistemics-certificate", cert_ok,
             "a winner is never asserted, only certified: nine forgeries are refused — a loser "
@@ -3313,7 +3321,13 @@ class Gate:
             "forged runner-up, a forged runner-up score, a forged baseline score, a forged "
             "beats-baseline VERDICT, and a forged field. Verification checks the DEFINING PROPERTY "
             "of an argmin rather than re-running the selector (L23: one computation restated is a "
-            "definition), so a certificate passes even if `select` is wrong"
+            "definition), so a certificate passes even if `select` is wrong. The SELECTOR is "
+            "verified too, not merely carried: eight selector forgeries are refused with the winner "
+            "and every score left authentic (a flipped tie rule, a fabricated metric, an inverted "
+            "objective, a smuggled key, a removed key, an emptied exclusion freeing the baseline to "
+            "compete, an empty metric, a mistyped exclusion), and the tie check FOLLOWS the "
+            "declared rule instead of a hard-coded `<` — a certificate advertising "
+            "reverse-lexicographic while naming the lexicographic winner reddens"
             if cert_ok else "a forged certificate verified — the certificate certifies nothing")
 
         # ---- 3. the ABLATION can exhibit fragility, in BOTH of its forms ----------------------
@@ -3339,10 +3353,12 @@ class Gate:
         forged = dict(cert, beats_baseline=(not cert["beats_baseline"]))
         winner_only = (forged["winner"] in cert["field"]
                        and scores[forged["winner"]] == forged["score"])
-        cert_bites = winner_only and not SEL.verify(forged, scores)
+        cert_bites = winner_only and not SEL.verify(forged, scores, SEL.LOJO_MISS["metric"])
         vacuous_old = isinstance({"n_flips": 0}.get("n_flips"), int)
         scanner_bites = APP.reference_test_runs_the_real_scanner()
-        bites = cert_bites and vacuous_old and scanner_bites
+        coupling_bites = APP.coupling_guard_bites()
+        coupling_clean = APP.corpus_coupling() == []
+        bites = cert_bites and vacuous_old and scanner_bites and coupling_bites and coupling_clean
         self.record(
             "epistemics-apparatus-selftest", bites,
             "each repair is proved to BITE against the code it replaced: a certificate whose winner "
@@ -3351,10 +3367,15 @@ class Gate:
             "`isinstance(n_flips, int)` is confirmed true of a zero-flip result, which is why it "
             "could never fail; and the reference scanner is exercised by its own plant rather than "
             "by a reimplementation of it, since a falsifier that does not run the thing it "
-            "falsifies guards a copy"
+            "falsifies guards a copy. The CORPUS-COUPLING BAN is now MECHANICAL rather than "
+            "declared: an AST walk of the modules this stage loads asserts that none imports the "
+            "ledger-reading modules at MODULE scope (function-local imports stay legal, which is "
+            "the whole distinction and is why this is an AST walk and not a grep), and the guard is "
+            "proved to bite on a synthetic module carrying exactly that defect"
             if bites else
-            "a repair does not bite: certificate=%s vacuous-demo=%s scanner=%s"
-            % (cert_bites, vacuous_old, scanner_bites))
+            "a repair does not bite: certificate=%s vacuous-demo=%s scanner=%s coupling-guard=%s "
+            "coupling-clean=%s"
+            % (cert_bites, vacuous_old, scanner_bites, coupling_bites, coupling_clean))
 
     def doc_currency(self):
         """The tracked docs must quote the LIVE counts — docs must match reality
