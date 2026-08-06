@@ -4815,3 +4815,93 @@ FALSIFIER. `forged_selector_is_caught()` and `tie_rule_is_the_declared_one()` in
 `epistemics-apparatus-selftest`. If a certificate ever verifies while carrying a forged tie rule or a
 fabricated metric, or the AST guard stops firing on a module-scope corpus import, these rows redden
 and this rung's central claim dies with them.
+
+
+## RUNG 14 — the pattern recursed through its own repair, twice more (2026-08-06)
+
+Rung 13 said the four-carrier reading was real and that the repair might not generalise. A reviewer
+found two more instances IN THAT REPAIR, and the diagnosis is the sharper contribution: **exact
+schema was applied one level DOWN to the selector and not one level UP to the certificate, and
+"module scope" was named more broadly than the AST traversal implemented.** Both are the same shape
+again, now inside the guards written to stop it.
+
+### INSTANCE 5 — the certificate had no schema
+
+Rung 13 gave the SELECTOR exact-key validation. The object CARRYING the selector kept none. Measured
+before repair:
+
+    dict(cert, proof_status="VALIDATED_BY_ORACLE")   -> verify TRUE   (an advertised claim ignored)
+    del cert["runner_up"]                            -> RAISED KeyError
+
+The first is the Rung 11 defect exactly: an advertised field nobody checks. The second is subtler
+and worse -- **a verifier that answers "no" by raising is a verifier whose callers decide the verdict
+with their `except` clauses.** A crash is not a refusal. Repaired with `_CERTIFICATE_KEYS` by exact
+equality plus type guards on every access, so malformed input returns False rather than throwing:
+non-dict, wrong-typed winner, wrong-typed field, extra key and missing key all now return False.
+
+### INSTANCE 6 — "module scope" meant "AST depth one"
+
+`_module_scope_imports` iterated `tree.body` only. Every one of these EXECUTES at import and was
+reported as absent:
+
+    if ENABLED:                 try:                          with suppress(Exception):
+        import prediction_...       import prediction_...         import prediction_...
+
+Three of the five shapes that matter, invisible. The docstring said "module scope"; the code said
+"depth one". The proper distinction is not depth -- it is *not enclosed by a function, async
+function, lambda or class body* -- so the scan is now a `NodeVisitor` that descends through
+module-level control flow and REFUSES to descend into those four. Eight fixtures, measured: top
+level, `if`, `try`, `with` and `for` all caught; function, method and `async def` all correctly
+allowed, since the arc's legitimate lazy use (`selection` importing `prediction_residuals` inside
+`winner_stability`) must stay legal.
+
+### AND THE GUARD WAS DETECTIVE, NOT PREVENTIVE
+
+The reviewer's smaller point is the one with the most operational consequence. The AST guard ran
+AFTER `import selection`, so a newly introduced banned import would have already executed by the
+time the row reported it -- the row would redden truthfully and the coupling would have happened
+anyway. "Forbidden" would have meant "executed once, then failed".
+
+The stage now scans the SOURCE FILES with a scope-aware AST read BEFORE importing anything, and
+refuses all four rows without loading the modules if it finds a corpus import. Proved by planting
+`if True: import prediction_residuals` in `selection.py`: all four rows go RED with
+`REFUSED BEFORE IMPORT`, and the plant is the `if`-nested form version 1 could not see at all.
+
+### THE COUNT, AND WHAT IT NOW MEANS
+
+    Rung  9  NAME argmin-by-score          RETURN argmin-by-name
+    Rung 10  NAME detects-fragility        RETURN is-an-int
+    Rung 11  NAME verify-certificate       RETURN one field
+    Rung 13  NAME verify-EVERY-field       RETURN 3 of 5 selector fields
+    Rung 14a NAME verify-every-field       RETURN no certificate schema; KeyError instead of False
+    Rung 14b NAME module-scope-imports     RETURN depth-one imports
+
+Six carriers. Rungs 13, 14a and 14b were each introduced BY THE REPAIR OF THE PREVIOUS ONE. That is
+the finding, and it is stronger than the original four supported: **the defect is not distributed
+randomly through the code -- it is concentrated in the act of writing a guard.** Writing a checker
+requires stating what it checks, and the statement is made in the same breath as the code, from the
+same belief, by the same author. Nothing in the process compares them. Every one of the six was
+found by a reader; none by a run; and three were found in the fix for the one before.
+
+STILL NOT MINTED, and the reason has changed. At four carriers the objection was `sample !=
+universal` (one directory, one author, one arc). That objection stands, but a second and sharper one
+now applies: **the last three carriers are evidence that this author's repairs REPRODUCE the defect,
+which is a reason to distrust a law written by the same author in the same session about how to
+avoid it.** A lesson minted now would be the seventh instance waiting to happen -- a general claim
+stated in the same breath as the specific repairs, from the same belief, with nothing comparing them.
+The candidate stands at six carriers with the recursion recorded; the honest test remains an
+instance found in a module NOT written during this sequence.
+
+GRADE. MEASURED: both new defects exhibited before repair (an ignored advertised key verifying TRUE,
+a missing key RAISING); all eight import-scope fixtures; the preventive refusal, proved by planting a
+nested corpus import and observing all four rows go red BEFORE import; GATE PASSED twice
+byte-identical, 858 rows, 0 FAIL. DECLARED: the concentration reading -- that the defect clusters in
+guard-writing rather than distributing randomly -- which six carriers from one sequence suggest and
+do not establish. does_not_show: that a SEVENTH instance does not exist; that the certificate schema
+is complete for objects this arc has not yet built; that scope-aware AST scanning catches an indirect
+read through a helper it does not follow, or a transitive corpus dependency.
+
+FALSIFIER. `coupling_guard_bites()` over the eight scope fixtures, and the certificate-schema
+refusals on `epistemics-certificate`. If a certificate with an extra advertised key ever verifies, or
+the visitor stops catching an `if`-nested corpus import, these rows redden and this rung's claims die
+with them.

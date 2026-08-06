@@ -62,6 +62,15 @@ class SelectionError(Exception):
 #: an unexpected key is a selector this verifier does not understand, and silently ignoring it is
 #: how a field stops being checked.
 _SELECTOR_KEYS = frozenset(("objective", "metric", "tie_break", "exclude", "baseline"))
+
+#: THE CERTIFICATE SCHEMA. The selector got exact-key discipline at Rung 13 and the object CARRYING
+#: it did not, which is the same defect one level up: an extra advertised field was ignored (so a
+#: certificate could advertise `proof_status="VALIDATED"` and still verify) and a missing one raised
+#: KeyError (a crash is not a refusal — it hands the verdict to the caller's `except`).
+_CERTIFICATE_KEYS = frozenset((
+    "winner", "score", "runner_up", "runner_up_score", "baseline", "baseline_score",
+    "beats_baseline", "selector", "field",
+))
 _OBJECTIVES = ("min", "max")
 _TIE_BREAKS = ("lexicographic", "reverse_lexicographic")
 
@@ -148,11 +157,30 @@ def verify(cert, scores, expect_metric):
     the shape a certificate exists to prevent. A verifier that checks a subset of what its object
     advertises is not a verifier of that object; it is a verifier of the subset, and the name
     over-claims the difference. Either every advertised field is checked or the object is renamed
-    to what it actually certifies. This checks every field."""
+    to what it actually certifies.
+
+    THE THIRD VERSION, AND THE DEFECT WAS THE REPAIR'S OWN SHAPE. Version 2 gave the SELECTOR an
+    exact-key schema and left the enclosing CERTIFICATE without one -- so the discipline was applied
+    one level DOWN and not one level UP. An extra advertised key (`proof_status="VALIDATED"`) was
+    silently ignored and the certificate still verified; a MISSING key raised `KeyError` instead of
+    returning False, which is not a refusal but a crash wearing one. A verifier that answers "no"
+    by raising is a verifier whose callers decide the verdict with their `except` clauses. The
+    certificate now carries `_CERTIFICATE_KEYS` by exact equality and every field access is
+    type-guarded, so a malformed object returns False rather than throwing."""
+    if not isinstance(cert, dict) or set(cert) != set(_CERTIFICATE_KEYS):
+        return False
     sel = cert["selector"]
     if not validate_selector(sel):
         return False                          # an unverifiable selector verifies nothing
     if sel["metric"] != expect_metric:
+        return False
+    if not isinstance(scores, dict) or not scores:
+        return False
+    if not isinstance(cert["field"], tuple) or not all(isinstance(x, str) for x in cert["field"]):
+        return False
+    if not isinstance(cert["winner"], str):
+        return False
+    if cert["winner"] not in scores or scores[cert["winner"]] != cert["score"]:
         return False
     sign = 1 if sel["objective"] == "min" else -1
     tb = sel["tie_break"]
@@ -177,7 +205,7 @@ def verify(cert, scores, expect_metric):
             return False
     else:
         ru = cert["runner_up"]
-        if ru not in rivals or scores[ru] != cert["runner_up_score"]:
+        if not isinstance(ru, str) or ru not in rivals or scores[ru] != cert["runner_up_score"]:
             return False
         r = sign * scores[ru]
         for k in rivals:
@@ -188,7 +216,7 @@ def verify(cert, scores, expect_metric):
     # ---- the baseline and the comparison against it ---------------------------------------------
     base = cert["baseline"]
     if base is not None:
-        if base not in scores:
+        if not isinstance(base, str) or base not in scores:
             return False
         if scores[base] != cert["baseline_score"]:
             return False

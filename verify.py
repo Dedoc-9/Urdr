@@ -3283,6 +3283,68 @@ class Gate:
         edir = os.path.join(ROOT, "exe_epistemics")
         if edir not in sys.path:
             sys.path.insert(0, edir)
+
+        # ---- PREVENTIVE, NOT DETECTIVE: scan the FILES before importing them ------------------
+        # A guard that runs after `import selection` has already executed whatever that module does
+        # at import time, so a banned corpus import would have fired before the row could report it
+        # — the row would redden truthfully and the coupling would still have happened. The scan is
+        # therefore a pure AST read of the source, performed FIRST, with the import refused if it
+        # finds anything. Scope-aware by construction: `ast` sees `if`/`try`/`with` nesting, which a
+        # depth-one walk and a text search both miss.
+        _CORPUS = ("prediction_residuals", "multinull", "nullbase", "orbitprobe", "seamgame")
+
+        def _mod_scope_imports(_path):
+            import ast
+
+            class _S(ast.NodeVisitor):
+                def __init__(self):
+                    self.names = set()
+
+                def visit_Import(self, n):
+                    self.names.update(a.name.split(".")[0] for a in n.names)
+
+                def visit_ImportFrom(self, n):
+                    if n.module:
+                        self.names.add(n.module.split(".")[0])
+
+                def visit_FunctionDef(self, n):
+                    return
+
+                def visit_AsyncFunctionDef(self, n):
+                    return
+
+                def visit_Lambda(self, n):
+                    return
+
+                def visit_ClassDef(self, n):
+                    return
+
+            try:
+                with open(_path, encoding="utf-8") as fh:
+                    tree = ast.parse(fh.read(), filename=_path)
+            except (OSError, SyntaxError):
+                return None
+            v = _S()
+            for node in tree.body:
+                v.visit(node)
+            return v.names
+
+        _coupled = []
+        for _m in ("selection.py", "apparatus.py"):
+            _names = _mod_scope_imports(os.path.join(edir, _m))
+            if _names is None:
+                _coupled.append((_m, "unparseable"))
+            else:
+                _coupled.extend((_m, n) for n in sorted(_names) if n in _CORPUS)
+        if _coupled:
+            for _r in ("epistemics-selector", "epistemics-certificate", "epistemics-ablation",
+                       "epistemics-apparatus-selftest"):
+                self.record(_r, False,
+                            "REFUSED BEFORE IMPORT: the apparatus reaches the empirical corpus at "
+                            "module scope (%s), so loading it would couple the gate to the ledger "
+                            "and a ledger append could move a gate row" % (_coupled,))
+            return
+
         try:
             import selection as SEL
             import apparatus as APP

@@ -182,25 +182,59 @@ _CORPUS_FILES = ("PREDICTIONS.md",)
 
 
 def _module_scope_imports(path):
-    """Every name imported at MODULE SCOPE (column 0), by AST. Function-local imports are excluded
-    deliberately: `selection` imports `prediction_residuals` INSIDE `winner_stability`, which is what
-    keeps the live-corpus application available without dragging the corpus into every import of the
-    module. Scope is the whole distinction, so the check has to see scope -- which a text search
-    cannot, and which is why this is an AST walk rather than a grep."""
+    """Every name imported at MODULE SCOPE, by AST -- where MODULE SCOPE means *not enclosed by a
+    function, async function, lambda or class body*, NOT "a direct child of Module.body".
+
+    THE SECOND VERSION, AND THE FIRST NAMED A BROADER PROPERTY THAN IT IMPLEMENTED. Version 1
+    iterated `tree.body` only, so every one of these executed at import and was reported as absent:
+
+        if ENABLED:                     try:                        with suppress(Exception):
+            import prediction_residuals     import prediction_res...     import prediction_res...
+
+    Three of the five shapes that matter were invisible, and the docstring said "module scope"
+    while the code said "depth one". Same defect as the four before it, in the guard written to
+    stop them.
+
+    Function-local imports remain LEGAL and must not be reported: `selection` imports
+    `prediction_residuals` inside `winner_stability`, which is exactly what keeps the live-corpus
+    application available without dragging the corpus into every import of the module. So the
+    visitor descends through module-level control flow and REFUSES to descend into function, async
+    function, lambda and class bodies -- scope, not depth."""
     import ast
+
+    class _ModuleScope(ast.NodeVisitor):
+        def __init__(self):
+            self.names = set()
+
+        def visit_Import(self, node):
+            self.names.update(a.name.split(".")[0] for a in node.names)
+
+        def visit_ImportFrom(self, node):
+            if node.module:
+                self.names.add(node.module.split(".")[0])
+
+        # scope boundaries: do NOT descend
+        def visit_FunctionDef(self, node):
+            return
+
+        def visit_AsyncFunctionDef(self, node):
+            return
+
+        def visit_Lambda(self, node):
+            return
+
+        def visit_ClassDef(self, node):
+            return
+
     try:
         with open(path, encoding="utf-8") as fh:
             tree = ast.parse(fh.read(), filename=path)
     except (OSError, SyntaxError):
         return None
-    out = set()
-    for node in tree.body:                      # top level ONLY -- not ast.walk
-        if isinstance(node, ast.Import):
-            out.update(a.name.split(".")[0] for a in node.names)
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                out.add(node.module.split(".")[0])
-    return out
+    v = _ModuleScope()
+    for node in tree.body:
+        v.visit(node)
+    return v.names
 
 
 def corpus_coupling(modules=("selection.py", "apparatus.py")):
@@ -234,16 +268,30 @@ def corpus_coupling(modules=("selection.py", "apparatus.py")):
     return bad
 
 
+#: THE SCOPE FIXTURES. Five shapes, and version 1 of the visitor got three of them wrong. The first
+#: three all EXECUTE at import time and so must be caught; the last two are enclosed by a scope that
+#: does not run at import and so must be allowed. `(source, must_be_caught)`.
+_SCOPE_FIXTURES = (
+    ("import os\nimport prediction_residuals\n\n\ndef f():\n    return 1\n", True),
+    ("ENABLED = True\nif ENABLED:\n    import prediction_residuals\n", True),
+    ("try:\n    import prediction_residuals\nexcept ImportError:\n    pass\n", True),
+    ("import contextlib\nwith contextlib.suppress(Exception):\n"
+     "    import prediction_residuals\n", True),
+    ("for _ in range(1):\n    import prediction_residuals\n", True),
+    ("import os\n\n\ndef f():\n    import prediction_residuals\n    return 1\n", False),
+    ("class C:\n    def m(self):\n        import prediction_residuals\n        return 1\n", False),
+    ("async def g():\n    import prediction_residuals\n    return 1\n", False),
+)
+
+
 def coupling_guard_bites():
-    """RED-FIRST: the guard must catch a module-scope corpus import. A synthetic module is written to
-    a temporary file with exactly that defect and the AST scan must report it, while a function-local
-    import of the same name must NOT be reported -- the scope distinction is the entire check, and a
-    guard that flagged both would forbid the arc's legitimate lazy use."""
+    """RED-FIRST: the guard must catch a corpus import in EVERY shape that executes at import time,
+    and must NOT fire on the shapes that do not. The scope distinction is the entire check -- a guard
+    that flagged function-local imports would forbid the arc's legitimate lazy use, and one that
+    missed `if`/`try`/`with` (as version 1 did) would license the coupling it names."""
     import tempfile
-    bad_src = "import os\nimport prediction_residuals\n\n\ndef f():\n    return 1\n"
-    ok_src = "import os\n\n\ndef f():\n    import prediction_residuals\n    return 1\n"
     outs = []
-    for src in (bad_src, ok_src):
+    for src, _expect in _SCOPE_FIXTURES:
         d = tempfile.mkdtemp()
         p = os.path.join(d, "probe_mod.py")
         with open(p, "w", encoding="utf-8") as fh:
@@ -255,7 +303,7 @@ def coupling_guard_bites():
             os.rmdir(d)
         except OSError:
             pass
-    return outs == [True, False] and corpus_coupling() == []
+    return outs == [e for _s, e in _SCOPE_FIXTURES] and corpus_coupling() == []
 
 
 #: SELF-EXCLUSION, and it is load-bearing rather than tidy. This module measures every module in the
