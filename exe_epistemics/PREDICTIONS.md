@@ -5725,3 +5725,83 @@ FALSIFIER. The dates above are `git log -S` output on the live repository and th
 timestamp. If `perception` turns out to predate the thread after all, this rung is wrong and Rung 20
 was right — and the correction is a two-command check either way, which is the reason it should
 never have been asserted unchecked.
+
+
+## RUNG 22 — a REFUTED mechanism resurfaced as a design option, 48 hours after it was graded
+
+A reviewer proposed **DECD-1**, a Dependency-Explicit Claim Declaration format: a claim states the
+conditions that would refute it, so a reader can check the conditions instead of trusting the claim.
+The shape is the direct formalisation of Rung 21's finding — *the detection mechanism that works is
+requiring a claim to name what it depends on* — and it is right. The SPECIMEN offered with it
+contains three defects, and the first is the one worth a ledger entry.
+
+### THE FINDING — `_lca_by_ctz` is a falsifier tool, and it was offered as a mechanism
+
+DECD-1's first refutation condition reads: *"Events are tagged with a monotonic vector clock **or
+2-adic ctz sequence**."* Against the live record:
+
+    tools/terrain/voxlat.py:145  `_lca_by_ctz` — "A FALSIFIER TOOL (not the law)"
+    voxlat-selftest (live row)   "The 2-adic form is correct on under half the corpus and INVERTS
+                                  on the sharpest case — two leaf siblings differing in one bit are
+                                  reported as diverging at the root"
+
+**The 2-adic form is retained in this repository precisely because it is WRONG.** It is a plant. It
+exists so the gate can prove the correct law bites. Rung 19 graded it in that role two days ago.
+
+And `voxlat`'s own docstring names the exact recurrence, in a sentence written before it recurred:
+*"the valuation arrived attached to a p-adic framing that was refuted PRECISELY BECAUSE it measures
+shared-prefix depth rather than distance, and then the refuted operation was adopted as the
+replacement. **Refuting a mechanism and then keeping it is worse than never refuting it.**"*
+
+That is the second time the same mechanism has been adopted after refutation. The module predicted
+the failure mode and the failure mode recurred within 48 hours of the prediction being graded — which
+is the strongest evidence this arc has that **retaining a refuted mechanism as a live plant is
+itself a hazard**: the plant is indistinguishable, at a glance, from an available option.
+
+A SECOND defect in the same condition, independent of the first: a vector clock and a ctz-on-a-Morton-
+key are not alternatives. One is a partial order on EVENTS; the other is a spatial TREE DEPTH. The
+`or` joins two different kinds of object.
+
+### THE OTHER TWO, recorded briefly
+
+**Condition 2 elevates the evidence taxonomy past its declared scope.** "State transitions depend
+ONLY on a finite, declared set of 5 epistemic statuses" makes EXECUTED/EXHAUSTIVE/STRUCTURAL/
+DECLARED/N/A into system state. They are metadata ABOUT CLAIMS — the answer to *what kind of evidence
+supports this cell* — and Rung 20 narrowed exactly this one message earlier: a project-specific
+taxonomy, not an epistemology, and the gate does not know what `STRUCTURAL` MEANS.
+
+**The conditions are PROSE IMPLICATIONS, not deciders.** "If X, the claim IS REFUTED" still requires
+a reader to evaluate X. This repository already runs the executable form, twice: 88 briefs carry
+`<!-- brief-falsifier: <row> -->` naming the gate row whose reddening kills the brief, and
+`provenance.py` requires any ELIMINATION or MECHANISM record to name a LIVE row in `enforces=`. Both
+are dependencies a RUN decides.
+
+### THE VERDICT ON THE FORMAT, and it is not a rejection
+
+**Enumerating dependencies is not sufficient, and the specimen proves it.** DECD-1 lists three
+dependencies and smuggles an undeclared fourth inside the first — *"the ctz mechanism is sound"* —
+which is false and measured false here. Moving an assumption out of the claim and into the dependency
+list does not check it; it relocates it. The format's own first instance did not protect against the
+class the format exists to prevent.
+
+The repair is not more dependencies. It is EXECUTABLE ones: each condition names the row or test that
+decides it. At which point DECD-1 is not a new mechanism at all — it is the generalisation of two
+this repository already runs, applied to CLAIMS rather than to briefs and provenance records. That is
+the honest verdict: **adopt the shape, do not build a third mechanism**, and the apparatus brake
+(12 modules, ~2900 lines) is the reason to say so out loud.
+
+One further note on the specimen's CLAIM line: *"A distributed system can achieve deterministic local
+state validation across asynchronous nodes without global consensus locks"* is universally quantified
+over distributed systems. Nothing in this repository could support it. The arc's version of that
+sentence would name `rannull`, `commute` and `lease` and would be bounded to their measured cells —
+which is Rung 18's matrix, and is three modules wide.
+
+GRADE. MEASURED: `_lca_by_ctz`'s status, read from the module and the live `voxlat-selftest` row; the
+existence and count of the two executable dependency mechanisms (88 brief markers, `enforces=`).
+DECLARED: that the three specimen defects are the important ones; the verdict on the format.
+does_not_show: that DECD-1 is unworkable — the shape is endorsed; that executable dependencies would
+have caught THIS defect (they would have caught the unstated one only if someone thought to write a
+condition for it, which is the limit of every such format and is not repaired here).
+
+FALSIFIER. `voxlat-selftest`. If the 2-adic form ever stops inverting on the sharpest case, it is not
+a plant, this rung's finding is void, and the mechanism would owe a re-grade rather than a warning.
