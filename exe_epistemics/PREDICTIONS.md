@@ -5379,3 +5379,93 @@ FALSIFIER. The relocation's first claim is falsifiable and that is why it is nex
 if `rannull`'s admission relation turns out NOT to be well-founded, or its refusals do NOT correspond
 to missing predecessors, then "hainuwele already implements a collapse" is false and the bridge
 fails — which would be a cleaner result than any amount of further construction here.
+
+
+## RUNG 18 — THE COLLAPSE MATRIX, measured per module against shipped code (2026-08-06)
+
+The relocation Rung 17 declared, executed. Two reviewer corrections adopted first, both of which
+changed what got built:
+
+**(1) NO REPOSITORY-WIDE VERDICT.** Different modules may satisfy different subsets, so the result
+is a MATRIX with per-cell evidence. That correction was right and the measurement proves it — one
+module has no reconstruction cell at all, because it has a different structure.
+
+**(2) L63's SCOPE.** "Architectural concepts are downstream of empirical winners, never upstream" is
+a PROJECT RULE, not a universal principle. The rungs support that premature generalisation causes
+repair recursion; they do not establish that architecture must always follow measurement, and many
+engineering disciplines run the other way successfully. L63 is NOT edited — that would falsify the
+record — but its scope is bounded here: it governs THIS repository's diagnostics, and a successor
+citing it outside that scope is over-reading it.
+
+### WHERE THE MEASUREMENT LIVES, and why that mattered
+
+In `tests/test_collapse_hypotheses.py` — a red-first falsifier the gate DISCOVERS, not an instrument
+in `exe_epistemics/`. All seven recorded carriers lived in ungated code, and Rung 17 stopped that
+directory. A measurement on shipped code belongs where this repository puts measurements on shipped
+code, so the answer can go RED when it stops being true. 15 falsifiers; the gate now stands at
+**2002 unit falsifiers / 858 rows**.
+
+### THE MATRIX
+
+    module    WELL-FOUNDED   EXTENSIONAL        EXHAUSTIVE PARTITION      UNIQUE RECONSTRUCTION
+    rannull   DECLARED       MEASURED           MEASURED                  MEASURED
+                             18-state sweep,    RAN-REFUSE over 4         round-trip over 6
+                             no collision       malformed + 5 out-of-     states, bit-exact
+                                                domain types
+    commute   DECLARED       MEASURED           MEASURED                  NOT APPLICABLE
+                             a function of      256-point sweep: 240      `predict` returns a
+                             the cells alone    ranked, 16 refused,       RANK, not a record —
+                                                exactly the diagonal,     there is nothing to
+                                                no third outcome          reconstruct
+    lease     DECLARED       MEASURED           MEASURED                  MEASURED
+                             36-state sweep,    LEASE-REFUSE over 4       round-trip + 3 planted
+                             no collision       malformed shapes          bit-flips all refused
+
+**WELL-FOUNDEDNESS IS DECLARED IN EVERY ROW, AND THAT IS THE MATRIX'S MOST IMPORTANT CELL.** These
+records are content-addressed, so a self-parenting record would require a hash fixed point and cannot
+be constructed — but that is a STRUCTURAL argument, and the live chain law lives in `terraform`, not
+in these three modules. **A test that cannot construct the counterexample has not tested for it.** A
+falsifier in the suite enforces the honesty of exactly this: no test may be NAMED for a hypothesis
+the suite does not measure, so the declared cell cannot quietly become a measured one.
+
+**THE REVIEWER'S PREDICTION LANDED.** They wrote that `commute` "might have a different structure
+entirely" and it does: it has no reconstruction cell, because it ranks rather than records. A
+repository-wide yes/no would have had to either invent a cell for it or drop the hypothesis; the
+matrix simply reports NOT APPLICABLE, which is the honest shape.
+
+### THE FIRST DEFECT IN THIS SEQUENCE CAUGHT BY EXECUTION
+
+The suite's first run FAILED, on `rannull`. The test listed `bytearray(rec)` among the malformed
+shapes; `restore_regional` opens with `type(buf) is bytes or type(buf) is bytearray`, an explicit and
+deliberate widening, so a well-formed bytearray round-trips BY DESIGN. **The module was right and
+the test was wrong.**
+
+That is worth more than the cell it corrected. Every one of the seven carriers was found by a
+READER; this one was found by RUNNING — which is precisely what relocating the work out of an
+ungated instrument and into a gated falsifier was supposed to buy, and it paid on the first
+execution. It is not carrier eight: nothing shipped, nothing was claimed, and the mechanism that
+caught it is the one the relocation installed. Recorded in the test's own docstring rather than
+quietly fixed, because a corrected fixture that erases its own history teaches nothing.
+
+### BATCH ORDER: INVERTED, AND SAID SO
+
+Rung 17 froze the next batch as (1) `voxlat`'s D5 entry, (2) the collapse matrix, (3) placement
+batch #4. **Item 2 was done first.** The reason is that the review that arrived supplied the matrix
+design, and building to it while it was in hand was worth more than the ordering; the reason it is
+recorded rather than glossed is the P8 rule — a stated plan that silently reorders is a plan nobody
+can hold you to. `voxlat`'s D5 entry remains FIRST-NEXT and was not attempted here, because grading a
+foundational module honestly requires reading it and a hasty grade is the inflation this arc exists
+to refuse.
+
+GRADE. MEASURED: every cell marked MEASURED above, by the named sweep, all 15 falsifiers green under
+the full gate, GATE PASSED twice byte-identical (223245 bytes, 858 rows, 2002 unit falsifiers, 0
+FAIL). DECLARED: the well-foundedness row, explicitly; that these four hypotheses are the right
+decomposition of the collapse question. does_not_show: that any module satisfies Mostowski's
+hypotheses as a WHOLE — three of twelve cells are declared or inapplicable; that the other ~100
+terrain modules behave like these three, which were chosen because the arc's own prose already
+claims the property for them (`sample != universal`); that satisfying these cells would make the arc
+"a collapse engine", which is architecture and remains unearned.
+
+FALSIFIER. `TheMatrixIsHonest.test_well_foundedness_is_declared_not_measured` — if any test in the
+suite is ever NAMED for well-foundedness while the suite still cannot construct a self-parenting
+record, that row reddens. The matrix's honesty is itself gated.

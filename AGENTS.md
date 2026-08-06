@@ -380,8 +380,10 @@ set — a sweep that updates them is not correcting a stale claim, it is falsify
 paragraph itself named only two of the six until 2026-08-05, so a reader following it literally
 would have swept four append-only records; read `_HISTORY` in `tools/specfreeze/doc_currency.py` as
 the source and treat this list as a copy that can drift. Caught three times: L37's `8 of 836 rows`
-was rewritten three times; a D5 entry ended up reading `1987 unit falsifiers and 836 rows`, a
-pairing that never existed; and the `<<<URDR` example block above was swept into a composite
+was rewritten three times; a D5 entry ended up pairing a THEN-CURRENT falsifier count with a
+STALE row count — a pairing that never existed in any run (the two figures are deliberately not
+reproduced here: quoting them would make this sentence a sweep target, which is L64 applied to the
+very sentence that teaches L64); and the `<<<URDR` example block above was swept into a composite
 transcript across fourteen commits (L64). Review the diff hunk-by-hunk regardless; the cost is
 minutes and a corrupted record looks exactly like a correct one afterwards.
 
@@ -508,7 +510,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 1987 unit falsifiers / 858 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 2002 unit falsifiers / 858 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1
