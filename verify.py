@@ -54,6 +54,7 @@ STAGE_ORDER = (
     "registry",
     "render",
     "render3d",
+    "render_bound",
     "render_perspective",
     "physics",
     "physics_nd",
@@ -666,6 +667,125 @@ class Gate:
         self.record("render3d-selftest", ndv,
                     "equal-depth ties order-dependent (depth is load-bearing; gate can redden)"
                     if ndv else "depth not load-bearing — instrument vacuous")
+
+    def render_bound(self):
+        """urdr-render rung 2's ADMISSION BOUND (URDRRBD1) — the depth path's i64 envelope,
+        DECIDED rather than chosen. `raster.py` routes every 2D intermediate through `_g()`;
+        `raster3d.py` added three products and guarded none of them, and the Rust placement
+        computes two of the three in native i64 (widening only the depth cross-multiply to
+        i128). So the binding term is `E_max*Zmax`, linear in each — and the old constructor,
+        whose only size check was `w > 4096 or h > 4096`, admitted a configuration on which
+        exact arithmetic and i64 keep DIFFERENT fragment sets with no refusal from either."""
+        rdir = os.path.join(ROOT, "tools", "render")
+        if rdir not in sys.path:
+            sys.path.insert(0, rdir)
+        try:
+            import renderbound as RB
+            import raster as R
+            import raster3d as R3
+        except Exception as exc:                                          # pragma: no cover
+            self.record("renderbound-law", False, f"import failed: {exc}")
+            return
+
+        # -- the decision: exhaustive, re-run here, and ATTAINED -------------------------
+        decided = RB.edge_max_is_decided_exhaustively()
+        attained = RB.edge_max_witness_attains()
+        rect = RB.edge_max(9, 5) == 32 != RB.edge_max(9, 9)
+        self.record("renderbound-law", decided and attained and rect,
+                    "max|edge| over [0,Bx)x[0,By) is EXACTLY (Bx-1)(By-1) — re-searched over "
+                    "every ordered triple in all %d rectangles up to %d on this run, not cited; "
+                    "attained by a=(0,0) b=(0,By-1) p=(Bx-1,0), so the boundary is testable; and "
+                    "rectangular, which a square-only sweep could not distinguish from (B-1)^2"
+                    % ((RB.DECISION_HI - 1) ** 2, RB.DECISION_HI)
+                    if decided and attained and rect else
+                    "the closed form is not the exhaustive maximum, or its witness does not attain it")
+
+        # -- the bound is JOINT: a resolution-only gate cannot be sound -------------------
+        joint = (not RB.admits(4096, 2, 0, 1 << 40)) and RB.admits(4096, 2, 0, 1 << 30) \
+            and RB.depth_intermediate_max(16, 16, 0, 200) == 2 * RB.depth_intermediate_max(16, 16, 0, 100) \
+            and not RB.admits(4096, 2, -(1 << 40), 1)
+        self.record("renderbound-joint", joint,
+                    "the predicate is (w*SUB-1)(h*SUB-1)*max(|znear|,|zfar|) <= 2^63-1 — depth "
+                    "range is a FACTOR, not an afterthought: doubling zfar halves the admitted "
+                    "size and a deep negative near plane refuses the same product a large zfar "
+                    "does. `screen_bits <= 31` (hence w <= 2^23) is the correct rung-1 ceiling and "
+                    "names no depth range, so it admits the divergent scene below"
+                    if joint else "the bound ignores the depth range — a resolution-only gate")
+
+        # -- a boundary, not a wall one short of one -------------------------------------
+        edges = all(RB.admits(w, h, 0, RB.max_depth_range(w, h))
+                    and not RB.admits(w, h, 0, RB.max_depth_range(w, h) + 1)
+                    for (w, h) in ((16, 16), (64, 32), (4096, 2)))
+        self.record("renderbound-boundary", edges and RB.bound_is_attained(),
+                    "the derived maximum is ADMITTED and one past it is REFUSED at every size "
+                    "tested — voxin's law: a refusal one short of the derived bound means the "
+                    "enforced bound is not the derived one"
+                    if edges and RB.bound_is_attained() else
+                    "the refusal is not the derived bound")
+
+        # -- EXECUTED: the divergence the bound exists to refuse --------------------------
+        exact, wrapped = RB.the_wrap_changes_the_frame()
+        div = exact > 0 and wrapped == 0 and RB.live_corpus_is_admitted()
+        self.record("renderbound-divergence", div,
+                    "EXECUTED at (4096, 2, 0, 2^40) — a configuration the OLD constructor "
+                    "admitted: %d fragments survive the near/far clip under exact arithmetic and "
+                    "%d under two's-complement i64 (`zfar*den` wraps negative), with no refusal "
+                    "from either placement; and every scene in the live corpus stays inside the "
+                    "bound, so the gate refuses a real divergence rather than this repo's own "
+                    "scenes. The wrap is modelled from the types read in urdr_render.rs, NOT from "
+                    "compiling it — that placement run is the outstanding falsifier" % (exact, wrapped)
+                    if div else "exact and i64 arithmetic agree — the bound refuses nothing real")
+
+        # -- the door is typed, and the two bounds stay apart ------------------------------
+        typed, sep = 0, False
+        for bad in ((4096, 2, 0, 1 << 40), (0, 16, 0, 100), (16, 16, 0, 10 ** 30),
+                    (16.0, 16, 0, 100), (16, 16, 0, 100.0)):
+            try:
+                R3.DepthFramebuffer(*bad)
+            except R.RenderError as exc:
+                typed += exc.code == "RENDER-REFUSE"
+        try:
+            R3.DepthFramebuffer(100000, 100000, 0, 1)
+        except R.RenderError as exc:
+            sep = "not a theorem" in exc.message and RB.admits(100000, 100000, 0, 1)
+        self.record("renderbound-refusal", typed == 5 and sep,
+                    "%d/5 typed RENDER-REFUSE where the old check raised a bare ValueError — "
+                    "including non-integer parameters, which are refused and never coerced "
+                    "(a silent int() would be an authority act with no record); and the DECLARED "
+                    "allocation policy stays distinguishable from the theorem in the message, "
+                    "since 100000x100000 at zfar=1 satisfies the i64 bound and still exhausts "
+                    "memory" % typed
+                    if typed == 5 and sep else
+                    "%d/5 refusals typed; policy/theorem separated: %s" % (typed, sep))
+
+        # -- RED-FIRST: four plants, each a shape this rung actually carried ---------------
+        plants = []
+        _em, _adm = RB.edge_max, R3.admits
+        try:
+            RB.edge_max = lambda bx, by: 2 * (bx - 1) * (by - 1)      # the loose upper bound
+            plants.append(not RB.edge_max_is_decided_exhaustively())
+            RB.edge_max = lambda bx, by: (bx - 1) * (bx - 1)          # square-only
+            plants.append(not RB.edge_max_is_decided_exhaustively())
+        finally:
+            RB.edge_max = _em
+        try:
+            R3.admits = lambda w, h, zn, zf, sub=RB.SUB: w <= (1 << 23) and h <= (1 << 23)
+            try:                                                       # resolution-only gate
+                R3.DepthFramebuffer(4096, 2, 0, 1 << 40)
+                plants.append(True)                                    # it ADMITS the divergence
+            except R.RenderError:
+                plants.append(False)
+        finally:
+            R3.admits = _adm
+        plants.append(RB.the_wrap_is_real())
+        self.record("renderbound-selftest", all(plants) and len(plants) == 4,
+                    "4/4 plants bite: the loose upper bound 2(Bx-1)(By-1) and the square-only "
+                    "(Bx-1)^2 both fail the exhaustive re-decision, the resolution-only gate is "
+                    "observed ADMITTING the divergent configuration, and the wrap fixture is "
+                    "observed diverging — each is a shape this rung carried before it was fixed, "
+                    "so the instrument is watched failing rather than assumed to (L23)"
+                    if all(plants) and len(plants) == 4 else
+                    "a planted defect did not redden: %r" % (plants,))
 
     def render_perspective(self):
         """D11 §4 rung 3: exact perspective projection (the projective chart swap).
@@ -16609,7 +16729,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen"
                                "storecost", "persist", "resurrect",
                                "rollstore", "glide",
                                "splice", "disjoint", "storm",
-                               "voxlat", "nway", "commute",
+                               "voxlat", "nway", "commute", "renderbound",
                                "heightfield", "jurisdiction", "layertheorem", "opcost", "terraform",
                                "stance", "warden", "budget", "wire", "horizon", "lease", "drive",
                                "govern", "liveness", "wavefield", "frontier", "gaze", "panelight", "wardhom", "ashdepth", "auditgraph", "cpredict", "driftgaze", "geoquorum", "ghostsnap", "hand", "interest", "mesh", "panewire",

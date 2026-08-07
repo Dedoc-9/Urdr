@@ -3,9 +3,28 @@
 The first **MEASURED** slice of the D11 §4 renderer contract: turn
 `State ⟶ Framebuffer` into `Digest(Frame) = SHA-256(canon(Frame))`, reproducible
 bit-for-bit by any conforming **integer** placement. No floating point anywhere;
-any i64 overflow is `RENDER-REFUSE`, never a saturate. **Rung 1** (`raster.py`) is
-flat 2D coverage; **rung 2** (`raster3d.py`) adds exact **3D depth** — z-buffer
-occlusion + near/far/screen clipping.
+any i64 overflow is `RENDER-REFUSE`, never a saturate — **rung 1 enforces that
+per-intermediate via `_g()`; rung 2 enforces it at the DOOR instead**, because its
+depth arithmetic is unguarded and Python integers do not overflow (see
+`renderbound.py`, and "the sentence this README used to carry" below). **Rung 1**
+(`raster.py`) is flat 2D coverage; **rung 2** (`raster3d.py`) adds exact **3D
+depth** — z-buffer occlusion + near/far/screen clipping.
+
+## The sentence this README used to carry
+
+The line above used to read, without qualification, that *any* i64 overflow is a
+refusal. That was true of rung 1 and **false of rung 2**, which added three
+products — `eb*z0 + ec*z1 + ea*z2`, the near/far clip `zfar*den`, and the depth
+test `num*cd` — and guarded none of them. `DepthFramebuffer(4096, 2, 0, 2⁴⁰)` was
+admitted by a constructor whose only size check was `w > 4096 or h > 4096`, and on
+it **4088 fragments survive the near/far clip under exact arithmetic and 0 survive
+under two's-complement i64**, with no refusal from either placement. Every
+conformance scene is 16×16 with `zfar ≤ 100`, so the pinned corpus sat thirty-two
+bits below the divergence and never saw it — `sample ≠ universal`. `renderbound.py`
+replaces that constant with a decided joint bound
+`(w·SUB−1)(h·SUB−1)·max(|znear|,|zfar|) ≤ 2⁶³−1` and a typed `RENDER-REFUSE`;
+`docs/renderbound_brief.md` and gate stage `render_bound` carry the derivation.
+**No conformance digest changed.**
 
 ## Rung 2 — exact 3D depth (`raster3d.py`)
 
@@ -17,7 +36,10 @@ edge-function weights; the **depth test is a cross-multiplication**
 Near/far clip keeps `znear·den ≤ num ≤ zfar·den`; screen clip never writes out of
 bounds. Occlusion is **order-independent for distinct depths** (nearest wins) —
 the frame is a function of the *set* of triangles; equal-depth ties are
-order-dependent (the non-vacuity proving depth is load-bearing). Scenes
+order-dependent (the non-vacuity proving depth is load-bearing — and the row that
+asserts it, `render3d-selftest`, is what a content-digest tie-break would have to
+replace in the same commit, not merely add to). Construction is admitted by the
+derived bound in `renderbound.py`, not by a chosen constant. Scenes
 (`scenes3d.py`) → `conformance3d.txt`; gated by `render3d`; falsified in
 `tests/test_raster3d.py`; cross-placed by `urdr_render_rs` (`C3D` corpus). The
 frame law is the same rung-1 `URDRFB1` color image. Scope: orthographic depth;

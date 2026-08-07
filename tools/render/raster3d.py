@@ -32,7 +32,9 @@ perspective projection + w-clip, a later rung). Consumes rung-1 primitives;
 touches no core; no new glyph."""
 import hashlib
 
-from raster import SUB, HALF, edge, MAGIC
+from raster import SUB, HALF, edge, MAGIC, RenderError
+from renderbound import (ALLOC_MAX_PIXELS, admits, depth_intermediate_max,
+                         max_depth_range)
 
 
 def _top_left(dx, dy):
@@ -44,8 +46,31 @@ class DepthFramebuffer:
     range [znear, zfar]. `oob` counts attempted out-of-bounds writes (screen clip
     — it must stay 0)."""
     def __init__(self, w, h, znear, zfar, channels=1):
-        if w <= 0 or h <= 0 or w > 4096 or h > 4096:
-            raise ValueError(f"framebuffer size out of range ({w}x{h})")
+        # THE DERIVED ADMISSION GATE. The old check was `w > 4096 or h > 4096` — a
+        # constant nobody decided, raising an UNTYPED ValueError, and unsound: it
+        # admitted (4096, 2, 0, 1<<40), on which exact arithmetic keeps 4088 fragments
+        # and i64 keeps 0. The bound is a joint predicate over size AND depth range,
+        # because the terms that stay narrow in the Rust placement are `num` and
+        # `zfar*den`, not the i128-widened depth test. See `renderbound`.
+        for v in (w, h, znear, zfar):
+            if not isinstance(v, int) or isinstance(v, bool):
+                raise RenderError("RENDER-REFUSE",
+                                  f"framebuffer parameters must be integers ({v!r})")
+        if w <= 0 or h <= 0:
+            raise RenderError("RENDER-REFUSE", f"framebuffer size out of range ({w}x{h})")
+        if not admits(w, h, znear, zfar):
+            raise RenderError(
+                "RENDER-REFUSE",
+                f"depth path exceeds i64: (w*SUB-1)(h*SUB-1)*max(|znear|,|zfar|) = "
+                f"{depth_intermediate_max(w, h, znear, zfar)} > {(1 << 63) - 1}; "
+                f"at {w}x{h} the derived depth range is {max_depth_range(w, h)}")
+        # DECLARED, not derived: a resource policy kept separate from the theorem
+        # above, because a 100000x100000 buffer at zfar=1 satisfies the theorem and
+        # still exhausts memory. Fusing the two is how `4096` came to look meaningful.
+        if w * h > ALLOC_MAX_PIXELS:
+            raise RenderError("RENDER-REFUSE",
+                              f"framebuffer allocation policy: {w}x{h} exceeds the "
+                              f"DECLARED {ALLOC_MAX_PIXELS}-pixel limit (not a theorem)")
         self.w, self.h, self.channels = w, h, channels
         self.buf = [0] * (w * h)
         self.znum = [None] * (w * h)      # per-pixel depth numerator (None = empty)
