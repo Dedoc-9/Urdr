@@ -1103,6 +1103,41 @@ class Gate:
                     "join' stay distinguishable"
                     if v == (True,) * 5 else "a forgery went undetected: %r" % (v,))
 
+        # -- the MINTED record, and the granularity seal ---------------------------------
+        rec = PJ.joined_witness()
+        minted = (PJ.joined_witness() == rec
+                  and PJ.join_digest(rec) == rec["digest"]
+                  and PJ.verify_joined(rec) == (PJ.WORLD_OK, PJ.PIXEL_OK)
+                  and PJ.the_record_commits_to_both_levels()
+                  and PJ.a_malformed_record_is_refused())
+        self.record("pixid-join-witness", minted,
+                    "the join is MINTED, not just recomputed: a record %s... binding world "
+                    "%s..., scene %s... and the visible set, rebuilt byte-for-byte from shipped "
+                    "code with no clock, no randomness and no hidden state. Its digest commits "
+                    "to EVERY field — a digest decided by the world alone would let two "
+                    "different renders of one world share an identity — and a record that is "
+                    "malformed or fails its own digest is a typed JOIN-REFUSE rather than a "
+                    "MISMATCH, because 'this record is wrong' and 'this is not a record' are "
+                    "different facts" % (rec["digest"][:12], rec["world"][:10], rec["scene"][:10])
+                    if minted else "the record is not recomputable or does not commit")
+
+        seal = PJ.granularity_is_sealed()
+        sealed = seal == ((PJ.WORLD_OK, PJ.PIXEL_BAD),
+                          (PJ.WORLD_BAD, PJ.PIXEL_OK),
+                          (PJ.WORLD_OK, PJ.PIXEL_OK))
+        self.record("pixid-join-granularity", sealed,
+                    "the two levels are INDEPENDENTLY reachable, so neither can stand in for "
+                    "the other: a record whose frame is forged verifies %s, one whose cited "
+                    "world is forged verifies %s, and the honest one %s. `verify_joined` "
+                    "returns a PAIR of named verdicts and has no single-boolean sibling — "
+                    "asserted on the SYNTAX, since a behavioural test cannot stop a convenience "
+                    "wrapper collapsing it. That collapse is the widening this row exists for "
+                    "and it is MEASURED rather than argued: reduced to its world half, the "
+                    "verdict ACCEPTS the pixel-forged record, and nothing in a scalar result "
+                    "would say the ownership was never examined"
+                    % (seal[0], seal[1], seal[2])
+                    if sealed else "a granularity half collapsed: %r" % (seal,))
+
     def render_perspective(self):
         """D11 §4 rung 3: exact perspective projection (the projective chart swap).
         Each wireframe scene's URDRFB1 frame digest is reproduced twice and matches

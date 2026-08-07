@@ -230,3 +230,149 @@ def the_occlusion_is_load_bearing(scene="island"):
     finally:
         INNER_DEPTH_OFFSET = saved
     return hidden <= revealed
+
+
+# =====================================================================================
+# THE JOINED WITNESS (URDRJOIN1) — minting the record, and sealing the granularity.
+#
+# Everything above RECOMPUTES the chain at check time and returns booleans. Nothing is
+# MINTED: there is no artifact a third party could hold and verify. That gap is what this
+# section closes, and it is the whole of this rung — the happy join and the forged-witness
+# case already ship as `pixid-view-join` / `pixid-view-join-forgery`.
+#
+# THE FAILURE MODE BEING SEALED. A verifier that returns ONE boolean cannot say which
+# level it checked. World-correct/pixel-forged and pixel-correct/world-forged both come
+# back False, so a caller reading a green result cannot tell whether the pixel ownership
+# was ever examined — and a world-level agreement silently stands in for a pixel-level
+# one. `verify_joined` therefore returns a PAIR of named verdicts and there is no
+# single-boolean sibling. `granularity_is_sealed` proves both halves are independently
+# reachable; if they were not, the pair would be decoration on a scalar.
+# =====================================================================================
+import hashlib                                                            # noqa: E402
+
+JOIN_MAGIC = b"URDRJOIN1"
+
+WORLD_OK, WORLD_BAD = "WORLD-OK", "WORLD-MISMATCH"
+PIXEL_OK, PIXEL_BAD = "PIXEL-OK", "PIXEL-MISMATCH"
+
+
+def joined_witness(html_text=None, scene="island"):
+    """MINT the record. A pure function of shipped code plus the view HTML: no clock, no
+    randomness, no hidden state, so any holder can recompute it byte-for-byte.
+
+    `digest` commits to BOTH levels. That is the point — a record whose digest were a
+    function of the world alone would let two different renders of the same world share
+    an identity, which is exactly the widening this rung exists to prevent."""
+    html = VW.read_view(VW.VIEWS[0][0]) if html_text is None else html_text
+    j = join(html, scene)
+    rec = {
+        "world": j["cited"],
+        "scene": j["scene"],
+        "frame": j["frame"],
+        "visible": tuple(sorted(j["visible"])),
+    }
+    rec["digest"] = join_digest(rec)
+    return rec
+
+
+def join_digest(rec):
+    """The record's identity. Order-fixed and length-prefixed so no two distinct records
+    can collide by re-partitioning the same bytes."""
+    h = hashlib.sha256()
+    h.update(JOIN_MAGIC)
+    for key in ("world", "scene", "frame"):
+        v = rec[key].encode("ascii")
+        h.update(len(v).to_bytes(2, "big"))
+        h.update(v)
+    vis = rec["visible"]
+    h.update(len(vis).to_bytes(4, "big"))
+    for i in vis:
+        h.update(int(i).to_bytes(4, "big"))
+    return h.hexdigest()
+
+
+def verify_joined(rec, html_text=None, scene="island"):
+    """Recompute both levels from shipped code and return `(world_verdict, pixel_verdict)`.
+
+    NEVER a single boolean. The two levels are checked against independently derived
+    values — the world against `view_witness`'s live recomputation, the pixel side against
+    a fresh render — and reported separately, so a caller can never mistake one for the
+    other. A malformed record is a typed refusal rather than a mismatch, because "this
+    record is wrong" and "this is not a record" are different facts."""
+    for key in ("world", "scene", "frame", "visible", "digest"):
+        if key not in rec:
+            raise RenderError("JOIN-REFUSE", f"record is missing {key!r}")
+    if join_digest(rec) != rec["digest"]:
+        raise RenderError("JOIN-REFUSE", "record digest does not commit to its own fields")
+    html = VW.read_view(VW.VIEWS[0][0]) if html_text is None else html_text
+    j = join(html, scene)
+    world = WORLD_OK if (rec["world"] == j["cited"] == j["live"] == j["world"]) else WORLD_BAD
+    pixel = PIXEL_OK if (rec["scene"] == j["scene"] and rec["frame"] == j["frame"]
+                         and rec["visible"] == tuple(sorted(j["visible"]))) else PIXEL_BAD
+    return (world, pixel)
+
+
+def _reseal(rec, **changes):
+    out = dict(rec)
+    out.update(changes)
+    out["digest"] = join_digest(out)
+    return out
+
+
+def granularity_is_sealed(scene="island"):
+    """FALSIFIER 3. Both halves must be INDEPENDENTLY reachable, or the pair is decoration
+    on a scalar and the join can silently widen a world-level pass into a pixel-level
+    claim. Returns the three verdict pairs so a failure names which half collapsed.
+
+      world-correct / pixel-forged  -> (WORLD-OK,       PIXEL-MISMATCH)
+      world-forged  / pixel-correct -> (WORLD-MISMATCH, PIXEL-OK)
+      both honest                   -> (WORLD-OK,       PIXEL-OK)
+
+    The second case is the one that could not be built without minting a record: it needs
+    a pixel side that is genuinely correct while the cited world is wrong, which no
+    recompute-at-check-time chain can express."""
+    html = VW.read_view(VW.VIEWS[0][0])
+    honest = joined_witness(html, scene)
+
+    # world-correct, pixel-forged: one flipped hex in the frame the record claims
+    f = honest["frame"]
+    pixel_forged = _reseal(honest, frame=("1" if f[0] != "1" else "2") + f[1:])
+
+    # world-forged, pixel-correct: the record cites a world the view does not
+    w = honest["world"]
+    world_forged = _reseal(honest, world=("1" if w[0] != "1" else "2") + w[1:])
+
+    return (verify_joined(pixel_forged, html, scene),
+            verify_joined(world_forged, html, scene),
+            verify_joined(honest, html, scene))
+
+
+def the_record_commits_to_both_levels(scene="island"):
+    """The digest is a function of every field, so no component can be swapped silently.
+    Without this the pair of verdicts could be honest while the record's identity was
+    decided by the world alone."""
+    honest = joined_witness(None, scene)
+    moved = []
+    for key in ("world", "scene", "frame"):
+        v = honest[key]
+        moved.append(join_digest({**honest, key: ("1" if v[0] != "1" else "2") + v[1:]})
+                     != honest["digest"])
+    moved.append(join_digest({**honest, "visible": honest["visible"][:-1]})
+                 != honest["digest"])
+    return all(moved) and len(moved) == 4
+
+
+def a_malformed_record_is_refused():
+    """"This record is wrong" and "this is not a record" are different facts, and a join
+    that returned MISMATCH for both would report a forgery where there was a typo."""
+    honest = joined_witness()
+    for bad in ({k: v for k, v in honest.items() if k != "frame"},
+                {**honest, "digest": "0" * 64},
+                {}):
+        try:
+            verify_joined(bad)
+            return False
+        except RenderError as exc:
+            if exc.code != "JOIN-REFUSE":
+                return False
+    return True
