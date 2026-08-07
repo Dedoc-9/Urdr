@@ -167,5 +167,21 @@ class TerrainBridge(unittest.TestCase):
             self.assertEqual(cm.exception.code, "TERRAIN-REFUSE", f"wrong code for {args[1:]}")
 
 
+class TheFieldMemo(unittest.TestCase):
+    """`generate` is the most-depended-on function in the tree (lattice: deg 28) and one
+    edgeattr falsifier alone called it 1176 times over TWO distinct argument tuples."""
+
+    def test_the_cache_agrees_with_the_generator(self):
+        self.assertTrue(HF.the_field_cache_agrees_with_the_generator())
+
+    def test_the_defect_fade_is_never_served_from_the_cache(self):
+        """THE ONE THAT MATTERS. A coarser key would hand `generate_defect` the honest
+        field and the terrain non-vacuity would go quietly green."""
+        self.assertTrue(HF.the_defect_fade_is_never_served_from_the_cache())
+
+    def test_the_cache_does_not_swallow_the_refusal(self):
+        self.assertTrue(HF.the_cache_does_not_swallow_the_refusal())
+
+
 if __name__ == "__main__":
     unittest.main()

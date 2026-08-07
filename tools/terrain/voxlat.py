@@ -235,14 +235,33 @@ def tri_box_overlap(v0, v1, v2, c, h, _trace=None):
     return abs(d) <= rad
 
 
-def attained_max(B):
+#: The decided maxima, memoised. `attained_max` is a PURE exhaustive search over a fixed
+#: finite set with at most six admissible arguments, and the gate called it 75 times per
+#: pass — about 28 full sweeps of PINNED_BOUNDS, 3.72s each, ~100s of a 600s pass spent
+#: re-deriving five numbers that cannot change within a run.
+#:
+#: WHAT THE CACHE ERASES, said plainly: `test_scene_goldens_and_determinism` computes each
+#: scene three times and compares the results, so the overflow theorem's contribution used
+#: to be re-derived on every one of those calls. Caching makes the second and third
+#: instant, which would leave that component's determinism trivially satisfied (L23) if
+#: nothing replaced it. `the_cache_agrees_with_the_search` replaces it, and is better
+#: evidence: it runs the search again with the cache BYPASSED and requires the identical
+#: answer. One honest recomputation instead of twenty-seven redundant ones.
+_ATTAINED = {}
+
+
+def attained_max(B, cached=True):
     """THE THEOREM, DECIDED EXHAUSTIVELY: the largest |n . u0| the plane test forms over EVERY
     ordered triple of lattice points in [-B, B]^3. The triple loop collapses by the scalar triple
     product identity (f0 x f1).u0 == f1.(u0 x f0) — the inner maximisation is then a LINEAR
     functional over u2 and is attained at a lattice corner, which is what makes exhaustion cheap
-    enough to live in a gate. No sampling anywhere."""
+    enough to live in a gate. No sampling anywhere.
+
+    `cached=False` forces the full search, which is what the cache is checked against."""
     if not (1 <= B <= 6):
         raise VoxlatError("the overflow maximum is decided only on the small pinned lattices")
+    if cached and B in _ATTAINED:
+        return _ATTAINED[B]                  # validation happens BEFORE the lookup, above
     pts = list(_prod(range(-B, B + 1), repeat=3))
     corners = list(_prod((-B, B), repeat=3))
     best = 0
@@ -258,7 +277,27 @@ def attained_max(B):
                 v = abs((cx - u1[0]) * w[0] + (cy - u1[1]) * w[1] + (cz - u1[2]) * w[2])
                 if v > best:
                     best = v
+    if cached:
+        _ATTAINED[B] = best
     return best
+
+
+def the_cache_agrees_with_the_search(B=4):
+    """THE CACHE IS AN OPTIMISATION, NEVER A CLAIM. It must return exactly what the
+    exhaustive search returns, checked by running the search with the cache BYPASSED —
+    the one recomputation kept from the twenty-seven the memo removed. B=4 costs 0.8s and
+    exercises a real full sweep; B=5 would cost 2.7s for the same evidence."""
+    return attained_max(B, cached=False) == attained_max(B) == 4 * B ** 3
+
+
+def the_cache_does_not_swallow_the_refusal(bad=7):
+    """The bound check runs BEFORE the lookup, so an inadmissible B refuses whether or not
+    anything is memoised. A cache consulted first would turn a typed refusal into a hit."""
+    try:
+        attained_max(bad)
+    except VoxlatError:
+        return True
+    return False
 
 
 def law_is_four_b_cubed(bounds=PINNED_BOUNDS):

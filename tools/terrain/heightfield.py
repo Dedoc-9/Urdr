@@ -130,12 +130,31 @@ def _island_mask(x, y, w, h, falloff_width):
     return (r_out2 - d2) * FRAC // (r_out2 - r_in2)
 
 
+#: Generated fields, memoised on the DEFAULT-fade path only. `generate` is pure and its
+#: result is nested tuples, so sharing one is safe; `lattice` records this module as the
+#: most-depended-on hub in the tree (deg 28), and the redundancy is proportional: one
+#: `edgeattr` falsifier alone calls it 1176 times over TWO distinct argument tuples.
+#:
+#: The defect path is deliberately NOT cached. `generate_defect` passes a fresh
+#: `lambda t: t` on every call, so keying on the fade OBJECT would fill the table with
+#: single-use entries; keying on `fade is _fade` instead and caching everything would be
+#: far worse — two different custom fades would collide and the defect variant could be
+#: served the honest field, silently un-reddening the non-vacuity it exists to provide.
+#: So: default fade caches, anything else computes.
+_FIELDS = {}
+
+
 def generate(w, h, seed, height_scale, sea_level, layers, falloff="none",
              falloff_width=0, fade=_fade):
     """The heightfield: a row-major tuple of tuples of ints in [0, height_scale].
     Deterministic — same inputs, same bytes, every host. `fade` is exposed ONLY for
-    the defect variant."""
+    the defect variant, and is the one argument that bypasses the memo."""
     check_params(w, h, seed, height_scale, sea_level, layers, falloff, falloff_width)
+    key = None
+    if fade is _fade:                        # validation above runs FIRST, cache second
+        key = (w, h, seed, height_scale, sea_level, layers, falloff, falloff_width)
+        if key in _FIELDS:
+            return _FIELDS[key]
     rawmax = sum(amp for (_c, amp) in layers) * VMAX
     cache = {}
     rows = []
@@ -150,7 +169,42 @@ def generate(w, h, seed, height_scale, sea_level, layers, falloff="none",
                 hv = hv * _island_mask(x, y, w, h, falloff_width) // FRAC
             row.append(hv)
         rows.append(tuple(row))
-    return tuple(rows)
+    out = tuple(rows)
+    if key is not None:
+        _FIELDS[key] = out
+    return out
+
+
+def the_field_cache_agrees_with_the_generator(seed=7):
+    """THE MEMO IS AN OPTIMISATION, NEVER A CLAIM. A cached field must equal one built by
+    a generator run that cannot consult the table — checked by passing a fade that is
+    EQUIVALENT to the default but is not the same object, so the cache is bypassed while
+    the arithmetic is unchanged."""
+    args = (16, 16, seed, 255, 0, ((8, 1),))
+    warm = generate(*args)
+    cold = generate(*args, fade=lambda t: _fade(t))
+    return warm == cold
+
+
+def the_defect_fade_is_never_served_from_the_cache():
+    """The non-vacuity the memo must not swallow: `generate_defect` uses linear
+    interpolation instead of the quintic fade and MUST move the field. If the cache keyed
+    on anything coarser than the fade itself, the defect would be handed the honest field
+    and the whole terrain non-vacuity would go quietly green."""
+    args = (16, 16, 7, 255, 0, ((8, 1),))
+    generate(*args)                                    # warm the table first
+    return generate_defect(*args) != generate(*args)
+
+
+def the_cache_does_not_swallow_the_refusal():
+    """`check_params` runs BEFORE the lookup, so malformed parameters refuse whether or
+    not the table is warm. A cache consulted first would turn a refusal into a hit."""
+    generate(16, 16, 7, 255, 0, ((8, 1),))
+    try:
+        generate(0, 16, 7, 255, 0, ((8, 1),))
+    except TerrainError:
+        return True
+    return False
 
 
 def generate_defect(w, h, seed, height_scale, sea_level, layers, falloff="none",

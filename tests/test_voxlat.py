@@ -27,6 +27,20 @@ class TheEncoding(unittest.TestCase):
             self.assertEqual(VX.scene_result(n), VX.golden(n), n)
             self.assertEqual(VX.scene_result(n), VX.scene_result(n), n)
 
+    def test_the_cache_agrees_with_the_search(self):
+        """`attained_max` is memoised: the gate called it 75 times over 5 distinct
+        arguments, about 28 full sweeps of PINNED_BOUNDS at 3.72s each. The memo must
+        return exactly what the exhaustive search returns, checked with it BYPASSED — the
+        one recomputation kept out of the twenty-seven that were redundant."""
+        self.assertTrue(VX.the_cache_agrees_with_the_search())
+        for B in (2, 3):
+            self.assertEqual(VX.attained_max(B, cached=False), VX.attained_max(B))
+
+    def test_the_cache_does_not_swallow_the_refusal(self):
+        """The bound check runs before the lookup, so an inadmissible B refuses whether or
+        not the table is warm."""
+        self.assertTrue(VX.the_cache_does_not_swallow_the_refusal())
+
     def test_morton_is_a_bijection(self):
         self.assertTrue(VX.morton_is_bijective())
         for c in ((0, 0, 0), (1, 2, 3), (63, 0, 63), (63, 63, 63)):
