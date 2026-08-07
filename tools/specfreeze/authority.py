@@ -51,9 +51,13 @@ properties are the RIGHT decomposition of "explicit authority", which is an argu
 """
 import io
 import os
+import sys
 import re
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+import exempt as _EXM                                    # noqa: E402  the ONE register
 ROOT = os.path.dirname(os.path.dirname(_HERE))
 
 #: The subsystem the invariant was DERIVED from and is therefore ENFORCED over.
@@ -64,17 +68,18 @@ ENFORCED = ("tools/terrain",)
 REPORTED = ("tools/netcode", "tools/physics", "tools/intla", "tools/render", "tools/frontfps",
             "tools/homology", "tools/world_host", "tools/frontend")
 
-#: THE DECLARED EXCEPTIONS, each with the reason that makes it one. Adding an entry is a contract
-#: change and must be defended in review; a module that fails the invariant and is NOT here reddens
-#: the gate, and an entry that no longer needs to be here ALSO reddens it (see `stale_exemptions`).
-EXEMPT = {
-    "bench": "a measurement harness with no law to certify — it admits no state and issues no "
-             "verdict, so it has neither identity to address nor admission to refuse. Ruled "
-             "unbriefable on independent grounds before this census existed.",
-    "stormprop": "a PROPERTY FALSIFIER over `storm` rather than an admitter: it asserts that the "
-                 "prefix property survives generated storms and raises STORMPROP-FALSIFIED, which "
-                 "is a test verdict, not an admission refusal. It addresses no state of its own.",
-}
+#: THE DECLARED EXCEPTIONS, DERIVED FROM THE ONE REGISTER. These used to live here as a
+#: literal dict — a second exemption register sitting beside `exempt.py`, which is the
+#: exact duplication that register exists to prevent. `exempt.EXEMPTIONS` now holds them
+#: under `law="authority"` with the same reasons verbatim, and this reads them back, so a
+#: reason is written in one place and the register's `law` field finally carries weight:
+#: `stormprop` is ENFORCED under the brief law and EXEMPT under this one, which a
+#: law-blind clause would have reported stale. Adding an entry is a contract change and
+#: must be defended in review; a module that fails the invariant and is NOT here reddens
+#: the gate, and an entry that no longer needs to be here ALSO reddens it (`stale_exemptions`).
+EXEMPT = {n: _EXM_ENTRY.reason
+          for _EXM_ENTRY in _EXM.for_law("authority")
+          for n in _EXM_ENTRY.names}
 
 
 def _src(path):

@@ -3976,7 +3976,7 @@ class Gate:
                 "brief", "matches-nothing",
                 "a class deliberately covering no module so the clause has something to catch.",
                 lambda m, p: False),)
-            plants.append("matches-nothing" in EXM.unfulfilled())
+            plants.append("brief/matches-nothing" in EXM.unfulfilled())
         finally:
             EXM.EXEMPTIONS = real_ex
         try:                                            # an excuse for a law already satisfied
@@ -3996,17 +3996,24 @@ class Gate:
             plants.append("scenes3d" in EXM.ambiguous())
         finally:
             EXM.EXEMPTIONS = real_ex
+        try:                                            # the LAW field is load-bearing
+            EXM.EXEMPTIONS = tuple(EXM.Exemption("brief", e.name, e.reason, names=e.names)
+                                   if e.law == "authority" else e for e in real_ex)
+            plants.append(EXM.for_law("authority") == () and not EXM.register_holds())
+        finally:
+            EXM.EXEMPTIONS = real_ex
         plants.append(EXM.register_holds())             # and the instrument returns to green
-        ok = all(plants) and len(plants) == 7
+        ok = all(plants) and len(plants) == 8
         self.record("exemption-register-selftest", ok,
-                    "7/7: a NEW module lands in no bucket and reddens — the default flips from "
+                    "8/8: a NEW module lands in no bucket and reddens — the default flips from "
                     "silent exemption to declaration, which is the rung; a class matching nothing "
                     "is UNFULFILLED (`#[expect]`, not `#[allow]`); an excuse for a module the law "
                     "now covers is STALE, the clause that caught this register's own `test` "
                     "prefix swallowing the enforced module `testament` on its first run; an entry "
                     "naming a deleted module is UNKNOWN; a grown debt list reddens; a module in "
-                    "two classes is AMBIGUOUS; and the register is green again afterwards, so the "
-                    "reds are detection and not leakage"
+                    "two classes is AMBIGUOUS; an exemption REFILED under the wrong law stops "
+                    "excusing, which is what makes the `law` field more than decoration; and the "
+                    "register is green again afterwards, so the reds are detection not leakage"
                     if ok else "a planted rot did not redden: %r" % (plants,))
 
     def lattice(self):

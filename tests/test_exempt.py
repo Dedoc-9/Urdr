@@ -98,7 +98,7 @@ class TheRotIsCaught(unittest.TestCase):
         real = EX.EXEMPTIONS
         EX.EXEMPTIONS = real + (dead,)
         try:
-            self.assertIn("matches-nothing", EX.unfulfilled())
+            self.assertIn("brief/matches-nothing", EX.unfulfilled())
             self.assertFalse(EX.register_holds())
         finally:
             EX.EXEMPTIONS = real
@@ -130,8 +130,9 @@ class TheRotIsCaught(unittest.TestCase):
 
     def test_an_unreasoned_class_reddens(self):
         real = EX.EXEMPTIONS
-        EX.EXEMPTIONS = real[:-1] + (EX.Exemption("brief", real[-1].name, "because.",
-                                                  real[-1]._members),)
+        victim = next(e for e in real if e._members is not None)
+        EX.EXEMPTIONS = tuple(EX.Exemption(e.law, e.name, "because.", e._members)
+                              if e is victim else e for e in real)
         try:
             self.assertTrue(EX.unreasoned())
             self.assertFalse(EX.register_holds())
@@ -183,6 +184,65 @@ class TheSeedIsMeasuredNotAsserted(unittest.TestCase):
         """The other direction, so the split is a partition and not a coincidence."""
         for m in sorted(EX.enforced()):
             self.assertIsNotNone(EX.brief_marker(m), "%s is enforced with no marker" % m)
+
+
+class TheLawFieldIsLoadBearing(unittest.TestCase):
+    """Until `authority.EXEMPT` was folded in, every entry said `law="brief"` and the
+    field was decorative — a distinction that cannot vary is not a distinction (L61)."""
+
+    def test_the_register_carries_more_than_one_law(self):
+        self.assertGreaterEqual(len(EX.laws()), 2)
+        self.assertIn("brief", EX.laws())
+        self.assertIn("authority", EX.laws())
+
+    def test_one_module_can_satisfy_one_law_and_be_excused_from_another(self):
+        """`stormprop` is what made the field real: ENFORCED under the brief law and
+        EXEMPT under the authority law. A law-blind clause reports it stale and is wrong."""
+        live = EX.modules()
+        self.assertIn("stormprop", EX.enforced())
+        self.assertEqual(EX.classes_of("stormprop", live["stormprop"], "brief"), ())
+        self.assertEqual(EX.classes_of("stormprop", live["stormprop"], "authority"),
+                         ("property-falsifier",))
+        self.assertEqual(EX.stale(), [])
+
+    def test_bench_holds_two_exemptions_under_two_laws_without_being_ambiguous(self):
+        """Ambiguity is two reasons for the SAME law. Two laws, two reasons is the point."""
+        live = EX.modules()
+        self.assertEqual(EX.classes_of("bench", live["bench"], "brief"), ("harness",))
+        self.assertEqual(EX.classes_of("bench", live["bench"], "authority"),
+                         ("measurement-harness",))
+        self.assertEqual(EX.ambiguous(), [])
+
+    def test_an_exemption_filed_under_the_WRONG_law_does_not_excuse(self):
+        """THE PLANT. Refile the authority exemption for `bench` under the brief law and
+        authority's contract must break — the reason is unchanged, only the law moved."""
+        import authority as AU
+        real = EX.EXEMPTIONS
+        moved = tuple(EX.Exemption("brief", e.name, e.reason, names=e.names)
+                      if e.law == "authority" else e for e in real)
+        EX.EXEMPTIONS = moved
+        try:
+            self.assertEqual(EX.for_law("authority"), ())
+            self.assertFalse(EX.register_holds())
+        finally:
+            EX.EXEMPTIONS = real
+        self.assertTrue(EX.register_holds())
+        self.assertTrue(AU.contract_holds())
+
+    def test_there_is_ONE_register_not_two(self):
+        """`authority.EXEMPT` is DERIVED, so a reason cannot be written twice and drift."""
+        import authority as AU
+        names = {n for e in EX.for_law("authority") for n in e.names}
+        self.assertEqual(set(AU.EXEMPT), names)
+        for e in EX.for_law("authority"):
+            for n in e.names:
+                self.assertIs(AU.EXEMPT[n], e.reason)
+
+    def test_an_exemption_is_predicated_or_enumerated_never_both(self):
+        with self.assertRaises(ValueError):
+            EX.Exemption("brief", "both", "x" * 50, lambda m, p: True, names=("a",))
+        with self.assertRaises(ValueError):
+            EX.Exemption("brief", "neither", "x" * 50)
 
 
 if __name__ == "__main__":

@@ -75,10 +75,16 @@ class Exemption:
     tree so the class can empty itself; `reason` says why, and names the observation
     that would empty it."""
 
-    def __init__(self, law, name, reason, members):
-        self.law, self.name, self.reason, self._members = law, name, reason, members
+    def __init__(self, law, name, reason, members=None, names=()):
+        self.law, self.name, self.reason = law, name, reason
+        self.names = tuple(names)
+        self._members = members
+        if (members is None) == (not self.names):
+            raise ValueError("an exemption is either predicated or enumerated, not both")
 
     def matches(self, module, path):
+        if self._members is None:
+            return module in self.names
         return bool(self._members(module, path))
 
     def __repr__(self):                                       # pragma: no cover
@@ -168,6 +174,25 @@ EXEMPTIONS = (
         "16 were checked to carry no marker. Empties the moment one gains a marker — which "
         "is exactly the observation that should promote it to enforcement.",
         lambda m, p: os.path.exists(_brief_path(m)) and brief_marker(m) is None),
+
+    # -- law: authority -----------------------------------------------------------------
+    # FOLDED IN from `authority.EXEMPT`, which was a second register living beside this
+    # one — the exact duplication this module exists to prevent, shipped alongside it.
+    # `authority.py` now DERIVES its dict from here, so there is one register and one
+    # place a reason can be written. Enumerated rather than predicated because these are
+    # judgements about two named modules, not a class the tree can empty on its own.
+    Exemption(
+        "authority", "measurement-harness",
+        "a measurement harness with no law to certify — it admits no state and issues no "
+        "verdict, so it has neither identity to address nor admission to refuse. Ruled "
+        "unbriefable on independent grounds before this census existed.",
+        names=("bench",)),
+    Exemption(
+        "authority", "property-falsifier",
+        "a PROPERTY FALSIFIER over `storm` rather than an admitter: it asserts that the "
+        "prefix property survives generated storms and raises STORMPROP-FALSIFIED, which "
+        "is a test verdict, not an admission refusal. It addresses no state of its own.",
+        names=("stormprop",)),
 )
 
 #: ENUMERATED, never predicated, and SHRINK-ONLY. Seeded from the measured complement:
@@ -223,35 +248,66 @@ def enforced():
     return _CACHE["enforced"]
 
 
-def classes_of(module, path):
-    return tuple(e.name for e in EXEMPTIONS if e.matches(module, path))
+def for_law(law):
+    """The register is keyed by LAW. Until authority's two entries were folded in, every
+    entry said "brief" and the field was decorative — a distinction that cannot vary is
+    not a distinction (L61). `stormprop` is what made it real: ENFORCED under the brief
+    law and EXEMPT under the authority law, so a law-blind clause reports it stale and is
+    wrong. One module, two laws, two verdicts."""
+    return tuple(e for e in EXEMPTIONS if e.law == law)
+
+
+def classes_of(module, path, law="brief"):
+    return tuple(e.name for e in for_law(law) if e.matches(module, path))
+
+
+def _satisfies(law, module):
+    """Does `module` now meet `law` outright, making any exemption for it expired? The
+    predicate belongs to the law's owner, so it is imported LAZILY — `authority` reads its
+    exemptions from this register, and a module-scope import here would close the cycle."""
+    if law == "brief":
+        return module in enforced()
+    if law == "authority":
+        # CACHED once per run: `stale_exemptions()` walks and re-reads the whole enforced
+        # subsystem, and the law-scoped clauses ask this question once per module per law.
+        # Uncached it made the suite quadratic and it timed out at two minutes.
+        if "authority-satisfied" not in _CACHE:
+            import authority as _AU
+            _CACHE["authority-satisfied"] = frozenset(m for _sub, m in _AU.stale_exemptions())
+        return module in _CACHE["authority-satisfied"]
+    raise ValueError("unknown law: %r" % (law,))
 
 
 # -- the laws --------------------------------------------------------------------------
+def laws():
+    return tuple(sorted({e.law for e in EXEMPTIONS}))
+
+
 def uncovered():
     """CLOSURE. A module that is neither enforced, nor in a class, nor in DEBT. This is
     the clause that flips the default: a new module cannot be silently exempt."""
     live, enf = modules(), enforced()
     return sorted(m for m, p in live.items()
-                  if m not in enf and m not in DEBT and not classes_of(m, p))
+                  if m not in enf and m not in DEBT and not classes_of(m, p, "brief"))
 
 
 def ambiguous():
     """A module in two classes has two reasons and therefore no reason."""
     live = modules()
-    return sorted(m for m, p in live.items()
-                  if m not in enforced() and len(classes_of(m, p)) > 1)
+    return sorted(m for m, p in live.items() for law in laws()
+                  if not _satisfies(law, m) and len(classes_of(m, p, law)) > 1)
 
 
 def unfulfilled():
     """`#[expect]`. A class matching NOTHING is dead weight, and leaving it is how a
     register rots into decoration."""
-    live, enf = modules(), enforced()
+    live = modules()
     hit = set()
-    for m, p in live.items():
-        if m not in enf:
-            hit.update(classes_of(m, p))
-    return sorted(e.name for e in EXEMPTIONS if e.name not in hit)
+    for law in laws():
+        for m, p in live.items():
+            if not _satisfies(law, m):
+                hit.update((law, c) for c in classes_of(m, p, law))
+    return sorted("%s/%s" % (e.law, e.name) for e in EXEMPTIONS if (e.law, e.name) not in hit)
 
 
 def stale():
@@ -259,7 +315,9 @@ def stale():
     enforced, so the excuse has expired. Lifted from `authority.stale_exemptions`."""
     live, enf = modules(), enforced()
     out = [m for m in sorted(DEBT) if m in enf]
-    out += [m for m, p in sorted(live.items()) if m in enf and classes_of(m, p)]
+    for law in laws():
+        out += [m for m, p in sorted(live.items())
+                if _satisfies(law, m) and classes_of(m, p, law)]
     return sorted(set(out))
 
 
@@ -301,20 +359,24 @@ def census():
 
 def the_register_is_non_vacuous():
     """L61. Closure is trivially satisfiable by a catch-all, so: DEBT must be non-empty,
-    at least two classes must be populated, and REMOVING any single class must leave
-    modules uncovered — otherwise that class is carrying nothing the others do not."""
-    live, enf = modules(), enforced()
+    and within EACH LAW every class must cover a module no SIBLING in that law covers.
+
+    This clause was law-blind when the register carried one law, and folding the second in
+    broke it correctly: dropping `authority/measurement-harness` left `bench` still covered
+    by `brief/harness`, so the old test found no orphan and declared the class redundant.
+    It is not redundant — it is a different law's excuse for the same module, which is the
+    whole reason the `law` field exists."""
+    live = modules()
     if not DEBT or len(EXEMPTIONS) < 2:
         return False
-    populated = sum(1 for e in EXEMPTIONS
-                    if any(e.matches(m, p) for m, p in live.items() if m not in enf))
-    if populated < 2:
-        return False
-    for drop in EXEMPTIONS:
-        rest = [e for e in EXEMPTIONS if e is not drop]
-        orphan = [m for m, p in live.items()
-                  if m not in enf and m not in DEBT
-                  and not any(e.matches(m, p) for e in rest)]
-        if not orphan:
-            return False                    # `drop` covers nothing the others miss
+    for law in laws():
+        peers = for_law(law)
+        if not peers:
+            return False
+        for e in peers:
+            unique = [m for m, p in live.items()
+                      if not _satisfies(law, m) and e.matches(m, p)
+                      and not any(o.matches(m, p) for o in peers if o is not e)]
+            if not unique:
+                return False
     return True
