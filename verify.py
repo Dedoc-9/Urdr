@@ -57,6 +57,7 @@ STAGE_ORDER = (
     "render_bound",
     "render_bound_placement",
     "pixid",
+    "pixid_join",
     "render_perspective",
     "physics",
     "physics_nd",
@@ -1052,6 +1053,55 @@ class Gate:
                     "a leaked mutation"
                     if all(plants) and len(plants) == 3 else
                     "a planted defect did not redden: %r" % (plants,))
+
+    def pixid_join(self):
+        """THE JOIN (URDRPIDJ1) — `pixid` and `view_witness` agree on the visible world.
+        The claim is narrow on purpose and this stage carries exactly two rows: the pixel
+        witness and the scene witness line up on WHICH WORLD is visible, and a forgery on
+        either side reddens. `pixid`'s own laws are certified by the `pixid-*` rows and are
+        not restated here — the join does not change those surfaces."""
+        for sub in ("render", "terrain"):
+            p = os.path.join(ROOT, "tools", sub)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import pixid_join as PJ
+            import view_witness as VWI
+        except Exception as exc:                                          # pragma: no cover
+            self.record("pixid-view-join", False, f"import failed: {exc}")
+            self.record("pixid-view-join-forgery", False, "checker did not load")
+            return
+        j = PJ.join(VWI.read_view(VWI.VIEWS[0][0]))
+        ok = PJ.pixid_view_join_agrees() and PJ.the_occlusion_is_load_bearing()
+        self.record("pixid-view-join", ok,
+                    "the chain holds and every link is RECOMPUTED: terrain_view3d.html cites "
+                    "%s..., which equals what view_witness recomputes AND what heightfield "
+                    "computes — three independently derived values, not one compared to itself. "
+                    "That world regenerates the heights, the heights derive the primitives "
+                    "purely (citing %s...), and the buffer occludes %d of %d instances. The "
+                    "subset is proper BY CONSTRUCTION rather than by luck: each cell emits an "
+                    "inner tile strictly inside and strictly farther, because the first "
+                    "derivation leaned on neighbouring tiles happening to cover one another "
+                    "and on the island none did — all 16 stayed visible and the join refused. "
+                    "The control puts the inner tiles in front and every hidden instance "
+                    "reappears"
+                    % (j["cited"][:12], j["scene"][:12],
+                       len(j["submitted"]) - len(j["visible"]), len(j["submitted"]))
+                    if ok else
+                    "cited=%s live=%s world=%s visible=%d/%d"
+                    % (j["cited"][:10], j["live"][:10], j["world"][:10],
+                       len(j["visible"]), len(j["submitted"])))
+
+        v = PJ.pixid_view_join_rejects_forgery()
+        self.record("pixid-view-join-forgery", v == (True,) * 5,
+                    "4/4 forgeries caught, one per link, and the instrument returns to green "
+                    "so the reds are detection rather than leakage: a flipped hex in the "
+                    "view's embedded hf_witness, one moved height under an unchanged citation, "
+                    "one forged primitive while the world stood still, and one forged pixel in "
+                    "the ownership buffer. A view with no citation at all is a typed VIEW-REFUSE "
+                    "rather than a silent false, so 'the join failed' and 'there was nothing to "
+                    "join' stay distinguishable"
+                    if v == (True,) * 5 else "a forgery went undetected: %r" % (v,))
 
     def render_perspective(self):
         """D11 §4 rung 3: exact perspective projection (the projective chart swap).
