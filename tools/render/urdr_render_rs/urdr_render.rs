@@ -123,8 +123,18 @@ fn sha_selfcheck() -> bool {
 
 // --------------------------------------------------------------- raster core
 // i64 arithmetic mirrors raster.py's i64-guarded integers. The conformance
-// corpus stays well within i64, so no value differs from the reference; the
-// overflow-refusal path (RENDER-REFUSE in Python) is simply not exercised here.
+// corpus stays well within i64, so no value differs from the reference.
+//
+// CORRECTED 2026-08-07. This comment used to end "the overflow-refusal path
+// (RENDER-REFUSE in Python) is simply not exercised here", which said the path
+// existed and went unvisited. For RUNG 2 it did not exist: raster3d.py guarded
+// none of `eb*z0 + ec*z1 + ea*z2`, `zfar*den`, or `num*cd`, and Python integers
+// do not overflow. This file computes the first two in i64 and widens only the
+// third, so on a scene the old constructor ADMITTED — (4096, 2, 0, 1<<40) — this
+// placement keeps 0 fragments under -O and aborts under a debug build where the
+// reference keeps 4088. See renderbound_falsifier.rs (compiled by gate stage
+// `render_bound_placement`) and tools/render/renderbound.py, which now refuses
+// that configuration at the door. The corpus below is unchanged and unaffected.
 const SUB: i64 = 256; // 1 << 8
 const HALF: i64 = 128;
 const NDC_ONE: i64 = 65536; // 1 << 16

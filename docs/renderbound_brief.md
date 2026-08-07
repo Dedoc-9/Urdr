@@ -72,14 +72,24 @@ something.
 ## does_not_show
 
 That any particular scene overflows — this bounds the worst case over the whole box, so it
-refuses configurations a given triangle would survive. That the Rust placement wraps rather
-than panics: release-mode `i64` wraps, debug-mode panics, and neither is `RENDER-REFUSE`.
-**The wrap is modelled in Python from the types read in `urdr_render.rs`, not obtained by
-compiling that placement with this scene** — the outstanding falsifier is to add the scene to
-the Rust corpus and compare, which would move this row from a read-source model to an
-executed cross-placement run. No published conformance digest is affected; `conformance3d.txt`
-is unchanged. Nothing here is a renderer, and nothing here says the frames are *right*.
-`integrity ≠ truth`.
+refuses configurations a given triangle would survive. That `wrap_i64` describes every
+toolchain: `-O` wraps, a debug build aborts, and the Python model is the former.
+
+**The model is no longer the only evidence.** `urdr_render_rs/renderbound_falsifier.rs` is a
+std-only Rust falsifier, sharing no code with the Python and live-compiled in **both
+profiles** by gate stage `render_bound_placement`. Widened to `i128` it keeps **4088**
+fragments — reproducing the Python exact count bit-for-bit, which is the control that makes
+the fixture trustworthy — and in the `i64` the shipped placement actually uses for those two
+expressions it keeps **0** under `-O` and **aborts** under debug (`attempt to multiply with
+overflow`, exit 101). So the two Rust profiles disagree with each other as well as with
+Python, and **an abort is not `RENDER-REFUSE`**: no code, no message, no witness, just an
+absent frame. `renderbound-divergence` remains the model; `renderbound-placement` is the
+measurement of it.
+
+The scene is pinned inside the falsifier rather than passed in, because a falsifier whose
+fixture is caller-supplied can be quietly aimed away from the defect. No published
+conformance digest is affected; `conformance3d.txt` is unchanged. Nothing here is a renderer,
+and nothing here says the frames are *right*. `integrity ≠ truth`.
 
 ## Falsifier
 

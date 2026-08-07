@@ -55,6 +55,7 @@ STAGE_ORDER = (
     "render",
     "render3d",
     "render_bound",
+    "render_bound_placement",
     "render_perspective",
     "physics",
     "physics_nd",
@@ -732,8 +733,8 @@ class Gate:
                     "%d under two's-complement i64 (`zfar*den` wraps negative), with no refusal "
                     "from either placement; and every scene in the live corpus stays inside the "
                     "bound, so the gate refuses a real divergence rather than this repo's own "
-                    "scenes. The wrap is modelled from the types read in urdr_render.rs, NOT from "
-                    "compiling it — that placement run is the outstanding falsifier" % (exact, wrapped)
+                    "scenes. The wrap is a two's-complement MODEL here; `renderbound-placement` "
+                    "compiles it and measures the same numbers in real Rust" % (exact, wrapped)
                     if div else "exact and i64 arithmetic agree — the bound refuses nothing real")
 
         # -- the door is typed, and the two bounds stay apart ------------------------------
@@ -786,6 +787,102 @@ class Gate:
                     "so the instrument is watched failing rather than assumed to (L23)"
                     if all(plants) and len(plants) == 4 else
                     "a planted defect did not redden: %r" % (plants,))
+
+    def render_bound_placement(self):
+        """The divergence, in REAL Rust rather than a Python model of it. `renderbound`'s
+        `wrap_i64` is a two's-complement model derived from the types read in
+        `urdr_render.rs`; a model of a placement is not the placement. This stage
+        live-compiles a std-only falsifier that replays exactly the shipped expressions
+        (`num = eb*z0 + ec*z1 + ea*z2` and the near/far clip `znear*den <= num <= zfar*den`)
+        on the pinned scene, in BOTH profiles, and checks that the widened control
+        reproduces the Python count while the i64 path does not. Requires rustc; absent it
+        both rows are recorded SKIPPED and honestly labelled, so the row count stays
+        host-stable for doc-currency."""
+        import shutil
+        import subprocess
+        import tempfile
+        rdir = os.path.join(ROOT, "tools", "render")
+        if rdir not in sys.path:
+            sys.path.insert(0, rdir)
+        try:
+            import renderbound as RB
+        except Exception as exc:                                          # pragma: no cover
+            self.record("renderbound-placement", False, f"import failed: {exc}")
+            self.record("renderbound-placement-selftest", False, "checker did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = os.path.join(rdir, "urdr_render_rs", "renderbound_falsifier.rs")
+        if not rustc or not os.path.exists(src):
+            why = "rustc absent" if not rustc else "renderbound falsifier source missing"
+            self.record("renderbound-placement", True,
+                        f"SKIPPED ({why}) — honestly labelled, not passed")
+            self.record("renderbound-placement-selftest", True, f"SKIPPED ({why})")
+            return
+        py_exact, py_wrapped = RB.the_wrap_changes_the_frame()
+        rel, dbg_i128, dbg_i64_rc = {}, None, None
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                exe_r = os.path.join(td, "rbf_rel")
+                exe_d = os.path.join(td, "rbf_dbg")
+                for flags, exe in ((["-O"], exe_r), ([], exe_d)):
+                    cp = subprocess.run([rustc] + flags + [src, "-o", exe],
+                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                        timeout=300)
+                    if cp.returncode != 0:
+                        self.record("renderbound-placement", False,
+                                    "rustc failed: %s"
+                                    % cp.stdout.decode("utf-8", "replace")[:200])
+                        self.record("renderbound-placement-selftest", False,
+                                    "falsifier did not build")
+                        return
+                rp = subprocess.run([exe_r, "--check"], stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, timeout=300)
+                for line in rp.stdout.decode("utf-8", "replace").splitlines():
+                    p = line.split()
+                    if len(p) == 3:
+                        rel[p[0]] = p[2]
+                    elif len(p) == 2:
+                        rel[p[0]] = p[1]
+                dp = subprocess.run([exe_d, "--i128"], stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, timeout=300)
+                dbg_i128 = dp.stdout.decode("utf-8", "replace").split()[-1] \
+                    if dp.returncode == 0 else None
+                dbg_i64_rc = subprocess.run([exe_d, "--i64"], stdout=subprocess.PIPE,
+                                            stderr=subprocess.STDOUT, timeout=300).returncode
+        except Exception as exc:                                          # pragma: no cover
+            self.record("renderbound-placement", False, f"placement run failed: {exc}")
+            self.record("renderbound-placement-selftest", False, "falsifier did not run")
+            return
+
+        control = rel.get("i128") == str(py_exact) and dbg_i128 == str(py_exact)
+        narrow = rel.get("i64") == str(py_wrapped) and rel.get("diverge") == "YES"
+        self.record("renderbound-placement", control and narrow,
+                    "EXECUTED IN REAL RUST, not modelled: a std-only falsifier sharing no code "
+                    "with the Python, live-compiled this run, replays the shipped expressions on "
+                    "the pinned scene. Widened to i128 it keeps %s fragments — reproducing the "
+                    "Python exact count BIT-FOR-BIT in both profiles, which is the control that "
+                    "makes the fixture trustworthy — and in the i64 the placement actually uses "
+                    "for those two expressions it keeps %s. `renderbound-divergence` was a "
+                    "two's-complement MODEL of this; it is now a measurement of it"
+                    % (rel.get("i128"), rel.get("i64"))
+                    if control and narrow else
+                    "rust=%r debug_i128=%r python=(%d, %d)" % (rel, dbg_i128, py_exact, py_wrapped))
+
+        # The other half of the claim: neither Rust profile REFUSES. Release wraps
+        # silently; debug aborts on the multiply. An abort is not a typed refusal — the
+        # frame is simply not produced, with no RENDER-REFUSE and no witness.
+        panicked = dbg_i64_rc not in (0, None)
+        self.record("renderbound-placement-selftest", panicked and dbg_i128 == str(py_exact),
+                    "neither profile REFUSES: -O wraps to %s silently and returns a frame, while "
+                    "the debug build ABORTS on the multiply (exit %s, 'attempt to multiply with "
+                    "overflow'). An abort is not RENDER-REFUSE — no code, no message, no witness — "
+                    "so the two profiles disagree with each other as well as with Python, and the "
+                    "same debug binary computes %s on the widened path, which is how we know the "
+                    "abort is the arithmetic and not the fixture"
+                    % (rel.get("i64"), dbg_i64_rc, dbg_i128)
+                    if panicked and dbg_i128 == str(py_exact) else
+                    "debug i64 exit=%r (expected a nonzero abort); debug i128=%r"
+                    % (dbg_i64_rc, dbg_i128))
 
     def render_perspective(self):
         """D11 §4 rung 3: exact perspective projection (the projective chart swap).

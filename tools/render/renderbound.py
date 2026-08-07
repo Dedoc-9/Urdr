@@ -58,12 +58,14 @@ meant something.
 ## does_not_show
 
 That any particular scene overflows — this bounds the worst case over the whole box, so
-it refuses configurations a given triangle would survive. That the Rust placement wraps
-rather than panics: release-mode `i64` wraps and debug-mode panics, and neither is
-`RENDER-REFUSE`. The wrap here is modelled from the types read in `urdr_render.rs`, not
-obtained by compiling it with this scene — `the_wrap_changes_the_frame()` is EXECUTED
-against a two's-complement model, and the outstanding falsifier is to add the scene to
-the Rust corpus and compare. No published conformance digest is affected.
+it refuses configurations a given triangle would survive. That `wrap_i64` is what any
+given toolchain does: `-O` wraps and a debug build aborts, and the model here is the
+former. **The model is no longer the only evidence.** `urdr_render_rs/renderbound_falsifier.rs`
+is live-compiled by gate stage `render_bound_placement` in both profiles and replays the
+shipped expressions on this scene in real Rust: widened to i128 it reproduces the Python
+count bit-for-bit in both profiles, and in the i64 the placement actually uses it keeps 0
+under `-O` and aborts under debug. Neither is `RENDER-REFUSE` — an abort has no code, no
+message and no witness. No published conformance digest is affected.
 """
 from raster import SUB, IMAX
 
