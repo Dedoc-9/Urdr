@@ -610,9 +610,13 @@ class Gate:
     def render3d(self):
         """D11 §4 rung 2: exact 3D depth. Each scene's frame digest is reproduced
         twice, matches its golden, and writes zero out-of-bounds pixels (screen
-        clip). Occlusion is ORDER-INDEPENDENT for distinct depths; equal-depth
-        ties are order-dependent (proving the depth values, not just coverage, are
-        load-bearing — non-vacuity). No float, no division."""
+        clip). Occlusion is ORDER-INDEPENDENT at every depth, equal ones included:
+        a tie goes to the smaller written datum, so the frame is a function of the
+        SET of triangles. Ties used to go to the earlier-written fragment, and this
+        docstring called that the non-vacuity proving depth load-bearing — which it
+        never did, since order dependence shows only that SOMETHING order-sensitive
+        exists. Depth and the tie-break are now perturbed SEPARATELY at fixed
+        submission order. No float, no division."""
         rdir = os.path.join(ROOT, "tools", "render")
         if rdir not in sys.path:
             sys.path.insert(0, rdir)
@@ -663,11 +667,46 @@ class Gate:
         self.record("render3d-occlusion", oi,
                     "z-buffer occlusion order-independent (distinct depths)"
                     if oi else "occlusion is order-DEPENDENT — z-buffer broken")
-        ndv = (render([(a, (3, 3, 3), 0xAA), (b, (3, 3, 3), 0xBB)]).digest()
-               != render([(b, (3, 3, 3), 0xBB), (a, (3, 3, 3), 0xAA)]).digest())
+        # PERMUTATION INVARIANCE. The frame must be a function of the SET of triangles,
+        # including at equal depth, where ownership used to go to whichever fragment was
+        # written first. Every ordering of three fragments — two tied, one distinct.
+        import itertools
+        soup = [(a, (3, 3, 3), 0xAA), (b, (3, 3, 3), 0xBB), (a, (5, 5, 5), 0xCC)]
+        base = render(soup).digest()
+        perms = [render(list(p)).digest() for p in itertools.permutations(soup)]
+        pinv = all(d == base for d in perms)
+        self.record("render3d-permutation", pinv,
+                    "all %d orderings of three fragments (two at EQUAL depth) give a "
+                    "byte-identical frame — the frame is a function of the SET of triangles. "
+                    "Two of these orderings produced different digests before the tie-break "
+                    "moved from draw order to the written datum; no pinned scene contains an "
+                    "equal-depth overlap, so no conformance digest moved with it"
+                    % len(perms)
+                    if pinv else "the frame still depends on submission order")
+
+        # BOTH KEYS LOAD-BEARING, neither proved by submission order. This row used to
+        # assert that equal-depth ties ARE order-dependent, justified as the non-vacuity
+        # proving depth load-bearing — which it never established: order dependence shows
+        # only that SOMETHING order-sensitive exists, not that it is depth. Each key is
+        # now perturbed separately at FIXED submission order.
+        depth_lb = (render([(a, (1, 1, 1), 0xAA), (b, (5, 5, 5), 0xBB)]).digest()
+                    != render([(a, (9, 9, 9), 0xAA), (b, (5, 5, 5), 0xBB)]).digest())
+        tie_lb = (render([(a, (3, 3, 3), 0xAA), (b, (3, 3, 3), 0xBB)]).digest()
+                  != render([(a, (3, 3, 3), 0xAA), (b, (3, 3, 3), 0x11)]).digest())
+        same_key = (render([(a, (3, 3, 3), 0xAA), (b, (3, 3, 3), 0xAA)]).digest()
+                    == render([(b, (3, 3, 3), 0xAA), (a, (3, 3, 3), 0xAA)]).digest())
+        ndv = depth_lb and tie_lb and same_key
         self.record("render3d-selftest", ndv,
-                    "equal-depth ties order-dependent (depth is load-bearing; gate can redden)"
-                    if ndv else "depth not load-bearing — instrument vacuous")
+                    "depth and the tie-break are load-bearing SEPARATELY, each shown at fixed "
+                    "submission order: moving one vertex depth changes the frame, and changing "
+                    "only the written datum at equal depth changes it too — which nothing "
+                    "checked before, because the tie-break WAS the order. And fragments equal "
+                    "in the full key (depth, value) write identical bytes, which is why keying "
+                    "on the STORED datum makes the order total on outcomes rather than merely "
+                    "deterministic"
+                    if ndv else
+                    "depth_lb=%s tie_lb=%s same_key=%s — an instrument is vacuous"
+                    % (depth_lb, tie_lb, same_key))
 
     def render_bound(self):
         """urdr-render rung 2's ADMISSION BOUND (URDRRBD1) — the depth path's i64 envelope,

@@ -35,11 +35,18 @@ edge-function weights; the **depth test is a cross-multiplication**
 `num·den' < num'·den` (positive denominators), so the z-buffer stays exact.
 Near/far clip keeps `znear·den ≤ num ≤ zfar·den`; screen clip never writes out of
 bounds. Occlusion is **order-independent for distinct depths** (nearest wins) —
-the frame is a function of the *set* of triangles; equal-depth ties are
-order-dependent (the non-vacuity proving depth is load-bearing — and the row that
-asserts it, `render3d-selftest`, is what a content-digest tie-break would have to
-replace in the same commit, not merely add to). Construction is admitted by the
-derived bound in `renderbound.py`, not by a chosen constant. Scenes
+the frame is a function of the *set* of triangles **including at equal depth**, where
+ownership goes to the smaller written datum rather than to whichever fragment arrived
+first. That tie used to be resolved by draw order and was defended here as "the
+non-vacuity proving depth is load-bearing" — which it never established, since order
+dependence shows only that *something* order-sensitive exists. `render3d-selftest` now
+perturbs depth and the tie-break separately at fixed submission order, and
+`render3d-permutation` checks all six orderings of a three-fragment soup agree.
+Keying on the *stored* datum is what makes the order total on outcomes: two fragments
+equal in `(depth, value)` write identical bytes, so the residual tie is unobservable.
+No pinned scene contains an equal-depth overlap, so no conformance digest moved.
+Construction is admitted by the derived bound in `renderbound.py`, not by a chosen
+constant. Scenes
 (`scenes3d.py`) → `conformance3d.txt`; gated by `render3d`; falsified in
 `tests/test_raster3d.py`; cross-placed by `urdr_render_rs` (`C3D` corpus). The
 frame law is the same rung-1 `URDRFB1` color image. Scope: orthographic depth;

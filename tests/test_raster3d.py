@@ -73,14 +73,27 @@ class Occlusion(unittest.TestCase):
         self.assertIn(0xAA, fb.buf)          # near visible
         self.assertIn(0xBB, fb.buf)          # far visible where unoccluded
 
-    def test_equal_depth_is_order_dependent_nonvacuity(self):
-        # NON-VACUITY: with EQUAL depths the tie is broken by draw order, so the
-        # frame depends on order — proving the depth values (not just coverage)
-        # are what earn the distinct-depth order-independence above. If coverage
-        # alone decided, distinct-depth AB==BA would be vacuous.
+    def test_equal_depth_is_order_independent_too(self):
+        # WAS `test_equal_depth_is_order_dependent_nonvacuity`, and it asserted the
+        # OPPOSITE. Its stated purpose was non-vacuity: show that depth VALUES, not
+        # coverage alone, earn the distinct-depth order-independence above. Order
+        # dependence never established that — it shows only that SOMETHING order
+        # sensitive exists. The tie now goes to the smaller written datum, so the
+        # frame is a function of the SET at equal depth as well, and the non-vacuity
+        # moved to `test_raster3d_order.py`, which perturbs depth and the tie-break
+        # SEPARATELY at fixed submission order. Two places asserted the old
+        # behaviour — this one and verify.py's `render3d-selftest` — and a tie-break
+        # landing without both is a red gate.
         eqA = (_A[0], _A[1], _A[2], (3, 3, 3), 0xAA)
         eqB = (_B[0], _B[1], _B[2], (3, 3, 3), 0xBB)
-        self.assertNotEqual(_render([eqA, eqB]).digest(), _render([eqB, eqA]).digest())
+        self.assertEqual(_render([eqA, eqB]).digest(), _render([eqB, eqA]).digest())
+
+    def test_depth_is_load_bearing_not_just_coverage(self):
+        # The non-vacuity the retired assertion was reaching for, stated directly:
+        # same coverage, same submission order, different depths -> different frame.
+        near = (_A[0], _A[1], _A[2], (1, 1, 1), 0xAA)
+        far = (_A[0], _A[1], _A[2], (9, 9, 9), 0xAA)
+        self.assertNotEqual(_render([near, _B]).digest(), _render([far, _B]).digest())
 
 
 class Clipping(unittest.TestCase):

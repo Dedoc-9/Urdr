@@ -84,8 +84,31 @@ class DepthFramebuffer:
             return                         # screen clip: never write out of bounds
         i = y * self.w + x
         cn, cd = self.znum[i], self.zden[i]
-        # nearer = smaller depth; strictly-less replaces (equal keeps the earlier).
-        if cn is None or (num * cd < cn * den):
+        # Nearer = smaller depth, compared by exact cross-multiplication (both
+        # denominators are areas, hence positive). ON AN EXACT TIE the winner is the
+        # SMALLER WRITTEN DATUM, not the earlier-written fragment.
+        #
+        # This used to be a bare `num * cd < cn * den`, so a tie kept whichever
+        # fragment arrived first and the frame was a function of the triangle LIST
+        # rather than the triangle SET. That was defended as the non-vacuity proving
+        # depth is load-bearing — but submission order proves only that SOMETHING
+        # order-sensitive exists, never that it is depth. `render3d-selftest` now
+        # proves depth and the tie-break load-bearing SEPARATELY, neither using order.
+        #
+        # The key is the written datum itself, which is what makes the order TOTAL ON
+        # OUTCOMES: two fragments equal in (depth, value) write identical bytes, so
+        # the tie between them is not a tie at all. When this becomes a primitive-ID
+        # buffer the key becomes the (instance, primitive) pair for the same reason —
+        # order by what gets STORED, or ties in the key still leave the output open.
+        # Which side of the comparison wins is arbitrary; that a total order EXISTS is
+        # not, and `test_the_tiebreak_direction_is_pinned` fixes the choice so a
+        # silent flip reddens.
+        if cn is None:
+            nearer = True
+        else:
+            lhs, rhs = num * cd, cn * den
+            nearer = (value & 0xFF) < self.buf[i] if lhs == rhs else lhs < rhs
+        if nearer:
             self.buf[i] = value & 0xFF
             self.znum[i] = num
             self.zden[i] = den
