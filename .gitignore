@@ -14,7 +14,15 @@ tools/editor/urdr_replay.json
 tools/editor/runA.json
 tools/editor/runB.json
 tools/editor/wB.json
-_gate1.log
-_gate2.log
+
+# Root working artifacts: patches, commit messages and gate logs are session scratch,
+# not repository content. They had accumulated to ~200 files, so the pre-commit hook
+# warned about untracked files on every single commit — a warning that always fires is
+# a warning nobody reads, which is the same rot the exemption register exists to stop.
+# `_gate?.log` and `_g*.log` were already here; the rest is what the pile actually was.
+*.patch
+*.msg
 _g*.log
 _g*.out
+gate*.log
+gate*.txt

@@ -221,6 +221,7 @@ STAGE_ORDER = (
     "voxin",
     "voxin_placement",
     "authority",
+    "exempt",
     "lattice",
     "epistemics_apparatus",
     "doc_currency",
@@ -3926,6 +3927,87 @@ class Gate:
                     for k in ("AUTHORITY", "GUARDED-COMPUTATION", "PURE"))
             if self_ok else
             "selftest: halves-come-apart=%s plants-bite=%s" % (apart, plants))
+
+    def exempt(self):
+        """THE EXEMPTION REGISTER (URDREXM1) — finite, named, reasoned, expiring.
+        `BRIEFS_REQUIRING_A_FALSIFIER` is OPT-IN, so before this the exempt set was
+        everything else: unnamed, unreasoned, and growing by one every time anyone added a
+        file. The register makes that complement a declaration. Its clauses are lifted from
+        `authority`'s exemption discipline — reasons mandatory, unknown entries red, and
+        entries that the law now covers red — which is the same semantics Rust ships as
+        `#[expect]` versus the silent-forever `#[allow]`."""
+        sdir = os.path.join(ROOT, "tools", "specfreeze")
+        if sdir not in sys.path:
+            sys.path.insert(0, sdir)
+        try:
+            import exempt as EXM
+        except Exception as exc:                                          # pragma: no cover
+            self.record("exemption-register", False, f"import failed: {exc}")
+            self.record("exemption-register-selftest", False, "checker did not load")
+            return
+        EXM.reset_caches()
+        total, per = EXM.census()
+        holds = EXM.register_holds() and EXM.the_register_is_non_vacuous() \
+            and sum(per.values()) == total
+        shape = ", ".join("%s %d" % (k, v) for k, v in sorted(per.items(), key=lambda kv: -kv[1]))
+        self.record("exemption-register", holds,
+                    "CLOSURE as an arithmetic identity: %d modules, %d — %s — with nothing "
+                    "double-counted and nothing uncovered. The exempt set is now finite and "
+                    "named where it used to be everything the opt-in list omitted. Every class "
+                    "DERIVES its membership from the tree, so the world can empty one without "
+                    "anyone editing the register, and an empty class reddens; only DEBT is "
+                    "enumerated, because a predicated debt bucket would satisfy closure forever "
+                    "and prove nothing (L61). Each class covers something no other class covers"
+                    % (total, sum(per.values()), shape)
+                    if holds else
+                    "uncovered=%r ambiguous=%r unfulfilled=%r stale=%r unknown=%r unreasoned=%r"
+                    % (EXM.uncovered()[:4], EXM.ambiguous()[:4], EXM.unfulfilled(),
+                       EXM.stale()[:4], EXM.unknown()[:4], EXM.unreasoned()))
+
+        plants = []
+        real_mods, real_ex, real_debt = EXM.modules, EXM.EXEMPTIONS, EXM.DEBT
+        try:                                            # a NEW module is uncovered by default
+            EXM.modules = lambda: dict(real_mods(), brand_new="tools/terrain/brand_new.py")
+            plants.append("brand_new" in EXM.uncovered())
+        finally:
+            EXM.modules = real_mods
+        try:                                            # a class matching nothing is unfulfilled
+            EXM.EXEMPTIONS = real_ex + (EXM.Exemption(
+                "brief", "matches-nothing",
+                "a class deliberately covering no module so the clause has something to catch.",
+                lambda m, p: False),)
+            plants.append("matches-nothing" in EXM.unfulfilled())
+        finally:
+            EXM.EXEMPTIONS = real_ex
+        try:                                            # an excuse for a law already satisfied
+            EXM.DEBT = real_debt | {"voxlat"}
+            plants.append("voxlat" in EXM.stale())
+            EXM.DEBT = real_debt | {"a_module_that_was_deleted"}
+            plants.append("a_module_that_was_deleted" in EXM.unknown())
+            EXM.DEBT = real_debt | {"pad%d" % i for i in range(EXM.DEBT_HIGH_WATER + 1)}
+            plants.append(not EXM.debt_only_shrank())
+        finally:
+            EXM.DEBT = real_debt
+        try:                                            # two reasons is no reason
+            EXM.EXEMPTIONS = real_ex + (EXM.Exemption(
+                "brief", "second-claim",
+                "a class deliberately overlapping scene-corpus so ambiguity has something to "
+                "catch.", lambda m, p: m in ("scenes", "scenes3d")),)
+            plants.append("scenes3d" in EXM.ambiguous())
+        finally:
+            EXM.EXEMPTIONS = real_ex
+        plants.append(EXM.register_holds())             # and the instrument returns to green
+        ok = all(plants) and len(plants) == 7
+        self.record("exemption-register-selftest", ok,
+                    "7/7: a NEW module lands in no bucket and reddens — the default flips from "
+                    "silent exemption to declaration, which is the rung; a class matching nothing "
+                    "is UNFULFILLED (`#[expect]`, not `#[allow]`); an excuse for a module the law "
+                    "now covers is STALE, the clause that caught this register's own `test` "
+                    "prefix swallowing the enforced module `testament` on its first run; an entry "
+                    "naming a deleted module is UNKNOWN; a grown debt list reddens; a module in "
+                    "two classes is AMBIGUOUS; and the register is green again afterwards, so the "
+                    "reds are detection and not leakage"
+                    if ok else "a planted rot did not redden: %r" % (plants,))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
