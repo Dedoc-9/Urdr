@@ -56,6 +56,7 @@ STAGE_ORDER = (
     "render3d",
     "render_bound",
     "render_bound_placement",
+    "pixid",
     "render_perspective",
     "physics",
     "physics_nd",
@@ -922,6 +923,135 @@ class Gate:
                     if panicked and dbg_i128 == str(py_exact) else
                     "debug i64 exit=%r (expected a nonzero abort); debug i128=%r"
                     % (dbg_i64_rc, dbg_i128))
+
+    def pixid(self):
+        """The PRIMITIVE-ID BUFFER (URDRPID1) — a witness at PIXEL granularity.
+        `view_witness` cites the live scene digests once per view; this records, for every
+        covered pixel, the `(instance, primitive)` that owns it, so "what made this pixel"
+        has a checkable answer. Ownership is `raster3d`'s rule with the id pair as the
+        written datum, so the tie-break key IS what gets stored and the order is total on
+        OUTCOMES. The oracle differs in TRAVERSAL — all primitives against all pixels, no
+        bounding box — because that is where `voxin` lost 20% of its voxels."""
+        rdir = os.path.join(ROOT, "tools", "render")
+        if rdir not in sys.path:
+            sys.path.insert(0, rdir)
+        try:
+            import pixid as PXI
+            from raster import RenderError as RErr
+        except Exception as exc:                                          # pragma: no cover
+            self.record("pixid-law", False, f"import failed: {exc}")
+            return
+        wit = PXI.witness(PXI.SCENE, *PXI.VIEW)
+        law = (PXI.digest_is_permutation_invariant() and PXI.agrees_with_oracle()
+               and PXI.agrees_with_oracle((PXI._t(0, 0, 15, 0, 0, 15, (3, 3, 3), 1, 0),
+                                           PXI._t(15, 15, 0, 15, 15, 0, (2, 2, 2), 2, 0)))
+               and wit["oob"] == 0)
+        self.record("pixid-law", law,
+                    "the buffer is a function of the SET of primitives (every rotation of the "
+                    "pinned scene agrees) and matches an oracle that scans ALL primitives "
+                    "against ALL pixels with NO bounding box, in BOTH directions over two "
+                    "scenes — no covered pixel left empty, no emitted id whose primitive "
+                    "misses its sample. Frame %s..., citing scene %s..., 0 out-of-bounds writes"
+                    % (wit["frame"][:12], wit["scene"][:12])
+                    if law else "the buffer disagrees with the no-bounding-box oracle")
+
+        fb = PXI.IdFramebuffer(*PXI.VIEW).render(PXI.SCENE)
+        sub = PXI.occlusion_only_removes() and PXI.the_subset_is_proper()
+        revealed = 9 in PXI.IdFramebuffer(*PXI.VIEW).render(
+            tuple(p for p in PXI.SCENE if p[4] != 7)).instances()
+        self.record("pixid-subset", sub and revealed,
+                    "instances(buffer) %s is a PROPER subset of instances(submitted) %s — "
+                    "rasterization hides an instance and never invents one, and the subset is "
+                    "proper rather than vacuous because instance 9 sits entirely behind "
+                    "instance 7. Removing the occluder brings 9 back, so 9 is HIDDEN and not "
+                    "absent: the relation the view-granularity witness will be checked against"
+                    % (sorted(fb.instances()), sorted({p[4] for p in PXI.SCENE}))
+                    if sub and revealed else "the subset relation fails or is vacuous")
+
+        import ast as _ast
+        _tree = _ast.parse(open(PXI.__file__, "r", encoding="utf-8").read())
+        _sd = next(n for n in _tree.body
+                   if isinstance(n, _ast.FunctionDef) and n.name == "scene_digest")
+        structural = ([a.arg for a in _sd.args.args] == ["primitives"]
+                      and not _sd.args.defaults and not _sd.args.kwonlyargs
+                      and _sd.args.vararg is None and _sd.args.kwarg is None)
+        fire = (PXI.knobs_do_not_reach_the_citation()
+                and PXI.every_knob_is_live() == (True,) * len(PXI.KNOBS)
+                and PXI.the_scene_reaches_the_citation() and structural)
+        self.record("pixid-firewall", fire,
+                    "declared knobs are a namespace DISJOINT from the citation: all %d view "
+                    "perturbations move the FRAME and none moves the cited SCENE digest, while "
+                    "one moved scene integer moves BOTH — the second direction is not "
+                    "decoration, since a citation that ignored the scene would satisfy the "
+                    "first perfectly. Each knob is separately checked to be LIVE, which caught "
+                    "this module's own first fixture (zfar=50 changes nothing on a scene whose "
+                    "depths are 4, 9, 12). And the separation is STRUCTURAL: `scene_digest` "
+                    "cannot read the view because the view is not in its signature, asserted on "
+                    "the syntax — a plant mixing a view CONSTANT into the citation left every "
+                    "behavioural check green, which is how we know that is not where the "
+                    "guarantee lives" % len(PXI.KNOBS)
+                    if fire else "the citation is not sealed from the view knobs")
+
+        typed = 0
+        bad = (lambda: PXI.scene_digest([PXI._t(0, 0, 2, 0, 0, 2, (1, 1, 1), PXI.EMPTY, 0)]),
+               lambda: PXI.scene_digest([((0, 0), (2.0, 0), (0, 2), (1, 1, 1), 0, 0)]),
+               lambda: PXI.scene_digest(["nope"]),
+               lambda: PXI.IdFramebuffer(4096, 2, 0, 1 << 40),
+               lambda: PXI.IdFramebuffer(0, 16, 0, 100))
+        for fn in bad:
+            try:
+                fn()
+            except RErr as exc:
+                typed += exc.code == "PIXID-REFUSE"
+        at_bound = len(PXI.scene_digest([PXI._t(0, 0, 2, 0, 0, 2, (1, 1, 1),
+                                                PXI.ID_MAX, PXI.ID_MAX)])) == 64
+        self.record("pixid-refusal", typed == len(bad) and at_bound,
+                    "%d/%d typed PIXID-REFUSE and the boundary is a boundary: ID_MAX is "
+                    "ADMITTED while the EMPTY sentinel one past it is refused, so an occupied "
+                    "pixel can never serialize as an unknown one. The i64 view bound is READ "
+                    "from `renderbound` rather than restated — this buffer runs rung 2's depth "
+                    "arithmetic and inherits rung 2's envelope" % (typed, len(bad))
+                    if typed == len(bad) and at_bound else
+                    "%d/%d refusals typed, boundary admitted: %s" % (typed, len(bad), at_bound))
+
+        plants = []
+        _own = PXI.IdFramebuffer._own
+
+        def _draw_order(self, x, y, num, den, iid, pid):                  # tie by arrival
+            if not (0 <= x < self.w and 0 <= y < self.h):
+                self.oob += 1
+                return
+            i = y * self.w + x
+            cn, cd = self.znum[i], self.zden[i]
+            if cn is None or num * cd < cn * den:
+                self.iid[i], self.pid[i] = iid, pid
+                self.znum[i], self.zden[i] = num, den
+        try:
+            PXI.IdFramebuffer._own = _draw_order
+            plants.append(not PXI.digest_is_permutation_invariant(
+                PXI.SCENE + (PXI._t(2, 2, 9, 2, 2, 9, (4, 4, 4), 2, 5),)))
+        finally:
+            PXI.IdFramebuffer._own = _own
+        _draw = PXI.IdFramebuffer.draw
+
+        def _shifted(self, primitive):                                    # voxin's shape
+            v0, v1, v2, zs, iid, pid = PXI._check_primitive(primitive)
+            return _draw(self, (((v0[0] + 256), v0[1]), v1, v2, zs, iid, pid))
+        try:
+            PXI.IdFramebuffer.draw = _shifted
+            plants.append(not PXI.agrees_with_oracle())
+        finally:
+            PXI.IdFramebuffer.draw = _draw
+        plants.append(PXI.the_subset_is_proper() and PXI.agrees_with_oracle())
+        self.record("pixid-selftest", all(plants) and len(plants) == 3,
+                    "3/3: a tie broken by ARRIVAL ORDER instead of the written datum is observed "
+                    "breaking permutation invariance on a scene carrying an exact tie; a "
+                    "bounding box shifted one subpixel column — the exact shape that cost `voxin` "
+                    "20%% of its voxels — is observed failing the no-bounding-box oracle; and the "
+                    "instrument returns to green afterwards, so the reds are the plants and not "
+                    "a leaked mutation"
+                    if all(plants) and len(plants) == 3 else
+                    "a planted defect did not redden: %r" % (plants,))
 
     def render_perspective(self):
         """D11 §4 rung 3: exact perspective projection (the projective chart swap).
@@ -16915,7 +17045,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen"
                                "storecost", "persist", "resurrect",
                                "rollstore", "glide",
                                "splice", "disjoint", "storm",
-                               "voxlat", "nway", "commute", "renderbound",
+                               "voxlat", "nway", "commute", "renderbound", "pixid",
                                "heightfield", "jurisdiction", "layertheorem", "opcost", "terraform",
                                "stance", "warden", "budget", "wire", "horizon", "lease", "drive",
                                "govern", "liveness", "wavefield", "frontier", "gaze", "panelight", "wardhom", "ashdepth", "auditgraph", "cpredict", "driftgaze", "geoquorum", "ghostsnap", "hand", "interest", "mesh", "panewire",
