@@ -339,13 +339,37 @@ class Gate:
     def unit_tests(self):
         loader = unittest.TestLoader()
         suite = loader.discover(os.path.join(ROOT, "tests"), top_level_dir=ROOT)
+        total = suite.countTestCases()
+
+        # LIVE PROGRESS, on stderr only. `--profile` already writes one line per stage to
+        # stderr as each stage COMPLETES, and stdout stays the certified transcript. That
+        # works for the 180-odd stages that take under a second and fails badly for this
+        # one: unit_tests is a single stage of 250-450s, so the console shows nothing but
+        # the runner's own heartbeat for minutes and the gate reads as HUNG. It has been
+        # interrupted on that mistake repeatedly. Emitting per-suite progress on the same
+        # stderr channel costs nothing and touches no byte of the log.
+        class _Progress(unittest.TextTestResult):
+            seen = [None, 0]
+
+            def startTest(self, test):
+                _Progress.seen[1] += 1
+                mod = test.__class__.__module__
+                if mod != _Progress.seen[0]:
+                    _Progress.seen[0] = mod
+                    sys.stderr.write("      %4d/%d  %s\n"
+                                     % (_Progress.seen[1], total, mod))
+                    sys.stderr.flush()
+                super().startTest(test)
+
+        _result_class = _Progress if "--profile" in sys.argv else unittest.TextTestResult
         # Route the runner through a buffer so the gate's CERTIFIED stdout is byte-reproducible:
         # unittest emits a wall-clock line ("Ran N tests in X.XXXs") that varies run-to-run and is
         # part of no digest. On RED the buffer (dot-line + tracebacks + failing names) is written so
         # nothing is hidden; on GREEN only the deterministic `unit-falsifiers` row remains, so two
         # gate runs are byte-identical without post-hoc normalization.
         buf = io.StringIO()
-        result = unittest.TextTestRunner(verbosity=1, stream=buf).run(suite)
+        result = unittest.TextTestRunner(verbosity=1, stream=buf,
+                                         resultclass=_result_class).run(suite)
         n_bad = len(result.failures) + len(result.errors)
         if n_bad:
             sys.stdout.write(buf.getvalue())
