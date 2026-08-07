@@ -922,16 +922,66 @@ class Gate:
                             f"digest {d1[:12]}… ≠ golden {str(goldens.get(name))[:12]}…")
                 continue
             self.record(f"render-persp:{name}", True, d1[:16] + "…")
-        # vanishing point: parallel rails converge; orthographic does not (non-vacuity)
+        # vanishing point: parallel rails converge; orthographic does not (non-vacuity).
+        # The control used to be `ortho_gap = [40 for _ in zs]` compared to itself — a
+        # literal asserting its own first element equals its own last, which could not
+        # fail (L23). `project_orthographic` is the projector that comment named; the
+        # control is now COMPUTED through the same admission law, differing from
+        # `project` in the depth division and nowhere else.
         zs = [2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 500, 2000, 4000]
         gap = P.rail_gap(20, zs, 100, 60, 60)
         persp_converges = (all(gap[i + 1] <= gap[i] for i in range(len(gap) - 1))
                            and gap[0] > gap[-1] and gap[-1] <= 2)
-        ortho_gap = [40 for _ in zs]                       # px = cx ± 20, ignores z
-        vp = persp_converges and ortho_gap[0] == ortho_gap[-1]
+        ortho_gap = P.rail_gap_orthographic(20, zs, 100, 60, 60)
+        ortho_constant = len(set(ortho_gap)) == 1 and ortho_gap[0] == 40
+        vp = persp_converges and ortho_constant and gap != ortho_gap
         self.record("render-persp-vanishing", vp,
-                    "parallel rails converge to the vanishing pixel; orthographic stays constant"
-                    if vp else "rails do not converge — perspective not load-bearing")
+                    "parallel rails converge %s -> %s at the vanishing pixel, while the "
+                    "depth-blind control stays constant at %d across the same 13 depths and "
+                    "the two series DIFFER. The control is a real projector run through the "
+                    "same admission law; it used to be the list literal [40]*13 asserting "
+                    "its own first element equals its own last, which could not fail"
+                    % (gap[0], gap[-1], ortho_gap[0])
+                    if vp else
+                    "rails do not converge, or the control is not constant: %r vs %r"
+                    % (gap[:3], ortho_gap[:3]))
+
+        # -- the preconditions this module documented and did not enforce ---------------
+        BAD = (((500, 500, 10), 0, 0, 0, 1),          # focal = 0
+               ((500, 500, 10), -8, 0, 0, 1),         # focal < 0
+               ((10, 10, -3), 8, 0, 0, -5),           # znear < 0, vertex BEHIND the camera
+               ((10, 10, 20), 8.0, 0, 0, 1),          # float focal
+               ((10.0, 10, 20), 8, 0, 0, 1),          # float vertex component
+               ((10, 10, 20), 8, 0.5, 0, 1),          # float centre
+               ((1, 0, 1), 1, (1 << 63) - 1, 0, 1))   # final sum leaves i64
+        adm = 0
+        for args in BAD:
+            try:
+                P.project(*args)
+            except RenderError as exc:
+                adm += exc.code == "RENDER-REFUSE"
+        # The CONTROL must carry the SAME admission law. One that relaxed a precondition
+        # would differ from `project` in two places, and the vanishing-point comparison
+        # would no longer isolate the depth division.
+        ctrl = 0
+        for args in BAD:
+            try:
+                P.project_orthographic(*args)
+            except RenderError as exc:
+                ctrl += exc.code == "RENDER-REFUSE"
+        self.record("render-persp-admission", adm == len(BAD) and ctrl == len(BAD),
+                    "%d/%d typed RENDER-REFUSE. All six were ADMITTED before: focal=0 collapsed "
+                    "every vertex onto the centre pixel, focal<0 mirrored the image through it, "
+                    "and znear<0 projected geometry BEHIND the camera — project((10,10,-3), 8, "
+                    "0, 0, znear=-5) returned (-27, 27), bypassing the near-plane refusal this "
+                    "module advertises as its headline safety property. The final sum was "
+                    "outside _g(), so a centre at i64 max returned px = 2**63 with no refusal, "
+                    "the shape `renderbound` found one rung down. Stated in the docstring, "
+                    "checked nowhere: `claim != code`. The depth-blind CONTROL carries the same "
+                    "law (%d/%d), so it differs from `project` in the depth division and nowhere "
+                    "else" % (adm, len(BAD), ctrl, len(BAD))
+                    if adm == len(BAD) and ctrl == len(BAD) else
+                    "project %d/%d, control %d/%d refuse typed" % (adm, len(BAD), ctrl, len(BAD)))
         # near-plane clip: behind-camera vertex refuses; a front vertex projects
         clipped = False
         try:

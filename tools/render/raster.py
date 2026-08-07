@@ -169,8 +169,17 @@ class Framebuffer:
     """A W x H single-channel (8-bit) integer buffer, top-left origin. The one
     canonical serialization is its only identity: MAGIC | W | H | C | pixels."""
     def __init__(self, w, h, channels=1):
-        if w <= 0 or h <= 0 or w > 4096 or h > 4096:
+        # The 4096 is a DECLARED allocation policy, not a derived law — said plainly
+        # because rung 2 carried the same constant while its arithmetic needed a real
+        # bound, and the constant's air of authority is what let that sit. Rung 1 needs
+        # no size theorem: every 2D intermediate routes through `_g()`, so an overflow
+        # refuses at any resolution. See `renderbound` for where the two come apart.
+        if w <= 0 or h <= 0:
             raise RenderError("RENDER-REFUSE", f"framebuffer size out of range ({w}x{h})")
+        if w > 4096 or h > 4096:
+            raise RenderError("RENDER-REFUSE",
+                              f"framebuffer allocation policy: {w}x{h} exceeds the DECLARED "
+                              f"4096-per-side limit (a policy, not a theorem)")
         self.w, self.h, self.channels = w, h, channels
         self.buf = [0] * (w * h)
 
