@@ -308,6 +308,35 @@ def grant_flags(example_path: str, write_dir: str):
     return flags, targets
 
 
+def _progress_result_class(total):
+    """A TextTestResult that reports progress to STDERR, with its counter held in a
+    CLOSURE rather than on the class.
+
+    The first version kept `seen` as a class attribute. That was already correct — the
+    class was defined inside `unit_tests`, so each call rebound it with a fresh list, and
+    two calls in one process were measured to both start at 1. But it was correct BY
+    PLACEMENT: hoisting the class to module scope, the most natural refactor imaginable,
+    would have made the second run's counter start wherever the first one stopped, and
+    nothing would have said so. State that must be per-call belongs in the call.
+
+    `_progress_counters_do_not_leak` is the falsifier, and it is cheap because this is a
+    factory: two classes can be built and inspected without running 2133 tests."""
+    counter = [None, 0]
+
+    class _Progress(unittest.TextTestResult):
+        def startTest(self, test):
+            counter[1] += 1
+            mod = test.__class__.__module__
+            if mod != counter[0]:
+                counter[0] = mod
+                sys.stderr.write("      %4d/%d  %s\n" % (counter[1], total, mod))
+                sys.stderr.flush()
+            super().startTest(test)
+
+    _Progress.counter = counter          # exposed for the falsifier, never read by it
+    return _Progress
+
+
 class Gate:
     def __init__(self):
         self.rows = []
@@ -348,20 +377,8 @@ class Gate:
         # the runner's own heartbeat for minutes and the gate reads as HUNG. It has been
         # interrupted on that mistake repeatedly. Emitting per-suite progress on the same
         # stderr channel costs nothing and touches no byte of the log.
-        class _Progress(unittest.TextTestResult):
-            seen = [None, 0]
-
-            def startTest(self, test):
-                _Progress.seen[1] += 1
-                mod = test.__class__.__module__
-                if mod != _Progress.seen[0]:
-                    _Progress.seen[0] = mod
-                    sys.stderr.write("      %4d/%d  %s\n"
-                                     % (_Progress.seen[1], total, mod))
-                    sys.stderr.flush()
-                super().startTest(test)
-
-        _result_class = _Progress if "--profile" in sys.argv else unittest.TextTestResult
+        _result_class = (_progress_result_class(total) if "--profile" in sys.argv
+                         else unittest.TextTestResult)
         # Route the runner through a buffer so the gate's CERTIFIED stdout is byte-reproducible:
         # unittest emits a wall-clock line ("Ran N tests in X.XXXs") that varies run-to-run and is
         # part of no digest. On RED the buffer (dot-line + tracebacks + failing names) is written so
