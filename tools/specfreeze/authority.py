@@ -66,12 +66,21 @@ ROOT = os.path.dirname(os.path.dirname(_HERE))
 #: + 1 PURE and that module is `frontbench`, a measurement harness carrying the same reason
 #: `bench` does. This is the first evidence the invariant GENERALISES past the subsystem it
 #: was derived on: it was read off tools/terrain, and it holds unchanged somewhere else.
-ENFORCED = ("tools/terrain", "tools/frontfps")
+#:
+#: THIRD, 2026-08-08: tools/frontend, and this one was EARNED rather than exempted.
+#: `rigidity_verdict` was GUARDED-COMPUTATION — a typed refusal with no computed identity —
+#: and the missing half was pointing at a live defect. `annotate` recorded a verdict with
+#: nothing binding it to the geometry it came from, so a design edited afterwards kept its
+#: badge: a rigid triangle annotated RIGID, then given a moved vertex and a dropped edge,
+#: still read RIGID while the truth was FLEXIBLE with 1 DOF. The census found a stale
+#: certificate, not a formality. Adding `framework_digest` closed it and completed the
+#: invariant in the same change — which is the argument for the invariant.
+ENFORCED = ("tools/terrain", "tools/frontfps", "tools/frontend")
 
 #: Subsystems measured OUT OF SAMPLE and reported, never gated. The invariant does not hold here and
 #: that is the finding, not a defect: these are computation and presentation, which admit nothing.
 REPORTED = ("tools/netcode", "tools/physics", "tools/intla", "tools/render",
-            "tools/homology", "tools/world_host", "tools/frontend")
+            "tools/homology", "tools/world_host")
 
 #: THE DECLARED EXCEPTIONS, DERIVED FROM THE ONE REGISTER. These used to live here as a
 #: literal dict — a second exemption register sitting beside `exempt.py`, which is the

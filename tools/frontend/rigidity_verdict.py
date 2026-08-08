@@ -28,6 +28,7 @@ overflow refusal (`REFUSE`).
           → prints each design's verdict; with out.json, writes a copy annotated with
             recorded verdicts (the editor displays them).
 """
+import hashlib
 import os
 import sys
 
@@ -43,6 +44,116 @@ def _framework(design):
     coords = [(int(v["x"]), int(v["y"])) for v in design["verts"]]
     edges = [(int(e[0]), int(e[1])) for e in design["edges"]]
     return len(coords), 2, edges, coords
+
+
+#: The content address of the FRAMEWORK a verdict describes. The census read this module
+#: as GUARDED-COMPUTATION — a typed refusal with no computed identity — and that missing
+#: half was pointing at a live defect rather than a formality.
+#:
+#: MEASURED: `annotate` recorded {verdict, dof, moving_verts} with NOTHING binding the badge
+#: to the geometry it came from, and the docstring says the browser "displays this, it never
+#: recomputes". So a design edited after annotation keeps its badge. A rigid triangle
+#: annotated RIGID, then given a moved vertex and a dropped edge, still reads RIGID while the
+#: truth is FLEXIBLE with 1 degree of freedom — a certificate describing a structure that no
+#: longer exists, and nothing in the tree could tell.
+#:
+#: Edges are canonicalised (each sorted, then the list sorted) because the framework is a
+#: SET of edges — reordering them is the same structure and must digest the same. Vertex
+#: order is NOT canonicalised: coords[i] IS vertex i, and `moving_verts` indexes it.
+FRAMEWORK_MAGIC = b"URDRRGV1"
+
+
+class VerdictError(Exception):
+    """A typed refusal. `RIGIDITY-REFUSE` is a stop, never a stale badge shown as fresh."""
+
+    def __init__(self, code, message):
+        super().__init__(f"{code}: {message}")
+        self.code = code
+        self.message = message
+
+
+def framework_digest(design):
+    """SHA-256 over the exact framework `(n, d, edges, coords)` — the identity a recorded
+    verdict is a verdict ABOUT."""
+    n, d, edges, coords = _framework(design)
+    h = hashlib.sha256()
+    h.update(FRAMEWORK_MAGIC)
+    h.update(n.to_bytes(4, "big"))
+    h.update(d.to_bytes(1, "big"))
+    for (x, y) in coords:
+        h.update(x.to_bytes(9, "big", signed=True))
+        h.update(y.to_bytes(9, "big", signed=True))
+    canon = sorted(tuple(sorted(e)) for e in edges)
+    h.update(len(canon).to_bytes(4, "big"))
+    for a, b in canon:
+        h.update(int(a).to_bytes(4, "big", signed=True))
+        h.update(int(b).to_bytes(4, "big", signed=True))
+    return h.hexdigest()
+
+
+def annotation_is_current(design):
+    """Is the recorded badge still a verdict about THIS geometry? A design with no
+    annotation, or one whose record predates the content address, is a typed REFUSAL — 'no
+    badge' and 'a wrong badge' are different facts and must not both return False."""
+    rec = design.get("rigidity")
+    if not isinstance(rec, dict):
+        raise VerdictError("RIGIDITY-REFUSE", "design carries no recorded verdict")
+    if "framework" not in rec:
+        raise VerdictError("RIGIDITY-REFUSE",
+                           "recorded verdict cites no framework; it cannot be checked")
+    return rec["framework"] == framework_digest(design)
+
+
+def the_stale_badge_is_caught():
+    """THE FALSIFIER, and the defect it replays. Annotate a rigid triangle, then move a
+    vertex and drop an edge: the badge still says RIGID, the truth is FLEXIBLE, and before
+    the content address nothing could tell. Now the citation does."""
+    tri = {"verts": [{"x": 0, "y": 0}, {"x": 4, "y": 0}, {"x": 0, "y": 3}],
+           "edges": [[0, 1], [1, 2], [2, 0]]}
+    fresh = annotate(tri)
+    if not annotation_is_current(fresh) or fresh["rigidity"]["verdict"] != "RIGID":
+        return False
+    stale = dict(fresh)
+    stale["verts"] = [{"x": 0, "y": 0}, {"x": 4, "y": 0}, {"x": 99, "y": 99}]
+    stale["edges"] = [[0, 1], [1, 2]]
+    return (not annotation_is_current(stale)
+            and stale["rigidity"]["verdict"] == "RIGID"
+            and verdict(stale)["verdict"] == "FLEXIBLE")
+
+
+def the_citation_is_edge_order_invariant():
+    """The framework is a SET of edges: reordering them, or writing an edge backwards, is
+    the same structure and must not move the address. A digest that changed would make
+    every re-serialisation look like an edit."""
+    a = {"verts": [{"x": 0, "y": 0}, {"x": 4, "y": 0}, {"x": 0, "y": 3}],
+         "edges": [[0, 1], [1, 2], [2, 0]]}
+    b = {"verts": a["verts"], "edges": [[2, 1], [0, 2], [1, 0]]}
+    return framework_digest(a) == framework_digest(b)
+
+
+def the_citation_reads_the_geometry():
+    """NON-VACUITY: an address that ignored the coordinates would be order-invariant too,
+    and useless. Moving one vertex by one unit must move it."""
+    a = {"verts": [{"x": 0, "y": 0}, {"x": 4, "y": 0}, {"x": 0, "y": 3}],
+         "edges": [[0, 1], [1, 2], [2, 0]]}
+    b = {"verts": [{"x": 0, "y": 0}, {"x": 4, "y": 0}, {"x": 0, "y": 4}],
+         "edges": a["edges"]}
+    c = {"verts": a["verts"], "edges": [[0, 1], [1, 2]]}
+    return (framework_digest(a) != framework_digest(b)
+            and framework_digest(a) != framework_digest(c))
+
+
+def the_refusal_is_typed():
+    """'No badge' and 'a wrong badge' are different facts."""
+    for bad in ({"verts": [], "edges": []},
+                {"verts": [], "edges": [], "rigidity": {"verdict": "RIGID"}}):
+        try:
+            annotation_is_current(bad)
+            return False
+        except VerdictError as exc:
+            if exc.code != "RIGIDITY-REFUSE":
+                return False
+    return True
 
 
 def verdict(design):
@@ -93,7 +204,8 @@ def annotate(design):
     out = dict(design)
     v = verdict(design)
     out["rigidity"] = {"verdict": v["verdict"], "dof": v["dof"],
-                       "moving_verts": v["moving_verts"]}
+                       "moving_verts": v["moving_verts"],
+                       "framework": framework_digest(design)}
     return out
 
 

@@ -105,5 +105,48 @@ class RigidityVerdict(unittest.TestCase):
         self.assertEqual(out["rigidity"]["verdict"], "FLEXIBLE")
 
 
+class TheVerdictCitesItsFramework(unittest.TestCase):
+    """The census read this module as GUARDED-COMPUTATION — a typed refusal with no
+    computed identity — and the missing half was a live defect, not a formality."""
+
+    def test_a_stale_badge_is_caught(self):
+        """THE DEFECT, replayed. A rigid triangle annotated RIGID, then given a moved
+        vertex and a dropped edge, still reads RIGID while the truth is FLEXIBLE with one
+        degree of freedom. Before the content address nothing in the tree could tell, and
+        the module's own docstring says the browser displays the record without
+        recomputing."""
+        self.assertTrue(RV.the_stale_badge_is_caught())
+
+    def test_the_citation_is_edge_order_invariant(self):
+        """A framework is a SET of edges: reordering them, or writing one backwards, is
+        the same structure. An address that moved would make re-serialisation look like an
+        edit."""
+        self.assertTrue(RV.the_citation_is_edge_order_invariant())
+
+    def test_the_citation_reads_the_geometry(self):
+        """NON-VACUITY: an address ignoring the coordinates would be order-invariant too,
+        and useless. One vertex moved by one unit must move it, and so must a dropped
+        edge."""
+        self.assertTrue(RV.the_citation_reads_the_geometry())
+
+    def test_no_badge_and_a_wrong_badge_are_different_facts(self):
+        """A design with no annotation, or one recorded before the citation existed, is a
+        typed RIGIDITY-REFUSE — not a quiet False that would read as 'stale'."""
+        self.assertTrue(RV.the_refusal_is_typed())
+        with self.assertRaises(RV.VerdictError) as ctx:
+            RV.annotation_is_current({"verts": [], "edges": []})
+        self.assertEqual(ctx.exception.code, "RIGIDITY-REFUSE")
+
+    def test_annotate_still_records_what_it_did_before(self):
+        """Non-regression: the citation is ADDED, the verdict fields are untouched."""
+        tri = {"verts": [{"x": 0, "y": 0}, {"x": 4, "y": 0}, {"x": 0, "y": 3}],
+               "edges": [[0, 1], [1, 2], [2, 0]]}
+        rec = RV.annotate(tri)["rigidity"]
+        self.assertEqual(rec["verdict"], "RIGID")
+        self.assertEqual(rec["dof"], 0)
+        self.assertEqual(rec["moving_verts"], [])
+        self.assertEqual(len(rec["framework"]), 64)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -255,6 +255,18 @@ class TheInvariantGeneralises(unittest.TestCase):
         self.assertNotIn("tools/frontfps", AU.REPORTED)
         self.assertGreaterEqual(len(AU.ENFORCED), 2, "one subsystem is not a generalisation")
 
+    def test_frontend_was_EARNED_not_exempted(self):
+        """The third promotion differs in kind from the second. frontfps was completed by
+        DECLARING an exemption for a harness; frontend was completed by FIXING a module —
+        `rigidity_verdict` gained the content address it was missing, which closed a stale
+        certificate. No new exemption was spent on it."""
+        import authority as AU
+        self.assertIn("tools/frontend", AU.ENFORCED)
+        self.assertNotIn("tools/frontend", AU.REPORTED)
+        for r in AU.census("tools/frontend"):
+            self.assertTrue(AU.satisfies(r), "%s is exempt-free and must satisfy" % r[0])
+            self.assertNotIn(r[0], AU.EXEMPT)
+
     def test_both_enforced_subsystems_have_the_same_shape(self):
         """terrain: 102 AUTHORITY + 2 exempt PURE. frontfps: 6 AUTHORITY + 1 exempt PURE.
         Same shape, different subsystem — which is what generalising means here."""
