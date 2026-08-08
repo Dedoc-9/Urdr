@@ -245,5 +245,70 @@ class TheLawFieldIsLoadBearing(unittest.TestCase):
             EX.Exemption("brief", "neither", "x" * 50)
 
 
+class TheInvariantGeneralises(unittest.TestCase):
+    """`tools/frontfps` is the authority boundary's FIRST promotion. The invariant was read
+    off `tools/terrain`; this asks whether it holds unchanged somewhere it was not derived."""
+
+    def test_frontfps_is_enforced_and_no_longer_reported(self):
+        import authority as AU
+        self.assertIn("tools/frontfps", AU.ENFORCED)
+        self.assertNotIn("tools/frontfps", AU.REPORTED)
+        self.assertGreaterEqual(len(AU.ENFORCED), 2, "one subsystem is not a generalisation")
+
+    def test_both_enforced_subsystems_have_the_same_shape(self):
+        """terrain: 102 AUTHORITY + 2 exempt PURE. frontfps: 6 AUTHORITY + 1 exempt PURE.
+        Same shape, different subsystem — which is what generalising means here."""
+        import authority as AU
+        for sub in AU.ENFORCED:
+            rows = AU.census(sub)
+            self.assertTrue(rows, sub)
+            for r in rows:
+                self.assertTrue(AU.satisfies(r) or r[0] in AU.EXEMPT,
+                                "%s/%s neither satisfies nor is exempt" % (sub, r[0]))
+
+    def test_the_contract_holds_over_both(self):
+        import authority as AU
+        self.assertTrue(AU.contract_holds())
+        self.assertEqual(AU.violations(), [])
+        self.assertEqual(AU.stale_exemptions(), [])
+        self.assertEqual(AU.unknown_exemptions(), [])
+
+    def test_frontbench_really_is_PURE_measured_not_assumed(self):
+        """The exemption claims it admits no state and issues no verdict. Checked against
+        the census rather than trusted: neither half of the invariant is present."""
+        import authority as AU
+        row = next(r for r in AU.census("tools/frontfps") if r[0] == "frontbench")
+        self.assertFalse(row[1], "frontbench has a typed refusal; the exemption is wrong")
+        self.assertFalse(row[2], "frontbench has a content address; the exemption is wrong")
+        self.assertEqual(AU.classify(row), "PURE")
+
+    def test_the_exemption_is_LOAD_BEARING(self):
+        """THE PLANT. The promotion is not free: withdraw frontbench's exemption and the
+        subsystem must go into violation. If it did not, the exemption was decoration."""
+        import authority as AU
+        real = EX.EXEMPTIONS
+        EX.EXEMPTIONS = tuple(EX.Exemption(e.law, e.name, e.reason,
+                                           names=tuple(n for n in e.names if n != "frontbench"))
+                              if e.names else e for e in real)
+        try:
+            import importlib
+            importlib.reload(AU)
+            self.assertIn("frontbench", [v[1] for v in AU.violations()],
+                          "withdrawing the exemption did not put frontfps in violation")
+            self.assertFalse(AU.contract_holds())
+        finally:
+            EX.EXEMPTIONS = real
+            importlib.reload(AU)
+        self.assertTrue(AU.contract_holds())
+
+    def test_one_reason_is_shared_never_copied(self):
+        """`bench` and `frontbench` cite the SAME string object, not two copies that can
+        drift — the register's whole purpose, exercised for the first time."""
+        import authority as AU
+        self.assertIn("bench", AU.EXEMPT)
+        self.assertIn("frontbench", AU.EXEMPT)
+        self.assertIs(AU.EXEMPT["bench"], AU.EXEMPT["frontbench"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -61,11 +61,16 @@ import exempt as _EXM                                    # noqa: E402  the ONE r
 ROOT = os.path.dirname(os.path.dirname(_HERE))
 
 #: The subsystem the invariant was DERIVED from and is therefore ENFORCED over.
-ENFORCED = ("tools/terrain",)
+#: PROMOTED 2026-08-08: tools/frontfps joins tools/terrain. The shapes are identical —
+#: terrain is 102 AUTHORITY + 2 PURE with both PURE modules exempt; frontfps is 6 AUTHORITY
+#: + 1 PURE and that module is `frontbench`, a measurement harness carrying the same reason
+#: `bench` does. This is the first evidence the invariant GENERALISES past the subsystem it
+#: was derived on: it was read off tools/terrain, and it holds unchanged somewhere else.
+ENFORCED = ("tools/terrain", "tools/frontfps")
 
 #: Subsystems measured OUT OF SAMPLE and reported, never gated. The invariant does not hold here and
 #: that is the finding, not a defect: these are computation and presentation, which admit nothing.
-REPORTED = ("tools/netcode", "tools/physics", "tools/intla", "tools/render", "tools/frontfps",
+REPORTED = ("tools/netcode", "tools/physics", "tools/intla", "tools/render",
             "tools/homology", "tools/world_host", "tools/frontend")
 
 #: THE DECLARED EXCEPTIONS, DERIVED FROM THE ONE REGISTER. These used to live here as a

@@ -185,8 +185,14 @@ EXEMPTIONS = (
         "authority", "measurement-harness",
         "a measurement harness with no law to certify — it admits no state and issues no "
         "verdict, so it has neither identity to address nor admission to refuse. Ruled "
-        "unbriefable on independent grounds before this census existed.",
-        names=("bench",)),
+        "unbriefable on independent grounds before this census existed. `frontbench` joins "
+        "on the SAME reason, measured not assumed: it is the only PURE module in "
+        "tools/frontfps (no typed refusal, no content address) and it counts frozen "
+        "divisions into a work model — giving it a refusal purely to pass a census would be "
+        "gaming the census, which is worse than declaring the exception. This is the "
+        "register's first real use: one reason, written once, cited by two laws for two "
+        "modules.",
+        names=("bench", "frontbench")),
     Exemption(
         "authority", "property-falsifier",
         "a PROPERTY FALSIFIER over `storm` rather than an admitter: it asserts that the "
