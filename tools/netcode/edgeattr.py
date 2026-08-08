@@ -118,11 +118,39 @@ def _module(name):
     return m
 
 
-def _baseline():
-    return {n: f() for n, f in _LAWS.items()}
+#: MEMOS. Three pure functions the sweep re-derives: `_baseline` (nullary), `sensitivity`
+#: (591 calls over 73 distinct shapes, 8.1x, and 191s of cumulative time against 0.015s of
+#: its own — pure orchestration over expensive work), and `scene_result` (6 calls, 131s,
+#: because `emitted_matches_pinned` and `every_scene_reproduces_its_golden` compute the
+#: SAME scenes).
+#:
+#: THE PURITY CERTIFICATE, and it is not an assumption. `sensitivity` mutates global module
+#: state — it installs a `_Severed` sentinel and restores the real attribute in a `finally`
+#: — so caching it is only sound if the restore is total. That is already a certified
+#: property: `severance_leaves_no_residue` asserts it, and it exists precisely because a
+#: leaked sentinel would make every later row depend on stage order. Measured alongside:
+#: the ONLY setattr against the swept modules anywhere in the tree is this module's own,
+#: so nothing else can move the state the cached answers were derived under.
+#:
+#: WHAT THE MEMO ERASES: the severance path now runs 73 times instead of 591. Every
+#: distinct edge still severs and restores at least once, and
+#: `the_cache_agrees_with_the_severance` re-runs one with the cache BYPASSED and demands
+#: the identical answer — the same trade `voxlat.attained_max` made.
+_BASELINE = {}
+_SENS = {}
+_SCENE = {}
 
 
-def sensitivity(mod, attr, base=None):
+def _baseline(cached=True):
+    if cached and "b" in _BASELINE:
+        return _BASELINE["b"]
+    out = {n: f() for n, f in _LAWS.items()}
+    if cached:
+        _BASELINE["b"] = out
+    return out
+
+
+def sensitivity(mod, attr, base=None, cached=True):
     """Sever ONE edge and report which laws move. Returns a tuple of booleans in `LAW_NAMES` order.
 
     The restore is in a `finally` and `severance_leaves_no_residue` asserts it worked, because a
@@ -132,6 +160,11 @@ def sensitivity(mod, attr, base=None):
     m = _module(mod)
     if not hasattr(m, attr):
         raise EdgeError(f"{mod}.{attr} does not exist; a declared edge must be real")
+    # Both refusals above run BEFORE the lookup: a missing module or a missing attribute
+    # must refuse on a warm table exactly as it does on a cold one.
+    key = (mod, attr, tuple(base[n] for n in LAW_NAMES))
+    if cached and key in _SENS:
+        return _SENS[key]
     real = getattr(m, attr)
     setattr(m, attr, _Severed(f"{mod}.{attr}"))
     try:
@@ -143,7 +176,10 @@ def sensitivity(mod, attr, base=None):
                 out.append(True)                     # a law that cannot run is a law that moved
     finally:
         setattr(m, attr, real)
-    return tuple(out)
+    result = tuple(out)
+    if cached:
+        _SENS[key] = result
+    return result
 
 
 #: The modules the synthesizer sweeps. Generation replaces hand-declaration because hand-declaration
@@ -393,8 +429,52 @@ _SCENES = {"attribution": _scene_attribution, "walls": _scene_walls,
            "sweep": _scene_sweep}
 
 
-def scene_result(name):
-    return _SCENES[name]()
+def scene_result(name, cached=True):
+    if name not in _SCENES:
+        raise EdgeError(f"no such scene: {name!r}")     # refusal ahead of the lookup
+    if cached and name in _SCENE:
+        return _SCENE[name]
+    out = _SCENES[name]()
+    if cached:
+        _SCENE[name] = out
+    return out
+
+
+def the_cache_agrees_with_the_severance():
+    """THE MEMO IS AN OPTIMISATION, NEVER A CLAIM. Re-run a real severance with the cache
+    BYPASSED and demand the identical answer — one honest recomputation kept out of the
+    hundreds the memo removed."""
+    cands = severance_candidates()
+    base = _baseline()
+    for mod, attr in [c[:2] for c in cands[:2]]:
+        if sensitivity(mod, attr, base, cached=False) != sensitivity(mod, attr, base):
+            return False
+    first = sorted(_SCENES)[0]
+    return scene_result(first, cached=False) == scene_result(first)
+
+
+def the_cache_does_not_swallow_the_refusal():
+    """A missing attribute is an EdgeError whether or not the table is warm, because both
+    checks run ahead of the lookup. A cache consulted first turns a refusal into a hit."""
+    sensitivity(*severance_candidates()[0][:2])         # warm it
+    for bad in (("worldstep", "no_such_attribute_at_all"), ("not_a_loaded_module", "x")):
+        try:
+            sensitivity(*bad)
+            return False
+        except EdgeError:
+            pass
+    try:
+        scene_result("no_such_scene")
+        return False
+    except EdgeError:
+        return True
+
+
+def caches_are_bounded(limit=256):
+    """MEMORY GUARD. The sweep has 68 candidate edges and one baseline, so the tables
+    cannot exceed a small constant. An unbounded table would mean the key is picking up
+    something it should not — a mutable that varies per call."""
+    return (len(_SENS) <= limit and len(_SCENE) <= limit and len(_BASELINE) <= 1)
 
 
 def conformance_lines():

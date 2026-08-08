@@ -158,5 +158,33 @@ class TheCorpusIsPinned(unittest.TestCase):
             self.assertEqual(EA.scene_result(n), EA.golden(n), n)
 
 
+class TheMemos(unittest.TestCase):
+    """`sensitivity` was 591 calls over 73 distinct shapes — 8.1x — and 191s of cumulative
+    time against 0.015s of its own. Caching it is only sound because the severance restore
+    is TOTAL, which `severance_leaves_no_residue` already certifies."""
+
+    def test_the_cache_agrees_with_the_severance(self):
+        """One honest recomputation kept out of the hundreds the memo removed: a real
+        severance re-run with the cache BYPASSED must give the identical answer."""
+        self.assertTrue(EA.the_cache_agrees_with_the_severance())
+
+    def test_the_cache_does_not_swallow_the_refusal(self):
+        """A missing module or attribute refuses on a warm table exactly as on a cold one,
+        because both checks run ahead of the lookup."""
+        self.assertTrue(EA.the_cache_does_not_swallow_the_refusal())
+
+    def test_the_caches_are_bounded(self):
+        """MEMORY GUARD. 68 candidate edges and one baseline bound the tables to a small
+        constant; an unbounded table would mean the key picked up something per-call."""
+        EA.the_vector_census()
+        self.assertTrue(EA.caches_are_bounded())
+        self.assertLessEqual(len(EA._SENS), 256)
+        self.assertEqual(len(EA._BASELINE), 1)
+
+    def test_the_severance_still_restores_under_caching(self):
+        """The property the memo depends on, re-asserted after the memo exists."""
+        self.assertTrue(EA.severance_leaves_no_residue())
+
+
 if __name__ == "__main__":
     unittest.main()
