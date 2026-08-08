@@ -183,6 +183,14 @@ class WorldPeer:
         if not A.verify((e, pub, sig), pin):
             raise A.AuthError("AUTH-REFUSE",
                               f"envelope for identity {ident} failed verification")
+        # N4 ADMISSION, and it sits BEFORE the N2 time law rather than after it. This
+        # module's docstring says "auth (who) precedes the N2 time law precedes the N4
+        # authority (what)", and that ordering is unchanged: the N4 AUTHORITY is the
+        # tick, and the tick still runs last. What goes here is N4 ADMISSION — whether
+        # the event addresses this world at all — which is a PRECONDITION for the time
+        # law being meaningful, since rewinding to a snapshot and replaying on behalf of
+        # an event that names no body is work done for an input the tick would discard.
+        WS.admit_event_for_world(self.w, e)
         return self._admit(e)
 
     def deliver_envelope_defect_apply_at_head(self, env):

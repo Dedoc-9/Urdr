@@ -130,6 +130,68 @@ def arena_world():
 
 
 # ---- the tick (mirrors the frozen N1 tick; statics extend it) -----------------------
+def admit_event_for_world(w, e):
+    """THE CALLER-OWNED ADMISSION: is this event addressed to THIS world?
+
+    Distinct in kind from every boundary below it. `field` refuses a float because the
+    Q32.32 substrate has no such value; `authinput` refuses a malformed envelope because
+    `msg_digest` is undefined on one. Neither can answer "is body 7 a body?" — that is a
+    property of the WORLD, and `worldstep` is the module that owns it. Nothing was
+    deciding it, so `if 0 <= b < n:` in `step_tick` silently dropped an out-of-range body
+    and `range(w["T"])` silently dropped an out-of-horizon tick, on every path that runs
+    this tick. Measured over the perimeter: ADMITTED with the chain UNCHANGED.
+
+    A DROP IS A DECISION MADE WITHOUT A RECORD. It is not a desync — every conforming
+    peer drops identically — but a peer whose input was silently discarded and one whose
+    input was never sent are indistinguishable afterwards, which is precisely the
+    THIN-versus-DEVIATE conflation `geoquorum` and `tilemin` refuse one arc over. The
+    absorbing `if` is deliberately LEFT in `step_tick`: it is the frozen tick's own
+    behaviour, shared byte-for-byte with `lockstep`, and this is a door in front of it
+    rather than a change to it.
+
+    Shape is re-checked here rather than delegated to `authinput.admit_event`, and the
+    duplication is the point: N4 must not import N3 to know what a world is, and the two
+    answer different questions under different codes — `AUTH-MALFORMED` says "this is not
+    an event", `WORLD-REFUSE` says "this event is not for this world". The raw-log path
+    never touches the wire at all and would otherwise keep crashing untyped."""
+    n, T = w["n"], w["T"]
+    if isinstance(e, (str, bytes)) or not isinstance(e, (list, tuple)) or len(e) != 6:
+        raise WorldError("WORLD-REFUSE",
+                         "an event must be a 6-tuple (tick, peer, seq, body, dvx, dvy), "
+                         "got %r" % (e,))
+    for name, v in zip(("tick", "peer", "seq", "body", "dvx", "dvy"), e):
+        if not isinstance(v, int) or isinstance(v, bool):
+            raise WorldError("WORLD-REFUSE",
+                             "event field %s must be an exact integer, got %r (%s)"
+                             % (name, v, type(v).__name__))
+    if not 0 <= e[3] < n:
+        raise WorldError("WORLD-REFUSE",
+                         "event addresses body %d in a world of %d bodies — an "
+                         "out-of-range body was silently DROPPED here, which is a "
+                         "decision with no record" % (e[3], n))
+    if not 0 <= e[0] < T:
+        raise WorldError("WORLD-REFUSE",
+                         "event is at tick %d and this world runs ticks 0..%d — an "
+                         "out-of-horizon input was silently DROPPED here, so a peer "
+                         "whose input was discarded and one that never sent are "
+                         "indistinguishable afterwards" % (e[0], T - 1))
+    return e
+
+
+def admit_log(w, log):
+    """Admit an ENTIRE log against a world before any tick runs.
+
+    In full and up front, for the reason `observe` states: validating lazily would make
+    admission depend on the ANSWER, since an event past the last tick a run reaches would
+    never be examined. Admission must be a function of the input alone."""
+    if isinstance(log, (str, bytes)) or not isinstance(log, (list, tuple)):
+        raise WorldError("WORLD-REFUSE",
+                         "a log must be a sequence of events, got %s" % type(log).__name__)
+    for e in log:
+        admit_event_for_world(w, e)
+    return log
+
+
 def simulate(w, log, defect_no_statics=False, contact_defect=False):
     """Deterministic authored-world run. Returns the witness chain (URDRLST1 law);
     `defect_no_statics` is THE DEFECT for the gate — skipping static resolution must
@@ -143,6 +205,7 @@ def simulate_trace(w, log, defect_no_statics=False, contact_defect=False):
     gated), plus one (pos, vel) state snapshot per frame for DISPLAY-ONLY consumers
     (the editor's ▷ Replay). The states are copies of the Q32.32 words; nothing here
     feeds back into the tick. Returns (frames, states)."""
+    admit_log(w, log)                                      # the door, before any tick
     n = w["n"]
     pos = [[c for c in p] for p in w["pos"]]
     vel = [[c for c in v] for v in w["vel"]]

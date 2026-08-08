@@ -145,5 +145,87 @@ class AuthoredHighway(unittest.TestCase):
         self.assertNotEqual(good, bad, "the no-statics defect converged")
 
 
+class TheCallerOwnedAdmission(unittest.TestCase):
+    """`step_tick`'s `if 0 <= b < n:` and `simulate_trace`'s `range(w["T"])` silently
+    DROPPED an out-of-range body and an out-of-horizon tick. Not a desync — every
+    conforming peer drops identically — but a peer whose input was discarded and one that
+    never sent are indistinguishable afterwards, which is the THIN-versus-DEVIATE
+    conflation `geoquorum` and `tilemin` refuse. A drop is a decision with no record."""
+
+    def setUp(self):
+        self.w = W.arena_world()
+        self.log = L.sample_log()
+        self.clean = L.trace_digest(W.simulate(self.w, self.log))
+
+    def _bad(self, **kw):
+        t, p, s, b, dx, dy = self.log[0]
+        d = dict(tick=t, peer=p, seq=s, body=b, dvx=dx, dvy=dy)
+        d.update(kw)
+        return [(d["tick"], d["peer"], d["seq"], d["body"], d["dvx"], d["dvy"])] \
+            + list(self.log[1:])
+
+    def test_an_out_of_range_body_is_refused_not_dropped(self):
+        for body in (self.w["n"], self.w["n"] + 50, -1):
+            with self.subTest(body=body):
+                with self.assertRaises(W.WorldError) as ctx:
+                    W.simulate(self.w, self._bad(body=body))
+                self.assertEqual(ctx.exception.code, "WORLD-REFUSE")
+
+    def test_an_out_of_horizon_tick_is_refused_not_dropped(self):
+        for tick in (self.w["T"], self.w["T"] + 1000, -5):
+            with self.subTest(tick=tick):
+                with self.assertRaises(W.WorldError) as ctx:
+                    W.simulate(self.w, self._bad(tick=tick))
+                self.assertEqual(ctx.exception.code, "WORLD-REFUSE")
+
+    def test_the_boundary_is_the_boundary(self):
+        """voxin's law: a refusal one short of the derived bound means the enforced
+        bound is not the derived one. The last body and the last tick must ADMIT."""
+        W.simulate(self.w, self._bad(body=self.w["n"] - 1))
+        W.simulate(self.w, self._bad(tick=self.w["T"] - 1))
+
+    def test_shape_is_refused_here_too_under_the_worlds_own_code(self):
+        """The raw-log path never touches the wire, so `authinput`'s AUTH-MALFORMED
+        cannot reach it — it crashed untyped instead. N4 must not import N3 to know what
+        a world is, and the two answer different questions: 'this is not an event'
+        against 'this event is not for this world'."""
+        for bad in ([self.log[0][:3]], ["not an event"], [(1, 2, 3, 4, 5, 5.5)],
+                    [(1, 2, 3, True, 5, 6)]):
+            with self.subTest(repr(bad)[:40]):
+                with self.assertRaises(W.WorldError) as ctx:
+                    W.simulate(self.w, bad)
+                self.assertEqual(ctx.exception.code, "WORLD-REFUSE")
+
+    def test_admission_runs_over_the_whole_log_before_any_tick(self):
+        """`observe`'s law: lazy validation would make admission depend on the ANSWER,
+        since an event past the last tick a run reaches would never be examined. The bad
+        event here sits at the END of the log and must still refuse."""
+        with self.assertRaises(W.WorldError) as ctx:
+            W.simulate(self.w, list(self.log) + [(0, 0, 99, 999, 1, 1)])
+        self.assertEqual(ctx.exception.code, "WORLD-REFUSE")
+
+    def test_the_clean_corpus_is_untouched(self):
+        """NON-VACUITY THE OTHER WAY: a door that refused everything would pass every
+        assertion above. The canonical arena chain must be bit-identical."""
+        self.assertEqual(L.trace_digest(W.simulate(self.w, self.log)), self.clean)
+        self.assertEqual(self.clean,
+                         L.trace_digest(L.simulate(L.world(), self.log)[0]))
+
+    def test_the_frozen_tick_still_absorbs_which_is_why_this_is_a_door(self):
+        """The absorbing `if 0 <= b < n:` is deliberately LEFT in `step_tick`: it is the
+        frozen tick's behaviour, shared byte-for-byte with `lockstep`, and this rung adds
+        a door in FRONT of it rather than changing it. Called directly, it still drops."""
+        pos = [[c for c in p] for p in self.w["pos"]]
+        vel = [[c for c in v] for v in self.w["vel"]]
+        before = L._digest(pos, vel, self.w["n"])
+        W.step_tick(self.w, pos, vel, [(0, 0, 0, 999, 5, 5)])   # out of range, absorbed
+        pos2 = [[c for c in p] for p in self.w["pos"]]
+        vel2 = [[c for c in v] for v in self.w["vel"]]
+        W.step_tick(self.w, pos2, vel2, [])                     # no events at all
+        self.assertEqual(L._digest(pos, vel, self.w["n"]),
+                         L._digest(pos2, vel2, self.w["n"]))
+        self.assertNotEqual(before, L._digest(pos, vel, self.w["n"]))
+
+
 if __name__ == "__main__":
     unittest.main()

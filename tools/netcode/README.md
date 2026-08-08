@@ -88,7 +88,34 @@ type system refuses statically what Python needed a runtime guard for — which 
 Cross-placement conformance certifies agreement on **admitted** inputs only; it is
 structurally silent on the admission boundary.
 
-**Where the perimeter stands now — 8 typed of 35, up from 4.** Re-measured, not
+**The caller-owned admission (`WORLD-REFUSE`), and it closes the perimeter down to the
+frozen spine.** `step_tick`'s `if 0 <= b < n:` and `simulate_trace`'s `range(w["T"])`
+silently DROPPED an out-of-range body and an out-of-horizon tick on every path that runs
+the N4 tick. Not a desync — every conforming peer drops identically — but **a drop is a
+decision with no record**: a peer whose input was discarded and one that never sent are
+indistinguishable afterwards, the THIN-versus-DEVIATE conflation `geoquorum` and
+`tilemin` refuse. The question is distinct in kind from every boundary below it: `field`
+refuses a float because Q32.32 has no such value, `authinput` refuses a malformed
+envelope because `msg_digest` is undefined on one, and neither can answer *is body 7 a
+body* — that is a property of the WORLD, which `worldstep` owns. `admit_log` runs at the
+door of all three world-bearing paths (`worldstep`, `worldregion`, `worldpeer`), in full
+before any tick, for `observe`'s reason: an event past the last tick a run reaches would
+never be examined, so lazy validation would make admission depend on the answer. The
+boundary is checked to BE the boundary — body `n-1` and tick `T-1` admit while `n` and
+`T` refuse (voxin's law). And it is a **door rather than a rewrite**: the absorbing `if`
+stays in the frozen tick, shared byte-for-byte with `lockstep`, and `step_tick` called
+directly still drops — asserted, so the frozen contract is measured unchanged rather than
+assumed. Row `netcode-world-admits`; falsifiers in `tests/test_worldstep.py`.
+
+**Where the perimeter stands now — 23 typed of 35, up from 8, and everything left is the
+frozen spine.** Re-measured: 8 ABSORBED, 3 COERCED, 1 UNTYPED, 23 REFUSED. Every
+remaining cell is on path A (`lockstep`) or path E (`rollback`, which runs lockstep's
+tick) — the exemption already written and defended in `tools/specfreeze/exempt.py`, where
+a refusal would change the frozen contract rather than add a boundary to it. The three
+coercions are all `lockstep._u`'s own `int(v)`. There is no longer a malformed-input
+class that reaches an unfrozen module unrefused.
+
+**The perimeter as it stood at 8 typed of 35 — superseded above, kept for the shape.** Re-measured, not
 remembered: 21 ABSORBED, 3 COERCED, 3 UNTYPED, 8 REFUSED. What remains is exactly two
 things and both are named. The **caller-owned absorptions** — out-of-range body index
 and out-of-horizon tick — walk every path and are the next rung, at the

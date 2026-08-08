@@ -121,6 +121,7 @@ def region_simulate_trace(w, log, seams, defect_drop_ghost=False):
     snapshot per frame for DISPLAY-ONLY consumers (the field-level desync inspector,
     `tools/netcode/observe.py`). The states are copies of the Q32.32 words; nothing here
     feeds back into the tick. Returns (frames, states)."""
+    WS.admit_log(w, log)                                   # the door, before any tick
     validate_partition(seams)
     n = w["n"]; T = w["T"]; radii = w["rs"]
     pos = [[c for c in p] for p in w["pos"]]

@@ -2604,6 +2604,76 @@ class Gate:
                         if ok else f"boundary wrong: refuse={code} order_matters={order_matters}")
         except Exception as exc:
             self.record("netcode-world-boundary", False, f"errored: {exc}")
+
+        # -- THE CALLER-OWNED ADMISSION: is this event addressed to THIS world? --------
+        try:
+            aw = W.arena_world()
+            alog = L.sample_log()
+            clean = L.trace_digest(W.simulate(aw, alog))
+
+            def _mut(**kw):
+                t, p, s, b, dx, dy = alog[0]
+                d = dict(tick=t, peer=p, seq=s, body=b, dvx=dx, dvy=dy)
+                d.update(kw)
+                return [(d["tick"], d["peer"], d["seq"], d["body"],
+                         d["dvx"], d["dvy"])] + list(alog[1:])
+            refused = {}
+            for label, lg in (
+                    ("body == n", _mut(body=aw["n"])),
+                    ("body < 0", _mut(body=-1)),
+                    ("tick == T", _mut(tick=aw["T"])),
+                    ("tick < 0", _mut(tick=-5)),
+                    ("non-integer field", _mut(dvx=5.5)),
+                    ("bool field", _mut(body=True)),
+                    ("wrong arity", [alog[0][:3]] + list(alog[1:])),
+                    ("bad event at the END of the log",
+                     list(alog) + [(0, 0, 99, aw["n"] + 7, 1, 1)])):
+                try:
+                    W.simulate(aw, lg)
+                    refused[label] = "ADMITTED"
+                except W.WorldError as exc2:
+                    refused[label] = exc2.code
+                except Exception as exc2:                      # pragma: no cover
+                    refused[label] = "UNTYPED:%s" % type(exc2).__name__
+            typed = all(v == "WORLD-REFUSE" for v in refused.values())
+            # the boundary IS the boundary (voxin's law): last body and last tick admit
+            edge = (L.trace_digest(W.simulate(aw, _mut(body=aw["n"] - 1))) is not None
+                    and L.trace_digest(W.simulate(aw, _mut(tick=aw["T"] - 1))) is not None)
+            # non-vacuity the other way: the clean corpus is untouched, and the frozen
+            # tick still absorbs when called DIRECTLY — this is a door, not a rewrite
+            untouched = L.trace_digest(W.simulate(aw, alog)) == clean
+            pos = [[c for c in p] for p in aw["pos"]]
+            vel = [[c for c in v] for v in aw["vel"]]
+            W.step_tick(aw, pos, vel, [(0, 0, 0, aw["n"] + 99, 5, 5)])
+            p2 = [[c for c in p] for p in aw["pos"]]
+            v2 = [[c for c in v] for v in aw["vel"]]
+            W.step_tick(aw, p2, v2, [])
+            still_absorbs = (L._digest(pos, vel, aw["n"]) == L._digest(p2, v2, aw["n"]))
+            adm_ok = typed and edge and untouched and still_absorbs
+        except Exception as exc:                               # pragma: no cover
+            adm_ok, refused = False, {"errored": str(exc)}
+        self.record(
+            "netcode-world-admits", adm_ok,
+            "%d/%d shapes now WORLD-REFUSE (%s) where the world's own tick SILENTLY "
+            "DROPPED them. `step_tick`'s `if 0 <= b < n:` and `simulate_trace`'s "
+            "`range(w[\"T\"])` discarded an out-of-range body and an out-of-horizon tick "
+            "on every path that runs this tick — measured over the perimeter as ADMITTED "
+            "with the chain UNCHANGED. That is not a desync (every conforming peer drops "
+            "identically) but A DROP IS A DECISION WITH NO RECORD: a peer whose input was "
+            "discarded and one that never sent are indistinguishable afterwards, which is "
+            "the THIN-versus-DEVIATE conflation `geoquorum` and `tilemin` refuse. The "
+            "question is CALLER-OWNED and distinct in kind from the boundaries below it — "
+            "`field` refuses a float because Q32.32 has no such value, `authinput` refuses "
+            "a malformed envelope because `msg_digest` is undefined on one, and neither "
+            "can answer 'is body 7 a body?', which is a property of the WORLD. The "
+            "boundary IS the boundary: body n-1 and tick T-1 ADMIT while n and T refuse "
+            "(voxin's law — a refusal one short means the enforced bound is not the "
+            "derived one). And this is a DOOR rather than a rewrite: the absorbing `if` "
+            "is deliberately left in the frozen tick, shared byte-for-byte with "
+            "`lockstep`, and `step_tick` called directly still drops — asserted here, so "
+            "the frozen contract is measured unchanged rather than assumed"
+            % (len(refused), len(refused), ", ".join(sorted(refused)))
+            if adm_ok else "admission wrong: %r" % (refused,))
         # peers agree on authored state
         w = W.world_from_export(doc)
         a_view = [e for e in log if e[1] == 0] + [e for e in log if e[1] == 1]
@@ -3860,8 +3930,14 @@ class Gate:
                     if wl_ok else "an edgeattr wall did not hold")
 
         sw_ok = True
+        inert = total = 0
         try:
-            sw_ok = EA.the_inert_share() == (41, 68)
+            # RE-PINNED 68 -> 70: `admit_log` and `admit_event_for_world` joined the
+            # swept module. The candidate set is GENERATED from module introspection,
+            # so adding a real callable to a swept module moves it by construction —
+            # and the INERT count stayed 41, meaning both new candidates are
+            # LOAD-BEARING: severing either breaks a law. Nothing else moved.
+            sw_ok = EA.the_inert_share() == (41, 70)
             sw_ok = sw_ok and EA.the_declared_edges_are_a_subset() == (7, 7)
             sw_ok = sw_ok and EA.the_identity_law_never_divides() == (0, 9)
             sw_ok = sw_ok and EA.the_separating_witnesses() == (
@@ -3875,7 +3951,7 @@ class Gate:
         self.record("edgeattr-sweep", sw_ok,
                     "PERTURBATIONS ARE GENERATED, NOT LISTED, AND THE SWEEP SEPARATED TWO LAW PAIRS "
                     "THAT HAND-DECLARATION COULD NOT. Every callable a swept module DEFINES is "
-                    "severed — 68 candidates, 5 distinct sensitivity vectors where the 7 curated "
+                    "severed — %d candidates, 5 distinct sensitivity vectors where the 7 curated "
                     "edges produced 2. Under the curated set `replay` and `replay-plants` moved "
                     "together in every case, as did segmentation/identity/seg-plants, which is "
                     "consistent with each group being ONE fact wearing several green rows — evidence "
@@ -3886,10 +3962,11 @@ class Gate:
                     "fixed-point division is reached 0 times against 9 under segmentation. "
                     "`persist.PersistError` breaks replay-plants but not replay, and is recorded as "
                     "DEGENERATE: severing an exception CLASS makes `except PersistError` raise "
-                    "TypeError, so the plants break for a reason unrelated to what they test. AND 41 "
-                    "OF 68 TAUGHT NOTHING, which is first-class rather than an embarrassment: a sweep "
+                    "TypeError, so the plants break for a reason unrelated to what they test. AND %d "
+                    "OF %d TAUGHT NOTHING, which is first-class rather than an embarrassment: a sweep "
                     "in which everything mattered would be measuring the sweep, so the inert share is "
                     "asserted to be strictly between 0 and the total"
+                    % (total, inert, total)
                     if sw_ok else "the edgeattr sweep did not hold")
 
         pl_ok = True
