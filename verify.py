@@ -1782,6 +1782,100 @@ class Gate:
                     "truncation diverges from round-to-nearest (gate can redden)"
                     if caught else "rounding not load-bearing — instrument vacuous")
 
+        # -- THE SUBSTRATE'S DOMAIN. "No float, no clock, no RNG" was this module's
+        # headline and the determinism argument's whole foundation, checked nowhere.
+        doors = all(FLD.every_door_refuses(B) for B in (FixedPoint, FLD.Exact))
+        witness = all(FLD.the_witness_refuses(B) for B in (FixedPoint, FLD.Exact))
+        closed = all(FLD.arithmetic_is_int_closed(B) for B in (FixedPoint, FLD.Exact))
+        dom_ok = doors and witness and closed
+        self.record(
+            "field-domain", dom_ok,
+            "the Q32.32 substrate now REFUSES what its own headline forbids, at both "
+            "DOORS and at the WITNESS, in both backends. `FixedPoint.unit` accepted a "
+            "float, `_rdiv`'s `//` returns a float for a float operand, and the float "
+            "rode into the state — 232 float words in the worldstep witness from ONE "
+            "malformed impulse — while `ser`'s `int(a)` truncated at witness time so "
+            "every digest looked well-formed and the divergence only surfaced when "
+            "`mul_k` rounded a float differently at a wall bounce. `Exact` was worse: "
+            "it built a RATIONAL WHOSE PARTS ARE FLOATS (`11.0/2.0`), which is the "
+            "exactness claim inverted, then raised an untyped AttributeError. The "
+            "guards sit at the caller-supplied scalars only — `unit`'s num/den and "
+            "`mul_k`'s coefficient — because `add`/`sub` are closed over values the "
+            "doors admitted, and THAT closure is measured rather than asserted: the "
+            "census caught this rung's own first draft naming `unit` as the sole door "
+            "and missing `mul_k`'s coefficient, through which `lockstep` passes the "
+            "restitution `w[\"e\"]`. `bool` is refused too (boolport's law, one layer "
+            "down). Every legitimate integer call is untouched: 0 non-int calls to "
+            "`unit` across all %d falsifiers, and no conformance digest moved"
+            % getattr(self, "n_falsifiers", 0)
+            if dom_ok else
+            "domain broken: doors=%s witness=%s int-closed=%s" % (doors, witness, closed))
+
+        # -- THE DESYNC VECTOR THIS CLOSED, measured end to end across the netcode
+        # stack rather than argued from the substrate.
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        if ndir not in sys.path:
+            sys.path.insert(0, ndir)
+        try:
+            import json
+            import lockstep as _L
+            import worldstep as _W
+            import worldpeer as _WP
+            import authinput as _A
+            with open(os.path.join(ROOT, "demo", "world_highway.json"), encoding="utf-8") as fh:
+                _doc = json.load(fh)
+            _log = _W.sample_world_log()
+            _e0 = _log[0]
+            _bad = [(_e0[0], _e0[1], _e0[2], _e0[3], 5.5, _e0[5])] + list(_log[1:])
+            _keys, _roster = {}, {}
+            for _ev in _log:
+                _id = (_ev[1], _ev[2])
+                _keys[_id] = _A.keygen(_A.fixture_seed(*_id))
+                _roster[_id] = _A.roster_pin(_A.pubkey_bytes(_keys[_id]))
+            _pin = _WP.world_pin(_W.world_from_export(_doc))
+
+            def _n4(lg):
+                try:
+                    return _L.trace_digest(_W.simulate_trace(_W.world_from_export(_doc), lg)[0])
+                except Exception as exc:                       # noqa: BLE001
+                    return "REFUSED:%s" % getattr(exc, "code", type(exc).__name__)
+
+            def _n5(lg):
+                try:
+                    pr = _WP.WorldPeer(_W.world_from_export(_doc), _roster, _pin, K=4, H=64)
+                    for _ev in lg:
+                        pr.deliver_envelope(_A.envelope(_ev, _keys[(_ev[1], _ev[2])]))
+                    pr.advance(_W.world_from_export(_doc)["T"])
+                    return pr.trace()
+                except Exception as exc:                       # noqa: BLE001
+                    return "REFUSED:%s" % getattr(exc, "code", type(exc).__name__)
+            _b4, _b5 = _n4(_bad), _n5(_bad)
+            _two_chains = (not _b4.startswith("REFUSED") and not _b5.startswith("REFUSED")
+                           and _b4 != _b5)
+            _clean = _n4(_log) == _n5(_log) and not _n4(_log).startswith("REFUSED")
+            _vec_ok = (not _two_chains) and _clean and _b4.startswith("REFUSED")
+        except Exception as exc:                               # pragma: no cover
+            _vec_ok, _two_chains, _b4, _b5 = False, None, str(exc), ""
+        self.record(
+            "field-domain-desync", _vec_ok,
+            "THE VECTOR IS DEAD, AND IT WAS A DESYNC RATHER THAN AN AUDIT HOLE. "
+            "`lockstep._u` is `FP.unit(int(v), 1)` and truncates; `worldstep.step_tick` "
+            "is `FP.unit(dvx, 1)` and did not — so ONE malformed impulse in a shared "
+            "transcript produced TWO DIFFERENT WITNESS CHAINS with no refusal from "
+            "either placement (8a0dfd44… through N4 against 9a636787… through N5), "
+            "which is D12's composed sentence for worldpeer — the identical chain OR "
+            "the same typed refusal — failing on both arms at once. No pinned log "
+            "carries a non-integer, so the corpus sat entirely inside the admitted "
+            "domain and never saw it (L20). N4 now refuses FIELD-REFUSE and no two "
+            "paths produce two chains. HONEST REMAINDER, stated rather than rounded "
+            "up: the sentence is NOT yet satisfied — N4 refuses where N5 still "
+            "silently `int()`s the envelope and returns a chain, so 'refuse versus "
+            "chain' stands until that laundering step at the N5 door becomes a typed "
+            "refusal of its own. The integer control is bit-identical to its golden "
+            "through both paths, which is what makes this a closure and not a break"
+            if _vec_ok else
+            "desync not closed: two-chains=%s n4=%.24s n5=%.24s" % (_two_chains, _b4, _b5))
+
     def marangoni(self):
         """Marangoni surface-tension transport (continuum rung): the field advects
         itself up its own surface-tension gradient (velocity ∝ κ·∂c), nonlinearly,

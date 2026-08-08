@@ -35,6 +35,23 @@ would make admission depend on where the divergence is, which is not an admissio
 `length` and `count` stay RESULTS: they are the verdicts the module exists to report. Gate rows
 `field-desync-admits` / `field-desync-admission-order`; falsifiers `tests/test_field_desync.py`.
 
+**The perimeter, measured (7 malformed classes × 5 entry paths, 35 cells).** Against
+the event-deleted trace as control — comparing to the clean run only proves the
+mutated event was real — the stack absorbed or silently coerced 31 of 35 and typed 4.
+An out-of-range body index, an out-of-horizon tick and a malformed arity walk through
+`lockstep`, `worldstep`, `worldpeer` and `worldregion` alike; only `rollback` types the
+arity, and only the two rollback-horizon paths type a negative tick. **The float
+impulse was the one that was not an audit hole**: `lockstep._u` truncates with
+`int(v)` and `worldstep.step_tick` did not, so one malformed transcript produced two
+different witness chains with no refusal — the D12 composed sentence failing on both
+arms. Closed at the substrate (`tools/physics/field.py`, `FIELD-REFUSE`), because a
+guard in `canon` would have changed the frozen contract while a guard at the substrate
+enforces a domain it already claimed. **Honest remainder:** the sentence is not yet
+satisfied — N4 now refuses where N5's `deliver_envelope` still does
+`e = tuple(int(x) for x in e)` and returns a chain, so "refuse versus chain" stands.
+That `int()` is a laundering step rather than a boundary, and typing it is the next
+rung; the caller-owned absorptions (body range, horizon) are the one after.
+
 **Authority status: REPORTED, 9/12, and it stays REPORTED.** The census that reported netcode at
 10/12 was matching docstrings — `observe` scored content-addressed on two prose uses of the word
 "digest" while computing none, and `regionprop` scored AUTHORITY on one line of prose. Corrected

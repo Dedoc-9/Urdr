@@ -41,6 +41,41 @@ class FieldError(Exception):
         self.message = message
 
 
+def _int(name, v):
+    """THE SUBSTRATE'S DOMAIN, ENFORCED — and it was reachable.
+
+    This module's headline is "No float, no clock, no RNG", and the whole
+    determinism argument above rests on it: every placement rounds identically
+    because the arithmetic is exact integer. Nothing checked. `FixedPoint.unit`
+    accepted a float, `_rdiv`'s `//` returns a float for a float operand, and the
+    float rode into the Q32.32 state — 232 float words in the worldstep witness on
+    the pinned highway scene, from ONE malformed impulse.
+
+    It was invisible because `ser` did `int(a).to_bytes(...)`: the serializer
+    truncated at witness time, so every digest looked well-formed while the running
+    state sat off-lattice, and the divergence only surfaced later when `mul_k`
+    rounded a float differently from the exact integer path at a wall bounce.
+
+    And it was a DESYNC VECTOR rather than an audit hole, which is the part that
+    made this the first move. `lockstep._u` is `FP.unit(int(v), 1)` and truncates;
+    `worldstep.step_tick` is `FP.unit(dvx, 1)` and does not. So one malformed
+    transcript produced TWO DIFFERENT WITNESS CHAINS with no refusal from either —
+    8a0dfd44… through N4 against 9a636787… through N5 — which is exactly the
+    composed sentence D12 states for worldpeer ("the identical witness chain OR the
+    same typed refusal") failing on both arms at once. Every pinned log is integer,
+    so the corpus sat entirely inside the admitted domain and never saw it (L20).
+
+    `bool` is excluded on purpose: `True == 1` reaches a frozen integer parameter as
+    a value nobody wrote, which is the `boolport` rung's law applied one layer down."""
+    if not isinstance(v, int) or isinstance(v, bool):
+        raise FieldError("FIELD-REFUSE",
+                         "%s must be an exact integer, got %r (%s) — the Q32.32 "
+                         "substrate has no float anywhere, and a silent conversion "
+                         "here is an authority act with no record"
+                         % (name, v, type(v).__name__))
+    return v
+
+
 def _rdiv(p, d):
     """Round p/d to nearest, ties away from zero (d > 0). The FROZEN rounding
     rule — every placement must evaluate this identically."""
@@ -67,7 +102,12 @@ class FixedPoint:
 
     @staticmethod
     def unit(num, den):
-        return FixedPoint._g(_rdiv(num * ONE, den))     # a value in units of 1.0
+        # THE DOOR. Every caller-supplied quantity enters the substrate here, and
+        # `add`/`sub`/`mul_k` are closed over the integers, so guarding this point
+        # closes entry for all of them — asserted nowhere and MEASURED by
+        # `arithmetic_is_int_closed`, because "the middle cannot produce a float" is
+        # exactly the kind of claim this module already got wrong once.
+        return FixedPoint._g(_rdiv(_int("num", num) * ONE, _int("den", den)))
 
     @staticmethod
     def add(a, b):
@@ -79,7 +119,18 @@ class FixedPoint:
 
     @staticmethod
     def mul_k(a, kn, kd):
-        return FixedPoint._g(_rdiv(a * kn, kd))         # multiply by rational coeff; ROUNDS
+        # A SECOND DOOR, and I had it wrong one edit ago. `unit` looked like the only
+        # entry because `add`/`sub` are closed over the substrate's own values — but
+        # `kn`/`kd` are a CALLER-SUPPLIED rational coefficient, so they enter here and
+        # nowhere else. `FixedPoint.mul_k(x, 1.5, 2)` was admitted and returned a
+        # float. `lockstep` reaches this with `w["e"]`, the restitution, so a world
+        # authored with a float bounce coefficient walked straight in past a guarded
+        # `unit`. Caught by `arithmetic_is_int_closed` rather than by review, which is
+        # the argument for measuring the closure instead of asserting it.
+        # `a` is deliberately NOT guarded: it is a value already inside the substrate,
+        # it is on the hot path of every tick, and a float reaching it by some other
+        # route is caught at the witness by `ser`.
+        return FixedPoint._g(_rdiv(a * _int("kn", kn), _int("kd", kd)))
 
     @staticmethod
     def is_zero(a):
@@ -87,7 +138,13 @@ class FixedPoint:
 
     @staticmethod
     def ser(a):
-        return int(a).to_bytes(8, "big", signed=True)
+        # THE WITNESS, and it is a SECOND guard rather than a redundant one. The
+        # door stops a float ENTERING; this stops a float that got in by another
+        # route from minting a well-formed digest. `int(a)` was doing the truncation
+        # silently, which is precisely why the contamination was invisible to every
+        # conformance digest in the tree. Their independence is measured, not argued:
+        # a word injected directly into a state list never passes through `unit`.
+        return _int("word", a).to_bytes(8, "big", signed=True)
 
 
 class Exact:
@@ -101,7 +158,14 @@ class Exact:
 
     @staticmethod
     def unit(num, den):
-        return RQ(num, den)
+        # THE SAME DOOR, because the hole was in BOTH backends and fixing one would
+        # have broken rule 3 above — the two differ in exactness and scale, "never
+        # determinism". `Exact` was the worse of the pair: it did not truncate, it
+        # built RQ(5.5, 1) and carried a RATIONAL WHOSE PARTS ARE FLOATS, printing
+        # `11.0/2.0`, after which `ser` raises an untyped AttributeError reaching for
+        # `.to_bytes` on a float. A rational with a float numerator is not a slower
+        # exact number, it is the exactness claim inverted.
+        return RQ(_int("num", num), _int("den", den))
 
     @staticmethod
     def add(a, b):
@@ -113,7 +177,7 @@ class Exact:
 
     @staticmethod
     def mul_k(a, kn, kd):
-        return a * RQ(kn, kd)
+        return a * RQ(_int("kn", kn), _int("kd", kd))
 
     @staticmethod
     def is_zero(a):
@@ -121,7 +185,8 @@ class Exact:
 
     @staticmethod
     def ser(a):
-        return a.n.to_bytes(8, "big", signed=True) + a.d.to_bytes(8, "big", signed=True)
+        return _int("num", a.n).to_bytes(8, "big", signed=True) \
+            + _int("den", a.d).to_bytes(8, "big", signed=True)
 
 
 def _clamp(i, n):
@@ -181,6 +246,72 @@ def mass(B, grid):
     for v in grid:
         m = B.add(m, v)
     return m
+
+
+#: Every caller-supplied scalar, per backend, as (label, call). The domain law is
+#: enforced at the DOORS (`unit`, `mul_k`'s coefficient) and at the WITNESS (`ser`);
+#: `add`/`sub` take only values the doors already admitted.
+def _doors(B):
+    one = B.unit(1, 1)
+    return (("unit.num", lambda v: B.unit(v, 1)),
+            ("unit.den", lambda v: B.unit(1, v)),
+            ("mul_k.kn", lambda v: B.mul_k(one, v, 1)),
+            ("mul_k.kd", lambda v: B.mul_k(one, 1, v)))
+
+
+def every_door_refuses(B):
+    """RED-FIRST: each caller-supplied scalar refuses a float and a bool, and admits
+    the honest int — a door that refused everything would not be a door."""
+    for _label, call in _doors(B):
+        for bad in (5.5, True, "5"):
+            try:
+                call(bad)
+                return False
+            except FieldError as exc:
+                if exc.code != "FIELD-REFUSE":
+                    return False
+            except Exception:
+                return False                      # untyped is not a refusal
+        try:
+            call(2)
+        except Exception:
+            return False
+    return True
+
+
+def the_witness_refuses(B):
+    """The SECOND guard, and the one that makes the contamination visible. A float
+    injected straight into a state list never passes a door; `ser` used to truncate
+    it with `int(a)` so the digest looked well-formed while the state was off-lattice.
+    Independence is the claim: this must refuse a value no door ever saw."""
+    class _OffLattice:                            # a rational whose parts are floats
+        n, d = 11.0, 2.0
+    try:
+        B.ser(5.5 if B is FixedPoint else _OffLattice())
+    except FieldError as exc:
+        return exc.code == "FIELD-REFUSE"
+    except Exception:
+        return False
+    return False
+
+
+def arithmetic_is_int_closed(B, rounds=64):
+    """MEASURED, never asserted: given values the doors admitted, `add`/`sub`/`mul_k`
+    return values still in the domain. This is the claim that lets the guards sit at
+    the doors instead of in the hot inner loop — and its first draft was WRONG, which
+    is why it is a census. It named `unit` as the only door and missed `mul_k`'s
+    caller-supplied coefficient, so a float coefficient produced a float word from
+    two integer inputs."""
+    vals = [B.unit(n, 1) for n in (-3, 0, 1, 7)]
+    ok = True
+    for i in range(rounds):
+        a, b = vals[i % len(vals)], vals[(i // len(vals)) % len(vals)]
+        for out in (B.add(a, b), B.sub(a, b), B.mul_k(a, (i % 5) - 2, (i % 3) + 1)):
+            try:
+                B.ser(out)                        # the domain, asked at the witness
+            except FieldError:
+                ok = False
+    return ok
 
 
 def digest(B, grid, w, h):

@@ -118,5 +118,81 @@ class BackendIdentity(unittest.TestCase):
         self.assertEqual(ctx.exception.code, "FIELD-REFUSE")
 
 
+class TheSubstrateHasADomain(unittest.TestCase):
+    """"No float, no clock, no RNG" is this module's headline and the foundation of
+    every determinism claim above it. Nothing checked it, and the gap was a DESYNC
+    vector rather than an audit hole: `lockstep._u` truncates with `int(v)` and
+    `worldstep.step_tick` did not, so one float impulse in a shared transcript
+    produced two different witness chains with no refusal from either."""
+
+    BACKENDS = (FixedPoint, Exact)
+
+    def test_every_door_refuses_a_float_and_admits_an_int(self):
+        """Both halves matter. A door that refused everything would pass the first
+        assertion and be useless, which is why the honest int is asserted too."""
+        for B in self.BACKENDS:
+            with self.subTest(B.tag):
+                self.assertTrue(FLD.every_door_refuses(B))
+
+    def test_the_caller_supplied_coefficient_is_a_door_too(self):
+        """THE ONE I GOT WRONG. `unit` looked like the sole entry because add/sub are
+        closed over the substrate's own values — but `mul_k`'s `kn`/`kd` are a
+        caller's rational coefficient, and `lockstep` passes the restitution `w["e"]`
+        straight through it. Before the guard, two integer inputs plus a float
+        coefficient returned a float."""
+        for B in self.BACKENDS:
+            with self.subTest(B.tag):
+                one = B.unit(1, 1)
+                with self.assertRaises(FieldError) as ctx:
+                    B.mul_k(one, 1.5, 2)
+                self.assertEqual(ctx.exception.code, "FIELD-REFUSE")
+                B.mul_k(one, 1, 2)                    # the honest coefficient passes
+
+    def test_the_witness_is_an_independent_second_guard(self):
+        """`ser` used to do `int(a).to_bytes(...)`, truncating at witness time — which
+        is exactly why the contamination was invisible to every conformance digest in
+        the tree. It must refuse a value that never passed a door, or it is redundant
+        rather than independent."""
+        for B in self.BACKENDS:
+            with self.subTest(B.tag):
+                self.assertTrue(FLD.the_witness_refuses(B))
+
+    def test_arithmetic_is_int_closed_measured_not_asserted(self):
+        for B in self.BACKENDS:
+            with self.subTest(B.tag):
+                self.assertTrue(FLD.arithmetic_is_int_closed(B))
+
+    def test_bool_is_refused_boolport_one_layer_down(self):
+        """`True == 1` reaches a frozen integer parameter as a value nobody wrote."""
+        for B in self.BACKENDS:
+            with self.subTest(B.tag):
+                with self.assertRaises(FieldError) as ctx:
+                    B.unit(True, 1)
+                self.assertEqual(ctx.exception.code, "FIELD-REFUSE")
+
+    def test_the_exact_backend_no_longer_builds_a_float_rational(self):
+        """`Exact` was the worse of the pair. It did not truncate — it built
+        `RQ(5.5, 1)` and carried a rational whose PARTS ARE FLOATS, printing
+        `11.0/2.0`, after which `ser` raised an untyped AttributeError reaching for
+        `.to_bytes` on a float. A rational with a float numerator is not a slower
+        exact number; it is the exactness claim inverted."""
+        with self.assertRaises(FieldError) as ctx:
+            Exact.unit(5.5, 1)
+        self.assertEqual(ctx.exception.code, "FIELD-REFUSE")
+        q = Exact.unit(11, 2)
+        self.assertIsInstance(q.n, int)
+        self.assertIsInstance(q.d, int)
+
+    def test_the_legitimate_corpus_is_untouched(self):
+        """NON-VACUITY IN THE OTHER DIRECTION: the guard must be free. Every pinned
+        scene still reproduces its golden, so the domain law refuses what was never
+        admitted and nothing that was."""
+        goldens = _load_goldens()
+        self.assertTrue(goldens)
+        for name, want in sorted(goldens.items()):
+            with self.subTest(name):
+                self.assertEqual(field_scenes.run(name), want)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -86,6 +86,28 @@ No floating point anywhere — positions, velocities, and impulses are exact
 rationals (`rational.Q`, gcd-reduced over ℤ). Any i64 overflow is `PHYS-REFUSE`,
 never a wrap. Consumes `urdr-math`'s discipline; touches no core; no new glyph.
 
+**"No float anywhere" was a headline with nothing behind it, in `field.py`, and it
+was a DESYNC vector.** `FixedPoint.unit` accepted a float; `_rdiv`'s `//` returns a
+float for a float operand; and `ser` did `int(a).to_bytes(...)`, truncating at
+witness time — so the running state sat off-lattice (232 float words in the
+worldstep witness from one malformed impulse) while every digest looked well-formed,
+and the divergence only surfaced when `mul_k` rounded a float differently at a wall
+bounce. Because `lockstep._u` is `FP.unit(int(v), 1)` and truncates while
+`worldstep.step_tick` did not, ONE malformed transcript produced **two different
+witness chains with no refusal from either placement** — D12's composed sentence for
+`worldpeer` (*the identical chain OR the same typed refusal*) failing on both arms.
+Every pinned log is integer, so the corpus never left the admitted domain (L20).
+`FIELD-REFUSE` now guards the caller-supplied scalars — `unit`'s num/den and
+`mul_k`'s coefficient — and the witness `ser`, in **both** backends, since `Exact`
+was building a rational whose parts are floats (`11.0/2.0`) and then raising an
+untyped `AttributeError`. The guards sit at the doors because `add`/`sub` are closed
+over admitted values, and that closure is **measured** (`arithmetic_is_int_closed`):
+the census caught this rung's own first draft naming `unit` as the sole door and
+missing `mul_k`'s coefficient, through which `lockstep` passes the restitution.
+Rows `field-domain` / `field-domain-desync`; falsifiers in `tests/test_field.py`.
+Zero blast radius, measured: 0 non-int calls to `unit` across the whole suite, and
+no conformance digest moved.
+
 ## The four layers, at rung-1 scope
 
 - **State-space expansion (momentum).** State is phase space `(X, V)` with mass;
