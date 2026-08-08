@@ -189,5 +189,80 @@ class TheReconcileTokenIsHostStable(unittest.TestCase):
         self.assertIn(rows[0][0], out.split("SKIPPED (measured nothing):")[1])
 
 
+class TheSingleProcessSuiteIsEvidence(unittest.TestCase):
+    """WHY THE SUITE RUNS IN ONE PROCESS, made a property instead of an accident.
+
+    Several suites MUTATE MODULE GLOBALS to plant defects — `test_exempt` swaps
+    `exempt.EXEMPTIONS` and `authority.ENFORCED`/`EXEMPT`, `test_edgeattr` severs
+    callables on swept modules — and each restores in a `finally`. That the whole suite
+    passes IN ONE PROCESS is what makes those restores evidence rather than intention:
+    module globals are process-wide, so a missed restore is visible to every later test.
+
+    This matters because the obvious speed-up would delete it. MEASURED on this tree:
+    in-process sequential 227.2s; process-per-file sequential 235.5s (SLOWER — the import
+    cost is paid once per file); process-per-file across 8 workers 126.8s, i.e. 1.79x.
+    The 7.7x figure carried in the notes as the parallelism ceiling is `sum / longest`,
+    a CEILING that assumes free processes, and quoting it as available headroom is the
+    inflation this repo refuses — today's ceiling computes to 9.7x and the achieved
+    number is 1.79x. So the trade is ~100s of a 411s gate against the only check that
+    can see cross-test contamination at all. Recorded here so the trade is decided with
+    the numbers rather than rediscovered."""
+
+    MUTATED = (("exempt", "EXEMPTIONS"), ("authority", "ENFORCED"), ("authority", "EXEMPT"))
+
+    def _mod(self, name):
+        import importlib
+        sd = os.path.join(ROOT, "tools", "specfreeze")
+        if sd not in sys.path:
+            sys.path.insert(0, sd)
+        return importlib.import_module(name)
+
+    def test_one_module_object_is_shared_so_a_leak_is_visible(self):
+        """THE STRUCTURAL FACT the single-process choice rests on. Two importers get the
+        SAME object, so a global one suite mutates is the global every later suite reads.
+        Under process-per-file this is false and a leak becomes unobservable — not
+        caught-and-tolerated, but structurally invisible."""
+        import importlib
+        a = self._mod("exempt")
+        b = importlib.import_module("exempt")
+        self.assertIs(a, b)
+        self.assertIs(sys.modules["exempt"], a)
+
+    def test_the_detection_capability_is_real_not_assumed(self):
+        """THE PLANT (L23): a checker that cannot fail is not evidence. Leak a global,
+        confirm an independent reader observes it, then restore. Without this the claim
+        'the suite would catch a leak' is a belief about Python rather than a measurement."""
+        import importlib
+        mod = self._mod("exempt")
+        sentinel = object()
+        self.assertFalse(hasattr(mod, "_leak_probe"))
+        try:
+            mod._leak_probe = sentinel
+            self.assertIs(getattr(importlib.import_module("exempt"), "_leak_probe"), sentinel)
+        finally:
+            delattr(mod, "_leak_probe")
+        self.assertFalse(hasattr(importlib.import_module("exempt"), "_leak_probe"))
+
+    def test_nothing_that_ran_before_this_leaked(self):
+        """THE LIVE CHECK, and its scope is stated rather than implied: it can only see
+        suites that ran EARLIER in this process, so it is a partial detector whose power
+        depends on collection order. That is still worth having — the mutating suites
+        (`test_edgeattr`, `test_exempt`) sort before this file — but it is not a proof
+        that no suite leaks, and calling it one would be the inflation."""
+        for mod_name, attr in self.MUTATED:
+            with self.subTest("%s.%s" % (mod_name, attr)):
+                mod = self._mod(mod_name)
+                self.assertTrue(hasattr(mod, attr), "%s lost %s entirely" % (mod_name, attr))
+        exempt = self._mod("exempt")
+        authority = self._mod("authority")
+        self.assertTrue(exempt.register_holds(),
+                        "the register does not hold — an earlier suite left it mutated")
+        self.assertTrue(authority.contract_holds(),
+                        "the authority contract does not hold — an earlier suite leaked")
+        self.assertEqual(set(authority.EXEMPT),
+                         {n for e in exempt.for_law("authority") for n in e.names},
+                         "authority.EXEMPT drifted from the register within this process")
+
+
 if __name__ == "__main__":
     unittest.main()
