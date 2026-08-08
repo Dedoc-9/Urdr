@@ -118,5 +118,60 @@ class ReportVacuityGuard(unittest.TestCase):
         self.assertLessEqual(verify.ROWS_FLOOR, 329)
 
 
+
+
+class TheReconcileTokenIsHostStable(unittest.TestCase):
+    """The token exists so two placements can be compared in one line instead of by
+    diffing 250KB of rows. That only works if it digests what the hosts must agree on
+    (row names and verdicts) and ignores what they legitimately differ on (messages —
+    `meshattest` and `wireattest` print the operator's machine name, several rows carry
+    paths). Both halves are load-bearing and both are asserted here."""
+
+    def _rows(self, n=None):
+        n = n or verify.ROWS_FLOOR
+        rows = [("synthetic-row-%d" % i, True, "ok") for i in range(n - 1)]
+        rows.append(("tamper-selftest", True, "synthetic"))
+        return rows
+
+    def _token(self, rows):
+        out = _run_report(rows)[1]
+        line = [ln for ln in out.splitlines() if ln.startswith("RECONCILE")]
+        self.assertEqual(len(line), 1, "expected exactly one RECONCILE line")
+        return line[0].split("rowset")[1].split()[0]
+
+    def test_a_changed_message_does_not_move_the_token(self):
+        """The host-variable half. If a machine name moved the token, every cross-host
+        comparison would report a disagreement that is not one."""
+        base = self._rows()
+        chatty = [(n, ok, d + " on host DanielDillberg at C:\\some\\path")
+                  for n, ok, d in base]
+        self.assertEqual(self._token(base), self._token(chatty))
+
+    def test_a_flipped_verdict_DOES_move_the_token(self):
+        """The load-bearing half — without it the token is a constant and reconciling
+        against it would certify nothing (L23)."""
+        base = self._rows()
+        flipped = list(base)
+        flipped[0] = (flipped[0][0], False, flipped[0][2])
+        self.assertNotEqual(self._token(base), self._token(flipped))
+
+    def test_a_renamed_or_reordered_row_moves_the_token(self):
+        """Order and identity are part of what the two placements must agree on: a
+        dropped stage that leaves the count intact would otherwise reconcile clean."""
+        base = self._rows()
+        renamed = [("renamed-row", True, "ok")] + list(base[1:])
+        self.assertNotEqual(self._token(base), self._token(renamed))
+        self.assertNotEqual(self._token(base), self._token(list(reversed(base))))
+
+    def test_skipped_rows_are_counted_because_they_measure_nothing(self):
+        """A placement row records SKIPPED-but-green when rustc is absent, so a host with
+        no toolchain reports the same PASS count as one that compiled every port."""
+        rows = self._rows()
+        rows[0] = (rows[0][0], True, "SKIPPED (rustc not found) — nothing was compiled")
+        out = _run_report(rows)[1]
+        self.assertIn("1 skipped", out)
+        self.assertIn(rows[0][0], out.split("SKIPPED (measured nothing):")[1])
+
+
 if __name__ == "__main__":
     unittest.main()

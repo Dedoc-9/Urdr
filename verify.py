@@ -17667,11 +17667,52 @@ class Gate:
             return 1
         if self.failed:
             sys.stdout.write("GATE FAILED\n")
+            self._reconcile()          # a RED run is when reconciling hosts matters most
             return 1
         sys.stdout.write("GATE PASSED\n")
         sys.stdout.write("(a green gate certifies these tests on this code — "
                          "never that a name means what it says)\n")
+        self._reconcile()
         return 0
+
+    def _reconcile(self) -> None:
+        """THE RECONCILIATION BLOCK — one host-stable token instead of the whole report.
+
+        This gate is run on TWO placements, this host and the owner's, and afterwards the
+        only question is whether they agree. The full output cannot answer it cheaply and
+        must not be diffed for it: row MESSAGES legitimately differ by host — `meshattest`
+        and `wireattest` print the operator's machine name, several rows carry paths, and
+        the two hosts' reports differ by a fixed 6 bytes for exactly that reason. Diffing
+        those is how a real disagreement gets lost in noise that was never a disagreement.
+
+        So the token digests the ROW SET and nothing else: every row's NAME and VERDICT,
+        in order. Equal tokens mean the two placements agree on every row and every
+        verdict; a differing token is a genuine disagreement rather than a hostname. It is
+        deliberately NOT a row — a reporting aid that graded itself would be one more
+        thing to keep true, and this one is derived from the rows that already graded.
+
+        SKIPPED is counted because it is the one way a row passes without measuring
+        anything: the placement stages record SKIPPED-but-green when `rustc` is absent, so
+        a host with no toolchain reports the same PASS count as one that compiled every
+        port. A reconciliation that hid that would be reconciling two different runs."""
+        import hashlib                                   # local: verify.py has no top-level one
+        names = [(n, 1 if ok else 0) for n, ok, _d in self.rows]
+        token = hashlib.sha256(
+            "\n".join("%s\t%d" % t for t in names).encode("utf-8")).hexdigest()
+        skipped = [n for n, _ok, d in self.rows if d.lstrip().startswith("SKIPPED")]
+        sys.stdout.write("-" * 72 + "\n")
+        sys.stdout.write(
+            "RECONCILE  rowset %s  %d rows / %d fail / %d skipped\n"
+            % (token[:16], len(self.rows), sum(1 for _n, ok in names if not ok),
+               len(skipped)))
+        sys.stdout.write(
+            "           %s falsifiers · %s detectors · CPython %d.%d.%d on %s\n"
+            % (getattr(self, "n_falsifiers", "?"), getattr(self, "n_detectors", "?"),
+               sys.version_info[0], sys.version_info[1], sys.version_info[2],
+               sys.platform))
+        if skipped:
+            sys.stdout.write("           SKIPPED (measured nothing): %s\n"
+                             % ", ".join(sorted(skipped)))
 
 
 
