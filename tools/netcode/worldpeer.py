@@ -162,10 +162,20 @@ class WorldPeer:
         return ("rolled", s_tick)
 
     def deliver_envelope(self, env):
-        """Verify-then-admit. AUTH-REFUSE (whole, nothing touched) on an unregistered
-        identity or a failed signature; then the N2 admission law applies unchanged."""
+        """Admit-shape, then verify, then admit-time. `AUTH-MALFORMED` on an event that
+        is not six exact integers; `AUTH-REFUSE` (whole, nothing touched) on an
+        unregistered identity or a failed signature; then the N2 admission law unchanged.
+
+        THE FIRST LINE USED TO BE `e = tuple(int(x) for x in e)` — a LAUNDERING STEP
+        rather than a boundary. It rewrote the delivered event and then verified the
+        signature against the rewrite, so the object that was authenticated was not the
+        object that arrived. Paired with the identical silent `int()` inside
+        `authinput._i64`, an honest signature over `dvx=4` admitted a delivered payload
+        of `4.9` or `"4"` as `queued` — measured, three shapes, all accepted. Nothing
+        diverged only because both coercions agreed; two matching projections look
+        exactly like no projection at all."""
         e, pub, sig = env
-        e = tuple(int(x) for x in e)
+        e = A.admit_event(e)
         ident = (e[1], e[2])
         pin = self.roster.get(ident)
         if pin is None:
@@ -180,7 +190,7 @@ class WorldPeer:
         current head instead of rewound — auth passes, so a convergence failure is
         rollback's alone. Must diverge from the oracle."""
         e, pub, sig = env
-        e = tuple(int(x) for x in e)
+        e = A.admit_event(e)
         ident = (e[1], e[2])
         pin = self.roster.get(ident)
         if pin is None or not A.verify((e, pub, sig), pin):

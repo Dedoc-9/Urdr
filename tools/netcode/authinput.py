@@ -76,7 +76,54 @@ def _h(b):
 
 
 def _i64(v):
-    return int(v).to_bytes(8, "big", signed=True)
+    """THE SERIALIZER, AND IT WAS PROJECTING RATHER THAN SERIALIZING. `int(v)` here
+    meant `msg_digest` committed to `int(x)` of each component instead of to the
+    component, so the signature bound a PROJECTION of the message and not the message:
+    measured, `4`, `4.0`, `4.9` and `"4"` all produce the IDENTICAL message digest, and
+    an honest signature over `dvx=4` verifies against a delivered payload of `4.9` or
+    `"4"`. A wire tamperer could therefore alter the bytes that arrive without
+    invalidating the signature — N3's headline is that a signature catches a forging
+    PEER, and this is a non-peer altering an authenticated payload.
+
+    The outcome did not diverge, because `worldpeer.deliver_envelope` ran the SAME
+    silent `int()` on delivery, so the two projections agreed. That agreement is what
+    hid it: two coercions that happen to match look exactly like no coercion at all,
+    and if they had ever rounded differently it would have been a desync.
+
+    A malformed word is `AUTH-MALFORMED`, a DISTINCT code from `AUTH-REFUSE` and not a
+    subclass of it: "this is not a well-formed event" and "this signature is invalid"
+    are different facts, and merging them destroys attribution exactly as tilemin's
+    integrity/policy split showed one arc over. No digest changes for integer input."""
+    if not isinstance(v, int) or isinstance(v, bool):
+        raise AuthError("AUTH-MALFORMED",
+                        "an event word must be an exact integer, got %r (%s) — a silent "
+                        "int() here would make the signature commit to a projection of "
+                        "the message rather than to the message" % (v, type(v).__name__))
+    return v.to_bytes(8, "big", signed=True)
+
+
+def admit_event(e):
+    """THE DOOR: an event is a 6-tuple of exact integers, or it is not an event.
+
+    Called BEFORE identity, signature and the time law, and the order is structural
+    rather than preferred — `msg_digest` is undefined on a malformed event, so there is
+    no signature check to run on one. That gives a three-tier order: SHAPE, then
+    ELIGIBILITY (who), then STATE (what). `sealwrit-order` already pins the second
+    against the third; this adds the tier below both, and an envelope that is malformed
+    AND mis-signed refuses on SHAPE because the eligibility question cannot be asked.
+
+    Returns the event unchanged — never a normalized copy, which is the whole point."""
+    if isinstance(e, (str, bytes)) or not isinstance(e, (list, tuple)) or len(e) != 6:
+        raise AuthError("AUTH-MALFORMED",
+                        "an event must be a 6-tuple (tick, peer, seq, body, dvx, dvy), "
+                        "got %r" % (e,))
+    for name, v in zip(("tick", "peer", "seq", "body", "dvx", "dvy"), e):
+        if not isinstance(v, int) or isinstance(v, bool):
+            raise AuthError("AUTH-MALFORMED",
+                            "event field %s must be an exact integer, got %r (%s) — "
+                            "quantization is the caller's DECLARED act, never this "
+                            "module's silent one" % (name, v, type(v).__name__))
+    return e
 
 
 def msg_digest(e):
@@ -131,8 +178,14 @@ def sign(sk, e):
 
 
 def envelope(e, sk):
-    """(event, pubkey, signature) — everything a verifier needs besides the pin."""
-    return (tuple(int(x) for x in e), pubkey_bytes(sk), sign(sk, e))
+    """(event, pubkey, signature) — everything a verifier needs besides the pin.
+
+    The SENDER's coercion is gone too. `tuple(int(x) for x in e)` quietly normalized
+    the event it published while `sign` hashed the raw one, so the sender was shipping
+    a payload it had silently rewritten — the same act on the other end of the wire,
+    and the reason the honest path never carried a float for anyone to notice."""
+    e = admit_event(e)
+    return (tuple(e), pubkey_bytes(sk), sign(sk, e))
 
 
 def verify(env, pin):
@@ -195,11 +248,18 @@ class AuthedPeer:
         self._peer = _rollback.Peer(w, K=K, H=H)
 
     def deliver_envelope(self, env):
-        """Verify-then-admit. Raises AUTH-REFUSE (typed, whole) on: unregistered
-        identity, pubkey not matching the pin, or an invalid signature. On success,
-        delegates to the N2 authority — its returns and refusals apply unchanged."""
+        """Admit-shape, then verify, then delegate. `AUTH-MALFORMED` on an event that is
+        not six exact integers; `AUTH-REFUSE` (typed, whole) on an unregistered identity,
+        a pubkey not matching the pin, or an invalid signature; on success the N2
+        authority's returns and refusals apply unchanged.
+
+        THE THIRD LAUNDERING SITE, and it is the one that shows the defect was a habit
+        rather than an oversight: the same `tuple(int(x) for x in e)` appeared at the
+        SENDER (`envelope`), at the SERIALIZER (`_i64`), and at BOTH receivers — N3 here
+        and N5 in `worldpeer`. Four silent quantizations that all agreed, which is
+        exactly why nothing ever diverged and nothing ever refused."""
         e, pub, sig = env
-        e = tuple(int(x) for x in e)
+        e = admit_event(e)
         ident = (e[1], e[2])
         pin = self.roster.get(ident)
         if pin is None:

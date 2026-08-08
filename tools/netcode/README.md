@@ -46,11 +46,37 @@ impulse was the one that was not an audit hole**: `lockstep._u` truncates with
 different witness chains with no refusal — the D12 composed sentence failing on both
 arms. Closed at the substrate (`tools/physics/field.py`, `FIELD-REFUSE`), because a
 guard in `canon` would have changed the frozen contract while a guard at the substrate
-enforces a domain it already claimed. **Honest remainder:** the sentence is not yet
-satisfied — N4 now refuses where N5's `deliver_envelope` still does
-`e = tuple(int(x) for x in e)` and returns a chain, so "refuse versus chain" stands.
-That `int()` is a laundering step rather than a boundary, and typing it is the next
-rung; the caller-owned absorptions (body range, horizon) are the one after.
+enforces a domain it already claimed.
+
+**The N5 door: the signature was not binding the delivered bytes (`AUTH-MALFORMED`).**
+Typing `worldpeer`'s `e = tuple(int(x) for x in e)` turned up the larger half of it.
+`authinput._i64` did `int(v).to_bytes(...)`, so `msg_digest` committed to `int(x)` of
+each component rather than to the component: **`4`, `4.0`, `4.9` and `"4"` all produced
+the identical message digest**, and an honest signature over `dvx=4` verified against a
+delivered payload of `4.9` or `"4"` — measured, admitted `queued`. N3's headline is that
+a signature catches a forging *peer*; this was a non-peer altering an authenticated
+payload without invalidating its signature. Nothing diverged only because the same
+silent `int()` ran at **four** sites — sender (`envelope`), serializer (`_i64`), and
+both receivers (N3 `AuthedPeer`, N5 `worldpeer`) — and four projections that agree look
+exactly like no projection at all; had any two rounded differently it would have been a
+desync. The order is now **SHAPE → ELIGIBILITY → STATE**, and the first step is
+structural rather than preferred: `msg_digest` is undefined on a malformed event, so
+there is no signature question to ask about one. `AUTH-MALFORMED` is a distinct code
+from `AUTH-REFUSE` and never a subclass — "this is not an event" and "this signature is
+invalid" are different facts. Row `netcode-auth-binds-bytes`; falsifiers in
+`tests/test_authinput.py`. No pinned digest moved.
+
+**Where the perimeter stands now — 8 typed of 35, up from 4.** Re-measured, not
+remembered: 21 ABSORBED, 3 COERCED, 3 UNTYPED, 8 REFUSED. What remains is exactly two
+things and both are named. The **caller-owned absorptions** — out-of-range body index
+and out-of-horizon tick — walk every path and are the next rung, at the
+`worldpeer`/`world_host` edge, because they are decisions a caller owns rather than
+domain violations. The **three surviving coercions** are all `lockstep._u`'s own
+`int(v)` inside the frozen N1 spine (a float impulse through `lockstep` and `rollback`,
+a string tick through `rollback`), which is the exemption already written and defended
+in `tools/specfreeze/exempt.py` — a refusal there would change the frozen contract
+rather than add a boundary to it. The three UNTYPED cells are the malformed-arity crash
+on the raw-log paths; `rollback` already types that one, so the template exists.
 
 **Authority status: REPORTED, 9/12, and it stays REPORTED.** The census that reported netcode at
 10/12 was matching docstrings — `observe` scored content-addressed on two prose uses of the word

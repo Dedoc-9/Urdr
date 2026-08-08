@@ -161,5 +161,100 @@ class AuthAdmission(unittest.TestCase):
                         "the real verifier refused a genuine envelope (broken)")
 
 
+class TheSignatureBindsTheDeliveredBytes(unittest.TestCase):
+    """`_i64` did `int(v).to_bytes(...)`, so `msg_digest` committed to `int(x)` of each
+    component rather than to the component: `4`, `4.0`, `4.9` and `"4"` all produced the
+    IDENTICAL digest, and an honest signature over `dvx=4` verified against a delivered
+    payload of `4.9`. A wire tamperer could alter an authenticated payload without
+    invalidating its signature — and nothing diverged only because the SAME silent
+    `int()` ran at all four sites (sender, serializer, and both receivers), which is
+    what made it invisible."""
+
+    def setUp(self):
+        self.w = L.world()
+        self.log = L.sample_log()
+        self.keys, self.roster = _fixture_keys(self.log)
+        self.e = self.log[0]
+        self.honest = A.envelope(self.e, self.keys[(self.e[1], self.e[2])])
+
+    def _peer(self):
+        return A.AuthedPeer(self.w, self.roster, K=4, H=64)
+
+    def _malformed(self):
+        e = self.e
+        return {
+            "float that truncates back": (e[0], e[1], e[2], e[3], e[4] + 0.9, e[5]),
+            "float of the same value": (e[0], e[1], e[2], e[3], float(e[4]), e[5]),
+            "string tick": (str(e[0]), e[1], e[2], e[3], e[4], e[5]),
+            "bool body": (e[0], e[1], e[2], True, e[4], e[5]),
+            "wrong arity": e[:5],
+        }
+
+    def test_a_tampered_payload_no_longer_rides_an_honest_signature(self):
+        for label, t in self._malformed().items():
+            with self.subTest(label):
+                with self.assertRaises(A.AuthError, msg=f"{label} admitted") as ctx:
+                    self._peer().deliver_envelope((t, self.honest[1], self.honest[2]))
+                self.assertEqual(ctx.exception.code, "AUTH-MALFORMED")
+
+    def test_the_honest_envelope_still_admits(self):
+        """A door that refused everything would pass the test above and be a wall."""
+        self._peer().deliver_envelope(self.honest)
+
+    def test_the_serializer_refuses_instead_of_projecting(self):
+        """Checked at `msg_digest` directly, not through a receiver — the two guards
+        are independent, and this is the one that makes the signature bind."""
+        with self.assertRaises(A.AuthError) as ctx:
+            A.msg_digest((self.e[0], self.e[1], self.e[2], self.e[3],
+                          self.e[4] + 0.9, self.e[5]))
+        self.assertEqual(ctx.exception.code, "AUTH-MALFORMED")
+
+    def test_no_honest_digest_moved(self):
+        """NON-VACUITY THE OTHER WAY: the guard must be free. Every signed vector in the
+        pinned corpus is integer, so no digest may shift."""
+        for e in self.log:
+            self.assertEqual(len(A.msg_digest(e)), 32)
+        peer = self._peer()
+        for e in self.log:
+            peer.deliver_envelope(A.envelope(e, self.keys[(e[1], e[2])]))
+        peer.advance(self.w["T"])
+        self.assertEqual(peer.trace(), L.trace_digest(L.simulate(self.w, self.log)[0]))
+
+    def test_shape_precedes_eligibility_precedes_state(self):
+        """Structural, not preferred: `msg_digest` is undefined on a malformed event, so
+        there is no signature question to ask about one. An envelope that is BOTH
+        malformed and mis-signed therefore refuses on SHAPE."""
+        dead = b"\x00" * len(self.honest[2])
+        with self.assertRaises(A.AuthError) as well_formed:
+            self._peer().deliver_envelope((self.honest[0], self.honest[1], dead))
+        self.assertEqual(well_formed.exception.code, "AUTH-REFUSE")
+        e = self.e
+        with self.assertRaises(A.AuthError) as both:
+            self._peer().deliver_envelope(
+                ((e[0], e[1], e[2], e[3], e[4] + 0.9, e[5]), self.honest[1], dead))
+        self.assertEqual(both.exception.code, "AUTH-MALFORMED")
+
+    def test_the_two_codes_are_distinct_and_neither_subclasses_the_other(self):
+        """'this is not an event' and 'this signature is invalid' are different facts."""
+        self.assertNotEqual("AUTH-MALFORMED", "AUTH-REFUSE")
+        codes = set()
+        for env, _why in (((self.e[:5], self.honest[1], self.honest[2]), "shape"),
+                          ((self.honest[0], self.honest[1],
+                            b"\x00" * len(self.honest[2])), "signature")):
+            try:
+                self._peer().deliver_envelope(env)
+            except A.AuthError as exc:
+                codes.add(exc.code)
+        self.assertEqual(codes, {"AUTH-MALFORMED", "AUTH-REFUSE"})
+
+    def test_the_sender_no_longer_normalises_what_it_publishes(self):
+        """`envelope` did `tuple(int(x) for x in e)` while `sign` hashed the raw event,
+        so the sender shipped a payload it had silently rewritten."""
+        with self.assertRaises(A.AuthError) as ctx:
+            A.envelope((self.e[0], self.e[1], self.e[2], self.e[3], 5.5, self.e[5]),
+                       self.keys[(self.e[1], self.e[2])])
+        self.assertEqual(ctx.exception.code, "AUTH-MALFORMED")
+
+
 if __name__ == "__main__":
     unittest.main()

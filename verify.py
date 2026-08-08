@@ -2447,6 +2447,82 @@ class Gate:
                         else f"refusals wrong: {codes}, genuine={genuine}")
         except Exception as exc:
             self.record("netcode-auth-refusals", False, f"errored: {exc}")
+
+        # -- THE SIGNATURE MUST BIND THE DELIVERED BYTES, not a projection of them.
+        try:
+            ident = (e[1], e[2])
+            honest = A.envelope(e, keys[ident])
+            tampered, bound = {}, True
+            for label, t in (
+                    ("dvx n -> n+0.9 (truncates back)",
+                     (e[0], e[1], e[2], e[3], e[4] + 0.9, e[5])),
+                    ("dvx n -> float(n) (same value)",
+                     (e[0], e[1], e[2], e[3], float(e[4]), e[5])),
+                    ("tick -> str(tick)", (str(e[0]), e[1], e[2], e[3], e[4], e[5])),
+                    ("body -> True (bool)", (e[0], e[1], e[2], True, e[4], e[5])),
+                    ("5-tuple (arity)", e[:5])):
+                try:
+                    A.AuthedPeer(L.world(), roster, K=4, H=64).deliver_envelope(
+                        (t, honest[1], honest[2]))
+                    tampered[label] = "ACCEPTED"
+                    bound = False
+                except A.AuthError as exc2:
+                    tampered[label] = exc2.code
+                    bound = bound and exc2.code == "AUTH-MALFORMED"
+            # the honest envelope still admits, or the guard is a wall rather than a door
+            A.AuthedPeer(L.world(), roster, K=4, H=64).deliver_envelope(honest)
+            # ORDER: shape precedes eligibility, because msg_digest is undefined without it
+            dead = b"\x00" * len(honest[2])
+            try:
+                A.AuthedPeer(L.world(), roster, K=4, H=64).deliver_envelope((honest[0], honest[1], dead))
+                order_a = "ACCEPTED"
+            except A.AuthError as exc2:
+                order_a = exc2.code
+            try:
+                A.AuthedPeer(L.world(), roster, K=4, H=64).deliver_envelope(
+                    ((e[0], e[1], e[2], e[3], e[4] + 0.9, e[5]), honest[1], dead))
+                order_b = "ACCEPTED"
+            except A.AuthError as exc2:
+                order_b = exc2.code
+            # THE PROJECTION ITSELF, at the serializer rather than through a receiver:
+            # `msg_digest` must refuse the non-int instead of hashing int(v) of it, and
+            # the honest digest must be UNMOVED (no frozen vector may shift).
+            try:
+                A.msg_digest((e[0], e[1], e[2], e[3], e[4] + 0.9, e[5]))
+                projected = False                    # still hashing a projection
+            except A.AuthError as exc2:
+                projected = exc2.code == "AUTH-MALFORMED"
+            unmoved = A.msg_digest(e) == A.msg_digest(tuple(e))
+            order_ok = order_a == "AUTH-REFUSE" and order_b == "AUTH-MALFORMED"
+            binds = bound and order_ok and projected and unmoved
+            self.record(
+                "netcode-auth-binds-bytes", binds,
+                "THE SIGNATURE COMMITTED TO A PROJECTION OF THE MESSAGE, NOT THE MESSAGE. "
+                "`_i64` did `int(v).to_bytes(...)`, so `4`, `4.0`, `4.9` and `\"4\"` all "
+                "produced the IDENTICAL message digest and an honest signature over dvx=4 "
+                "VERIFIED against a delivered payload of 4.9 or \"4\" — measured, admitted "
+                "`queued`. N3's headline is that a signature catches a forging PEER; this "
+                "was a non-peer altering an authenticated payload without invalidating the "
+                "signature. Nothing diverged only because the SAME silent `int()` ran at "
+                "all four sites — sender (`envelope`), serializer (`_i64`), and BOTH "
+                "receivers (N3 `AuthedPeer`, N5 `worldpeer`) — and four projections that "
+                "agree look exactly like no projection at all; had any two rounded "
+                "differently it would have been a desync. %d/%d tampered shapes now refuse "
+                "AUTH-MALFORMED (%s) while the honest envelope still admits. ORDER is "
+                "SHAPE then ELIGIBILITY then STATE, and the first step is structural rather "
+                "than preferred: `msg_digest` is undefined on a malformed event, so there "
+                "is no signature question to ask — an envelope both malformed AND "
+                "mis-signed refuses %s, a well-formed mis-signed one refuses %s. "
+                "AUTH-MALFORMED is a DISTINCT code from AUTH-REFUSE, never a subclass: "
+                "'this is not an event' and 'this signature is invalid' are different "
+                "facts, and merging them destroys attribution as tilemin's integrity/policy "
+                "split showed"
+                % (len(tampered), len(tampered), ", ".join(sorted(tampered)), order_b, order_a)
+                if binds else
+                "signature does not bind the bytes: tampered=%r order=(%s, %s)"
+                % (tampered, order_a, order_b))
+        except Exception as exc:                                # pragma: no cover
+            self.record("netcode-auth-binds-bytes", False, f"errored: {exc}")
         # non-vacuity: the first-byte defect verifier accepts what the real one refuses
         try:
             e = log[0]
