@@ -23,6 +23,29 @@ contract), every one `MEASURED` — cross-placed and frozen in
 | **D16** regional authority | [`worldregion.py`](worldregion.py) | One simulation cut by integer x-seams into regions; each region steps the frozen N4.1 tick from **admitted read-only ghosts alone** and writes only what it owns; deterministic reunification reproduces the monolith `URDRLST1`/`URDRLSTT` **bit-for-bit** (the **Seam Composition Theorem**), with **no new witness class**. Malformed partition → `REGION-REFUSE`. Three placements agree. [brief](../../docs/worldregion_brief.md) | `netcode_region` |
 | **Tier-2** property sweep | [`regionprop.py`](regionprop.py) | `URDRRGP1` — the Seam Composition Theorem under a SEEDED ADVERSARY: 200 random valid partitions (1..4 regions) each asserted EQUAL to the monolith (`worldstep.simulate`, the independent oracle that never partitions). Non-vacuity (≥3 region counts, an evolving monolith); red-first (the dropped-boundary defect raises `REGIONPROP-FALSIFIED`); fixed-seed in-gate, an off-gate `--explore` reseeder. | `regionprop` |
 
+**Observability (`observe.py`).** `first_desync` names the first mismatching TICK from two witness
+chains; `first_field_desync` names the exact BODY and FIELD, scanned in `URDRLST1` serialization
+order, so the two agree by construction. Its docstring told the reader to compare exact Q32.32
+words and never float display coordinates — and enforced nothing: `5.0` compares EQUAL to `5`, so
+a display coordinate standing in for the word it was fitted from made the localizer answer `None`
+for two chains that hash differently. The **hidden diff its own prose warns about**, reachable.
+`OBSERVE-REFUSE` now types five shapes (float word, bool word, non-chain, malformed state, ragged
+`pos`/`vel`), taken over BOTH chains in full **before the first comparison** — validating lazily
+would make admission depend on where the divergence is, which is not an admission decision.
+`length` and `count` stay RESULTS: they are the verdicts the module exists to report. Gate rows
+`field-desync-admits` / `field-desync-admission-order`; falsifiers `tests/test_field_desync.py`.
+
+**Authority status: REPORTED, 9/12, and it stays REPORTED.** The census that reported netcode at
+10/12 was matching docstrings — `observe` scored content-addressed on two prose uses of the word
+"digest" while computing none, and `regionprop` scored AUTHORITY on one line of prose. Corrected
+to read code, `lockstep` (the frozen N1 spine) and `regionprop` (a property falsifier, the class
+`stormprop` already defined) are declared exempt, and `observe` is GUARDED-COMPUTATION: it refuses
+now, but it mints no identity, because it is a read-only diagnostic that owns no state. Giving it
+a digest purely to clear the census is the gaming the register refused for `frontbench`, so the
+promotion does not happen. The two exemptions are written anyway — pre-registered, so that if the
+subsystem is ever promoted the excuse is one that already existed rather than one invented to make
+the promotion land, and `test_the_pre_registered_exemptions_WOULD_bite` pins that they would.
+
 **Verification (`fraud.py`, `docs/fraud_proof.md`).** Optimistic fraud proofs *over* the witness
 chain: a dispute between two `URDRLSTT` chains is settled by re-executing the **single** tick where
 they first diverge — never the run — reusing `step_tick` + `_digest` + `first_desync` (no new

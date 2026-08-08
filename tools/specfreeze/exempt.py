@@ -195,10 +195,34 @@ EXEMPTIONS = (
         names=("bench", "frontbench")),
     Exemption(
         "authority", "property-falsifier",
-        "a PROPERTY FALSIFIER over `storm` rather than an admitter: it asserts that the "
-        "prefix property survives generated storms and raises STORMPROP-FALSIFIED, which "
-        "is a test verdict, not an admission refusal. It addresses no state of its own.",
-        names=("stormprop",)),
+        "a PROPERTY FALSIFIER over another module rather than an admitter: it asserts that a "
+        "property survives a generated sweep and raises a FALSIFIED verdict, which is a test "
+        "result, not an admission refusal. It addresses no state of its own. Written for "
+        "`stormprop` over `storm` before any census could see the class; `commuteprop` (over "
+        "`commute`) and `regionprop` (over `worldregion`) joined it UNCHANGED when the "
+        "authority predicates were corrected to read code instead of docstrings — both raise a "
+        "locally-defined `SweepError` and both had been scoring AUTHORITY on prose. The reason "
+        "was not widened to fit them; the tree filled a class that already existed, which is "
+        "the whole argument for writing the reason before the measurement. Empties when "
+        "property falsifiers move under tests/ with the other suites.",
+        names=("stormprop", "commuteprop", "regionprop")),
+    Exemption(
+        "authority", "frozen-reference-law",
+        "the FROZEN N1 SPINE, whose admission boundary belongs to its callers and cannot be "
+        "moved into it. `lockstep` silently absorbs out-of-range bodies, out-of-horizon and "
+        "negative ticks, and float impulses (measured: five classes, each ADMITTED with the "
+        "chain UNCHANGED) — an audit hole, not a desync vector, since every peer absorbs "
+        "identically and determinism is untouched. It cannot be closed here: seven consumers "
+        "name lockstep frozen in their own import lines (`rollstore`, `fraud`, `regionprop`, "
+        "`worldregion`, `worldpeer`, `rollback`, `worldstep`), `specfreeze/freeze_check.py` "
+        "independently reimplements `_digest` and `trace_digest` to catch drift in exactly "
+        "these functions, and `worldregion` and `compose` call `canon(log)` directly. A refusal "
+        "inside `canon` would CHANGE THE FROZEN CONTRACT rather than add a boundary to it, and "
+        "the boundary is already owned elsewhere — roster membership is `authinput`'s law, and "
+        "a 107-site call sweep found nothing depending on the absorption. Empties when the N1 "
+        "freeze is lifted or a successor spine supersedes it; the refusal belongs in that "
+        "successor's first version, not retrofitted into this one.",
+        names=("lockstep",)),
 )
 
 #: ENUMERATED, never predicated, and SHRINK-ONLY. Seeded from the measured complement:

@@ -268,8 +268,10 @@ class TheInvariantGeneralises(unittest.TestCase):
             self.assertNotIn(r[0], AU.EXEMPT)
 
     def test_both_enforced_subsystems_have_the_same_shape(self):
-        """terrain: 102 AUTHORITY + 2 exempt PURE. frontfps: 6 AUTHORITY + 1 exempt PURE.
-        Same shape, different subsystem — which is what generalising means here."""
+        """terrain: 101 AUTHORITY + 3 exempt PURE. frontfps: 6 AUTHORITY + 1 exempt PURE.
+        Same shape, different subsystem — which is what generalising means here. Terrain moved
+        102/2 -> 101/3 when the predicates were corrected to read code instead of docstrings:
+        `commuteprop` joined the property-falsifier class, which already existed."""
         import authority as AU
         for sub in AU.ENFORCED:
             rows = AU.census(sub)
@@ -320,6 +322,119 @@ class TheInvariantGeneralises(unittest.TestCase):
         self.assertIn("bench", AU.EXEMPT)
         self.assertIn("frontbench", AU.EXEMPT)
         self.assertIs(AU.EXEMPT["bench"], AU.EXEMPT["frontbench"])
+
+
+class ThePredicatesReadCodeNotProse(unittest.TestCase):
+    """The census was matching the RAW FILE TEXT, so a module was certified by the words
+    `REFUSE` and `digest` appearing anywhere in it — including in prose about what it does
+    NOT do. That is `claim != code` inside the checker that enforces `claim != code`."""
+
+    def test_prose_cannot_talk_a_module_into_passing(self):
+        import authority as AU
+        self.assertTrue(AU.reads_code_not_prose())
+        self.assertFalse(AU.has_typed_refusal(
+            '"""Admission failures raise A-REFUSE."""\ndef admit(x):\n    return int(x)\n'))
+        self.assertFalse(AU.has_typed_refusal(
+            "def admit(x):\n    return int(x)  # raise A-REFUSE on bad input\n"))
+        self.assertFalse(AU.has_content_address(
+            '"""Identity is the sha256 digest of the canonical bytes."""\ndef n(x):\n    return x\n'))
+
+    def test_a_hash_in_a_string_survives_comment_stripping(self):
+        """The reason comments come out through the TOKENIZER and not a regex: `#` inside a
+        string literal is not a comment, and cutting the line there would silently change what
+        the predicate sees."""
+        import authority as AU
+        self.assertTrue(AU.has_content_address(
+            "import hashlib\ndef tag(x):\n    return '#' + hashlib.sha256(x).hexdigest()\n"))
+
+    def test_the_inherited_route_requires_the_RAISE_not_the_import(self):
+        """`govern` really does refuse — `raise _OC.OpcostError(...)`, a typed class defined in
+        `opcost`. The old predicate knew this by reading the COMMENT that said so. Crediting the
+        import alone would make the route a free pass every module could take (L61)."""
+        import authority as AU
+        local = {"opcost": True, "prettyprint": False}
+        self.assertTrue(AU.inherited_refusal(
+            "import opcost as _OC\ndef a(x):\n    raise _OC.OpcostError('over')\n", local))
+        self.assertTrue(AU.inherited_refusal(
+            "from opcost import OpcostError\ndef a(x):\n    raise OpcostError('over')\n", local))
+        self.assertFalse(AU.inherited_refusal(
+            "import opcost as _OC\ndef c(x):\n    return _OC.cost(x)\n", local))
+        self.assertFalse(AU.inherited_refusal(
+            "import prettyprint as _PP\ndef a(x):\n    raise _PP.PrettyError('b')\n", local))
+        for m in ("govern", "priogov"):
+            self.assertEqual(AU.refusal_route(m), "inherited:opcost", m)
+
+    def test_the_correction_changed_real_verdicts_on_the_live_tree(self):
+        """Non-vacuity against the tree, not the mechanism: if stripping prose demoted nobody,
+        `code_only` would be decoration. Every demoted module inside an ENFORCED subsystem must
+        be declared exempt — otherwise the correction left a hole rather than closing one."""
+        import authority as AU
+        carried = AU.prose_carried()
+        self.assertGreater(len(carried), 0, "the strip demoted nothing — it is decoration")
+        names = {m for _s, m, _p, _c in carried}
+        self.assertIn("observe", names, "observe was content-addressed on the WORD 'digest'")
+        self.assertIn("renderbound", names)
+        for sub, m, _prose, _code in carried:
+            if sub in AU.ENFORCED:
+                self.assertIn(m, AU.EXEMPT, "%s/%s was demoted and left undeclared" % (sub, m))
+
+
+class TheExemptionsWrittenBeforeThePromotion(unittest.TestCase):
+    """`lockstep` and `regionprop` are in `tools/netcode`, which is REPORTED. Their reasons are
+    written NOW so that if the subsystem is ever promoted, the excuse is one that already existed
+    rather than one invented to make the promotion land."""
+
+    def test_the_property_falsifier_class_grew_without_a_new_reason(self):
+        """Three modules, ONE reason object. `commuteprop` and `regionprop` joined the class
+        `stormprop` defined — the register did not gain an excuse, the tree filled one."""
+        import authority as AU
+        entry = next(e for e in EX.for_law("authority") if e.name == "property-falsifier")
+        self.assertEqual(entry.names, ("stormprop", "commuteprop", "regionprop"))
+        for n in entry.names:
+            self.assertIs(AU.EXEMPT[n], entry.reason)
+
+    def test_lockstep_is_exempt_and_the_reason_names_the_freeze(self):
+        """The reason must carry the mechanism, not a label: the frozen contract, the consumers
+        that depend on it, and the observation that would empty the class."""
+        import authority as AU
+        self.assertIn("lockstep", AU.EXEMPT)
+        why = AU.EXEMPT["lockstep"]
+        for token in ("frozen", "canon", "authinput", "freeze_check", "Empties when"):
+            self.assertIn(token, why, "the lockstep reason does not name %r" % token)
+        row = next(r for r in AU.census("tools/netcode") if r[0] == "lockstep")
+        self.assertFalse(row[1], "lockstep has a typed refusal; the exemption is wrong")
+
+    def test_netcode_is_NOT_promoted_and_observe_is_exactly_why(self):
+        """THE PROMOTION THAT DID NOT HAPPEN, recorded so it cannot be quietly forgotten.
+        `observe` now refuses (typed OBSERVE-REFUSE) but mints no identity, so it is
+        GUARDED-COMPUTATION — a read-only diagnostic. Giving it a digest purely to clear the
+        census is the gaming the register already refused for `frontbench`."""
+        import authority as AU
+        self.assertNotIn("tools/netcode", AU.ENFORCED)
+        self.assertIn("tools/netcode", AU.REPORTED)
+        row = next(r for r in AU.census("tools/netcode") if r[0] == "observe")
+        self.assertTrue(row[1], "observe gained no typed refusal")
+        self.assertFalse(row[2], "observe minted an identity it does not need")
+        self.assertEqual(AU.classify(row), "GUARDED-COMPUTATION")
+
+    def test_the_pre_registered_exemptions_WOULD_bite(self):
+        """THE PLANT for a promotion that has not happened. Enforce `tools/netcode` for the
+        length of this test: the violation set must be exactly `observe`, and withdrawing
+        `lockstep`'s exemption must add it. A pre-registered reason that would not bite on
+        promotion is decoration written early."""
+        import authority as AU
+        real_enf, real_ex = AU.ENFORCED, AU.EXEMPT
+        try:
+            AU.ENFORCED = real_enf + ("tools/netcode",)
+            AU.reset_caches()
+            self.assertEqual([v[1] for v in AU.violations()], ["observe"])
+            AU.EXEMPT = {k: v for k, v in real_ex.items() if k != "lockstep"}
+            self.assertIn("lockstep", [v[1] for v in AU.violations()],
+                          "withdrawing lockstep's exemption did not put netcode in violation")
+        finally:
+            AU.ENFORCED, AU.EXEMPT = real_enf, real_ex
+            AU.reset_caches()
+        self.assertTrue(AU.contract_holds())
 
 
 if __name__ == "__main__":

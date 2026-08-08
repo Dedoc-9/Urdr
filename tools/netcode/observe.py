@@ -26,11 +26,90 @@ a line of numerical code.
 
 Compare the EXACT Q32.32 words, never float display coordinates — the words are what the
 witness hashes; display coords are fitted for a canvas and would show phantom or hidden diffs.
+
+THAT SENTENCE WAS A WARNING WITH NOTHING BEHIND IT, and the failure it names was reachable.
+`first_field_desync` admitted anything and compared with `!=`, so a float display coordinate
+whose value happens to equal the word — `5.0` against `5` — compared EQUAL and the localizer
+returned `None`: **the hidden diff, produced by the exact input the docstring told the reader
+to avoid.** The two chains hash differently and this module said they were identical. Two more
+shapes were admitted untyped: a chain whose `pos` and `vel` carry different body counts raised
+a bare `IndexError`, and a non-chain argument raised a bare `ValueError` from tuple unpacking.
+`claim != code` — the prose was correct and load-bearing and enforced nowhere.
+
+`OBSERVE-REFUSE` now enforces it, and the admission runs over the WHOLE input before any
+comparison. Validating lazily inside the scan would make the boundary depend on the ANSWER: a
+malformed body sitting past the first divergence would be ADMITTED (the scan returns before
+reaching it) and REFUSED when the chains agree. An admission decision that depends on where
+the difference is, is not an admission decision — so both chains are admitted in full, then
+scanned, and `refusal_is_independent_of_divergence` pins that.
+
+What is NOT refused, deliberately: `length` and `count`. Different chain lengths and different
+per-tick body counts are the module's documented VERDICTS — the diagnostics it exists to
+report — not malformed input. Converting them to exceptions would delete the answer.
 """
 
 # fields per body, in URDRLST1 serialization order (lockstep._digest)
 FIELDS = (("pos", 0), ("pos", 1), ("vel", 0), ("vel", 1))
 _LABEL = {("pos", 0): "pos.x", ("pos", 1): "pos.y", ("vel", 0): "vel.x", ("vel", 1): "vel.y"}
+
+
+class ObserveError(Exception):
+    """A typed refusal from the localizer. `code` mirrors the tree's URDR-* discipline: a
+    refusal is a STOP that carries a code, never a silently-absorbed comparison."""
+
+    def __init__(self, code, message):
+        super().__init__("%s: %s" % (code, message))
+        self.code = code
+        self.message = message
+
+
+def _seq(v):
+    return isinstance(v, (list, tuple)) and not isinstance(v, (str, bytes))
+
+
+def admit(name, chain):
+    """THE ADMISSION BOUNDARY, stated as the exact inputs this module must reject.
+
+    A chain is a sequence of per-tick `(pos, vel)` states; `pos` and `vel` are equal-length
+    sequences of `[x, y]` pairs; every word is an exact Q32.32 `int`. `bool` is excluded on
+    purpose — `True == 1` is the same silent-equality trap the float word is.
+
+    Total over the input and independent of the other chain, so refusal is a function of what
+    was handed in and of nothing else. Returns the chain so callers can bind it."""
+    if not _seq(chain):
+        raise ObserveError("OBSERVE-REFUSE",
+                           "%s must be a sequence of per-tick states, got %s"
+                           % (name, type(chain).__name__))
+    for t, st in enumerate(chain):
+        if not _seq(st) or len(st) != 2:
+            raise ObserveError("OBSERVE-REFUSE",
+                               "%s[%d] must be a (pos, vel) pair, got %r" % (name, t, st))
+        pos, vel = st
+        for kind, side in (("pos", pos), ("vel", vel)):
+            if not _seq(side):
+                raise ObserveError("OBSERVE-REFUSE",
+                                   "%s[%d].%s must be a sequence of bodies, got %s"
+                                   % (name, t, kind, type(side).__name__))
+            for i, body in enumerate(side):
+                if not _seq(body) or len(body) != 2:
+                    raise ObserveError("OBSERVE-REFUSE",
+                                       "%s[%d].%s[%d] must be an [x, y] word pair, got %r"
+                                       % (name, t, kind, i, body))
+                for ax, word in enumerate(body):
+                    if not isinstance(word, int) or isinstance(word, bool):
+                        raise ObserveError(
+                            "OBSERVE-REFUSE",
+                            "%s[%d].%s[%d][%d] must be an exact Q32.32 integer word, got %r — "
+                            "a float display coordinate compares EQUAL to the word it was "
+                            "fitted from and would hide the divergence"
+                            % (name, t, kind, i, ax, word))
+        if len(pos) != len(vel):
+            raise ObserveError("OBSERVE-REFUSE",
+                               "%s[%d] carries %d pos bodies and %d vel bodies — a body count "
+                               "differing WITHIN one chain is malformed input, not the `count` "
+                               "verdict (which reports a difference BETWEEN the two chains)"
+                               % (name, t, len(pos), len(vel)))
+    return chain
 
 
 def first_field_desync(states_a, states_b):
@@ -45,7 +124,12 @@ def first_field_desync(states_a, states_b):
       * `(tick, body, "count", 0, n_a, n_b)` — the two runs have a different body count at `tick`
         (a body appeared/vanished — an authority-level divergence, not a field value);
       * `(tick, -1, "length", 0, len_a, len_b)` — the chains ran for different tick counts.
-    Pure and total; reads only the two chains, writes nothing (observational-only)."""
+
+    Input that is not a pair of state chains is a typed `OBSERVE-REFUSE` (see `admit`), taken
+    over BOTH chains in full before the first comparison. `length` and `count` stay results.
+    Reads only the two chains, writes nothing (observational-only)."""
+    admit("states_a", states_a)
+    admit("states_b", states_b)
     m = min(len(states_a), len(states_b))
     for t in range(m):
         pa, va = states_a[t]
@@ -62,6 +146,25 @@ def first_field_desync(states_a, states_b):
     if len(states_a) != len(states_b):
         return (m, -1, "length", 0, len(states_a), len(states_b))
     return None
+
+
+def refusal_is_independent_of_divergence(good, bad):
+    """RED-FIRST, and it pins the one thing lazy validation would break: a malformed chain is
+    refused whether or not the two chains diverge BEFORE the malformed part is reached.
+
+    `bad` must be a chain that `admit` rejects. It is scanned against itself (no divergence
+    anywhere) and against `good` (divergence at tick 0 if they differ there) — both must
+    refuse with the same code. If validation ran inside the scan, the second call would return
+    a result and this would be False."""
+    codes = []
+    for other in (bad, good):
+        try:
+            first_field_desync(bad, other)
+        except ObserveError as exc:
+            codes.append(exc.code)
+        else:
+            return False
+    return len(codes) == 2 and codes[0] == codes[1] == "OBSERVE-REFUSE"
 
 
 def describe(fd):

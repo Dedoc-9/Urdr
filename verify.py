@@ -3933,17 +3933,46 @@ class Gate:
             "%d of %d shipped terrain modules satisfy BOTH halves of explicit authority — identity "
             "COMPUTED (content-addressed) and admission failure TYPED (never silently coerced) — "
             "with exactly %d declared exceptions, each carrying the reason that makes it one: "
-            "`bench` is a measurement harness that admits no state and issues no verdict, and "
-            "`stormprop` is a property falsifier over `storm` whose STORMPROP-FALSIFIED is a test "
-            "verdict rather than an admission refusal. Both were ruled outside on INDEPENDENT "
-            "grounds before this census existed, which is what makes the exception set evidence "
-            "rather than curve-fitting. A third exception reddens this row; so does an exemption "
-            "that has stopped being needed, because a list that only grows stops meaning anything"
+            "`bench` and `frontbench` are measurement harnesses that admit no state and issue no "
+            "verdict; `stormprop`, `commuteprop` and `regionprop` are property falsifiers whose "
+            "FALSIFIED verdict is a test result rather than an admission refusal; and `lockstep` "
+            "is the frozen N1 spine, whose boundary lives in its callers because a refusal inside "
+            "`canon` would change the frozen contract rather than add to it. Every one of them was "
+            "ruled outside on INDEPENDENT grounds before the census that found it — including the "
+            "two that joined the property-falsifier class UNCHANGED when the predicates were "
+            "corrected to read code — which is what makes the exception set evidence rather than "
+            "curve-fitting. A new exception reddens this row; so does an exemption that has "
+            "stopped being needed, because a list that only grows stops meaning anything"
             % (ok_n, len(rows), len(AU.EXEMPT))
             if holds else
             "authority contract broken: violations=%s stale-exemptions=%s unknown=%s reasons=%s"
             % (AU.violations(), AU.stale_exemptions(), AU.unknown_exemptions(),
                AU.every_exemption_has_a_reason()))
+
+        carried = AU.prose_carried()
+        inherited = sorted(m for sub in AU.ENFORCED + AU.REPORTED for m, _r, _a in AU.census(sub)
+                           if (AU.refusal_route(m) or "").startswith("inherited:"))
+        reads_code = AU.reads_code_not_prose()
+        self.record(
+            "authority-reads-code", reads_code,
+            "THE CENSUS WAS READING ITS OWN DOCSTRINGS. Both halves matched the RAW FILE TEXT, so "
+            "a module was certified by the words `REFUSE` and `digest` appearing anywhere in it — "
+            "including in prose describing what it does NOT do: `renderbound` read AUTHORITY on a "
+            "docstring stating in as many words that the thing it describes is not RENDER-REFUSE, "
+            "and `observe` read content-addressed on two uses of the word 'digest' while computing "
+            "none. That is `claim != code` inside the checker that enforces it, invisible to the "
+            "gate because the gate was reading the claim. The predicates now read CODE ONLY "
+            "(docstrings out through the AST, comments out through the tokenizer, so a `#` inside "
+            "a string literal survives where a regex would have cut the line). %d modules are "
+            "reported at their code verdict as a result — %s — and the inherited route this "
+            "module already claimed for `govern` is now structural: %s refuse by RAISING a typed "
+            "class imported from a module that defines one, read from the AST. The import alone "
+            "is not credited, or the route would be a free pass (L61). Proved on SYNTHETIC "
+            "sources, so it bites the same on a tree where nothing is prose-carried"
+            % (len(carried), "; ".join("%s %s->%s" % (m, p, c) for _s, m, p, c in carried),
+               ", ".join("%s<-%s" % (m, AU.refusal_route(m).split(":")[1]) for m in inherited))
+            if reads_code else
+            "prose can still talk a module into passing: reads_code_not_prose=False")
 
         oos = AU.out_of_sample()
         apart = AU.the_halves_come_apart()
@@ -4842,7 +4871,8 @@ class Gate:
             import lockstep as L
             import worldstep as W
             import worldregion as R
-            from observe import first_field_desync
+            from observe import (first_field_desync, ObserveError,
+                                 refusal_is_independent_of_divergence)
         except Exception as exc:  # pragma: no cover - import guard
             self.record("netcode-field-desync", False, f"import failed: {exc}")
             return
@@ -4880,6 +4910,57 @@ class Gate:
                         if pa[i][ax] != pb[i][ax]:
                             return t
             return None
+        # -- THE ADMISSION BOUNDARY. This module's docstring told the reader to compare exact
+        # Q32.32 words and never float display coordinates, and enforced nothing: `5.0` against
+        # `5` compares EQUAL, so the localizer returned None — the HIDDEN DIFF the prose warns
+        # about, produced by the exact input it names. Two more shapes were untyped: ragged
+        # pos/vel raised a bare IndexError, a non-chain a bare ValueError from tuple unpacking.
+        ok_chain = [([[0, 0]], [[0, 0]]), ([[5, 0]], [[0, 0]])]
+        bad = {
+            "float word (the hidden diff the docstring names)":
+                [([[0, 0]], [[0, 0]]), ([[5.0, 0]], [[0, 0]])],
+            "bool word (True == 1 is the same trap)": [([[True, 0]], [[0, 0]])],
+            "non-chain argument": "not a chain",
+            "state that is not a (pos, vel) pair": [([[0, 0]],)],
+            "ragged pos/vel within ONE chain": [([[0, 0], [1, 1]], [[0, 0]])],
+        }
+        refused = {}
+        for label, chain in bad.items():
+            try:
+                first_field_desync(chain, ok_chain)
+            except ObserveError as exc:
+                refused[label] = exc.code
+            except Exception as exc:                       # pragma: no cover - the old behaviour
+                refused[label] = "UNTYPED:%s" % type(exc).__name__
+        # length and count stay RESULTS, never refusals — they are the verdicts this module exists
+        # to report, and turning them into exceptions would delete the answer.
+        kept = (first_field_desync(ok_chain[:1], ok_chain) == (1, -1, "length", 0, 1, 2)
+                and first_field_desync([([[0, 0], [1, 1]], [[0, 0], [0, 0]])], ok_chain[:1])
+                == (0, 1, "count", 0, 2, 1))
+        typed = all(v == "OBSERVE-REFUSE" for v in refused.values()) and len(refused) == len(bad)
+        adm_ok = typed and kept
+        self.record("field-desync-admits", adm_ok,
+                    "%d/%d malformed shapes refuse as typed OBSERVE-REFUSE (%s) while `length` "
+                    "and `count` stay RESULTS. The float case is the one that matters: the "
+                    "module's own docstring says to compare exact Q32.32 words and never float "
+                    "display coords, and enforced nothing — `5.0` against `5` compared EQUAL and "
+                    "the localizer answered None for two chains that hash differently. `claim != "
+                    "code`, with the claim written correctly one screen above the defect"
+                    % (len(refused), len(bad), ", ".join(sorted(bad)))
+                    if adm_ok else
+                    "admission broken: refused=%r length/count-preserved=%s" % (refused, kept))
+
+        ind = refusal_is_independent_of_divergence(ok_chain, bad["float word (the hidden diff "
+                                                                 "the docstring names)"])
+        self.record("field-desync-admission-order", ind,
+                    "admission runs over the WHOLE input BEFORE the first comparison: a chain "
+                    "malformed at tick 1 refuses both against a chain that diverges at tick 0 and "
+                    "against itself, where nothing diverges at all. Validating lazily inside the "
+                    "scan would admit the first case (the scan returns before reaching the bad "
+                    "body) and refuse the second — an admission decision that depends on where "
+                    "the difference is, which is not an admission decision"
+                    if ind else "refusal depends on where the chains diverge")
+
         po = pos_only(cst, dst)
         nv = fd is not None and fd[2] == "vel" and po is not None and fd[0] < po
         self.record("field-desync-selftest", nv,
