@@ -214,6 +214,7 @@ STAGE_ORDER = (
     "writecalc_placement",
     "rollstore_placement",
     "wirephase_placement",
+    "netcode_placement",
     "invariant_detectors",
     "spec_freeze",
     "rejections",
@@ -16642,6 +16643,178 @@ class Gate:
                     "a tampered session refuses on its self-digest and an anonymous session refuses "
                     "on the named-host law (gate can redden)"
                     if self_ok else "a tampered or anonymous session was accepted")
+
+    # -- 2p5b. the netcode cross-placements, RE-VERIFIED LIVE (they never were) --------
+    def netcode_placement(self):
+        """FIVE PORTS THE GATE HAD NEVER RUN, under a claim that said it had.
+
+        `tools/netcode/README.md` grades N1/N3/N4/N5/D16 `MEASURED (both placements)` and
+        each module's docstring names its Rust port as ADMITTED. Measured against
+        verify.py's own source: `lockstep_rs`, `authinput_rs`, `worldstep_rs`,
+        `worldpeer_rs` and `worldregion_rs` appear ZERO times in it. The claim rested on
+        an in-session run recorded once in D5, and nothing re-executed it — so re-pinning
+        the Python canon did NOT force these ports to keep up, which is exactly the hole
+        `heightfield_placement` was built to close for terrain and which netcode never
+        got. The asymmetry is the finding: the terrain rows say "re-pinning the Python
+        canon forces the Rust to keep up or this reddens" and for netcode that sentence
+        was false.
+
+        This matters NOW rather than in the abstract, because the two rungs before it
+        re-pinned exactly these modules' semantics (`field`'s domain and `authinput`'s
+        message binding). Nothing would have reddened had the ports drifted. They had
+        not — measured, all five reproduce the LIVE goldens bit-for-bit — so this is a
+        ratchet rather than a repair, and it is placed BEFORE the caller-owned-admission
+        rung deliberately: that rung edits `worldpeer`, and this is what will force the
+        port to follow.
+
+        Each port's COMPUTED digests are compared against the LIVE Python value, never
+        against the literal the port prints as its own golden — a stale port agreeing
+        with its own stale copy is the failure mode, so the port's embedded constant is
+        deliberately not the thing checked.
+
+        does_not_show: ADMISSION agreement. The ports type an event as `[i64; 6]`, so a
+        float impulse, a string tick and a wrong-arity event are UNREPRESENTABLE in them
+        — the defects the last two rungs fixed could not have been expressed here at all.
+        Cross-placement conformance is structurally silent on the admission boundary and
+        certifies agreement on ADMITTED inputs only; the type system refuses statically
+        what Python needed a runtime guard for, which is why "two placements agree" was
+        true throughout and could never have caught either defect."""
+        import shutil
+        import subprocess
+        import tempfile
+        import json as _json
+        ndir = os.path.join(ROOT, "tools", "netcode")
+        pdir = os.path.join(ROOT, "tools", "physics")
+        for d in (ndir, pdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import lockstep as L
+            import worldstep as W
+            import worldregion as R
+        except Exception as exc:                                # pragma: no cover
+            self.record("netcode-placement", False, f"import failed: {exc}")
+            self.record("netcode-placement-selftest", False, "checker did not load")
+            return
+        try:
+            with open(os.path.join(ROOT, "demo", "world_highway.json"), encoding="utf-8") as fh:
+                doc = _json.load(fh)
+            arena = L.trace_digest(L.simulate(L.world(), L.sample_log())[0])
+            highway = L.trace_digest(
+                W.simulate_trace(W.world_from_export(doc), W.sample_world_log())[0])
+            seam2 = L.trace_digest(R.region_simulate_trace(
+                R.seam2_world(), R.seam2_log(), R.seam2_seam())[0])
+        except Exception as exc:                                # pragma: no cover
+            self.record("netcode-placement", False, f"live goldens unreadable: {exc}")
+            self.record("netcode-placement-selftest", False, "no goldens")
+            return
+        #: port -> the LIVE Python digest its computed lines must equal
+        PORTS = (("lockstep", arena), ("authinput", arena), ("worldstep", highway),
+                 ("worldpeer", highway), ("worldregion", seam2))
+        rustc = shutil.which("rustc")
+        missing = [p for p, _g in PORTS
+                   if not os.path.exists(os.path.join(ndir, "%s_rs" % p, "%s.rs" % p))]
+        if not rustc or missing:
+            why = "rustc not found" if not rustc else "missing sources: %s" % missing
+            self.record("netcode-placement", True,
+                        "SKIPPED (%s) — the five netcode ports were NOT re-verified this "
+                        "run, so the README's MEASURED-both-placements grade is unchecked "
+                        "here (install rustc to enable)" % why)
+            self.record("netcode-placement-selftest", True, "SKIPPED (%s)" % why)
+            return
+
+        _HEX = re.compile(r"\b[0-9a-f]{64}\b")
+
+        def computed(port, mutate=False):
+            """(digests, stdout). Every 64-hex digest the port COMPUTES, excluding the
+            lines where it prints its own embedded golden — that literal is what a stale
+            port would agree with, so it is deliberately not what gets compared.
+
+            A port legitimately computes SEVERAL distinct digests — `authinput` a roster
+            root, `worldpeer` a world pin, `worldstep` the arena-equivalence chain beside
+            the highway one — so the law is that the live golden is AMONG them, not that
+            they all equal it. A first draft demanded the latter and reddened three ports
+            for computing exactly what they are supposed to compute."""
+            src = os.path.join(ndir, "%s_rs" % port, "%s.rs" % port)
+            with open(src, encoding="utf-8") as fh:
+                text = fh.read()
+            if mutate:
+                text = text.replace("URDRLST1", "URDRLST0")    # the witness magic itself
+            with tempfile.TemporaryDirectory() as td:
+                sp = os.path.join(td, "p.rs")
+                bp = os.path.join(td, "p.bin")
+                with open(sp, "w", encoding="utf-8") as fh:
+                    fh.write(text)
+                if subprocess.run([rustc, "-O", sp, "-o", bp],
+                                  capture_output=True, text=True).returncode != 0:
+                    return None, ""
+                exe = bp if os.path.exists(bp) else (
+                    bp + ".exe" if os.path.exists(bp + ".exe") else None)
+                if exe is None:
+                    return None, ""
+                cp = subprocess.run([exe], capture_output=True, text=True, timeout=300)
+                out = set()
+                for line in cp.stdout.splitlines():
+                    if "golden" in line.lower():
+                        continue
+                    out.update(_HEX.findall(line))
+                return out, cp.stdout
+
+        bad = []
+        for port, gold in PORTS:
+            got, out = computed(port)
+            if got is None:
+                bad.append((port, "compile/run failed"))
+            elif gold not in got:
+                bad.append((port, "did not compute the live golden"))
+            elif "ADMITTED" not in out:
+                bad.append((port, "port did not self-admit"))
+        ok = not bad
+        self.record(
+            "netcode-placement", ok,
+            "the five netcode Rust ports are RE-COMPILED AND RE-RUN this run, each "
+            "COMPUTES the LIVE Python digest among its outputs, and each self-admits — "
+            "lockstep + authinput on the arena3 chain %s…, worldstep + worldpeer on the "
+            "highway %s…, worldregion on the seam2 composition %s…. AMONG rather than "
+            "EQUALS, because a port legitimately computes several distinct digests "
+            "(`authinput` a roster root, `worldpeer` a world pin, `worldstep` the "
+            "arena-equivalence chain beside the highway one); this row's first draft "
+            "demanded equality of all of them and reddened three ports for computing "
+            "exactly what they are supposed to. They had never been run by this gate at all: "
+            "measured against verify.py's own source, all five appear ZERO times in it, "
+            "while the README grades them MEASURED (both placements) and each docstring "
+            "names its port ADMITTED. That claim rested on a single in-session run "
+            "recorded in D5, so re-pinning the Python canon did NOT force these ports to "
+            "keep up — the exact hole `heightfield_placement` closes for terrain, which "
+            "netcode never got, and it was live across the two rungs that just re-pinned "
+            "`field` and `authinput`. The comparison is against the LIVE Python digest "
+            "and never against the literal each port prints as its own golden, because a "
+            "stale port agreeing with its own stale copy is the failure mode"
+            % (arena[:12], highway[:12], seam2[:12])
+            if ok else "ports disagree with the live goldens: %r" % (bad,))
+
+        plants = []
+        for port, gold in PORTS:
+            got, _out = computed(port, mutate=True)
+            plants.append(got is not None and gold not in got)
+        sok = all(plants) and len(plants) == len(PORTS)
+        self.record(
+            "netcode-placement-selftest", sok,
+            "%d/%d mutated ports DIVERGE: flipping the witness magic `URDRLST1` -> "
+            "`URDRLST0` in each port's own source must move every digest it computes, so "
+            "the row above is a live falsifier rather than a compile check that always "
+            "passes. The mutation is inside the SERIALIZATION LAW rather than the "
+            "dynamics, which is what makes it universal across all five ports and "
+            "unambiguous — a port that still matched afterwards would be printing a "
+            "constant rather than computing one. does_not_show: that the placements agree "
+            "on ADMISSION. Each types an event as `[i64; 6]`, so a float impulse, a "
+            "string tick and a wrong-arity event are UNREPRESENTABLE — the two defects "
+            "the previous rungs fixed could not be expressed in these ports at all, and "
+            "the type system refuses statically what Python needed a runtime guard for. "
+            "That is why 'both placements agree' stayed true throughout and could never "
+            "have caught either one"
+            % (sum(plants), len(PORTS))
+            if sok else "a mutated port still reproduced the golden: %r" % (plants,))
 
     # -- 2p6. heightfield_rs cross-placement, RE-VERIFIED LIVE (closes the re-pin gap) -
     def heightfield_placement(self):

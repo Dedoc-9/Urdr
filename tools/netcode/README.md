@@ -66,6 +66,28 @@ from `AUTH-REFUSE` and never a subclass — "this is not an event" and "this sig
 invalid" are different facts. Row `netcode-auth-binds-bytes`; falsifiers in
 `tests/test_authinput.py`. No pinned digest moved.
 
+**The cross-placements are re-verified LIVE now — they never were.** Every rung above
+grades `MEASURED (both placements)` and each module's docstring names its Rust port
+ADMITTED. Measured against `verify.py`'s own source, `lockstep_rs`, `authinput_rs`,
+`worldstep_rs`, `worldpeer_rs` and `worldregion_rs` appeared **zero** times in it: the
+claim rested on one in-session run recorded in D5, and nothing re-executed it, so
+re-pinning the Python canon did **not** force these ports to keep up. That is precisely
+the hole `heightfield_placement` closes for terrain — whose row says "re-pinning the
+Python canon forces the Rust to keep up or this reddens" — and for netcode that sentence
+was false, across the two rungs that just re-pinned `field` and `authinput`. They had
+not drifted (all five reproduce the live goldens bit-for-bit), so `netcode-placement` is
+a ratchet rather than a repair, and it lands before the caller-owned-admission rung
+deliberately: that rung edits `worldpeer`, and this is what makes the port follow.
+Comparison is against the LIVE Python digest, never the literal each port prints as its
+own golden — a stale port agreeing with its own stale copy is the failure mode.
+**Scope, and it is the interesting part:** the ports type an event as `[i64; 6]`, so a
+float impulse, a string tick and a wrong-arity event are *unrepresentable* in them. The
+two defects the previous rungs fixed could not have been expressed here at all, and the
+type system refuses statically what Python needed a runtime guard for — which is why
+"both placements agree" stayed true throughout and could never have caught either.
+Cross-placement conformance certifies agreement on **admitted** inputs only; it is
+structurally silent on the admission boundary.
+
 **Where the perimeter stands now — 8 typed of 35, up from 4.** Re-measured, not
 remembered: 21 ABSORBED, 3 COERCED, 3 UNTYPED, 8 REFUSED. What remains is exactly two
 things and both are named. The **caller-owned absorptions** — out-of-range body index
