@@ -17706,7 +17706,14 @@ class Gate:
             % (token[:16], len(self.rows), sum(1 for _n, ok in names if not ok),
                len(skipped)))
         sys.stdout.write(
-            "           %s falsifiers · %s detectors · CPython %d.%d.%d on %s\n"
+            # ASCII ONLY, and it is the block's own law rather than a style choice: this
+            # is the one output meant to be COPIED BETWEEN HOSTS and compared. The first
+            # version used `·` and came back from a Windows `Get-Content` as `┬╖` — the
+            # file is UTF-8, the reader used the OEM codepage. Nothing downstream broke,
+            # but a reconciliation line that any reader can mangle is a poor instrument
+            # for deciding whether two machines agree. Fixed at the source instead of by
+            # telling the operator which flag to pass.
+            "           %s falsifiers | %s detectors | CPython %d.%d.%d on %s\n"
             % (getattr(self, "n_falsifiers", "?"), getattr(self, "n_detectors", "?"),
                sys.version_info[0], sys.version_info[1], sys.version_info[2],
                sys.platform))

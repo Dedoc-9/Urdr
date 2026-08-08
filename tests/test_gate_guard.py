@@ -163,6 +163,22 @@ class TheReconcileTokenIsHostStable(unittest.TestCase):
         self.assertNotEqual(self._token(base), self._token(renamed))
         self.assertNotEqual(self._token(base), self._token(list(reversed(base))))
 
+    def test_the_block_is_pure_ascii_because_it_is_copied_between_hosts(self):
+        """MEASURED, not styled. The first version separated the counts with `·`, and a
+        Windows `Get-Content` handed it back as `┬╖` — the file is UTF-8, the reader used
+        the OEM codepage. Nothing downstream broke, but this is the one output whose
+        purpose is to be copied off one machine and compared against another, so a
+        character any reader can mangle has no business in it. The rest of the report is
+        free to use whatever it likes; this block is not."""
+        out = _run_report(self._rows())[1]
+        block = [ln for ln in out.splitlines()
+                 if ln.startswith("RECONCILE") or ln.startswith("           ")]
+        self.assertTrue(block, "no RECONCILE block emitted")
+        for line in block:
+            offenders = [(i, c, hex(ord(c))) for i, c in enumerate(line) if ord(c) > 127]
+            self.assertEqual(offenders, [],
+                             "non-ASCII in a line meant to survive a copy between hosts")
+
     def test_skipped_rows_are_counted_because_they_measure_nothing(self):
         """A placement row records SKIPPED-but-green when rustc is absent, so a host with
         no toolchain reports the same PASS count as one that compiled every port."""
