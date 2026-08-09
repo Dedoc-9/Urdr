@@ -47,6 +47,17 @@ for _p in (_HERE, _os.path.join(_os.path.dirname(_HERE), "physics"),
     if _p not in _sys.path:
         _sys.path.insert(0, _p)
 
+# THE FOUR QUESTIONS A MEASUREMENT MUST ANSWER — one per defect this arc produced, and the reason
+# they are a SCHEMA rather than a habit. Five instrument defects landed in one session, every one
+# invisible to a green gate, and each was a different one of these left unanswered:
+#   UNIT   — ns/pixel was the wrong denominator; the work unit is the sample test.
+#   AXIS   — "linear in primitives" was linear in coverage; the fixture moved two things.
+#   LAYER  — the observer was timed as the renderer; 90% of the reading was the citation.
+#   DOMAIN — a closed form was trusted past the range where it was checked against execution.
+# A registered law states all four or it cannot carry a caustic. (The fifth defect, a law nothing
+# could satisfy, is the DOMAIN question asked of a predicate rather than a cost.)
+LAYERS = ("CORE", "VIEW", "OBSERVER")
+
 KIND_PROVEN = "PROVEN_CLOSED_FORM"
 KIND_ISOLATED = "ISOLATED_FIXTURE"
 KIND_FITTED = "FITTED"
@@ -128,7 +139,7 @@ def _confounded_exec(n):
     return SF.raster_ops(SF.synthetic_scene(n, 128), 128, 128)["samples"]
 
 
-# (name, kind, axis, unit, VERIFIED DOMAIN sample points, closed form, execution, confound)
+# (name, kind, axis, unit, VERIFIED DOMAIN sample points, closed form, execution, confound, layer)
 #
 # THE DOMAIN IS PART OF THE LAW. A closed form is known where it was CHECKED AGAINST EXECUTION and
 # nowhere else; answering a caustic outside that range would be an extrapolation of a formula, which
@@ -137,17 +148,18 @@ def _confounded_exec(n):
 # its edge.
 LAWS = (
     ("storecost.snapshot_bytes", KIND_PROVEN, "actors", "bytes",
-     (0, 1, 8, 64, 512, 4096), _storecost_form, _storecost_exec, ""),
+     (0, 1, 8, 64, 512, 4096), _storecost_form, _storecost_exec, "", "CORE"),
     ("opcost.warden_edge_checks", KIND_PROVEN, "grid_side", "adjacency checks",
-     (1, 2, 4, 8, 16, 32, 64), _warden_form, _warden_exec, ""),
+     (1, 2, 4, 8, 16, 32, 64), _warden_form, _warden_exec, "", "CORE"),
     ("sealframe.raster_samples", KIND_ISOLATED, "subdivision_levels", "sample tests",
-     (0, 1, 2, 3, 4), _raster_form, _raster_exec, ""),
+     (0, 1, 2, 3, 4), _raster_form, _raster_exec, "", "VIEW"),
     ("frontbench.sim_tick_divisions", KIND_PROVEN, "bipeds", "frozen divisions",
-     (1, 5, 25, 100, 400), _divisions_form, _divisions_exec, ""),
+     (1, 5, 25, 100, 400), _divisions_form, _divisions_exec, "", "CORE"),
     ("sealframe.synthetic_primitives", KIND_FITTED, "primitives", "sample tests",
      (4, 16, 64), _confounded_form, _confounded_exec,
      "`synthetic_scene` adds a fresh patch of frame per primitive, so this slope is linear in "
-     "COVERAGE and is labelled linear in PRIMITIVES — the defect that paid for this module"),
+     "COVERAGE and is labelled linear in PRIMITIVES — the defect that paid for this module",
+     "VIEW"),
 )
 
 
@@ -155,6 +167,18 @@ def domain(name):
     """The range over which the closed form is CHECKED against execution this run."""
     xs = law(name)[4]
     return (xs[0], xs[-1])
+
+
+def answers_four_questions(name):
+    """UNIT, AXIS, LAYER, DOMAIN — all four, or the law cannot carry a caustic.
+
+    Not a style check. Each is one of the five instrument defects this arc produced, and every one
+    of them passed a green gate while it was wrong. A schema is the only form in which "state your
+    denominator" survives the author who learned it."""
+    entry = law(name)
+    axis, unit, xs, layer = entry[2], entry[3], entry[4], entry[8]
+    return bool(str(axis).strip()) and bool(str(unit).strip()) and layer in LAYERS \
+        and len(xs) >= 3 and xs[0] < xs[-1]
 
 
 def law(name):
@@ -168,14 +192,14 @@ def model_equals_execution(name):
     """THE AXIS-ISOLATION CHECK, run rather than quoted. The closed form must equal the execution
     at EVERY sampled axis value — which is what makes the formula a description of the work and
     not a description of one fixture."""
-    _n, _k, _a, _u, xs, form, execute, _c = law(name)
+    _n, _k, _a, _u, xs, form, execute, _c, _l = law(name)
     return all(form(x) == execute(x) for x in xs)
 
 
 def is_monotone(name):
     """Non-decreasing over the sampled axis — the only property `caustic` actually needs, since a
     non-monotone law has no single crossing to name."""
-    _n, _k, _a, _u, xs, form, _e, _c = law(name)
+    _n, _k, _a, _u, xs, form, _e, _c, _l = law(name)
     ys = [form(x) for x in xs]
     return all(ys[i + 1] >= ys[i] for i in range(len(ys) - 1)) and ys[-1] > ys[0]
 
@@ -195,7 +219,7 @@ def is_affine(name):
     is a magnitude bound and is already a cautionary tale rather than an instance; `fpquat`'s "~2x
     headroom" is slack on an error bound. One instance is not every reading, and the difference
     between them is the difference between a survey and a flourish."""
-    _n, _k, _a, _u, xs, form, _e, _c = law(name)
+    _n, _k, _a, _u, xs, form, _e, _c, _l = law(name)
     if len(xs) < 3:
         return False
     ys = [form(x) for x in xs]
@@ -204,7 +228,7 @@ def is_affine(name):
 
 
 def slope(name):
-    _n, _k, _a, _u, xs, form, _e, _c = law(name)
+    _n, _k, _a, _u, xs, form, _e, _c, _l = law(name)
     return (form(xs[-1]) - form(xs[0])) * 1.0 / (xs[-1] - xs[0])
 
 
@@ -217,6 +241,11 @@ def caustic(name, budget):
         raise CausticError(
             f"{name} is FITTED and cannot carry a caustic: {confound}. A caustic from a slope "
             f"whose axis moves with something else is not a bound, it is a coincidence with units")
+    if not answers_four_questions(name):
+        raise CausticError(
+            f"{name} does not answer all four questions (unit, axis, layer, domain) — each is one "
+            f"of the instrument defects this module was built out of, and a measurement missing "
+            f"any of them has already been wrong here in a way a green gate could not see")
     if not model_equals_execution(name):
         raise CausticError(f"{name}: the closed form does not equal the execution it models")
     if not is_monotone(name):
@@ -240,6 +269,15 @@ def caustic(name, budget):
         else:
             hi = mid
     return lo
+
+
+def every_law_answers_four_questions():
+    return all(answers_four_questions(n) for (n, *_r) in LAWS)
+
+
+def every_layer_is_populated():
+    """L61 on the layer field: a classification every member shares carries no information."""
+    return len({e[8] for e in LAWS}) >= 2
 
 
 def every_kind_is_populated():
@@ -267,7 +305,7 @@ def caustic_digest():
     """URDRCAU1 canon over the registered laws and their caustics at a pinned budget."""
     hh = hashlib.sha256()
     hh.update(MAGIC)
-    for (name, kind, axis, unit, xs, form, _e, _c) in LAWS:
+    for (name, kind, axis, unit, xs, form, _e, _c, _l) in LAWS:
         hh.update(f"|{name}|{kind}|{axis}|{unit}|{xs}|{form(xs[0])}|{form(xs[-1])}".encode())
         hh.update(f"|aff:{is_affine(name)}|mono:{is_monotone(name)}".encode())
         if kind in _SOUND:
@@ -284,7 +322,7 @@ def report(budgets=None):
     """The panel — every law side by side, refusals included. Never one number (`panel != scalar`)."""
     b = budgets or BUDGETS
     out = []
-    for (name, kind, axis, unit, _xs, _f, _e, _c) in LAWS:
+    for (name, kind, axis, unit, _xs, _f, _e, _c, _l) in LAWS:
         try:
             out.append((name, kind, axis, unit, caustic(name, b[name]), ""))
         except CausticError as exc:

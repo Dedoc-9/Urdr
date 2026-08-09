@@ -620,3 +620,23 @@ class TheFillFloor(unittest.TestCase):
         self.assertGreater(ms, 25.0 * 50)
         self.assertEqual(SF.budget_verdict(
             25.0, SF.ledger_with_graduated("frame_render", ms, ms))["verdict"], "REFUTED")
+
+
+class MissingHasTwoKinds(unittest.TestCase):
+    """Collapsing them made the ledger read as a to-do list. A segment a software timer could
+    reach is PENDING work; one that ends at a photon or begins at a switch closure is BOUNDED OUT
+    until capture hardware exists. Both are unmeasured; only one is anybody's next task."""
+
+    def test_the_two_kinds_partition_the_missing(self):
+        v = SF.budget_verdict(25.0)
+        self.assertEqual(sorted(v["pending"] + v["needs_hardware"]), sorted(v["unmeasured"]))
+        self.assertFalse(set(v["pending"]) & set(v["needs_hardware"]))
+
+    def test_the_hardware_set_is_exactly_the_external_capture_segments(self):
+        self.assertEqual(sorted(SF.budget_verdict(25.0)["needs_hardware"]),
+                         sorted(s[0] for s in SF.SEGMENTS
+                                if s[3] == "external-capture" and s[4] not in ("MEASURED", "DERIVED")))
+
+    def test_both_kinds_are_populated(self):
+        v = SF.budget_verdict(25.0)
+        self.assertTrue(v["pending"] and v["needs_hardware"])

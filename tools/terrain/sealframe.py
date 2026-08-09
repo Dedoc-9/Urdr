@@ -267,10 +267,18 @@ def budget_verdict(target_ms, segments=SEGMENTS):
         verdict = "CONFIRMED"
     else:
         verdict = "UNDETERMINED"
+    # TWO KINDS OF MISSING, and collapsing them is what made the ledger read as a to-do list.
+    # A segment a software timer could reach is PENDING work; one that ends at a photon or begins
+    # at a switch closure is BOUNDED OUT until capture hardware exists. Both are unmeasured and
+    # only one is anybody's next task, so the report names which.
+    pending = tuple(s[0] for s in segments
+                    if s[4] not in _EVIDENCED and s[3] != "external-capture")
+    hardware = tuple(s[0] for s in segments
+                     if s[4] not in _EVIDENCED and s[3] == "external-capture")
     return {"verdict": verdict, "lower_ms": lo, "target_ms": target_ms,
             "measured_share": (lo / target_ms) if target_ms else 0.0,
             "measured": tuple(s[0] for s in segments if s[4] in _EVIDENCED),
-            "unmeasured": missing}
+            "unmeasured": missing, "pending": pending, "needs_hardware": hardware}
 
 
 def ledger_with_graduated(name, lo_ms, hi_ms, segments=SEGMENTS):

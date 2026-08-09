@@ -33,7 +33,7 @@ class TheClosedFormsAreCheckedNotQuoted(unittest.TestCase):
     def test_the_check_can_fail(self):
         """NON-VACUITY: a law whose form disagrees with its execution must be caught."""
         bad = ("planted", CA.KIND_PROVEN, "n", "u", (1, 2, 3),
-               lambda n: n, lambda n: n + 1, "")
+               lambda n: n, lambda n: n + 1, "", "CORE")
         real = CA.LAWS
         try:
             CA.LAWS = real + (bad,)
@@ -159,3 +159,37 @@ class TheFrozenDivisionBridge(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheFourQuestions(unittest.TestCase):
+    """L65 MECHANIZED. Five instrument defects landed in one session, every one invisible to a
+    green gate, and each was a different one of these left unanswered: UNIT (ns/pixel was the
+    wrong denominator), AXIS (linear in primitives was linear in coverage), LAYER (the observer
+    was timed as the renderer), DOMAIN (a closed form trusted past where it was checked).
+
+    A schema is the only form in which "state your denominator" survives the author who learned
+    it — a habit is not inherited and a docstring is not enforced."""
+
+    def test_every_registered_law_answers_all_four(self):
+        self.assertTrue(CA.every_law_answers_four_questions())
+
+    def test_the_layer_field_carries_information(self):
+        """L61 on the schema itself: a classification every member shares is decoration."""
+        self.assertTrue(CA.every_layer_is_populated())
+
+    def test_a_law_missing_any_one_is_refused(self):
+        real = CA.LAWS
+        base = ("probe", CA.KIND_PROVEN, "n", "u", (1, 2, 3), lambda n: n, lambda n: n, "", "CORE")
+        broken = {"no layer": base[:8] + ("NOPE",),
+                  "no unit": base[:3] + ("",) + base[4:],
+                  "no axis": base[:2] + ("",) + base[3:],
+                  "degenerate domain": base[:4] + ((5,),) + base[5:]}
+        try:
+            for label, entry in broken.items():
+                with self.subTest(label):
+                    CA.LAWS = real + (entry,)
+                    self.assertFalse(CA.answers_four_questions("probe"))
+                    with self.assertRaises(CA.CausticError):
+                        CA.caustic("probe", 2)
+        finally:
+            CA.LAWS = real

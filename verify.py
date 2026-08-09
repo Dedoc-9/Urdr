@@ -16592,7 +16592,23 @@ class Gate:
             return
         ref_ok = True
         try:
-            ref_ok = CA.every_kind_is_populated() and CA.the_refusal_is_selective()
+            ref_ok = (CA.every_kind_is_populated() and CA.the_refusal_is_selective()
+                      and CA.every_law_answers_four_questions() and CA.every_layer_is_populated())
+            base = ("probe", CA.KIND_PROVEN, "n", "u", (1, 2, 3),
+                    lambda n: n, lambda n: n, "", "CORE")
+            for entry in (base[:8] + ("NOPE",), base[:3] + ("",) + base[4:],
+                          base[:2] + ("",) + base[3:], base[:4] + ((5,),) + base[5:]):
+                real = CA.LAWS
+                try:
+                    CA.LAWS = real + (entry,)
+                    ref_ok = ref_ok and not CA.answers_four_questions("probe")
+                    try:
+                        CA.caustic("probe", 2)
+                        ref_ok = False
+                    except CA.CausticError:
+                        pass
+                finally:
+                    CA.LAWS = real
             for bad, budget, needle in (("sealframe.synthetic_primitives", 39000, "COVERAGE"),
                                         ("storecost.snapshot_bytes", 10 ** 12, "NOT BINDING"),
                                         ("nothing.at.all", 10, "no such law")):
@@ -16624,12 +16640,17 @@ class Gate:
                     "EVIDENCE OF A SOUND AXIS. The confounded law is PERFECTLY affine — every "
                     "added triangle contributes an equal bounding box — and that clean straight "
                     "line is exactly what made the wrong x-axis persuasive. Of the affine laws "
-                    "here, one is sound and one is refused"
+                    "here, one is sound and one is refused. AND THE FOUR QUESTIONS ARE A SCHEMA "
+                    "(L65): UNIT, AXIS, LAYER, DOMAIN — one per instrument defect this arc "
+                    "produced, every one of which passed a green gate while it was wrong. A law "
+                    "states all four or it cannot carry a caustic, proved on four planted entries "
+                    "each missing exactly one, because a habit is not inherited and a docstring is "
+                    "not enforced"
                     if ref_ok else "the caustic refusal law did not hold")
         law_ok = True
         rows = []
         try:
-            for (name, kind, axis, unit, xs, form, _e, _c) in CA.LAWS:
+            for (name, kind, axis, unit, xs, form, _e, _c, _l) in CA.LAWS:
                 law_ok = law_ok and CA.model_equals_execution(name) and CA.is_monotone(name)
                 if kind == CA.KIND_FITTED:
                     continue
@@ -16638,7 +16659,7 @@ class Gate:
                 rows.append("%s dies at %d %s (affine=%s, domain=%s)"
                             % (name, n, axis, CA.is_affine(name), CA.domain(name)))
             planted = ("planted", CA.KIND_PROVEN, "n", "u", (1, 2, 3),
-                       lambda n: n, lambda n: n + 1, "")
+                       lambda n: n, lambda n: n + 1, "", "CORE")
             real = CA.LAWS
             try:
                 CA.LAWS = real + (planted,)
@@ -16824,7 +16845,13 @@ class Gate:
                     "honesty law and that no gate row read until now (its two column totals are "
                     "checked here against the file). AND THE READING TODAY, as a number rather than "
                     "an impression: %.4f ms of the 25 ms budget is evidenced — %.2f%%, ONE segment "
-                    "of %d, with %s still unmeasured. §4c's ~1900x headroom is headroom on the one "
+                    "of %d, with %s still unmeasured — and MISSING HAS TWO KINDS, which "
+                    "collapsing made the ledger read as a to-do list: `view_export`, "
+                    "`frame_render` and `present_queue` are PENDING (a software timer reaches "
+                    "them), while `input_transport` and `scanout` are BOUNDED OUT until capture "
+                    "hardware exists, one beginning at a switch closure and the other ending at a "
+                    "photon. Both are unmeasured; only one is anybody's next task. §4c's ~1900x "
+                    "headroom is headroom on the one "
                     "segment that was already cheap; substantially all of the latency risk sits "
                     "where nothing has ever been measured, and the ledger says so in public"
                     % (v["lower_ms"], 100.0 * v["measured_share"],
