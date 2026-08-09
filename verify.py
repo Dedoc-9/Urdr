@@ -2671,7 +2671,7 @@ class Gate:
             "derived one). And this is a DOOR rather than a rewrite: the absorbing `if` "
             "is deliberately left in the frozen tick, shared byte-for-byte with "
             "`lockstep`, and `step_tick` called directly still drops — asserted here, so "
-            "the frozen contract is measured unchanged rather than assumed"
+            "the frozen contract is measured unchanged rather than assumed. THE PREDICATE MOVED: the law now lives ONCE in `lockstep.event_fault` and each layer raises its own code from it (LOCKSTEP-REFUSE / ROLLBACK-REFUSE / WORLD-REFUSE), because the first draft copied it into `worldstep` reasoning that N4 must not import N3 — correct about N3, wrong about N1, which `worldstep` already imports"
             % (len(refused), len(refused), ", ".join(sorted(refused)))
             if adm_ok else "admission wrong: %r" % (refused,))
         # peers agree on authored state
@@ -4183,9 +4183,11 @@ class Gate:
             "with exactly %d declared exceptions, each carrying the reason that makes it one: "
             "`bench` and `frontbench` are measurement harnesses that admit no state and issue no "
             "verdict; `stormprop`, `commuteprop` and `regionprop` are property falsifiers whose "
-            "FALSIFIED verdict is a test result rather than an admission refusal; and `lockstep` "
-            "is the frozen N1 spine, whose boundary lives in its callers because a refusal inside "
-            "`canon` would change the frozen contract rather than add to it. Every one of them was "
+            "FALSIFIED verdict is a test result rather than an admission refusal. LOCKSTEP WAS THE "
+            "SIXTH AND IS NOT ANY MORE — its exemption said a refusal inside `canon` would change "
+            "the frozen contract, which is true of `canon` and false of the SPINE: a door in front "
+            "of `simulate` leaves `canon`, `_digest`, `trace_digest` and the tick untouched, so the "
+            "reason expired and the entry went with it — which is the register working, not failing. Every one of them was "
             "ruled outside on INDEPENDENT grounds before the census that found it — including the "
             "two that joined the property-falsifier class UNCHANGED when the predicates were "
             "corrected to read code — which is what makes the exception set evidence rather than "

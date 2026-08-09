@@ -154,27 +154,9 @@ def admit_event_for_world(w, e):
     answer different questions under different codes — `AUTH-MALFORMED` says "this is not
     an event", `WORLD-REFUSE` says "this event is not for this world". The raw-log path
     never touches the wire at all and would otherwise keep crashing untyped."""
-    n, T = w["n"], w["T"]
-    if isinstance(e, (str, bytes)) or not isinstance(e, (list, tuple)) or len(e) != 6:
-        raise WorldError("WORLD-REFUSE",
-                         "an event must be a 6-tuple (tick, peer, seq, body, dvx, dvy), "
-                         "got %r" % (e,))
-    for name, v in zip(("tick", "peer", "seq", "body", "dvx", "dvy"), e):
-        if not isinstance(v, int) or isinstance(v, bool):
-            raise WorldError("WORLD-REFUSE",
-                             "event field %s must be an exact integer, got %r (%s)"
-                             % (name, v, type(v).__name__))
-    if not 0 <= e[3] < n:
-        raise WorldError("WORLD-REFUSE",
-                         "event addresses body %d in a world of %d bodies — an "
-                         "out-of-range body was silently DROPPED here, which is a "
-                         "decision with no record" % (e[3], n))
-    if not 0 <= e[0] < T:
-        raise WorldError("WORLD-REFUSE",
-                         "event is at tick %d and this world runs ticks 0..%d — an "
-                         "out-of-horizon input was silently DROPPED here, so a peer "
-                         "whose input was discarded and one that never sent are "
-                         "indistinguishable afterwards" % (e[0], T - 1))
+    why = L.event_fault(w, e)
+    if why is not None:
+        raise WorldError("WORLD-REFUSE", why)
     return e
 
 

@@ -60,6 +60,71 @@ def event(tick, peer, seq, body, dvx, dvy):
     return (int(tick), int(peer), int(seq), int(body), int(dvx), int(dvy))
 
 
+class LockstepError(Exception):
+    """The N1 spine's typed refusal. It did not have one — malformed input raised a bare
+    ValueError from tuple unpacking, and out-of-range input raised nothing at all."""
+
+    def __init__(self, code, message):
+        super().__init__("%s: %s" % (code, message))
+        self.code = code
+        self.message = message
+
+
+def event_fault(w, e):
+    """THE ADMISSION LAW, AS A REASON OR None — and deliberately not as an exception.
+
+    The same question ("is this event addressed to this world?") is asked by three layers
+    that must each answer in their OWN vocabulary: N1 raises LOCKSTEP-REFUSE, N2 raises
+    ROLLBACK-REFUSE, N4 raises WORLD-REFUSE. Merging the codes would destroy attribution;
+    copying the predicate three times would let them drift. So the law is written ONCE,
+    here, and returns a reason string — each caller raises its own type from it.
+
+    That duplication was real and shipped: the previous rung wrote this predicate into
+    `worldstep` because N4 must not import N3, which was correct about N3 and wrong about
+    N1 — `worldstep` and `rollback` BOTH already import lockstep. This is the repair."""
+    n, T = w["n"], w["T"]
+    if isinstance(e, (str, bytes)) or not isinstance(e, (list, tuple)) or len(e) != 6:
+        return "an event must be a 6-tuple (tick, peer, seq, body, dvx, dvy), got %r" % (e,)
+    for name, v in zip(("tick", "peer", "seq", "body", "dvx", "dvy"), e):
+        if not isinstance(v, int) or isinstance(v, bool):
+            return ("event field %s must be an exact integer, got %r (%s) — quantization "
+                    "is the caller's DECLARED act, never this module's silent one"
+                    % (name, v, type(v).__name__))
+    if not 0 <= e[3] < n:
+        return ("event addresses body %d in a world of %d bodies — `if 0 <= b < n:` "
+                "silently DROPPED it, which is a decision with no record" % (e[3], n))
+    if not 0 <= e[0] < T:
+        return ("event is at tick %d and this world runs ticks 0..%d — `range(T)` "
+                "silently DROPPED it" % (e[0], T - 1))
+    return None
+
+
+def admit_event(w, e):
+    """N1's own door. LOCKSTEP-REFUSE, and the exemption it retires said this could not
+    exist: a refusal inside `canon` would change the frozen contract, so the boundary
+    belonged to callers. That was right about `canon` and wrong about the SPINE — the
+    door pattern `worldstep` proved sits in FRONT of the frozen surface. `canon`,
+    `_digest`, `trace_digest` and the absorbing `if` in the tick are all untouched, and
+    `specfreeze/freeze_check.py` cross-checks two of those independently, so the freeze
+    is measured intact rather than argued about."""
+    why = event_fault(w, e)
+    if why is not None:
+        raise LockstepError("LOCKSTEP-REFUSE", why)
+    return e
+
+
+def admit_log(w, log):
+    """In full, before any tick — `observe`'s law: an event past the last tick a run
+    reaches would never be examined, so lazy validation would make admission depend on
+    the answer."""
+    if isinstance(log, (str, bytes)) or not isinstance(log, (list, tuple)):
+        raise LockstepError("LOCKSTEP-REFUSE",
+                            "a log must be a sequence of events, got %s" % type(log).__name__)
+    for e in log:
+        admit_event(w, e)
+    return log
+
+
 def canon(log):
     """Canonicalize a DELIVERED log into {tick: [events]}: drop exact-duplicate deliveries,
     then order each tick by (peer, seq). Any arrival permutation of one logical log yields
@@ -98,6 +163,7 @@ def simulate(w, log):
     """The deterministic peer loop. Returns (frames, final): frames[0] is the initial state
     witness, frames[k] the witness after tick k-1's inputs + integration. Bounded; the
     substrate refuses on overflow rather than wrapping."""
+    admit_log(w, log)                                     # the door, in front of the spine
     n, r = w["n"], w["r"]
     pos = [[c for c in p] for p in w["pos"]]
     vel = [[c for c in v] for v in w["vel"]]

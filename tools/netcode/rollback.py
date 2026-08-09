@@ -147,9 +147,15 @@ class Peer:
         Raises RollbackError: ROLLBACK-CONFLICT (same identity, different payload),
         ROLLBACK-REFUSE (older than the rollback horizon). A refused event is
         rejected WHOLE — no partial state change, the chain is untouched."""
-        e = tuple(int(x) for x in e)
-        if len(e) != 6:
-            raise RollbackError("ROLLBACK-REFUSE", f"malformed event {e!r}")
+        # THE FIFTH LAUNDERING SITE. `tuple(int(x) for x in e)` silently quantized a float
+        # impulse and a string tick, and the arity check ran AFTER it, so a 3-tuple was
+        # coerced before being refused. The PREDICATE is lockstep's (one law, written
+        # once); the CODE stays ROLLBACK-REFUSE, because N2's vocabulary is how a caller
+        # attributes the refusal to the time layer rather than to the spine.
+        why = L.event_fault(self.w, e)
+        if why is not None:
+            raise RollbackError("ROLLBACK-REFUSE", why)
+        e = tuple(e)
         identity = (e[1], e[2])
         if identity in self.known:
             if self.known[identity] == e:

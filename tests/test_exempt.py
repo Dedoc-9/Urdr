@@ -393,16 +393,22 @@ class TheExemptionsWrittenBeforeThePromotion(unittest.TestCase):
         for n in entry.names:
             self.assertIs(AU.EXEMPT[n], entry.reason)
 
-    def test_lockstep_is_exempt_and_the_reason_names_the_freeze(self):
-        """The reason must carry the mechanism, not a label: the frozen contract, the consumers
-        that depend on it, and the observation that would empty the class."""
+    def test_lockstep_is_no_longer_exempt_because_the_reason_EXPIRED(self):
+        """THE REGISTER WORKING, NOT FAILING. The exemption said a refusal inside `canon`
+        would change the frozen contract, so the boundary belonged to lockstep's callers.
+        True of `canon` and FALSE of the SPINE: a door in front of `simulate` leaves
+        `canon`, `_digest`, `trace_digest` and the tick's absorbing `if` untouched. The
+        reason expired, so the entry went — which is the `#[expect]` semantics the whole
+        register is built on, exercised for the first time on an entry of its own."""
         import authority as AU
-        self.assertIn("lockstep", AU.EXEMPT)
-        why = AU.EXEMPT["lockstep"]
-        for token in ("frozen", "canon", "authinput", "freeze_check", "Empties when"):
-            self.assertIn(token, why, "the lockstep reason does not name %r" % token)
+        self.assertNotIn("lockstep", AU.EXEMPT)
+        self.assertEqual([e.name for e in EX.for_law("authority")
+                          if "lockstep" in e.names], [])
         row = next(r for r in AU.census("tools/netcode") if r[0] == "lockstep")
-        self.assertFalse(row[1], "lockstep has a typed refusal; the exemption is wrong")
+        self.assertTrue(r_ok := AU.satisfies(row), "lockstep does not satisfy; the "
+                        "exemption was removed too early")
+        self.assertEqual(AU.classify(row), "AUTHORITY")
+        self.assertTrue(r_ok)
 
     def test_netcode_is_NOT_promoted_and_observe_is_exactly_why(self):
         """THE PROMOTION THAT DID NOT HAPPEN, recorded so it cannot be quietly forgotten.
@@ -428,9 +434,9 @@ class TheExemptionsWrittenBeforeThePromotion(unittest.TestCase):
             AU.ENFORCED = real_enf + ("tools/netcode",)
             AU.reset_caches()
             self.assertEqual([v[1] for v in AU.violations()], ["observe"])
-            AU.EXEMPT = {k: v for k, v in real_ex.items() if k != "lockstep"}
-            self.assertIn("lockstep", [v[1] for v in AU.violations()],
-                          "withdrawing lockstep's exemption did not put netcode in violation")
+            AU.EXEMPT = {k: v for k, v in real_ex.items() if k != "regionprop"}
+            self.assertIn("regionprop", [v[1] for v in AU.violations()],
+                          "withdrawing regionprop's exemption did not put netcode in violation")
         finally:
             AU.ENFORCED, AU.EXEMPT = real_enf, real_ex
             AU.reset_caches()

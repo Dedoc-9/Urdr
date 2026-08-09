@@ -94,5 +94,65 @@ class Lockstep(unittest.TestCase):
             FixedPoint.mul_k(FixedPoint.unit(3, 1), (1 << 62), 1)
 
 
+class TheSpineHasADoor(unittest.TestCase):
+    """The exemption this retires said a refusal here was impossible: one inside `canon`
+    would change the frozen contract, so the boundary belonged to callers. That was right
+    about `canon` and wrong about the SPINE. The door sits in FRONT of the frozen surface
+    — `canon`, `_digest`, `trace_digest` and the tick's absorbing `if` are untouched, and
+    `specfreeze/freeze_check.py` cross-checks two of them independently."""
+
+    def setUp(self):
+        self.w = L.world()
+        self.log = L.sample_log()
+        self.golden = L.trace_digest(L.simulate(self.w, self.log)[0])
+
+    def _bad(self, **kw):
+        t, p, s, b, dx, dy = self.log[0]
+        d = dict(tick=t, peer=p, seq=s, body=b, dvx=dx, dvy=dy)
+        d.update(kw)
+        return [(d["tick"], d["peer"], d["seq"], d["body"], d["dvx"], d["dvy"])] \
+            + list(self.log[1:])
+
+    def test_every_class_the_spine_absorbed_is_now_typed(self):
+        for label, lg in (("body == n", self._bad(body=self.w["n"])),
+                          ("body < 0", self._bad(body=-1)),
+                          ("tick == T", self._bad(tick=self.w["T"])),
+                          ("tick < 0", self._bad(tick=-5)),
+                          ("float impulse", self._bad(dvx=5.5)),
+                          ("string tick", self._bad(tick="3")),
+                          ("bool body", self._bad(body=True)),
+                          ("wrong arity", [self.log[0][:3]] + list(self.log[1:]))):
+            with self.subTest(label):
+                with self.assertRaises(L.LockstepError) as ctx:
+                    L.simulate(self.w, lg)
+                self.assertEqual(ctx.exception.code, "LOCKSTEP-REFUSE")
+
+    def test_the_frozen_surface_is_untouched(self):
+        """The claim the retired exemption was protecting, MEASURED rather than argued.
+        `canon` still absorbs whatever it is handed, the pinned trace is bit-identical,
+        and the tick's absorbing `if` still drops when `step`-level code calls it."""
+        self.assertEqual(len(L.canon([(999, 0, 0, 99, 1, 1)])), 1)   # canon: no refusal
+        self.assertEqual(L.trace_digest(L.simulate(self.w, self.log)[0]), self.golden)
+        self.assertEqual(L.sample_trace(), self.golden)
+
+    def test_the_boundary_is_the_boundary(self):
+        L.simulate(self.w, self._bad(body=self.w["n"] - 1))
+        L.simulate(self.w, self._bad(tick=self.w["T"] - 1))
+
+    def test_the_corruption_helpers_still_desync_rather_than_refuse(self):
+        """NON-VACUITY: the door must not eat the desync fixtures. A dropped, modified or
+        tick-moved event is a DIVERGENCE, not malformed input, and must stay one."""
+        for lg in (L.drop_event(self.log, 1), L.modify_event(self.log, 1),
+                   L.move_event_tick(self.log, 1, self.log[1][0] - 1)):
+            d = L.trace_digest(L.simulate(self.w, lg)[0])
+            self.assertNotEqual(d, self.golden)
+
+    def test_one_law_three_vocabularies(self):
+        """`event_fault` is the single predicate; each layer raises its own code so a
+        refusal is attributable to the layer that made it."""
+        self.assertIsNone(L.event_fault(self.w, self.log[0]))
+        self.assertIsNotNone(L.event_fault(self.w, (0, 0, 0, 99, 1, 1)))
+
+
 if __name__ == "__main__":
     unittest.main()

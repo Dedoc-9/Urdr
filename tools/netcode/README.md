@@ -107,13 +107,28 @@ stays in the frozen tick, shared byte-for-byte with `lockstep`, and `step_tick` 
 directly still drops — asserted, so the frozen contract is measured unchanged rather than
 assumed. Row `netcode-world-admits`; falsifiers in `tests/test_worldstep.py`.
 
-**Where the perimeter stands now — 23 typed of 35, up from 8, and everything left is the
-frozen spine.** Re-measured: 8 ABSORBED, 3 COERCED, 1 UNTYPED, 23 REFUSED. Every
-remaining cell is on path A (`lockstep`) or path E (`rollback`, which runs lockstep's
-tick) — the exemption already written and defended in `tools/specfreeze/exempt.py`, where
-a refusal would change the frozen contract rather than add a boundary to it. The three
-coercions are all `lockstep._u`'s own `int(v)`. There is no longer a malformed-input
-class that reaches an unfrozen module unrefused.
+**The perimeter is CLOSED: 35 typed of 35.** Every malformed class on every entry path
+is now a typed refusal, each in the layer's own vocabulary — `LOCKSTEP-REFUSE` at the N1
+spine, `ROLLBACK-REFUSE` at the N2 time law, `AUTH-MALFORMED` at the N3 wire,
+`WORLD-REFUSE` at the N4 world. Nothing is absorbed, coerced, or crashes untyped.
+
+**And the `lockstep` exemption is RETIRED, because its reason expired.** It said a
+refusal inside `canon` would change the frozen contract rather than add a boundary to it,
+so the boundary belonged to lockstep's callers. That is true of `canon` and **false of
+the spine**: the door pattern sits in FRONT of `simulate`, leaving `canon`, `_digest`,
+`trace_digest` and the tick's absorbing `if` untouched — all measured, with
+`specfreeze/freeze_check.py` independently cross-checking two of them. The arena3 golden
+is bit-identical and the corruption helpers still DESYNC rather than refuse, which is the
+non-vacuity that matters: a door that ate the desync fixtures would have closed the
+perimeter by breaking the thing it protects. `lockstep` is now AUTHORITY on the census
+and the register is down to five exemptions.
+
+**One law, three vocabularies.** `lockstep.event_fault` is the single predicate and
+returns a REASON rather than raising; each layer raises its own typed code from it. The
+previous rung had copied that predicate into `worldstep`, reasoning that N4 must not
+import N3 — correct about N3, wrong about N1, which `worldstep` and `rollback` both
+already import. Merging the codes would destroy attribution; copying the predicate would
+let three copies drift. This is neither.
 
 **The perimeter as it stood at 8 typed of 35 — superseded above, kept for the shape.** Re-measured, not
 remembered: 21 ABSORBED, 3 COERCED, 3 UNTYPED, 8 REFUSED. What remains is exactly two
