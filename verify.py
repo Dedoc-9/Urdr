@@ -205,6 +205,7 @@ STAGE_ORDER = (
     "panewire",
     "ghostsnap",
     "sealframe",
+    "caustic",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16577,6 +16578,90 @@ class Gate:
                     "the teleport (the declared, executable boundary)"
                     if kin_ok else "the ghost kinematic law did not hold")
 
+    def caustic(self):
+        """The scale at which a pinned law spends its budget (URDRCAU1) — and the refusal that
+        stops one confounded axis becoming five. Rows: caustic-refusal (the kinds, the selective
+        refusal, the domain law), caustic-laws (every closed form checked against execution and
+        the caustic bracketed by its defining property)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import caustic as CA
+        except Exception as exc:
+            self.record("caustic-refusal", False, f"import failed (caustic): {exc}")
+            return
+        ref_ok = True
+        try:
+            ref_ok = CA.every_kind_is_populated() and CA.the_refusal_is_selective()
+            for bad, budget, needle in (("sealframe.synthetic_primitives", 39000, "COVERAGE"),
+                                        ("storecost.snapshot_bytes", 10 ** 12, "NOT BINDING"),
+                                        ("nothing.at.all", 10, "no such law")):
+                try:
+                    CA.caustic(bad, budget)
+                    ref_ok = False
+                except CA.CausticError as exc:
+                    ref_ok = ref_ok and needle in str(exc)
+            affine = [n for (n, *_r) in CA.LAWS if CA.is_affine(n)]
+            ref_ok = (ref_ok and "sealframe.synthetic_primitives" in affine
+                      and [n for n in affine if CA.law(n)[1] != CA.KIND_FITTED]
+                          == ["storecost.snapshot_bytes"])
+        except Exception:
+            ref_ok = False
+        self.record("caustic-refusal", ref_ok,
+                    "A GENERALIZATION THAT CANNOT SAY NO IS HOW ONE ERROR BECOMES FIVE. "
+                    "`sealframe`'s first caustic rested on work being 'exactly linear in "
+                    "primitives'; the equality was real and the AXIS LABEL WAS NOT, because the "
+                    "fixture added a fresh patch of frame per primitive. Rolling that pattern "
+                    "across subsystems without the lesson would have propagated it, so a law "
+                    "declares its KIND and a FITTED one is REFUSED BY NAME with the confound "
+                    "stated — the refusing class populated on purpose by the very slope that "
+                    "caused it, since a checker with no rejects is not a checker. Proved "
+                    "SELECTIVE: it refuses that law and none of the sound ones. THE DOMAIN IS "
+                    "PART OF THE LAW — a budget not binding inside the range where the form was "
+                    "checked against execution is refused rather than answered by extrapolating "
+                    "a formula past its evidence. AND THE SHARPEST FINDING: AFFINENESS IS NOT "
+                    "EVIDENCE OF A SOUND AXIS. The confounded law is PERFECTLY affine — every "
+                    "added triangle contributes an equal bounding box — and that clean straight "
+                    "line is exactly what made the wrong x-axis persuasive. Of the affine laws "
+                    "here, one is sound and one is refused"
+                    if ref_ok else "the caustic refusal law did not hold")
+        law_ok = True
+        rows = []
+        try:
+            for (name, kind, axis, unit, xs, form, _e, _c) in CA.LAWS:
+                law_ok = law_ok and CA.model_equals_execution(name) and CA.is_monotone(name)
+                if kind == CA.KIND_FITTED:
+                    continue
+                n = CA.caustic(name, CA.BUDGETS[name])
+                law_ok = law_ok and form(n) <= CA.BUDGETS[name] < form(n + 1)
+                rows.append("%s dies at %d %s (affine=%s, domain=%s)"
+                            % (name, n, axis, CA.is_affine(name), CA.domain(name)))
+            planted = ("planted", CA.KIND_PROVEN, "n", "u", (1, 2, 3),
+                       lambda n: n, lambda n: n + 1, "")
+            real = CA.LAWS
+            try:
+                CA.LAWS = real + (planted,)
+                law_ok = law_ok and not CA.model_equals_execution("planted")
+            finally:
+                CA.LAWS = real
+        except Exception:
+            law_ok = False
+        self.record("caustic-laws", law_ok,
+                    "EVERY CLOSED FORM CHECKED AGAINST THE EXECUTION IT MODELS ON THIS RUN, not "
+                    "quoted from the module that pinned it — a form agreeing with its own "
+                    "restatement proves arithmetic is deterministic and nothing else (L23), and "
+                    "the first `warden` entry here was exactly that until it was rewritten to "
+                    "WALK THE GRID AND COUNT PAIRS. The caustic is checked by its DEFINING "
+                    "PROPERTY rather than by recomputing it: the answer fits the budget and one "
+                    "more does not. %s. MOST PINNED GROWTH LAWS ARE NOT LINEAR IN THE AXIS THEY "
+                    "NAME — the first version divided by one slope and refused three of four, so "
+                    "every `headroom x N` reading elsewhere in this repository rests on the "
+                    "arithmetic that version was about to commit; the mechanism bisects instead "
+                    "and reports affineness as a fact. A planted form that disagrees with its "
+                    "execution is caught"
+                    % "; ".join(rows)
+                    if law_ok else "a closed form disagreed with its execution")
+
     def sealframe(self):
         """The sealed frame (T3.55, V4, URDRSFR1): the windowed loop's performance graded honestly —
         the exact integer op envelope GATED, the wall-clock (fps/latency) NOT_MEASURED until a
@@ -18224,7 +18309,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
