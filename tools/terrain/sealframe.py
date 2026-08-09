@@ -25,6 +25,14 @@ lying about it. The house keeps two halves apart, exactly as `bench_protocol` an
   an anonymous log cannot graduate a claim (the named-host law, mechanized). The scaffold shipped
   here is EXPLICITLY not the named host and leaves input->photon NOT_MEASURED.
 
+  THE SEGMENT LEDGER (V4.1) — input->photon is a PARTITION, not an atom, and the atomic grade was
+  throwing away a result. `SEGMENTS` tiles `input_actuation -> photon` across 7 instants with no gap
+  and no overlap; each segment declares the INSTRUMENT CLASS that can establish it, so a software
+  timer structurally cannot grade a duration ending at a photon. Only evidenced segments contribute,
+  each contributing its FLOOR, so their sum is a LOWER BOUND — which can REFUTE a budget without the
+  missing instruments ever arriving, the falsifier bench_protocol §6 has never had. `FRAME_BUDGET`
+  above is retained as the READINGS table and is explicitly NOT summable.
+
 GRADE. The op envelope (deterministic, pinned, matches the instrumented loop), the budget honesty
 (MEASURED-cites-a-log; the unlogged-MEASURED defect caught), the host-log integrity and named-host
 law, and the fits-the-budget inequality are MEASURED. DECLARED, honestly: the WALL-CLOCK numbers
@@ -109,6 +117,13 @@ def fits_budget(env, native_tick_ns, frame_hz):
 
 
 # ---- the frame budget manifest (a MEASURED entry MUST cite a host log) -------------------
+# THE READINGS TABLE — and it is NOT a partition of a frame, which is worth saying because its
+# shape invites the assumption that it is. `op_envelope` is a WORK COUNT, not a duration.
+# `authority_tick` (§4b, 100 bipeds) and `native_loop` (§4c, a four-command sprint) are two
+# MEASUREMENTS OF THE SAME COMPONENT on different workloads, not two components — summing this
+# table would double-count the tick and add a number that is not a time. Nothing summed it, so
+# nothing noticed. What tiles the frame is `SEGMENTS`, below.
+#
 # (component, grade, ms, host_log) — grade in {DECLARED, NOT_MEASURED, MEASURED}. A MEASURED entry
 # with no host_log is the dishonesty the gate forbids. authority_tick cites the real sim-tick log.
 FRAME_BUDGET = (
@@ -131,6 +146,201 @@ def budget_defect_unlogged_measured():
     control the gate must catch."""
     return tuple((c, "MEASURED", ms, "") if c == "input_to_photon" else (c, g, ms, log)
                  for (c, g, ms, log) in FRAME_BUDGET)
+
+
+# ---- THE SEGMENT LEDGER: input->photon as a SUM, not an atom -----------------------------
+#
+# The defect this repairs is a GRADE SHAPE, not a wrong number. `input_to_photon` was one atomic
+# NOT_MEASURED gated on one §3 run that needs a renderer and a photodiode — neither of which
+# exists — so `docs/bench_protocol.md` §6 offers exactly one falsifier for the whole budget model
+# and it is unrunnable. But §2's own table already decomposes the interval into components whose
+# measurement requirements are not remotely alike: two are already measured on the named host, and
+# only the ends of the chain need hardware. Treating them as one atom discards a real result.
+#
+# THE RESULT IT DISCARDED: the measured segments alone BOUND THE TOTAL FROM BELOW, and a lower
+# bound can REFUTE a budget with the photodiode still in its box. That is a falsifier the model has
+# never had. It is also the honest reading of what is known today — see `budget_verdict`.
+#
+# The instants, in order. Every segment spans two of them; the segments must CHAIN with no gap and
+# no overlap, which is what makes the ledger summable BY CONSTRUCTION rather than by assumption.
+INSTANTS = ("input_actuation", "input_visible", "tick_done", "view_exported",
+            "pixels_done", "present_queued", "photon")
+
+# THE INSTRUMENT CLASSES — a neutral ruler, applied to rulers. A duration that ENDS OUTSIDE this
+# process cannot be established by a timer INSIDE it: `scanout` ends at a photon and
+# `input_transport` begins at a switch closure, so `perf_counter` is the STRUCTURALLY wrong
+# instrument for both, not merely an imprecise one. Enforced by `grade_segment`'s signature rather
+# than by this comment — the same reason the sealed observer is enforced structurally.
+INSTRUMENTS = {
+    "derived-from-rate": "a period that is 1/rate BY DEFINITION — a derivation, not an observation",
+    "software-timer":    "a duration bounded by two instants this process itself observes",
+    "external-capture":  "a duration with an endpoint outside the process (a switch, a photon)",
+}
+_SATISFIES = {                                             # requirement -> instruments that meet it
+    "derived-from-rate": ("derived-from-rate", "software-timer", "external-capture"),
+    "software-timer":    ("software-timer", "external-capture"),
+    "external-capture":  ("external-capture",),
+}
+
+# (name, t_from, t_to, requires, grade, lo_ms, hi_ms, evidence)
+# lo/hi are a BAND, never a scalar (`panel != scalar`): lo is what the segment cannot go below, hi
+# what it has been seen to reach. Only MEASURED and DERIVED segments contribute to the bound.
+SEGMENTS = (
+    ("input_transport", "input_actuation", "input_visible", "external-capture",
+     "DECLARED", 0.0, 0.0, ""),                            # §2 estimates 1.5 ms; an estimate is not evidence
+    ("authority_tick", "input_visible", "tick_done", "software-timer",
+     "MEASURED", 0.0723, 0.3393,
+     "bench_protocol.md §4b (Ally X, 100 bipeds, cold+soak, 2026-07-14)"),
+    ("view_export", "tick_done", "view_exported", "software-timer",
+     "DECLARED", 0.0, 0.0, ""),                            # §2 targets 0.5 ms
+    ("frame_render", "view_exported", "pixels_done", "software-timer",
+     "NOT_MEASURED", 0.0, 0.0, ""),                        # the layer-3 renderer does not exist
+    ("present_queue", "pixels_done", "present_queued", "software-timer",
+     "NOT_MEASURED", 0.0, 0.0, ""),
+    ("scanout", "present_queued", "photon", "external-capture",
+     "NOT_MEASURED", 0.0, 0.0, ""),                        # refresh wait + panel processing
+)
+_EVIDENCED = ("MEASURED", "DERIVED")
+
+
+def segments_tile(segments=SEGMENTS):
+    """Do the segments TILE `INSTANTS[0] -> INSTANTS[-1]` exactly — no gap, no overlap?
+
+    This is the check `FRAME_BUDGET` could not pass and was never asked to. A budget you may sum is
+    a partition of an interval; a budget you may not is a list of readings. The difference is
+    invisible until something tries to add the column up."""
+    if not segments:
+        return False
+    here = INSTANTS[0]
+    for (_n, t0, t1, *_rest) in segments:
+        if t0 != here or t1 not in INSTANTS or INSTANTS.index(t1) <= INSTANTS.index(t0):
+            return False
+        here = t1
+    return here == INSTANTS[-1]
+
+
+def grade_segment(name, grade, lo_ms, hi_ms, instrument, evidence, segments=SEGMENTS):
+    """Grade one segment, REFUSING an instrument that cannot establish it.
+
+    The refusal is the mechanism. Timing `present()` with a wall clock and calling the answer
+    input->photon is the exact inflation this rung exists to make impossible, and it is impossible
+    here because `scanout` requires `external-capture` and a software timer does not satisfy it."""
+    seg = next((s for s in segments if s[0] == name), None)
+    if seg is None:
+        raise FrameError(f"no such frame segment: {name!r}")
+    if instrument not in INSTRUMENTS:
+        raise FrameError(f"unknown instrument class {instrument!r}")
+    if grade in _EVIDENCED:
+        if instrument not in _SATISFIES[seg[3]]:
+            raise FrameError(
+                f"{name} spans {seg[1]} -> {seg[2]} and requires {seg[3]}; a {instrument} cannot "
+                f"establish it — an endpoint lies outside what that instrument can observe")
+        if not str(evidence).strip():
+            raise FrameError(f"{name} graded {grade} with no evidence cited (the host-log law)")
+        if lo_ms is None or hi_ms is None or lo_ms > hi_ms:
+            raise FrameError(f"{name} graded {grade} needs a band lo <= hi, got {lo_ms}..{hi_ms}")
+    return (seg[0], seg[1], seg[2], seg[3], grade, lo_ms or 0.0, hi_ms or 0.0, evidence)
+
+
+def lower_bound_ms(segments=SEGMENTS):
+    """THE BOUND. Only evidenced segments contribute, and each contributes its FLOOR.
+
+    A DECLARED estimate contributes ZERO however confident it is — that is the whole difference
+    between §2's table and a result. A derived worst case contributes zero too: a refresh period
+    bounds a segment from ABOVE and cannot tighten a bound from below, which is worth knowing
+    before anyone tries to spend it."""
+    return sum(s[5] for s in segments if s[4] in _EVIDENCED)
+
+
+def budget_verdict(target_ms, segments=SEGMENTS):
+    """REFUTED / CONFIRMED / UNDETERMINED — and NAME what is missing.
+
+    REFUTED needs no missing segment: if what is already measured exceeds the target, the budget is
+    dead and the remaining instruments would only say by how much. CONFIRMED needs every segment
+    evidenced AND the whole upper band inside the target. Anything else is UNDETERMINED, which is
+    an honest verdict rather than a deferral — it reports the bound it does have."""
+    lo = lower_bound_ms(segments)
+    missing = tuple(s[0] for s in segments if s[4] not in _EVIDENCED)
+    if lo > target_ms:
+        verdict = "REFUTED"
+    elif not missing and sum(s[6] for s in segments) <= target_ms:
+        verdict = "CONFIRMED"
+    else:
+        verdict = "UNDETERMINED"
+    return {"verdict": verdict, "lower_ms": lo, "target_ms": target_ms,
+            "measured_share": (lo / target_ms) if target_ms else 0.0,
+            "measured": tuple(s[0] for s in segments if s[4] in _EVIDENCED),
+            "unmeasured": missing}
+
+
+def ledger_with_graduated(name, lo_ms, hi_ms, segments=SEGMENTS):
+    """A ledger with one segment graduated by an instrument that CAN establish it — the shape a
+    real graduation takes, used to prove the bound is monotone under arriving evidence."""
+    inst = _SATISFIES[next(s for s in segments if s[0] == name)[3]][0]
+    return tuple(grade_segment(name, "MEASURED", lo_ms, hi_ms, inst,
+                               "synthetic graduation", segments) if s[0] == name else s
+                 for s in segments)
+
+
+def ledger_all_measured(segments=SEGMENTS):
+    """Every segment evidenced by a sufficient instrument — the CONFIRMED arm's fixture, without
+    which the verdict could only ever refuse or shrug (L61)."""
+    out = []
+    for s in segments:
+        out.append(grade_segment(s[0], "MEASURED", 0.5, 2.0, _SATISFIES[s[3]][0],
+                                 "synthetic full-chain log", segments))
+    return tuple(out)
+
+
+def ledger_all_declared(segments=SEGMENTS):
+    """§2's table as a ledger: every component carrying a confident estimate and no evidence. It
+    must never reach CONFIRMED, however comfortably the estimates sum under the target."""
+    return tuple((s[0], s[1], s[2], s[3], "DECLARED", s[5], s[6], "") for s in segments)
+
+
+def ledger_defect_gap(segments=SEGMENTS):
+    """THE PARTITION DEFECT, first kind: a component silently dropped out of the chain."""
+    return tuple(s for s in segments if s[0] != "view_export")
+
+
+def ledger_defect_overlap(segments=SEGMENTS):
+    """THE PARTITION DEFECT, second kind — and the one `FRAME_BUDGET` actually carried: the same
+    interval listed twice under two names, so the column double-counts."""
+    dup = next(s for s in segments if s[0] == "authority_tick")
+    return tuple(segments[:2]) + (("authority_tick_again",) + dup[1:],) + tuple(segments[2:])
+
+
+def protocol_section2_totals(path=None):
+    """Sum §2's two scenario columns FROM THE DOCUMENT. The honesty law is written in that file and
+    no gate row read it, which is this repository's own recurring defect standing in the doorway of
+    the document that defines the law. Returns (scenario_a_ms, scenario_b_ms)."""
+    import re
+    path = path or _os.path.join(_os.path.dirname(_os.path.dirname(_HERE)),
+                                 "docs", "bench_protocol.md")
+    with open(path, encoding="utf-8") as fh:
+        lines = fh.read().split("\n")
+    try:
+        start = next(i for i, ln in enumerate(lines) if ln.startswith("## 2."))
+    except StopIteration:
+        raise FrameError("bench_protocol.md has no §2 budget table")
+    a = b = 0.0
+    rows = 0
+    for ln in lines[start:]:
+        if ln.startswith("## ") and not ln.startswith("## 2."):
+            break
+        if not ln.startswith("|"):
+            continue
+        cells = [c.strip() for c in ln.strip("|").split("|")]
+        if len(cells) < 3 or cells[0].startswith("---") or "**Total**" in cells[0]:
+            continue
+        ma = re.search(r"\d+\.?\d*", cells[1])
+        mb = re.search(r"\d+\.?\d*", cells[2])
+        if not (ma and mb):
+            continue
+        a += float(ma.group()); b += float(mb.group()); rows += 1
+    if rows < 5:
+        raise FrameError(f"§2 budget table parsed only {rows} component rows — the table moved")
+    return (round(a, 3), round(b, 3))
 
 
 # ---- the host log (off-gate, self-digested; the named host's own record) ----------------

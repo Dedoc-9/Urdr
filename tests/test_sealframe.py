@@ -135,3 +135,106 @@ class TestScenesAndDeterminism(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheChainIsAPartition(unittest.TestCase):
+    """input->photon is not an atom, and grading it as one throws away a real result.
+
+    `FRAME_BUDGET` was a LIST OF READINGS wearing the shape of a partition: `op_envelope` is a
+    work count and not a duration at all, and `authority_tick` (§4b, 100 bipeds) and `native_loop`
+    (§4c, a 4-command sprint) are two MEASUREMENTS OF THE SAME COMPONENT on different workloads,
+    not two components of one frame. Nothing summed it, so nothing noticed. The segment ledger is
+    summable BY CONSTRUCTION: each segment names the two instants it spans, and the instants must
+    CHAIN from actuation to photon with no gap and no overlap."""
+
+    def test_the_segments_tile_the_interval(self):
+        self.assertTrue(SF.segments_tile(), "the segments do not tile input_actuation -> photon")
+
+    def test_a_gap_is_caught(self):
+        self.assertFalse(SF.segments_tile(SF.ledger_defect_gap()))
+
+    def test_an_overlap_is_caught(self):
+        self.assertFalse(SF.segments_tile(SF.ledger_defect_overlap()))
+
+
+class TheInstrumentIsTyped(unittest.TestCase):
+    """A NEUTRAL RULER, applied to instruments. A duration that ENDS OUTSIDE this process cannot be
+    established by a timer INSIDE it — `scanout` ends at a photon and `input_transport` begins at a
+    switch closure, so `perf_counter` is structurally the wrong instrument for both, not merely an
+    imprecise one. Enforced by the signature, not by a comment: grading such a segment MEASURED
+    from a software timer REFUSES."""
+
+    def test_a_software_timer_cannot_grade_an_external_segment(self):
+        with self.assertRaises(SF.FrameError):
+            SF.grade_segment("scanout", "MEASURED", 4.0, 5.0, "software-timer", "some log")
+
+    def test_the_right_instrument_grades_it(self):
+        seg = SF.grade_segment("scanout", "MEASURED", 4.0, 5.0, "external-capture", "photodiode log")
+        self.assertEqual(seg[4], "MEASURED")
+
+    def test_every_segment_declares_a_known_instrument_class(self):
+        for s in SF.SEGMENTS:
+            self.assertIn(s[3], SF.INSTRUMENTS)
+
+
+class TheLowerBoundIsAResult(unittest.TestCase):
+    """The capability the atomic grade discarded: the measured segments alone BOUND the total from
+    below, and a lower bound can REFUTE a budget without the missing segments ever arriving.
+    `docs/bench_protocol.md` §6 offers exactly one falsifier — run §3 — which needs a renderer and a
+    photodiode that do not exist. This one runs today."""
+
+    def test_unmeasured_segments_contribute_nothing(self):
+        """A DECLARED estimate is not evidence, so it may not raise a lower bound. This is the whole
+        difference between §2's table and a result."""
+        lo = SF.lower_bound_ms()
+        contributed = sum(s[5] for s in SF.SEGMENTS if s[4] in ("MEASURED", "DERIVED"))
+        self.assertAlmostEqual(lo, contributed, places=9)
+        self.assertGreater(lo, 0.0, "nothing is measured — the bound would be vacuous (L61)")
+
+    def test_the_verdict_is_undetermined_today_and_says_why(self):
+        v = SF.budget_verdict(25.0)
+        self.assertEqual(v["verdict"], "UNDETERMINED")
+        self.assertTrue(v["unmeasured"], "an UNDETERMINED verdict must NAME what is missing")
+
+    def test_the_verdict_can_refute(self):
+        """NON-VACUITY, and the point of the rung: measured segments alone exceeding the target
+        kills the budget with the photodiode still in its box."""
+        self.assertEqual(SF.budget_verdict(0.001)["verdict"], "REFUTED")
+
+    def test_the_verdict_can_confirm(self):
+        """The other end. A verdict that can only ever say UNDETERMINED or REFUTED is not a verdict."""
+        full = SF.ledger_all_measured()
+        self.assertEqual(SF.budget_verdict(100.0, full)["verdict"], "CONFIRMED")
+
+    def test_a_declared_ledger_can_never_confirm(self):
+        """§2's table renders a PASS tick on a column of estimates. No arrangement of DECLARED
+        numbers may reach CONFIRMED, however comfortably they sum under the target."""
+        est = SF.ledger_all_declared()
+        self.assertEqual(SF.budget_verdict(1000.0, est)["verdict"], "UNDETERMINED")
+        self.assertEqual(SF.lower_bound_ms(est), 0.0)
+
+    def test_graduating_a_segment_can_only_raise_the_bound(self):
+        """MONOTONICITY: evidence arriving never weakens the bound, which is what makes it a bound
+        rather than a running estimate."""
+        base = SF.lower_bound_ms()
+        for name in ("frame_render", "present_queue"):
+            after = SF.lower_bound_ms(SF.ledger_with_graduated(name, 0.4, 0.9))
+            self.assertGreaterEqual(after, base)
+
+
+class TheDocIsCheckedRatherThanTrusted(unittest.TestCase):
+    """`bench_protocol.md` §2 is where the honesty law is WRITTEN, and no gate row reads it. Its
+    column sums are checked here, and so is the thing the table cannot be allowed to do."""
+
+    def test_the_declared_totals_are_arithmetic(self):
+        a, b = SF.protocol_section2_totals()
+        self.assertAlmostEqual(a, 23.3, places=1)
+        self.assertAlmostEqual(b, 34.3, places=1)
+
+    def test_the_measured_share_of_the_budget_is_named(self):
+        """The finding the bound produces, as a number rather than an impression: nearly all of the
+        25 ms budget is in segments nobody has measured, so §4c's '~1900x headroom' is headroom on
+        the ONE segment that was cheap all along."""
+        v = SF.budget_verdict(25.0)
+        self.assertLess(v["measured_share"], 0.05)
+        self.assertGreater(v["measured_share"], 0.0)

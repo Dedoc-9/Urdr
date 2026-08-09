@@ -35,7 +35,50 @@ A latency number produced on the LG is **invalid by protocol**, not merely worse
 | GPU render (1080p aggressive / no RT / FSR-Perf) | 5.0 ms | 5.0 ms | DECLARED (target) |
 | Display refresh | 8.3 ms | 13.3 ms | DECLARED (physics of 120/75 Hz) |
 | Display processing | ~5 ms | ~11 ms | DECLARED (panel est. / LG spec) |
-| **Total** | **≈23.3 ms** ✅ | **≈34.3 ms** ❌ | DECLARED until §3 runs |
+| **Total** | **≈23.3 ms** | **≈34.3 ms** | DECLARED until §3 runs |
+
+**The ✅ and ❌ that used to sit on those totals are gone, and their removal is the
+point.** They were PASS/FAIL verdicts computed from a column of estimates, in the
+document that defines the rule against exactly that. A sum of DECLARED numbers
+cannot pass or fail anything, however comfortably it lands. What can carry a
+verdict is §2b's ledger, where `budget_verdict` returns CONFIRMED only when every
+segment is evidenced — an all-DECLARED ledger is structurally incapable of reaching
+it. The two column totals above are now checked against this file by the
+`sealframe-lowerbound` gate row, so this table is read by a machine rather than
+trusted by a reader.
+
+## 2b. The segment ledger — what is actually known (MEASURED lower bound)
+
+The table above treats input→photon as one atom gated on one §3 run. It is a
+partition of an interval, and the parts have nothing like the same measurement
+requirements: `authority_tick` is measured on the named host today, while
+`scanout` ends at a photon and cannot be timed from inside the process at all.
+Grading the whole chain NOT_MEASURED discards the part that *is* known.
+
+`sealframe.SEGMENTS` tiles the interval across seven instants — `input_actuation
+→ input_visible → tick_done → view_exported → pixels_done → present_queued →
+photon` — with no gap and no overlap, and each segment declares the instrument
+class that can establish it (`derived-from-rate`, `software-timer`,
+`external-capture`). Only evidenced segments contribute, each contributing its
+floor, so the sum is a **lower bound** on input→photon.
+
+| | |
+|---|---|
+| Evidenced | `authority_tick` — **0.0723 ms** floor (§4b, Ally X) |
+| Unmeasured | `input_transport`, `view_export`, `frame_render`, `present_queue`, `scanout` |
+| Lower bound | **0.0723 ms** of a 25 ms budget — **0.29 %** |
+| Verdict | **UNDETERMINED**, and it names what is missing |
+
+**The reading.** One segment of six is evidenced, and it accounts for under a third
+of one percent of the budget. §4c's "~1900× headroom" is headroom on the segment
+that was already cheap; substantially all of the latency risk lives in five
+segments where nothing has ever been measured. That is not a comfortable number
+and it is the honest one.
+
+**What this buys that §6 could not.** A lower bound refutes. If the evidenced
+segments ever exceed the target, Scenario A is dead without the photodiode ever
+arriving — a falsifier that runs today, on any host, against a budget whose only
+previous falsifier required hardware that does not exist.
 
 Thermal caveat (owner's guide, kept): Turbo 35 W sustains ~5–10 min. A 60 s run
 that passes cold is not a result until it repeats after a 10-minute soak —

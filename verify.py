@@ -16657,6 +16657,82 @@ class Gate:
                     "a tampered host log refuses on its self-digest and an anonymous log cannot "
                     "graduate a MEASURED claim (gate can redden)"
                     if self_ok else "a tampered or anonymous log was accepted")
+        part_ok = True
+        try:
+            part_ok = (SF.segments_tile()
+                       and not SF.segments_tile(SF.ledger_defect_gap())
+                       and not SF.segments_tile(SF.ledger_defect_overlap()))
+            for seg in SF.SEGMENTS:                          # every requirement is a known class
+                part_ok = part_ok and seg[3] in SF.INSTRUMENTS
+            try:                                             # the neutral-ruler law, on instruments
+                SF.grade_segment("scanout", "MEASURED", 4.0, 5.0, "software-timer", "log")
+                part_ok = False
+            except SF.FrameError:
+                pass
+            ok_seg = SF.grade_segment("scanout", "MEASURED", 4.0, 5.0, "external-capture", "log")
+            part_ok = part_ok and ok_seg[4] == "MEASURED"
+            try:                                             # evidenced-with-no-evidence refuses
+                SF.grade_segment("frame_render", "MEASURED", 1.0, 2.0, "software-timer", "")
+                part_ok = False
+            except SF.FrameError:
+                pass
+        except Exception:
+            part_ok = False
+        self.record("sealframe-partition", part_ok,
+                    "INPUT->PHOTON IS A PARTITION, AND `FRAME_BUDGET` WAS NOT ONE. That table has "
+                    "the shape of a frame budget and is a LIST OF READINGS: `op_envelope` is a work "
+                    "count and not a duration, and `authority_tick` (§4b, 100 bipeds) and "
+                    "`native_loop` (§4c, a four-command sprint) are two MEASUREMENTS OF ONE "
+                    "COMPONENT on different workloads — summing it would double-count the tick and "
+                    "add a number that is not a time. Nothing summed it, so nothing noticed. The "
+                    "SEGMENTS ledger tiles `input_actuation -> photon` across 7 instants with no "
+                    "gap and no overlap, checked structurally and proved to bite on both partition "
+                    "defects — a dropped component and the duplicate-interval one the old table "
+                    "actually carried. AND THE INSTRUMENT IS TYPED, which is the neutral ruler "
+                    "applied to rulers: `scanout` ends at a PHOTON and `input_transport` begins at "
+                    "a SWITCH CLOSURE, so a software timer is the STRUCTURALLY wrong instrument for "
+                    "them rather than an imprecise one — grading either MEASURED from "
+                    "`perf_counter` REFUSES, which is exactly the inflation of timing `present()` "
+                    "and calling the answer latency, made impossible by a signature instead of "
+                    "forbidden by a comment"
+                    if part_ok else "the frame partition / instrument law did not hold")
+        lb_ok = True
+        v = {"lower_ms": 0.0, "measured_share": 0.0, "measured": (), "unmeasured": ()}
+        try:
+            v = SF.budget_verdict(25.0)
+            lb_ok = (v["verdict"] == "UNDETERMINED" and v["lower_ms"] > 0.0
+                     and len(v["unmeasured"]) > 0
+                     and SF.budget_verdict(0.001)["verdict"] == "REFUTED"
+                     and SF.budget_verdict(100.0, SF.ledger_all_measured())["verdict"] == "CONFIRMED"
+                     and SF.budget_verdict(1000.0, SF.ledger_all_declared())["verdict"]
+                         == "UNDETERMINED"
+                     and SF.lower_bound_ms(SF.ledger_all_declared()) == 0.0
+                     and SF.lower_bound_ms(SF.ledger_with_graduated("frame_render", 0.4, 0.9))
+                         >= SF.lower_bound_ms()
+                     and SF.protocol_section2_totals() == (23.3, 34.3))
+        except Exception:
+            lb_ok = False
+        self.record("sealframe-lowerbound", lb_ok,
+                    "A LOWER BOUND IS A RESULT, AND GRADING THE CHAIN AS ONE ATOM THREW IT AWAY. "
+                    "`input->photon` was a single NOT_MEASURED gated on a §3 run needing a renderer "
+                    "and a photodiode that do not exist, so bench_protocol §6's only falsifier for "
+                    "the whole budget model is UNRUNNABLE. Summed as a partition it stops being "
+                    "all-or-nothing: the evidenced segments BOUND THE TOTAL FROM BELOW and a bound "
+                    "can REFUTE a budget with the photodiode still in its box — proved non-vacuous "
+                    "in BOTH directions, REFUTED against a tight target and CONFIRMED on a "
+                    "fully-evidenced ledger, because a verdict that can only shrug is not a "
+                    "verdict. DECLARED numbers contribute ZERO however confidently they sum, so "
+                    "§2's estimate column can never reach CONFIRMED — which is what §2's ✅ was "
+                    "asserting with no instrument behind it, in the document that DEFINES the "
+                    "honesty law and that no gate row read until now (its two column totals are "
+                    "checked here against the file). AND THE READING TODAY, as a number rather than "
+                    "an impression: %.4f ms of the 25 ms budget is evidenced — %.2f%%, ONE segment "
+                    "of %d, with %s still unmeasured. §4c's ~1900x headroom is headroom on the one "
+                    "segment that was already cheap; substantially all of the latency risk sits "
+                    "where nothing has ever been measured, and the ledger says so in public"
+                    % (v["lower_ms"], 100.0 * v["measured_share"],
+                       len(v["measured"]) + len(v["unmeasured"]), ", ".join(v["unmeasured"]))
+                    if lb_ok else "the lower-bound / verdict law did not hold")
 
     def sealsession(self):
         """The attested session (T3.56, V5, URDRSSN1) — THE VISIBLE-WORLD CAPSTONE: a play session
