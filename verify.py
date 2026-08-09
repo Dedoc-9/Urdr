@@ -16733,6 +16733,59 @@ class Gate:
                     % (v["lower_ms"], 100.0 * v["measured_share"],
                        len(v["measured"]) + len(v["unmeasured"]), ", ".join(v["unmeasured"]))
                     if lb_ok else "the lower-bound / verdict law did not hold")
+        seg_ok = True
+        try:
+            good = SF.make_segment_log("ref-host", {
+                "authority_tick": (0.017, 0.0174, 0.032, "software-timer"),
+                "view_export": (0.009, 0.0094, 0.014, "software-timer")})
+            seg_ok = SF.parse_segment_log(good)["host"] == "ref-host"
+            for bad_text in (good.replace("0.017", "0.018", 1), good.replace("digest ", "digst ", 1)):
+                try:
+                    SF.parse_segment_log(bad_text); seg_ok = False
+                except SF.FrameError:
+                    pass
+            for bad_log in (SF.make_segment_log("   ", {}),                     # anonymous
+                            SF.make_segment_log("h", {"scanout": (4.0, 4.5, 5.0,
+                                                                  "software-timer")})):
+                try:
+                    SF.ledger_from_log(bad_log); seg_ok = False
+                except SF.FrameError:
+                    pass
+            try:                                              # the named-host law
+                SF.ledger_from_log(SF.make_segment_log("some-laptop", {}),
+                                   require_named_host=True)
+                seg_ok = False
+            except SF.FrameError:
+                pass
+            seg_ok = seg_ok and not SF.named_host_ok("some-laptop") and SF.named_host_ok(SF.NAMED_HOST)
+            led = SF.ledger_from_log(good)
+            floor = {s[0]: s[5] for s in led}
+            seg_ok = (seg_ok and floor["authority_tick"] == 0.0723   # the LIGHTER workload lost
+                      and floor["view_export"] == 0.009
+                      and SF.lower_bound_ms(led) > SF.lower_bound_ms())
+            seg_ok = (seg_ok and abs(SF.raster_frame_ms(1000, 500.0) - 0.5) < 1e-9
+                      and SF.budget_verdict(
+                          25.0, SF.ledger_with_graduated("frame_render", 700.0, 800.0)
+                      )["verdict"] == "REFUTED")
+        except Exception:
+            seg_ok = False
+        self.record("sealframe-segments", seg_ok,
+                    "EVIDENCE HAS A DOOR, AND THE INSTRUMENT IS CHECKED AT IT. A segment log "
+                    "carries a BAND PER SEGMENT plus the instrument class each reading was taken "
+                    "with — a reading whose instrument went unrecorded cannot be checked against "
+                    "the segment's requirement afterwards. A log claiming `scanout` from a "
+                    "software timer is refused as a LOG and never becomes a ledger, which is "
+                    "strictly stronger than refusing where the number is quoted. Tamper, "
+                    "anonymity and the §1 named-host law all refuse; a reading on some laptop "
+                    "cannot grade the Ally X. AND A LOG MAY ONLY RAISE A FLOOR, NEVER LOWER ONE — "
+                    "a rule a falsifier found rather than a design: `--segments` reads "
+                    "`authority_tick` on the four-command sprint at ~0.017 ms while §4b reads THE "
+                    "SAME SEGMENT on 100 bipeds at 0.0723 ms, so an overwrite would have dropped "
+                    "the bound by re-measuring lighter work — `FRAME_BUDGET`'s "
+                    "one-component-two-workloads error a second time, hidden inside an update "
+                    "path. The floor takes the max and cites both sources, which makes "
+                    "monotonicity structural instead of the caller's problem"
+                    if seg_ok else "the segment-log / instrument-at-the-door law did not hold")
 
     def sealsession(self):
         """The attested session (T3.56, V5, URDRSSN1) — THE VISIBLE-WORLD CAPSTONE: a play session

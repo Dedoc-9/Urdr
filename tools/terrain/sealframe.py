@@ -343,6 +343,94 @@ def protocol_section2_totals(path=None):
     return (round(a, 3), round(b, 3))
 
 
+# ---- the segment log: where evidence ENTERS, and where the instrument is checked ---------
+#
+# The host log carries ONE number for the whole frame. A segment log carries a BAND PER SEGMENT
+# and the INSTRUMENT CLASS each reading was taken with — because a reading whose instrument went
+# unrecorded cannot be checked against the segment's requirement afterwards, and that check is the
+# entire mechanism. Refusing at the point evidence ENTERS is strictly stronger than refusing where
+# it is quoted: a log claiming `scanout` from a software timer never becomes a ledger at all.
+NAMED_HOST = "ROG-Ally-X-Z2-Extreme · Turbo-35W · AC · Win11 · Game-Mode-ON · Ultimate-Perf"
+PIXELS_1080P = 1920 * 1080
+
+
+def named_host_ok(host):
+    """§1's law: a latency reading counts only from the named host string, verbatim."""
+    return str(host).strip() == NAMED_HOST
+
+
+def make_segment_log(host, readings):
+    """Seal a segment log: host, then `seg name lo med p95 instrument` per reading, self-digested."""
+    lines = ["URDRSFR1 segments v1", f"host {host}"]
+    for name in sorted(readings):
+        lo, med, p95, inst = readings[name]
+        lines.append(f"seg {name} {lo} {med} {p95} {inst}")
+    body = "\n".join(lines)
+    return body + "\ndigest " + hashlib.sha256(MAGIC + body.encode()).hexdigest() + "\n"
+
+
+def parse_segment_log(text):
+    """Verify the self-digest and return {host, readings}. Any byte flip refuses."""
+    lines = text.rstrip("\n").split("\n")
+    if len(lines) < 2 or not lines[-1].startswith("digest "):
+        raise FrameError("a segment log must end with its own digest line")
+    body, claimed = "\n".join(lines[:-1]), lines[-1].split()[1]
+    if hashlib.sha256(MAGIC + body.encode()).hexdigest() != claimed:
+        raise FrameError("the segment log does not hash to its own digest — tampered, refused")
+    if lines[0] != "URDRSFR1 segments v1":
+        raise FrameError("not a URDRSFR1 segments v1 log")
+    host, readings = "", {}
+    for ln in lines[1:-1]:
+        parts = ln.split()
+        if parts[0] == "host":
+            host = " ".join(parts[1:])
+        elif parts[0] == "seg":
+            readings[parts[1]] = (float(parts[2]), float(parts[3]), float(parts[4]), parts[5])
+    return {"host": host, "readings": readings}
+
+
+def ledger_from_log(text, segments=SEGMENTS, require_named_host=False):
+    """Grade a ledger FROM a segment log — the only door evidence comes through.
+
+    Refuses an anonymous host (the named-host law), refuses `require_named_host` when the log is
+    not §1's host verbatim, and refuses ANY reading whose instrument cannot establish its segment.
+    That last refusal is `grade_segment`'s, reused rather than restated."""
+    rep = parse_segment_log(text)
+    if not rep["host"].strip():
+        raise FrameError("an unnamed host log cannot grade a segment (bench_protocol's law)")
+    if require_named_host and not named_host_ok(rep["host"]):
+        raise FrameError(
+            f"{rep['host']!r} is not the named host — a reading here bounds THIS machine and "
+            f"says nothing about {NAMED_HOST!r}")
+    out = []
+    for s in segments:
+        r = rep["readings"].get(s[0])
+        if not r:
+            out.append(s)
+            continue
+        # A LOG MAY ONLY RAISE A FLOOR, NEVER LOWER ONE — and this rule was found by a falsifier,
+        # not designed. A `--segments` run reads `authority_tick` on the four-command sprint at
+        # ~0.017 ms; §4b reads the SAME SEGMENT on 100 bipeds at 0.0723 ms. Letting the newer
+        # reading overwrite the older would have dropped the bound by re-measuring lighter work —
+        # `FRAME_BUDGET`'s one-component-two-workloads error a second time, now hidden inside an
+        # update path. A floor must hold for EVERY workload measured under the segment, so it
+        # takes the max and cites both. This is also what makes monotonicity structural rather
+        # than a property the caller has to preserve.
+        lo, hi = r[0], r[2]
+        cite = f"segment log ({rep['host']})"
+        if s[4] in _EVIDENCED and s[5] > lo:
+            lo, hi, cite = s[5], max(hi, s[6]), f"{s[7]} + segment log ({rep['host']})"
+        out.append(grade_segment(s[0], "MEASURED", lo, hi, r[3], cite, segments))
+    return tuple(out)
+
+
+def raster_frame_ms(pixels, ns_per_pixel):
+    """§4's blessed derivation, one layer up: measure the unit cost once, multiply by the pinned
+    count, and a budget becomes an audit. A DERIVATION, not a reading — the multiplication is
+    exact and the honesty lives entirely in where `ns_per_pixel` came from."""
+    return pixels * float(ns_per_pixel) / 1e6
+
+
 # ---- the host log (off-gate, self-digested; the named host's own record) ----------------
 def make_host_log(host, native_ns, in2photon_ms):
     """Seal a named-host frame log: host line, native tick ns, optional input->photon ms, digest.
@@ -406,6 +494,58 @@ def run_bench(field, input_log, out_path, host_note="", iters=200):
     with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
     return {"host": host, "median_ns": median_ns, "path": out_path}
+
+
+def run_segments(out_path, host_note="", iters=60):
+    """OFF-GATE: time every segment a software timer can honestly reach, write a segment log.
+
+    What it does NOT time is the interesting half. `scanout` and `input_transport` require
+    external capture and are left absent — a `--segments` run cannot produce them and does not
+    pretend to. `frame_render` is left absent too, for a different reason: THERE IS NO LAYER-3
+    RENDERER. What exists where one would go is `pixid`, whose own does_not_show disclaims
+    performance at any scale because it is a per-pixel ownership WITNESS, an O(pixels x
+    primitives) checker rather than a path. Timing it and reporting `frame_render` would be
+    misattribution, so its cost is reported SEPARATELY as `ns_per_px` — the cost of the placement
+    that exists, which is a different claim and is labelled as one.
+
+    Uses time.perf_counter_ns (wall-clock — why this is OFF-GATE)."""
+    import platform
+    import time
+    import panelight as _PL
+    import terrain_view as _TV
+    _r = _os.path.join(_os.path.dirname(_os.path.dirname(_HERE)), "tools", "render")
+    if _r not in _sys.path:
+        _sys.path.insert(0, _r)
+    import pixid as _PX
+
+    def band(fn, n):
+        s = []
+        for _ in range(n):
+            t0 = time.perf_counter_ns()
+            fn()
+            s.append(time.perf_counter_ns() - t0)
+        s.sort()
+        return (s[0] / 1e6, s[len(s) // 2] / 1e6, s[min(len(s) - 1, int(len(s) * 0.95))] / 1e6)
+
+    fld = _blank()
+    readings = {
+        "authority_tick": band(lambda: _PL.run(fld, (2, 8), "EEEE", 4000, 4), iters)
+        + ("software-timer",),
+        "view_export": band(
+            lambda: _TV.export_view("a" * 64, _TV.BASE_PRESENTATION), iters * 4)
+        + ("software-timer",),
+    }
+    # The reference rasterizer's UNIT cost, taken at the largest size the allocation policy
+    # admits so the per-pixel figure has converged (small buffers are dominated by setup).
+    side = 256
+    med = band(lambda: _PX.witness(_PX.SCENE, side, side, 0, 100), 5)[1]
+    ns_per_px = med * 1e6 / (side * side)
+    host = (f"{platform.node()} | {platform.system()} {platform.release()}"
+            + (f" | {host_note}" if host_note else ""))
+    text = make_segment_log(host, readings)
+    with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
+    return {"host": host, "readings": readings, "ns_per_px": ns_per_px, "path": out_path}
 
 
 def sealframe_digest(name, micro_steps, reads, verdict):
@@ -484,5 +624,21 @@ if __name__ == "__main__":
         print(f"  host: {rep['host']}")
         print(f"  median native loop: {rep['median_ns']} ns")
         print("  input->photon: NOT measured here (needs the layer-3 renderer + photon capture)")
+    elif len(_sys.argv) >= 2 and _sys.argv[1] == "--segments":
+        out = _sys.argv[2] if len(_sys.argv) > 2 else _os.path.join(
+            _os.path.dirname(_HERE), "..", "spec", "attest", "frame_segments.txt")
+        rep = run_segments(out, _sys.argv[3] if len(_sys.argv) > 3 else "")
+        print("FRAME SEGMENTS ->", out)
+        print(f"  host: {rep['host']}")
+        print(f"  named host (§1): {'YES' if named_host_ok(rep['host']) else 'NO — bounds THIS machine only'}")
+        for name in sorted(rep["readings"]):
+            lo, med, p95, inst = rep["readings"][name]
+            print(f"  {name:16s} {lo:9.4f} / {med:9.4f} / {p95:9.4f} ms   [{inst}]")
+        print(f"  reference rasterizer: {rep['ns_per_px']:.1f} ns/px"
+              f" -> 1080p = {raster_frame_ms(PIXELS_1080P, rep['ns_per_px']):.1f} ms"
+              f"  (the placement that EXISTS; not `frame_render`, which has no implementation)")
+        v = budget_verdict(25.0, ledger_from_log(open(out, encoding='utf-8').read()))
+        print(f"  verdict vs 25 ms on THIS host: {v['verdict']}"
+              f"  (lower bound {v['lower_ms']:.4f} ms; unmeasured: {', '.join(v['unmeasured']) or 'none'})")
     else:
-        print("usage: sealframe.py --bench [out_path] [host_note]")
+        print("usage: sealframe.py [--bench | --segments] [out_path] [host_note]")

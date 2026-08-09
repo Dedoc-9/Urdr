@@ -80,6 +80,62 @@ segments ever exceed the target, Scenario A is dead without the photodiode ever
 arriving — a falsifier that runs today, on any host, against a budget whose only
 previous falsifier required hardware that does not exist.
 
+## 2c. First segment reading (informational — NOT the named host)
+
+`python tools/terrain/sealframe.py --segments` on the cloud sandbox
+(`Linux 6.18.5-fc-v20`), 2026-08-09. **This is not §1's host, so it grades
+nothing** — `ledger_from_log(..., require_named_host=True)` refuses it by
+construction. It is recorded for the same reason §4a is: the methodology and the
+shape of the answer, not the numbers.
+
+| Segment | min / median / p95 (ms) | Instrument |
+|---|---|---|
+| `authority_tick` | 0.0170 / 0.0174 / 0.0467 | software-timer |
+| `view_export` | 0.0091 / 0.0094 / 0.0168 | software-timer |
+| `input_transport`, `scanout` | — | **requires external capture; the runner cannot produce them and does not pretend to** |
+| `frame_render` | — | **no layer-3 renderer exists to time** |
+
+**The floor rule earned itself on this run.** `--segments` reads `authority_tick`
+at ~0.017 ms on the four-command sprint; §4b reads the *same segment* at 0.0723 ms
+on 100 bipeds. Letting the newer reading overwrite the older would have *lowered*
+the bound by re-measuring lighter work — §2's one-component-two-workloads error a
+second time, hidden inside an update path. A floor now takes the max across
+workloads and cites both, so the bound is monotone by construction.
+
+### The reference rasterizer, reported as what it is
+
+There is no layer-3 renderer, so `frame_render` cannot be measured. What stands
+where one would go is `pixid`, a per-pixel ownership **witness** whose own
+`does_not_show` disclaims performance at any scale — an O(pixels × primitives)
+checker, not a path. Timing it and reporting `frame_render` would be
+misattribution, so it is reported separately:
+
+| | |
+|---|---|
+| Unit cost (256², converged) | **381.7 ns/pixel** |
+| Derived 1080p frame | **791.5 ms** — §4's own "measure the unit, multiply by the pinned count" |
+| Against the 25 ms budget | **≈ 32× the entire budget**, ≈ 158× the 5 ms render line |
+
+**Read this precisely.** It says the *placement that exists today* cannot draw a
+1080p frame anywhere near budget, on this machine. It does **not** refute Scenario
+A: a reading here bounds *here*, and the named host is untouched by it — the same
+measurement on two hosts gives two verdicts, and conflating them is the inflation
+this file exists to prevent. What it does say is that the budget lever is the same
+one §4a found for the sim tick: **the native placement, not the hardware.** A
+renderer 158× faster than a Python witness-rasterizer is not an optimization, it
+is a different program, and that program is the next rung rather than a tuning
+pass.
+
+**To make this bite on the named host**, run on the Ally X under §3 conditions:
+
+```
+python tools\terrain\sealframe.py --segments spec\attest\frame_segments.txt "Turbo-35W AC"
+```
+
+That log grades the software-timer segments on the named host; `scanout` and
+`input_transport` still need capture hardware, and `frame_render` still needs a
+renderer to exist.
+
 Thermal caveat (owner's guide, kept): Turbo 35 W sustains ~5–10 min. A 60 s run
 that passes cold is not a result until it repeats after a 10-minute soak —
 `cold-pass ≠ sustained-pass`.

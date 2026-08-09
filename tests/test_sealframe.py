@@ -238,3 +238,76 @@ class TheDocIsCheckedRatherThanTrusted(unittest.TestCase):
         v = SF.budget_verdict(25.0)
         self.assertLess(v["measured_share"], 0.05)
         self.assertGreater(v["measured_share"], 0.0)
+
+
+class TheSegmentLogCarriesABand(unittest.TestCase):
+    """The instrument that lets a segment graduate. A host log carried ONE number for the whole
+    frame; a segment log carries a BAND PER SEGMENT plus the INSTRUMENT CLASS each reading was
+    taken with, because a reading whose instrument is unrecorded cannot be checked against the
+    segment's requirement afterwards — and that check is the entire honesty mechanism."""
+
+    def _log(self, host="ref-host", **kw):
+        readings = {"authority_tick": (0.017, 0.017, 0.032, "software-timer")}
+        readings.update(kw)
+        return SF.make_segment_log(host, readings)
+
+    def test_round_trip(self):
+        rep = SF.parse_segment_log(self._log())
+        self.assertEqual(rep["host"], "ref-host")
+        self.assertEqual(rep["readings"]["authority_tick"][0], 0.017)
+
+    def test_a_byte_flip_refuses(self):
+        text = self._log()
+        with self.assertRaises(SF.FrameError):
+            SF.parse_segment_log(text.replace("0.017", "0.018", 1))
+
+    def test_an_anonymous_log_cannot_grade(self):
+        with self.assertRaises(SF.FrameError):
+            SF.ledger_from_log(SF.make_segment_log("   ", {}))
+
+    def test_a_log_cannot_grade_a_segment_its_instrument_cannot_reach(self):
+        """The whole point, end to end: a `--segments` run times what it can with a software
+        timer, and if it claims `scanout` from that timer the LOG is refused — the inflation is
+        caught at the boundary where evidence enters, not at the boundary where it is quoted."""
+        bad = self._log(scanout=(4.0, 4.5, 5.0, "software-timer"))
+        with self.assertRaises(SF.FrameError):
+            SF.ledger_from_log(bad)
+
+    def test_a_log_grades_what_it_legitimately_reached(self):
+        led = SF.ledger_from_log(self._log(view_export=(0.009, 0.009, 0.014, "software-timer")))
+        by = {s[0]: s for s in led}
+        self.assertEqual(by["view_export"][4], "MEASURED")
+        self.assertEqual(by["scanout"][4], "NOT_MEASURED")
+        self.assertGreater(SF.lower_bound_ms(led), SF.lower_bound_ms())
+
+
+class TheReferenceRasterRefutesOnItsOwnHost(unittest.TestCase):
+    """THE FALSIFIER FIRING ON REAL DATA, and the scope kept tight around it.
+
+    There is no layer-3 renderer, so `frame_render` cannot be measured — the thing does not
+    exist. What stands where one would go is a REFERENCE RASTERIZER, and `pixid`'s own
+    does_not_show disclaims performance at any scale, so timing it may not be reported as
+    `frame_render`. It is reported as what it is: the cost of the placement that exists.
+
+    Measured unit cost x the pinned pixel count is §4's own blessed derivation ('measure your
+    host's cost-per-frozen-division once, multiply by the pinned counts'), applied one layer up."""
+
+    def test_the_derivation_is_multiplication_and_says_so(self):
+        self.assertAlmostEqual(SF.raster_frame_ms(1000, 500.0), 0.5, places=9)
+        self.assertAlmostEqual(SF.raster_frame_ms(SF.PIXELS_1080P, 381.0), 790.04, places=1)
+
+    def test_a_placement_over_budget_is_refuted_on_its_own_host(self):
+        """A lower bound REFUTES. The reference placement's rasterizer alone prices a 1080p frame
+        far above the whole budget, so Scenario A is dead FOR THIS PLACEMENT without a photodiode
+        ever arriving — which is the capability the atomic grade could not express."""
+        led = SF.ledger_with_graduated("frame_render", 700.0, 800.0)
+        self.assertEqual(SF.budget_verdict(25.0, led)["verdict"], "REFUTED")
+
+    def test_the_refutation_does_not_reach_the_named_host(self):
+        """AND THE BOUNDARY. A reading on THIS machine bounds THIS machine. It does not bound the
+        Ally X, so the named-host budget stays UNDETERMINED — the same measurement, two hosts, two
+        verdicts, and conflating them would be the inflation this file exists to prevent."""
+        self.assertFalse(SF.named_host_ok("cloud-container (NOT the named host)"))
+        self.assertTrue(SF.named_host_ok(SF.NAMED_HOST))
+        with self.assertRaises(SF.FrameError):
+            SF.ledger_from_log(SF.make_segment_log("cloud-container", {}), require_named_host=True)
