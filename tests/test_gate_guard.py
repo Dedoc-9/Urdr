@@ -163,6 +163,37 @@ class TheReconcileTokenIsHostStable(unittest.TestCase):
         self.assertNotEqual(self._token(base), self._token(renamed))
         self.assertNotEqual(self._token(base), self._token(list(reversed(base))))
 
+    def _content(self, rows):
+        out = _run_report(rows)[1]
+        line = [ln for ln in out.splitlines() if ln.strip().startswith("content ")]
+        self.assertEqual(len(line), 1, "expected exactly one content line")
+        return line[0].split("content")[1].split()[0]
+
+    def test_the_two_tokens_answer_two_different_questions(self):
+        """`rowset` compares two MACHINES and must ignore host-variable message text;
+        `content` compares two RUNS on one machine and must not. Conflating them is how
+        a real disagreement hides in noise, or how a genuine nondeterminism goes unseen —
+        so the defining property is that a changed MESSAGE moves exactly one of them."""
+        base = self._rows()
+        chatty = [(n, ok, d + " on host DanielDillberg") for n, ok, d in base]
+        self.assertEqual(self._token(base), self._token(chatty))
+        self.assertNotEqual(self._content(base), self._content(chatty))
+
+    def test_content_catches_equal_size_different_bytes(self):
+        """THE SIGHTING THIS EXISTS FOR: a determinism failure recorded as `219346 vs
+        219346` — two IDENTICAL byte counts. Equal length with differing content is
+        precisely what a size check cannot see, so the falsifier swaps a message for
+        another of the SAME LENGTH and asserts the token moves anyway."""
+        base = self._rows()
+        same_len = list(base)
+        old = same_len[0][2]
+        same_len[0] = (same_len[0][0], same_len[0][1], "o" * len(old))
+        self.assertEqual(len("".join(d for _n, _o, d in base)),
+                         len("".join(d for _n, _o, d in same_len)),
+                         "the fixture must hold total length constant, or it proves nothing")
+        self.assertNotEqual(self._content(base), self._content(same_len))
+        self.assertEqual(self._token(base), self._token(same_len))
+
     def test_the_block_is_pure_ascii_because_it_is_copied_between_hosts(self):
         """MEASURED, not styled. The first version separated the counts with `·`, and a
         Windows `Get-Content` handed it back as `┬╖` — the file is UTF-8, the reader used

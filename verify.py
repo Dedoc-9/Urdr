@@ -17782,6 +17782,25 @@ class Gate:
             "RECONCILE  rowset %s  %d rows / %d fail / %d skipped\n"
             % (token[:16], len(self.rows), sum(1 for _n, ok in names if not ok),
                len(skipped)))
+        # THE SECOND TOKEN answers the OTHER question, and the two must not be confused.
+        # `rowset` is host-STABLE and compares two MACHINES; `content` includes every row
+        # message, so it is host-VARIABLE by construction and compares two RUNS on ONE
+        # machine. That is the determinism contract AGENTS states as "run it twice,
+        # bit-identical", which until now was an operator ritual — `cmp` over 250KB —
+        # with nothing in the gate expressing it.
+        #
+        # It exists because of a specific unresolved sighting: a determinism failure
+        # recorded as `219346 vs 219346`, two IDENTICAL byte counts. Equal size with
+        # differing content is exactly what a byte-count check cannot see, and it is
+        # exactly what a content digest catches. Re-run twice at that commit on this
+        # placement the output is byte-identical, so it is NOT reproduced here — and that
+        # does not refute it, because the sighting was on win32 and this is linux.
+        # Whatever it was, this is the instrument that would name it in one line.
+        sys.stdout.write(
+            "           content %s  (same host, run-to-run: messages included)\n"
+            % hashlib.sha256("\n".join(
+                "%s\t%d\t%s" % (n, 1 if ok else 0, d)
+                for n, ok, d in self.rows).encode("utf-8")).hexdigest()[:16])
         sys.stdout.write(
             # ASCII ONLY, and it is the block's own law rather than a style choice: this
             # is the one output meant to be COPIED BETWEEN HOSTS and compared. The first
