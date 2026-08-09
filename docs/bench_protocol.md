@@ -188,6 +188,50 @@ VIEW / ALLOCATOR / OBSERVER — and the observer's cost had leaked into the fram
 budget without anyone deciding it should. Cutting pixel count (LOD, culling) treats
 a symptom that is 4.7 % of the problem.
 
+### Operator's decomposition, and the cross-host result
+
+`--render-decomp` on the Ally X, 2026-08-09: `witness()` 160.7 ns/px, alloc 7.5,
+**raster 8.8**, **identity 144.4** — **89.9 % identity**, against **89.8 %** on the
+cloud sandbox. Two machines with a 2.3× throughput gap agree on the split to a
+tenth of a percent, which is strong evidence the ratio is a property of the
+**algorithm** and not of either host. The observer/renderer separation is real
+structure.
+
+## 2e. Neither figure had a scene in it
+
+Every `ns/pixel` number above — mine and the operator's — varied resolution and
+froze scene complexity at `pixid.SCENE`'s **four triangles**. Rasterization walks
+one bounding box per primitive, so cost is linear in primitive count and `ns/px`
+is a constant of *that fixture*, not of the renderer. "A 1080p frame" in those
+readings meant a 1080p frame of four triangles, which is not a frame.
+
+Gated as **exact integer work**, never milliseconds — a timing assertion inside the
+gate is nondeterministic and would flake or be loosened until it could not fail.
+Counts on-gate, wall-clock off, which is §4's own bridge. Samples per pixel, both
+axes varied:
+
+| side ＼ primitives | 4 | 16 | 64 | 256 |
+|---|---|---|---|---|
+| 32² | 0.10 | 0.39 | 1.56 | 6.25 |
+| 64² | 0.08 | 0.32 | 1.27 | 5.06 |
+| 128² | 0.07 | 0.28 | 1.13 | 4.52 |
+
+Work is **exactly** linear in primitives — an equality on counts where wall-clock
+could only have supported a trend — and work per pixel moves 60× across the axis
+that was being held still.
+
+**The first fixture repeated the defect inside the repair.** Fixed 6-pixel
+triangles made the work identical at every resolution: a two-axis surface flat on
+one axis. Geometry lives in world space and covers the same *fraction* of a frame
+as the frame grows, so the resolution axis carries information only once the scene
+scales with it. That is now asserted rather than assumed.
+
+**What this means for every frame figure in this document.** They are all scoped to
+a four-primitive fixture and none of them is a frame budget. An authored world's
+primitive count is the missing input, and until a real scene is rasterized at a
+real resolution, no ms/frame number here should be quoted as one — including the
+corrected 16.9 ns/px.
+
 **To make this bite on the named host**, run on the Ally X under §3 conditions:
 
 ```

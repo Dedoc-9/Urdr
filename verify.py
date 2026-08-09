@@ -16842,6 +16842,77 @@ class Gate:
                     "yielding"
                     % (100.0 * ish)
                     if lay_ok else "the layer-split / condition-admission law did not hold")
+        surf_ok = True
+        pp = {}
+        try:
+            for n in (4, 16, 64):
+                o = SF.raster_ops(SF.synthetic_scene(n, 64), 64, 64)
+                surf_ok = surf_ok and o["samples"] == o["samples_model"]
+            b4 = SF.raster_ops(SF.synthetic_scene(4, 64), 64, 64)["samples"]
+            for n in (8, 16, 64):
+                surf_ok = (surf_ok and SF.raster_ops(SF.synthetic_scene(n, 64), 64, 64)["samples"]
+                           == b4 * n // 4)
+            pp = {n: SF.raster_ops(SF.synthetic_scene(n, 64), 64, 64)["samples"] / 4096.0
+                  for n in (4, 256)}
+            surf_ok = surf_ok and pp[256] > pp[4] * 10
+            rows = SF.raster_surface()
+            by_prims = {(s, n): v for (s, n, v) in rows}
+            surf_ok = (surf_ok and len({v for (s, n, v) in rows if n == 4}) > 1
+                       and SF.raster_surface_digest() == SF.golden("raster_surface"))
+            import pixid as _PX
+            surf_ok = surf_ok and len(_PX.SCENE) == 4
+        except Exception:
+            surf_ok = False
+        self.record("sealframe-cost-surface", surf_ok,
+                    "A TWO-AXIS COST MEASURED ON ONE AXIS — the third instrument defect on this "
+                    "surface, and the largest. Every ns/pixel figure quoted here varied RESOLUTION "
+                    "and froze SCENE COMPLEXITY at `pixid.SCENE`'s four triangles, so `ns/px` was "
+                    "never a constant of the renderer but a constant of that FIXTURE, and 'a 1080p "
+                    "frame' meant a 1080p frame of four triangles, which is not a frame. Work is "
+                    "EXACTLY linear in primitives (each walks its own bounding box) — asserted as "
+                    "an equality on counts where a wall-clock could only have supported a trend — "
+                    "and work per pixel is proved NOT constant: %.2f samples/px at 4 primitives "
+                    "against %.2f at 256, a %.0fx move on the axis that was being held still. "
+                    "GATED AS EXACT INTEGER WORK, NEVER AS MILLISECONDS: a timing assertion inside "
+                    "the gate is nondeterministic and would flake or be loosened until it could "
+                    "not fail, so this is counts on-gate and wall-clock off, which is §4's own "
+                    "bridge. The model is the sum of clipped bounding-box areas and is asserted "
+                    "EQUAL to the count taken from the RUN, so model==execution rather than a "
+                    "formula that could drift. AND THE FIRST FIXTURE REPEATED THE DEFECT INSIDE "
+                    "THE REPAIR: fixed 6-pixel triangles made the work identical at every "
+                    "resolution — a two-axis surface flat on one axis — because geometry lives in "
+                    "world space and covers the same FRACTION of a frame as the frame grows; the "
+                    "resolution axis carries information only once the scene scales with it, which "
+                    "this row now asserts"
+                    % (pp.get(4, 0.0), pp.get(256, 0.0),
+                       (pp.get(256, 0.0) / pp[4]) if pp.get(4) else 0.0)
+                    if surf_ok else "the two-axis cost surface did not hold")
+        obs_ok = True
+        try:
+            import pixid as _PX2
+            bare = _PX2.IdFramebuffer(64, 64, 0, 100).render(_PX2.SCENE)
+            before = (list(bare.iid), list(bare.pid), bare.oob)
+            obs = _PX2.witness(_PX2.SCENE, 64, 64, 0, 100)
+            obs_ok = (bare.digest() == obs["frame"] and bare.instances() == obs["instances"]
+                      and (list(bare.iid), list(bare.pid), bare.oob) == before
+                      and SF.OBSERVER_SEAM["path"] == "pixid.IdFramebuffer.render"
+                      and SF.OBSERVER_SEAM["observer"] == "pixid.witness")
+        except Exception:
+            obs_ok = False
+        self.record("sealframe-observer-seam", obs_ok,
+                    "THE OBSERVER IS SEPARABLE, AND IT ALREADY WAS — which is the honest finding "
+                    "rather than a new API. `IdFramebuffer.render()` returns the ownership buffer "
+                    "and never serializes; only `witness()` adds serialize + sha256. So no "
+                    "`include_observer` flag was added: bolting a switch onto `render` would be "
+                    "fitting a door that is already open, and the defect was never in the code — "
+                    "the MEASUREMENT called the fused entry point. What was genuinely missing is "
+                    "the PROOF, and it is here: the buffer is BIT-IDENTICAL with the observer "
+                    "active, and the ownership arrays plus the out-of-bounds counter are unchanged "
+                    "by computing the citation, so nothing feeds back. That is this repo's "
+                    "cardinal invariant — replay stays byte-identical with observers active — "
+                    "asserted for the first time at the seam where the observer is 90%% of the "
+                    "reading, which is exactly where an unproved invariant was costing the most"
+                    if obs_ok else "the observer seam did not hold")
 
     def sealsession(self):
         """The attested session (T3.56, V5, URDRSSN1) — THE VISIBLE-WORLD CAPSTONE: a play session

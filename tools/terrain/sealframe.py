@@ -491,6 +491,107 @@ ALLY_SEGMENT_LOG = make_segment_log(
                 "scheduler": "Win11-Game-Mode-ON"})
 
 
+# THE SEAM, NAMED. The observer separation ALREADY EXISTED — `IdFramebuffer.render()` returns the
+# ownership buffer and never serializes; only `witness()` adds serialize + sha256. No flag was
+# needed and none was added: bolting an `include_observer` parameter onto `render` would be adding
+# a switch for a door already open. The defect was that the MEASUREMENT called the fused entry
+# point. What was genuinely missing is the PROOF that the seam holds, which the gate now carries.
+OBSERVER_SEAM = {"path": "pixid.IdFramebuffer.render", "observer": "pixid.witness",
+                 "law": "the ownership buffer is bit-identical with the observer active"}
+
+
+def synthetic_scene(n, side, seed=7):
+    """`n` congruent triangles at deterministic positions, SCALED WITH THE RESOLUTION.
+
+    An explicit LCG rather than `random`, because a fixture a library's stream could move is not a
+    fixture. Congruent ON PURPOSE: equal bounding boxes make the work count EXACTLY linear in `n`,
+    so the two-axis law is an equality rather than a trend.
+
+    THE SCALING IS NOT COSMETIC AND THE FIRST VERSION GOT IT WRONG. Fixed 6-pixel triangles made
+    the work IDENTICAL at every resolution — a 'two-axis' surface that was flat on one axis, which
+    is the same defect this whole rung exists to repair, committed inside the repair. Geometry
+    lives in world space and is rasterized at whatever resolution the viewer chooses, so a scene
+    covers the same FRACTION of the frame as the frame grows; sizing the triangle as `side // 8`
+    is what makes the resolution axis carry information."""
+    r = seed & 0xFFFFFFFF
+    out = []
+    size = max(2, side // 8)
+    span = max(1, side - size - 2)
+    for i in range(n):
+        r = (1103515245 * r + 12345) & 0x7FFFFFFF
+        ax = 1 + (r >> 7) % span
+        r = (1103515245 * r + 12345) & 0x7FFFFFFF
+        ay = 1 + (r >> 7) % span
+        out.append(_PXT(ax, ay, ax + size, ay, ax, ay + size, (4, 4, 4), 1 + i % 64, i))
+    return tuple(out)
+
+
+def _pixid():
+    _r = _os.path.join(_os.path.dirname(_os.path.dirname(_HERE)), "tools", "render")
+    if _r not in _sys.path:
+        _sys.path.insert(0, _r)
+    import pixid
+    return pixid
+
+
+def _PXT(ax, ay, bx, by, cx, cy, zs, iid, pid):
+    return _pixid()._t(ax, ay, bx, by, cx, cy, zs, iid, pid)
+
+
+def raster_ops(primitives, w, h, znear=0, zfar=100):
+    """THE EXACT INTEGER WORK of one rasterized frame — sample tests and ownership writes.
+
+    The two-axis analogue of `frame_ops`, and gated as COUNTS rather than milliseconds for the
+    reason the whole file is built on: a timing assertion inside the gate is nondeterministic and
+    would either flake or be loosened until it could not fail. Counts on-gate, wall-clock off.
+
+    `samples_model` is the closed form (the sum of clipped bounding-box areas) and `samples` is
+    counted from the RUN, so model==execution is asserted rather than assumed — the same discipline
+    `frame_ops` uses against `instrumented_micro_steps`."""
+    PX = _pixid()
+    counted = [0]
+    real = PX._covers
+
+    def counting(*a):
+        counted[0] += 1
+        return real(*a)
+
+    model = 0
+    for p in primitives:                                   # the closed form, clipped as `draw` does
+        (x0, y0), (x1, y1), (x2, y2), _zs, _i, _pd = PX._check_primitive(p)
+        if PX.edge(x0, y0, x1, y1, x2, y2) == 0:
+            continue
+        minx, maxx = max(0, min(x0, x1, x2) // PX.SUB), min(w - 1, max(x0, x1, x2) // PX.SUB)
+        miny, maxy = max(0, min(y0, y1, y2) // PX.SUB), min(h - 1, max(y0, y1, y2) // PX.SUB)
+        if maxx >= minx and maxy >= miny:
+            model += (maxx - minx + 1) * (maxy - miny + 1)
+    PX._covers = counting
+    try:
+        fb = PX.IdFramebuffer(w, h, znear, zfar).render(primitives)
+    finally:
+        PX._covers = real
+    writes = sum(1 for v in fb.iid if v != PX.EMPTY)
+    return {"samples": counted[0], "samples_model": model, "owned": writes,
+            "pixels": w * h, "primitives": len(primitives)}
+
+
+RASTER_SURFACE_AXES = ((32, 64, 128), (4, 16, 64, 256))
+
+
+def raster_surface():
+    """THE SURFACE, both axes varied — resolution x primitive count, as exact work.
+
+    Reported as a surface and never collapsed to one number: a single `ns/px` is precisely the
+    shape of claim that hid this defect for two rungs (`panel != scalar`)."""
+    return tuple((side, n, raster_ops(synthetic_scene(n, side), side, side)["samples"])
+                 for side in RASTER_SURFACE_AXES[0] for n in RASTER_SURFACE_AXES[1])
+
+
+def raster_surface_digest():
+    return sealframe_digest("raster_surface", len(raster_surface()),
+                            sum(s for _a, _b, s in raster_surface()), "surface")
+
+
 def raster_frame_ms(pixels, ns_per_pixel):
     """§4's blessed derivation, one layer up: measure the unit cost once, multiply by the pinned
     count, and a budget becomes an audit. A DERIVATION, not a reading — the multiplication is

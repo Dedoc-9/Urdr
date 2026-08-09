@@ -31,6 +31,7 @@ import unittest
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(_HERE, "..", "tools", "terrain"))
+sys.path.insert(0, os.path.join(_HERE, "..", "tools", "render"))
 
 import sealframe as SF                                     # noqa: E402
 
@@ -391,3 +392,83 @@ class TheNamedHostLawWasUnsatisfiable(unittest.TestCase):
     def test_the_named_machine_reading_raises_the_bound(self):
         self.assertGreater(SF.lower_bound_ms(SF.ledger_from_log(SF.ALLY_SEGMENT_LOG)),
                            SF.lower_bound_ms())
+
+
+class TheCostSurfaceHasTwoAxes(unittest.TestCase):
+    """THE THIRD INSTRUMENT DEFECT: a two-axis cost measured on one axis.
+
+    Every ns/pixel figure this file has quoted varied RESOLUTION and froze SCENE COMPLEXITY at
+    `pixid.SCENE`'s four triangles. Cost is linear in primitives — each one walks its own bounding
+    box — so `ns/px` is not a constant of the renderer, it is a constant of that fixture, and
+    "a 1080p frame" in those numbers meant a 1080p frame of four triangles, which is not a frame.
+
+    The surface is gated as EXACT INTEGER WORK, never as wall-clock. That is not a convenience:
+    a timing assertion inside the gate is nondeterministic and would either flake or be loosened
+    until it could not fail, and this repo's whole division is counts on-gate, milliseconds off.
+    §4's own bridge is the same shape — measure the unit cost once, multiply by the pinned count."""
+
+    def test_the_model_equals_the_execution(self):
+        """The count is DERIVED FROM THE RUN, not from a formula that could drift from it."""
+        for n in (4, 16, 64):
+            sc = SF.synthetic_scene(n, 64)
+            ops = SF.raster_ops(sc, 64, 64)
+            self.assertEqual(ops["samples"], ops["samples_model"])
+
+    def test_work_is_linear_in_primitives_at_fixed_resolution(self):
+        """EXACTLY linear, because each primitive contributes its own bounding box and the boxes
+        here are congruent. An exact equality where the wall-clock could only support a trend."""
+        base = SF.raster_ops(SF.synthetic_scene(4, 64), 64, 64)["samples"]
+        for n in (8, 16, 64):
+            got = SF.raster_ops(SF.synthetic_scene(n, 64), 64, 64)["samples"]
+            self.assertEqual(got, base * n // 4)
+
+    def test_work_per_pixel_is_not_a_constant(self):
+        """The claim the single-axis reading implied, refuted on counts rather than on timings."""
+        per_px = {n: SF.raster_ops(SF.synthetic_scene(n, 64), 64, 64)["samples"] / 4096.0
+                  for n in (4, 64, 256)}
+        self.assertNotAlmostEqual(per_px[4], per_px[256], places=3)
+        self.assertGreater(per_px[256], per_px[4] * 10)
+
+    def test_the_surface_is_pinned_and_deterministic(self):
+        self.assertEqual(SF.raster_surface_digest(), SF.raster_surface_digest())
+        self.assertEqual(SF.raster_surface_digest(), SF.golden("raster_surface"))
+
+    def test_the_fixture_scene_is_named_as_a_fixture(self):
+        """`pixid.SCENE` is 4 primitives. Any frame figure derived from it is scoped to it, and
+        this assertion is what makes that scope a fact rather than a footnote."""
+        import pixid as PX
+        self.assertEqual(len(PX.SCENE), 4)
+
+
+class TheObserverIsSeparable(unittest.TestCase):
+    """AND THE SEPARATION ALREADY EXISTED IN CODE — which is the honest finding, not a new API.
+
+    `IdFramebuffer.render()` returns the ownership buffer and never serializes; only `witness()`
+    adds `serialize` + `sha256`. So no flag needed to be added and none was: the defect was that
+    the MEASUREMENT called the fused entry point, and a plan that bolts an `include_observer`
+    parameter onto `render` would be adding a switch for a door already open.
+
+    What was genuinely missing is the PROOF. The repo's cardinal invariant says replay stays
+    byte-identical with observers active — asserted at the netcode layers and never here, at the
+    seam where the observer's cost is 90% of the reading."""
+
+    def test_the_buffer_is_bit_identical_with_and_without_the_observer(self):
+        import pixid as PX
+        bare = PX.IdFramebuffer(64, 64, 0, 100).render(PX.SCENE)
+        obs = PX.witness(PX.SCENE, 64, 64, 0, 100)
+        self.assertEqual(bare.digest(), obs["frame"])
+        self.assertEqual(bare.instances(), obs["instances"])
+
+    def test_the_observer_writes_nothing_into_the_buffer(self):
+        """Structural, not incidental: the ownership arrays are byte-identical before and after
+        the citation is computed, so the observer cannot have fed anything back."""
+        import pixid as PX
+        fb = PX.IdFramebuffer(64, 64, 0, 100).render(PX.SCENE)
+        before = (list(fb.iid), list(fb.pid), fb.oob)
+        fb.digest(); fb.instances()
+        self.assertEqual((list(fb.iid), list(fb.pid), fb.oob), before)
+
+    def test_the_seam_is_named_and_its_share_is_carried(self):
+        self.assertEqual(SF.OBSERVER_SEAM["path"], "pixid.IdFramebuffer.render")
+        self.assertEqual(SF.OBSERVER_SEAM["observer"], "pixid.witness")
+        self.assertGreater(SF.identity_share(), 0.5)
