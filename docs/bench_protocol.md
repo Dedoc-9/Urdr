@@ -232,6 +232,65 @@ primitive count is the missing input, and until a real scene is rasterized at a
 real resolution, no ms/frame number here should be quoted as one — including the
 corrected 16.9 ns/px.
 
+## 2f. The sample is the unit, and the caustic
+
+**ns/pixel was the wrong denominator.** Across 64²–256² and 16–256 primitives,
+ns/pixel moves ~60× while **ns/sample holds in a narrow band (2251–2583 ns** on the
+cloud sandbox). A rasterizer's work unit is the sample test, and `samples ≠ pixels`
+the moment complexity varies — so every earlier figure normalized by a quantity
+that is not the work. A unit invariant on *both* axes is what lets a budget be
+stated in it: exact integer work on one side, one host scalar on the other.
+
+At 2400 ns/sample, a 25 ms budget buys **10 417 sample tests**. Which gives:
+
+| geometry | samples/primitive | **caustic** |
+|---|---|---|
+| 128² frame | 289 | **36 primitives** |
+| 256² frame | 1 089 | **9 primitives** |
+
+**A finer frame brings the caustic earlier**, which inverts the usual intuition
+that resolution is the expensive axis — at fixed scene coverage, resolution and
+complexity multiply.
+
+### Raychaudhuri as the pivot, and exactly what travels
+
+A. Raychaudhuri, *Phys. Rev.* **98**, 1123 (1955) evolves a congruence's expansion
+as `dθ/dτ = −θ²/3 − σ² + ω² − R_ab u^a u^b`. Two structural facts travel here.
+
+**The decomposition is forced, and its terms carry opposite signs.** Shear focuses;
+vorticity *de*focuses. That is the precise reason `panel ≠ scalar` is not a style
+preference: a fused scalar is not merely lossy, it can be **sign-wrong** about which
+way a system moves. This document holds the receipt — the fused 359.3 ns/px named
+the *renderer* when nine tenths of it was the *observer*. The fusion didn't blur an
+answer, it pointed at the wrong subsystem.
+
+**The focusing theorem is a lower-bound argument.** With ω = 0, the sign of one term
+forces θ → −∞ in finite proper time and the metric is never solved. §2b already
+refutes from a floor without the missing segments; the caustic is the
+finite-parameter version of the same move. Work is *exactly* linear in primitives —
+an equality on counts, not a fit — so a host 100× faster moves the caustic and
+**cannot remove it**.
+
+**ω = 0 is a hypothesis, and it is checked rather than assumed.** Culling is the
+only term that removes work; `pixid` does none. The check already existed without
+being recognised as this one: `samples == samples_model` says the run tested exactly
+the closed-form sum of bounding-box areas, so nothing was skipped. A planted culler
+reddens it — the inevitability stops being claimed the moment a spatial index makes
+it false.
+
+**Nothing physical travels.** No metric, no geodesics, no curvature, no energy
+condition; `R_ab u^a u^b` is given no analogue rather than a flattering one. The
+grade is **analogy** — a decomposition discipline and a derived quantity — and every
+number above is arithmetic over measured integer counts that stands without the
+equation. That is the test an analogy has to pass in a repository that forbids
+inflation.
+
+**For your host**, the unit cost and its caustic:
+
+```
+python tools\terrain\sealframe.py --caustic
+```
+
 **To make this bite on the named host**, run on the Ally X under §3 conditions:
 
 ```

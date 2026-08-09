@@ -16913,6 +16913,51 @@ class Gate:
                     "asserted for the first time at the seam where the observer is 90%% of the "
                     "reading, which is exactly where an unproved invariant was costing the most"
                     if obs_ok else "the observer seam did not hold")
+        cau_ok = True
+        c128 = c256 = 0
+        try:
+            cau_ok = (abs(SF.budget_samples(2400.0, 25.0) - 25e6 / 2400.0) < 1e-6
+                      and abs(SF.budget_samples(1200.0, 25.0)
+                              - 2 * SF.budget_samples(2400.0, 25.0)) < 1e-6)
+            c128 = SF.caustic_primitives(2400.0, 25.0, 128)
+            c256 = SF.caustic_primitives(2400.0, 25.0, 256)
+            pp = SF.raster_ops(SF.synthetic_scene(4, 128), 128, 128)["samples"] // 4
+            cau_ok = (cau_ok and c128 == int(SF.budget_samples(2400.0, 25.0) // pp)
+                      and c256 < c128                       # finer sampling, earlier caustic
+                      and SF.caustic_primitives(24.0, 25.0, 128) > c128 * 50
+                      and SF.caustic_primitives(24.0, 25.0, 128) < 10 ** 9)
+            cau_ok = (cau_ok and SF.culling_is_absent()
+                      and not SF.culling_is_absent(SF.cull_half))
+            signs = {n: s for n, s, _w in SF.EXPANSION_TERMS}
+            cau_ok = (cau_ok and signs["primitive_growth"] == -1 and signs["observer"] == -1
+                      and signs["culling"] == +1 and len(set(signs.values())) == 2)
+        except Exception:
+            cau_ok = False
+        self.record("sealframe-caustic", cau_ok,
+                    "THE CAUSTIC — Raychaudhuri's SHAPE imported deliberately and graded as an "
+                    "ANALOGY, which is the only way it earns a place here. Phys. Rev. 98, 1123 "
+                    "(1955) evolves a congruence's expansion as dθ/dτ = −θ²/3 − σ² + ω² − Ruu. TWO "
+                    "THINGS TRAVEL. First, THE DECOMPOSITION IS FORCED AND ITS TERMS CARRY OPPOSITE "
+                    "SIGNS — shear focuses, vorticity DEfocuses — which is the exact reason a fused "
+                    "scalar is not merely lossy but can be SIGN-WRONG about which way a system "
+                    "moves, and this file holds the receipt: the fused 359.3 ns/px named the "
+                    "renderer when nine tenths of it was the observer. Second, THE FOCUSING THEOREM "
+                    "IS A LOWER-BOUND ARGUMENT — with ω=0 the sign of ONE term forces the "
+                    "conclusion and the metric is never solved. Work here is EXACTLY linear in "
+                    "primitives (an equality on counts, not a fit), so the same move gives a "
+                    "CAUSTIC: at 2400 ns/sample against 25 ms, %d primitives at 128² and %d at "
+                    "256² — finer sampling brings it EARLIER, which is the opposite of the "
+                    "intuition that higher resolution is the expensive axis. A host 100x faster "
+                    "moves the caustic and cannot remove it. NOTHING PHYSICAL TRAVELS: no metric, "
+                    "no geodesics, no curvature, no energy condition, and `Ruu` is given no "
+                    "analogue rather than a flattering one — every number here is arithmetic over "
+                    "measured integer counts and stands without the equation. AND ω=0 IS CHECKED, "
+                    "NOT ASSUMED: culling is the only term that removes work, `pixid` does none, "
+                    "and the equality `samples == samples_model` already said so without being "
+                    "recognised as the hypothesis it is. A planted culler reddens it, so the "
+                    "inevitability stops being claimed the moment a spatial index makes it false"
+                    % (c128, c256)
+                    if cau_ok else "the caustic / irrotational-hypothesis law did not hold")
 
     def sealsession(self):
         """The attested session (T3.56, V5, URDRSSN1) — THE VISIBLE-WORLD CAPSTONE: a play session

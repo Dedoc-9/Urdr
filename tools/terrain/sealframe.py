@@ -538,7 +538,7 @@ def _PXT(ax, ay, bx, by, cx, cy, zs, iid, pid):
     return _pixid()._t(ax, ay, bx, by, cx, cy, zs, iid, pid)
 
 
-def raster_ops(primitives, w, h, znear=0, zfar=100):
+def raster_ops(primitives, w, h, znear=0, zfar=100, cull=None):
     """THE EXACT INTEGER WORK of one rasterized frame — sample tests and ownership writes.
 
     The two-axis analogue of `frame_ops`, and gated as COUNTS rather than milliseconds for the
@@ -565,9 +565,13 @@ def raster_ops(primitives, w, h, znear=0, zfar=100):
         miny, maxy = max(0, min(y0, y1, y2) // PX.SUB), min(h - 1, max(y0, y1, y2) // PX.SUB)
         if maxx >= minx and maxy >= miny:
             model += (maxx - minx + 1) * (maxy - miny + 1)
+    # `cull` is applied to the EXECUTED list only, never to the model — which is precisely what a
+    # spatial index does relative to the naive bounding-box sum, and precisely the discrepancy the
+    # model==execution equality is able to see.
+    drawn = tuple(p for p in primitives if cull(p)) if cull else primitives
     PX._covers = counting
     try:
-        fb = PX.IdFramebuffer(w, h, znear, zfar).render(primitives)
+        fb = PX.IdFramebuffer(w, h, znear, zfar).render(drawn)
     finally:
         PX._covers = real
     writes = sum(1 for v in fb.iid if v != PX.EMPTY)
@@ -590,6 +594,83 @@ def raster_surface():
 def raster_surface_digest():
     return sealframe_digest("raster_surface", len(raster_surface()),
                             sum(s for _a, _b, s in raster_surface()), "surface")
+
+
+# ---- the caustic: Raychaudhuri's SHAPE, imported deliberately and graded as an analogy --
+#
+# A. Raychaudhuri, Phys. Rev. 98, 1123 (1955) evolves the expansion of a congruence as
+#   dθ/dτ = −θ²/3 − σ_ab σ^ab + ω_ab ω^ab − R_ab u^a u^b
+# Two structural facts travel to this file. One does not, and saying which is the whole of the
+# honesty here.
+#
+# TRAVELS — THE DECOMPOSITION IS FORCED AND THE TERMS CARRY OPPOSITE SIGNS. ∇u splits uniquely
+# into expansion, shear and vorticity; shear FOCUSES and vorticity DEFOCUSES. That is the precise
+# reason `panel != scalar` is not a style preference: a fused scalar is not merely lossy, it can be
+# SIGN-WRONG about which way a system moves. This file carries the receipt — the fused 359.3 ns/px
+# pointed at the renderer while nine tenths of it was the observer, so the fusion did not blur an
+# answer, it named the wrong subsystem.
+#
+# TRAVELS — THE FOCUSING THEOREM IS A LOWER-BOUND ARGUMENT. With ω=0 and the convergence condition,
+# the sign of ONE term forces θ → −∞ in finite proper time and the metric is never solved.
+# `budget_verdict` already refutes from a floor without the missing segments; the caustic is the
+# finite-parameter version of the same move. Work is EXACTLY linear in primitives — an equality on
+# counts, not a fit — so from that slope alone there is a primitive count at which any budget is
+# spent, and no host removes it. A faster host moves WHERE it sits, never THAT it exists.
+#
+# DOES NOT TRAVEL — EVERYTHING PHYSICAL. No metric, no geodesics, no curvature, no energy
+# condition; `R_ab u^a u^b` has no analogue here and none is invented for it. The GRADE is analogy:
+# a decomposition discipline and a derived quantity. Every number below is arithmetic over measured
+# integer counts and stands without the equation — which is the test an analogy has to pass before
+# it earns a place in a repository that forbids inflation.
+#
+# (name, sign, what it does to the frame's headroom)
+EXPANSION_TERMS = (
+    ("primitive_growth", -1, "each primitive walks its own bounding box — linear, measured exactly"),
+    ("observer", -1, "the per-pixel citation; 90% of the fused reading, and SEPARABLE"),
+    ("culling", +1, "the only term that REMOVES work — and it is measured to be exactly zero"),
+)
+
+
+def budget_samples(ns_per_sample, target_ms):
+    """THE BUDGET IN THE INVARIANT UNIT. ns/PIXEL was the wrong denominator: across 64²–256² and
+    16–256 primitives it moves ~60x while ns/SAMPLE holds in a narrow band, because the work unit
+    of a rasterizer is the SAMPLE TEST and `samples != pixels` the moment complexity varies. A unit
+    invariant on both axes is what lets a budget be stated in it — exact integer work on one side,
+    one host scalar on the other."""
+    return target_ms * 1e6 / float(ns_per_sample)
+
+
+def caustic_primitives(ns_per_sample, target_ms, side):
+    """THE CAUSTIC: the primitive count at which this budget is spent, on a host with this unit
+    cost. Derived from the MEASURED slope (samples per primitive, an exact integer), so it is
+    arithmetic over counts rather than an extrapolation of a timing."""
+    per_prim = raster_ops(synthetic_scene(4, side), side, side)["samples"] // 4
+    return int(budget_samples(ns_per_sample, target_ms) // max(1, per_prim))
+
+
+def culling_is_absent(cull=None):
+    """ω = 0, CHECKED — the focusing theorem's hypothesis, which is a hypothesis and not a given.
+
+    The only term that could remove work is culling: a primitive SKIPPED rather than walked. The
+    check already existed here without being recognised as this one — `samples == samples_model`
+    says the run tested exactly the closed-form sum of bounding-box areas, so nothing was skipped.
+    If a spatial index ever lands this reddens, which is the point: the inevitability must stop
+    being asserted the moment it stops being true."""
+    for side in (32, 64):
+        for n in (4, 16, 64):
+            o = raster_ops(synthetic_scene(n, side), side, side, cull=cull)
+            if o["samples"] != o["samples_model"]:
+                return False
+    return True
+
+
+def cull_half(primitive):
+    """A PLANTED CULLER: skip every primitive with an odd id. The non-vacuity control — without
+    it `culling_is_absent` could be a function unable to say no, which is the defect class this
+    repository has a lesson for. A first plant that placed primitives OFF-SCREEN did not bite,
+    because the clipped model counts those at zero too and the two agreed at nothing; a culler is
+    a discrepancy between what the model WOULD walk and what the run DOES."""
+    return primitive[5] % 2 == 0
 
 
 def raster_frame_ms(pixels, ns_per_pixel):
@@ -847,5 +928,27 @@ if __name__ == "__main__":
                   f"   1080p = {raster_frame_ms(PIXELS_1080P, d[k]):8.1f} ms")
         print(f"  identity share: {100.0 * identity_share(d):.1f}%  — the OBSERVER, not the renderer."
               f"  Never re-average these into one number (`panel != scalar`).")
+    elif len(_sys.argv) >= 2 and _sys.argv[1] == "--caustic":
+        import time
+        target = float(_sys.argv[2]) if len(_sys.argv) > 2 else 25.0
+        print("THE CAUSTIC — the primitive count at which the budget is spent, on THIS host.")
+        for side in (128, 256):
+            sc = synthetic_scene(64, side)
+            ops = raster_ops(sc, side, side)
+            best = None
+            for _ in range(5):
+                t0 = time.perf_counter_ns()
+                _pixid().IdFramebuffer(side, side, 0, 100).render(sc)
+                dt = time.perf_counter_ns() - t0
+                best = dt if best is None else min(best, dt)
+            nsps = best / ops["samples"]
+            print("  %4d²  %8.1f ns/sample   budget %10.0f samples   samples/prim %5d"
+                  "   CAUSTIC = %d primitives"
+                  % (side, nsps, budget_samples(nsps, target),
+                     raster_ops(synthetic_scene(4, side), side, side)["samples"] // 4,
+                     caustic_primitives(nsps, target, side)))
+        print("  omega (culling) == 0:", culling_is_absent(),
+              "— the focusing hypothesis holds, so the caustic is not avoidable by hardware")
     else:
-        print("usage: sealframe.py [--bench | --segments | --render-decomp] [out_path] [host_note]")
+        print("usage: sealframe.py [--bench | --segments | --render-decomp | --caustic] "
+              "[out_path|target_ms] [host_note]")

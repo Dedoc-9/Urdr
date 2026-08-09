@@ -472,3 +472,85 @@ class TheObserverIsSeparable(unittest.TestCase):
         self.assertEqual(SF.OBSERVER_SEAM["path"], "pixid.IdFramebuffer.render")
         self.assertEqual(SF.OBSERVER_SEAM["observer"], "pixid.witness")
         self.assertGreater(SF.identity_share(), 0.5)
+
+
+class TheSampleIsTheInvariantUnit(unittest.TestCase):
+    """ns/PIXEL WAS THE WRONG DENOMINATOR, and the two-axis surface is what shows it.
+
+    Across resolution 64²–256² and primitive counts 16–256, ns/pixel moves ~60x while ns/SAMPLE
+    holds inside a narrow band (2251–2583 ns measured on the cloud sandbox). The work unit of a
+    rasterizer is the SAMPLE TEST, and `samples != pixels` the moment scene complexity varies. So
+    every earlier figure was normalized by a quantity that is not the work.
+
+    That matters beyond tidiness: a unit cost that is invariant across BOTH axes is what licenses
+    a budget to be expressed in it, and a budget expressed in exact integer work is host-independent
+    on one side and needs only one scalar from the host on the other."""
+
+    def test_the_budget_expressed_in_the_invariant_unit(self):
+        self.assertAlmostEqual(SF.budget_samples(2400.0, 25.0), 25e6 / 2400.0, places=6)
+
+    def test_a_faster_host_buys_exactly_proportional_work(self):
+        self.assertAlmostEqual(SF.budget_samples(1200.0, 25.0),
+                               2 * SF.budget_samples(2400.0, 25.0), places=6)
+
+
+class TheCaustic(unittest.TestCase):
+    """RAYCHAUDHURI AS A PIVOT — the focusing argument's SHAPE, imported deliberately and graded
+    as an analogy rather than smuggled in as physics.
+
+    Raychaudhuri's equation (A. Raychaudhuri, Phys. Rev. 98, 1123, 1955) evolves the expansion of
+    a congruence as `dθ/dτ = −θ²/3 − σ² + ω² − R_ab u^a u^b`. Two structural facts travel here and
+    one does not.
+
+    TRAVELS — the decomposition is FORCED and the terms carry OPPOSITE SIGNS. Shear focuses,
+    vorticity DEfocuses. That is the precise reason a fused scalar is not merely lossy: it can be
+    SIGN-WRONG about which way a system moves. This file has the receipt — the fused 359.3 ns/px
+    pointed at the renderer when nine tenths of it was the observer, so the fusion did not blur an
+    answer, it named the wrong subsystem.
+
+    TRAVELS — the focusing theorem is a LOWER-BOUND argument. From the sign of ONE term, with ω=0,
+    θ → −∞ in finite proper time; the metric is never solved. `budget_verdict` already refutes from
+    a floor without the missing segments, and the caustic below is the finite-parameter version:
+    work is EXACTLY linear in primitives (an equality on counts, not a fit), so from that slope
+    alone there is a primitive count at which any budget is spent, and no host makes it go away —
+    a faster host only moves where it sits.
+
+    DOES NOT TRAVEL — everything physical. No metric, no geodesics, no curvature, no energy
+    condition. `R_ab u^a u^b` has no analogue here and none is invented for it. This is a
+    DECOMPOSITION DISCIPLINE and a DERIVED QUANTITY; the grade is analogy, and the arithmetic below
+    stands on its own without the equation."""
+
+    def test_the_caustic_is_where_the_measured_slope_crosses_the_budget(self):
+        n = SF.caustic_primitives(2400.0, 25.0, 128)
+        per_prim = SF.raster_ops(SF.synthetic_scene(4, 128), 128, 128)["samples"] // 4
+        self.assertEqual(n, int(SF.budget_samples(2400.0, 25.0) // per_prim))
+
+    def test_a_faster_host_moves_the_caustic_but_cannot_remove_it(self):
+        """The focusing conclusion, and the honest half of it: hardware buys a linear factor on
+        WHERE the caustic sits and cannot change THAT there is one."""
+        slow = SF.caustic_primitives(2400.0, 25.0, 128)
+        fast = SF.caustic_primitives(24.0, 25.0, 128)
+        self.assertGreater(fast, slow * 50)
+        self.assertLess(fast, 10 ** 9, "no finite host removes the caustic")
+
+    def test_the_vorticity_term_is_measured_zero(self):
+        """ω=0 IS A HYPOTHESIS, NOT A GIVEN — the focusing theorem needs it and it must be checked.
+
+        The only term that could remove work here is culling: a primitive skipped rather than
+        walked. `pixid` does none, and the check already existed without being recognised as this
+        one — `samples == samples_model` says the run tested exactly the closed-form sum of
+        bounding-box areas, i.e. that NO primitive was skipped. The congruence is irrotational, so
+        the focusing conclusion applies."""
+        self.assertTrue(SF.culling_is_absent())
+
+    def test_the_hypothesis_check_can_fail(self):
+        """NON-VACUITY: if a spatial index ever lands, this must notice rather than keep reporting
+        an inevitability that has stopped being one."""
+        self.assertFalse(SF.culling_is_absent(SF.cull_half))
+
+    def test_the_three_terms_are_named_with_their_signs(self):
+        signs = {name: sign for name, sign, _what in SF.EXPANSION_TERMS}
+        self.assertEqual(signs["primitive_growth"], -1)
+        self.assertEqual(signs["observer"], -1)
+        self.assertEqual(signs["culling"], +1)
+        self.assertEqual(len({s for s in signs.values()}), 2, "a decomposition with one sign is a sum")
