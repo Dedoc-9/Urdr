@@ -123,12 +123,29 @@ non-vacuity that matters: a door that ate the desync fixtures would have closed 
 perimeter by breaking the thing it protects. `lockstep` is now AUTHORITY on the census
 and the register is down to five exemptions.
 
-**One law, three vocabularies.** `lockstep.event_fault` is the single predicate and
-returns a REASON rather than raising; each layer raises its own typed code from it. The
-previous rung had copied that predicate into `worldstep`, reasoning that N4 must not
-import N3 — correct about N3, wrong about N1, which `worldstep` and `rollback` both
-already import. Merging the codes would destroy attribution; copying the predicate would
-let three copies drift. This is neither.
+**One law, four vocabularies — and an honest price tag on that.** The law is written
+once, in `lockstep`, as predicates that return a REASON rather than raising:
+`event_shape_fault` (world-FREE, so the wire can ask the half it is able to answer),
+`event_range_fault` (needs a world), `event_fault` composing them, and `log_fault`
+lifting them to a sequence. Four layers raise their own typed code from it —
+`LOCKSTEP-REFUSE`, `ROLLBACK-REFUSE`, `AUTH-MALFORMED`, `WORLD-REFUSE`. Earlier rungs
+had copied the predicate into `worldstep` (reasoning that N4 must not import N3 —
+correct about N3, wrong about N1, which `worldstep` and `rollback` both already import)
+and into `authinput` (because `event_fault` demanded a world; splitting the shape half
+out removed the obstacle). Copying it would let four copies drift, so this is one
+predicate.
+
+What the four-code split is **measured** to buy is smaller than the prose here used to
+claim. It said *merging the codes would destroy attribution*. Nothing pays that cost:
+searched across the repo, exactly two consumers branch on which netcode admission code
+they caught, and both are checks in `verify.py`. No module changes behaviour based on
+the layer that refused it. So the split buys attribution for a **reader** and for the
+**gate** — a real thing, and not an operational dependency.
+`tests/test_lockstep.py::TheFourVocabularies` pins both halves: one malformed event
+through all four entry paths yields four distinct codes carrying one identical reason
+string, and a companion falsifier reddens if any module under `tools/` ever starts
+branching — in which case the honest response is to *upgrade* the grade, not to delete
+the test.
 
 **The perimeter as it stood at 8 typed of 35 — superseded above, kept for the shape.** Re-measured, not
 remembered: 21 ABSORBED, 3 COERCED, 3 UNTYPED, 8 REFUSED. What remains is exactly two

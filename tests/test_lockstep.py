@@ -13,6 +13,7 @@ Pins the properties that make peers-exchange-inputs-only actually work:
     NOT desync, so the detector is not always firing).
 Not exact (fixed-point rounds); each negative test asserts the wrong outcome would pass."""
 import os
+import re
 import sys
 import unittest
 
@@ -23,6 +24,9 @@ for _d in ("physics", "netcode"):
         sys.path.insert(0, _p)
 
 import lockstep as L                                       # noqa: E402
+import rollback as RB                                      # noqa: E402  N2 vocabulary
+import authinput as A                                      # noqa: E402  N3 vocabulary
+import worldstep as WS                                     # noqa: E402  N4 vocabulary
 from field import FixedPoint, FieldError                   # noqa: E402
 
 
@@ -147,11 +151,71 @@ class TheSpineHasADoor(unittest.TestCase):
             d = L.trace_digest(L.simulate(self.w, lg)[0])
             self.assertNotEqual(d, self.golden)
 
-    def test_one_law_three_vocabularies(self):
-        """`event_fault` is the single predicate; each layer raises its own code so a
-        refusal is attributable to the layer that made it."""
-        self.assertIsNone(L.event_fault(self.w, self.log[0]))
-        self.assertIsNotNone(L.event_fault(self.w, (0, 0, 0, 99, 1, 1)))
+class TheFourVocabularies(unittest.TestCase):
+    """ONE law, FOUR codes — and an honest boundary on what that buys.
+
+    The prose said "merging the codes would destroy attribution". Nothing in the repo
+    pays that cost: searched for consumers that branch on WHICH netcode admission code
+    they caught, there are exactly two, both in `verify.py` (ROLLBACK-REFUSE vs
+    ROLLBACK-CONFLICT, and the AUTH-MALFORMED projection check). The split is for a
+    READER and for the GATE. This class measures both halves, so the GRADE in
+    `lockstep.event_fault` reddens if either stops being true — including if the claim
+    becomes too MODEST because a consumer starts branching."""
+
+    #: shape-malformed, so all four layers can judge it — N3 has no world and can only
+    #: ask the world-free half of the law.
+    BAD = (3, 0, 0, 0, 5.5, 0)
+
+    def setUp(self):
+        self.w = L.world()
+        self.ww = WS.arena_world()
+
+    def _refusal(self, fn):
+        try:
+            fn()
+        except Exception as exc:                           # noqa: BLE001  the code is the point
+            return getattr(exc, "code", type(exc).__name__), str(exc)
+        raise AssertionError("no refusal — the door is not there")
+
+    def test_one_predicate_four_distinct_codes(self):
+        """The checkable half. Each entry path refuses the SAME event with its OWN code,
+        and the REASON text is identical across all four, which is what "written once"
+        means operationally: a copy that drifted would change one message."""
+        seen = {}
+        for layer, fn in (
+                ("N1 spine", lambda: L.simulate(self.w, [self.BAD])),
+                ("N2 time", lambda: RB.Peer(self.w).deliver(self.BAD)),
+                ("N3 wire", lambda: A.admit_event(self.BAD)),
+                ("N4 world", lambda: WS.admit_event_for_world(self.ww, self.BAD))):
+            with self.subTest(layer):
+                code, msg = self._refusal(fn)
+                seen[layer] = (code, msg.split(": ", 1)[1])
+        codes = [c for c, _ in seen.values()]
+        self.assertEqual(sorted(codes), ["AUTH-MALFORMED", "LOCKSTEP-REFUSE",
+                                         "ROLLBACK-REFUSE", "WORLD-REFUSE"])
+        self.assertEqual(len(set(codes)), 4, "a merged code: %r" % (seen,))
+        self.assertEqual(len({m for _, m in seen.values()}), 1,
+                         "the reason text drifted between layers: %r" % (seen,))
+
+    def test_no_consumer_branches_on_which_layer_refused(self):
+        """The `does_not_show` half, MEASURED rather than asserted in prose. `tools/`
+        contains no code that changes behaviour based on which of the four it caught. If
+        that ever stops being true this reddens, and the honest response is to UPGRADE
+        the grade in `event_fault` — a falsifier that fires when a claim becomes too
+        modest is as load-bearing as one that fires when it becomes too generous."""
+        codes = ("LOCKSTEP-REFUSE", "ROLLBACK-REFUSE", "AUTH-MALFORMED", "WORLD-REFUSE")
+        pat = re.compile(r"\.code\s*(?:==|!=|\bin\b)[^\n]*?(%s)" % "|".join(codes))
+        hits = []
+        for base, _dirs, files in os.walk(os.path.join(_ROOT, "tools")):
+            for fn in files:
+                if not fn.endswith(".py"):
+                    continue
+                p = os.path.join(base, fn)
+                with open(p, encoding="utf-8") as fh:
+                    for i, ln in enumerate(fh, 1):
+                        if pat.search(ln):
+                            hits.append("%s:%d" % (os.path.relpath(p, _ROOT), i))
+        self.assertEqual(hits, [], "a consumer now branches on the layer: %r" % (hits,))
 
 
 if __name__ == "__main__":

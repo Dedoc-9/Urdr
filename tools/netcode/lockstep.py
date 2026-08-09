@@ -70,19 +70,14 @@ class LockstepError(Exception):
         self.message = message
 
 
-def event_fault(w, e):
-    """THE ADMISSION LAW, AS A REASON OR None — and deliberately not as an exception.
+def event_shape_fault(e):
+    """IS THIS AN EVENT AT ALL — a reason, or None. World-INDEPENDENT on purpose.
 
-    The same question ("is this event addressed to this world?") is asked by three layers
-    that must each answer in their OWN vocabulary: N1 raises LOCKSTEP-REFUSE, N2 raises
-    ROLLBACK-REFUSE, N4 raises WORLD-REFUSE. Merging the codes would destroy attribution;
-    copying the predicate three times would let them drift. So the law is written ONCE,
-    here, and returns a reason string — each caller raises its own type from it.
-
-    That duplication was real and shipped: the previous rung wrote this predicate into
-    `worldstep` because N4 must not import N3, which was correct about N3 and wrong about
-    N1 — `worldstep` and `rollback` BOTH already import lockstep. This is the repair."""
-    n, T = w["n"], w["T"]
+    Split out from `event_fault` because conflating the two questions is what forced a
+    second copy of this law into `authinput`: the wire layer has no world, so it could not
+    reuse a predicate that demanded one and duplicated the shape half instead. The two
+    questions genuinely differ — shape is a property of the tuple, range is a property of
+    the tuple AND a world — and only one of them needs a world to answer."""
     if isinstance(e, (str, bytes)) or not isinstance(e, (list, tuple)) or len(e) != 6:
         return "an event must be a 6-tuple (tick, peer, seq, body, dvx, dvy), got %r" % (e,)
     for name, v in zip(("tick", "peer", "seq", "body", "dvx", "dvy"), e):
@@ -90,6 +85,13 @@ def event_fault(w, e):
             return ("event field %s must be an exact integer, got %r (%s) — quantization "
                     "is the caller's DECLARED act, never this module's silent one"
                     % (name, v, type(v).__name__))
+    return None
+
+
+def event_range_fault(w, e):
+    """IS THIS EVENT ADDRESSED TO THIS WORLD — a reason, or None. Assumes the shape law
+    already passed, which is why `event_fault` runs them in that order."""
+    n, T = w["n"], w["T"]
     if not 0 <= e[3] < n:
         return ("event addresses body %d in a world of %d bodies — `if 0 <= b < n:` "
                 "silently DROPPED it, which is a decision with no record" % (e[3], n))
@@ -97,6 +99,29 @@ def event_fault(w, e):
         return ("event is at tick %d and this world runs ticks 0..%d — `range(T)` "
                 "silently DROPPED it" % (e[0], T - 1))
     return None
+
+
+def event_fault(w, e):
+    """THE ADMISSION LAW, AS A REASON OR None — and deliberately not as an exception.
+
+    The same question is asked by layers that each answer in their OWN vocabulary: N1
+    raises LOCKSTEP-REFUSE, N2 ROLLBACK-REFUSE, N4 WORLD-REFUSE, and N3 AUTH-MALFORMED
+    over the shape half alone. Copying the predicate would let four copies drift, so the
+    law is written ONCE and returns a reason string — each caller raises its own type.
+
+    GRADE of the four-code split (honest, D5): MEASURED as DECLARED, not as load-bearing.
+    Mechanism — `tests/test_lockstep.py::TheFourVocabularies` drives ONE malformed event
+    through all four entry paths and asserts four DISTINCT codes out of one predicate, so
+    a merge or a drift fails a falsifier. DOES NOT SHOW that anything depends on the
+    distinction: the repo was searched for consumers that branch on which code they
+    caught, and in netcode there are exactly two, both in `verify.py` — ROLLBACK-REFUSE
+    vs ROLLBACK-CONFLICT, and the AUTH-MALFORMED projection check. No module changes
+    behaviour based on the layer that refused it. So the split buys attribution for a
+    READER and for the GATE, which is a real thing to buy and a smaller one than
+    "merging would destroy attribution" claimed; the earlier phrasing asserted an
+    operational cost that nothing pays. FALSIFIER — merge any two codes: the new test
+    reddens, and no other test in the suite does."""
+    return event_shape_fault(e) or event_range_fault(w, e)
 
 
 def admit_event(w, e):
@@ -113,15 +138,28 @@ def admit_event(w, e):
     return e
 
 
-def admit_log(w, log):
-    """In full, before any tick — `observe`'s law: an event past the last tick a run
-    reaches would never be examined, so lazy validation would make admission depend on
-    the answer."""
+def log_fault(w, log):
+    """THE WHOLE-LOG ADMISSION LAW, as a reason or None — `event_fault` lifted to a
+    sequence, and written once for the same reason it is.
+
+    In full, before any tick, which is `observe`'s law: an event past the last tick a run
+    reaches would never be examined, so lazy validation would make admission depend on the
+    ANSWER. Returns the FIRST fault, so a caller's message is the same one `admit_event`
+    would have given for that event."""
     if isinstance(log, (str, bytes)) or not isinstance(log, (list, tuple)):
-        raise LockstepError("LOCKSTEP-REFUSE",
-                            "a log must be a sequence of events, got %s" % type(log).__name__)
+        return "a log must be a sequence of events, got %s" % type(log).__name__
     for e in log:
-        admit_event(w, e)
+        why = event_fault(w, e)
+        if why is not None:
+            return why
+    return None
+
+
+def admit_log(w, log):
+    """N1's whole-log door — the layer's own code, raised from the shared law."""
+    why = log_fault(w, log)
+    if why is not None:
+        raise LockstepError("LOCKSTEP-REFUSE", why)
     return log
 
 

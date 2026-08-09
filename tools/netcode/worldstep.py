@@ -63,14 +63,14 @@ class WorldError(Exception):
         self.code = code
 
 
-def _int(v, what):
+def _int(name, v):
     """The typed authoring boundary: integers pass, anything else refuses."""
     if isinstance(v, bool) or not isinstance(v, (int, float)):
-        raise WorldError("WORLD-REFUSE", f"{what} is not a number: {v!r}")
+        raise WorldError("WORLD-REFUSE", f"{name} is not a number: {v!r}")
     if isinstance(v, float):
         if v != int(v):
             raise WorldError("WORLD-REFUSE",
-                             f"{what} = {v!r} is not on the integer grid "
+                             f"{name} = {v!r} is not on the integer grid "
                              f"(authoring must snap; the runtime never rounds)")
         v = int(v)
     return int(v)
@@ -84,7 +84,7 @@ def world_from_export(doc, W_=640, H_=360, margin=24, T=120, grav=(0, 1), e=(3, 
         raise WorldError("WORLD-REFUSE", f"format {doc.get('format')!r} != URDR-WORLD-3")
     objs = {}
     for o in doc.get("objects", []):
-        verts = [(_int(v[0], "vert.x"), _int(v[1], "vert.y")) for v in o.get("verts", [])]
+        verts = [(_int("vert.x", v[0]), _int("vert.y", v[1])) for v in o.get("verts", [])]
         if not verts:
             raise WorldError("WORLD-REFUSE", f"object {o.get('digest')!r} has no verts")
         objs[o["digest"]] = verts
@@ -94,15 +94,15 @@ def world_from_export(doc, W_=640, H_=360, margin=24, T=120, grav=(0, 1), e=(3, 
         if verts is None:
             raise WorldError("WORLD-REFUSE",
                              f"instance {inst.get('id')!r} references unknown object")
-        scale = _int(inst.get("scale", 1), "scale")
-        x = _int(inst.get("ground_x", 0), "ground_x")
-        y = _int(inst.get("ground_z", 0), "ground_z")
+        scale = _int("scale", inst.get("scale", 1))
+        x = _int("ground_x", inst.get("ground_x", 0))
+        y = _int("ground_z", inst.get("ground_z", 0))
         if inst.get("body", "dynamic") == "dynamic":
             r = scale * max(max(abs(vx), abs(vy)) for (vx, vy) in verts)
             v = inst.get("vel", {})
             pos.append([FP.unit(x, 1), FP.unit(y, 1)])
-            vel.append([FP.unit(_int(v.get("x", 0), "vel.x"), 1),
-                        FP.unit(_int(v.get("z", 0), "vel.z"), 1)])
+            vel.append([FP.unit(_int("vel.x", v.get("x", 0)), 1),
+                        FP.unit(_int("vel.z", v.get("z", 0)), 1)])
             rs.append(r)
         else:
             hx = scale * max(abs(vx) for (vx, vy) in verts)
@@ -149,11 +149,10 @@ def admit_event_for_world(w, e):
     behaviour, shared byte-for-byte with `lockstep`, and this is a door in front of it
     rather than a change to it.
 
-    Shape is re-checked here rather than delegated to `authinput.admit_event`, and the
-    duplication is the point: N4 must not import N3 to know what a world is, and the two
-    answer different questions under different codes — `AUTH-MALFORMED` says "this is not
-    an event", `WORLD-REFUSE` says "this event is not for this world". The raw-log path
-    never touches the wire at all and would otherwise keep crashing untyped."""
+    The predicate is `lockstep.event_fault`, not `authinput.admit_event`: N4 must not
+    import N3 to know what a world is, and the raw-log path never touches the wire at all.
+    The CODE stays WORLD-REFUSE — see `lockstep.event_fault` for what that distinction is
+    and is not measured to buy."""
     why = L.event_fault(w, e)
     if why is not None:
         raise WorldError("WORLD-REFUSE", why)
@@ -161,16 +160,13 @@ def admit_event_for_world(w, e):
 
 
 def admit_log(w, log):
-    """Admit an ENTIRE log against a world before any tick runs.
-
-    In full and up front, for the reason `observe` states: validating lazily would make
-    admission depend on the ANSWER, since an event past the last tick a run reaches would
-    never be examined. Admission must be a function of the input alone."""
-    if isinstance(log, (str, bytes)) or not isinstance(log, (list, tuple)):
-        raise WorldError("WORLD-REFUSE",
-                         "a log must be a sequence of events, got %s" % type(log).__name__)
-    for e in log:
-        admit_event_for_world(w, e)
+    """Admit an ENTIRE log against a world before any tick runs — N4's code, raised from
+    `lockstep.log_fault`. This function carried its own copy of the sequence check and the
+    validation loop, which was the last of the three duplications: the same law seen at the
+    event, the log and the wire. One predicate now, four vocabularies."""
+    why = L.log_fault(w, log)
+    if why is not None:
+        raise WorldError("WORLD-REFUSE", why)
     return log
 
 

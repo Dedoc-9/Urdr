@@ -2671,7 +2671,7 @@ class Gate:
             "derived one). And this is a DOOR rather than a rewrite: the absorbing `if` "
             "is deliberately left in the frozen tick, shared byte-for-byte with "
             "`lockstep`, and `step_tick` called directly still drops — asserted here, so "
-            "the frozen contract is measured unchanged rather than assumed. THE PREDICATE MOVED: the law now lives ONCE in `lockstep.event_fault` and each layer raises its own code from it (LOCKSTEP-REFUSE / ROLLBACK-REFUSE / WORLD-REFUSE), because the first draft copied it into `worldstep` reasoning that N4 must not import N3 — correct about N3, wrong about N1, which `worldstep` already imports"
+            "the frozen contract is measured unchanged rather than assumed. THE PREDICATE MOVED: the law lives ONCE in `lockstep` — `event_shape_fault` (world-free, so the wire layer can ask the half it is able to answer), `event_range_fault`, `event_fault` composing them and `log_fault` lifting them to a sequence — and each of FOUR layers raises its own code from it: LOCKSTEP-REFUSE, ROLLBACK-REFUSE, AUTH-MALFORMED, WORLD-REFUSE. The first draft copied the predicate into `worldstep` reasoning that N4 must not import N3 — correct about N3, wrong about N1, which `worldstep` already imports. GRADED HONESTLY, because the prose overclaimed: the four-code split is DECLARED, not load-bearing. `tests/test_lockstep.py::TheFourVocabularies` drives ONE malformed event through all four entry paths and pins four DISTINCT codes carrying ONE identical reason string (a drifted copy would change one message), and its companion measures that NO module under `tools/` branches on which code it caught — the only netcode consumers that do are two checks in this file. The split buys attribution for a READER and for this GATE; the earlier phrasing asserted an operational cost that nothing pays"
             % (len(refused), len(refused), ", ".join(sorted(refused)))
             if adm_ok else "admission wrong: %r" % (refused,))
         # peers agree on authored state
@@ -3935,9 +3935,20 @@ class Gate:
             # RE-PINNED 68 -> 70: `admit_log` and `admit_event_for_world` joined the
             # swept module. The candidate set is GENERATED from module introspection,
             # so adding a real callable to a swept module moves it by construction —
-            # and the INERT count stayed 41, meaning both new candidates are
-            # LOAD-BEARING: severing either breaks a law. Nothing else moved.
-            sw_ok = EA.the_inert_share() == (41, 70)
+            # and the INERT count stayed 41, meaning both new candidates were
+            # LOAD-BEARING: severing either broke a law. Nothing else moved.
+            #
+            # RE-PINNED 41 -> 42 INERT, and the mover is named because the sweep is the
+            # only instrument that saw it. Collapsing `worldstep.admit_log` onto the
+            # shared `lockstep.log_fault` took `admit_event_for_world` OFF the whole-log
+            # path — it is still the door `worldpeer` knocks on, and still gated by
+            # `netcode-world-admits`, but no `compose` law reaches it any more, so
+            # severing it now teaches nothing HERE. Behaviour is unchanged (both raise
+            # WORLD-REFUSE from the same predicate); what changed is the attribution,
+            # which is exactly the thing this sweep exists to report. Keeping a
+            # redundant loop to hold the count at 41 would be tuning the code to the
+            # instrument's reading.
+            sw_ok = EA.the_inert_share() == (42, 70)
             sw_ok = sw_ok and EA.the_declared_edges_are_a_subset() == (7, 7)
             sw_ok = sw_ok and EA.the_identity_law_never_divides() == (0, 9)
             sw_ok = sw_ok and EA.the_separating_witnesses() == (

@@ -51,6 +51,7 @@ import sys as _sys
 
 _sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
                                   "..", "physics"))
+import lockstep as _L                                      # noqa: E402  the ONE event law
 import rollback as _rollback                               # noqa: E402  N2 authority
 
 MSG_MAGIC = b"URDRAIN1"
@@ -105,24 +106,20 @@ def _i64(v):
 def admit_event(e):
     """THE DOOR: an event is a 6-tuple of exact integers, or it is not an event.
 
+    The PREDICATE is `lockstep.event_shape_fault` — one law, written once. This module
+    carried its own copy because `event_fault` demanded a WORLD and the wire layer has
+    none; splitting the shape half out of the range half removed the obstacle, and the
+    import was already there transitively (authinput -> rollback -> lockstep). The CODE
+    stays AUTH-MALFORMED: N3 answers in N3's vocabulary, and it can only ask the
+    world-free half, because a wire does not know how many bodies a world has.
+
     Called BEFORE identity, signature and the time law, and the order is structural
     rather than preferred — `msg_digest` is undefined on a malformed event, so there is
-    no signature check to run on one. That gives a three-tier order: SHAPE, then
-    ELIGIBILITY (who), then STATE (what). `sealwrit-order` already pins the second
-    against the third; this adds the tier below both, and an envelope that is malformed
-    AND mis-signed refuses on SHAPE because the eligibility question cannot be asked.
-
-    Returns the event unchanged — never a normalized copy, which is the whole point."""
-    if isinstance(e, (str, bytes)) or not isinstance(e, (list, tuple)) or len(e) != 6:
-        raise AuthError("AUTH-MALFORMED",
-                        "an event must be a 6-tuple (tick, peer, seq, body, dvx, dvy), "
-                        "got %r" % (e,))
-    for name, v in zip(("tick", "peer", "seq", "body", "dvx", "dvy"), e):
-        if not isinstance(v, int) or isinstance(v, bool):
-            raise AuthError("AUTH-MALFORMED",
-                            "event field %s must be an exact integer, got %r (%s) — "
-                            "quantization is the caller's DECLARED act, never this "
-                            "module's silent one" % (name, v, type(v).__name__))
+    no signature question to ask about one. Returns the event unchanged, never a
+    normalized copy, which is the whole point."""
+    why = _L.event_shape_fault(e)
+    if why is not None:
+        raise AuthError("AUTH-MALFORMED", why)
     return e
 
 

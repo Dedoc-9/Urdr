@@ -114,10 +114,16 @@ class TheSweepSeparatesLaws(unittest.TestCase):
                          "a hand-declared edge is not in the generated set — a table nobody can check")
 
     def test_the_inert_share_is_strictly_between_zero_and_all(self):
-        """41 of 70 taught nothing, and that is first-class. A sweep where everything mattered would
-        be measuring the sweep; one where nothing did would have broken. Both ends are asserted."""
+        """42 of 70 taught nothing, and that is first-class. A sweep where everything mattered would
+        be measuring the sweep; one where nothing did would have broken. Both ends are asserted.
+
+        41 -> 42 when `worldstep.admit_log` was collapsed onto `lockstep.log_fault`, which took
+        `admit_event_for_world` off the whole-log path. It is still a live door (`worldpeer` calls
+        it, `netcode-world-admits` gates it) and no behaviour changed — it is simply no longer
+        REACHED by any `compose` law, which is the distinction this sweep measures and nothing
+        else in the gate can see."""
         inert, total = EA.the_inert_share()
-        self.assertEqual((inert, total), (41, 70))
+        self.assertEqual((inert, total), (42, 70))
         self.assertGreater(inert, 0, "no perturbation was inert — the instrument is reporting itself")
         self.assertLess(inert, total, "every perturbation was inert — nothing is being measured")
 

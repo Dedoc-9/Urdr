@@ -49,18 +49,32 @@
 # The seven hand-declared edges were a guess about what matters. Hand-declaration UNDER-REPORTS, and
 # that is measured twice: `storecost.serialize` carries both replay laws while not being imported by
 # `compose` at all, and the generated sweep found `glide._fold`, `_grid_dims` and `_heights` carrying
-# replay too. So every callable a swept module DEFINES is severed -- 68 candidates over glide,
-# persist, storecost and worldstep -- and grouped by what moved.
+# replay too. So every callable a swept module DEFINES is severed -- 70 candidates over glide,
+# persist, storecost and worldstep -- and grouped by what moved. READ FROM THE INSTRUMENT:
 #
-#     .....  x41   glide.GlideError, glide.cell_of, glide.floored, ...
+#     .....  x42   glide.GlideError, glide.cell_of, glide.floored, ...
 #     ...XX  x18   glide._fold, glide._fold_from, glide._grid_dims, ...
-#     XXX..  x 7   worldstep.arena_world, worldstep.collide_log, ...
+#     XXX..  x 8   worldstep._fp_mul, worldstep.admit_log, worldstep.arena_world, ...
 #     ....X  x 1   persist.PersistError
 #     X.X..  x 1   worldstep._fp_div
 #
-#     41 OF 68 TAUGHT NOTHING, AND THAT NUMBER IS FIRST-CLASS. Most perturbations are inert; that is
+#     42 OF 70 TAUGHT NOTHING, AND THAT NUMBER IS FIRST-CLASS. Most perturbations are inert; that is
 #     what makes the ones that are not credible. A sweep in which everything mattered would be
 #     measuring the sweep. If this share ever collapses toward zero, the instrument has broken.
+#
+#     THE COUNTS ARE LIVE, AND THIS BLOCK HAS BEEN WRONG ONCE. It was written at 68 candidates / 41
+#     inert and left there through a re-pin to 70, so a reader had a table that the pinned `sweep`
+#     digest above disagreed with -- prose enforced nowhere, which is this repository's own recurring
+#     defect showing up inside the file that records measurements. Both numbers are now read from
+#     `the_vector_census()` rather than carried forward.
+#
+#     WHAT THE 41 -> 42 MOVE WAS. `worldstep.admit_log` was collapsed onto the shared
+#     `lockstep.log_fault`, which took `worldstep.admit_event_for_world` off the whole-log path.
+#     Nothing about it died: `worldpeer` still calls it, `netcode-world-admits` still gates it, and
+#     it still refuses exactly what it refused, from the same predicate. It simply stopped being
+#     REACHED by any `compose` law, so severing it stopped teaching anything HERE. That is the
+#     cleanest available demonstration of this file's own does_not_show -- INERT IS NOT DEAD -- and
+#     the reason the count was re-pinned rather than the code re-padded to hold it.
 #
 # TWO LAWS THAT MOVED TOGETHER ARE NOT ONE LAW, AND THE SWEEP PROVED IT.
 #
@@ -82,9 +96,9 @@
 #     they test. A real separation whose witness proves less than it appears to -- kept, labelled,
 #     and not counted alongside the first.
 #
-# does_not_show: that the 41 inert candidates are dead -- inert under THESE laws is not unused; that
+# does_not_show: that the 42 inert candidates are dead -- inert under THESE laws is not unused; that
 # any law family is irreducible, only that these two pairs are separable; anything about modules
 # outside SWEPT.
 attribution 6ba1a53c054a04ed02a128de837b5ab38abc412b3a4928fb1fb55ca73916fe55
 walls 68d188becc513c16798578e16f6380f5e10b1d4ce3364364fca54f12d5743930
-sweep ed2a94c6ac8fb637639a091c0657444d31cb6031fd5f40a6b90e7a71ba3f2792
+sweep 29fd557dffabe0413ca46ccdb012c043d89a05b3864c66a151d875e5261ebe13
