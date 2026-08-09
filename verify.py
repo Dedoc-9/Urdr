@@ -16602,9 +16602,10 @@ class Gate:
                 except CA.CausticError as exc:
                     ref_ok = ref_ok and needle in str(exc)
             affine = [n for (n, *_r) in CA.LAWS if CA.is_affine(n)]
+            rest = [n for (n, *_r) in CA.LAWS if not CA.is_affine(n)]
             ref_ok = (ref_ok and "sealframe.synthetic_primitives" in affine
-                      and [n for n in affine if CA.law(n)[1] != CA.KIND_FITTED]
-                          == ["storecost.snapshot_bytes"])
+                      and "storecost.snapshot_bytes" in affine
+                      and "opcost.warden_edge_checks" in rest and bool(rest))
         except Exception:
             ref_ok = False
         self.record("caustic-refusal", ref_ok,
@@ -16655,10 +16656,21 @@ class Gate:
                     "PROPERTY rather than by recomputing it: the answer fits the budget and one "
                     "more does not. %s. MOST PINNED GROWTH LAWS ARE NOT LINEAR IN THE AXIS THEY "
                     "NAME — the first version divided by one slope and refused three of four, so "
-                    "every `headroom x N` reading elsewhere in this repository rests on the "
-                    "arithmetic that version was about to commit; the mechanism bisects instead "
-                    "and reports affineness as a fact. A planted form that disagrees with its "
-                    "execution is caught"
+                    "the mechanism bisects instead and reports affineness as a fact. THE CLAIM "
+                    "DRAWN FROM THAT WAS AN OVERCLAIM AND IS RETRACTED HERE: it said every "
+                    "`headroom x N` reading elsewhere rested on the same arithmetic, and the "
+                    "repository was then SEARCHED — there is essentially ONE, bench_protocol §4's "
+                    "frozen-division bridge (`renderbound`'s thirty-two bits is a magnitude bound "
+                    "and already a cautionary tale; `fpquat`'s ~2x is slack on an error bound). "
+                    "That one instance is now REGISTERED and it does not survive intact: the "
+                    "bridge is CIRCULAR as written, since ns/division is computed as tick-time "
+                    "DIVIDED BY the count, so multiplying it back returns the number it started "
+                    "from (L23); and the transfer to a different count, which is the only way it "
+                    "carries information, drifts 2.2x — ~3276 ns/division at one biped converging "
+                    "to ~1468 by a hundred, fixed per-call cost dominating at small n. What IS "
+                    "exactly linear is the COUNT (132 per biped, proven and counted from an "
+                    "instrumented run). The count was never the problem; the cost per count was. "
+                    "A planted form that disagrees with its execution is caught"
                     % "; ".join(rows)
                     if law_ok else "a closed form disagreed with its execution")
 

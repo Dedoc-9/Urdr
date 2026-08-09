@@ -430,7 +430,33 @@ The reference placement cannot earn milliseconds (roadmap §4), but it can pin
 
 Budgeting use: measure your host's cost-per-frozen-division once (native
 placement, §3 conditions), multiply by the pinned counts, and the 3 ms sim
-budget becomes an audit, not a hope. When the native Stage-7 placement exists,
+budget becomes an audit, not a hope.
+
+**Two corrections to that sentence, and the second is measured.** It is *circular*
+as written: `frontbench.measure_samples` computes ns/division as tick-time **divided
+by** the division count, so multiplying it back by that same count returns the number
+it started from and predicts nothing. It carries information only when transferred to
+a **different** count — and that transfer was never checked. Checked now, on the
+cloud sandbox:
+
+| bipeds | divisions | median ns/division |
+|---|---|---|
+| 1 | 132 | 3275.6 |
+| 5 | 660 | 1803.1 |
+| 25 | 3 300 | 1575.5 |
+| 100 | 13 200 | 1468.0 |
+| 400 | 52 800 | 1468.3 |
+
+**A 2.2× drift, converging by n ≈ 100** as fixed per-call cost stops dominating. So
+the bridge is sound in a **converged regime** and materially wrong below it, and the
+sentence above states the bridge without stating the regime. Budgeting a ten-biped
+tick from the hundred-biped figure under-predicts; budgeting a hundred from a single
+biped over-predicts by more than double.
+
+What *is* exactly linear is the **count** — `sim_tick_divisions(n) = 132n`, now
+registered in `caustic.LAWS` as a proven closed form and checked against an
+instrumented run rather than against itself. The count was never the problem; the
+cost per count was. When the native Stage-7 placement exists,
 the count row is the cross-check that the port didn't change the work.
 
 ## 4a. First reference reading (informational — NOT_MEASURED)

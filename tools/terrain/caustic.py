@@ -42,7 +42,8 @@ import sys as _sys
 MAGIC = b"URDRCAU1"
 _HERE = _os.path.dirname(_os.path.abspath(__file__))
 for _p in (_HERE, _os.path.join(_os.path.dirname(_HERE), "physics"),
-           _os.path.join(_os.path.dirname(_HERE), "render")):
+           _os.path.join(_os.path.dirname(_HERE), "render"),
+           _os.path.join(_os.path.dirname(_HERE), "frontfps")):
     if _p not in _sys.path:
         _sys.path.insert(0, _p)
 
@@ -99,6 +100,24 @@ def _raster_exec(lv):
     return SF.raster_ops(SF.subdivided_scene(lv, 256), 256, 256)["samples"]
 
 
+def _divisions_form(n):
+    import frontbench as FB
+    return FB.sim_tick_divisions(n)
+
+
+def _divisions_exec(n):
+    """COUNTED by threading an instrumented divider through the real work, which is what
+    `frontbench` itself does — the count is the run's, not the formula's."""
+    import frontbench as FB
+    seen = [0]
+
+    def div(a, b):
+        seen[0] += 1
+        return FB._rdiv(a, b)
+    FB.run_sim_tick(n, div)
+    return seen[0]
+
+
 def _confounded_form(n):
     import sealframe as SF
     return SF.raster_ops(SF.synthetic_scene(n, 128), 128, 128)["samples_model"]
@@ -123,6 +142,8 @@ LAWS = (
      (1, 2, 4, 8, 16, 32, 64), _warden_form, _warden_exec, ""),
     ("sealframe.raster_samples", KIND_ISOLATED, "subdivision_levels", "sample tests",
      (0, 1, 2, 3, 4), _raster_form, _raster_exec, ""),
+    ("frontbench.sim_tick_divisions", KIND_PROVEN, "bipeds", "frozen divisions",
+     (1, 5, 25, 100, 400), _divisions_form, _divisions_exec, ""),
     ("sealframe.synthetic_primitives", KIND_FITTED, "primitives", "sample tests",
      (4, 16, 64), _confounded_form, _confounded_exec,
      "`synthetic_scene` adds a fresh patch of frame per primitive, so this slope is linear in "
@@ -165,10 +186,15 @@ def is_affine(name):
     The first version of `caustic` divided by a single slope and therefore demanded affineness,
     which REFUSED THREE OF THE FOUR REGISTERED LAWS on its first run: `warden_edge_checks` is
     quadratic in grid side, and `raster_samples` is sublinear in primitives because bounding-box
-    slack grows slower than the count. So MOST PINNED GROWTH LAWS IN THIS REPOSITORY ARE NOT
-    LINEAR IN THE AXIS THEY NAME, which makes every `headroom x N` reading elsewhere suspect —
-    exactly the arithmetic the affine version was about to commit. `caustic` now bisects the
-    closed form instead, needing only monotonicity, and affineness is a fact the panel reports."""
+    slack grows slower than the count. Half the registered laws are affine and half are not.
+
+    THE CLAIM THIS DOCSTRING FIRST MADE WAS AN OVERCLAIM AND IS RETRACTED. It said the finding
+    "makes every `headroom x N` reading elsewhere suspect". The repository was then SEARCHED for
+    such readings and there is essentially ONE — `bench_protocol` §4's frozen-division bridge,
+    echoed in `fpclip.count_pose_ops`'s docstring. `renderbound`'s "thirty-two bits of headroom"
+    is a magnitude bound and is already a cautionary tale rather than an instance; `fpquat`'s "~2x
+    headroom" is slack on an error bound. One instance is not every reading, and the difference
+    between them is the difference between a survey and a flourish."""
     _n, _k, _a, _u, xs, form, _e, _c = law(name)
     if len(xs) < 3:
         return False
@@ -250,7 +276,8 @@ def caustic_digest():
 
 
 BUDGETS = {"storecost.snapshot_bytes": 100000, "opcost.warden_edge_checks": 5000,
-           "sealframe.raster_samples": 39000, "sealframe.synthetic_primitives": 39000}
+           "sealframe.raster_samples": 39000, "sealframe.synthetic_primitives": 39000,
+           "frontbench.sim_tick_divisions": 13200}
 
 
 def report(budgets=None):

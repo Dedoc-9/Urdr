@@ -30,9 +30,22 @@ made the wrong x-axis persuasive.
 
 **Most pinned laws are not linear in the axis they name.** The first version divided by a single
 slope and refused three of four laws: `warden_edge_checks` is quadratic in grid side,
-`raster_samples` sublinear in subdivision level. Only `snapshot_bytes` is linear. Every
-`headroom × N` reading elsewhere is suspect on the same grounds. The mechanism now bisects, and
-affineness is reported rather than required.
+`raster_samples` sublinear in subdivision level. The mechanism now bisects, and affineness is
+reported rather than required.
+
+**And the claim drawn from that was an overclaim — retracted.** It said every `headroom × N`
+reading elsewhere was suspect on the same grounds. Searched: there is essentially **one**,
+`bench_protocol` §4's frozen-division bridge. `renderbound`'s "thirty-two bits of headroom" is a
+magnitude bound and already a cautionary tale; `fpquat`'s "~2× headroom" is slack on an error
+bound. One instance is not every reading — the difference between a survey and a flourish.
+
+**That one instance does not survive intact**, so the claim was also not strong enough where it
+did apply. §4's bridge is *circular as written*: ns/division is computed as tick-time **divided
+by** the count, so multiplying it back returns the number it started from (L23). It carries
+information only when transferred to a *different* count, and that transfer drifts 2.2× — ~3276
+ns/division at one biped converging to ~1468 by a hundred, fixed per-call cost dominating at small
+`n`. The bridge is sound in a converged regime and §4 states it without stating the regime. What
+*is* exactly linear is the **count** (132 per biped, proven, counted from an instrumented run).
 
 **The domain is part of the law.** A closed form is known where it was checked against execution
 and nowhere else, so a budget that is not binding inside the verified range is refused rather than
