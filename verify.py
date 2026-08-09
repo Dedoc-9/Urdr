@@ -17000,6 +17000,52 @@ class Gate:
                     "holds for every possible world"
                     % (floor_ms, floor_ms / 25.0)
                     if fill_ok else "the fill-floor / coverage-confound law did not hold")
+        try:
+            import shutil as _sh, subprocess as _sp, tempfile as _tf
+            _rustc = _sh.which("rustc")
+            _rs = os.path.join(ROOT, "tools", "render", "urdr_raster_rs", "raster_bench.rs")
+            if not _rustc or not os.path.exists(_rs):
+                self.record("sealframe-raster-placement", True,
+                            "SKIPPED (%s) — honestly labelled, not passed"
+                            % ("rustc absent" if not _rustc else "placement source missing"))
+            else:
+                with _tf.TemporaryDirectory() as _td:
+                    _exe = os.path.join(_td, "rb")
+                    _cp = _sp.run([_rustc, "-O", _rs, "-o", _exe], stdout=_sp.PIPE,
+                                  stderr=_sp.STDOUT, timeout=300)
+                    if _cp.returncode != 0:
+                        self.record("sealframe-raster-placement", False,
+                                    "rustc failed: %s"
+                                    % _cp.stdout.decode("utf-8", "replace")[:200])
+                    else:
+                        _out = _sp.run([_exe], stdout=_sp.PIPE, stderr=_sp.STDOUT,
+                                       timeout=300).stdout.decode("utf-8", "replace")
+                        _rows = [tuple(int(x) for x in ln.split())
+                                 for ln in _out.splitlines() if ln.strip()]
+                        _pyr = [(len(SF.subdivided_scene(lv, 256)),) + tuple(
+                            SF.raster_ops(SF.subdivided_scene(lv, 256), 256, 256)[k]
+                            for k in ("samples", "owned")) for lv in (0, 2, 4)]
+                        _agree = _rows == _pyr
+                        self.record(
+                            "sealframe-raster-placement", _agree,
+                            "TWO PLACEMENTS, ONE WORK COUNT — recompiled LIVE this run. The Rust "
+                            "rasterizer walks the same bounding boxes with the same edge function "
+                            "and top-left rule and reports the SAME EXACT INTEGER WORK as the "
+                            "Python: %s, sample for sample and owned pixel for owned pixel across "
+                            "three subdivision levels. THAT AGREEMENT IS WHAT LICENSES COMPARING "
+                            "THEIR SPEEDS AT ALL — a ratio between two placements doing different "
+                            "amounts of work is a confound wearing a placement factor's clothes, "
+                            "which is the defect this whole surface has produced five times. The "
+                            "gate reads COUNTS ONLY; `--bench` adds wall-clock and stays off-gate, "
+                            "because a timing inside a gate is nondeterministic. The measured "
+                            "factor and what it does to the fill floor live in bench_protocol §2h, "
+                            "where a number that came from a clock belongs"
+                            % ("; ".join("%d prims -> %d samples / %d owned" % r for r in _rows))
+                            if _agree
+                            else "placements disagree on exact work: rust=%r python=%r"
+                                 % (_rows, _pyr))
+        except Exception as _exc:
+            self.record("sealframe-raster-placement", False, "placement check raised: %s" % _exc)
 
     def sealsession(self):
         """The attested session (T3.56, V5, URDRSSN1) — THE VISIBLE-WORLD CAPSTONE: a play session

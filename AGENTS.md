@@ -84,7 +84,7 @@ invariant detectors `tools/intla/{toric,rigidity}_{rs,c}/` (the toric-code dimen
 the rigidity verdict) — each ADMITTED on Windows/`rustc`, MEASURED both placements, with
 its port logic first validated by an independent C99 cross-check that agrees on the golden
 AND the defect digests. Counting the math spine's `tools/intla/urdr_math_c/` (std-only,
-`__int128`), that is **33 Rust placements and 14 C99 runtimes** — three
+`__int128`), that is **34 Rust placements and 14 C99 runtimes** — three
 languages, two OSes, one digest.
 
 ---
@@ -510,7 +510,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 2254 unit falsifiers / 904 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 2254 unit falsifiers / 905 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

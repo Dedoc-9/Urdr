@@ -345,6 +345,44 @@ answer to *which* lever: not fewer primitives, not LOD, not culling, not a bigge
 budget — **the placement**, because 85× is not reachable by drawing less of the same
 picture.
 
+## 2h. The placement, measured — the extrapolation graduates
+
+`tools/render/urdr_raster_rs/raster_bench.rs` walks the same bounding boxes with the
+same edge function and top-left rule as `pixid`. **It reports the same exact integer
+work** — 37 249 / 38 416 / 43 264 samples and 18 528 owned pixels at three
+subdivision levels, sample for sample. That agreement is gated (live `rustc`
+compile, counts only) and **it is what licenses comparing the two speeds at all**: a
+ratio between placements doing different amounts of work is a confound wearing a
+placement factor's clothes, which is the defect this surface has produced five
+times.
+
+Off-gate, same host (cloud sandbox), `--bench`:
+
+| placement | ns/sample | 1080p fill floor | vs 25 ms |
+|---|---|---|---|
+| Python reference | 2296.7 | 4 762 ms | 190× |
+| **Rust placement** | **15.0** | **31.1 ms** | **1.25×** |
+
+**Factor ≈ 153×, measured on the actual workload** — no longer the ~130× transferred
+from frozen divisions, which §2f flagged SPECULATIVE precisely because it was a
+cross-workload move. That extrapolation is retired: it was in the right
+neighbourhood and it was not evidence.
+
+**What this changes.** 190× is a category error; **1.25× is an engineering
+problem.** So the optimizations were never wrong, only *premature* — LOD's ~16 % and
+culling's constant factor are noise against two orders of magnitude and are
+meaningful against 1.25×. The ordering matters more than either: **placement first,
+then the geometry work**, and the fill floor is what makes that ordering a
+measurement rather than a preference.
+
+**Still not a frame budget.** This is the *fill floor* — one sample per covered
+pixel, no shading, no overdraw, no present, no scanout, single-threaded, on a host
+that is not the named one. `input→photon` remains NOT_MEASURED. For your machine:
+
+```
+rustc -O tools\render\urdr_raster_rs\raster_bench.rs -o rb.exe && .\rb.exe --bench
+```
+
 **To make this bite on the named host**, run on the Ally X under §3 conditions:
 
 ```
