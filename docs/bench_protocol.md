@@ -291,6 +291,60 @@ inflation.
 python tools\terrain\sealframe.py --caustic
 ```
 
+Named machine, 2026-08-09: **1030.4 ns/sample**, caustic 83 primitives at 128² and
+22 at 256² — 2.3× the cloud sandbox, the same ratio the render decomposition found.
+
+## 2g. The axis was confounded, and the floor that replaces it
+
+**`caustic_primitives` measured the wrong axis.** It rests on work being "exactly
+linear in primitives" — true of `synthetic_scene`, which adds a fresh *patch of
+frame* per primitive. So the law was linear in **coverage** and labelled linear in
+**primitives**: the fifth defect on this surface, and the same class as the other
+four — two quantities moving together and the wrong one named.
+
+Separated by **subdividing one triangle**, which holds coverage exactly fixed while
+multiplying primitives — the inverse of an LOD swap:
+
+| primitives | samples | owned pixels |
+|---|---|---|
+| 1 | 37 249 | 18 528 |
+| 4 | 37 636 | 18 528 |
+| 16 | 38 416 | 18 528 |
+| 64 | 40 000 | 18 528 |
+| 256 | 43 264 | 18 528 |
+
+**256× the primitives costs +16 % of the samples**, and all of it is bounding-box
+slack. **So LOD cannot help.** Collapsing 256 primitives to one while drawing the
+same picture is worth ~16 %, not 256×. LOD is a *geometry*-cost optimization and
+this cost is *fill*. An LOD system would also not redden `culling_is_absent()`,
+because it substitutes geometry rather than skipping it.
+
+Nor does culling remove the caustic — it **re-bases it on a different countable**.
+This is the Raychaudhuri structure being honest: ω² is a *competing* term, not an
+escape hatch. A frustum cull removes a constant fraction and leaves the law linear
+with a smaller constant; a spatial index makes *traversal* sublinear while every
+surviving primitive still rasterizes. The caustic then applies to the **visible**
+count.
+
+### The fill floor — the one statement that holds for every world
+
+Every covered pixel is tested at least once, so `samples ≥ covered pixels` for **any**
+geometry. A frame that covers its own screen therefore costs at least one sample per
+pixel — a floor no primitive count, no LOD, no spatial index and no depth sort goes
+below, because it *is* the definition of having drawn the frame.
+
+| host | ns/sample | 1080p fill floor | vs 25 ms |
+|---|---|---|---|
+| Named machine | 1030.4 | **2 136.6 ms** | **85×** |
+| Cloud sandbox | 2296.7 | **4 762.4 ms** | **190×** |
+
+**With one primitive.** The reference placement is refuted from a floor rather than
+an extrapolation, and this is the first statement in the arc that does not depend on
+a fixture, a scene, or a scaling assumption. It is also, finally, an unambiguous
+answer to *which* lever: not fewer primitives, not LOD, not culling, not a bigger
+budget — **the placement**, because 85× is not reachable by drawing less of the same
+picture.
+
 **To make this bite on the named host**, run on the Ally X under §3 conditions:
 
 ```

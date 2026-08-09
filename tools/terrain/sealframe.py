@@ -631,6 +631,47 @@ EXPANSION_TERMS = (
 )
 
 
+def subdivided_scene(levels, side):
+    """ONE right triangle split into 4 similar ones, `levels` times — the inverse of an LOD swap.
+
+    COVERAGE IS HELD EXACTLY FIXED while primitive count multiplies by 4 each level, which is the
+    separation `synthetic_scene` cannot make: that fixture adds a fresh patch of frame per
+    primitive, so its 'linear in primitives' law is linear in COVERAGE wearing the wrong axis
+    label. This one moves one axis alone."""
+    PX = _pixid()
+    S = PX.SUB
+    tris = [(4, 4, side - 60, 4, 4, side - 60)]
+    for _ in range(levels):
+        out = []
+        for (ax, ay, bx, by, cx, cy) in tris:
+            mab = ((ax + bx) // 2, (ay + by) // 2)
+            mbc = ((bx + cx) // 2, (by + cy) // 2)
+            mca = ((cx + ax) // 2, (cy + ay) // 2)
+            out += [(ax, ay, mab[0], mab[1], mca[0], mca[1]),
+                    (mab[0], mab[1], bx, by, mbc[0], mbc[1]),
+                    (mca[0], mca[1], mbc[0], mbc[1], cx, cy),
+                    (mab[0], mab[1], mbc[0], mbc[1], mca[0], mca[1])]
+        tris = out
+    return tuple(((t[0] * S, t[1] * S), (t[2] * S, t[3] * S), (t[4] * S, t[5] * S),
+                  (4, 4, 4), 1 + k % 64, k) for k, t in enumerate(tris))
+
+
+def fill_floor_samples(w, h):
+    """THE FLOOR THAT NEEDS NO SCENE. Every covered pixel is tested at least once, so
+    `samples >= covered pixels` for ANY geometry — and a frame that covers its own screen costs at
+    least one sample per pixel. No primitive count, no LOD, no spatial index and no depth sort goes
+    below it, because it IS the definition of having drawn the frame.
+
+    This is the refutation the per-primitive caustic was circling. It holds for every possible
+    world, which no other statement in this file does."""
+    return w * h
+
+
+def fill_floor_ms(w, h, ns_per_sample):
+    """The floor in milliseconds on a host with this measured unit cost."""
+    return fill_floor_samples(w, h) * float(ns_per_sample) / 1e6
+
+
 def budget_samples(ns_per_sample, target_ms):
     """THE BUDGET IN THE INVARIANT UNIT. ns/PIXEL was the wrong denominator: across 64²–256² and
     16–256 primitives it moves ~60x while ns/SAMPLE holds in a narrow band, because the work unit
@@ -643,7 +684,14 @@ def budget_samples(ns_per_sample, target_ms):
 def caustic_primitives(ns_per_sample, target_ms, side):
     """THE CAUSTIC: the primitive count at which this budget is spent, on a host with this unit
     cost. Derived from the MEASURED slope (samples per primitive, an exact integer), so it is
-    arithmetic over counts rather than an extrapolation of a timing."""
+    arithmetic over counts rather than an extrapolation of a timing.
+
+    SCOPE, CORRECTED — THE AXIS WAS CONFOUNDED. This rests on `synthetic_scene`, whose every added
+    primitive brings its own patch of frame, so the slope is linear in COVERAGE and was labelled
+    linear in PRIMITIVES. `subdivided_scene` separates them: 256x the primitives at FIXED coverage
+    costs ~16% more samples, all of it bounding-box slack. So this number is honest for a scene
+    whose complexity and coverage grow together, and it is NOT a bound on primitive count as such —
+    for that, and for the statement that holds over every possible world, see `fill_floor_samples`."""
     per_prim = raster_ops(synthetic_scene(4, side), side, side)["samples"] // 4
     return int(budget_samples(ns_per_sample, target_ms) // max(1, per_prim))
 

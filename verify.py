@@ -16958,6 +16958,48 @@ class Gate:
                     "inevitability stops being claimed the moment a spatial index makes it false"
                     % (c128, c256)
                     if cau_ok else "the caustic / irrotational-hypothesis law did not hold")
+        fill_ok = True
+        floor_ms = 0.0
+        try:
+            cov = {lv: SF.raster_ops(SF.subdivided_scene(lv, 256), 256, 256) for lv in (0, 2, 4)}
+            fill_ok = len({o["owned"] for o in cov.values()}) == 1        # coverage held fixed
+            fill_ok = (fill_ok and cov[4]["primitives"] == 256 * cov[0]["primitives"]
+                       and cov[4]["samples"] < cov[0]["samples"] * 1.25)
+            for o in cov.values():
+                fill_ok = fill_ok and o["samples"] >= o["owned"]
+            a = SF.raster_ops(SF.synthetic_scene(4, 128), 128, 128)["owned"]
+            b = SF.raster_ops(SF.synthetic_scene(64, 128), 128, 128)["owned"]
+            fill_ok = fill_ok and b > a * 4                               # the confound, named
+            fill_ok = fill_ok and SF.fill_floor_samples(1920, 1080) == 1920 * 1080
+            floor_ms = SF.fill_floor_ms(1920, 1080, 1030.4)
+            fill_ok = (fill_ok and floor_ms > 25.0 * 50
+                       and SF.budget_verdict(25.0, SF.ledger_with_graduated(
+                           "frame_render", floor_ms, floor_ms))["verdict"] == "REFUTED")
+        except Exception:
+            fill_ok = False
+        self.record("sealframe-fill-floor", fill_ok,
+                    "THE AXIS WAS CONFOUNDED, AND THE CORRECTION IS THE STRONGEST RESULT IN THIS "
+                    "ARC. `caustic_primitives` rests on work being 'exactly linear in primitives' "
+                    "— true of `synthetic_scene`, which adds a fresh PATCH OF FRAME per primitive, "
+                    "so the law measured was linear in COVERAGE and was labelled linear in "
+                    "PRIMITIVES: the fifth defect on this surface and the same class as the other "
+                    "four, two quantities moving together and the wrong one named. Separated by "
+                    "SUBDIVIDING one triangle, which holds coverage EXACTLY fixed while "
+                    "multiplying primitives 256x — coverage stays at one owned-pixel count and "
+                    "samples move only +16%%, ALL of it bounding-box slack. SO LOD CANNOT HELP: "
+                    "collapsing 256 primitives to 1 while drawing the same picture is worth ~16%%, "
+                    "not 256x, because LOD is a GEOMETRY-cost optimization and this cost is FILL. "
+                    "AND THE RESULT THAT NEEDS NO SCENE AT ALL: every covered pixel is tested at "
+                    "least once, so `samples >= covered pixels` for ANY geometry, and a frame that "
+                    "covers its own screen costs at least one sample per pixel — a floor no "
+                    "primitive count, LOD, spatial index or depth sort goes below, because it IS "
+                    "the definition of having drawn the frame. On the named machine's measured "
+                    "1030.4 ns/sample that floor prices a 1080p frame at %.0f ms, %.0fx the whole "
+                    "25 ms budget WITH ONE PRIMITIVE — the reference placement refuted from a "
+                    "floor rather than an extrapolation, and the first statement in this arc that "
+                    "holds for every possible world"
+                    % (floor_ms, floor_ms / 25.0)
+                    if fill_ok else "the fill-floor / coverage-confound law did not hold")
 
     def sealsession(self):
         """The attested session (T3.56, V5, URDRSSN1) — THE VISIBLE-WORLD CAPSTONE: a play session

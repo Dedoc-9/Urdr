@@ -554,3 +554,69 @@ class TheCaustic(unittest.TestCase):
         self.assertEqual(signs["observer"], -1)
         self.assertEqual(signs["culling"], +1)
         self.assertEqual(len({s for s in signs.values()}), 2, "a decomposition with one sign is a sum")
+
+
+class CoverageIsTheDriverNotPrimitiveCount(unittest.TestCase):
+    """THE FIFTH INSTRUMENT DEFECT, AND IT IS IN THE CAUSTIC ITSELF: A CONFOUNDED AXIS.
+
+    `caustic_primitives` rests on work being 'exactly linear in primitives'. That equality is real
+    for `synthetic_scene` — and that fixture grows TOTAL COVERED AREA linearly with `n`, because
+    every added triangle adds its own patch of frame. So the law measured was linear in COVERAGE
+    and was labelled linear in PRIMITIVES. Same class as every other defect on this surface: two
+    quantities moving together and the wrong one named.
+
+    Separated by subdividing one triangle, which holds coverage EXACTLY fixed while multiplying
+    primitives — the inverse of an LOD swap. Coverage stays at 18528 owned pixels from 1 primitive
+    to 256; samples move only 37249 -> 43264, and all of that is bounding-box slack.
+
+    THE CONSEQUENCE FOR LOD: it cannot help a fill-bound rasterizer. Collapsing 256 primitives to 1
+    while drawing the same picture is worth ~16%, not 256x. LOD is a GEOMETRY-cost optimization and
+    this cost is FILL."""
+
+    def test_coverage_is_invariant_under_subdivision(self):
+        cov = {lv: SF.raster_ops(SF.subdivided_scene(lv, 256), 256, 256)["owned"]
+               for lv in (0, 2, 4)}
+        self.assertEqual(len(set(cov.values())), 1, "the fixture does not hold coverage fixed")
+
+    def test_multiplying_primitives_at_fixed_coverage_is_nearly_free(self):
+        one = SF.raster_ops(SF.subdivided_scene(0, 256), 256, 256)
+        many = SF.raster_ops(SF.subdivided_scene(4, 256), 256, 256)
+        self.assertEqual(many["primitives"], 256 * one["primitives"])
+        self.assertLess(many["samples"], one["samples"] * 1.25,
+                        "256x the primitives must not cost 256x the samples at fixed coverage")
+
+    def test_the_confound_is_named_in_the_fixture_that_carried_it(self):
+        """`synthetic_scene` varies BOTH. Kept, because the per-primitive caustic is still the
+        right question for a scene whose primitives each bring their own area — but its scope is
+        now asserted rather than implied."""
+        a = SF.raster_ops(SF.synthetic_scene(4, 128), 128, 128)["owned"]
+        b = SF.raster_ops(SF.synthetic_scene(64, 128), 128, 128)["owned"]
+        self.assertGreater(b, a * 4, "the fixture is meant to grow coverage — that is the confound")
+
+
+class TheFillFloor(unittest.TestCase):
+    """AND THE RESULT THAT NEEDS NO SCENE AT ALL.
+
+    Every covered pixel was tested at least once, so `samples >= covered pixels` for ANY geometry.
+    A frame that merely covers its own screen therefore costs at least one sample per pixel — a
+    floor no primitive count, no LOD, no spatial index and no depth sort can go below, because it
+    is the definition of having drawn the frame.
+
+    This is the refutation the primitive caustic was circling. It does not depend on scene
+    complexity, and it is the first statement in this arc that holds for every possible world."""
+
+    def test_samples_never_fall_below_covered_pixels(self):
+        for lv in (0, 2, 4):
+            o = SF.raster_ops(SF.subdivided_scene(lv, 256), 256, 256)
+            self.assertGreaterEqual(o["samples"], o["owned"])
+
+    def test_the_floor_is_the_pixel_count(self):
+        self.assertEqual(SF.fill_floor_samples(1920, 1080), 1920 * 1080)
+
+    def test_the_floor_alone_refutes_the_budget_on_a_measured_host(self):
+        """1030.4 ns/sample, measured on the named machine by `--caustic`. The floor alone prices a
+        1080p frame two orders of magnitude over budget WITH ONE PRIMITIVE."""
+        ms = SF.fill_floor_ms(1920, 1080, 1030.4)
+        self.assertGreater(ms, 25.0 * 50)
+        self.assertEqual(SF.budget_verdict(
+            25.0, SF.ledger_with_graduated("frame_render", ms, ms))["verdict"], "REFUTED")
