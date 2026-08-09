@@ -102,6 +102,35 @@ the bound by re-measuring lighter work — §2's one-component-two-workloads err
 second time, hidden inside an update path. A floor now takes the max across
 workloads and cites both, so the bound is monotone by construction.
 
+## 2d. Named-machine reading, and the correction it forced
+
+`--segments` on the operator's machine (`DanielDillberg | Windows 11 | ROG Ally X`,
+Turbo-35W AC), 2026-08-09:
+
+| Segment | min / median / p95 (ms) |
+|---|---|
+| `authority_tick` | 0.0098 / 0.0104 / 0.0149 |
+| `view_export` | 0.0058 / 0.0059 / 0.0062 |
+
+**Two defects in the previous rung's own machinery surfaced on first contact with a
+real operator run, and both are mine.**
+
+**The named-host law was unsatisfiable.** `named_host_ok` demanded §1's host string
+verbatim while the runner builds its host line from `platform.node()` — so *no
+output of the runner could ever satisfy the check that gated the runner's own
+readings*. It reddened nothing because nothing called it with real data until the
+run above printed `named host (§1): NO`. A law nothing can satisfy is not a law;
+its unsatisfiability is now pinned as a falsifier so the retirement stays honest.
+The repair is not a looser string. The string **fused the machine with the
+measurement conditions**, and different instruments are sensitive to different
+ones — which panel is attached cannot move a CPU timing, while a photon capture
+needs all four. Conditions are now declared as data (`machine`, `power`,
+`scheduler`, `display`) and each instrument class requires exactly the ones that can
+move its reading. The run above grades its two software-timer segments, and not
+`scanout`.
+
+**And the observer was being timed as the renderer** — see below.
+
 ### The reference rasterizer, reported as what it is
 
 There is no layer-3 renderer, so `frame_render` cannot be measured. What stands
@@ -110,21 +139,54 @@ where one would go is `pixid`, a per-pixel ownership **witness** whose own
 checker, not a path. Timing it and reporting `frame_render` would be
 misattribution, so it is reported separately:
 
-| | |
-|---|---|
-| Unit cost (256², converged) | **381.7 ns/pixel** |
-| Derived 1080p frame | **791.5 ms** — §4's own "measure the unit, multiply by the pinned count" |
-| Against the 25 ms budget | **≈ 32× the entire budget**, ≈ 158× the 5 ms render line |
+**And the first version of this section fused four things into one number.**
+`witness()` allocates a buffer, rasterizes, serializes every pixel to bytes, and
+SHA-256s the result. Decomposed with `--render-decomp` (cloud sandbox, 256²):
 
-**Read this precisely.** It says the *placement that exists today* cannot draw a
-1080p frame anywhere near budget, on this machine. It does **not** refute Scenario
-A: a reading here bounds *here*, and the named host is untouched by it — the same
-measurement on two hosts gives two verdicts, and conflating them is the inflation
-this file exists to prevent. What it does say is that the budget lever is the same
-one §4a found for the sim tick: **the native placement, not the hardware.** A
-renderer 158× faster than a Python witness-rasterizer is not an optimization, it
-is a different program, and that program is the next rung rather than a tuning
-pass.
+| Stage | ns/pixel | Share | 1080p |
+|---|---|---|---|
+| `witness()` fused | 359.3 | 100 % | 745.0 ms |
+| buffer alloc | 19.8 | 5.5 % | 41.0 ms |
+| **rasterize (the draw loop)** | **16.9** | **4.7 %** | **35.1 ms** |
+| **identity (serialize + hash)** | **322.6** | **89.8 %** | **669.0 ms** |
+
+**Ninety percent of the "renderer" was the citation apparatus.** `serialize()`
+makes two `int.to_bytes` calls per pixel to build the string the frame digest is
+taken over. `pixid` is an **observer** — it exists to answer *what made this pixel*
+for audit — and this repo's cardinal invariant is that replay stays byte-identical
+with observers **active**, which is a claim that observers are *separable*. Timing
+them fused and calling the total a render budget breaks the four-layer discipline
+**inside the instrument**, which is the harder place to see it: no code was wrong,
+the ruler was.
+
+**So the honest render figure is 16.9 ns/px, not 359.3** — a 1080p draw loop at
+**35.1 ms** on the cloud sandbox, and the operator's machine runs the fused call
+2.3× faster, so re-measure the split there with:
+
+```
+python tools\terrain\sealframe.py --render-decomp
+```
+
+**Read precisely.** Even the corrected figure says the *Python* placement cannot
+draw 1080p at 60 Hz, on this machine. It does **not** refute Scenario A — a reading
+here bounds *here* — and it no longer says anything about a renderer being 158×
+off, because that 158× was mostly a digest. The lever is the one §4a already
+found for the sim tick: **the native placement, not the hardware.** The Python→Rust
+factor this repo has actually measured on its own hot path is ~130× (715 → 5.48
+ns/frozen-division, §4a→§4b); applying it to 16.9 ns/px would put a 1080p draw loop
+near 0.3 ms. That extrapolation is **SPECULATIVE and stays that way** — it
+transfers a factor measured on arithmetic-heavy scalar code to a memory-bound
+rasterizer, which is the same cross-workload transfer the floor rule in §2c exists
+to forbid. It is a reason to build the placement, not a number to quote.
+
+**The architectural reading.** The question is not *render3d faster* versus *a
+different renderer*. It is that the frame path and the audit path were never
+separated in the first place, and the measurement is what exposed it. A real-time
+presentation layer does not need a per-pixel witness every frame; it needs one
+**on demand**. That separation already exists in this repo's vocabulary — CORE /
+VIEW / ALLOCATOR / OBSERVER — and the observer's cost had leaked into the frame
+budget without anyone deciding it should. Cutting pixel count (LOD, culling) treats
+a symptom that is 4.7 % of the problem.
 
 **To make this bite on the named host**, run on the Ally X under §3 conditions:
 

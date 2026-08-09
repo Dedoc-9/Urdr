@@ -311,3 +311,83 @@ class TheReferenceRasterRefutesOnItsOwnHost(unittest.TestCase):
         self.assertTrue(SF.named_host_ok(SF.NAMED_HOST))
         with self.assertRaises(SF.FrameError):
             SF.ledger_from_log(SF.make_segment_log("cloud-container", {}), require_named_host=True)
+
+
+class TheObserverWasBeingTimedAsTheRenderer(unittest.TestCase):
+    """THE PREVIOUS RUNG MEASURED THE WRONG THING AND SAID SO CONFIDENTLY.
+
+    `pixid.witness` was timed at 158.9 ns/px on the named machine and reported as the cost of
+    "the placement that exists". Decomposed, 74% of that is `serialize()` — two `int.to_bytes`
+    calls per pixel building the byte string the frame DIGEST is taken over — and only ~5% is the
+    rasterizer's draw loop. The number was 95% CITATION APPARATUS.
+
+    This is a layer violation inside a MEASUREMENT. `pixid` is an OBSERVER: it exists to answer
+    'what made this pixel' for audit. The repo's cardinal invariant is that replay stays
+    byte-identical with observers ACTIVE — observers may not change the authority — and the
+    four-layer discipline says an observer's cost is not the path's cost. Timing them fused and
+    calling the total a render budget breaks that discipline in the instrument rather than in the
+    code, which is the harder place to see it."""
+
+    def test_the_render_reading_is_split_by_layer(self):
+        parts = SF.RENDER_DECOMP
+        self.assertIn("raster", parts)
+        self.assertIn("identity", parts)
+        self.assertAlmostEqual(parts["raster"] + parts["identity"] + parts["alloc"],
+                               parts["witness_total"], places=6)
+
+    def test_the_identity_share_dominates_and_is_named(self):
+        """The finding, as a number: if this ever drops below half, the decomposition has changed
+        and the conclusion drawn from it must be re-derived rather than inherited."""
+        self.assertGreater(SF.identity_share(), 0.5)
+
+    def test_raster_alone_is_reported_separately(self):
+        """The honest render figure. Fusing them was the defect; keeping them apart is the fix,
+        and `panel != scalar` says never re-average them into one number."""
+        self.assertLess(SF.RENDER_DECOMP["raster"], SF.RENDER_DECOMP["identity"])
+
+
+class TheNamedHostLawWasUnsatisfiable(unittest.TestCase):
+    """A LAW NOTHING CAN SATISFY IS NOT A LAW (L61), AND I SHIPPED ONE.
+
+    `named_host_ok` demanded §1's host string VERBATIM while `run_segments` builds its host line
+    from `platform.node()` — so no output of the runner could ever satisfy the check that gates
+    the runner's own readings. It reddened nothing because nothing called it with real data until
+    the operator ran it on the actual machine and got `named host (§1): NO`.
+
+    The repair is not a looser string. The string conflated the MACHINE with the MEASUREMENT
+    CONDITIONS, and different instruments are sensitive to different conditions: a software timer
+    on a CPU segment cares about power and scheduler and not at all about which panel is attached,
+    while a photon capture cares about all four. Conditions are declared as data and each
+    instrument class requires exactly the ones that can move its reading."""
+
+    def test_the_runner_could_never_satisfy_the_old_law(self):
+        import platform
+        synthetic = f"{platform.node()} | {platform.system()} {platform.release()} | Turbo-35W AC"
+        self.assertFalse(SF.named_host_ok(synthetic),
+                         "if this passes, the vacuity claim above is wrong and must be retracted")
+
+    def test_every_instrument_declares_the_conditions_that_can_move_it(self):
+        for inst in SF.INSTRUMENTS:
+            self.assertTrue(set(SF.CONDITIONS_FOR[inst]) <= set(SF.CONDITIONS))
+
+    def test_a_software_timer_does_not_need_a_display_declared(self):
+        """The over-strictness, made concrete: which panel is attached cannot move a CPU timing,
+        so demanding it would refuse a valid reading for an irrelevant reason."""
+        self.assertNotIn("display", SF.CONDITIONS_FOR["software-timer"])
+        self.assertIn("display", SF.CONDITIONS_FOR["external-capture"])
+
+    def test_a_reading_missing_a_relevant_condition_refuses(self):
+        log = SF.make_segment_log("Ally X", {"authority_tick": (0.01, 0.01, 0.02, "software-timer")},
+                                  conditions={"machine": "AllyX"})       # no power, no scheduler
+        with self.assertRaises(SF.FrameError):
+            SF.ledger_from_log(log, require_conditions=True)
+
+    def test_a_fully_conditioned_reading_grades(self):
+        led = SF.ledger_from_log(SF.ALLY_SEGMENT_LOG, require_conditions=True)
+        by = {s[0]: s for s in led}
+        self.assertEqual(by["view_export"][4], "MEASURED")
+        self.assertEqual(by["scanout"][4], "NOT_MEASURED")
+
+    def test_the_named_machine_reading_raises_the_bound(self):
+        self.assertGreater(SF.lower_bound_ms(SF.ledger_from_log(SF.ALLY_SEGMENT_LOG)),
+                           SF.lower_bound_ms())

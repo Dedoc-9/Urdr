@@ -353,15 +353,44 @@ def protocol_section2_totals(path=None):
 NAMED_HOST = "ROG-Ally-X-Z2-Extreme · Turbo-35W · AC · Win11 · Game-Mode-ON · Ultimate-Perf"
 PIXELS_1080P = 1920 * 1080
 
+# THE CONDITIONS, AND WHY THE VERBATIM-STRING LAW HAD TO GO. `named_host_ok` demanded §1's host
+# line exactly while `run_segments` builds its host line from `platform.node()` — so NO OUTPUT OF
+# THE RUNNER COULD EVER SATISFY THE CHECK THAT GATED THE RUNNER'S OWN READINGS. It reddened
+# nothing because nothing called it with real data until the operator ran it on the real machine.
+# A law nothing can satisfy is not a law (L61), and it is retained below for the FULL §3 protocol
+# claim only, with a falsifier pinning its unsatisfiability so the retirement stays honest.
+#
+# The deeper defect is that the string fused the MACHINE with the MEASUREMENT CONDITIONS.
+# Different instruments are sensitive to different conditions: which panel is attached cannot move
+# a CPU timing, and demanding it would refuse a valid reading for an irrelevant reason, while a
+# photon capture is sensitive to all four. So conditions are DATA, and each instrument class
+# requires exactly the ones that can move its reading.
+CONDITIONS = ("machine", "power", "scheduler", "display")
+CONDITIONS_FOR = {
+    "derived-from-rate": ("display",),                     # a refresh period is a panel property
+    "software-timer":    ("machine", "power", "scheduler"),
+    "external-capture":  ("machine", "power", "scheduler", "display"),
+}
+
 
 def named_host_ok(host):
-    """§1's law: a latency reading counts only from the named host string, verbatim."""
+    """§1's verbatim host law — for a FULL §3 protocol claim, which is the only claim whose scope
+    genuinely requires every condition fused into one string. NOT used to admit segment readings:
+    see `CONDITIONS_FOR` and the falsifier that pins why."""
     return str(host).strip() == NAMED_HOST
 
 
-def make_segment_log(host, readings):
-    """Seal a segment log: host, then `seg name lo med p95 instrument` per reading, self-digested."""
+def conditions_sufficient(conditions, instrument):
+    """Which required conditions are MISSING for this instrument — empty tuple means sufficient."""
+    have = {k for k, v in dict(conditions).items() if str(v).strip()}
+    return tuple(c for c in CONDITIONS_FOR[instrument] if c not in have)
+
+
+def make_segment_log(host, readings, conditions=None):
+    """Seal a segment log: host, declared conditions, then `seg name lo med p95 instrument`."""
     lines = ["URDRSFR1 segments v1", f"host {host}"]
+    for k in sorted(dict(conditions or {})):
+        lines.append(f"cond {k} {dict(conditions)[k]}")
     for name in sorted(readings):
         lo, med, p95, inst = readings[name]
         lines.append(f"seg {name} {lo} {med} {p95} {inst}")
@@ -379,17 +408,20 @@ def parse_segment_log(text):
         raise FrameError("the segment log does not hash to its own digest — tampered, refused")
     if lines[0] != "URDRSFR1 segments v1":
         raise FrameError("not a URDRSFR1 segments v1 log")
-    host, readings = "", {}
+    host, readings, conditions = "", {}, {}
     for ln in lines[1:-1]:
         parts = ln.split()
         if parts[0] == "host":
             host = " ".join(parts[1:])
+        elif parts[0] == "cond":
+            conditions[parts[1]] = " ".join(parts[2:])
         elif parts[0] == "seg":
             readings[parts[1]] = (float(parts[2]), float(parts[3]), float(parts[4]), parts[5])
-    return {"host": host, "readings": readings}
+    return {"host": host, "readings": readings, "conditions": conditions}
 
 
-def ledger_from_log(text, segments=SEGMENTS, require_named_host=False):
+def ledger_from_log(text, segments=SEGMENTS, require_named_host=False,
+                    require_conditions=False):
     """Grade a ledger FROM a segment log — the only door evidence comes through.
 
     Refuses an anonymous host (the named-host law), refuses `require_named_host` when the log is
@@ -408,6 +440,12 @@ def ledger_from_log(text, segments=SEGMENTS, require_named_host=False):
         if not r:
             out.append(s)
             continue
+        if require_conditions:
+            missing = conditions_sufficient(rep["conditions"], r[3])
+            if missing:
+                raise FrameError(
+                    f"{s[0]} was read with a {r[3]} and the log declares no {', '.join(missing)} — "
+                    f"a reading whose conditions are undeclared cannot be compared to another")
         # A LOG MAY ONLY RAISE A FLOOR, NEVER LOWER ONE — and this rule was found by a falsifier,
         # not designed. A `--segments` run reads `authority_tick` on the four-command sprint at
         # ~0.017 ms; §4b reads the SAME SEGMENT on 100 bipeds at 0.0723 ms. Letting the newer
@@ -422,6 +460,35 @@ def ledger_from_log(text, segments=SEGMENTS, require_named_host=False):
             lo, hi, cite = s[5], max(hi, s[6]), f"{s[7]} + segment log ({rep['host']})"
         out.append(grade_segment(s[0], "MEASURED", lo, hi, r[3], cite, segments))
     return tuple(out)
+
+
+# THE RENDER READING, SPLIT BY LAYER — the correction. ns/pixel at 256², cloud sandbox,
+# 2026-08-09, from `--render-decomp`. The previous rung reported the FUSED figure as "the
+# reference rasterizer" and it was 95% citation apparatus: `serialize()` builds the per-pixel byte
+# string the frame digest is taken over, two `int.to_bytes` calls per pixel, and that alone is 74%.
+# `pixid` is an OBSERVER — it answers 'what made this pixel' for AUDIT — and the repo's cardinal
+# invariant is that replay stays byte-identical with observers ACTIVE, which is a statement that
+# observers are SEPARABLE. Timing them fused and calling the total a render budget breaks the
+# four-layer discipline inside the instrument, which is the harder place to see it.
+RENDER_DECOMP = {"witness_total": 367.4, "alloc": 20.0, "raster": 18.3, "identity": 329.1}
+
+
+def identity_share(decomp=None):
+    """What fraction of the fused reading was the OBSERVER rather than the renderer."""
+    d = decomp or RENDER_DECOMP
+    return d["identity"] / d["witness_total"]
+
+
+# The operator's run on the named machine, 2026-08-09 (`--segments`, Turbo-35W AC). Conditions are
+# declared rather than fused into a host string, which is what lets it grade the software-timer
+# segments — and only those. `display` is absent ON PURPOSE: no reading here needs it, and
+# declaring a condition no instrument used would be decoration.
+ALLY_SEGMENT_LOG = make_segment_log(
+    "DanielDillberg | Windows 11 | ROG Ally X",
+    {"authority_tick": (0.0098, 0.0104, 0.0149, "software-timer"),
+     "view_export": (0.0058, 0.0059, 0.0062, "software-timer")},
+    conditions={"machine": "ROG-Ally-X-Z2-Extreme", "power": "Turbo-35W-AC",
+                "scheduler": "Win11-Game-Mode-ON"})
 
 
 def raster_frame_ms(pixels, ns_per_pixel):
@@ -548,6 +615,37 @@ def run_segments(out_path, host_note="", iters=60):
     return {"host": host, "readings": readings, "ns_per_px": ns_per_px, "path": out_path}
 
 
+def run_render_decomp(side=256, iters=5):
+    """OFF-GATE: split the fused `witness` reading into ALLOC / RASTER / IDENTITY.
+
+    The split is the whole point. `witness` = build a buffer + rasterize + serialize + hash, and
+    the last two are the OBSERVER's cost, not the renderer's. Reported separately and never
+    re-averaged: a single ns/px figure over the fused call is what produced the previous rung's
+    misattribution."""
+    import time
+    _r = _os.path.join(_os.path.dirname(_os.path.dirname(_HERE)), "tools", "render")
+    if _r not in _sys.path:
+        _sys.path.insert(0, _r)
+    import pixid as _PX
+
+    def med(fn, n):
+        s = []
+        for _ in range(n):
+            t0 = time.perf_counter_ns()
+            fn()
+            s.append(time.perf_counter_ns() - t0)
+        s.sort()
+        return s[len(s) // 2]
+
+    px = side * side
+    done = _PX.IdFramebuffer(side, side, 0, 100).render(_PX.SCENE)
+    whole = med(lambda: _PX.witness(_PX.SCENE, side, side, 0, 100), iters)
+    alloc = med(lambda: _PX.IdFramebuffer(side, side, 0, 100), iters)
+    rast = med(lambda: _PX.IdFramebuffer(side, side, 0, 100).render(_PX.SCENE), iters) - alloc
+    return {"witness_total": whole / px, "alloc": alloc / px, "raster": rast / px,
+            "identity": (whole - alloc - rast) / px, "side": side}
+
+
 def sealframe_digest(name, micro_steps, reads, verdict):
     """URDRSFR1 canon — SHA-256(MAGIC | name | micro_steps | reads | verdict)."""
     hh = hashlib.sha256()
@@ -640,5 +738,13 @@ if __name__ == "__main__":
         v = budget_verdict(25.0, ledger_from_log(open(out, encoding='utf-8').read()))
         print(f"  verdict vs 25 ms on THIS host: {v['verdict']}"
               f"  (lower bound {v['lower_ms']:.4f} ms; unmeasured: {', '.join(v['unmeasured']) or 'none'})")
+    elif len(_sys.argv) >= 2 and _sys.argv[1] == "--render-decomp":
+        d = run_render_decomp()
+        print("RENDER DECOMPOSITION (ns/pixel @256²) — the layer split, re-measured HERE")
+        for k in ("witness_total", "alloc", "raster", "identity"):
+            print(f"  {k:14s} {d[k]:9.1f} ns/px   {100.0 * d[k] / d['witness_total']:5.1f}%"
+                  f"   1080p = {raster_frame_ms(PIXELS_1080P, d[k]):8.1f} ms")
+        print(f"  identity share: {100.0 * identity_share(d):.1f}%  — the OBSERVER, not the renderer."
+              f"  Never re-average these into one number (`panel != scalar`).")
     else:
-        print("usage: sealframe.py [--bench | --segments] [out_path] [host_note]")
+        print("usage: sealframe.py [--bench | --segments | --render-decomp] [out_path] [host_note]")

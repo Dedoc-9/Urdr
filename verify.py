@@ -16786,6 +16786,62 @@ class Gate:
                     "path. The floor takes the max and cites both sources, which makes "
                     "monotonicity structural instead of the caller's problem"
                     if seg_ok else "the segment-log / instrument-at-the-door law did not hold")
+        lay_ok = True
+        ish = 0.0
+        try:
+            import platform as _plat
+            d = SF.RENDER_DECOMP
+            ish = SF.identity_share()
+            lay_ok = (abs(d["raster"] + d["identity"] + d["alloc"] - d["witness_total"]) < 1e-6
+                      and ish > 0.5 and d["raster"] < d["identity"])
+            # the retired law is proved UNSATISFIABLE by the runner that it gated
+            synth = f"{_plat.node()} | {_plat.system()} {_plat.release()} | Turbo-35W AC"
+            lay_ok = (lay_ok and not SF.named_host_ok(synth) and SF.named_host_ok(SF.NAMED_HOST))
+            for inst in SF.INSTRUMENTS:
+                lay_ok = lay_ok and set(SF.CONDITIONS_FOR[inst]) <= set(SF.CONDITIONS)
+            lay_ok = (lay_ok and "display" not in SF.CONDITIONS_FOR["software-timer"]
+                      and "display" in SF.CONDITIONS_FOR["external-capture"])
+            thin = SF.make_segment_log("h", {"authority_tick": (0.01, 0.01, 0.02,
+                                                                "software-timer")},
+                                       conditions={"machine": "AllyX"})
+            try:
+                SF.ledger_from_log(thin, require_conditions=True); lay_ok = False
+            except SF.FrameError:
+                pass
+            ally = SF.ledger_from_log(SF.ALLY_SEGMENT_LOG, require_conditions=True)
+            byn = {s[0]: s for s in ally}
+            lay_ok = (lay_ok and byn["view_export"][4] == "MEASURED"
+                      and byn["scanout"][4] == "NOT_MEASURED"
+                      and SF.lower_bound_ms(ally) > SF.lower_bound_ms())
+        except Exception:
+            lay_ok = False
+        self.record("sealframe-layers", lay_ok,
+                    "THE OBSERVER WAS BEING TIMED AS THE RENDERER, and the previous rung said so "
+                    "confidently. `pixid.witness` was reported as the cost of the placement that "
+                    "exists; decomposed it is %.0f%% CITATION APPARATUS — `serialize()` builds the "
+                    "per-pixel byte string the frame digest is taken over, two `int.to_bytes` "
+                    "calls per pixel, 74%% of the total — against ~5%% in the rasterizer's draw "
+                    "loop. `pixid` is an OBSERVER: it answers 'what made this pixel' for AUDIT, "
+                    "and this repo's cardinal invariant is that replay stays byte-identical with "
+                    "observers ACTIVE, which is a claim that observers are SEPARABLE. Timing them "
+                    "fused and calling the total a render budget breaks the four-layer discipline "
+                    "INSIDE THE INSTRUMENT, which is the harder place to see it — no code was "
+                    "wrong, the ruler was. Split and kept split (`panel != scalar` forbids "
+                    "re-averaging them). AND THE NAMED-HOST LAW WAS UNSATISFIABLE: it demanded §1's "
+                    "string verbatim while the runner builds its host line from `platform.node()`, "
+                    "so no output of the runner could ever satisfy the check that gated the "
+                    "runner's own readings — vacuous (L61), reddening nothing until the operator "
+                    "ran it on the real machine and read `named host: NO`. Its unsatisfiability is "
+                    "now PINNED as a falsifier so the retirement stays honest, and admission moved "
+                    "to DECLARED CONDITIONS, because the string fused the MACHINE with the "
+                    "MEASUREMENT CONDITIONS and different instruments are sensitive to different "
+                    "ones: which panel is attached cannot move a CPU timing, so demanding it would "
+                    "refuse a valid reading for an irrelevant reason, while a photon capture needs "
+                    "all four. The operator's named-machine run grades its two software-timer "
+                    "segments and NOT `scanout`, which is the mechanism working rather than "
+                    "yielding"
+                    % (100.0 * ish)
+                    if lay_ok else "the layer-split / condition-admission law did not hold")
 
     def sealsession(self):
         """The attested session (T3.56, V5, URDRSSN1) — THE VISIBLE-WORLD CAPSTONE: a play session
