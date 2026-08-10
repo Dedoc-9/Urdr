@@ -841,6 +841,106 @@ def tight_defect_drops_fragments(side=128):
     return bad["fragments"] < good["fragments"]
 
 
+# ---- attacking OVERDRAW, the factor the tight walk left standing -------------------------
+#
+# ORDERING ALONE BUYS NOTHING, MEASURED. Sorting front-to-back leaves samples, fragments, ownership
+# writes and owned pixels ALL IDENTICAL on the authored world — the depth compare happens either
+# way, and only ~15527 of 57772 fragments ever write even in submission order, so there is no pile
+# of wasted writes for an ordering to remove. A front-to-back pass is a real optimization in a
+# renderer that SHADES; this one has nothing to protect, and saying so is cheaper than shipping a
+# reorder that measures as a no-op.
+#
+# WHAT DOES WORK IS SKIPPING PRIMITIVES WHOLE. Depth here is a convex combination of the vertex
+# depths (`ea + eb + ec == area`), so a triangle's nearest point is the nearest of its vertices. If
+# every pixel of its bounding box already holds something STRICTLY nearer than that, the triangle
+# cannot win anywhere and may be dropped before a single sample is taken. Sound by that argument
+# and CHECKED by bit-identity rather than trusted.
+def raster_ops_culled(primitives, w, h, znear=0, zfar=100):
+    """Front-to-back with per-primitive occlusion. Same picture, fewer samples."""
+    PX = _pixid()
+    SUB, HALF = PX.SUB, PX.SUB >> 1
+    fb = PX.IdFramebuffer(w, h, znear, zfar)
+    samples = fragments = skipped = 0
+    for p in sorted(primitives, key=lambda q: min(q[3])):
+        (x0, y0), (x1, y1), (x2, y2), (z0, z1, z2), iid, pid = PX._check_primitive(p)
+        if PX.edge(x0, y0, x1, y1, x2, y2) < 0:
+            (x1, y1), (x2, y2) = (x2, y2), (x1, y1)
+            z1, z2 = z2, z1
+        area = PX.edge(x0, y0, x1, y1, x2, y2)
+        if area == 0:
+            continue
+        minx, maxx = max(0, min(x0, x1, x2) // SUB), min(w - 1, max(x0, x1, x2) // SUB)
+        miny, maxy = max(0, min(y0, y1, y2) // SUB), min(h - 1, max(y0, y1, y2) // SUB)
+        zmin, hidden = min(z0, z1, z2), True
+        for py in range(miny, maxy + 1):
+            for px in range(minx, maxx + 1):
+                k = py * w + px
+                # `>=` and not `>`: an EQUAL depth can still win on the (instance, primitive)
+                # tie-break, so equality must count as not-hidden or the cull would change the
+                # picture at exactly the pixels the tie rule exists to decide.
+                if fb.znum[k] is None or fb.znum[k] >= zmin * fb.zden[k]:
+                    hidden = False
+                    break
+            if not hidden:
+                break
+        if hidden:
+            skipped += 1
+            continue
+        for py in range(miny, maxy + 1):
+            a, b = scanline_span(x0, y0, x1, y1, x2, y2, py, w)
+            a, b = max(a, minx), min(b, maxx)
+            sy = py * SUB + HALF
+            for px in range(a, b + 1):
+                samples += 1
+                hit = PX._covers(x0, y0, x1, y1, x2, y2, px * SUB + HALF, sy)
+                if hit is None:
+                    continue
+                fragments += 1
+                ea, eb, ec = hit
+                num = eb * z0 + ec * z1 + ea * z2
+                if not (znear * area <= num <= zfar * area):
+                    continue
+                fb._own(px, py, num, area, iid, pid)
+    return {"samples": samples, "fragments": fragments, "skipped": skipped,
+            "owned": sum(1 for v in fb.iid if v != PX.EMPTY), "fb": fb}
+
+
+def culled_census(side):
+    """tight versus tight+cull on the authored world, with bit-identity checked."""
+    PX = _pixid()
+    scene = world_scene(side)
+    tight = raster_ops_tight(scene, side, side)
+    cull = raster_ops_culled(scene, side, side)
+    return {"tight_samples": tight["samples"], "culled_samples": cull["samples"],
+            "tight_fragments": tight["fragments"], "culled_fragments": cull["fragments"],
+            "skipped": cull["skipped"], "primitives": len(scene),
+            "reduction": tight["samples"] / float(max(1, cull["samples"])),
+            "buffer_identical": (tight["fb"].iid, tight["fb"].pid)
+                                == (cull["fb"].iid, cull["fb"].pid)}
+
+
+def ordering_alone_changes_nothing(side=128):
+    """THE DEFLATIONARY HALF, kept because a measured no-op is a result. Sorting front-to-back
+    WITHOUT the occlusion test leaves every count identical — the win comes from skipping
+    primitives, never from the order in which the survivors are drawn."""
+    scene = world_scene(side)
+    a = raster_ops_tight(scene, side, side)
+    b = raster_ops_tight(tuple(sorted(scene, key=lambda q: min(q[3]))), side, side)
+    return (a["samples"], a["fragments"], a["owned"]) == (b["samples"], b["fragments"], b["owned"])
+
+
+def culling_is_absent_on_the_culled_path(side=128):
+    """THE FOCUSING HYPOTHESIS, RETIRED WHERE IT NO LONGER HOLDS — and only there.
+
+    `culling_is_absent` reports on `raster_ops`, which still walks every primitive: omega = 0
+    there, so the caustic's inevitability still applies to that path. On THIS path omega is
+    nonzero by construction, and the Raychaudhuri framing said in as many words that the
+    inevitability stops being claimed the moment a spatial index makes it false. Something now
+    does, so this returns False and the claim retires for this path rather than being quietly
+    carried over to it."""
+    return raster_ops_culled(world_scene(side), side, side)["skipped"] == 0
+
+
 WORLD_CENSUS_SIDES = (128, 256)
 
 

@@ -840,3 +840,40 @@ class TheTightTraversal(unittest.TestCase):
         scene = SF.world_scene(side)
         base = SF.raster_ops(scene, side, side)
         self.assertEqual(base["fragments"], SF.raster_ops_tight(scene, side, side)["fragments"])
+
+
+class TheCulledPath(unittest.TestCase):
+    """ATTACKING OVERDRAW, the factor the tight walk left standing — and one of the two obvious
+    approaches measures as a NO-OP, which is the half worth keeping."""
+
+    def test_ordering_alone_changes_nothing(self):
+        """Sorting front-to-back WITHOUT the occlusion test leaves every count identical. The
+        depth compare happens either way, and only ~15527 of 57772 fragments ever write even in
+        submission order, so there is no pile of wasted writes for an ordering to remove. A
+        front-to-back pass is a real optimization in a renderer that SHADES; this one has nothing
+        to protect. A measured no-op is a result, and cheaper than shipping the reorder."""
+        self.assertTrue(SF.ordering_alone_changes_nothing())
+
+    def test_skipping_primitives_whole_halves_the_work(self):
+        for side in (128, 256):
+            with self.subTest(side):
+                c = SF.culled_census(side)
+                self.assertGreater(c["reduction"], 1.9)
+                self.assertGreater(c["skipped"], c["primitives"] // 4)
+
+    def test_the_picture_is_bit_identical(self):
+        """The soundness argument is that depth is a CONVEX COMBINATION of the vertex depths
+        (`ea + eb + ec == area`), so a triangle's nearest point is the nearest of its vertices and
+        one strictly nearer everywhere in its box cannot win. Argued, then CHECKED — this repo
+        does not ship a traversal change on an argument alone."""
+        for side in (128, 256):
+            self.assertTrue(SF.culled_census(side)["buffer_identical"])
+
+    def test_the_focusing_hypothesis_retires_only_where_it_fails(self):
+        """omega = 0 still holds for `raster_ops`, which walks every primitive, so the caustic's
+        inevitability still applies THERE. On the culled path omega is nonzero by construction.
+        The Raychaudhuri framing said the inevitability stops being claimed the moment a spatial
+        index makes it false; something now does, and the retirement is scoped to that path rather
+        than carried across to the other."""
+        self.assertTrue(SF.culling_is_absent())
+        self.assertFalse(SF.culling_is_absent_on_the_culled_path())

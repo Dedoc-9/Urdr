@@ -17188,6 +17188,45 @@ class Gate:
                        tc[256]["bbox_samples"], tc[256]["tight_samples"],
                        tc[256]["reduction"], tc[256]["slack_after"])
                     if tt_ok else "the tight-traversal identity law did not hold")
+        cu_ok = True
+        cc = {}
+        try:
+            cc = {sd: SF.culled_census(sd) for sd in SF.WORLD_CENSUS_SIDES}
+            for c in cc.values():
+                cu_ok = (cu_ok and c["buffer_identical"] and c["reduction"] > 1.9
+                         and c["skipped"] > c["primitives"] // 4)
+            cu_ok = (cu_ok and SF.ordering_alone_changes_nothing()
+                     and SF.culling_is_absent()
+                     and not SF.culling_is_absent_on_the_culled_path())
+        except Exception:
+            cu_ok = False
+        self.record("sealframe-culled-path", cu_ok,
+                    "OVERDRAW ATTACKED, AND ONE OF THE TWO OBVIOUS APPROACHES MEASURES AS A "
+                    "NO-OP — the half worth keeping. Sorting front-to-back WITHOUT an occlusion "
+                    "test leaves samples, fragments and owned pixels ALL IDENTICAL: the depth "
+                    "compare happens either way and only ~15527 of 57772 fragments ever write "
+                    "even in submission order, so there is no pile of wasted writes for an "
+                    "ordering to remove. A front-to-back pass is a real optimization in a "
+                    "renderer that SHADES; this one has nothing to protect, and a measured no-op "
+                    "is a result cheaper than shipping the reorder. WHAT WORKS IS SKIPPING "
+                    "PRIMITIVES WHOLE: depth is a CONVEX COMBINATION of the vertex depths "
+                    "(ea+eb+ec == area), so a triangle's nearest point is the nearest of its "
+                    "vertices, and if every pixel of its box already holds something strictly "
+                    "nearer it cannot win anywhere and is dropped before one sample is taken — "
+                    "%d of %d primitives on the authored world, %d -> %d samples at 256² "
+                    "(%.2fx), BIT-IDENTICAL buffer. `>=` and not `>`, because an EQUAL depth can "
+                    "still win on the tie-break and the cull would otherwise change the picture "
+                    "at exactly the pixels the tie rule exists to decide. Argued, then CHECKED: "
+                    "this repo does not ship a traversal change on an argument alone. AND THE "
+                    "FOCUSING HYPOTHESIS RETIRES WHERE IT FAILS AND ONLY THERE — omega = 0 still "
+                    "holds for `raster_ops`, which walks every primitive, so the caustic's "
+                    "inevitability still applies to that path; on the culled path omega is "
+                    "nonzero by construction. The Raychaudhuri framing said the inevitability "
+                    "stops being claimed the moment a spatial index makes it false. Something now "
+                    "does"
+                    % (cc[256]["skipped"], cc[256]["primitives"], cc[256]["tight_samples"],
+                       cc[256]["culled_samples"], cc[256]["reduction"])
+                    if cu_ok else "the culled-path identity law did not hold")
         cau_ok = True
         c128 = c256 = 0
         try:

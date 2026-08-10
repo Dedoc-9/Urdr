@@ -488,6 +488,51 @@ shading, still not a frame budget — but the gap that was 4× on real geometry 
 about one refresh period, from an algorithm change with a bit-identical output rather
 than from a faster machine.
 
+## 2k. Overdraw — one obvious fix is a no-op, the other halves the work
+
+§2j left overdraw at 3.72× as the dominant factor. Two approaches, and the first is
+worth reporting precisely because it fails.
+
+**Front-to-back ordering alone changes nothing.** Samples, fragments, ownership
+writes and owned pixels are all identical. The depth compare happens either way, and
+only ~15 527 of 57 772 fragments ever write even in submission order — there is no
+pile of wasted writes for an ordering to remove. A front-to-back pass is a real
+optimization in a renderer that *shades*; this one has nothing to protect. A measured
+no-op is cheaper than shipping the reorder.
+
+**Skipping primitives whole halves the work.** Depth is a convex combination of the
+vertex depths (`ea + eb + ec == area`), so a triangle's nearest point is the nearest
+of its vertices; if every pixel of its bounding box already holds something strictly
+nearer, it cannot win anywhere and is dropped before one sample is taken.
+
+| side | tight samples | + cull | reduction | primitives skipped |
+|---|---|---|---|---|
+| 128² | 18 219 | 9 021 | **2.02×** | 3 906 / 7 938 |
+| 256² | 64 977 | 31 356 | **2.07×** | 4 425 / 7 938 |
+
+**Bit-identical buffer**, and `>=` rather than `>` in the test — an equal depth can
+still win on the tie-break, so equality must count as not-hidden or the cull would
+change the picture at exactly the pixels the tie rule exists to decide. Argued, then
+checked.
+
+### The render segment fits
+
+| stage | 1080p samples | Rust @ 15 ns | vs 25 ms |
+|---|---|---|---|
+| bbox walk (§2i) | ≈ 6.7 M | ≈ 100 ms | 4.0× |
+| tight walk (§2j) | ≈ 1.9 M | ≈ 28 ms | 1.1× |
+| **+ occlusion cull** | **≈ 0.92 M** | **≈ 14 ms** | **0.55×** |
+
+Inside a 60 Hz frame, single-threaded, with a bit-identical picture — reached by two
+algorithm changes and no faster hardware. Still no shading, still not `input→photon`,
+and the segment ledger still refuses to call any of it MEASURED without a host log.
+
+**And the focusing hypothesis retires where it fails, only there.** ω = 0 still holds
+for `raster_ops`, which walks every primitive, so §2f's caustic still applies to that
+path. On the culled path ω is nonzero by construction. The Raychaudhuri framing said
+the inevitability stops being claimed the moment a spatial index makes it false —
+something now does.
+
 ## 2h. The placement, measured — the extrapolation graduates
 
 `tools/render/urdr_raster_rs/raster_bench.rs` walks the same bounding boxes with the
