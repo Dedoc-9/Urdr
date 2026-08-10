@@ -206,6 +206,7 @@ STAGE_ORDER = (
     "ghostsnap",
     "sealframe",
     "caustic",
+    "worldbasis",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16611,6 +16612,66 @@ class Gate:
                     "the teleport (the declared, executable boundary)"
                     if kin_ok else "the ghost kinematic law did not hold")
 
+    def worldbasis(self):
+        """What a world coordinate MEANS (URDRWBS1) — the dimensional decision, as data. Rows:
+        conformance (the contract is satisfiable and discriminating; the census reads the live
+        modules; the sample-convention divergence measured with its denominator)."""
+        for d in ("physics", "terrain", "netcode"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import worldbasis as WB
+        except Exception as exc:
+            self.record("worldbasis-conformance", False, f"import failed (worldbasis): {exc}")
+            return
+        ok, div, cen = True, {}, {}
+        try:
+            ok = (WB.a_conforming_world_is_recognised() and WB.sideways_gravity_is_refused()
+                  and not WB.obeys_the_basis({"pos": [[0, 0]], "grav": (0, 10)})
+                  and WB.gravity_axes({"grav": (0, 7, 0)}) == (1,)
+                  and WB.walker_movement_axes() == (0, 1)
+                  and WB.census_is_non_vacuous() and WB.sample_conventions_diverge())
+            cen = WB.conformance_census()
+            ok = ok and "CONFORMS" not in {v for v, _w in cen.values()}
+            try:
+                WB.sample_convention_of("nobody")
+                ok = False
+            except WB.BasisError:
+                pass
+            div = WB.convention_divergence()
+            ok = ok and div["differing"] > div["cells"] * 9 // 10 and div["worst6"] > 0
+        except Exception:
+            ok = False
+        self.record("worldbasis-conformance", ok,
+                    "WHAT A WORLD COORDINATE MEANS, AS DATA — the dimensional decision recorded "
+                    "rather than remembered. The arc forked: the simulated world gains a second "
+                    "HORIZONTAL axis, or the walker projects into the netcode plane. THE WORLD "
+                    "GAINS THE AXIS, because projection would make one coordinate carry two "
+                    "incompatible physical meanings — a walker moving north would change the "
+                    "component gravity acts on — and terrain height would still need somewhere to "
+                    "live, recreating the seam it was meant to close. Projection HIDES the "
+                    "mismatch. X horizontal, Y VERTICAL and gravity only there, Z horizontal; "
+                    "SATISFIABLE (a synthetic 3D world with gravity on Y is accepted, without "
+                    "which this repeats L65's unsatisfiable law one arc later) and "
+                    "DISCRIMINATING (a 3D world with SIDEWAYS gravity is refused, without which "
+                    "it would be an axis-count check wearing a semantics claim). NOTHING CONFORMS "
+                    "TODAY and that is the honest starting state — %s — a census showing "
+                    "everything already conforming would mean the contract was written to fit. "
+                    "AND THE ANCHOR HALF EARNED ITSELF ON ARRIVAL: `glide` reads a height as the "
+                    "ground under an actor, CONSTANT over its cell (its own docstring says the "
+                    "exact floor-sampled cell height) while `terrain_bridge` reads THE SAME ARRAY "
+                    "as vertices, a surface INTERPOLATED between lattice points. %d of %d cells "
+                    "differ on the island preset, worst %.2f height units against a height_scale "
+                    "of %d — the actor floats or sinks relative to the terrain it is drawn on in "
+                    "98%% of cells. Neither reader is wrong and each is self-consistent; the "
+                    "defect is that NOTHING DECIDED between them, because there was nowhere to "
+                    "say it"
+                    % ("; ".join("%s %s" % (k, v) for k, (v, _w) in sorted(cen.items())),
+                       div.get("differing", 0), div.get("cells", 0),
+                       div.get("worst6", 0) / 6.0, div.get("height_scale", 0))
+                    if ok else "the world-basis contract or census did not hold")
+
     def caustic(self):
         """The scale at which a pinned law spends its budget (URDRCAU1) — and the refusal that
         stops one confounded axis becoming five. Rows: caustic-refusal (the kinds, the selective
@@ -18571,7 +18632,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
