@@ -185,3 +185,49 @@ class TheFieldMemo(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheTerrainNetcodeCorrespondenceIsUndefined(unittest.TestCase):
+    """THE SEAM MEASUREMENT, RETIRED BEFORE IT WAS BUILT — and that is the result.
+
+    The proposed first rung was a seam certificate: count where terrain ground height and netcode
+    resting height disagree, reported as (disagree, overlap) per predicate, guarded against
+    vacuity by OVERLAP == 0. Its three outcome states were zero-overlap, agreement, disagreement.
+    It had NO STATE for the case that actually obtains — an overlap that is numerically non-empty
+    and semantically meaningless.
+
+    `worldstep`'s world is a 2D SIDE VIEW: two position components, gravity along axis 1,
+    `floor`/`ceil` bounding it. The terrain walker is a TOP-DOWN GRID: `stance.DIRS` spends axis 1
+    on N/S movement and height is a THIRD quantity. Axis 0 corresponds; axis 1 means VERTICAL in
+    one world and HORIZONTAL in the other; and there is no third netcode axis to hold a height.
+
+    The measurement would have produced counts, passed its own non-vacuity guard, and compared a
+    map ROW INDEX against a height above a floor. The fifth defect of this arc — a confounded axis
+    — arriving in the ARCHITECTURE instead of an instrument."""
+
+    def test_the_axis_semantics_are_read_from_code(self):
+        s = TBR.axis_semantics()
+        self.assertEqual(s["netcode_axes"], 2)
+        self.assertIn(1, s["netcode_gravity_axes"])
+        self.assertTrue(s["netcode_bounded_axis1"])
+        self.assertIn(1, s["terrain_movement_axes"])
+
+    def test_the_correspondence_is_undefined(self):
+        self.assertTrue(TBR.netcode_correspondence_is_undefined())
+
+    def test_the_check_can_say_defined(self):
+        """NON-VACUITY. A checker that could only ever report 'undefined' would keep reporting it
+        after somebody defines it — the unsatisfiable-law shape this arc has already retired once,
+        inverted. On a synthetic world with a third axis and gravity off axis 1 it must say False."""
+        self.assertTrue(TBR.correspondence_check_can_fail())
+
+    def test_both_clauses_are_load_bearing(self):
+        """Two independent reasons — axis 1 is spoken for, and there is no room for a height — so
+        fixing either alone leaves the correspondence undefined, and a proposal that fixes one
+        must not be read as having fixed the seam."""
+        s = dict(TBR.axis_semantics())
+        s.update(netcode_axes=3, terrain_has_separate_height=True)
+        self.assertTrue(TBR.netcode_correspondence_is_undefined(s))   # axis 1 still clashes
+        s = dict(TBR.axis_semantics())
+        s.update(netcode_gravity_axes=(0,), netcode_bounded_axis1=False)
+        self.assertTrue(TBR.netcode_correspondence_is_undefined(s))   # still no room for height

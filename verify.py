@@ -5626,6 +5626,39 @@ class Gate:
                     if defect_ok else "the defect did not misclassify")
         try:
             import terrain_bridge as TBR
+            sem = TBR.axis_semantics()
+            seam_ok = (TBR.netcode_correspondence_is_undefined()
+                       and TBR.correspondence_check_can_fail()
+                       and sem["netcode_axes"] == 2 and 1 in sem["netcode_gravity_axes"]
+                       and 1 in sem["terrain_movement_axes"])
+            probe = dict(sem); probe.update(netcode_axes=3)
+            seam_ok = seam_ok and TBR.netcode_correspondence_is_undefined(probe)
+            probe = dict(sem); probe.update(netcode_gravity_axes=(0,), netcode_bounded_axis1=False)
+            seam_ok = seam_ok and TBR.netcode_correspondence_is_undefined(probe)
+        except Exception:
+            seam_ok = False
+        self.record("terrain-netcode-correspondence", seam_ok,
+                    "A MEASUREMENT RETIRED BEFORE IT WAS BUILT, and that is the result. The "
+                    "proposed rung was a seam certificate — count where terrain ground height and "
+                    "netcode resting height disagree, (disagree, overlap) per predicate, guarded "
+                    "against vacuity by OVERLAP == 0, with three outcome states: zero-overlap, "
+                    "agreement, disagreement. IT HAD NO STATE FOR THE CASE THAT OBTAINS. "
+                    "`worldstep`'s world is a 2D SIDE VIEW — two position components, gravity "
+                    "along axis 1, floor/ceil bounding it — while the terrain walker is a "
+                    "TOP-DOWN GRID whose `stance.DIRS` spends axis 1 on N/S movement with height "
+                    "as a THIRD quantity. Axis 0 corresponds; axis 1 means VERTICAL in one world "
+                    "and HORIZONTAL in the other; and no netcode axis can hold a terrain height. "
+                    "The measurement would have produced counts, PASSED ITS OWN NON-VACUITY "
+                    "GUARD, and compared a map ROW INDEX against a height above a floor — the "
+                    "fifth defect of this arc, a confounded axis, arriving in the ARCHITECTURE "
+                    "rather than in an instrument. Read from code (`grav`, `floor`/`ceil`, "
+                    "`DIRS`) rather than restated, with TWO INDEPENDENT clauses each proved "
+                    "load-bearing, so a proposal that fixes one is not read as having fixed the "
+                    "seam; and the check can say DEFINED on a synthetic third-axis world, without "
+                    "which it would keep reporting undefined after somebody defined it — the "
+                    "unsatisfiable-law shape L65 records, inverted"
+                    if seam_ok else "the terrain/netcode correspondence audit did not hold")
+        try:
             import canon_ref as CR
             obj_ok = True
             for name, (scene, stride, xy, zn, zd) in TBR.BRIDGES.items():

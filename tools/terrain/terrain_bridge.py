@@ -19,6 +19,74 @@ field with different provenance are the same object.
 Everything here is exact integer arithmetic on already-integer heights; no rounding
 happens in this module at all. Grade: MEASURED (reference) once gated; the editor/world
 consumption of the produced objects is the existing, already-measured machinery."""
+# ---- WHAT THIS BRIDGE DOES NOT DO, and why nothing can yet --------------------------------
+#
+# This module converts a heightfield into a URDROBJ2 wireframe VIEW object. It is regularly
+# mistaken — including by the author of this block, in the proposal that produced it — for the
+# missing link between the terrain a walker crosses and the world the netcode spine simulates.
+# It is not, and the reason is not that the link is unwritten. THE CORRESPONDENCE IS UNDEFINED.
+#
+# `worldstep`'s world is a 2D SIDE VIEW: `pos` has two components, `grav` acts along axis 1, and
+# `floor`/`ceil` bound that axis. The terrain walker is a TOP-DOWN 2D GRID: `stance.DIRS` spends
+# axis 1 on N/S movement, and height is a THIRD quantity sampled per cell. So axis 0 corresponds,
+# axis 1 means VERTICAL in one world and HORIZONTAL in the other, and the netcode world has no
+# third axis to hold a terrain height at all.
+#
+# THIS RETIRES A MEASUREMENT BEFORE IT WAS BUILT. The proposed first rung was a seam certificate —
+# count where terrain ground height and netcode resting height disagree, reported as
+# (disagree, overlap) per predicate, with the vacuity guard OVERLAP == 0. Its three outcome states
+# were zero-overlap, agreement, and disagreement. It had NO STATE for the case that actually
+# obtains: an overlap that is numerically non-empty and semantically meaningless, because the
+# quantity on each side of the comparison names a different physical direction. That measurement
+# would have produced counts, passed its own non-vacuity guard, and compared a map ROW INDEX
+# against a height above a floor. The fifth defect of this arc — a confounded axis — arriving in
+# the ARCHITECTURE rather than in an instrument.
+#
+# The three options on the table (terrain becomes statics / certify the seam / a heightfield
+# collision primitive) all presuppose one coordinate space. A dimensional decision comes first:
+# either the simulated world gains a second horizontal axis, or the walker projects into the
+# netcode plane. Neither is a measurement, and neither is smuggled in here.
+def axis_semantics():
+    """READ FROM CODE, not restated: what each world spends its axes on.
+
+    Imported function-locally on purpose — a module-scope edge from terrain to netcode is exactly
+    the cross-subsystem dependency `lattice-depth` measures, and this is an audit, not a use."""
+    import os as _o
+    import sys as _s
+    for _d in ("netcode", "physics"):
+        _p = _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))), _d)
+        if _p not in _s.path:
+            _s.path.insert(0, _p)
+    import stance as _ST
+    import worldstep as _WS
+    w = _WS.arena_world()
+    return {"netcode_axes": len(w["pos"][0]),
+            "netcode_gravity_axes": tuple(i for i, g in enumerate(w["grav"]) if g),
+            "netcode_bounded_axis1": ("floor" in w and "ceil" in w),
+            "terrain_movement_axes": tuple(sorted({i for d in _ST.DIRS.values()
+                                                   for i, c in enumerate(d) if c})),
+            "terrain_has_separate_height": True}
+
+
+def netcode_correspondence_is_undefined(sem=None):
+    """TRUE while axis 1 means different things in the two worlds, or while the netcode world has
+    no axis to hold a terrain height. A reason, not a verdict — see the block above."""
+    s = sem or axis_semantics()
+    axis1_is_vertical_in_netcode = 1 in s["netcode_gravity_axes"] and s["netcode_bounded_axis1"]
+    axis1_is_horizontal_in_terrain = 1 in s["terrain_movement_axes"]
+    no_room_for_height = s["netcode_axes"] < 3 and s["terrain_has_separate_height"]
+    return (axis1_is_vertical_in_netcode and axis1_is_horizontal_in_terrain) or no_room_for_height
+
+
+def correspondence_check_can_fail(sem=None):
+    """NON-VACUITY. A checker that cannot say 'defined' would report the seam undefined forever,
+    including after somebody defines it — which is the shape of law this arc has already retired
+    once. On a synthetic world with a third axis and gravity off axis 1, this must return False."""
+    s = dict(sem or axis_semantics())
+    s.update(netcode_axes=3, netcode_gravity_axes=(2,), netcode_bounded_axis1=False)
+    return not netcode_correspondence_is_undefined(s)
+
+
 import hashlib
 
 from heightfield import TerrainError, generate
