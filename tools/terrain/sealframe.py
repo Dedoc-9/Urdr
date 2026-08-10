@@ -639,12 +639,15 @@ def raster_ops(primitives, w, h, znear=0, zfar=100, cull=None):
     counted from the RUN, so model==execution is asserted rather than assumed — the same discipline
     `frame_ops` uses against `instrumented_micro_steps`."""
     PX = _pixid()
-    counted = [0]
+    counted = [0, 0]                                       # bbox samples tested, fragments passing
     real = PX._covers
 
     def counting(*a):
         counted[0] += 1
-        return real(*a)
+        r = real(*a)
+        if r is not None:
+            counted[1] += 1
+        return r
 
     model = 0
     for p in primitives:                                   # the closed form, clipped as `draw` does
@@ -665,8 +668,77 @@ def raster_ops(primitives, w, h, znear=0, zfar=100, cull=None):
     finally:
         PX._covers = real
     writes = sum(1 for v in fb.iid if v != PX.EMPTY)
-    return {"samples": counted[0], "samples_model": model, "owned": writes,
-            "pixels": w * h, "primitives": len(primitives)}
+    # THREE COUNTS, NOT TWO, and the third is what stops the ratio being misattributed. A single
+    # samples/owned figure fuses two unrelated causes: BBOX SLACK (a bounding box is larger than
+    # its triangle, badly so for the thin slanted triangles a terrain viewed at an angle produces)
+    # and OVERDRAW (several fragments genuinely landing on one pixel). They have different fixes —
+    # a tighter traversal against a depth prepass or a front-to-back order — so reporting their
+    # product would name neither, which is this file's recurring defect in its fifth costume.
+    return {"samples": counted[0], "fragments": counted[1], "samples_model": model,
+            "owned": writes, "pixels": w * h, "primitives": len(primitives)}
+
+
+# ---- AN AUTHORED WORLD, not a fixture ------------------------------------------------------
+#
+# Every frame figure in this file has been scoped to `pixid.SCENE`'s four triangles or to a
+# synthetic fixture, and each reading said so. This is the missing input finally supplied: the
+# `heightfield` island preset — the operator's own 64x64 authored terrain — meshed and projected
+# through the frozen `perspective` camera. 63x63 quads, two triangles each: 7938 primitives that
+# somebody actually authored rather than a number chosen to make a point.
+WORLD_PRESET = "island"
+
+
+def world_scene(side, preset=WORLD_PRESET):
+    """The authored terrain as screen-space primitives. Deterministic: the heightfield is a pinned
+    generator, the projection is the frozen exact-integer `perspective.project`, and no float
+    enters. REFUSES nothing new — a vertex behind the near plane would raise RENDER-REFUSE from
+    the projector, which is the boundary that already exists rather than a fresh one here."""
+    import heightfield as _HF
+    _r = _os.path.join(_os.path.dirname(_os.path.dirname(_HERE)), "tools", "render")
+    if _r not in _sys.path:
+        _sys.path.insert(0, _r)
+    import perspective as _PE
+    PX = _pixid()
+    p = getattr(_HF, preset)()
+    hs = _HF.generate(**p)
+    w = p["w"]
+    focal, dist, cx, cy = side * 2, w, side // 2, side // 2
+
+    def V(x, y):
+        return _PE.project((x - w // 2, (hs[y][x] // 8) - 20, y + dist), focal, cx, cy, znear=1)
+
+    out, pid = [], 0
+    for y in range(p["h"] - 1):
+        for x in range(w - 1):
+            a, b, c, d = V(x, y), V(x + 1, y), V(x, y + 1), V(x + 1, y + 1)
+            zz = (y + dist, y + dist, y + dist + 1)
+            for tri in ((a, b, c), (b, d, c)):
+                out.append(tuple(tuple(v * PX.SUB for v in vert) for vert in tri)
+                           + (zz, 1 + pid % 64, pid))
+                pid += 1
+    return tuple(out)
+
+
+def world_frame_census(side):
+    """THE FRAME OF AN AUTHORED WORLD, decomposed. Exact integer counts, host-independent.
+
+    `slack` = samples / fragments — how much of the bounding-box walk misses the triangle.
+    `overdraw` = fragments / owned — how many fragments genuinely land on one pixel.
+    Reported apart and never multiplied into one figure, because they have different fixes."""
+    o = raster_ops(world_scene(side), side, side)
+    o["coverage"] = o["owned"] / float(o["pixels"])
+    o["slack"] = o["samples"] / float(max(1, o["fragments"]))
+    o["overdraw"] = o["fragments"] / float(max(1, o["owned"]))
+    return o
+
+
+WORLD_CENSUS_SIDES = (128, 256)
+
+
+def world_census_digest():
+    return sealframe_digest("world_census", len(WORLD_CENSUS_SIDES),
+                            sum(world_frame_census(s)["samples"] for s in WORLD_CENSUS_SIDES),
+                            "authored")
 
 
 RASTER_SURFACE_AXES = ((32, 64, 128), (4, 16, 64, 256))

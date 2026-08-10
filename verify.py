@@ -17115,6 +17115,44 @@ class Gate:
                     "would say nothing about the rule"
                     % tuple("%d/%d" % dis.get(v, (0, 0)) for v in SF.RASTER_VARIANTS)
                     if dom_ok else "the time-domain / conforming-drift law did not hold")
+        wld_ok = True
+        cen = {}
+        try:
+            cen = {sd: SF.world_frame_census(sd) for sd in SF.WORLD_CENSUS_SIDES}
+            a, b = cen[128], cen[256]
+            wld_ok = (len(SF.world_scene(128)) == 2 * 63 * 63
+                      and SF.world_census_digest() == SF.golden("world_census")
+                      and a["samples"] > a["fragments"] > a["owned"]
+                      and abs(a["slack"] * a["overdraw"] - a["samples"] / a["owned"]) < 1e-6
+                      and abs(a["overdraw"] - b["overdraw"]) / a["overdraw"] < 0.02
+                      and b["slack"] < a["slack"]
+                      and abs(a["coverage"] - b["coverage"]) < 0.005)
+        except Exception:
+            wld_ok = False
+        self.record("sealframe-authored-frame", wld_ok,
+                    "AN AUTHORED WORLD, NOT A FIXTURE — the missing input this file has been "
+                    "naming for five rungs, finally supplied. Every frame figure here was scoped "
+                    "to `pixid.SCENE`'s four triangles or to a synthetic fixture; this is the "
+                    "operator's own 64x64 `heightfield` island, 63x63 quads at two triangles "
+                    "each, %d primitives somebody AUTHORED rather than a count chosen to make a "
+                    "point, meshed and projected through the frozen exact-integer camera. AND THE "
+                    "COST IS DECOMPOSED RATHER THAN FUSED, because a single samples/owned ratio "
+                    "joins two unrelated causes with different fixes: BBOX SLACK %.2fx (a "
+                    "bounding box exceeds its triangle, badly for the thin slanted triangles a "
+                    "terrain viewed at an angle produces — a tighter traversal is the fix) and "
+                    "OVERDRAW %.2fx (fragments genuinely landing on one pixel — a depth prepass "
+                    "or front-to-back order is the fix). Their product is %.1f samples per "
+                    "covered pixel, and reporting THAT alone would name neither cause, which is "
+                    "this file's recurring defect in a fifth costume. THE SPLIT IS EVIDENCED, not "
+                    "asserted: overdraw is a property of mesh and camera and holds within 2%% as "
+                    "the frame quadruples, while slack SHRINKS because a bounding box's excess is "
+                    "a boundary effect — if they ever move together again the decomposition has "
+                    "stopped separating anything. Coverage holds at %.1f%% across both "
+                    "resolutions, which is what licenses scaling to another one and is measured "
+                    "rather than assumed"
+                    % (a["primitives"], a["slack"], a["overdraw"],
+                       a["samples"] / a["owned"], 100.0 * a["coverage"])
+                    if wld_ok else "the authored-frame census did not hold")
         cau_ok = True
         c128 = c256 = 0
         try:

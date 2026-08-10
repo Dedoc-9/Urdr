@@ -752,3 +752,45 @@ class AConformingRasterizerMayDisagree(unittest.TestCase):
         ref = PX.IdFramebuffer(128, 128, 0, 100).render(scene)
         iid, pid = SF._variant_owner(scene, 128, 128, "centre_sample_same_rules")
         self.assertEqual((list(ref.iid), list(ref.pid)), (iid, pid))
+
+
+class AnAuthoredWorldNotAFixture(unittest.TestCase):
+    """THE MISSING INPUT, SUPPLIED. Every frame figure in this file has been scoped to four
+    triangles or to a synthetic fixture, and each reading said so. This is the operator's own
+    64x64 `heightfield` island — 63x63 quads, two triangles each, 7938 primitives somebody
+    authored rather than a number chosen to make a point — meshed and projected through the
+    frozen exact-integer camera."""
+
+    def test_the_world_has_the_primitive_count_its_mesh_implies(self):
+        p_w = 64
+        self.assertEqual(len(SF.world_scene(128)), 2 * (p_w - 1) * (p_w - 1))
+
+    def test_the_census_is_deterministic_and_pinned(self):
+        self.assertEqual(SF.world_census_digest(), SF.world_census_digest())
+        self.assertEqual(SF.world_census_digest(), SF.golden("world_census"))
+
+    def test_slack_and_overdraw_are_reported_apart(self):
+        """A single samples/owned figure FUSES two unrelated causes — a bounding box being larger
+        than its triangle, and several fragments genuinely landing on one pixel. They have
+        different fixes, so their product names neither. This file has made that mistake four
+        times in other costumes; here it is refused in advance."""
+        c = SF.world_frame_census(128)
+        self.assertGreater(c["samples"], c["fragments"])
+        self.assertGreater(c["fragments"], c["owned"])
+        self.assertAlmostEqual(c["slack"] * c["overdraw"], c["samples"] / c["owned"], places=6)
+
+    def test_overdraw_is_resolution_independent_and_slack_is_not(self):
+        """THE EVIDENCE THAT THE SPLIT IS THE RIGHT ONE. Overdraw is a property of the mesh and
+        the camera, so it must hold as the frame grows; slack shrinks, because a bounding box's
+        excess is a boundary effect. Measured at two resolutions — if these ever move together
+        again the decomposition has stopped separating anything."""
+        a, b = SF.world_frame_census(128), SF.world_frame_census(256)
+        self.assertLess(abs(a["overdraw"] - b["overdraw"]) / a["overdraw"], 0.02)
+        self.assertLess(b["slack"], a["slack"])
+
+    def test_coverage_holds_as_the_frame_grows(self):
+        """What licenses scaling a reading to another resolution: the scene covers the same
+        FRACTION of the frame. Measured rather than assumed, which is the whole difference
+        between this number and the fixture readings it replaces."""
+        a, b = SF.world_frame_census(128), SF.world_frame_census(256)
+        self.assertLess(abs(a["coverage"] - b["coverage"]), 0.005)

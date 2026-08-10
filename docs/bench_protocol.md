@@ -393,6 +393,58 @@ grade.
 documented; the API surface was not confirmed against the spec and should be before
 anything is built on it.)*
 
+## 2i. An authored world, not a fixture — and the placement does not fit
+
+Every frame figure above is scoped to four triangles or to a synthetic fixture, and
+each says so. This is the missing input, supplied: the operator's own 64×64
+`heightfield` island, meshed as 63×63 quads at two triangles each — **7 938
+primitives somebody authored** — projected through the frozen exact-integer camera.
+
+| side | samples | fragments | owned | coverage | **slack** | **overdraw** |
+|---|---|---|---|---|---|---|
+| 128² | 70 065 | 14 508 | 3 866 | 23.6 % | 4.83× | 3.75× |
+| 256² | 234 839 | 57 772 | 15 520 | 23.7 % | 4.06× | 3.72× |
+| 512² | 846 541 | 230 519 | 61 990 | 23.6 % | 3.67× | 3.72× |
+
+**The cost is decomposed rather than fused**, because a single samples-per-covered-pixel
+ratio joins two unrelated causes with different fixes. **Slack** is a bounding box
+exceeding its triangle — badly, for the thin slanted triangles a terrain viewed at
+an angle produces — and it shrinks with resolution because it is a boundary effect;
+the fix is a tighter traversal. **Overdraw** is fragments genuinely landing on one
+pixel, it is a property of mesh and camera, and it holds at **3.72× across all three
+resolutions**; the fix is a depth prepass or a front-to-back order. Their product is
+~15 samples per covered pixel, and reporting that alone would name neither.
+
+**That constancy is the evidence the split is the right one.** If slack and overdraw
+ever move together again, the decomposition has stopped separating anything.
+
+### The reading, and it reverses §2h
+
+Coverage holds at 23.6 % across all three resolutions — measured, which is what
+licenses scaling to another one. From the 512² measurement, a 1080p frame of this
+world is ≈ 6.7 M sample tests:
+
+| placement | 1080p, this world | vs 25 ms |
+|---|---|---|
+| Python reference | ≈ 6 900 ms | 276× |
+| **Rust placement** | **≈ 100 ms** | **4.0×** |
+
+§2h read the Rust placement at 1.25× and called that "an engineering problem". That
+was **the four-triangle fixture**. On a world with real geometry it is **4×, still
+over, single-threaded** — and the scope caveat §2h carried is exactly what this
+section cashes in. The number is a scaling from a measurement rather than an
+extrapolation from a fixture, and it is if anything slightly pessimistic: slack is
+still falling with resolution (4.83 → 4.06 → 3.67), so the true 1080p figure sits a
+little below.
+
+**Where the 4× can go, now that it is attributed.** Roughly 3.7× of the work is
+overdraw and ~3.7× is slack. A depth prepass attacks the first; a binned or
+scanline-tight traversal attacks the second; threads attack both. This is also the
+first point in the arc where **culling earns its place** — §2g measured LOD at ~16 %
+against a fixture with *no overdraw at all*, and occlusion on a real terrain attacks
+a 3.72× factor directly. Not a reversal of that measurement: a different scene, and
+the earlier one said so.
+
 ## 2h. The placement, measured — the extrapolation graduates
 
 `tools/render/urdr_raster_rs/raster_bench.rs` walks the same bounding boxes with the
