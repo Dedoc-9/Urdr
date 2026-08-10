@@ -345,6 +345,54 @@ answer to *which* lever: not fewer primitives, not LOD, not culling, not a bigge
 budget — **the placement**, because 85× is not reachable by drawing less of the same
 picture.
 
+## 2g-bis. `scanout` was one segment and it is two — found by research
+
+The partition declared `present_queued → photon` a single segment needing capture
+hardware. That was a claim about the world, and it was wrong by half.
+[`VK_EXT_present_timing`](https://www.khronos.org/blog/vk-ext-present-timing-the-journey-to-state-of-the-art-frame-pacing-in-vulkan)
+feeds back **when a request was actually presented** — an instant no software timer
+inside the process can observe, and no camera is needed for it either. So the chain
+gains an eighth instant, `scanout_begin`, and a third instrument class:
+
+| instrument | establishes |
+|---|---|
+| `software-timer` | two instants this process observes |
+| **`presentation-feedback`** | **an instant reported by the presentation engine — outside the process, inside the platform** |
+| `external-capture` | an endpoint outside the *platform* (a switch, a photon) |
+
+`present_wait` (`present_queued → scanout_begin`) now requires
+`presentation-feedback`; `panel` (`scanout_begin → photon`) stays external-capture
+and is irreducible. **Missing therefore has three kinds, not two** — pending here,
+reportable by the platform but unbuilt, and bounded out until hardware. Five names
+in one list read as five equal tasks; they were never that.
+
+**Honest about what the split buys: nothing for the lower bound.** `present_wait`'s
+floor is zero — a present can land just before vblank — so measuring it cannot raise
+a bound built out of floors. What it fixes is the classification, and therefore
+which task is next.
+
+### The Windows check, and it fails
+
+`DXGI_FRAME_STATISTICS` is **not** the equivalent. `SyncQPCTime` is not a
+presentation timestamp — it is *when the scheduler last sampled machine time*, paired
+with `SyncRefreshCount`, the vblank at which that sample was taken. A presentation
+instant can only be *derived* from that anchor plus `PresentRefreshCount` and the
+refresh period. Under this repo's own instrument classes that derivation is
+`derived-from-rate`, a strictly weaker grade than the measured instant Vulkan
+reports. It also carries documented caveats: flip model required, unreliable across
+multiple monitors or alongside other fullscreen apps, and it may need a `DwmFlush()`
+before statistics update.
+
+**So the abstraction is not viable and the recommendation stands for a better reason
+than "you can wrap it later":** on DXGI the instant is *derived*, on Vulkan it is
+*measured*, and a repo that grades instruments should take the stronger class rather
+than average them behind a common interface. Choosing Vulkan directly is choosing the
+grade.
+
+*(Not verified: the exact `VK_EXT_present_timing` entry points. The capability is
+documented; the API surface was not confirmed against the spec and should be before
+anything is built on it.)*
+
 ## 2h. The placement, measured — the extrapolation graduates
 
 `tools/render/urdr_raster_rs/raster_bench.rs` walks the same bounding boxes with the

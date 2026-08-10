@@ -164,7 +164,7 @@ def budget_defect_unlogged_measured():
 # The instants, in order. Every segment spans two of them; the segments must CHAIN with no gap and
 # no overlap, which is what makes the ledger summable BY CONSTRUCTION rather than by assumption.
 INSTANTS = ("input_actuation", "input_visible", "tick_done", "view_exported",
-            "pixels_done", "present_queued", "photon")
+            "pixels_done", "present_queued", "scanout_begin", "photon")
 
 # THE INSTRUMENT CLASSES — a neutral ruler, applied to rulers. A duration that ENDS OUTSIDE this
 # process cannot be established by a timer INSIDE it: `scanout` ends at a photon and
@@ -174,11 +174,18 @@ INSTANTS = ("input_actuation", "input_visible", "tick_done", "view_exported",
 INSTRUMENTS = {
     "derived-from-rate": "a period that is 1/rate BY DEFINITION — a derivation, not an observation",
     "software-timer":    "a duration bounded by two instants this process itself observes",
-    "external-capture":  "a duration with an endpoint outside the process (a switch, a photon)",
+    "presentation-feedback": "an instant REPORTED BY THE PRESENTATION ENGINE — outside this "
+                             "process, inside the platform. Neither a timer here nor a camera "
+                             "there, and the class exists because RESEARCHING THE PLATFORM found "
+                             "one: `VK_EXT_present_timing` feeds back when a request was actually "
+                             "presented, which no software timer in this process can observe",
+    "external-capture":  "a duration with an endpoint outside the PLATFORM (a switch, a photon)",
 }
 _SATISFIES = {                                             # requirement -> instruments that meet it
-    "derived-from-rate": ("derived-from-rate", "software-timer", "external-capture"),
+    "derived-from-rate": ("derived-from-rate", "presentation-feedback", "software-timer",
+                          "external-capture"),
     "software-timer":    ("software-timer", "external-capture"),
+    "presentation-feedback": ("presentation-feedback", "external-capture"),
     "external-capture":  ("external-capture",),
 }
 
@@ -197,8 +204,19 @@ SEGMENTS = (
      "NOT_MEASURED", 0.0, 0.0, ""),                        # the layer-3 renderer does not exist
     ("present_queue", "pixels_done", "present_queued", "software-timer",
      "NOT_MEASURED", 0.0, 0.0, ""),
-    ("scanout", "present_queued", "photon", "external-capture",
-     "NOT_MEASURED", 0.0, 0.0, ""),                        # refresh wait + panel processing
+    # SPLIT, AND THE SPLIT WAS FOUND BY RESEARCH RATHER THAN REASONING. The previous partition
+    # lumped the refresh wait together with the panel and declared the whole thing hardware-bound.
+    # `VK_EXT_present_timing` reports when a request was ACTUALLY PRESENTED, so the first half is
+    # reachable from software after all — and half a segment declared unreachable is a claim about
+    # the world, not about a number.
+    #
+    # HONEST ABOUT WHAT THE SPLIT BUYS: NOTHING FOR THE LOWER BOUND. `present_wait`'s floor is
+    # ZERO, because a present can land just before vblank, so measuring it cannot raise a bound
+    # built out of floors. What it fixes is the CLASSIFICATION and therefore the next task.
+    ("present_wait", "present_queued", "scanout_begin", "presentation-feedback",
+     "NOT_MEASURED", 0.0, 0.0, ""),                        # queue -> scanout: the refresh wait
+    ("panel", "scanout_begin", "photon", "external-capture",
+     "NOT_MEASURED", 0.0, 0.0, ""),                        # the display's own pipeline. Irreducible.
 )
 _EVIDENCED = ("MEASURED", "DERIVED")
 
@@ -271,14 +289,21 @@ def budget_verdict(target_ms, segments=SEGMENTS):
     # A segment a software timer could reach is PENDING work; one that ends at a photon or begins
     # at a switch closure is BOUNDED OUT until capture hardware exists. Both are unmeasured and
     # only one is anybody's next task, so the report names which.
+    # THREE KINDS, not two — the third arrived with the presentation-feedback class. A segment a
+    # SOFTWARE TIMER reaches is pending work here; one the PLATFORM can report is reachable but
+    # unbuilt; one ending at a photon or beginning at a switch closure is BOUNDED OUT until capture
+    # hardware exists. Three different tasks, and only the first is ours alone.
     pending = tuple(s[0] for s in segments
-                    if s[4] not in _EVIDENCED and s[3] != "external-capture")
+                    if s[4] not in _EVIDENCED and s[3] in ("software-timer", "derived-from-rate"))
+    platform = tuple(s[0] for s in segments
+                     if s[4] not in _EVIDENCED and s[3] == "presentation-feedback")
     hardware = tuple(s[0] for s in segments
                      if s[4] not in _EVIDENCED and s[3] == "external-capture")
     return {"verdict": verdict, "lower_ms": lo, "target_ms": target_ms,
             "measured_share": (lo / target_ms) if target_ms else 0.0,
             "measured": tuple(s[0] for s in segments if s[4] in _EVIDENCED),
-            "unmeasured": missing, "pending": pending, "needs_hardware": hardware}
+            "unmeasured": missing, "pending": pending, "pending_platform": platform,
+            "needs_hardware": hardware}
 
 
 def ledger_with_graduated(name, lo_ms, hi_ms, segments=SEGMENTS):
@@ -377,6 +402,7 @@ CONDITIONS = ("machine", "power", "scheduler", "display")
 CONDITIONS_FOR = {
     "derived-from-rate": ("display",),                     # a refresh period is a panel property
     "software-timer":    ("machine", "power", "scheduler"),
+    "presentation-feedback": ("machine", "scheduler", "display"),
     "external-capture":  ("machine", "power", "scheduler", "display"),
 }
 

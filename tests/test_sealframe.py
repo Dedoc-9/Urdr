@@ -167,10 +167,10 @@ class TheInstrumentIsTyped(unittest.TestCase):
 
     def test_a_software_timer_cannot_grade_an_external_segment(self):
         with self.assertRaises(SF.FrameError):
-            SF.grade_segment("scanout", "MEASURED", 4.0, 5.0, "software-timer", "some log")
+            SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "software-timer", "some log")
 
     def test_the_right_instrument_grades_it(self):
-        seg = SF.grade_segment("scanout", "MEASURED", 4.0, 5.0, "external-capture", "photodiode log")
+        seg = SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "external-capture", "photodiode log")
         self.assertEqual(seg[4], "MEASURED")
 
     def test_every_segment_declares_a_known_instrument_class(self):
@@ -270,7 +270,7 @@ class TheSegmentLogCarriesABand(unittest.TestCase):
         """The whole point, end to end: a `--segments` run times what it can with a software
         timer, and if it claims `scanout` from that timer the LOG is refused — the inflation is
         caught at the boundary where evidence enters, not at the boundary where it is quoted."""
-        bad = self._log(scanout=(4.0, 4.5, 5.0, "software-timer"))
+        bad = self._log(panel=(4.0, 4.5, 5.0, "software-timer"))
         with self.assertRaises(SF.FrameError):
             SF.ledger_from_log(bad)
 
@@ -278,7 +278,7 @@ class TheSegmentLogCarriesABand(unittest.TestCase):
         led = SF.ledger_from_log(self._log(view_export=(0.009, 0.009, 0.014, "software-timer")))
         by = {s[0]: s for s in led}
         self.assertEqual(by["view_export"][4], "MEASURED")
-        self.assertEqual(by["scanout"][4], "NOT_MEASURED")
+        self.assertEqual(by["panel"][4], "NOT_MEASURED")
         self.assertGreater(SF.lower_bound_ms(led), SF.lower_bound_ms())
 
 
@@ -387,7 +387,7 @@ class TheNamedHostLawWasUnsatisfiable(unittest.TestCase):
         led = SF.ledger_from_log(SF.ALLY_SEGMENT_LOG, require_conditions=True)
         by = {s[0]: s for s in led}
         self.assertEqual(by["view_export"][4], "MEASURED")
-        self.assertEqual(by["scanout"][4], "NOT_MEASURED")
+        self.assertEqual(by["panel"][4], "NOT_MEASURED")
 
     def test_the_named_machine_reading_raises_the_bound(self):
         self.assertGreater(SF.lower_bound_ms(SF.ledger_from_log(SF.ALLY_SEGMENT_LOG)),
@@ -622,21 +622,46 @@ class TheFillFloor(unittest.TestCase):
             25.0, SF.ledger_with_graduated("frame_render", ms, ms))["verdict"], "REFUTED")
 
 
-class MissingHasTwoKinds(unittest.TestCase):
-    """Collapsing them made the ledger read as a to-do list. A segment a software timer could
-    reach is PENDING work; one that ends at a photon or begins at a switch closure is BOUNDED OUT
-    until capture hardware exists. Both are unmeasured; only one is anybody's next task."""
+class MissingHasThreeKinds(unittest.TestCase):
+    """Collapsing them made the ledger read as a to-do list of five equal tasks. A segment a
+    SOFTWARE TIMER reaches is work here; one the PLATFORM can report is reachable but unbuilt; one
+    ending at a photon or beginning at a switch closure is BOUNDED OUT until capture hardware
+    exists. Three different tasks and only the first is ours alone.
 
-    def test_the_two_kinds_partition_the_missing(self):
+    The third kind arrived by RESEARCH. `scanout` was one segment declared hardware-bound, and
+    `VK_EXT_present_timing` reports when a request was actually presented — so half of it is
+    reachable from software and the classification was a claim about the world that was wrong."""
+
+    def test_the_three_kinds_partition_the_missing(self):
         v = SF.budget_verdict(25.0)
-        self.assertEqual(sorted(v["pending"] + v["needs_hardware"]), sorted(v["unmeasured"]))
-        self.assertFalse(set(v["pending"]) & set(v["needs_hardware"]))
+        parts = v["pending"] + v["pending_platform"] + v["needs_hardware"]
+        self.assertEqual(sorted(parts), sorted(v["unmeasured"]))
+        self.assertEqual(len(set(parts)), len(parts), "a segment landed in two kinds")
 
     def test_the_hardware_set_is_exactly_the_external_capture_segments(self):
         self.assertEqual(sorted(SF.budget_verdict(25.0)["needs_hardware"]),
                          sorted(s[0] for s in SF.SEGMENTS
                                 if s[3] == "external-capture" and s[4] not in ("MEASURED", "DERIVED")))
 
-    def test_both_kinds_are_populated(self):
+    def test_all_three_kinds_are_populated(self):
+        """L61 on the classification: a partition with an empty class carries less than it looks."""
         v = SF.budget_verdict(25.0)
-        self.assertTrue(v["pending"] and v["needs_hardware"])
+        self.assertTrue(v["pending"] and v["pending_platform"] and v["needs_hardware"])
+
+    def test_the_split_does_not_move_the_bound_and_the_ledger_says_so(self):
+        """THE HONEST HALF. `present_wait`'s floor is ZERO — a present can land just before vblank
+        — so measuring it cannot raise a bound built out of floors. The split fixes the
+        classification and the next task, not the number, and claiming otherwise would be the
+        inflation this file exists to prevent."""
+        before = SF.lower_bound_ms()
+        graduated = SF.ledger_with_graduated("present_wait", 0.0, 8.3)
+        self.assertEqual(SF.lower_bound_ms(graduated), before)
+
+    def test_a_software_timer_cannot_grade_the_presentation_segment(self):
+        """The new class is a REQUIREMENT, not a label: `present_wait` ends at an instant this
+        process cannot observe, so `perf_counter` is refused there exactly as it is at the panel."""
+        with self.assertRaises(SF.FrameError):
+            SF.grade_segment("present_wait", "MEASURED", 0.0, 8.3, "software-timer", "log")
+        seg = SF.grade_segment("present_wait", "MEASURED", 0.0, 8.3,
+                               "presentation-feedback", "VK_EXT_present_timing feedback")
+        self.assertEqual(seg[4], "MEASURED")

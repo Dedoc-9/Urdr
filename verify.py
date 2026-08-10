@@ -16783,11 +16783,11 @@ class Gate:
             for seg in SF.SEGMENTS:                          # every requirement is a known class
                 part_ok = part_ok and seg[3] in SF.INSTRUMENTS
             try:                                             # the neutral-ruler law, on instruments
-                SF.grade_segment("scanout", "MEASURED", 4.0, 5.0, "software-timer", "log")
+                SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "software-timer", "log")
                 part_ok = False
             except SF.FrameError:
                 pass
-            ok_seg = SF.grade_segment("scanout", "MEASURED", 4.0, 5.0, "external-capture", "log")
+            ok_seg = SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "external-capture", "log")
             part_ok = part_ok and ok_seg[4] == "MEASURED"
             try:                                             # evidenced-with-no-evidence refuses
                 SF.grade_segment("frame_render", "MEASURED", 1.0, 2.0, "software-timer", "")
@@ -16845,12 +16845,19 @@ class Gate:
                     "honesty law and that no gate row read until now (its two column totals are "
                     "checked here against the file). AND THE READING TODAY, as a number rather than "
                     "an impression: %.4f ms of the 25 ms budget is evidenced — %.2f%%, ONE segment "
-                    "of %d, with %s still unmeasured — and MISSING HAS TWO KINDS, which "
-                    "collapsing made the ledger read as a to-do list: `view_export`, "
-                    "`frame_render` and `present_queue` are PENDING (a software timer reaches "
-                    "them), while `input_transport` and `scanout` are BOUNDED OUT until capture "
-                    "hardware exists, one beginning at a switch closure and the other ending at a "
-                    "photon. Both are unmeasured; only one is anybody's next task. §4c's ~1900x "
+                    "of %d, with %s still unmeasured — and MISSING HAS THREE KINDS, which "
+                    "collapsing made the ledger read as a to-do list of equal tasks: "
+                    "`view_export`, `frame_render` and `present_queue` are PENDING (a software "
+                    "timer reaches them); `present_wait` is PLATFORM-REPORTABLE but unbuilt "
+                    "(`VK_EXT_present_timing` feeds back when a request was actually presented, "
+                    "which no timer in this process can observe); and `input_transport` and "
+                    "`panel` are BOUNDED OUT until capture hardware exists, one beginning at a "
+                    "switch closure and the other ending at a photon. THE THIRD KIND ARRIVED BY "
+                    "RESEARCH: `scanout` was ONE segment declared hardware-bound, and half of it "
+                    "is reachable from software — a classification that was a claim about the "
+                    "world rather than about a number, and it was wrong. Honest about what the "
+                    "split buys: NOTHING for the bound, since `present_wait`'s floor is zero "
+                    "because a present can land just before vblank. §4c's ~1900x "
                     "headroom is headroom on the one "
                     "segment that was already cheap; substantially all of the latency risk sits "
                     "where nothing has ever been measured, and the ledger says so in public"
@@ -16868,9 +16875,17 @@ class Gate:
                     SF.parse_segment_log(bad_text); seg_ok = False
                 except SF.FrameError:
                     pass
+            try:                                              # the new class is a REQUIREMENT
+                SF.grade_segment("present_wait", "MEASURED", 0.0, 8.3, "software-timer", "log")
+                seg_ok = False
+            except SF.FrameError:
+                pass
+            seg_ok = seg_ok and SF.grade_segment(
+                "present_wait", "MEASURED", 0.0, 8.3, "presentation-feedback", "vk feedback")[4] \
+                == "MEASURED"
             for bad_log in (SF.make_segment_log("   ", {}),                     # anonymous
-                            SF.make_segment_log("h", {"scanout": (4.0, 4.5, 5.0,
-                                                                  "software-timer")})):
+                            SF.make_segment_log("h", {"panel": (4.0, 4.5, 5.0,
+                                                                "software-timer")})):
                 try:
                     SF.ledger_from_log(bad_log); seg_ok = False
                 except SF.FrameError:
@@ -16935,7 +16950,7 @@ class Gate:
             ally = SF.ledger_from_log(SF.ALLY_SEGMENT_LOG, require_conditions=True)
             byn = {s[0]: s for s in ally}
             lay_ok = (lay_ok and byn["view_export"][4] == "MEASURED"
-                      and byn["scanout"][4] == "NOT_MEASURED"
+                      and byn["panel"][4] == "NOT_MEASURED"
                       and SF.lower_bound_ms(ally) > SF.lower_bound_ms())
         except Exception:
             lay_ok = False
