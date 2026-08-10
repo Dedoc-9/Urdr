@@ -794,3 +794,49 @@ class AnAuthoredWorldNotAFixture(unittest.TestCase):
         between this number and the fixture readings it replaces."""
         a, b = SF.world_frame_census(128), SF.world_frame_census(256)
         self.assertLess(abs(a["coverage"] - b["coverage"]), 0.005)
+
+
+class TheTightTraversal(unittest.TestCase):
+    """ATTACKING SLACK, the larger of the two attributed factors. `raster_ops` walks a triangle's
+    whole BOUNDING BOX; for the thin slanted triangles a terrain viewed at an angle produces, most
+    of that box is outside the triangle — 4.83x/4.06x on the authored world. The fix is not a
+    different rule but a tighter WALK: solve the three edge inequalities per scanline in exact
+    integers and visit only that range.
+
+    THE LAW IS THAT NOTHING CHANGES BUT THE COUNT. A traversal that alters the picture is not an
+    optimization, and this repository already carries that defect on record — `voxin` under-
+    reported 20% of its voxels through a walk that missed cells."""
+
+    def test_the_buffer_is_identical_and_the_samples_are_fewer(self):
+        for side in (128, 256):
+            with self.subTest(side):
+                c = SF.tight_traversal_census(side)
+                self.assertTrue(c["buffer_identical"], "the tight walk changed the picture")
+                self.assertTrue(c["fragments_agree"])
+                self.assertGreater(c["reduction"], 3.0)
+
+    def test_slack_is_what_it_removed(self):
+        """The attribution closes: slack was ~4x and is ~1.1x after, so the reduction came from
+        the factor it was aimed at rather than from somewhere unaccounted."""
+        self.assertLess(SF.tight_traversal_census(256)["slack_after"], 1.3)
+
+    def test_the_wrong_ceiling_loses_fragments(self):
+        """NON-VACUITY, and it is the bug this actually had: a wrong-signed ceiling dropped 167
+        fragments of 14508 on the island — a 1.2% hole in the picture, invisible in any thumbnail,
+        caught by asserting the fragment count rather than by looking at it.
+
+        THE FIRST PLANT WAS ALSO WRONG. `ceil(-B/A)` IS `-floor(B/A)`, so the first defect branch
+        was algebraically the CORRECT formula and agreed with the good path exactly as a plant
+        must not. The non-vacuity check refused to confirm, which is the only reason it was
+        noticed — a plant nobody verifies is a green row that guards nothing."""
+        self.assertTrue(SF.tight_defect_drops_fragments())
+
+    def test_the_span_never_drops_a_covered_sample_by_construction(self):
+        """`>= 0` is a SUPERSET of the top-left rule's inside set, so the span reduces the
+        CANDIDATE set while `_covers` still makes every decision. Checked on the world rather than
+        argued: every fragment the bbox walk found, the tight walk finds."""
+        import pixid as PX
+        side = 128
+        scene = SF.world_scene(side)
+        base = SF.raster_ops(scene, side, side)
+        self.assertEqual(base["fragments"], SF.raster_ops_tight(scene, side, side)["fragments"])

@@ -732,6 +732,115 @@ def world_frame_census(side):
     return o
 
 
+# ---- the tight traversal: attacking SLACK, the larger of the two attributed factors --------
+#
+# `raster_ops` walks a triangle's whole BOUNDING BOX. For the thin slanted triangles a terrain
+# viewed at an angle produces, most of that box is outside the triangle — measured at 4.83x/4.06x
+# on the authored world. The fix is not a different rule but a tighter WALK: on each scanline,
+# solve the three edge inequalities for the exact x-range in integers and visit only that.
+#
+# THE LAW IS THAT NOTHING CHANGES BUT THE COUNT. Identical ownership buffer, identical fragment
+# count, strictly fewer samples. A traversal that alters the picture is not an optimization, and
+# this repository already carries that defect on record — `voxin` under-reported 20% of its voxels
+# through a walk that missed cells, found only when a one-directional oracle was repaired.
+#
+# AND THE FIRST VERSION HERE HAD IT TOO: a wrong-signed ceiling division dropped 167 fragments of
+# 14508 on the island — a 1.2% hole in the picture, invisible in any thumbnail, caught by asserting
+# the fragment count rather than by looking. `span_defect_wrong_ceiling` preserves it as the plant.
+def _ceil_div(n, d):
+    """ceil(n/d) for d > 0, in exact integers. The sign this got wrong the first time."""
+    return -((-n) // d)
+
+
+def scanline_span(x0, y0, x1, y1, x2, y2, py, w, defect=False):
+    """The exact integer x-range on scanline `py` where all three edge functions are >= 0.
+
+    Each edge is AFFINE in the pixel index, so each inequality solves to a half-line and the
+    intersection is one interval. `>= 0` is deliberately a SUPERSET of the top-left rule's inside
+    set (which excludes some zero-edge samples), so the span can never drop a covered sample — the
+    tightening reduces the CANDIDATE set and `_covers` still makes every decision."""
+    PX = _pixid()
+    SUB = PX.SUB
+    HALF = SUB >> 1
+    sy = py * SUB + HALF
+    lo, hi = 0, w - 1
+    for (ax, ay, bx, by) in ((x0, y0, x1, y1), (x1, y1, x2, y2), (x2, y2, x0, y0)):
+        A = -(by - ay) * SUB
+        B = (bx - ax) * (sy - ay) + (by - ay) * ax - (by - ay) * HALF
+        if A == 0:
+            if B < 0:
+                return (1, 0)                              # the whole row is outside
+        elif A > 0:
+            # px >= ceil(-B/A) = -floor(B/A). THE DEFECT computed ceil(B/A) — the sign of the
+            # numerator dropped — which shifts the span right and loses the leading samples of
+            # each scanline. Note the first PLANT was wrong too: `_ceil_div(-B, A)` IS ceil(-B/A)
+            # and so is algebraically the CORRECT formula, and it agreed with the good path
+            # exactly as a plant must not. Caught by the non-vacuity check refusing to confirm.
+            lo = max(lo, _ceil_div(B, A) if defect else -(B // A))
+        else:
+            hi = min(hi, B // (-A))                        # px <= floor(B/(-A))
+    return (lo, hi)
+
+
+def raster_ops_tight(primitives, w, h, znear=0, zfar=100, defect=False):
+    """The same rasterization under the tight walk. Returns the same counts plus the buffer, so a
+    caller can assert the OUTPUT is unchanged rather than take it on trust."""
+    PX = _pixid()
+    SUB, HALF = PX.SUB, PX.SUB >> 1
+    fb = PX.IdFramebuffer(w, h, znear, zfar)
+    samples = fragments = 0
+    for p in primitives:
+        (x0, y0), (x1, y1), (x2, y2), (z0, z1, z2), iid, pid = PX._check_primitive(p)
+        if PX.edge(x0, y0, x1, y1, x2, y2) < 0:
+            (x1, y1), (x2, y2) = (x2, y2), (x1, y1)
+            z1, z2 = z2, z1
+        area = PX.edge(x0, y0, x1, y1, x2, y2)
+        if area == 0:
+            continue
+        minx, maxx = max(0, min(x0, x1, x2) // SUB), min(w - 1, max(x0, x1, x2) // SUB)
+        miny, maxy = max(0, min(y0, y1, y2) // SUB), min(h - 1, max(y0, y1, y2) // SUB)
+        for py in range(miny, maxy + 1):
+            a, b = scanline_span(x0, y0, x1, y1, x2, y2, py, w, defect)
+            a, b = max(a, minx), min(b, maxx)
+            sy = py * SUB + HALF
+            for px in range(a, b + 1):
+                samples += 1
+                hit = PX._covers(x0, y0, x1, y1, x2, y2, px * SUB + HALF, sy)
+                if hit is None:
+                    continue
+                fragments += 1
+                ea, eb, ec = hit
+                num = eb * z0 + ec * z1 + ea * z2
+                if not (znear * area <= num <= zfar * area):
+                    continue
+                fb._own(px, py, num, area, iid, pid)
+    return {"samples": samples, "fragments": fragments,
+            "owned": sum(1 for v in fb.iid if v != PX.EMPTY), "fb": fb}
+
+
+def tight_traversal_census(side):
+    """bbox versus tight on the authored world, with the identity law checked, not assumed."""
+    PX = _pixid()
+    scene = world_scene(side)
+    base = raster_ops(scene, side, side)
+    ref = PX.IdFramebuffer(side, side, 0, 100).render(scene)
+    tight = raster_ops_tight(scene, side, side)
+    return {"bbox_samples": base["samples"], "tight_samples": tight["samples"],
+            "fragments_agree": base["fragments"] == tight["fragments"],
+            "buffer_identical": (ref.iid, ref.pid) == (tight["fb"].iid, tight["fb"].pid),
+            "reduction": base["samples"] / float(max(1, tight["samples"])),
+            "slack_after": tight["samples"] / float(max(1, tight["fragments"]))}
+
+
+def tight_defect_drops_fragments(side=128):
+    """NON-VACUITY, and it is the bug this actually had. The wrong-signed ceiling must LOSE
+    fragments — if the plant agreed, the identity law above would be checking nothing."""
+    scene = world_scene(side)
+    good = raster_ops_tight(scene, side, side)
+    bad = raster_ops_tight(scene, side, side, defect=True)
+    return bad["fragments"] < good["fragments"]
+
+
 WORLD_CENSUS_SIDES = (128, 256)
 
 

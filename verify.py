@@ -17153,6 +17153,41 @@ class Gate:
                     % (a["primitives"], a["slack"], a["overdraw"],
                        a["samples"] / a["owned"], 100.0 * a["coverage"])
                     if wld_ok else "the authored-frame census did not hold")
+        tt_ok = True
+        tc = {}
+        try:
+            tc = {sd: SF.tight_traversal_census(sd) for sd in SF.WORLD_CENSUS_SIDES}
+            for c in tc.values():
+                tt_ok = (tt_ok and c["buffer_identical"] and c["fragments_agree"]
+                         and c["reduction"] > 3.0)
+            tt_ok = (tt_ok and tc[256]["slack_after"] < 1.3
+                     and SF.tight_defect_drops_fragments())
+        except Exception:
+            tt_ok = False
+        self.record("sealframe-tight-traversal", tt_ok,
+                    "THE ATTRIBUTION CASHED IN — slack was named as %.2fx of the authored frame's "
+                    "cost and a tighter WALK removes it: solve the three edge inequalities per "
+                    "scanline in exact integers and visit only that range, %d -> %d samples at "
+                    "256² (%.2fx), with slack falling to %.2fx so the reduction came from the "
+                    "factor it was aimed at rather than from somewhere unaccounted. THE LAW IS "
+                    "THAT NOTHING CHANGES BUT THE COUNT: the ownership buffer is BIT-IDENTICAL "
+                    "and the fragment count EQUAL, because `>= 0` is a superset of the top-left "
+                    "rule's inside set so the span reduces the CANDIDATE set while `_covers` "
+                    "still makes every decision. A traversal that alters the picture is not an "
+                    "optimization and this repo carries that exact defect on record — `voxin` "
+                    "under-reported 20%% of its voxels through a walk that missed cells. THIS ONE "
+                    "HAD IT TOO: a wrong-signed ceiling dropped 167 fragments of 14508 on the "
+                    "island, a 1.2%% hole invisible in any thumbnail, caught by ASSERTING THE "
+                    "FRAGMENT COUNT rather than by looking. And the first PLANT was wrong as well "
+                    "— `ceil(-B/A)` IS `-floor(B/A)`, so it was algebraically the correct formula "
+                    "and agreed with the good path exactly as a plant must not; the non-vacuity "
+                    "check refused to confirm, which is the only reason it was noticed. A plant "
+                    "nobody verifies is a green row guarding nothing"
+                    % (tc[256]["bbox_samples"] / float(tc[256]["tight_samples"]) *
+                       tc[256]["slack_after"],
+                       tc[256]["bbox_samples"], tc[256]["tight_samples"],
+                       tc[256]["reduction"], tc[256]["slack_after"])
+                    if tt_ok else "the tight-traversal identity law did not hold")
         cau_ok = True
         c128 = c256 = 0
         try:

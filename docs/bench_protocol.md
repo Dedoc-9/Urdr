@@ -445,6 +445,49 @@ against a fixture with *no overdraw at all*, and occlusion on a real terrain att
 a 3.72× factor directly. Not a reversal of that measurement: a different scene, and
 the earlier one said so.
 
+## 2j. The tight traversal — slack removed, and the picture unchanged
+
+§2i attributed the authored frame's ~15 samples per covered pixel to **slack ≈ 4×**
+and **overdraw ≈ 3.7×**. Slack is now removed. `raster_ops` walks a triangle's whole
+bounding box; the fix is not a different rule but a tighter **walk** — solve the three
+edge inequalities per scanline in exact integers and visit only that range.
+
+| side | bbox samples | tight samples | reduction | slack after |
+|---|---|---|---|---|
+| 128² | 70 065 | 18 219 | **3.85×** | 1.26× |
+| 256² | 234 839 | 64 977 | **3.61×** | 1.12× |
+
+**The law is that nothing changes but the count.** The ownership buffer is
+bit-identical and the fragment count equal — `>= 0` is a superset of the top-left
+rule's inside set, so the span reduces the *candidate* set while `_covers` still
+makes every decision. A traversal that alters the picture is not an optimization,
+and this repo carries that exact defect on record: `voxin` under-reported 20 % of
+its voxels through a walk that missed cells.
+
+**This one had it too.** A wrong-signed ceiling division dropped **167 fragments of
+14 508** on the island — a 1.2 % hole in the picture, invisible in any thumbnail,
+caught by asserting the fragment count rather than by looking at it. And the first
+*plant* was wrong as well: `ceil(-B/A)` **is** `-floor(B/A)`, so the defect branch
+was algebraically the correct formula and agreed with the good path exactly as a
+plant must not. The non-vacuity check refused to confirm, which is the only reason it
+was noticed — a plant nobody verifies is a green row guarding nothing.
+
+### What it does to the 1080p reading
+
+The reduction is a property of the geometry, not the resolution, so §2i's ≈ 6.7 M
+samples become ≈ 1.9 M:
+
+| placement | 1080p, this world, tight walk | vs 25 ms |
+|---|---|---|
+| Python reference | ≈ 1 900 ms | 76× |
+| **Rust placement** | **≈ 28 ms** | **≈ 1.1×** |
+
+**Overdraw is now the dominant remaining factor**, untouched at 3.72×, and a depth
+prepass or front-to-back order is what attacks it. Still single-threaded, still no
+shading, still not a frame budget — but the gap that was 4× on real geometry is now
+about one refresh period, from an algorithm change with a bit-identical output rather
+than from a faster machine.
+
 ## 2h. The placement, measured — the extrapolation graduates
 
 `tools/render/urdr_raster_rs/raster_bench.rs` walks the same bounding boxes with the
