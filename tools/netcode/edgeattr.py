@@ -44,7 +44,7 @@ set per family; that every declared edge exists in the AST; that severance leave
 DECLARED: the edge set is the one the `compose` laws reach, not all 320 — an edge no law touches
 cannot be attributed by a method that works by breaking laws. does_not_show: which INDIVIDUAL law an
 edge serves (family-level only); that an unattributed edge is dead; anything about edges outside
-the declared set; that the 42 INERT sweep candidates are unused — inert under THESE laws is not
+the declared set; that the 45 INERT sweep candidates are unused — inert under THESE laws is not
 dead code, and `worldstep.admit_event_for_world` is the standing proof of it, a live gated door that
 went inert here the moment no `compose` law reached it; that any law family is irreducible, only
 that these two pairs are separable; anything about modules outside `SWEPT`."""

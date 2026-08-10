@@ -229,3 +229,40 @@ class TheCallerOwnedAdmission(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheSchemaBoundaryIsExplicit(unittest.TestCase):
+    """The arc chose to give the simulated world a second HORIZONTAL axis rather than project the
+    walker into this plane. That is a real contract change, so it does NOT arrive by mutating
+    `pos` in place: the 2D schema stays valid and byte-identical, and 3D is a DISTINCT FORMAT.
+
+    AND THE TICK'S ABSENCE IS A TYPED REFUSAL, NOT AN OMISSION. `step_tick` is 2D — gravity,
+    bounds and least-penetration resolution all assume two components — so a 3D world is a legal
+    representation that no law can yet step. An unmigrated tick silently accepting one and
+    ignoring the third axis would be the silent-drop defect this module already closed once, at
+    the scale of a whole dimension."""
+
+    def test_both_schemas_are_known_and_carry_their_dimension(self):
+        self.assertEqual(W.format_dimension({"format": "URDR-WORLD-3"}), 2)
+        self.assertEqual(W.format_dimension({"format": "URDR-WORLD-4"}), 3)
+
+    def test_an_unknown_schema_is_refused_rather_than_defaulted(self):
+        """A silent default to the familiar schema would quietly drop a whole axis."""
+        for bad in ({"format": "URDR-WORLD-9"}, {}, {"format": None}):
+            with self.assertRaises(W.WorldError):
+                W.format_dimension(bad)
+
+    def test_a_3d_world_is_admitted_as_a_representation_and_refused_as_a_step(self):
+        """TWO DIFFERENT REFUSALS WITH DIFFERENT REMEDIES — 'this is not a world' versus 'this
+        world is ahead of its law'. Fusing them would hide which."""
+        self.assertEqual(W.format_dimension({"format": "URDR-WORLD-4"}), 3)
+        with self.assertRaises(W.WorldError) as ctx:
+            W.admit_world_schema({"format": "URDR-WORLD-4"})
+        self.assertIn("has not migrated", str(ctx.exception))
+
+    def test_the_two_dimensional_path_is_untouched(self):
+        """The frozen contract, asserted rather than assumed: the existing schema still admits and
+        the canonical arena still steps to its pinned trace."""
+        self.assertEqual(W.admit_world_schema({"format": "URDR-WORLD-3"}), 2)
+        self.assertTrue(W.tick_supports(2))
+        self.assertFalse(W.tick_supports(3))

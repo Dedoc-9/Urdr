@@ -76,12 +76,67 @@ def _int(name, v):
     return int(v)
 
 
+# ---- the schema boundary: two dimensions, one door ---------------------------------
+#
+# The authorable-world arc chose to give the simulated world a second HORIZONTAL axis rather than
+# project the walker into this plane (`physics/worldbasis.py` records the decision and why). That
+# is a real contract change, so it does NOT arrive by mutating `pos` in place: the 2D schema stays
+# valid and byte-identical, and a 3D world is admitted as a DISTINCT FORMAT.
+#
+# AND THE TICK'S ABSENCE IS A TYPED REFUSAL, NOT AN OMISSION. `step_tick` is 2D — gravity, bounds
+# and least-penetration resolution all assume two components — so a 3D world is a legal
+# REPRESENTATION that no law can yet step, and it says so with WORLD-REFUSE naming exactly what is
+# missing. An unmigrated tick that silently accepted a 3D world and ignored the third axis would
+# be the silent-drop defect this module already closed once, at the scale of a whole dimension.
+#
+# So the census in `worldbasis` gets to distinguish two things that a boolean would fuse: whether
+# the REPRESENTATION conforms to the basis, and whether the LAW has migrated. Today the first can
+# be true and the second is not.
+WORLD_FORMATS = {"URDR-WORLD-3": 2, "URDR-WORLD-4": 3}
+
+
+def format_dimension(doc):
+    """How many spatial components this export declares — READ from the format tag, refused if the
+    tag is unknown rather than defaulted to the familiar one."""
+    fmt = doc.get("format")
+    if fmt not in WORLD_FORMATS:
+        raise WorldError("WORLD-REFUSE",
+                         "format %r is not a known world schema (%s) — an unknown schema is "
+                         "refused rather than read as the familiar one, because a silent default "
+                         "here would quietly drop a whole axis"
+                         % (fmt, ", ".join(sorted(WORLD_FORMATS))))
+    return WORLD_FORMATS[fmt]
+
+
+def tick_supports(dimension):
+    """Which dimensions the FROZEN tick can actually step. Two, today — `step_tick`'s gravity,
+    bounds and least-penetration resolution are all written for two components."""
+    return dimension == 2
+
+
+def admit_world_schema(doc):
+    """The door in front of the loader: a known schema, and one this tick can step.
+
+    A 3D export is a VALID REPRESENTATION and an UNSTEPPABLE one, and those are different
+    refusals with different remedies — the first says 'this is not a world', the second says
+    'this world is ahead of its law'. Fusing them would hide which."""
+    d = format_dimension(doc)
+    if not tick_supports(d):
+        raise WorldError("WORLD-REFUSE",
+                         "%s declares %d spatial components and this tick steps %d — the "
+                         "representation is admitted and the LAW has not migrated. `step_tick`'s "
+                         "gravity, bounds and least-penetration resolution are written for two "
+                         "components; accepting this and ignoring the third axis would be a "
+                         "silent drop at the scale of a dimension"
+                         % (doc.get("format"), d, 2))
+    return d
+
+
 # ---- the loader (URDR-WORLD-3 -> runtime world) ------------------------------------
 def world_from_export(doc, W_=640, H_=360, margin=24, T=120, grav=(0, 1), e=(3, 4)):
     """Deterministic mapping from the frozen export format to the runtime world.
     Instance FILE ORDER fixes body indexing (order is content)."""
-    if doc.get("format") != "URDR-WORLD-3":
-        raise WorldError("WORLD-REFUSE", f"format {doc.get('format')!r} != URDR-WORLD-3")
+    admit_world_schema(doc)                                # the schema door, before any reading
     objs = {}
     for o in doc.get("objects", []):
         verts = [(_int("vert.x", v[0]), _int("vert.y", v[1])) for v in o.get("verts", [])]

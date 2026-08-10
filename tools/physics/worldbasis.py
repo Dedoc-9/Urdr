@@ -166,6 +166,16 @@ def conformance_census():
     out["worldstep.arena_world"] = ("CONFORMS" if obeys_the_basis(w) else "PRE-BASIS",
                                     "%dD position, gravity on axes %s"
                                     % (len(w["pos"][0]), gravity_axes(w)))
+    # TWO QUESTIONS A BOOLEAN WOULD FUSE: does a SCHEMA for the decided world exist, and has the
+    # LAW migrated to it? Today the first is yes and the second is no, and a census that reported
+    # one number could not say which.
+    dims = sorted(set(WS.WORLD_FORMATS.values()))
+    steppable = sorted(d for d in dims if WS.tick_supports(d))
+    out["worldstep.schema"] = ("DECLARED" if len(AXES) in dims else "ABSENT",
+                               "schemas admit %s spatial components; the tick steps %s — a 3D "
+                               "world is a valid REPRESENTATION and an unsteppable one, refused "
+                               "by name rather than silently flattened"
+                               % (dims, steppable))
     mv = walker_movement_axes()
     horiz = tuple(AXIS_INDEX[a] for a in AXES if AXIS_KIND[a] == "horizontal")
     out["stance.DIRS"] = ("CONFORMS" if all(AXIS_KIND[AXES[i]] == "horizontal"

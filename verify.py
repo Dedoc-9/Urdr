@@ -3950,7 +3950,13 @@ class Gate:
             # which is exactly the thing this sweep exists to report. Keeping a
             # redundant loop to hold the count at 41 would be tuning the code to the
             # instrument's reading.
-            sw_ok = EA.the_inert_share() == (42, 70)
+            # RE-PINNED 70 -> 73 / 42 -> 45: `format_dimension`, `tick_supports` and
+            # `admit_world_schema` joined the swept module with the schema boundary. All three
+            # land INERT, and that is information rather than a shrug — no `compose` law reaches
+            # a schema door, so severing one teaches this sweep nothing. `netcode_world` and
+            # `tests/test_worldstep.py` are where they are load-bearing, which is the same
+            # inert-is-not-dead reading `admit_event_for_world` already stands for here.
+            sw_ok = EA.the_inert_share() == (45, 73)
             sw_ok = sw_ok and EA.the_declared_edges_are_a_subset() == (7, 7)
             sw_ok = sw_ok and EA.the_identity_law_never_divides() == (0, 9)
             sw_ok = sw_ok and EA.the_separating_witnesses() == (
@@ -16634,6 +16640,23 @@ class Gate:
                   and WB.census_is_non_vacuous() and WB.sample_conventions_diverge())
             cen = WB.conformance_census()
             ok = ok and "CONFORMS" not in {v for v, _w in cen.values()}
+            ok = ok and cen["worldstep.schema"][0] == "DECLARED"
+            import worldstep as _WS3
+            ok = (ok and _WS3.format_dimension({"format": "URDR-WORLD-3"}) == 2
+                  and _WS3.format_dimension({"format": "URDR-WORLD-4"}) == 3
+                  and _WS3.tick_supports(2) and not _WS3.tick_supports(3)
+                  and _WS3.admit_world_schema({"format": "URDR-WORLD-3"}) == 2)
+            for bad in ({"format": "URDR-WORLD-9"}, {}):
+                try:
+                    _WS3.format_dimension(bad)
+                    ok = False
+                except _WS3.WorldError:
+                    pass
+            try:                                              # admitted as a representation...
+                _WS3.admit_world_schema({"format": "URDR-WORLD-4"})
+                ok = False
+            except _WS3.WorldError as _e:                     # ...refused as a step, by name
+                ok = ok and "has not migrated" in str(_e)
             try:
                 WB.sample_convention_of("nobody")
                 ok = False
@@ -16665,6 +16688,15 @@ class Gate:
                     "it would be an axis-count check wearing a semantics claim). NOTHING CONFORMS "
                     "TODAY and that is the honest starting state — %s — a census showing "
                     "everything already conforming would mean the contract was written to fit. "
+                    "THE SCHEMA BOUNDARY IS OPEN AND THE LAW HAS NOT MOVED, two questions a "
+                    "boolean would fuse: `URDR-WORLD-4` declares three spatial components and is "
+                    "a VALID REPRESENTATION, while `step_tick` steps two and REFUSES it BY NAME "
+                    "— gravity, bounds and least-penetration resolution are written for two "
+                    "components, and a tick accepting a 3D world while ignoring the third axis "
+                    "would be the silent-drop defect this stack already closed once, at the scale "
+                    "of a whole DIMENSION. An UNKNOWN schema refuses rather than defaulting to "
+                    "the familiar one, for the same reason. The 2D path is untouched and its "
+                    "goldens are unmoved. "
                     "AND THE ANCHOR HALF EARNED ITSELF ON ARRIVAL: `glide` reads a height as the "
                     "ground under an actor, CONSTANT over its cell (its own docstring says the "
                     "exact floor-sampled cell height) while `terrain_bridge` reads THE SAME ARRAY "

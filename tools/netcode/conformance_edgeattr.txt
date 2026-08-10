@@ -49,16 +49,16 @@
 # The seven hand-declared edges were a guess about what matters. Hand-declaration UNDER-REPORTS, and
 # that is measured twice: `storecost.serialize` carries both replay laws while not being imported by
 # `compose` at all, and the generated sweep found `glide._fold`, `_grid_dims` and `_heights` carrying
-# replay too. So every callable a swept module DEFINES is severed -- 70 candidates over glide,
+# replay too. So every callable a swept module DEFINES is severed -- 73 candidates over glide,
 # persist, storecost and worldstep -- and grouped by what moved. READ FROM THE INSTRUMENT:
 #
-#     .....  x42   glide.GlideError, glide.cell_of, glide.floored, ...
+#     .....  x45   glide.GlideError, glide.cell_of, glide.floored, ...
 #     ...XX  x18   glide._fold, glide._fold_from, glide._grid_dims, ...
 #     XXX..  x 8   worldstep._fp_mul, worldstep.admit_log, worldstep.arena_world, ...
 #     ....X  x 1   persist.PersistError
 #     X.X..  x 1   worldstep._fp_div
 #
-#     42 OF 70 TAUGHT NOTHING, AND THAT NUMBER IS FIRST-CLASS. Most perturbations are inert; that is
+#     45 OF 73 TAUGHT NOTHING, AND THAT NUMBER IS FIRST-CLASS. Most perturbations are inert; that is
 #     what makes the ones that are not credible. A sweep in which everything mattered would be
 #     measuring the sweep. If this share ever collapses toward zero, the instrument has broken.
 #
@@ -96,9 +96,9 @@
 #     they test. A real separation whose witness proves less than it appears to -- kept, labelled,
 #     and not counted alongside the first.
 #
-# does_not_show: that the 42 inert candidates are dead -- inert under THESE laws is not unused; that
+# does_not_show: that the 45 inert candidates are dead -- inert under THESE laws is not unused; that
 # any law family is irreducible, only that these two pairs are separable; anything about modules
 # outside SWEPT.
 attribution 6ba1a53c054a04ed02a128de837b5ab38abc412b3a4928fb1fb55ca73916fe55
 walls 68d188becc513c16798578e16f6380f5e10b1d4ce3364364fca54f12d5743930
-sweep 29fd557dffabe0413ca46ccdb012c043d89a05b3864c66a151d875e5261ebe13
+sweep 31cdbc1d2b0a0466dbdf182f2f96b04abe0b6ed0fc7dafd7d3c4eaa94bc6b182
