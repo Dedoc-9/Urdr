@@ -128,3 +128,56 @@ class TheSampleConventionDiverges(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheCameraBasisIsExactAndIntegral(unittest.TestCase):
+    """The first picture stopped at top-down because `perspective.project` is a pinhole with NO
+    ROTATION and there was no camera orientation anywhere in the repo. A rotation looks like it
+    needs sines, and sines are where a float enters a path that has none.
+
+    IT DOES NOT. An orientation must be ORTHOGONAL, not orthoNORMAL, and integer matrices with
+    `M M^T = k^2 I` are abundant — every Pythagorean triple is one. AND THE SCALE CANCELS: a
+    perspective divide is X/Z with both scaled by k, so no normalization is ever performed. An
+    exact integer camera is the same construction with the division deferred."""
+
+    def test_every_shipped_orientation_is_orthogonal(self):
+        self.assertTrue(WB.every_orientation_is_orthogonal())
+
+    def test_a_shear_is_not_an_orientation(self):
+        """NON-VACUITY — a checker that accepted one would be certifying that 3x3 matrices exist."""
+        self.assertTrue(WB.a_non_orthogonal_matrix_is_caught())
+
+    def test_composition_preserves_orthogonality(self):
+        ok, k2 = WB.is_orthogonal(WB.compose(WB.YAW["E"], WB.PITCH["7/24"][0]))
+        self.assertTrue(ok)
+        self.assertEqual(k2, 625)                          # 1 * 25 squared: the scales multiply
+
+    def test_the_scale_cancels_in_the_divide(self):
+        """The claim that makes an integer camera EXACT rather than approximate."""
+        self.assertTrue(WB.the_scale_cancels())
+
+    def test_the_yaws_are_the_walkers_facings(self):
+        """Read from `stance.DIRS` on the run, so the correspondence is not a coincidence somebody
+        has to maintain."""
+        self.assertTrue(WB.the_yaws_match_the_walker())
+
+    def test_behind_the_camera_is_refused_not_wrapped(self):
+        self.assertIsNone(WB.camera_project((0, 0, -5), WB.IDENTITY, 320, 160, 160))
+
+    def test_the_horizon_is_computed_rather_than_discovered_twice(self):
+        """BOTH FRAMING FAILURES WERE MEASURED BEFORE THIS EXISTED. A pitch too steep for the
+        focal length puts the horizon off the top and every pixel becomes ground — observed at
+        100% ground with the 3/4 pitch, and now predicted: its horizon row is -80, off-frame.
+        The 7/24 pitch lands at 67, inside a 320-pixel frame, which is the view that worked."""
+        self.assertLess(WB.horizon_row("3/4", 320, 160), 0)
+        self.assertLess(WB.horizon_row("8/15", 320, 160), 0)
+        self.assertTrue(0 < WB.horizon_row("7/24", 320, 160) < 320)
+
+    def test_a_pitch_with_no_forward_component_refuses(self):
+        real = WB.PITCH
+        try:
+            WB.PITCH = dict(real, flat=(((1, 0, 0), (0, 1, 0), (0, 0, 0)), 1))
+            with self.assertRaises(WB.BasisError):
+                WB.horizon_row("flat", 320, 160)
+        finally:
+            WB.PITCH = real

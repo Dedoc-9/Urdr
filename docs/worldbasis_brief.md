@@ -64,3 +64,24 @@ coordinate means, never that the physics using it is right; that the non-conform
 broken; that either sample convention is the bug.
 
 Row `worldbasis-conformance`; falsifiers in `tests/test_worldbasis.py`.
+
+## The camera basis — exact integer orientation
+
+The first picture stopped at a top-down view because `perspective.project` is a pinhole with **no
+rotation**, and there was no camera orientation anywhere in the repo. A rotation *looks* like it
+needs sines, and sines are where a float would enter a path that has none.
+
+It does not. An orientation must be **orthogonal, not orthonormal**, and integer matrices with
+`M Mᵀ = k² I` are abundant — every Pythagorean triple is one, so the available pitches are dense
+enough for any camera. **And the scale cancels**: a perspective divide is `X/Z` with both scaled
+by `k`, so the projection is exact and no normalization is ever performed. An exact integer camera
+is the same construction with the division deferred.
+
+The four yaws are the walker's four facings, read from `stance.DIRS` on the run rather than
+maintained by hand. Composition preserves orthogonality — the scales multiply.
+
+**Both framing failures were measured before `horizon_row` existed.** A pitch rotating the *wrong
+way* gave 93 % sky with the ground thrown thousands of pixels below the image — the inverted-sign
+class this module exists to catch, caught by looking at a frame. A pitch too *steep* for the focal
+length gave 100 % ground. `horizon_row` now predicts both (−80 for the 3/4 pitch, 67 for 7/24 in a
+320-pixel frame) rather than leaving them to be rediscovered.

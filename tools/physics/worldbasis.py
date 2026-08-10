@@ -232,6 +232,108 @@ def authority_and_view_are_distinct():
     return AUTHORITY_CONVENTION != VIEW_CONVENTION
 
 
+# ---- the camera basis: exact integer orientation ------------------------------------------
+#
+# The first picture stopped at a top-down view because `perspective.project` is a pinhole along
+# +z WITH NO ROTATION, and there was no camera orientation anywhere in this repository. A rotation
+# looks like it needs sines, and sines are where a float would enter a path that has none.
+#
+# IT DOES NOT. An orientation only has to be ORTHOGONAL, not orthoNORMAL, and integer matrices
+# with `M M^T = k^2 I` exist in abundance — every Pythagorean triple is one, so the available
+# pitch angles are dense enough for any camera. And THE SCALE CANCELS: a perspective divide is
+# `X/Z`, both scaled by k, so the projection is exact and no normalization is ever performed. An
+# exact integer camera is not a compromise; it is the same construction with the division deferred.
+#
+# THE FIRST PITCH MATRIX ROTATED THE WRONG WAY, and the frame said so before any reasoning did:
+# 93% sky, the ground thrown thousands of pixels below the image. The inverted-sign class this
+# module was built to catch, caught by looking. The second was correct in sign and too STEEP —
+# 100% ground, horizon above the frame — which is a fact about where a horizon lands, computable
+# from the matrix and the focal length, and now stated rather than discovered twice.
+def is_orthogonal(m):
+    """(orthogonal?, k^2) for a 3x3 integer matrix — `M M^T == k^2 I`, exact, no tolerance."""
+    prod = [[sum(m[i][t] * m[j][t] for t in range(3)) for j in range(3)] for i in range(3)]
+    k2 = prod[0][0]
+    ok = all(prod[i][j] == (k2 if i == j else 0) for i in range(3) for j in range(3))
+    return ok, k2
+
+
+def compose(a, b):
+    """Two orientations compose into one, and orthogonality survives it (the scales multiply)."""
+    return tuple(tuple(sum(a[i][t] * b[t][j] for t in range(3)) for j in range(3))
+                 for i in range(3))
+
+
+IDENTITY = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
+# The four axis-aligned yaws — exactly the walker's four facings, and exact by construction since
+# a 90-degree turn is a permutation with signs.
+YAW = {"N": IDENTITY,
+       "E": ((0, 0, -1), (0, 1, 0), (1, 0, 0)),
+       "S": ((-1, 0, 0), (0, 1, 0), (0, 0, -1)),
+       "W": ((0, 0, 1), (0, 1, 0), (-1, 0, 0))}
+# Pitches from Pythagorean triples (a, b, c): tan = a/b, scale k = c. Dense enough for any camera.
+PITCH = {"level": (IDENTITY, 1),
+         "7/24": (((25, 0, 0), (0, 24, 7), (0, -7, 24)), 25),
+         "8/15": (((17, 0, 0), (0, 15, 8), (0, -8, 15)), 17),
+         "3/4": (((5, 0, 0), (0, 4, 3), (0, -3, 4)), 5)}
+
+
+def camera_project(vertex, m, focal, cx, cy):
+    """World vertex -> exact integer pixel under orientation `m`, or None behind the camera.
+
+    THE SCALE NEVER APPEARS. `X` and `Z` are both scaled by k, so `focal * X // Z` is independent
+    of it — which is why an integer orientation costs nothing in precision and needs no
+    normalization step to go wrong in."""
+    x, y, z = vertex
+    cam_x = m[0][0] * x + m[0][1] * y + m[0][2] * z
+    cam_y = m[1][0] * x + m[1][1] * y + m[1][2] * z
+    cam_z = m[2][0] * x + m[2][1] * y + m[2][2] * z
+    if cam_z <= 0:
+        return None
+    return (cx + focal * cam_x // cam_z, cy - focal * cam_y // cam_z)
+
+
+def horizon_row(pitch_name, focal, cy):
+    """WHERE THE HORIZON LANDS, computed rather than discovered twice. A distant point has
+    `y` bounded and `z` unbounded, so the ratio tends to the matrix's own column — a pitch too
+    steep for the focal length puts the horizon off the top and every pixel becomes ground."""
+    m, _k = PITCH[pitch_name]
+    if m[2][2] == 0:
+        raise BasisError(f"pitch {pitch_name!r} has no forward component")
+    return cy - focal * m[1][2] // m[2][2]
+
+
+def the_scale_cancels(focal=320, cx=160, cy=160):
+    """The claim that makes an integer camera exact, CHECKED: two orientations differing only by
+    a positive scalar must project every vertex identically."""
+    m, _k = PITCH["7/24"]
+    m2 = tuple(tuple(3 * v for v in row) for row in m)
+    pts = ((10, -5, 40), (-70, 12, 300), (3, -1, 7))
+    return all(camera_project(p, m, focal, cx, cy) == camera_project(p, m2, focal, cx, cy)
+               for p in pts)
+
+
+def every_orientation_is_orthogonal():
+    for m in list(YAW.values()) + [p[0] for p in PITCH.values()]:
+        ok, _k2 = is_orthogonal(m)
+        if not ok:
+            return False
+    return is_orthogonal(compose(YAW["E"], PITCH["7/24"][0]))[0]
+
+
+def a_non_orthogonal_matrix_is_caught():
+    """NON-VACUITY: a shear is not an orientation, and a checker that accepted one would be
+    certifying that 3x3 integer matrices exist."""
+    return not is_orthogonal(((1, 1, 0), (0, 1, 0), (0, 0, 1)))[0]
+
+
+def the_yaws_match_the_walker():
+    """The four facings are the walker's four facings — not a coincidence to be maintained by
+    hand, but a count read from `stance.DIRS` on the run."""
+    _terrain()
+    import stance as ST
+    return set(YAW) == set(ST.DIRS)
+
+
 def basis_digest():
     """URDRWBS1 canon over the contract — the declared half, so a silent edit to what a
     coordinate means changes a pinned digest."""

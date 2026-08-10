@@ -16691,6 +16691,42 @@ class Gate:
                        div.get("worst6", 0) / 6.0, div.get("height_scale", 0),
                        err.get("worst_permille", 0), err.get("mean_permille", 0))
                     if ok else "the world-basis contract or census did not hold")
+        cam_ok = True
+        try:
+            cam_ok = (WB.every_orientation_is_orthogonal()
+                      and WB.a_non_orthogonal_matrix_is_caught()
+                      and WB.the_scale_cancels() and WB.the_yaws_match_the_walker()
+                      and WB.is_orthogonal(WB.compose(WB.YAW["E"],
+                                                      WB.PITCH["7/24"][0])) == (True, 625)
+                      and WB.camera_project((0, 0, -5), WB.IDENTITY, 320, 160, 160) is None
+                      and WB.horizon_row("3/4", 320, 160) < 0
+                      and 0 < WB.horizon_row("7/24", 320, 160) < 320)
+        except Exception:
+            cam_ok = False
+        self.record("worldbasis-camera", cam_ok,
+                    "AN EXACT INTEGER CAMERA, which the first picture named as the blocker: "
+                    "`perspective.project` is a pinhole with NO ROTATION and there was no camera "
+                    "orientation anywhere in this repository, so a first-person frame was not a "
+                    "matter of parameters. A rotation LOOKS like it needs sines, and sines are "
+                    "where a float would enter a path that has none. IT DOES NOT — an orientation "
+                    "must be ORTHOGONAL, not orthoNORMAL, and integer matrices with M M^T = k^2 I "
+                    "are abundant, every Pythagorean triple being one, so the available pitches "
+                    "are dense enough for any camera. AND THE SCALE CANCELS: a perspective divide "
+                    "is X/Z with both scaled by k, so the projection is exact and NO "
+                    "NORMALIZATION IS EVER PERFORMED — checked by projecting through two "
+                    "orientations differing only by a scalar and requiring identical pixels. The "
+                    "four yaws are the walker's four facings, read from `stance.DIRS` on the run "
+                    "rather than maintained by hand; composition preserves orthogonality (the "
+                    "scales multiply, 1 x 25² = 625); a shear is refused, without which the check "
+                    "would certify that 3x3 matrices exist; and behind the camera REFUSES rather "
+                    "than wraps. AND THE HORIZON IS COMPUTED RATHER THAN DISCOVERED TWICE — both "
+                    "framing failures were measured first: a pitch rotating the WRONG WAY gave "
+                    "93%% sky with the ground thrown thousands of pixels below the image, the "
+                    "inverted-sign class this module exists to catch, caught by LOOKING; and a "
+                    "pitch too STEEP for the focal length gave 100%% ground, which `horizon_row` "
+                    "now predicts (-80 for 3/4, 67 for 7/24 in a 320-pixel frame) instead of "
+                    "leaving to be found again"
+                    if cam_ok else "the camera-basis law did not hold")
 
     def caustic(self):
         """The scale at which a pinned law spends its budget (URDRCAU1) — and the refusal that
