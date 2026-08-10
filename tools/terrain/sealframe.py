@@ -941,6 +941,128 @@ def culling_is_absent_on_the_culled_path(side=128):
     return raster_ops_culled(world_scene(side), side, side)["skipped"] == 0
 
 
+# ---- THE FIRST PICTURE: ids become pixels -------------------------------------------------
+#
+# `pixid` produces an OWNERSHIP buffer — which primitive owns which pixel — and nothing in this
+# repository has ever turned those ids into colours. That is the whole of what stood between an
+# authored world and a world on screen: not a renderer, not a placement, not a budget. A shading
+# step and an image writer.
+#
+# TOP-DOWN ORTHOGRAPHIC, and the choice is forced rather than preferred. `perspective.project` is
+# a PINHOLE ALONG +Z WITH NO ROTATION — there is no camera orientation anywhere in this repo. A
+# first-person frame is therefore not a matter of parameters: attempted, the terrain projects
+# thousands of pixels below the image because the eye cannot pitch, and the frame comes back
+# either entirely ground or entirely sky. Both were measured before this view was chosen. A
+# top-down orthographic needs no orientation at all, so it is the view that can exist TODAY, and
+# the missing camera basis is named rather than worked around.
+#
+# WHAT MAKING A PICTURE CAUGHT THAT NO DIGEST WOULD: `raster_ops_culled`'s default `zfar=100`
+# silently depth-rejected EVERY fragment of a world whose heights run to 420 — 166698 samples
+# taken, 0 pixels owned, and a green rectangle for an answer. A gate row asserting a digest would
+# have pinned the blank frame just as happily.
+IMAGE_CELL_PX = 6
+
+
+def world_image(preset=WORLD_PRESET, cell_px=IMAGE_CELL_PX, walk="EEEENNEESSEENNNN",
+                start=(12, 12)):
+    """The authored world as PNG bytes: sea, land shaded by height, the walker's path in red.
+
+    Deterministic — a pinned generator, exact integer rasterization, integer colour arithmetic,
+    and `zlib` at a fixed level. Returns (png_bytes, census) so a caller can assert the PICTURE
+    rather than only its digest."""
+    import struct
+    import zlib
+    _terrain_paths()
+    import glide as GL
+    import heightfield as HF
+    PX = _pixid()
+    p = getattr(HF, preset)()
+    hs = HF.generate(**p)
+    w, hscale, sea = p["w"], p["height_scale"], p["sea_level"]
+    side = (w - 1) * cell_px
+    prims, pid = [], 0
+    for y in range(w - 1):
+        for x in range(w - 1):
+            q = [(x, y), (x + 1, y), (x, y + 1), (x + 1, y + 1)]
+            hg = [hs[y][x], hs[y][x + 1], hs[y + 1][x], hs[y + 1][x + 1]]
+            d = [max(1, hscale - v) for v in hg]           # higher ground is NEARER the camera
+            for idx in ((0, 1, 2), (1, 3, 2)):
+                tri = tuple((q[i][0] * cell_px * PX.SUB, q[i][1] * cell_px * PX.SUB) for i in idx)
+                prims.append(tri + ((d[idx[0]], d[idx[1]], d[idx[2]]), 1 + pid % 64, pid))
+                pid += 1
+    r = raster_ops_culled(tuple(prims), side, side, 0, hscale + 2)
+    fb = r["fb"]
+    walked = {((c[0] >> 32), (c[1] >> 32))
+              for c in GL.glide_cells(hs, start, walk, 24, 4)}
+    rows, counts = bytearray(), {"sea": 0, "land": 0, "walk": 0, "empty": 0}
+    for row in range(side):
+        rows.append(0)
+        for col in range(side):
+            i = fb.pid[row * side + col]
+            if (col // cell_px, row // cell_px) in walked:
+                counts["walk"] += 1
+                rows += bytes((235, 70, 60))
+                continue
+            if i == PX.EMPTY:
+                counts["empty"] += 1
+                rows += bytes((15, 15, 25))
+                continue
+            cell = i // 2
+            hh = hs[cell // (w - 1)][cell % (w - 1)]
+            if hh <= sea:
+                t = max(0, min(255, hh * 255 // max(1, sea)))
+                counts["sea"] += 1
+                rows += bytes((18 + t // 6, 45 + t // 4, 105 + t // 3))
+            else:
+                t = max(0, min(255, (hh - sea) * 255 // max(1, hscale - sea)))
+                counts["land"] += 1
+                rows += bytes((70 + t // 2, 115 + t // 2, 55 + t // 3))
+
+    def _chunk(tag, data):
+        c = tag + data
+        return struct.pack(">I", len(data)) + c + struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF)
+
+    png = (b"\x89PNG\r\n\x1a\n"
+           + _chunk(b"IHDR", struct.pack(">IIBBBBB", side, side, 8, 2, 0, 0, 0))
+           + _chunk(b"IDAT", zlib.compress(bytes(rows), 9))
+           + _chunk(b"IEND", b""))
+    counts.update(side=side, primitives=len(prims), samples=r["samples"], owned=r["owned"])
+    return png, counts
+
+
+def world_image_digest(**kw):
+    png, _c = world_image(**kw)
+    return hashlib.sha256(MAGIC + png).hexdigest()
+
+
+def image_classes_are_populated(**kw):
+    """L61 ON A PICTURE, and it is not decoration — the blank green frame this rung began with
+    would have satisfied any digest assertion. Sea, land and the walker's path must EACH occupy
+    pixels, or the image is a rectangle of one colour that happens to hash consistently."""
+    _png, c = world_image(**kw)
+    return c["sea"] > 0 and c["land"] > 0 and c["walk"] > 0
+
+
+def a_blank_frame_is_detectable(**kw):
+    """The control the defect itself suggested: with `zfar` too small for the world's heights,
+    EVERY fragment is depth-rejected and the frame carries no land at all. 166698 samples were
+    taken and 0 pixels owned on the first attempt, and only looking at the picture found it."""
+    PX = _pixid()
+    S = PX.SUB
+    far = (((0, 0), (7 * S, 0), (0, 7 * S), (500, 500, 500), 1, 0),)
+    near = (((0, 0), (7 * S, 0), (0, 7 * S), (50, 50, 50), 1, 0),)
+    # the SAME geometry: rejected whole when its depth is past zfar, drawn when it is not.
+    return (raster_ops_culled(far, 8, 8, 0, 100)["owned"] == 0
+            and raster_ops_culled(near, 8, 8, 0, 100)["owned"] > 0)
+
+
+def _terrain_paths():
+    for d in ("terrain", "render", "physics"):
+        q = _os.path.join(_os.path.dirname(_os.path.dirname(_HERE)), "tools", d)
+        if q not in _sys.path:
+            _sys.path.insert(0, q)
+
+
 WORLD_CENSUS_SIDES = (128, 256)
 
 

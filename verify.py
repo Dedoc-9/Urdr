@@ -17341,6 +17341,42 @@ class Gate:
                     % (cc[256]["skipped"], cc[256]["primitives"], cc[256]["tight_samples"],
                        cc[256]["culled_samples"], cc[256]["reduction"])
                     if cu_ok else "the culled-path identity law did not hold")
+        img_ok = True
+        ic = {}
+        try:
+            png, ic = SF.world_image()
+            img_ok = (png.startswith(b"\x89PNG\r\n\x1a\n")
+                      and SF.world_image_digest() == SF.golden("world_image")
+                      and SF.image_classes_are_populated()
+                      and SF.a_blank_frame_is_detectable()
+                      and ic["sea"] + ic["land"] + ic["walk"] + ic["empty"] == ic["side"] ** 2
+                      and ic["walk"] % (SF.IMAGE_CELL_PX ** 2) == 0)
+        except Exception:
+            img_ok = False
+        self.record("sealframe-first-picture", img_ok,
+                    "IDS BECOME PIXELS — and that, with nothing else, is what stood between an "
+                    "authored world and a world ON SCREEN. `pixid` produces an OWNERSHIP buffer "
+                    "and nothing here had ever turned those ids into colours: not a renderer, not "
+                    "a placement, not a budget were missing, a SHADING STEP AND AN IMAGE WRITER "
+                    "were. %d primitives of the authored island, %d sample tests, %dx%d pixels — "
+                    "%d sea, %d land shaded by height, %d carrying the walker's own "
+                    "`glide_cells` trajectory rather than a decoration painted at guessed "
+                    "coordinates. TOP-DOWN ORTHOGRAPHIC, FORCED RATHER THAN PREFERRED: "
+                    "`perspective.project` is a pinhole along +z with NO ROTATION and there is no "
+                    "camera orientation anywhere in this repository, so a first-person frame is "
+                    "not a matter of parameters — attempted, the terrain projects thousands of "
+                    "pixels below the image because the eye cannot pitch, and the frame comes "
+                    "back entirely ground or entirely sky. Both were measured before this view "
+                    "was chosen, and the missing camera basis is NAMED rather than worked around. "
+                    "AND MAKING A PICTURE CAUGHT WHAT NO DIGEST WOULD: the default `zfar=100` "
+                    "silently depth-rejected EVERY fragment of a world whose heights run to 420 — "
+                    "166698 samples taken, 0 pixels owned, a green rectangle for an answer, and a "
+                    "row asserting a digest would have pinned it just as happily. Kept as the "
+                    "control, alongside L61 ON A PICTURE: sea, land and path must EACH occupy "
+                    "pixels or the image is one colour that hashes consistently"
+                    % (ic.get("primitives", 0), ic.get("samples", 0), ic.get("side", 0),
+                       ic.get("side", 0), ic.get("sea", 0), ic.get("land", 0), ic.get("walk", 0))
+                    if img_ok else "the first-picture law did not hold")
         cau_ok = True
         c128 = c256 = 0
         try:

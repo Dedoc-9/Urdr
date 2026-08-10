@@ -877,3 +877,49 @@ class TheCulledPath(unittest.TestCase):
         than carried across to the other."""
         self.assertTrue(SF.culling_is_absent())
         self.assertFalse(SF.culling_is_absent_on_the_culled_path())
+
+
+class TheFirstPicture(unittest.TestCase):
+    """IDS BECOME PIXELS. `pixid` produces an OWNERSHIP buffer and nothing in this repository had
+    ever turned those ids into colours — that, and nothing else, is what stood between an authored
+    world and a world on screen. Not a renderer, not a placement, not a budget.
+
+    TOP-DOWN ORTHOGRAPHIC, FORCED RATHER THAN PREFERRED. `perspective.project` is a pinhole along
+    +z with NO ROTATION: there is no camera orientation anywhere in the repo, so a first-person
+    frame is not a matter of parameters. Attempted, the terrain projects thousands of pixels below
+    the image because the eye cannot pitch, and the frame comes back entirely ground or entirely
+    sky — both were measured before this view was chosen."""
+
+    def test_the_image_is_deterministic_and_pinned(self):
+        self.assertEqual(SF.world_image_digest(), SF.world_image_digest())
+        self.assertEqual(SF.world_image_digest(), SF.golden("world_image"))
+
+    def test_it_is_a_png(self):
+        png, _c = SF.world_image()
+        self.assertTrue(png.startswith(b"\x89PNG\r\n\x1a\n"))
+        self.assertIn(b"IEND", png[-16:])
+
+    def test_every_class_occupies_pixels(self):
+        """L61 ON A PICTURE, and not decoration — the blank green frame this rung began with would
+        have satisfied any digest assertion perfectly happily. Sea, land and the walker's path
+        must EACH occupy pixels, or the image is one colour that hashes consistently."""
+        self.assertTrue(SF.image_classes_are_populated())
+
+    def test_the_walker_is_drawn_where_it_walked(self):
+        """The overlay is the WALKING LAW's own output, not a decoration painted at guessed
+        coordinates: `glide_cells` floored to the grid, so a picture that disagreed with the
+        trajectory would be disagreeing with the authority."""
+        _png, c = SF.world_image()
+        self.assertGreater(c["walk"], 0)
+        self.assertEqual(c["walk"] % (SF.IMAGE_CELL_PX ** 2), 0)
+
+    def test_a_blank_frame_is_detectable(self):
+        """THE DEFECT THIS RUNG ACTUALLY HIT, kept as the control. `raster_ops_culled`'s default
+        `zfar=100` silently depth-rejected EVERY fragment of a world whose heights run to 420 —
+        166698 samples taken, 0 pixels owned, and a green rectangle for an answer. A row asserting
+        a digest would have pinned the blank frame just as happily; only LOOKING found it."""
+        self.assertTrue(SF.a_blank_frame_is_detectable())
+
+    def test_the_census_accounts_for_every_pixel(self):
+        _png, c = SF.world_image()
+        self.assertEqual(c["sea"] + c["land"] + c["walk"] + c["empty"], c["side"] ** 2)
