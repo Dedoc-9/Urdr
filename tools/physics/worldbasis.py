@@ -66,6 +66,21 @@ CELL_CONSTANT = "CELL_CONSTANT"        # the value is the whole cell's, a step f
 LATTICE_POINT = "LATTICE_POINT"        # the value is a sample at the corner, interpolated between
 SAMPLE_CONVENTIONS = (CELL_CONSTANT, LATTICE_POINT)
 
+# WHICH READING IS AUTHORITATIVE — settled from the repo's OWN LAYERING rather than by preference,
+# and this is the observer seam of the render arc arriving one layer down. `glide` reads a height
+# to decide where an actor stands and whether a rise exceeds MAX_STEP: that is a LAW, and laws are
+# authority. `terrain_bridge` emits URDROBJ2 for a front end and says so in its first line: that
+# is a VIEW. A view may DERIVE from an authority and may never feed back into it.
+#
+# So the ~98% cell divergence is not a bug to be eliminated. It is a PROJECTION, and the honest
+# treatment of a projection is to declare it, BOUND it, and forbid the feedback — exactly what
+# `pixid`'s ownership witness gets, for exactly the same reason. Deleting the divergence by making
+# the view piecewise-constant would render terrain as steps; deleting it by making the walker
+# interpolate would change a frozen movement law to flatter a picture. Neither is warranted by a
+# number, and both would be a subsystem answering a question that belongs to the architecture.
+AUTHORITY_CONVENTION = CELL_CONSTANT
+VIEW_CONVENTION = LATTICE_POINT
+
 
 def _terrain():
     for d in ("terrain", "netcode"):
@@ -157,10 +172,13 @@ def conformance_census():
                                             for i in mv if i < len(AXES)) else "PRE-BASIS",
                           "movement on axes %s; the basis reserves %s for horizontal"
                           % (mv, horiz))
-    out["sample convention"] = ("DIVERGENT" if sample_conventions_diverge() else "AGREED",
-                                "glide=%s, terrain_bridge=%s"
+    err = projection_error()
+    out["sample convention"] = ("PROJECTED" if sample_conventions_diverge() else "AGREED",
+                                "authority glide=%s, view terrain_bridge=%s; %d of %d cells "
+                                "differ, bounded at %d permille of the height range"
                                 % (sample_convention_of("glide"),
-                                   sample_convention_of("terrain_bridge")))
+                                   sample_convention_of("terrain_bridge"),
+                                   err["differing"], err["cells"], err["worst_permille"]))
     return out
 
 
@@ -183,6 +201,37 @@ def sideways_gravity_is_refused():
     return not obeys_the_basis({"pos": [[0, 0, 0]], "grav": (3, 10, 0)})
 
 
+def projection_error(preset="island"):
+    """THE BOUND ON THE VIEW, as a fraction of the height range it projects. A projection with no
+    bound is an unstated approximation; one with a bound is a declared contract. Integer
+    arithmetic throughout (sixths, since the two-triangle centre is a sum of two centroids) — a
+    float here would put an approximation inside the law that bounds one."""
+    d = convention_divergence(preset)
+    scale = max(1, d["height_scale"])
+    return {"worst_permille": d["worst6"] * 1000 // (6 * scale),
+            "mean_permille": d["mean6"] * 1000 // (6 * scale),
+            "differing": d["differing"], "cells": d["cells"], "height_scale": scale}
+
+
+def the_view_does_not_feed_back(preset="island"):
+    """THE CARDINAL INVARIANT AT THIS SEAM. The render arc proved the ownership witness leaves its
+    buffer bit-identical; the same must hold here — bridging a heightfield to a view object may not
+    alter the heightfield the walking law reads. Checked by comparison, not by inspection."""
+    _terrain()
+    import heightfield as HF
+    import terrain_bridge as TBR
+    p = getattr(HF, preset)()
+    before = tuple(tuple(r) for r in HF.generate(**p))
+    TBR.bridge_scene(p, 1, 1, 1, 1)
+    return tuple(tuple(r) for r in HF.generate(**p)) == before
+
+
+def authority_and_view_are_distinct():
+    """L61 on the assignment: if both roles named the same convention the distinction would carry
+    no information and the projection bound would measure zero by construction."""
+    return AUTHORITY_CONVENTION != VIEW_CONVENTION
+
+
 def basis_digest():
     """URDRWBS1 canon over the contract — the declared half, so a silent edit to what a
     coordinate means changes a pinned digest."""
@@ -191,6 +240,7 @@ def basis_digest():
     for a in AXES:
         hh.update(f"|{a}:{AXIS_KIND[a]}:{AXIS_COMPASS.get(a, '-')}".encode())
     hh.update(f"|g:{GRAVITY_AXIS}|o:{ORIGIN}|s:{SCALE}|c:{SAMPLE_CONVENTIONS}".encode())
+    hh.update(f"|auth:{AUTHORITY_CONVENTION}|view:{VIEW_CONVENTION}".encode())
     return hh.hexdigest()
 
 

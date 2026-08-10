@@ -69,6 +69,30 @@ class TheSampleConventionDiverges(unittest.TestCase):
     surface INTERPOLATED between lattice points. Each is self-consistent; the defect is that
     NOTHING DECIDED between them, because there was nowhere to say it."""
 
+    def test_the_authority_is_the_law_and_the_view_is_the_bridge(self):
+        """SETTLED FROM THE REPO'S OWN LAYERING, not by preference. `glide` reads a height to
+        decide where an actor stands and whether a rise exceeds MAX_STEP — that is a LAW, and laws
+        are authority. `terrain_bridge` emits URDROBJ2 for a front end and says so in its first
+        line — that is a VIEW. This is the render arc's observer seam one layer down."""
+        self.assertEqual(WB.AUTHORITY_CONVENTION, WB.CELL_CONSTANT)
+        self.assertEqual(WB.VIEW_CONVENTION, WB.LATTICE_POINT)
+        self.assertTrue(WB.authority_and_view_are_distinct())
+
+    def test_the_projection_is_bounded_rather_than_eliminated(self):
+        """The ~98% divergence is not a bug to remove. Making the view piecewise-constant would
+        render terrain as steps; making the walker interpolate would change a frozen movement law
+        to flatter a picture. Neither is warranted by a number. A projection with no bound is an
+        unstated approximation; one with a bound is a declared contract."""
+        e = WB.projection_error()
+        self.assertGreater(e["worst_permille"], 0)
+        self.assertLess(e["worst_permille"], 100)
+        self.assertLessEqual(e["mean_permille"], e["worst_permille"])
+
+    def test_the_view_does_not_feed_back(self):
+        """THE CARDINAL INVARIANT AT THIS SEAM — the same one the ownership witness gets. Bridging
+        a heightfield to a view object may not alter the heightfield the walking law reads."""
+        self.assertTrue(WB.the_view_does_not_feed_back())
+
     def test_the_two_readers_disagree_about_what_an_integer_names(self):
         self.assertTrue(WB.sample_conventions_diverge())
         self.assertEqual(WB.sample_convention_of("glide"), WB.CELL_CONSTANT)

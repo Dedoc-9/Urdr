@@ -33,8 +33,23 @@ vertices, emitting a surface interpolated between lattice points. Measured on th
 **3 878 of 3 969 cells differ**, mean 3.33 and worst 17.50 height units against a height_scale of
 420. The actor floats or sinks relative to the terrain it is drawn on in ~98 % of cells.
 
-Neither reader is wrong. Each is self-consistent. **The defect is that nothing decided between
+Neither reader is wrong. Each is self-consistent. **The defect was that nothing decided between
 them**, because there was nowhere to say it.
+
+## Settled from the repo's own layering
+
+`glide` reads a height to decide where an actor stands and whether a rise exceeds `MAX_STEP` —
+that is a **law**, and laws are authority. `terrain_bridge` emits URDROBJ2 for a front end and says
+so in its first line — that is a **view**. This is the render arc's observer seam one layer down.
+
+So the divergence is not a bug to eliminate. It is a **projection**, and the honest treatment of a
+projection is to declare it, **bound** it, and forbid the feedback: worst **41 permille** of the
+height range, mean 7, with the heightfield proved **bit-identical after bridging** — the same
+cardinal invariant the ownership witness carries.
+
+Eliminating it instead would mean rendering terrain as steps, or changing a frozen movement law to
+flatter a picture. Neither is warranted by a number, and both would be a subsystem answering a
+question that belongs to the architecture.
 
 ## Grade
 

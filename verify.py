@@ -16641,6 +16641,13 @@ class Gate:
                 pass
             div = WB.convention_divergence()
             ok = ok and div["differing"] > div["cells"] * 9 // 10 and div["worst6"] > 0
+            err = WB.projection_error()
+            ok = (ok and WB.authority_and_view_are_distinct()
+                  and WB.AUTHORITY_CONVENTION == WB.CELL_CONSTANT
+                  and WB.VIEW_CONVENTION == WB.LATTICE_POINT
+                  and WB.the_view_does_not_feed_back()
+                  and 0 < err["worst_permille"] < 100
+                  and err["mean_permille"] <= err["worst_permille"])
         except Exception:
             ok = False
         self.record("worldbasis-conformance", ok,
@@ -16665,11 +16672,24 @@ class Gate:
                     "differ on the island preset, worst %.2f height units against a height_scale "
                     "of %d — the actor floats or sinks relative to the terrain it is drawn on in "
                     "98%% of cells. Neither reader is wrong and each is self-consistent; the "
-                    "defect is that NOTHING DECIDED between them, because there was nowhere to "
-                    "say it"
+                    "defect was that NOTHING DECIDED between them, because there was nowhere to "
+                    "say it. SETTLED HERE FROM THE REPO'S OWN LAYERING rather than by preference: "
+                    "`glide` reads a height to decide where an actor stands and whether a rise "
+                    "exceeds MAX_STEP, which is a LAW and therefore the AUTHORITY; "
+                    "`terrain_bridge` emits URDROBJ2 for a front end and says so in its first "
+                    "line, which is a VIEW. This is the render arc's observer seam one layer "
+                    "down, so the divergence is not a bug to eliminate but a PROJECTION to "
+                    "declare, BOUND and forbid feedback from — bounded at %d permille of the "
+                    "height range (mean %d), with the heightfield proved BIT-IDENTICAL after "
+                    "bridging, the same cardinal invariant the ownership witness carries. "
+                    "Eliminating it instead would mean rendering terrain as steps, or changing a "
+                    "frozen movement law to flatter a picture; neither is warranted by a number, "
+                    "and both would be a subsystem answering a question that belongs to the "
+                    "architecture"
                     % ("; ".join("%s %s" % (k, v) for k, (v, _w) in sorted(cen.items())),
                        div.get("differing", 0), div.get("cells", 0),
-                       div.get("worst6", 0) / 6.0, div.get("height_scale", 0))
+                       div.get("worst6", 0) / 6.0, div.get("height_scale", 0),
+                       err.get("worst_permille", 0), err.get("mean_permille", 0))
                     if ok else "the world-basis contract or census did not hold")
 
     def caustic(self):
