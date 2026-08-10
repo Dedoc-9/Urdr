@@ -166,6 +166,31 @@ def budget_defect_unlogged_measured():
 INSTANTS = ("input_actuation", "input_visible", "tick_done", "view_exported",
             "pixels_done", "present_queued", "scanout_begin", "photon")
 
+# THE INSTANTS ARE NOT ALL ON ONE CLOCK, and the ledger assumed they were.
+#
+# Found by reading `VK_EXT_present_timing`'s DEPENDENCIES rather than its description: it requires
+# `VK_KHR_calibrated_timestamps`, and that requirement is the tell. `present_queued` is observed by
+# this process on the CPU clock; `scanout_begin` is reported by the PRESENTATION ENGINE in its own
+# time domain. Subtracting one from the other without calibration yields a number that has the
+# shape of a duration and is partly a CLOCK OFFSET. Same class as the five defects L65 records — a
+# measurement whose DOMAIN went unstated — and it was reached by looking at what the platform
+# demands rather than at what it offers.
+#
+# Durations SUM across domains without trouble; what needs calibration is a segment whose two
+# ENDPOINTS are read on different clocks. That is a property of the segment, so it is computed
+# rather than declared, and it cannot be forgotten on a new one.
+TIME_DOMAINS = ("external", "cpu-monotonic", "presentation-engine")
+INSTANT_DOMAIN = {
+    "input_actuation": "external",                         # a switch closes; no clock here sees it
+    "input_visible": "cpu-monotonic",
+    "tick_done": "cpu-monotonic",
+    "view_exported": "cpu-monotonic",
+    "pixels_done": "cpu-monotonic",
+    "present_queued": "cpu-monotonic",
+    "scanout_begin": "presentation-engine",                # the engine's domain, not ours
+    "photon": "external",
+}
+
 # THE INSTRUMENT CLASSES — a neutral ruler, applied to rulers. A duration that ENDS OUTSIDE this
 # process cannot be established by a timer INSIDE it: `scanout` ends at a photon and
 # `input_transport` begins at a switch closure, so `perf_counter` is the STRUCTURALLY wrong
@@ -221,6 +246,19 @@ SEGMENTS = (
 _EVIDENCED = ("MEASURED", "DERIVED")
 
 
+def spans_two_domains(name, segments=None):
+    """Are this segment's endpoints read on DIFFERENT clocks? Computed from the instants, never
+    declared, so a segment added later cannot forget to say so."""
+    seg = next((x for x in (segments or SEGMENTS) if x[0] == name), None)
+    if seg is None:
+        raise FrameError(f"no such frame segment: {name!r}")
+    return INSTANT_DOMAIN[seg[1]] != INSTANT_DOMAIN[seg[2]]
+
+
+def cross_domain_segments(segments=None):
+    return tuple(x[0] for x in (segments or SEGMENTS) if spans_two_domains(x[0], segments))
+
+
 def segments_tile(segments=SEGMENTS):
     """Do the segments TILE `INSTANTS[0] -> INSTANTS[-1]` exactly — no gap, no overlap?
 
@@ -237,7 +275,8 @@ def segments_tile(segments=SEGMENTS):
     return here == INSTANTS[-1]
 
 
-def grade_segment(name, grade, lo_ms, hi_ms, instrument, evidence, segments=SEGMENTS):
+def grade_segment(name, grade, lo_ms, hi_ms, instrument, evidence, segments=SEGMENTS,
+                  calibration=""):
     """Grade one segment, REFUSING an instrument that cannot establish it.
 
     The refusal is the mechanism. Timing `present()` with a wall clock and calling the answer
@@ -255,6 +294,13 @@ def grade_segment(name, grade, lo_ms, hi_ms, instrument, evidence, segments=SEGM
                 f"establish it — an endpoint lies outside what that instrument can observe")
         if not str(evidence).strip():
             raise FrameError(f"{name} graded {grade} with no evidence cited (the host-log law)")
+        if spans_two_domains(name, segments) and not str(calibration).strip():
+            raise FrameError(
+                f"{name} spans {seg[1]} ({INSTANT_DOMAIN[seg[1]]}) -> {seg[2]} "
+                f"({INSTANT_DOMAIN[seg[2]]}), two different clocks, and no calibration is cited — "
+                f"the difference of two uncalibrated timestamps has the SHAPE of a duration and is "
+                f"partly a clock offset (`VK_KHR_calibrated_timestamps` is what the platform "
+                f"demands for exactly this reason)")
         if lo_ms is None or hi_ms is None or lo_ms > hi_ms:
             raise FrameError(f"{name} graded {grade} needs a band lo <= hi, got {lo_ms}..{hi_ms}")
     return (seg[0], seg[1], seg[2], seg[3], grade, lo_ms or 0.0, hi_ms or 0.0, evidence)
@@ -310,8 +356,10 @@ def ledger_with_graduated(name, lo_ms, hi_ms, segments=SEGMENTS):
     """A ledger with one segment graduated by an instrument that CAN establish it — the shape a
     real graduation takes, used to prove the bound is monotone under arriving evidence."""
     inst = _SATISFIES[next(s for s in segments if s[0] == name)[3]][0]
+    cal = "synthetic calibration" if spans_two_domains(name, segments) else ""
     return tuple(grade_segment(name, "MEASURED", lo_ms, hi_ms, inst,
-                               "synthetic graduation", segments) if s[0] == name else s
+                               "synthetic graduation", segments, calibration=cal)
+                 if s[0] == name else s
                  for s in segments)
 
 
@@ -320,8 +368,9 @@ def ledger_all_measured(segments=SEGMENTS):
     which the verdict could only ever refuse or shrug (L61)."""
     out = []
     for s in segments:
+        cal = "synthetic calibration" if spans_two_domains(s[0], segments) else ""
         out.append(grade_segment(s[0], "MEASURED", 0.5, 2.0, _SATISFIES[s[3]][0],
-                                 "synthetic full-chain log", segments))
+                                 "synthetic full-chain log", segments, calibration=cal))
     return tuple(out)
 
 
@@ -420,9 +469,11 @@ def conditions_sufficient(conditions, instrument):
     return tuple(c for c in CONDITIONS_FOR[instrument] if c not in have)
 
 
-def make_segment_log(host, readings, conditions=None):
+def make_segment_log(host, readings, conditions=None, calibration=""):
     """Seal a segment log: host, declared conditions, then `seg name lo med p95 instrument`."""
     lines = ["URDRSFR1 segments v1", f"host {host}"]
+    if calibration:
+        lines.append(f"calibration {calibration}")
     for k in sorted(dict(conditions or {})):
         lines.append(f"cond {k} {dict(conditions)[k]}")
     for name in sorted(readings):
@@ -442,16 +493,19 @@ def parse_segment_log(text):
         raise FrameError("the segment log does not hash to its own digest — tampered, refused")
     if lines[0] != "URDRSFR1 segments v1":
         raise FrameError("not a URDRSFR1 segments v1 log")
-    host, readings, conditions = "", {}, {}
+    host, readings, conditions, calibration = "", {}, {}, ""
     for ln in lines[1:-1]:
         parts = ln.split()
         if parts[0] == "host":
             host = " ".join(parts[1:])
+        elif parts[0] == "calibration":
+            calibration = " ".join(parts[1:])
         elif parts[0] == "cond":
             conditions[parts[1]] = " ".join(parts[2:])
         elif parts[0] == "seg":
             readings[parts[1]] = (float(parts[2]), float(parts[3]), float(parts[4]), parts[5])
-    return {"host": host, "readings": readings, "conditions": conditions}
+    return {"host": host, "readings": readings, "conditions": conditions,
+            "calibration": calibration}
 
 
 def ledger_from_log(text, segments=SEGMENTS, require_named_host=False,
@@ -474,6 +528,7 @@ def ledger_from_log(text, segments=SEGMENTS, require_named_host=False,
         if not r:
             out.append(s)
             continue
+        cal = rep.get("calibration", "")
         if require_conditions:
             missing = conditions_sufficient(rep["conditions"], r[3])
             if missing:
@@ -492,7 +547,8 @@ def ledger_from_log(text, segments=SEGMENTS, require_named_host=False,
         cite = f"segment log ({rep['host']})"
         if s[4] in _EVIDENCED and s[5] > lo:
             lo, hi, cite = s[5], max(hi, s[6]), f"{s[7]} + segment log ({rep['host']})"
-        out.append(grade_segment(s[0], "MEASURED", lo, hi, r[3], cite, segments))
+        out.append(grade_segment(s[0], "MEASURED", lo, hi, r[3], cite, segments,
+                                 calibration=cal))
     return tuple(out)
 
 
@@ -753,6 +809,146 @@ def cull_half(primitive):
     because the clipped model counts those at zero too and the two agreed at nothing; a culler is
     a discrepancy between what the model WOULD walk and what the run DOES."""
     return primitive[5] % 2 == 0
+
+
+# ---- how far a CONFORMING rasterizer can drift from the witness ---------------------------
+#
+# The question the renderer work needs answered and cannot answer on a GPU-less host: if a second
+# rasterizer draws the same scene, how much may it legitimately disagree with `pixid`'s ownership
+# buffer? Measuring one vendor's GPU would answer it about THAT VENDOR. Measuring a rule change
+# answers it about the RULE, which is the transferable form and needs no hardware.
+#
+# Each variant below is a rasterization that is defensible on its own terms — a different sample
+# position, a different fill rule at shared edges, a different tie-break — and every one of them is
+# something a GPU's implementation-defined behaviour is permitted to do. The disagreement is
+# therefore a LOWER BOUND on what a real GPU might differ by, taken over rules rather than vendors.
+#
+# THE CONCLUSION IS STRUCTURAL AND THE NUMBER IS THE EVIDENCE: the GPU cannot be the witness, and
+# the witness must stay the exact CPU path computed on demand as a SIBLING of the render, never a
+# readback of it.
+RASTER_VARIANTS = ("corner_sample", "no_fill_rule", "submission_order_ties")
+
+
+def _variant_owner(primitives, w, h, variant, znear=0, zfar=100):
+    """Rasterize with ONE rule changed, returning the ownership buffer. Mirrors `pixid`'s draw loop
+    deliberately — a reimplementation would measure two arithmetics instead of one rule."""
+    PX = _pixid()
+    SUB, HALF = PX.SUB, PX.SUB >> 1
+    off = 0 if variant == "corner_sample" else HALF
+    iid = [PX.EMPTY] * (w * h)
+    pid = [PX.EMPTY] * (w * h)
+    znum = [None] * (w * h)
+    zden = [None] * (w * h)
+    for order, p in enumerate(primitives):
+        (x0, y0), (x1, y1), (x2, y2), zs, i_id, p_id = PX._check_primitive(p)
+        z0, z1, z2 = zs
+        if PX.edge(x0, y0, x1, y1, x2, y2) < 0:
+            (x1, y1), (x2, y2) = (x2, y2), (x1, y1)
+            z1, z2 = z2, z1
+        area = PX.edge(x0, y0, x1, y1, x2, y2)
+        if area == 0:
+            continue
+        minx = max(0, min(x0, x1, x2) // SUB)
+        maxx = min(w - 1, max(x0, x1, x2) // SUB)
+        miny = max(0, min(y0, y1, y2) // SUB)
+        maxy = min(h - 1, max(y0, y1, y2) // SUB)
+        for py in range(miny, maxy + 1):
+            sy = py * SUB + off
+            for px in range(minx, maxx + 1):
+                sx = px * SUB + off
+                ea = PX.edge(x0, y0, x1, y1, sx, sy)
+                eb = PX.edge(x1, y1, x2, y2, sx, sy)
+                ec = PX.edge(x2, y2, x0, y0, sx, sy)
+                if variant == "no_fill_rule":                # a boundary sample belongs to BOTH
+                    if ea < 0 or eb < 0 or ec < 0:
+                        continue
+                else:
+                    hit = PX._covers(x0, y0, x1, y1, x2, y2, sx, sy)
+                    if hit is None:
+                        continue
+                    ea, eb, ec = hit
+                num = eb * z0 + ec * z1 + ea * z2
+                if not (znear * area <= num <= zfar * area):
+                    continue
+                k = py * w + px
+                if znum[k] is None:
+                    win = True
+                else:
+                    lhs, rhs = num * zden[k], znum[k] * area
+                    if lhs == rhs:
+                        # the tie: the witness takes the smaller (instance, primitive) KEY, which
+                        # is total on OUTCOMES. Submission order is deterministic and NOT total on
+                        # what is stored — two fragments with one key write different bytes.
+                        win = order > 0 if variant == "submission_order_ties" else \
+                            (i_id, p_id) < (iid[k], pid[k])
+                    else:
+                        win = lhs < rhs
+                if win:
+                    iid[k], pid[k] = i_id, p_id
+                    znum[k], zden[k] = num, area
+    return iid, pid
+
+
+def disagreement_scene(levels=2, side=128):
+    """The subdivided fixture PLUS two coplanar overlapping triangles at equal depth.
+
+    THE OVERLAP IS THERE BECAUSE THE NON-VACUITY CHECK CAUGHT ITS ABSENCE. On subdivision alone,
+    `submission_order_ties` disagreed on ZERO pixels — not because the tie rule is harmless but
+    because the fixture never produced a tie: the sub-triangles TILE their parent, so no pixel ever
+    receives two fragments. A variant reporting zero for want of an opportunity is L61's empty
+    answer wearing a confirmation's clothes, and the check that refused to accept it is the reason
+    this scene exists. `ties_are_exercised` now asserts the opportunity is present."""
+    PX = _pixid()
+    S = PX.SUB
+    base = list(subdivided_scene(levels, side))
+    a, b, c = 10, 10, side // 2
+    over = [((a * S, b * S), ((a + c) * S, b * S), (a * S, (b + c) * S), (4, 4, 4), 40, 0),
+            ((a * S, b * S), ((a + c) * S, b * S), (a * S, (b + c) * S), (4, 4, 4), 41, 1)]
+    return tuple(base + over)
+
+
+def ties_are_exercised(levels=2, side=128):
+    """L61 PRECONDITION: the tie variant is only informative if some pixel actually receives two
+    fragments at EQUAL depth. Checked, not assumed."""
+    PX = _pixid()
+    scene = disagreement_scene(levels, side)
+    seen = {}
+    hits = 0
+    for p in scene:
+        (x0, y0), (x1, y1), (x2, y2), _z, i_id, p_id = PX._check_primitive(p)
+        minx, maxx = max(0, min(x0, x1, x2) // PX.SUB), min(side - 1, max(x0, x1, x2) // PX.SUB)
+        miny, maxy = max(0, min(y0, y1, y2) // PX.SUB), min(side - 1, max(y0, y1, y2) // PX.SUB)
+        for py in range(miny, maxy + 1):
+            for px in range(minx, maxx + 1):
+                if PX._covers(x0, y0, x1, y1, x2, y2,
+                              px * PX.SUB + (PX.SUB >> 1), py * PX.SUB + (PX.SUB >> 1)) is None:
+                    continue
+                k = py * side + px
+                if k in seen and seen[k] != (i_id, p_id):
+                    hits += 1
+                seen[k] = (i_id, p_id)
+    return hits > 0
+
+
+def witness_disagreement(variant, levels=2, side=128):
+    """Pixels whose OWNER differs between the witness and a conforming variant. Returns
+    (differing, covered) — never a bare ratio, since a ratio over an unstated denominator is how
+    this file's earlier readings went wrong."""
+    PX = _pixid()
+    scene = disagreement_scene(levels, side)
+    ref = PX.IdFramebuffer(side, side, 0, 100).render(scene)
+    iid, pid = _variant_owner(scene, side, side, variant)
+    covered = sum(1 for v in ref.iid if v != PX.EMPTY)
+    differ = sum(1 for k in range(side * side)
+                 if (ref.iid[k], ref.pid[k]) != (iid[k], pid[k]))
+    return differ, covered
+
+
+def every_variant_disagrees_somewhere():
+    """NON-VACUITY. A variant that changed nothing would make the disagreement figure meaningless,
+    and `no_fill_rule` in particular must bite: subdivision creates internal shared edges, which is
+    exactly where a fill rule decides ownership."""
+    return all(witness_disagreement(v)[0] > 0 for v in RASTER_VARIANTS)
 
 
 def raster_frame_ms(pixels, ns_per_pixel):

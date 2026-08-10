@@ -16787,7 +16787,8 @@ class Gate:
                 part_ok = False
             except SF.FrameError:
                 pass
-            ok_seg = SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "external-capture", "log")
+            ok_seg = SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "external-capture", "log",
+                                      calibration="photodiode + QPC anchor")
             part_ok = part_ok and ok_seg[4] == "MEASURED"
             try:                                             # evidenced-with-no-evidence refuses
                 SF.grade_segment("frame_render", "MEASURED", 1.0, 2.0, "software-timer", "")
@@ -16881,8 +16882,8 @@ class Gate:
             except SF.FrameError:
                 pass
             seg_ok = seg_ok and SF.grade_segment(
-                "present_wait", "MEASURED", 0.0, 8.3, "presentation-feedback", "vk feedback")[4] \
-                == "MEASURED"
+                "present_wait", "MEASURED", 0.0, 8.3, "presentation-feedback", "vk feedback",
+                calibration="VK_KHR_calibrated_timestamps")[4] == "MEASURED"
             for bad_log in (SF.make_segment_log("   ", {}),                     # anonymous
                             SF.make_segment_log("h", {"panel": (4.0, 4.5, 5.0,
                                                                 "software-timer")})):
@@ -17052,6 +17053,68 @@ class Gate:
                     "asserted for the first time at the seam where the observer is 90%% of the "
                     "reading, which is exactly where an unproved invariant was costing the most"
                     if obs_ok else "the observer seam did not hold")
+        dom_ok = True
+        dis = {}
+        try:
+            for i in SF.INSTANTS:
+                dom_ok = dom_ok and SF.INSTANT_DOMAIN[i] in SF.TIME_DOMAINS
+            dom_ok = (dom_ok
+                      and sorted(SF.cross_domain_segments())
+                          == ["input_transport", "panel", "present_wait"]
+                      and any(not SF.spans_two_domains(s[0]) for s in SF.SEGMENTS))
+            try:                                              # uncalibrated cross-domain refuses
+                SF.grade_segment("present_wait", "MEASURED", 0.0, 8.3,
+                                 "presentation-feedback", "vk feedback")
+                dom_ok = False
+            except SF.FrameError:
+                pass
+            dom_ok = dom_ok and SF.grade_segment(
+                "present_wait", "MEASURED", 0.0, 8.3, "presentation-feedback", "vk feedback",
+                calibration="VK_KHR_calibrated_timestamps")[4] == "MEASURED"
+            dom_ok = dom_ok and SF.grade_segment(       # SELECTIVE: same-domain needs none
+                "frame_render", "MEASURED", 1.0, 2.0, "software-timer", "log")[4] == "MEASURED"
+            dom_ok = dom_ok and SF.ties_are_exercised() and SF.every_variant_disagrees_somewhere()
+            for v in SF.RASTER_VARIANTS:
+                d, c = SF.witness_disagreement(v)
+                dis[v] = (d, c)
+                dom_ok = dom_ok and c > 0
+            import pixid as _PX3
+            sc = SF.disagreement_scene()
+            ref = _PX3.IdFramebuffer(128, 128, 0, 100).render(sc)
+            same = SF._variant_owner(sc, 128, 128, "centre_sample_same_rules")
+            dom_ok = dom_ok and (list(ref.iid), list(ref.pid)) == same
+        except Exception:
+            dom_ok = False
+        self.record("sealframe-domains", dom_ok,
+                    "THE INSTANTS ARE NOT ALL ON ONE CLOCK, and the ledger assumed they were — "
+                    "found by reading `VK_EXT_present_timing`'s DEPENDENCIES rather than its "
+                    "description. It requires `VK_KHR_calibrated_timestamps`, and that "
+                    "requirement is the tell: `present_queued` is observed by this process on the "
+                    "CPU clock while `scanout_begin` is reported by the PRESENTATION ENGINE in its "
+                    "own domain, so subtracting one from the other uncalibrated yields a number "
+                    "with the SHAPE of a duration that is partly a CLOCK OFFSET. Same class as the "
+                    "five defects L65 records, a measurement whose DOMAIN went unstated, and "
+                    "reached by looking at what the platform DEMANDS rather than what it offers. "
+                    "Durations sum across domains without trouble; what needs calibration is a "
+                    "segment whose two ENDPOINTS are read on different clocks, which is a property "
+                    "of the segment and so is COMPUTED from the instants rather than declared — a "
+                    "segment added later cannot forget to say so. Three are cross-domain "
+                    "(input_transport, present_wait, panel), the rest are not, and the refusal is "
+                    "SELECTIVE: demanding calibration where both endpoints sit on one clock would "
+                    "refuse valid readings for a reason that does not apply. AND HOW FAR A "
+                    "CONFORMING RASTERIZER MAY DRIFT, answered without a GPU by measuring a RULE "
+                    "rather than a vendor — %s of covered pixels change owner under a corner "
+                    "sample, %s under no fill rule, %s under submission-order ties, each a "
+                    "defensible rasterization and each something implementation-defined behaviour "
+                    "is permitted to do. So the GPU cannot be the witness and the witness stays "
+                    "the exact CPU path computed on demand as a SIBLING of the render. The tie "
+                    "fixture exists because the non-vacuity check REFUSED a zero: on subdivision "
+                    "alone the sub-triangles TILE their parent, so no pixel ever received two "
+                    "fragments and the tie variant reported nothing for want of an opportunity "
+                    "(L61). An unchanged rule agrees EXACTLY, without which a nonzero reading "
+                    "would say nothing about the rule"
+                    % tuple("%d/%d" % dis.get(v, (0, 0)) for v in SF.RASTER_VARIANTS)
+                    if dom_ok else "the time-domain / conforming-drift law did not hold")
         cau_ok = True
         c128 = c256 = 0
         try:

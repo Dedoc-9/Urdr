@@ -170,7 +170,8 @@ class TheInstrumentIsTyped(unittest.TestCase):
             SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "software-timer", "some log")
 
     def test_the_right_instrument_grades_it(self):
-        seg = SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "external-capture", "photodiode log")
+        seg = SF.grade_segment("panel", "MEASURED", 4.0, 5.0, "external-capture",
+                               "photodiode log", calibration="photodiode + QPC anchor")
         self.assertEqual(seg[4], "MEASURED")
 
     def test_every_segment_declares_a_known_instrument_class(self):
@@ -663,5 +664,91 @@ class MissingHasThreeKinds(unittest.TestCase):
         with self.assertRaises(SF.FrameError):
             SF.grade_segment("present_wait", "MEASURED", 0.0, 8.3, "software-timer", "log")
         seg = SF.grade_segment("present_wait", "MEASURED", 0.0, 8.3,
-                               "presentation-feedback", "VK_EXT_present_timing feedback")
+                               "presentation-feedback", "VK_EXT_present_timing feedback",
+                               calibration="VK_KHR_calibrated_timestamps")
         self.assertEqual(seg[4], "MEASURED")
+
+
+class TheInstantsAreNotAllOnOneClock(unittest.TestCase):
+    """FOUND BY READING THE EXTENSION'S DEPENDENCIES, not its description. `VK_EXT_present_timing`
+    requires `VK_KHR_calibrated_timestamps`, and that requirement is the tell: `present_queued` is
+    observed by this process on the CPU clock while `scanout_begin` is reported by the presentation
+    engine in its own domain. Subtracting one from the other without calibration yields a number
+    with the SHAPE of a duration that is partly a clock offset — the same class as the five defects
+    L65 records, a measurement whose DOMAIN went unstated.
+
+    Durations sum across domains without trouble. What needs calibration is a segment whose two
+    ENDPOINTS are read on different clocks, which is a property of the segment and so is COMPUTED
+    from the instants rather than declared — a segment added later cannot forget to say so."""
+
+    def test_every_instant_declares_a_known_domain(self):
+        for i in SF.INSTANTS:
+            self.assertIn(SF.INSTANT_DOMAIN[i], SF.TIME_DOMAINS)
+
+    def test_the_cross_domain_segments_are_the_expected_three(self):
+        self.assertEqual(sorted(SF.cross_domain_segments()),
+                         ["input_transport", "panel", "present_wait"])
+
+    def test_both_kinds_of_segment_exist(self):
+        """L61: if every segment were cross-domain the field would carry nothing."""
+        same = [s[0] for s in SF.SEGMENTS if not SF.spans_two_domains(s[0])]
+        self.assertTrue(same and SF.cross_domain_segments())
+
+    def test_an_uncalibrated_cross_domain_reading_is_refused(self):
+        with self.assertRaises(SF.FrameError) as ctx:
+            SF.grade_segment("present_wait", "MEASURED", 0.0, 8.3,
+                             "presentation-feedback", "vk feedback")
+        self.assertIn("clock", str(ctx.exception))
+
+    def test_a_calibrated_reading_grades(self):
+        seg = SF.grade_segment("present_wait", "MEASURED", 0.0, 8.3, "presentation-feedback",
+                               "vk feedback", calibration="VK_KHR_calibrated_timestamps")
+        self.assertEqual(seg[4], "MEASURED")
+
+    def test_a_same_domain_segment_needs_no_calibration(self):
+        """The refusal must be SELECTIVE — demanding calibration where both endpoints are on one
+        clock would refuse valid readings for a reason that does not apply to them."""
+        seg = SF.grade_segment("frame_render", "MEASURED", 1.0, 2.0, "software-timer", "log")
+        self.assertEqual(seg[4], "MEASURED")
+
+
+class AConformingRasterizerMayDisagree(unittest.TestCase):
+    """THE QUESTION THE RENDERER WORK NEEDS AND A GPU-LESS HOST CAN STILL ANSWER. Measuring one
+    vendor's GPU would answer it about that vendor; measuring a RULE CHANGE answers it about the
+    rule, which is the transferable form. Each variant is a defensible rasterization and something
+    a GPU's implementation-defined behaviour is permitted to do, so the disagreement is a LOWER
+    BOUND on what real hardware might differ by, taken over rules rather than vendors.
+
+    The conclusion is structural and the numbers are the evidence: the GPU cannot be the witness,
+    and the witness stays the exact CPU path computed on demand as a SIBLING of the render."""
+
+    def test_the_tie_opportunity_exists(self):
+        """L61 precondition, and it was NOT satisfied by the first fixture: on subdivision alone
+        the sub-triangles TILE their parent, so no pixel ever received two fragments and the tie
+        variant reported zero for want of an opportunity. The overlap pair exists because the
+        non-vacuity check refused that zero."""
+        self.assertTrue(SF.ties_are_exercised())
+
+    def test_every_variant_disagrees_somewhere(self):
+        self.assertTrue(SF.every_variant_disagrees_somewhere())
+
+    def test_the_disagreement_is_reported_with_its_denominator(self):
+        for v in SF.RASTER_VARIANTS:
+            differ, covered = SF.witness_disagreement(v)
+            self.assertGreater(covered, 0)
+            self.assertLessEqual(differ, covered * 2)
+
+    def test_a_changed_sample_position_moves_a_fifth_of_the_frame(self):
+        """The headline: sampling at the corner instead of the centre — a choice, not an error —
+        reassigns ~20% of covered pixels. Nothing about that is a bug in either rasterizer."""
+        differ, covered = SF.witness_disagreement("corner_sample")
+        self.assertGreater(differ / covered, 0.15)
+
+    def test_the_identical_rule_agrees_exactly(self):
+        """NON-VACUITY THE OTHER WAY: the harness must report ZERO when the rule is unchanged, or
+        a nonzero reading would say nothing about the rule."""
+        import pixid as PX
+        scene = SF.disagreement_scene()
+        ref = PX.IdFramebuffer(128, 128, 0, 100).render(scene)
+        iid, pid = SF._variant_owner(scene, 128, 128, "centre_sample_same_rules")
+        self.assertEqual((list(ref.iid), list(ref.pid)), (iid, pid))
