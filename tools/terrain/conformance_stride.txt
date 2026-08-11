@@ -1,0 +1,23 @@
+# URDRSTR1 conformance goldens — the 3D deterministic tick, the first caller of `contact`.
+# Scene digests pinned AFTER each planted defect was proved to BITE: a severed contact law (the
+# tick must DIE, not carry on with a reimplementation), the vertical-first order (which loses the
+# step), a steering witness (which teleports the moment the witness is blanked), and a doubled
+# terrain read (which breaks the closed form).
+# digest = SHA-256(MAGIC | name | trajectory | states | witness stream) over `scene_case(name)`.
+#
+# GRADE: MEASURED for determinism, peer agreement under reordered and duplicated delivery, the
+# scenes, every refusal, both witness-inertness guards, and the read-count closed form checked
+# against execution. DECLARED: that this is a COMPLETE 3D tick — it walks actors over terrain and
+# does not do actor-actor collision, statics, or sub-cell motion, none of which it claims.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: that the arena tick (`worldstep.step_tick`) migrated — it did not, and the schema
+# door now names WHICH law it is refusing for; that a read COUNT is a read COST (the wall-clock
+# question is `bench.py`'s); that a trajectory is CORRECT, only that it is reproducible and that
+# its support states are the ones `contact` certifies.
+
+walk 063ed5f3d7f010e1556506f203ce8f3e798369ec7a8c31a39a746f6605477fdf
+wall 84e000e3f112f82d7b5c494504321b9f41c6cc3de0f93a0fe611b9afe1c02dce
+leap ce6d5ff8f76433001806727d59bdea54a7df17fa8be6fb98a2e2fa960ea970c2
+fall 27f031500f385f584c95686be6d118ef303c97a769aad98c4ba240a76cd1d221
+peers 6de2c91394f2c503e1711db6a8fb28748a6e42750d187657330fa6242fb486d8

@@ -49,16 +49,16 @@
 # The seven hand-declared edges were a guess about what matters. Hand-declaration UNDER-REPORTS, and
 # that is measured twice: `storecost.serialize` carries both replay laws while not being imported by
 # `compose` at all, and the generated sweep found `glide._fold`, `_grid_dims` and `_heights` carrying
-# replay too. So every callable a swept module DEFINES is severed -- 73 candidates over glide,
+# replay too. So every callable a swept module DEFINES is severed -- 74 candidates over glide,
 # persist, storecost and worldstep -- and grouped by what moved. READ FROM THE INSTRUMENT:
 #
-#     .....  x45   glide.GlideError, glide.cell_of, glide.floored, ...
+#     .....  x46   glide.GlideError, glide.cell_of, glide.floored, ...
 #     ...XX  x18   glide._fold, glide._fold_from, glide._grid_dims, ...
 #     XXX..  x 8   worldstep._fp_mul, worldstep.admit_log, worldstep.arena_world, ...
 #     ....X  x 1   persist.PersistError
 #     X.X..  x 1   worldstep._fp_div
 #
-#     45 OF 73 TAUGHT NOTHING, AND THAT NUMBER IS FIRST-CLASS. Most perturbations are inert; that is
+#     46 OF 74 TAUGHT NOTHING, AND THAT NUMBER IS FIRST-CLASS. Most perturbations are inert; that is
 #     what makes the ones that are not credible. A sweep in which everything mattered would be
 #     measuring the sweep. If this share ever collapses toward zero, the instrument has broken.
 #
@@ -75,6 +75,14 @@
 #     REACHED by any `compose` law, so severing it stopped teaching anything HERE. That is the
 #     cleanest available demonstration of this file's own does_not_show -- INERT IS NOT DEAD -- and
 #     the reason the count was re-pinned rather than the code re-padded to hold it.
+#
+#     WHAT THE 45 -> 46 MOVE WAS. `worldstep.laws_stepping` arrived with the two-law schema door
+#     (URDRSTR1): once a second tick law exists, "the LAW has not migrated" is a fact about WHICH
+#     law was asked, and the refusal derives the alternative from the law table rather than naming
+#     it twice. It is severed here and teaches NOTHING, because nothing on a `compose` replay or
+#     step path consults it -- it is read only when a schema refusal is being WORDED. That is this
+#     file's own does_not_show demonstrated a second time: INERT IS NOT DEAD. `stride` calls the
+#     door it guards, `stride-schema` gates it, and it refuses exactly what it refuses.
 #
 # TWO LAWS THAT MOVED TOGETHER ARE NOT ONE LAW, AND THE SWEEP PROVED IT.
 #
@@ -96,9 +104,9 @@
 #     they test. A real separation whose witness proves less than it appears to -- kept, labelled,
 #     and not counted alongside the first.
 #
-# does_not_show: that the 45 inert candidates are dead -- inert under THESE laws is not unused; that
+# does_not_show: that the 46 inert candidates are dead -- inert under THESE laws is not unused; that
 # any law family is irreducible, only that these two pairs are separable; anything about modules
 # outside SWEPT.
 attribution 6ba1a53c054a04ed02a128de837b5ab38abc412b3a4928fb1fb55ca73916fe55
 walls 68d188becc513c16798578e16f6380f5e10b1d4ce3364364fca54f12d5743930
-sweep 31cdbc1d2b0a0466dbdf182f2f96b04abe0b6ed0fc7dafd7d3c4eaa94bc6b182
+sweep 4ce351f9022a418991da69a34823249bcc8af692cb78f4a407b2d804c7ae2623

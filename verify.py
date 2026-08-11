@@ -208,6 +208,7 @@ STAGE_ORDER = (
     "caustic",
     "worldbasis",
     "contact",
+    "stride",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -3957,7 +3958,14 @@ class Gate:
             # a schema door, so severing one teaches this sweep nothing. `netcode_world` and
             # `tests/test_worldstep.py` are where they are load-bearing, which is the same
             # inert-is-not-dead reading `admit_event_for_world` already stands for here.
-            sw_ok = EA.the_inert_share() == (45, 73)
+            # RE-PINNED 73 -> 74 / 45 -> 46: `laws_stepping` joined with the TWO-LAW schema door
+            # (URDRSTR1). Once a second tick law exists, "the LAW has not migrated" is a fact about
+            # WHICH law was asked, and the refusal derives the alternative from the law table
+            # rather than naming it twice. It lands INERT for the sharpest available reason: it is
+            # read only when a schema refusal is being WORDED, and no `compose` law words one. That
+            # is the third demonstration of this stage's own reading — INERT IS NOT DEAD — and the
+            # count moved rather than the code being padded to hold it.
+            sw_ok = EA.the_inert_share() == (46, 74)
             sw_ok = sw_ok and EA.the_declared_edges_are_a_subset() == (7, 7)
             sw_ok = sw_ok and EA.the_identity_law_never_divides() == (0, 9)
             sw_ok = sw_ok and EA.the_separating_witnesses() == (
@@ -16653,7 +16661,16 @@ class Gate:
                   and WB.walker_movement_axes() == (0, 1)
                   and WB.census_is_non_vacuous() and WB.sample_conventions_diverge())
             cen = WB.conformance_census()
-            ok = ok and "CONFORMS" not in {v for v, _w in cen.values()}
+            # THE CENSUS HAS ITS FIRST CONFORMER, and the assertion moves with the fact rather
+            # than the fact being kept out to preserve the assertion. Exactly one entry conforms —
+            # `stride.world`, the walker tick built ON the decision instead of predating it — and
+            # every entry that did not conform still does not. A census where everything suddenly
+            # conformed would mean the contract had been rewritten to fit; one where nothing ever
+            # could would mean the migration was not happening.
+            conformers = {k for k, (v, _w) in cen.items() if v == "CONFORMS"}
+            ok = ok and conformers == {"stride.world"}
+            ok = ok and cen["worldstep.arena_world"][0] == "PRE-BASIS"
+            ok = ok and cen["stance.DIRS"][0] == "PRE-BASIS"
             ok = ok and cen["worldstep.schema"][0] == "DECLARED"
             ok = (ok and cen["stance.lift"][0] == "DECLARED"
                   and WB.the_lift_matches_the_compass() and WB.the_lift_is_vertical_free()
@@ -16710,9 +16727,16 @@ class Gate:
                     "SATISFIABLE (a synthetic 3D world with gravity on Y is accepted, without "
                     "which this repeats L65's unsatisfiable law one arc later) and "
                     "DISCRIMINATING (a 3D world with SIDEWAYS gravity is refused, without which "
-                    "it would be an axis-count check wearing a semantics claim). NOTHING CONFORMS "
-                    "TODAY and that is the honest starting state — %s — a census showing "
-                    "everything already conforming would mean the contract was written to fit. "
+                    "it would be an axis-count check wearing a semantics claim). THE CENSUS HAS "
+                    "ITS FIRST CONFORMER AND THE ASSERTION MOVED WITH THE FACT: when this "
+                    "contract landed NOTHING conformed, which was the honest starting state, and "
+                    "exactly one entry does now — `stride.world`, the walker tick built ON the "
+                    "decision instead of predating it, judged by THIS module reading the world "
+                    "rather than by `stride` asserting it. Everything that did not conform still "
+                    "does not (%s). A census where everything suddenly conformed would mean the "
+                    "contract had been rewritten to fit; one where nothing ever could would mean "
+                    "the migration was not happening, and pinning the count at zero to keep an "
+                    "assertion true would have made the row a wall rather than a measurement. "
                     "THE SCHEMA BOUNDARY IS OPEN AND THE LAW HAS NOT MOVED, two questions a "
                     "boolean would fuse: `URDR-WORLD-4` declares three spatial components and is "
                     "a VALID REPRESENTATION, while `step_tick` steps two and REFUSES it BY NAME "
@@ -16795,6 +16819,294 @@ class Gate:
                     "now predicts (-80 for 3/4, 67 for 7/24 in a 320-pixel frame) instead of "
                     "leaving to be found again"
                     if cam_ok else "the camera-basis law did not hold")
+
+    def stride(self):
+        """THE 3D DETERMINISTIC TICK (URDRSTR1) — the first caller of `contact`. Rows: tick (the
+        order decision and the three boundaries the tick owns), witness (explains, never steers —
+        structurally and operationally), inputs (determinism, peer agreement, the typed door),
+        cost (the read closed form, measured and NOT optimized), schema (the two-law door)."""
+        for d in ("terrain", "physics", "netcode"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import stride as SR
+            import contact as CT2
+            import worldstep as WS2
+            import lockstep as L2
+        except Exception as exc:
+            for r in ("tick", "witness", "inputs", "cost", "schema"):
+                self.record(f"stride-{r}", False, f"import failed (stride): {exc}")
+            return
+        # ---- tick ---------------------------------------------------------------------------
+        tick_ok = True
+        try:
+            for name in SR.SCENES:                       # the pinned scenes, and they are distinct
+                tick_ok = tick_ok and SR.scene_result(name) == SR.golden(name)
+            tick_ok = tick_ok and len({SR.scene_result(n) for n in SR.SCENES}) == len(SR.SCENES)
+            # CONSUMES, NOT REIMPLEMENTS — proved by severance, the only way to tell them apart
+            for atom in ("step_vertical", "step_horizontal", "contact_of"):
+                real = getattr(CT2, atom)
+                try:
+                    setattr(CT2, atom, lambda *a, **k: (_ for _ in ()).throw(
+                        RuntimeError("STRIDE-SEVER")))
+                    try:
+                        SR.simulate(*SR.scene_case("wall"))
+                        tick_ok = False                  # survived severance: it has a private copy
+                    except RuntimeError:
+                        pass
+                finally:
+                    setattr(CT2, atom, real)
+            wl, ll = SR.scene_case("wall")
+            tick_ok = tick_ok and len(SR.simulate(wl, ll)[0]) == wl["T"]     # green when unsevered
+            # the order: a step AND a jump on one tick
+            lw, lg = SR.scene_case("leap")
+            fr, sts, _wt = SR.simulate(lw, lg)
+            tick_ok = (tick_ok and fr[0][0][SR.AX_X] == 1 and sts[0][0] == CT2.AIRBORNE
+                       and sts[-1][0] == CT2.TERRAIN_GROUNDED)
+            # and the counterfactual EXECUTED: vertical first makes the step unaskable
+            y2, _v2, st2, _w2 = CT2.step_vertical(lw["heights"], (0, 0), lw["pos"][0][SR.AX_Y], 0,
+                                                  lw["revision"], jump=lw["jump"])
+            tick_ok = tick_ok and st2 == CT2.AIRBORNE
+            try:
+                CT2.step_horizontal(lw["heights"], (0, 0), y2, lw["revision"], (1, 0),
+                                    lw["max_step"])
+                tick_ok = False
+            except CT2.ContactError as _e:
+                tick_ok = tick_ok and "AIRBORNE actor" in str(_e)
+            # the three boundaries
+            f = SR._field()
+            air = SR.world(f, [(0, 0)], T=6)
+            air["pos"][0][SR.AX_Y] = 20
+            afr, asts, _aw = SR.simulate(air, [SR.event(t, 0, t, 0, "E", 0) for t in range(4)])
+            tick_ok = (tick_ok and asts[0][0] == CT2.AIRBORNE
+                       and afr[0][0][SR.AX_X] == 0)                          # no air control
+            lw2 = SR.world(f, [(3, 3)], T=6)
+            lfr, lsts, _lw = SR.simulate(lw2, [SR.event(0, 0, 0, 0, "E", 1)])
+            tick_ok = (tick_ok and lsts[0][0] == CT2.AIRBORNE
+                       and lfr[0][0][SR.AX_Y] < f[3][3])                     # the ledge jump
+            ew = SR.world(f, [(0, 0)], T=4)
+            tick_ok = tick_ok and SR.simulate(
+                ew, [SR.event(t, 0, t, 0, "W", 0) for t in range(3)])[0][-1][0][SR.AX_X] == 0
+            ww, wg = SR.scene_case("walk")                                   # non-vacuity: it moves
+            tick_ok = tick_ok and SR.simulate(ww, wg)[0][-1][0][SR.AX_X] == 4
+        except Exception:
+            tick_ok = False
+        self.record("stride-tick", tick_ok,
+                    "THE FIRST CALLER OF `contact`, AND IT INVENTS NOTHING — which is the whole "
+                    "return on having written the contract before anything implemented it. That "
+                    "it CONSUMES rather than REIMPLEMENTS is proved by SEVERANCE, the only way to "
+                    "tell those apart: removing `step_vertical`, `step_horizontal` or "
+                    "`contact_of` must KILL this tick, and a tick carrying a private copy would "
+                    "carry on. THE ORDER IS A DECISION AND THE COUNTERFACTUAL IS EXECUTED, not "
+                    "described: horizontal resolves BEFORE vertical, because the grounded step "
+                    "law is written against the support state an actor is standing in — resolving "
+                    "vertical first leaves a jumping actor AIRBORNE, `contact` then refuses the "
+                    "step as air control (run here, and it does), and the tick would have to "
+                    "invent air control or drop the input, either way handing a player 'you may "
+                    "not move on the tick you jump' as a gameplay law nobody chose. So a step and "
+                    "a jump on one tick BOTH happen. THREE BOUNDARIES THE TICK OWNS, each "
+                    "declared rather than discovered: NO AIR CONTROL (an actor airborne at tick "
+                    "start does not drift — `contact` refuses to answer for one and the tick "
+                    "honours the refusal instead of inventing an answer); A JUMP OFF A LEDGE DOES "
+                    "NOT FIRE, which looks like a third rule and is not — stepping off leaves the "
+                    "actor airborne, so it follows FROM THE ORDER rather than from a special case "
+                    "written to produce it; and THE WORLD EDGE IS A WALL, `glide`'s own stop, "
+                    "made by not asking a question already known to be outside the world rather "
+                    "than by catching a refusal and reinterpreting it. Non-vacuous: an actor on "
+                    "open ground does move"
+                    if tick_ok else "the 3D tick or its boundaries did not hold")
+        # ---- witness ------------------------------------------------------------------------
+        wit_ok = True
+        try:
+            ww2, wg2 = SR.scene_case("walk")
+            wit_ok = SR.the_tick_cannot_receive_a_witness() and SR.the_witness_does_not_steer(
+                ww2, wg2)
+            _fr, sts2, wits = SR.simulate(ww2, wg2)
+            grounded = [(r, c) for r, row in enumerate(sts2) for c, s in enumerate(row)
+                        if s in CT2.SUPPORTED_STATES]
+            wit_ok = (wit_ok and grounded
+                      and all(wits[r][c] is not None and wits[r][c][3] == ww2["revision"]
+                              for r, c in grounded))
+
+            def _steering(w, log):                       # a tick that lets the witness decide
+                pos = [list(p) for p in w["pos"]]
+                out = []
+                for _t in range(w["T"]):
+                    for i in range(w["n"]):
+                        _s, wt = CT2.contact_of(w["heights"], SR.cell_of(pos[i]),
+                                                pos[i][SR.AX_Y], w["revision"])
+                        if wt is not None:
+                            pos[i][SR.AX_Y] = wt[4]
+                    out.append(tuple(tuple(p) + (0,) for p in pos))
+                return tuple(out)
+
+            def _outcome(fn):
+                try:
+                    return SR.trajectory_digest(fn(ww2, wg2))
+                except Exception as _x:                  # noqa: BLE001  a crash IS a difference
+                    return type(_x).__name__
+            base_steer = _outcome(_steering)
+            base_true = _outcome(lambda w, lg: SR.simulate(w, lg)[0])
+            real_w = CT2.witness
+            try:
+                CT2.witness = lambda s, c, r, h: ("BLANK", 0, 0, "", 0)
+                wit_ok = (wit_ok and _outcome(_steering) != base_steer
+                          and _outcome(lambda w, lg: SR.simulate(w, lg)[0]) == base_true)
+            finally:
+                CT2.witness = real_w
+        except Exception:
+            wit_ok = False
+        self.record("stride-witness", wit_ok,
+                    "THE WITNESS EXPLAINS AND DOES NOT STEER — the invariant named when the "
+                    "contract landed, and the one a tick would break first. A support witness "
+                    "answers WHY an actor is supported; it must never become THEREFORE MOVE IT "
+                    "HERE. GUARDED TWICE AND INDEPENDENTLY. STRUCTURALLY: no function on the "
+                    "trajectory path can RECEIVE a witness — the signatures cannot take one, "
+                    "which is the sealed-observer discipline this repo already applies to "
+                    "metrics, enforced where a comment cannot be ignored. OPERATIONALLY: blanking "
+                    "the witness leaves the TRAJECTORY bit-identical while the WITNESS STREAM "
+                    "demonstrably moves — both halves asserted, because comparing trajectories "
+                    "alone would pass vacuously if the blanking did nothing (L23). AND THE GUARD "
+                    "IS SHOWN TO CATCH A TICK THAT GENUINELY STEERS, which is what makes it "
+                    "evidence rather than ceremony: a tick reading the witness's contact height "
+                    "and placing the actor there is INDISTINGUISHABLE from the honest one while "
+                    "the witness is truthful — both put the actor on the ground — and under "
+                    "blanking it teleports below the terrain while the honest tick does not move "
+                    "at all. INERT IS NOT ABSENT: every grounded actor still carries its reason, "
+                    "bound to the terrain revision"
+                    if wit_ok else "the witness-inertness guards did not hold")
+        # ---- inputs -------------------------------------------------------------------------
+        in_ok = True
+        try:
+            pw, pl = SR.scene_case("peers")
+            a = [e for e in pl if e[1] == 0] + [e for e in pl if e[1] == 1]
+            b = [e for e in pl if e[1] == 1] + [e for e in pl if e[1] == 0]
+            base = SR.trajectory_digest(SR.simulate(pw, pl)[0])
+            in_ok = (SR.peers_agree(pw, pl)
+                     and SR.trajectory_digest(SR.simulate(pw, a)[0])
+                     == SR.trajectory_digest(SR.simulate(pw, b)[0])
+                     and SR.trajectory_digest(SR.simulate(pw, L2.drop_event(pl, 0))[0]) != base
+                     and SR.a_different_input_is_not_absorbed(pw, pl))
+            try:                                          # a CONTESTED actor refuses
+                SR.simulate(pw, [SR.event(0, 0, 0, 0, "E", 0), SR.event(0, 1, 0, 0, "W", 0)])
+                in_ok = False
+            except SR.StrideError as _e:
+                in_ok = in_ok and "two different intents" in str(_e)
+            one = [SR.event(0, 0, 0, 0, "E", 0)]          # ...and an IDENTICAL one is absorbed
+            in_ok = in_ok and SR.trajectory_digest(
+                SR.simulate(pw, one + [SR.event(0, 1, 3, 0, "E", 0)])[0]) == \
+                SR.trajectory_digest(SR.simulate(pw, one)[0])
+            for bad in ((0, 0, 0, 0, "E"), (0.5, 0, 0, 0, "E", 0), (0, 0, 0, True, "E", 0),
+                        (pw["T"], 0, 0, 0, "E", 0), (-1, 0, 0, 0, "E", 0),
+                        (0, 0, 0, 9, "E", 0), (0, 0, 0, 0, "NE", 0), (0, 0, 0, 0, "E", 2)):
+                try:
+                    SR.admit_event(pw, bad)
+                    in_ok = False
+                except SR.StrideError as _e:
+                    in_ok = in_ok and _e.code == "STRIDE-REFUSE"
+            SR.admit_event(pw, SR.event(pw["T"] - 1, 0, 0, pw["n"] - 1, "E", 1))
+            SR.admit_event(pw, SR.event(0, 0, 0, 0, "", 0))
+        except Exception:
+            in_ok = False
+        self.record("stride-inputs", in_ok,
+                    "URÐR TRANSMITS INPUTS, AND THE 3D TICK INHERITS THAT UNCHANGED — the "
+                    "delivery discipline is `lockstep.canon` IMPORTED, not restated, so a drift "
+                    "in the delivery law surfaces here instead of being reimplemented past. Two "
+                    "peers assembling the same input union in different orders produce the same "
+                    "trajectory; reordered and duplicated delivery are ABSORBED; and dedup is "
+                    "proved to absorb DELIVERY rather than CONTENT — a dropped input MOVES the "
+                    "trajectory, without which 'reordering changed nothing' would be a statement "
+                    "about inputs not mattering. A CONTESTED ACTOR REFUSES: two DIFFERENT intents "
+                    "for one actor on one tick is not an input to reconcile but two authorities "
+                    "claiming one actor — `authinput`'s question — and taking the last by arrival "
+                    "order would decide it silently; two IDENTICAL intents are absorbed, because "
+                    "that is delivery and not conflict, and both halves are checked or the "
+                    "refusal would just be 'two events refuse'. Eight malformed classes are TYPED "
+                    "rather than dropped — arity, float tick, bool actor, tick past the horizon, "
+                    "negative tick, unknown actor, unknown facing, out-of-range jump — with one "
+                    "step inside each edge admitted, so the door is a boundary and not a wall"
+                    if in_ok else "the input discipline did not hold")
+        # ---- cost ---------------------------------------------------------------------------
+        cost_ok, c = True, {}
+        try:
+            cw, cl = SR.cost_case()
+            c = SR.read_cost(cw, cl)
+            cost_ok = SR.the_read_law_holds(cw, cl)
+            for name in SR.SCENES:
+                sc = SR.read_cost(*SR.scene_case(name))
+                cost_ok = cost_ok and sc["actual"] == sc["predicted"]
+            cost_ok = cost_ok and SR.read_cost(cw, cl)["actual"] == c["actual"]   # predictor pure
+            real_g = CT2.ground_height
+            try:                                          # RED-FIRST: a prediction, not a restate
+                CT2.ground_height = lambda h, cell: (real_g(h, cell), real_g(h, cell))[0]
+                cost_ok = cost_ok and not SR.the_read_law_holds(cw, cl)
+            finally:
+                CT2.ground_height = real_g
+        except Exception:
+            cost_ok = False
+        self.record("stride-cost", cost_ok,
+                    "THE TICK'S TERRAIN READS AGAINST A CLOSED FORM, MEASURED AND DELIBERATELY "
+                    "NOT OPTIMIZED. Two reads per actor-tick (a support probe and the vertical "
+                    "law) plus two per horizontal attempt: %d predicted, %d actual over %d "
+                    "actor-ticks and %d attempts, checked on a three-actor walk of the 64x64 "
+                    "island and on every pinned scene. THE PREDICTION IS DERIVED FROM THE PUBLIC "
+                    "TRAJECTORY AND SPENDS NO READS OF ITS OWN — an actor's support state "
+                    "ENTERING a tick is the state the previous tick left it in, because nothing "
+                    "moves between ticks, so the predictor reads the returned state stream rather "
+                    "than asking the terrain again; a measurement that had to touch the thing it "
+                    "measures would be measuring itself, and the count is checked stable across "
+                    "two calls. It is a PREDICTION rather than the count restated (L23), proved "
+                    "by planting a doubled read, which breaks it. AND %d OF %d ACTOR-TICKS ARE "
+                    "REDUNDANT — the probe and the vertical law read the SAME cell whenever the "
+                    "actor did not change cells — REPORTED AND LEFT IN PLACE, because there is no "
+                    "measured cost target yet and removing it now would be an optimization chosen "
+                    "by inspection, which is the habit this arc keeps declining. A COUNT IS NOT A "
+                    "COST; what the next rung inherits is a number rather than a hunch"
+                    % (c.get("predicted", -1), c.get("actual", -1), c.get("actor_ticks", -1),
+                       c.get("attempts", -1), c.get("redundant", -1), c.get("actor_ticks", -1))
+                    if cost_ok else "the stride read law did not hold")
+        # ---- schema -------------------------------------------------------------------------
+        sch_ok = True
+        try:
+            sch_ok = (WS2.tick_supports(2) and not WS2.tick_supports(3)
+                      and WS2.tick_supports(3, "stride") and not WS2.tick_supports(2, "stride")
+                      and WS2.laws_stepping(3) == ("stride",)
+                      and WS2.laws_stepping(2) == ("arena",) and WS2.laws_stepping(9) == ())
+            try:
+                WS2.admit_world_schema({"format": "URDR-WORLD-4"})
+                sch_ok = False
+            except WS2.WorldError as _e:
+                sch_ok = (sch_ok and "has not migrated" in str(_e) and "'arena'" in str(_e)
+                          and "stride" in str(_e))
+            sch_ok = sch_ok and WS2.admit_world_schema({"format": "URDR-WORLD-4"}, "stride") == 3
+            for bad in (lambda: WS2.admit_world_schema({"format": "URDR-WORLD-3"}, "stride"),
+                        lambda: WS2.tick_supports(3, "nope")):
+                try:
+                    bad()
+                    sch_ok = False
+                except WS2.WorldError:
+                    pass
+            sch_ok = sch_ok and all(SR.obeys_the_basis(SR.scene_case(n)[0]) for n in SR.SCENES)
+        except Exception:
+            sch_ok = False
+        self.record("stride-schema", sch_ok,
+                    "'THE LAW HAS NOT MIGRATED' WAS WRITTEN AS IF THERE WERE ONE TICK. There are "
+                    "two now, and that sentence stops being a fact about the repository and "
+                    "becomes a fact about WHICH LAW WAS ASKED. `arena` is `step_tick` — gravity, "
+                    "bounds and least-penetration resolution for two components, unmigrated and "
+                    "UNMOVED, still refusing a 3D world exactly as before. `stride` steps three "
+                    "and CANNOT step two. NEITHER IS A SUCCESSOR TO THE OTHER: they have "
+                    "different domains, and one global `tick_supports` would have made the "
+                    "walker's arrival read as the arena tick migrating, which it did not. So the "
+                    "refusal now says something sharper than it could before — not 'nothing can "
+                    "step this' but 'the law you asked cannot, and here is the one that can' — "
+                    "with the alternative DERIVED from the law table rather than maintained as a "
+                    "second list, and an unknown law refused for the same reason an unknown "
+                    "schema is. AND `stride`'s WORLD IS THE CENSUS'S FIRST CONFORMER, judged by "
+                    "`worldbasis` reading the world rather than by `stride` asserting it, because "
+                    "a subsystem grading its own conformance certifies nothing"
+                    if sch_ok else "the two-law schema door did not hold")
 
     def contact(self):
         """GROUND CONTACT AS A CERTIFIED STATE (URDRCON1) — the law the 3D tick will need, written
@@ -19002,7 +19314,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

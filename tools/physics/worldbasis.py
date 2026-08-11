@@ -170,12 +170,21 @@ def conformance_census():
     # LAW migrated to it? Today the first is yes and the second is no, and a census that reported
     # one number could not say which.
     dims = sorted(set(WS.WORLD_FORMATS.values()))
-    steppable = sorted(d for d in dims if WS.tick_supports(d))
     out["worldstep.schema"] = ("DECLARED" if len(AXES) in dims else "ABSENT",
-                               "schemas admit %s spatial components; the tick steps %s — a 3D "
-                               "world is a valid REPRESENTATION and an unsteppable one, refused "
-                               "by name rather than silently flattened"
-                               % (dims, steppable))
+                               "schemas admit %s spatial components; tick laws step %s — a 3D "
+                               "world is a valid REPRESENTATION, and which LAW may step it is a "
+                               "second question the schema door now names rather than fusing"
+                               % (dims, {k: list(v) for k, v in sorted(WS.TICK_LAWS.items())}))
+    # THE FIRST CONFORMER. Every entry above records a gap; this one records the migration
+    # beginning. `stride` is the 3D walker tick, and its world is checked against the basis by
+    # `worldbasis` itself rather than by its own vocabulary — a subsystem that graded its own
+    # conformance would certify nothing.
+    import stride as SR
+    sw = SR.scene_case("walk")[0]
+    out["stride.world"] = ("CONFORMS" if obeys_the_basis(sw) else "PRE-BASIS",
+                           "%dD position in basis order, gravity on axes %s; the walker tick that "
+                           "consumes `contact` is the first law built ON the decision instead of "
+                           "predating it" % (len(sw["pos"][0]), gravity_axes(sw)))
     out["stance.lift"] = ("DECLARED" if the_lift_matches_the_compass() else "MISMATCHED",
                           "N/S lifts from axis 1 to Z, E/W stays X, vertical zero throughout; "
                           "the lift agrees with the declared compass (X=EAST, Z=SOUTH) and drops "

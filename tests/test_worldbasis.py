@@ -49,14 +49,25 @@ class TheCensusReadsTheLiveModules(unittest.TestCase):
     def test_the_walker_axes_come_from_stance(self):
         self.assertEqual(WB.walker_movement_axes(), (0, 1))
 
-    def test_nothing_conforms_yet_and_that_is_the_starting_state(self):
-        """HONEST: zero subsystems obey the contract today. `worldstep` is 2D by design and says
-        so; the walker spends axis 1 on N/S where the basis reserves axis 2. The census records
-        the gap the migration must close, not an accusation — and a census that showed everything
-        already conforming would mean the contract had been written to fit."""
+    def test_exactly_one_subsystem_conforms_and_it_is_the_one_built_after_the_decision(self):
+        """WHEN THIS CONTRACT LANDED, ZERO SUBSYSTEMS CONFORMED, and that was the honest starting
+        state: `worldstep` is 2D by design and says so, and the walker spends axis 1 on N/S where
+        the basis reserves axis 2. The census recorded the gap the migration had to close.
+
+        The migration has now started. `stride` — the 3D walker tick, built ON the decision rather
+        than predating it — is the FIRST conformer, and it is this module that says so, reading
+        the world rather than taking `stride`'s word for it. The assertion moves with the fact:
+        pinning it at zero to keep the old sentence true would turn a measurement into a wall. But
+        it moves to ONE and to a NAMED entry, not to 'some conform' — everything that predates the
+        decision must still be recorded as not conforming, or the contract has been rewritten to
+        fit its subjects."""
         census = WB.conformance_census()
         self.assertTrue(census)
-        self.assertNotIn("CONFORMS", {v for v, _ in census.values()})
+        self.assertEqual({k for k, (v, _w) in census.items() if v == "CONFORMS"},
+                         {"stride.world"})
+        for stale in ("worldstep.arena_world", "stance.DIRS"):
+            self.assertEqual(census[stale][0], "PRE-BASIS",
+                             "a pre-basis subsystem was quietly promoted")
 
     def test_the_census_distinguishes_states(self):
         self.assertTrue(WB.census_is_non_vacuous())

@@ -94,6 +94,15 @@ def _int(name, v):
 # be true and the second is not.
 WORLD_FORMATS = {"URDR-WORLD-3": 2, "URDR-WORLD-4": 3}
 
+#: AND THE REFUSAL ABOVE WAS WRITTEN AS IF THERE WERE ONE TICK. There are two, and once a second
+#: law exists "the LAW has not migrated" stops being a fact about the repository and becomes a fact
+#: about WHICH law was asked. `arena` is `step_tick` — gravity, bounds and least-penetration
+#: resolution for two components, unmigrated and unmoved. `stride` is the terrain walker's 3D tick
+#: (URDRSTR1), which steps three and cannot step two. Neither is a successor to the other: they
+#: have different domains, and collapsing them into one `tick_supports` would have made the arrival
+#: of the walker look like the arena tick migrating, which it did not.
+TICK_LAWS = {"arena": (2,), "stride": (3,)}
+
 
 def format_dimension(doc):
     """How many spatial components this export declares — READ from the format tag, refused if the
@@ -108,27 +117,46 @@ def format_dimension(doc):
     return WORLD_FORMATS[fmt]
 
 
-def tick_supports(dimension):
-    """Which dimensions the FROZEN tick can actually step. Two, today — `step_tick`'s gravity,
-    bounds and least-penetration resolution are all written for two components."""
-    return dimension == 2
-
-
-def admit_world_schema(doc):
-    """The door in front of the loader: a known schema, and one this tick can step.
-
-    A 3D export is a VALID REPRESENTATION and an UNSTEPPABLE one, and those are different
-    refusals with different remedies — the first says 'this is not a world', the second says
-    'this world is ahead of its law'. Fusing them would hide which."""
-    d = format_dimension(doc)
-    if not tick_supports(d):
+def tick_supports(dimension, law="arena"):
+    """Which dimensions a NAMED tick law can actually step. The default is `arena` — `step_tick`,
+    whose gravity, bounds and least-penetration resolution are all written for two components and
+    which has NOT migrated. Asking without naming a law asks the arena, which is what every
+    existing caller meant."""
+    if law not in TICK_LAWS:
         raise WorldError("WORLD-REFUSE",
-                         "%s declares %d spatial components and this tick steps %d — the "
-                         "representation is admitted and the LAW has not migrated. `step_tick`'s "
+                         "%r is not a known tick law (%s) — an unknown law is refused rather than "
+                         "read as the familiar one, for the same reason an unknown schema is"
+                         % (law, ", ".join(sorted(TICK_LAWS))))
+    return dimension in TICK_LAWS[law]
+
+
+def laws_stepping(dimension):
+    """WHICH laws could step a world of this dimension — derived, so a new tick law appears here
+    without anyone maintaining a second list."""
+    return tuple(sorted(k for k, v in TICK_LAWS.items() if dimension in v))
+
+
+def admit_world_schema(doc, law="arena"):
+    """The door in front of the loader: a known schema, and one the NAMED tick law can step.
+
+    A 3D export is a VALID REPRESENTATION and an UNSTEPPABLE one, and those are different refusals
+    with different remedies — the first says 'this is not a world', the second says 'this world is
+    ahead of its law'. Fusing them would hide which. And now that a second law exists the second
+    refusal says something sharper than it could before: not 'nothing can step this' but 'the law
+    you asked cannot, and here is the one that can'."""
+    d = format_dimension(doc)
+    if not tick_supports(d, law):
+        alt = laws_stepping(d)
+        raise WorldError("WORLD-REFUSE",
+                         "%s declares %d spatial components and the %r tick steps %s — the "
+                         "representation is admitted and THAT LAW has not migrated. `step_tick`'s "
                          "gravity, bounds and least-penetration resolution are written for two "
                          "components; accepting this and ignoring the third axis would be a "
-                         "silent drop at the scale of a dimension"
-                         % (doc.get("format"), d, 2))
+                         "silent drop at the scale of a dimension.%s"
+                         % (doc.get("format"), d, law, list(TICK_LAWS[law]),
+                            (" The %s law steps %d — a different law with a different domain, not "
+                             "a successor to this one." % (" / ".join(alt), d)) if alt else
+                            " No law steps %d." % d))
     return d
 
 

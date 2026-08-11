@@ -106,7 +106,7 @@ class TheSweepSeparatesLaws(unittest.TestCase):
     distinct vectors; generation produced 5."""
 
     def test_generation_beats_declaration(self):
-        self.assertEqual(len(EA.severance_candidates()), 73)
+        self.assertEqual(len(EA.severance_candidates()), 74)
         self.assertEqual(len(EA.the_vector_census()), 5,
                          "the sweep no longer distinguishes what it did; the instrument changed")
         declared, generated = EA.the_declared_edges_are_a_subset()
@@ -114,7 +114,7 @@ class TheSweepSeparatesLaws(unittest.TestCase):
                          "a hand-declared edge is not in the generated set — a table nobody can check")
 
     def test_the_inert_share_is_strictly_between_zero_and_all(self):
-        """45 of 73 taught nothing, and that is first-class. A sweep where everything mattered would
+        """46 of 74 taught nothing, and that is first-class. A sweep where everything mattered would
         be measuring the sweep; one where nothing did would have broken. Both ends are asserted.
 
         41 -> 42 when `worldstep.admit_log` was collapsed onto `lockstep.log_fault`, which took
@@ -123,7 +123,7 @@ class TheSweepSeparatesLaws(unittest.TestCase):
         REACHED by any `compose` law, which is the distinction this sweep measures and nothing
         else in the gate can see."""
         inert, total = EA.the_inert_share()
-        self.assertEqual((inert, total), (45, 73))
+        self.assertEqual((inert, total), (46, 74))
         self.assertGreater(inert, 0, "no perturbation was inert — the instrument is reporting itself")
         self.assertLess(inert, total, "every perturbation was inert — nothing is being measured")
 
@@ -167,7 +167,11 @@ class TheCorpusIsPinned(unittest.TestCase):
 class TheMemos(unittest.TestCase):
     """`sensitivity` was 591 calls over 73 distinct shapes — 8.1x — and 191s of cumulative
     time against 0.015s of its own. Caching it is only sound because the severance restore
-    is TOTAL, which `severance_leaves_no_residue` already certifies."""
+    is TOTAL, which `severance_leaves_no_residue` already certifies.
+
+    THAT 73 IS A RECORD, NOT A COUNT, and is deliberately left alone as the sweep grows (L64):
+    591 calls and 8.1x were observed together on one run, and re-pointing the denominator at a
+    later candidate set would manufacture a ratio nobody measured."""
 
     def test_the_cache_agrees_with_the_severance(self):
         """One honest recomputation kept out of the hundreds the memo removed: a real
