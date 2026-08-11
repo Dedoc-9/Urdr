@@ -1,0 +1,25 @@
+# URDRFRM1 conformance goldens — DOES THIS WORLD FIT IN THIS FRAME. The coverage prediction
+# `horizon_row` could not make: it is a statement about where ONE LINE falls, and the same 93% sky
+# arrived three times from three different causes, each found by LOOKING.
+#
+# Pinned AFTER each planted defect was proved to BITE: a census that always refuses (which "catches
+# all three failures" and is worthless, caught by the ACCEPTANCE case), and a drop-blind entry
+# distance (which leaves the closed form with nothing to say about the falling ground).
+# digest = SHA-256(MAGIC | name | payload), payload readable in `framing.scene_case(name)`.
+#
+# GRADE: MEASURED for the structural clauses against the two historical pitch failures, reproduced
+# at the parameters they HAPPENED at (a 320-pixel frame at focal 320, horizons +400 and -80); for
+# the dominance verdicts against rendered pixel counts; and for the monotonicity of ground against
+# eye height, checked over a real `stride` jump. DECLARED: the DOMINANCE threshold, a CHOICE pinned
+# as data so a frame cannot be re-graded by a number nobody is watching.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: THAT THE THIRD FAILURE IS PREDICTABLE WITHOUT RENDERING — it is not, and the law
+# says so rather than tuning an `extent` until the clause happens to fire: the geometric clause
+# reads FITS at the apex (entry 32 against an extent of 34) while the rendered frame is 936
+# permille sky. Also not shown: that a WELL_FRAMED frame is a GOOD frame — this bounds degeneracy,
+# never composition; that the three clauses are exhaustive; that a frame passing here is correct,
+# which is `vantage`'s compass law and not this one.
+
+corpus 5022729aec53cfc8294baedca889607415e98b1228ad84ef685ac937cc8fdc6a
+arc c1ccad3a9cef312dc81493e0cd84fc3f3e8c857f172fd155aa33a303fc4fe123

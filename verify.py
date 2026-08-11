@@ -211,6 +211,7 @@ STAGE_ORDER = (
     "stride",
     "lift",
     "vantage",
+    "framing",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16835,6 +16836,106 @@ class Gate:
                     "whole point, since orthogonality is what the earlier rows were testing"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def framing(self):
+        """DOES THIS WORLD FIT IN THIS FRAME (URDRFRM1) — the coverage prediction `horizon_row`
+        could not make. Rows: corpus (three failures caught, one good frame admitted, the honest
+        split between what geometry predicts and what only a render names), arc (the entry
+        distance's explanation of the third, checked against execution)."""
+        for d in ("terrain", "physics", "netcode", "render"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import framing as FR
+        except Exception as exc:
+            for r in ("corpus", "arc"):
+                self.record(f"framing-{r}", False, f"import failed (framing): {exc}")
+            return
+        c_ok, rep = True, {}
+        try:
+            rep = {n: FR.case_report(n) for n in FR.CASES}
+            c_ok = (FR.the_law_catches_all_three_failures() and FR.the_law_accepts()
+                    and FR.the_verdicts_are_populated() and FR.the_threshold_is_load_bearing()
+                    and FR.DOMINANCE == 900)
+            c_ok = (c_ok and rep["inverted_pitch"]["horizon"] == 400
+                    and rep["steep_pitch"]["horizon"] == -80
+                    and rep["inverted_pitch"]["observed"] is None
+                    and rep["steep_pitch"]["observed"] is None)
+            # THE HONEST SPLIT, asserted rather than left in prose: the apex is NOT predicted.
+            c_ok = (c_ok and rep["apex"]["predicted"][:2] == (FR.WELL_FRAMED, FR.FITS)
+                    and rep["apex"]["observed"][0] == FR.SKY_DOMINATED)
+            real = FR.census_verdict                    # RED-FIRST: a reflex that always refuses
+            try:
+                FR.census_verdict = lambda s, g, d=FR.DOMINANCE: (FR.SKY_DOMINATED, 1000)
+                c_ok = c_ok and not FR.the_law_accepts()
+            finally:
+                FR.census_verdict = real
+            for bad in (lambda: FR.rows(4, 0), lambda: FR.ground_entry(0, 6, 48),
+                        lambda: FR.ground_entry(96, 6, 0), lambda: FR.census_verdict(0, 0),
+                        lambda: FR.predict(96, 96, 48, 6, 0), lambda: FR.case("nope")):
+                try:
+                    bad()
+                    c_ok = False
+                except FR.FramingError as _e:
+                    c_ok = c_ok and _e.code == "FRAMING-REFUSE"
+            c_ok = c_ok and all(FR.scene_result(n) == FR.golden(n) for n in FR.SCENES)
+        except Exception:
+            c_ok = False
+        self.record("framing-corpus", c_ok,
+                    "THE SAME 93%% ARRIVED THREE TIMES FROM THREE DIFFERENT CAUSES AND EACH TIME "
+                    "WAS FOUND BY LOOKING — a pitch rotating the wrong way, a pitch too steep for "
+                    "the focal length, and a ten-unit jump out of 226 of relief. `horizon_row` "
+                    "predicts the first two because both are PITCH problems and it is a statement "
+                    "about where ONE LINE falls; nothing answered the COVERAGE question at all. "
+                    "THE STRUCTURAL CLAUSE catches both historical failures BEFORE A TRIANGLE "
+                    "EXISTS — no rows below the horizon means ground is impossible, no rows above "
+                    "means sky is — and they are reproduced at the parameters they HAPPENED at, a "
+                    "320-pixel frame at focal 320 with horizons %d and %d, the values "
+                    "`worldbasis`'s brief records, because a failure re-staged at convenient "
+                    "numbers is a different event wearing the same name. THE CENSUS RULE names a "
+                    "frame DEGENERATE when one class holds at least %d permille, and the "
+                    "threshold is a CHOICE pinned as data and proved LOAD-BEARING (at 1 permille "
+                    "every frame is degenerate, at 1000 only a wholly empty class is, and the "
+                    "standing frame moves between them). AND THE LAW MUST ACCEPT: one that called "
+                    "every frame degenerate would catch all three failures and be worthless, so "
+                    "the corpus carries a WELL_FRAMED case, a census that always refuses is "
+                    "planted, and it reddens exactly there. THE HONEST SPLIT IS ASSERTED RATHER "
+                    "THAN NARRATED: the apex is NOT predictable from geometry — the entry clause "
+                    "reads FITS at %s against an extent of %d while the render is %d permille sky "
+                    "— and tuning the extent until the clause fired would be fitting the law to "
+                    "the answer"
+                    % (rep.get("inverted_pitch", {}).get("horizon", 0),
+                       rep.get("steep_pitch", {}).get("horizon", 0), FR.DOMINANCE,
+                       rep.get("apex", {}).get("predicted", (0, 0, "?"))[2],
+                       rep.get("apex", {}).get("extent", -1),
+                       rep.get("apex", {}).get("observed", ("?", -1))[1])
+                    if c_ok else "the framing corpus did not hold")
+        a_ok, arc = True, ()
+        try:
+            a_ok, arc = FR.the_entry_distance_explains_the_apex()
+            a_ok = a_ok and len(arc) > 2
+            realg = FR.ground_entry                    # RED-FIRST: a drop-blind entry distance
+            try:
+                FR.ground_entry = lambda f, d, b: realg(f, 6, b)
+                a_ok = a_ok and not FR.the_entry_distance_explains_the_apex()[0]
+            finally:
+                FR.ground_entry = realg
+        except Exception:
+            a_ok = False
+        self.record("framing-arc", a_ok,
+                    "WHAT THE CLOSED FORM SUPPLIES FOR THE THIRD FAILURE IS THE EXPLANATION, NOT "
+                    "THE VERDICT — and an explanation is a claim that can be wrong, so it is "
+                    "CHECKED AGAINST EXECUTION over a real `stride` jump rather than asserted. "
+                    "`ground_entry` is LINEAR IN THE DROP, so with a level camera every unit of "
+                    "altitude pushes ground further down the image and the world leaves the frame "
+                    "from the bottom edge upward: the entry distance must be NON-DECREASING and "
+                    "the rendered ground count NON-INCREASING, in lockstep, by cross-multiplied "
+                    "integer comparison so no verdict carries a tolerance — %s. A DROP-BLIND entry "
+                    "distance is planted and leaves the claim with nothing to say, which is what "
+                    "makes the agreement evidence rather than arithmetic"
+                    % " ".join("d%d/e%d/g%d" % t for t in arc)
+                    if a_ok else "the entry-distance explanation did not hold")
+
     def vantage(self):
         """THE FIRST-PERSON FRAME (URDRVAN1) — the camera's first caller. Rows: frame (the picture
         is populated, the cycle closes bit-identically in pixels, the boundaries are declared), eye
@@ -19725,7 +19826,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
