@@ -16641,6 +16641,17 @@ class Gate:
             cen = WB.conformance_census()
             ok = ok and "CONFORMS" not in {v for v, _w in cen.values()}
             ok = ok and cen["worldstep.schema"][0] == "DECLARED"
+            ok = (ok and cen["stance.lift"][0] == "DECLARED"
+                  and WB.the_lift_matches_the_compass() and WB.the_lift_is_vertical_free()
+                  and WB.the_lift_is_reversible()
+                  and WB.walker_directions_3d()["N"] == (0, 0, -1)
+                  and WB.walker_directions_3d()["E"] == (1, 0, 0))
+            _real_compass = WB.AXIS_COMPASS
+            try:                                              # a flipped compass must be caught
+                WB.AXIS_COMPASS = dict(_real_compass, X="WEST")
+                ok = ok and not WB.the_lift_matches_the_compass()
+            finally:
+                WB.AXIS_COMPASS = _real_compass
             import worldstep as _WS3
             ok = (ok and _WS3.format_dimension({"format": "URDR-WORLD-3"}) == 2
                   and _WS3.format_dimension({"format": "URDR-WORLD-4"}) == 3
@@ -16696,7 +16707,18 @@ class Gate:
                     "would be the silent-drop defect this stack already closed once, at the scale "
                     "of a whole DIMENSION. An UNKNOWN schema refuses rather than defaulting to "
                     "the familiar one, for the same reason. The 2D path is untouched and its "
-                    "goldens are unmoved. "
+                    "goldens are unmoved. AND THE WALKER LIFTS: `stance.DIRS` spends axis 1 on "
+                    "N/S because it predates the decision, and under the basis that is Z — "
+                    "`(dx, dy) -> (dx, 0, dy)`, with N = -Z and E = +X. THAT THE LIFT IS LOSSLESS "
+                    "IS NOT THE CLAIM WORTH CHECKING, since a lift is lossless by construction "
+                    "and asserting it would assert that tuple concatenation works (L23). The "
+                    "claim that CAN be wrong is whether it agrees with the COMPASS THIS MODULE "
+                    "DECLARES, and wrong SILENTLY — every consumer would keep working with a sign "
+                    "flipped and only the picture would come out back to front, the inverted-N/S "
+                    "class the anchor exists for. Checked against the declaration, and proved to "
+                    "bite on a flipped compass. Derived here rather than added to `stance`, which "
+                    "stays untouched: a contract that edits its subjects to make them conform is "
+                    "not measuring anything. "
                     "AND THE ANCHOR HALF EARNED ITSELF ON ARRIVAL: `glide` reads a height as the "
                     "ground under an actor, CONSTANT over its cell (its own docstring says the "
                     "exact floor-sampled cell height) while `terrain_bridge` reads THE SAME ARRAY "

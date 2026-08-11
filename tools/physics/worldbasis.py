@@ -176,6 +176,10 @@ def conformance_census():
                                "world is a valid REPRESENTATION and an unsteppable one, refused "
                                "by name rather than silently flattened"
                                % (dims, steppable))
+    out["stance.lift"] = ("DECLARED" if the_lift_matches_the_compass() else "MISMATCHED",
+                          "N/S lifts from axis 1 to Z, E/W stays X, vertical zero throughout; "
+                          "the lift agrees with the declared compass (X=EAST, Z=SOUTH) and drops "
+                          "back to `stance.DIRS` exactly")
     mv = walker_movement_axes()
     horiz = tuple(AXIS_INDEX[a] for a in AXES if AXIS_KIND[a] == "horizontal")
     out["stance.DIRS"] = ("CONFORMS" if all(AXIS_KIND[AXES[i]] == "horizontal"
@@ -342,6 +346,65 @@ def the_yaws_match_the_walker():
     _terrain()
     import stance as ST
     return set(YAW) == set(ST.DIRS)
+
+
+# ---- the walker's directions, lifted into the basis ----------------------------------------
+#
+# The second PRE-BASIS entry. `stance.DIRS` spends axis 1 on N/S because it predates the decision;
+# under the basis N/S belongs on Z. The lift is `(dx, dy) -> (dx, 0, dy)` and it is LOSSLESS —
+# but that is not the interesting claim, because a lift is lossless by construction and checking
+# it would be checking that tuple concatenation works (L23).
+#
+# THE CLAIM WORTH CHECKING is whether the lift agrees with the COMPASS THIS MODULE DECLARES. N
+# must come out as negative Z and E as positive X, because `AXIS_COMPASS` says X is EAST and Z is
+# SOUTH. That can be wrong — it is exactly the inverted-N/S convention the anchor was written to
+# catch — and it is wrong silently, since every consumer would keep working with the sign flipped
+# and only the picture would be back-to-front.
+#
+# Derived here rather than added to `stance`, which stays untouched: this module is the contract,
+# and a contract that edits its subjects to make them conform is not measuring anything.
+def walker_directions_3d():
+    """`stance.DIRS` lifted to three components under the basis: the vertical stays zero because a
+    step never moves an actor vertically — height FOLLOWS from the terrain it lands on."""
+    _terrain()
+    import stance as ST
+    z = AXIS_INDEX["Z"]
+    x = AXIS_INDEX["X"]
+    out = {}
+    for name, (dx, dy) in ST.DIRS.items():
+        v = [0, 0, 0]
+        v[x] = dx
+        v[z] = dy                                          # the old axis 1 IS the basis's Z
+        out[name] = tuple(v)
+    return out
+
+
+def the_lift_is_vertical_free():
+    """Every movement direction has ZERO vertical component — what makes the lift lossless, and a
+    property of the walking law rather than of the lift."""
+    v = AXIS_INDEX[GRAVITY_AXIS]
+    return all(d[v] == 0 for d in walker_directions_3d().values())
+
+
+def the_lift_matches_the_compass():
+    """THE CLAIM THAT CAN BE WRONG. `AXIS_COMPASS` declares X = EAST and Z = SOUTH, so E must lift
+    to +X and S to +Z. A flipped convention would keep every consumer working and turn the picture
+    back to front — the inverted-N/S class, caught by comparing a lift against a declaration
+    instead of against itself."""
+    d = walker_directions_3d()
+    x, z = AXIS_INDEX["X"], AXIS_INDEX["Z"]
+    return (AXIS_COMPASS["X"] == "EAST" and AXIS_COMPASS["Z"] == "SOUTH"
+            and d["E"][x] > 0 and d["W"][x] < 0
+            and d["S"][z] > 0 and d["N"][z] < 0)
+
+
+def the_lift_is_reversible():
+    """Dropping the vertical returns `stance.DIRS` exactly — so nothing was invented on the way up
+    and the walking law is unchanged by having been described in three components."""
+    _terrain()
+    import stance as ST
+    x, z = AXIS_INDEX["X"], AXIS_INDEX["Z"]
+    return all((v[x], v[z]) == ST.DIRS[k] for k, v in walker_directions_3d().items())
 
 
 def basis_digest():

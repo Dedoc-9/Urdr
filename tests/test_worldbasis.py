@@ -181,3 +181,50 @@ class TheCameraBasisIsExactAndIntegral(unittest.TestCase):
                 WB.horizon_row("flat", 320, 160)
         finally:
             WB.PITCH = real
+
+
+class TheWalkerLiftsIntoTheBasis(unittest.TestCase):
+    """The second PRE-BASIS entry. `stance.DIRS` spends axis 1 on N/S because it predates the
+    decision; under the basis N/S belongs on Z, and the lift is `(dx, dy) -> (dx, 0, dy)`.
+
+    THAT THE LIFT IS LOSSLESS IS NOT THE INTERESTING CLAIM — a lift is lossless by construction
+    and checking it would be checking that tuple concatenation works (L23). The claim worth
+    checking is whether it agrees with the COMPASS THIS MODULE DECLARES, which can be wrong, and
+    wrong SILENTLY: every consumer would keep working with a sign flipped and only the picture
+    would come out back to front. That is the inverted-N/S class the anchor was written for.
+
+    Derived here rather than added to `stance`, which stays untouched — a contract that edits its
+    subjects to make them conform is not measuring anything."""
+
+    def test_the_lift_matches_the_declared_compass(self):
+        self.assertTrue(WB.the_lift_matches_the_compass())
+        d = WB.walker_directions_3d()
+        self.assertEqual(d["N"], (0, 0, -1))
+        self.assertEqual(d["S"], (0, 0, 1))
+        self.assertEqual(d["E"], (1, 0, 0))
+        self.assertEqual(d["W"], (-1, 0, 0))
+
+    def test_no_movement_direction_has_a_vertical_component(self):
+        """A property of the WALKING LAW rather than of the lift: a step never moves an actor
+        vertically — height FOLLOWS from the terrain it lands on."""
+        self.assertTrue(WB.the_lift_is_vertical_free())
+
+    def test_dropping_the_vertical_returns_stance_exactly(self):
+        """Nothing was invented on the way up, so the walking law is unchanged by having been
+        described in three components."""
+        self.assertTrue(WB.the_lift_is_reversible())
+
+    def test_a_flipped_compass_would_be_caught(self):
+        """NON-VACUITY on the claim that can actually be wrong — if the declared compass were
+        inverted the lift would no longer agree with it, and the check must say so rather than
+        comparing the lift against itself."""
+        real = WB.AXIS_COMPASS
+        try:
+            WB.AXIS_COMPASS = dict(real, X="WEST")
+            self.assertFalse(WB.the_lift_matches_the_compass())
+        finally:
+            WB.AXIS_COMPASS = real
+        self.assertTrue(WB.the_lift_matches_the_compass())
+
+    def test_the_census_records_the_lift(self):
+        self.assertEqual(WB.conformance_census()["stance.lift"][0], "DECLARED")
