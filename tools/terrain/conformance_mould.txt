@@ -1,0 +1,28 @@
+# URDRMLD1 conformance goldens — THE RECORD TAKES THE SHAPE OF THE STATE, so the saving is a TYPE
+# rather than a policy. A grounded slot has no `vy` FIELD — not a zero, not an ignored value, no
+# field — so writing one is not discouraged, it is impossible.
+#
+# THE SHAPE IS DERIVED, NOT TAGGED, and that is the whole arithmetic: a tag costs one value per
+# actor and `vy` costs one value per actor, so a tagged record saves NOTHING and has a second thing
+# to keep consistent. The state is recovered from the prefix the record already carries.
+#
+# Pinned AFTER both wrong neighbours were built: an ALL-AIRBORNE mould (correct, saves nothing) and
+# an ALL-GROUNDED mould (smaller, and caught BY REFUSAL rather than by divergence — the shape
+# contradicts the world, so the record cannot be opened at all).
+# digest = SHA-256(MAGIC | name | payload), payload readable in `mould.scene_case(name)`.
+#
+# GRADE: MEASURED for the bit-identical resume in BOTH the trajectory and the reasons at every tick
+# of a corpus carrying both states; for the derived-not-tagged shape checked structurally; for the
+# mis-shaped refusal in both directions; for both neighbours; and for the exact integer counts.
+# DECLARED: that this is the SMALLEST POSSIBLE record — it is the smallest one `retain`'s corpus
+# justifies, which is a different claim and the one made.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: any wall-clock or byte consequence (a falsifier checks the module imports no
+# clock); that the two shapes are the only ones — a third contact state exists with no producer, so
+# it has no mould either and `mould_for` REFUSES it rather than guessing; durability, which is
+# `persist`/`resurrect`'s and is untouched.
+
+saving 93756a9a4fd298583ff166a75419e67400eb716c885e9e35526741c05e42af6a
+equivalence 5d3dcfdee6a2014c3bb953dc65e0ce8a750b82524976dd7966da2cf017c8d09f
+neighbours 7d35f47b037c7f05c5417650440b649848cd1a250b11c5e7f2795430a940d5f6

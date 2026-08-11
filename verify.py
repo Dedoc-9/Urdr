@@ -214,6 +214,7 @@ STAGE_ORDER = (
     "framing",
     "vouch",
     "retain",
+    "mould",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16838,6 +16839,121 @@ class Gate:
                     "whole point, since orthogonality is what the earlier rows were testing"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def mould(self):
+        """THE RECORD TAKES THE SHAPE OF THE STATE (URDRMLD1). Rows: equivalence (the moulded
+        record resumes bit-identically and the saving is counted), shape (derived not tagged, the
+        mis-shaped refusal, and both wrong neighbours)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import mould as MD
+            import contact as CT5
+            import retain as RT5
+            import vouch as VC5
+        except Exception as exc:
+            for r in ("equivalence", "shape"):
+                self.record(f"mould-{r}", False, f"import failed (mould): {exc}")
+            return
+        e_ok, n, c = True, 0, {}
+        try:
+            holds, n = MD.the_mould_resumes_identically()
+            c = MD.saving_census()
+            e_ok = (holds and n > 5 and c["saved_ints"] > 0
+                    and c["flat_ints"] - c["moulded_ints"] == c["saved_ints"]
+                    and c["flat_ints"] == 4 * c["ticks"] * c["actors"])
+            _cc, states = RT5.census("jump")
+            e_ok = e_ok and set(states) == {CT5.TERRAIN_GROUNDED, CT5.AIRBORNE}
+            w, lg = RT5.corpus("jump")
+            frames, st2, _wt = VC5.full(w, lg)
+            gt = next(t for t in range(len(frames) - 1) if st2[t][0] in CT5.SUPPORTED_STATES)
+            e_ok = (e_ok and frames[gt][0][3] == 0
+                    and MD.to_vouch(w, MD.mint(w, frames, st2, gt))
+                    == VC5.snapshot(w, frames, gt))
+            with open(os.path.join(ROOT, "tools", "terrain", "mould.py"), encoding="utf-8") as fh:
+                src = fh.read()
+            for banned in ("perf_counter", "time.time", "monotonic", "timeit"):
+                e_ok = e_ok and banned not in src
+            e_ok = e_ok and all(MD.scene_result(x) == MD.golden(x) for x in MD.SCENES)
+        except Exception:
+            e_ok = False
+        self.record("mould-equivalence", e_ok,
+                    "A SHAPE, NOT A POLICY. `retain` measured that a grounded actor's vertical "
+                    "velocity is INERT and an airborne actor's is REQUIRED; the obvious next move "
+                    "is to drop it when grounded, and the obvious next move is a POLICY — a rule "
+                    "someone follows, forgets, or gets wrong in one branch. Here a grounded slot "
+                    "has no `vy` FIELD: not a zero, not an ignored value, NO FIELD, so writing one "
+                    "is not discouraged but impossible and a reader cannot consult a value that "
+                    "does not exist. THE LOAD-BEARING LAW is that this changes nothing: the "
+                    "moulded record resumes BIT-IDENTICALLY to the flat one — trajectory and "
+                    "reasons checked APART, per `vouch` — at all %d ticks of a corpus carrying "
+                    "BOTH states. A grounded slot's absent `vy` reads back as zero, and that is "
+                    "NOT a default filling a gap: `contact` guarantees a supported actor's "
+                    "vertical velocity IS zero and `retain` measured that perturbing it changes "
+                    "nothing, so the reconstructed flat record is asserted EQUAL to the one "
+                    "`vouch` would have minted. THE SAVING IS A COUNT: %d ticks, %d actors, %d "
+                    "integers flat against %d moulded, %d saved — reported with its denominator "
+                    "and NOT as a rate, a byte figure or a latency. Whether a smaller record is a "
+                    "faster one is a benchmark's question on a named host, and a falsifier checks "
+                    "this module imports no clock"
+                    % (n, c.get("ticks", -1), c.get("actors", -1), c.get("flat_ints", -1),
+                       c.get("moulded_ints", -1), c.get("saved_ints", -1))
+                    if e_ok else "the moulded record did not resume identically")
+        s_ok, how = True, ""
+        try:
+            s_ok = (MD.the_shape_is_derived_not_tagged() and MD.the_shapes_come_from_retain()
+                    and MD.the_unproduced_state_has_no_mould()
+                    and MD.a_mis_shaped_slot_refuses()
+                    and MD.an_all_airborne_mould_saves_nothing())
+            caught, tick, how = MD.an_all_grounded_mould_is_lossy()
+            s_ok = s_ok and caught and tick >= 0 and how == "REFUSED"
+            s_ok = (s_ok and "vy" not in MD.mould_for(CT5.TERRAIN_GROUNDED)
+                    and "vy" in MD.mould_for(CT5.AIRBORNE))
+            w, lg = RT5.corpus("jump")
+            frames, st2, _wt = VC5.full(w, lg)
+            rec = MD.mint(w, frames, st2, 1)
+            for bad in ((1, 2), (rec[0], rec[1], "rev-9"), (rec[0], rec[1] + rec[1], rec[2])):
+                try:
+                    MD.admit(w, bad)
+                    s_ok = False
+                except MD.MouldError as _e:
+                    s_ok = s_ok and _e.code == "MOULD-REFUSE"
+            for bad2 in (lambda: MD.mould_for(CT5.GEOMETRY_SUPPORTED),
+                         lambda: MD.derived_state(w, (1, 2)), lambda: MD.scene_case("nope")):
+                try:
+                    bad2()
+                    s_ok = False
+                except MD.MouldError:
+                    pass
+            MD.admit(w, rec)                            # ...and the boundary is a boundary
+        except Exception:
+            s_ok = False
+        self.record("mould-shape", s_ok,
+                    "THE SHAPE IS DERIVED, NOT TAGGED, AND THAT IS THE WHOLE ARITHMETIC. The naive "
+                    "version tags each slot with its state so a reader knows how many integers to "
+                    "take, and it SAVES NOTHING — a tag costs one value per actor and `vy` costs "
+                    "one value per actor, so the record is exactly the size it was and now has a "
+                    "second thing to keep consistent. What makes the shaping pay is that the state "
+                    "is DERIVABLE FROM THE PREFIX the record already carries: read x, y, z, ask "
+                    "`contact` what state that is in this world, and the answer says whether a "
+                    "fourth integer follows. Checked structurally against the record's own fields, "
+                    "not promised. BOTH WRONG NEIGHBOURS ARE BUILT, so 'it saves something' and "
+                    "'it stays correct' are each proved against the thing that would violate them: "
+                    "an ALL-AIRBORNE mould is correct and POINTLESS, and an ALL-GROUNDED mould is "
+                    "smaller and caught BY %s RATHER THAN BY DIVERGENCE — which is the outcome "
+                    "that makes this a TYPE, because a 3-integer slot for an airborne actor "
+                    "produces a record whose derived state wants four, so the shape CONTRADICTS "
+                    "THE WORLD and cannot be opened at all; there is no lossy replay to compare "
+                    "because there is no replay, where a policy would have produced a smaller "
+                    "record that silently resumed wrong. THE SHAPES ARE READ FROM `retain` rather "
+                    "than restated, because a shape table written twice can disagree with the "
+                    "measurement that justified it; and GEOMETRY_SUPPORTED, declared with no "
+                    "producer and therefore never observed, is REFUSED a mould rather than given a "
+                    "guessed one — a mould invented for it would be a measurement nobody made"
+                    % how
+                    if s_ok else "the record shaping did not hold")
+
     def retain(self):
         """WHAT MUST A SNAPSHOT KEEP (URDRRTN1) — the ablation sweep, with INERT kept apart from
         redundancy. Rows: census (three outcomes, every field justified, the trap exhibited by a
@@ -20053,7 +20169,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
