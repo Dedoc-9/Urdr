@@ -4,7 +4,7 @@
 
 ## Index
 
-**187 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**188 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,
@@ -35,7 +35,10 @@
   `test_wavefield`, `test_buoyancy`, `test_crossing`, `test_view_witness`.
 - **Movement & observers (MMO Stages A–B)** — `test_stance`, `test_gaze`, `test_drive`,
   `test_traj`, `test_kernel_crosscheck`, `test_lockstep_crosscheck`, `test_fpface`,
-  `test_fpcap`, `test_predict`, `test_glide`, `test_splice`, `test_cpredict`.
+  `test_fpcap`, `test_predict`, `test_glide`, `test_splice`, `test_cpredict`,
+  `test_worldbasis` (what a world coordinate means, and the exact integer camera),
+  `test_contact` (ground contact as a certified state — the complete jump/fall cycle, the
+  support witness, and where this law parts from the 2D walk).
 - **MMO Stages C–E (scale, handoff, anti-cheat)** — `test_interest`, `test_layertheorem`,
   `test_hand`, `test_warden`, `test_crosswarden`, `test_dirward`, `test_wardhom`.
 - **MMO Stage H (the latency guarantee, time and space)** — `test_opcost`, `test_govern`,
@@ -63,7 +66,7 @@
 Every test here is designed to be able to go **red**: a test that cannot fail proves nothing
 (LESSONS L5, *validity not outcome*). The suites are falsifiers, not demonstrations — many
 document a defect that was injected, caught, and reverted, which is the evidence the harness
-actually bites. Together they are the `unit-falsifiers` row of the gate: **2345 unit falsifiers, 0 red**.
+actually bites. Together they are the `unit-falsifiers` row of the gate: **2382 unit falsifiers, 0 red**.
 This is the layer that makes "the checker rejects X" or "the placement reproduces Y" a
 *measured* claim rather than a hope — the negative space (`examples/rejected/`,
 `must_fail/`) is exercised here too.

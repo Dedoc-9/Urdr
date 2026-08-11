@@ -1,0 +1,21 @@
+# URDRCON1 conformance goldens — ground contact as a certified state. Scene digests pinned
+# AFTER each planted defect was proved to BITE: an accumulating gravity under a grounded actor,
+# a revision-blind witness, a doubled terrain read per tick, a snap-down that erases the walk /
+# contact divergence, and a name-tested (rather than membership-tested) reserved state.
+# digest = SHA-256(MAGIC | name | payload), payload readable in `contact.scene_case(name)`.
+#
+# GRADE: MEASURED for the transition laws, the witness, the walk/contact divergence and the lookup
+# counts. DECLARED: GEOMETRY_SUPPORTED, the third contact state, which no producer exists for — it
+# is reserved rather than produced so that the first platform does not have to un-collapse a
+# contract, and `geometry_support_is_unproduced` is written to FLIP when one arrives.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: that the 3D tick exists (it does not — this is the law it will need, written
+# where it can be falsified before it has a caller); that terrain is the only possible support;
+# that a witness proves the terrain was CORRECT, only that two runs agreed about it; that a
+# lookup COUNT is a lookup COST (it is the denominator, not the measurement).
+
+cycle aea6897645c9c2ec4133d1c833ba3d60eda44654201d054b056899f86cdfe181
+steps 57184d860c85a6b1fd18dcf03f4dc9f050c3ec4d757ae726eed3696c4f04939d
+lookups 686ab485b9059b75a00ce321e5b5aac8a487a7cd0a23193f88e1e0ce82a6ef07
+seam 6b65016e88511baae26849eb203e56d76bbf50d8f1574864e8c5570449c1897d

@@ -207,6 +207,7 @@ STAGE_ORDER = (
     "sealframe",
     "caustic",
     "worldbasis",
+    "contact",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -4379,6 +4380,7 @@ class Gate:
             return
         D = snap["depth_ceiling"]
         n_law = len(snap["eligible_laws"]) + len(snap["excluded_laws"])
+        post = ", ".join(sorted(snap.get("post_seal_laws", {}))) or "none"
         try:
             d_ok, d_probs = LAT.depth_proof()
         except Exception as exc:
@@ -4388,11 +4390,23 @@ class Gate:
                      f"ALL {n_law} law modules though only {len(snap['eligible_laws'])} have enumerated "
                      f"out-edges. Proved mechanically each run: every enumerated edge lies inside "
                      f"transitive imports; the enumerated lattice's longest chain equals {D}; no "
-                     f"excluded or dynamically-wired module lies on any import chain longer than {D}, "
-                     f"and each excluded module's import-depth is below {D}, so an unswept module "
-                     f"cannot host a deeper chain; the coverage partition still covers every current "
-                     f"scene_result law; the dynamic modules are withheld. REQUIRES subset "
-                     f"transitive-imports bounds the chain, so this holds without the 439s sweep"
+                     f"unswept or dynamically-wired module lies on any import chain longer than {D}, "
+                     f"and each unswept module's import-depth is below {D}, so a module the sweep "
+                     f"never reached cannot host a deeper chain; the coverage partition still covers "
+                     f"every current scene_result law; the dynamic modules are withheld. REQUIRES "
+                     f"subset transitive-imports bounds the chain, so this holds without the 439s "
+                     f"sweep. AND THE COVERAGE CHECK NOW HAS A VOCABULARY FOR MODULES MINTED AFTER "
+                     f"THE SEAL, which it did not before and which every future law module would "
+                     f"have hit: the seal's claim is HISTORICAL — at commit "
+                     f"{snap['source_commit']} this sweep produced these edges under this partition "
+                     f"— so a module that did not exist then CANNOT honestly be added to it, and "
+                     f"editing a record to fit the present is the L64 class exactly. The sealed "
+                     f"partition therefore stays frozen and post-seal laws ({post}) are registered "
+                     f"LIVE, deliberately outside the edge digest, under the SAME obligations that "
+                     f"make an excluded law safe — the depth bounds apply to them unchanged, so "
+                     f"registering a module instead of sweeping it buys nothing — plus a mandatory "
+                     f"reason, an existing module and no overlap with the seal. The register is "
+                     f"proved load-bearing rather than decorative: emptying it reddens coverage"
                      if d_ok else
                      "depth proof failed: " + "; ".join(f"{a}:{b}" for a, b in d_probs[:4])))
         try:
@@ -16782,6 +16796,216 @@ class Gate:
                     "leaving to be found again"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def contact(self):
+        """GROUND CONTACT AS A CERTIFIED STATE (URDRCON1) — the law the 3D tick will need, written
+        where it can be falsified before it has a caller. Rows: cycle (the transitions and the
+        complete ground -> jump -> fall -> ground certificate), witness (WHY support holds, bound
+        to the terrain revision), seam (where this law and the 2D walk part, characterized), cost
+        (the terrain-lookup denominator, exact, before any cache)."""
+        for d in ("terrain", "physics", "netcode"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import contact as CT
+            import heightfield as _HF
+        except Exception as exc:
+            for r in ("cycle", "witness", "seam", "cost"):
+                self.record(f"contact-{r}", False, f"import failed (contact): {exc}")
+            return
+        flat, step = CT._demo_field(), CT._step_field()
+        # ---- cycle -------------------------------------------------------------------------
+        cyc_ok, seq = True, ()
+        try:
+            seq, y, vy = CT.run_cycle(flat, (2, 2), "rev-0", jump=4, grav=1)
+            cyc_ok = (seq[0] == CT.TERRAIN_GROUNDED and seq[1] == CT.AIRBORNE
+                      and seq[-1] == CT.TERRAIN_GROUNDED and seq.count(CT.AIRBORNE) > 1
+                      and set(seq) == {CT.TERRAIN_GROUNDED, CT.AIRBORNE} and (y, vy) == (5, 0))
+            # a jumpless run must NOT leave the ground — without this the sequence check above
+            # would be satisfied by a `run_cycle` that always jumps
+            cyc_ok = cyc_ok and set(CT.run_cycle(flat, (2, 2), "rev-0", jump=0)[0]) == \
+                {CT.TERRAIN_GROUNDED}
+            # gravity does not accumulate under support: ten grounded ticks, vy still 0
+            gy, gvy = 5, 0
+            for _ in range(10):
+                gy, gvy, _s, _w = CT.step_vertical(flat, (2, 2), gy, gvy, "rev-0")
+            cyc_ok = cyc_ok and (gy, gvy) == (5, 0)
+            # the three horizontal outcomes on one fixture: climb / wall / support loss
+            climb = CT.step_horizontal(step, (1, 2), 5, "rev-0", (2, 2))
+            wall = CT.step_horizontal(step, (2, 2), 7, "rev-0", (3, 2))
+            drop = CT.step_horizontal(step, (3, 2), 12, "rev-0", (4, 2))
+            cyc_ok = (cyc_ok and climb[0] == CT.ADMITTED and climb[4] == CT.TERRAIN_GROUNDED
+                      and climb[2] == 7
+                      and wall[0] == CT.BLOCKED and wall[1] == (2, 2) and wall[2] == 7
+                      and drop[0] == CT.ADMITTED and drop[4] == CT.AIRBORNE and drop[2] == 12)
+            for bad in (lambda: CT.contact_of(flat, (2, 2), 3, "rev-0"),        # penetration
+                        lambda: CT.ground_height(flat, (99, 2)),                # off field
+                        lambda: CT.contact_of(flat, (2, 2), 5.0, "rev-0"),      # float
+                        lambda: CT.step_horizontal(flat, (1, 1), 5, "rev-0", (5, 1)),   # teleport
+                        lambda: CT.step_horizontal(flat, (1, 1), 9, "rev-0", (2, 1))):  # air step
+                try:
+                    bad()
+                    cyc_ok = False
+                except CT.ContactError as e:
+                    cyc_ok = cyc_ok and e.code == "CONTACT-REFUSE"
+            cyc_ok = cyc_ok and CT.scene_result("cycle") == CT.golden("cycle") \
+                and CT.scene_result("steps") == CT.golden("steps")
+        except Exception:
+            cyc_ok = False
+        self.record("contact-cycle", cyc_ok,
+                    "GROUND CONTACT IS A STATE THE SIMULATION CARRIES, and the certificate is the "
+                    "COMPLETE CYCLE rather than a boolean: %s. `glide` answers the standing "
+                    "question implicitly — the ground under an actor is whatever the heightfield "
+                    "says and being on it is not a state — which is exactly right for a 2D walk "
+                    "and not enough once there is an axis to fall along, because STANDING and "
+                    "FALLING then differ in WHAT THE TICK DOES. Read as a SEQUENCE, because "
+                    "`grounded == True` at the end passes for a run that never left the ground; "
+                    "checked non-vacuously against a jumpless run that must stay down. GRAVITY "
+                    "DOES NOT ACCUMULATE under support — ten grounded ticks leave vy at zero, and "
+                    "a law that integrated underneath would launch or sink the actor on the tick "
+                    "it stepped off a ledge, which looks like terrain. THE THREE HORIZONTAL "
+                    "OUTCOMES on one fixture: a rise within MAX_STEP stays supported at the new "
+                    "ground, a rise above it is BLOCKED with the actor unmoved and still "
+                    "supported (`stance`'s wall restated where it can meet gravity, not "
+                    "replaced), and a drop LOSES SUPPORT at the same height — NO SNAP-DOWN, "
+                    "because teleporting an actor to the lower ground is the authority moving it "
+                    "with no record. Five decisions REFUSE rather than clamp: penetration, an "
+                    "out-of-field ground query, a float vertical, a non-adjacent 'step' (which "
+                    "would license climbing any rise by naming a distant cell), and a horizontal "
+                    "step asked of an AIRBORNE actor (air control is a different law, and "
+                    "answering it here would give the wall a second meaning nobody chose)"
+                    % (" -> ".join(seq) if seq else "the cycle did not run")
+                    if cyc_ok else "the contact transition laws did not hold")
+        # ---- witness -----------------------------------------------------------------------
+        wit_ok = True
+        try:
+            _st, w = CT.contact_of(flat, (2, 2), 5, "rev-0")
+            wit_ok = (w == ("TERRAIN", 2, 2, "rev-0", 5)
+                      and CT.witness_digest(w) == CT.witness_digest(
+                          CT.contact_of(flat, (2, 2), 5, "rev-0")[1])
+                      and CT.the_witness_binds_the_revision(flat, (2, 2), "rev-0", "rev-1")
+                      and CT.contact_of(flat, (2, 2), 9, "rev-0")[1] is None)
+            wit_ok = wit_ok and CT.geometry_support_is_unproduced(flat, (2, 2), "rev-0")
+            wit_ok = (wit_ok and CT.GEOMETRY_SUPPORTED in CT.SUPPORTED_STATES
+                      and CT.SOURCES[CT.GEOMETRY_SUPPORTED] != CT.SOURCES[CT.TERRAIN_GROUNDED])
+            # the reservation GATES NOTHING: both laws branch on MEMBERSHIP, so emptying it stops
+            # the supported branch running at all. A name test would survive this unchanged.
+            real_supported = CT.SUPPORTED_STATES
+            try:
+                CT.SUPPORTED_STATES = ()
+                wit_ok = wit_ok and CT.step_vertical(flat, (2, 2), 5, 0, "rev-0",
+                                                     jump=4)[:2] == (5, 0)
+            finally:
+                CT.SUPPORTED_STATES = real_supported
+            wit_ok = wit_ok and CT.step_vertical(flat, (2, 2), 5, 0, "rev-0", jump=4)[:2] == (9, 4)
+        except Exception:
+            wit_ok = False
+        self.record("contact-witness", wit_ok,
+                    "SUPPORT RECORDS WHY, NOT THAT — the part that earns its place under "
+                    "rollback. A grounded actor carries (source, cell, TERRAIN REVISION, contact "
+                    "height) rather than a boolean, so 'given the same inputs and snapshot, did I "
+                    "reach the same grounded state?' is a COMPARISON instead of an inference; the "
+                    "witness is reproducible under replay and DIFFERENT under a changed revision, "
+                    "which is `resurrect`'s stale-snapshot law arriving at the contact seam with "
+                    "no new mechanism — an edit under a parked actor bumps the revision and the "
+                    "witness follows. An AIRBORNE actor carries NO witness, because a witness in "
+                    "the air is a support that is not there. AND THE THIRD STATE IS RESERVED "
+                    "RATHER THAN COLLAPSED: GEOMETRY_SUPPORTED — platform, ramp, exported static "
+                    "— has NO PRODUCER in this engine and is asserted unproduced, written to FLIP "
+                    "when one arrives, because terrain ground and arbitrary collision support are "
+                    "not the same thing and a contract that fused them would have to be un-fused "
+                    "by whoever first stands on a platform. THIS IS NOT L65's UNSATISFIABLE LAW "
+                    "AND THE DIFFERENCE IS MEASURED, not argued: an unsatisfiable law GATES on a "
+                    "condition nothing can meet, while this one gates NOTHING — both movement "
+                    "laws branch on MEMBERSHIP in SUPPORTED_STATES, never on the name, checked by "
+                    "emptying that membership and requiring the supported branch to stop running"
+                    if wit_ok else "the support witness or the reserved state did not hold")
+        # ---- seam --------------------------------------------------------------------------
+        seam_ok, d = True, {}
+        try:
+            island = _HF.generate(**_HF.island())
+            d = CT.walk_contact_divergence(island)           # REFUSES if any admission differs
+            seam_ok = (CT.the_divergence_is_exactly_the_drops(island)
+                       and d["agree"] + d["differ_on_drop"] == d["steps"]
+                       and d["blocked_both"] > 0 and d["first_drop"] is not None
+                       and d["steps"] // 3 < d["differ_on_drop"] < d["steps"])
+            # NON-VACUITY, both directions: a flat world diverges NOWHERE (so the count is a
+            # property of terrain, not of the comparison), and a snap-down plant ERASES it.
+            seam_ok = (seam_ok and CT.walk_contact_divergence(flat)["differ_on_drop"] == 0
+                       and not CT.the_divergence_is_exactly_the_drops(flat))
+            real_step = CT.step_horizontal
+
+            def _snapping(heights, cell, y, revision, to_cell, max_step=CT.MAX_STEP):
+                out, c2, y2, vy, st, w = real_step(heights, cell, y, revision, to_cell, max_step)
+                if st == CT.AIRBORNE:
+                    g = heights[c2[1]][c2[0]]
+                    return out, c2, g, vy, CT.TERRAIN_GROUNDED, CT.witness("TERRAIN", c2,
+                                                                          revision, g)
+                return out, c2, y2, vy, st, w
+            try:
+                CT.step_horizontal = _snapping
+                seam_ok = seam_ok and not CT.the_divergence_is_exactly_the_drops(island)
+            finally:
+                CT.step_horizontal = real_step
+            seam_ok = seam_ok and CT.scene_result("seam") == CT.golden("seam")
+        except Exception:
+            seam_ok = False
+        self.record("contact-seam", seam_ok,
+                    "THE 2D WALK AND THE 3D CONTACT LAW DISAGREE, MEASURED HERE RATHER THAN "
+                    "DISCOVERED LATER BY AN ACTOR SINKING INTO A HILLSIDE. `stance`/`glide` hold "
+                    "that downhill is always traversable and the actor is on the destination "
+                    "ground the instant it crosses — and they are RIGHT, because an actor with no "
+                    "vertical axis CANNOT FALL. This law says a drop LOSES SUPPORT. Over every "
+                    "ordered adjacent pair of the island preset: %d steps, %d blocked by both "
+                    "laws, %d agree, %d DIFFER — and the divergence is CHARACTERIZED rather than "
+                    "counted, which is the difference between a number and a finding: the "
+                    "ADMISSION decisions agree EVERYWHERE (the census REFUSES outright if any "
+                    "pair disagrees about admission, so this law is proved to restate `stance`'s "
+                    "wall rather than replace it) and the resulting STATE differs on EXACTLY the "
+                    "strict drops, no more and no fewer, witnessed at %s. Non-vacuous in both "
+                    "directions: a FLAT world diverges nowhere, so the count is a property of "
+                    "TERRAIN and not of the comparison; and the obvious 'fix' — snapping to the "
+                    "lower ground like the walk does — ERASES the distinction and reddens. This "
+                    "is `worldbasis`'s sample-convention finding one layer up. NEITHER LAW IS A "
+                    "BUG; the defect would have been letting the 3D tick silently contradict a "
+                    "frozen movement law, and instead it supersedes a KNOWN one with the gap on "
+                    "the record before anything depends on either"
+                    % (d.get("steps", 0), d.get("blocked_both", 0), d.get("agree", 0),
+                       d.get("differ_on_drop", 0), d.get("first_drop"))
+                    if seam_ok else "the walk/contact divergence did not hold")
+        # ---- cost --------------------------------------------------------------------------
+        cost_ok, c = True, {}
+        try:
+            c = CT.tick_lookups(flat, (2, 2), "rev-0")
+            cost_ok = CT.the_lookup_counts_are_exact(flat, (2, 2), "rev-0")
+            real_ground = CT.ground_height
+            try:                                  # the very defect the counter found, replanted
+                CT.ground_height = lambda h, cell: (real_ground(h, cell), real_ground(h, cell))[0]
+                cost_ok = cost_ok and not CT.the_lookup_counts_are_exact(flat, (2, 2), "rev-0")
+            finally:
+                CT.ground_height = real_ground
+            cost_ok = cost_ok and CT.scene_result("lookups") == CT.golden("lookups")
+        except Exception:
+            cost_ok = False
+        self.record("contact-cost", cost_ok,
+                    "THE TERRAIN-LOOKUP DENOMINATOR, EXACT AND BEFORE ANY CACHE. Every terrain "
+                    "read goes through one COUNTED door, so the lookup component of an operation "
+                    "is a reproducible integer instead of a swept number (L44): contact_of %d, "
+                    "step_vertical %d, step_horizontal %d (a step prices the cell it leaves AND "
+                    "the one it enters), and the cycle's reads equal its tick count %d. "
+                    "step_vertical reading ONCE WAS WRITTEN RED AND CAUGHT THIS MODULE reading "
+                    "the same cell twice — once inside `contact_of`, once for the landing test — "
+                    "which is the entire argument for counting: it found a defect in the code it "
+                    "was measuring, on its first run. Replanted here and required to redden. "
+                    "Non-vacuous by construction: the three counts are DIFFERENT, so a counter "
+                    "stuck at any constant fails. A COUNT IS NOT A COST and is not claimed as "
+                    "one — it is the denominator a cost claim would have to be divided by, and it "
+                    "exists BEFORE the cache this arc has repeatedly declined to build without "
+                    "one; the wall-clock question stays `bench.py`'s"
+                    % (c.get("contact_of", -1), c.get("step_vertical", -1),
+                       c.get("step_horizontal", -1), c.get("run_cycle", -1))
+                    if cost_ok else "the contact lookup counts did not hold")
+
     def caustic(self):
         """The scale at which a pinned law spends its budget (URDRCAU1) — and the refusal that
         stops one confounded axis becoming five. Rows: caustic-refusal (the kinds, the selective
@@ -18778,7 +19002,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

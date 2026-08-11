@@ -157,13 +157,26 @@ def depth_proof(root=ROOT, snap=None):
           (so a module we did NOT sweep cannot host a deeper REQUIRES chain than we proved);
       (d) every excluded module's import-depth is below CEILING (it cannot START a longer chain);
       (e) the recorded coverage partition still covers every current scene_result law module
-          (a new module outside eligible ∪ excluded means the snapshot's coverage is stale);
-      (f) the dynamic modules are withheld from the enumerated (closure-pruned) set."""
+          (a new module outside eligible ∪ excluded ∪ post-seal means the coverage is stale);
+      (g) every POST-SEAL law carries a reason, names a module that exists, and is not also in
+          the sealed partition — the `#[expect]` shape, so a module minted after the seal is
+          DECLARED rather than silently uncovered;
+      (f) the dynamic modules are withheld from the enumerated (closure-pruned) set.
+
+    THE POST-SEAL REGISTER, and why it is outside the digest. The seal's claim is HISTORICAL — at
+    commit 2f13fa2 this sweep produced these edges under this partition — so a module that did not
+    exist then cannot honestly be added to it; doing so would rewrite a record to fit the present,
+    which is the L64 class. But (e) is right to demand totality over the LIVE tree. So the sealed
+    partition stays frozen and post-seal laws are registered live, under exactly the obligations
+    that make `excluded` safe: the depth bounds in (c)/(d) apply to them UNCHANGED, so an unswept
+    post-seal module still cannot host a REQUIRES chain deeper than the ceiling. What the register
+    does NOT claim is that its modules were swept — they were not, and the coverage string says so."""
     snap = load(root) if snap is None else snap
     D = snap["depth_ceiling"]
     elig = set(snap["eligible_laws"])
     excl = set(snap["excluded_laws"])
     dyn = set(snap["dynamic_withheld"])
+    post = dict(snap.get("post_seal_laws", {}))
     edges = [tuple(e.split("|")) for e in snap["edges"]]
     imp = import_graph(root)
     out = []
@@ -176,23 +189,34 @@ def depth_proof(root=ROOT, snap=None):
     got = _chain_len(edges)
     if got != D:
         out.append(("chain-len", f"enumerated depth {got} != ceiling {D}"))
-    # (c) + (d)
+    # (c) + (d) — the UNSWEPT set, which is `excluded` and `post-seal` alike: neither was measured,
+    # so both carry the same obligation not to host a chain the sweep never bounded.
     down = _longest_down(imp)
     up = _longest_up(imp)
-    for X in (excl | dyn):
-        if X in imp and X in excl and down.get(X, 0) >= D:
-            out.append(("excluded-import-depth", f"{X} import-depth {down[X]} >= ceiling {D}"))
+    unswept = excl | set(post)
+    for X in (unswept | dyn):
+        if X in imp and X in unswept and down.get(X, 0) >= D:
+            out.append(("unswept-import-depth", f"{X} import-depth {down[X]} >= ceiling {D}"))
         if X in imp and (up.get(X, 0) + down.get(X, 0) - 1) > D:
-            out.append(("excluded-on-deep-chain", f"{X} sits on an import chain > {D}"))
+            out.append(("unswept-on-deep-chain", f"{X} sits on an import chain > {D}"))
     # (e) coverage partition still total over current scene_result laws
-    known = elig | excl
+    known = elig | excl | set(post)
     for n in sorted(imp):
         try:
             m = __import__(n)
         except Exception:
             continue
         if hasattr(m, "scene_result") and hasattr(m, "SCENES") and n not in known:
-            out.append(("coverage-stale", f"{n} has scene_result but is in neither eligible nor excluded"))
+            out.append(("coverage-stale", f"{n} has scene_result but is in neither eligible nor "
+                                          f"excluded nor post-seal"))
+    # (g) the post-seal register is DECLARED, not a parking lot
+    for n, why in sorted(post.items()):
+        if n in elig or n in excl:
+            out.append(("post-seal-double-counted", f"{n} is already in the sealed partition"))
+        if n not in imp:
+            out.append(("post-seal-unknown", f"{n} names no module in the tree"))
+        if not isinstance(why, str) or len(why.strip()) < 20:
+            out.append(("post-seal-unreasoned", f"{n} carries no reason"))
     # (f)
     for X in dyn:
         if X in elig:
@@ -344,4 +368,29 @@ def plants_bite(root=ROOT):
     t, a, lm, _ = CONFORMANCE[0]
     if _moves(t, a, lm, identity_wide=False) != _moves(t, a, lm, identity_wide=True):
         out.append(("alias-control-disagrees", f"{t}.{a}->{lm}"))
+    # (8) the POST-SEAL register is not a parking lot: a DEEP module moved there is still caught by
+    #     (c)/(d), so registering something instead of sweeping it buys nothing.
+    bad5 = dict(snap)
+    bad5["eligible_laws"] = [n for n in snap["eligible_laws"] if n != "meshsession"]
+    bad5["post_seal_laws"] = dict(snap.get("post_seal_laws", {}),
+                                  meshsession="a deep module parked rather than swept")
+    if depth_proof(root, bad5)[0]:
+        out.append(("post-seal-depth-plant-survived",))
+    # (9) an UNREASONED post-seal entry reddens — `#[expect]`, not `#[allow]`
+    bad6 = dict(snap)
+    bad6["post_seal_laws"] = dict(snap.get("post_seal_laws", {}), contact="")
+    if depth_proof(root, bad6)[0]:
+        out.append(("post-seal-unreasoned-plant-survived",))
+    # (10) an entry naming a module that does not exist is STALE, not coverage
+    bad7 = dict(snap)
+    bad7["post_seal_laws"] = dict(snap.get("post_seal_laws", {}),
+                                  ghostmodule="a module that was deleted after being registered")
+    if depth_proof(root, bad7)[0]:
+        out.append(("post-seal-unknown-plant-survived",))
+    # (11) NON-VACUITY of the register itself: dropping it entirely must redden (e), or the whole
+    #      mechanism is decoration and the coverage check was already total without it.
+    bad8 = dict(snap)
+    bad8["post_seal_laws"] = {}
+    if depth_proof(root, bad8)[0]:
+        out.append(("post-seal-register-not-load-bearing",))
     return (not out), out
