@@ -213,6 +213,7 @@ STAGE_ORDER = (
     "vantage",
     "framing",
     "vouch",
+    "retain",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16837,6 +16838,124 @@ class Gate:
                     "whole point, since orthogonality is what the earlier rows were testing"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def retain(self):
+        """WHAT MUST A SNAPSHOT KEEP (URDRRTN1) — the ablation sweep, with INERT kept apart from
+        redundancy. Rows: census (three outcomes, every field justified, the trap exhibited by a
+        control corpus), state (two fields whose necessity depends on the state, characterized
+        against the laws rather than counted)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import retain as RT
+            import contact as CT4
+        except Exception as exc:
+            for r in ("census", "state"):
+                self.record(f"retain-{r}", False, f"import failed (retain): {exc}")
+            return
+        c_ok, cj, trap = True, {}, ()
+        try:
+            cj, _sj = RT.census("jump")
+            c_ok = (RT.the_outcomes_are_populated() and RT.every_field_is_justified()
+                    and RT.required_nowhere() == ()
+                    and set(RT.required_somewhere()) == set(RT.FIELDS))
+            c_ok = c_ok and bool(cj["revision"][RT.REFUSED])
+            for f in RT.FIELDS:
+                if f != "revision":
+                    c_ok = c_ok and cj[f][RT.REFUSED] == ()
+            holds, inert, needed = RT.inert_is_not_redundancy()
+            trap = (inert, needed)
+            c_ok = c_ok and holds and bool(inert) and bool(needed)
+            cg, sg = RT.census("grounded")
+            _cj2, sj2 = RT.census("jump")
+            c_ok = (c_ok and set(sg) == {CT4.TERRAIN_GROUNDED}
+                    and set(sj2) == {CT4.TERRAIN_GROUNDED, CT4.AIRBORNE}
+                    and cg["vy"][RT.REQUIRED] == () and cj["vy"][RT.REQUIRED] != ())
+            c_ok = c_ok and RT.the_perturbation_reaches_both_streams() == {
+                (RT.MOVED_TRAJECTORY, RT.MOVED_REASONS)}
+            w, lg = RT.corpus("jump")
+            import vouch as VC4
+            fr, _s, _wt = VC4.full(w, lg)
+            for bad in (lambda: RT.perturb(VC4.snapshot(w, fr, 0), "mass"),
+                        lambda: RT.corpus("nope"), lambda: RT.retained_fields("FLOATING"),
+                        lambda: RT.scene_case("nope")):
+                try:
+                    bad()
+                    c_ok = False
+                except RT.RetainError as _e:
+                    c_ok = c_ok and _e.code == "RETAIN-REFUSE"
+            c_ok = c_ok and all(RT.scene_result(n) == RT.golden(n) for n in RT.SCENES)
+        except Exception:
+            c_ok = False
+        self.record("retain-census", c_ok,
+                    "INERT IS THE VERDICT THAT CAN FAKE A RESULT, and an ablation sweep is exactly "
+                    "where it does: remove a field, resume, get the same tail, and 'the field is "
+                    "not observed here' is INDISTINGUISHABLE from 'the fixture never exercised "
+                    "it'. `vouch` met this one level down — its first perturbation was aimed at a "
+                    "mid-flight tick, `stride` correctly ignores air control, the clause read "
+                    "INERT and proved nothing — and a minimization built on unexamined INERT "
+                    "verdicts produces a record that is smaller AND LOSSY, with the loss surfacing "
+                    "as a desync nobody can reproduce. So THREE OUTCOMES, NEVER TWO: REQUIRED "
+                    "(the perturbation moved the trajectory or the reasons), REFUSED (an AUTHORITY "
+                    "error, reached only by the revision and checked to be), and INERT — A "
+                    "STATEMENT ABOUT THIS TICK, NOT ABOUT THE FIELD. AND THE TRAP IS EXHIBITED "
+                    "RATHER THAN WARNED ABOUT: a grounded-only CONTROL corpus reads `vy` INERT at "
+                    "all %d of its ticks while the jump corpus proves it REQUIRED at %d, so a "
+                    "minimization run on the control alone would have deleted a load-bearing field "
+                    "FROM A GREEN SWEEP. Every field the record carries is justified somewhere, "
+                    "and a field justified NOWHERE would be reported as unobserved by two fixtures "
+                    "rather than as permission to delete it — `sample != universal`, and a "
+                    "snapshot minimization is exactly where forgetting that costs a replay. "
+                    "BOUNDARY, reported rather than dressed up: every REQUIRED verdict here moves "
+                    "BOTH the trajectory and the reasons, so this corpus does not distinguish a "
+                    "field one needs from a field the other does"
+                    % (len(trap[0]) if trap else -1, len(trap[1]) if trap else -1)
+                    if c_ok else "the retention census did not hold")
+        s_ok, vy, yy = True, (), ()
+        try:
+            vh, air, gnd = RT.vy_is_required_exactly_on_airborne_ticks()
+            yh, pred, meas = RT.y_is_required_when_airborne_or_before_a_step()
+            yh2, p2, m2 = RT.y_is_required_when_airborne_or_before_a_step("grounded")
+            vy, yy = (air, gnd), (pred, meas)
+            s_ok = vh and yh and yh2 and pred == meas and p2 == m2 and bool(air) and bool(gnd)
+            c2, states = RT.census("jump")
+            s_ok = (s_ok and set(c2["vy"][RT.REQUIRED])
+                    == {t for t, st in enumerate(states) if st == CT4.AIRBORNE})
+            for f in ("x", "z"):                    # the contrast that makes this a finding
+                s_ok = s_ok and c2[f][RT.INERT] == ()
+            s_ok = (s_ok and RT.retained_fields(CT4.TERRAIN_GROUNDED) == ("x", "y", "z")
+                    and RT.retained_fields(CT4.AIRBORNE) == ("x", "y", "z", "vy"))
+            with open(os.path.join(ROOT, "tools", "terrain", "retain.py"), encoding="utf-8") as fh:
+                src = fh.read()
+            for banned in ("perf_counter", "time.time", "monotonic"):
+                s_ok = s_ok and banned not in src
+        except Exception:
+            s_ok = False
+        self.record("retain-state", s_ok,
+                    "TWO FIELDS WHOSE NECESSITY IS A FUNCTION OF THE STATE RATHER THAN OF THE "
+                    "SCHEMA, and the second one the sweep found rather than the design. `vy` is "
+                    "REQUIRED on every AIRBORNE tick %s and INERT on every grounded one %s — not "
+                    "by choice but by `contact`'s own law, which says a supported actor's gravity "
+                    "does not accumulate, so the tick overwrites it before anything reads it; "
+                    "checked against `contact`'s STATE STREAM rather than a tick index, or it "
+                    "would be a claim about this fixture's timing. `y` IS SHARPER: REQUIRED "
+                    "exactly when the actor is airborne OR when the NEXT tick carries a movement "
+                    "intent %s, INERT otherwise — because a one-unit lift of a grounded actor is "
+                    "ERASED WITHIN ONE TICK (contact reads it AIRBORNE, gravity takes the unit "
+                    "back, the actor lands on the ground it left) EXCEPT when a step follows, "
+                    "because `stride` REFUSES AIR CONTROL and a momentarily airborne actor does "
+                    "not take it. That is the no-air-control law appearing in a state-retention "
+                    "sweep, which is not where it was written. BOTH ARE CHARACTERIZED rather than "
+                    "counted — predicted from the contact states and the canonical event ticks, "
+                    "then required to EQUAL the measurement, on BOTH corpora, so a characterization "
+                    "fitted to one fixture would be a coincidence with a green row — and `x` and "
+                    "`z` are REQUIRED everywhere, which is the contrast that makes state-dependence "
+                    "a finding. THE COUNTS ARE COUNTS: 3 integers grounded, 4 airborne, no byte "
+                    "figure, no rate, and a falsifier checks the module imports no clock"
+                    % (vy[0] if vy else (), vy[1] if vy else (), yy[0] if yy else ())
+                    if s_ok else "the retention state-dependences did not hold")
+
     def vouch(self):
         """CAN ROLLBACK REPRODUCE THE EXACT REASON THE ACTOR WAS GROUNDED (URDRVCH1). Rows: resume
         (the mid-trajectory snapshot is sufficient at every tick, positions and reasons checked
@@ -19934,7 +20053,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

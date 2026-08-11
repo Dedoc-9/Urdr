@@ -1,0 +1,27 @@
+# URDRRTN1 conformance goldens — WHAT MUST A SNAPSHOT KEEP for a replay to reproduce the same
+# REASONS. An ablation sweep, and INERT is the verdict that can fake a result: remove a field,
+# resume, get the same tail, and "not observed here" is indistinguishable from "the fixture never
+# exercised it". Three outcomes are kept apart — REQUIRED / REFUSED / INERT — and INERT is never
+# read as redundancy.
+#
+# THE TRAP IS EXHIBITED RATHER THAN WARNED ABOUT: on a grounded-only control corpus `vy` reads
+# INERT at every tick while the jump corpus proves it REQUIRED at eight. A minimization run on the
+# control alone would have produced a smaller, LOSSY record from a green sweep.
+# digest = SHA-256(MAGIC | name | payload), payload readable in `retain.scene_case(name)`.
+#
+# GRADE: MEASURED for the per-field per-tick verdicts over both corpora, for the state-dependence
+# of `vy` checked against `contact`'s own state stream, for the state-dependence of `y` predicted
+# from the contact states and the canonical event ticks and required to EQUAL the measurement, and
+# for the INERT/REQUIRED separation proved to matter by the control. DECLARED: minimality, which is
+# with respect to THIS CORPUS and says so.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: that an INERT field is REMOVABLE — that is the whole discipline here; that a
+# smaller snapshot is a faster one (no wall-clock is measured and none is claimed); that the field
+# set is complete — it is the set `vouch`'s record carries, and a field nobody stores cannot be
+# ablated. Also: this corpus never SEPARATES the trajectory from the reasons — every REQUIRED
+# verdict moves both — so it cannot distinguish a field one needs from a field the other does.
+
+census 463e79b22d52a505356f4e84c75521136cc2209e9aea87f742b2c09a282773e1
+state_dependence cb943f1cded17d4227d70309747e2aa10005c00eb6d3b8afd3a3a4f17d02802b
+inert_control 9077a6369e350dc552c1036b7ec588d7217994685c06f1566df725b12055be9c
