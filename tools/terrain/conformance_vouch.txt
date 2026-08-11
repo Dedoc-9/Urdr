@@ -1,0 +1,25 @@
+# URDRVCH1 conformance goldens — CAN ROLLBACK REPRODUCE THE EXACT REASON THE ACTOR WAS GROUNDED.
+# The claim has content only because the resume starts MID-TRAJECTORY: replaying from the start and
+# asserting equality would restate that `stride.simulate` is a pure function (L23).
+#
+# Pinned AFTER each planted defect was proved to BITE: a LOSSY snapshot (drop the vertical velocity
+# and the resumed reasons diverge, where a from-the-start replay would still have agreed), and the
+# FIXTURE defect this rung found in itself — the first `event_tick` perturbation was aimed at a
+# mid-flight tick, which `stride` correctly ignores as air control, so the clause read INERT and
+# proved nothing.
+# digest = SHA-256(MAGIC | name | payload), payload readable in `vouch.scene_case(name)`.
+#
+# GRADE: MEASURED for the mid-trajectory resume at EVERY tick of a real arc, for each perturbation
+# moving the reasons and delivery reorder not moving them, for the divergence localizing and
+# carrying the witnesses that explain it, and for the stale snapshot refusing in both directions.
+# DECLARED: that a reproduced witness is a CORRECT one.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: durability (nothing here writes bytes to disk; `persist`/`resurrect` own that and
+# this composes with their law rather than replacing it); that witness equality implies position
+# equality or the converse — both are checked separately here precisely because a rung that fused
+# them could not tell which had moved.
+
+resume d35609e4b7de3fa19073462bd0775bd6c38222409baf2fc7f7eaff153f1665f1
+perturbations cfe1a3c4d9632277145279adfbd3d2da5d6961ec3da4ebe1f91d88d7c5df909b
+localization cf6b3f4d6974e4369440e07d46ea6bc87df3cdb2f85a8b93eee8a880d8ff0ba5

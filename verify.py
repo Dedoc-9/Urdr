@@ -212,6 +212,7 @@ STAGE_ORDER = (
     "lift",
     "vantage",
     "framing",
+    "vouch",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16836,6 +16837,113 @@ class Gate:
                     "whole point, since orthogonality is what the earlier rows were testing"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def vouch(self):
+        """CAN ROLLBACK REPRODUCE THE EXACT REASON THE ACTOR WAS GROUNDED (URDRVCH1). Rows: resume
+        (the mid-trajectory snapshot is sufficient at every tick, positions and reasons checked
+        apart), perturbations (four move the reasons, two must not, and the divergence names a
+        cell)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import vouch as VC
+        except Exception as exc:
+            for r in ("resume", "perturbations"):
+                self.record(f"vouch-{r}", False, f"import failed (vouch): {exc}")
+            return
+        r_ok, n = True, 0
+        try:
+            holds, n = VC.the_resume_reproduces_the_reasons()
+            r_ok = holds and n > 5 and VC.the_positions_and_the_reasons_are_checked_apart()
+            w, lg = VC.demo()
+            frames, _s, wits = VC.full(w, lg)
+            kinds = {("-" if x == "-" else "W") for row in VC.witness_stream(wits) for x in row}
+            r_ok = r_ok and kinds == {"-", "W"}          # L61: one kind throughout proves nothing
+            snap = VC.snapshot(w, frames, 2)             # RED-FIRST: a LOSSY record
+            lossy = (snap[0], tuple(a[:3] + (0,) for a in snap[1]), snap[2])
+            r_ok = (r_ok and lossy != snap
+                    and VC.witness_stream(VC.resume(w, lossy, lg)[2])
+                    != VC.witness_stream(wits[3:]))
+            r_ok = r_ok and VC.the_stale_snapshot_refuses_both_ways()
+            other, _l = VC.demo("rev-1")
+            try:
+                VC.resume(other, VC.snapshot(w, frames, 3), lg)
+                r_ok = False
+            except VC.VouchError as _e:
+                r_ok = (r_ok and _e.code == "VOUCH-REFUSE"
+                        and "never entitled to run" in str(_e))
+            for bad in ((1, 2), ("x", ((0, 0, 0, 0),), "rev-0"), (-1, ((0, 0, 0, 0),), "rev-0"),
+                        (0, ((0, 0, 0, 0), (1, 1, 1, 1)), "rev-0")):
+                try:
+                    VC.admit_resume(w, bad)
+                    r_ok = False
+                except VC.VouchError:
+                    pass
+            r_ok = r_ok and VC.admit_resume(w, VC.snapshot(w, frames, 0)) == 0
+            r_ok = r_ok and all(VC.scene_result(x) == VC.golden(x) for x in VC.SCENES)
+        except Exception:
+            r_ok = False
+        self.record("vouch-resume", r_ok,
+                    "CAN ROLLBACK REPRODUCE THE EXACT REASON THE ACTOR WAS GROUNDED — the question "
+                    "that turns a geometry contract into a REPLAY CERTIFICATE. `contact` made "
+                    "support a state with a witness and `stride` proved the witness does not "
+                    "STEER; neither asked whether a resumed run reproduces the same REASON rather "
+                    "than merely the same position. AND RE-RUNNING IS NOT THE ANSWER: "
+                    "`stride.simulate` is a pure function of (world, log), so replaying from the "
+                    "start and asserting equality restates purity (L23). The claim has content "
+                    "only because the resume starts MID-TRAJECTORY — the witnesses from tick k "
+                    "onward must equal the full run's, which is FALSE the moment the snapshot "
+                    "omits anything a witness depends on. `splice`'s resumability discipline "
+                    "applied to the reason instead of the position, checked at %d ticks and not "
+                    "one, because a record sufficient at a convenient moment and lossy elsewhere "
+                    "would pass a single-point check; a LOSSY plant (drop the vertical velocity) "
+                    "diverges here where a from-the-start replay would still have agreed. "
+                    "POSITIONS AND REASONS ARE CHECKED APART, because a rung that fused them could "
+                    "not say which had moved, and the arc carries BOTH grounded ticks (which have "
+                    "witnesses) and airborne ticks (which have none) or every comparison would be "
+                    "vacuous. AND THE STALE SNAPSHOT REFUSES RATHER THAN DIVERGING: a record "
+                    "authored against another terrain revision is not a replay that disagrees, it "
+                    "is one that was NEVER ENTITLED TO RUN — `resurrect`'s law arriving at the "
+                    "contact seam, exercised rather than promised, typed so a caller cannot read "
+                    "an authority error as a desync, and checked in BOTH directions"
+                    % n
+                    if r_ok else "the witness resume did not hold")
+        p_ok, v, rep = True, {}, ""
+        try:
+            v = VC.the_perturbations_bite()
+            p_ok = VC.the_perturbation_verdicts_hold()
+            d, rep = VC.the_divergence_localizes()
+            p_ok = (p_ok and d is not None and d[1] == 0 and d[2] != d[3]
+                    and "cell" in rep and "rev-0" in rep)
+            p_ok = p_ok and VC.a_clean_resume_does_not_diverge()
+            w, lg = VC.demo()
+            _f, _s, wits = VC.full(w, lg)
+            st = VC.witness_stream(wits)
+            p_ok = p_ok and VC.first_witness_divergence(st, st) is None
+        except Exception:
+            p_ok = False
+        self.record("vouch-perturbations", p_ok,
+                    "FOUR PERTURBATIONS MOVE THE REASONS AND TWO MUST NOT — %s. A changed CELL and "
+                    "a changed contact HEIGHT move the witness stream; a moved event TICK moves "
+                    "it; a changed REVISION does not merely move it, it REFUSES. But REORDERED and "
+                    "DUPLICATED DELIVERY of the same logical log must be ABSORBED, which is "
+                    "`lockstep.canon` arriving here unchanged — a rung that checked only the "
+                    "divergences would be certifying a witness stream that changed whenever "
+                    "anything did. A FIXTURE DEFECT THIS RUNG FOUND IN ITSELF, recorded because it "
+                    "is the class: the first `event_tick` perturbation was aimed at a MID-FLIGHT "
+                    "tick, which `stride` correctly ignores because there is no air control, so "
+                    "the clause read INERT and proved nothing — a perturbation that cannot reach "
+                    "the law it is aimed at is a green result with no content, and the FIXTURE was "
+                    "the defect. AND THE DIVERGENCE NAMES A CELL, which is the capability this "
+                    "adds: `lockstep.first_desync` localizes to a TICK, the most a digest chain "
+                    "can say because a digest has no parts, while a WITNESS has parts — %s — so a "
+                    "desync report says which cell and which revision rather than which tick. "
+                    "Non-vacuous: a clean resume is SILENT, and identical streams have no "
+                    "divergence at all"
+                    % ("; ".join("%s=%s" % kv for kv in sorted(v.items())), rep)
+                    if p_ok else "the witness perturbations did not hold")
+
     def framing(self):
         """DOES THIS WORLD FIT IN THIS FRAME (URDRFRM1) — the coverage prediction `horizon_row`
         could not make. Rows: corpus (three failures caught, one good frame admitted, the honest
@@ -19826,7 +19934,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
