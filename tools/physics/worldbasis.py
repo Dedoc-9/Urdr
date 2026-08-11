@@ -289,10 +289,25 @@ def compose(a, b):
 IDENTITY = ((1, 0, 0), (0, 1, 0), (0, 0, 1))
 # The four axis-aligned yaws — exactly the walker's four facings, and exact by construction since
 # a 90-degree turn is a permutation with signs.
-YAW = {"N": IDENTITY,
-       "E": ((0, 0, -1), (0, 1, 0), (1, 0, 0)),
-       "S": ((-1, 0, 0), (0, 1, 0), (0, 0, -1)),
-       "W": ((0, 0, 1), (0, 1, 0), (-1, 0, 0))}
+# THE FIRST FRAME EVER RENDERED THROUGH THIS TABLE FOUND IT WRONG IN TWO DIFFERENT WAYS, and no
+# row here could see either, because BOTH ARE ORTHOGONAL TRANSFORMS. The previous table looked
+# SOUTH when the walker faced north and NORTH when it faced south, and put the actor's LEFT on the
+# right of the screen for east and west. Orthogonality, the scale cancelling, the shear refusal,
+# the horizon and `the_yaws_match_the_walker` all passed throughout — the last of those compares
+# the four NAMES, which is not the same claim as a yaw named "E" pointing east.
+#
+# Each row is now FORCED by the compass rather than chosen: row 2 is the camera's FORWARD and must
+# equal the walker's lifted direction; row 0 is SCREEN-RIGHT and must equal the compass right of
+# that facing (facing east, south is on your right); row 1 is up. `the_yaws_face_the_compass`
+# checks both halves against the declarations rather than against this table.
+YAW = {"N": ((1, 0, 0), (0, 1, 0), (0, 0, -1)),      # forward NORTH, right EAST
+       "E": ((0, 0, 1), (0, 1, 0), (1, 0, 0)),       # forward EAST,  right SOUTH
+       "S": ((-1, 0, 0), (0, 1, 0), (0, 0, 1)),      # forward SOUTH, right WEST
+       "W": ((0, 0, -1), (0, 1, 0), (-1, 0, 0))}     # forward WEST,  right NORTH
+
+#: The compass right of each facing, DECLARED from `AXIS_COMPASS` rather than read off `YAW` — a
+#: check that derived its expectation from the table it checks would certify that copying works.
+COMPASS_RIGHT = {"N": "E", "E": "S", "S": "W", "W": "N"}
 # Pitches from Pythagorean triples (a, b, c): tan = a/b, scale k = c. Dense enough for any camera.
 PITCH = {"level": (IDENTITY, 1),
          "7/24": (((25, 0, 0), (0, 24, 7), (0, -7, 24)), 25),
@@ -347,6 +362,50 @@ def a_non_orthogonal_matrix_is_caught():
     """NON-VACUITY: a shear is not an orientation, and a checker that accepted one would be
     certifying that 3x3 integer matrices exist."""
     return not is_orthogonal(((1, 1, 0), (0, 1, 0), (0, 0, 1)))[0]
+
+
+def the_yaws_face_the_compass():
+    """THE CHECK THAT WAS MISSING, and its absence is why four wrong matrices sat behind five green
+    assertions for two rungs. A yaw named "E" must actually LOOK east and must put the actor's
+    RIGHT on the right of the frame; both are read from the declarations — `walker_directions_3d`
+    for forward, `AXIS_COMPASS` through `COMPASS_RIGHT` for right — never from `YAW` itself.
+
+    Neither half is visible to an orthogonality test: looking backwards is a rotation and a
+    left-right mirror is a reflection, and both satisfy `M M^T = k^2 I` exactly."""
+    d = walker_directions_3d()
+    for facing, m in YAW.items():
+        fwd = d[facing]
+        right = d[COMPASS_RIGHT[facing]]
+        # row 2 is forward: the facing direction must map to +cam_z alone.
+        if tuple(m[2]) != tuple(fwd):
+            return False
+        # row 0 is screen-right: the compass right must map to +cam_x alone.
+        if tuple(m[0]) != tuple(right):
+            return False
+        if tuple(m[1]) != (0, 1, 0):
+            return False
+    return True
+
+
+def a_backwards_or_mirrored_yaw_is_caught():
+    """RED-FIRST, in BOTH of the shapes the live table actually carried: a yaw that looks backwards
+    (the N/S defect) and one whose screen-right is mirrored (the E/W defect). Each is applied to a
+    copy, and each must be caught while remaining perfectly ORTHOGONAL — which is the whole point,
+    since orthogonality is what the previous rows were checking."""
+    real = YAW
+    caught = []
+    try:
+        for label, bad in (
+                ("backwards", dict(real, N=(real["N"][0], real["N"][1],
+                                            tuple(-v for v in real["N"][2])))),
+                ("mirrored", dict(real, E=(tuple(-v for v in real["E"][0]),
+                                           real["E"][1], real["E"][2])))):
+            globals()["YAW"] = bad
+            still_orthogonal = all(is_orthogonal(m)[0] for m in bad.values())
+            caught.append(still_orthogonal and not the_yaws_face_the_compass())
+    finally:
+        globals()["YAW"] = real
+    return all(caught) and len(caught) == 2
 
 
 def the_yaws_match_the_walker():

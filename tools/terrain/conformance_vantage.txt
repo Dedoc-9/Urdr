@@ -1,0 +1,28 @@
+# URDRVAN1 conformance goldens — the FIRST-PERSON FRAME, and the eye is TAKEN rather than derived.
+# `worldbasis` built an exact integer camera and NOTHING HAD EVER CALLED IT. This module is the
+# caller, and calling it found the yaw table wrong in TWO ways that five green camera rows could
+# not see: it looked SOUTH when the walker faced north, and it put the actor's LEFT on the right of
+# the screen for east and west. A backwards look is a rotation and a mirror is a reflection, and
+# both satisfy M M^T = k^2 I exactly.
+#
+# Pinned AFTER each planted defect was proved to BITE: a DERIVING eye (invisible while grounded,
+# wrong the moment the actor jumps), a MIRRORED yaw and a BACKWARDS yaw (both perfectly orthogonal).
+# digest = SHA-256(MAGIC | name | payload), payload readable in `vantage.scene_case(name)`.
+#
+# GRADE: MEASURED for the frames (exact integers end to end), the bit-identical closed cycle, the
+# deriving-eye detection, the compass agreement over all four facings, the populated pixel classes,
+# and the horizon agreeing with `worldbasis.horizon_row`. DECLARED: the vertical exaggeration,
+# REPORTED AND OBEYED rather than corrected — rescaling the world to flatter a picture would be the
+# view editing the authority.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: that the frame is BEAUTIFUL or even legible — it certifies that the picture is a
+# function of the authority and moves with it; that clipping is handled (it is not, and the drop
+# count says so); that this is a renderer with a budget (wall-clock stays `bench.py`'s, counts
+# stay here).
+
+standing 63442f39a062c57f32ff2b73cc8ce55bec87b806fc2e9068589668bc674e2708
+apex 54a7471fd5dbab1fe29fdde27224763d9387c67388315a54e702f7a00066c3bc
+landed 0d7a3532c5ed4a579edafca3bf99eeaafda550970554e05e78da67927d9d0877
+compass 9e3f4735f92b1d9ba296ca8a56fc4543d8593e9f77ff046cb6148139ce8197a0
+exaggeration d7e87a20464a13d8a421a8ef66b4f4e692c9c79756de5e9ab5000cbb40ea5b4b

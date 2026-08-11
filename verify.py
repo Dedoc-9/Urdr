@@ -210,6 +210,7 @@ STAGE_ORDER = (
     "contact",
     "stride",
     "lift",
+    "vantage",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16788,6 +16789,8 @@ class Gate:
         try:
             cam_ok = (WB.every_orientation_is_orthogonal()
                       and WB.a_non_orthogonal_matrix_is_caught()
+                      and WB.the_yaws_face_the_compass()
+                      and WB.a_backwards_or_mirrored_yaw_is_caught()
                       and WB.the_scale_cancels() and WB.the_yaws_match_the_walker()
                       and WB.is_orthogonal(WB.compose(WB.YAW["E"],
                                                       WB.PITCH["7/24"][0])) == (True, 625)
@@ -16818,8 +16821,181 @@ class Gate:
                     "inverted-sign class this module exists to catch, caught by LOOKING; and a "
                     "pitch too STEEP for the focal length gave 100%% ground, which `horizon_row` "
                     "now predicts (-80 for 3/4, 67 for 7/24 in a 320-pixel frame) instead of "
-                    "leaving to be found again"
+                    "leaving to be found again. AND THE YAW TABLE WAS WRONG IN TWO WAYS THAT EVERY "
+                    "ROW ABOVE PASSED THROUGH: the first module ever to RENDER a frame with it "
+                    "(`vantage`) found it looking SOUTH when the walker faced NORTH, and putting "
+                    "the actor's LEFT on the RIGHT of the screen for east and west. NOTHING HERE "
+                    "COULD SEE EITHER, and the reason is exact rather than embarrassing — a "
+                    "backwards look is a ROTATION and a left-right mirror is a REFLECTION, and "
+                    "both satisfy M M^T = k^2 I perfectly; `the_yaws_match_the_walker` compares "
+                    "the four NAMES, which is not the claim that a yaw named E points east. The "
+                    "missing check now reads FORWARD from `walker_directions_3d` and SCREEN-RIGHT "
+                    "from the compass, never from the table it checks, and both defect shapes are "
+                    "planted and required to be caught WHILE REMAINING ORTHOGONAL — which is the "
+                    "whole point, since orthogonality is what the earlier rows were testing"
                     if cam_ok else "the camera-basis law did not hold")
+
+    def vantage(self):
+        """THE FIRST-PERSON FRAME (URDRVAN1) — the camera's first caller. Rows: frame (the picture
+        is populated, the cycle closes bit-identically in pixels, the boundaries are declared), eye
+        (taken from the tick, never re-derived from the terrain), compass (the law that found the
+        yaw table wrong in two ways), scale (the vertical exaggeration nobody had to reconcile)."""
+        for d in ("terrain", "physics", "netcode", "render"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import vantage as VN
+            import worldbasis as WB2
+        except Exception as exc:
+            for r in ("frame", "eye", "compass", "scale"):
+                self.record(f"vantage-{r}", False, f"import failed (vantage): {exc}")
+            return
+        # ---- frame --------------------------------------------------------------------------
+        fr_ok, closed, at, f0 = True, False, 0, {}
+        try:
+            closed, at = VN.the_cycle_closes_in_pixels()
+            moved, constant, _n = VN.the_vertical_axis_is_visible()
+            fr_ok = (closed and at > 1 and moved and constant
+                     and VN.the_frame_is_populated() and VN.the_horizon_agrees_with_the_basis())
+            f0 = VN.frame_census(VN.jump_frames()[0][2])
+            fr_ok = fr_ok and f0["dropped"] > 0 and f0["primitives"] > 0
+            for bad in (lambda: VN.orientation("NE"), lambda: VN.orientation("E", "steep"),
+                        lambda: VN.scene_case("nope")):
+                try:
+                    bad()
+                    fr_ok = False
+                except VN.VantageError as _e:
+                    fr_ok = fr_ok and _e.code == "VANTAGE-REFUSE"
+            for facing in sorted(WB2.YAW):
+                VN.orientation(facing)
+            fr_ok = fr_ok and all(VN.scene_result(n) == VN.golden(n) for n in VN.SCENES)
+            fr_ok = fr_ok and len({VN.scene_result(n) for n in VN.SCENES}) == len(VN.SCENES)
+            png = VN.png(VN.jump_frames()[0][2])
+            fr_ok = fr_ok and png.startswith(b"\x89PNG\r\n\x1a\n") and b"IEND" in png
+        except Exception:
+            fr_ok = False
+        self.record("vantage-frame", fr_ok,
+                    "THE CAMERA HAD NO CALLER. `worldbasis` built an exact integer camera two "
+                    "rungs ago — orthogonality proved, the scale proved to cancel, the horizon "
+                    "computed, a shear refused — and a search of the tree for `camera_project` "
+                    "outside the module that DEFINES it returned NOTHING. An edge nobody can break "
+                    "is an edge nobody has evidence for, and a camera nobody calls is that claim "
+                    "one layer up. THE CYCLE NOW CLOSES IN PIXELS: `contact`'s jump cycle closes "
+                    "on the ground it left, so a frame taken before the jump and a frame taken "
+                    "after the landing (tick %d) are BIT-IDENTICAL — authored world, 3D tick, eye, "
+                    "camera and rasterizer are all exact integer arithmetic, so equality is "
+                    "AVAILABLE and 'similar' would be an admission that something is not. The "
+                    "vertical axis reaches the picture (the jump moves the census) and a STANDING "
+                    "actor's frame does NOT move, so the change is the jump's and not the "
+                    "renderer's. L61 ON A PICTURE: sky and ground each own pixels, because this "
+                    "arc has produced an all-sky frame and an all-ground frame by accident and "
+                    "only LOOKING found them. Declared and counted rather than silent: NO "
+                    "near-plane clipping, so a triangle with a vertex behind the eye is dropped "
+                    "WHOLE (%d of %d here) — `fpclip` is where clipping lives and it is not wired, "
+                    "and a drop count is how that stays a boundary instead of a hole"
+                    % (at, f0.get("dropped", -1), f0.get("primitives", -1))
+                    if fr_ok else "the first-person frame did not hold")
+        # ---- eye ----------------------------------------------------------------------------
+        eye_ok, same, differ = True, False, False
+        try:
+            same, differ, n = VN.the_eye_is_taken_not_derived()
+            eye_ok = (VN.the_eye_cannot_receive_a_terrain() and same and differ and n > 1)
+            w = VN.demo_world()
+            import stride as SR2
+            frames_, _s, _w = SR2.simulate(w, [SR2.event(0, 0, 0, 0, "", 1)])
+            air = frames_[1][0][:3]
+            eye_ok = (eye_ok and VN.eye_of(air) != VN.deriving_eye(w, air)
+                      and VN.eye_of(tuple(w["pos"][0])) == VN.deriving_eye(w, tuple(w["pos"][0])))
+            eye_ok = eye_ok and VN.eye_of((3, 40, 7)) == (3, 40 + VN.EYE_HEIGHT, 7)
+        except Exception:
+            eye_ok = False
+        self.record("vantage-eye", eye_ok,
+                    "THE EYE IS TAKEN FROM THE TICK AND NEVER RE-DERIVED FROM THE TERRAIN. An eye "
+                    "that computed its own height from the heightfield would agree with the "
+                    "authority EXACTLY while the actor is standing — both put it one head above "
+                    "the ground — and diverge the instant the actor left it, so the defect is "
+                    "INVISIBLE UNTIL SOMEONE JUMPS. It is the steering-witness shape from `stride` "
+                    "arriving at the camera, and it is guarded the same two ways: STRUCTURALLY, "
+                    "because `eye_of` takes a POSITION and its signature cannot receive a "
+                    "heightfield — an implementation wanting to re-derive would have to change the "
+                    "argument list, which is visible in a diff; and OPERATIONALLY, because a "
+                    "deriving eye is BUILT here and required to produce IDENTICAL frames while "
+                    "grounded and DIFFERENT ones in the air. Both halves are asserted: if the "
+                    "plant differed while grounded it would be caught for the wrong reason, and if "
+                    "it never differed the guard would see nothing"
+                    if eye_ok else "the eye-inertness guards did not hold")
+        # ---- compass ------------------------------------------------------------------------
+        cmp_ok, probes = True, {}
+        try:
+            cmp_ok = VN.the_view_agrees_with_the_compass() and WB2.the_yaws_face_the_compass()
+            probes = {fc: VN.compass_probe(fc) for fc in sorted(WB2.YAW)}
+            for fc, (lf, rt, ce) in probes.items():
+                cmp_ok = cmp_ok and lf is not None and rt is not None and lf < ce < rt
+            real = WB2.YAW
+            for label, bad in (
+                    ("mirrored", dict(real, E=(tuple(-v for v in real["E"][0]),
+                                               real["E"][1], real["E"][2]))),
+                    ("backwards", dict(real, N=(real["N"][0], real["N"][1],
+                                                tuple(-v for v in real["N"][2]))))):
+                try:
+                    WB2.YAW = bad
+                    # THE PLANT STAYS ORTHOGONAL — which is exactly why no earlier row saw it.
+                    cmp_ok = cmp_ok and all(WB2.is_orthogonal(m)[0] for m in bad.values())
+                    cmp_ok = cmp_ok and not WB2.the_yaws_face_the_compass()
+                    lf, rt, ce = VN.compass_probe("E" if label == "mirrored" else "N")
+                    cmp_ok = cmp_ok and not (lf is not None and rt is not None and lf < ce < rt)
+                finally:
+                    WB2.YAW = real
+        except Exception:
+            cmp_ok = False
+        self.record("vantage-compass", cmp_ok,
+                    "THE LAW THAT FOUND THE CAMERA POINTING THE WRONG WAY, and it took a CALLER to "
+                    "make it askable. The yaw table was wrong in TWO ways: it looked SOUTH when "
+                    "the walker faced NORTH (and north when it faced south), and it put the "
+                    "actor's LEFT on the RIGHT of the screen for east and west. FIVE GREEN CAMERA "
+                    "ROWS PASSED THROUGH BOTH, and the reason is exact rather than embarrassing — "
+                    "a backwards look is a ROTATION, a left-right mirror is a REFLECTION, and both "
+                    "satisfy M M^T = k^2 I perfectly; the one row that sounded like it should have "
+                    "caught it compares the four NAMES, which is not the claim that a yaw named E "
+                    "points east. The law here is end-to-end and cannot be satisfied by a matrix "
+                    "identity: a landmark on the walker's DECLARED LEFT must RENDER left of "
+                    "centre, checked for all four facings (%s) with the expectation read from "
+                    "`walker_directions_3d` and the compass rather than from the table it checks. "
+                    "Both defect shapes are planted and required to be caught WHILE REMAINING "
+                    "ORTHOGONAL, which is the whole point"
+                    % "; ".join("%s L%s R%s|%s" % (k, v[0], v[1], v[2])
+                                for k, v in sorted(probes.items()))
+                    if cmp_ok else "the compass law did not hold")
+        # ---- scale --------------------------------------------------------------------------
+        sc_ok, v = True, {}
+        try:
+            v = VN.vertical_exaggeration()
+            sc_ok = (VN.the_exaggeration_is_read_not_chosen() and WB2.SCALE == 1
+                     and v["relief"] > 0 and v["horizontal_span"] > 0
+                     and v["relief_per_span_permille"] > 1000)
+            import stride as SR3
+            sc_ok = sc_ok and VN.jump_frames()[0][2]["eye"][1] == \
+                VN.demo_world()["pos"][0][SR3.AX_Y] + VN.EYE_HEIGHT
+        except Exception:
+            sc_ok = False
+        self.record("vantage-scale", sc_ok,
+                    "THE VERTICAL EXAGGERATION NOBODY HAD TO RECONCILE UNTIL A CAMERA STOOD IN THE "
+                    "WORLD. `worldbasis.SCALE` says ONE world unit per terrain cell; `heightfield` "
+                    "generates relief of %d units across a %d-unit span — %d PERMILLE, three and a "
+                    "half times taller than wide. NEITHER NUMBER WAS WRONG and nothing had to "
+                    "reconcile them, because until now no consumer read BOTH: a top-down picture "
+                    "does not care how tall a mountain is, and a first-person camera cannot avoid "
+                    "caring. THE NUMBER IS REPORTED AND THE ANCHOR IS OBEYED — rescaling the world "
+                    "to flatter a picture would be the VIEW EDITING THE AUTHORITY, which is the "
+                    "seam `worldbasis` settled and this module is not entitled to reopen; what is "
+                    "added is the measurement and the name. Both numbers are READ from the modules "
+                    "that own them, so a change to either moves this row rather than leaving a "
+                    "private copy behind, and the eye is checked to sit exactly one declared head "
+                    "above the tick's own Y"
+                    % (v.get("relief", -1), v.get("horizontal_span", -1),
+                       v.get("relief_per_span_permille", -1))
+                    if sc_ok else "the vertical-exaggeration record did not hold")
 
     def lift(self):
         """HOW MUCH OF A CERTIFIED IDENTITY SURVIVES BEING CARRIED INTO A RICHER REPRESENTATION
@@ -19549,7 +19725,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

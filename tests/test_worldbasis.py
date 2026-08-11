@@ -154,6 +154,29 @@ class TheCameraBasisIsExactAndIntegral(unittest.TestCase):
     def test_every_shipped_orientation_is_orthogonal(self):
         self.assertTrue(WB.every_orientation_is_orthogonal())
 
+    def test_the_yaws_actually_face_the_compass(self):
+        """THE CHECK THAT WAS MISSING FOR TWO RUNGS, and its absence is why four wrong matrices sat
+        behind five green assertions. `the_yaws_match_the_walker` compares the four NAMES, which is
+        not the claim that a yaw named "E" points east. The first module to RENDER through this
+        table found it looking SOUTH when the walker faced north and putting the actor's LEFT on
+        the right of the screen for east and west."""
+        self.assertTrue(WB.the_yaws_face_the_compass())
+
+    def test_neither_defect_is_visible_to_an_orthogonality_test(self):
+        """WHY NOTHING CAUGHT IT. A backwards look is a rotation and a left-right mirror is a
+        reflection; both satisfy `M M^T = k^2 I` exactly, so every camera row that existed passed
+        throughout. The plants are asserted ORTHOGONAL and then asserted CAUGHT."""
+        self.assertTrue(WB.a_backwards_or_mirrored_yaw_is_caught())
+
+    def test_the_expectation_is_read_from_the_declarations(self):
+        """A check that derived its expectation from the table it checks would certify that copying
+        works (L23). Forward comes from `walker_directions_3d`, right from `COMPASS_RIGHT`."""
+        d = WB.walker_directions_3d()
+        self.assertEqual(WB.COMPASS_RIGHT, {"N": "E", "E": "S", "S": "W", "W": "N"})
+        for facing, m in WB.YAW.items():
+            self.assertEqual(tuple(m[2]), d[facing])
+            self.assertEqual(tuple(m[0]), d[WB.COMPASS_RIGHT[facing]])
+
     def test_a_shear_is_not_an_orientation(self):
         """NON-VACUITY — a checker that accepted one would be certifying that 3x3 matrices exist."""
         self.assertTrue(WB.a_non_orthogonal_matrix_is_caught())
