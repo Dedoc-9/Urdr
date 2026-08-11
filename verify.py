@@ -209,6 +209,7 @@ STAGE_ORDER = (
     "worldbasis",
     "contact",
     "stride",
+    "lift",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16820,6 +16821,240 @@ class Gate:
                     "leaving to be found again"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def lift(self):
+        """HOW MUCH OF A CERTIFIED IDENTITY SURVIVES BEING CARRIED INTO A RICHER REPRESENTATION
+        (URDRLFT1) — a measurement family with NO assumed functional form. Rows: table (the five
+        counts, never fused, and what keeping them apart reveals), form (the proposed exponential
+        refuted at its premise and structurally unevaluable), independence ((H, I) does not
+        determine T, and projection error is not truth error), matrix (what the 2D -> 3D lift
+        preserved, transformed, created and left pending)."""
+        for d in ("terrain", "physics", "netcode"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import lift as LF
+        except Exception as exc:
+            for r in ("table", "form", "independence", "matrix"):
+                self.record(f"lift-{r}", False, f"import failed (lift): {exc}")
+            return
+        # ---- table --------------------------------------------------------------------------
+        tab_ok, t, rose, rows = True, {}, False, ()
+        try:
+            t = LF.lift_table()
+            tab_ok = LF.the_family_is_non_vacuous()
+            for (n, k, r, D), c in t.items():
+                tab_ok = tab_ok and c["agree"] + c["disagree"] == c["comparable"]
+                tab_ok = tab_ok and c["comparable"] + c["incomparable"] <= c["points"]
+                if D < 3:
+                    tab_ok = tab_ok and c["incomparable"] == 0
+            rose, rows = LF.the_lift_reclassified_rather_than_preserved()
+            tab_ok = tab_ok and rose and bool(rows)
+            # FUSING THE COUNTS COLLAPSES D=3 ONTO D=2 EXACTLY — the argument for the schema,
+            # executed rather than argued.
+            for (n, _s) in LF.FIXTURES:
+                for k in LF.KS:
+                    for rule in LF.COARSENERS:
+                        c2, c3 = t[(n, k, rule, 2)], t[(n, k, rule, 3)]
+                        tab_ok = (tab_ok and c2["agree"] == c3["agree"]
+                                  and c2["disagree"] == c3["disagree"] + c3["incomparable"]
+                                  and c3["agree"] * c2["comparable"]
+                                  == c2["agree"] * (c3["comparable"] + c3["incomparable"]))
+            # THE TOLERANCE IS PINNED, NOT TUNED: a wide enough one erases every disagreement
+            f = LF._field(16, 11)
+            tab_ok = (tab_ok and LF.preservation(f, 4, "block_mean", 2, eps=10_000)["disagree"] == 0
+                      and LF.preservation(f, 4, "block_mean", 2)["disagree"] > 0
+                      and LF.DEFAULT_EPSILON == 0)
+            for bad in (lambda: LF.equivalent(None, 5),
+                        lambda: LF.tpi({"agree": 0, "comparable": 0}),
+                        lambda: LF.coarsen(LF._field(9, 1), 2, "block_mean"),
+                        lambda: LF.coarsen(LF._field(8, 1), 2, "block_median"),
+                        lambda: LF.preservation(LF._field(8, 1), 2, "block_mean", 4)):
+                try:
+                    bad()
+                    tab_ok = False
+                except LF.LiftError as _e:
+                    tab_ok = tab_ok and _e.code == "LIFT-REFUSE"
+            tab_ok = tab_ok and all(LF.scene_result(n) == LF.golden(n) for n in LF.SCENES)
+            tab_ok = tab_ok and len({LF.scene_result(n) for n in LF.SCENES}) == len(LF.SCENES)
+        except Exception:
+            tab_ok = False
+        _c2 = t.get((16, 2, "block_mean", 2), {})
+        _c3 = t.get((16, 2, "block_mean", 3), {})
+        self.record("lift-table", tab_ok,
+                    "WHAT LIFTS IS NOT `x = x`. That is a tautology carrying no information; "
+                    "`x_i = x_j` is an additional assertion nobody made, and conflating them is "
+                    "the trap this module exists to avoid. What lifts is a PRESERVATION CLAIM "
+                    "between two independently derived readings of ONE substrate — the authority's "
+                    "CELL_CONSTANT and the view's LATTICE_POINT — under an EXPLICITLY DECLARED "
+                    "equivalence predicate pinned at tolerance ZERO, because every reading here is "
+                    "an exact integer and a tolerance nobody needed is a free parameter waiting to "
+                    "absorb a defect (checked: a wide enough tolerance erases every disagreement, "
+                    "which is why it is pinned rather than tuned). FIVE COUNTS, NEVER FUSED: "
+                    "points, comparable, agree, disagree, and INCOMPARABLE — exactly one reading "
+                    "DEFINED, a DOMAIN mismatch rather than a value mismatch. It is zero at D=1 "
+                    "and D=2 and large at D=3, because the vertical coordinate gives a reading a "
+                    "way to REFUSE: an actor standing at the AUTHORITY's ground is INSIDE the "
+                    "terrain according to the VIEW's. AND THE SHARPEST THING THE TABLE SAYS IS "
+                    "THAT THE LIFT RECLASSIFIED RATHER THAN PRESERVED: `agree` at D=3 EQUALS "
+                    "`agree` at D=2 in every cell of the family (%d and %d here), and D=2's "
+                    "disagreements equal D=3's disagreements plus its incomparables. NOT ONE "
+                    "additional point was preserved — and the ratio ROSE, %d to %d permille, "
+                    "purely because those cases left the denominator. Fold `incomparable` back in "
+                    "and the D=3 ratio collapses onto D=2 EXACTLY, which is executed here rather "
+                    "than argued: a single number cannot distinguish 'preserved more' from "
+                    "'stopped counting the failures', and that is the whole case for the schema"
+                    % (_c2.get("agree", -1), _c3.get("agree", -1),
+                       LF.tpi(_c2)[2] if _c2 else -1, LF.tpi(_c3)[2] if _c3 else -1)
+                    if tab_ok else "the preservation table did not hold")
+        # ---- form ---------------------------------------------------------------------------
+        form_ok, wit, rep = True, (), {}
+        try:
+            wit = LF.the_preservation_is_not_a_function_of_D_g_N()
+            form_ok = bool(wit) and all(a != b for (_d, a, b) in wit)
+            for ((n, k, D, N), _a, _b) in wit:                # same D, g and N EXACTLY
+                form_ok = form_ok and N == LF.segments(n, k) and D in LF.DIMENSIONS and k in LF.KS
+            real = LF.coarsen                                 # RED-FIRST: an estimator-blind rule
+            try:                                              # would leave the refutation unwitnessed
+                LF.coarsen = (lambda f, k, rule: real(f, k, "block_mean"))
+                form_ok = form_ok and LF.the_preservation_is_not_a_function_of_D_g_N() == ()
+            finally:
+                LF.coarsen = real
+            rep = LF.monotonicity_report()
+            form_ok = (form_ok and rep and {g for (_d, g) in rep.values()} == {"monotone"}
+                       and "violated" in {d for (d, _g) in rep.values()})
+            # STRUCTURAL: the proposal is TEXT and the module cannot evaluate it (read code, not
+            # prose — the formula appears in the docstring by design, so this walks the AST).
+            import ast as _ast
+            with open(os.path.join(ROOT, "tools", "terrain", "lift.py"), encoding="utf-8") as fh:
+                src = fh.read()
+            form_ok = form_ok and isinstance(LF.PROPOSED_FORM, str) and "exp(" in LF.PROPOSED_FORM
+            form_ok = form_ok and "UNDERDETERMINED" in LF.PROPOSED_FORM_STATUS
+            for node in _ast.walk(_ast.parse(src)):
+                if isinstance(node, (_ast.Import, _ast.ImportFrom)):
+                    nms = [getattr(node, "module", None)] + [a.name for a in node.names]
+                    form_ok = form_ok and "math" not in [x for x in nms if x]
+                if isinstance(node, _ast.Call):
+                    fnn = node.func
+                    nm = fnn.id if isinstance(fnn, _ast.Name) else getattr(fnn, "attr", "")
+                    form_ok = form_ok and nm not in ("exp", "pow", "log")
+        except Exception:
+            form_ok = False
+        self.record("lift-form", form_ok,
+                    "THE PROPOSED FORM IS REFUTED AT ITS PREMISE RATHER THAN AT ITS FIT, which is "
+                    "both stronger and cheaper. `TPI(D) = exp(-alpha*D*(1-g)/N)` has NO SLOT FOR "
+                    "THE COARSENING ESTIMATOR: %d witnesses share D, granularity and segment count "
+                    "EXACTLY and differ only in whether a block is summarised by its MINIMUM or "
+                    "its MEAN, and they disagree — so no function of (D, g, N) alone can reproduce "
+                    "the table, and no curve-fit was needed to say so. Non-vacuous by plant: an "
+                    "estimator-BLIND coarsener leaves the witness list EMPTY, which is the outcome "
+                    "this refutation distinguishes itself from. THE QUALITATIVE PREDICTIONS ARE "
+                    "CHECKED EXACTLY, by cross-multiplied integer comparison so no verdict carries "
+                    "a tolerance: GRANULARITY behaves as predicted in every cell — preservation "
+                    "improves as the field gets finer — while DIMENSION does NOT, and the reason "
+                    "is the reclassifying artifact rather than a surprise about the world (%s). "
+                    "AND THE FORMULA IS STRUCTURALLY UNEVALUABLE HERE: it is carried as a STRING, "
+                    "the module imports no `math` and calls no exp/pow/log, checked by walking the "
+                    "AST rather than the file text because the formula appears in the docstring by "
+                    "design. A formula that cannot be evaluated cannot be smuggled into a law. "
+                    "does_not_show: that no exponential in D exists once the estimator is FIXED — "
+                    "a separate question this rung neither answers nor forecloses"
+                    % (len(wit), "; ".join("%d,%s D:%s g:%s" % (n, r, a, b)
+                                           for (n, r), (a, b) in sorted(rep.items()))[:160])
+                    if form_ok else "the proposed-form refutation did not hold")
+        # ---- independence -------------------------------------------------------------------
+        ind_ok, irows = True, ()
+        try:
+            irows, ok = LF.integrity_does_not_determine_truth()
+            ind_ok = ok
+            A, B, _C, _D = LF.the_four_systems()
+            ind_ok = (ind_ok and (A.declares, A.impl) == (B.declares, B.impl)
+                      and [A.read(x, 0) for x in range(8)] == [B.read(x, 0) for x in range(8)])
+            pa, pb, ta, tb, holds = LF.projection_error_is_not_truth_error()
+            ind_ok = ind_ok and holds and pa == pb and ta[0] == 0 and tb[0] > 0
+            k, m = 2, 8
+            base = LF.coarsen(LF._field(m * k, 7), k, "block_mean")
+            fa, fb = LF._constant_extension(base, k), LF._mean_preserving_ripple(base, k)
+            ind_ok = (ind_ok and fa != fb                       # non-vacuity: really two fields
+                      and LF.coarsen(fa, k, "block_mean") == LF.coarsen(fb, k, "block_mean"))
+            ind_ok = ind_ok and LF.the_live_field_has_no_referent()
+            live = LF._System("x", LF.CELL_CONSTANT, LF.CELL_CONSTANT, LF._field(8, 3), 1, None)
+            try:
+                LF.truth(live)
+                ind_ok = False
+            except LF.LiftError as _e:
+                ind_ok = ind_ok and "NOT_MEASURED" in str(_e) and _e.code == "LIFT-REFUSE"
+            good = LF._System("x", LF.CELL_CONSTANT, LF.CELL_CONSTANT, LF._field(8, 3), 1,
+                              LF._field(8, 3))
+            ind_ok = ind_ok and LF.truth(good)[1] == 64          # ...and the boundary is a boundary
+        except Exception:
+            ind_ok = False
+        self.record("lift-independence", ind_ok,
+                    "(H, I) DOES NOT DETERMINE T, CONSTRUCTIVELY AND NOT AS A PRODUCT — `H x I != "
+                    "T` is deliberately not the form used, because the three have not been shown "
+                    "to be quantities that multiply, and the claim that survives the objection is "
+                    "the INDEPENDENCE one. Hypocrisy is declaration against behaviour, integrity "
+                    "is behaviour against itself, truth is behaviour against a REFERENT, and all "
+                    "three are counts: %s. A and B declare the same convention, implement the same "
+                    "reading, are equally deterministic, and RETURN IDENTICAL VALUES on every "
+                    "probe — nothing observable from inside either distinguishes them — while "
+                    "their truths are 0 and 256 of 256. C declares one convention and implements "
+                    "another so H fires; D's reading depends on a mutable counter so I fires; "
+                    "without those two the first pair would be a claim about a number that never "
+                    "moves. AND PROJECTION ERROR IS NOT TRUTH ERROR, which is the sentence most "
+                    "worth being careful about with a 41-permille projection bound sitting nearby: "
+                    "two FINE fields that coarsen to the SAME coarse field have IDENTICAL "
+                    "projection error by construction — the disagreement is computed from the "
+                    "coarse field and cannot see which fine field produced it — and DIFFERENT "
+                    "truth error. A projection certificate bounds drift BETWEEN REPRESENTATIONS "
+                    "and says nothing about the distance from either to the substrate. ON THE LIVE "
+                    "ISLAND THERE IS NO REFERENT AT ALL: `heightfield.generate` IS the substrate, "
+                    "generated rather than sampled, so the question has no operand — enforced by "
+                    "`truth` RAISING for a referent-free system rather than footnoted, because a "
+                    "predicate returning 'nothing wrong found' would let NOT_MEASURED read as a "
+                    "perfect score"
+                    % "; ".join("%s H%s I%s T%s" % r for r in irows)
+                    if ind_ok else "the independence construction did not hold")
+        # ---- matrix -------------------------------------------------------------------------
+        mat_ok = True
+        try:
+            mat_ok = (LF.the_matrix_is_settled_where_it_claims_to_be()
+                      and set(LF.matrix_verdicts().values()) == set(LF.VERDICTS)
+                      and LF.the_lift_broke_something())
+            real_m = LF.MATRIX
+            for label, bad in (
+                    ("pending cites", tuple((n, a, b, v, "contact.STATES" if v == "PENDING" else c)
+                                            for (n, a, b, v, c) in real_m)),
+                    ("dead citation", tuple((n, a, b, v, "contact.no_such" if c else c)
+                                            for (n, a, b, v, c) in real_m)),
+                    ("all preserved", tuple((n, a, b, "PRESERVED", c or "contact.STATES")
+                                            for (n, a, b, _v, c) in real_m))):
+                try:
+                    LF.MATRIX = bad
+                    mat_ok = mat_ok and not LF.the_matrix_is_settled_where_it_claims_to_be()
+                    if label == "all preserved":
+                        mat_ok = mat_ok and not LF.the_lift_broke_something()
+                finally:
+                    LF.MATRIX = real_m
+        except Exception:
+            mat_ok = False
+        self.record("lift-matrix", mat_ok,
+                    "WHAT SURVIVED THE 2D -> 3D LIFT THIS ARC JUST PERFORMED, AS DATA rather than "
+                    "as a memory: %s. Every SETTLED cell names the live callable that settles it "
+                    "and the callable is checked to exist, so a claim here cannot drift away from "
+                    "the thing that proves it; a PENDING cell may name NONE, because PENDING is an "
+                    "admission of absence and a citation would make it a result wearing one. All "
+                    "four verdicts must be POPULATED — a matrix reading PRESERVED throughout would "
+                    "be a table written to flatter the lift (L61), and that is proved by planting "
+                    "one, which reddens both this row's settlement check and the independent "
+                    "'something broke' check. Two further plants bite: a PENDING cell carrying a "
+                    "citation, and a citation naming a function that does not exist. The lift is "
+                    "independently shown to have COST something — D=3 admits an incomparable class "
+                    "that D=1 and D=2 cannot express — so the matrix is not the only witness that "
+                    "the migration was not free"
+                    % "; ".join("%s=%s" % kv for kv in sorted(LF.matrix_verdicts().items()))
+                    if mat_ok else "the lift preservation matrix did not hold")
+
     def stride(self):
         """THE 3D DETERMINISTIC TICK (URDRSTR1) — the first caller of `contact`. Rows: tick (the
         order decision and the three boundaries the tick owns), witness (explains, never steers —
@@ -19314,7 +19549,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

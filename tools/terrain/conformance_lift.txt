@@ -1,0 +1,29 @@
+# URDRLFT1 conformance goldens — how much of a certified identity survives being carried into a
+# richer representation. A MEASUREMENT FAMILY WITH NO ASSUMED FUNCTIONAL FORM: the table is the
+# result, and `TPI(D) = exp(-alpha*D*(1-g)/N)` is recorded as text and never evaluated.
+#
+# Pinned AFTER each planted defect was proved to BITE: a tolerance wide enough to erase every
+# disagreement, an estimator-blind coarsener (which would leave the refutation unwitnessed), a
+# fused `incomparable` count (which collapses the D=3 ratio back onto D=2), a PENDING matrix cell
+# carrying a citation, a dead citation, and an all-PRESERVED matrix.
+# digest = SHA-256(MAGIC | name | payload), payload readable in `lift.scene_case(name)`.
+#
+# GRADE: MEASURED for the preservation counts, the estimator-dependence refutation, the exact
+# monotonicity verdicts, the four-system independence construction and the projection-is-not-truth
+# construction. DECLARED: the preservation matrix's PENDING cells, which name work not done rather
+# than results.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: that coarse-graining ALWAYS biases (it does so here, under a named estimator, on a
+# named field — sample != universal); that measurement perturbs the measured (no such backreaction
+# is claimed or built, and `the_view_does_not_feed_back` is the standing law that it must not);
+# that the live repository's truth error is known (it is not — there is no referent); that these
+# four representations exhaust the readings of a heightfield; that no exponential in D exists once
+# the estimator is FIXED — a separate question this rung neither answers nor forecloses.
+
+table 1d81a721ea9a00e3447b04e42b90b64c55e4b9ff4a4f24b525b3e697fd0d216e
+estimator 1244ca5728b69f7f3f5f7fb8f4c62b9a6398942c97b13ad9f145450d12db7ab5
+monotonicity a0a7bbe722633bf130ee3033516a843c06f3828ededbe32f23c5894b84729720
+reclass ea011519e7ad8eeb01e1f680beb8fe92bda299dd8166eb9dc43e9527164147ab
+independence c7d43c7ecd1529d21a1e7fc1da5c223d8c37868058b8a504b135baebd967c7c0
+matrix 780cc6908da2a288cbb17cf50ceeb77021bf234bb4c8576f7412b22b2fd0d0fe
