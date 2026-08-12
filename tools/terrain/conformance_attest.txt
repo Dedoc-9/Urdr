@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_attest.txt — URDRATT1 pinned scenes.
+#
+# A GRADUATED CLAIM IS A COMMITTED LOG THE GATE RE-READS, AND EVERY NUMBER IN IT IS DERIVED.
+#
+# `measure` fixed the terms of a performance claim eight rungs ago and could not answer it.
+# `rollbench` built the instrument; `confound` found the schedule was measuring run position;
+# `repeat` found the numbers were never sampled at the level a comparison needs; `deeper` asked what
+# the op model could not see. Here the answer stops being a paste in a conversation and becomes an
+# artifact the gate re-reads on every run.
+#
+# TWO HALVES, because a claim rots in two directions. Without the first it cites nothing and is a
+# sentence. Without the second its numbers are TYPED, and a typed number is a copy that drifts from
+# its source the first time either is edited (L64). Nothing in the module states a figure.
+#
+# record  — the sealed log parses, seals, grades admissible against `sealframe`'s LIVE door; a
+#           tampered byte REFUSES; an unknown format REFUSES rather than being guessed at; the
+#           record is NOT the path `--bench` overwrites every run; the claim is well formed and a
+#           partial one is not.
+# reading — every figure RECOMPUTED from the sealed bytes: the penalty and its spread, the
+#           SEPARATED / INDISTINGUISHABLE split under URDRRPT1, and the execution-level direction
+#           count. Plus the result itself — the penalty is a CONSTANT and not a slope, which is
+#           `measure`'s own op-count prediction checked against a stopwatch.
+#
+# AND THE ARCHIVED RECORD IS v1 WHILE THE RUNNER NOW WRITES v2. That is deliberate: a versioning law
+# never met by a real successor format is inherited rather than tested (L67), so the successor lands
+# in the same commit and the sealed log must still read.
+#
+# does_not_show: ONE MACHINE, ONE INTERPRETER, ONE SET OF DECLARED CONDITIONS. Five executions
+# sample what a process fixes at startup; they do not sample the machine, the build, the working
+# directory or the environment size, and Mytkowicz measured factors of that class at 2-8% alone. The
+# declared conditions are GAMEPLAY conditions rather than measurement conditions — defensible for a
+# game engine, and not a quiet choice. A constant measured over ticks 1 to 12 says nothing about 100.
+#
+# DECLARED: which log is the record.
+
+record a713d92ca149a48c2adff8b6ee636a2405599392838ca2658e9091c2067a06fb
+reading c0c18bc2b4452c3518193e5bd932e9b17da4873f46858e3d986c5a9bc133b821
+attest 660cf08be7faaa033a91d78fe80e7cd48c827e83bac0566b02a34bd55f1d3880

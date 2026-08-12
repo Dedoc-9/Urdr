@@ -222,6 +222,7 @@ STAGE_ORDER = (
     "entry",
     "repeat",
     "deeper",
+    "attest",
     "rollbench",
     "reachable",
     "retire",
@@ -17432,6 +17433,98 @@ class Gate:
                     "the LOG beside the timings, under the rule the timings already obey"
                     if p_ok else "the deeper probe did not bite, or a count reached a golden")
 
+    def attest(self):
+        """A GRADUATED CLAIM IS A COMMITTED LOG THE GATE RE-READS (URDRATT1). Rows: record (it
+        seals, grades admissible, survives the format that superseded it, and is not the scratch
+        path), reading (every figure recomputed from the sealed bytes, and the constant-intercept
+        result `measure` predicted from op counts)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import attest as AT
+            import rollbench as RB7
+        except Exception as exc:
+            for r in ("record", "reading"):
+                self.record(f"attest-{r}", False, f"import failed (attest): {exc}")
+            return
+        r_ok, ver = True, "?"
+        try:
+            ver = AT.record()["version"]
+            r_ok = (AT.the_record_is_committed_and_still_seals()
+                    and AT.a_tampered_record_refuses()
+                    and AT.the_record_survives_the_format_that_superseded_it()
+                    and AT.an_unknown_format_refuses()
+                    and AT.the_record_is_not_the_scratch_path()
+                    and AT.the_claim_is_well_formed()
+                    and ver == "v1" and RB7.LOG_VERSION == "v2")
+            try:
+                AT.record("spec/attest/there-is-no-such-log.txt")
+                r_ok = False
+            except AT.AttestError as _e:
+                r_ok = r_ok and _e.code == "ATTEST-REFUSE"
+            r_ok = r_ok and all(AT.scene_result(x) == AT.golden(x) for x in AT.SCENES)
+        except Exception:
+            r_ok = False
+        self.record("attest-record", r_ok,
+                    "THE ANSWER STOPS BEING A PASTE IN A CONVERSATION AND BECOMES AN ARTIFACT THE "
+                    "GATE RE-READS. `measure` fixed the terms of a performance claim eight rungs "
+                    "ago and structurally could not answer it; `rollbench` built the instrument; "
+                    "`confound` found the schedule was measuring RUN POSITION; `repeat` found the "
+                    "numbers were never sampled at the level a comparison needs; `deeper` asked "
+                    "what the op model could not see. The cited log is COMMITTED, its digest "
+                    "re-verifies, a single tampered byte REFUSES, and it grades admissible against "
+                    "`sealframe`'s LIVE door rather than the one this arc had to retire. THE "
+                    "RECORD IS NOT THE SCRATCH PATH: `--bench` overwrites its own output on every "
+                    "run, so a record kept there is ONE COMMAND from being replaced by a different "
+                    "measurement wearing the same name — the sealed artifact carries an immutable "
+                    "name and the separation is checked rather than remembered. AND THE ARCHIVED "
+                    "RECORD IS %s WHILE THE RUNNER NOW WRITES %s, deliberately and in the SAME "
+                    "COMMIT: a format-versioning law never met by a real successor is INHERITED "
+                    "rather than tested (L67), so the successor ships beside it and the sealed log "
+                    "must still read. An unknown format REFUSES rather than being guessed at, "
+                    "because a row read against the wrong field list is a table of numbers under "
+                    "the wrong names"
+                    % (ver, RB7.LOG_VERSION)
+                    if r_ok else "the attested record did not hold")
+        d_ok, rd = True, {}
+        try:
+            rd = AT.reading()
+            d_ok = (AT.the_numbers_are_derived_not_typed()
+                    and AT.the_penalty_is_a_constant_not_a_slope()
+                    and AT.the_direction_is_reported_with_the_verdict()
+                    and rd["penalty_median_ns"] > 0
+                    and rd["separated"] > 0 and rd["indistinguishable"] > 0
+                    and rd["executions"] >= 5 and rd["experiments"] == 17
+                    and rd == AT.reading())
+        except Exception:
+            d_ok = False
+        self.record("attest-reading", d_ok,
+                    "AND EVERY FIGURE IS DERIVED FROM THE SEALED BYTES RATHER THAN TYPED, which is "
+                    "L64 at the source: a typed number is a COPY, and a copy drifts from its origin "
+                    "the first time anyone edits either — checked by re-deriving and by asserting "
+                    "that no derived value appears as a literal in the module at all. THE RESULT, "
+                    "AND IT IS `measure`'S OWN PREDICTION MET BY A STOPWATCH: before any host ran "
+                    "anything, `measure` proved in exact op counts that moulding moves the "
+                    "INTERCEPT and CANNOT MOVE THE SLOPE. Measured across %d independent "
+                    "executions on the named host, the penalty `moulded` pays is %d ns at the "
+                    "median (%d-%d), %d ns shallow against %d ns deep — FLAT across a depth axis "
+                    "over which the replay work itself grows by nearly an order of magnitude. That "
+                    "is the intercept moving and the slope not moving, predicted in integers and "
+                    "confirmed in nanoseconds on a different machine. GRADED HONESTLY IN BOTH "
+                    "DIRECTIONS: %d of %d distinct experiments SEPARATE under URDRRPT1's "
+                    "between-execution floor and %d read INDISTINGUISHABLE — those are NOT upgraded "
+                    "here — while the direction holds in %d of %d execution-level pairs. `panel != "
+                    "scalar`: separation and direction are different facts and neither stands alone"
+                    % (rd.get("executions", -1), rd.get("penalty_median_ns", -1),
+                       rd.get("penalty_min_ns", -1), rd.get("penalty_max_ns", -1),
+                       rd.get("penalty_shallow_ns", -1), rd.get("penalty_deep_ns", -1),
+                       rd.get("separated", -1), rd.get("experiments", -1),
+                       rd.get("indistinguishable", -1),
+                       rd.get("pairs", 0) - rd.get("reversals", 0), rd.get("pairs", -1))
+                    if d_ok else "the attested reading did not hold")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -21069,7 +21162,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

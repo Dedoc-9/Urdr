@@ -4,7 +4,7 @@
 
 ## Index
 
-**203 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**204 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,
@@ -65,7 +65,9 @@
   `test_repeat` (variance has levels: 200 iterations in one process sample exactly one, so every
   quantile this tree has reported is UNDETERMINED until a second execution exists), `test_deeper`
   (a timing difference with no counted difference is UNEXPLAINED — Ousterhout's rule against the
-  ticks-8 band the op model says cannot exist).
+  ticks-8 band the op model says cannot exist), `test_attest` (a graduated claim is a COMMITTED
+  log the gate re-reads, with every number derived from the sealed bytes rather than typed — the
+  endpoint of the arc `measure` opened).
 - **MMO Stages C–E (scale, handoff, anti-cheat)** — `test_interest`, `test_layertheorem`,
   `test_hand`, `test_warden`, `test_crosswarden`, `test_dirward`, `test_wardhom`.
 - **MMO Stage H (the latency guarantee, time and space)** — `test_opcost`, `test_govern`,
@@ -93,7 +95,7 @@
 Every test here is designed to be able to go **red**: a test that cannot fail proves nothing
 (LESSONS L5, *validity not outcome*). The suites are falsifiers, not demonstrations — many
 document a defect that was injected, caught, and reverted, which is the evidence the harness
-actually bites. Together they are the `unit-falsifiers` row of the gate: **2748 unit falsifiers, 0 red**.
+actually bites. Together they are the `unit-falsifiers` row of the gate: **2772 unit falsifiers, 0 red**.
 This is the layer that makes "the checker rejects X" or "the placement reproduces Y" a
 *measured* claim rather than a hope — the negative space (`examples/rejected/`,
 `must_fail/`) is exercised here too.

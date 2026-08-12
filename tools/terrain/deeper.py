@@ -63,7 +63,11 @@ OUTCOMES = (EXPLAINED, UNEXPLAINED, NOT_ASKED)
 
 #: DECLARED. The quantities carried beside a timing. Exact integers, so equality is equality and no
 #: tolerance is applied — a tolerance on an exact count is a threshold nobody is watching.
-COUNTERS = ("blocks", "gc0", "gc1", "gc2")
+COUNTERS = ("blocks", "gc0", "gc1", "gc2", "peak")
+
+#: Counters a v1 log does not carry. Kept as data so a comparison against an ARCHIVED record uses
+#: the fields that record actually has, rather than reading absence as zero.
+ADDED_AFTER_V1 = ("peak",)
 
 
 class DeeperError(Exception):
@@ -75,11 +79,12 @@ class DeeperError(Exception):
 # ---- the probe ------------------------------------------------------------------------------------
 def counters():
     """A snapshot of the deeper quantities. Version-dependent BY NATURE, which is why nothing here
-    ever reaches a gate golden."""
+    ever reaches a gate golden. `peak` is filled by `count_delta`, which is the only place a
+    transient figure can be observed at all."""
     import gc
     import sys
     g0, g1, g2 = gc.get_count()
-    return {"blocks": sys.getallocatedblocks(), "gc0": g0, "gc1": g1, "gc2": g2}
+    return {"blocks": sys.getallocatedblocks(), "gc0": g0, "gc1": g1, "gc2": g2, "peak": 0}
 
 
 def count_delta(fn, *args, **kwargs):
@@ -97,11 +102,97 @@ def count_delta(fn, *args, **kwargs):
 
     The residue of the measurement itself is a CONSTANT present in every arm, exactly as `contact`'s
     read counter is, so it cancels in a comparison and is not subtracted out by hand."""
+    import tracemalloc
+    started = not tracemalloc.is_tracing()
+    if started:
+        tracemalloc.start()
+    tracemalloc.reset_peak()
     before = counters()
     held = fn(*args, **kwargs)
     after = counters()
+    _cur, peak = tracemalloc.get_traced_memory()
+    if started:
+        tracemalloc.stop()
     del held
-    return {k: after[k] - before[k] for k in COUNTERS}
+    out = {k: after[k] - before[k] for k in COUNTERS}
+    # `peak` IS THE CHURN THE RESIDENT COUNTER CANNOT SEE, and adding it was forced by a real
+    # reading: on the named host `blocks` was 4 against 4 in EVERY cell while the times differed by
+    # a constant microsecond, so the instrument was blind BY CONSTRUCTION — both arms return the
+    # same-shaped result and resident counting compares the shapes. It is a LEVEL over the call
+    # rather than a delta, so it is not differenced; `tracemalloc` is far too heavy for the timed
+    # loop and is used only here, off the clock.
+    out["peak"] = peak
+    return out
+
+
+def verdict_grouped(a_by_run, b_by_run, time_field="p50_ns"):
+    """THE ROW-AT-A-TIME FORM WAS WRONG ACROSS EXECUTIONS, AND USING IT FOUND THAT OUT. Handed five
+    executions, `verdict` reads whichever row comes first — and on the named host one cell reported
+    EXPLAINED purely because run 0's two timings happened to tie. A verdict that depends on which
+    row was listed first is not a verdict. So the comparison is made on MEDIANS across executions,
+    the same level `repeat` grades at, and the two modules now agree about what a measurement is."""
+    runs = sorted(set(a_by_run) & set(b_by_run))
+    if not runs:
+        raise DeeperError("the two arms share no execution — there is nothing to compare")
+
+    def med(rows, field):
+        vals = sorted(r[field] for r in rows if field in r)
+        if not vals:
+            return None
+        return vals[(len(vals) - 1) // 2]
+    a_rows = [a_by_run[r] for r in runs]
+    b_rows = [b_by_run[r] for r in runs]
+    ta, tb = med(a_rows, time_field), med(b_rows, time_field)
+    if ta is None or tb is None:
+        raise DeeperError(f"a row carries no {time_field} — there is no difference to explain")
+    shared = [k for k in COUNTERS
+              if med(a_rows, k) is not None and med(b_rows, k) is not None]
+    if not shared:
+        return NOT_ASKED
+    same_counts = all(med(a_rows, k) == med(b_rows, k) for k in shared)
+    return EXPLAINED if (ta != tb) != same_counts else UNEXPLAINED
+
+
+def the_grouped_form_does_not_depend_on_row_order():
+    """THE DEFECT, PINNED. Two executions whose per-row order differs must give the same verdict —
+    the row-at-a-time form does not, which is how a tie in one execution became an EXPLAINED."""
+    # THE REAL SHAPE: run 0 happens to TIE while the medians across executions do not. The row form
+    # sees the tie, calls it consistent with equal counts, and reports EXPLAINED. The grouped form
+    # sees a difference no counter accounts for and reports UNEXPLAINED. This is not a constructed
+    # edge case — it is the cell that reported EXPLAINED on the named host.
+    a = {0: {"p50_ns": 100, "blocks": 4}, 1: {"p50_ns": 100, "blocks": 4},
+         2: {"p50_ns": 100, "blocks": 4}}
+    b = {0: {"p50_ns": 100, "blocks": 4}, 1: {"p50_ns": 300, "blocks": 4},
+         2: {"p50_ns": 300, "blocks": 4}}
+    shuffled_a = {0: a[2], 1: a[0], 2: a[1]}
+    shuffled_b = {0: b[1], 1: b[2], 2: b[0]}
+    return (verdict_grouped(a, b) == UNEXPLAINED
+            and verdict_grouped(shuffled_a, shuffled_b) == UNEXPLAINED
+            and verdict(a[0], b[0]) == EXPLAINED)          # the row form, disagreeing
+
+
+def the_transient_counter_sees_what_resident_counting_cannot():
+    """WHY `peak` EXISTS, AND IT WAS FORCED BY A READING RATHER THAN CHOSEN. A callable that
+    allocates and FREES leaves `blocks` unchanged — resident counting compares what SURVIVES — while
+    `peak` records the high-water mark. On the named host `blocks` read 4 against 4 in every single
+    cell while the times differed by a constant microsecond: the instrument was blind by
+    construction, and reporting UNEXPLAINED was correct and useless."""
+    def churns():
+        for _ in range(200):
+            tmp = [object() for _ in range(50)]
+            del tmp
+        return None
+    d = count_delta(churns)
+    return d["blocks"] < 50 and d["peak"] > 1000
+
+
+def a_v1_record_is_compared_on_the_fields_it_has():
+    """L64, AT THE COMPARISON RATHER THAN THE PARSER. An archived log predates `peak`; comparing it
+    must use the counters IT carries instead of reading absence as zero, which would manufacture a
+    difference out of a field nobody measured."""
+    a = {0: {"p50_ns": 100, "blocks": 4, "gc0": 0}}
+    b = {0: {"p50_ns": 200, "blocks": 4, "gc0": 0}}
+    return verdict_grouped(a, b) == UNEXPLAINED and "peak" in ADDED_AFTER_V1
 
 
 def the_probe_bites():
@@ -217,12 +308,12 @@ def the_counter_list_is_declared_not_discovered():
     """`does_not_show`, made checkable. FOUR counters are named; the machine has many more, so a
     difference living in branch prediction, cache residency or scheduler placement reads
     UNEXPLAINED — correctly, because this instrument cannot see it."""
-    return (len(COUNTERS) == 4 and "blocks" in COUNTERS
+    return (len(COUNTERS) == 5 and "blocks" in COUNTERS and "peak" in COUNTERS
             and all(k in counters() for k in COUNTERS))
 
 
 # ---- scenes ------------------------------------------------------------------------------------------
-SCENES = ("verdicts", "probe")
+SCENES = ("verdicts", "probe", "grouped")
 
 
 def scene_case(name):
@@ -233,6 +324,11 @@ def scene_case(name):
             a_log_without_counters_reads_not_asked(),
             equal_times_with_unequal_counts_are_also_unexplained(),
             a_row_without_a_time_refuses(), the_three_verdicts_are_different_findings())
+    if name == "grouped":
+        return "orderfree=%s|transient=%s|v1=%s|added=%s" % (
+            the_grouped_form_does_not_depend_on_row_order(),
+            the_transient_counter_sees_what_resident_counting_cannot(),
+            a_v1_record_is_compared_on_the_fields_it_has(), ADDED_AFTER_V1)
     if name == "probe":
         # THE COUNTS THEMSELVES ARE NEVER DIGESTED — they are CPython-version dependent, and this
         # container is not the named host. Only the PROBE'S PROPERTIES are pinned.

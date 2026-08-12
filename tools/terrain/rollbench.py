@@ -72,8 +72,22 @@ MAGIC = "URDRRBN1"
 
 #: The row fields. NO VERDICT FIELD EXISTS — there is nowhere in this record for "faster" to live,
 #: which is the structural half of "emits evidence, never a verdict".
-ROW_FIELDS = ("representation", "workload", "depth", "ticks", "run", "pos", "n",
-              "p50_ns", "p95_ns", "p99_ns", "blocks", "gc0", "gc1", "gc2")
+#: THE FORMATS THIS TREE CAN STILL READ, and the reason there is more than one is L64: a SEALED
+#: RECORD IS A HISTORICAL ARTIFACT, and a tree that supersedes its own log format must still be able
+#: to read the evidence it already committed. Without this, adding one field silently converts every
+#: archived measurement into an unparseable file — the record becoming a forgery under maintenance.
+#: A version is added here; it is never edited, and an unknown one REFUSES rather than being guessed.
+ROW_FIELDS_BY_VERSION = {
+    "v1": ("representation", "workload", "depth", "ticks", "run", "pos", "n",
+           "p50_ns", "p95_ns", "p99_ns", "blocks", "gc0", "gc1", "gc2"),
+    "v2": ("representation", "workload", "depth", "ticks", "run", "pos", "n",
+           "p50_ns", "p95_ns", "p99_ns", "blocks", "gc0", "gc1", "gc2", "peak"),
+}
+
+#: What the RUNNER WRITES. Reading is plural; writing is singular.
+LOG_VERSION = "v2"
+
+ROW_FIELDS = ROW_FIELDS_BY_VERSION[LOG_VERSION]
 
 MEASURED = "MEASURED"
 NOT_MEASURED = "NOT_MEASURED"
@@ -277,7 +291,7 @@ def make_log(host, python, rows, plan_dig=None, machine="", note="", conditions=
     appended it to the declaration and thereby broke the only field anything checks."""
     dig = plan_dig or plan_digest()
     cond = dict(conditions or {})
-    body = [f"{MAGIC} rollbench v1", f"host {host}", f"machine {machine or observed_machine()}"]
+    body = [f"{MAGIC} rollbench {LOG_VERSION}", f"host {host}", f"machine {machine or observed_machine()}"]
     for k in ("power", "scheduler"):
         body.append(f"cond {k} {cond.get(k, '').strip() or '-'}")
     body.append(f"note {str(note).strip() or '-'}")
@@ -298,6 +312,13 @@ def parse_log(text):
     lines = [ln for ln in text.splitlines() if ln.strip()]
     if not lines or not lines[0].startswith(MAGIC):
         raise RollbenchError("not a rollbench log")
+    ver = lines[0].split()[-1]
+    if ver not in ROW_FIELDS_BY_VERSION:
+        raise RollbenchError(f"log format {ver!r} is not one this tree can read "
+                             f"({', '.join(sorted(ROW_FIELDS_BY_VERSION))}) — an unknown format is "
+                             f"REFUSED rather than guessed at, because a row read against the wrong "
+                             f"field list is a table of numbers under the wrong names")
+    fields = ROW_FIELDS_BY_VERSION[ver]
     if not lines[-1].startswith("digest "):
         raise RollbenchError("the log carries no digest — an unsealed log is not evidence")
     body = "\n".join(lines[:-1]) + "\n"
@@ -307,14 +328,15 @@ def parse_log(text):
         raise RollbenchError(f"the digest does not match the body ({got[:12]} vs {want[:12]}) — "
                              f"a log that has been edited is not a log")
     out = {"host": "", "machine": "", "python": "", "plan": "", "note": "", "instrument": "",
-           "cond": {}, "rows": []}
+           "version": ver, "cond": {}, "rows": []}
     for ln in lines[1:-1]:
         key, _sp, rest = ln.partition(" ")
         if key == "row":
             vals = rest.split()
-            if len(vals) != len(ROW_FIELDS):
-                raise RollbenchError(f"row {rest!r} has {len(vals)} fields, not {len(ROW_FIELDS)}")
-            out["rows"].append(dict(zip(ROW_FIELDS, vals)))
+            if len(vals) != len(fields):
+                raise RollbenchError(f"row {rest!r} has {len(vals)} fields, not {len(fields)} "
+                                     f"({ver})")
+            out["rows"].append(dict(zip(fields, vals)))
         elif key == "cond":
             ck, _s2, cv = rest.strip().partition(" ")
             out["cond"][ck] = "" if cv.strip() == "-" else cv.strip()
@@ -597,7 +619,8 @@ def _synthetic_rows(n=3):
         out.append({"representation": rep, "workload": wl, "depth": d,
                     "ticks": MS.effective_ticks(wl, d), "run": 0, "pos": i, "n": 100,
                     "p50_ns": 1000 + i, "p95_ns": 2000 + i, "p99_ns": 3000 + i,
-                    "blocks": 40 + i, "gc0": 7 + i, "gc1": 0, "gc2": 0})
+                    "blocks": 40 + i, "gc0": 7 + i, "gc1": 0, "gc2": 0,
+                    "peak": 5000 + i})
     return out
 
 

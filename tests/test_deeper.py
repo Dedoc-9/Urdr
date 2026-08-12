@@ -61,6 +61,23 @@ class TheProbe(unittest.TestCase):
         self.assertGreater(d["blocks"], 100)
         self.assertEqual(sorted(d), sorted(DP.COUNTERS))
 
+    def test_the_transient_counter_sees_churn_the_resident_one_cannot(self):
+        """WHY `peak` EXISTS, and it was forced by a reading: on the named host `blocks` was 4
+        against 4 in every cell while the times differed by a constant microsecond."""
+        self.assertTrue(DP.the_transient_counter_sees_what_resident_counting_cannot())
+
+    def test_the_grouped_form_does_not_depend_on_row_order(self):
+        """The row-at-a-time form read whichever row came first; across five executions one cell
+        reported EXPLAINED purely because run 0's two timings tied."""
+        self.assertTrue(DP.the_grouped_form_does_not_depend_on_row_order())
+
+    def test_an_archived_record_is_compared_on_the_fields_it_has(self):
+        self.assertTrue(DP.a_v1_record_is_compared_on_the_fields_it_has())
+
+    def test_grouped_refuses_arms_sharing_no_execution(self):
+        with self.assertRaises(DP.DeeperError):
+            DP.verdict_grouped({0: {"p50_ns": 1}}, {1: {"p50_ns": 2}})
+
     def test_a_row_without_a_time_refuses(self):
         self.assertTrue(DP.a_row_without_a_time_refuses())
         with self.assertRaises(DP.DeeperError) as ctx:
@@ -75,7 +92,8 @@ class TheProbe(unittest.TestCase):
 class TheBoundIsDeclared(unittest.TestCase):
     def test_the_counter_list_is_declared(self):
         self.assertTrue(DP.the_counter_list_is_declared_not_discovered())
-        self.assertEqual(DP.COUNTERS, ("blocks", "gc0", "gc1", "gc2"))
+        self.assertEqual(DP.COUNTERS, ("blocks", "gc0", "gc1", "gc2", "peak"))
+        self.assertEqual(DP.ADDED_AFTER_V1, ("peak",))
 
     def test_no_count_reaches_a_golden(self):
         """CPython-version dependent by nature: this container runs a different interpreter from
