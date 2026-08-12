@@ -91,18 +91,80 @@ class TheOwnerIsExempt(unittest.TestCase):
 
 class ItCatchesTheRealOne(unittest.TestCase):
     """THE MEASUREMENT THAT MAKES THIS MEASURED RATHER THAN DECLARED: run the sweep against the
-    ACTUAL shipped source of `rollbench` before this rung repaired it."""
+    ACTUAL shipped source that carried the defect.
 
-    def test_the_shipped_v1_1_reads_stale_at_the_real_line(self):
-        got = subprocess.run(["git", "show", "HEAD:tools/terrain/rollbench.py"],
-                             capture_output=True, text=True, cwd=_ROOT)
-        if got.returncode != 0 or "named_host_ok" not in got.stdout:
-            self.skipTest("no git object for the pre-repair source in this checkout")
-        src = [t for t in RT._sources() if t[0] != "rollbench"]
-        src.append(("rollbench", "<pre-repair>", got.stdout))
-        self.assertEqual(RT.verdict("sealframe.named_host_ok", src), RT.STALE)
-        callers = RT.callers("named_host_ok", "sealframe", src)
-        self.assertEqual([m for m, _ln in callers], ["rollbench"])
+    AND THE FIRST VERSION OF THIS CLASS READ `HEAD`, WHICH IS THE DEFECT IT NOW PINS AGAINST. It
+    passed on the machine where it was written — the rung was not yet committed there, so HEAD
+    still held the defective file — and inverted the instant the rung landed, because HEAD then
+    held the REPAIRED one. It went red on the operator's machine and COULD NOT have gone red on
+    the author's. A falsifier anchored to a moving reference passes only from where it was
+    written."""
+
+    def test_the_pinned_pre_repair_source_reads_stale(self):
+        state = RT.historical_instance()
+        if state == RT.UNAVAILABLE:
+            self.skipTest(f"git cannot produce {RT.PRE_REPAIR[0]}:{RT.PRE_REPAIR[1]} here")
+        self.assertEqual(state, RT.CAUGHT)
+
+    def test_the_reference_is_a_fixed_commit_sealed_by_content(self):
+        """`HEAD` is not a fact about the defect; it is a fact about the checkout."""
+        self.assertTrue(RT.the_reference_is_pinned_not_moving())
+        rev, path, want, owner, qualified = RT.PRE_REPAIR
+        self.assertNotIn(rev.upper(), ("HEAD", "@"))
+        self.assertEqual(len(want), 64)
+        self.assertEqual(owner, "rollbench")
+        self.assertEqual(qualified, "sealframe.named_host_ok")
+        self.assertTrue(path.endswith("rollbench.py"))
+
+    def test_a_substituted_artifact_refuses_rather_than_passing(self):
+        """If git hands back something, it must be the pinned BYTES. An artifact that has moved is
+        not evidence about history, and substituting one silently is a forgery."""
+        real = RT.PRE_REPAIR
+        try:
+            RT.PRE_REPAIR = (real[0], real[1], "0" * 64, real[3], real[4])
+            got = subprocess.run(["git", "show", f"{real[0]}:{real[1]}"],
+                                 capture_output=True, cwd=_ROOT)
+            if got.returncode != 0:
+                self.skipTest("no git object here")
+            with self.assertRaises(RT.RetireError) as ctx:
+                RT.historical_instance()
+            self.assertEqual(ctx.exception.code, "RETIRE-REFUSE")
+        finally:
+            RT.PRE_REPAIR = real
+
+    def test_absent_and_failed_are_different_findings(self):
+        """A shallow clone must not be able to turn this into a quiet pass: UNAVAILABLE, MISSED and
+        CAUGHT are three states, and only one of them is evidence."""
+        self.assertEqual(len({RT.CAUGHT, RT.MISSED, RT.UNAVAILABLE}), 3)
+        self.assertIn(RT.historical_instance(), (RT.CAUGHT, RT.UNAVAILABLE))
+
+    def test_the_self_matching_guard_is_not_a_loophole(self):
+        """The `HEAD` scanner contains the token it forbids — the FOURTH self-matching guard in
+        this arc. The exclusion is BY EXACT FUNCTION, so a token smuggled in anywhere else still
+        reddens: planted and proved."""
+        with open(os.path.join(_ROOT, "tools", "terrain", "retire.py"), encoding="utf-8") as fh:
+            src = fh.read()
+        planted = src.replace("def historical_instance():\n",
+                              'def historical_instance():\n    _x = "HEAD:some/path.py"\n', 1)
+        self.assertNotEqual(planted, src)
+        import types
+        mod = types.ModuleType("retire_plant")
+        mod.__file__ = os.path.join(_ROOT, "tools", "terrain", "retire.py")
+        exec(compile(planted, mod.__file__, "exec"), mod.__dict__)   # noqa: S102
+        # the planted module reads ITS OWN source off disk, which is the honest one, so assert on
+        # the predicate applied to the planted TEXT instead — the scanner, run over planted source.
+        import ast as _ast
+        tree = _ast.parse(planted)
+        mine = set()
+        for f in _ast.walk(tree):
+            if isinstance(f, _ast.FunctionDef) \
+                    and f.name == "the_reference_is_pinned_not_moving":
+                mine = {id(x) for x in _ast.walk(f)}
+        hits = [n for n in _ast.walk(tree) if id(n) not in mine
+                and isinstance(n, _ast.Constant) and isinstance(n.value, str)
+                and "HEAD:" in n.value]
+        self.assertEqual(len(hits), 1)
+        self.assertTrue(RT.the_reference_is_pinned_not_moving())
 
 
 class TheRegisterIsAFloor(unittest.TestCase):

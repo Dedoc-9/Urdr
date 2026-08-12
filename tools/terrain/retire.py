@@ -73,6 +73,30 @@ OUTCOMES = (CLEAN, STALE, UNNAMED, VACUOUS)
 #: reddened on it would delete the evidence for the retirement it is enforcing.
 SWEPT = ("terrain", "netcode", "physics")
 
+CAUGHT = "CAUGHT"
+MISSED = "MISSED"
+UNAVAILABLE = "UNAVAILABLE"
+
+#: THE HISTORICAL INSTANCE, PINNED BY COMMIT AND BY CONTENT — AND THE FIRST VERSION OF THIS READ
+#: `HEAD`, WHICH IS WHY THE PIN EXISTS.
+#:
+#: The strongest evidence this module has is that it catches the defect in the SOURCE THAT CARRIED
+#: IT rather than in a reconstruction of it. v1 obtained that source with
+#: `git show HEAD:tools/terrain/rollbench.py` and passed — on the machine where it was WRITTEN,
+#: because there the rung was not yet committed and HEAD still held the defective file. The instant
+#: the rung landed, HEAD became the REPAIRED source, the sweep read CLEAN, and the assertion
+#: inverted. It went red on the operator's machine and could not have gone red on mine.
+#:
+#: A FALSIFIER ANCHORED TO A MOVING REFERENCE PASSES ONLY FROM WHERE IT WAS WRITTEN. `HEAD` is not
+#: a fact about the defect; it is a fact about the checkout. So the reference is a FIXED commit —
+#: `3f7c1fd`, `rollbench` v1 as pushed — sealed by the SHA-256 of its blob, so the artifact cannot
+#: drift and a substituted one is a refusal rather than a pass. Line endings are normalised to LF
+#: before digesting: `.gitattributes` forces `eol=lf` today, and a seal that depended on that
+#: holding would be measuring the checkout again.
+PRE_REPAIR = ("3f7c1fd", "tools/terrain/rollbench.py",
+              "1521976cbe129bf865b6ed95dbebbe1ee62eebdbd956cc01e2cc7a07dbbdd86d",
+              "rollbench", "sealframe.named_host_ok")
+
 
 class RetireError(Exception):
     def __init__(self, message):
@@ -269,6 +293,70 @@ def every_retirement_carries_a_reason():
                              for m in reg for v in reg[m].values())
 
 
+def historical_instance():
+    """THE STRONGEST EVIDENCE HERE IS NOT A PLANT: the sweep run against the ACTUAL SHIPPED SOURCE
+    that carried the defect. CAUGHT / MISSED / UNAVAILABLE, never a bare boolean, because "the
+    object is not in this checkout" and "the detector failed" are different findings and a shallow
+    clone must not be able to quietly turn this into a pass.
+
+    A substituted artifact REFUSES rather than returning UNAVAILABLE — if git hands back something,
+    it must be the pinned bytes, or the evidence is not the evidence."""
+    import subprocess
+    rev, path, want, owner_mod, qualified = PRE_REPAIR
+    root = _os.path.dirname(_os.path.dirname(_HERE))
+    try:
+        got = subprocess.run(["git", "show", f"{rev}:{path}"], capture_output=True, cwd=root)
+    except Exception:                                       # noqa: BLE001  no git here
+        return UNAVAILABLE
+    if got.returncode != 0 or not got.stdout:
+        return UNAVAILABLE
+    raw = got.stdout.replace(b"\r\n", b"\n")
+    dig = hashlib.sha256(raw).hexdigest()
+    if dig != want:
+        raise RetireError(f"the pinned pre-repair blob {rev}:{path} hashes to {dig[:12]}, not "
+                          f"{want[:12]} — a historical artifact that has moved is not evidence "
+                          f"about history, and substituting one silently is the forgery this seal "
+                          f"exists to refuse")
+    src = [t for t in _sources() if t[0] != owner_mod]
+    src.append((owner_mod, f"<{rev}:{path}>", raw.decode("utf-8")))
+    if verdict(qualified, src) != STALE:
+        return MISSED
+    return CAUGHT if [m for m, _l in callers(qualified.split(".")[1], qualified.split(".")[0],
+                                             src)] == [owner_mod] else MISSED
+
+
+def the_reference_is_pinned_not_moving():
+    """THE LESSON FROM THE DEFECT ABOVE, MECHANIZED SO IT CANNOT RECUR HERE. The pinned reference
+    must be a FIXED revision, and this module may not name `HEAD` in a git argument at all —
+    checked on the SOURCE, because a behavioural test cannot stop the next author reaching for the
+    convenient thing. `HEAD` is not a fact about the defect, it is a fact about the checkout."""
+    rev, _p, want, _o, _q = PRE_REPAIR
+    if rev.upper() in ("HEAD", "@") or not want or len(want) != 64:
+        return False
+    with open(_os.path.abspath(__file__), encoding="utf-8") as fh:
+        tree = ast.parse(fh.read())
+    # THIS GUARD MATCHES ITSELF, FOR THE FOURTH TIME IN THIS ARC — after `lift`'s `exp(`,
+    # `measure`'s clock scan and `rollbench`'s `no_verdict_is_emitted`. A predicate that forbids a
+    # token cannot state what it forbids without writing it, and the exclusion is BY EXACT
+    # FUNCTION, so a second scanner smuggling `HEAD` in elsewhere is still caught. The pattern is
+    # regular enough now to be worth naming on sight rather than rediscovering each time.
+    mine = set()
+    for f in ast.walk(tree):
+        if isinstance(f, ast.FunctionDef) and f.name == "the_reference_is_pinned_not_moving":
+            mine = {id(x) for x in ast.walk(f)}
+    for n in ast.walk(tree):
+        if id(n) in mine:
+            continue
+        if isinstance(n, ast.Constant) and isinstance(n.value, str) and "HEAD:" in n.value:
+            return False
+        if isinstance(n, ast.JoinedStr):
+            for part in n.values:
+                if isinstance(part, ast.Constant) and isinstance(part.value, str) \
+                        and "HEAD" in part.value:
+                    return False
+    return True
+
+
 def the_register_is_declared_not_discovered():
     """`does_not_show`, made checkable rather than argued. Retirement is the OWNER'S declaration:
     this sweep reads registers, and a law dead in a maintainer's head is invisible to it. Asserted
@@ -333,6 +421,8 @@ if __name__ == "__main__":
     print("empty register vacuous:", an_empty_register_is_vacuous())
     print("owner may still call  :", the_owner_may_still_call_its_own_retired_law())
     print("every reason present  :", every_retirement_carries_a_reason())
+    print("historical instance   :", historical_instance())
+    print("reference is pinned   :", the_reference_is_pinned_not_moving())
     print("declared not discovered:", the_register_is_declared_not_discovered())
     for n in SCENES:
         print(n, scene_result(n))

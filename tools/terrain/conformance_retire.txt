@@ -28,9 +28,22 @@
 # may call a retired law to pin why it was retired, and reddening on that would delete the
 # evidence for the retirement being enforced. `declared != discovered`.
 #
-# DECLARED: the register's membership, and the SWEPT directory list. Both are choices, pinned
-# as data so the boundary is a floor rather than a survey.
+# DECLARED: the register's membership, the SWEPT directory list, and the PRE_REPAIR pin.
+# All three are choices, pinned as data so the boundary is a floor rather than a survey.
+#
+# RE-PINNED: THE HISTORICAL REFERENCE WAS `HEAD`, WHICH IS A FACT ABOUT THE CHECKOUT AND NOT ABOUT
+# THE DEFECT. The strongest evidence here is that the sweep catches the defect in the SOURCE THAT
+# CARRIED IT; v1 fetched that source with `git show HEAD:...` and passed ON THE MACHINE WHERE IT WAS
+# WRITTEN, because the rung was not yet committed there. The instant it landed, HEAD became the
+# REPAIRED file, the sweep read CLEAN, and the assertion inverted — red on the operator's machine,
+# and incapable of going red on the author's. A FALSIFIER ANCHORED TO A MOVING REFERENCE PASSES ONLY
+# FROM WHERE IT WAS WRITTEN. The reference is now a FIXED commit sealed by the SHA-256 of its blob,
+# so a substituted artifact REFUSES rather than passing, and UNAVAILABLE (no such object here) is
+# kept distinct from MISSED (the detector failed) so a shallow clone cannot buy a quiet pass.
+#
+# The `plants` digest is UNCHANGED by that repair, which is the point: the five plants never read
+# git. Only `sweep` moves, because the module gained two callables and the floor counts them.
 
-sweep 507f68199da7ca29764fedf2ae719af5fb2b3d7fa9ffdd385b4e9df472b25d2c
+sweep 6a8bc45dd59c0eb2837a9f063190645a4214ffedc65a826ef4a3c7ac972f06be
 plants c168fbb2ad07ddebc736e432c4ffb2101e82dc29ac3b9bc286b8cf5c9acfe277
-retire 2810693eea586ccba2644e2a23af282e2fa88a7c8538ea2fb844b106e974f1ff
+retire eebb61ab4095dd968de1c5f45ac3d88383519365549da4ff732e96547a40144c

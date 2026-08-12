@@ -17018,7 +17018,7 @@ class Gate:
                     "invisible here — `declared != discovered`"
                     % (len(sw), floor[1] if floor else -1, floor[2] if floor else -1)
                     if s_ok else "the retirement sweep did not hold")
-        p_ok = True
+        p_ok, hist = True, "?"
         try:
             p_ok = (RT.the_sweep_catches_a_cross_module_call()
                     and RT.the_sweep_reads_syntax_not_prose()
@@ -17033,18 +17033,16 @@ class Gate:
                     and RT.verdict("sealframe.named_host_ok", RT._plant("c", src)) == RT.STALE
                     and RT.verdict("sealframe.named_host_ok") == RT.CLEAN)
             # AND IT CATCHES THE REAL ONE: the sweep run against the ACTUAL shipped pre-repair
-            # source names `rollbench` and no one else. Skipped where git has no such object.
-            import subprocess as _sp
-            got = _sp.run(["git", "show", "HEAD:tools/terrain/rollbench.py"],
-                          capture_output=True, text=True, cwd=ROOT)
-            if got.returncode == 0 and "named_host_ok" in got.stdout:
-                pre = [t for t in RT._sources() if t[0] != "rollbench"]
-                pre.append(("rollbench", "<pre-repair>", got.stdout))
-                p_ok = (p_ok and RT.verdict("sealframe.named_host_ok", pre) == RT.STALE
-                        and [m for m, _l in RT.callers("named_host_ok", "sealframe", pre)]
-                        == ["rollbench"])
+            # source names `rollbench` and no one else. THIS READ `HEAD` UNTIL IT REDDENED ON AN
+            # OPERATOR'S MACHINE — a moving reference is a fact about the CHECKOUT, so the
+            # assertion held only where it was written and inverted the instant the rung landed.
+            # The reference is now a FIXED commit sealed by content; UNAVAILABLE is REPORTED in the
+            # row rather than silently passed.
+            hist = RT.historical_instance()
+            p_ok = p_ok and hist in (RT.CAUGHT, RT.UNAVAILABLE) \
+                and RT.the_reference_is_pinned_not_moving()
         except Exception:
-            p_ok = False
+            hist, p_ok = "ERROR", False
         self.record("retire-plants", p_ok,
                     "FOUR VERDICTS, FOUR DIFFERENT FINDINGS, EACH PLANTED SEPARATELY. A replanted "
                     "cross-module call reads STALE — and it is not a hypothetical shape but THE "
@@ -17058,8 +17056,18 @@ class Gate:
                     "RETAINED for a full §3 protocol claim, so those calls are found and are "
                     "LAWFUL — a sweep counting them would have no clean state to report and would "
                     "be switched off. THE STRONGEST ROW HERE IS NOT A PLANT: run the sweep against "
-                    "the ACTUAL shipped pre-repair source and it names `rollbench`, alone, at the "
-                    "line this rung removed"
+                    "the ACTUAL shipped pre-repair source — commit %s, pinned by the SHA-256 of "
+                    "its blob — and it names `rollbench`, alone, at the line this rung removed "
+                    "(read here as %s). AND THAT REFERENCE USED TO BE `HEAD`, WHICH IS A FACT "
+                    "ABOUT THE CHECKOUT RATHER THAN ABOUT THE DEFECT: the assertion passed on the "
+                    "machine where it was written, because the rung was not committed there yet, "
+                    "and INVERTED the instant it landed — it went red on an operator's machine and "
+                    "could not have gone red on its author's. A FALSIFIER ANCHORED TO A MOVING "
+                    "REFERENCE PASSES ONLY FROM WHERE IT WAS WRITTEN. A substituted artifact now "
+                    "REFUSES rather than passing, and UNAVAILABLE (no such object in this "
+                    "checkout) stays distinct from MISSED (the detector failed) so a shallow clone "
+                    "cannot buy a quiet pass"
+                    % (RT.PRE_REPAIR[0], hist)
                     if p_ok else "the retirement plants did not bite")
 
     def rollbench(self):
