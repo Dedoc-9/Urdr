@@ -1,0 +1,33 @@
+# URDRMSR1 conformance goldens — A PERFORMANCE CLAIM IS VALID ONLY WHEN ITS WORKLOAD, HOST,
+# DENOMINATOR AND BASELINE ARE NAMED. `mould` made the snapshot smaller; the tempting next sentence
+# is "and therefore rollback is faster", and it is NOT AVAILABLE — moulding trades integers for a
+# derivation and which wins is a wall-clock question elegance is not entitled to answer.
+#
+# THIS CONTAINER IS NOT A NAMED HOST. No time is measured here and none is claimed: there is no
+# clock in the module (checked by walking the AST, because a text scan would find its own guard
+# list) and no timed figure in this file. What ships is the LAW, the PLAN, and the op-count
+# decomposition that narrows what the stopwatch still has to decide.
+#
+# THE RESULT THAT NEEDED NO STOPWATCH: MOULDING MOVES THE INTERCEPT AND CANNOT MOVE THE SLOPE. The
+# three representations differ only in the restore; the per-tick replay is identical work. So a
+# host measurement reporting different SLOPES is measuring something other than the record.
+#
+# DECLARED: the four claim fields themselves, and the four workloads — both are CHOICES,
+# pinned as data so a claim cannot be re-graded against a field list or a fixture family
+# nobody is watching. What is measured is that the law BITES on each of them.
+#
+# GRADE: MEASURED for the admission law (each missing field refused separately, a timed claim
+# without a host log refused, a complete claim admitted), the op-count decomposition, the exact
+# per-actor trade, the shared-slope result, the four workloads proved DISTINCT by their contact
+# state censuses, and the three representations proved to store what they claim. NOT_MEASURED:
+# every wall-clock figure, structurally.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: that moulding is faster OR slower — that is the question this rung EXISTS to hand
+# to a host with its terms fixed; that op counts predict time (they bound what can differ, which is
+# a weaker and true claim); that these four workloads are representative of play.
+
+law 83fde313be9cc4855668eb0d02a99d4566e2c1bc045dd3122e04bbab50e1c69e
+trade 6b95403d8c1ae99f18f48064ece9e7c523aed1c6232fd086dd38d2c503c5a78e
+slope 7a6d756cc63a584b3dc4ad381ef196602ff92343cb35085dccd3d7d89839f050
+plan cce869d8b5a64644b6333e8a2bf6094fce2f4a77adc33b342505b5adf2cb3517

@@ -215,6 +215,7 @@ STAGE_ORDER = (
     "vouch",
     "retain",
     "mould",
+    "measure",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16839,6 +16840,129 @@ class Gate:
                     "whole point, since orthogonality is what the earlier rows were testing"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def measure(self):
+        """A PERFORMANCE CLAIM IS VALID ONLY WHEN ITS TERMS ARE NAMED (URDRMSR1). Rows: law (the
+        admission door and the structural absence of any clock), shape (the op-count decomposition,
+        the exact trade, the shared slope, and the controls that make a host result readable)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import measure as MS
+        except Exception as exc:
+            for r in ("law", "shape"):
+                self.record(f"measure-{r}", False, f"import failed (measure): {exc}")
+            return
+        good = {"workload": "alternating", "host": "named-host", "denominator": "ints/restore",
+                "baseline": "flat", "units": "ints"}
+        l_ok = True
+        try:
+            l_ok = MS.admit_claim(good) and MS.claim_fault(good) == ""
+            for f in MS.CLAIM_FIELDS:                     # each omission refuses SEPARATELY
+                bad = dict(good)
+                bad.pop(f)
+                try:
+                    MS.admit_claim(bad)
+                    l_ok = False
+                except MS.MeasureError as _e:
+                    l_ok = l_ok and _e.code == "MEASURE-REFUSE" and f in str(_e)
+            try:
+                MS.admit_claim(dict(good, host="   "))
+                l_ok = False
+            except MS.MeasureError:
+                pass
+            for u in MS.TIMED_UNITS:                      # a TIMED claim needs a host log
+                try:
+                    MS.admit_claim(dict(good, units=u))
+                    l_ok = False
+                except MS.MeasureError as _e:
+                    l_ok = l_ok and "host log" in str(_e)
+            l_ok = l_ok and MS.admit_claim(dict(good, units="ms", host_log="spec/attest/x.txt"))
+            try:
+                MS.admit_claim("fast")
+                l_ok = False
+            except MS.MeasureError:
+                pass
+            l_ok = l_ok and MS.no_wall_clock_is_claimed() and MS.the_plan_names_its_terms()
+            p = MS.bench_plan()
+            l_ok = (l_ok and p["status"].startswith("NOT_MEASURED") and p["baseline"] == "flat"
+                    and p["quantiles"] == ("p50", "p95", "p99") and p["depths"] == MS.DEPTHS
+                    and "ms_per_rollback" in p["denominators"])
+            l_ok = l_ok and all(MS.scene_result(x) == MS.golden(x) for x in MS.SCENES)
+        except Exception:
+            l_ok = False
+        self.record("measure-law", l_ok,
+                    "A PERFORMANCE CLAIM IS VALID ONLY WHEN ITS WORKLOAD, HOST, DENOMINATOR AND "
+                    "BASELINE ARE NAMED, and a claim missing one of the four is not a WEAK claim, "
+                    "it is NOT A CLAIM — there is nothing to reproduce and nothing to compare "
+                    "against. Each omission is proved to refuse SEPARATELY (an empty string is not "
+                    "a named host either) and a COMPLETE claim is admitted, without which the law "
+                    "would be a wall rather than a rule. AND A TIMED CLAIM MUST CITE A HOST LOG: "
+                    "counts may be asserted from a gate run and WALL-CLOCK MAY NOT, because a "
+                    "millisecond from an unnamed machine under an unknown scheduler is not a "
+                    "measurement — that is L65's 'counts on-gate, wall-clock off' made a DOOR "
+                    "rather than a habit, checked for every timed unit. THIS CONTAINER IS NOT A "
+                    "NAMED HOST and the module reflects that STRUCTURALLY: it imports no clock and "
+                    "calls none, checked by walking the AST rather than scanning the text — a text "
+                    "scan would find its own guard list, which is the `authority-reads-code` "
+                    "defect inside the checker that forbids it. The PLAN satisfies the law it "
+                    "serves, naming the baseline, the denominators and the p50/p95/p99 quantiles "
+                    "IN ADVANCE so a result cannot be reported against a denominator chosen after "
+                    "seeing it, and it carries the verdict NOT_MEASURED until a host log exists"
+                    if l_ok else "the performance-claim admission law did not hold")
+        s_ok, tbl, sl = True, {}, {}
+        try:
+            s_ok = MS.the_workloads_differ() and MS.the_trade_is_one_for_one()
+            holds, sl = MS.moulding_moves_the_intercept_only()
+            s_ok = s_ok and holds
+            s_ok = (s_ok and len({sl[r]["slope_reads_per_tick"] for r in MS.REPRESENTATIONS}) == 1
+                    and len({(sl[r]["intercept_ints"], sl[r]["intercept_reads"])
+                             for r in MS.REPRESENTATIONS}) == 3)
+            iso, tbl = MS.the_narrowed_control_isolates_the_derivation()
+            s_ok = (s_ok and iso and tbl["narrowed"]["ints"] == tbl["moulded"]["ints"]
+                    and tbl["narrowed"]["reads"] == 0 and tbl["moulded"]["reads"] > 0
+                    and tbl["flat"]["ints"] > tbl["moulded"]["ints"])
+            rows = MS.the_exact_trade()
+            s_ok = s_ok and {r[0] for r in rows} == {"T", "A"}
+            s_ok = s_ok and all((r[1], r[2]) == (0, 1) for r in rows if r[0] == "A")
+            s_ok = (s_ok and set(MS.state_census("all_grounded")) == {"TERRAIN_GROUNDED"}
+                    and len({tuple(sorted(MS.state_census(w).items()))
+                             for w in MS.WORKLOADS}) == len(MS.WORKLOADS))
+            for bad in (lambda: MS.workload("nope"), lambda: MS.scene_case("nope")):
+                try:
+                    bad()
+                    s_ok = False
+                except MS.MeasureError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("measure-shape", s_ok,
+                    "THE PART OF THE ANSWER THAT NEEDED NO STOPWATCH: MOULDING MOVES THE INTERCEPT "
+                    "AND CANNOT MOVE THE SLOPE. A rollback of depth R costs restore + R*tick, and "
+                    "the three representations differ ONLY in the restore because `to_vouch` hands "
+                    "`stride` the same flat state either way — flat %s, moulded %s, narrowed %s, "
+                    "one shared slope and three distinct intercepts. So a host measurement "
+                    "reporting DIFFERENT SLOPES is measuring something other than the record, "
+                    "which is a falsifiable statement about the BENCHMARK rather than a hope about "
+                    "the result. THE EXACT TRADE, per actor per restore: a grounded actor saves ONE "
+                    "INTEGER and pays ONE TERRAIN READ, an airborne actor pays the read and SAVES "
+                    "NOTHING — not a defect but the price of a shape over a policy, and the reason "
+                    "the benefit is a function of the WORKLOAD and a claim must name one. THREE "
+                    "CONTROLS, and the third is what makes the experiment mean anything: "
+                    "`narrowed` stores the SAME integers as moulded and derives nothing, its "
+                    "widths arriving through a side channel DELIBERATELY NOT COUNTED — an unfair "
+                    "control by construction and an UPPER BOUND on the memory-only benefit, with "
+                    "the gap to `moulded` being exactly what the derivation costs. Without it a "
+                    "host result showing moulded faster could not distinguish 'fewer integers "
+                    "helped' from 'the derivation was free'. AND FOUR WORKLOADS PROVED DISTINCT by "
+                    "their contact-state censuses, because a family whose members exercise the "
+                    "same states is one workload wearing four names and the saving would then be a "
+                    "property of the fixture"
+                    % tuple((sl[r]["intercept_ints"], sl[r]["intercept_reads"],
+                             sl[r]["slope_reads_per_tick"]) for r in MS.REPRESENTATIONS)
+                    if s_ok else "the op-count decomposition did not hold")
+
     def mould(self):
         """THE RECORD TAKES THE SHAPE OF THE STATE (URDRMLD1). Rows: equivalence (the moulded
         record resumes bit-identically and the saving is counted), shape (derived not tagged, the
@@ -20169,7 +20293,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
