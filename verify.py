@@ -216,6 +216,7 @@ STAGE_ORDER = (
     "retain",
     "mould",
     "measure",
+    "rollbench",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16840,6 +16841,145 @@ class Gate:
                     "whole point, since orthogonality is what the earlier rows were testing"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def rollbench(self):
+        """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
+        severance, the seal, the quantile ranks), provenance (the named-host law in both
+        directions, the two questions kept apart, and the structural absence of a verdict)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import rollbench as RB
+            import measure as MS2
+            import sealframe as SF2
+        except Exception as exc:
+            for r in ("log", "provenance"):
+                self.record(f"rollbench-{r}", False, f"import failed (rollbench): {exc}")
+            return
+        l_ok, ncells = True, 0
+        try:
+            ncells = len(RB.cells())
+            l_ok = (RB.plan() == MS2.bench_plan()
+                    and ncells == len(MS2.REPRESENTATIONS) * len(MS2.WORKLOADS) * len(MS2.DEPTHS))
+            real = MS2.bench_plan                      # SEVERANCE: the plan is READ, not chosen
+            try:
+                MS2.bench_plan = lambda: (_ for _ in ()).throw(RuntimeError("SEVERED"))
+                try:
+                    RB.cells()
+                    l_ok = False
+                except RuntimeError:
+                    pass
+            finally:
+                MS2.bench_plan = real
+            l_ok = l_ok and bool(RB.cells())           # green again: detection, not leakage
+            try:
+                MS2.bench_plan = lambda: dict(real(), baseline="")
+                try:
+                    RB.plan()
+                    l_ok = False
+                except RB.RollbenchError:
+                    pass
+            finally:
+                MS2.bench_plan = real
+            text = RB.make_log("someone", "3.11.0", RB._synthetic_rows())
+            p2 = RB.parse_log(text)
+            l_ok = (l_ok and p2["host"] == "someone" and len(p2["rows"]) == 3
+                    and p2["plan"] == RB.plan_digest() and RB.the_seal_bites())
+            body = "\n".join(text.splitlines()[:-1]) + "\n"
+            for bad in ("", "nonsense\n", body, text.replace("host someone\n", "")):
+                try:
+                    RB.parse_log(bad)
+                    l_ok = False
+                except RB.RollbenchError as _e:
+                    l_ok = l_ok and _e.code == "ROLLBENCH-REFUSE"
+            row = dict(RB._synthetic_rows()[0])
+            row.pop("p99_ns")
+            try:
+                RB.make_log("someone", "3.11.0", [row])
+                l_ok = False
+            except RB.RollbenchError:
+                pass
+            s5 = RB.summarize([5, 1, 4, 2, 3])         # RANKS, not interpolations
+            big = RB.summarize(list(range(1, 101)))
+            l_ok = (l_ok and (s5["n"], s5["p50_ns"], s5["p99_ns"]) == (5, 3, 4)
+                    and (big["p50_ns"], big["p95_ns"], big["p99_ns"]) == (50, 95, 99))
+            try:
+                RB.summarize([])
+                l_ok = False
+            except RB.RollbenchError:
+                pass
+            l_ok = l_ok and all(RB.scene_result(x) == RB.golden(x) for x in RB.SCENES)
+        except Exception:
+            l_ok = False
+        self.record("rollbench-log", l_ok,
+                    "THE INSTRUMENT `measure` COULD NOT CONTAIN. `measure` fixed the terms of the "
+                    "rollback question and STRUCTURALLY could not answer it — a clock in that "
+                    "module would let a wall-clock figure be asserted from a gate run and a "
+                    "falsifier forbids one — so the stopwatch lives here, and the SEPARATION IS "
+                    "THE POINT rather than an inconvenience: this module produces EVIDENCE and "
+                    "never a VERDICT. THE PLAN IS READ, NOT CHOSEN, and severance is how that "
+                    "becomes a measurement: %d cells (%d representations x %d workloads x %d "
+                    "depths) come from `measure.bench_plan`, removing it KILLS the harness, and an "
+                    "incomplete plan refuses because this harness has no opinion to fall back on. "
+                    "A benchmark that chose its own terms could report against a denominator "
+                    "picked after seeing the numbers, which is what naming them in advance "
+                    "prevents. THE LOG IS SELF-DIGESTED and a single byte changed anywhere in the "
+                    "body is refused — proved at the host line, a row AND the plan digest, because "
+                    "a seal covering only the tail would pass a forged header — and an unsealed, "
+                    "truncated or malformed log is typed rather than read. THE QUANTILES ARE "
+                    "RANKS, NOT INTERPOLATIONS, so a reported figure is always an OBSERVED sample "
+                    "and `n` travels beside it: with five samples a p99 lands on the fourth, which "
+                    "is the rank being honest about what n supports rather than inventing a value "
+                    "between samples"
+                    % (ncells, len(MS2.REPRESENTATIONS), len(MS2.WORKLOADS), len(MS2.DEPTHS))
+                    if l_ok else "the rollbench log law did not hold")
+        p_ok = True
+        try:
+            unnamed = RB.parse_log(RB.make_log("a-laptop", "3.11.0", RB._synthetic_rows()))
+            named = RB.parse_log(RB.make_log(SF2.NAMED_HOST, "3.11.0", RB._synthetic_rows()))
+            p_ok = (RB.evidence_grade(unnamed)[0] == RB.NOT_MEASURED
+                    and RB.evidence_grade(named)[0] == RB.MEASURED
+                    and SF2.named_host_ok(SF2.NAMED_HOST) and not SF2.named_host_ok("a-laptop"))
+            form_ok, grade = RB.the_two_questions_are_apart(unnamed)
+            p_ok = p_ok and form_ok and grade == RB.NOT_MEASURED
+            p_ok = p_ok and MS2.claim_fault(RB.claim_from(named, "alternating")) == ""
+            bad = RB.claim_from(named, "alternating")
+            bad.pop("host_log")
+            p_ok = p_ok and MS2.claim_fault(bad) != ""
+            p_ok = p_ok and RB.nothing_this_container_produces_is_citable()
+            p_ok = p_ok and RB.no_verdict_is_emitted()
+            RB.compare_representations = lambda: None      # RED-FIRST: a smuggled comparison
+            try:
+                p_ok = p_ok and not RB.no_verdict_is_emitted()
+            finally:
+                del RB.compare_representations
+            p_ok = p_ok and RB.no_verdict_is_emitted()
+            for banned in ("faster", "winner", "beats", "compare", "wins"):
+                p_ok = p_ok and banned not in " ".join(RB.ROW_FIELDS)
+        except Exception:
+            p_ok = False
+        self.record("rollbench-provenance", p_ok,
+                    "TWO QUESTIONS, KEPT APART, AND FUSING THEM IS THE DEFECT THIS LAYERING EXISTS "
+                    "TO PREVENT: `measure.admit_claim` asks whether the CLAIM is well formed, and "
+                    "`evidence_grade` asks whether the LOG is ADMISSIBLE. A log from an unnamed "
+                    "machine is a PERFECTLY WELL-FORMED LOG and INADMISSIBLE EVIDENCE, and both "
+                    "halves are asserted on the SAME log — if either check could stand for the "
+                    "other, one is redundant and the wrong one would be dropped. The host law is "
+                    "READ from `sealframe.NAMED_HOST`, the operator's own declared machine with "
+                    "its conditions, because this module has no standing to write one; it is "
+                    "checked in BOTH directions, since a law refusing every host would be a wall. "
+                    "AND NOTHING THIS CONTAINER PRODUCES CAN BE CITED: a `--bench` run here seals "
+                    "a log carrying THIS machine's host, so its grade is NOT_MEASURED and the gate "
+                    "ASSERTS it — the harness is exercised, its shape is verified, and its numbers "
+                    "remain uncitable, which is the honest state of a benchmark written on a "
+                    "machine that is not the one the claim is about. NO VERDICT IS EMITTED, "
+                    "structurally: no row field could hold 'faster' and no callable compares two "
+                    "representations, with the guard excluding exactly ONE name — its own, since a "
+                    "predicate that forbids a word cannot state what it forbids without naming it "
+                    "— and a planted comparison callable is proved to redden it"
+                    if p_ok else "the rollbench provenance law did not hold")
+
     def measure(self):
         """A PERFORMANCE CLAIM IS VALID ONLY WHEN ITS TERMS ARE NAMED (URDRMSR1). Rows: law (the
         admission door and the structural absence of any clock), shape (the op-count decomposition,
@@ -20293,7 +20433,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

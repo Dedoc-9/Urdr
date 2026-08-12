@@ -1,0 +1,32 @@
+# URDRRBN1 conformance goldens — THE INSTRUMENT `measure` COULD NOT CONTAIN. It has a clock, it
+# emits a log, and it REFUSES TO GRADE ITS OWN OUTPUT. `measure` fixed the terms of the rollback
+# question and structurally could not answer it; the stopwatch lives here, and the separation is
+# the point rather than an inconvenience.
+#
+# TWO QUESTIONS, KEPT APART: `measure.admit_claim` asks whether the CLAIM is well formed;
+# `rollbench.evidence_grade` asks whether the LOG is admissible. A log from an unnamed machine is a
+# perfectly well-formed log AND inadmissible evidence, and those are different findings.
+#
+# Pinned AFTER the seal was proved to bite at three places (host line, row, plan digest — a seal
+# covering only the tail would pass a forged header) and after a planted comparison callable was
+# proved to redden the no-verdict guard.
+# digest = SHA-256(MAGIC | name | payload), payload readable in `rollbench.scene_case(name)`.
+#
+# DECLARED: the row field set and the quantile ranks (p50/p95/p99) — both CHOICES, pinned as data
+# so a reading cannot be re-graded against a field list or a statistic nobody is watching.
+#
+# GRADE: MEASURED for the log round-trip and its seal, the provenance law in both directions, the
+# plan-severance, the claim handed to `measure.admit_claim`, and the structural absence of any
+# comparison. NOT_MEASURED: every timing this container could produce, BY THIS MODULE'S OWN
+# PROVENANCE LAW — a `--bench` run here grades NOT_MEASURED and the gate asserts it.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: which representation is faster — that is what the log is FOR and it is
+# deliberately not decided here; that the sampling is statistically sufficient (n and the three
+# quantiles are reported so a reader can judge, and no confidence interval is claimed); that
+# `perf_counter` resolves what the differences require — the operator's log carries the interpreter
+# and platform so that question can be asked of the numbers rather than of a docstring.
+
+format 218e6eb97dba35decea51c50f4e9e0ed3939d7eb7ee295294bfb5a0eddc3aa1d
+provenance 1daf02fa1d54392b4ed6fbdc91fe0ef2dbfee16601eb67259c32cc1d53f9fa47
+plan a15af9f15f1f15005d4b2ee7d7d89287c33fe56148c4656a56e33ff0a48fc4b7

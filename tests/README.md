@@ -4,7 +4,7 @@
 
 ## Index
 
-**196 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**197 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,
@@ -53,7 +53,9 @@
   `test_mould` (the record takes the SHAPE of the state — derived not tagged, and the wrong
   mould caught by refusal rather than by a replay that silently diverges), `test_measure`
   (a performance claim is valid only when its workload, host, denominator and baseline are
-  named — and the op-count result that needed no stopwatch).
+  named — and the op-count result that needed no stopwatch), `test_rollbench` (the instrument
+  `measure` could not contain — a sealed host log, and a harness that refuses to grade its own
+  output).
 - **MMO Stages C–E (scale, handoff, anti-cheat)** — `test_interest`, `test_layertheorem`,
   `test_hand`, `test_warden`, `test_crosswarden`, `test_dirward`, `test_wardhom`.
 - **MMO Stage H (the latency guarantee, time and space)** — `test_opcost`, `test_govern`,
@@ -81,7 +83,7 @@
 Every test here is designed to be able to go **red**: a test that cannot fail proves nothing
 (LESSONS L5, *validity not outcome*). The suites are falsifiers, not demonstrations — many
 document a defect that was injected, caught, and reverted, which is the evidence the harness
-actually bites. Together they are the `unit-falsifiers` row of the gate: **2599 unit falsifiers, 0 red**.
+actually bites. Together they are the `unit-falsifiers` row of the gate: **2621 unit falsifiers, 0 red**.
 This is the layer that makes "the checker rejects X" or "the placement reproduces Y" a
 *measured* claim rather than a hope — the negative space (`examples/rejected/`,
 `must_fail/`) is exercised here too.
