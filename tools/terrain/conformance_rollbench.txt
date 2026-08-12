@@ -54,8 +54,9 @@
 # The `commandline` scene is new: the documented argv, parsed by this module's own parser, graded;
 # four refusals (unknown flag, flag-swallowing-flag, two positionals, no --bench); the structural
 # one-parser law; and the doc/executable binding.
+
 format 065cc277d110a0475a2f0edd82cebadab873117aa90fe5ff6a17852e0f7f8a45
 provenance 59525f921991b0ae9978bda8de68ea8d00f031d6bab5ee635a1e8ab6a2be5ded
 plan a15af9f15f1f15005d4b2ee7d7d89287c33fe56148c4656a56e33ff0a48fc4b7
-commandline 4b9dac835a32a615b241eef370ddda45a36f04e6504b36b8bd42b28c7e7a069c
-rollbench fdfcda34eaa2825381e3b8065df2fc857acd62aeef64982cc03bc78f48c836c4
+commandline ae3169df82c4c9c5531e0c1205f300484be3d186d522bf7349d6ba5cde394eb6
+rollbench 5f9df60022226e2c2396e5da761e44cf995861fc8be5623525f629405195899f

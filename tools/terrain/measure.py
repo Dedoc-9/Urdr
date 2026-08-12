@@ -313,6 +313,46 @@ def bench_plan():
             "status": "NOT_MEASURED — requires a named host log"}
 
 
+def bench_cells():
+    """EVERY CELL THE PLAN NAMES, in the plan's own nesting. It lives HERE, beside the plan, because
+    the harness that runs them must not be the thing that decides what they are — the same reason
+    `bench_plan` is read rather than chosen. The ORDER returned is the plan's nesting and is NOT a
+    run order: `confound.schedule` grades and permutes it, because a factor iterated outermost is
+    perfectly correlated with elapsed time, which the first host log proved the hard way."""
+    p = bench_plan()
+    return tuple((r, w, d) for r in p["representations"]
+                 for w in p["workloads"] for d in p["depths"])
+
+
+def effective_ticks(workload_name, depth):
+    """THE WORK, not the REQUEST — and they part company. `rollbench.one_rollback` replays
+    `range(tick+1, min(tick+1+depth, T))`, so a depth beyond the world's remaining length replays
+    fewer ticks than it names. It lives here because only the PLAN knows what a cell costs."""
+    w, _lg = workload(workload_name)
+    t0 = first_grounded_tick(workload_name)
+    return max(0, min(t0 + 1 + depth, w["T"]) - (t0 + 1))
+
+
+def bench_experiments():
+    """{(workload, ticks): (depths that collapse onto it)} — the table the first host log should
+    have printed instead of one row per requested depth."""
+    out = {}
+    p = bench_plan()
+    for wl in p["workloads"]:
+        for d in p["depths"]:
+            out.setdefault((wl, effective_ticks(wl, d)), []).append(d)
+    return {k: tuple(v) for k, v in sorted(out.items())}
+
+
+def bench_duplicate_count():
+    """(cells, distinct, duplicates) over the (workload, depth) grid — the denominator, carried.
+    L44: `depth` is the axis and `ticks` is the numerator, and reporting only the first let 28 rows
+    be read as 28 experiments when 11 of them are copies."""
+    p = bench_plan()
+    cells = len(p["workloads"]) * len(p["depths"])
+    return (cells, len(bench_experiments()), cells - len(bench_experiments()))
+
+
 def the_plan_names_its_terms():
     """The plan must satisfy the law it exists to serve, or this module would be exempting itself
     from its own rule."""

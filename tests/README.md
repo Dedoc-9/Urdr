@@ -4,7 +4,7 @@
 
 ## Index
 
-**199 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
+**201 suites**, discovered automatically by [`../verify.py`](../verify.py) (also runnable with
 `python -m unittest` / `python -m pytest tests/`). Grouped by subsystem:
 
 - **Language core & epistemics** — `test_no_inflation`, `test_evidence`, `test_lens_laws`,
@@ -58,7 +58,10 @@
   output), `test_reachable` (a gate must admit something its own PRODUCER can make — L65's
   unbuilt detector, built against the instance this arc created), `test_retire` (a retired
   law names its successor and nothing outside its own module may call it — the sweep that
-  catches a repair described in prose and ignored by the next caller).
+  catches a repair described in prose and ignored by the next caller), `test_confound` (a
+  treatment axis may not be a proxy for elapsed time, and a cell is not an experiment — the
+  schedule law the first real host log forced), `test_entry` (an entry point that takes a path
+  must refuse a flag-shaped token in that position — the law two files named after flags proved).
 - **MMO Stages C–E (scale, handoff, anti-cheat)** — `test_interest`, `test_layertheorem`,
   `test_hand`, `test_warden`, `test_crosswarden`, `test_dirward`, `test_wardhom`.
 - **MMO Stage H (the latency guarantee, time and space)** — `test_opcost`, `test_govern`,
@@ -86,7 +89,7 @@
 Every test here is designed to be able to go **red**: a test that cannot fail proves nothing
 (LESSONS L5, *validity not outcome*). The suites are falsifiers, not demonstrations — many
 document a defect that was injected, caught, and reverted, which is the evidence the harness
-actually bites. Together they are the `unit-falsifiers` row of the gate: **2674 unit falsifiers, 0 red**.
+actually bites. Together they are the `unit-falsifiers` row of the gate: **2713 unit falsifiers, 0 red**.
 This is the layer that makes "the checker rejects X" or "the placement reproduces Y" a
 *measured* claim rather than a hope — the negative space (`examples/rejected/`,
 `must_fail/`) is exercised here too.

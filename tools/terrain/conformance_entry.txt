@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_entry.txt — URDRENT1 pinned scenes.
+#
+# AN ENTRY POINT IS A DOOR, AND A DOOR THAT CANNOT REFUSE TURNS A FLAG INTO A FILENAME.
+#
+# THE EVIDENCE WAS FOUND ON A DISK, NOT CONSTRUCTED. Two files sat untracked in the
+# operator's repository root: `--host` (4.2 KB, a rollbench log) and `--compare` (219 KB, a
+# GATE log written by scripts/gate_once.py, months earlier, never noticed). Both programs
+# reported success — the write went somewhere, so nothing refused. A POSITIONAL READER
+# CANNOT REFUSE, BECAUSE EVERY TOKEN IS A VALID PATH.
+#
+# doors  — each repaired entry point fed a flag where a path belongs (must REFUSE) and a
+#          real path first (must ACCEPT, or a wall would score as the best door); plus the
+#          two shipped positional readers replanted and proved to ACCEPT the flag.
+# census — every module that still SLICES argv, counted from the AST at claim time, against
+#          a ratchet pinned AT the live reading so the next positional reader reddens.
+#
+# does_not_show: A REFUSAL PROBE IS NOT A PARSER REVIEW. One property at one position — an
+# entry point can pass and still mis-read its second argument or accept a flag it does not
+# implement. The census counts argv SLICES, a syntactic proxy for 'parses its own command
+# line': a module configured from the environment, or from a file named by a flag, is
+# invisible here. `sample != universal`.
+#
+# DECLARED: the census ceiling and the set of doors called repaired. The unrepaired thirteen
+# are debt this rung NAMES rather than pays — repairing thirteen operator interfaces in one
+# commit is the sweep this tree refuses.
+
+doors 01f090dbcdd1156f922a78f9066e645c99677e0aba9787927080f86a799acf3e
+census febc440175ac8838dd56fc78fb5f577c6030b07e6474bf32334514cbf5a70939
+entry 4a0633a80bfb3060fca472c5aadaedc4f76187037d62eb8b96422324712cd657

@@ -42,6 +42,8 @@ SUBSET_ONLY = None
 #: THE CANONICAL STAGE ORDER. Was a straight-line call list in `main`; it is data now so
 #: `--only` can select and a future shard runner can partition, without the order ever
 #: becoming a function of how the run was invoked.
+CONFOUND_TOL_TEXT = "0.05"
+
 STAGE_ORDER = (
     "unit_tests",
     "examples",
@@ -216,6 +218,8 @@ STAGE_ORDER = (
     "retain",
     "mould",
     "measure",
+    "confound",
+    "entry",
     "rollbench",
     "reachable",
     "retire",
@@ -17070,6 +17074,185 @@ class Gate:
                     % (RT.PRE_REPAIR[0], hist)
                     if p_ok else "the retirement plants did not bite")
 
+    def confound(self):
+        """A TREATMENT AXIS MAY NOT BE A PROXY FOR ELAPSED TIME, AND A CELL IS NOT AN EXPERIMENT
+        (URDRCNF1). Rows: schedule (every axis BALANCED under the pinned stride, the shipped order
+        CONFOUNDED, the stride re-derived by search), duplicates (the depth axis saturates and the
+        count is exact)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import confound as CF
+            import measure as MS4
+            import rollbench as RB4
+        except Exception as exc:
+            for r in ("schedule", "duplicates"):
+                self.record(f"confound-{r}", False, f"import failed (confound): {exc}")
+            return
+        s_ok, floor, ties = True, -1.0, -1
+        try:
+            live = tuple(MS4.bench_cells())
+            order = CF.schedule(live)
+            ok_stride, floor, ties = CF.the_stride_is_optimal_by_search()
+            s_ok = (CF.no_axis_is_confounded()
+                    and all(CF.verdict(order, a) == CF.BALANCED for a in CF.AXES)
+                    # AND THE LIVE PLAN, not only the fixture the scenes pin.
+                    and all(CF.verdict(CF.schedule(live), a) == CF.BALANCED for a in CF.AXES)
+                    and CF.every_cell_is_visited_exactly_once()
+                    and CF.a_stride_sharing_a_factor_refuses()
+                    and ok_stride
+                    and CF.the_tolerance_admits_the_floor_and_refuses_the_defect()
+                    # RED-FIRST, WITH THE ORDER THAT SHIPPED: three representations, three
+                    # disjoint contiguous thirds of the run.
+                    and CF.the_old_schedule_is_confounded()
+                    and CF.a_merely_interleaved_schedule_can_still_be_skewed()
+                    and CF.verdict(live, "representation") == CF.CONFOUNDED
+                    and sorted((min(p2), max(p2)) for p2 in
+                               CF.positions(live, "representation").values())
+                    == [(0, 27), (28, 55), (56, 83)]
+                    # AND THE HARNESS ACTUALLY USES IT — a schedule nothing runs is a claim.
+                    and RB4.run_order() == order
+                    and RB4.the_run_order_is_not_the_plan_order())
+            try:
+                CF.schedule(live, stride=2)
+                s_ok = False
+            except CF.ConfoundError as _e:
+                s_ok = s_ok and _e.code == "CONFOUND-REFUSE"
+            s_ok = s_ok and all(CF.scene_result(x) == CF.golden(x) for x in CF.SCENES)
+        except Exception:
+            s_ok = False
+        self.record("confound-schedule", s_ok,
+                    "THE FIRST REAL HOST LOG REFUTED THE HARNESS THAT PRODUCED IT, USING NOTHING "
+                    "BUT ITS OWN NUMBERS. `rollbench` v1.2 reported `narrowed` FASTER than "
+                    "`moulded` in 23 of 28 cells — while `narrowed` executes `moulded`'s timed path "
+                    "PLUS a widths tuple that replay never reads, so it runs a strict SUPERSET of "
+                    "the instructions. A representation doing more work cannot be faster, so the "
+                    "log was measuring something other than the representation: IT WAS MEASURING "
+                    "WHEN THE CELL RAN. The harness iterated representation-outermost, putting "
+                    "`flat` at run positions 0-27, `moulded` at 28-55 and `narrowed` at 56-83 — "
+                    "three disjoint contiguous thirds, checked here as exact spans — perfectly "
+                    "aligned with clock ramp and thermal drift across 16 800 timed operations. A "
+                    "FACTOR PERFECTLY CORRELATED WITH RUN POSITION IS NOT MEASURED, IT IS "
+                    "CONFOUNDED, and no number of extra iterations separates them. The repair is a "
+                    "SCHEDULE rather than a caveat: cells are visited on a stride co-prime to their "
+                    "count, which is a permutation by construction, so every level of every axis is "
+                    "spread across the whole run — all three axes read BALANCED at a worst "
+                    "mean-position deviation of %.4f against a declared tolerance of %s, and %d "
+                    "co-prime strides tie at that floor with the smallest taken. THE PIN IS "
+                    "RE-DERIVED BY SEARCH rather than trusted, the tolerance is NON-VACUOUS IN BOTH "
+                    "DIRECTIONS (below the structural floor no schedule could pass; above the "
+                    "shipped order's 0.333 it would admit the defect), RANDOMISATION IS REFUSED "
+                    "because determinism is the floor and a seed is one more thing a result can "
+                    "depend on, and CONFOUNDED is kept apart from SKEWED because a merely "
+                    "front-loaded factor is a different finding from a blocked one"
+                    % (floor, CONFOUND_TOL_TEXT, ties)
+                    if s_ok else "the schedule law did not hold")
+        d_ok, counts = True, (-1, -1, -1)
+        try:
+            counts = MS4.bench_duplicate_count()
+            d_ok = (CF.a_repeated_key_is_counted_as_one_experiment() and counts == (28, 17, 11)
+                    and counts[0] - counts[1] == counts[2]
+                    and MS4.bench_experiments()[("all_airborne", 2)] == (2, 4, 8, 16, 32, 64)
+                    and MS4.effective_ticks("alternating", 64) == 11
+                    and MS4.effective_ticks("alternating", 4) == 4
+                    and all(f in RB4.ROW_FIELDS for f in ("depth", "ticks", "pos"))
+                    and RB4.the_row_carries_the_work_not_only_the_request())
+        except Exception:
+            d_ok = False
+        self.record("confound-duplicates", d_ok,
+                    "A CELL IS NOT AN EXPERIMENT, AND THE TABLE SAID IT WAS. `depth` is what the "
+                    "harness ASKS for; the walk SATURATES against the world's own length, so the "
+                    "ticks it actually replays stop rising. `all_airborne` replays TWO ticks at "
+                    "depths 4, 8, 16, 32 AND 64 — five rows of the table, ONE experiment; "
+                    "`all_grounded` and `alternating` saturate at 11 ticks from depth 16 and "
+                    "`frequent_landing` at 12. Counted exactly: %d cells, %d DISTINCT, %d "
+                    "duplicates, so any count over those cells carries a denominator that is 39%% "
+                    "copies — L44 with the numerator disguised as the AXIS. The repair is to carry "
+                    "the work beside the request: every row now names `depth` AND `ticks` AND its "
+                    "run position `pos`, so a reader can see saturation and ordering in the log "
+                    "itself rather than deducing them from a docstring"
+                    % counts
+                    if d_ok else "the saturation count did not hold")
+
+    def entry(self):
+        """AN ENTRY POINT IS A DOOR, AND A DOOR THAT CANNOT REFUSE TURNS A FLAG INTO A FILENAME
+        (URDRENT1). Rows: doors (both repaired entry points refuse a flag where a path belongs and
+        still accept a real one; both shipped positional readers replanted and proved to accept),
+        census (the argv-slicing ratchet, pinned at the live reading)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        sp = os.path.join(ROOT, "scripts")
+        if sp not in sys.path:
+            sys.path.insert(0, sp)
+        try:
+            import entry as EN
+        except Exception as exc:
+            for r in ("doors", "census"):
+                self.record(f"entry-{r}", False, f"import failed (entry): {exc}")
+            return
+        d_ok, sw = True, {}
+        try:
+            sw = EN.sweep()
+            d_ok = (EN.every_repaired_door_refuses_a_flag()
+                    and all(v == EN.REFUSES for v in sw.values()) and len(sw) >= 2
+                    and EN.the_positional_form_accepts_the_flag()
+                    and EN.a_door_that_refuses_everything_is_caught()
+                    and len({EN.REFUSES, EN.ACCEPTS, EN.ABSENT}) == 3)
+            try:
+                EN.probe("no-such-door")
+                d_ok = False
+            except EN.EntryError as _e:
+                d_ok = d_ok and _e.code == "ENTRY-REFUSE"
+            d_ok = d_ok and all(EN.scene_result(x) == EN.golden(x) for x in EN.SCENES)
+        except Exception:
+            d_ok = False
+        self.record("entry-doors", d_ok,
+                    "THE EVIDENCE FOR THIS ROW WAS FOUND ON AN OPERATOR'S DISK RATHER THAN "
+                    "CONSTRUCTED. Two files sat untracked in the repository root: `--host`, 4.2 KB, "
+                    "a rollbench log filed under the flag that should have named its host; and "
+                    "`--compare`, 219 KB, a GATE log written by `scripts/gate_once.py` months "
+                    "earlier and never noticed. Two runners, two years apart in authorship, the "
+                    "same shape — and BOTH PROGRAMS REPORTED SUCCESS, because the write went "
+                    "somewhere and nothing refused. A POSITIONAL READER CANNOT REFUSE: every token "
+                    "is a valid path, so `log = argv[1]` accepts `--compare` exactly as readily as "
+                    "a filename. THE LAW IS NARROW ON PURPOSE — not 'use argparse', not 'enumerate "
+                    "every flag', but the ONE property both artifacts violated: an entry point "
+                    "taking a PATH must REFUSE a flag-shaped token in that position. Both repaired "
+                    "doors (%d) refuse it, and each is fed a REAL path first so a parser that "
+                    "refuses everything is reported as an error rather than scored as the best "
+                    "door — otherwise the strictest possible door would win. Both SHIPPED readers "
+                    "are replanted verbatim and proved to ACCEPT the flag, which is the defect "
+                    "rather than a model of it"
+                    % len(sw)
+                    if d_ok else "the entry-point doors did not refuse")
+        c_ok, mods, sites = True, -1, -1
+        try:
+            _held, mods, sites = EN.the_census_has_not_grown()
+            c_ok = (_held and EN.the_ceiling_is_not_vacuous()
+                    and "scripts/gate_once.py" not in EN.census()
+                    and "tools/terrain/sealframe.py" in EN.census())
+        except Exception:
+            c_ok = False
+        self.record("entry-census", c_ok,
+                    "A RATCHET, NOT A WALL, AND THE DIFFERENCE IS A JUDGEMENT THIS ROW STATES "
+                    "RATHER THAN HIDES. %d production modules still SLICE `argv` across %d sites — "
+                    "`sealframe` alone at 9, `wireattest` at 8, `verify.py` at 2 — and repairing "
+                    "thirteen operator interfaces in one commit would be a large untested change "
+                    "to thirteen command lines at once, which is the sweep this tree refuses on "
+                    "principle. So the debt is NAMED and PINNED: read from the AST at claim time "
+                    "(L16, never from prose), it may FALL and never RISE, so the next positional "
+                    "reader added to this tree reddens immediately. THE CEILING SITS AT THE LIVE "
+                    "READING rather than above it, which is what stops a ratchet becoming "
+                    "decoration — and `scripts/gate_once.py` is OFF this list because this rung "
+                    "repaired it, which is what makes the number a measurement rather than one "
+                    "chosen to fit"
+                    % (mods, sites)
+                    if c_ok else "the argv census grew, or the ceiling is not the live reading")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -20707,7 +20890,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

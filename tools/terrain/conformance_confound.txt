@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_confound.txt — URDRCNF1 pinned scenes.
+#
+# A TREATMENT AXIS MAY NOT BE A PROXY FOR ELAPSED TIME, AND A CELL IS NOT AN EXPERIMENT.
+#
+# BOTH LAWS WERE WRITTEN AFTER THE FIRST REAL HOST LOG REFUTED THE HARNESS THAT PRODUCED IT,
+# using nothing but the harness's own numbers. The log reported `narrowed` faster than
+# `moulded` in 23 of 28 cells — while `narrowed` executes `moulded`'s timed path PLUS a
+# widths tuple that replay never reads. A representation doing strictly MORE work cannot be
+# faster, so the log was measuring something other than the representation. It was measuring
+# WHEN THE CELL RAN: the harness iterated representation-outermost, so `flat` held run
+# positions 0-27, `moulded` 28-55 and `narrowed` 56-83, perfectly aligned with clock ramp and
+# thermal drift across 16 800 timed operations on a handheld under a turbo profile.
+#
+# THE SECOND LAW, FROM THE SAME LOG. `depth` is a REQUEST; the walk saturates against the
+# world's length, so `all_airborne` replays TWO ticks at depths 4, 8, 16, 32 and 64 — five
+# rows, one experiment. 28 cells, 17 distinct, 11 duplicates: any count over those cells
+# carries a denominator that is 39% copies (L44, with the numerator disguised as the axis).
+#
+# schedule   — every axis's verdict and mean-position deviation under the pinned stride, the
+#              SHIPPED order's verdict beside it, and the permutation property.
+# duplicates — the (workload, ticks) table the log should have printed, with the depths that
+#              collapse onto each row.
+#
+# does_not_show: BALANCE IS NOT INDEPENDENCE. Spreading a factor across the run removes the
+# CORRELATION between treatment and position; it does not remove position as a source of
+# variance, and it cannot see a drift periodic at the stride. This module grades the SCHEDULE
+# and never the numbers, and it reads the plan's axes as DATA — a factor nobody put in the
+# plan is invisible here, so a harness confounded with something it never recorded reads
+# BALANCED and is not.
+#
+# DECLARED: the tolerance (0.05), the stride (25) and the axis list. All three are CHOICES,
+# pinned as data so a later reading cannot be graded against a bar nobody is watching. The
+# stride is re-derived by search over every co-prime stride rather than trusted.
+
+schedule f8a639ec070d39bcaf8992a91e6182ff669ce15d298900d80ae2abc1c35f5a53
+duplicates 5ab6c38a0308836657bc7e609ec1a2a5fad7a1268b6c34e5a4919ed0507a145a
+confound 51e2e6080418e024cfd8a8dfa453ed0316bf0565a2eb8b8f0e9dfbbe522d48be

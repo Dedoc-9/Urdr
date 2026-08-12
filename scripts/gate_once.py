@@ -39,12 +39,45 @@ def body_tail(parts, n=3):
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def main(argv):
+USAGE = "usage: gate_once.py <logfile> [--compare <other-logfile>]"
+
+
+def parse_argv(argv):
+    """A DOOR, BECAUSE THE POSITIONAL READER HERE WROTE A 219 KB GATE LOG TO A FILE NAMED
+    `--compare` AND REPORTED SUCCESS.
+
+    `log = argv[1]` cannot refuse: every token is a valid path, so `gate_once.py --compare gate1.txt`
+    took the FLAG as the logfile, wrote a quarter of a megabyte into it, and exited zero. That file
+    sat untracked in the repository root for months. `rollbench` did the identical thing with
+    `--host` in a different runner the same year, and the two artifacts sitting side by side on one
+    disk are why this is now a law rather than a fix (URDRENT1).
+
+    So: a flag-shaped token in the LOGFILE position REFUSES, and `--compare` must be followed by a
+    value that is not itself a flag."""
+    argv = list(argv)
     if len(argv) < 2:
-        print("usage: gate_once.py <logfile> [--compare <other-logfile>]")
-        return 2
+        raise ValueError(USAGE)
     log = argv[1]
-    other = argv[argv.index("--compare") + 1] if "--compare" in argv else None
+    if log.startswith("-"):
+        raise ValueError(f"{log!r} is a flag, not a logfile — a positional reader cannot refuse, "
+                         f"because every token is a valid path, and this one wrote a 219 KB gate "
+                         f"log to a file named `--compare`. " + USAGE)
+    other = None
+    if "--compare" in argv:
+        i = argv.index("--compare")
+        if i + 1 >= len(argv) or argv[i + 1].startswith("-"):
+            raise ValueError("--compare names no logfile. " + USAGE)
+        other = argv[i + 1]
+    return {"log": log, "other": other}
+
+
+def main(argv):
+    try:
+        parsed = parse_argv(argv)
+    except ValueError as exc:
+        print(exc)
+        return 2
+    log, other = parsed["log"], parsed["other"]
 
     # STREAM, DO NOT CAPTURE. This ran with capture_output=True and printed NOTHING for the whole
     # ~15-minute pass before dumping the result. A gate runner that is indistinguishable from a hang

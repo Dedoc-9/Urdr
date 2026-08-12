@@ -58,6 +58,7 @@ for _d in (_HERE, _os.path.join(_os.path.dirname(_HERE), "netcode"),
     if _d not in _sys.path:
         _sys.path.insert(0, _d)
 
+import confound as CF                                       # noqa: E402
 import contact as CT                                        # noqa: E402
 import measure as MS                                        # noqa: E402
 import mould as MD                                          # noqa: E402
@@ -69,7 +70,8 @@ MAGIC = "URDRRBN1"
 
 #: The row fields. NO VERDICT FIELD EXISTS — there is nowhere in this record for "faster" to live,
 #: which is the structural half of "emits evidence, never a verdict".
-ROW_FIELDS = ("representation", "workload", "depth", "n", "p50_ns", "p95_ns", "p99_ns")
+ROW_FIELDS = ("representation", "workload", "depth", "ticks", "pos", "n",
+              "p50_ns", "p95_ns", "p99_ns")
 
 MEASURED = "MEASURED"
 NOT_MEASURED = "NOT_MEASURED"
@@ -173,9 +175,18 @@ def plan_digest():
 
 
 def cells():
-    p = plan()
-    return tuple((r, w, d) for r in p["representations"]
-                 for w in p["workloads"] for d in p["depths"])
+    """READ from `measure`, like the plan itself — this harness does not decide what its own cells
+    are. Returned in the PLAN's nesting; `run_order()` is what the clock actually follows."""
+    plan()                                                  # severance: no plan, no cells
+    return MS.bench_cells()
+
+
+def run_order():
+    """THE ORDER THE CLOCK FOLLOWS, AND IT IS NOT THE PLAN'S NESTING — that difference is the whole
+    of URDRCNF1. v1.2 ran representation-outermost, so `flat` occupied run positions 0-27 and
+    `narrowed` 56-83, and every timing difference between them was indistinguishable from the
+    machine warming up. `confound.schedule` spreads every level of every axis across the run."""
+    return CF.schedule(cells())
 
 
 # ---- the operation being timed --------------------------------------------------------------------
@@ -489,6 +500,31 @@ def _is_argv(node):
             and isinstance(node.value, ast.Name) and node.value.id == "_sys")
 
 
+def the_run_order_is_not_the_plan_order():
+    """THE FINDING THE FIRST HOST LOG FORCED, asserted here rather than only in `confound`: the
+    clock must NOT follow the plan's nesting. v1.2 did, so `flat` held run positions 0-27 and
+    `narrowed` 56-83, and `narrowed` — which executes `moulded`'s path PLUS an unused widths tuple —
+    came out FASTER in 23 of 28 cells. A representation doing strictly more work cannot be faster,
+    so the log was measuring run position."""
+    plan_order, run = cells(), run_order()
+    return (run != plan_order and sorted(map(repr, run)) == sorted(map(repr, plan_order))
+            and all(CF.verdict(run, a) == CF.BALANCED for a in CF.AXES)
+            and CF.verdict(plan_order, "representation") == CF.CONFOUNDED)
+
+
+def the_row_carries_the_work_not_only_the_request():
+    """L44 with the numerator disguised as the axis. `depth` is what the harness ASKED for; `ticks`
+    is what it GOT, and they part company as soon as the walk saturates against the world's length.
+    Both travel in every row, with the run position beside them."""
+    if not all(f in ROW_FIELDS for f in ("depth", "ticks", "pos")):
+        return False
+    p = parse_log(_declared_log())
+    if not all(all(f in r for f in ("depth", "ticks", "pos")) for r in p["rows"]):
+        return False
+    _c, distinct, dupes = MS.bench_duplicate_count()
+    return dupes > 0 and distinct > 0
+
+
 def the_documented_argv_is_the_documented_one():
     """THE DOC AND THE EXECUTABLE, BOUND. `DOCUMENTED_ARGV` is what a law parses; `USAGE_HINT` is
     what a human reads and what a refusal prints. If they drift, the tree documents a command line
@@ -502,7 +538,8 @@ def _synthetic_rows(n=3):
     timing assertion inside a gate is a threshold that gets loosened until it cannot fail."""
     out = []
     for i, (rep, wl, d) in enumerate(cells()[:n]):
-        out.append({"representation": rep, "workload": wl, "depth": d, "n": 100,
+        out.append({"representation": rep, "workload": wl, "depth": d,
+                    "ticks": MS.effective_ticks(wl, d), "pos": i, "n": 100,
                     "p50_ns": 1000 + i, "p95_ns": 2000 + i, "p99_ns": 3000 + i})
     return out
 
@@ -538,7 +575,11 @@ def run_bench(out_path, iters=200, host_note="", declared_host=None, conditions=
     import time
     import lockstep as _L
     rows = []
-    for rep, wl, depth in cells():
+    # THE CLOCK FOLLOWS `run_order()`, NOT THE PLAN'S NESTING, and the row carries the RUN POSITION
+    # so a reader can check for themselves that no treatment sat in one part of the run. v1.2 ran
+    # representation-outermost and every difference it reported was indistinguishable from the
+    # machine warming up (URDRCNF1).
+    for pos, (rep, wl, depth) in enumerate(run_order()):
         w, lg = MS.workload(wl)
         frames, states, _wt = VC.full(w, lg)
         tick = MS.first_grounded_tick(wl)
@@ -549,9 +590,13 @@ def run_bench(out_path, iters=200, host_note="", declared_host=None, conditions=
             t0 = time.perf_counter_ns()
             one_rollback(rep, w, frames, states, tick, lg, depth, by_tick)
             samples.append(time.perf_counter_ns() - t0)
-        row = {"representation": rep, "workload": wl, "depth": depth}
+        # `depth` is the REQUEST and `ticks` is the WORK — carried side by side, because the depth
+        # axis SATURATES against the world's length and a table of 28 rows held 17 experiments.
+        row = {"representation": rep, "workload": wl, "depth": depth,
+               "ticks": MS.effective_ticks(wl, depth), "pos": pos}
         row.update(summarize(samples))
         rows.append(row)
+    rows.sort(key=lambda r: (r["representation"], r["workload"], r["depth"]))
     # NO DECLARATION -> the observed machine, which grades NOT_MEASURED because the observation is
     # not a declaration by anyone. The safe default stays uncitable, so forgetting to attest cannot
     # produce evidence by accident.
@@ -595,7 +640,11 @@ def scene_case(name):
             the_documented_invocation_grades_measured(), the_parser_refuses_what_it_cannot_name(),
             a_flag_is_never_a_path(), argv_is_parsed_in_exactly_one_place(),
             the_documented_argv_is_the_documented_one(),
-            sorted(parse_argv(list(DOCUMENTED_ARGV)).items()))
+            sorted(parse_argv(list(DOCUMENTED_ARGV)).items())) + \
+            "|order=%s|work=%s|dupes=%s" % (
+                the_run_order_is_not_the_plan_order(),
+                the_row_carries_the_work_not_only_the_request(),
+                MS.bench_duplicate_count())
     raise RollbenchError(f"no scene named {name!r}")
 
 
@@ -650,6 +699,8 @@ if __name__ == "__main__":
     print("a flag is no path :", a_flag_is_never_a_path())
     print("one argv parser   :", argv_is_parsed_in_exactly_one_place())
     print("note is apart     :", a_note_cannot_reach_the_checked_field())
+    print("run order balanced:", the_run_order_is_not_the_plan_order())
+    print("row carries work  :", the_row_carries_the_work_not_only_the_request())
     print("declared vs observed apart:", the_declaration_and_the_observation_are_apart())
     for host in ("a-laptop", SF.NAMED_HOST):
         p = parse_log(make_log(host, "3.11.0", _synthetic_rows(),
