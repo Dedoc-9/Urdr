@@ -31,6 +31,16 @@ to offer and the entry reads UNREACHABLE. That distinction is the whole detector
 would have passed any check that let a human type the expected string, because a human can type it.
 A machine could not, and the machine was the caller.
 
+AND THE BOUND THIS DETECTOR CANNOT SEE, learned by tripping over it one rung later: REACHABILITY IS
+ORTHOGONAL TO CURRENCY. The first entry registered here pointed at `sealframe.named_host_ok`, a law
+`sealframe` had ALREADY RETIRED for admitting readings — its own source says so, retains it for a
+full §3 protocol claim only, and ships a falsifier pinning its unsatisfiability. This module read
+the pair REACHABLE and was RIGHT: a literal satisfies that door. Whether a door OPENS and whether it
+is still the door the tree ENDORSES are different questions, and a green reading here says nothing
+about the second. `retire` (URDRRET1) is the half that asks it. The producer is now the COMMAND
+LINE for the same family of reason — a register naming the library call while the operator comes
+through `argv` measures a path nobody takes.
+
 `does_not_show` — and this bound matters more than the law: A REGISTER IS NOT A SURVEY. Eight pairs
 are enumerated here; the tree has more gates than that, and an unregistered gate is unchecked rather
 than proved reachable. What this rung establishes is that the RULE is now testable and that one
@@ -96,8 +106,18 @@ def _pairs():
     emit, and that gap is precisely the defect this module exists to find."""
     w, _lg, frames, states = _world()
     return (
-        ("rollbench.host_line -> sealframe.named_host_ok",
-         lambda: RB.host_line(SF.NAMED_HOST), SF.named_host_ok, "a-laptop | Linux 1.0"),
+        # AND THIS ENTRY WAS REGISTERED AGAINST THE WRONG DOOR, WHICH IS A SECOND FINDING ABOUT
+        # THIS REGISTER'S DISCIPLINE AND A DIFFERENT ONE FROM THE FIRST. It named
+        # `sealframe.named_host_ok`, a law `sealframe` had ALREADY RETIRED for admitting readings.
+        # The pair read REACHABLE and was right to: a literal satisfies it. REACHABILITY IS
+        # ORTHOGONAL TO CURRENCY — this detector asks whether a door opens, never whether it is
+        # still the door the tree endorses, and `retire` (URDRRET1) is the half that asks that.
+        # The producer is now the COMMAND LINE, because the command line is what the operator
+        # drives; registering the library call while the caller comes through argv measures a path
+        # nobody takes, which is how the repair in v1.1 shipped unreachable.
+        ("rollbench.parse_argv -> sealframe.conditions_sufficient",
+         lambda: RB.conditions_from(RB.parse_argv(list(RB.DOCUMENTED_ARGV))),
+         lambda c: not SF.conditions_sufficient(c, RB.INSTRUMENT), {"machine": "a-laptop"}),
         ("rollbench.make_log -> rollbench.parse_log",
          lambda: RB.make_log("someone", "3.11.0", RB._synthetic_rows(),
                              machine=RB.FIXED_MACHINE),
@@ -171,29 +191,36 @@ def every_gate_admits_what_its_producer_makes():
 
 
 def the_detector_bites():
-    """RED-FIRST, AND WITH THE EXACT DEFECT IT WAS BUILT FOR. `rollbench` v1's host string was
-    assembled mechanically as `node | system release | note`; re-plant that producer and the pair
-    reads UNREACHABLE, because `sealframe.NAMED_HOST` contains no `|` at all and no machine could
-    ever have emitted a string it accepts."""
-    real = RB.host_line
+    """RED-FIRST, AND WITH THE EXACT DEFECT IT WAS BUILT FOR — now the v1.1 one, which is sharper
+    than v1's. v1.1 REPAIRED the host law and left its own COMMAND LINE reading `argv[i+1]` as a
+    path, so `--bench --host "<decl>"` made `--host` the filename and the declaration the note.
+    Re-plant that positional reader and the documented invocation yields conditions the live door
+    refuses, so the pair reads UNREACHABLE: the repair existed and no operator could reach it."""
+    real = RB.parse_argv
+
+    def v11(argv):
+        i = argv.index("--bench")
+        return {"out": argv[i + 1] if len(argv) > i + 1 else "",
+                "note": argv[i + 2] if len(argv) > i + 2 else "",
+                "machine": argv[argv.index("--host") + 1] if "--host" in argv else "",
+                "power": "", "scheduler": ""}
     try:
-        RB.host_line = lambda declared, note="": RB.observed_machine() + (
-            f" | {note}" if note else "")
+        RB.parse_argv = v11
         return verdict(names()[0]) == UNREACHABLE
     finally:
-        RB.host_line = real
+        RB.parse_argv = real
 
 
 def a_gate_that_accepts_everything_is_caught():
     """The other half, planted separately: a gate admitting its counterexample reads VACUOUS. Both
     plants are needed because a register that only checked reachability would certify a door that
     was never shut."""
-    real = SF.named_host_ok
+    real = SF.conditions_sufficient
     try:
-        SF.named_host_ok = lambda _h: True
+        SF.conditions_sufficient = lambda _c, _i: ()
         return verdict(names()[0]) == VACUOUS
     finally:
-        SF.named_host_ok = real
+        SF.conditions_sufficient = real
 
 
 def the_witness_is_produced_not_written():

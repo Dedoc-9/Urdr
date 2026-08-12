@@ -34,6 +34,28 @@
 # quantiles are reported so a reader can judge, and no confidence interval is claimed); that
 # `perf_counter` resolves what the differences require — the operator's log carries the interpreter
 # and platform so that question can be asked of the numbers rather than of a docstring.
-format a3c9aa974fbf05e8a79759dc1f7a23f4c17915706a882c6932ccf89c37bf640c
-provenance 5aaaf99347addaf7c5e10cc87ce388470b7a2fe145ae8c4c6f18147a4e43e781
+#
+# RE-PINNED AT v1.2, AND THE FINDING IS SHARPER THAN v1.1'S. The v1.1 repair was real and
+# UNREACHABLE FROM THE COMMAND LINE. `__main__` read `argv[i+1]` as the output path, so
+# `--bench --host "<decl>"` made `--host` the FILENAME and the operator's declaration the NOTE —
+# which v1.1 then appended to the checked field as ` | {note}`, re-breaking it. An operator typed
+# the documented command and got a refusal that was the harness's fault, twice.
+#
+# AND THE DOOR ITSELF WAS RETIRED. `sealframe` had ALREADY retired `named_host_ok` for admitting
+# readings — its own source says so, retains it for a full §3 protocol claim only, and ships a
+# falsifier pinning its unsatisfiability. This module imported it anyway and rebuilt the identical
+# defect on top of it, because the retirement lived in PROSE six hundred lines from the call site.
+# The live door is `conditions_sufficient`: conditions are DATA and each instrument class requires
+# exactly the ones that CAN MOVE ITS READING. This harness is a SOFTWARE TIMER, so it requires
+# machine, power and scheduler and NOT display — which panel is attached cannot move a
+# `perf_counter_ns` reading, and demanding it would refuse a valid reading for an irrelevant
+# reason. `retire` (URDRRET1) now sweeps the tree for exactly this.
+#
+# The `commandline` scene is new: the documented argv, parsed by this module's own parser, graded;
+# four refusals (unknown flag, flag-swallowing-flag, two positionals, no --bench); the structural
+# one-parser law; and the doc/executable binding.
+format 065cc277d110a0475a2f0edd82cebadab873117aa90fe5ff6a17852e0f7f8a45
+provenance 59525f921991b0ae9978bda8de68ea8d00f031d6bab5ee635a1e8ab6a2be5ded
 plan a15af9f15f1f15005d4b2ee7d7d89287c33fe56148c4656a56e33ff0a48fc4b7
+commandline 4b9dac835a32a615b241eef370ddda45a36f04e6504b36b8bd42b28c7e7a069c
+rollbench fdfcda34eaa2825381e3b8065df2fc857acd62aeef64982cc03bc78f48c836c4

@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_retire.txt — URDRRET1 pinned scenes.
+#
+# A RETIRED LAW NAMES ITS SUCCESSOR, AND NOTHING OUTSIDE ITS OWN MODULE MAY CALL IT.
+#
+# THE COMPANION `reachable` COULD NOT ASK THIS. Reachability asks whether a door OPENS;
+# this asks whether it is still the door the tree ENDORSES. Both read green while the
+# wrong one is in use — which is not hypothetical. `sealframe` retired `named_host_ok`
+# for admitting readings, wrote the paragraph, built `conditions_sufficient`, and pinned
+# the old law's unsatisfiability with a falsifier. `rollbench` imported the retired law
+# anyway and rebuilt the identical defect on top of it; `reachable` certified the pair
+# REACHABLE, correctly, because a literal satisfies it.
+#
+# A COMMENT DOES NOT TRAVEL. A CALLER READS AN API, NOT A PARAGRAPH. So the retirement
+# is DATA — RETIRED[symbol] = (successor, reason) — swept tree-wide from the AST.
+#
+# sweep   — every declared retirement's verdict, whether each carries a reason, and the
+#           declared-not-discovered floor (module-level callables defined vs retired).
+# plants  — STALE (a replanted cross-module call, the line this rung removed), CLEAN for
+#           a module naming the law only in PROSE, UNNAMED for a successor that does not
+#           exist, VACUOUS for an empty register, and the OWNER's own calls staying lawful.
+#
+# does_not_show: WHETHER A LAW OUGHT TO BE RETIRED. Retirement is the OWNER'S declaration,
+# read from a register — a law that is dead in a maintainer's head and live in the file is
+# invisible to this sweep, which would certify the whole tree CLEAN the day before someone
+# writes the first register that catches something. It does not show that the successor is
+# CORRECT, only that it exists and is named. It does not sweep `tests/`, by rule: a falsifier
+# may call a retired law to pin why it was retired, and reddening on that would delete the
+# evidence for the retirement being enforced. `declared != discovered`.
+#
+# DECLARED: the register's membership, and the SWEPT directory list. Both are choices, pinned
+# as data so the boundary is a floor rather than a survey.
+
+sweep 507f68199da7ca29764fedf2ae719af5fb2b3d7fa9ffdd385b4e9df472b25d2c
+plants c168fbb2ad07ddebc736e432c4ffb2101e82dc29ac3b9bc286b8cf5c9acfe277
+retire 2810693eea586ccba2644e2a23af282e2fa88a7c8538ea2fb844b106e974f1ff

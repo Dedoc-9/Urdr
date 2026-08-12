@@ -78,11 +78,79 @@ NOT_MEASURED = "NOT_MEASURED"
 #: golden that let it default would digest this container's hostname.
 FIXED_MACHINE = "fixture-box | Fixture 0"
 
+#: The other two SOFTWARE-TIMER conditions, pinned for fixtures for the same reason.
+FIXED_CONDITIONS = {"power": "AC Turbo-35W", "scheduler": "Fixture-Sched"}
+
+#: WHAT KIND OF INSTRUMENT THIS IS, declared so `sealframe.CONDITIONS_FOR` can say which conditions
+#: are allowed to move its reading. `time.perf_counter_ns` on a CPU segment: a software timer.
+INSTRUMENT = "software-timer"
+
+#: THE FLAGS, ENUMERATED — so an unknown one can be REFUSED. `--host` is `--machine` under the name
+#: the operator already types. A flag not named here is not silently a path.
+VALUE_FLAGS = ("--out", "--note", "--machine", "--host", "--power", "--scheduler")
+
+#: THE INVOCATION THE DOCS PROMISE, as data. Held here so a law can check it is (a) accepted by
+#: this module's own parser and (b) present VERBATIM in the usage text a human reads — a documented
+#: command line nothing parses is a claim, and this arc has already shipped one of those.
+DOCUMENTED_ARGV = ("--bench", "--host", "<machine>", "--power", "<power>",
+                   "--scheduler", "<scheduler>")
+
+USAGE_HINT = ('--bench --host "<machine>" --power "<power>" --scheduler "<scheduler>"')
+
 
 class RollbenchError(Exception):
     def __init__(self, message):
         super().__init__(f"ROLLBENCH-REFUSE: {message}")
         self.code = "ROLLBENCH-REFUSE"
+
+
+# ---- the command line, which is a producer too ------------------------------------------------------
+def parse_argv(argv):
+    """THE ENTRY POINT IS A DOOR AND IT HAD NONE. v1.1 read `argv[i+1]` as the output path and
+    `argv[i+2]` as the note, so `--bench --host "<decl>"` made `--host` the PATH and the operator's
+    declaration the NOTE — which v1.1 then appended to the checked field. The repair upstream was
+    real and unreachable from the command line, which is the only way anyone invokes it.
+
+    So: FLAGS ARE ENUMERATED AND AN UNKNOWN ONE REFUSES. A token starting with `-` is never a
+    positional. A flag with no value refuses rather than swallowing the next flag."""
+    argv = list(argv)
+    if "--bench" not in argv:
+        raise RollbenchError("parse_argv is the --bench parser and this argv has no --bench")
+    rest = argv[argv.index("--bench") + 1:]
+    out = {"out": "", "note": "", "machine": "", "power": "", "scheduler": ""}
+    positional = []
+    i = 0
+    while i < len(rest):
+        tok = rest[i]
+        if tok in VALUE_FLAGS:
+            if i + 1 >= len(rest) or rest[i + 1].startswith("--"):
+                raise RollbenchError(f"{tok} names no value — a flag that swallows the next flag "
+                                     f"is how a declaration became a filename")
+            key = "machine" if tok == "--host" else tok[2:]
+            out[key] = rest[i + 1]
+            i += 2
+            continue
+        if tok.startswith("-"):
+            raise RollbenchError(f"unknown flag {tok!r} — the flags are "
+                                 f"{', '.join(VALUE_FLAGS)}; an unrecognised token is REFUSED "
+                                 f"rather than read as a path, because reading it as a path is "
+                                 f"exactly how this runner lost an operator's declaration")
+        positional.append(tok)
+        i += 1
+    if len(positional) > 1:
+        raise RollbenchError(f"{len(positional)} positional arguments after --bench; at most one "
+                             f"(the output path) is meaningful — the note is `--note`")
+    if positional and not out["out"]:
+        out["out"] = positional[0]
+    return out
+
+
+def conditions_from(parsed_argv):
+    """argv -> the conditions dict `sealframe` grades. THE PRODUCER THE OPERATOR ACTUALLY DRIVES,
+    which is the one a reachability register must hold: a register naming the library call while
+    the caller comes through argv measures a path nobody takes."""
+    return {"machine": parsed_argv["machine"], "power": parsed_argv["power"],
+            "scheduler": parsed_argv["scheduler"]}
 
 
 # ---- the plan, read from `measure` ---------------------------------------------------------------
@@ -140,20 +208,16 @@ def summarize(samples):
 
 
 # ---- the log --------------------------------------------------------------------------------------
-def host_line(declared, note=""):
-    """THE HOST THE CLAIM IS ABOUT, DECLARED BY THE OPERATOR — not assembled from `platform.node()`.
+def host_line(declared):
+    """THE MACHINE THE CLAIM IS ABOUT, DECLARED BY THE OPERATOR — not assembled from
+    `platform.node()`, and NOT A CONCATENATION TARGET.
 
-    THIS IS THE REPAIR OF AN UNSATISFIABLE LAW, and the defect was mine. v1 built the host string
-    mechanically as `node | system release | note` and handed it to `sealframe.named_host_ok`,
-    which requires §1's verbatim declaration — a string containing no `|` at all. NO INVOCATION ON
-    ANY MACHINE COULD HAVE PASSED. That is L65's defect (2) exactly, in the module whose whole job
-    is to be honest about provenance, and it reddened nothing until an operator ran it.
-
-    The host is now what the operator ATTESTS, because "every condition fused into one string" is a
-    human's claim about power, scheduler and thermal mode that no `platform` call can make. The
-    machine's own report is kept BESIDE it as `machine`, so a reader can weigh the attestation
-    against what the box said about itself — evidence, not verification."""
-    return str(declared).strip() + (f" | {note}".rstrip() if note else "")
+    v1.1 took a `note` and appended it as ` | {note}`, which meant any note at all re-broke the
+    check downstream. A CHECKED FIELD MAY NOT BE SOMETHING OTHER TEXT IS APPENDED TO: the note is
+    a separate log field now, because a field that anything may be added to cannot be compared to
+    anything. The machine's own report is kept BESIDE the declaration as `machine`, so a reader can
+    weigh the attestation against what the box said about itself — evidence, not verification."""
+    return str(declared).strip()
 
 
 def observed_machine():
@@ -164,12 +228,22 @@ def observed_machine():
     return f"{platform.node()} | {platform.system()} {platform.release()}"
 
 
-def make_log(host, python, rows, plan_dig=None, machine=""):
-    """SELF-DIGESTED. The DECLARED host, the OBSERVED machine, the interpreter, the digest of the
-    plan that was run, then one row per cell. A single byte changed anywhere breaks the seal."""
+def make_log(host, python, rows, plan_dig=None, machine="", note="", conditions=None):
+    """SELF-DIGESTED. The DECLARED machine, the OBSERVED machine, the operator's other declared
+    CONDITIONS, a free note, the interpreter, the digest of the plan that was run, then one row per
+    cell. A single byte changed anywhere breaks the seal.
+
+    `host` and `cond power` / `cond scheduler` are the three conditions `sealframe.CONDITIONS_FOR`
+    requires of a SOFTWARE TIMER. `note` is free text and is deliberately its OWN field: v1.1
+    appended it to the declaration and thereby broke the only field anything checks."""
     dig = plan_dig or plan_digest()
-    body = [f"{MAGIC} rollbench v1", f"host {host}", f"machine {machine or observed_machine()}",
-            f"python {python}", f"plan {dig}"]
+    cond = dict(conditions or {})
+    body = [f"{MAGIC} rollbench v1", f"host {host}", f"machine {machine or observed_machine()}"]
+    for k in ("power", "scheduler"):
+        body.append(f"cond {k} {cond.get(k, '').strip() or '-'}")
+    body.append(f"note {str(note).strip() or '-'}")
+    body += [f"instrument {INSTRUMENT}"]
+    body += [f"python {python}", f"plan {dig}"]
     for r in rows:
         missing = [f for f in ROW_FIELDS if f not in r]
         if missing:
@@ -193,7 +267,8 @@ def parse_log(text):
     if got != want:
         raise RollbenchError(f"the digest does not match the body ({got[:12]} vs {want[:12]}) — "
                              f"a log that has been edited is not a log")
-    out = {"host": "", "machine": "", "python": "", "plan": "", "rows": []}
+    out = {"host": "", "machine": "", "python": "", "plan": "", "note": "", "instrument": "",
+           "cond": {}, "rows": []}
     for ln in lines[1:-1]:
         key, _sp, rest = ln.partition(" ")
         if key == "row":
@@ -201,27 +276,57 @@ def parse_log(text):
             if len(vals) != len(ROW_FIELDS):
                 raise RollbenchError(f"row {rest!r} has {len(vals)} fields, not {len(ROW_FIELDS)}")
             out["rows"].append(dict(zip(ROW_FIELDS, vals)))
+        elif key == "cond":
+            ck, _s2, cv = rest.strip().partition(" ")
+            out["cond"][ck] = "" if cv.strip() == "-" else cv.strip()
+        elif key == "note":
+            out["note"] = "" if rest.strip() == "-" else rest.strip()
         elif key in out:
             out[key] = rest.strip()
-    for k in ("host", "machine", "python", "plan"):
+    for k in ("host", "machine", "python", "plan", "instrument"):
         if not out[k]:
             raise RollbenchError(f"the log names no {k}")
+    for k in ("power", "scheduler"):
+        if k not in out["cond"]:
+            raise RollbenchError(f"the log declares no {k} condition — an ABSENT declaration and "
+                                 f"an EMPTY one are different findings, so the field is required "
+                                 f"and '-' is how the operator says 'not declared'")
     return out
 
 
 # ---- the provenance law ---------------------------------------------------------------------------
+def conditions_of(parsed):
+    """The operator's declared conditions, in `sealframe`'s vocabulary. `host` IS the machine
+    condition — the same declaration under the name the instrument law uses."""
+    c = {"machine": parsed["host"]}
+    c.update({k: v for k, v in parsed["cond"].items() if v})
+    return c
+
+
 def evidence_grade(parsed):
     """IS THE LOG ADMISSIBLE? A different question from whether the CLAIM is well formed, and
-    fusing them is the defect this layering exists to prevent: a log from an unnamed machine is a
-    perfectly well-formed log AND inadmissible evidence.
+    fusing them is the defect this layering exists to prevent: a log from an undeclared machine is
+    a perfectly well-formed log AND inadmissible evidence.
 
-    The host law is `sealframe.NAMED_HOST` — the operator's own declared machine, conditions and
-    all — READ rather than restated, because this module has no standing to write a host law."""
-    if SF.named_host_ok(parsed["host"]):
+    THIS ASKED THE RETIRED QUESTION UNTIL v1.2, AND THAT IS THE FINDING THIS VERSION CARRIES.
+    v1 and v1.1 called `sealframe.named_host_ok`, which `sealframe` had ALREADY RETIRED for
+    admitting readings — its own source says so in a paragraph, retains the function for a full §3
+    protocol claim only, and ships a falsifier pinning its unsatisfiability. The prose was six
+    hundred lines from the call site and nothing mechanical stopped the import, so this module
+    rebuilt the identical defect on top of a law whose obituary it had been handed.
+
+    The live door is `conditions_sufficient(conditions, instrument)`: conditions are DATA and each
+    instrument class requires exactly the ones that CAN MOVE ITS READING. This harness is a
+    SOFTWARE TIMER, so it requires machine, power and scheduler — and NOT display, because which
+    panel is attached cannot move a `perf_counter_ns` reading and demanding it would refuse a valid
+    reading for an irrelevant reason. Read from `sealframe`, never restated here."""
+    missing = SF.conditions_sufficient(conditions_of(parsed), INSTRUMENT)
+    if not missing:
         return (MEASURED, parsed["host"])
-    return (NOT_MEASURED, f"{parsed['host']!r} is not the named host — a timing from an unnamed "
-                          f"machine under an unknown scheduler is a well-formed log and "
-                          f"inadmissible evidence, which are different findings")
+    return (NOT_MEASURED, f"the log declares no {', '.join(missing)} — a {INSTRUMENT} reading is "
+                          f"moved by {', '.join(SF.CONDITIONS_FOR[INSTRUMENT])}, so a timing "
+                          f"missing any of them is a well-formed log and inadmissible evidence, "
+                          f"which are different findings. Re-run with: {USAGE_HINT}")
 
 
 def claim_from(parsed, workload, denominator="ms_per_rollback"):
@@ -273,25 +378,123 @@ def _this_host():
     return observed_machine()
 
 
+def _declared_log(machine=FIXED_MACHINE, note=""):
+    """A fully-declared fixture log, built the way the runner builds one."""
+    return make_log(host_line(SF.NAMED_HOST), "3.11.0", _synthetic_rows(), machine=machine,
+                    note=note, conditions=FIXED_CONDITIONS)
+
+
+def the_documented_invocation_grades_measured():
+    """THE WITNESS THE UNSATISFIABLE LAW LACKED, NOW TAKEN FROM THE COMMAND LINE RATHER THAN FROM
+    THE LIBRARY — because the library was never the caller.
+
+    v1.1 asserted a passing log was producible by calling `host_line` directly, and it was; the
+    same repair was UNREACHABLE through `argv`, where every operator actually is. So the witness
+    starts at `DOCUMENTED_ARGV` — the command line the docs promise — runs it through this
+    module's own parser, and grades the log that comes out."""
+    a = parse_argv(list(DOCUMENTED_ARGV))
+    cond = conditions_from(a)
+    text = make_log(host_line(cond["machine"]), "3.11.0", _synthetic_rows(),
+                    machine=FIXED_MACHINE, note=a["note"], conditions=cond)
+    return evidence_grade(parse_log(text))[0] == MEASURED
+
+
 def a_passing_log_is_producible():
-    """THE WITNESS THE UNSATISFIABLE LAW LACKED. There must EXIST a host string this runner can
-    emit that `sealframe.named_host_ok` ACCEPTS — otherwise the gate is unreachable from real
-    input and a green selftest proves only synthetic failure (L65's defect 2, whose general
-    detector `reachable` now mechanizes). Built through `host_line`, the runner's own path."""
-    text = make_log(host_line(SF.NAMED_HOST), "3.11.0", _synthetic_rows(),
-                    machine=FIXED_MACHINE)
-    grade, _why = evidence_grade(parse_log(text))
-    return grade == MEASURED
+    """The library half of the same law, kept because the two can diverge and did: v1.1 satisfied
+    THIS and failed the one above, which is the whole finding."""
+    return evidence_grade(parse_log(_declared_log()))[0] == MEASURED
+
+
+def a_note_cannot_reach_the_checked_field():
+    """THE ROOT CAUSE, PINNED — AND THE FIRST FORM OF THIS LAW WAS VACUOUS, WHICH IS RECORDED
+    BECAUSE IT IS THE SAME MISTAKE ONE TURN SMALLER.
+
+    It asserted that a log with a note still GRADES MEASURED. Under v1.2 that cannot fail: the
+    machine is DECLARED DATA and `conditions_sufficient` only asks whether a declaration is
+    present, so a fused `NAMED | note` satisfies it exactly as well as `NAMED`. A law whose plant
+    does not move it is not a law (L23), so it is asserted on the FIELDS instead: whatever the
+    note, the declaration comes back BYTE-FOR-BYTE and the note comes back separately. That does
+    move — replant v1.1's fusion and the declaration returns with the note welded to it."""
+    for note in ("", "-", "a note", "--host", "x | y"):
+        p = parse_log(_declared_log(note=note))
+        if p["host"] != SF.NAMED_HOST:
+            return False
+        if p["note"] != ("" if note in ("", "-") else note):
+            return False
+    return True
 
 
 def the_declaration_and_the_observation_are_apart():
     """The attestation is the operator's; the machine's self-report is the box's. A log carries
     BOTH and the law checks only the first, because no `platform` call can confirm a thermal mode
     — recording the observation as if it verified the declaration is the same error one layer on."""
-    p = parse_log(make_log(host_line(SF.NAMED_HOST), "3.11.0", _synthetic_rows(),
-                           machine="some-other-box | Fixture 0"))
+    p = parse_log(_declared_log(machine="some-other-box | Fixture 0"))
     return (p["host"] == SF.NAMED_HOST and p["machine"] != p["host"]
             and evidence_grade(p)[0] == MEASURED)
+
+
+def the_parser_refuses_what_it_cannot_name():
+    """FOUR REFUSALS, EACH THE SHAPE THAT LOST THE OPERATOR'S DECLARATION: an unknown flag read as
+    a path, a flag swallowing the next flag as its value, two positionals where one is meaningful,
+    and an argv with no `--bench` at all."""
+    bad = (["--bench", "--wat", "x"], ["--bench", "--host", "--power"],
+           ["--bench", "a.txt", "b.txt"], ["--host", "x"])
+    caught = 0
+    for argv in bad:
+        try:
+            parse_argv(argv)
+        except RollbenchError:
+            caught += 1
+    return caught == len(bad)
+
+
+def a_flag_is_never_a_path():
+    """THE DEFECT ITSELF, as an assertion rather than a story. The operator typed
+    `--bench --host "<decl>"`; v1.1 made `--host` the output path and the declaration the note."""
+    a = parse_argv(["--bench", "--host", "the-machine"])
+    return a["out"] == "" and a["machine"] == "the-machine" and a["note"] == ""
+
+
+def argv_is_parsed_in_exactly_one_place():
+    """STRUCTURAL, BY AST, AND THE FIRST DRAFT OF THIS LAW WAS WRONG IN A WAY WORTH KEEPING.
+
+    It asserted that every subscript of `_sys.argv` sits inside `parse_argv` — and read False,
+    because `parse_argv` takes argv as a PARAMETER and never touches `_sys` at all. The law was
+    describing a design it had itself made obsolete: the fix is that the module-level name is
+    passed WHOLE and sliced nowhere.
+
+    So: no `_sys.argv` anywhere in this file may be SUBSCRIPTED or have `.index` called on it —
+    those are the two operations v1.1 used to turn a flag into a filename — and `parse_argv` must
+    be the thing it is handed to. A second reader of argv is a second parser, and the one that lost
+    the operator's declaration was the one nobody was looking at."""
+    import ast
+    with open(_os.path.abspath(__file__), encoding="utf-8") as fh:
+        tree = ast.parse(fh.read())
+    sliced, handed = 0, 0
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Subscript) and _is_argv(n.value):
+            sliced += 1
+        if isinstance(n, ast.Call):
+            if isinstance(n.func, ast.Attribute) and _is_argv(n.func.value):
+                sliced += 1
+            if isinstance(n.func, ast.Name) and n.func.id == "parse_argv" \
+                    and any(_is_argv(arg) for arg in n.args):
+                handed += 1
+    return sliced == 0 and handed == 1
+
+
+def _is_argv(node):
+    import ast
+    return (isinstance(node, ast.Attribute) and node.attr == "argv"
+            and isinstance(node.value, ast.Name) and node.value.id == "_sys")
+
+
+def the_documented_argv_is_the_documented_one():
+    """THE DOC AND THE EXECUTABLE, BOUND. `DOCUMENTED_ARGV` is what a law parses; `USAGE_HINT` is
+    what a human reads and what a refusal prints. If they drift, the tree documents a command line
+    nothing tests — which is the class of defect one layer out from the one this rung repairs."""
+    return all(tok in USAGE_HINT for tok in DOCUMENTED_ARGV if tok != "--bench") \
+        and "--bench" in USAGE_HINT
 
 
 def _synthetic_rows(n=3):
@@ -327,7 +530,7 @@ def the_seal_bites():
 
 
 # ---- the operator command --------------------------------------------------------------------------
-def run_bench(out_path, iters=200, host_note="", declared_host=None):
+def run_bench(out_path, iters=200, host_note="", declared_host=None, conditions=None):
     """OFF-GATE, and the only place a clock appears. Times `restore + replay` for every cell of the
     plan and writes a sealed log. Reports quantiles rather than a mean, because rollback latency is
     exactly the shape where a mean hides the tail. It computes NO comparison."""
@@ -349,11 +552,12 @@ def run_bench(out_path, iters=200, host_note="", declared_host=None):
         row = {"representation": rep, "workload": wl, "depth": depth}
         row.update(summarize(samples))
         rows.append(row)
-    # NO DECLARATION -> the observed machine, which grades NOT_MEASURED. The safe default stays
-    # uncitable, so forgetting to attest cannot produce evidence by accident.
-    host = host_line(declared_host, host_note) if declared_host else \
-        (observed_machine() + (f" | {host_note}" if host_note else ""))
-    text = make_log(host, platform.python_version(), rows)
+    # NO DECLARATION -> the observed machine, which grades NOT_MEASURED because the observation is
+    # not a declaration by anyone. The safe default stays uncitable, so forgetting to attest cannot
+    # produce evidence by accident.
+    host = host_line(declared_host) if declared_host else observed_machine()
+    text = make_log(host, platform.python_version(), rows, note=host_note,
+                    conditions=conditions or {})
     with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
     parsed = parse_log(text)
@@ -362,28 +566,36 @@ def run_bench(out_path, iters=200, host_note="", declared_host=None):
 
 
 # ---- scenes ------------------------------------------------------------------------------------------
-SCENES = ("format", "provenance", "plan")
+SCENES = ("format", "provenance", "plan", "commandline")
 
 
 def scene_case(name):
     if name == "format":
-        text = make_log("someone", "3.11.0", _synthetic_rows(), machine=FIXED_MACHINE)
+        text = make_log("someone", "3.11.0", _synthetic_rows(), machine=FIXED_MACHINE,
+                        conditions=FIXED_CONDITIONS)
         p = parse_log(text)
-        return "%d rows|%s|%s|%s|%s" % (len(p["rows"]), p["host"], p["machine"],
-                                        p["plan"][:12], the_seal_bites())
+        return "%d rows|%s|%s|%s|%s|%s" % (len(p["rows"]), p["host"], p["machine"],
+                                           sorted(p["cond"].items()), p["plan"][:12],
+                                           the_seal_bites())
     if name == "provenance":
         unnamed = parse_log(make_log("a-laptop", "3.11.0", _synthetic_rows(),
                                      machine=FIXED_MACHINE))
-        named = parse_log(make_log(SF.NAMED_HOST, "3.11.0", _synthetic_rows(),
-                                   machine=FIXED_MACHINE))
-        return "unnamed=%s|named=%s|apart=%s|container=%s|producible=%s|apart2=%s" % (
+        named = parse_log(_declared_log())
+        return "unnamed=%s|named=%s|apart=%s|container=%s|producible=%s|apart2=%s|note=%s" % (
             evidence_grade(unnamed)[0], evidence_grade(named)[0],
             the_two_questions_are_apart(unnamed),
             nothing_this_container_produces_is_citable(),
-            a_passing_log_is_producible(), the_declaration_and_the_observation_are_apart())
+            a_passing_log_is_producible(), the_declaration_and_the_observation_are_apart(),
+            a_note_cannot_reach_the_checked_field())
     if name == "plan":
         p = plan()
         return "%s|%d cells|%s" % (sorted(p.items()), len(cells()), no_verdict_is_emitted())
+    if name == "commandline":
+        return "documented=%s|refuses=%s|flagpath=%s|oneparser=%s|bound=%s|argv=%s" % (
+            the_documented_invocation_grades_measured(), the_parser_refuses_what_it_cannot_name(),
+            a_flag_is_never_a_path(), argv_is_parsed_in_exactly_one_place(),
+            the_documented_argv_is_the_documented_one(),
+            sorted(parse_argv(list(DOCUMENTED_ARGV)).items()))
     raise RollbenchError(f"no scene named {name!r}")
 
 
@@ -409,14 +621,17 @@ def golden(name):
 
 if __name__ == "__main__":
     if "--bench" in _sys.argv:
-        i = _sys.argv.index("--bench")
-        out = _sys.argv[i + 1] if len(_sys.argv) > i + 1 else _os.path.join(
+        try:
+            a = parse_argv(_sys.argv)
+        except RollbenchError as exc:
+            print("ROLLBENCH REFUSED")
+            print(" ", exc)
+            print("  usage : rollbench.py", USAGE_HINT)
+            raise SystemExit(2)
+        out = a["out"] or _os.path.join(
             _os.path.dirname(_os.path.dirname(_HERE)), "spec", "attest", "rollbench.txt")
-        note = _sys.argv[i + 2] if len(_sys.argv) > i + 2 else ""
-        declared = None
-        if "--host" in _sys.argv:
-            declared = _sys.argv[_sys.argv.index("--host") + 1]
-        rep = run_bench(out, host_note=note, declared_host=declared)
+        rep = run_bench(out, host_note=a["note"], declared_host=a["machine"] or None,
+                        conditions=conditions_from(a))
         print("ROLLBENCH ->", rep["path"])
         print("  cells :", rep["cells"])
         print("  host  :", rep["host"])
@@ -430,9 +645,15 @@ if __name__ == "__main__":
     print("no verdict emitted:", no_verdict_is_emitted())
     print("uncitable here    :", nothing_this_container_produces_is_citable())
     print("passing log exists:", a_passing_log_is_producible())
+    print("documented argv   :", the_documented_invocation_grades_measured())
+    print("parser refuses    :", the_parser_refuses_what_it_cannot_name())
+    print("a flag is no path :", a_flag_is_never_a_path())
+    print("one argv parser   :", argv_is_parsed_in_exactly_one_place())
+    print("note is apart     :", a_note_cannot_reach_the_checked_field())
     print("declared vs observed apart:", the_declaration_and_the_observation_are_apart())
     for host in ("a-laptop", SF.NAMED_HOST):
-        p = parse_log(make_log(host, "3.11.0", _synthetic_rows()))
+        p = parse_log(make_log(host, "3.11.0", _synthetic_rows(),
+                               conditions=FIXED_CONDITIONS if host == SF.NAMED_HOST else None))
         print("  %-24s -> %s" % (host[:24], evidence_grade(p)[0]))
     print("two questions apart:", the_two_questions_are_apart(
         parse_log(make_log("a-laptop", "3.11.0", _synthetic_rows()))))

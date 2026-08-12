@@ -103,13 +103,26 @@ class TheProvenanceLaw(unittest.TestCase):
 
     def test_the_named_host_grades_measured(self):
         """NON-VACUITY: a law that refused every host would be a wall."""
-        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
+        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE,
+                                    conditions=RB.FIXED_CONDITIONS))
         self.assertEqual(RB.evidence_grade(p)[0], RB.MEASURED)
 
-    def test_the_host_law_is_read_from_sealframe(self):
-        """This module has no standing to write a host law; it reads the operator's declared one."""
-        self.assertTrue(SF.named_host_ok(SF.NAMED_HOST))
-        self.assertFalse(SF.named_host_ok("a-laptop"))
+    def test_the_admission_law_is_read_from_sealframe(self):
+        """This module has no standing to write a host law; it reads `sealframe`'s LIVE one —
+        `conditions_sufficient`, not the retired verbatim-string check."""
+        self.assertEqual(RB.INSTRUMENT, "software-timer")
+        self.assertEqual(SF.conditions_sufficient(
+            {"machine": "m", "power": "p", "scheduler": "s"}, RB.INSTRUMENT), ())
+        self.assertIn("power", SF.conditions_sufficient({"machine": "m"}, RB.INSTRUMENT))
+
+    def test_a_software_timer_does_not_need_a_display(self):
+        """The over-strictness the retired law carried, made concrete HERE: which panel is
+        attached cannot move a `perf_counter_ns` reading, so demanding it would refuse a valid
+        reading for an irrelevant reason."""
+        self.assertNotIn("display", SF.CONDITIONS_FOR[RB.INSTRUMENT])
+        p = RB.parse_log(RB._declared_log())
+        self.assertEqual(RB.evidence_grade(p)[0], RB.MEASURED)
+        self.assertNotIn("display", RB.conditions_of(p))
 
     def test_nothing_this_container_produces_is_citable(self):
         """The honest state of a benchmark written on the wrong machine, asserted rather than
@@ -125,11 +138,13 @@ class TheProvenanceLaw(unittest.TestCase):
         self.assertEqual(grade, RB.NOT_MEASURED)
 
     def test_the_claim_it_builds_is_admitted_by_measure(self):
-        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
+        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE,
+                                    conditions=RB.FIXED_CONDITIONS))
         self.assertEqual(MS.claim_fault(RB.claim_from(p, "alternating")), "")
 
     def test_a_claim_missing_a_term_is_not(self):
-        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
+        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE,
+                                    conditions=RB.FIXED_CONDITIONS))
         bad = RB.claim_from(p, "alternating")
         bad.pop("host_log")
         self.assertNotEqual(MS.claim_fault(bad), "")
@@ -170,6 +185,83 @@ class TheUnsatisfiableLawIsRepaired(unittest.TestCase):
         text = RB.make_log("someone", "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE)
         with self.assertRaises(RB.RollbenchError):
             RB.parse_log(text.replace("machine %s\n" % RB.FIXED_MACHINE, ""))
+
+
+class TheRepairWasUnreachableFromTheCommandLine(unittest.TestCase):
+    """v1.1 REPAIRED THE HOST LAW AND SHIPPED THE REPAIR WHERE NO OPERATOR COULD REACH IT.
+
+    Its `__main__` read `argv[i+1]` as the output path, so `--bench --host "<decl>"` made `--host`
+    the FILENAME and the declaration the NOTE — which v1.1 then appended to the checked field as
+    ` | {note}`, re-breaking it. The library law was satisfiable and the command line was not, and
+    the command line is the only way anyone invokes this."""
+
+    def test_the_documented_invocation_grades_measured(self):
+        """The witness taken from `argv` rather than from the library, because the library was
+        never the caller."""
+        self.assertTrue(RB.the_documented_invocation_grades_measured())
+
+    def test_a_flag_is_never_a_path(self):
+        """The defect, as an assertion rather than a story."""
+        self.assertTrue(RB.a_flag_is_never_a_path())
+        a = RB.parse_argv(["--bench", "--host", "the-machine"])
+        self.assertEqual(a["out"], "")
+        self.assertEqual(a["machine"], "the-machine")
+
+    def test_the_v1_1_reader_would_have_lost_the_declaration(self):
+        """RED, EXHIBITED. The old positional reader on the operator's own argv puts the
+        declaration in `note` and `--host` in `out`."""
+        argv = ["--bench", "--host", "DECL"]
+        i = argv.index("--bench")
+        self.assertEqual(argv[i + 1], "--host")               # the "output path"
+        self.assertEqual(argv[i + 2], "DECL")                 # the "note"
+
+    def test_the_parser_refuses_what_it_cannot_name(self):
+        self.assertTrue(RB.the_parser_refuses_what_it_cannot_name())
+        for argv in (["--bench", "--wat", "x"], ["--bench", "--host", "--power"],
+                     ["--bench", "a.txt", "b.txt"], ["--host", "x"]):
+            with self.subTest(" ".join(argv)):
+                with self.assertRaises(RB.RollbenchError):
+                    RB.parse_argv(argv)
+
+    def test_argv_is_parsed_in_exactly_one_place(self):
+        """STRUCTURAL. A second reader of argv is a second parser, and the one that lost the
+        declaration was the one nobody was looking at."""
+        self.assertTrue(RB.argv_is_parsed_in_exactly_one_place())
+
+    def test_a_note_cannot_reach_the_checked_field(self):
+        """THE ROOT CAUSE. A checked field may not be something other text is appended to."""
+        self.assertTrue(RB.a_note_cannot_reach_the_checked_field())
+
+    def test_the_note_plant_bites(self):
+        """RED-FIRST at the seam that survives: re-fuse the note into the declaration and the
+        declaration comes back welded."""
+        real = RB.make_log
+        try:
+            RB.make_log = lambda host, py, rows, plan_dig=None, machine="", note="", \
+                conditions=None: real(host + (" | %s" % note if note else ""), py, rows,
+                                      plan_dig, machine, note, conditions)
+            self.assertFalse(RB.a_note_cannot_reach_the_checked_field())
+        finally:
+            RB.make_log = real
+        self.assertTrue(RB.a_note_cannot_reach_the_checked_field())
+
+    def test_the_documented_argv_is_the_documented_one(self):
+        """The doc and the executable, bound: a documented command line nothing parses is a claim,
+        and this arc has already shipped one of those."""
+        self.assertTrue(RB.the_documented_argv_is_the_documented_one())
+        self.assertIn("--bench", RB.DOCUMENTED_ARGV)
+        RB.parse_argv(list(RB.DOCUMENTED_ARGV))               # the docs' own line, parsed
+
+    def test_the_conditions_are_required_fields(self):
+        """ABSENT and EMPTY are different findings, so the field is required and '-' is how the
+        operator says 'not declared'."""
+        text = RB._declared_log()
+        with self.assertRaises(RB.RollbenchError):
+            RB.parse_log(text.replace("cond power AC Turbo-35W\n", ""))
+        p = RB.parse_log(RB.make_log("h", "3.11.0", RB._synthetic_rows(),
+                                     machine=RB.FIXED_MACHINE))
+        self.assertEqual(p["cond"]["power"], "")
+        self.assertEqual(RB.evidence_grade(p)[0], RB.NOT_MEASURED)
 
 
 class NoVerdictIsEmitted(unittest.TestCase):

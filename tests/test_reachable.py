@@ -42,8 +42,9 @@ class BothPlantsBite(unittest.TestCase):
     """The two halves fail in opposite directions, so both are planted separately."""
 
     def test_the_exact_defect_it_was_built_for(self):
-        """`rollbench` v1's mechanical host string. Re-plant the producer and the pair reads
-        UNREACHABLE, because `NAMED_HOST` contains no `|` at all."""
+        """`rollbench` v1.1's positional argv reader. Re-plant it and the DOCUMENTED invocation
+        yields conditions the live door refuses, so the pair reads UNREACHABLE — the repair
+        existed in the library and no operator could reach it from the command line."""
         self.assertTrue(RC.the_detector_bites())
 
     def test_a_gate_that_accepts_everything_is_caught(self):
@@ -53,27 +54,28 @@ class BothPlantsBite(unittest.TestCase):
     def test_the_two_plants_produce_different_verdicts(self):
         """UNREACHABLE and VACUOUS are different findings and a detector that fused them would
         report an unsatisfiable gate as an open one."""
-        real_h, real_g = RB.host_line, SF.named_host_ok
+        real_p, real_g = RB.parse_argv, SF.conditions_sufficient
         try:
-            RB.host_line = lambda declared, note="": RB.observed_machine()
+            RB.parse_argv = lambda argv: {"out": "", "note": "", "machine": "m",
+                                          "power": "", "scheduler": ""}
             self.assertEqual(RC.verdict(RC.names()[0]), RC.UNREACHABLE)
         finally:
-            RB.host_line = real_h
+            RB.parse_argv = real_p
         try:
-            SF.named_host_ok = lambda _h: True
+            SF.conditions_sufficient = lambda _c, _i: ()
             self.assertEqual(RC.verdict(RC.names()[0]), RC.VACUOUS)
         finally:
-            SF.named_host_ok = real_g
+            SF.conditions_sufficient = real_g
         self.assertEqual(RC.verdict(RC.names()[0]), RC.REACHABLE)
 
     def test_a_producer_that_raises_refuses_rather_than_scoring(self):
-        real = RB.host_line
+        real = RB.parse_argv
         try:
-            RB.host_line = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
+            RB.parse_argv = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
             with self.assertRaises(RC.ReachError):
                 RC.verdict(RC.names()[0])
         finally:
-            RB.host_line = real
+            RB.parse_argv = real
 
 
 class TheWitnessIsProducedNotWritten(unittest.TestCase):

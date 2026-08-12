@@ -456,10 +456,30 @@ CONDITIONS_FOR = {
 }
 
 
+# RETIREMENT, DECLARED AS DATA RATHER THAN AS A COMMENT — because a comment does not travel.
+# The paragraph above retired `named_host_ok` for admitting readings and the falsifier below pins
+# why, and BOTH live inside this file. A downstream module reads neither. `rollbench` (URDRRBN1)
+# then imported the retired law, rebuilt the unsatisfiability on top of it, and shipped — and the
+# prose that would have stopped it was six hundred lines away in a module its author had read.
+# So the retirement is now a REGISTER: symbol -> (successor, reason), swept tree-wide by
+# `tools/terrain/retire.py`, which refuses a cross-module call to anything named here.
+RETIRED = {
+    "named_host_ok": (
+        "conditions_sufficient",
+        "the verbatim fused string conflates the MACHINE with the MEASUREMENT CONDITIONS, and "
+        "different instruments are sensitive to different conditions — demanding all four of a "
+        "software timer refuses a valid reading for an irrelevant reason. Conditions are DATA and "
+        "each instrument class requires exactly the ones that can move it. RETAINED for a full §3 "
+        "protocol claim, the one scope whose reading genuinely spans every condition.",
+    ),
+}
+
+
 def named_host_ok(host):
     """§1's verbatim host law — for a FULL §3 protocol claim, which is the only claim whose scope
     genuinely requires every condition fused into one string. NOT used to admit segment readings:
-    see `CONDITIONS_FOR` and the falsifier that pins why."""
+    see `CONDITIONS_FOR`, the falsifier that pins why, and `RETIRED` above, which says so in data
+    so that a module reading this file's API rather than its prose is still told."""
     return str(host).strip() == NAMED_HOST
 
 

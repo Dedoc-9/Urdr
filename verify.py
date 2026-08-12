@@ -218,6 +218,7 @@ STAGE_ORDER = (
     "measure",
     "rollbench",
     "reachable",
+    "retire",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16887,11 +16888,19 @@ class Gate:
                     "a refusal that was the harness's fault. THE LAW: every registered gate ships "
                     "with a WITNESS ITS PRODUCER CAN ACTUALLY MAKE and a COUNTEREXAMPLE IT "
                     "REFUSES, %d pairs, all REACHABLE. AND THE FIRST SWEEP CAUGHT THE REGISTER "
-                    "RATHER THAN THE CODE: `contact.witness_digest` was registered as a gate and "
+                    "RATHER THAN THE CODE, TWICE AND IN TWO DIFFERENT WAYS. "
+                    "`contact.witness_digest` was registered as a gate and "
                     "read VACUOUS — correctly, because it is a DIGEST and not a DOOR, hashing "
                     "whatever it is handed with no refusal to offer — so the detector was right "
                     "and the REGISTRATION was wrong, which is a finding about this register's own "
-                    "discipline. IT IS A FLOOR AND NOT A SURVEY, asserted CHECKABLY: %d typed "
+                    "discipline. AND THE FIRST PAIR NAMED A RETIRED DOOR: "
+                    "`sealframe.named_host_ok` had ALREADY been retired for admitting readings by "
+                    "the module that owns it, and the pair read REACHABLE and was RIGHT, because a "
+                    "literal satisfies it — REACHABILITY IS ORTHOGONAL TO CURRENCY, and `retire` "
+                    "(URDRRET1) is the half that asks the other question. The producer is now the "
+                    "COMMAND LINE, since a register naming the library call while the operator "
+                    "comes through argv measures a path nobody takes. "
+                    "IT IS A FLOOR AND NOT A SURVEY, asserted CHECKABLY: %d typed "
                     "refusal codes exist in the tree against %d registered pairs, so an "
                     "unregistered gate is UNCHECKED rather than proved reachable and the boundary "
                     "cannot quietly stop being true"
@@ -16903,49 +16912,155 @@ class Gate:
                     and RC.the_witness_is_produced_not_written())
             # THE TWO VERDICTS ARE DIFFERENT FINDINGS — a detector fusing them would report an
             # unsatisfiable gate as an open one.
-            real_h, real_g = RB2.host_line, SF3.named_host_ok
-            try:
-                RB2.host_line = lambda declared, note="": RB2.observed_machine()
+            real_p, real_g = RB2.parse_argv, SF3.conditions_sufficient
+            try:                                          # v1.1's positional argv reader
+                RB2.parse_argv = lambda argv: {"out": "", "note": "", "machine": "m",
+                                               "power": "", "scheduler": ""}
                 p_ok = p_ok and RC.verdict(RC.names()[0]) == RC.UNREACHABLE
             finally:
-                RB2.host_line = real_h
+                RB2.parse_argv = real_p
             try:
-                SF3.named_host_ok = lambda _h: True
+                SF3.conditions_sufficient = lambda _c, _i: ()
                 p_ok = p_ok and RC.verdict(RC.names()[0]) == RC.VACUOUS
             finally:
-                SF3.named_host_ok = real_g
+                SF3.conditions_sufficient = real_g
             p_ok = p_ok and RC.verdict(RC.names()[0]) == RC.REACHABLE
-            # a hand-written witness would have HIDDEN the defect — exhibited, not argued
-            import platform as _pf
-            p_ok = (p_ok and SF3.named_host_ok(SF3.NAMED_HOST)
-                    and not SF3.named_host_ok(
-                        f"{_pf.node()} | {_pf.system()} {_pf.release()}"))
+            # a hand-written witness would have HIDDEN the defect — exhibited, not argued: the
+            # LITERAL satisfies the door while the v1.1 PRODUCER's own output does not.
+            p_ok = (p_ok and not SF3.conditions_sufficient(
+                        {"machine": "m", "power": "p", "scheduler": "s"}, RB2.INSTRUMENT)
+                    and bool(SF3.conditions_sufficient({"machine": "m"}, RB2.INSTRUMENT)))
             try:                                          # a producer that RAISES refuses
-                RB2.host_line = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
+                RB2.parse_argv = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
                 try:
                     RC.verdict(RC.names()[0])
                     p_ok = False
                 except RC.ReachError:
                     pass
             finally:
-                RB2.host_line = real_h
+                RB2.parse_argv = real_p
         except Exception:
             p_ok = False
         self.record("reachable-plants", p_ok,
                     "BOTH HALVES BITE AND THEY PRODUCE DIFFERENT VERDICTS. Re-plant the exact "
-                    "defect this detector was built for — `rollbench` v1's mechanically assembled "
-                    "host string — and the pair reads UNREACHABLE; make the gate accept everything "
+                    "defect this detector was built for — now v1.1's, which is sharper than "
+                    "v1's: v1.1 REPAIRED the host law and left its own COMMAND LINE reading "
+                    "`argv[i+1]` as a path, so `--bench --host \"<decl>\"` made `--host` the "
+                    "FILENAME and the operator's declaration the NOTE. Re-plant that positional "
+                    "reader and the DOCUMENTED invocation yields conditions the live door refuses, "
+                    "so the pair reads UNREACHABLE — the repair existed and no operator could "
+                    "reach it. Make the gate accept everything "
                     "and the SAME pair reads VACUOUS; restore both and it reads REACHABLE. "
                     "UNREACHABLE and VACUOUS are DIFFERENT FINDINGS and a detector that fused them "
                     "would report an unsatisfiable gate as an open one. AND THE DISTINCTION THAT "
-                    "IS THE DETECTOR IS EXHIBITED RATHER THAN ARGUED: the LITERAL `NAMED_HOST` "
-                    "passes the gate while the PRODUCER's own output does not, so a register of "
+                    "IS THE DETECTOR IS EXHIBITED RATHER THAN ARGUED: a fully-declared LITERAL "
+                    "satisfies the door while the v1.1 PRODUCER's own output does not, so a "
+                    "register of "
                     "hand-written witnesses would have been green throughout — a human can type "
-                    "what a machine cannot emit, and the machine was the caller. Every witness "
                     "here is obtained by CALLING the producer, and a producer that raises REFUSES "
                     "rather than scoring, because a pair whose producer cannot run has no witness "
                     "to offer and no gate to test"
                     if p_ok else "the reachability plants did not bite")
+
+    def retire(self):
+        """A RETIRED LAW NAMES ITS SUCCESSOR, AND NOTHING OUTSIDE ITS OWN MODULE MAY CALL IT
+        (URDRRET1). Rows: sweep (every declared retirement CLEAN, every entry carrying a
+        successor that exists and a reason), plants (STALE / prose-is-not-a-call / UNNAMED /
+        VACUOUS, and the OWNER's own calls staying lawful)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import retire as RT
+        except Exception as exc:
+            for r in ("sweep", "plants"):
+                self.record(f"retire-{r}", False, f"import failed (retire): {exc}")
+            return
+        s_ok, sw, floor = True, {}, ()
+        try:
+            sw = RT.sweep()
+            floor = RT.the_register_is_declared_not_discovered()
+            s_ok = (RT.no_retired_law_has_a_caller()
+                    and all(v == RT.CLEAN for v in sw.values()) and len(sw) >= 1
+                    and RT.every_retirement_carries_a_reason()
+                    and floor[0] and floor[1] > floor[2]
+                    and "sealframe.named_host_ok" in sw
+                    and RT.registers()["sealframe"]["named_host_ok"][0]
+                    == "conditions_sufficient")
+            try:
+                RT.registers([("bad", "<p>", "RETIRED = dict(x=1)\n")])
+                s_ok = False
+            except RT.RetireError as _e:
+                s_ok = s_ok and _e.code == "RETIRE-REFUSE"
+            s_ok = s_ok and all(RT.scene_result(x) == RT.golden(x) for x in RT.SCENES)
+        except Exception:
+            s_ok = False
+        self.record("retire-sweep", s_ok,
+                    "A COMMENT DOES NOT TRAVEL; A CALLER READS AN API, NOT A PARAGRAPH — AND THIS "
+                    "TREE PROVED IT ON ITSELF, TWICE. `sealframe` found that its own "
+                    "`named_host_ok` was unsatisfiable from its own runner, wrote the paragraph "
+                    "explaining it, BUILT THE REPLACEMENT (`conditions_sufficient` — conditions "
+                    "are DATA and each instrument class requires exactly the ones that CAN MOVE "
+                    "ITS READING), retained the old law for the one scope that needs every "
+                    "condition fused, and shipped a falsifier pinning its unsatisfiability. A "
+                    "complete repair. `rollbench` (URDRRBN1) THEN IMPORTED THE RETIRED LAW AND "
+                    "REBUILT THE IDENTICAL DEFECT ON TOP OF IT, and `reachable` (URDRRCH1) "
+                    "certified the pair REACHABLE — correctly, because a literal satisfies it. Two "
+                    "rungs of instrument, both green, both pointed at a door whose obituary was "
+                    "six hundred lines above the call site IN PROSE. So retirement is now DATA: "
+                    "`RETIRED[symbol] = (successor, reason)`, swept tree-wide from the AST, %d "
+                    "declared and all CLEAN. The sweep reads SYNTAX RATHER THAN TEXT, which is not "
+                    "a nicety — the honest way to retire something is to explain it at length, so "
+                    "a text sweep would punish exactly the documentation the law depends on. "
+                    "DECLARED and checkable: retirement is the OWNER's declaration, %d module-level "
+                    "callables defined against %d retired, so a law dead in a maintainer's head is "
+                    "invisible here — `declared != discovered`"
+                    % (len(sw), floor[1] if floor else -1, floor[2] if floor else -1)
+                    if s_ok else "the retirement sweep did not hold")
+        p_ok = True
+        try:
+            p_ok = (RT.the_sweep_catches_a_cross_module_call()
+                    and RT.the_sweep_reads_syntax_not_prose()
+                    and RT.a_successor_that_does_not_exist_is_caught()
+                    and RT.an_empty_register_is_vacuous()
+                    and RT.the_owner_may_still_call_its_own_retired_law())
+            # THE FOUR VERDICTS ARE DIFFERENT FINDINGS — a caller ignoring a retirement, a
+            # retirement pointing nowhere, and a module with nothing retired at all.
+            assert len({RT.CLEAN, RT.STALE, RT.UNNAMED, RT.VACUOUS}) == 4
+            src = "import sealframe as SF\ndef f(p):\n    return SF.named_host_ok(p)\n"
+            p_ok = (p_ok
+                    and RT.verdict("sealframe.named_host_ok", RT._plant("c", src)) == RT.STALE
+                    and RT.verdict("sealframe.named_host_ok") == RT.CLEAN)
+            # AND IT CATCHES THE REAL ONE: the sweep run against the ACTUAL shipped pre-repair
+            # source names `rollbench` and no one else. Skipped where git has no such object.
+            import subprocess as _sp
+            got = _sp.run(["git", "show", "HEAD:tools/terrain/rollbench.py"],
+                          capture_output=True, text=True, cwd=ROOT)
+            if got.returncode == 0 and "named_host_ok" in got.stdout:
+                pre = [t for t in RT._sources() if t[0] != "rollbench"]
+                pre.append(("rollbench", "<pre-repair>", got.stdout))
+                p_ok = (p_ok and RT.verdict("sealframe.named_host_ok", pre) == RT.STALE
+                        and [m for m, _l in RT.callers("named_host_ok", "sealframe", pre)]
+                        == ["rollbench"])
+        except Exception:
+            p_ok = False
+        self.record("retire-plants", p_ok,
+                    "FOUR VERDICTS, FOUR DIFFERENT FINDINGS, EACH PLANTED SEPARATELY. A replanted "
+                    "cross-module call reads STALE — and it is not a hypothetical shape but THE "
+                    "LINE, `SF.named_host_ok(parsed[\'host\'])`, restored. A module naming the "
+                    "retired law only in PROSE reads CLEAN, because a text sweep would punish the "
+                    "explanation an honest retirement requires. A register naming a successor the "
+                    "owner does not define reads UNNAMED, since \'do not use this\' without \'use "
+                    "that\' is an obstacle rather than a repair. An empty register reads VACUOUS "
+                    "(L61 — a census that can return one value certifies nothing). AND THE OWNER "
+                    "MAY STILL CALL ITS OWN RETIRED LAW: `sealframe` does, because the law is "
+                    "RETAINED for a full §3 protocol claim, so those calls are found and are "
+                    "LAWFUL — a sweep counting them would have no clean state to report and would "
+                    "be switched off. THE STRONGEST ROW HERE IS NOT A PLANT: run the sweep against "
+                    "the ACTUAL shipped pre-repair source and it names `rollbench`, alone, at the "
+                    "line this rung removed"
+                    if p_ok else "the retirement plants did not bite")
 
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
@@ -17043,10 +17158,33 @@ class Gate:
         p_ok = True
         try:
             unnamed = RB.parse_log(RB.make_log("a-laptop", "3.11.0", RB._synthetic_rows()))
-            named = RB.parse_log(RB.make_log(SF2.NAMED_HOST, "3.11.0", RB._synthetic_rows()))
+            named = RB.parse_log(RB._declared_log())
+            # THE ADMISSION LAW IS `sealframe`'s LIVE ONE, NOT ITS RETIRED ONE. Until v1.2 these
+            # lines called `named_host_ok`, which `sealframe` had already retired for admitting
+            # readings — see the `retire` stage, which now refuses that import tree-wide.
             p_ok = (RB.evidence_grade(unnamed)[0] == RB.NOT_MEASURED
                     and RB.evidence_grade(named)[0] == RB.MEASURED
-                    and SF2.named_host_ok(SF2.NAMED_HOST) and not SF2.named_host_ok("a-laptop"))
+                    and RB.INSTRUMENT == "software-timer"
+                    and not SF2.conditions_sufficient(
+                        {"machine": "m", "power": "p", "scheduler": "s"}, RB.INSTRUMENT)
+                    and "power" in SF2.conditions_sufficient({"machine": "m"}, RB.INSTRUMENT)
+                    and "display" not in SF2.CONDITIONS_FOR[RB.INSTRUMENT])
+            # THE COMMAND LINE IS A PRODUCER TOO, and v1.1's repair was unreachable from it.
+            p_ok = (p_ok and RB.the_documented_invocation_grades_measured()
+                    and RB.a_flag_is_never_a_path()
+                    and RB.the_parser_refuses_what_it_cannot_name()
+                    and RB.argv_is_parsed_in_exactly_one_place()
+                    and RB.a_note_cannot_reach_the_checked_field()
+                    and RB.the_documented_argv_is_the_documented_one())
+            _real_ml = RB.make_log                        # RED-FIRST: re-fuse the note
+            try:
+                RB.make_log = lambda host, py, rows, plan_dig=None, machine="", note="", \
+                    conditions=None: _real_ml(host + (" | %s" % note if note else ""), py, rows,
+                                              plan_dig, machine, note, conditions)
+                p_ok = p_ok and not RB.a_note_cannot_reach_the_checked_field()
+            finally:
+                RB.make_log = _real_ml
+            p_ok = p_ok and RB.a_note_cannot_reach_the_checked_field()
             form_ok, grade = RB.the_two_questions_are_apart(unnamed)
             p_ok = p_ok and form_ok and grade == RB.NOT_MEASURED
             p_ok = p_ok and MS2.claim_fault(RB.claim_from(named, "alternating")) == ""
@@ -17071,10 +17209,32 @@ class Gate:
                     "`evidence_grade` asks whether the LOG is ADMISSIBLE. A log from an unnamed "
                     "machine is a PERFECTLY WELL-FORMED LOG and INADMISSIBLE EVIDENCE, and both "
                     "halves are asserted on the SAME log — if either check could stand for the "
-                    "other, one is redundant and the wrong one would be dropped. The host law is "
-                    "READ from `sealframe.NAMED_HOST`, the operator's own declared machine with "
-                    "its conditions, because this module has no standing to write one; it is "
-                    "checked in BOTH directions, since a law refusing every host would be a wall. "
+                    "other, one is redundant and the wrong one would be dropped. AND UNTIL v1.2 "
+                    "THIS ASKED THE RETIRED QUESTION. It called `sealframe.named_host_ok`, which "
+                    "`sealframe` had ALREADY retired for admitting readings — its own source says "
+                    "so, retains it for a full §3 protocol claim only, and ships a falsifier "
+                    "pinning its unsatisfiability — so this module rebuilt the identical defect on "
+                    "top of a law whose obituary it had been handed, six hundred lines from the "
+                    "call site, in prose. The admission law is now `conditions_sufficient`: "
+                    "conditions are DATA and each instrument class requires exactly the ones that "
+                    "CAN MOVE ITS READING. This harness is a SOFTWARE TIMER, so it requires "
+                    "machine, power and scheduler and NOT display, because which panel is attached "
+                    "cannot move a `perf_counter_ns` reading and demanding it would refuse a valid "
+                    "reading for an irrelevant reason. Checked in BOTH directions, since a law "
+                    "refusing every host would be a wall. "
+                    "AND THE v1.1 REPAIR WAS UNREACHABLE FROM THE COMMAND LINE, which is the only "
+                    "way anyone invokes this: `__main__` read `argv[i+1]` as the output path, so "
+                    "`--bench --host \"<decl>\"` made `--host` the FILENAME and the operator's "
+                    "declaration the NOTE — which v1.1 then appended to the checked field as "
+                    "` | {note}`, re-breaking it. THE ENTRY POINT IS A DOOR AND IT HAD NONE: flags "
+                    "are enumerated, an unknown one REFUSES rather than becoming a path, a flag "
+                    "with no value refuses rather than swallowing the next flag, argv is parsed in "
+                    "exactly ONE place (asserted by AST, since a second reader is a second parser "
+                    "and the one that lost the declaration was the one nobody was looking at), the "
+                    "DOCUMENTED invocation is parsed by this module's own parser and grades "
+                    "MEASURED, and the note lives in its OWN field — A CHECKED FIELD MAY NOT BE "
+                    "SOMETHING OTHER TEXT IS APPENDED TO, with the re-fusion planted and proved to "
+                    "redden. "
                     "AND NOTHING THIS CONTAINER PRODUCES CAN BE CITED: a `--bench` run here seals "
                     "a log carrying THIS machine's host, so its grade is NOT_MEASURED and the gate "
                     "ASSERTS it — the harness is exercised, its shape is verified, and its numbers "
@@ -20539,7 +20699,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

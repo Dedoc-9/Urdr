@@ -25,6 +25,16 @@
 # does_not_show: a survey. Eight pairs are enumerated; the tree has more gates, and an unregistered
 # gate is UNCHECKED rather than proved reachable. What this rung establishes is that the RULE is now
 # testable and that one instance of its violation was found, repaired and pinned. sample != universal.
+#
+# RE-PINNED: THE FIRST PAIR WAS REGISTERED AGAINST A RETIRED DOOR, which is a SECOND finding about
+# this register's discipline and a different one from `contact.witness_digest`. It named
+# `sealframe.named_host_ok`, a law `sealframe` had already retired for admitting readings. The pair
+# read REACHABLE and was RIGHT — a literal satisfies that door. REACHABILITY IS ORTHOGONAL TO
+# CURRENCY: this detector asks whether a door OPENS, never whether it is still the door the tree
+# ENDORSES, and `retire` (URDRRET1) is the half that asks that. The producer is now the COMMAND
+# LINE, because a register naming the library call while the operator comes through `argv` measures
+# a path nobody takes — which is exactly how v1.1's repair shipped unreachable.
 
-census 056393cfa7a9b9849c8f25a0a3e4814210cead472b36e37f7cc16f62f6b0ad73
+census 164b64ec7f9f4c4258a42b60beca651bf8e73a6648205766168baf885902b12d
 plants dcf74c103807fd710c97258a2863eba738abd45e599f33b1eb2acce3e8127546
+reachable e1815bc1e8cdea0e3ebcecd6ddb82f61fffc7e8b8abba6b9dc28ffe1fe0a4a54
