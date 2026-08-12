@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_pedigree.txt — URDRPDG1 pinned scenes.
+#
+# A CLAIM MAY ONLY CONSUME AN ARTIFACT WHOSE PROVENANCE IS ADMISSIBLE, AND THE ARTIFACT IS ITS OWN
+# PRIMARY WITNESS.
+#
+# `attest` proves a record is INTERNALLY TRUSTWORTHY and takes the HARNESS on faith. Rebuild the
+# graduated record under the pre-`confound` schedule — changing nothing but `pos` — re-seal it, and
+# every check `attest` makes passes: the seal verifies, the plan binds, it grades MEASURED, and
+# `measure.admit_claim` accepts the claim. A RECORD'S INTEGRITY IS NOT ITS PROVENANCE. That is not
+# hypothetical: this tree produced two such logs and both graded MEASURED at the time.
+#
+# THE ORDER OF THE CHECKS IS THE DESIGN. A retired-fingerprint blacklist as the PRIMARY mechanism
+# would be the inherited state this tree keeps removing — every new defect needing somebody to
+# remember an old digest. So: (A) DERIVED from the bytes, (B) IDENTITY the record declares, (C) the
+# REGISTRY, an escape hatch for defects that cannot be reconstructed from the artifact, currently
+# EMPTY because every defect found so far is derivable.
+#
+# verdicts  — the graduated record is ADMISSIBLE; the replanted pre-confound record is REFUSED
+#             naming the schedule; the single-execution record is refused under a DIFFERENT name;
+#             every refusal carries a cause; a non-permutation `pos` reports no order at all.
+# hierarchy — derived evidence outranks a good fingerprint; UNIDENTIFIED is not refused; a planted
+#             retirement bites; the registry's emptiness is asserted rather than assumed.
+#
+# does_not_show: THE RECORD IS A WITNESS, NOT A NOTARY. `pos` is what the runner CLAIMS; nothing
+# binds it to when a row was taken, so a re-sealed plausible ordering passes here — that is
+# `rehearse`'s (URDRRHS1). And this is a FLOOR OVER DEFECTS ALREADY PAID FOR: it cannot see one nobody
+# has found, and "known historical defects are covered" is not "the instrument is proven correct".
+#
+# DECLARED: the registry's membership, and that identity is advisory rather than required.
+#
+# AND THE LATTICE SHAPED THIS MODULE. The first draft imported the modules that own the
+# record and the plan, which put it over a ceiling clause (b) binds to the ENUMERATED chain at
+# the seal — a measurement, not a budget, so it does not move to admit the module that failed
+# it. A DETECTOR IS HANDED WHAT IT GRADES RATHER THAN IMPORTING THE WORLD TO FETCH IT: scenes
+# pin behaviour on fixtures and the LIVE artifact is graded at the gate.
+
+verdicts 1ef4f55299a33c99e43bd63d182a1e58e5de62f68ef3f49070d14ffaed494d80
+hierarchy dda2461f73ad83d8771518cd167532a5f0ecd9027b64151e47a82fd9cc5f2f32
+pedigree 141a86587c21ca00dd49d65d543b6c329d44d24efe6da0c5d2f2c53c161b1e9e

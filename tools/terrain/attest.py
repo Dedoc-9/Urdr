@@ -156,6 +156,57 @@ def reading(path=None):
             "version": p["version"], "host": p["host"]}
 
 
+# ---- the live counterexamples, DERIVED from the committed artifact ---------------------------------
+def _reseal(mutate):
+    """Rebuild the committed record with `mutate` applied to each row and RE-SEAL it, so the result
+    is a perfectly valid log: the seal verifies, the plan binds, it grades admissible. These live
+    HERE because this module owns the record — `pedigree` and `rehearse` grade what they are handed,
+    and reaching back for the artifact put both of them over the lattice's sealed depth ceiling."""
+    text = record_text()
+    p = RB.parse_log(text)
+    fields = RB.ROW_FIELDS_BY_VERSION[p["version"]]
+    body = [ln for ln in text.splitlines()
+            if ln.strip() and not ln.startswith("row ") and not ln.startswith("digest ")]
+    for r in p["rows"]:
+        rr = mutate(dict(r))
+        if rr is not None:
+            body.append("row " + " ".join(str(rr[f]) for f in fields))
+    joined = "\n".join(body) + "\n"
+    return joined + "digest " + hashlib.sha256(joined.encode()).hexdigest() + "\n"
+
+
+def replanted_under_the_shipped_schedule():
+    """THE COUNTEREXAMPLE TO THE ASSUMPTION THIS MODULE INHERITS, and it is not a manufactured
+    fixture: the operator's own measurements, unaltered, with only `pos` rewritten to the plan's own
+    nesting — the representation-outermost order `rollbench` actually shipped, and the one that
+    produced this tree's first two host logs."""
+    cells = list(MS.bench_cells())
+
+    def mutate(r):
+        r["pos"] = cells.index((r["representation"], r["workload"], int(r["depth"])))
+        return r
+    return _reseal(mutate)
+
+
+def replanted_on_a_different_balanced_stride():
+    """BALANCED ON EVERY AXIS AND NOT THE ORDER THE PLAN RUNS — the counterexample `rehearse` needs
+    against `pedigree`."""
+    import confound as CF
+    other = CF.schedule(MS.bench_cells(), stride=37)
+    pos = {c: i for i, c in enumerate(other)}
+
+    def mutate(r):
+        r["pos"] = pos[(r["representation"], r["workload"], int(r["depth"]))]
+        return r
+    return _reseal(mutate)
+
+
+def truncated_to_one_execution():
+    def mutate(r):
+        return r if int(r["run"]) == 0 else None
+    return _reseal(mutate)
+
+
 # ---- the laws ---------------------------------------------------------------------------------------
 def the_record_is_committed_and_still_seals():
     """A graduated claim whose log has been edited, truncated or lost is not a claim. The seal is

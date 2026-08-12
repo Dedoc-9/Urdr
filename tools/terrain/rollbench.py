@@ -281,7 +281,8 @@ def observed_machine():
     return f"{platform.node()} | {platform.system()} {platform.release()}"
 
 
-def make_log(host, python, rows, plan_dig=None, machine="", note="", conditions=None):
+def make_log(host, python, rows, plan_dig=None, machine="", note="", conditions=None,
+             harness=""):
     """SELF-DIGESTED. The DECLARED machine, the OBSERVED machine, the operator's other declared
     CONDITIONS, a free note, the interpreter, the digest of the plan that was run, then one row per
     cell. A single byte changed anywhere breaks the seal.
@@ -295,6 +296,12 @@ def make_log(host, python, rows, plan_dig=None, machine="", note="", conditions=
     for k in ("power", "scheduler"):
         body.append(f"cond {k} {cond.get(k, '').strip() or '-'}")
     body.append(f"note {str(note).strip() or '-'}")
+    # THE INSTRUMENT'S OWN FINGERPRINT (URDRPDG1 part B). ABSENT and EMPTY are different findings,
+    # so the field is always present and '-' is how a log says it cannot identify its harness — the
+    # graduated v1 record predates this and reads UNIDENTIFIED rather than being punished for it.
+    # `make_log` never computes it: `rollbench_digest()` runs the scenes, which build logs, and a
+    # fingerprint taken here would recurse. The RUNNER supplies it.
+    body.append(f"harness {str(harness).strip() or '-'}")
     body += [f"instrument {INSTRUMENT}"]
     body += [f"python {python}", f"plan {dig}"]
     for r in rows:
@@ -328,7 +335,7 @@ def parse_log(text):
         raise RollbenchError(f"the digest does not match the body ({got[:12]} vs {want[:12]}) — "
                              f"a log that has been edited is not a log")
     out = {"host": "", "machine": "", "python": "", "plan": "", "note": "", "instrument": "",
-           "version": ver, "cond": {}, "rows": []}
+           "harness": "", "version": ver, "cond": {}, "rows": []}
     for ln in lines[1:-1]:
         key, _sp, rest = ln.partition(" ")
         if key == "row":
@@ -340,8 +347,8 @@ def parse_log(text):
         elif key == "cond":
             ck, _s2, cv = rest.strip().partition(" ")
             out["cond"][ck] = "" if cv.strip() == "-" else cv.strip()
-        elif key == "note":
-            out["note"] = "" if rest.strip() == "-" else rest.strip()
+        elif key in ("note", "harness"):
+            out[key] = "" if rest.strip() == "-" else rest.strip()
         elif key in out:
             out[key] = rest.strip()
     for k in ("host", "machine", "python", "plan", "instrument"):
@@ -714,7 +721,7 @@ def run_bench(out_path, iters=200, host_note="", declared_host=None, conditions=
     # produce evidence by accident.
     host = host_line(declared_host) if declared_host else observed_machine()
     text = make_log(host, platform.python_version(), rows, note=host_note,
-                    conditions=conditions or {})
+                    conditions=conditions or {}, harness=rollbench_digest())
     with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
     parsed = parse_log(text)

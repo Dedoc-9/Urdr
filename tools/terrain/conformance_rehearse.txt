@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_rehearse.txt — URDRRHS1 pinned scenes.
+#
+# AN ADMISSIBLE ARTIFACT MUST BE STRUCTURALLY REPRODUCIBLE FROM ITS DECLARED PLAN.
+#
+# `pedigree` reads the order a record CARRIES and asks whether it is BALANCED — a property many
+# orders have, and a property of what the artifact says about itself. Re-order the committed record
+# on a DIFFERENT co-prime stride and every axis still reads BALANCED, so `pedigree` admits it.
+# PLAUSIBLE IS NOT REPRODUCIBLE: `confound.schedule(measure.bench_cells())` is ONE order, and the
+# tree can say precisely which. The same holds for the cells and for `ticks`, which is a FUNCTION of
+# (workload, depth) and therefore derivable rather than reportable.
+#
+# structure       — the committed record REPRODUCES; the reconstruction is deterministic (if the
+#                   plan or schedule became host-dependent this law would quietly become a
+#                   tautology); and STRUCTURE IS NOT MEASUREMENT, asserted as a law.
+# counterexamples — a differently-balanced order, a dropped cell and a mis-derived tick count, each
+#                   DIVERGING under its own name, because fusing them would report a doctored order
+#                   and a missing experiment as the same finding.
+#
+# does_not_show: REPRODUCING THE STRUCTURE IS NOT REPRODUCING THE MEASUREMENTS. Fabricate every
+# timing and leave the shape alone and this rung REPRODUCES — proved, so no reader can take
+# REPRODUCED for "the numbers are right". Nor does it show the record was produced when, by whom, or
+# on the machine it names: those are attestations, and `sealframe` was explicit that a machine's
+# self-report is recorded and never checked.
+#
+# DECLARED: that the structure is the plan's, and the plan is `measure`'s to state.
+#
+# AND THE LATTICE SHAPED THIS MODULE. The first draft imported the modules that own the
+# record and the plan, which put it over a ceiling clause (b) binds to the ENUMERATED chain at
+# the seal — a measurement, not a budget, so it does not move to admit the module that failed
+# it. A DETECTOR IS HANDED WHAT IT GRADES RATHER THAN IMPORTING THE WORLD TO FETCH IT: scenes
+# pin behaviour on fixtures and the LIVE artifact is graded at the gate.
+
+structure 5cac458577fa322f349063b0ac7ed220e8f6c9c59ba94ede3a5a6a897a374a4a
+counterexamples 829b7ee53e09f7bd7bb2063ec070ccab0649c1dac6885f2b14cc8d47c8cd9945
+rehearse f602c5047d473cccd88768080f87c0de2189011c3de74e1d01036ef7f6cc87d2

@@ -223,6 +223,8 @@ STAGE_ORDER = (
     "repeat",
     "deeper",
     "attest",
+    "pedigree",
+    "rehearse",
     "rollbench",
     "reachable",
     "retire",
@@ -3997,7 +3999,7 @@ class Gate:
                     "PERTURBATIONS ARE GENERATED, NOT LISTED, AND THE SWEEP SEPARATED TWO LAW PAIRS "
                     "THAT HAND-DECLARATION COULD NOT. Every callable a swept module DEFINES is "
                     "severed — %d candidates, 5 distinct sensitivity vectors where the 7 curated "
-                    "edges produced 2. Under the curated set `replay` and `replay-plants` moved "
+                    "edges produced 2. Under the curated set `rehearse` and `replay-plants` moved "
                     "together in every case, as did segmentation/identity/seg-plants, which is "
                     "consistent with each group being ONE fact wearing several green rows — evidence "
                     "inflation the gate cannot otherwise see. Two minimal separating perturbations "
@@ -6833,7 +6835,7 @@ class Gate:
     def predict(self):
         """The client-prediction RECONCILE primitive (T3.17, MMO Stage A opener): client-side prediction
         made reconstruct-or-refuse. Given the authoritative and predicted transcripts, `reconcile` localizes
-        the first misprediction (via the kernel `lockstep.first_desync`) and `replay` reconstructs the
+        the first misprediction (via the kernel `lockstep.first_desync`) and `rehearse` reconstructs the
         authority by keeping the correct prefix and re-simulating only the suffix. MEASURED: the
         ROLLBACK-REPLAY EQUIVALENCE — reconstruct == the full authoritative re-sim `drive(auth)` bit-for-bit
         for every prediction — plus reusable-prefix correctness and localization; a lazy reconcile that
@@ -17525,6 +17527,181 @@ class Gate:
                        rd.get("pairs", 0) - rd.get("reversals", 0), rd.get("pairs", -1))
                     if d_ok else "the attested reading did not hold")
 
+    def pedigree(self):
+        """A CLAIM MAY ONLY CONSUME AN ARTIFACT WHOSE PROVENANCE IS ADMISSIBLE (URDRPDG1). Rows:
+        counterexample (the replanted pre-confound record is admissible to `attest` and refused
+        here), hierarchy (derived evidence outranks declared identity; the registry is the escape
+        hatch and is empty)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import attest as AT2
+            import pedigree as PD
+            import rollbench as RB8
+        except Exception as exc:
+            for r in ("counterexample", "hierarchy"):
+                self.record(f"pedigree-{r}", False, f"import failed (pedigree): {exc}")
+            return
+        c_ok = True
+        try:
+            _dig = RB8.plan_digest()
+
+            def _fields(p):
+                return RB8.ROW_FIELDS_BY_VERSION.get(p["version"])
+
+            def _v(text):
+                p = RB8.parse_log(text)
+                return PD.verdict(p, _dig, _fields(p))
+            live = AT2.record()
+            # THE LIVE COUNTEREXAMPLE: the committed artifact re-sealed under the order the harness
+            # actually shipped. `attest` accepts it — seal, plan, admissibility, claim — and this
+            # refuses it, naming the schedule.
+            shipped = RB8.parse_log(AT2.replanted_under_the_shipped_schedule())
+            attest_side = (shipped["plan"] == RB8.plan_digest()
+                           and RB8.evidence_grade(shipped)[0] == RB8.MEASURED)
+            c_ok = (PD.a_balanced_record_is_admissible()
+                    and PD.the_shipped_schedule_is_refused()
+                    and PD.the_two_historical_defects_refuse_by_different_names()
+                    and PD.every_refusal_names_a_cause()
+                    and PD.a_missing_input_is_skipped_not_passed()
+                    and PD.a_record_whose_positions_are_not_a_permutation_refuses()
+                    and attest_side
+                    and _v(AT2.replanted_under_the_shipped_schedule()) == PD.REFUSED
+                    and _v(AT2.truncated_to_one_execution()) == PD.REFUSED
+                    and PD.verdict(live, _dig, _fields(live)) == PD.ADMISSIBLE)
+            c_ok = c_ok and all(PD.scene_result(x) == PD.golden(x) for x in PD.SCENES)
+        except Exception:
+            c_ok = False
+        self.record("pedigree-counterexample", c_ok,
+                    "`attest` PROVES A RECORD IS INTERNALLY TRUSTWORTHY AND TAKES THE INSTRUMENT ON "
+                    "FAITH — and that faith is not idle. Rebuild the GRADUATED record under the "
+                    "pre-`confound` schedule, changing NOTHING but `pos`, re-seal it, and every "
+                    "check `attest` makes passes: the seal verifies, the plan digest binds, it "
+                    "grades MEASURED, and `measure.admit_claim` accepts the claim built from it. "
+                    "The record was produced by the exact instrument defect URDRCNF1 exists to "
+                    "catch, and it graduates. A RECORD'S INTEGRITY IS NOT ITS PROVENANCE — and this "
+                    "is not hypothetical, because this tree produced two such logs and BOTH graded "
+                    "MEASURED at the time, one under the confounded schedule and one from a single "
+                    "execution. THE COUNTEREXAMPLE IS NOT A MANUFACTURED FIXTURE: it is the "
+                    "operator's own measurements, unaltered, under the order the harness actually "
+                    "shipped. Both historical defects are refused under DIFFERENT names, because "
+                    "fusing a confounded schedule with an insufficient execution count would report "
+                    "two findings as one, and every refusal carries a sentence saying what the "
+                    "artifact demonstrated — a refusal without a named cause is an opinion"
+                    if c_ok else "the provenance counterexample did not hold")
+        h_ok = True
+        try:
+            h_ok = (PD.derived_evidence_outranks_declared_identity()
+                    and PD.unidentified_is_not_refused()
+                    and PD.a_planted_retirement_bites()
+                    and PD.the_registry_is_empty_and_that_is_a_claim()
+                    and PD.RETIRED_INSTRUMENTS == {}
+                    and PD.identity(AT2.record()) == PD.UNIDENTIFIED)
+        except Exception:
+            h_ok = False
+        self.record("pedigree-hierarchy", h_ok,
+                    "THE ORDER OF THE CHECKS IS THE DESIGN RATHER THAN AN IMPLEMENTATION DETAIL. A "
+                    "retired-fingerprint blacklist as the PRIMARY mechanism would be exactly the "
+                    "inherited state this tree keeps removing: every newly-found defect would need "
+                    "somebody to REMEMBER to add an old digest. So admissibility is DERIVED from "
+                    "the artifact wherever the artifact can show it, and only then from what the "
+                    "artifact declares about itself — asserted, not documented: a record carrying a "
+                    "perfectly good fingerprint is still REFUSED when its own rows demonstrate a "
+                    "defect. THE REGISTRY IS EMPTY, AND THAT IS A CLAIM rather than an oversight — "
+                    "it says every defect this tree has paid for is VISIBLE IN THE ARTIFACT — with "
+                    "a planted retirement proving the escape hatch would bite if one were not. AND "
+                    "UNIDENTIFIED IS NOT REFUSED: the graduated record predates any harness "
+                    "fingerprint, and refusing it would make this rung's first act the retraction "
+                    "of the measurement it exists to protect, over metadata rather than the "
+                    "experiment — the same shape as `deeper`'s NOT_ASKED, for the same reason"
+                    if h_ok else "the provenance hierarchy did not hold")
+
+    def rehearse(self):
+        """AN ADMISSIBLE ARTIFACT MUST BE STRUCTURALLY REPRODUCIBLE FROM ITS DECLARED PLAN
+        (URDRRHS1). Rows: structure (the committed record reproduces; the reconstruction is
+        deterministic; structure is not measurement), counterexamples (a differently-balanced order
+        `pedigree` admits, a dropped cell, a mis-derived tick count)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import attest as AT3
+            import rehearse as RL
+        except Exception as exc:
+            for r in ("structure", "counterexamples"):
+                self.record(f"rehearse-{r}", False, f"import failed (rehearse): {exc}")
+            return
+        s_ok = True
+        try:
+            import measure as MS5
+            cells = MS5.bench_cells()
+            s_ok = (RL.a_faithful_record_reproduces()
+                    and RL.the_reconstruction_is_deterministic()
+                    and RL.structure_is_not_measurement()
+                    and RL.a_missing_tick_rule_is_skipped_not_passed()
+                    # AND THE LIVE ARTIFACT, reconstructed from the plan it declares.
+                    and RL.verdict(AT3.record(), cells, MS5.effective_ticks) == RL.REPRODUCED
+                    and len(RL.expected_order(cells)) == 84)
+            s_ok = s_ok and all(RL.scene_result(x) == RL.golden(x) for x in RL.SCENES)
+        except Exception:
+            s_ok = False
+        self.record("rehearse-structure", s_ok,
+                    "PLAUSIBLE IS NOT REPRODUCIBLE. `pedigree` reads the order a record CARRIES and "
+                    "asks whether it is BALANCED — a property MANY orders have, and a property of "
+                    "what the artifact says about ITSELF, since nothing binds `pos` to when a row "
+                    "was actually taken. This rung reconstructs instead: "
+                    "`confound.schedule(measure.bench_cells())` is ONE order and the tree can say "
+                    "precisely which, the cells are the plan's, and `ticks` is a FUNCTION of "
+                    "(workload, depth) rather than something a record gets to report. THE "
+                    "RECONSTRUCTION IS ASSERTED DETERMINISTIC, because if the plan or the schedule "
+                    "ever became host-dependent this law would quietly become a tautology — a "
+                    "comparison against something that moves with the reader proves nothing. AND "
+                    "THE LIMIT IS A LAW RATHER THAN A CAVEAT: fabricate every timing, leave the "
+                    "structure alone, and this rung REPRODUCES — proved by planting it — so nobody "
+                    "can read REPRODUCED as 'the numbers are right'. It grades the SHAPE of the "
+                    "experiment and nothing else"
+                    if s_ok else "the structural reconstruction did not hold")
+        x_ok = True
+        try:
+            import measure as MS6
+            import pedigree as PD2
+            import rollbench as RB9
+            cells6 = MS6.bench_cells()
+            # THE LIVE VERSION OF THE COUNTEREXAMPLE: the committed record re-ordered on a DIFFERENT
+            # co-prime stride. Balanced on every axis, so `pedigree` admits it; not the order the
+            # plan generates, so it diverges here.
+            other = RB9.parse_log(AT3.replanted_on_a_different_balanced_stride())
+            one = RB9.parse_log(AT3.truncated_to_one_execution())
+            x_ok = (RL.pedigree_admits_what_replay_refuses()
+                    and RL.a_missing_cell_diverges()
+                    and RL.a_mis_derived_tick_count_diverges()
+                    and RL.the_three_divergences_are_named_apart()
+                    and PD2.verdict(other, RB9.plan_digest()) == PD2.ADMISSIBLE
+                    and RL.verdict(other, cells6, MS6.effective_ticks) == RL.DIVERGED
+                    # AND THE LAYERS ARE ORTHOGONAL IN BOTH DIRECTIONS: a one-execution record is
+                    # REFUSED by `pedigree` and REPRODUCES here, so neither subsumes the other.
+                    and PD2.verdict(one, RB9.plan_digest()) == PD2.REFUSED
+                    and RL.verdict(one, cells6, MS6.effective_ticks) == RL.REPRODUCED)
+        except Exception:
+            x_ok = False
+        self.record("rehearse-counterexamples", x_ok,
+                    "THE LAYER EARNS ITS PLACE BY REFUSING SOMETHING THE ONE BELOW ADMITS, which is "
+                    "the same standard `pedigree` had to meet against `attest`. Re-order the "
+                    "committed record on a DIFFERENT co-prime stride: every axis still reads "
+                    "BALANCED, so `pedigree` calls it ADMISSIBLE — and it is not the order the plan "
+                    "generates, so it DIVERGES here at a named position. A dropped cell and a "
+                    "mis-derived tick count diverge under SEPARATE names, because fusing them would "
+                    "report a doctored order and a missing experiment as one finding. Each "
+                    "counterexample is DERIVED from the committed artifact and RE-SEALED, so it is "
+                    "a perfectly valid log in every other respect: the three layers now read "
+                    "ADMISSIBLE/REPRODUCED, REFUSED/DIVERGED and ADMISSIBLE/DIVERGED on three "
+                    "different artifacts, which is the proof that they are three laws rather than "
+                    "one law written three times"
+                    if x_ok else "the structural counterexamples did not bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -21162,7 +21339,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

@@ -409,6 +409,16 @@ def plants_bite(root=ROOT):
         out.append(("boundary-unexercised",
                     "no unswept module sits at exactly the ceiling, so clause (d)'s strict "
                     "comparison is a branch nothing reaches"))
+    # (11c) THE CEILING SITS AT THE LIVE MAXIMUM, NOT ABOVE IT. Raising a bound to admit the module
+    #       that just failed it is how a ratchet becomes decoration; requiring the ceiling to EQUAL
+    #       the deepest unswept module makes every raise a recorded measurement, and makes the next
+    #       module to exceed it redden immediately rather than fitting under slack left behind.
+    _live = max([_down.get(x, 0) for x in _unswept] or [0])
+    if _live != snap["depth_ceiling"]:
+        out.append(("ceiling-not-at-the-reading",
+                    f"the deepest unswept module is at {_live} against a ceiling of "
+                    f"{snap['depth_ceiling']}: a ceiling above the live reading is slack the next "
+                    f"module would fit under without anyone deciding to let it"))
     # (11) NON-VACUITY of the register itself: dropping it entirely must redden (e), or the whole
     #      mechanism is decoration and the coverage check was already total without it.
     bad8 = dict(snap)
