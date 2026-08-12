@@ -220,6 +220,8 @@ STAGE_ORDER = (
     "measure",
     "confound",
     "entry",
+    "repeat",
+    "deeper",
     "rollbench",
     "reachable",
     "retire",
@@ -17253,6 +17255,183 @@ class Gate:
                     % (mods, sites)
                     if c_ok else "the argv census grew, or the ceiling is not the live reading")
 
+    def repeat(self):
+        """VARIANCE HAS LEVELS, AND 200 ITERATIONS IN ONE PROCESS SAMPLE EXACTLY ONE (URDRRPT1).
+        Rows: levels (one execution separates nothing, more iterations do not help, the two spreads
+        stay apart, the arithmetic is integer), harness (the log carries its execution index and a
+        one-execution log reads UNDETERMINED)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import repeat as RP
+            import rollbench as RB5
+        except Exception as exc:
+            for r in ("levels", "harness"):
+                self.record(f"repeat-{r}", False, f"import failed (repeat): {exc}")
+            return
+        l_ok = True
+        try:
+            l_ok = (RP.one_execution_can_separate_nothing()
+                    and RP.more_iterations_do_not_help()
+                    and RP.an_effect_below_the_between_spread_is_indistinguishable()
+                    and RP.an_effect_above_the_between_spread_separates()
+                    and RP.the_two_levels_are_reported_apart()
+                    and RP.the_arithmetic_is_integer_and_pinned()
+                    and RP.an_empty_or_ragged_input_refuses()
+                    and len({RP.SEPARATED, RP.INDISTINGUISHABLE, RP.UNDETERMINED}) == 3
+                    # THE VERDICT MOVES WITH THE SPREAD, not only with the gap — otherwise it is a
+                    # threshold on the difference wearing a statistical name.
+                    and RP.verdict(RP._arm(1000, [0, 1, 2]),
+                                   RP._arm(1050, [0, 1, 2])) == RP.SEPARATED
+                    and RP.verdict(RP._arm(1000, [0, 500, 1000]),
+                                   RP._arm(1050, [0, 500, 1000])) == RP.INDISTINGUISHABLE)
+            try:
+                RP.between_spread(RP._arm(100, [0]))
+                l_ok = False
+            except RP.RepeatError as _e:
+                l_ok = l_ok and _e.code == "REPEAT-REFUSE"
+            l_ok = l_ok and all(RP.scene_result(x) == RP.golden(x) for x in RP.SCENES)
+        except Exception:
+            l_ok = False
+        self.record("repeat-levels", l_ok,
+                    "EVERY QUANTILE THIS REPOSITORY HAS EVER REPORTED IS A WITHIN-EXECUTION "
+                    "QUANTILE. `rollbench` times each cell 200 times: 200 samples of "
+                    "iteration-level variation, and EXACTLY ONE sample of everything an interpreter "
+                    "fixes at startup — the hash seed, the address-space layout, where the "
+                    "allocator began, which core the scheduler chose. Kalibera and Jones state the "
+                    "consequence without qualification, and it is not a matter of degree: MORE "
+                    "ITERATIONS INSIDE ONE EXECUTION CANNOT REDUCE EXECUTION-LEVEL VARIANCE — the "
+                    "quantity is not being sampled at all, so `n` grows and the interval that "
+                    "matters does not move. Reproduced here as a FALSIFIER rather than cited: "
+                    "multiply the iteration count by a hundred and the verdict does not budge. "
+                    "THREE VERDICTS, and the third is the one that matters — SEPARATED (the gap "
+                    "clears the between-execution spread), INDISTINGUISHABLE (it does not, so "
+                    "reporting it would be reporting the noise floor) and UNDETERMINED (fewer than "
+                    "two executions, so the spread DOES NOT EXIST and a detector answering "
+                    "INDISTINGUISHABLE would be claiming to have looked). The verdict moves with "
+                    "the SPREAD and not only with the gap, checked both ways, or it would be a "
+                    "threshold on the difference wearing a statistical name. The two levels are "
+                    "reported APART and never pooled, because iterations shrink the first and "
+                    "cannot touch the second. All arithmetic is INTEGER with the even-count "
+                    "tie-break pinned to the lower middle, and nothing in the module divides"
+                    if l_ok else "the variance-level law did not hold")
+        h_ok = True
+        try:
+            h_ok = ("run" in RB5.ROW_FIELDS
+                    and RB5.the_row_carries_its_execution_and_its_depths()
+                    and RB5.a_single_execution_log_cannot_separate_anything()
+                    and RB5.runs_from(RB5.parse_argv(["--bench", "--runs", "5"])) == 5
+                    and RB5.runs_from(RB5.parse_argv(["--bench"])) == 1)
+            for bad in ({"runs": "0"}, {"runs": "many"}):
+                try:
+                    RB5.runs_from(bad)
+                    h_ok = False
+                except RB5.RollbenchError:
+                    pass
+        except Exception:
+            h_ok = False
+        self.record("repeat-harness", h_ok,
+                    "AND THE HARNESS CARRIES IT RATHER THAN THE DOCSTRING CLAIMING IT. Every row "
+                    "names its EXECUTION index, `--runs N` spawns N INDEPENDENT PROCESSES rather "
+                    "than looping — `pyperf` does the same thing for the same reason, because a "
+                    "loop cannot sample what a process fixes at startup — and a run count below 1 "
+                    "or a non-integer REFUSES. THE ONE-EXECUTION LOG IS ASSERTED TO READ "
+                    "UNDETERMINED, which is the honest state of every admissible log this "
+                    "repository has produced: the numbers are real, the schedule is balanced since "
+                    "URDRCNF1, and whether any gap survives a second process has never been asked. "
+                    "AND THE ARGV LAW CAUGHT THIS RUNG WHILE IT WAS BEING WRITTEN — the child "
+                    "entry point was drafted with its own positional reader, which is exactly the "
+                    "defect URDRENT1 exists for, committed inside the module about sampling "
+                    "executions; it now comes through the single parser"
+                    if h_ok else "the execution-index harness did not hold")
+
+    def deeper(self):
+        """A TIMING DIFFERENCE WITH NO COUNTED DIFFERENCE IS UNEXPLAINED (URDRDPR1). Rows: verdicts
+        (EXPLAINED / UNEXPLAINED / NOT_ASKED as three findings, both directions), probe (the
+        differencing probe bites, and no count reaches a golden)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import deeper as DP
+            import rollbench as RB6
+        except Exception as exc:
+            for r in ("verdicts", "probe"):
+                self.record(f"deeper-{r}", False, f"import failed (deeper): {exc}")
+            return
+        v_ok = True
+        try:
+            v_ok = (DP.a_count_that_moves_with_the_time_explains_it()
+                    and DP.a_difference_with_no_moving_count_is_unexplained()
+                    and DP.a_log_without_counters_reads_not_asked()
+                    and DP.equal_times_with_unequal_counts_are_also_unexplained()
+                    and DP.a_row_without_a_time_refuses()
+                    and DP.the_three_verdicts_are_different_findings()
+                    and len({DP.EXPLAINED, DP.UNEXPLAINED, DP.NOT_ASKED}) == 3
+                    and all(c in RB6.ROW_FIELDS for c in DP.COUNTERS))
+            try:
+                DP.verdict(DP._row(1, blocks=1), {})
+                v_ok = False
+            except DP.DeeperError as _e:
+                v_ok = v_ok and _e.code == "DEEPER-REFUSE"
+            v_ok = v_ok and all(DP.scene_result(x) == DP.golden(x) for x in DP.SCENES)
+        except Exception:
+            v_ok = False
+        self.record("deeper-verdicts", v_ok,
+                    "OUSTERHOUT'S RULE, MECHANIZED AGAINST A LIVE INSTANCE THIS ARC PRODUCED. Under "
+                    "a balanced schedule the named host showed `moulded` beating `flat` at exactly "
+                    "ONE work level — ticks = 8 — in three of four workloads (-5.2%%, -2.9%%, "
+                    "-5.6%%), with `flat` winning again at 11 and 12 ticks. Three independent "
+                    "workloads agreeing at one point is too orderly to file as noise and too narrow "
+                    "to explain by hand — and `measure` had ALREADY PROVED IN EXACT COUNTS that the "
+                    "three representations share a slope and differ only in the intercept, so a "
+                    "band appearing at one tick count and vanishing either side is a difference the "
+                    "op model says CANNOT EXIST. Either something below that model differs there or "
+                    "the band is not real; what is not available is a story. THREE VERDICTS: "
+                    "EXPLAINED (a counted quantity moves where the time moves), UNEXPLAINED (none "
+                    "does), and NOT_ASKED (no counts were carried at all — what every log here has "
+                    "looked like, and a DIFFERENT finding from having looked and found nothing). "
+                    "THE SYMMETRIC CASE IS COVERED: counts differing while the time does not is "
+                    "equally unexplained, since the model predicted a difference that never "
+                    "appeared, and an instrument watching only for unexplained SLOWNESS would miss "
+                    "it. `does_not_show`: A COUNTED DIFFERENCE IS NOT A CAUSE — it is a correlation "
+                    "between two quantities in one run, and causation needs an intervention this "
+                    "module does not perform"
+                    if v_ok else "the explanation verdicts did not hold")
+        p_ok = True
+        try:
+            import re as _re
+            payload = DP.scene_case("probe")
+            live = DP.counters()
+            p_ok = (DP.the_probe_bites()
+                    and DP.the_counter_list_is_declared_not_discovered()
+                    and DP.count_delta(lambda: [object() for _ in range(500)])["blocks"] > 100
+                    # NO COUNT REACHES A GOLDEN: they are CPython-version dependent and the gate
+                    # runs on more than one interpreter.
+                    and str(live["blocks"]) not in payload
+                    and _re.findall(r"\d{3,}", payload) == [])
+        except Exception:
+            p_ok = False
+        self.record("deeper-probe", p_ok,
+                    "THE PROBE IS PROVED TO BITE, AND THAT FALSIFIER CAUGHT THE FIRST DRAFT READING "
+                    "ZERO. `sys.getallocatedblocks()` is a LEVEL, not a counter: it reports what is "
+                    "allocated NOW, so discarding the return value before the second snapshot frees "
+                    "every transient allocation and the probe measures nothing WHILE REPORTING IT "
+                    "CONFIDENTLY — a dead instrument says 'no difference' exactly as convincingly "
+                    "as a working one says the truth. Holding the result across the snapshot fixes "
+                    "the reading and fixes the MEANING at the same time: `blocks` is the RESIDENT "
+                    "cost of the call and `gc0` is the churn proxy, reported apart because they "
+                    "answer different questions. AND NO COUNT IS EVER DIGESTED: allocation and "
+                    "collection counts are CPython-version dependent and this gate runs on more "
+                    "than one interpreter, so digesting one would redden an operator's gate for a "
+                    "reason that has nothing to do with the tree — checked here by asserting that "
+                    "no multi-digit run appears in the pinned payload at all. The counts live in "
+                    "the LOG beside the timings, under the rule the timings already obey"
+                    if p_ok else "the deeper probe did not bite, or a count reached a golden")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -20890,7 +21069,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

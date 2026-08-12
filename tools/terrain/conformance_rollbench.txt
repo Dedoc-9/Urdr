@@ -54,9 +54,19 @@
 # The `commandline` scene is new: the documented argv, parsed by this module's own parser, graded;
 # four refusals (unknown flag, flag-swallowing-flag, two positionals, no --bench); the structural
 # one-parser law; and the doc/executable binding.
+#
+# RE-PINNED AT v1.4 — TWO LEVELS THE LOG COULD NOT SEE. `run` is the EXECUTION index: 200 iterations
+# inside one process sample iteration-level variance only, and everything an interpreter fixes at
+# startup is sampled once per PROCESS however large `iters` is, so every quantile this repository
+# ever reported was a WITHIN-execution quantile and every difference in it is UNDETERMINED
+# (URDRRPT1). `--runs N` now spawns N independent processes. And `blocks`, `gc0`, `gc1`, `gc2` are
+# the level BELOW the op model (URDRDPR1): a timing difference with no counted difference is
+# UNEXPLAINED, and a log carrying no counts is NOT_ASKED — which is what every log here has been.
+# The counts are CPython-version dependent, so they live in the LOG and never in a golden.
+
 
 format 065cc277d110a0475a2f0edd82cebadab873117aa90fe5ff6a17852e0f7f8a45
 provenance 59525f921991b0ae9978bda8de68ea8d00f031d6bab5ee635a1e8ab6a2be5ded
 plan a15af9f15f1f15005d4b2ee7d7d89287c33fe56148c4656a56e33ff0a48fc4b7
-commandline ae3169df82c4c9c5531e0c1205f300484be3d186d522bf7349d6ba5cde394eb6
-rollbench 5f9df60022226e2c2396e5da761e44cf995861fc8be5623525f629405195899f
+commandline 8f74a7bcbb396c7b7a0be83dde8c2531a3f67e40869d6b0b511805c9c4fa89e6
+rollbench 602df3a3f679e65f15fae370f8a623178e6697582d2c8051bbac57f4988e6f76

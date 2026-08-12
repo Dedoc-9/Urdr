@@ -59,9 +59,11 @@ for _d in (_HERE, _os.path.join(_os.path.dirname(_HERE), "netcode"),
         _sys.path.insert(0, _d)
 
 import confound as CF                                       # noqa: E402
+import deeper as DP                                         # noqa: E402
 import contact as CT                                        # noqa: E402
 import measure as MS                                        # noqa: E402
 import mould as MD                                          # noqa: E402
+import repeat as RP                                         # noqa: E402
 import sealframe as SF                                      # noqa: E402
 import stride as SR                                         # noqa: E402
 import vouch as VC                                          # noqa: E402
@@ -70,8 +72,8 @@ MAGIC = "URDRRBN1"
 
 #: The row fields. NO VERDICT FIELD EXISTS — there is nowhere in this record for "faster" to live,
 #: which is the structural half of "emits evidence, never a verdict".
-ROW_FIELDS = ("representation", "workload", "depth", "ticks", "pos", "n",
-              "p50_ns", "p95_ns", "p99_ns")
+ROW_FIELDS = ("representation", "workload", "depth", "ticks", "run", "pos", "n",
+              "p50_ns", "p95_ns", "p99_ns", "blocks", "gc0", "gc1", "gc2")
 
 MEASURED = "MEASURED"
 NOT_MEASURED = "NOT_MEASURED"
@@ -89,7 +91,13 @@ INSTRUMENT = "software-timer"
 
 #: THE FLAGS, ENUMERATED — so an unknown one can be REFUSED. `--host` is `--machine` under the name
 #: the operator already types. A flag not named here is not silently a path.
-VALUE_FLAGS = ("--out", "--note", "--machine", "--host", "--power", "--scheduler")
+VALUE_FLAGS = ("--out", "--note", "--machine", "--host", "--power", "--scheduler",
+               "--runs", "--run-index", "--iters")
+
+#: Flags that carry no value. Kept apart from `VALUE_FLAGS` because a boolean flag followed by
+#: another flag is LAWFUL, while a value flag followed by one is the swallow this parser exists to
+#: refuse — and one list could not express both.
+BOOL_FLAGS = ("--emit-rows",)
 
 #: THE INVOCATION THE DOCS PROMISE, as data. Held here so a law can check it is (a) accepted by
 #: this module's own parser and (b) present VERBATIM in the usage text a human reads — a documented
@@ -119,11 +127,16 @@ def parse_argv(argv):
     if "--bench" not in argv:
         raise RollbenchError("parse_argv is the --bench parser and this argv has no --bench")
     rest = argv[argv.index("--bench") + 1:]
-    out = {"out": "", "note": "", "machine": "", "power": "", "scheduler": ""}
+    out = {"out": "", "note": "", "machine": "", "power": "", "scheduler": "",
+           "runs": "1", "run-index": "0", "iters": "200", "emit-rows": False}
     positional = []
     i = 0
     while i < len(rest):
         tok = rest[i]
+        if tok in BOOL_FLAGS:
+            out[tok[2:]] = True
+            i += 1
+            continue
         if tok in VALUE_FLAGS:
             if i + 1 >= len(rest) or rest[i + 1].startswith("--"):
                 raise RollbenchError(f"{tok} names no value — a flag that swallows the next flag "
@@ -134,7 +147,8 @@ def parse_argv(argv):
             continue
         if tok.startswith("-"):
             raise RollbenchError(f"unknown flag {tok!r} — the flags are "
-                                 f"{', '.join(VALUE_FLAGS)}; an unrecognised token is REFUSED "
+                                 f"{', '.join(VALUE_FLAGS + BOOL_FLAGS)}; an unrecognised token "
+                                 f"is REFUSED "
                                  f"rather than read as a path, because reading it as a path is "
                                  f"exactly how this runner lost an operator's declaration")
         positional.append(tok)
@@ -145,6 +159,20 @@ def parse_argv(argv):
     if positional and not out["out"]:
         out["out"] = positional[0]
     return out
+
+
+def runs_from(parsed_argv):
+    """HOW MANY INDEPENDENT EXECUTIONS. Iterations inside one process sample iteration-level
+    variance only; the hash seed, the address-space layout and the allocator's starting state are
+    FIXED for the life of a process and are never sampled at all (URDRRPT1). A count below 2 leaves
+    the between-execution spread undefined, and the log says so rather than implying otherwise."""
+    try:
+        n = int(parsed_argv.get("runs") or 1)
+    except ValueError:
+        raise RollbenchError(f"--runs {parsed_argv.get('runs')!r} is not a count")
+    if n < 1:
+        raise RollbenchError("--runs must be at least 1")
+    return n
 
 
 def conditions_from(parsed_argv):
@@ -525,6 +553,34 @@ def the_row_carries_the_work_not_only_the_request():
     return dupes > 0 and distinct > 0
 
 
+def the_row_carries_its_execution_and_its_depths():
+    """THE TWO HOLES THE LITERATURE NAMED, CLOSED IN THE ROW ITSELF. `run` is the EXECUTION index —
+    200 iterations inside one process sample iteration-level variance only, and everything an
+    interpreter fixes at startup is sampled once per PROCESS however large `iters` is (URDRRPT1).
+    The four counters are the level below the op model (URDRDPR1): a timing difference with no
+    counted difference is UNEXPLAINED, and a log with no counters is NOT_ASKED, which is what every
+    log this repository produced before now."""
+    if "run" not in ROW_FIELDS or not all(c in ROW_FIELDS for c in DP.COUNTERS):
+        return False
+    p = parse_log(_declared_log())
+    return all(all(f in r for f in ("run", "pos", "ticks") + DP.COUNTERS) for r in p["rows"])
+
+
+def a_single_execution_log_cannot_separate_anything():
+    """AND THE LOG SAYS SO RATHER THAN IMPLYING OTHERWISE. Group any two arms of a one-execution log
+    by `run` and the verdict is UNDETERMINED — not INDISTINGUISHABLE, which would claim to have
+    looked. Every admissible log this repository has produced is in this state."""
+    p = parse_log(_declared_log())
+    by = {}
+    for r in p["rows"]:
+        by.setdefault(r["representation"], {}).setdefault(int(r["run"]), []) \
+            .append(int(r["p50_ns"]))
+    arms = sorted(by)
+    if len(arms) < 2:
+        arms = arms * 2
+    return RP.verdict(by[arms[0]], by[arms[-1]]) == RP.UNDETERMINED
+
+
 def the_documented_argv_is_the_documented_one():
     """THE DOC AND THE EXECUTABLE, BOUND. `DOCUMENTED_ARGV` is what a law parses; `USAGE_HINT` is
     what a human reads and what a refusal prints. If they drift, the tree documents a command line
@@ -539,8 +595,9 @@ def _synthetic_rows(n=3):
     out = []
     for i, (rep, wl, d) in enumerate(cells()[:n]):
         out.append({"representation": rep, "workload": wl, "depth": d,
-                    "ticks": MS.effective_ticks(wl, d), "pos": i, "n": 100,
-                    "p50_ns": 1000 + i, "p95_ns": 2000 + i, "p99_ns": 3000 + i})
+                    "ticks": MS.effective_ticks(wl, d), "run": 0, "pos": i, "n": 100,
+                    "p50_ns": 1000 + i, "p95_ns": 2000 + i, "p99_ns": 3000 + i,
+                    "blocks": 40 + i, "gc0": 7 + i, "gc1": 0, "gc2": 0})
     return out
 
 
@@ -567,11 +624,11 @@ def the_seal_bites():
 
 
 # ---- the operator command --------------------------------------------------------------------------
-def run_bench(out_path, iters=200, host_note="", declared_host=None, conditions=None):
-    """OFF-GATE, and the only place a clock appears. Times `restore + replay` for every cell of the
-    plan and writes a sealed log. Reports quantiles rather than a mean, because rollback latency is
-    exactly the shape where a mean hides the tail. It computes NO comparison."""
-    import platform
+def sweep_rows(iters=200, run_index=0):
+    """ONE EXECUTION'S WORTH OF ROWS. Split out from `run_bench` so a run can be a PROCESS rather
+    than a loop: everything fixed for the life of an interpreter — the hash seed, the address-space
+    layout, where the allocator started — is sampled exactly once per call to this function, and
+    only once per process no matter how large `iters` is (URDRRPT1)."""
     import time
     import lockstep as _L
     rows = []
@@ -592,11 +649,43 @@ def run_bench(out_path, iters=200, host_note="", declared_host=None, conditions=
             samples.append(time.perf_counter_ns() - t0)
         # `depth` is the REQUEST and `ticks` is the WORK — carried side by side, because the depth
         # axis SATURATES against the world's length and a table of 28 rows held 17 experiments.
+        # ONE LEVEL DEEPER, CARRIED IN THE ROW (URDRDPR1). A timing difference with no counted
+        # difference is UNEXPLAINED, and a log with no counts at all is NOT_ASKED — which is what
+        # every log this repository produced before now. These are CPython-version dependent, so
+        # they live in the LOG and never in a gate golden, exactly as the timings do.
+        deep = DP.count_delta(one_rollback, rep, w, frames, states, tick, lg, depth, by_tick)
         row = {"representation": rep, "workload": wl, "depth": depth,
-               "ticks": MS.effective_ticks(wl, depth), "pos": pos}
+               "ticks": MS.effective_ticks(wl, depth), "run": run_index, "pos": pos}
         row.update(summarize(samples))
+        row.update({k: deep[k] for k in DP.COUNTERS})
         rows.append(row)
     rows.sort(key=lambda r: (r["representation"], r["workload"], r["depth"]))
+    return rows
+
+
+def run_bench(out_path, iters=200, host_note="", declared_host=None, conditions=None, runs=1):
+    """OFF-GATE, and the only place a clock appears. Times `restore + replay` for every cell of the
+    plan and writes a sealed log. Reports quantiles rather than a mean, because rollback latency is
+    exactly the shape where a mean hides the tail. It computes NO comparison.
+
+    `runs > 1` SPAWNS INDEPENDENT PROCESSES rather than looping, because looping cannot sample what
+    a process fixes at startup. `pyperf` does the same thing for the same reason."""
+    import platform
+    rows = []
+    if runs > 1:
+        import json
+        import subprocess
+        for i in range(runs):
+            got = subprocess.run(
+                [_sys.executable, _os.path.abspath(__file__), "--bench", "--emit-rows",
+                 "--run-index", str(i), "--iters", str(iters)],
+                capture_output=True, text=True, cwd=_HERE)
+            if got.returncode != 0:
+                raise RollbenchError(f"execution {i} failed: {got.stderr.strip()[:200]}")
+            rows.extend(json.loads(got.stdout))
+    else:
+        rows = sweep_rows(iters=iters, run_index=0)
+    rows.sort(key=lambda r: (r["run"], r["representation"], r["workload"], r["depth"]))
     # NO DECLARATION -> the observed machine, which grades NOT_MEASURED because the observation is
     # not a declaration by anyone. The safe default stays uncitable, so forgetting to attest cannot
     # produce evidence by accident.
@@ -607,7 +696,8 @@ def run_bench(out_path, iters=200, host_note="", declared_host=None, conditions=
         fh.write(text)
     parsed = parse_log(text)
     grade, why = evidence_grade(parsed)
-    return {"path": out_path, "cells": len(rows), "host": host, "grade": grade, "why": why}
+    return {"path": out_path, "cells": len(rows), "runs": runs, "host": host,
+            "grade": grade, "why": why}
 
 
 # ---- scenes ------------------------------------------------------------------------------------------
@@ -641,6 +731,8 @@ def scene_case(name):
             a_flag_is_never_a_path(), argv_is_parsed_in_exactly_one_place(),
             the_documented_argv_is_the_documented_one(),
             sorted(parse_argv(list(DOCUMENTED_ARGV)).items())) + \
+            "|exec=%s|undet=%s" % (the_row_carries_its_execution_and_its_depths(),
+                                   a_single_execution_log_cannot_separate_anything()) + \
             "|order=%s|work=%s|dupes=%s" % (
                 the_run_order_is_not_the_plan_order(),
                 the_row_carries_the_work_not_only_the_request(),
@@ -669,6 +761,9 @@ def golden(name):
 
 
 if __name__ == "__main__":
+    # THE CHILD ENTRY POINT for `--runs N`. A separate PROCESS per execution, because a loop cannot
+    # sample what an interpreter fixes at startup. Positional by necessity and safe by shape: both
+    # arguments are integers, and `int()` refuses a flag.
     if "--bench" in _sys.argv:
         try:
             a = parse_argv(_sys.argv)
@@ -677,12 +772,26 @@ if __name__ == "__main__":
             print(" ", exc)
             print("  usage : rollbench.py", USAGE_HINT)
             raise SystemExit(2)
+        # THE CHILD ENTRY POINT for `--runs N`: one PROCESS per execution, because a loop cannot
+        # sample what an interpreter fixes at startup. It comes through THE SAME PARSER — the
+        # `argv_is_parsed_in_exactly_one_place` law caught the first draft giving it its own
+        # positional reader, which is the defect `entry` exists for, committed while writing the
+        # module that measures executions.
+        if a["emit-rows"]:
+            import json
+            print(json.dumps(sweep_rows(iters=int(a["iters"]), run_index=int(a["run-index"]))))
+            raise SystemExit(0)
         out = a["out"] or _os.path.join(
             _os.path.dirname(_os.path.dirname(_HERE)), "spec", "attest", "rollbench.txt")
         rep = run_bench(out, host_note=a["note"], declared_host=a["machine"] or None,
-                        conditions=conditions_from(a))
+                        conditions=conditions_from(a), runs=runs_from(a))
         print("ROLLBENCH ->", rep["path"])
         print("  cells :", rep["cells"])
+        print("  runs  :", rep["runs"],
+              "" if rep["runs"] >= RP.MIN_EXECUTIONS else
+              "  <- ONE EXECUTION: the between-execution spread is UNDEFINED, so no difference "
+              "in this log can be claimed (URDRRPT1). Re-run with --runs %d or more."
+              % RP.MIN_EXECUTIONS)
         print("  host  :", rep["host"])
         print("  grade :", rep["grade"])
         if rep["grade"] != MEASURED:
@@ -701,6 +810,8 @@ if __name__ == "__main__":
     print("note is apart     :", a_note_cannot_reach_the_checked_field())
     print("run order balanced:", the_run_order_is_not_the_plan_order())
     print("row carries work  :", the_row_carries_the_work_not_only_the_request())
+    print("row carries exec  :", the_row_carries_its_execution_and_its_depths())
+    print("one exec undeterm :", a_single_execution_log_cannot_separate_anything())
     print("declared vs observed apart:", the_declaration_and_the_observation_are_apart())
     for host in ("a-laptop", SF.NAMED_HOST):
         p = parse_log(make_log(host, "3.11.0", _synthetic_rows(),

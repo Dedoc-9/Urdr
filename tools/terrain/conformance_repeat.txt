@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_repeat.txt — URDRRPT1 pinned scenes.
+#
+# VARIANCE HAS LEVELS, AND 200 ITERATIONS IN ONE PROCESS SAMPLE EXACTLY ONE OF THEM.
+#
+# Every quantile this repository has ever reported is a WITHIN-EXECUTION quantile: 200 samples of
+# iteration-level variation and exactly ONE sample of everything an interpreter fixes at startup —
+# the hash seed, the address-space layout, where the allocator began, which core it landed on.
+# Kalibera and Jones state the consequence without qualification: MORE ITERATIONS INSIDE ONE
+# EXECUTION CANNOT REDUCE EXECUTION-LEVEL VARIANCE. Not slowly. Cannot. `pyperf` spawns separate
+# worker PROCESSES for exactly this reason.
+#
+# THE LAW: a difference smaller than the between-execution spread is not a difference; and with one
+# execution that spread does not EXIST, so no difference can be claimed at all.
+#
+# verdicts — one execution separates nothing whatever the gap; multiplying the iteration count by a
+#            hundred does not change that (the paper's claim as a falsifier, not a citation); an
+#            effect below the floor reads INDISTINGUISHABLE and one above it reads SEPARATED; empty
+#            and ragged inputs REFUSE rather than scoring.
+# levels   — within-execution and between-execution spread reported SEPARATELY and never pooled,
+#            with the arithmetic integer and the even-count tie-break pinned to the LOWER middle.
+#
+# does_not_show: THE SPREAD OF A FEW EXECUTIONS IS NOT A CONFIDENCE INTERVAL. No distribution is
+# computed or assumed and no p-value is offered, so with three executions this is a weak instrument
+# that can only be more conservative than the truth. And it grades only what it is HANDED: a factor
+# constant across every execution — the machine, the interpreter build, the working directory — is
+# invisible here exactly as run position was invisible before URDRCNF1.
+#
+# DECLARED: that the between-execution spread is the RANGE of per-execution medians. A choice, and
+# the most conservative one available without assuming a distribution.
+
+verdicts 1055e1049b9e7e6564169b91cb56bb8704d502b91b7cabd4f9c893167ee601b5
+levels 21135e69536991e064d2eb5f4b85307884486bf5468f5c205d2a9a7f0eb18af8
+repeat 0e293891a2582339816234a550a2e642dba39c97a62ade31c70952d24048cf7c

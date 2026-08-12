@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_deeper.txt — URDRDPR1 pinned scenes.
+#
+# A TIMING DIFFERENCE WITH NO COUNTED DIFFERENCE IS UNEXPLAINED, AND UNEXPLAINED IS A VERDICT.
+#
+# THE INSTANCE. Under a balanced schedule the named host showed `moulded` beating `flat` at exactly
+# one work level — ticks = 8 — in three of four workloads (-5.2%, -2.9%, -5.6%), with `flat`
+# winning again at 11 and 12 ticks. Three independent workloads agreeing at one point is too
+# orderly to file as noise and too narrow to explain by hand. And `measure` had already proved in
+# EXACT COUNTS that the three representations share a slope and differ only in the intercept — so a
+# band appearing at one tick count and vanishing either side is a difference the op model says
+# CANNOT EXIST. Either something below that model differs there, or the band is not real. What is
+# not available is a story.
+#
+# verdicts — a count that moves with the time reads EXPLAINED; a difference with no moving count
+#            reads UNEXPLAINED; a log carrying no counters at all reads NOT_ASKED, which is what
+#            every log in this repository looked like until now and is a DIFFERENT finding from
+#            having looked and found nothing. The symmetric case is covered too: counts differing
+#            while the time does not is equally unexplained, and a detector watching only for
+#            unexplained slowness would miss it.
+# probe    — the differencing probe's PROPERTIES, never its numbers. It is proved to BITE on a
+#            deliberately allocating callable, which is the falsifier that caught the first draft
+#            reading zero: `getallocatedblocks` is a LEVEL, not a counter, so discarding the return
+#            value before the second snapshot frees every transient allocation and measures nothing.
+#
+# NO COUNT IS EVER DIGESTED HERE. Allocation and collection counts are CPython-version dependent,
+# and the gate runs on more than one interpreter; a digested count would redden an operator's gate
+# for a reason that has nothing to do with the tree. The counts live in the LOG beside the timings,
+# under the rule the timings already obey: the FORMAT and the ADMISSION LAW are gated, the NUMBERS
+# are the operator's.
+#
+# does_not_show: A COUNTED DIFFERENCE IS NOT A CAUSE — it is a correlation between two quantities
+# in the same run, and establishing causation needs an intervention this module does not perform.
+# Nor is the counter list exhaustive: a difference living in branch prediction, cache residency or
+# scheduler placement reads UNEXPLAINED, correctly, because this instrument cannot see it.
+#
+# DECLARED: the counter list, and that a count differs when it differs AT ALL — no tolerance,
+# because a tolerance on an exact integer is a threshold nobody is watching.
+
+verdicts c2028a4e6c711ceb9c015ea0d0710d68bc8bd6ed498fa33b457617b8b79b7eec
+probe cb7cb686a2a8c7ffbf1878a01f8cc371d008dd78d058146c28c3bf215881836d
+deeper 49caffc07c9e294e56fdb90a9473e3bb5b1bef77775eaa27d15e0507d643050e
