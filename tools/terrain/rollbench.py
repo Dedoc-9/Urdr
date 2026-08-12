@@ -74,6 +74,10 @@ ROW_FIELDS = ("representation", "workload", "depth", "n", "p50_ns", "p95_ns", "p
 MEASURED = "MEASURED"
 NOT_MEASURED = "NOT_MEASURED"
 
+#: The machine string every FIXTURE uses. `observed_machine()` is host-dependent by design, so a
+#: golden that let it default would digest this container's hostname.
+FIXED_MACHINE = "fixture-box | Fixture 0"
+
 
 class RollbenchError(Exception):
     def __init__(self, message):
@@ -136,11 +140,36 @@ def summarize(samples):
 
 
 # ---- the log --------------------------------------------------------------------------------------
-def make_log(host, python, rows, plan_dig=None):
-    """SELF-DIGESTED. Host, interpreter, the digest of the plan that was run, then one row per
-    cell. A single byte changed anywhere in the body breaks the seal."""
+def host_line(declared, note=""):
+    """THE HOST THE CLAIM IS ABOUT, DECLARED BY THE OPERATOR — not assembled from `platform.node()`.
+
+    THIS IS THE REPAIR OF AN UNSATISFIABLE LAW, and the defect was mine. v1 built the host string
+    mechanically as `node | system release | note` and handed it to `sealframe.named_host_ok`,
+    which requires §1's verbatim declaration — a string containing no `|` at all. NO INVOCATION ON
+    ANY MACHINE COULD HAVE PASSED. That is L65's defect (2) exactly, in the module whose whole job
+    is to be honest about provenance, and it reddened nothing until an operator ran it.
+
+    The host is now what the operator ATTESTS, because "every condition fused into one string" is a
+    human's claim about power, scheduler and thermal mode that no `platform` call can make. The
+    machine's own report is kept BESIDE it as `machine`, so a reader can weigh the attestation
+    against what the box said about itself — evidence, not verification."""
+    return str(declared).strip() + (f" | {note}".rstrip() if note else "")
+
+
+def observed_machine():
+    """WHAT THE BOX SAYS ABOUT ITSELF. Recorded, never checked against the declaration: no
+    `platform` call can confirm a thermal mode, and pretending otherwise is how the unsatisfiable
+    law got written in the first place."""
+    import platform
+    return f"{platform.node()} | {platform.system()} {platform.release()}"
+
+
+def make_log(host, python, rows, plan_dig=None, machine=""):
+    """SELF-DIGESTED. The DECLARED host, the OBSERVED machine, the interpreter, the digest of the
+    plan that was run, then one row per cell. A single byte changed anywhere breaks the seal."""
     dig = plan_dig or plan_digest()
-    body = [f"{MAGIC} rollbench v1", f"host {host}", f"python {python}", f"plan {dig}"]
+    body = [f"{MAGIC} rollbench v1", f"host {host}", f"machine {machine or observed_machine()}",
+            f"python {python}", f"plan {dig}"]
     for r in rows:
         missing = [f for f in ROW_FIELDS if f not in r]
         if missing:
@@ -164,7 +193,7 @@ def parse_log(text):
     if got != want:
         raise RollbenchError(f"the digest does not match the body ({got[:12]} vs {want[:12]}) — "
                              f"a log that has been edited is not a log")
-    out = {"host": "", "python": "", "plan": "", "rows": []}
+    out = {"host": "", "machine": "", "python": "", "plan": "", "rows": []}
     for ln in lines[1:-1]:
         key, _sp, rest = ln.partition(" ")
         if key == "row":
@@ -174,7 +203,7 @@ def parse_log(text):
             out["rows"].append(dict(zip(ROW_FIELDS, vals)))
         elif key in out:
             out[key] = rest.strip()
-    for k in ("host", "python", "plan"):
+    for k in ("host", "machine", "python", "plan"):
         if not out[k]:
             raise RollbenchError(f"the log names no {k}")
     return out
@@ -241,8 +270,28 @@ def nothing_this_container_produces_is_citable():
 
 
 def _this_host():
-    import platform
-    return f"{platform.node()} | {platform.system()} {platform.release()}"
+    return observed_machine()
+
+
+def a_passing_log_is_producible():
+    """THE WITNESS THE UNSATISFIABLE LAW LACKED. There must EXIST a host string this runner can
+    emit that `sealframe.named_host_ok` ACCEPTS — otherwise the gate is unreachable from real
+    input and a green selftest proves only synthetic failure (L65's defect 2, whose general
+    detector `reachable` now mechanizes). Built through `host_line`, the runner's own path."""
+    text = make_log(host_line(SF.NAMED_HOST), "3.11.0", _synthetic_rows(),
+                    machine=FIXED_MACHINE)
+    grade, _why = evidence_grade(parse_log(text))
+    return grade == MEASURED
+
+
+def the_declaration_and_the_observation_are_apart():
+    """The attestation is the operator's; the machine's self-report is the box's. A log carries
+    BOTH and the law checks only the first, because no `platform` call can confirm a thermal mode
+    — recording the observation as if it verified the declaration is the same error one layer on."""
+    p = parse_log(make_log(host_line(SF.NAMED_HOST), "3.11.0", _synthetic_rows(),
+                           machine="some-other-box | Fixture 0"))
+    return (p["host"] == SF.NAMED_HOST and p["machine"] != p["host"]
+            and evidence_grade(p)[0] == MEASURED)
 
 
 def _synthetic_rows(n=3):
@@ -259,7 +308,10 @@ def the_seal_bites():
     """A single byte changed anywhere in the body must be refused. Checked at three places — the
     host line, a row, and the plan digest — because a seal that only covered the tail would pass a
     forged header."""
-    text = make_log("someone", "3.11.0", _synthetic_rows())
+    # THE MACHINE IS PINNED IN EVERY FIXTURE. `observed_machine()` is host-dependent by design,
+    # so a golden that let it default would digest this container's hostname and could not be
+    # reproduced anywhere else — the determinism floor, one field down.
+    text = make_log("someone", "3.11.0", _synthetic_rows(), machine=FIXED_MACHINE)
     parse_log(text)                                          # the honest log reads
     caught = 0
     for old, new in (("host someone", "host NAMED"), ("p50_ns", "p50_ns"),
@@ -275,7 +327,7 @@ def the_seal_bites():
 
 
 # ---- the operator command --------------------------------------------------------------------------
-def run_bench(out_path, iters=200, host_note=""):
+def run_bench(out_path, iters=200, host_note="", declared_host=None):
     """OFF-GATE, and the only place a clock appears. Times `restore + replay` for every cell of the
     plan and writes a sealed log. Reports quantiles rather than a mean, because rollback latency is
     exactly the shape where a mean hides the tail. It computes NO comparison."""
@@ -297,7 +349,10 @@ def run_bench(out_path, iters=200, host_note=""):
         row = {"representation": rep, "workload": wl, "depth": depth}
         row.update(summarize(samples))
         rows.append(row)
-    host = _this_host() + (f" | {host_note}" if host_note else "")
+    # NO DECLARATION -> the observed machine, which grades NOT_MEASURED. The safe default stays
+    # uncitable, so forgetting to attest cannot produce evidence by accident.
+    host = host_line(declared_host, host_note) if declared_host else \
+        (observed_machine() + (f" | {host_note}" if host_note else ""))
     text = make_log(host, platform.python_version(), rows)
     with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(text)
@@ -312,16 +367,20 @@ SCENES = ("format", "provenance", "plan")
 
 def scene_case(name):
     if name == "format":
-        text = make_log("someone", "3.11.0", _synthetic_rows())
+        text = make_log("someone", "3.11.0", _synthetic_rows(), machine=FIXED_MACHINE)
         p = parse_log(text)
-        return "%d rows|%s|%s|%s" % (len(p["rows"]), p["host"], p["plan"][:12], the_seal_bites())
+        return "%d rows|%s|%s|%s|%s" % (len(p["rows"]), p["host"], p["machine"],
+                                        p["plan"][:12], the_seal_bites())
     if name == "provenance":
-        unnamed = parse_log(make_log("a-laptop", "3.11.0", _synthetic_rows()))
-        named = parse_log(make_log(SF.NAMED_HOST, "3.11.0", _synthetic_rows()))
-        return "unnamed=%s|named=%s|apart=%s|container=%s" % (
+        unnamed = parse_log(make_log("a-laptop", "3.11.0", _synthetic_rows(),
+                                     machine=FIXED_MACHINE))
+        named = parse_log(make_log(SF.NAMED_HOST, "3.11.0", _synthetic_rows(),
+                                   machine=FIXED_MACHINE))
+        return "unnamed=%s|named=%s|apart=%s|container=%s|producible=%s|apart2=%s" % (
             evidence_grade(unnamed)[0], evidence_grade(named)[0],
             the_two_questions_are_apart(unnamed),
-            nothing_this_container_produces_is_citable())
+            nothing_this_container_produces_is_citable(),
+            a_passing_log_is_producible(), the_declaration_and_the_observation_are_apart())
     if name == "plan":
         p = plan()
         return "%s|%d cells|%s" % (sorted(p.items()), len(cells()), no_verdict_is_emitted())
@@ -354,7 +413,10 @@ if __name__ == "__main__":
         out = _sys.argv[i + 1] if len(_sys.argv) > i + 1 else _os.path.join(
             _os.path.dirname(_os.path.dirname(_HERE)), "spec", "attest", "rollbench.txt")
         note = _sys.argv[i + 2] if len(_sys.argv) > i + 2 else ""
-        rep = run_bench(out, host_note=note)
+        declared = None
+        if "--host" in _sys.argv:
+            declared = _sys.argv[_sys.argv.index("--host") + 1]
+        rep = run_bench(out, host_note=note, declared_host=declared)
         print("ROLLBENCH ->", rep["path"])
         print("  cells :", rep["cells"])
         print("  host  :", rep["host"])
@@ -367,6 +429,8 @@ if __name__ == "__main__":
     print("seal bites        :", the_seal_bites())
     print("no verdict emitted:", no_verdict_is_emitted())
     print("uncitable here    :", nothing_this_container_produces_is_citable())
+    print("passing log exists:", a_passing_log_is_producible())
+    print("declared vs observed apart:", the_declaration_and_the_observation_are_apart())
     for host in ("a-laptop", SF.NAMED_HOST):
         p = parse_log(make_log(host, "3.11.0", _synthetic_rows()))
         print("  %-24s -> %s" % (host[:24], evidence_grade(p)[0]))

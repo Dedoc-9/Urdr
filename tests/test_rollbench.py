@@ -54,7 +54,7 @@ class ThePlanIsReadNotChosen(unittest.TestCase):
 
 class TheSeal(unittest.TestCase):
     def test_a_log_round_trips(self):
-        p = RB.parse_log(RB.make_log("someone", "3.11.0", RB._synthetic_rows()))
+        p = RB.parse_log(RB.make_log("someone", "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
         self.assertEqual(p["host"], "someone")
         self.assertEqual(len(p["rows"]), 3)
         self.assertEqual(p["plan"], RB.plan_digest())
@@ -65,7 +65,7 @@ class TheSeal(unittest.TestCase):
         self.assertTrue(RB.the_seal_bites())
 
     def test_an_unsealed_or_malformed_log_refuses(self):
-        text = RB.make_log("someone", "3.11.0", RB._synthetic_rows())
+        text = RB.make_log("someone", "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE)
         body = "\n".join(text.splitlines()[:-1]) + "\n"
         for bad in ("", "nonsense\n", body, text.replace("host someone\n", "")):
             with self.subTest(bad[:20]):
@@ -77,7 +77,7 @@ class TheSeal(unittest.TestCase):
         bad = dict(RB._synthetic_rows()[0])
         bad.pop("p99_ns")
         with self.assertRaises(RB.RollbenchError):
-            RB.make_log("someone", "3.11.0", [bad])
+            RB.make_log("someone", "3.11.0", [bad], machine=RB.FIXED_MACHINE)
 
     def test_the_quantiles_are_ranks_not_interpolations(self):
         s = RB.summarize([5, 1, 4, 2, 3])
@@ -98,12 +98,12 @@ class TheSeal(unittest.TestCase):
 
 class TheProvenanceLaw(unittest.TestCase):
     def test_an_unnamed_host_grades_not_measured(self):
-        p = RB.parse_log(RB.make_log("a-laptop", "3.11.0", RB._synthetic_rows()))
+        p = RB.parse_log(RB.make_log("a-laptop", "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
         self.assertEqual(RB.evidence_grade(p)[0], RB.NOT_MEASURED)
 
     def test_the_named_host_grades_measured(self):
         """NON-VACUITY: a law that refused every host would be a wall."""
-        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows()))
+        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
         self.assertEqual(RB.evidence_grade(p)[0], RB.MEASURED)
 
     def test_the_host_law_is_read_from_sealframe(self):
@@ -119,20 +119,57 @@ class TheProvenanceLaw(unittest.TestCase):
     def test_the_two_questions_are_apart(self):
         """A log from an unnamed host is a well-formed CLAIM and inadmissible EVIDENCE. If one
         check could stand for the other, one is redundant and the wrong one would be dropped."""
-        p = RB.parse_log(RB.make_log("a-laptop", "3.11.0", RB._synthetic_rows()))
+        p = RB.parse_log(RB.make_log("a-laptop", "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
         form_ok, grade = RB.the_two_questions_are_apart(p)
         self.assertTrue(form_ok)
         self.assertEqual(grade, RB.NOT_MEASURED)
 
     def test_the_claim_it_builds_is_admitted_by_measure(self):
-        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows()))
+        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
         self.assertEqual(MS.claim_fault(RB.claim_from(p, "alternating")), "")
 
     def test_a_claim_missing_a_term_is_not(self):
-        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows()))
+        p = RB.parse_log(RB.make_log(SF.NAMED_HOST, "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE))
         bad = RB.claim_from(p, "alternating")
         bad.pop("host_log")
         self.assertNotEqual(MS.claim_fault(bad), "")
+
+
+class TheUnsatisfiableLawIsRepaired(unittest.TestCase):
+    """v1 built the host string mechanically as `node | system release | note` and handed it to
+    `sealframe.named_host_ok`, which requires a declaration containing NO `|` AT ALL. No invocation
+    on any machine could have passed. L65's defect (2), in the module whose job is provenance, and
+    it reddened nothing until an operator ran it."""
+
+    def test_a_passing_log_is_producible(self):
+        """The witness the law lacked: a host string the RUNNER'S OWN PATH can emit that the gate
+        accepts."""
+        self.assertTrue(RB.a_passing_log_is_producible())
+
+    def test_the_old_mechanical_form_could_never_pass(self):
+        """The defect, exhibited: the auto-assembled string contains a separator the declaration
+        does not, so the two are unequal for every machine and every note."""
+        import platform
+        auto = f"{platform.node()} | {platform.system()} {platform.release()} | any-note"
+        self.assertFalse(SF.named_host_ok(auto))
+        self.assertNotIn("|", SF.NAMED_HOST)
+        self.assertIn("|", auto)
+
+    def test_the_declaration_and_the_observation_are_apart(self):
+        """No `platform` call can confirm a thermal mode. The machine's self-report is recorded
+        BESIDE the attestation and the law checks only the attestation."""
+        self.assertTrue(RB.the_declaration_and_the_observation_are_apart())
+
+    def test_an_undeclared_run_stays_uncitable(self):
+        """The safe default: forgetting to attest cannot produce evidence by accident."""
+        p = RB.parse_log(RB.make_log(RB.observed_machine(), "3.11.0", RB._synthetic_rows(),
+                                     machine=RB.FIXED_MACHINE))
+        self.assertEqual(RB.evidence_grade(p)[0], RB.NOT_MEASURED)
+
+    def test_the_machine_line_is_required(self):
+        text = RB.make_log("someone", "3.11.0", RB._synthetic_rows(), machine=RB.FIXED_MACHINE)
+        with self.assertRaises(RB.RollbenchError):
+            RB.parse_log(text.replace("machine %s\n" % RB.FIXED_MACHINE, ""))
 
 
 class NoVerdictIsEmitted(unittest.TestCase):

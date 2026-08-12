@@ -1,0 +1,30 @@
+# URDRRCH1 conformance goldens — A GATE MUST ADMIT SOMETHING ITS OWN PRODUCER CAN MAKE. The
+# detector L65 NAMED AND DELIBERATELY LEFT UNBUILT, so a successor would TEST the rule rather than
+# inherit it. The successor inherited it: `rollbench` v1 assembled a host string as
+# `node | system release | note` and handed it to `sealframe.named_host_ok`, which requires a
+# declaration containing NO `|` at all. No invocation on any machine could have passed, and it
+# reddened nothing until an operator ran the harness and got a refusal that was the harness's fault.
+#
+# THE LAW: every registered gate ships with a WITNESS ITS PRODUCER CAN ACTUALLY MAKE and with a
+# COUNTEREXAMPLE IT REFUSES. Both halves, because they fail in opposite directions — without the
+# first a gate can be unsatisfiable and green forever (L65 defect 2), without the second it can
+# accept everything and be equally green (L61).
+#
+# AND THE FIRST SWEEP CAUGHT THE REGISTER, NOT THE CODE: `contact.witness_digest` was registered as
+# a gate and read VACUOUS, correctly, because it is a DIGEST and not a DOOR. The detector was right
+# and the REGISTRATION was wrong — an entry must name something that can REFUSE.
+#
+# Pinned AFTER both plants were proved to bite and to produce DIFFERENT verdicts.
+# digest = SHA-256(MAGIC | name | payload), payload readable in `reachable.scene_case(name)`.
+#
+# DECLARED: the register's MEMBERSHIP, which is enumerated and therefore a FLOOR rather than a
+# survey — asserted checkably, since there are strictly more typed refusal codes in the tree than
+# registered pairs.
+#
+# BOUNDARY, transcribed from this module's own GRADE section rather than authored here:
+# does_not_show: a survey. Eight pairs are enumerated; the tree has more gates, and an unregistered
+# gate is UNCHECKED rather than proved reachable. What this rung establishes is that the RULE is now
+# testable and that one instance of its violation was found, repaired and pinned. sample != universal.
+
+census 056393cfa7a9b9849c8f25a0a3e4814210cead472b36e37f7cc16f62f6b0ad73
+plants dcf74c103807fd710c97258a2863eba738abd45e599f33b1eb2acce3e8127546

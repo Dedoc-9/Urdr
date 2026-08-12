@@ -217,6 +217,7 @@ STAGE_ORDER = (
     "mould",
     "measure",
     "rollbench",
+    "reachable",
     "sealsession",
     "heightfield_placement",
     "latstore_placement",
@@ -16841,6 +16842,111 @@ class Gate:
                     "whole point, since orthogonality is what the earlier rows were testing"
                     if cam_ok else "the camera-basis law did not hold")
 
+    def reachable(self):
+        """A GATE MUST ADMIT SOMETHING ITS OWN PRODUCER CAN MAKE (URDRRCH1) — the detector L65
+        named and left unbuilt. Rows: census (every registered pair reachable, the register
+        declared a floor), plants (both halves bite, and produce DIFFERENT verdicts)."""
+        for d in ("terrain", "netcode", "physics"):
+            p = os.path.join(ROOT, "tools", d)
+            if p not in sys.path:
+                sys.path.insert(0, p)
+        try:
+            import reachable as RC
+            import rollbench as RB2
+            import sealframe as SF3
+        except Exception as exc:
+            for r in ("census", "plants"):
+                self.record(f"reachable-{r}", False, f"import failed (reachable): {exc}")
+            return
+        c_ok, cen, floor = True, {}, ()
+        try:
+            cen = RC.census()
+            floor = RC.the_register_is_a_floor_not_a_survey()
+            c_ok = (RC.every_gate_admits_what_its_producer_makes()
+                    and all(v == RC.REACHABLE for v in cen.values())
+                    and len(RC.names()) >= 8 and floor[0] and floor[1] > floor[2])
+            try:
+                RC.verdict("nope")
+                c_ok = False
+            except RC.ReachError as _e:
+                c_ok = c_ok and _e.code == "REACH-REFUSE"
+            c_ok = c_ok and all(RC.scene_result(x) == RC.golden(x) for x in RC.SCENES)
+        except Exception:
+            c_ok = False
+        self.record("reachable-census", c_ok,
+                    "THE DETECTOR L65 NAMED AND DELIBERATELY LEFT UNBUILT, BUILT AGAINST A LIVE "
+                    "INSTANCE. L65 mechanized four of its five defects and said of the fifth that "
+                    "nothing checks whether a checker's branches are REACHABLE FROM REAL INPUT, "
+                    "that a passing selftest proves only synthetic failure, and that the detector "
+                    "was being left unbuilt so a successor would TEST the rule rather than inherit "
+                    "it. THE SUCCESSOR INHERITED IT: `rollbench` v1 assembled its host string as "
+                    "`node | system release | note` and handed it to `sealframe.named_host_ok`, "
+                    "which requires a declaration containing NO `|` AT ALL — no invocation on any "
+                    "machine with any note could have passed, in the module whose entire job is "
+                    "provenance, and it reddened NOTHING until an operator ran the harness and got "
+                    "a refusal that was the harness's fault. THE LAW: every registered gate ships "
+                    "with a WITNESS ITS PRODUCER CAN ACTUALLY MAKE and a COUNTEREXAMPLE IT "
+                    "REFUSES, %d pairs, all REACHABLE. AND THE FIRST SWEEP CAUGHT THE REGISTER "
+                    "RATHER THAN THE CODE: `contact.witness_digest` was registered as a gate and "
+                    "read VACUOUS — correctly, because it is a DIGEST and not a DOOR, hashing "
+                    "whatever it is handed with no refusal to offer — so the detector was right "
+                    "and the REGISTRATION was wrong, which is a finding about this register's own "
+                    "discipline. IT IS A FLOOR AND NOT A SURVEY, asserted CHECKABLY: %d typed "
+                    "refusal codes exist in the tree against %d registered pairs, so an "
+                    "unregistered gate is UNCHECKED rather than proved reachable and the boundary "
+                    "cannot quietly stop being true"
+                    % (len(cen), floor[1] if floor else -1, floor[2] if floor else -1)
+                    if c_ok else "the reachability census did not hold")
+        p_ok = True
+        try:
+            p_ok = (RC.the_detector_bites() and RC.a_gate_that_accepts_everything_is_caught()
+                    and RC.the_witness_is_produced_not_written())
+            # THE TWO VERDICTS ARE DIFFERENT FINDINGS — a detector fusing them would report an
+            # unsatisfiable gate as an open one.
+            real_h, real_g = RB2.host_line, SF3.named_host_ok
+            try:
+                RB2.host_line = lambda declared, note="": RB2.observed_machine()
+                p_ok = p_ok and RC.verdict(RC.names()[0]) == RC.UNREACHABLE
+            finally:
+                RB2.host_line = real_h
+            try:
+                SF3.named_host_ok = lambda _h: True
+                p_ok = p_ok and RC.verdict(RC.names()[0]) == RC.VACUOUS
+            finally:
+                SF3.named_host_ok = real_g
+            p_ok = p_ok and RC.verdict(RC.names()[0]) == RC.REACHABLE
+            # a hand-written witness would have HIDDEN the defect — exhibited, not argued
+            import platform as _pf
+            p_ok = (p_ok and SF3.named_host_ok(SF3.NAMED_HOST)
+                    and not SF3.named_host_ok(
+                        f"{_pf.node()} | {_pf.system()} {_pf.release()}"))
+            try:                                          # a producer that RAISES refuses
+                RB2.host_line = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
+                try:
+                    RC.verdict(RC.names()[0])
+                    p_ok = False
+                except RC.ReachError:
+                    pass
+            finally:
+                RB2.host_line = real_h
+        except Exception:
+            p_ok = False
+        self.record("reachable-plants", p_ok,
+                    "BOTH HALVES BITE AND THEY PRODUCE DIFFERENT VERDICTS. Re-plant the exact "
+                    "defect this detector was built for — `rollbench` v1's mechanically assembled "
+                    "host string — and the pair reads UNREACHABLE; make the gate accept everything "
+                    "and the SAME pair reads VACUOUS; restore both and it reads REACHABLE. "
+                    "UNREACHABLE and VACUOUS are DIFFERENT FINDINGS and a detector that fused them "
+                    "would report an unsatisfiable gate as an open one. AND THE DISTINCTION THAT "
+                    "IS THE DETECTOR IS EXHIBITED RATHER THAN ARGUED: the LITERAL `NAMED_HOST` "
+                    "passes the gate while the PRODUCER's own output does not, so a register of "
+                    "hand-written witnesses would have been green throughout — a human can type "
+                    "what a machine cannot emit, and the machine was the caller. Every witness "
+                    "here is obtained by CALLING the producer, and a producer that raises REFUSES "
+                    "rather than scoring, because a pair whose producer cannot run has no witness "
+                    "to offer and no gate to test"
+                    if p_ok else "the reachability plants did not bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -20433,7 +20539,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

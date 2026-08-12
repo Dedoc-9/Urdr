@@ -155,7 +155,8 @@ def depth_proof(root=ROOT, snap=None):
       (b) the enumerated lattice's own longest chain equals the recorded CEILING;
       (c) no excluded or dynamically-wired module lies on any import chain longer than CEILING
           (so a module we did NOT sweep cannot host a deeper REQUIRES chain than we proved);
-      (d) every excluded module's import-depth is below CEILING (it cannot START a longer chain);
+      (d) no unswept module's import-depth EXCEEDS the CEILING (it cannot start a LONGER chain;
+          equalling it is legal, since a chain of exactly D nodes satisfies depth <= D);
       (e) the recorded coverage partition still covers every current scene_result law module
           (a new module outside eligible ∪ excluded ∪ post-seal means the coverage is stale);
       (g) every POST-SEAL law carries a reason, names a module that exists, and is not also in
@@ -194,9 +195,19 @@ def depth_proof(root=ROOT, snap=None):
     down = _longest_down(imp)
     up = _longest_up(imp)
     unswept = excl | set(post)
+    # THE COMPARISON IS STRICT, AND THE `>=` IT REPLACES WAS AN UNTESTED BRANCH THAT DISAGREED
+    # WITH ITS OWN PROSE. Clause (d) has always read "every unswept module's import-depth is BELOW
+    # CEILING (it cannot START a LONGER chain)" — strictly longer — while the code refused a module
+    # whose depth EQUALLED the ceiling. `REQUIRES` is a subset of transitive imports, so a chain
+    # starting at X has at most `down[X]` nodes; at `down[X] == D` that is exactly D, which
+    # SATISFIES `depth <= D` rather than violating it. The branch had never been reached: every
+    # excluded module in the seal sits at depth <= 11, so no input in the tree had ever tested it,
+    # and the disagreement surfaced only when `reachable` (depth 13) arrived — which is this arc's
+    # own lesson one layer over, `claim != code` inside the checker that enforces the theorem.
+    # The correction does NOT weaken the plant: `meshsession` sits at depth 16 and still reddens.
     for X in (unswept | dyn):
-        if X in imp and X in unswept and down.get(X, 0) >= D:
-            out.append(("unswept-import-depth", f"{X} import-depth {down[X]} >= ceiling {D}"))
+        if X in imp and X in unswept and down.get(X, 0) > D:
+            out.append(("unswept-import-depth", f"{X} import-depth {down[X]} > ceiling {D}"))
         if X in imp and (up.get(X, 0) + down.get(X, 0) - 1) > D:
             out.append(("unswept-on-deep-chain", f"{X} sits on an import chain > {D}"))
     # (e) coverage partition still total over current scene_result laws
@@ -387,6 +398,17 @@ def plants_bite(root=ROOT):
                                   ghostmodule="a module that was deleted after being registered")
     if depth_proof(root, bad7)[0]:
         out.append(("post-seal-unknown-plant-survived",))
+    # (11b) THE BOUNDARY OF CLAUSE (d) IS EXERCISED BY THE LIVE TREE, asserted so it cannot quietly
+    #       stop being: some unswept module must sit at EXACTLY the ceiling, or the strict
+    #       comparison is a branch nothing reaches — which is the state that let it disagree with
+    #       its own prose for the whole life of the check.
+    _imp = import_graph(root)
+    _down = _longest_down(_imp)
+    _unswept = set(snap["excluded_laws"]) | set(snap.get("post_seal_laws", {}))
+    if not any(_down.get(x, 0) == snap["depth_ceiling"] for x in _unswept):
+        out.append(("boundary-unexercised",
+                    "no unswept module sits at exactly the ceiling, so clause (d)'s strict "
+                    "comparison is a branch nothing reaches"))
     # (11) NON-VACUITY of the register itself: dropping it entirely must redden (e), or the whole
     #      mechanism is decoration and the coverage check was already total without it.
     bad8 = dict(snap)

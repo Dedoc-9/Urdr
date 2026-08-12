@@ -12,6 +12,14 @@
 # proved to redden the no-verdict guard.
 # digest = SHA-256(MAGIC | name | payload), payload readable in `rollbench.scene_case(name)`.
 #
+# RE-PINNED AT v1.1, AND THE REASON IS THE RUNG: v1 assembled the host string mechanically as
+# `node | system release | note` and handed it to `sealframe.named_host_ok`, which requires a
+# declaration containing NO `|` at all — so NO INVOCATION ON ANY MACHINE COULD HAVE PASSED. That
+# is L65's defect (2), reproduced in the module whose whole job is provenance, and it reddened
+# nothing until an operator ran it. The host is now DECLARED by the operator and the machine's
+# own report is kept BESIDE it as `machine`, recorded and never checked against the declaration,
+# because no `platform` call can confirm a thermal mode.
+#
 # DECLARED: the row field set and the quantile ranks (p50/p95/p99) — both CHOICES, pinned as data
 # so a reading cannot be re-graded against a field list or a statistic nobody is watching.
 #
@@ -26,7 +34,6 @@
 # quantiles are reported so a reader can judge, and no confidence interval is claimed); that
 # `perf_counter` resolves what the differences require — the operator's log carries the interpreter
 # and platform so that question can be asked of the numbers rather than of a docstring.
-
-format 218e6eb97dba35decea51c50f4e9e0ed3939d7eb7ee295294bfb5a0eddc3aa1d
-provenance 1daf02fa1d54392b4ed6fbdc91fe0ef2dbfee16601eb67259c32cc1d53f9fa47
+format a3c9aa974fbf05e8a79759dc1f7a23f4c17915706a882c6932ccf89c37bf640c
+provenance 5aaaf99347addaf7c5e10cc87ce388470b7a2fe145ae8c4c6f18147a4e43e781
 plan a15af9f15f1f15005d4b2ee7d7d89287c33fe56148c4656a56e33ff0a48fc4b7
