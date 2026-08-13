@@ -227,6 +227,7 @@ STAGE_ORDER = (
     "rehearse",
     "indexed",
     "reflow",
+    "probelog",
     "rollbench",
     "reachable",
     "retire",
@@ -17941,6 +17942,113 @@ class Gate:
                     % (cov[0], cov[1], cov[2], agreed if d_ok else -1, dis if d_ok else -1)
                     if d_ok else "the discovery coverage law did not hold")
 
+    def probelog(self):
+        """THE FIRST §3 LOG BECOMES EVIDENCE (URDRPBL1). Rows: record (the committed bytes, the
+        derived bands), ledger (the graduation through sealframe's own door, the floor
+        demonstration, the strict-door refusal, and the honest verdict)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import probelog as PB
+            import sealframe as SF3
+        except Exception as exc:
+            for r in ("record", "ledger"):
+                self.record(f"probelog-{r}", False, f"import failed (probelog): {exc}")
+            return
+        r_ok, nchain = True, -1
+        try:
+            parsed = PB.parse(PB.load())
+            nchain = len(parsed["chains"])
+            b = PB.bands(parsed["chains"])
+            r_ok = (parsed["host"] == "ROG-Ally-X-Z2-Extreme" and nchain >= 20
+                    and all(lo <= med <= hi for lo, med, hi in b.values())
+                    and PB.scene_result("record") == PB.golden("record"))
+            try:
+                PB.parse(PB.load().replace("present_probe v0.1", "present_probe v0"))
+                r_ok = False
+            except PB.ProbelogError:
+                pass
+            try:
+                PB.parse("\n".join(PB.load().split("\n")[:6]) + "\n")
+                r_ok = False
+            except PB.ProbelogError:
+                pass
+            raw = PB.load()
+            try:
+                PB.load(text=raw[:100] + ("0" if raw[100] != "0" else "1") + raw[101:])
+                r_ok = False
+            except PB.ProbelogError:
+                pass
+        except Exception:
+            r_ok = False
+        self.record("probelog-record", r_ok,
+                    "THE INSTRUMENT sealframe WAITED FOR HAS RUN, AND ITS LOG IS AN ARTIFACT THE "
+                    "GATE RE-READS. present_probe v0.1 (hainuwele/parallel/, deliberately ungated "
+                    "— wall-clock never enters the gate) ran on the named machine on 2026-08-13 "
+                    "and produced %d click chains; the log is COMMITTED at "
+                    "spec/attest/present_probe-allyx-v01.txt under its sha256 and EVERY figure is "
+                    "derived from those bytes at claim time (L75), floor(min)..ceil(max) in exact "
+                    "hundreds of nanoseconds. A flipped byte REFUSES. A v0 log REFUSES by version "
+                    "discipline — v0's pacing was defective (its own first catch: 176 of 723 "
+                    "deadlines missed with half a millisecond of work, Sleep(1) under the default "
+                    "timer resolution) and its one chain-bearing run was anonymous. AND AN EMPTY "
+                    "CLICK TABLE REFUSES: the named-host run before this one had no clicks, so it "
+                    "measured only the frame loop — the protocol's completeness line is enforced "
+                    "rather than advised" % nchain
+                    if r_ok else "the record half did not hold")
+        l_ok, verdict_s = True, "?"
+        try:
+            deps = {"make_log": SF3.make_segment_log, "ledger": SF3.ledger_from_log,
+                    "budget": SF3.budget_verdict, "segments": SF3.SEGMENTS}
+            g_ok, _ = PB.the_new_segments_graduate(parsed, deps["make_log"], deps["ledger"])
+            f_ok, _f = PB.the_floor_cannot_be_lowered(parsed, deps["make_log"], deps["ledger"],
+                                                      SF3.SEGMENTS)
+            s_ok, _m = PB.the_strict_door_refuses(parsed, deps["make_log"], deps["ledger"])
+            v_ok, v = PB.the_verdict_is_honest(parsed, deps["make_log"], deps["ledger"],
+                                               deps["budget"], 40.0)
+            verdict_s = "%s lower=%.4f" % (v["verdict"], v["lower_ms"])
+            led = PB.graduate(parsed, deps["make_log"], deps["ledger"])
+            l_ok = (g_ok and f_ok and s_ok and v_ok
+                    and PB.an_anonymous_log_refuses(parsed, deps["make_log"], deps["ledger"])
+                    and PB.a_wrong_instrument_refuses(parsed, deps["make_log"], deps["ledger"])
+                    and SF3.lower_bound_ms(led) > SF3.lower_bound_ms(SF3.SEGMENTS)
+                    and PB.scene_result("ledger", deps) == PB.golden("ledger"))
+            try:
+                PB.scene_case("ledger")
+                l_ok = False
+            except PB.ProbelogError:
+                pass
+        except Exception:
+            l_ok = False
+        self.record("probelog-ledger", l_ok,
+                    "GRADUATION THROUGH THE DOOR THAT ALREADY EXISTED, NOT A NEW ONE. probelog is "
+                    "a LEAF (the lattice taught confound, pedigree and rehearse the same lesson "
+                    "before it): sealframe's make_segment_log, ledger_from_log and budget_verdict "
+                    "are INJECTED by this stage, and the admission runs through them unmodified. "
+                    "frame_render and present_queue graduate NOT_MEASURED -> MEASURED and "
+                    "view_export DECLARED -> MEASURED with exactly the derived bands — bands that "
+                    "bound THE PROBE'S WORKLOAD on the GDI path at 1280x729, which the citation "
+                    "says. THE FLOOR LAW IS DEMONSTRATED ON REAL DATA: the probe's trivial tick "
+                    "reads UNDER the 100-biped floor of bench_protocol §4b and the door keeps the "
+                    "old floor, citing both sources — re-measuring lighter work cannot lower a "
+                    "bound, the FRAME_BUDGET error caught live instead of by fixture. THE STRICT "
+                    "DOOR REFUSES THIS RECORD, and the refusal is pinned as a law: the probe "
+                    "recorded the machine but not the power or scheduler state, so "
+                    "require_conditions=True refuses naming exactly those two — that red "
+                    "assertion is probe v0.2's specification (rollbench's --power/--scheduler "
+                    "argv is the template), and it keeps the loose admission from ever being "
+                    "mistaken for the strict one. An anonymous log refuses; a software timer "
+                    "claiming the panel refuses; a ledger scene invoked WITHOUT the door refuses "
+                    "rather than pinning a digest of air (L61). AND THE ANSWER IS HONEST: "
+                    "input_to_photon reads %s ms of measured floor against the 40 ms credible "
+                    "target and stays UNDETERMINED — with the missing segments partitioned by "
+                    "WHOSE TASK THEY ARE: pending is EMPTY (nothing left is software's alone), "
+                    "present_wait needs the platform's presentation feedback, input_transport and "
+                    "panel need a camera. The demo's latency work is now legal: it has a measured "
+                    "target to move" % verdict_s
+                    if l_ok else "the ledger half did not hold")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -21578,7 +21686,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_probelog.txt — URDRPBL1 pinned scenes.
+#
+# THE FIRST §3 LOG BECOMES EVIDENCE, THROUGH THE DOOR THAT ALREADY EXISTED.
+#
+# `sealframe.ledger_from_log` was built as the only door segment evidence may come through, and it
+# had nothing real to admit while "the layer-3 renderer does not exist". `present_probe` v0.1 ran
+# on the named machine on 2026-08-13 and produced twenty click chains; the log is COMMITTED at
+# spec/attest/present_probe-allyx-v01.txt under its sha256, and every figure below is DERIVED from
+# those bytes at claim time (L75) before passing through sealframe's own machinery unmodified.
+#
+# record — the committed bytes parse strictly (a v0 log, a malformed row, or an EMPTY click table
+#          each refuses — a chainless run measured only the frame loop); the four segment bands
+#          derive as floor(min)..ceil(max) at 1e-4 ms; input_wait and total are reported, never
+#          graded, because dispatch-to-frame-start is not a segment.
+# ledger — frame_render and present_queue graduate NOT_MEASURED -> MEASURED and view_export
+#          DECLARED -> MEASURED with exactly the derived bands; the FLOOR LAW is demonstrated live
+#          (the probe's trivial tick reads under the 100-biped floor and the door keeps the old
+#          floor, citing both); the STRICT DOOR REFUSES this record naming power and scheduler —
+#          pinned red as probe v0.2's specification; an anonymous log and a software timer
+#          claiming the panel refuse through the same path; and input_to_photon stays
+#          UNDETERMINED with the missing segments partitioned by whose task they are: pending
+#          EMPTY (nothing left is software's alone), present_wait on the platform,
+#          input_transport and panel on a camera.
+#
+# does_not_show: the bands bound the PROBE workload on the GDI path at 1280x729 — the layer-3
+# renderer remains unmeasured and the his say nothing about it. Conditions are UNDECLARED, so runs
+# under different power states are not comparable yet; the strict-door refusal IS that fact, made
+# checkable. Nothing here bounds input latency from actuation: the hardware-to-dispatch wait is
+# invisible to the probe by construction. One run is one execution-level sample (URDRRPT1).
+#
+# DECLARED: which record is the evidence, and that its conditions are insufficient for the strict
+# door.
+
+record 84c30962b8437816ad2154e69d6d837b3095c83b9ab15ad709ba8f8899c948fc
+ledger 356cd17284684a369b38633838bdde49aa94c4ab2c5550e1ded76db3e54a9ebe

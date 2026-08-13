@@ -690,6 +690,16 @@ untracked drafts, so the gate went red there and green here on identical tree co
 is pinned and the population reported now, proved by recomputing the scene over a deliberately
 enlarged corpus and requiring the count to move while the scene does not.
 
+`probelog.py` — `URDRPBL1`: the first §3 log becomes evidence, through the door that already
+existed. `present_probe` v0.1 (hainuwele/parallel/, deliberately ungated) ran on the named machine
+and produced twenty click chains; the log is committed under its sha256 and every figure is derived
+from those bytes at claim time. `frame_render` and `present_queue` graduate to MEASURED with bands
+that bound the probe's workload on the GDI path; the floor law is demonstrated on real data (the
+probe's trivial tick cannot lower the 100-biped floor); the STRICT door refuses the record naming
+power and scheduler — pinned red as probe v0.2's specification; and input->photon stays
+UNDETERMINED with the missing segments partitioned by whose task they are: nothing left is
+software's alone. Born a leaf: sealframe's machinery is injected, never imported.
+
 THE ANSWER THE ARC WAS FOR, on the named host across five independent executions: moulding costs a
 CONSTANT penalty per rollback, flat across a depth axis over which the replay work grows nearly
 tenfold — the intercept moving and the slope not, predicted in exact integers eight rungs earlier and

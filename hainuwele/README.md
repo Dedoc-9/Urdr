@@ -17,6 +17,7 @@ this folder locates and explains, it grades nothing.
 | Document | What it is |
 |---|---|
 | **`README.md`** (this file) | The index: every file, its URDR code, gate stage, falsifiers, conformance, brief |
+| [`probelog.py`](../tools/terrain/probelog.py) | `URDRPBL1` | The first §3 log becomes evidence — present_probe's committed record graduates sealframe segments through the existing door | `probelog` | [test](../tests/test_probelog.py) | [conf](../tools/terrain/conformance_probelog.txt) | [brief](../docs/probelog_brief.md) |
 | [`WHITEPAPER.md`](WHITEPAPER.md) | The thorough treatment: the thesis, the method, the ladder, the theorems, the honest boundaries |
 | [`DEVNOTES.md`](DEVNOTES.md) | Per-stage and per-file design notes: what each rung is for, how to use it, the specifics and gotchas |
 | [`parallel/`](parallel/) | Parallel substrates — structures explored alongside the Euclidean arc without disturbing it |
@@ -132,7 +133,7 @@ a-priori op-count predicted before any clock was started.
 
 ## Every file
 
-124 modules. Gate stage `terrain` covers `heightfield` + `terrain_bridge`; `bench` is deliberately
+125 modules. Gate stage `terrain` covers `heightfield` + `terrain_bridge`; `bench` is deliberately
 ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two gated modules —
 `caustic` and `voxin` — are still absent from this table and are NAMED rather than filled in: the
 `indexed` ratchet holds that debt at 2 and it may only shrink.
@@ -265,8 +266,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | [brief](../docs/wireattest_brief.md) |
 ## Status
 
-**MEASURED, as of this writing.** 126 modules under `tools/terrain/`, 208 suites, 2860 unit
-falsifiers with 0 red, 967 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 127 modules under `tools/terrain/`, 209 suites, 2877 unit
+falsifiers with 0 red, 969 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 
