@@ -24,6 +24,18 @@ defect. v0.1 requests 1 ms resolution, logs whether it was granted, and records 
 magnitude rather than a count. The red-first plant was caught on the same host before any real
 run was trusted.
 
+v0.2 carries the P2 contract — *measure the renderer until resolution is an evidence-derived
+decision* — and is the instrument the analysis rung will read. The workload became real: an
+integer 3D terrain (heightfield mesh, yaw-orbit camera, z-buffered edge-function fill, no float
+anywhere), swept across resolution CELLS that run as interleaved segments with the order rotated
+between passes, so the treatment axis is not a proxy for elapsed time and between-pass spread is
+the variance ruler. The a-priori prediction is affine cost in pixel count; the log records
+per-(cell,pass) bands and the analysis decides whether the data agrees — the form is a prediction,
+never an assumption. A named-host run now REFUSES without `--power` and `--scheduler` (probelog
+pinned the strict door's refusal as this instrument's specification, and v0.2 discharges it), and
+`--defect` stalls exactly one cell so the per-cell aggregation must LOCALIZE the plant rather than
+merely notice it.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
