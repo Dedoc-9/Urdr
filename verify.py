@@ -17884,6 +17884,7 @@ class Gate:
             d_ok = (RF.every_prose_matcher_is_discoverable()
                     and cov[2] == 0 and cov[0] == cov[1] and cov[0] > 10
                     and fn_ok and lift_ok and dis == 0 and agreed > 100
+                    and RF.the_pinned_facts_are_population_independent()
                     and RF.a_source_recognizer_is_outside_this_law()
                     and RF.the_source_escape_is_empty_and_reasoned()
                     and RF.SOURCE_MATCHERS == {}
@@ -17923,7 +17924,20 @@ class Gate:
                     "PROVED TO BE A LIFT RATHER THAN A CHANGE — the declared `_MODULE_TOKEN` is "
                     "compared against its four inline originals over every tracked `.md`, raw and "
                     "reflowed: %d readings, %d disagreements. A repair that moves behaviour is a "
-                    "different rung"
+                    "different rung. AND THAT COUNT IS REPORTED HERE RATHER THAN PINNED, WHICH v1.2 "
+                    "GOT WRONG AND A SECOND HOST CAUGHT: `agreed` comes from a walk of the WORKING "
+                    "DIRECTORY, it read 506 in the container this was written in and 512 on a "
+                    "checkout carrying three untracked drafts beside the repository, and the scene "
+                    "digest that contained it disagreed with its golden — red there, green here, "
+                    "on identical tree contents. A PINNED FACT MAY NOT BE DERIVED FROM A "
+                    "POPULATION THE REPOSITORY DOES NOT FIX. It is the previous lesson turned on "
+                    "the module that wrote it: `docs_that_hide_a_count` carries the comment "
+                    "'MEASUREMENT, not law ... reported rather than pinned', six functions above "
+                    "the line that pinned one, and the walker was called `_tracked_md` while "
+                    "walking the filesystem, so the NAME asserted the property the implementation "
+                    "lacked. The scene now carries the verdict only, and is proved unchanged under "
+                    "an enlarged corpus WHILE the count is proved to move — both halves, since a "
+                    "check where neither moved would prove nothing"
                     % (cov[0], cov[1], cov[2], agreed if d_ok else -1, dis if d_ok else -1)
                     if d_ok else "the discovery coverage law did not hold")
 

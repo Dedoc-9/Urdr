@@ -167,6 +167,33 @@ class TheTypeBoundaryHolds(unittest.TestCase):
 
 
 class TheLiftIsALift(unittest.TestCase):
+    def test_the_pinned_scene_survives_an_untracked_file(self):
+        """v1.3, AN ERRATUM. v1.2 pinned the corpus SIZE into the `discovery` scene; it read 506 in
+        one checkout and 512 in another carrying three untracked drafts, and the gate went red on
+        identical tree contents. The count must move under an enlarged corpus and the scene must
+        not — a check where neither moved would prove nothing."""
+        self.assertTrue(RF.the_pinned_facts_are_population_independent())
+        real = tuple(RF.md_corpus(_ROOT))
+        _ok, n_small, _d = RF.the_lift_changed_no_behaviour()
+        _ok2, n_big, _d2 = RF.the_lift_changed_no_behaviour(corpus=real + real[:3])
+        self.assertGreater(n_big, n_small)
+        self.assertEqual(RF.scene_case("discovery"), RF._discovery_case(corpus=real + real[:3]))
+
+    def test_no_scene_carries_a_population_count(self):
+        """The general form: a scene value derived from the working directory is a fact about a
+        disk. Checked by digit-scanning every scene against the live corpus size."""
+        n = len(tuple(RF.md_corpus(_ROOT)))
+        for name in RF.SCENES:
+            case = RF.scene_case(name)
+            for bad in (str(n), str(n * 2)):
+                self.assertNotIn(bad, case, f"{name} carries the corpus size")
+
+    def test_the_walker_does_not_claim_to_be_tracked(self):
+        """It walks the filesystem. It was called `_tracked_md`, which asserted a property the
+        implementation did not have — the name is the defect's smallest visible form."""
+        self.assertFalse(hasattr(RF, "_tracked_md"))
+        self.assertTrue(hasattr(RF, "md_corpus"))
+
     def test_the_lift_changed_no_behaviour_on_the_live_corpus(self):
         """A repair that changes behaviour is a different rung. The lifted `_MODULE_TOKEN` is
         compared against the four inline originals over every tracked `.md`, raw and reflowed."""

@@ -68,9 +68,28 @@
 # source matcher -> ordinary implementation. `SOURCE_MATCHERS` is the named escape for a source
 # recognizer inside the audited module and is EMPTY, because that module opens no source file.
 #
+# v1.3 (2026-08-13) — AN ERRATUM, AND THE MODULE CAUGHT BY ITS OWN PREVIOUS LESSON.
+# v1.2 pinned `agreed` -- the number of (file, reading) pairs the lift comparison covered -- INTO
+# this scene. It is derived from a walk of the WORKING DIRECTORY. It read 506 in the container the
+# rung was written in and 512 on the author's machine, whose checkout carries three untracked drafts
+# beside the repository, so the digest disagreed with its golden and the gate went RED THERE and
+# GREEN HERE, on identical tree contents. Nothing about the repository was wrong. The instrument had
+# pinned a fact about somebody's disk.
+#
+#     A PINNED FACT MAY NOT BE DERIVED FROM A POPULATION THE REPOSITORY DOES NOT FIX.
+#
+# It is L79 turned on the module that wrote L79. `docs_that_hide_a_count` carries the comment
+# "MEASUREMENT, not law: ... reported rather than pinned, because it is a fact about the documents
+# and the documents change" -- written SIX FUNCTIONS ABOVE the line that pinned one. And the walker
+# was named `_tracked_md` while walking the filesystem, so the name asserted the very property the
+# implementation lacked; it is `md_corpus` now, and says what it does.
+# The verdict is pinned, the population is REPORTED in the row, and the scene is proved unchanged
+# under an enlarged corpus while the count is proved to move -- both halves, because a check where
+# neither moved would prove nothing.
+#
 # DECLARED: which module is audited, and the (empty) source-matcher escape.
 
 audit 383d6f642ece2defb1ae56a044522f9bfc0e756adc5f42c5dfa7d39b45737808
 behaviour 0d979796cba45983ff6b4b0b4d38485035028705d6cc794fef5d0cac0bd725bf
-discovery 6c20e329d229bbe10755f6dde2cfa722a84365008b8143c22ac5262a3d23cf62
-reflow 69cb35d19f829c21072ffbfa0db0da8f774d1ffe51e1b826a3f7f58bd806d134
+discovery f782a6a86d561c26739740fb6b8855908c2d8e8d0b48f6381fa38496327bacbc
+reflow 4bb91cfa2aec584746ef4a3476b0d0aed4a88fe23266f36f0abab6669a08abae

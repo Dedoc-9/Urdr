@@ -294,14 +294,14 @@ def the_repair_is_necessary(module=None):
             "wrapped witness: read=%s, read-with-literal-spaces-restored=%s" % (now, before))
 
 
-def docs_that_hide_a_count(root=None, module=None):
+def docs_that_hide_a_count(root=None, module=None, corpus=None):
     """MEASUREMENT, not law: tracked `.md` files whose reading moves under a reflow. After the
     repair this is empty; it is reported rather than pinned, because it is a fact about the
     documents and the documents change for reasons that have nothing to do with this rung."""
     mod = _guard() if module is None else module
     base = root or _ROOT
     out = []
-    for rel in _tracked_md(base):
+    for rel in (corpus or md_corpus(base)):
         try:
             with open(_os.path.join(base, rel), encoding="utf-8") as fh:
                 text = fh.read()
@@ -356,7 +356,13 @@ def coverage(source=None):
     return (len(calls), len(calls) - blind, blind)
 
 
-def _tracked_md(root):
+def md_corpus(root):
+    """Every `.md` file under `root` — WHICH IS THE WORKING DIRECTORY, NOT THE TRACKED SET.
+
+    This walker was called `_tracked_md` until 2026-08-13, and it never was. A checkout with three
+    untracked drafts beside the repository yields three more files than a clean one, and any figure
+    derived from this population is a fact about somebody's disk. That is fine for a MEASUREMENT and
+    fatal for a PINNED one — see `the_pinned_facts_are_population_independent` below, and L82."""
     for base, dirs, files in _os.walk(root):
         dirs[:] = [d for d in dirs if d not in (".git", "__pycache__", "node_modules")]
         for f in sorted(files):
@@ -508,7 +514,7 @@ def a_source_recognizer_is_outside_this_law():
             and SOURCE_MATCHERS == {})
 
 
-def the_lift_changed_no_behaviour(root=None, module=None):
+def the_lift_changed_no_behaviour(root=None, module=None, corpus=None):
     """A REPAIR THAT CHANGES BEHAVIOUR IS A DIFFERENT RUNG. The four lifted matchers are compared
     against their inline originals over the whole live corpus — every tracked `.md`, raw and
     reflowed — and must agree everywhere before the lift counts as a lift."""
@@ -516,7 +522,7 @@ def the_lift_changed_no_behaviour(root=None, module=None):
     base = root or _ROOT
     mods = mod.live_modules(base)
     agreed = disagreed = 0
-    for rel in _tracked_md(base):
+    for rel in (corpus or md_corpus(base)):
         try:
             with open(_os.path.join(base, rel), encoding="utf-8") as fh:
                 raw = fh.read()
@@ -531,6 +537,44 @@ def the_lift_changed_no_behaviour(root=None, module=None):
             else:
                 disagreed += 1
     return (disagreed == 0 and agreed > 100, agreed, disagreed)
+
+
+def the_pinned_facts_are_population_independent():
+    """v1.3, AND IT IS AN ERRATUM RATHER THAN AN EXTENSION.
+
+    v1.2 put `agreed` — the number of (file, reading) pairs compared — INTO the pinned `discovery`
+    scene. `agreed` is derived from `md_corpus`, which walks the WORKING DIRECTORY. It read 506 in
+    the container the rung was written in and 512 on the author's machine, whose checkout carries
+    three untracked drafts beside the repository, so the scene digest disagreed with its golden and
+    the gate went red THERE and green HERE. Nothing about the tree was wrong; the instrument had
+    pinned a fact about somebody's disk.
+
+        A PINNED FACT MAY NOT BE DERIVED FROM A POPULATION THE REPOSITORY DOES NOT FIX.
+
+    And it is L79 turned on the module that wrote L79: `docs_that_hide_a_count` carries the comment
+    "MEASUREMENT, not law: ... reported rather than pinned, because it is a fact about the documents
+    and the documents change" — written six functions above the line that pinned one.
+
+    Checked by running the comparison over an ENLARGED corpus: the COUNT must move and the VERDICT
+    must not. A law where both stayed still would prove nothing, and one where both moved is the
+    defect this exists to catch."""
+    real = tuple(md_corpus(_ROOT))
+    a_ok, a_n, a_d = the_lift_changed_no_behaviour()
+    b_ok, b_n, b_d = the_lift_changed_no_behaviour(corpus=real + real[:3])
+    return (a_ok and b_ok and a_d == 0 and b_d == 0 and b_n > a_n
+            and scene_case("discovery") == _discovery_case(corpus=real + real[:3]))
+
+
+def _discovery_case(corpus=None):
+    """The `discovery` scene, computed over an arbitrary corpus. Exists so the scene can be proved
+    unchanged under a corpus that moved, rather than asserted to be."""
+    calls, reach, blind = coverage()
+    fn, _why = the_false_negative_is_demonstrated()
+    lift, _agreed, dis = the_lift_changed_no_behaviour(corpus=corpus)
+    return ("calls=%d reachable=%d blind=%d|law=%s|escape=%s|falseneg=%s|scope=%s|lift=%s %s"
+            % (calls, reach, blind, every_prose_matcher_is_discoverable(),
+               the_source_escape_is_empty_and_reasoned(), fn,
+               a_source_recognizer_is_outside_this_law(), lift, dis == 0))
 
 
 def whitespace_is_all_this_closes():
@@ -557,13 +601,10 @@ def scene_case(name):
             the_witness_is_read_now(), need, the_comma_escape_stayed_closed(),
             whitespace_is_all_this_closes())
     if name == "discovery":
-        calls, reach, blind = coverage()
-        fn, _why = the_false_negative_is_demonstrated()
-        lift, agreed, dis = the_lift_changed_no_behaviour()
-        return ("calls=%d reachable=%d blind=%d|law=%s|escape=%s|falseneg=%s|scope=%s|lift=%s %d %d"
-                % (calls, reach, blind, every_prose_matcher_is_discoverable(),
-                   the_source_escape_is_empty_and_reasoned(), fn,
-                   a_source_recognizer_is_outside_this_law(), lift, agreed, dis))
+        # THE COUNTS ARE DELIBERATELY ABSENT. `agreed` is derived from the working directory and
+        # read 506 here and 512 on a checkout carrying three untracked drafts; pinning it made the
+        # gate host-dependent. The VERDICT is pinned, the population is reported in the row.
+        return _discovery_case()
     raise ReflowError(f"no scene named {name!r}")
 
 

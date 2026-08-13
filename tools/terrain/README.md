@@ -683,7 +683,12 @@ discovered -> audit passes` was a live false negative for one commit. A second, 
 mechanism (an AST walk of the source, which sees CALLS rather than bindings) now has to agree, and
 the false negative is demonstrated end to end rather than argued. The law stays narrower than "all
 regexes should be constants" on purpose: `def (\w+)\(self\)` is a SOURCE recognizer, wrap-sensitive
-and right to be, because a newline there is a syntax error rather than a wrap.
+and right to be, because a newline there is a syntax error rather than a wrap. v1.3 is an erratum
+caught by a second host: v1.2 had pinned the lift comparison's CORPUS SIZE into its scene digest, and
+that number comes from a walk of the working directory — 506 here, 512 on a checkout carrying three
+untracked drafts, so the gate went red there and green here on identical tree contents. The verdict
+is pinned and the population reported now, proved by recomputing the scene over a deliberately
+enlarged corpus and requiring the count to move while the scene does not.
 
 THE ANSWER THE ARC WAS FOR, on the named host across five independent executions: moulding costs a
 CONSTANT penalty per rollback, flat across a depth axis over which the replay work grows nearly
