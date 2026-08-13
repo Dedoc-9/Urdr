@@ -226,6 +226,7 @@ STAGE_ORDER = (
     "pedigree",
     "rehearse",
     "indexed",
+    "reflow",
     "rollbench",
     "reachable",
     "retire",
@@ -17718,9 +17719,11 @@ class Gate:
             return
         c_ok, cnt = True, (-1, -1, -1)
         try:
-            cnt = IX.counts()
+            cnt = IX.counts(path="ALL")
             arc_ok, arc_n, _missing = IX.this_arc_is_indexed()
-            c_ok = (arc_ok and arc_n == 20 and cnt[0] == cnt[1] + cnt[2] and cnt[0] > 50
+            c_ok = (arc_ok and arc_n == 22 and cnt[0] == cnt[1] + cnt[2] and cnt[0] > 50
+                    and len(IX.INDEXES) == 2
+                    and IX.every_index_claims_completeness()
                     and IX.the_gated_set_is_read_from_the_gate())
             try:
                 IX.staged_modules(source="nothing here\n")
@@ -17742,8 +17745,17 @@ class Gate:
                     "`rehearse` — roughly a thousand gate rows — had no entry. THE COUNTS IN THAT "
                     "FILE WERE CORRECT THE WHOLE TIME, because a count is cheap to sweep and a "
                     "paragraph is not: a document whose numbers are current and whose content is "
-                    "stale PASSES A CURRENCY CHECK. Now derived — %d gated terrain modules read "
-                    "from `verify.py`'s OWN `STAGE_ORDER` rather than from a list kept here, %d "
+                    "stale PASSES A CURRENCY CHECK. AND v1.0 CHECKED ONE FILE AND SAID SO, WHICH "
+                    "IS WHERE THE LARGER DEBT WAS: its `does_not_show` read 'only the ladder is "
+                    "checked, because it is the only one whose stated job is completeness', and "
+                    "`hainuwele/README.md` — which describes itself as 'The index: every file, its "
+                    "URDR code, gate stage, falsifiers, conformance, brief' — was missing "
+                    "TWENTY-TWO of the gated set against the ladder's thirteen. A `does_not_show` "
+                    "is a promise about EVIDENCE, not a licence, and every document admitted here "
+                    "must SAY it is complete before this law is allowed to hold it to it. Now "
+                    "derived — %d index slots (gated modules read from `verify.py`'s OWN "
+                    "`STAGE_ORDER` rather than from a list kept here, times the documents that "
+                    "claim completeness), %d "
                     "named, %d outstanding — and matched on the EXACT backticked filename, because "
                     "a bare-word match would let the English word 'entry' or a path containing "
                     "'attest' count as coverage, which is how a presence check quietly becomes a "
@@ -17758,23 +17770,110 @@ class Gate:
                     and IX.a_bare_word_is_not_coverage()
                     and IX.naming_is_not_describing()
                     and IX.verdict(text="") == IX.UNINDEXED
-                    and u == IX.DEBT_CEILING)
+                    and u == IX.DEBT_TOTAL)
         except Exception:
             b_ok = False
         self.record("indexed-bounds", b_ok,
                     "A RATCHET PINNED AT THE LIVE READING, NOT ABOVE IT — a ceiling with slack is "
-                    "one the next gated module fits under without anyone deciding to let it. The "
-                    "thirteen still outstanding PREDATE this arc and are NAMED rather than filled "
+                    "one the next gated module fits under without anyone deciding to let it. THE "
+                    "RATCHET IS PER INDEX (13 for the ladder, 2 for hainuwele) rather than one "
+                    "shared allowance, because a regression in the cleaner document would "
+                    "otherwise hide under slack in the other. Those still outstanding PREDATE this "
+                    "arc and are NAMED rather than filled "
                     "in, because writing up findings one would be paraphrasing rather than "
-                    "reporting is exactly how an index acquires filler. RED-FIRST: delete one "
-                    "entry from a copy of the index and the count rises by one, naming the module "
-                    "that lost it; hand it prose that merely CONTAINS the words and every module "
+                    "reporting is exactly how an index acquires filler. RED-FIRST IN EVERY INDEX: "
+                    "delete one "
+                    "entry from a copy of each and the count rises by one, naming the module "
+                    "that lost it — running the plant on one document would leave the second "
+                    "admitted on trust; hand it prose that merely CONTAINS the words and every module "
                     "still reads unindexed. AND THE BOUND IS DEMONSTRATED RATHER THAN CONFESSED — "
                     "NAMING IS NOT DESCRIBING: an index consisting of nothing but backticked "
                     "filenames satisfies this law COMPLETELY, which is shown by constructing one, "
                     "so nobody can read a green row here as 'the ladder is well written'. It "
                     "catches the module nobody wrote up, not the module written up badly"
                     if b_ok else "the index bounds did not hold")
+
+    def reflow(self):
+        """A LINE BREAK IS NOT A CLAIM (URDRRFL1). Rows: audit (the pattern set derived from
+        `doc_currency`'s live namespace, the exact three-shape sensitivity test), behaviour (the
+        pinned wrapped witness, and the repair proved necessary by restoring the literal spaces)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import reflow as RF
+        except Exception as exc:
+            for r in ("audit", "behaviour"):
+                self.record(f"reflow-{r}", False, f"import failed (reflow): {exc}")
+            return
+        a_ok, cnt = True, (-1, -1, -1)
+        try:
+            cnt = RF.counts()
+            a_ok = (RF.no_audited_pattern_is_wrap_sensitive()
+                    and RF.verdict() == RF.INVARIANT
+                    and cnt[0] > 10 and cnt[2] == 0
+                    and RF.the_audit_is_derived_not_listed()
+                    and RF.a_planted_literal_space_is_flagged()
+                    and RF.a_class_that_admits_a_newline_is_not_flagged())
+            try:
+                RF.patterns(type("_Empty", (), {})())
+                a_ok = False
+            except RF.ReflowError as _e:
+                a_ok = a_ok and _e.code == "REFLOW-REFUSE"
+            a_ok = a_ok and all(RF.scene_result(x) == RF.golden(x) for x in RF.SCENES)
+        except Exception:
+            a_ok = False
+        self.record("reflow-audit", a_ok,
+                    "THE COUNT GUARD'S OWN DOCSTRING SAID THIS ESCAPE COULD NEVER SILENTLY REOPEN, "
+                    "AND IT REOPENED THROUGH A NEWLINE. On 2026-07-16 a COMMA broke the Rust word "
+                    "matcher and a stale count sat through two bumps; the pattern was widened and "
+                    "the self-defect planted that shape. On 2026-08-13 `hainuwele/README.md` "
+                    "hard-wrapped `2825 unit<newline>falsifiers` and `doc_currency` returned NO "
+                    "NUMBER AT ALL for a document that also carried `896 gate rows` against a live "
+                    "964 — silence being strictly worse than a wrong number, because a wrong "
+                    "number reddens. AND THE CURE WAS ALREADY WRITTEN IN THAT SAME FILE: "
+                    "'normalizing is now the DEFAULT for prose matching rather than a fix applied "
+                    "per case' — applied at EXACTLY ONE call site, the one its author had just "
+                    "been bitten by, while SEVEN of fourteen patterns still carried a literal "
+                    "space. A DEFAULT APPLIED WHERE IT WAS LEARNED AND NOWHERE ELSE IS A "
+                    "PREFERENCE. Now %d patterns are DERIVED by walking the guard's namespace — "
+                    "including the regexes nested in its pattern lists, so one added tomorrow is "
+                    "audited without anyone remembering — %d are wrap-tolerant and %d are not, and "
+                    "sensitivity is decided EXACTLY over the pattern source in three shapes: a "
+                    "bare literal space, an escaped one, and a character class admitting a space "
+                    "without a newline (`[ \\t]` is sensitive, `[\\s-]` is not), so the detector "
+                    "is not a space-counter sending authors after null repairs"
+                    % cnt
+                    if a_ok else "the wrap-sensitivity audit did not hold")
+        b_ok = True
+        try:
+            need, _why = RF.the_repair_is_necessary()
+            b_ok = (need and RF.the_witness_is_read_now()
+                    and RF.the_comma_escape_stayed_closed()
+                    and RF.whitespace_is_all_this_closes()
+                    and RF.docs_that_hide_a_count() == ()
+                    and RF.reflowed("a  b\n c") == "a b c")
+        except Exception:
+            b_ok = False
+        self.record("reflow-behaviour", b_ok,
+                    "RED-FIRST AGAINST A PINNED WITNESS RATHER THAN AGAINST TODAY'S DOCUMENTS — a "
+                    "law demonstrated only on the tree's current prose can be dissolved by editing "
+                    "the prose. The wrapped claim is kept as BYTES; restoring the literal spaces "
+                    "to the falsifier idiom takes it from READ to UNREAD, which is what makes the "
+                    "repair NECESSARY rather than tidy. The 2026-07-16 comma escape is proved "
+                    "STILL CLOSED, because closing one escape must not reopen its sibling. No "
+                    "tracked `.md` hides a count behind a line break any more. AND THE BOUND IS "
+                    "DEMONSTRATED: an idiom nobody wrote a pattern for stays unread — `896 gate "
+                    "rows` was invisible for a reason whitespace could not fix, and the idiom for "
+                    "it had to be ADDED. Closing one class of escape is not closing the class of "
+                    "escapes. THE FALSE RED IS RECORDED TOO: normalizing exposed the root README's "
+                    "'and two<newline>detectors (toric, rigidity)' to the WORD-form detector idiom, "
+                    "which means the D17 library size — the count idioms are REFERENT-AMBIGUOUS "
+                    "between a global claim and a local one and the line break had been "
+                    "accidentally protecting that sentence. The prose was disambiguated rather "
+                    "than the guard weakened, and the ambiguity is recorded as surviving in digit "
+                    "form with only the file whitelist holding it"
+                    if b_ok else "the behavioural half did not hold")
 
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
@@ -21413,7 +21512,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

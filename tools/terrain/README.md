@@ -667,6 +667,16 @@ count is cheap to sweep and a paragraph is not. Its first act was to catch ITSEL
 gated module, and it had no entry here until this sentence. `named != described` is demonstrated
 rather than confessed — an index of nothing but backticked filenames satisfies the law completely.
 
+`reflow.py` — `URDRRFL1`: a line break is not a claim, and a default applied once is a preference.
+`doc_currency`'s own docstring records closing a COMMA escape in July and promises that shape "can
+never silently reopen" — and it reopened through a NEWLINE: `hainuwele/README.md` hard-wrapped
+`2825 unit`/`falsifiers` across a line, so the guard read NO NUMBER AT ALL out of a document that
+also carried `896 gate rows` against a live count, silence being strictly worse than a wrong number.
+The cure was already written in that same file — "normalizing is now the DEFAULT for prose matching"
+— and had been applied at exactly ONE call site, the one its author had just been bitten by, while
+seven of fourteen patterns still carried a literal space. The audit is DERIVED by walking
+`doc_currency`'s namespace, so a pattern added tomorrow is checked without anyone remembering.
+
 THE ANSWER THE ARC WAS FOR, on the named host across five independent executions: moulding costs a
 CONSTANT penalty per rollback, flat across a depth axis over which the replay work grows nearly
 tenfold — the intercept moving and the slope not, predicted in exact integers eight rungs earlier and

@@ -17,12 +17,24 @@
 #            proved NOT to count as coverage; the set proved to be read from the gate rather than
 #            held here; and NAMING PROVED NOT TO BE DESCRIBING.
 #
+# v1.1 (2026-08-13) — THE BOUND WAS WHERE THE DEBT WAS. v1.0 closed its does_not_show with "only the
+# ladder is checked, because it is the only one whose stated job is completeness". That clause was
+# false and checkably so: `hainuwele/README.md` calls itself "The index: every file, its URDR code,
+# gate stage, falsifiers, conformance, brief", and it was missing TWENTY-TWO of the gated set
+# against the ladder's thirteen — every rung of this arc, plus both rungs that wrote this law.
+# A does_not_show is a promise about EVIDENCE, not a licence to leave the rest alone. The law now
+# ranges over a REGISTER of index documents, admission to which is itself checked (a document is
+# held to completeness only if it SAYS it is complete), each carrying its OWN ratchet — 13 for the
+# ladder, 2 for hainuwele (`caustic`, `voxin`) — because one shared allowance would let a
+# regression in the cleaner file hide under slack in the other.
+#
 # does_not_show: NAMING IS NOT DESCRIBING. An index of nothing but backticked filenames satisfies
 # this law completely — demonstrated rather than confessed — so it catches the module nobody wrote
 # up, not the module written up badly. It ranges over TERRAIN modules with gate stages, so laws in
-# `netcode`, `physics` and `specfreeze` are outside it. And it checks ONE document: the root README,
-# the paper and the theorem list were equally silent about this arc, and only the ladder is checked,
-# because it is the only one whose stated job is completeness.
+# `netcode`, `physics` and `specfreeze` are outside it. And it holds only documents that CLAIM
+# completeness: the root README, the paper and the theorem list are equally silent about this arc
+# and are not checked, because none of them promises to enumerate anything — a real boundary, and
+# on the evidence of v1.1 the place to look next.
 #
 # DECLARED: which file is the index, and the debt ceiling — thirteen older modules that predate this
 # arc, NAMED rather than filled in, because writing up findings one would be paraphrasing rather
@@ -32,6 +44,6 @@
 # in the ladder until it demanded one. A coverage law exempting itself would be the first
 # thing anyone should distrust.
 
-coverage e11cbd8b5e98798378c061f3d239d8c38a7d6f21c1c8d1f783e309f7b1562563
-bounds 6fe8b5d1150927e7243fca727c63b0a03a388f9aa845094138bbb8f5f7d07fc2
-indexed 7f6beb568d8a432b1fab9d76bd2a810b8809189c05a990191c5ddb2ebbc01599
+coverage 3c9b8b0f29c9f708ff11de0382cea1a567057d57c17867856fb91f5ddf3a995e
+bounds d499b7e1511803202ad295d7e2cecba20adef49dc660ce2d0de4237d32a0150e
+indexed 7f1a371d920fd4b570b9542fd646b84fdbba56dbb535102dcb2575a1739802ea

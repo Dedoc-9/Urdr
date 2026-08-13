@@ -36,13 +36,29 @@ reading, in the shape `entry` used: thirteen older modules are still unindexed, 
 arc, and writing entries for work whose findings I would be paraphrasing rather than reporting is how
 an index acquires filler. The debt is NAMED and may only shrink.
 
+v1.1 (2026-08-13) — THE BOUND WAS WHERE THE DEBT WAS. v1.0's `does_not_show` closed with "it says
+nothing about the OTHER documents ... only the ladder is checked, because it is the only one whose
+stated job is completeness." That last clause was false, and checkably so. `hainuwele/README.md`
+describes itself, in its own table of contents, as "The index: every file, its URDR code, gate
+stage, falsifiers, conformance, brief" — a completeness claim at least as explicit as "The ladder,
+module by module" — and it was missing TWENTY-TWO of the gated set against the ladder's thirteen,
+including every rung of this arc and both rungs that wrote this law.
+
+    A `does_not_show` IS A PROMISE ABOUT EVIDENCE. IT IS NOT A LICENCE TO LEAVE THE REST ALONE.
+
+So the law now ranges over a REGISTER of index documents rather than one file, each carrying its own
+ratchet, and admission to that register is itself checked: a document is only held to completeness
+if it SAYS it is complete. The ratchets stay separate because a regression in the cleaner document
+would otherwise hide under slack in the other.
+
 `does_not_show` — three bounds, and the first is the one to read twice. NAMING IS NOT DESCRIBING: an
 entry that says nothing true about a module satisfies this law completely, so it catches the module
 nobody wrote up and not the module written up badly. It ranges over TERRAIN modules with gate stages,
 so a law living in `netcode`, `physics` or `specfreeze` is outside it entirely — those directories
-have their own READMEs and no coverage check at all. And it says nothing about the OTHER documents:
-the root README, the paper and the theorem list were equally silent about this arc, and only the
-ladder is checked, because it is the only one whose stated job is completeness.
+have their own READMEs and no coverage check at all. And it holds only documents that CLAIM
+completeness: the root README, `docs/PAPER.md` and `docs/THEOREMS.md` are equally silent about this
+arc and are not checked, because none of them promises to enumerate anything — which is a real
+boundary and also, on the evidence of v1.1, the place to look next.
 
 GRADE (honest, D5): MEASURED — the gated set is derived from `verify.py` at claim time and matched
 against the index by an EXACT backticked token, so an English word in prose cannot count as coverage;
@@ -62,18 +78,40 @@ COVERED = "COVERED"
 UNINDEXED = "UNINDEXED"
 OUTCOMES = (COVERED, UNINDEXED)
 
-#: DECLARED — the file whose stated job is completeness. Its own heading is "The ladder, module by
-#: module", which is the strongest possible statement that omission is a defect rather than a choice.
-INDEX = "tools/terrain/README.md"
+#: DECLARED — every document whose STATED JOB IS COMPLETENESS, each with its own named ratchet.
+#:
+#: v1.0 CHECKED ONE FILE AND SAID SO, and the bound was exactly where the larger debt was. Its
+#: `does_not_show` read: "it says nothing about the OTHER documents ... only the ladder is checked,
+#: because it is the only one whose stated job is completeness." That was wrong on its own terms.
+#: `hainuwele/README.md` says of itself, in its own table of contents, "The index: every file, its
+#: URDR code, gate stage, falsifiers, conformance, brief" — a completeness claim at least as
+#: explicit as "The ladder, module by module" — and it was missing TWENTY-TWO of the gated set
+#: against the ladder's thirteen. The bound was not a boundary of the law; it was a place the law
+#: had not been pointed. A `does_not_show` is a promise about evidence, not a licence.
+#:
+#: The ratchet is PER INDEX and pinned at each file's own live reading, because the two documents
+#: carry different debts for different reasons and one shared ceiling would let a regression in the
+#: cleaner file hide under slack in the other.
+INDEXES = (
+    ("tools/terrain/README.md", 13),
+    ("hainuwele/README.md", 2),
+)
+
+#: RETAINED so a caller naming one index still means the ladder. The laws below take a path.
+INDEX = INDEXES[0][0]
 
 #: DECLARED — where the gate keeps its list of what it grades. Read as SOURCE, so this module cannot
 #: drift from the gate by holding its own copy of the answer.
 STAGES_FROM = "verify.py"
 
-#: THE PIN. Gated terrain modules still absent from the index, counted at claim time. A RATCHET: it
-#: may FALL and never RISE. These thirteen predate this arc; writing entries for findings I would be
-#: paraphrasing rather than reporting is how an index fills with filler, so the debt is NAMED.
+#: THE PIN for the ladder, retained by name. A RATCHET: it may FALL and never RISE. These thirteen
+#: predate this arc; writing entries for findings one would be paraphrasing rather than reporting is
+#: how an index fills with filler, so the debt is NAMED. `hainuwele/README.md` carries its own pin
+#: of 2 (`caustic`, `voxin`) for the same reason and by the same rule.
 DEBT_CEILING = 13
+
+#: The total across every index — the number the gate reports, kept derived rather than typed.
+DEBT_TOTAL = sum(n for _p, n in INDEXES)
 
 
 class IndexedError(Exception):
@@ -105,58 +143,101 @@ def index_text(path=None):
         return fh.read()
 
 
-def unindexed(text=None, source=None):
-    """Gated modules the index does not name. Matched on the EXACT backticked filename, because a
+def unindexed(text=None, source=None, path=None):
+    """Gated modules an index does not name. Matched on the EXACT backticked filename, because a
     bare word match would let the English word "entry" or a path containing "attest" count as
     coverage — which is how a presence check quietly becomes a spell-checker."""
-    idx = index_text() if text is None else text
+    idx = index_text(path) if text is None else text
     return tuple(m for m in staged_modules(source) if f"`{m}.py`" not in idx)
 
 
-def verdict(text=None, source=None):
-    return COVERED if not unindexed(text, source) else UNINDEXED
+def unindexed_everywhere(source=None):
+    """Per index, what it does not name. A module named in one index and absent from the other is
+    still a hole: each of these files claims completeness on its own behalf."""
+    return {p: unindexed(source=source, path=p) for p, _n in INDEXES}
 
 
-def counts(text=None, source=None):
+def verdict(text=None, source=None, path=None):
+    """COVERED iff EVERY declared index names every gated module. `text` grades a single supplied
+    document, which is how the plants below work."""
+    if text is not None:
+        return COVERED if not unindexed(text, source) else UNINDEXED
+    return COVERED if not any(unindexed_everywhere(source).values()) else UNINDEXED
+
+
+def counts(text=None, source=None, path=None):
+    """(gated, covered, uncovered) for ONE index — the ladder unless another is named. `path=ALL`
+    sums across every index, which is the number the gate reports."""
     g = staged_modules(source)
-    u = unindexed(text, source)
+    if path == "ALL":
+        holes = sum(len(v) for v in unindexed_everywhere(source).values())
+        total = len(g) * len(INDEXES)
+        return (total, total - holes, holes)
+    u = unindexed(text, source, path)
     return (len(g), len(g) - len(u), len(u))
 
 
 # ---- the laws ---------------------------------------------------------------------------------------
+ARC = ("worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain",
+       "mould", "measure", "rollbench", "reachable", "retire", "entry", "confound", "repeat",
+       "deeper", "attest", "pedigree", "rehearse", "indexed", "reflow")
+
+
 def this_arc_is_indexed():
-    """THE DEBT THIS SESSION PAID, asserted by name. These twenty were the finding: a thousand gate
-    rows whose ladder entry did not exist, in a file whose heading promises module-by-module."""
-    arc = ("worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain",
-           "mould", "measure", "rollbench", "reachable", "retire", "entry", "confound", "repeat",
-           "deeper", "attest", "pedigree", "rehearse")
-    missing = [m for m in arc if m in staged_modules() and m in unindexed()]
-    return (not missing, len(arc), tuple(missing))
+    """THE DEBT THIS SESSION PAID, asserted by name and now IN EVERY INDEX. These were the finding:
+    a thousand gate rows whose ladder entry did not exist, in files whose headings promise
+    module-by-module and every-file. Twenty were paid into the ladder when the law was written;
+    the same twenty, plus the two rungs that wrote the law, were still missing from the second
+    index — which is what widening the law found."""
+    holes = unindexed_everywhere()
+    missing = sorted({m for m in ARC if m in staged_modules()
+                      for v in holes.values() if m in v})
+    return (not missing, len(ARC), tuple(missing))
 
 
 def the_debt_has_not_grown():
-    """A RATCHET, NOT A WALL, and pinned AT the live reading rather than above it — a ceiling with
-    slack is one the next module fits under without anyone deciding to let it."""
-    _g, _c, u = counts()
-    return (u <= DEBT_CEILING, u)
+    """A RATCHET, NOT A WALL, and pinned AT each index's own live reading rather than above it — a
+    ceiling with slack is one the next module fits under without anyone deciding to let it. PER
+    INDEX, so a regression in the cleaner file cannot hide under the other's allowance."""
+    holes = unindexed_everywhere()
+    held = all(len(holes[p]) <= n for p, n in INDEXES)
+    return (held, sum(len(v) for v in holes.values()))
 
 
 def the_ceiling_is_the_live_reading():
-    _g, _c, u = counts()
-    return u == DEBT_CEILING
+    holes = unindexed_everywhere()
+    return all(len(holes[p]) == n for p, n in INDEXES)
+
+
+def every_index_claims_completeness():
+    """THE DECLARATION MADE CHECKABLE. A file admitted to `INDEXES` must SAY it is complete — the
+    law is only honest against a document that promised. Each names itself in the shape the finding
+    turned on: "The ladder, module by module" and "every file"."""
+    want = {"tools/terrain/README.md": "module by module",
+            "hainuwele/README.md": "every file"}
+    for p, _n in INDEXES:
+        phrase = want.get(p)
+        if phrase is None or phrase.lower() not in " ".join(index_text(p).split()).lower():
+            return False
+    return True
 
 
 def a_removed_entry_reddens():
-    """RED-FIRST. Delete one module's entry from a COPY of the index and the count rises — without
-    this the law could be satisfied by an index that mentions everything for unrelated reasons."""
-    idx = index_text()
-    target = next((m for m in staged_modules() if f"`{m}.py`" in idx), None)
-    if target is None:
-        return False
-    planted = idx.replace(f"`{target}.py`", "`removed-on-purpose.py`")
-    before = len(unindexed())
-    after = len(unindexed(text=planted))
-    return after == before + 1 and target in unindexed(text=planted)
+    """RED-FIRST, IN EVERY INDEX. Delete one module's entry from a COPY of each index and that
+    index's count rises — without this the law could be satisfied by a document that mentions
+    everything for unrelated reasons, and running it on only one index would leave the second
+    admitted on trust."""
+    for p, _n in INDEXES:
+        idx = index_text(p)
+        target = next((m for m in staged_modules() if f"`{m}.py`" in idx), None)
+        if target is None:
+            return False
+        planted = idx.replace(f"`{target}.py`", "`removed-on-purpose.py`")
+        before = len(unindexed(path=p))
+        after = len(unindexed(text=planted))
+        if not (after == before + 1 and target in unindexed(text=planted)):
+            return False
+    return True
 
 
 def a_bare_word_is_not_coverage():
@@ -185,7 +266,7 @@ def naming_is_not_describing():
     backticked filename and nothing else satisfies this law COMPLETELY — demonstrated, so the bound
     cannot be mistaken for modesty."""
     stub = "".join(f"`{m}.py`\\n" for m in staged_modules())
-    return verdict(text=stub) == COVERED and len(stub) < len(index_text())
+    return verdict(text=stub) == COVERED and all(len(stub) < len(index_text(p)) for p, _n in INDEXES)
 
 
 # ---- scenes ------------------------------------------------------------------------------------------
@@ -195,15 +276,18 @@ SCENES = ("coverage", "bounds")
 def scene_case(name):
     if name == "coverage":
         arc_ok, arc_n, arc_missing = this_arc_is_indexed()
-        g, c, u = counts()
-        return "gated=%d covered=%d unindexed=%d|arc=%s %d %s|verdict=%s" % (
-            g, c, u, arc_ok, arc_n, sorted(arc_missing), verdict())
+        g, c, u = counts(path="ALL")
+        per = "|".join("%s=%d" % (p.split("/")[0], len(v))
+                       for p, v in sorted(unindexed_everywhere().items()))
+        return "slots=%d covered=%d unindexed=%d|per=%s|arc=%s %d %s|verdict=%s" % (
+            g, c, u, per, arc_ok, arc_n, sorted(arc_missing), verdict())
     if name == "bounds":
         held, u = the_debt_has_not_grown()
-        return "ratchet=%s %d/%d|live=%s|removed=%s|word=%s|fromgate=%s|naming=%s" % (
-            held, u, DEBT_CEILING, the_ceiling_is_the_live_reading(), a_removed_entry_reddens(),
+        return ("ratchet=%s %d/%d|live=%s|claims=%s|removed=%s|word=%s|fromgate=%s|naming=%s" % (
+            held, u, DEBT_TOTAL, the_ceiling_is_the_live_reading(),
+            every_index_claims_completeness(), a_removed_entry_reddens(),
             a_bare_word_is_not_coverage(), the_gated_set_is_read_from_the_gate(),
-            naming_is_not_describing())
+            naming_is_not_describing()))
     raise IndexedError(f"no scene named {name!r}")
 
 
@@ -229,11 +313,14 @@ def golden(name):
 
 
 if __name__ == "__main__":
-    g, c, u = counts()
-    print("gated terrain modules :", g)
-    print("named in the index    :", c)
-    print("still unindexed       :", u, sorted(unindexed()))
+    g, c, u = counts(path="ALL")
+    print("index slots (mods x docs):", g)
+    print("named                    :", c)
+    print("still unindexed          :", u)
+    for p, holes in sorted(unindexed_everywhere().items()):
+        print("   %-28s %2d/%d %s" % (p, len(holes), dict(INDEXES)[p], sorted(holes)))
     print()
+    print("every index claims it :", every_index_claims_completeness())
     print("this arc is indexed   :", this_arc_is_indexed()[:2])
     print("debt has not grown    :", the_debt_has_not_grown())
     print("ceiling is the reading:", the_ceiling_is_the_live_reading())

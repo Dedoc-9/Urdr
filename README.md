@@ -25,7 +25,7 @@ a two-way field↔body coupling loop) — in which every admitted output is eith
 across independent implementations or explicitly refused. **34** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **2825-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
+on fixed corpora, behind a **2846-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -792,8 +792,8 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   a live tick) and the **distributed authority graph**; interest RELEVANCE is certified (`interest`,
   URDRAOI1) while interest-filtered wire replication stays declared. Graded by the same bit-for-bit
   composition discipline as D16 — not a new primitive.
-- **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and two
-  detectors (toric, rigidity) are multi-runtime (Python + Rust + C99, two OSes — **34 Rust + 14 C99
+- **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and the
+  toric and rigidity detectors are multi-runtime (Python + Rust + C99, two OSes — **34 Rust + 14 C99
   placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles.

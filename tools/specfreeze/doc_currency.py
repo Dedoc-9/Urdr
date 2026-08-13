@@ -23,25 +23,61 @@ Intermediate words in the Rust idiom tolerate a trailing comma: on 2026-07-16 th
 abstract's "21 independent, single-file Rust placements" sat stale through two count bumps
 because the comma broke the word matcher. The pattern now catches it, and the self-defect
 plants exactly that shape so the escape can never silently reopen.
+
+AND THEN IT REOPENED THROUGH A NEWLINE (2026-08-13, URDRRFL1). `hainuwele/README.md` hard-wrapped
+"2825 unit\nfalsifiers" across a line and this scanner returned NOTHING for it -- not a wrong
+number, no number at all -- because the idiom carried a LITERAL SPACE between "unit" and
+"falsifiers". Seven of this module's fourteen patterns carried one. The cure had already been
+written down HERE, in the `_ABSENCE` note below: "normalizing is now the DEFAULT for prose matching
+rather than a fix applied per case". It had been applied at exactly one call site, the one its
+author had just been bitten by.
+
+    A DEFAULT APPLIED WHERE IT WAS LEARNED AND NOWHERE ELSE IS A PREFERENCE, NOT A DEFAULT.
+
+So it is now applied everywhere: every prose matcher below reads WHITESPACE-NORMALIZED text, every
+inter-word space in every pattern is `\\s+`, and `tools/terrain/reflow.py` audits that mechanically
+by walking THIS module's namespace -- a pattern added tomorrow is checked without anyone
+remembering. `stale_successors` keeps its raw lines, because its line-scoping is a decision
+(recorded below) rather than an oversight.
 """
 import os
 import re
 
 # Tracked docs that quote headline counts. A doc not listed here is not enforced.
+#
+# `hainuwele/README.md` JOINED ON 2026-08-13, and only together with the `gate rows` idiom below.
+# Listing it alone would have been theatre: its two stale figures were `2825 unit\nfalsifiers`
+# (invisible to a literal-space pattern) and `896 gate rows` (an idiom no pattern matched at all),
+# so enforcement without both repairs would have been a check that could not fail (L23).
+#
+# The list stays a whitelist ON PURPOSE and the reason is worth stating, because the obvious
+# "enforce every .md" is wrong: `spec/D5-ledger*.md` records what the count WAS on the day an entry
+# was written, and `tools/calculationViz/README.md`'s "0 unit falsifiers" is a claim about that
+# subtree's CONTRIBUTION, not about the gate. Digit idioms are ambiguous between a global claim and
+# a local or dated one, and this module cannot tell them apart -- so scope is carried by the file
+# list, which is a judgement, and it is DECLARED rather than derived.
 DOCS = [
     "README.md", "AGENTS.md",
     "docs/PAPER.md", "docs/THEOREMS.md", "docs/README.md",
     "tools/README.md", "tests/README.md",
+    "hainuwele/README.md",
 ]
 
 # Each entry: (compiled regex whose group(1) is the number, which count it must equal).
 # Tight idioms only — digit form is required (word forms like "twenty-one" are not matched
 # and must be written as digits to come under enforcement).
+#
+# EVERY INTER-WORD SPACE IS `\s+`. Not for elegance: a literal space cannot cross a line break, and
+# markdown hard-wraps. See the newline note in the module docstring; `reflow.py` enforces it.
 _PATTERNS = [
-    (re.compile(r"(\d+)\s+unit falsifiers"), "fals"),
-    (re.compile(r"(\d+)-test gate"), "fals"),
-    (re.compile(r"\d+\s+unit falsifiers\s*/\s*(\d+)\s+rows"), "rows"),
+    (re.compile(r"(\d+)\s+unit\s+falsifiers"), "fals"),
+    (re.compile(r"(\d+)-test\s+gate"), "fals"),
+    (re.compile(r"\d+\s+unit\s+falsifiers\s*/\s*(\d+)\s+rows"), "rows"),
     (re.compile(r"\b\d+\s*/\s*(\d+)\s+rows"), "rows"),
+    # THE PLAIN ENGLISH ROW IDIOM, added 2026-08-13. `896 gate rows` matched nothing above: the two
+    # row patterns both require the `N / M` shape, so the most natural way to write the number was
+    # the one way the guard could not see. hainuwele/README.md carried it stale by 68.
+    (re.compile(r"(\d+)\s+gate\s+rows"), "rows"),
     (re.compile(r"(\d+)\s+(?:[\w-]+,?\s+){0,3}Rust\b"), "rust"),
     (re.compile(r"(\d+)\s+C99"), "c"),
     # detector-library count — anchored so "D17 detector" (the spec name) is NOT read as "17".
@@ -68,11 +104,17 @@ def live_counts(root, falsifiers, rows, detectors=-1):
     return {"rust": rs, "c": c, "fals": int(falsifiers), "rows": int(rows), "det": int(detectors)}
 
 
+def _prose(text):
+    """THE DEFAULT, applied rather than merely declared. Markdown emphasis is stripped, so
+    `**519** unit falsifiers` reads like `519 unit falsifiers` — bold must not hide a stale count —
+    and every run of whitespace collapses to one space, so neither may a line break. A matcher
+    sensitive to where an author wrapped is testing the formatting."""
+    return " ".join(text.replace("*", "").split())
+
+
 def scan(text):
-    """Yield (key, number) for every count idiom found in a doc's text. Markdown
-    emphasis is stripped first, so `**519** unit falsifiers` reads like `519 unit
-    falsifiers` — bold must not be able to hide a stale count."""
-    text = text.replace("*", "")
+    """Yield (key, number) for every count idiom found in a doc's text."""
+    text = _prose(text)
     for rx, key in _PATTERNS:
         for m in rx.finditer(text):
             yield key, int(m.group(1))
@@ -114,14 +156,30 @@ def det_defect_text(live):
     return "The invariant_detectors lint now enforces %d detectors." % (live["det"] + 1)
 
 
+def wrapped_defect_text(live):
+    """THE 2026-08-13 ESCAPE SHAPE: a stale count hard-wrapped mid-idiom, exactly as
+    `hainuwele/README.md` carried it. Before the repair this text read as NO NUMBER AT ALL, which
+    is worse than a wrong one, because a wrong number reddens and silence does not."""
+    return "207 falsifier suites, %d unit\nfalsifiers with 0 red." % (live["fals"] + 1)
+
+
+def rows_defect_text(live):
+    """The plain-English ROW idiom, which matched no pattern until 2026-08-13 — the natural
+    phrasing was the one phrasing the guard could not see."""
+    return "The gate stands at %d gate rows, 0 FAIL." % (live["rows"] + 1)
+
+
 def defect_is_caught(live):
-    """True iff `scan` flags ALL THREE planted stale counts (plain falsifier + comma-hidden
-    placement + detector) — the non-vacuity of the checker, covering the word-boundary escape
-    and the detector idiom."""
+    """True iff `scan` flags ALL FIVE planted stale counts (plain falsifier + comma-hidden
+    placement + detector + NEWLINE-hidden falsifier + plain-English rows) — the non-vacuity of the
+    checker, covering the word-boundary escape, the detector idiom, and both 2026-08-13 escapes."""
     plain = any(key == "fals" and got != live["fals"] for key, got in scan(defect_text(live)))
     comma = any(key == "rust" and got != live["rust"] for key, got in scan(comma_defect_text(live)))
     det = any(key == "det" and got != live["det"] for key, got in scan(det_defect_text(live)))
-    return plain and comma and det
+    wrapped = any(key == "fals" and got != live["fals"]
+                  for key, got in scan(wrapped_defect_text(live)))
+    rows = any(key == "rows" and got != live["rows"] for key, got in scan(rows_defect_text(live)))
+    return plain and comma and det and wrapped and rows
 
 
 # ==========================================================================================
@@ -146,7 +204,7 @@ WORD_NUMBERS = {
 # Word-form counterparts of the digit idioms. `nine detectors` must be as visible as `9 detectors`.
 _WORD_PATTERNS = [
     (re.compile(r"\b(%s)[\s-]detector" % "|".join(WORD_NUMBERS), re.I), "det"),
-    (re.compile(r"\b(%s)\s+unit falsifiers" % "|".join(WORD_NUMBERS), re.I), "fals"),
+    (re.compile(r"\b(%s)\s+unit\s+falsifiers" % "|".join(WORD_NUMBERS), re.I), "fals"),
     (re.compile(r"\b(%s)\s+C99" % "|".join(WORD_NUMBERS), re.I), "c"),
 ]
 
@@ -156,12 +214,16 @@ _SUITE_PATTERN = re.compile(r"(\d+)\s+suites")
 # A doc may not claim a thing is unbuilt while naming a module that has a live gate stage,
 # UNLESS it is explicitly marked as retained history.
 _UNBUILT_MARKERS = re.compile(
-    r"no code yet|—\s*no code|-\s*no code|nothing built|not begun|planning drop|"
-    r"before a line of it is written", re.I)
-_PROVENANCE_ESCAPE = re.compile(r"SUPERSEDED|retained for provenance|retained as the original", re.I)
+    r"no\s+code\s+yet|—\s*no\s+code|-\s*no\s+code|nothing\s+built|not\s+begun|planning\s+drop|"
+    r"before\s+a\s+line\s+of\s+it\s+is\s+written", re.I)
+# THE ESCAPE MUST BE AT LEAST AS WRAP-TOLERANT AS THE MARKER IT EXCUSES. A literal space here was
+# the dangerous direction of the same defect: a document legitimately marked "retained for\n
+# provenance" would have been FALSE-REDDENED, and a false red is how a gate loses its authority.
+_PROVENANCE_ESCAPE = re.compile(
+    r"SUPERSEDED|retained\s+for\s+provenance|retained\s+as\s+the\s+original", re.I)
 
 # A "declared successor" line naming a module that now exists is stale unless it says LANDED.
-_SUCCESSOR_LINE = re.compile(r"declared successor|queued next target", re.I)
+_SUCCESSOR_LINE = re.compile(r"declared\s+successor|queued\s+next\s+target", re.I)
 _LANDED_ESCAPE = re.compile(r"LANDED|COMPLETE|SEALED", re.I)
 
 
@@ -220,7 +282,7 @@ def _md_files(root):
 
 def scan_words(text):
     """Yield (key, number) for WORD-form count idioms — the escape that hid a 7 -> 10 drift."""
-    text = text.replace("*", "")
+    text = _prose(text)
     for rx, key in _WORD_PATTERNS:
         for m in rx.finditer(text):
             yield key, WORD_NUMBERS[m.group(1).lower()]
@@ -232,7 +294,7 @@ def suite_problems(root, suites):
     for rel in DOCS:
         try:
             with open(os.path.join(root, rel), encoding="utf-8") as fh:
-                text = fh.read().replace("*", "")
+                text = _prose(fh.read())
         except OSError:
             continue
         for m in _SUITE_PATTERN.finditer(text):
@@ -249,7 +311,7 @@ def status_contradictions(root, modules):
     for rel in _md_files(root):
         try:
             with open(os.path.join(root, rel), encoding="utf-8") as fh:
-                text = fh.read()
+                text = _prose(fh.read())
         except OSError:
             continue
         if not _UNBUILT_MARKERS.search(text) or _PROVENANCE_ESCAPE.search(text):
@@ -270,8 +332,8 @@ def status_contradictions(root, modules):
 #: prose matching rather than a fix applied per case: a check sensitive to line breaks is testing the
 #: formatting. Two phrasings are covered because both exist -- "N of M modules have no design brief"
 #: and "N modules have no `docs/*_brief.md`".
-_ABSENCE = re.compile(r"(\d+)(?:\s+of\s+\d+)?\s+modules have no\s+(?:design brief|`?docs/\*?_?brief)",
-                      re.I)
+_ABSENCE = re.compile(
+    r"(\d+)(?:\s+of\s+\d+)?\s+modules\s+have\s+no\s+(?:design\s+brief|`?docs/\*?_?brief)", re.I)
 
 
 def absence_count(root):
@@ -305,7 +367,7 @@ def stale_absences(root, live_absence=None):
             continue
         try:
             with open(os.path.join(root, rel), encoding="utf-8") as fh:
-                flat = " ".join(fh.read().split())      # wrap-insensitive by construction
+                flat = _prose(fh.read())                # wrap-insensitive by construction
         except OSError:
             continue
         for m in _ABSENCE.finditer(flat):

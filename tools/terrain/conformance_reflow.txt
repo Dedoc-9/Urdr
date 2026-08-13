@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_reflow.txt — URDRRFL1 pinned scenes.
+#
+# A LINE BREAK IS NOT A CLAIM, AND A DEFAULT APPLIED ONCE IS A PREFERENCE.
+#
+# `doc_currency` is the tree's count guard. Its docstring records that on 2026-07-16 an escape was
+# closed — a COMMA had broken the Rust word matcher and a stale count sat through two bumps — and
+# states that "the self-defect plants exactly that shape so the escape can never silently reopen."
+#
+# It reopened through a NEWLINE. `hainuwele/README.md` hard-wrapped `2825 unit\nfalsifiers` across
+# a line; the idiom carried a LITERAL SPACE between the two words; the scanner returned NOTHING for
+# that document — not a wrong number, no number at all — while it also carried `896 gate rows`
+# against a live 964 and `123 modules` against a live 125.
+#
+# AND THE CURE WAS ALREADY WRITTEN DOWN, IN THAT SAME FILE. The `_ABSENCE` note reads: "the third
+# time in this repository that a checker missed a phrase because of where an author happened to
+# break the line ... NORMALIZING IS NOW THE DEFAULT FOR PROSE MATCHING RATHER THAN A FIX APPLIED
+# PER CASE." It was applied at exactly one call site — the one its author had just been bitten by.
+# Seven of the module's fourteen patterns still carried a literal space when this rung opened.
+#
+# audit     — the pattern set DERIVED by walking `doc_currency`'s namespace (including the regexes
+#             nested inside its pattern lists), the exact three-shape sensitivity test, and the
+#             proof that a pattern added tomorrow enters the audit without this file being edited.
+# behaviour — the pinned wrapped witness read as bytes; the repair proved NECESSARY by restoring
+#             the literal spaces and watching the witness go unread; the 2026-07-16 comma escape
+#             proved still closed; and the boundary demonstrated rather than confessed.
+#
+# does_not_show: ONE MODULE is audited — a wrap-sensitive matcher in `freeze_check`, `provenance`
+# or `claimclass` would not be seen. WHITESPACE ONLY — the comma escape, markdown emphasis and
+# every other inter-word token remain the province of the patterns themselves, and closing one
+# class of escape is not closing the class of escapes. And nothing here says a matched number is
+# CORRECT: this rung makes the guard able to SEE a claim; `doc-currency` decides whether it is true.
+#
+# THE FALSE RED THIS RUNG ALSO FOUND, RECORDED BECAUSE IT CUTS THE OTHER WAY. Normalizing exposed
+# `README.md`'s "and two\n  detectors (toric, rigidity) are multi-runtime" to the word-form detector
+# idiom, which means the D17 library size (10). The count idioms are REFERENT-AMBIGUOUS between a
+# global claim and a local one, and the line break had been accidentally protecting that sentence.
+# The prose was disambiguated rather than the guard weakened — but the ambiguity is a property of
+# the idiom, it is still there in digit form, and the file whitelist is the only thing holding it.
+#
+# DECLARED: which module is audited.
+
+audit c7481d62e5e3fd886fbc5cd9ec2417b417305d3004be56f0a3fe3de70f41d535
+behaviour 0d979796cba45983ff6b4b0b4d38485035028705d6cc794fef5d0cac0bd725bf
+reflow f442638b4aba9f775a2767db043fcacd56fc6abcd34235577fc60682bf33ff2c
