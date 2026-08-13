@@ -111,6 +111,70 @@ count *was* on the day an entry was written; `tools/calculationViz/README.md`'s 
 is a claim about that subtree's contribution. Enforcing every `.md` would redden the gate on both.
 The whitelist is doing real work for a reason that had never been written down, and now is.
 
+## v1.2 — the audit's search domain was larger than what its instrument could discover
+
+v1.1 shipped and the sweep that followed it was meant to be a stopping condition: audit the other
+`tools/specfreeze` modules, find nothing, stop. That part held — only `doc_currency` and `genesis`
+hold compiled patterns and both are tolerant. But the sweep needed a second pass, because the
+namespace walk only reaches patterns that are *bound*, and a regex written inline inside a function
+is created per call and bound nowhere. There were four of those in the audited module, all prose
+matchers, all the same template:
+
+```python
+named = sorted(m for m in modules if re.search(r"`%s(?:\.py)?`" % re.escape(m), text))
+```
+
+They happened to be wrap-safe. **The audit had no way to know that**, and would have reported
+`INVARIANT` just the same had they not been. Stated without the accident:
+
+```
+bad audited artifact  ->  audit cannot discover it  ->  audit passes
+```
+
+`sensitive()` returning `()` means *nothing I found is sensitive*. It was being read as *nothing
+here is sensitive*. The two differ by exactly the set the walk cannot reach, and nothing measured
+that set. That is a false negative in the instrument, not a bound worth writing down and leaving.
+
+> **AN AUDIT CANNOT CLAIM COVERAGE OVER A CLASS OF OBJECTS ITS DISCOVERY MECHANISM CANNOT OBSERVE.**
+
+The repair adds a **second, independent discovery mechanism** and requires the two to agree: an AST
+walk of the audited module's source, which finds every `re.*` call whether or not its result is ever
+bound. The test is *"inside a function body"* rather than *"is a literal"*, because `_PATTERNS` is a
+module-level list of `re.compile(r"…")` calls and every one of those is bound and reachable.
+
+The falsifier tests **discovery, not correctness**, in six steps: plant an inline prose matcher that
+is deliberately wrap-sensitive; give it a fixture only it recognizes; run the namespace walk; watch
+it report the module `INVARIANT` while the bad matcher sits in plain sight; lift that one matcher to
+module level, changing nothing else; watch the same walk report `SENSITIVE`. A demonstration where
+both readings agreed would prove nothing at all.
+
+### The law is narrower than "regexes should be constants"
+
+That broadening would be actively wrong. These three are **source-language recognizers**:
+
+```
+verify.py                     def (\w+)\(self\)
+tools/terrain/indexed.py      STAGE_ORDER = \(
+tools/specfreeze/exempt.py    BRIEFS_REQUIRING_A_FALSIFIER = \(
+```
+
+Each carries a literal space. Each is wrap-sensitive by this module's own test. Each is **right** to
+be — a newline inside `def name(self)` is a syntax error, not a wrap, so reflowing source changes
+the claim. Dragging them into a prose audit would send someone repairing a correctness property into
+a bug. The type boundary is the content, not the syntax: prose matcher → declared and discoverable;
+source matcher → ordinary implementation. `SOURCE_MATCHERS` is the named escape for a source
+recognizer living *inside* the audited module, and it is empty, because that module opens no source
+file. An entry needs a reason long enough to be a contract, which is the honest way to have to say
+"this one is not prose."
+
+### The repair had to be proved a lift
+
+A repair that changes behaviour is a different rung. The declared `_MODULE_TOKEN` is compared
+against its four inline originals over the whole live corpus — every tracked `.md`, raw and
+reflowed, 506 readings — with zero disagreements, before the lift was accepted. It is also faster by
+accident: one pass over the text instead of one search per candidate module, which is why
+`stale_successors` no longer iterates a set and breaks on whichever element came first.
+
 ## `does_not_show`
 
 One module is audited: a wrap-sensitive matcher in `freeze_check`, `provenance` or `claimclass`

@@ -38,8 +38,39 @@
 # The prose was disambiguated rather than the guard weakened — but the ambiguity is a property of
 # the idiom, it is still there in digit form, and the file whitelist is the only thing holding it.
 #
-# DECLARED: which module is audited.
+# v1.2 (2026-08-13) — THE AUDIT'S SEARCH DOMAIN WAS LARGER THAN WHAT ITS INSTRUMENT COULD DISCOVER.
+# v1.1 reported this module fully audited: 19 patterns, 0 wrap-sensitive, INVARIANT. The audit walks
+# the module NAMESPACE, so it sees pattern objects that are BOUND. It cannot see one created inside a
+# function body and thrown away after the call — and there were FOUR, all prose matchers, all the
+# same `re.search(r"`%s(?:\.py)?`" % re.escape(m), text)` template. They happened to be wrap-safe.
+# THE AUDIT HAD NO WAY TO KNOW THAT, and would have read INVARIANT just the same had they not been:
+#
+#     A BAD AUDITED ARTIFACT -> THE AUDIT CANNOT DISCOVER IT -> THE AUDIT PASSES.
+#
+# `sensitive()` returning () meant "nothing I found is sensitive" and was read as "nothing here is".
+# The two differ by exactly the set the walk cannot reach, and nothing measured that set. That is a
+# FALSE NEGATIVE in the instrument, not a documentation bound.
+#
+#     AN AUDIT CANNOT CLAIM COVERAGE OVER A CLASS OF OBJECTS ITS DISCOVERY MECHANISM CANNOT OBSERVE.
+#
+# discovery — a SECOND, independent mechanism (an AST walk of the audited module's source, which
+#             finds every `re.*` call whether or not its result is ever bound) required to agree with
+#             the first; the false negative DEMONSTRATED end to end on a planted source (inline ->
+#             INVARIANT, lifted -> SENSITIVE, nothing else changed); the type boundary held against
+#             three real source recognizers; and the repair proved to be a LIFT rather than a change,
+#             by comparing the lifted `_MODULE_TOKEN` against its four inline originals over the
+#             whole live corpus — 506 readings, 0 disagreements — before it was accepted.
+#
+# THE LAW IS NARROWER THAN "REGEXES SHOULD BE CONSTANTS", DELIBERATELY. `def (\w+)\(self\)` in
+# verify.py, `STAGE_ORDER = \(` in indexed, `BRIEFS_REQUIRING_A_FALSIFIER = \(` in exempt all carry
+# a literal space, are all wrap-sensitive by the test above, and are all RIGHT to be: a newline
+# inside `def name(self)` is a syntax error, not a wrap. prose matcher -> declared and discoverable;
+# source matcher -> ordinary implementation. `SOURCE_MATCHERS` is the named escape for a source
+# recognizer inside the audited module and is EMPTY, because that module opens no source file.
+#
+# DECLARED: which module is audited, and the (empty) source-matcher escape.
 
-audit c7481d62e5e3fd886fbc5cd9ec2417b417305d3004be56f0a3fe3de70f41d535
+audit 383d6f642ece2defb1ae56a044522f9bfc0e756adc5f42c5dfa7d39b45737808
 behaviour 0d979796cba45983ff6b4b0b4d38485035028705d6cc794fef5d0cac0bd725bf
-reflow f442638b4aba9f775a2767db043fcacd56fc6abcd34235577fc60682bf33ff2c
+discovery 6c20e329d229bbe10755f6dde2cfa722a84365008b8143c22ac5262a3d23cf62
+reflow 69cb35d19f829c21072ffbfa0db0da8f774d1ffe51e1b826a3f7f58bd806d134

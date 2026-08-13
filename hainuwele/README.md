@@ -225,7 +225,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`rannull.py`](../tools/terrain/rannull.py) | `URDRRAN0` | RAN-0 authority-nullity certificate (T3.42) — proof of ABSENCE | `rannull` | [test](../tests/test_rannull.py) | [conf](../tools/terrain/conformance_rannull.txt) | [brief](../docs/rannull_brief.md) |
 | [`reachable.py`](../tools/terrain/reachable.py) | `URDRRCH1` | A gate must ADMIT SOMETHING ITS OWN PRODUCER CAN MAKE — the detector L65 named and left unbuilt | `reachable` | [test](../tests/test_reachable.py) | [conf](../tools/terrain/conformance_reachable.txt) | [brief](../docs/reachable_brief.md) |
 | [`recirc.py`](../tools/terrain/recirc.py) | `URDRRCC1` | Kleene recirculation — THERE IS NO LOOP, and closing it would weaken fraud detection | `recirc` | [test](../tests/test_recirc.py) | [conf](../tools/terrain/conformance_recirc.txt) | [brief](../docs/recirc_brief.md) |
-| [`reflow.py`](../tools/terrain/reflow.py) | `URDRRFL1` | A line break is not a claim: the count guard's own idioms audited for wrap-sensitivity | `reflow` | [test](../tests/test_reflow.py) | — | — |
+| [`reflow.py`](../tools/terrain/reflow.py) | `URDRRFL1` | A line break is not a claim — and an audit may not claim coverage it cannot discover (v1.2: the instrument's own false negative) | `reflow` | [test](../tests/test_reflow.py) | — | — |
 | [`rehearse.py`](../tools/terrain/rehearse.py) | `URDRRHS1` | An admissible artifact must be structurally REPRODUCIBLE from its declared plan | `rehearse` | [test](../tests/test_rehearse.py) | [conf](../tools/terrain/conformance_rehearse.txt) | [brief](../docs/rehearse_brief.md) |
 | [`repeat.py`](../tools/terrain/repeat.py) | `URDRRPT1` | Variance has LEVELS, and two hundred iterations in one process sample exactly one of them | `repeat` | [test](../tests/test_repeat.py) | [conf](../tools/terrain/conformance_repeat.txt) | [brief](../docs/repeat_brief.md) |
 | [`resurrect.py`](../tools/terrain/resurrect.py) | `URDRLAT6` | Resurrection law (T3.38) — recovery half of persist | `resurrect` | [test](../tests/test_resurrect.py) | [conf](../tools/terrain/conformance_resurrect.txt) | [brief](../docs/resurrect_brief.md) |
@@ -265,8 +265,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | [brief](../docs/wireattest_brief.md) |
 ## Status
 
-**MEASURED, as of this writing.** 126 modules under `tools/terrain/`, 208 suites, 2846 unit
-falsifiers with 0 red, 966 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 126 modules under `tools/terrain/`, 208 suites, 2857 unit
+falsifiers with 0 red, 967 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 

@@ -53,10 +53,49 @@ patterns themselves — closing one class of escape is not closing the class of 
 nothing about whether a matched number is CORRECT: this rung makes the guard able to see a claim,
 and `doc-currency` is what decides whether the claim is true.
 
+v1.2 (2026-08-13) — THE AUDIT'S SEARCH DOMAIN WAS LARGER THAN WHAT ITS INSTRUMENT COULD DISCOVER.
+
+v1.1 reported `doc_currency` fully audited: 19 patterns, 0 wrap-sensitive, INVARIANT. The audit works
+by walking the module NAMESPACE, so it sees pattern objects that are BOUND — module-level constants
+and the regexes nested in their lists. It cannot see a pattern object created inside a function body
+and thrown away after the call. There were four of those, all prose matchers, all the same template:
+
+    named = sorted(m for m in modules if re.search(r"`%s(?:\\.py)?`" % re.escape(m), text))
+
+They happened to be wrap-safe. THE AUDIT HAD NO WAY TO KNOW THAT, and would have said INVARIANT just
+the same had they been sensitive — which is the mechanism, stated without the accident:
+
+    A BAD AUDITED ARTIFACT -> THE AUDIT CANNOT DISCOVER IT -> THE AUDIT PASSES.
+
+That is a FALSE NEGATIVE in the instrument, not a documentation bound. `sensitive()` returning `()`
+meant "nothing I found is sensitive", and was read as "nothing here is sensitive". The two differ by
+exactly the set the walk cannot reach, and nothing measured that set.
+
+    AN AUDIT CANNOT CLAIM COVERAGE OVER A CLASS OF OBJECTS ITS DISCOVERY MECHANISM CANNOT OBSERVE.
+
+So v1.2 adds a SECOND, INDEPENDENT discovery mechanism — an AST walk of the audited module's SOURCE,
+which finds every `re.*` call whether or not its result is ever bound — and requires the two to
+agree: every prose matcher in the audited module must be reachable by the namespace walk. The four
+were lifted to a declared `_MODULE_TOKEN`, proved behaviour-identical over the whole live corpus
+(246 files, two readings each, zero disagreements) before the lift was accepted.
+
+AND THE LAW IS DELIBERATELY NARROWER THAN "REGEXES SHOULD BE CONSTANTS". A source-language
+recognizer is not a prose matcher and must NOT be dragged into a prose audit: `def (\\w+)\\(self\\)`
+in `verify.py`, `STAGE_ORDER = \\(` in `indexed`, `BRIEFS_REQUIRING_A_FALSIFIER = \\(` in `exempt`
+all carry a literal space, all are wrap-sensitive by this module's test, and all are CORRECT that
+way — a newline inside `def name(self)` is not a wrap, it is a syntax error. The type boundary is
+the content: prose matcher -> declared and discoverable; source matcher -> ordinary implementation.
+`SOURCE_MATCHERS` is the named escape for a source recognizer inside the audited module, and it is
+EMPTY, because that module opens no source file.
+
 GRADE (honest, D5): MEASURED — the pattern set is read from `doc_currency`'s live namespace at claim
 time, the sensitivity test is exact over the pattern source, the repair is proved NECESSARY by
 restoring the literal spaces and showing a real tracked document change its reading, and the live
-witness is pinned as bytes rather than described. DECLARED: which module is audited."""
+witness is pinned as bytes rather than described. The v1.2 coverage claim is MEASURED the same way:
+the two discovery mechanisms are compared on the live module, and the false negative is demonstrated
+end to end on a planted source rather than argued for. DECLARED: which module is audited, and the
+(empty) source-matcher escape."""
+import ast
 import hashlib
 import os as _os
 import re
@@ -77,6 +116,27 @@ OUTCOMES = (INVARIANT, SENSITIVE)
 #: DECLARED — the module audited. `doc_currency` is chosen because it is the guard whose ENTIRE JOB
 #: is reading prose, and because it is the one that wrote the cure down and then applied it once.
 GUARD = "doc_currency"
+
+#: The same module as SOURCE. The namespace walk sees bound objects; this sees CALLS. Two mechanisms
+#: are needed because either alone is a claim about what it happens to reach.
+GUARD_SOURCE = "tools/specfreeze/doc_currency.py"
+
+#: DECLARED AND EMPTY — the escape for a SOURCE-LANGUAGE recognizer living inside the audited module.
+#: A regex matching Python syntax is not a prose matcher and must not be dragged into a prose audit:
+#: `def (\w+)\(self\)` carries a literal space, is wrap-sensitive by the test below, and is CORRECT
+#: that way, because a newline inside `def name(self)` is a syntax error rather than a wrap. It is
+#: empty because the audited module opens no source file — every matcher in it reads markdown. An
+#: entry would need a reason, and adding one is the honest way to say "this is not prose".
+SOURCE_MATCHERS = {}
+
+#: Source recognizers that live ELSEWHERE and are therefore outside this law entirely. Kept as data
+#: so the boundary is demonstrated against real patterns rather than asserted: each is wrap-sensitive
+#: and each is right to be.
+OUT_OF_SCOPE_SOURCE_MATCHERS = (
+    ("verify.py", r"    def (\w+)\(self\)"),
+    ("tools/terrain/indexed.py", r"STAGE_ORDER = \((.*?)\n\)"),
+    ("tools/specfreeze/exempt.py", r"BRIEFS_REQUIRING_A_FALSIFIER = \((.*?)\)\n"),
+)
 
 #: THE LIVE WITNESS, pinned as the bytes it actually had. `hainuwele/README.md` hard-wrapped this
 #: idiom between "unit" and "falsifiers"; the pre-repair scanner returned NOTHING for it. Kept as a
@@ -252,6 +312,50 @@ def docs_that_hide_a_count(root=None, module=None):
     return tuple(out)
 
 
+# ---- the SECOND discovery mechanism: calls, not bindings ---------------------------------------------
+def guard_source(path=None):
+    with open(_os.path.join(_ROOT, path or GUARD_SOURCE), encoding="utf-8") as fh:
+        return fh.read()
+
+
+def _re_calls(source):
+    """Every `re.<method>(...)` call in a source, with the function it sits in and whether its first
+    argument is a bare NAME. Walked over the AST rather than matched with a regex, because a regex
+    looking for regexes is precisely the instrument whose reach is being questioned."""
+    out = []
+
+    def walk(node, fn):
+        for ch in ast.iter_child_nodes(node):
+            here = ch.name if isinstance(ch, (ast.FunctionDef, ast.AsyncFunctionDef)) else fn
+            if (isinstance(ch, ast.Call) and isinstance(ch.func, ast.Attribute)
+                    and isinstance(ch.func.value, ast.Name) and ch.func.value.id == "re"
+                    and ch.func.attr != "escape"):
+                arg = ch.args[0] if ch.args else None
+                out.append((ch.lineno, here, ch.func.attr, isinstance(arg, ast.Name)))
+            walk(ch, here)
+
+    walk(ast.parse(source), None)
+    return tuple(out)
+
+
+def undiscoverable_matchers(source=None):
+    """Matchers the NAMESPACE WALK cannot reach: a `re.*` call inside a function body whose pattern
+    is not a bound name creates an object per call and binds it nowhere. Module-level calls are
+    reachable — including those nested inside `_PATTERNS`-style literals, which is why the test is
+    "inside a function" rather than "is a literal"."""
+    src = guard_source() if source is None else source
+    return tuple((ln, fn, attr) for ln, fn, attr, is_name in _re_calls(src)
+                 if fn is not None and not is_name and fn not in SOURCE_MATCHERS)
+
+
+def coverage(source=None):
+    """(calls, reachable, blind) — the two mechanisms side by side. `panel != scalar`: the namespace
+    count alone was what made v1.1 read as complete."""
+    calls = _re_calls(guard_source() if source is None else source)
+    blind = len(undiscoverable_matchers(source))
+    return (len(calls), len(calls) - blind, blind)
+
+
 def _tracked_md(root):
     for base, dirs, files in _os.walk(root):
         dirs[:] = [d for d in dirs if d not in (".git", "__pycache__", "node_modules")]
@@ -318,6 +422,117 @@ def the_comma_escape_stayed_closed():
     return ("rust", 34) in r and ("rust", 34) in w
 
 
+def every_prose_matcher_is_discoverable():
+    """THE v1.2 LAW. Every prose matcher in the audited module must be reachable by the mechanism
+    that audits it. Four were not when this was written."""
+    return undiscoverable_matchers() == ()
+
+
+def the_source_escape_is_empty_and_reasoned():
+    """The escape exists so that "this is a source recognizer, not prose" has to be SAID rather than
+    silently enjoyed. It is empty today; an entry needs a reason long enough to be a contract."""
+    return all(isinstance(v, str) and len(v) >= 40 for v in SOURCE_MATCHERS.values())
+
+
+#: The plant, as source. An inline prose matcher, wrap-SENSITIVE on purpose, bound to nothing.
+_PLANT_INLINE = '''
+import re
+_DECLARED = re.compile(r"(\\d+)\\s+declared\\s+things")
+def reads_a_document(text):
+    return re.search(r"(\\d+) inline things", text)
+'''
+
+#: The same matcher, LIFTED to the module level and otherwise identical.
+_PLANT_LIFTED = '''
+import re
+_DECLARED = re.compile(r"(\\d+)\\s+declared\\s+things")
+_INLINE = re.compile(r"(\\d+) inline things")
+def reads_a_document(text):
+    return _INLINE.search(text)
+'''
+
+
+def _exec_module(source):
+    ns = {}
+    exec(compile(source, "<plant>", "exec"), ns)                      # noqa: S102 - fixture only
+
+    class _M:
+        pass
+    m = _M()
+    for k, v in ns.items():
+        if not k.startswith("__"):
+            setattr(m, k, v)
+    return m
+
+
+def the_false_negative_is_demonstrated():
+    """RED-FIRST ON THE INSTRUMENT ITSELF, and it tests DISCOVERY rather than correctness.
+
+    Six steps, and step 4 is the finding: (1) plant an unmistakable inline prose matcher that is
+    wrap-SENSITIVE; (2) give it text only that matcher recognizes; (3) run the namespace walk;
+    (4) it reports the module INVARIANT — clean — while the bad matcher is sitting right there;
+    (5) lift the matcher to a module-level declaration, changing nothing else; (6) the same walk
+    now finds it and reports SENSITIVE.
+
+    Returns (proved, detail). `proved` is true only if the audit MISSES it before the lift and
+    CATCHES it after — a demonstration where both readings agree would show nothing at all."""
+    fixture = "the report counts 12 inline things and 7 declared things"
+    inline_mod, lifted_mod = _exec_module(_PLANT_INLINE), _exec_module(_PLANT_LIFTED)
+
+    # The matcher is real: it recognizes the fixture, and it IS wrap-sensitive.
+    recognized = inline_mod.reads_a_document(fixture) is not None
+    is_bad = is_wrap_sensitive(r"(\d+) inline things")
+
+    before_walk = verdict(inline_mod)                 # what v1.1 would have said
+    after_walk = verdict(lifted_mod)                  # what it says once the object is bound
+    before_ast = undiscoverable_matchers(_PLANT_INLINE)
+    after_ast = undiscoverable_matchers(_PLANT_LIFTED)
+
+    proved = (recognized and is_bad
+              and before_walk == INVARIANT            # (4) THE FALSE NEGATIVE
+              and after_walk == SENSITIVE             # (6) visible once discoverable
+              and len(before_ast) == 1 and before_ast[0][1] == "reads_a_document"
+              and after_ast == ())                    # the AST walk sees it either way
+    return (proved, "recognized=%s sensitive=%s | namespace: inline=%s lifted=%s | ast: inline=%d "
+                    "lifted=%d" % (recognized, is_bad, before_walk, after_walk,
+                                   len(before_ast), len(after_ast)))
+
+
+def a_source_recognizer_is_outside_this_law():
+    """THE TYPE BOUNDARY, demonstrated against REAL patterns rather than asserted. Each of these
+    matches Python syntax, each is wrap-sensitive by the test above, and each is RIGHT to be — a
+    newline inside `def name(self)` is a syntax error, not a wrap. Dragging them into a prose audit
+    would be actively wrong, so the law is scoped to the module that reads prose and nothing else."""
+    return (all(is_wrap_sensitive(p) for _f, p in OUT_OF_SCOPE_SOURCE_MATCHERS)
+            and all(f != GUARD_SOURCE for f, _p in OUT_OF_SCOPE_SOURCE_MATCHERS)
+            and SOURCE_MATCHERS == {})
+
+
+def the_lift_changed_no_behaviour(root=None, module=None):
+    """A REPAIR THAT CHANGES BEHAVIOUR IS A DIFFERENT RUNG. The four lifted matchers are compared
+    against their inline originals over the whole live corpus — every tracked `.md`, raw and
+    reflowed — and must agree everywhere before the lift counts as a lift."""
+    mod = _guard() if module is None else module
+    base = root or _ROOT
+    mods = mod.live_modules(base)
+    agreed = disagreed = 0
+    for rel in _tracked_md(base):
+        try:
+            with open(_os.path.join(base, rel), encoding="utf-8") as fh:
+                raw = fh.read()
+        except OSError:
+            continue
+        for text in (raw, mod._prose(raw)):
+            old = sorted(m for m in mods
+                         if re.search(r"`%s(?:\.py)?`" % re.escape(m), text))
+            new = sorted(set(mods) & mod.module_tokens(text))
+            if old == new:
+                agreed += 1
+            else:
+                disagreed += 1
+    return (disagreed == 0 and agreed > 100, agreed, disagreed)
+
+
 def whitespace_is_all_this_closes():
     """`does_not_show`, made checkable rather than asserted. A comma-hidden or emphasis-hidden count
     is NOT this rung's business, and an idiom nobody wrote a pattern for stays unread: `896 gate
@@ -327,7 +542,7 @@ def whitespace_is_all_this_closes():
 
 
 # ---- scenes -------------------------------------------------------------------------------------------
-SCENES = ("audit", "behaviour")
+SCENES = ("audit", "behaviour", "discovery")
 
 
 def scene_case(name):
@@ -341,6 +556,14 @@ def scene_case(name):
         return "witness=%s|necessary=%s|comma=%s|bounded=%s" % (
             the_witness_is_read_now(), need, the_comma_escape_stayed_closed(),
             whitespace_is_all_this_closes())
+    if name == "discovery":
+        calls, reach, blind = coverage()
+        fn, _why = the_false_negative_is_demonstrated()
+        lift, agreed, dis = the_lift_changed_no_behaviour()
+        return ("calls=%d reachable=%d blind=%d|law=%s|escape=%s|falseneg=%s|scope=%s|lift=%s %d %d"
+                % (calls, reach, blind, every_prose_matcher_is_discoverable(),
+                   the_source_escape_is_empty_and_reasoned(), fn,
+                   a_source_recognizer_is_outside_this_law(), lift, agreed, dis))
     raise ReflowError(f"no scene named {name!r}")
 
 
@@ -380,6 +603,13 @@ if __name__ == "__main__":
     print("comma escape closed   :", the_comma_escape_stayed_closed())
     print("whitespace is the bound:", whitespace_is_all_this_closes())
     print("docs hiding a count   :", docs_that_hide_a_count())
+    print()
+    print("re.* calls / reach / blind:", coverage())
+    print("every matcher discoverable:", every_prose_matcher_is_discoverable(),
+          undiscoverable_matchers())
+    print("false negative proved     :", the_false_negative_is_demonstrated())
+    print("source recognizers outside:", a_source_recognizer_is_outside_this_law())
+    print("the lift changed nothing  :", the_lift_changed_no_behaviour())
     for n in SCENES:
         print(n, scene_result(n))
     print("reflow", reflow_digest())

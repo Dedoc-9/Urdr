@@ -208,6 +208,23 @@ _WORD_PATTERNS = [
     (re.compile(r"\b(%s)\s+C99" % "|".join(WORD_NUMBERS), re.I), "c"),
 ]
 
+#: THE BACKTICKED-MODULE TOKEN, LIFTED TO MODULE LEVEL ON 2026-08-13 (URDRRFL1 v1.2).
+#: It was written FOUR TIMES as an inline `re.search(r"`%s(?:\.py)?`" % re.escape(m), text)`, once
+#: per call site, and an inline pattern object is created per call and never bound anywhere — so
+#: `reflow`'s namespace walk could not see it, and reported this module fully audited while four of
+#: its prose matchers sat outside the audit entirely. They happened to be wrap-safe; the audit had
+#: no way to know that. AN AUDIT CANNOT CLAIM COVERAGE OVER A CLASS OF OBJECTS ITS DISCOVERY
+#: MECHANISM CANNOT OBSERVE. Declared here, it is discoverable, and the four call sites now share
+#: ONE reading of the corpus instead of running len(modules) searches per line.
+_MODULE_TOKEN = re.compile(r"`([A-Za-z0-9_]+)(?:\.py)?`")
+
+
+def module_tokens(text):
+    """Every backticked module name in a text, as a set. The lifted form of the four inline
+    searches: one pass over the corpus rather than one search per candidate module."""
+    return set(_MODULE_TOKEN.findall(text))
+
+
 # The suites idiom — the gate discovers tests/test_*.py, so the number is filesystem truth.
 _SUITE_PATTERN = re.compile(r"(\d+)\s+suites")
 
@@ -316,7 +333,7 @@ def status_contradictions(root, modules):
             continue
         if not _UNBUILT_MARKERS.search(text) or _PROVENANCE_ESCAPE.search(text):
             continue
-        named = sorted(m for m in modules if re.search(r"`%s(?:\.py)?`" % re.escape(m), text))
+        named = sorted(set(modules) & module_tokens(text))
         if named:
             out.append((rel, "status", named[0], "exists"))
     return out
@@ -393,10 +410,9 @@ def stale_successors(root, modules):
         for i, ln in enumerate(lines, 1):
             if not _SUCCESSOR_LINE.search(ln) or _LANDED_ESCAPE.search(ln):
                 continue
-            for m in modules:
-                if re.search(r"`%s(?:\.py)?`" % re.escape(m), ln):
-                    out.append((f"{rel}:{i}", "successor", m, "shipped"))
-                    break
+            hit = sorted(set(modules) & module_tokens(ln))
+            if hit:
+                out.append((f"{rel}:{i}", "successor", hit[0], "shipped"))
     return out
 
 
@@ -492,10 +508,10 @@ def extension_defect_is_caught(root, live, suites, gate_rows=None):
                    for m in _SUITE_PATTERN.finditer(suite_defect_text(suites)))
     st = status_defect_text()
     status_ok = bool(_UNBUILT_MARKERS.search(st)) and not _PROVENANCE_ESCAPE.search(st) \
-        and any(re.search(r"`%s(?:\.py)?`" % re.escape(m), st) for m in modules)
+        and bool(set(modules) & module_tokens(st))
     sc = successor_defect_text()
     succ_ok = bool(_SUCCESSOR_LINE.search(sc)) and not _LANDED_ESCAPE.search(sc) \
-        and any(re.search(r"`%s(?:\.py)?`" % re.escape(m), sc) for m in modules)
+        and bool(set(modules) & module_tokens(sc))
     rm = remains_defect_text()
     m = _REMAINS_MARKER.search(rm)
     remains_ok = bool(m) and m.group(1) in (gate_rows or frozenset())

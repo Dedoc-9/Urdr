@@ -676,6 +676,14 @@ The cure was already written in that same file — "normalizing is now the DEFAU
 — and had been applied at exactly ONE call site, the one its author had just been bitten by, while
 seven of fourteen patterns still carried a literal space. The audit is DERIVED by walking
 `doc_currency`'s namespace, so a pattern added tomorrow is checked without anyone remembering.
+v1.2 then caught the audit itself: a namespace walk sees pattern objects that are BOUND, and four of
+that module's prose matchers were written INLINE — created per call, bound nowhere, invisible. They
+happened to be wrap-safe and the audit had no way to know it, so `bad artifact -> cannot be
+discovered -> audit passes` was a live false negative for one commit. A second, independent
+mechanism (an AST walk of the source, which sees CALLS rather than bindings) now has to agree, and
+the false negative is demonstrated end to end rather than argued. The law stays narrower than "all
+regexes should be constants" on purpose: `def (\w+)\(self\)` is a SOURCE recognizer, wrap-sensitive
+and right to be, because a newline there is a syntax error rather than a wrap.
 
 THE ANSWER THE ARC WAS FOR, on the named host across five independent executions: moulding costs a
 CONSTANT penalty per rollback, flat across a depth axis over which the replay work grows nearly

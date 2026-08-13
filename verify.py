@@ -17796,14 +17796,16 @@ class Gate:
     def reflow(self):
         """A LINE BREAK IS NOT A CLAIM (URDRRFL1). Rows: audit (the pattern set derived from
         `doc_currency`'s live namespace, the exact three-shape sensitivity test), behaviour (the
-        pinned wrapped witness, and the repair proved necessary by restoring the literal spaces)."""
+        pinned wrapped witness, and the repair proved necessary by restoring the literal spaces),
+        discovery (the audit's reach measured against a second mechanism, and its false negative
+        demonstrated end to end)."""
         p = os.path.join(ROOT, "tools", "terrain")
         if p not in sys.path:
             sys.path.insert(0, p)
         try:
             import reflow as RF
         except Exception as exc:
-            for r in ("audit", "behaviour"):
+            for r in ("audit", "behaviour", "discovery"):
                 self.record(f"reflow-{r}", False, f"import failed (reflow): {exc}")
             return
         a_ok, cnt = True, (-1, -1, -1)
@@ -17874,6 +17876,56 @@ class Gate:
                     "than the guard weakened, and the ambiguity is recorded as surviving in digit "
                     "form with only the file whitelist holding it"
                     if b_ok else "the behavioural half did not hold")
+        d_ok, cov = True, (-1, -1, -1)
+        try:
+            cov = RF.coverage()
+            fn_ok, _why = RF.the_false_negative_is_demonstrated()
+            lift_ok, agreed, dis = RF.the_lift_changed_no_behaviour()
+            d_ok = (RF.every_prose_matcher_is_discoverable()
+                    and cov[2] == 0 and cov[0] == cov[1] and cov[0] > 10
+                    and fn_ok and lift_ok and dis == 0 and agreed > 100
+                    and RF.a_source_recognizer_is_outside_this_law()
+                    and RF.the_source_escape_is_empty_and_reasoned()
+                    and RF.SOURCE_MATCHERS == {}
+                    and RF.verdict(RF._exec_module(RF._PLANT_INLINE)) == RF.INVARIANT)
+        except Exception:
+            d_ok = False
+        self.record("reflow-discovery", d_ok,
+                    "AN AUDIT CANNOT CLAIM COVERAGE OVER A CLASS OF OBJECTS ITS DISCOVERY "
+                    "MECHANISM CANNOT OBSERVE, AND THE ROW ABOVE DID EXACTLY THAT FOR ONE COMMIT. "
+                    "`reflow-audit` walks the audited module's NAMESPACE, so it sees pattern "
+                    "objects that are BOUND — module constants and the regexes nested in their "
+                    "lists. It cannot see one created inside a function body and discarded after "
+                    "the call, and there were FOUR, all prose matchers, all the same "
+                    "`re.search(<template> %% re.escape(m), text)` shape. They HAPPENED to be "
+                    "wrap-safe; the audit had no way to know that and would have read INVARIANT "
+                    "just the same had they not been. A BAD AUDITED ARTIFACT, A DISCOVERY "
+                    "MECHANISM THAT CANNOT REACH IT, AND THE AUDIT PASSES — a FALSE NEGATIVE in "
+                    "the instrument rather than a documentation bound: `sensitive()` returning "
+                    "empty meant 'nothing I FOUND is sensitive' and was read as 'nothing here is', "
+                    "and the two differ by exactly the set the walk cannot reach. Now measured by "
+                    "a SECOND, INDEPENDENT mechanism — an AST walk of the module's SOURCE finding "
+                    "every `re.*` call whether or not its result is ever bound — required to agree "
+                    "with the first: %d calls, %d reachable, %d blind. THE FALSE NEGATIVE IS "
+                    "DEMONSTRATED RATHER THAN ARGUED: an inline prose matcher that IS "
+                    "wrap-sensitive is planted in a synthetic module and the namespace walk reports "
+                    "it INVARIANT; lifting that one matcher to module level and changing NOTHING "
+                    "else makes the same walk report SENSITIVE, so the test is of DISCOVERY and not "
+                    "of correctness. AND THE LAW IS NARROWER THAN 'REGEXES SHOULD BE CONSTANTS' ON "
+                    "PURPOSE: `def (\\w+)\\(self\\)` here, `STAGE_ORDER = \\(` in `indexed` and "
+                    "`BRIEFS_REQUIRING_A_FALSIFIER = \\(` in `exempt` are SOURCE-LANGUAGE "
+                    "recognizers — each carries a literal space, each is wrap-sensitive by this "
+                    "module's own test, and each is RIGHT to be, because a newline inside `def "
+                    "name(self)` is a syntax error and not a wrap. Prose matcher: declared and "
+                    "discoverable. Source matcher: ordinary implementation. The `SOURCE_MATCHERS` "
+                    "escape is EMPTY because the audited module opens no source file, and an entry "
+                    "would need a reason long enough to be a contract. FINALLY THE REPAIR IS "
+                    "PROVED TO BE A LIFT RATHER THAN A CHANGE — the declared `_MODULE_TOKEN` is "
+                    "compared against its four inline originals over every tracked `.md`, raw and "
+                    "reflowed: %d readings, %d disagreements. A repair that moves behaviour is a "
+                    "different rung"
+                    % (cov[0], cov[1], cov[2], agreed if d_ok else -1, dis if d_ok else -1)
+                    if d_ok else "the discovery coverage law did not hold")
 
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by

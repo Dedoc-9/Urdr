@@ -107,6 +107,83 @@ class TheGuardsOwnSelftest(unittest.TestCase):
         self.assertTrue(any(k == "fals" for k, _v in DC.scan(text)))
 
 
+class TheDiscoveryMechanismCoversWhatItClaims(unittest.TestCase):
+    """v1.2. v1.1 reported `doc_currency` fully audited while four of its prose matchers were
+    written inline and were therefore invisible to a namespace walk. They happened to be wrap-safe;
+    THE AUDIT HAD NO WAY TO KNOW THAT."""
+
+    def test_every_prose_matcher_is_discoverable(self):
+        self.assertTrue(RF.every_prose_matcher_is_discoverable(),
+                        f"undiscoverable: {RF.undiscoverable_matchers()}")
+
+    def test_the_false_negative_is_demonstrated_end_to_end(self):
+        """THE RUNG'S ACTUAL PROPOSITION, and it tests DISCOVERY rather than correctness: plant an
+        inline prose matcher that IS wrap-sensitive, and the namespace walk reports the module
+        INVARIANT. Lift it, change nothing else, and the same walk reports SENSITIVE."""
+        proved, why = RF.the_false_negative_is_demonstrated()
+        self.assertTrue(proved, why)
+
+    def test_the_namespace_walk_alone_would_pass_a_bad_module(self):
+        """Stated separately from the six-step plant so the mechanism is asserted on its own:
+        bad artifact -> cannot be discovered -> audit passes."""
+        inline = RF._exec_module(RF._PLANT_INLINE)
+        self.assertEqual(RF.verdict(inline), RF.INVARIANT)
+        self.assertEqual(RF.sensitive(inline), ())
+        self.assertEqual(len(RF.undiscoverable_matchers(RF._PLANT_INLINE)), 1)
+
+    def test_the_two_mechanisms_agree_on_the_live_module(self):
+        calls, reachable, blind = RF.coverage()
+        self.assertEqual(blind, 0)
+        self.assertEqual(calls, reachable)
+        self.assertGreater(calls, 10)
+
+    def test_a_module_level_call_nested_in_a_list_is_reachable(self):
+        """The test is "inside a function body", not "is a literal" — `_PATTERNS` is a module-level
+        list of `re.compile(r"...")` calls and every one of them is bound and discoverable."""
+        src = 'import re\nP = [(re.compile(r"(\\d+)\\s+x"), "k")]\n'
+        self.assertEqual(RF.undiscoverable_matchers(src), ())
+        self.assertEqual(len(RF.patterns(RF._exec_module(src))), 1)
+
+
+class TheTypeBoundaryHolds(unittest.TestCase):
+    def test_a_source_recognizer_is_outside_this_law(self):
+        """`def (\\w+)\\(self\\)` is Python syntax. It carries a literal space, it is wrap-sensitive
+        by this module's test, and it is RIGHT to be: a newline there is a syntax error, not a wrap.
+        Dragging source recognizers into a prose audit would be actively wrong."""
+        self.assertTrue(RF.a_source_recognizer_is_outside_this_law())
+        for _f, pat in RF.OUT_OF_SCOPE_SOURCE_MATCHERS:
+            self.assertTrue(RF.is_wrap_sensitive(pat), pat)
+
+    def test_the_source_escape_is_empty_and_would_need_a_reason(self):
+        self.assertEqual(RF.SOURCE_MATCHERS, {})
+        self.assertTrue(RF.the_source_escape_is_empty_and_reasoned())
+
+    def test_a_short_reason_is_not_a_contract(self):
+        RF.SOURCE_MATCHERS["fixture"] = "too short"
+        try:
+            self.assertFalse(RF.the_source_escape_is_empty_and_reasoned())
+        finally:
+            RF.SOURCE_MATCHERS.pop("fixture")
+
+
+class TheLiftIsALift(unittest.TestCase):
+    def test_the_lift_changed_no_behaviour_on_the_live_corpus(self):
+        """A repair that changes behaviour is a different rung. The lifted `_MODULE_TOKEN` is
+        compared against the four inline originals over every tracked `.md`, raw and reflowed."""
+        ok, agreed, disagreed = RF.the_lift_changed_no_behaviour()
+        self.assertEqual(disagreed, 0)
+        self.assertGreater(agreed, 100)
+        self.assertTrue(ok)
+
+    def test_the_lifted_matcher_is_itself_audited(self):
+        self.assertIn("_MODULE_TOKEN", dict(RF.patterns()))
+        self.assertFalse(RF.is_wrap_sensitive(DC._MODULE_TOKEN.pattern))
+
+    def test_module_tokens_reads_both_spellings(self):
+        self.assertEqual(DC.module_tokens("see `attest` and `pedigree.py` here"),
+                         {"attest", "pedigree"})
+
+
 class TheConformance(unittest.TestCase):
     def test_scenes_match_their_goldens(self):
         for name in RF.SCENES:
