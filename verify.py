@@ -225,6 +225,7 @@ STAGE_ORDER = (
     "attest",
     "pedigree",
     "rehearse",
+    "indexed",
     "rollbench",
     "reachable",
     "retire",
@@ -17702,6 +17703,79 @@ class Gate:
                     "one law written three times"
                     if x_ok else "the structural counterexamples did not bite")
 
+    def indexed(self):
+        """A GATED MODULE APPEARS IN THE TREE'S OWN INDEX (URDRIDX1). Rows: coverage (the gated set
+        derived from STAGE_ORDER, matched by exact backticked filename), bounds (the ratchet at the
+        live reading, the plants, and naming-is-not-describing)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import indexed as IX
+        except Exception as exc:
+            for r in ("coverage", "bounds"):
+                self.record(f"indexed-{r}", False, f"import failed (indexed): {exc}")
+            return
+        c_ok, cnt = True, (-1, -1, -1)
+        try:
+            cnt = IX.counts()
+            arc_ok, arc_n, _missing = IX.this_arc_is_indexed()
+            c_ok = (arc_ok and arc_n == 20 and cnt[0] == cnt[1] + cnt[2] and cnt[0] > 50
+                    and IX.the_gated_set_is_read_from_the_gate())
+            try:
+                IX.staged_modules(source="nothing here\n")
+                c_ok = False
+            except IX.IndexedError as _e:
+                c_ok = c_ok and _e.code == "INDEXED-REFUSE"
+            c_ok = c_ok and all(IX.scene_result(x) == IX.golden(x) for x in IX.SCENES)
+        except Exception:
+            c_ok = False
+        self.record("indexed-coverage", c_ok,
+                    "THIS TREE GUARDS ITS DOCUMENTATION TWO WAYS AND BOTH WERE GREEN WHILE TWENTY "
+                    "RUNGS WERE MISSING FROM THE LADDER. `doc-currency` compares the falsifier, row "
+                    "and suite COUNTS in every .md against the live gate; `doc-staleness` compares "
+                    "status WORDS and named classes. Neither asks whether the index knows a module "
+                    "EXISTS — and `tools/terrain/README.md`, whose own heading is 'The ladder, "
+                    "module by module', did not: the whole 3D representation arc from `worldbasis` "
+                    "through `framing`, the rollback-evidence arc from `vouch` through `rollbench`, "
+                    "and every instrument rung the first host log forced from `reachable` through "
+                    "`rehearse` — roughly a thousand gate rows — had no entry. THE COUNTS IN THAT "
+                    "FILE WERE CORRECT THE WHOLE TIME, because a count is cheap to sweep and a "
+                    "paragraph is not: a document whose numbers are current and whose content is "
+                    "stale PASSES A CURRENCY CHECK. Now derived — %d gated terrain modules read "
+                    "from `verify.py`'s OWN `STAGE_ORDER` rather than from a list kept here, %d "
+                    "named, %d outstanding — and matched on the EXACT backticked filename, because "
+                    "a bare-word match would let the English word 'entry' or a path containing "
+                    "'attest' count as coverage, which is how a presence check quietly becomes a "
+                    "spell-checker"
+                    % cnt
+                    if c_ok else "the index coverage law did not hold")
+        b_ok = True
+        try:
+            held, u = IX.the_debt_has_not_grown()
+            b_ok = (held and IX.the_ceiling_is_the_live_reading()
+                    and IX.a_removed_entry_reddens()
+                    and IX.a_bare_word_is_not_coverage()
+                    and IX.naming_is_not_describing()
+                    and IX.verdict(text="") == IX.UNINDEXED
+                    and u == IX.DEBT_CEILING)
+        except Exception:
+            b_ok = False
+        self.record("indexed-bounds", b_ok,
+                    "A RATCHET PINNED AT THE LIVE READING, NOT ABOVE IT — a ceiling with slack is "
+                    "one the next gated module fits under without anyone deciding to let it. The "
+                    "thirteen still outstanding PREDATE this arc and are NAMED rather than filled "
+                    "in, because writing up findings one would be paraphrasing rather than "
+                    "reporting is exactly how an index acquires filler. RED-FIRST: delete one "
+                    "entry from a copy of the index and the count rises by one, naming the module "
+                    "that lost it; hand it prose that merely CONTAINS the words and every module "
+                    "still reads unindexed. AND THE BOUND IS DEMONSTRATED RATHER THAN CONFESSED — "
+                    "NAMING IS NOT DESCRIBING: an index consisting of nothing but backticked "
+                    "filenames satisfies this law COMPLETELY, which is shown by constructing one, "
+                    "so nobody can read a green row here as 'the ladder is well written'. It "
+                    "catches the module nobody wrote up, not the module written up badly"
+                    if b_ok else "the index bounds did not hold")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -21339,7 +21413,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

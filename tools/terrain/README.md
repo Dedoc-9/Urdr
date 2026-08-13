@@ -602,6 +602,77 @@ false alarms, once. `bombtest.py` — `URDRBMB1`: interaction-free tamper detect
 screen over a SPIN never-claim, certifying a recorded computation contains an illegal step WITHOUT
 running the step, where "interaction-free" is an instrumented call count of exactly 0 and nothing more.
 
+### The 3D representation arc, and the instrument arc it forced
+
+`worldbasis.py` — `URDRWBS1`: what a world coordinate MEANS, as data rather than convention, with an
+EXACT INTEGER camera — and building the consumer found the camera had none and its yaw table was
+wrong two ways. `contact.py` — `URDRCON1`: ground contact as a CERTIFIED STATE with a support
+witness, not a boolean read off a height; the complete jump/fall cycle, and where this law parts from
+the 2D walk. `stride.py` — `URDRSTR1`: the 3D deterministic tick, consuming `contact` rather than
+reimplementing it, proved by SEVERANCE. `lift.py` — `URDRLFT1`: how much of a certified identity
+survives being carried into a richer representation — five counts NEVER FUSED, and a proposed
+exponential law refuted at its premise. `vantage.py` — `URDRVNT1`: the first-person frame, the eye
+TAKEN rather than derived, the jump cycle closing bit-identically in pixels. `framing.py` —
+`URDRFRM1`: does this world fit in this frame — the coverage prediction `horizon_row` could not
+make, checked against all three framing failures this repo has produced.
+
+`vouch.py` — `URDRVCH1`: can rollback reproduce the exact REASON the actor was grounded — a
+mid-trajectory resume and a divergence report that names a cell. `retain.py` — `URDRRTN1`: what a
+snapshot must KEEP, an ablation sweep in which INERT is never read as redundancy. `mould.py` —
+`URDRMLD1`: the record takes the SHAPE of the state, derived rather than tagged, and the wrong mould
+caught by REFUSAL instead of by a replay that silently diverges.
+
+`measure.py` — `URDRMSR1`: a performance claim is valid only when its workload, host, denominator and
+baseline are NAMED — plus the op-count result that needed no stopwatch, and the prediction the whole
+instrument arc was later graded against: MOULDING MOVES THE INTERCEPT AND CANNOT MOVE THE SLOPE.
+`rollbench.py` — `URDRRBN1`: the instrument `measure` could not contain. It has a clock, emits a
+sealed log, and REFUSES TO GRADE ITS OWN OUTPUT.
+
+Everything below exists because an operator ran that harness on a real machine and the refusal was
+the harness's fault.
+
+`reachable.py` — `URDRRCH1`: a gate must admit something its own PRODUCER can make. `rollbench` v1
+assembled a host string as `node | system release | note` and handed it to a law requiring a string
+with NO `|` at all — unsatisfiable on every machine, green forever. The witness is PRODUCED by
+calling the producer, never typed, because a human can type what a machine cannot emit.
+`retire.py` — `URDRRET1`: a retired law names its successor, and nothing outside its own module may
+call it. `sealframe` had already retired the law `rollbench` was using, in PROSE, six hundred lines
+from the call site — a comment does not travel, a caller reads an API. `entry.py` — `URDRENT1`: an
+entry point that takes a path must REFUSE a flag-shaped token there. Evidence found on an operator's
+disk rather than constructed: two untracked files named `--host` and `--compare`, written by two
+different runners, both reporting success.
+
+`confound.py` — `URDRCNF1`: a treatment axis may not be a proxy for elapsed time, and a cell is not
+an experiment. The first admissible host log REFUTED ITS OWN HARNESS — an arm doing strictly more
+work came out faster, because the schedule ran each representation in its own contiguous third of the
+run. `repeat.py` — `URDRRPT1`: variance has LEVELS, and two hundred iterations in one process sample
+exactly one; more iterations inside one execution cannot reduce execution-level variance, so a run is
+a PROCESS. `deeper.py` — `URDRDPR1`: a timing difference with no counted difference is UNEXPLAINED,
+and UNEXPLAINED is a verdict — with NOT_ASKED kept distinct, because "nothing was looked at" is not
+"nothing was found".
+
+`attest.py` — `URDRATT1`: a graduated claim cites a COMMITTED log the gate re-reads, with every
+number DERIVED from the sealed bytes rather than typed beside them. `pedigree.py` — `URDRPDG1`: a
+record's integrity is not its provenance. Rebuild the graduated record under the pre-`confound`
+schedule and re-seal it and `attest` accepts it — so admissibility is DERIVED from the artifact
+first, with the retired-instrument registry an escape hatch that is EMPTY. `rehearse.py` —
+`URDRRHS1`: plausible is not reproducible. BALANCED is a property many orders have; the plan
+generates exactly ONE, and the structure is reconstructed and compared rather than inspected. Its
+honest limit is a law: fabricate every timing, leave the shape alone, and it still REPRODUCES.
+
+`indexed.py` — `URDRIDX1`: a gated module appears in the tree's OWN index, and "the counts are
+current" is not "the document is". `doc-currency` and `doc-staleness` were both green while every
+module named above was missing from this file — whose heading promises module-by-module — because a
+count is cheap to sweep and a paragraph is not. Its first act was to catch ITSELF: `indexed` is a
+gated module, and it had no entry here until this sentence. `named != described` is demonstrated
+rather than confessed — an index of nothing but backticked filenames satisfies the law completely.
+
+THE ANSWER THE ARC WAS FOR, on the named host across five independent executions: moulding costs a
+CONSTANT penalty per rollback, flat across a depth axis over which the replay work grows nearly
+tenfold — the intercept moving and the slope not, predicted in exact integers eight rungs earlier and
+confirmed in nanoseconds. Separated in 7 of 17 distinct experiments, direction holding in 82 of 85
+execution-level pairs, and the ten INDISTINGUISHABLE ones left exactly as they are.
+
 ## Cross-placements (all re-verified LIVE by the gate wherever `rustc` exists)
 
 `heightfield_rs/` (the URDRHF1 canon) · `latstore_rs/` (URDRLAT4 + the URDRLAT5 byte laws) · `glide_rs/`

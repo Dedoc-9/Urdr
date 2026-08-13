@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_indexed.txt — URDRIDX1 pinned scenes.
+#
+# A GATED MODULE APPEARS IN THE TREE'S OWN INDEX, AND "THE COUNTS ARE CURRENT" IS NOT "THE DOCUMENT
+# IS".
+#
+# This tree guards its documentation two ways and BOTH WERE GREEN while the finding below was true.
+# `doc-currency` compares falsifier, row and suite COUNTS in every .md against the live gate;
+# `doc-staleness` compares status WORDS. Neither asks whether the index knows a module exists — and
+# it did not: TWENTY consecutive rungs, roughly a thousand gate rows, were absent from
+# `tools/terrain/README.md`, whose own heading is "The ladder, module by module". The counts in that
+# file were correct the whole time, because a count is cheap to sweep and a paragraph is not.
+#
+# coverage — the gated set derived from `verify.py`'s own STAGE_ORDER at claim time, matched against
+#            the index by EXACT backticked filename, with this arc's twenty asserted by name.
+# bounds   — the ratchet pinned AT the live reading; a removed entry proved to redden; a bare word
+#            proved NOT to count as coverage; the set proved to be read from the gate rather than
+#            held here; and NAMING PROVED NOT TO BE DESCRIBING.
+#
+# does_not_show: NAMING IS NOT DESCRIBING. An index of nothing but backticked filenames satisfies
+# this law completely — demonstrated rather than confessed — so it catches the module nobody wrote
+# up, not the module written up badly. It ranges over TERRAIN modules with gate stages, so laws in
+# `netcode`, `physics` and `specfreeze` are outside it. And it checks ONE document: the root README,
+# the paper and the theorem list were equally silent about this arc, and only the ladder is checked,
+# because it is the only one whose stated job is completeness.
+#
+# DECLARED: which file is the index, and the debt ceiling — thirteen older modules that predate this
+# arc, NAMED rather than filled in, because writing up findings one would be paraphrasing rather
+# than reporting is how an index acquires filler.
+#
+# AND ITS FIRST ACT WAS TO CATCH ITSELF: `indexed` is a gated module and had no entry
+# in the ladder until it demanded one. A coverage law exempting itself would be the first
+# thing anyone should distrust.
+
+coverage e11cbd8b5e98798378c061f3d239d8c38a7d6f21c1c8d1f783e309f7b1562563
+bounds 6fe8b5d1150927e7243fca727c63b0a03a388f9aa845094138bbb8f5f7d07fc2
+indexed 7f6beb568d8a432b1fab9d76bd2a810b8809189c05a990191c5ddb2ebbc01599
