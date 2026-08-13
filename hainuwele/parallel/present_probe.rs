@@ -18,7 +18,7 @@
 // repaired (late p50 = 0) and the TAIL is not (135 of 2054 frames over 1 ms late, p99 a full
 // slot) — the tail is now the measured target the DXGI pivot exists to attack, LATER.
 //
-// v0.2 — THE P2 CONTRACT. Not "find a resolution that looks fast": measure the renderer enough
+// v0.2/v0.3 — THE P2 CONTRACT. Not "find a resolution that looks fast": measure the renderer enough
 // that resolution becomes an EVIDENCE-DERIVED decision.
 //
 //   * THE WORKLOAD IS REAL: an integer 3D terrain — 33x33 heightfield, ~2k triangles, yaw-orbit
@@ -39,9 +39,23 @@
 //     probelog is this instrument's specification): a --host run REFUSES without --power and
 //     --scheduler, and both enter the log header, so a v0.2 record can pass
 //     `require_conditions=True` where the v0.1 record could not.
-//   * THE PLANT IS LOCALIZED (the `deeper` lesson: a grouped verdict, not a pooled one):
-//     --defect stalls ONE cell (the middle one) by 5 ms per frame, and the self-check passes
-//     only if the per-cell aggregation SEES it in that cell and not in the others.
+//   * THE PLANT CARRIES ITS OWN CONTROL (v0.3, after v0.2's red-first run caught the checker):
+//     --defect stalls the MIDDLE cell on ODD passes only, so the stalled and clean passes of the
+//     SAME cell are the comparison — a cross-cell check conflates the treatment (resolution) with
+//     the plant, and v0.2's did exactly that: 720p honestly costs more than the stalled 540p
+//     minus its stall, so a 4 ms cross-cell margin MISSED a plant that was plainly in the data.
+//     The self-check now passes only if the planted cell's stalled-vs-clean gap exceeds 3 ms
+//     AND every other cell's odd/even gap stays under 1.5 ms (localization, URDRDPR1).
+//
+// v0.3 ALSO REPAIRS TWO MORE THINGS THAT RUN FOUND. FLASH FRAMES ARE NOT WORKLOAD: a click turns
+// eight frames white and a white fill is nearly free, so 720p rows carried lo values in the tens
+// of microseconds — two workloads in one column (URDRCNF1, inside this instrument). Flash frames
+// are now EXCLUDED from the raster distribution (each row's n says how many terrain frames
+// remain) — they still appear in the click CHAINS, which is correct, because the chain measures
+// the latency of the flash the camera sees. AND LATENESS IS NOW A PER-SEGMENT EPOCH: v0.2
+// measured lateness against one absolute schedule, so a stalled segment ended ~80 ms behind and
+// the NEXT cell 'caught up' while wearing the blame (720p read late=164 as the echo of 540p's
+// stall). The deadline resyncs at each segment boundary and each row reports ITS OWN late count.
 //
 // STILL, AND ALWAYS: wall-clock class, DELIBERATELY UNGATED (the bench.py precedent); std-only
 // raw Win32 FFI, no cargo (the urdr_render_rs precedent); integer ns; lower-middle percentiles
@@ -50,12 +64,12 @@
 //
 // RUN PROTOCOL (PowerShell, repo root, rustc >= 1.58, RED FIRST):
 //   rustc -O --edition 2021 -o present_probe.exe hainuwele\parallel\present_probe.rs
-//   .\present_probe.exe --defect                       # must print DEFECT CAUGHT in the MIDDLE
-//                                                      # cell only, exit 0 (~40 s)
+//   .\present_probe.exe --defect                       # must print DEFECT CAUGHT, localized to
+//                                                      # the middle cell's ODD passes, exit 0 (~54 s)
 //   .\present_probe.exe --host "ROG-Ally-X-Z2-Extreme" --power "Turbo-35W-AC" `
 //                       --scheduler "Win11-GameMode-UltimatePerf" --hz 120
-//   # click ~20 times spread across the run; ESC ends early (partial segments stay honest: each
-//   # row carries its own n). log: present_probe_log.txt — run TWICE, keep both.
+//   # let it run to completion (~54 s) and click ~20 times spread across it; ESC ends early
+//   # honestly (each row carries its own n). log: present_probe_log.txt — run TWICE, keep both.
 //
 // GRADE (honest, D5): the file is DECLARED; every number it will print is NOT_MEASURED until the
 // named host runs it. v0.2's renderer is new code, authored in a container with no Windows link
@@ -413,7 +427,8 @@ fn main() {
 
     // per (cell, pass): raster_ns samples; per cell: late count. Chains carry the active cell.
     let mut seg_raster: Vec<Vec<i64>> = (0..n_segments).map(|_| Vec::new()).collect();
-    let mut cell_late = vec![0u32; ncells];
+    let mut seg_late = vec![0u32; n_segments as usize];
+    let mut seg_flash = vec![0u32; n_segments as usize];
     let mut late_ns: Vec<i64> = Vec::with_capacity(total_frames as usize);
     let mut clicks: Vec<(i64, i64, i64, i64, i64, usize)> = Vec::new();
     let mut flash_left: u32 = 0;
@@ -429,6 +444,11 @@ fn main() {
         let slot = seg_idx % ncells as u32;
         let cell = ((slot + pass) % ncells as u32) as usize;
         let (cw, ch) = args.cells[cell];
+        if frame % args.seg == 0 {
+            // A SEGMENT IS ITS OWN PACING EPOCH: without this, a slow segment's accumulated lag
+            // is 'caught up' inside the next one, which then wears the blame (the v0.2 echo).
+            deadline = qpc() + ticks_per_frame;
+        }
 
         let mut msg = MSG { hwnd: 0, message: 0, wParam: 0, lParam: 0, time: 0,
                             pt: POINT { x: 0, y: 0 } };
@@ -449,7 +469,9 @@ fn main() {
         let t_tick = qpc();
         let _view = (yaw, cell, flash);                        // the view export: cell params
         let t_view = qpc();
-        if args.defect && cell == defect_cell { unsafe { Sleep(5) } }   // THE LOCALIZED PLANT
+        // THE PLANT WITH ITS OWN CONTROL: middle cell, ODD passes only — stalled vs clean
+        // passes of the SAME cell are the comparison, so no cross-cell assumption is needed.
+        if args.defect && cell == defect_cell && pass % 2 == 1 { unsafe { Sleep(5) } }
         raster_scene(&mut buf, &mut zbuf, cw, ch, &scene, yaw, flash);
         let t_pixels = qpc();
         let bmi = BITMAPINFO {
@@ -469,7 +491,11 @@ fn main() {
         let t_present = qpc();
         if flash_left > 0 { flash_left -= 1 }
 
-        seg_raster[seg_idx as usize].push(ticks_to_ns(t_pixels - t_view, freq));
+        if flash {
+            seg_flash[seg_idx as usize] += 1;              // NOT workload: a white fill is free
+        } else {
+            seg_raster[seg_idx as usize].push(ticks_to_ns(t_pixels - t_view, freq));
+        }
         if t_input != 0 {
             clicks.push((ticks_to_ns(t0 - t_input, freq), ticks_to_ns(t_tick - t0, freq),
                          ticks_to_ns(t_view - t_tick, freq), ticks_to_ns(t_pixels - t_view, freq),
@@ -480,7 +506,7 @@ fn main() {
             if now >= deadline {
                 let late = ticks_to_ns(now - deadline, freq);
                 late_ns.push(late);
-                if late > 1_000_000 { cell_late[cell] += 1 }
+                if late > 1_000_000 { seg_late[seg_idx as usize] += 1 }
                 break;
             }
             if ticks_to_ns(deadline - now, freq) > 4_000_000 { unsafe { Sleep(1) } }
@@ -497,7 +523,7 @@ fn main() {
     let cell_names: Vec<String> = args.cells.iter().map(|&(w, h)| format!("{w}x{h}")).collect();
     let mut log = String::new();
     log.push_str(&format!(
-        "present_probe v0.2 | host {} | power {} | scheduler {} | hz {} | window {}x{} | qpf {}\n",
+        "present_probe v0.3 | host {} | power {} | scheduler {} | hz {} | window {}x{} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, win_w, win_h, freq));
     log.push_str(&format!("timer_1ms_granted {}\n", timer_1ms_granted));
     log.push_str(&format!("cells {} | passes {} | seg {}\n", cell_names.join(","), args.passes,
@@ -512,9 +538,9 @@ fn main() {
         let mut v = seg_raster[seg_idx].clone();
         if v.is_empty() { continue }                           // ESC before this segment ran
         v.sort_unstable();
-        log.push_str(&format!("cell {} pass {} n {} raster_ns {} {} {} late {}\n",
+        log.push_str(&format!("cell {} pass {} n {} raster_ns {} {} {} late {} flash {}\n",
                               cell_names[cell], pass, v.len(), v[0], pct(&v, 50),
-                              v[v.len() - 1], cell_late[cell]));
+                              v[v.len() - 1], seg_late[seg_idx], seg_flash[seg_idx]));
     }
     log.push_str("click chains (ns): input_wait authority_tick view_export frame_render \
                   present_queue total cell\n");
@@ -530,31 +556,47 @@ fn main() {
     print!("{log}");
 
     if args.defect {
-        // RED-FIRST, LOCALIZED: the planted 5 ms must appear in the MIDDLE cell's aggregate and
-        // in no other — a pooled check would pass with the stall smeared anywhere (URDRDPR1).
-        let mut med_by_cell: Vec<Vec<i64>> = (0..ncells).map(|_| Vec::new()).collect();
-        for seg_idx in 0..n_segments as usize {
-            let pass = seg_idx / ncells;
-            let cell = (seg_idx % ncells + pass) % ncells;
-            let mut v = seg_raster[seg_idx].clone();
-            if v.is_empty() { continue }
-            v.sort_unstable();
-            med_by_cell[cell].push(pct(&v, 50));
+        // RED-FIRST, WITH THE PLANT'S OWN CONTROL (v0.3). The stall runs on the middle cell's
+        // ODD passes only; the check is stalled-vs-clean WITHIN each cell, so the resolution
+        // treatment cancels out. Caught iff the planted cell's gap exceeds 3 ms AND every other
+        // cell's odd/even gap stays under 1.5 ms — seen there, and ONLY there.
+        let gap_ms = |cell: usize| -> (i64, i64) {
+            let (mut odd, mut even) = (Vec::new(), Vec::new());
+            for seg_idx in 0..n_segments as usize {
+                let pass = seg_idx / ncells;
+                if (seg_idx % ncells + pass) % ncells != cell { continue }
+                let mut v = seg_raster[seg_idx].clone();
+                if v.is_empty() { continue }
+                v.sort_unstable();
+                if pass % 2 == 1 { odd.push(pct(&v, 50)) } else { even.push(pct(&v, 50)) }
+            }
+            if odd.is_empty() || even.is_empty() { return (-1, -1) }
+            odd.sort_unstable();
+            even.sort_unstable();
+            (pct(&odd, 50), pct(&even, 50))
+        };
+        let mut caught = true;
+        let mut detail = String::new();
+        for cellk in 0..ncells {
+            let (o, e) = gap_ms(cellk);
+            if o < 0 {
+                caught = false;
+                detail.push_str(&format!("{}: incomplete; ", cell_names[cellk]));
+                continue;
+            }
+            let gap = o - e;
+            detail.push_str(&format!("{}: odd-even gap {} ns; ", cell_names[cellk], gap));
+            if cellk == defect_cell {
+                if gap < 3_000_000 { caught = false }
+            } else if gap.abs() > 1_500_000 {
+                caught = false;
+            }
         }
-        let agg: Vec<i64> = med_by_cell.iter()
-            .map(|m| if m.is_empty() { -1 } else {
-                let mut s = m.clone(); s.sort_unstable(); pct(&s, 50) })
-            .collect();
-        let target = agg[defect_cell];
-        let others = agg.iter().enumerate().filter(|&(i, _)| i != defect_cell)
-            .map(|(_, &v)| v).max().unwrap_or(-1);
-        if target > others + 4_000_000 {
-            println!("DEFECT CAUGHT in cell {} only: med {} ns vs max other {} ns",
-                     cell_names[defect_cell], target, others);
+        if caught {
+            println!("DEFECT CAUGHT, localized to {} odd passes only: {}",
+                     cell_names[defect_cell], detail);
         } else {
-            println!("DEFECT MISSED: cell {} med {} ns vs max other {} ns — the per-cell \
-                      aggregation cannot see a localized 5 ms; do not trust it",
-                     cell_names[defect_cell], target, others);
+            println!("DEFECT MISSED or DELOCALIZED: {} — do not trust this instrument", detail);
             std::process::exit(1);
         }
     }

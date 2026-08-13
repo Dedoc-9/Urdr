@@ -36,6 +36,17 @@ pinned the strict door's refusal as this instrument's specification, and v0.2 di
 `--defect` stalls exactly one cell so the per-cell aggregation must LOCALIZE the plant rather than
 merely notice it.
 
+v0.3 is what v0.2's own red-first run forced, before any real data was trusted. The cross-cell
+defect check MISSED a plant that was plainly present, because a larger cell honestly costs more
+than a stalled smaller one — comparing across cells conflates the treatment with the plant. The
+stall now runs on the middle cell's ODD passes only, so stalled-vs-clean passes of the SAME cell
+are the comparison and the treatment cancels. The same run exposed flash frames polluting the
+raster distribution (a white fill is nearly free, so lo columns read as if a 720p frame cost tens
+of microseconds) — flash frames are excluded from workload rows and counted separately, while
+staying in the click chains where they belong. And lateness became a per-segment epoch: one
+absolute schedule let a stalled segment's lag be "caught up" inside the next cell's segment, which
+then wore the blame.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
