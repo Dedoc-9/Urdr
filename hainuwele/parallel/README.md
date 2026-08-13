@@ -7,6 +7,23 @@ modules (`heightfield`, `perception`'s supercover, `hitbox`'s AABB and integer a
 `chunkload`'s demand sets) all assume Euclidean ℤ². Anything that changes that assumption is built
 here as a *parallel* substrate with its own gate stage, so the existing pinned goldens never move.
 
+## `URDRPRS1` — the present probe (`present_probe.rs`, wall-clock class, deliberately ungated)
+
+The first §3 instrument for the visible loop: a real Win32 window, a real present path, QPC stamps
+at every `sealframe` instant software can reach, and a click-triggered white flash so a phone
+camera can measure the one segment software cannot. Raw FFI, std-only, integer nanoseconds
+throughout; the entry door refuses unknown flags; `--defect` plants a 50 ms stall the instrument
+must catch in its own numbers or exit red. Like `bench.py` it reads a wall clock and therefore
+never enters the gate — its LOG is what the repo will grade, under the `sealframe-honesty`
+admission pattern, and a log without `--host` cannot graduate anything.
+
+First named-host reading (Ally X, 2026-08-13, v0): frame work p50 0.50 ms / p99 2.03 ms at
+1280x729 against an 8.33 ms slot — and the instrument's first catch was ITSELF: 176 of 723
+deadlines missed with 0.5 ms of work, the classic Sleep(1)-under-15.6ms-timer-resolution pacing
+defect. v0.1 requests 1 ms resolution, logs whether it was granted, and records lateness as a
+magnitude rather than a count. The red-first plant was caught on the same host before any real
+run was trusted.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
