@@ -1,7 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.4).
+// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.5).
+//
+// v1.5 — THE END KEY THAT STARTS THE PROGRAM. The first attempted real walk lasted ONE frame:
+// v1.4 added Enter to the end-run set, and Enter is the key that launches the program from a
+// shell — still physically down at frame 0's poll, so the run ended at birth, caught by the
+// activity line (frames 1 | keyed 0). The law: LAUNCH-TIME INPUT STATE MUST NOT LEAK INTO THE
+// RUN. End keys and end buttons are now ARMED by an observed release — ending requires a press
+// that BEGAN after launch. Movement keys need no arming (holding W at launch is a walk, not a
+// command). Render path untouched; all pinned chains stand.
 //
 // v1.4 — THE LOOK ARRIVED; THE WALK GETS ITS LAST ALIAS. The v1.3 run was the input arc's
 // first partial success and its most precise measurement: pad_connected TRUE, padded 0,
@@ -1115,6 +1123,8 @@ fn main() {
     let xi_get: Option<XiGetState> = if args.play { xinput_load() } else { None };
     let mut pad_seen = false;                  // a pad answered ERROR_SUCCESS at least once
     let mut padded: u32 = 0;                   // frames where the pad contributed input
+    let mut end_armed = false;                 // end KEYS count only after an observed release
+    let mut pad_end_armed = false;             // same law for the pad's end buttons
     let mut digests: Vec<(u32, u64)> = Vec::new();
     let mut digests_planted: Vec<(u32, u64)> = Vec::new();
     const PLANT_FRAME: u32 = 600;
@@ -1159,10 +1169,18 @@ fn main() {
                 | ((key(0x41) | key(0x25)) << 1)             // A  | Left
                 | ((key(0x53) | key(0x28)) << 2)             // S  | Down
                 | ((key(0x44) | key(0x27)) << 3);            // D  | Right
-            if unsafe { GetAsyncKeyState(VK_ESCAPE as i32) } as u16 & 0x8000 != 0
-                || unsafe { GetAsyncKeyState(0x0D) } as u16 & 0x8000 != 0 {
-                QUIT.store(1, Ordering::SeqCst);             // Esc or Enter (desktop-mode Start)
-            }
+            // v1.5: END KEYS ARM ON AN OBSERVED RELEASE. v1.4 put Enter in the end-run set,
+            // and Enter is the key that LAUNCHES the program from a shell — it was still
+            // physically down when frame 0 polled, so the first real walk ended at birth
+            // (frames 1, the activity line's own catch). Launch-time key state must not leak
+            // into the run: an end key now counts only once every end key has been seen UP
+            // during the run, so ending requires a press that BEGAN after launch.
+            let end_down = unsafe {
+                GetAsyncKeyState(VK_ESCAPE as i32) as u16 & 0x8000 != 0
+                    || GetAsyncKeyState(0x0D) as u16 & 0x8000 != 0
+            };
+            if !end_down { end_armed = true }
+            else if end_armed { QUIT.store(1, Ordering::SeqCst) }
             let (mut mdx, mut mdy) = ((pt.x - center_x) as i64, (pt.y - center_y) as i64);
             if let Some(get_state) = xi_get {
                 let mut st = XiState::default();
@@ -1176,9 +1194,8 @@ fn main() {
                     if g.lx > DEAD { k |= 8 }                                // stick right = D
                     if g.rx.abs() > DEAD { mdx += (g.rx / 2048) as i64 }     // look
                     if g.ry.abs() > DEAD { mdy -= (g.ry / 2048) as i64 }     // stick up = look up
-                    if g.buttons & 0x2010 != 0 {                             // START(0x10) | B(0x2000)
-                        QUIT.store(1, Ordering::SeqCst);
-                    }
+                    if g.buttons & 0x2010 == 0 { pad_end_armed = true }      // START | B both up
+                    else if pad_end_armed { QUIT.store(1, Ordering::SeqCst) }
                     if k != 0 || g.rx.abs() > DEAD || g.ry.abs() > DEAD { padded += 1 }
                 }
             }
@@ -1245,7 +1262,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.4 input trace: keys dx dy (one line per frame)\n");
+        let mut t = String::from("# fpsdemo v1.5 input trace: keys dx dy (one line per frame)\n");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}\n", k, dx, dy));
         }
@@ -1257,7 +1274,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.4 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
+        "fpsdemo v1.5 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, freq));
     log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | xinput_loaded {} | \

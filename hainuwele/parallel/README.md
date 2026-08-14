@@ -158,6 +158,14 @@ device reads idle. In that same scheme the left stick emits arrow keys — the o
 demo did not poll. Arrows now alias WASD and Enter joins the end-run set, so the walk arrives on
 whatever the machine speaks; the trace bits, and therefore replay, are unchanged.
 
+v1.5 is the one-frame walk. Enter joined the end-run set in v1.4, and Enter is the key that
+launches the program from a shell — still physically down at frame 0's poll, so the first
+attempted real walk ended at birth, caught by the instrument's own activity line (`frames 1 |
+keyed 0`). Launch-time input state must not leak into the run: end keys and end buttons now arm
+on an observed release, so ending requires a press that began after launch. The overwrite door
+did its quieter job the same minute — the second attempt refused to replace the one-frame
+record wearing the walk's name.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
