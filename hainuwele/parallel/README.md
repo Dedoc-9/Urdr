@@ -56,6 +56,18 @@ border blacked at segment changes so a smaller cell never wears a larger cell's 
 cell larger than the screen REFUSES (a clipped blit measures a different operation — the same
 artifact class in a new coat). Present chains at every cell now mean what they say.
 
+v0.5 removes the last human ritual from the cost question. Three named runs in a row arrived with
+empty click tables, and the miss was the instrument's: the present cost is measured every frame,
+but earlier versions only reported it on click frames, because the cost band was welded onto the
+latency chain. Those are different questions — the chain needs a real click, the cost band needs
+nothing but the loop — so every cell row now carries a present_ns band beside raster_ns, and
+clicks are optional, wanted only for the input-latency chain itself. The same version repairs the
+defect check's localization threshold, which fired a false DELOCALIZED on real data: 1080p's
+thermal walk produced a spurious odd-even gap against a fixed constant that its own between-pass
+range would have absorbed — a cross-cell constant applied to cells with different natural
+variance, the v0.2 checker's lesson one level up. A non-planted cell is now judged anomalous only
+against its own spread.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

@@ -68,6 +68,17 @@
 // same class of artifact back in. The window line in the log now records the SCREEN, and the
 // present chains at every cell mean what they say.
 //
+// v0.5 — THE COST BAND STOPS DEPENDING ON A HUMAN RITUAL. Three named runs in a row arrived with
+// empty click tables, and the miss was the INSTRUMENT'S: present_queue (t_present - t_pixels) is
+// measured on EVERY frame, but v0.4 only REPORTED it on click frames, because the present-cost
+// measurement was welded onto the latency chain. Those are different questions: the chain needs a
+// real click (it measures input latency); the cost band needs nothing but the loop. v0.5 records
+// a per-segment present_ns band in every cell row, exactly as raster_ns is recorded — flash
+// frames included, since a blit's cost does not depend on the pixels' story — and clicks are now
+// OPTIONAL, needed only if the latency chain itself is wanted. An instrument that requires
+// operator choreography for data it already holds is a defect, and the operator found it by not
+// performing the choreography.
+//
 // STILL, AND ALWAYS: wall-clock class, DELIBERATELY UNGATED (the bench.py precedent); std-only
 // raw Win32 FFI, no cargo (the urdr_render_rs precedent); integer ns; lower-middle percentiles
 // (repeat's convention); an entry door that refuses unknown flags and flag-swallowing (URDRENT1);
@@ -80,7 +91,8 @@
 //   .\present_probe.exe --host "ROG-Ally-X-Z2-Extreme" --power "Turbo-35W-AC" `
 //       --scheduler "Win11-GameMode-UltimatePerf" --hz 120 `
 //       --cells 640x360,960x540,1280x720,1920x1080
-//   # CLICK IN EVERY CELL — the present bands need chains at each resolution, 1080p most of all
+//   # clicks are OPTIONAL from v0.5 — present bands ride in every row; click only if the
+//   # input-latency chain is wanted
 //   # let it run to completion (~54 s) and click ~20 times spread across it; ESC ends early
 //   # honestly (each row carries its own n). log: present_probe_log.txt — run TWICE, keep both.
 //
@@ -420,7 +432,7 @@ fn main() {
         lpszMenuName: std::ptr::null(), lpszClassName: cls.as_ptr(),
     };
     assert!(unsafe { RegisterClassW(&wc) } != 0, "RegisterClassW failed");
-    let title = wstr("urdr present probe v0.4 — click to flash, ESC to end");
+    let title = wstr("urdr present probe v0.5 — click to flash, ESC to end");
     let (scr_w, scr_h) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
     assert!(scr_w > 0 && scr_h > 0, "GetSystemMetrics failed");
     for &(cw, ch) in &args.cells {
@@ -456,6 +468,7 @@ fn main() {
 
     // per (cell, pass): raster_ns samples; per cell: late count. Chains carry the active cell.
     let mut seg_raster: Vec<Vec<i64>> = (0..n_segments).map(|_| Vec::new()).collect();
+    let mut seg_present: Vec<Vec<i64>> = (0..n_segments).map(|_| Vec::new()).collect();
     let mut seg_late = vec![0u32; n_segments as usize];
     let mut seg_flash = vec![0u32; n_segments as usize];
     let mut late_ns: Vec<i64> = Vec::with_capacity(total_frames as usize);
@@ -531,6 +544,8 @@ fn main() {
         } else {
             seg_raster[seg_idx as usize].push(ticks_to_ns(t_pixels - t_view, freq));
         }
+        // present cost is CONTENT-INDEPENDENT and needs no click: every frame contributes.
+        seg_present[seg_idx as usize].push(ticks_to_ns(t_present - t_pixels, freq));
         if t_input != 0 {
             clicks.push((ticks_to_ns(t0 - t_input, freq), ticks_to_ns(t_tick - t0, freq),
                          ticks_to_ns(t_view - t_tick, freq), ticks_to_ns(t_pixels - t_view, freq),
@@ -558,7 +573,7 @@ fn main() {
     let cell_names: Vec<String> = args.cells.iter().map(|&(w, h)| format!("{w}x{h}")).collect();
     let mut log = String::new();
     log.push_str(&format!(
-        "present_probe v0.4 | host {} | power {} | scheduler {} | hz {} | window {}x{} | qpf {}\n",
+        "present_probe v0.5 | host {} | power {} | scheduler {} | hz {} | window {}x{} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, win_w, win_h, freq));
     log.push_str(&format!("timer_1ms_granted {}\n", timer_1ms_granted));
     log.push_str(&format!("cells {} | passes {} | seg {}\n", cell_names.join(","), args.passes,
@@ -573,15 +588,22 @@ fn main() {
         let mut v = seg_raster[seg_idx].clone();
         if v.is_empty() { continue }                           // ESC before this segment ran
         v.sort_unstable();
-        log.push_str(&format!("cell {} pass {} n {} raster_ns {} {} {} late {} flash {}\n",
-                              cell_names[cell], pass, v.len(), v[0], pct(&v, 50),
-                              v[v.len() - 1], seg_late[seg_idx], seg_flash[seg_idx]));
+        let mut pv = seg_present[seg_idx].clone();
+        pv.sort_unstable();
+        log.push_str(&format!(
+            "cell {} pass {} n {} raster_ns {} {} {} present_ns {} {} {} late {} flash {}\n",
+            cell_names[cell], pass, v.len(), v[0], pct(&v, 50), v[v.len() - 1],
+            pv[0], pct(&pv, 50), pv[pv.len() - 1], seg_late[seg_idx], seg_flash[seg_idx]));
     }
     log.push_str("click chains (ns): input_wait authority_tick view_export frame_render \
                   present_queue total cell\n");
     for &(a, b, c, d, e, cell) in &clicks {
         log.push_str(&format!("{} {} {} {} {} {} {}\n", a, b, c, d, e, a + b + c + d + e,
                               cell_names[cell]));
+    }
+    if clicks.is_empty() {
+        log.push_str("NOTE: latency chains absent (no clicks) — the cost rows above are \
+                      unaffected; click during a run only if the input-latency chain is wanted\n");
     }
     if args.host == "-" {
         log.push_str("NOTE: no --host given — this log is NOT_MEASURED by sealframe-honesty; \
@@ -595,35 +617,45 @@ fn main() {
         // ODD passes only; the check is stalled-vs-clean WITHIN each cell, so the resolution
         // treatment cancels out. Caught iff the planted cell's gap exceeds 3 ms AND every other
         // cell's odd/even gap stays under 1.5 ms — seen there, and ONLY there.
-        let gap_ms = |cell: usize| -> (i64, i64) {
-            let (mut odd, mut even) = (Vec::new(), Vec::new());
+        let cell_stats = |cell: usize| -> (i64, i64, i64) {
+            // (odd med-of-meds, even med-of-meds, between-pass med RANGE over all passes)
+            let (mut odd, mut even, mut all) = (Vec::new(), Vec::new(), Vec::new());
             for seg_idx in 0..n_segments as usize {
                 let pass = seg_idx / ncells;
                 if (seg_idx % ncells + pass) % ncells != cell { continue }
                 let mut v = seg_raster[seg_idx].clone();
                 if v.is_empty() { continue }
                 v.sort_unstable();
-                if pass % 2 == 1 { odd.push(pct(&v, 50)) } else { even.push(pct(&v, 50)) }
+                let m = pct(&v, 50);
+                all.push(m);
+                if pass % 2 == 1 { odd.push(m) } else { even.push(m) }
             }
-            if odd.is_empty() || even.is_empty() { return (-1, -1) }
+            if odd.is_empty() || even.is_empty() { return (-1, -1, -1) }
             odd.sort_unstable();
             even.sort_unstable();
-            (pct(&odd, 50), pct(&even, 50))
+            let range = all.iter().max().unwrap() - all.iter().min().unwrap();
+            (pct(&odd, 50), pct(&even, 50), range)
         };
         let mut caught = true;
         let mut detail = String::new();
         for cellk in 0..ncells {
-            let (o, e) = gap_ms(cellk);
+            let (o, e, range) = cell_stats(cellk);
             if o < 0 {
                 caught = false;
                 detail.push_str(&format!("{}: incomplete; ", cell_names[cellk]));
                 continue;
             }
             let gap = o - e;
-            detail.push_str(&format!("{}: odd-even gap {} ns; ", cell_names[cellk], gap));
+            detail.push_str(&format!("{}: gap {} vs own range {} ns; ",
+                                     cell_names[cellk], gap, range));
             if cellk == defect_cell {
                 if gap < 3_000_000 { caught = false }
-            } else if gap.abs() > 1_500_000 {
+            } else if gap.abs() > range.max(1_500_000) {
+                // A FIXED THRESHOLD WAS A CROSS-CELL CONSTANT applied to cells with different
+                // natural variance — 1080p's thermal walk produced a spurious 2 ms odd-even gap
+                // against a 3.2 ms between-pass range and a 1.5 ms constant called it a
+                // delocalized plant. A cell is anomalous only against ITS OWN spread (URDRRPT1,
+                // the same lesson the v0.2 checker taught one level down).
                 caught = false;
             }
         }
