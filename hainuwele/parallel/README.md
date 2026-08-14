@@ -68,6 +68,25 @@ range would have absorbed — a cross-cell constant applied to cells with differ
 variance, the v0.2 checker's lesson one level up. A non-planted cell is now judged anomalous only
 against its own spread.
 
+## `URDRFPD1` — the demo skeleton (`fpsdemo.rs`, wall-clock class, deliberately ungated)
+
+P3.1: the playable skeleton, carrying the tree's replay DNA. A workload that depends on player
+input is not reproducible unless the inputs are records, so `--play` (WASD + mouse-look over an
+unbounded integer heightfield, 1:1 fullscreen at the measured 720p operating point by default)
+RECORDS every frame's input to a trace, and `--replay` drives the same loop from the trace with
+the framebuffer digested every sixty frames — integer-only math end to end, so two replays of one
+trace must print identical digest chains, on one machine and across hosts. The digest is fnv64
+and says so: a divergence detector, never an attestation — committed records keep sha256 on the
+repo side. `--defect` is the red-first check in one run: a copy of every post-plant framebuffer
+carries one flipped byte, and the clean and planted chains must match before the plant and
+diverge at it. Cost rows (raster_ns / present_ns per segment) ride along unchanged from the
+probe, so the budget the envelope established is checked against the real moving workload.
+
+Said plainly, v0 is not the fp-chain: yaw plus a horizon-shift pitch approximation, world-anchored
+checker shading, and the probe's hash heightfield made unbounded — the ports verified against the
+gated modules' conformance vectors (fpquat, fppose, fpclip, the URDRHF1 canon) are P3.2, and this
+rung claims only the replay properties and the budget measurement.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
