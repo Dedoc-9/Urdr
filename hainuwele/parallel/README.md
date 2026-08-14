@@ -100,6 +100,27 @@ not a comment. The selfcheck core was compiled and RUN on the authoring containe
 before the named host ever builds them. `fppose`/`fpclip` integration and the committed
 workload-record rung are P3.2b.
 
+v1.1 is what first host contact taught. The operator's v1 run was green on every claim v1 could
+check and wrong on the one it couldn't — the picture: a green-and-magenta ribbon floating in sky.
+The repair path is the finding: the v1 trace bytes replayed HEADLESSLY on the authoring container
+reproduced the operator's 30-digest chain bit for bit, so the operator's frames could be examined
+off-host, and every defect below was measured in them before being fixed. The floor was
+backface-culled (`area > 0` kept one winding; ground below eye level winds the other way in
+screen space — terrain the camera walks on is two-sided now). The magenta was a byte carry
+(`wrapping_add` on a packed color with a saturated channel; colors are per-channel now, full
+relief range, depth-fogged). The keyboard never arrived (the trace: 0 keyed frames of 1800, no
+Esc — a WS_POPUP window from a console process doesn't take focus; v1.1 takes it explicitly and
+prints keyed/moused counts in every --play summary). A synthetic walk found two traversal defects
+no recorded run had reached — the render path truncated the camera to integer world units and the
+eye stepped discretely at tile edges; deltas are Q8 end to end, the eye stands on bilinear
+ground. The rasterizer's per-pixel multiplies and division became incremental adds, each adopted
+only after a bit-identical chain against its closed form. And `--play` now REFUSES an existing
+trace path — v1's default output was the exact filename of the operator's only recorded workload,
+one bare invocation from replacing it (a record is not a scratch path). The headless replay
+harness that made all of this measurable is the arc's new instrument: the math slice compiles
+anywhere, so an operator's trace plus their digest chain equals their session, reproducible on
+any machine that can run a compiler.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

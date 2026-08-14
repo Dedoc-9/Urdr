@@ -1,8 +1,43 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1).
+// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.1).
 //
+// v1.1 — WHAT FIRST HOST CONTACT FOUND, AND WHAT A HEADLESS REPLAY OF IT FIXED. The operator's
+// v1 run came back green on every claim v1 made — door, chains, plant — and wrong on the one
+// surface v1 could not check: the picture. The screenshots showed a thin green-and-magenta
+// ribbon floating in sky. The v1 trace bytes were then replayed HEADLESSLY on the authoring
+// container (the math slice compiles anywhere; only the Win32 shell is host-bound), the 30-digest
+// chain matched the operator's run bit for bit — so the replayed frames ARE the operator's
+// frames — and the defects fell out as measurements, not guesses:
+//
+//   * THE FLOOR WAS BACKFACE-CULLED. `area > 0` kept one winding; ground below eye level winds
+//     the other way in screen space (y grows downward), so the demo culled the entire floor of
+//     its own world. The ribbon was the set of far faces steep enough to survive. Terrain the
+//     camera walks on is two-sided now.
+//   * THE MAGENTA WAS A BYTE CARRY. wrapping_add(0x040404) on a packed color with a saturated
+//     green byte carried into red (255+4 = 0x103): every second triangle collapsed to magenta.
+//     And 92+h4*6 pinned everything above half height to one flat 255, erasing the relief the
+//     canon computes. Colors are per-channel now, full range, depth-fogged toward the sky band.
+//   * THE KEYBOARD NEVER ARRIVED. The v1 trace: 1800 frames, 0 keyed, 800 moused, no Esc exit —
+//     mouse-look POLLS the global cursor and works unfocused; WM_KEYDOWN rides the message
+//     queue, and a WS_POPUP window from a console process does not take focus from the console.
+//     v1.1 takes focus explicitly and the --play summary prints keyed/moused counts, so an
+//     input channel that went missing is a LINE IN THE LOG, not a mystery in a file.
+//   * A WALK NOBODY HAD TAKEN WAS ALREADY BROKEN. A synthetic walk trace through the headless
+//     harness showed the render path truncating the camera to INTEGER world units (a moving view
+//     snapped once per ~7 frames) and the eye stepping discretely at tile edges. Deltas are Q8
+//     end to end now, the eye stands on bilinearly interpolated ground, and the near clip is 2
+//     units (v1's 12-unit clip deleted the four nearest rings of ground).
+//   * THE FILL IS PAID FOR HONESTLY. Two-sided terrain rasterizes real coverage; the pixel loop
+//     dropped its per-pixel multiplies (incremental edge functions) and its per-pixel division
+//     (exact quotient/remainder stepping) — both proved BIT-IDENTICAL against the closed form
+//     on the full v1-trace chain before adoption. ~2.9x on the authoring container.
+//   * A RECORD IS NOT A SCRATCH PATH. v1's default --trace-out was the exact filename of the
+//     operator's only recorded workload; one bare `--play` would have replaced it. --play now
+//     REFUSES an existing trace path.
+//
+// v1 (unchanged below):
 // v0 established the replay properties on the named host: thirty digest checkpoints identical
 // across three replays of one recorded walk, the planted byte caught in one run, and the moving
 // workload inside the measured 720p envelope. v1 changes what the pixels ARE:
@@ -28,23 +63,31 @@
 // view/input constants; they touch presentation, never the certified kernels. fppose/fpclip
 // integration and the committed workload-record rung are P3.2b.
 //
-// RUN PROTOCOL (PowerShell, repo root, rustc >= 1.58, RED FIRST):
+// RUN PROTOCOL (PowerShell, repo root, rustc >= 1.58, RED FIRST). The v0 trace is an EVIDENCE
+// ARTIFACT — leave fpsdemo_trace.txt where it is; --play refuses to overwrite it, and the first
+// replay below is the CROSS-OS CHECK: the expected chain for the old trace under this build was
+// produced on the authoring container and is pinned in the delivery notes — a Windows run must
+// reproduce it digest for digest, or the demo's determinism claim dies right there.
 //   rustc -O --edition 2021 -o fpsdemo.exe hainuwele\parallel\fpsdemo.rs
-//   .\fpsdemo.exe --selfcheck                          # battery + 3 canon scenes, exit 0
-//   .\fpsdemo.exe --play --frames 1800                 # walk; trace written (v1 traces)
-//   .\fpsdemo.exe --replay fpsdemo_trace.txt           # digest chain + cost rows
-//   .\fpsdemo.exe --replay fpsdemo_trace.txt           # AGAIN — chains must be IDENTICAL
-//   .\fpsdemo.exe --replay fpsdemo_trace.txt --defect  # DIVERGED AT the plant, exit 0
-//   .\fpsdemo.exe --replay fpsdemo_trace.txt --host "ROG-Ally-X-Z2-Extreme" `
+//   .\fpsdemo.exe --selfcheck                              # battery + 3 canon scenes, exit 0
+//   .\fpsdemo.exe --replay fpsdemo_trace.txt               # v0 trace: chain must match the pin
+//   .\fpsdemo.exe --play --trace-out walk_v11.txt          # a REAL walk: WASD + mouse, Esc ends
+//   .\fpsdemo.exe --replay walk_v11.txt                    # twice — chains must be IDENTICAL
+//   .\fpsdemo.exe --replay walk_v11.txt                    #
+//   .\fpsdemo.exe --replay walk_v11.txt --defect           # DIVERGED AT the plant, exit 0
+//   .\fpsdemo.exe --replay walk_v11.txt --host "ROG-Ally-X-Z2-Extreme" `
 //                  --power "Turbo-35W-AC" --scheduler "Win11-GameMode-UltimatePerf"
 //
 // GRADE (honest, D5): the lifted kernels are the placements' bytes and the selfcheck holds them
-// to the placements' goldens at every start — and that selfcheck was COMPILED AND RUN on the
-// authoring container (Linux, rustc 1.95) before delivery: battery MATCHES GOLDEN, all three
-// canon scenes MATCH PIN, through the floored-divmod edit, which is the measured proof that the
-// unbounded extension is identity on the canon domain. The Win32 shell around the kernels
-// remains SPECULATIVE at link and runtime until the named host runs the protocol; every cost
-// number is NOT_MEASURED until then. declared != verified.
+// to the placements' goldens at every start — run again on the authoring container for v1.1:
+// battery MATCHES GOLDEN, all three canon scenes MATCH PIN. The RENDER PATH is now MEASURED on
+// two axes it never had: the v1 ribbon/magenta/no-keys defects were reproduced frame-identically
+// from the operator's own trace before being fixed, and every rasterizer optimization was
+// adopted only after producing a bit-identical 30-digest chain against its closed form. What
+// remains SPECULATIVE: the focus fix (SetForegroundWindow on THIS host's window manager), the
+// camera FEEL (sensitivity/signs — judged by the first real walk, which v1.1 finally makes
+// possible), and every wall-clock cost row until the named host runs the protocol.
+// declared != verified; a green gate never certified a picture.
 
 #![allow(non_snake_case, non_camel_case_types, dead_code)]
 
@@ -102,6 +145,8 @@ extern "system" {
     fn GetCursorPos(p: *mut POINT) -> i32;
     fn SetCursorPos(x: i32, y: i32) -> i32;
     fn ShowCursor(show: i32) -> i32;
+    fn SetForegroundWindow(h: HANDLE) -> i32;
+    fn SetFocus(h: HANDLE) -> HANDLE;
 }
 #[link(name = "gdi32")]
 extern "system" {
@@ -217,10 +262,12 @@ const W_SEED: i64 = 1958;
 const W_HS: i64 = 420;
 const W_LAYERS: [(i64, i64); 4] = [(48, 5), (12, 3), (6, 2), (3, 1)];
 const W_RAWMAX: i64 = 11 * VMAX;       // sum(amp) * VMAX for the layer set above
-const H_SCALE: i64 = 24;               // DECLARED view scale: canon 0..420 -> world 0..17
+const H_SCALE: i64 = 16;               // DECLARED view scale: canon 0..420 -> world 0..26
 const TILE: i64 = 3;
 const VIEW: i64 = 20;
-const NEAR8: i64 = 12 * 256;           // near clip in Q8 camera units
+const NEAR8: i64 = 2 * 256;            // near clip in Q8 camera units — v1's 12-unit clip threw
+                                       // away the four nearest rings of ground wholesale
+const FAR8: i64 = VIEW * TILE * 256;   // patch edge in Q8 — the depth-fog ruler
 
 fn raw_height(x: i64, y: i64) -> i64 {
     let mut raw = 0i64;
@@ -302,7 +349,19 @@ fn raster_world(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
     let (cx, cy) = (w as i64 / 2, h as i64 / 2);
     let cam_tile_x = floordiv(cam.px >> 8, TILE);
     let cam_tile_y = floordiv(cam.py >> 8, TILE);
-    let eye_z = world.h(cam_tile_x, cam_tile_y) + 6;
+    // THE EYE STANDS ON BILINEAR GROUND, IN Q8. v1 computed every world delta at INTEGER
+    // world resolution (cam.px >> 8), so a walking camera rendered from the same snapped
+    // position for ~7 frames and then jumped a whole unit — and eye height stepped discretely
+    // at tile boundaries. Both were invisible to every run so far because no recorded walk has
+    // ever moved (the v1 trace's keys never arrived; see the focus note at window creation).
+    // The synthetic-walk harness saw it before any operator had to. VIEW-layer, never canon.
+    let (rx8, ry8) = (cam.px - ((cam_tile_x * TILE) << 8), cam.py - ((cam_tile_y * TILE) << 8));
+    let (u, v) = (rx8 / TILE, ry8 / TILE);                       // 0..255 within the tile
+    let (h00, h10) = (world.h(cam_tile_x, cam_tile_y) << 8, world.h(cam_tile_x + 1, cam_tile_y) << 8);
+    let (h01, h11) = (world.h(cam_tile_x, cam_tile_y + 1) << 8, world.h(cam_tile_x + 1, cam_tile_y + 1) << 8);
+    let hx0 = h00 + (h10 - h00) * u / 256;
+    let hx1 = h01 + (h11 - h01) * u / 256;
+    let eye8 = hx0 + (hx1 - hx0) * v / 256 + (3 << 8);
     let qc = qconj(cam.q);
 
     let side = (2 * VIEW + 1) as usize;
@@ -310,11 +369,11 @@ fn raster_world(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
     for gy in -VIEW..=VIEW {
         for gx in -VIEW..=VIEW {
             let (wx, wy) = (cam_tile_x + gx, cam_tile_y + gy);
-            let dxw = wx * TILE - (cam.px >> 8);
-            let dyw = wy * TILE - (cam.py >> 8);
-            let dzw = world.h(wx, wy) - eye_z;
-            // world delta -> Q32.32 -> certified rotation -> Q8 camera space
-            let r = fx.vrotate(qc, V3 { x: dxw << 32, y: dyw << 32, z: dzw << 32 });
+            let dxw8 = ((wx * TILE) << 8) - cam.px;
+            let dyw8 = ((wy * TILE) << 8) - cam.py;
+            let dzw8 = (world.h(wx, wy) << 8) - eye8;
+            // Q8 world delta -> Q32.32 -> certified rotation -> Q8 camera space
+            let r = fx.vrotate(qc, V3 { x: dxw8 << 24, y: dyw8 << 24, z: dzw8 << 24 });
             let d8 = r.y >> 24;
             if d8 < NEAR8 { screen.push((i64::MIN, 0, 0)); continue }
             screen.push((cx + (r.x >> 24) * f / d8, cy - (r.z >> 24) * f / d8, d8));
@@ -326,34 +385,76 @@ fn raster_world(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
             let (wx, wy) = (cam_tile_x + gx, cam_tile_y + gy);
             let h4 = world.h(wx, wy) + world.h(wx + 1, wy) + world.h(wx, wy + 1)
                 + world.h(wx + 1, wy + 1);
-            let checker = (((wx ^ wy) & 1) * 18) as u32;
-            let g = ((92 + h4 * 6) as u32 + checker).min(255);
-            let color = ((g / 3 + 28) << 16) | (g << 8) | (g / 4 + 18);
-            let quad = [(idx(gx, gy), idx(gx + 1, gy), idx(gx, gy + 1), color),
-                        (idx(gx + 1, gy), idx(gx + 1, gy + 1), idx(gx, gy + 1),
-                         color.wrapping_add(0x00040404))];
-            for &(ia, ib, ic, col) in &quad {
-                let (a, b, cc) = (screen[ia], screen[ib], screen[ic]);
+            // v1's palette had TWO defects this line replaces. (1) SATURATION: 92 + h4*6
+            // pinned every tile above half height to one flat 255, erasing the relief the
+            // canon computes. (2) BYTE CARRY: color.wrapping_add(0x00040404) on a saturated
+            // green byte carried into the RED byte — 255+4 = 0x103 — collapsing green to 3
+            // and painting every second triangle MAGENTA. A packed color is not an integer.
+            let g = 56 + h4 * 2 + ((wx ^ wy) & 1) * 8;             // full relief range, 56..200
+            let quad = [(idx(gx, gy), idx(gx + 1, gy), idx(gx, gy + 1), g),
+                        (idx(gx + 1, gy), idx(gx + 1, gy + 1), idx(gx, gy + 1), g - 10)];
+            for &(ia, ib, ic, gt) in &quad {
+                let (a, mut b, mut cc) = (screen[ia], screen[ib], screen[ic]);
                 if a.0 == i64::MIN || b.0 == i64::MIN || cc.0 == i64::MIN { continue }
-                let area = (b.0 - a.0) * (cc.1 - a.1) - (b.1 - a.1) * (cc.0 - a.0);
-                if area <= 0 { continue }
+                // whole-triangle screen rejection: a near tile projects to a bbox far larger
+                // than the screen; when every vertex is off one edge nothing can be covered
+                if (a.0 < 0 && b.0 < 0 && cc.0 < 0) || (a.1 < 0 && b.1 < 0 && cc.1 < 0)
+                    || (a.0 >= w as i64 && b.0 >= w as i64 && cc.0 >= w as i64)
+                    || (a.1 >= h as i64 && b.1 >= h as i64 && cc.1 >= h as i64) { continue }
+                let mut area = (b.0 - a.0) * (cc.1 - a.1) - (b.1 - a.1) * (cc.0 - a.0);
+                if area == 0 { continue }
+                // v1 kept only area > 0 — and ground below eye level winds NEGATIVE in
+                // screen space (y grows downward), so the demo backface-culled the entire
+                // floor of its own world; the "ribbon" the operator photographed was the
+                // set of far faces steep enough to wind the other way. A heightfield the
+                // camera walks ON is rendered two-sided.
+                if area < 0 { std::mem::swap(&mut b, &mut cc); area = -area; }
+                // depth fog toward the sky band: per-channel integer blend, deterministic
+                let d3 = ((a.2 + b.2 + cc.2) / 3).clamp(0, FAR8);
+                let dim = 8 + 24 * (FAR8 - d3) / FAR8;             // 8..32 of 32
+                let ch3 = |near: i64, sky: i64| ((near * dim + sky * (32 - dim)) / 32) as u32;
+                let col = (ch3(gt / 3 + 24, 60) << 16) | (ch3(gt, 120) << 8) | ch3(gt / 4 + 16, 190);
                 let x_lo = a.0.min(b.0).min(cc.0).max(0);
                 let x_hi = a.0.max(b.0).max(cc.0).min(w as i64 - 1);
                 let y_lo = a.1.min(b.1).min(cc.1).max(0);
                 let y_hi = a.1.max(b.1).max(cc.1).min(h as i64 - 1);
                 if x_lo > x_hi || y_lo > y_hi { continue }
+                // incremental edge functions: the closed-form cross products are affine in
+                // (px, py), so each is seeded once per row and STEPPED by integer adds — the
+                // same exact values the per-pixel multiplies produced, cheaper by the width
+                let (dw0x, dw0y) = (-(b.1 - a.1), b.0 - a.0);
+                let (dw1x, dw1y) = (-(cc.1 - b.1), cc.0 - b.0);
+                let (dw2x, dw2y) = (-(a.1 - cc.1), a.0 - cc.0);
+                let mut w0r = (b.0 - a.0) * (y_lo - a.1) - (b.1 - a.1) * (x_lo - a.0);
+                let mut w1r = (cc.0 - b.0) * (y_lo - b.1) - (cc.1 - b.1) * (x_lo - b.0);
+                let mut w2r = (a.0 - cc.0) * (y_lo - cc.1) - (a.1 - cc.1) * (x_lo - cc.0);
+                // the depth divide leaves the pixel loop too: floor(zn/area) is maintained as
+                // an exact quotient/remainder pair stepped by adds — the container profile put
+                // ~80% of frame cost in this one i64 division, and depth is nonnegative inside
+                // coverage, so floor and the old truncation are the SAME integer (bit-identical
+                // digests, checked against the pre-optimization chain in the authoring harness)
+                let dznx = dw1x * a.2 + dw2x * b.2 + dw0x * cc.2;
+                let (dq, dr) = (dznx.div_euclid(area), dznx.rem_euclid(area));
                 for py in y_lo..=y_hi {
                     let row = (py * w as i64) as usize;
+                    let (mut w0, mut w1, mut w2) = (w0r, w1r, w2r);
+                    let zn = w1 * a.2 + w2 * b.2 + w0 * cc.2;
+                    let (mut q, mut r) = (zn.div_euclid(area), zn.rem_euclid(area));
+                    let mut entered = false;
                     for px in x_lo..=x_hi {
-                        let w0 = (b.0 - a.0) * (py - a.1) - (b.1 - a.1) * (px - a.0);
-                        let w1 = (cc.0 - b.0) * (py - b.1) - (cc.1 - b.1) * (px - b.0);
-                        let w2 = (a.0 - cc.0) * (py - cc.1) - (a.1 - cc.1) * (px - cc.0);
                         if w0 >= 0 && w1 >= 0 && w2 >= 0 {
-                            let d = ((w1 * a.2 + w2 * b.2 + w0 * cc.2) / area) as i32;
+                            entered = true;
+                            let d = q as i32;
                             let i = row + px as usize;
                             if d < zbuf[i] { zbuf[i] = d; buf[i] = col }
+                        } else if entered {
+                            break; // a convex row span is contiguous: once left, never re-entered
                         }
+                        w0 += dw0x; w1 += dw1x; w2 += dw2x;
+                        q += dq; r += dr;
+                        if r >= area { q += 1; r -= area }
                     }
+                    w0r += dw0y; w1r += dw1y; w2r += dw2y;
                 }
             }
         }
@@ -857,6 +958,15 @@ fn main() {
                    else { match load_trace(&args.replay) {
                        Ok(t) => t,
                        Err(e) => { eprintln!("FPSDEMO-REFUSE: {e}"); std::process::exit(2) } } };
+    // A RECORD IS NOT A SCRATCH PATH (attest's law, at this door): v1's default --trace-out was
+    // the exact filename of the operator's existing v0 recording, so one bare `--play` would
+    // have replaced the tree's only recorded workload with a different measurement wearing the
+    // same name. The only reason it survived is that a wrongly-typed invocation was refused.
+    if args.play && std::path::Path::new(&args.trace_out).exists() {
+        eprintln!("FPSDEMO-REFUSE: {} exists — a record is not a scratch path; pass \
+                   --trace-out <fresh name> or move the old record first", args.trace_out);
+        std::process::exit(2);
+    }
     let total_frames = if args.play { args.frames } else { trace_in.len() as u32 };
 
     let mut freq = 0i64;
@@ -886,6 +996,13 @@ fn main() {
     };
     assert!(hwnd != 0, "CreateWindowExW failed");
     unsafe { ShowWindow(hwnd, SW_SHOW) };
+    // THE KEYBOARD NEVER ARRIVED IN v1'S RECORDING, and the trace is the proof: 1800 frames,
+    // 0 carrying a key, 800 carrying mouse motion, no Esc exit. Mouse-look POLLS the global
+    // cursor (GetCursorPos), so it works without focus; WM_KEYDOWN rides the MESSAGE QUEUE,
+    // which only a FOCUSED window receives — and a WS_POPUP window created from a console
+    // process does not reliably take foreground focus from the console the operator typed
+    // into. The recorded walk had no legs because the window never had a keyboard.
+    unsafe { SetForegroundWindow(hwnd); SetFocus(hwnd); }
     let dc = unsafe { GetDC(hwnd) };
     unsafe { PatBlt(dc, 0, 0, scr_w, scr_h, BLACKNESS); }
     if args.play { unsafe { ShowCursor(0); } }
@@ -1001,7 +1118,10 @@ fn main() {
     if args.play { unsafe { ShowCursor(1); } }
 
     if args.play {
-        let mut t = String::from("# fpsdemo v0 input trace: keys dx dy (one line per frame)\n");
+        // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
+        // versions; the v0 recording replays under v1.1 as a cross-version workload) while
+        // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
+        let mut t = String::from("# fpsdemo v1.1 input trace: keys dx dy (one line per frame)\n");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}\n", k, dx, dy));
         }
@@ -1013,7 +1133,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
+        "fpsdemo v1.1 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, freq));
     log.push_str(&format!("timer_1ms_granted {}\n", timer_1ms_granted));
@@ -1034,7 +1154,18 @@ fn main() {
         log.push_str(&format!("digest frame {} fnv64 {:016x}\n", fr, d));
     }
     if args.play {
-        log.push_str(&format!("trace {} frames -> {}\n", trace_rec.len(), args.trace_out));
+        // THE INSTRUMENT CARRIES ITS OWN CONTROL (probelog's lesson, at the input layer): the
+        // v1 recording's defect was visible IN the trace — 0 keyed frames on a walk protocol —
+        // but only to someone who opened the file. The activity line puts it in the summary.
+        let keyed = trace_rec.iter().filter(|&&(k, _, _)| k != 0).count();
+        let moused = trace_rec.iter().filter(|&&(_, dx, dy)| dx != 0 || dy != 0).count();
+        log.push_str(&format!("trace {} frames -> {} | keyed {} | moused {}\n",
+                              trace_rec.len(), args.trace_out, keyed, moused));
+        if keyed == 0 {
+            log.push_str("NOTE: 0 frames carried a key — if WASD was pressed, the keyboard \
+                          never reached this window; this build takes focus explicitly, so a \
+                          second occurrence is a finding, not a repeat\n");
+        }
     }
     if args.host == "-" {
         log.push_str("NOTE: no --host given — cost rows here are NOT_MEASURED; digests are \
