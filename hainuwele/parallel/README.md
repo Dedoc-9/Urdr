@@ -82,10 +82,23 @@ carries one flipped byte, and the clean and planted chains must match before the
 diverge at it. Cost rows (raster_ns / present_ns per segment) ride along unchanged from the
 probe, so the budget the envelope established is checked against the real moving workload.
 
-Said plainly, v0 is not the fp-chain: yaw plus a horizon-shift pitch approximation, world-anchored
-checker shading, and the probe's hash heightfield made unbounded — the ports verified against the
-gated modules' conformance vectors (fpquat, fppose, fpclip, the URDRHF1 canon) are P3.2, and this
-rung claims only the replay properties and the budget measurement.
+Said plainly, v0 was not the fp-chain: yaw plus a horizon-shift pitch approximation and a hash
+heightfield; it claimed only the replay properties and the budget measurement — both verified on
+the named host (thirty digest checkpoints identical across three replays; the planted byte caught;
+the moving workload inside the envelope).
+
+v1 (P3.2a) makes the pixels certified. The Q32.32 quaternion substrate is lifted VERBATIM from
+`fpquat_rs` and the demo runs that placement's battery at every launch against the same golden the
+gate pins; mouse-look is real rotation (yaw world-frame, pitch local-frame, renormalized
+increments). The terrain is the URDRHF1 canon machinery lifted verbatim from `heightfield_rs`,
+reproducing all three pinned canon scenes at launch, with the world sampled from the canon
+"mountains" parameters over unbounded coordinates — the one edit is floored divmod in `noise16`,
+identical on the canon domain, and the selfcheck reproducing the canon digests through the edited
+function is the proof. A launch that fails its selfcheck refuses to run: conformance is the door,
+not a comment. The selfcheck core was compiled and RUN on the authoring container before delivery
+(battery and all three canon pins matching on Linux), so the kernels are cross-OS-reproduced
+before the named host ever builds them. `fppose`/`fpclip` integration and the committed
+workload-record rung are P3.2b.
 
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 

@@ -1,55 +1,50 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — P3.1: THE PLAYABLE SKELETON, CARRYING THE TREE'S REPLAY DNA (URDRFPD1, v0).
+// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1).
 //
-// P3's contract, as given: feed the real fp-chain / textured view into the loop WHILE PRESERVING
-// THE EMPIRICALLY ESTABLISHED RESOLUTION BUDGET. The budget came from pixelcost's six committed
-// records; this binary is where it gets spent, and the spending is measured with the same
-// instrumentation that established it (per-segment raster_ns / present_ns bands).
+// v0 established the replay properties on the named host: thirty digest checkpoints identical
+// across three replays of one recorded walk, the planted byte caught in one run, and the moving
+// workload inside the measured 720p envelope. v1 changes what the pixels ARE:
 //
-// THE DESIGN COMMITMENT, INHERITED FROM THE TREE: A WORKLOAD THAT DEPENDS ON PLAYER INPUT IS NOT
-// REPRODUCIBLE UNLESS THE INPUTS ARE RECORDS. So:
-//   --play               interactive: WASD + mouse-look over an unbounded integer heightfield,
-//                        720p 1:1 centered (the measured MARGINAL-at-120 operating point is the
-//                        default; --res and --hz choose another), and EVERY frame's input
-//                        (key bits, mouse dx, dy) is RECORDED to a trace file.
-//   --replay <trace>     the same loop driven by the recorded inputs instead of the devices.
-//                        The math is integer-only end to end, so a replay is BYTE-IDENTICAL:
-//                        the framebuffer is digested every 60 frames (fnv64 — named honestly: a
-//                        divergence detector, NOT a cryptographic pin; committed records keep
-//                        sha256 on the repo side) and the digest chain prints with the cost rows.
-//                        Two replays of one trace must print identical chains — on this machine
-//                        and across hosts, because nothing in the loop reads a float or a clock
-//                        to decide a pixel.
-//   --defect             replay mode, red-first: after frame 600 every frame's framebuffer is
-//                        COPIED, one byte of the copy is flipped, and both are digested — the
-//                        clean and planted chains must MATCH before the plant and DIVERGE at it,
-//                        in one run, no baseline needed. An instrument that cannot see one
-//                        flipped byte has no business certifying byte-identity (L23).
+//   * THE CAMERA IS THE CERTIFIED MATH. The Q32.32 quaternion substrate below — Fx, rdiv with
+//     round-to-nearest ties-away, the i64 refuse ceiling, qmul/qnormalize/vrotate/rsqrt — is
+//     LIFTED VERBATIM from tools/frontfps/fpquat_rs (URDRFPQ1, third placement), and the demo
+//     runs that placement's 66-row battery AT EVERY LAUNCH, comparing bit-for-bit against the
+//     same GOLDEN the gate pins. Mouse-look is real rotation now (yaw in the world frame, pitch
+//     in the local frame, small-angle increments renormalized each frame; the horizon-shift
+//     approximation is gone), and WASD walks the rotated ground plane.
+//   * THE TERRAIN IS THE CANON. The URDRHF1 machinery — seeded SHA lattice, Q16 quintic fade,
+//     floor-division value noise — is LIFTED VERBATIM from tools/terrain/heightfield_rs, and the
+//     demo reproduces all three pinned canon scenes (island / blank / mountains) at launch,
+//     digest-for-digest. The world is the canon "mountains" parameter set sampled over UNBOUNDED
+//     coordinates: the one edit is floored divmod in noise16, identical on the canon domain —
+//     and the selfcheck reproducing the canon digests through the edited function IS the proof.
+//     Heights arrive through a cache; first-visit tiles cost SHA evaluations, and that cost is
+//     REAL streaming cost the rows will show.
+//   * A LAUNCH THAT FAILS ITS SELFCHECK REFUSES TO RUN. Conformance is the door, not a comment.
 //
-// WHAT v0 IS NOT, SAID PLAINLY. The camera is yaw + a horizon-shift pitch approximation, not the
-// gated fp-chain: fpquat/fppose/fpclip land in P3.2 as ports verified against their committed
-// conformance vectors, and "textured" here means world-anchored checker + height shading, not
-// sampled textures. The terrain is the probe's hash heightfield made unbounded (the grid窗口
-// follows the camera), not the URDRHF1 canon — that port is also P3.2. Nothing here claims
-// conformance to any gated module yet; this rung's claims are the REPLAY properties and the
-// BUDGET measurement, and only those.
+// Vertical scale (canon heights 0..420 -> world units /24) and mouse sensitivity are DECLARED
+// view/input constants; they touch presentation, never the certified kernels. fppose/fpclip
+// integration and the committed workload-record rung are P3.2b.
 //
 // RUN PROTOCOL (PowerShell, repo root, rustc >= 1.58, RED FIRST):
 //   rustc -O --edition 2021 -o fpsdemo.exe hainuwele\parallel\fpsdemo.rs
-//   .\fpsdemo.exe --play --frames 1800                 # ~15 s: walk around; trace written
+//   .\fpsdemo.exe --selfcheck                          # battery + 3 canon scenes, exit 0
+//   .\fpsdemo.exe --play --frames 1800                 # walk; trace written (v1 traces)
 //   .\fpsdemo.exe --replay fpsdemo_trace.txt           # digest chain + cost rows
 //   .\fpsdemo.exe --replay fpsdemo_trace.txt           # AGAIN — chains must be IDENTICAL
-//   .\fpsdemo.exe --replay fpsdemo_trace.txt --defect  # must print DIVERGED AT the plant, exit 0
-//   # then a named cost run of the recorded trace:
+//   .\fpsdemo.exe --replay fpsdemo_trace.txt --defect  # DIVERGED AT the plant, exit 0
 //   .\fpsdemo.exe --replay fpsdemo_trace.txt --host "ROG-Ally-X-Z2-Extreme" `
 //                  --power "Turbo-35W-AC" --scheduler "Win11-GameMode-UltimatePerf"
 //
-// GRADE (honest, D5): the file is DECLARED; every number and every digest is NOT_MEASURED until
-// the named host runs it. Authored blind, type-checked only (no Windows link target here) —
-// SPECULATIVE at link and runtime, the probe's own birth-state, and its protocol found real
-// defects five times. declared != verified.
+// GRADE (honest, D5): the lifted kernels are the placements' bytes and the selfcheck holds them
+// to the placements' goldens at every start — and that selfcheck was COMPILED AND RUN on the
+// authoring container (Linux, rustc 1.95) before delivery: battery MATCHES GOLDEN, all three
+// canon scenes MATCH PIN, through the floored-divmod edit, which is the measured proof that the
+// unbounded extension is identity on the canon domain. The Win32 shell around the kernels
+// remains SPECULATIVE at link and runtime until the named host runs the protocol; every cost
+// number is NOT_MEASURED until then. declared != verified.
 
 #![allow(non_snake_case, non_camel_case_types, dead_code)]
 
@@ -215,18 +210,38 @@ fn sinq(a: i64) -> i64 {
 
 fn cosq(a: i64) -> i64 { sinq(a + 64) }
 
-// ---- the world: an unbounded integer heightfield (the grid window follows the camera) ---------
-const CP: i64 = 3355;              // pitch-shear reference; v0 pitch is a horizon shift
-const EYE_D: i64 = 64;
-const NEAR: i64 = 12;
-const TILE: i64 = 3;               // world units per tile edge
-const VIEW: i64 = 20;              // tiles visible in each direction from the camera tile
 
-fn height(x: i64, y: i64) -> i64 {
-    (sinq(x * 11) * 7 + sinq(y * 13) * 5) / 4096 + ((x * 73_856_093 ^ y * 19_349_663) >> 13 & 3)
+
+// ---- the world: the canon "mountains" parameter set over unbounded coordinates ----------------
+const W_SEED: i64 = 1958;
+const W_HS: i64 = 420;
+const W_LAYERS: [(i64, i64); 4] = [(48, 5), (12, 3), (6, 2), (3, 1)];
+const W_RAWMAX: i64 = 11 * VMAX;       // sum(amp) * VMAX for the layer set above
+const H_SCALE: i64 = 24;               // DECLARED view scale: canon 0..420 -> world 0..17
+const TILE: i64 = 3;
+const VIEW: i64 = 20;
+const NEAR8: i64 = 12 * 256;           // near clip in Q8 camera units
+
+fn raw_height(x: i64, y: i64) -> i64 {
+    let mut raw = 0i64;
+    for (li, &(cell, amp)) in W_LAYERS.iter().enumerate() {
+        raw += amp * noise16(W_SEED, li as i64, cell, x, y);
+    }
+    floordiv(raw * W_HS, W_RAWMAX)
 }
 
-// ---- fnv64: a DIVERGENCE DETECTOR, honestly named — not cryptographic, not an attestation ------
+struct World { cache: std::collections::HashMap<(i64, i64), i64> }
+impl World {
+    fn new() -> World { World { cache: std::collections::HashMap::new() } }
+    fn h(&mut self, x: i64, y: i64) -> i64 {
+        if let Some(&v) = self.cache.get(&(x, y)) { return v }
+        let v = floordiv(raw_height(x, y), H_SCALE);
+        self.cache.insert((x, y), v);
+        v
+    }
+}
+
+// ---- fnv64: a DIVERGENCE DETECTOR, honestly named — not cryptographic ------------------------
 fn fnv64(data: &[u32], seed: u64) -> u64 {
     let mut h = 0xcbf29ce484222325u64 ^ seed;
     for &px in data {
@@ -238,77 +253,81 @@ fn fnv64(data: &[u32], seed: u64) -> u64 {
     h
 }
 
-// ---- the camera and its inputs ----------------------------------------------------------------
-#[derive(Clone, Copy)]
-struct Cam {
-    px: i64,        // world position, Q8
-    py: i64,        // world position, Q8
-    yaw: i64,       // 0..4095 — a 256-step circle in 1/16 steps
-    pitch: i64,     // horizon shift in pixels (v0 approximation; fpquat lands in P3.2)
-}
+// ---- the certified camera ---------------------------------------------------------------------
+const SENS: i64 = ONE / 1024;          // DECLARED input scale: mouse count -> half-angle
+const PITCH_MAX: i64 = (ONE / 8) * 7;  // clamp on accumulated pitch half-angle sum
 
-fn step_cam(cam: &mut Cam, keys: u32, dx: i64, dy: i64) {
-    cam.yaw = ((cam.yaw + dx * 3) % 4096 + 4096) % 4096;
-    cam.pitch = (cam.pitch - dy * 2).clamp(-220, 220);
-    let (s, c) = (sinq(cam.yaw / 16), cosq(cam.yaw / 16));
+struct Cam { q: Q4, pitch_acc: i64, px: i64, py: i64 }   // px, py in Q8 world units
+
+fn qconj(q: Q4) -> Q4 { Q4 { w: q.w, x: -q.x, y: -q.y, z: -q.z } }
+
+fn step_cam(fx: &mut Fx, cam: &mut Cam, keys: u32, dx: i64, dy: i64) {
+    // yaw: world-frame Z increment; pitch: local-frame X increment, clamped by accumulation.
+    let yaw_half = -dx * SENS / 8;
+    let want = (cam.pitch_acc - dy * SENS / 8).clamp(-PITCH_MAX, PITCH_MAX);
+    let pitch_half = want - cam.pitch_acc;
+    cam.pitch_acc = want;
+    let dq_yaw = fx.qnormalize(Q4 { w: ONE, x: 0, y: 0, z: yaw_half });
+    let dq_pitch = fx.qnormalize(Q4 { w: ONE, x: pitch_half, y: 0, z: 0 });
+    let q1 = fx.qmul(cam.q, dq_pitch);
+    let q2 = fx.qmul(dq_yaw, q1);
+    cam.q = fx.qnormalize(q2);
+
+    // WASD on the rotated ground plane: forward = q * (+Y), right = q * (+X), z discarded.
+    let fwd = fx.vrotate(cam.q, V3 { x: 0, y: ONE, z: 0 });
+    let rgt = fx.vrotate(cam.q, V3 { x: ONE, y: 0, z: 0 });
     let sp = 40i64;                                        // Q8 world units per frame
     let (mut mx, mut my) = (0i64, 0i64);
-    if keys & 1 != 0 { mx += s * sp / 4096; my += c * sp / 4096 }   // W: forward
-    if keys & 4 != 0 { mx -= s * sp / 4096; my -= c * sp / 4096 }   // S: back
-    if keys & 2 != 0 { mx -= c * sp / 4096; my += s * sp / 4096 }   // A: strafe left
-    if keys & 8 != 0 { mx += c * sp / 4096; my -= s * sp / 4096 }   // D: strafe right
+    if keys & 1 != 0 { mx += (fwd.x >> 24) * sp / 256; my += (fwd.y >> 24) * sp / 256 }
+    if keys & 4 != 0 { mx -= (fwd.x >> 24) * sp / 256; my -= (fwd.y >> 24) * sp / 256 }
+    if keys & 2 != 0 { mx -= (rgt.x >> 24) * sp / 256; my -= (rgt.y >> 24) * sp / 256 }
+    if keys & 8 != 0 { mx += (rgt.x >> 24) * sp / 256; my += (rgt.y >> 24) * sp / 256 }
     cam.px += mx;
     cam.py += my;
 }
 
-// ---- the renderer: camera-relative windowed grid, z-buffered, world-anchored checker ----------
-fn raster_world(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, cam: &Cam) {
-    let horizon = (h * 2 / 5 + cam.pitch as i32).clamp(0, h - 1);
+// ---- the renderer: certified rotation, windowed canon terrain ---------------------------------
+fn raster_world(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
+                cam: &Cam, world: &mut World) {
+    // sky: fixed gradient (the horizon is wherever the rotation puts the terrain now)
     for y in 0..h {
-        let c: u32 = if y < horizon {
-            let t = (y * 200 / horizon.max(1)) as u32;
-            (30 << 16) | ((70 + t / 3) << 8) | (130 + t / 2).min(255)
-        } else {
-            0x0030_3038
-        };
+        let t = (y * 200 / h.max(1)) as u32;
+        let c = (30 << 16) | ((70 + t / 3) << 8) | (130 + t / 2).min(255);
         let row = (y * w) as usize;
         for x in 0..w as usize { buf[row + x] = c }
     }
     for z in zbuf.iter_mut().take((w * h) as usize) { *z = i32::MAX }
 
-    let (s, c) = (sinq(cam.yaw / 16), cosq(cam.yaw / 16));
     let f = h as i64 * 2;
-    let (cx, cy) = (w as i64 / 2, h as i64 * 3 / 5 + cam.pitch);
-    let (tx0, ty0) = (cam.px >> 8, cam.py >> 8);           // camera tile (world units)
-    let cam_tile_x = tx0 / TILE;
-    let cam_tile_y = ty0 / TILE;
-    let eye_z = height(cam_tile_x, cam_tile_y) + 6;        // height-follow: feet on the terrain
+    let (cx, cy) = (w as i64 / 2, h as i64 / 2);
+    let cam_tile_x = floordiv(cam.px >> 8, TILE);
+    let cam_tile_y = floordiv(cam.py >> 8, TILE);
+    let eye_z = world.h(cam_tile_x, cam_tile_y) + 6;
+    let qc = qconj(cam.q);
 
-    // transform the (2*VIEW+1)^2 window of vertices around the camera tile
     let side = (2 * VIEW + 1) as usize;
     let mut screen: Vec<(i64, i64, i64)> = Vec::with_capacity(side * side);
     for gy in -VIEW..=VIEW {
         for gx in -VIEW..=VIEW {
             let (wx, wy) = (cam_tile_x + gx, cam_tile_y + gy);
-            let x0 = wx * TILE - (cam.px >> 8);
-            let y0 = wy * TILE - (cam.py >> 8);
-            let z0 = height(wx, wy) - eye_z;
-            let x1 = (x0 * c - y0 * s) / 4096;
-            let y1 = (x0 * s + y0 * c) / 4096;
-            let d = y1 + EYE_D;
-            if d < NEAR { screen.push((i64::MIN, 0, 0)); continue }
-            screen.push((cx + x1 * f / d, cy - (z0 * CP / 4096) * f / d, d));
+            let dxw = wx * TILE - (cam.px >> 8);
+            let dyw = wy * TILE - (cam.py >> 8);
+            let dzw = world.h(wx, wy) - eye_z;
+            // world delta -> Q32.32 -> certified rotation -> Q8 camera space
+            let r = fx.vrotate(qc, V3 { x: dxw << 32, y: dyw << 32, z: dzw << 32 });
+            let d8 = r.y >> 24;
+            if d8 < NEAR8 { screen.push((i64::MIN, 0, 0)); continue }
+            screen.push((cx + (r.x >> 24) * f / d8, cy - (r.z >> 24) * f / d8, d8));
         }
     }
     let idx = |gx: i64, gy: i64| ((gy + VIEW) * (2 * VIEW + 1) + gx + VIEW) as usize;
     for gy in -VIEW..VIEW {
         for gx in -VIEW..VIEW {
             let (wx, wy) = (cam_tile_x + gx, cam_tile_y + gy);
-            let h4 = height(wx, wy) + height(wx + 1, wy) + height(wx, wy + 1)
-                + height(wx + 1, wy + 1);
-            let checker = (((wx ^ wy) & 1) * 18) as u32;   // WORLD-anchored: movement is visible
-            let g = (92 + h4 * 6) as u32 + checker;
-            let g = g.min(255);
+            let h4 = world.h(wx, wy) + world.h(wx + 1, wy) + world.h(wx, wy + 1)
+                + world.h(wx + 1, wy + 1);
+            let checker = (((wx ^ wy) & 1) * 18) as u32;
+            let g = ((92 + h4 * 6) as u32 + checker).min(255);
             let color = ((g / 3 + 28) << 16) | (g << 8) | (g / 4 + 18);
             let quad = [(idx(gx, gy), idx(gx + 1, gy), idx(gx, gy + 1), color),
                         (idx(gx + 1, gy), idx(gx + 1, gy + 1), idx(gx, gy + 1),
@@ -346,16 +365,411 @@ fn raster_world(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, cam: &Cam) {
     }
 }
 
+// ---- the conformance door: the demo's math held to the placements' goldens -------------------
+const CANON_PINS: [(&str, &str); 3] = [
+    ("island", "7243652eb97adf557f336d7417ed19a769ea60764e1354f68f29e8b7b55cb222"),
+    ("blank", "7cc67f6769959ff09356f20b6a0999d7c3c397b30e4fb4addbfc04c342faa83e"),
+    ("mountains", "c57c56bee9650148b139b927aa1d036baca1f07d0a683982c01c4b17e1aa069e"),
+];
+
+fn selfcheck() -> bool {
+    let mut ok = true;
+    let mut fx = Fx::new();
+    let d = battery(&mut fx, false);
+    let batt_ok = d == GOLDEN && !fx.refused;
+    println!("selfcheck fpquat battery : {}", if batt_ok { "MATCHES GOLDEN" }
+             else { "MISMATCH — the camera math is NOT the certified math" });
+    ok &= batt_ok;
+    for s in scenes() {
+        let falloff = if s.island { "island" } else { "none" };
+        let heights = generate(s.w, s.h, s.seed, s.hs, &s.layers, s.island, s.fw);
+        let dig = field_digest(s.w, s.h, s.hs, s.sl, falloff, &heights);
+        let pin = CANON_PINS.iter().find(|&&(n, _)| n == s.name).map(|&(_, p)| p).unwrap_or("");
+        let hit = dig == pin;
+        println!("selfcheck canon {:9}: {}", s.name,
+                 if hit { "MATCHES PIN" } else { "MISMATCH — the terrain is NOT the canon" });
+        ok &= hit;
+    }
+    ok
+}
+
+
+const ONE: i64 = 1i64 << 32;
+const IMAX: i128 = (1i128 << 63) - 1;
+const COMP_MAX: i64 = 1i64 << 61;
+const GOLDEN: &str = "3f4aa0d172713a4bf26433c19e211fbd52e474bbae603ce0c665d145412b7e7a";
+
+
+
+// ---- the frozen laws (refusal is a sticky flag on the context) ------------------------
+struct Fx {
+    refused: bool,
+}
+
+#[derive(Clone, Copy)]
+struct Q4 { w: i64, x: i64, y: i64, z: i64 }
+#[derive(Clone, Copy)]
+struct V3 { x: i64, y: i64, z: i64 }
+
+impl Fx {
+    fn new() -> Fx { Fx { refused: false } }
+
+    fn rdiv(&mut self, p: i128, d: i128) -> i64 {
+        // round to nearest, ties away from zero (d > 0) — the FROZEN rule
+        let r = if p >= 0 { (2 * p + d) / (2 * d) } else { -((2 * (-p) + d) / (2 * d)) };
+        if r > IMAX || r < -IMAX { self.refused = true; return 0; }
+        r as i64
+    }
+    fn fin(&mut self, v: i64) -> i64 {
+        if v > COMP_MAX || v < -COMP_MAX { self.refused = true; }
+        v
+    }
+    fn qnorm2(&mut self, q: Q4) -> i64 {
+        self.fin(q.w); self.fin(q.x); self.fin(q.y); self.fin(q.z);
+        let s = (q.w as i128) * (q.w as i128) + (q.x as i128) * (q.x as i128)
+              + (q.y as i128) * (q.y as i128) + (q.z as i128) * (q.z as i128);
+        self.rdiv(s, ONE as i128)
+    }
+    fn qdot(&mut self, p: Q4, q: Q4) -> i64 {
+        let s = (p.w as i128) * (q.w as i128) + (p.x as i128) * (q.x as i128)
+              + (p.y as i128) * (q.y as i128) + (p.z as i128) * (q.z as i128);
+        self.rdiv(s, ONE as i128)
+    }
+    fn qmul(&mut self, p: Q4, q: Q4) -> Q4 {
+        let (pw, px, py, pz) = (p.w as i128, p.x as i128, p.y as i128, p.z as i128);
+        let (qw, qx, qy, qz) = (q.w as i128, q.x as i128, q.y as i128, q.z as i128);
+        Q4 {
+            w: self.rdiv(pw * qw - px * qx - py * qy - pz * qz, ONE as i128),
+            x: self.rdiv(pw * qx + px * qw + py * qz - pz * qy, ONE as i128),
+            y: self.rdiv(pw * qy - px * qz + py * qw + pz * qx, ONE as i128),
+            z: self.rdiv(pw * qz + px * qy - py * qx + pz * qw, ONE as i128),
+        }
+    }
+    fn rsqrt(&mut self, x: i64) -> i64 {
+        if x <= 0 { self.refused = true; return 0; }
+        let n: u128 = (1u128 << 96) / (x as u128);
+        let r = isqrt_newton(n);
+        if (r as i128) > IMAX { self.refused = true; return 0; }
+        r as i64
+    }
+    fn qnormalize(&mut self, q: Q4) -> Q4 {
+        let n2 = self.qnorm2(q);
+        if n2 <= 0 { self.refused = true; return Q4 { w: 0, x: 0, y: 0, z: 0 }; }
+        let r = self.rsqrt(n2) as i128;
+        Q4 {
+            w: self.rdiv(q.w as i128 * r, ONE as i128),
+            x: self.rdiv(q.x as i128 * r, ONE as i128),
+            y: self.rdiv(q.y as i128 * r, ONE as i128),
+            z: self.rdiv(q.z as i128 * r, ONE as i128),
+        }
+    }
+    fn vrotate(&mut self, q: Q4, v: V3) -> V3 {
+        let tx = 2 * self.rdiv(q.y as i128 * v.z as i128 - q.z as i128 * v.y as i128, ONE as i128);
+        let ty = 2 * self.rdiv(q.z as i128 * v.x as i128 - q.x as i128 * v.z as i128, ONE as i128);
+        let tz = 2 * self.rdiv(q.x as i128 * v.y as i128 - q.y as i128 * v.x as i128, ONE as i128);
+        V3 {
+            x: v.x + self.rdiv(q.w as i128 * tx as i128, ONE as i128)
+                 + self.rdiv(q.y as i128 * tz as i128 - q.z as i128 * ty as i128, ONE as i128),
+            y: v.y + self.rdiv(q.w as i128 * ty as i128, ONE as i128)
+                 + self.rdiv(q.z as i128 * tx as i128 - q.x as i128 * tz as i128, ONE as i128),
+            z: v.z + self.rdiv(q.w as i128 * tz as i128, ONE as i128)
+                 + self.rdiv(q.x as i128 * ty as i128 - q.y as i128 * tx as i128, ONE as i128),
+        }
+    }
+    fn qnlerp(&mut self, p: Q4, q0: Q4, t: i64) -> Q4 {
+        if t < 0 || t > ONE { self.refused = true; return Q4 { w: 0, x: 0, y: 0, z: 0 }; }
+        let mut q = q0;
+        if self.qdot(p, q) < 0 { q = Q4 { w: -q.w, x: -q.x, y: -q.y, z: -q.z }; }
+        let li = (ONE - t) as i128;
+        let ti = t as i128;
+        let b = Q4 {
+            w: self.rdiv(p.w as i128 * li + q.w as i128 * ti, ONE as i128),
+            x: self.rdiv(p.x as i128 * li + q.x as i128 * ti, ONE as i128),
+            y: self.rdiv(p.y as i128 * li + q.y as i128 * ti, ONE as i128),
+            z: self.rdiv(p.z as i128 * li + q.z as i128 * ti, ONE as i128),
+        };
+        self.qnormalize(b)
+    }
+    // wrap64 defect variants (norm2 + qmul only, mirroring reference + C defects)
+    fn qnorm2_w(&mut self, q: Q4) -> i64 {
+        let s = w64(w64(w64((q.w as i128) * (q.w as i128)) as i128 + w64((q.x as i128) * (q.x as i128)) as i128) as i128
+                  + w64(w64((q.y as i128) * (q.y as i128)) as i128 + w64((q.z as i128) * (q.z as i128)) as i128) as i128);
+        self.rdiv(s as i128, ONE as i128)
+    }
+    fn qmul_w(&mut self, p: Q4, q: Q4) -> Q4 {
+        let m = |a: i64, b: i64| -> i64 { w64((a as i128) * (b as i128)) };
+        let w_ = w64(w64(w64(m(p.w, q.w) as i128 - m(p.x, q.x) as i128) as i128
+                       - w64(m(p.y, q.y) as i128 + m(p.z, q.z) as i128) as i128) as i128);
+        let x_ = w64(w64(w64(m(p.w, q.x) as i128 + m(p.x, q.w) as i128) as i128
+                       + w64(m(p.y, q.z) as i128 - m(p.z, q.y) as i128) as i128) as i128);
+        let y_ = w64(w64(w64(m(p.w, q.y) as i128 - m(p.x, q.z) as i128) as i128
+                       + w64(m(p.y, q.w) as i128 + m(p.z, q.x) as i128) as i128) as i128);
+        let z_ = w64(w64(w64(m(p.w, q.z) as i128 + m(p.x, q.y) as i128) as i128
+                       - w64(m(p.y, q.x) as i128 - m(p.z, q.w) as i128) as i128) as i128);
+        Q4 {
+            w: self.rdiv(w_ as i128, ONE as i128),
+            x: self.rdiv(x_ as i128, ONE as i128),
+            y: self.rdiv(y_ as i128, ONE as i128),
+            z: self.rdiv(z_ as i128, ONE as i128),
+        }
+    }
+}
+
+fn w64(v: i128) -> i64 {
+    // two's-complement i64 wrap — DEFECT ONLY (the real laws refuse, never wrap)
+    (v as u64) as i64
+}
+
+fn isqrt_newton(n: u128) -> u128 {
+    if n < 2 { return n; }
+    let bl = 128 - n.leading_zeros() as i32;
+    let mut r: u128 = 1u128 << ((bl + 1) / 2);
+    loop {
+        let nr = (r + n / r) >> 1;
+        if nr >= r { break; }
+        r = nr;
+    }
+    // belt-and-braces adjustment (provably unreachable for this stop rule; kept
+    // so a mis-ported Newton variant still lands exactly on floor(sqrt(n)))
+    while r * r > n { r -= 1; }
+    while (r + 1) * (r + 1) <= n { r += 1; }
+    r
+}
+
+
+
+// ---- battery (mirrors fpquat.py constants and row order exactly) ----------------------
+fn battery(fx: &mut Fx, defect: bool) -> String {
+    let h2 = ONE / 2;
+    let q3 = 3 * ONE / 4;
+    let t3 = ONE / 3;
+    let quats = [
+        Q4 { w: ONE, x: 0, y: 0, z: 0 },
+        Q4 { w: ONE, x: h2, y: 0, z: 0 },
+        Q4 { w: ONE, x: h2, y: q3, z: -t3 },
+        Q4 { w: 3 * ONE, x: -2 * ONE, y: ONE, z: h2 },
+    ];
+    let vecs = [
+        V3 { x: ONE, y: 0, z: 0 },
+        V3 { x: 0, y: ONE, z: 0 },
+        V3 { x: h2, y: q3, z: -ONE },
+        V3 { x: 5 * ONE, y: -3 * ONE, z: 2 * ONE + 12345 },
+    ];
+    let rsq: [i64; 10] = [1, 2, ONE / 4, h2, ONE, 2 * ONE, 3 * ONE, 10 * ONE,
+                          (1i64 << 48) + 7919, COMP_MAX];
+    let nt: [i64; 4] = [0, ONE / 4, h2, ONE];
+
+    let mut buf: Vec<u8> = Vec::with_capacity(8192);
+    buf.extend_from_slice(b"URDRFPQ1");
+    let put = |buf: &mut Vec<u8>, v: i64| buf.extend_from_slice(&v.to_be_bytes());
+
+    for &x in rsq.iter() {
+        buf.extend_from_slice(b"rsqrt");
+        let r = fx.rsqrt(x);
+        put(&mut buf, r);
+    }
+    for &q in quats.iter() {
+        buf.extend_from_slice(b"norm2");
+        let n = if defect { w64(fx.qnorm2_w(q) as i128) } else { fx.qnorm2(q) };
+        put(&mut buf, n);
+    }
+    for &p in quats.iter() {
+        for &q in quats.iter() {
+            buf.extend_from_slice(b"qmul");
+            let r = if defect { fx.qmul_w(p, q) } else { fx.qmul(p, q) };
+            if defect {
+                put(&mut buf, w64(r.w as i128)); put(&mut buf, w64(r.x as i128));
+                put(&mut buf, w64(r.y as i128)); put(&mut buf, w64(r.z as i128));
+            } else {
+                put(&mut buf, r.w); put(&mut buf, r.x); put(&mut buf, r.y); put(&mut buf, r.z);
+            }
+        }
+    }
+    let mut units = [Q4 { w: 0, x: 0, y: 0, z: 0 }; 4];
+    for i in 0..4 {
+        units[i] = fx.qnormalize(quats[i]);
+        buf.extend_from_slice(b"normalize");
+        put(&mut buf, units[i].w); put(&mut buf, units[i].x);
+        put(&mut buf, units[i].y); put(&mut buf, units[i].z);
+    }
+    for &u in units.iter() {
+        for &v in vecs.iter() {
+            buf.extend_from_slice(b"rotate");
+            let r = fx.vrotate(u, v);
+            put(&mut buf, r.x); put(&mut buf, r.y); put(&mut buf, r.z);
+        }
+    }
+    for i in 0..4 {
+        for &t in nt.iter() {
+            buf.extend_from_slice(b"nlerp");
+            let r = fx.qnlerp(quats[i], quats[(i + 1) % 4], t);
+            put(&mut buf, r.w); put(&mut buf, r.x); put(&mut buf, r.y); put(&mut buf, r.z);
+        }
+    }
+    sha256_hex(&buf)
+}
+
+
+
+
+const FRAC: i64 = 1 << 16;             // Q16 interpolation substrate (== Python FRAC)
+const VMAX: i64 = 0xFFFF;              // lattice value range [0, VMAX]
+
+// Floored integer division for d > 0 — matches Python `//`. Rust `/` truncates toward zero, so a
+// negative numerator with a remainder is one too high; correct it down.
+fn floordiv(n: i64, d: i64) -> i64 {
+    if n % d != 0 && n < 0 { n / d - 1 } else { n / d }
+}
+
+// The seeded lattice value in [0, VMAX] — sha256("URDRHF1|seed|layer|xi|yi")[:4] big-endian & VMAX.
+fn lattice(seed: i64, layer: i64, xi: i64, yi: i64) -> i64 {
+    let s = format!("URDRHF1|{}|{}|{}|{}", seed, layer, xi, yi);
+    let d = sha256(s.as_bytes());
+    (u32::from_be_bytes([d[0], d[1], d[2], d[3]]) as i64) & VMAX
+}
+
+// The quintic fade 6t^5 - 15t^4 + 10t^3 in Q16, floor-rounded at each power (Python `_fade`).
+fn fade(t: i64) -> i64 {
+    let t2 = floordiv(t * t, FRAC);
+    let t3 = floordiv(t2 * t, FRAC);
+    let t4 = floordiv(t3 * t, FRAC);
+    let t5 = floordiv(t4 * t, FRAC);
+    6 * t5 - 15 * t4 + 10 * t3
+}
+
+// Seeded value noise at (x, y) for a lattice of `cell` size — bilinear under `fade`, Q16 floor math.
+fn noise16(seed: i64, layer: i64, cell: i64, x: i64, y: i64) -> i64 {
+    // FLOORED divmod: identical to `/`+`%` for x >= 0 (the canon domain — the selfcheck
+    // digests prove it bit-for-bit), and correct for the demo's unbounded coordinates.
+    let xi = floordiv(x, cell); let fx = x - xi * cell;
+    let yi = floordiv(y, cell); let fy = y - yi * cell;
+    let u = fade(floordiv(fx * FRAC, cell));
+    let v = fade(floordiv(fy * FRAC, cell));
+    let v00 = lattice(seed, layer, xi, yi);
+    let v10 = lattice(seed, layer, xi + 1, yi);
+    let v01 = lattice(seed, layer, xi, yi + 1);
+    let v11 = lattice(seed, layer, xi + 1, yi + 1);
+    let a = v00 + floordiv((v10 - v00) * u, FRAC); // v10 - v00 may be NEGATIVE — floordiv is load-bearing
+    let b = v01 + floordiv((v11 - v01) * u, FRAC);
+    a + floordiv((b - a) * v, FRAC)
+}
+
+// Sqrt-free radial island falloff in Q16: full inside r_in^2, zero outside r_out^2, linear in d^2.
+fn island_mask(x: i64, y: i64, w: i64, h: i64, fw: i64) -> i64 {
+    let cx2 = 2 * x - (w - 1);
+    let cy2 = 2 * y - (h - 1);
+    let d2 = cx2 * cx2 + cy2 * cy2;
+    let r_out2 = (w - 1) * (w - 1) + (h - 1) * (h - 1);
+    let r_in2 = floordiv(r_out2 * (256 - fw) * (256 - fw), 256 * 256);
+    if d2 >= r_out2 { return 0; }
+    if d2 <= r_in2 { return FRAC; }
+    floordiv((r_out2 - d2) * FRAC, r_out2 - r_in2)
+}
+
+// The heightfield: row-major ints in [0, hs]. Same inputs, same bytes — the whole point.
+fn generate(w: i64, h: i64, seed: i64, hs: i64, layers: &[(i64, i64)], island: bool, fw: i64) -> Vec<Vec<i64>> {
+    let rawmax: i64 = layers.iter().map(|&(_c, a)| a * VMAX).sum();
+    let mut rows = Vec::with_capacity(h as usize);
+    for y in 0..h {
+        let mut row = Vec::with_capacity(w as usize);
+        for x in 0..w {
+            let mut raw = 0i64;
+            for (li, &(cell, amp)) in layers.iter().enumerate() {
+                raw += amp * noise16(seed, li as i64, cell, x, y);
+            }
+            let mut hv = floordiv(raw * hs, rawmax);
+            if island {
+                hv = floordiv(hv * island_mask(x, y, w, h, fw), FRAC);
+            }
+            row.push(hv);
+        }
+        rows.push(row);
+    }
+    rows
+}
+
+// The URDRHF1 canon — SHA-256 over the declared header and the row-major heights (Python `field_digest`).
+fn field_digest(w: i64, h: i64, hs: i64, sl: i64, falloff: &str, heights: &[Vec<i64>]) -> String {
+    let mut m = Sha256::new();
+    m.update(b"URDRHF1");
+    m.update(format!("|{},{}|hs:{}|sl:{}|f:{}", w, h, hs, sl, falloff).as_bytes());
+    for row in heights {
+        m.update(b"|");
+        let joined: Vec<String> = row.iter().map(|v| v.to_string()).collect();
+        m.update(joined.join(",").as_bytes());
+    }
+    hex(&m.finish())
+}
+
+struct Scene { name: &'static str, w: i64, h: i64, seed: i64, hs: i64, sl: i64, layers: Vec<(i64, i64)>, island: bool, fw: i64 }
+
+fn scenes() -> Vec<Scene> {
+    vec![
+        Scene { name: "island",    w: 64, h: 64, seed: 2920741843, hs: 420, sl: 72, layers: vec![(32, 4), (16, 2), (8, 1)],           island: true,  fw: 90 },
+        Scene { name: "blank",     w: 16, h: 16, seed: 7,          hs: 100, sl: 30, layers: vec![(8, 1)],                             island: false, fw: 0 },
+        Scene { name: "mountains", w: 64, h: 64, seed: 1958,       hs: 420, sl: 40, layers: vec![(48, 5), (12, 3), (6, 2), (3, 1)],   island: false, fw: 0 },
+    ]
+}
+
+
+
+// ---- hand-rolled SHA-256 (verbatim from winding_rs / worldstep_rs) --------------------
+const K: [u32; 64] = [
+    0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+    0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+    0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+    0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+    0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+    0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+    0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+    0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2,
+];
+struct Sha256 { h: [u32; 8], buf: [u8; 64], n: usize, len: u64 }
+impl Sha256 {
+    fn new() -> Self { Sha256 { h: [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19], buf: [0; 64], n: 0, len: 0 } }
+    fn update(&mut self, data: &[u8]) { for &b in data { self.buf[self.n] = b; self.n += 1; self.len = self.len.wrapping_add(1); if self.n == 64 { self.process(); self.n = 0; } } }
+    fn process(&mut self) {
+        let mut w = [0u32; 64];
+        for i in 0..16 { w[i] = u32::from_be_bytes([self.buf[i*4], self.buf[i*4+1], self.buf[i*4+2], self.buf[i*4+3]]); }
+        for i in 16..64 { let s0 = w[i-15].rotate_right(7) ^ w[i-15].rotate_right(18) ^ (w[i-15] >> 3); let s1 = w[i-2].rotate_right(17) ^ w[i-2].rotate_right(19) ^ (w[i-2] >> 10); w[i] = w[i-16].wrapping_add(s0).wrapping_add(w[i-7]).wrapping_add(s1); }
+        let (mut a, mut b, mut c, mut d, mut e, mut f, mut g, mut hh) = (self.h[0],self.h[1],self.h[2],self.h[3],self.h[4],self.h[5],self.h[6],self.h[7]);
+        for i in 0..64 {
+            let s1 = e.rotate_right(6) ^ e.rotate_right(11) ^ e.rotate_right(25);
+            let ch = (e & f) ^ ((!e) & g);
+            let t1 = hh.wrapping_add(s1).wrapping_add(ch).wrapping_add(K[i]).wrapping_add(w[i]);
+            let s0 = a.rotate_right(2) ^ a.rotate_right(13) ^ a.rotate_right(22);
+            let maj = (a & b) ^ (a & c) ^ (b & c);
+            let t2 = s0.wrapping_add(maj);
+            hh = g; g = f; f = e; e = d.wrapping_add(t1); d = c; c = b; b = a; a = t1.wrapping_add(t2);
+        }
+        self.h[0]=self.h[0].wrapping_add(a); self.h[1]=self.h[1].wrapping_add(b); self.h[2]=self.h[2].wrapping_add(c); self.h[3]=self.h[3].wrapping_add(d);
+        self.h[4]=self.h[4].wrapping_add(e); self.h[5]=self.h[5].wrapping_add(f); self.h[6]=self.h[6].wrapping_add(g); self.h[7]=self.h[7].wrapping_add(hh);
+    }
+    fn finish(mut self) -> [u8; 32] {
+        let bitlen = self.len.wrapping_mul(8);
+        self.update(&[0x80]); while self.n != 56 { self.update(&[0x00]); }
+        let lb = bitlen.to_be_bytes(); self.update(&lb);
+        let mut out = [0u8; 32];
+        for i in 0..8 { out[i*4..i*4+4].copy_from_slice(&self.h[i].to_be_bytes()); }
+        out
+    }
+}
+fn sha256(data: &[u8]) -> [u8; 32] { let mut m = Sha256::new(); m.update(data); m.finish() }
+fn hex(b: &[u8]) -> String { let mut s = String::new(); for x in b { s.push_str(&format!("{:02x}", x)); } s }
+
+fn sha256_hex(data: &[u8]) -> String { hex(&sha256(data)) }
 // ---- the entry door ---------------------------------------------------------------------------
 struct Args {
     host: String, power: String, scheduler: String, hz: i64, frames: u32,
-    res: (i32, i32), play: bool, replay: String, defect: bool, trace_out: String, out: String,
+    res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool,
+    trace_out: String, out: String,
 }
 
 fn parse_argv() -> Result<Args, String> {
     let mut a = Args { host: "-".into(), power: "-".into(), scheduler: "-".into(), hz: 120,
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
-                       defect: false, trace_out: "fpsdemo_trace.txt".into(),
+                       defect: false, selfcheck_only: false,
+                       trace_out: "fpsdemo_trace.txt".into(),
                        out: "fpsdemo_log.txt".into() };
     let argv: Vec<String> = std::env::args().skip(1).collect();
     let mut i = 0;
@@ -382,13 +796,18 @@ fn parse_argv() -> Result<Args, String> {
             "--play" => a.play = true,
             "--replay" => a.replay = value(&mut i)?,
             "--defect" => a.defect = true,
+            "--selfcheck" => a.selfcheck_only = true,
             "--trace-out" => a.trace_out = value(&mut i)?,
             "--out" => a.out = value(&mut i)?,
             other => return Err(format!("unknown flag {other} — this door refuses")),
         }
         i += 1;
     }
-    if a.play == !a.replay.is_empty() {
+    if a.selfcheck_only {
+        if a.play || !a.replay.is_empty() {
+            return Err("--selfcheck runs alone".into());
+        }
+    } else if a.play == !a.replay.is_empty() {
         // both set, or neither: exactly one mode must be chosen
         return Err("choose exactly one of --play or --replay <trace>".into());
     }
@@ -422,6 +841,18 @@ fn main() {
         Ok(a) => a,
         Err(e) => { eprintln!("FPSDEMO-REFUSE: {e}"); std::process::exit(2) }
     };
+    // THE DOOR: the demo's math is the certified math, checked at every start — a launch that
+    // fails its selfcheck REFUSES to run, whatever mode was asked for.
+    let door = selfcheck();
+    if !door {
+        eprintln!("FPSDEMO-REFUSE: selfcheck failed — not running with uncertified math");
+        std::process::exit(1);
+    }
+    if args.selfcheck_only {
+        println!("selfcheck: ALL MATCH — the camera is URDRFPQ1's battery and the terrain is \
+                  URDRHF1's canon, bit for bit");
+        return;
+    }
     let trace_in = if args.replay.is_empty() { Vec::new() }
                    else { match load_trace(&args.replay) {
                        Ok(t) => t,
@@ -485,7 +916,9 @@ fn main() {
     let mut digests_planted: Vec<(u32, u64)> = Vec::new();
     const PLANT_FRAME: u32 = 600;
 
-    let mut cam = Cam { px: 0, py: 0, yaw: 0, pitch: 0 };
+    let mut fx_cam = Fx::new();
+    let mut world = World::new();
+    let mut cam = Cam { q: Q4 { w: ONE, x: 0, y: 0, z: 0 }, pitch_acc: 0, px: 0, py: 0 };
     let (center_x, center_y) = (scr_w / 2, scr_h / 2);
     if args.play { unsafe { SetCursorPos(center_x, center_y); } }
     let mut deadline = qpc() + ticks_per_frame;
@@ -515,11 +948,16 @@ fn main() {
         };
 
         let _t0 = qpc();
-        step_cam(&mut cam, keys, dx, dy);                  // the sim tick
+        step_cam(&mut fx_cam, &mut cam, keys, dx, dy);     // the sim tick (certified rotation)
+        if fx_cam.refused {
+            eprintln!("FPSDEMO-REFUSE: the fixed-point substrate refused mid-walk (overflow \
+                       ceiling) — this is a bug worth a paste, not a crash to hide");
+            std::process::exit(3);
+        }
         let _t_tick = qpc();
-        let _view = (cam.px, cam.py, cam.yaw, cam.pitch);  // the view export
+        let _view = (cam.px, cam.py, cam.q.w, cam.pitch_acc);   // the view export
         let t_view = qpc();
-        raster_world(&mut buf, &mut zbuf, cw, ch, &cam);
+        raster_world(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam, &mut world);
         let t_pixels = qpc();
         unsafe {
             StretchDIBits(dc, (scr_w - cw) / 2, (scr_h - ch) / 2, cw, ch,
@@ -575,7 +1013,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v0 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
+        "fpsdemo v1 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, freq));
     log.push_str(&format!("timer_1ms_granted {}\n", timer_1ms_granted));
