@@ -714,7 +714,13 @@ lawfully demote — a claim is not a ratchet), and 1920x1080 EXCEEDS on raster a
 1280x720 FITS and 1920x1080 stays UNDETERMINED, because the probe presents 1080p through a
 downscale the demo would not pay — probe v0.4's specification. 1080p's between-pass spread of
 ~3.1-3.2 ms (thermal) is the new named finding, and 2560x1440 has no verdict because it was not
-run.
+run. v1.2 closed the table: probe v0.5 put a present band in EVERY row at 1:1 fullscreen geometry
+(the click ritual was the instrument's defect, not the operator's), six records now feed the
+verdicts, the v0.3 chain-presents are demoted as superseded geometry, and NOTHING reads
+UNDETERMINED — at 120 Hz the ladder is FITS/MARGINAL/MARGINAL/EXCEEDS, and at 60 Hz everything
+below 1080p fits by ceiling while 1080p closes MARGINAL: median-viable with ~3.2 ms of room,
+ceiling-risky, said exactly that way. The ceilings keep a recorded mid-run background event,
+because a demo shares the machine with the OS too.
 
 THE ANSWER THE ARC WAS FOR, on the named host across five independent executions: moulding costs a
 CONSTANT penalty per rollback, flat across a depth axis over which the replay work grows nearly

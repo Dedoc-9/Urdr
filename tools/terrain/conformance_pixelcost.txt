@@ -9,7 +9,21 @@
 #
 # v1.1 (2026-08-14) — the four-cell records arrived CHAINLESS (no clicks), and the completeness
 # law split by what chains evidence: a chainless record supplies RASTER evidence and cannot supply
-# PRESENT evidence. Four committed records now feed the verdicts, and every verdict names which.
+# PRESENT evidence.
+#
+# v1.2 (2026-08-14) — probe v0.5 put a present band IN EVERY ROW at 1:1 fullscreen geometry, and
+# SIX records now feed the verdicts. The v0.3 chain-presents are DEMOTED from evidence entirely
+# (superseded geometry: they were measured through a scaled blit into a 1280x729 window); present
+# evidence comes exclusively from v0.5 rows. The committed v0.4 record (chains in all four cells,
+# preserved for the input-latency rung) is REFUSED by version dispatch, as a law. THE RESOLUTION
+# ENVELOPE IS COMPLETE — no verdict in either budget table reads UNDETERMINED:
+#   at 120 Hz: 640x360 FITS; 960x540 MARGINAL; 1280x720 MARGINAL; 1920x1080 EXCEEDS.
+#   at 60 Hz:  640x360, 960x540, 1280x720 FITS; 1920x1080 MARGINAL — the median fits with ~3.2 ms
+#              of room and the worst-record ceiling does not, so 1080p60 is a median-viable,
+#              ceiling-risky operating point on this device, said exactly that way.
+# The ceilings INCLUDE a mid-run background event run 5x1 recorded across all four cells at once
+# (passes 3-4 elevated simultaneously — a position effect the interleaved schedule makes
+# attributable); excluding it would be curation, and a demo shares the machine with the OS too.
 #
 # records — every record parses strictly; a row whose own n is under the floor is excluded and
 #           COUNTED (run 2's 720p pass 3 ran two frames before ESC — the live case); per-cell
@@ -40,5 +54,5 @@
 #
 # DECLARED: MIN_N, MIN_PASSES, the ruler's construction, the budget's composition.
 
-records 7a318d60766f3656522d3d7d607c805e6fecc96998244e6725249d0a1bce2ab9
-verdict 0bbf85736c8e7c5e5058c266c74881044b9f63f4a4b9b09b795b39ad49f8debd
+records a21fe88a848b408b2e7785089be880a3dafe7e83f33102efab441079c86a63fc
+verdict 5e08a7fc13e3ac282f82cf57db7194bb6f51715f513640d634c2fab91e87e82b

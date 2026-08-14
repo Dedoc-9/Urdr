@@ -111,9 +111,24 @@ RECORDS = (
      "7acb9806fbc334b6ba7fd7ee953afb58c51f6fd81fe549ae1905936f2c8b2cf0"),
     ("spec/attest/present_probe-allyx-v03-1080-run2.txt",
      "e6c51aed9aba2a001112a39842451f011c76d4d4fceff4b792f991bcd3955944"),
+    # v1.2 — present_probe v0.5: per-row present bands at 1:1 fullscreen geometry, no clicks
+    # needed. THE ONLY ADMISSIBLE PRESENT EVIDENCE — see PRESENT_GEOMETRY below.
+    ("spec/attest/present_probe-allyx-v05-run1.txt",
+     "f0a55174a795d9e08235d58cb85b949e7258dafecf645370084d71b3cec72e46"),
+    ("spec/attest/present_probe-allyx-v05-run2.txt",
+     "74abaecaee883b9d3739ffb01512e508706a06dda00b2b3a17b65c4a4b9a30a0"),
 )
 
-VERSION = "present_probe v0.3"
+#: The committed v0.4 record (chains in all four cells at 1:1) is NOT in RECORDS: its format has
+#: no per-row present bands and its chains measure INPUT LATENCY, a different question — it is
+#: preserved at spec/attest/present_probe-allyx-v04-chains.txt for the latency rung, and this
+#: module's version dispatch REFUSES it, demonstrated as a law.
+V04_RECORD = "spec/attest/present_probe-allyx-v04-chains.txt"
+
+#: Admitted formats. v0.3: 14-field rows, raster evidence only (its chain-presents were measured
+#: through a scaled blit into a 1280x729 window — SUPERSEDED GEOMETRY, demoted from evidence when
+#: 1:1 rows arrived). v0.5: 18-field rows carrying per-segment present bands at 1:1. v0.4 refused.
+VERSIONS = {"present_probe v0.3": 14, "present_probe v0.5": 18}
 
 #: DECLARED — a row with fewer terrain frames than this cannot carry a median band. Run 2's
 #: 720p pass 3 ran TWO frames before ESC; a 2-sample median is a coin toss wearing a number.
@@ -156,9 +171,12 @@ def parse(text):
     if len(lines) < 8:
         raise PixelcostError(f"log too short: {len(lines)} lines")
     head = [p.strip() for p in lines[0].split("|")]
-    if head[0].strip() != VERSION:
-        raise PixelcostError(f"version {head[0].strip()!r} is not {VERSION!r} — earlier probe "
-                             f"formats had defects their own runs found; refused")
+    ver = head[0].strip()
+    if ver not in VERSIONS:
+        raise PixelcostError(f"version {ver!r} is not admitted ({sorted(VERSIONS)}) — earlier "
+                             f"formats had defects their own runs found, and v0.4's present "
+                             f"chains await the latency rung; refused")
+    want_fields = VERSIONS[ver]
     fields = {}
     for part in head[1:]:
         k, _, v = part.partition(" ")
@@ -172,14 +190,21 @@ def parse(text):
         parts = ln.split()
         if not parts:
             continue
-        if parts[0] == "cell" and len(parts) == 14:
-            # cell WxH pass P n N raster_ns LO MED HI late L flash F
+        if parts[0] == "cell" and len(parts) == want_fields:
             w, h = parts[1].split("x")
-            rows.append({"cell": parts[1], "px": int(w) * int(h), "p": int(parts[3]),
-                         "n": int(parts[5]), "lo": int(parts[7]), "med": int(parts[8]),
-                         "hi": int(parts[9]), "late": int(parts[11]), "flash": int(parts[13])})
+            row = {"cell": parts[1], "px": int(w) * int(h), "p": int(parts[3]),
+                   "n": int(parts[5]), "lo": int(parts[7]), "med": int(parts[8]),
+                   "hi": int(parts[9])}
+            if want_fields == 18:
+                # cell WxH pass P n N raster_ns L M H present_ns L M H late L flash F
+                row.update({"present_med": int(parts[12]), "present_hi": int(parts[13]),
+                            "late": int(parts[15]), "flash": int(parts[17])})
+            else:
+                row.update({"present_med": None, "present_hi": None,
+                            "late": int(parts[11]), "flash": int(parts[13])})
+            rows.append(row)
         elif parts[0] == "cell":
-            raise PixelcostError(f"cell row has {len(parts)} fields, wants 14: {ln!r}")
+            raise PixelcostError(f"cell row has {len(parts)} fields, wants {want_fields}: {ln!r}")
         elif len(parts) == 7 and parts[0].lstrip("-").isdigit():
             chains.append({"present": int(parts[4]), "cell": parts[6]})
     # v1.1: chains MAY be empty — a chainless record supplies RASTER evidence and cannot supply
@@ -227,12 +252,13 @@ def cell_summary(parsed):
             raise PixelcostError(f"cell {name}: {len(rs)} usable passes < {MIN_PASSES} — no "
                                  f"between-pass ruler exists")
         meds = [r["med"] for r in rs]
-        pres = [c["present"] for c in parsed["chains"] if c["cell"] == name]
+        pres_meds = [r["present_med"] for r in rs if r["present_med"] is not None]
+        pres_his = [r["present_hi"] for r in rs if r["present_hi"] is not None]
         out[name] = {"px": px, "passes": len(rs), "med": _mid(meds),
                      "spread": max(meds) - min(meds),
                      "lo": min(r["lo"] for r in rs), "hi": max(r["hi"] for r in rs),
-                     "present_med": _mid(pres) if pres else None,
-                     "present_hi": max(pres) if pres else None}
+                     "present_med": _mid(pres_meds) if pres_meds else None,
+                     "present_hi": max(pres_his) if pres_his else None}
     return out
 
 
@@ -364,12 +390,29 @@ def a_chainless_record_supplies_no_present_evidence(parsed_chainless):
 
 
 def a_cell_without_present_cannot_read_FITS(summaries, hz):
-    """The one-sided verdict law: 1920x1080 has no present band anywhere, so FITS is structurally
-    unreachable for it — only EXCEEDS (raster alone busts the slot) or UNDETERMINED."""
-    b = budget_verdicts(summaries, hz)
+    """The one-sided verdict law, held even now that every cell has a band: restrict the view to
+    the v0.3 records (no present anywhere) and 1920x1080 must read only EXCEEDS or UNDETERMINED —
+    FITS stays structurally unreachable without the sum's second term."""
+    v03_only = [x for x in summaries if all(v["present_med"] is None for v in x.values())]
+    if not v03_only:
+        return False
+    b = budget_verdicts(v03_only, hz)
     x = b.get("1920x1080")
     return x is not None and not x["present_measured"] and x["budget"] in ("EXCEEDS",
                                                                            "UNDETERMINED")
+
+
+def a_v04_record_refuses():
+    """The committed v0.4 record (chains in all four cells, preserved for the latency rung) is
+    REFUSED by this module's version dispatch — its format has no per-row present bands, and
+    admitting its chain-presents would mix questions the way v1.0 did."""
+    with open(_os.path.join(_ROOT, V04_RECORD), encoding="utf-8", newline="") as fh:
+        t = fh.read()
+    try:
+        parse(t)
+        return False
+    except PixelcostError as e:
+        return "v0.4" in str(e) or "not admitted" in str(e)
 
 
 def a_thin_row_is_excluded_by_its_own_n(parsed_run2):
@@ -426,13 +469,14 @@ def scene_case(name):
                 % (n, v["budget"], v["med_total"], v["hi_total"], v["present_measured"],
                    v["records"], v["run_spread"]) for n, v in b.items())))
         return ("form=%s sign_consistent=%s|%s||%s||dup=%s cond=%s v01=%s thin=%s "
-                "chainless=%s onesided=%s noextrap=%s" % (
+                "chainless=%s onesided=%s v04=%s noextrap=%s" % (
                     f["final"], f["sign_consistent"], per, "||".join(tables),
                     a_duplicate_record_refuses(), a_condition_less_record_refuses(),
                     a_v01_record_refuses(),
                     a_thin_row_is_excluded_by_its_own_n(parsed[1]),
                     a_chainless_record_supplies_no_present_evidence(parsed[2]),
                     a_cell_without_present_cannot_read_FITS(summaries, parsed[0]["hz"]),
+                    a_v04_record_refuses(),
                     extrapolation_is_structurally_impossible_check(summaries, parsed[0]["hz"])))
     raise PixelcostError(f"no scene named {name!r}")
 

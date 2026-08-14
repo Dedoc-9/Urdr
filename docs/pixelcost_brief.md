@@ -103,6 +103,24 @@ The duplicate-digest law fired in the wild a second time before the real runs ar
 `Copy-Item` pair, a 79-frame fragment copied twice), which is exactly the recurring shape the law
 was pinned for.
 
+## v1.2 — the envelope closes
+
+Probe v0.5 removed the click ritual (the present cost was measured every frame all along; only
+the *reporting* was welded to the latency chain) and put a present band in every row at 1:1
+fullscreen geometry. Two complete v0.5 executions joined the record set — six records, two
+admitted formats — and present evidence now comes exclusively from v0.5 rows, with the v0.3
+chain-presents demoted as superseded geometry and the v0.4 chains record preserved for the
+input-latency rung but refused here by version dispatch.
+
+The last UNDETERMINED closed on evidence: **1080p at 60 Hz is MARGINAL** — median ~13.4 ms
+against the 16.67 ms slot, worst-record ceiling above it. A median-viable, ceiling-risky
+operating point, stated that way rather than rounded to yes or no. The full measured menu: 360p
+fits 120 Hz outright; 540p and 720p fit 120 Hz by median with ceiling excursions; everything
+below 1080p fits 60 Hz by ceiling; 1080p120 is refuted. The ceilings retain run 5's recorded
+mid-run background event — elevated passes across all four cells simultaneously, a position
+effect the interleaved schedule makes attributable — because a demo shares the machine with the
+OS, and curating it out would be inflation.
+
 ## `does_not_show`
 
 The bands bound this probe's renderer — integer edge-function fill plus GDI blit — on this

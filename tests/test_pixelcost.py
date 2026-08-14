@@ -40,13 +40,24 @@ class TheRecords(unittest.TestCase):
     def test_an_earlier_probe_version_refuses(self):
         self.assertTrue(PX.a_v01_record_refuses())
 
-    def test_a_chainless_record_admits_but_supplies_no_present_evidence(self):
-        """v1.1's split of the conflated completeness law: the four-cell records have no clicks;
-        their raster rows count and their present bands are None — they cannot say what
-        presenting costs."""
+    def test_a_chainless_v03_record_admits_but_supplies_no_present_evidence(self):
         parsed = PX.admit()
         self.assertTrue(PX.a_chainless_record_supplies_no_present_evidence(parsed[2]))
         self.assertTrue(PX.a_chainless_record_supplies_no_present_evidence(parsed[3]))
+
+    def test_a_v05_record_supplies_present_bands_with_no_clicks(self):
+        """v1.2: the cost band rides in every row; the click ritual is gone."""
+        parsed = PX.admit()
+        for q in (parsed[4], parsed[5]):
+            self.assertEqual(len(q["chains"]), 0)
+            s = PX.cell_summary(q)
+            for name, v in s.items():
+                self.assertIsNotNone(v["present_med"], name)
+
+    def test_the_v04_record_is_refused_by_version_dispatch(self):
+        """Preserved for the latency rung; its chain-presents may not re-enter the cost question
+        the way v1.0 mixed them."""
+        self.assertTrue(PX.a_v04_record_refuses())
 
     def test_a_malformed_cell_row_refuses(self):
         with self.assertRaises(PX.PixelcostError):
@@ -71,7 +82,7 @@ class TheVerdicts(unittest.TestCase):
         f = PX.form_verdict(self.summaries)
         self.assertEqual(f["final"], "UNDETERMINED")
         self.assertTrue(f["sign_consistent"])
-        self.assertEqual(len(f["per_run"]), 4)
+        self.assertEqual(len(f["per_run"]), 6)
         for r in f["per_run"]:
             self.assertLess(r["residual"], 0)
             self.assertLess(abs(r["residual"]), r["ruler"])
@@ -84,19 +95,25 @@ class TheVerdicts(unittest.TestCase):
         missing present band still permits."""
         b = PX.budget_verdicts(self.summaries, self.parsed[0]["hz"])
         self.assertEqual(b["640x360"]["budget"], "FITS")
-        self.assertEqual(b["960x540"]["budget"], "FITS")
+        self.assertEqual(b["960x540"]["budget"], "MARGINAL")
         self.assertEqual(b["1280x720"]["budget"], "MARGINAL")
         self.assertGreater(b["1280x720"]["hi_total"], b["1280x720"]["slot"])
         self.assertLessEqual(b["1280x720"]["med_total"], b["1280x720"]["slot"])
         self.assertEqual(b["1920x1080"]["budget"], "EXCEEDS")
-        self.assertFalse(b["1920x1080"]["present_measured"])
+        self.assertTrue(b["1920x1080"]["present_measured"])
 
-    def test_the_budget_at_60Hz_is_split_honestly(self):
-        """720p FITS the 16.67 ms slot by ceiling; 1080p is UNDETERMINED — raster alone does not
-        bust it and the present band is unmeasured, so FITS is unreachable."""
+    def test_the_60Hz_table_is_complete_and_1080p_closes_MARGINAL(self):
+        """THE LAST UNDETERMINED CLOSES: 1080p60's median fits with ~3.2 ms of room and its
+        worst-record ceiling does not — a median-viable, ceiling-risky operating point, said
+        exactly that way. Nothing in either table reads UNDETERMINED."""
         b = PX.budget_verdicts(self.summaries, 60)
-        self.assertEqual(b["1280x720"]["budget"], "FITS")
-        self.assertEqual(b["1920x1080"]["budget"], "UNDETERMINED")
+        for name in ("640x360", "960x540", "1280x720"):
+            self.assertEqual(b[name]["budget"], "FITS", name)
+        self.assertEqual(b["1920x1080"]["budget"], "MARGINAL")
+        self.assertTrue(b["1920x1080"]["present_measured"])
+        for hz in (120, 60):
+            for v in PX.budget_verdicts(self.summaries, hz).values():
+                self.assertNotEqual(v["budget"], "UNDETERMINED")
 
     def test_a_present_less_cell_cannot_read_FITS(self):
         self.assertTrue(PX.a_cell_without_present_cannot_read_FITS(
