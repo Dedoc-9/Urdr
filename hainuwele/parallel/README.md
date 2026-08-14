@@ -121,6 +121,21 @@ harness that made all of this measurable is the arc's new instrument: the math s
 anywhere, so an operator's trace plus their digest chain equals their session, reproducible on
 any machine that can run a compiler.
 
+v1.2 is the second keyboard death and the end of trusting focus. v1.1's SetForegroundWindow
+repair was reasoned from documentation and the host refuted it: the next recording came back
+`keyed 0 | moused 0` — caught by the activity line v1.1 added, on its first outing. The durable
+diagnosis was the asymmetry between the input channels: the mouse survived v1 because it is
+POLLED (GetCursorPos reads global state, focus-free); the keyboard died because it was QUEUED
+(WM_KEYDOWN reaches only a focused window, and Windows may refuse a console-spawned process the
+foreground). v1.2 makes the channels symmetric — WASD and Esc are polled via GetAsyncKeyState —
+the window is topmost so the operator sees what they steer, and focus is demoted from a
+dependency to a reported condition (`focus_foreground` beside `timer_1ms_granted`). The render
+path is untouched, so the pinned chains stand; and the same session measured what they now
+prove: the operator's Windows build and the container's Linux build printed identical digest
+chains on two different traces — 60 checkpoints, two OSes, zero divergence. Cost on the named
+host at the v1.1 rung: raster med ~2.0–2.4 ms, worst 3.1 ms, present med ~0.28 ms at 720p,
+inside the 8.33 ms slot, with the first-frame cold start (~15 ms) a named start condition.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

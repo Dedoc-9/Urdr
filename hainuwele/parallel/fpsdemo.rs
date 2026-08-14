@@ -1,7 +1,26 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.1).
+// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.2).
+//
+// v1.2 — THE KEYBOARD DIED TWICE, AND THE SECOND DEATH REFUTED THE FIRST REPAIR. v1.1's
+// SetForegroundWindow fix was reasoned from documentation; the host measured it: the v1.2-era
+// recording came back `keyed 0 | moused 0` — the instrument's own activity line, doing its job
+// on its first outing. The durable diagnosis was the ASYMMETRY: the mouse survived v1 because
+// GetCursorPos POLLS global state, focus-free; the keyboard died because WM_KEYDOWN is QUEUED
+// and only a focused window receives it — and Windows is entitled to refuse a console-spawned
+// process the foreground. v1.2 stops depending on what Windows may refuse: WASD and Esc are
+// POLLED via GetAsyncKeyState (the keyboard's GetCursorPos), the window is TOPMOST so the
+// operator sees what they steer, and focus becomes a REPORTED CONDITION (`focus_foreground`
+// beside `timer_1ms_granted`) instead of a dependency. The render path is UNTOUCHED: the
+// pinned v0-trace chain (8d4c25e0.. / ae4493b9..) and the all-zero-trace constant
+// (e224235741921d0f) remain the cross-OS conformance references — both were reproduced on the
+// authoring container from the operator's own v1.1 run before this repair was written.
+//
+// CROSS-OS DETERMINISM IS NOW MEASURED, NOT DECLARED: the operator's Windows build and the
+// authoring container's Linux build printed identical digest chains on two different traces
+// (30 checkpoints on the v0 recording, 30 on the all-zero walk) — 60 checkpoints, two OSes,
+// two compilers' codegen, zero divergence. That is the integer-only pipeline earning its keep.
 //
 // v1.1 — WHAT FIRST HOST CONTACT FOUND, AND WHAT A HEADLESS REPLAY OF IT FIXED. The operator's
 // v1 run came back green on every claim v1 made — door, chains, plant — and wrong on the one
@@ -71,22 +90,23 @@
 //   rustc -O --edition 2021 -o fpsdemo.exe hainuwele\parallel\fpsdemo.rs
 //   .\fpsdemo.exe --selfcheck                              # battery + 3 canon scenes, exit 0
 //   .\fpsdemo.exe --replay fpsdemo_trace.txt               # v0 trace: chain must match the pin
-//   .\fpsdemo.exe --play --trace-out walk_v11.txt          # a REAL walk: WASD + mouse, Esc ends
-//   .\fpsdemo.exe --replay walk_v11.txt                    # twice — chains must be IDENTICAL
-//   .\fpsdemo.exe --replay walk_v11.txt                    #
-//   .\fpsdemo.exe --replay walk_v11.txt --defect           # DIVERGED AT the plant, exit 0
-//   .\fpsdemo.exe --replay walk_v11.txt --host "ROG-Ally-X-Z2-Extreme" `
+//   .\fpsdemo.exe --play --trace-out walk_v12.txt          # a REAL walk: WASD + mouse, Esc ends
+//   .\fpsdemo.exe --replay walk_v12.txt                    # twice — chains must be IDENTICAL
+//   .\fpsdemo.exe --replay walk_v12.txt                    #
+//   .\fpsdemo.exe --replay walk_v12.txt --defect           # DIVERGED AT the plant, exit 0
+//   .\fpsdemo.exe --replay walk_v12.txt --host "ROG-Ally-X-Z2-Extreme" `
 //                  --power "Turbo-35W-AC" --scheduler "Win11-GameMode-UltimatePerf"
 //
 // GRADE (honest, D5): the lifted kernels are the placements' bytes and the selfcheck holds them
-// to the placements' goldens at every start — run again on the authoring container for v1.1:
-// battery MATCHES GOLDEN, all three canon scenes MATCH PIN. The RENDER PATH is now MEASURED on
-// two axes it never had: the v1 ribbon/magenta/no-keys defects were reproduced frame-identically
-// from the operator's own trace before being fixed, and every rasterizer optimization was
-// adopted only after producing a bit-identical 30-digest chain against its closed form. What
-// remains SPECULATIVE: the focus fix (SetForegroundWindow on THIS host's window manager), the
-// camera FEEL (sensitivity/signs — judged by the first real walk, which v1.1 finally makes
-// possible), and every wall-clock cost row until the named host runs the protocol.
+// to the placements' goldens at every start — re-run green on the authoring container for
+// v1.2. The RENDER PATH is MEASURED across OSes (60 identical digest checkpoints on two
+// traces) and its cost is MEASURED on the named host at the v1.1 rung: raster med ~2.0-2.4 ms
+// worst 3.1 ms, present med ~0.28 ms at 720p — inside the 8.33 ms slot with the first-frame
+// cold-start outlier (~15 ms) named and excluded as a start condition, not a steady state.
+// v1.1's focus repair is REFUTED BY MEASUREMENT (keyed 0 | moused 0 on the real host) and
+// retired to a reported condition. What remains SPECULATIVE: the POLLED input path
+// (GetAsyncKeyState on THIS host — a third dead keyboard would be a finding of a different
+// kind), the camera FEEL, and every cost row of the walk that has still never happened.
 // declared != verified; a green gate never certified a picture.
 
 #![allow(non_snake_case, non_camel_case_types, dead_code)]
@@ -147,6 +167,8 @@ extern "system" {
     fn ShowCursor(show: i32) -> i32;
     fn SetForegroundWindow(h: HANDLE) -> i32;
     fn SetFocus(h: HANDLE) -> HANDLE;
+    fn GetForegroundWindow() -> HANDLE;
+    fn GetAsyncKeyState(vk: i32) -> i16;
 }
 #[link(name = "gdi32")]
 extern "system" {
@@ -990,19 +1012,32 @@ fn main() {
                    blit measures a different operation");
         std::process::exit(2);
     }
+    const WS_EX_TOPMOST: u32 = 0x0000_0008;
     let hwnd = unsafe {
-        CreateWindowExW(0, cls.as_ptr(), title.as_ptr(), WS_POPUP | WS_VISIBLE,
+        CreateWindowExW(WS_EX_TOPMOST, cls.as_ptr(), title.as_ptr(), WS_POPUP | WS_VISIBLE,
                         0, 0, scr_w, scr_h, 0, 0, inst, 0)
     };
     assert!(hwnd != 0, "CreateWindowExW failed");
     unsafe { ShowWindow(hwnd, SW_SHOW) };
-    // THE KEYBOARD NEVER ARRIVED IN v1'S RECORDING, and the trace is the proof: 1800 frames,
-    // 0 carrying a key, 800 carrying mouse motion, no Esc exit. Mouse-look POLLS the global
-    // cursor (GetCursorPos), so it works without focus; WM_KEYDOWN rides the MESSAGE QUEUE,
-    // which only a FOCUSED window receives — and a WS_POPUP window created from a console
-    // process does not reliably take foreground focus from the console the operator typed
-    // into. The recorded walk had no legs because the window never had a keyboard.
+    // v1's keyboard never arrived (0 keyed frames of 1800) and v1.1's SetForegroundWindow
+    // repair FAILED ON THE REAL HOST TOO: the v1.1 recording came back keyed 0, moused 0.
+    // The asymmetry was the diagnosis all along — the mouse survived v1 because it is POLLED
+    // (GetCursorPos reads global state, focus-free) while the keyboard died because it was
+    // QUEUED (WM_KEYDOWN reaches only the focused window, and Windows is entitled to refuse
+    // a console-spawned process the foreground). v1.2 stops depending on what Windows may
+    // refuse: keys are POLLED too (GetAsyncKeyState, the keyboard's GetCursorPos), Esc is
+    // polled the same way, the window is TOPMOST so the operator sees what they steer, and
+    // focus is DEMOTED from a dependency to a reported condition — the focus_foreground
+    // line below is an instrument condition beside timer_1ms_granted, not a prerequisite.
     unsafe { SetForegroundWindow(hwnd); SetFocus(hwnd); }
+    let focus_foreground = unsafe {
+        let mut m = MSG { hwnd: 0, message: 0, wParam: 0, lParam: 0, time: 0,
+                          pt: POINT { x: 0, y: 0 } };
+        while PeekMessageW(&mut m, 0, 0, 0, PM_REMOVE) != 0 {
+            TranslateMessage(&m); DispatchMessageW(&m);
+        }
+        GetForegroundWindow() == hwnd
+    };
     let dc = unsafe { GetDC(hwnd) };
     unsafe { PatBlt(dc, 0, 0, scr_w, scr_h, BLACKNESS); }
     if args.play { unsafe { ShowCursor(0); } }
@@ -1052,11 +1087,21 @@ fn main() {
                 DispatchMessageW(&msg);
             }
         }
-        // THE INPUT: live devices in --play (and RECORDED), the trace in --replay.
+        // THE INPUT: live devices in --play (and RECORDED), the trace in --replay. Both
+        // channels are POLLED global state now — GetCursorPos for the mouse (as always),
+        // GetAsyncKeyState for the keys (v1.2) — so neither depends on window focus.
         let (keys, dx, dy) = if args.play {
             let mut pt = POINT { x: 0, y: 0 };
             unsafe { GetCursorPos(&mut pt); SetCursorPos(center_x, center_y); }
-            let k = KEYS.load(Ordering::SeqCst);
+            let k = unsafe {
+                (((GetAsyncKeyState(0x57) as u16 >> 15) & 1) as u32)        // W
+                | ((((GetAsyncKeyState(0x41) as u16 >> 15) & 1) as u32) << 1) // A
+                | ((((GetAsyncKeyState(0x53) as u16 >> 15) & 1) as u32) << 2) // S
+                | ((((GetAsyncKeyState(0x44) as u16 >> 15) & 1) as u32) << 3) // D
+            };
+            if unsafe { GetAsyncKeyState(VK_ESCAPE as i32) } as u16 & 0x8000 != 0 {
+                QUIT.store(1, Ordering::SeqCst);                             // Esc: polled too
+            }
             let (mdx, mdy) = ((pt.x - center_x) as i64, (pt.y - center_y) as i64);
             trace_rec.push((k, mdx, mdy));
             (k, mdx, mdy)
@@ -1121,7 +1166,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.1 input trace: keys dx dy (one line per frame)\n");
+        let mut t = String::from("# fpsdemo v1.2 input trace: keys dx dy (one line per frame)\n");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}\n", k, dx, dy));
         }
@@ -1133,10 +1178,11 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.1 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
+        "fpsdemo v1.2 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, freq));
-    log.push_str(&format!("timer_1ms_granted {}\n", timer_1ms_granted));
+    log.push_str(&format!("timer_1ms_granted {} | focus_foreground {}\n",
+                          timer_1ms_granted, focus_foreground));
     log.push_str(&format!("frames {} | late_over_1ms {} | seg {}\n", late_ns.len(), late_over, seg));
     log.push_str(&format!("late_ns p50 {} p95 {} p99 {}\n", l50, l95, l99));
     for si in 0..n_segments as usize {
@@ -1162,9 +1208,10 @@ fn main() {
         log.push_str(&format!("trace {} frames -> {} | keyed {} | moused {}\n",
                               trace_rec.len(), args.trace_out, keyed, moused));
         if keyed == 0 {
-            log.push_str("NOTE: 0 frames carried a key — if WASD was pressed, the keyboard \
-                          never reached this window; this build takes focus explicitly, so a \
-                          second occurrence is a finding, not a repeat\n");
+            log.push_str("NOTE: 0 frames carried a key — keys are POLLED now (GetAsyncKeyState, \
+                          focus-free), so this means no WASD key was physically down at any of \
+                          the polls; if you WERE holding one, that is a third input-path finding \
+                          and worth the paste\n");
         }
     }
     if args.host == "-" {
