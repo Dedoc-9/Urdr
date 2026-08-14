@@ -706,10 +706,15 @@ distinctness is a law because reality planted its violation: an accidental Copy-
 byte-identical "runs", and an analyzer that accepted them would trust a between-run spread of
 exactly zero. The affine prediction is tested by chord against a conservative integer ruler: both
 runs sit below the chord (the convex direction) INSIDE the ruler, so the form reads UNDETERMINED
-with sign-consistency reported. The budget reads FITS for every measured cell at the 120 Hz slot —
-1280x720 by ceiling, the demo arc's first evidence-derived resolution decision — and 1080p has NO
-verdict, structurally, because it was not run and a linear guess under an unrefuted convexity
-would understate it.
+with sign-consistency reported. v1.1 folded in two further executions carrying a 1920x1080 cell —
+chainless, which SPLIT the completeness law by what chains evidence (a chainless record supplies
+raster evidence and cannot supply present evidence). The four-record verdicts: at 120 Hz, 640/960
+FITS, 1280x720 REVISED DOWN to MARGINAL by run 3's own pass-0 ceiling (a verdict more evidence may
+lawfully demote — a claim is not a ratchet), and 1920x1080 EXCEEDS on raster alone; at 60 Hz,
+1280x720 FITS and 1920x1080 stays UNDETERMINED, because the probe presents 1080p through a
+downscale the demo would not pay — probe v0.4's specification. 1080p's between-pass spread of
+~3.1-3.2 ms (thermal) is the new named finding, and 2560x1440 has no verdict because it was not
+run.
 
 THE ANSWER THE ARC WAS FOR, on the named host across five independent executions: moulding costs a
 CONSTANT penalty per rollback, flat across a depth axis over which the replay work grows nearly

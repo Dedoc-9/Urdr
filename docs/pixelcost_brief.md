@@ -70,6 +70,39 @@ absence of any 1080p verdict. A leaf, like its siblings.
 
 D1 §20 ruling: **no new glyph.**
 
+## v1.1 — the 1080p records, the split law, and the lawful demotion
+
+The four-cell sweep ran twice to completion — 2880 frames each, every row n=120, conditions
+declared — and arrived **chainless**: no clicks, no present bands. v1.0's admission said "empty
+chains refuse (the completeness law)", and that sentence conflated two kinds of record.
+`probelog`'s record *is* a chain measurement, so chainlessness voids it; a *cost* record's raster
+rows are complete under their own n whether or not anyone clicked. The law now splits by what
+chains evidence: a chainless record supplies raster evidence and cannot supply present evidence,
+and every verdict names which records feed it. Recorded as a restatement under new evidence — the
+old conflation would have discarded 5,760 clean frames to punish a missing click.
+
+What the four records decide. The FORM stays UNDETERMINED, sign-consistent toward convex, now
+with two interior cells — and the four-cell rulers are dominated by a new finding: **1080p's
+between-pass spread is ~3.1–3.2 ms** (medians walking 10.6 → 13.8 ms pass to pass), an order
+larger than any other cell's. At that load the machine's thermal state moves the cost by ~±15%,
+and any future 1080p claim must carry that spread. At 120 Hz: 1920×1080 **EXCEEDS on raster
+alone** — the one-sided verdict a missing present band still permits, since the unmeasured
+component can only add. And the previous claim was **revised by its own machinery**: run 3's 720p
+pass 0 carried a raster ceiling of 8.646 ms, over the slot, so 720p demoted from FITS-by-ceiling
+to MARGINAL — median fits with room, ceiling poked over once in twenty-four passes. A verdict
+that cannot be demoted by more evidence is a ratchet, and ratchets are for debts, not claims.
+
+At 60 Hz, 1280×720 FITS by ceiling and 1920×1080 is UNDETERMINED — raster does not bust the
+16.67 ms slot, and FITS is structurally unreachable for a present-less cell. The instrument's own
+limit is named rather than worked around: the probe presents 1080p through a `StretchDIBits`
+*downscale* into a 1280×729 window, a cost the demo would not pay presenting natively, so an
+honest 1080p present band requires probe v0.4 — a window sized to the cell, or borderless
+fullscreen — named as its specification the way `probelog` named v0.2's.
+
+The duplicate-digest law fired in the wild a second time before the real runs arrived (another
+`Copy-Item` pair, a 79-frame fragment copied twice), which is exactly the recurring shape the law
+was pinned for.
+
 ## `does_not_show`
 
 The bands bound this probe's renderer — integer edge-function fill plus GDI blit — on this

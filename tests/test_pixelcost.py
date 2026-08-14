@@ -12,15 +12,15 @@ import pixelcost as PX                                       # noqa: E402
 
 
 class TheRecords(unittest.TestCase):
-    def test_both_records_hash_to_their_pins(self):
-        self.assertTrue(PX.load(0))
-        self.assertTrue(PX.load(1))
+    def test_all_records_hash_to_their_pins(self):
+        for i in range(len(PX.RECORDS)):
+            self.assertTrue(PX.load(i))
 
-    def test_the_digests_are_distinct(self):
+    def test_the_digests_are_pairwise_distinct(self):
         import hashlib
-        d0 = hashlib.sha256(PX.load(0).encode()).hexdigest()
-        d1 = hashlib.sha256(PX.load(1).encode()).hexdigest()
-        self.assertNotEqual(d0, d1)
+        digs = [hashlib.sha256(PX.load(i).encode()).hexdigest()
+                for i in range(len(PX.RECORDS))]
+        self.assertEqual(len(set(digs)), len(digs))
 
     def test_a_flipped_byte_refuses(self):
         raw = PX.load(0)
@@ -40,11 +40,13 @@ class TheRecords(unittest.TestCase):
     def test_an_earlier_probe_version_refuses(self):
         self.assertTrue(PX.a_v01_record_refuses())
 
-    def test_a_chainless_record_refuses(self):
-        raw = PX.load(0)
-        head = raw.split("click chains")[0]
-        with self.assertRaises(PX.PixelcostError):
-            PX.parse(head)
+    def test_a_chainless_record_admits_but_supplies_no_present_evidence(self):
+        """v1.1's split of the conflated completeness law: the four-cell records have no clicks;
+        their raster rows count and their present bands are None — they cannot say what
+        presenting costs."""
+        parsed = PX.admit()
+        self.assertTrue(PX.a_chainless_record_supplies_no_present_evidence(parsed[2]))
+        self.assertTrue(PX.a_chainless_record_supplies_no_present_evidence(parsed[3]))
 
     def test_a_malformed_cell_row_refuses(self):
         with self.assertRaises(PX.PixelcostError):
@@ -63,39 +65,59 @@ class TheVerdicts(unittest.TestCase):
         self.summaries = [PX.cell_summary(p) for p in self.parsed]
 
     def test_the_form_is_undetermined_and_says_so_precisely(self):
-        """Both runs' residuals sit below the chord (the convex direction) and INSIDE the
-        conservative ruler: the verdict is UNDETERMINED with sign-consistency reported, which is
-        the honest reading — not affine-confirmed, not convex-confirmed."""
+        """All four records' residuals sit below the chord (the convex direction) and INSIDE the
+        conservative ruler — and the four-cell records' rulers are dominated by 1080p's thermal
+        spread, itself a finding."""
         f = PX.form_verdict(self.summaries)
         self.assertEqual(f["final"], "UNDETERMINED")
         self.assertTrue(f["sign_consistent"])
+        self.assertEqual(len(f["per_run"]), 4)
         for r in f["per_run"]:
             self.assertLess(r["residual"], 0)
             self.assertLess(abs(r["residual"]), r["ruler"])
+        self.assertGreater(f["per_run"][2]["ruler"], 3_000_000)   # the 1080p spread, visible
 
-    def test_the_budget_fits_all_three_measured_cells(self):
-        """The demo arc's first evidence-derived resolution decision: every measured cell fits
-        the 120 Hz slot, 1280x720 by CEILING on the worst run."""
+    def test_the_budget_at_120Hz_including_the_lawful_demotion(self):
+        """v1.0 read 720p FITS-by-ceiling from two runs; run 3's own pass-0 ceiling crossed the
+        slot, so the worst-record verdict is now MARGINAL — a verdict more evidence may lawfully
+        demote (a claim is not a ratchet). 1080p EXCEEDS on raster alone: the one-sided verdict a
+        missing present band still permits."""
         b = PX.budget_verdicts(self.summaries, self.parsed[0]["hz"])
-        for name, v in b.items():
-            self.assertEqual(v["budget"], "FITS", name)
-        self.assertLess(b["1280x720"]["hi_total"], b["1280x720"]["slot"])
+        self.assertEqual(b["640x360"]["budget"], "FITS")
+        self.assertEqual(b["960x540"]["budget"], "FITS")
+        self.assertEqual(b["1280x720"]["budget"], "MARGINAL")
+        self.assertGreater(b["1280x720"]["hi_total"], b["1280x720"]["slot"])
+        self.assertLessEqual(b["1280x720"]["med_total"], b["1280x720"]["slot"])
+        self.assertEqual(b["1920x1080"]["budget"], "EXCEEDS")
+        self.assertFalse(b["1920x1080"]["present_measured"])
+
+    def test_the_budget_at_60Hz_is_split_honestly(self):
+        """720p FITS the 16.67 ms slot by ceiling; 1080p is UNDETERMINED — raster alone does not
+        bust it and the present band is unmeasured, so FITS is unreachable."""
+        b = PX.budget_verdicts(self.summaries, 60)
+        self.assertEqual(b["1280x720"]["budget"], "FITS")
+        self.assertEqual(b["1920x1080"]["budget"], "UNDETERMINED")
+
+    def test_a_present_less_cell_cannot_read_FITS(self):
+        self.assertTrue(PX.a_cell_without_present_cannot_read_FITS(
+            self.summaries, self.parsed[0]["hz"]))
 
     def test_extrapolation_is_structurally_impossible(self):
-        """1080p is the question everyone wants answered and it has NO verdict, because it was
-        not run — with CONVEX unrefuted, a linear guess would be inflation."""
-        self.assertTrue(PX.extrapolation_is_structurally_impossible(
+        """The law moved to the next unrun rung: 1080p is measured now, 1440p is not, and 1440p
+        has no verdict."""
+        self.assertTrue(PX.extrapolation_is_structurally_impossible_check(
             self.summaries, self.parsed[0]["hz"]))
 
     def test_fewer_than_three_cells_cannot_bend(self):
-        two = [{k: v for k, v in s.items() if k != "960x540"} for s in self.summaries]
+        two = [{k: v for k, v in s.items() if k in ("640x360", "1280x720")}
+               for s in self.summaries[:1]]
         with self.assertRaises(PX.PixelcostError):
             PX.form_verdict(two)
 
     def test_the_warmup_observation_is_reported_not_excluded(self):
         for p in self.parsed:
             obs = PX.warmup_observation(p)
-            self.assertEqual(len(obs), 3)
+            self.assertEqual(len(obs), len({r["cell"] for r in p["rows"]}))
         # med-of-meds is lower-middle and therefore robust to the one elevated pass:
         s = PX.cell_summary(self.parsed[0])
         self.assertLess(s["640x360"]["med"], 1500000)

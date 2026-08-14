@@ -18051,8 +18051,9 @@ class Gate:
                     if l_ok else "the ledger half did not hold")
 
     def pixelcost(self):
-        """THE RESOLUTION DECISION, DERIVED (URDRPXC1). Rows: records (two committed distinct
-        executions, strict admission), verdict (the form test, the budget, and the refusals)."""
+        """THE RESOLUTION DECISION, DERIVED (URDRPXC1 v1.1). Rows: records (four committed
+        distinct executions, the split chain law), verdict (the form test, both budget tables,
+        the lawful demotion, and the refusals)."""
         p = os.path.join(ROOT, "tools", "terrain")
         if p not in sys.path:
             sys.path.insert(0, p)
@@ -18065,66 +18066,82 @@ class Gate:
         r_ok = True
         try:
             parsed = PX.admit()
-            r_ok = (len(parsed) == 2
+            r_ok = (len(parsed) == 4
                     and all(q["host"] == "ROG-Ally-X-Z2-Extreme" for q in parsed)
                     and all(q["power"] != "-" and q["scheduler"] != "-" for q in parsed)
                     and PX.a_thin_row_is_excluded_by_its_own_n(parsed[1])
+                    and PX.a_chainless_record_supplies_no_present_evidence(parsed[2])
+                    and PX.a_chainless_record_supplies_no_present_evidence(parsed[3])
                     and PX.scene_result("records") == PX.golden("records"))
         except Exception:
             r_ok = False
         self.record("pixelcost-records", r_ok,
-                    "TWO DISTINCT EXECUTIONS OF present_probe v0.3, conditions DECLARED — the "
-                    "strict door's specification from probelog, discharged: power and scheduler "
-                    "are in each record's header, so these records pass the door the v0.1 record "
-                    "was pinned red against. Committed under DISTINCT digests, and distinctness "
-                    "is a LAW because reality planted its violation: the operator copied run 1's "
-                    "log to probe_run2.txt without executing a second run, the two files hashed "
-                    "IDENTICALLY, and only the terminal transcript showed why — an analyzer that "
-                    "accepted the pair would compute a between-run spread of exactly ZERO and "
-                    "then use it as a tolerance (URDRRPT1). A row whose own n is under the floor "
-                    "is EXCLUDED AND COUNTED: run 2's 720p pass 3 ran TWO frames before ESC, and "
-                    "a 2-sample median is a coin toss wearing a number. The pass-0 warmup "
-                    "elevation is REPORTED as a position observation (the confound shape), never "
-                    "silently excluded — the lower-middle med-of-meds is robust to it"
+                    "FOUR DISTINCT EXECUTIONS of present_probe v0.3, conditions DECLARED, "
+                    "committed under pairwise-distinct digests — and distinctness is a LAW "
+                    "because reality planted its violation TWICE: an accidental Copy-Item "
+                    "produced byte-identical 'runs' on two separate occasions, and an analyzer "
+                    "that accepted such a pair would trust a between-run spread of exactly ZERO "
+                    "(URDRRPT1). THE CHAIN LAW SPLIT UNDER NEW EVIDENCE, and the split is "
+                    "recorded as a restatement: the four-cell records arrived CHAINLESS (no "
+                    "clicks), and v1.0's 'empty chains refuse' had conflated probelog's record — "
+                    "which IS a chain measurement — with a COST record, whose raster rows are "
+                    "complete under their own n whether or not anyone clicked. A chainless "
+                    "record now supplies RASTER evidence and CANNOT supply PRESENT evidence, "
+                    "and every verdict names which records feed it. The thin-row floor still "
+                    "bites (run 2's two-frame 720p pass), and the pass-0 warmup elevation is "
+                    "still reported, never excluded"
                     if r_ok else "the records half did not hold")
         v_ok, decided = True, "?"
         try:
             summaries = [PX.cell_summary(q) for q in parsed]
             f = PX.form_verdict(summaries)
-            b = PX.budget_verdicts(summaries, parsed[0]["hz"])
-            decided = "form=%s budget[1280x720]=%s" % (f["final"], b["1280x720"]["budget"])
+            b120 = PX.budget_verdicts(summaries, parsed[0]["hz"])
+            b60 = PX.budget_verdicts(summaries, 60)
+            decided = ("form=%s 720p@120=%s 1080p@120=%s 1080p@60=%s"
+                       % (f["final"], b120["1280x720"]["budget"], b120["1920x1080"]["budget"],
+                          b60["1920x1080"]["budget"]))
             v_ok = (f["final"] == "UNDETERMINED" and f["sign_consistent"]
+                    and len(f["per_run"]) == 4
                     and all(r["residual"] < 0 and abs(r["residual"]) < r["ruler"]
                             for r in f["per_run"])
-                    and all(v["budget"] == "FITS" for v in b.values())
-                    and b["1280x720"]["hi_total"] < b["1280x720"]["slot"]
+                    and f["per_run"][2]["ruler"] > 3_000_000
+                    and b120["640x360"]["budget"] == "FITS"
+                    and b120["960x540"]["budget"] == "FITS"
+                    and b120["1280x720"]["budget"] == "MARGINAL"
+                    and b120["1920x1080"]["budget"] == "EXCEEDS"
+                    and not b120["1920x1080"]["present_measured"]
+                    and b60["1280x720"]["budget"] == "FITS"
+                    and b60["1920x1080"]["budget"] == "UNDETERMINED"
                     and PX.a_duplicate_record_refuses()
                     and PX.a_condition_less_record_refuses()
                     and PX.a_v01_record_refuses()
-                    and PX.extrapolation_is_structurally_impossible(summaries, parsed[0]["hz"])
+                    and PX.a_cell_without_present_cannot_read_FITS(summaries, parsed[0]["hz"])
+                    and PX.extrapolation_is_structurally_impossible_check(summaries,
+                                                                          parsed[0]["hz"])
                     and PX.scene_result("verdict") == PX.golden("verdict"))
         except Exception:
             v_ok = False
         self.record("pixelcost-verdict", v_ok,
-                    "P2'S CONTRACT, DISCHARGED BY MEASUREMENT: %s. THE FORM — the a-priori "
-                    "affine prediction is tested by CHORD, per run, against a conservative "
-                    "integer ruler (the sum of between-pass med ranges; a residual is a "
-                    "combination of three medians and its noise is bounded by the sum of theirs, "
-                    "triangle inequality, no distribution assumed). Both runs sit BELOW the "
-                    "chord — the CONVEX direction, marginal pixel cost rising — by an amount "
-                    "INSIDE the ruler, so the verdict is UNDETERMINED WITH SIGN-CONSISTENCY "
-                    "REPORTED, which is the honest reading: not affine-confirmed, not "
-                    "convex-confirmed, and the earlier fragments' apparent steep superlinearity "
-                    "shrank as the instrument got cleaner, which is itself a finding about "
-                    "instruments. THE BUDGET, per MEASURED cell against the 120 Hz slot: every "
-                    "cell FITS, and 1280x720 fits BY CEILING — the worst run's hi_total sits "
-                    "under the slot — so 720p at 120 Hz is the demo arc's first "
-                    "EVIDENCE-DERIVED resolution decision on this renderer and machine. AND "
-                    "1080p HAS NO VERDICT, STRUCTURALLY: it was not run, the budget function "
-                    "ranges over measured cells only, and with CONVEX unrefuted a linear guess "
-                    "would understate its cost by construction — the honest path is a probe run "
-                    "carrying a 1920x1080 cell. Refusals proved on the committed bytes: the "
-                    "duplicate pair, the condition-less record, the earlier probe version"
+                    "P2'S ANSWER, FROM FOUR RECORDS: %s. THE FORM stays UNDETERMINED with "
+                    "sign-consistency toward CONVEX across all four records — and the four-cell "
+                    "records' rulers are dominated by a NEW FINDING: 1080p's between-pass spread "
+                    "is ~3.1-3.2 ms, medians walking 10.6 to 13.8 ms pass to pass, so at that "
+                    "load the machine's own thermal state moves the cost ~15%% and any 1080p "
+                    "claim must carry that spread. THE 120 Hz TABLE: 640/960 FITS; 1280x720 "
+                    "REVISED DOWN from v1.0's FITS-by-ceiling to MARGINAL by run 3's own pass-0 "
+                    "ceiling (8.646 ms raster, over the slot, once in 24 passes — the median "
+                    "fits with room; A VERDICT MORE EVIDENCE MAY LAWFULLY DEMOTE, because a "
+                    "claim is not a ratchet); 1920x1080 EXCEEDS ON RASTER ALONE, the one-sided "
+                    "verdict a missing present band still permits, since the unmeasured "
+                    "component can only add. THE 60 Hz TABLE: 1280x720 FITS by ceiling; "
+                    "1920x1080 UNDETERMINED — raster does not bust the 16.67 ms slot and FITS "
+                    "is structurally unreachable for a present-less cell. AND THE INSTRUMENT'S "
+                    "OWN LIMIT IS NAMED: the probe presents 1920x1080 through a StretchDIBits "
+                    "DOWNSCALE into a 1280x729 window, a cost the demo would not pay natively, "
+                    "so an honest 1080p present band needs probe v0.4 (a window sized to the "
+                    "cell, or borderless fullscreen) — named as its specification the way "
+                    "probelog named v0.2's. Extrapolation stays structurally impossible: "
+                    "2560x1440 has no verdict because it was not run"
                     % decided
                     if v_ok else "the verdict half did not hold")
 

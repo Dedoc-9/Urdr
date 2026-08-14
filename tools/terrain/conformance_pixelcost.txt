@@ -7,21 +7,30 @@
 # specification discharged), committed under distinct digests. Every figure derives from those
 # bytes at claim time (L75).
 #
-# records — both records parse strictly; a row whose own n is under the floor is excluded and
+# v1.1 (2026-08-14) — the four-cell records arrived CHAINLESS (no clicks), and the completeness
+# law split by what chains evidence: a chainless record supplies RASTER evidence and cannot supply
+# PRESENT evidence. Four committed records now feed the verdicts, and every verdict names which.
+#
+# records — every record parses strictly; a row whose own n is under the floor is excluded and
 #           COUNTED (run 2's 720p pass 3 ran two frames before ESC — the live case); per-cell
 #           med-of-meds, between-pass spread, present bands from each cell's own chains; the
 #           pass-0 warmup elevation REPORTED as a position observation, never silently excluded.
-# verdict — FORM: the affine prediction tested against the chord, per run, with a conservative
-#           integer ruler (sum of between-pass ranges); both runs read UNDETERMINED with
-#           SIGN-CONSISTENT negative residuals — the convex suspicion is real, inside the ruler,
-#           and stated as exactly that. BUDGET, per measured cell against the 120 Hz slot:
-#           all three cells FITS — 1280x720 by CEILING (worst-run hi_total under the slot), the
-#           first evidence-derived resolution decision of the demo arc. REFUSALS, each proved on
-#           the committed bytes: a byte-copy of a record (identical digests — THE WILD-CAUGHT
-#           LAW: the operator's accidental Copy-Item produced exactly this, and the transcript is
-#           the witness), a condition-less record, an earlier probe version, and extrapolation —
-#           1920x1080 has NO verdict because it was not run, which with CONVEX unrefuted is the
-#           entire point.
+# verdict — FORM: the affine prediction tested against the chord, per record, conservative
+#           integer rulers; all four records read UNDETERMINED with SIGN-CONSISTENT negative
+#           residuals (the convex direction), and the four-cell records' rulers are dominated by
+#           a NEW FINDING: 1080p's between-pass spread is ~3.1-3.2 ms — the thermal state moves
+#           the cost ~±15% at that load, and any 1080p claim must carry it. BUDGET at 120 Hz:
+#           640/960 FITS; 1280x720 REVISED DOWN to MARGINAL by run 3's own ceiling (one pass's hi
+#           at 8.646 ms raster crossed the slot — a verdict more evidence may lawfully demote);
+#           1920x1080 EXCEEDS ON RASTER ALONE, the one-sided verdict a missing present band still
+#           permits (the unmeasured component can only add). At 60 Hz: 1280x720 FITS;
+#           1920x1080 UNDETERMINED — and the probe cannot honestly measure 1080p present in a
+#           1280x729 window (StretchDIBits DOWNSCALES, a cost the demo would not pay natively),
+#           so the instrument fix is named as probe v0.4's specification. REFUSALS, each proved
+#           on the committed bytes: a byte-copy (identical digests — THE WILD-CAUGHT LAW, the
+#           operator's accidental Copy-Item, twice), a condition-less record, an earlier probe
+#           version, a FITS verdict for a present-less cell (structurally unreachable), and
+#           extrapolation — 2560x1440 has NO verdict because it was not run.
 #
 # does_not_show: bands bound THIS probe's renderer on THIS machine under THESE conditions. The
 # FORM verdict cannot distinguish W*H from other monotone functions agreeing on these cells;
@@ -31,5 +40,5 @@
 #
 # DECLARED: MIN_N, MIN_PASSES, the ruler's construction, the budget's composition.
 
-records fc99363f819a0b1df54acd587d820e3a23f51f750adcf9055c29e48abeeacbb6
-verdict f5fc34d1e3ce62cb5734975f616fd82eaeb2634dca1c779a33ce7a77dc4a1356
+records 7a318d60766f3656522d3d7d607c805e6fecc96998244e6725249d0a1bce2ab9
+verdict 0bbf85736c8e7c5e5058c266c74881044b9f63f4a4b9b09b795b39ad49f8debd

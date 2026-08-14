@@ -60,10 +60,37 @@ And the budget verdict prices raster + present only: tick and view are measured 
 negligible here, but input_transport, present_wait and panel remain unmeasured (probelog's
 partition), so NOTHING here is an input-to-photon claim.
 
-GRADE (honest, D5): MEASURED — every figure derives from two committed, digest-pinned records of
-distinct executions with declared conditions; the verdicts carry their rulers; the refusals are
-demonstrated on the committed bytes. DECLARED: MIN_N, MIN_PASSES, the ruler's construction, and
-the budget's composition."""
+v1.1 (2026-08-14) — THE 1080p RECORDS ARRIVED, AND THE EVIDENCE SPLIT. Two further executions ran
+the four-cell sweep to completion (2880 frames each, every row n=120, conditions declared) — with
+NO CLICKS, so no chains and no present bands. v1.0's admission said "empty chains refuse (the
+completeness law)", and that sentence CONFLATED two records: probelog's record IS a chain
+measurement, so chainlessness voids it; a COST record's raster rows are complete under their own
+n whether or not anyone clicked. The law is now split BY WHAT CHAINS EVIDENCE: a chainless record
+supplies RASTER evidence and cannot supply PRESENT evidence, and every verdict states which
+records feed it. This is a law RESTATEMENT under new evidence and is recorded as such — the old
+conflation would have thrown away 5760 clean frames to punish a missing click.
+
+WHAT THE FOUR RECORDS DECIDE. FORM: still UNDETERMINED, still sign-consistent toward CONVEX —
+now with TWO interior cells against the 640x360 -> 1920x1080 chord, and a ruler dominated by a new
+finding: 1080p's between-pass spread is ~3.1-3.2 ms (medians walking 10.6 -> 13.8 ms pass to
+pass), an order larger than any other cell's — at 1080p the machine's own thermal state moves the
+cost by ~±15%, and any future 1080p claim must carry that spread. BUDGET at the 120 Hz slot:
+1920x1080 EXCEEDS ON RASTER ALONE (med ~12.1-12.2 ms > 8.33 ms; the unmeasured present can only
+add) — the honest one-sided verdict a missing band still permits. AND THE PREVIOUS RUNG'S 720p
+CLAIM IS REVISED BY ITS OWN MACHINERY: v1.0 read FITS-by-ceiling from two runs; run 3's 720p pass
+0 carried hi 8.646 ms, over the slot, so the worst-record ceiling now exceeds it and 720p reads
+MARGINAL — median fits with room (~5.2-6.0 ms), ceiling poked over once in 24 passes. A verdict
+that cannot be demoted by more evidence is a ratchet, and ratchets are for debts, not claims.
+At the 60 Hz slot, 1920x1080 is UNDETERMINED: raster med ~12.1 / hi ~15.8 against 16.67 with
+present unmeasured — and the probe CANNOT honestly measure 1080p present in this window, because
+StretchDIBits DOWNSCALES 1920x1080 into a 1280x729 client area, a cost the demo would not pay
+presenting natively. The instrument fix (a window sized to the cell, or borderless fullscreen) is
+named as probe v0.4's specification, the same way probelog's strict door named v0.2's.
+
+GRADE (honest, D5): MEASURED — every figure derives from four committed, digest-pinned records of
+distinct executions with declared conditions; the verdicts carry their rulers and NAME the records
+that feed them; the refusals are demonstrated on the committed bytes. DECLARED: MIN_N, MIN_PASSES,
+the ruler's construction, the budget's composition, and the per-question chain law."""
 import hashlib
 import os as _os
 
@@ -79,6 +106,11 @@ RECORDS = (
      "c9ce4ae91003bc06f7c8c989dae50d2ffa53fef4a716721eece384f57632ce2a"),
     ("spec/attest/present_probe-allyx-v03-run2.txt",
      "4b67e75a9d001719f94f0be80a31687036051223b1cdbd0c965f5a54e7a29ab2"),
+    # v1.1 — the four-cell sweep, run to completion, chainless (no clicks): raster evidence only.
+    ("spec/attest/present_probe-allyx-v03-1080-run1.txt",
+     "7acb9806fbc334b6ba7fd7ee953afb58c51f6fd81fe549ae1905936f2c8b2cf0"),
+    ("spec/attest/present_probe-allyx-v03-1080-run2.txt",
+     "e6c51aed9aba2a001112a39842451f011c76d4d4fceff4b792f991bcd3955944"),
 )
 
 VERSION = "present_probe v0.3"
@@ -150,9 +182,8 @@ def parse(text):
             raise PixelcostError(f"cell row has {len(parts)} fields, wants 14: {ln!r}")
         elif len(parts) == 7 and parts[0].lstrip("-").isdigit():
             chains.append({"present": int(parts[4]), "cell": parts[6]})
-    if not chains:
-        raise PixelcostError("NO click chains — an incomplete run measured only the frame loop "
-                             "(the completeness law, carried from probelog)")
+    # v1.1: chains MAY be empty — a chainless record supplies RASTER evidence and cannot supply
+    # PRESENT evidence (the split of v1.0's conflated completeness law; see the docstring).
     if not rows:
         raise PixelcostError("no cell rows at all")
     return {"host": fields["host"], "power": fields["power"], "scheduler": fields["scheduler"],
@@ -160,8 +191,10 @@ def parse(text):
 
 
 def admit(texts=None):
-    """Both records, through the whole door. DISTINCT DIGESTS FIRST — the wild-caught law."""
-    texts = [load(i) if texts is None else texts[i] for i in range(len(RECORDS))]
+    """Every record, through the whole door. DISTINCT DIGESTS FIRST — the wild-caught law. A
+    caller may hand in any set of texts (the duplicate plant hands two); the default is all
+    committed records."""
+    texts = [load(i) for i in range(len(RECORDS))] if texts is None else list(texts)
     digs = [hashlib.sha256(t.encode()).hexdigest() for t in texts]
     if len(set(digs)) < len(digs):
         raise PixelcostError("two records hash IDENTICALLY — a byte-copy is one execution "
@@ -195,12 +228,11 @@ def cell_summary(parsed):
                                  f"between-pass ruler exists")
         meds = [r["med"] for r in rs]
         pres = [c["present"] for c in parsed["chains"] if c["cell"] == name]
-        if not pres:
-            raise PixelcostError(f"cell {name}: no click chains — its present band is unmeasured")
         out[name] = {"px": px, "passes": len(rs), "med": _mid(meds),
                      "spread": max(meds) - min(meds),
                      "lo": min(r["lo"] for r in rs), "hi": max(r["hi"] for r in rs),
-                     "present_med": _mid(pres), "present_hi": max(pres)}
+                     "present_med": _mid(pres) if pres else None,
+                     "present_hi": max(pres) if pres else None}
     return out
 
 
@@ -256,9 +288,11 @@ def form_verdict(summaries):
 
 # ---- the BUDGET verdict -------------------------------------------------------------------------
 def budget_verdicts(summaries, hz):
-    """Per MEASURED cell only. raster + that cell's present band against the refresh slot.
-    A resolution that was not run has NO verdict — extrapolation is structurally impossible
-    here, which with CONVEX unrefuted is the point."""
+    """Per MEASURED cell only, across EVERY record that measured it. Raster worst-record band,
+    plus the cell's present band from the records that HAVE one. A cell with no present band
+    anywhere gets the ONE-SIDED verdict a missing band still permits: EXCEEDS if raster alone
+    busts the slot (the unmeasured component can only add), else UNDETERMINED — never FITS,
+    because fitting needs the whole sum. A resolution that was not run has NO verdict at all."""
     slot = 1_000_000_000 // hz
     agg = {}
     for s in summaries:
@@ -266,15 +300,24 @@ def budget_verdicts(summaries, hz):
             agg.setdefault(name, []).append(v)
     out = {}
     for name, vs in sorted(agg.items(), key=lambda kv: vs_px(kv[1])):
-        med = max(v["med"] + v["present_med"] for v in vs)      # worst run's median
-        hi = max(v["hi"] + v["present_hi"] for v in vs)         # worst run's ceiling
-        if hi <= slot:
-            b = "FITS"
-        elif med <= slot:
-            b = "MARGINAL"
+        r_med = max(v["med"] for v in vs)                       # worst record's raster median
+        r_hi = max(v["hi"] for v in vs)                         # worst record's raster ceiling
+        pres = [v for v in vs if v["present_med"] is not None]
+        if pres:
+            med = r_med + max(v["present_med"] for v in pres)
+            hi = r_hi + max(v["present_hi"] for v in pres)
+            if hi <= slot:
+                b = "FITS"
+            elif med <= slot:
+                b = "MARGINAL"
+            else:
+                b = "EXCEEDS"
         else:
-            b = "EXCEEDS"
+            med, hi = r_med, r_hi                               # a LOWER BOUND, and labeled so
+            b = "EXCEEDS" if r_med > slot else "UNDETERMINED"
         out[name] = {"budget": b, "med_total": med, "hi_total": hi, "slot": slot,
+                     "present_measured": bool(pres),
+                     "records": len(vs),
                      "run_spread": max(v["med"] for v in vs) - min(v["med"] for v in vs)}
     return out
 
@@ -311,6 +354,24 @@ def a_v01_record_refuses():
         return True
 
 
+def a_chainless_record_supplies_no_present_evidence(parsed_chainless):
+    """The split law, positive half: the record admits, its raster rows count, and every present
+    band it yields is None — it cannot say what presenting costs."""
+    s = cell_summary(parsed_chainless)
+    return (len(parsed_chainless["chains"]) == 0
+            and all(v["present_med"] is None for v in s.values())
+            and all(v["passes"] >= MIN_PASSES for v in s.values()))
+
+
+def a_cell_without_present_cannot_read_FITS(summaries, hz):
+    """The one-sided verdict law: 1920x1080 has no present band anywhere, so FITS is structurally
+    unreachable for it — only EXCEEDS (raster alone busts the slot) or UNDETERMINED."""
+    b = budget_verdicts(summaries, hz)
+    x = b.get("1920x1080")
+    return x is not None and not x["present_measured"] and x["budget"] in ("EXCEEDS",
+                                                                           "UNDETERMINED")
+
+
 def a_thin_row_is_excluded_by_its_own_n(parsed_run2):
     """The live case: run 2's 720p pass 3 ran two frames before ESC. It must be in the record,
     out of the aggregation, and counted."""
@@ -320,12 +381,13 @@ def a_thin_row_is_excluded_by_its_own_n(parsed_run2):
             and len(dropped) >= 1)
 
 
-def extrapolation_is_structurally_impossible(summaries, hz):
-    """No verdict exists for a resolution that was not run: the budget function ranges over
-    measured cells and nothing else. Checked by construction — 1080p is absent from the output
-    although it is the question everyone wants answered."""
+def extrapolation_is_structurally_impossible_check(summaries, hz):
+    """No verdict exists for a resolution that was not run. v1.0 demonstrated this on 1920x1080;
+    v1.1 measured 1080p, so the demonstration moves to the next unrun rung (1440p) — the law is
+    about UNRUN resolutions, not about any particular one."""
     b = budget_verdicts(summaries, hz)
-    return "1920x1080" not in b and all(k in ("640x360", "960x540", "1280x720") for k in b)
+    return ("2560x1440" not in b
+            and set(b) == {"640x360", "960x540", "1280x720", "1920x1080"})
 
 
 # ---- scenes -------------------------------------------------------------------------------------
@@ -339,9 +401,10 @@ def scene_case(name):
         for p in parsed:
             keep, dropped = usable_rows(p)
             s = cell_summary(p)
-            cells = ";".join("%s px=%d passes=%d med=%d spread=%d present=%d..%d"
+            cells = ";".join("%s px=%d passes=%d med=%d spread=%d present=%s"
                              % (n, v["px"], v["passes"], v["med"], v["spread"],
-                                v["present_med"], v["present_hi"])
+                                "%d..%d" % (v["present_med"], v["present_hi"])
+                                if v["present_med"] is not None else "unmeasured")
                              for n, v in sorted(s.items(), key=lambda kv: kv[1]["px"]))
             wu = ",".join("%s:+%d" % (n, d) if d >= 0 else "%s:%d" % (n, d)
                           for n, d in warmup_observation(p))
@@ -353,20 +416,24 @@ def scene_case(name):
         parsed = admit()
         summaries = [cell_summary(p) for p in parsed]
         f = form_verdict(summaries)
-        b = budget_verdicts(summaries, parsed[0]["hz"])
-        per = "|".join("run%d:%s res=%d ruler=%d" % (i, r["verdict"], r["residual"], r["ruler"])
+        per = "|".join("rec%d:%s res=%d ruler=%d" % (i, r["verdict"], r["residual"], r["ruler"])
                        for i, r in enumerate(f["per_run"]))
-        bud = "|".join("%s:%s med=%d hi=%d runspread=%d"
-                       % (n, v["budget"], v["med_total"], v["hi_total"], v["run_spread"])
-                       for n, v in b.items())
-        return ("form=%s sign_consistent=%s|%s||slot=%d|%s||dup=%s cond=%s v01=%s thin=%s "
-                "noextrap=%s" % (
-                    f["final"], f["sign_consistent"], per,
-                    1_000_000_000 // parsed[0]["hz"], bud,
+        tables = []
+        for hz in (parsed[0]["hz"], 60):
+            b = budget_verdicts(summaries, hz)
+            tables.append("hz%d[%s]" % (hz, "|".join(
+                "%s:%s med=%d hi=%d present=%s recs=%d runspread=%d"
+                % (n, v["budget"], v["med_total"], v["hi_total"], v["present_measured"],
+                   v["records"], v["run_spread"]) for n, v in b.items())))
+        return ("form=%s sign_consistent=%s|%s||%s||dup=%s cond=%s v01=%s thin=%s "
+                "chainless=%s onesided=%s noextrap=%s" % (
+                    f["final"], f["sign_consistent"], per, "||".join(tables),
                     a_duplicate_record_refuses(), a_condition_less_record_refuses(),
                     a_v01_record_refuses(),
                     a_thin_row_is_excluded_by_its_own_n(parsed[1]),
-                    extrapolation_is_structurally_impossible(summaries, parsed[0]["hz"])))
+                    a_chainless_record_supplies_no_present_evidence(parsed[2]),
+                    a_cell_without_present_cannot_read_FITS(summaries, parsed[0]["hz"]),
+                    extrapolation_is_structurally_impossible_check(summaries, parsed[0]["hz"])))
     raise PixelcostError(f"no scene named {name!r}")
 
 
@@ -392,8 +459,10 @@ if __name__ == "__main__":
     for i, s in enumerate(summaries):
         print(f"run {i}:")
         for n, v in sorted(s.items(), key=lambda kv: kv[1]["px"]):
-            print("  %-10s med %7d ns  spread %6d  present %6d..%6d  passes %d"
-                  % (n, v["med"], v["spread"], v["present_med"], v["present_hi"], v["passes"]))
+            pres = ("%d..%d" % (v["present_med"], v["present_hi"])
+                    if v["present_med"] is not None else "unmeasured")
+            print("  %-10s med %7d ns  spread %6d  present %-13s passes %d"
+                  % (n, v["med"], v["spread"], pres, v["passes"]))
         print("  warmup (pass0 - rest):", warmup_observation(parsed[i]))
     f = form_verdict(summaries)
     print("FORM:", f["final"], "| sign-consistent:", f["sign_consistent"])
