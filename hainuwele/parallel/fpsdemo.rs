@@ -1,7 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.2).
+// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.3).
+//
+// v1.3 — THE THIRD DEATH IDENTIFIED THE MACHINE. Three recordings, one matrix: v0 (no foreground
+// attempt) came back moused 800; v1.1 and v1.2 (foreground attempted, then verifiably TAKEN —
+// focus_foreground true) came back moused 0, keyed 0, and no Esc ever landed. Polling was not
+// the missing piece; the DEVICE was. The named host is a ROG Ally X — a HANDHELD: its sticks
+// emulate a mouse only while the desktop is foreground, and the vendor layer swaps them to
+// GAMEPAD mode the moment a fullscreen app takes focus. v1.2's one verified success — taking
+// the foreground — is exactly what unplugged the operator's only pointing device. The keyboard
+// was never dead; it was never there. v1.3 reads the machine's NATIVE channel: XInput, loaded
+// at runtime (absence is a reported condition, not a link failure), polled beside the keyboard
+// and mouse every frame — left stick walks, right stick looks, B or Start ends the run — and
+// every channel merges into the SAME trace vocabulary (keys dx dy), so replay neither knows nor
+// cares which device recorded. The activity line grows `padded`; the conditions line grows
+// `xinput_loaded | pad_connected`. The render path is UNTOUCHED: both pinned cross-OS chains
+// (v0-trace 8d4c25e0../ae4493b9.., all-zero e224235741921d0f) stand.
 //
 // v1.2 — THE KEYBOARD DIED TWICE, AND THE SECOND DEATH REFUTED THE FIRST REPAIR. v1.1's
 // SetForegroundWindow fix was reasoned from documentation; the host measured it: the v1.2-era
@@ -90,11 +105,11 @@
 //   rustc -O --edition 2021 -o fpsdemo.exe hainuwele\parallel\fpsdemo.rs
 //   .\fpsdemo.exe --selfcheck                              # battery + 3 canon scenes, exit 0
 //   .\fpsdemo.exe --replay fpsdemo_trace.txt               # v0 trace: chain must match the pin
-//   .\fpsdemo.exe --play --trace-out walk_v12.txt          # a REAL walk: WASD + mouse, Esc ends
-//   .\fpsdemo.exe --replay walk_v12.txt                    # twice — chains must be IDENTICAL
-//   .\fpsdemo.exe --replay walk_v12.txt                    #
-//   .\fpsdemo.exe --replay walk_v12.txt --defect           # DIVERGED AT the plant, exit 0
-//   .\fpsdemo.exe --replay walk_v12.txt --host "ROG-Ally-X-Z2-Extreme" `
+//   .\fpsdemo.exe --play --trace-out walk_v13.txt          # the walk: STICKS (or WASD), B/Start/Esc ends
+//   .\fpsdemo.exe --replay walk_v13.txt                    # twice — chains must be IDENTICAL
+//   .\fpsdemo.exe --replay walk_v13.txt                    #
+//   .\fpsdemo.exe --replay walk_v13.txt --defect           # DIVERGED AT the plant, exit 0
+//   .\fpsdemo.exe --replay walk_v13.txt --host "ROG-Ally-X-Z2-Extreme" `
 //                  --power "Turbo-35W-AC" --scheduler "Win11-GameMode-UltimatePerf"
 //
 // GRADE (honest, D5): the lifted kernels are the placements' bytes and the selfcheck holds them
@@ -103,10 +118,11 @@
 // traces) and its cost is MEASURED on the named host at the v1.1 rung: raster med ~2.0-2.4 ms
 // worst 3.1 ms, present med ~0.28 ms at 720p — inside the 8.33 ms slot with the first-frame
 // cold-start outlier (~15 ms) named and excluded as a start condition, not a steady state.
-// v1.1's focus repair is REFUTED BY MEASUREMENT (keyed 0 | moused 0 on the real host) and
-// retired to a reported condition. What remains SPECULATIVE: the POLLED input path
-// (GetAsyncKeyState on THIS host — a third dead keyboard would be a finding of a different
-// kind), the camera FEEL, and every cost row of the walk that has still never happened.
+// v1.1's focus repair was REFUTED BY MEASUREMENT and v1.2's polling was too — not wrong,
+// aimed at a device the machine does not have. What remains SPECULATIVE: the XInput path on
+// THIS host (Armoury Crate may intercept even the native channel in some modes — pad_connected
+// answers that in one run), the stick mapping FEEL, and every cost row of the walk that has
+// still never happened.
 // declared != verified; a green gate never certified a picture.
 
 #![allow(non_snake_case, non_camel_case_types, dead_code)]
@@ -189,6 +205,28 @@ extern "system" {
     fn QueryPerformanceFrequency(v: *mut i64) -> i32;
     fn Sleep(ms: u32);
     fn GetModuleHandleW(n: *const u16) -> HANDLE;
+    fn LoadLibraryW(n: *const u16) -> HANDLE;
+    fn GetProcAddress(h: HANDLE, name: *const u8) -> usize;
+}
+
+// ---- XInput, loaded at runtime (the handheld's native channel; absence is a condition) --------
+#[repr(C)]
+#[derive(Clone, Copy, Default)]
+struct XiGamepad { buttons: u16, lt: u8, rt: u8, lx: i16, ly: i16, rx: i16, ry: i16 }
+#[repr(C)]
+#[derive(Clone, Copy, Default)]
+struct XiState { packet: u32, pad: XiGamepad }
+type XiGetState = unsafe extern "system" fn(u32, *mut XiState) -> u32;
+
+fn xinput_load() -> Option<XiGetState> {
+    for dll in ["xinput1_4.dll", "xinput9_1_0.dll"] {
+        let h = unsafe { LoadLibraryW(wstr(dll).as_ptr()) };
+        if h != 0 {
+            let p = unsafe { GetProcAddress(h, b"XInputGetState\0".as_ptr()) };
+            if p != 0 { return Some(unsafe { std::mem::transmute::<usize, XiGetState>(p) }) }
+        }
+    }
+    None
 }
 
 const WM_DESTROY: u32 = 0x0002;
@@ -1064,6 +1102,9 @@ fn main() {
     let mut seg_late = vec![0u32; n_segments as usize];
     let mut late_ns: Vec<i64> = Vec::with_capacity(total_frames as usize);
     let mut trace_rec: Vec<(u32, i64, i64)> = Vec::new();
+    let xi_get: Option<XiGetState> = if args.play { xinput_load() } else { None };
+    let mut pad_seen = false;                  // a pad answered ERROR_SUCCESS at least once
+    let mut padded: u32 = 0;                   // frames where the pad contributed input
     let mut digests: Vec<(u32, u64)> = Vec::new();
     let mut digests_planted: Vec<(u32, u64)> = Vec::new();
     const PLANT_FRAME: u32 = 600;
@@ -1087,13 +1128,18 @@ fn main() {
                 DispatchMessageW(&msg);
             }
         }
-        // THE INPUT: live devices in --play (and RECORDED), the trace in --replay. Both
-        // channels are POLLED global state now — GetCursorPos for the mouse (as always),
-        // GetAsyncKeyState for the keys (v1.2) — so neither depends on window focus.
+        // THE INPUT: live devices in --play (and RECORDED), the trace in --replay. Every
+        // channel is POLLED global state — GetCursorPos for the mouse, GetAsyncKeyState for
+        // keys (v1.2), XInputGetState for the pad (v1.3) — nothing depends on window focus.
+        // The pad is FIRST-CLASS because the named host is a HANDHELD: its sticks emulate a
+        // mouse only while the DESKTOP is foreground, and taking the foreground (the one thing
+        // v1.2 verifiably achieved) is exactly what unplugs that emulation. Left stick walks,
+        // right stick looks, B or Start ends the run. All channels merge into the SAME trace
+        // vocabulary (keys dx dy), so replay does not know or care which device recorded.
         let (keys, dx, dy) = if args.play {
             let mut pt = POINT { x: 0, y: 0 };
             unsafe { GetCursorPos(&mut pt); SetCursorPos(center_x, center_y); }
-            let k = unsafe {
+            let mut k = unsafe {
                 (((GetAsyncKeyState(0x57) as u16 >> 15) & 1) as u32)        // W
                 | ((((GetAsyncKeyState(0x41) as u16 >> 15) & 1) as u32) << 1) // A
                 | ((((GetAsyncKeyState(0x53) as u16 >> 15) & 1) as u32) << 2) // S
@@ -1102,7 +1148,25 @@ fn main() {
             if unsafe { GetAsyncKeyState(VK_ESCAPE as i32) } as u16 & 0x8000 != 0 {
                 QUIT.store(1, Ordering::SeqCst);                             // Esc: polled too
             }
-            let (mdx, mdy) = ((pt.x - center_x) as i64, (pt.y - center_y) as i64);
+            let (mut mdx, mut mdy) = ((pt.x - center_x) as i64, (pt.y - center_y) as i64);
+            if let Some(get_state) = xi_get {
+                let mut st = XiState::default();
+                if unsafe { get_state(0, &mut st) } == 0 {
+                    pad_seen = true;
+                    const DEAD: i16 = 8000;
+                    let g = st.pad;
+                    if g.ly > DEAD { k |= 1 }                                // stick up    = W
+                    if g.ly < -DEAD { k |= 4 }                               // stick down  = S
+                    if g.lx < -DEAD { k |= 2 }                               // stick left  = A
+                    if g.lx > DEAD { k |= 8 }                                // stick right = D
+                    if g.rx.abs() > DEAD { mdx += (g.rx / 2048) as i64 }     // look
+                    if g.ry.abs() > DEAD { mdy -= (g.ry / 2048) as i64 }     // stick up = look up
+                    if g.buttons & 0x2010 != 0 {                             // START(0x10) | B(0x2000)
+                        QUIT.store(1, Ordering::SeqCst);
+                    }
+                    if k != 0 || g.rx.abs() > DEAD || g.ry.abs() > DEAD { padded += 1 }
+                }
+            }
             trace_rec.push((k, mdx, mdy));
             (k, mdx, mdy)
         } else {
@@ -1166,7 +1230,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.2 input trace: keys dx dy (one line per frame)\n");
+        let mut t = String::from("# fpsdemo v1.3 input trace: keys dx dy (one line per frame)\n");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}\n", k, dx, dy));
         }
@@ -1178,11 +1242,14 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.2 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
+        "fpsdemo v1.3 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, freq));
-    log.push_str(&format!("timer_1ms_granted {} | focus_foreground {}\n",
-                          timer_1ms_granted, focus_foreground));
+    log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | xinput_loaded {} | \
+pad_connected {}\n",
+                          timer_1ms_granted, focus_foreground, xi_get.is_some(),
+                          if args.play { if pad_seen { "true" } else { "false" } }
+                          else { "n/a" }));
     log.push_str(&format!("frames {} | late_over_1ms {} | seg {}\n", late_ns.len(), late_over, seg));
     log.push_str(&format!("late_ns p50 {} p95 {} p99 {}\n", l50, l95, l99));
     for si in 0..n_segments as usize {
@@ -1205,13 +1272,12 @@ fn main() {
         // but only to someone who opened the file. The activity line puts it in the summary.
         let keyed = trace_rec.iter().filter(|&&(k, _, _)| k != 0).count();
         let moused = trace_rec.iter().filter(|&&(_, dx, dy)| dx != 0 || dy != 0).count();
-        log.push_str(&format!("trace {} frames -> {} | keyed {} | moused {}\n",
-                              trace_rec.len(), args.trace_out, keyed, moused));
-        if keyed == 0 {
-            log.push_str("NOTE: 0 frames carried a key — keys are POLLED now (GetAsyncKeyState, \
-                          focus-free), so this means no WASD key was physically down at any of \
-                          the polls; if you WERE holding one, that is a third input-path finding \
-                          and worth the paste\n");
+        log.push_str(&format!("trace {} frames -> {} | keyed {} | moused {} | padded {}\n",
+                              trace_rec.len(), args.trace_out, keyed, moused, padded));
+        if keyed == 0 && padded == 0 {
+            log.push_str("NOTE: no key and no pad input at any poll — if you were driving the \
+                          sticks, check pad_connected above: false with sticks moving means \
+                          XInput never saw the controller, which is its own finding\n");
         }
     }
     if args.host == "-" {

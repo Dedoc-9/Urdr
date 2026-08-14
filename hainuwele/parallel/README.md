@@ -136,6 +136,20 @@ chains on two different traces — 60 checkpoints, two OSes, zero divergence. Co
 host at the v1.1 rung: raster med ~2.0–2.4 ms, worst 3.1 ms, present med ~0.28 ms at 720p,
 inside the 8.33 ms slot, with the first-frame cold start (~15 ms) a named start condition.
 
+v1.3 is the third death identifying the machine. v1.2's polling came back `keyed 0 | moused 0`
+with `focus_foreground true` — the repair worked and the recording still starved, which closed
+every software suspect and left the device. The matrix across three recordings says it plainly:
+v0 (console foreground) moused 800; v1.1/v1.2 (demo foreground) moused 0 — and the named host is
+a ROG Ally X, a handheld whose sticks emulate a mouse only while the desktop is foreground; the
+vendor layer swaps them to gamepad mode the moment a fullscreen app takes focus. Taking the
+foreground — v1.2's one verified success — is what unplugged the operator's only pointing
+device; the keyboard was never dead, it was never there. v1.3 polls the native channel: XInput,
+loaded at runtime so absence is a reported condition (`xinput_loaded | pad_connected`) rather
+than a link failure — left stick walks, right stick looks, B or Start ends the run — and every
+channel merges into the same trace vocabulary, so replay neither knows nor cares which device
+recorded. The input arc's lesson, stated once: an instrument must speak the machine's native
+input, and every assumption it retires must become a reported condition, not a memory.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
