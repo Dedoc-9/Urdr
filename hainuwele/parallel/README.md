@@ -150,6 +150,14 @@ channel merges into the same trace vocabulary, so replay neither knows nor cares
 recorded. The input arc's lesson, stated once: an instrument must speak the machine's native
 input, and every assumption it retires must become a reported condition, not a memory.
 
+v1.4 aliases the desktop vocabulary. v1.3's run was the arc's first partial success and its most
+precise measurement: `pad_connected true | padded 0 | moused 1386` — the vendor layer holds the
+physical sticks and emits desktop input (the right stick became the mouse; the operator's pan
+replayed cross-OS thirty for thirty as the record's third trace), while the exposed XInput
+device reads idle. In that same scheme the left stick emits arrow keys — the one vocabulary the
+demo did not poll. Arrows now alias WASD and Enter joins the end-run set, so the walk arrives on
+whatever the machine speaks; the trace bits, and therefore replay, are unchanged.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

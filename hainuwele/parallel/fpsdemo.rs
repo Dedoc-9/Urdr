@@ -1,7 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.3).
+// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.4).
+//
+// v1.4 — THE LOOK ARRIVED; THE WALK GETS ITS LAST ALIAS. The v1.3 run was the input arc's
+// first partial success and its most precise measurement: pad_connected TRUE, padded 0,
+// moused 1386. Read together: the vendor layer holds the PHYSICAL sticks and emits DESKTOP
+// vocabulary — the right stick became the mouse (that is the 1386, and the operator's pan
+// replayed cross-OS 30/30 as trace #3), while the XInput device it exposes reads idle. In
+// that same desktop scheme the LEFT stick emits ARROW KEYS — the one vocabulary the demo did
+// not poll. v1.4 aliases arrows onto WASD bits and Enter onto the end-run set, so the walk
+// arrives on whatever the machine speaks: WASD or arrows, mouse or stick-mouse, pad if the
+// native channel ever wakes. All of it lands in the same trace bits; replay is unchanged.
 //
 // v1.3 — THE THIRD DEATH IDENTIFIED THE MACHINE. Three recordings, one matrix: v0 (no foreground
 // attempt) came back moused 800; v1.1 and v1.2 (foreground attempted, then verifiably TAKEN —
@@ -105,11 +115,11 @@
 //   rustc -O --edition 2021 -o fpsdemo.exe hainuwele\parallel\fpsdemo.rs
 //   .\fpsdemo.exe --selfcheck                              # battery + 3 canon scenes, exit 0
 //   .\fpsdemo.exe --replay fpsdemo_trace.txt               # v0 trace: chain must match the pin
-//   .\fpsdemo.exe --play --trace-out walk_v13.txt          # the walk: STICKS (or WASD), B/Start/Esc ends
-//   .\fpsdemo.exe --replay walk_v13.txt                    # twice — chains must be IDENTICAL
-//   .\fpsdemo.exe --replay walk_v13.txt                    #
-//   .\fpsdemo.exe --replay walk_v13.txt --defect           # DIVERGED AT the plant, exit 0
-//   .\fpsdemo.exe --replay walk_v13.txt --host "ROG-Ally-X-Z2-Extreme" `
+//   .\fpsdemo.exe --play --trace-out walk_v14.txt          # LEFT stick (arrows) walks, RIGHT stick (mouse) looks; Esc/Enter/B/Start ends
+//   .\fpsdemo.exe --replay walk_v14.txt                    # twice — chains must be IDENTICAL
+//   .\fpsdemo.exe --replay walk_v14.txt                    #
+//   .\fpsdemo.exe --replay walk_v14.txt --defect           # DIVERGED AT the plant, exit 0
+//   .\fpsdemo.exe --replay walk_v14.txt --host "ROG-Ally-X-Z2-Extreme" `
 //                  --power "Turbo-35W-AC" --scheduler "Win11-GameMode-UltimatePerf"
 //
 // GRADE (honest, D5): the lifted kernels are the placements' bytes and the selfcheck holds them
@@ -1139,14 +1149,19 @@ fn main() {
         let (keys, dx, dy) = if args.play {
             let mut pt = POINT { x: 0, y: 0 };
             unsafe { GetCursorPos(&mut pt); SetCursorPos(center_x, center_y); }
-            let mut k = unsafe {
-                (((GetAsyncKeyState(0x57) as u16 >> 15) & 1) as u32)        // W
-                | ((((GetAsyncKeyState(0x41) as u16 >> 15) & 1) as u32) << 1) // A
-                | ((((GetAsyncKeyState(0x53) as u16 >> 15) & 1) as u32) << 2) // S
-                | ((((GetAsyncKeyState(0x44) as u16 >> 15) & 1) as u32) << 3) // D
-            };
-            if unsafe { GetAsyncKeyState(VK_ESCAPE as i32) } as u16 & 0x8000 != 0 {
-                QUIT.store(1, Ordering::SeqCst);                             // Esc: polled too
+            // v1.4: ARROW KEYS ALIAS WASD. The v1.3 run measured the last gap: pad_connected
+            // true, padded 0, moused 1386 — the vendor layer keeps the physical sticks and
+            // emits DESKTOP input (right stick as the mouse, which is where moused came from;
+            // left stick as ARROW KEYS in the same scheme). The walk arrives on whatever
+            // vocabulary the machine speaks; all of it lands in the same trace bits.
+            let key = |vk: i32| -> u32 { unsafe { ((GetAsyncKeyState(vk) as u16 >> 15) & 1) as u32 } };
+            let mut k = (key(0x57) | key(0x26))              // W  | Up
+                | ((key(0x41) | key(0x25)) << 1)             // A  | Left
+                | ((key(0x53) | key(0x28)) << 2)             // S  | Down
+                | ((key(0x44) | key(0x27)) << 3);            // D  | Right
+            if unsafe { GetAsyncKeyState(VK_ESCAPE as i32) } as u16 & 0x8000 != 0
+                || unsafe { GetAsyncKeyState(0x0D) } as u16 & 0x8000 != 0 {
+                QUIT.store(1, Ordering::SeqCst);             // Esc or Enter (desktop-mode Start)
             }
             let (mut mdx, mut mdy) = ((pt.x - center_x) as i64, (pt.y - center_y) as i64);
             if let Some(get_state) = xi_get {
@@ -1230,7 +1245,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.3 input trace: keys dx dy (one line per frame)\n");
+        let mut t = String::from("# fpsdemo v1.4 input trace: keys dx dy (one line per frame)\n");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}\n", k, dx, dy));
         }
@@ -1242,12 +1257,14 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.3 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
+        "fpsdemo v1.4 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, freq));
     log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | xinput_loaded {} | \
 pad_connected {}\n",
-                          timer_1ms_granted, focus_foreground, xi_get.is_some(),
+                          timer_1ms_granted, focus_foreground,
+                          if args.play { if xi_get.is_some() { "true" } else { "false" } }
+                          else { "n/a" },
                           if args.play { if pad_seen { "true" } else { "false" } }
                           else { "n/a" }));
     log.push_str(&format!("frames {} | late_over_1ms {} | seg {}\n", late_ns.len(), late_over, seg));
