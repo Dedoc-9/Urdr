@@ -700,6 +700,17 @@ power and scheduler — pinned red as probe v0.2's specification; and input->pho
 UNDETERMINED with the missing segments partitioned by whose task they are: nothing left is
 software's alone. Born a leaf: sealframe's machinery is injected, never imported.
 
+`pixelcost.py` — `URDRPXC1`: the resolution decision, derived from committed records rather than
+chosen. Two v0.3 probe executions with conditions declared, committed under DISTINCT digests —
+distinctness is a law because reality planted its violation: an accidental Copy-Item produced two
+byte-identical "runs", and an analyzer that accepted them would trust a between-run spread of
+exactly zero. The affine prediction is tested by chord against a conservative integer ruler: both
+runs sit below the chord (the convex direction) INSIDE the ruler, so the form reads UNDETERMINED
+with sign-consistency reported. The budget reads FITS for every measured cell at the 120 Hz slot —
+1280x720 by ceiling, the demo arc's first evidence-derived resolution decision — and 1080p has NO
+verdict, structurally, because it was not run and a linear guess under an unrefuted convexity
+would understate it.
+
 THE ANSWER THE ARC WAS FOR, on the named host across five independent executions: moulding costs a
 CONSTANT penalty per rollback, flat across a depth axis over which the replay work grows nearly
 tenfold — the intercept moving and the slope not, predicted in exact integers eight rungs earlier and

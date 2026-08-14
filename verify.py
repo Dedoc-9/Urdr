@@ -228,6 +228,7 @@ STAGE_ORDER = (
     "indexed",
     "reflow",
     "probelog",
+    "pixelcost",
     "rollbench",
     "reachable",
     "retire",
@@ -18049,6 +18050,84 @@ class Gate:
                     "target to move" % verdict_s
                     if l_ok else "the ledger half did not hold")
 
+    def pixelcost(self):
+        """THE RESOLUTION DECISION, DERIVED (URDRPXC1). Rows: records (two committed distinct
+        executions, strict admission), verdict (the form test, the budget, and the refusals)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import pixelcost as PX
+        except Exception as exc:
+            for r in ("records", "verdict"):
+                self.record(f"pixelcost-{r}", False, f"import failed (pixelcost): {exc}")
+            return
+        r_ok = True
+        try:
+            parsed = PX.admit()
+            r_ok = (len(parsed) == 2
+                    and all(q["host"] == "ROG-Ally-X-Z2-Extreme" for q in parsed)
+                    and all(q["power"] != "-" and q["scheduler"] != "-" for q in parsed)
+                    and PX.a_thin_row_is_excluded_by_its_own_n(parsed[1])
+                    and PX.scene_result("records") == PX.golden("records"))
+        except Exception:
+            r_ok = False
+        self.record("pixelcost-records", r_ok,
+                    "TWO DISTINCT EXECUTIONS OF present_probe v0.3, conditions DECLARED — the "
+                    "strict door's specification from probelog, discharged: power and scheduler "
+                    "are in each record's header, so these records pass the door the v0.1 record "
+                    "was pinned red against. Committed under DISTINCT digests, and distinctness "
+                    "is a LAW because reality planted its violation: the operator copied run 1's "
+                    "log to probe_run2.txt without executing a second run, the two files hashed "
+                    "IDENTICALLY, and only the terminal transcript showed why — an analyzer that "
+                    "accepted the pair would compute a between-run spread of exactly ZERO and "
+                    "then use it as a tolerance (URDRRPT1). A row whose own n is under the floor "
+                    "is EXCLUDED AND COUNTED: run 2's 720p pass 3 ran TWO frames before ESC, and "
+                    "a 2-sample median is a coin toss wearing a number. The pass-0 warmup "
+                    "elevation is REPORTED as a position observation (the confound shape), never "
+                    "silently excluded — the lower-middle med-of-meds is robust to it"
+                    if r_ok else "the records half did not hold")
+        v_ok, decided = True, "?"
+        try:
+            summaries = [PX.cell_summary(q) for q in parsed]
+            f = PX.form_verdict(summaries)
+            b = PX.budget_verdicts(summaries, parsed[0]["hz"])
+            decided = "form=%s budget[1280x720]=%s" % (f["final"], b["1280x720"]["budget"])
+            v_ok = (f["final"] == "UNDETERMINED" and f["sign_consistent"]
+                    and all(r["residual"] < 0 and abs(r["residual"]) < r["ruler"]
+                            for r in f["per_run"])
+                    and all(v["budget"] == "FITS" for v in b.values())
+                    and b["1280x720"]["hi_total"] < b["1280x720"]["slot"]
+                    and PX.a_duplicate_record_refuses()
+                    and PX.a_condition_less_record_refuses()
+                    and PX.a_v01_record_refuses()
+                    and PX.extrapolation_is_structurally_impossible(summaries, parsed[0]["hz"])
+                    and PX.scene_result("verdict") == PX.golden("verdict"))
+        except Exception:
+            v_ok = False
+        self.record("pixelcost-verdict", v_ok,
+                    "P2'S CONTRACT, DISCHARGED BY MEASUREMENT: %s. THE FORM — the a-priori "
+                    "affine prediction is tested by CHORD, per run, against a conservative "
+                    "integer ruler (the sum of between-pass med ranges; a residual is a "
+                    "combination of three medians and its noise is bounded by the sum of theirs, "
+                    "triangle inequality, no distribution assumed). Both runs sit BELOW the "
+                    "chord — the CONVEX direction, marginal pixel cost rising — by an amount "
+                    "INSIDE the ruler, so the verdict is UNDETERMINED WITH SIGN-CONSISTENCY "
+                    "REPORTED, which is the honest reading: not affine-confirmed, not "
+                    "convex-confirmed, and the earlier fragments' apparent steep superlinearity "
+                    "shrank as the instrument got cleaner, which is itself a finding about "
+                    "instruments. THE BUDGET, per MEASURED cell against the 120 Hz slot: every "
+                    "cell FITS, and 1280x720 fits BY CEILING — the worst run's hi_total sits "
+                    "under the slot — so 720p at 120 Hz is the demo arc's first "
+                    "EVIDENCE-DERIVED resolution decision on this renderer and machine. AND "
+                    "1080p HAS NO VERDICT, STRUCTURALLY: it was not run, the budget function "
+                    "ranges over measured cells only, and with CONVEX unrefuted a linear guess "
+                    "would understate its cost by construction — the honest path is a probe run "
+                    "carrying a 1920x1080 cell. Refusals proved on the committed bytes: the "
+                    "duplicate pair, the condition-less record, the earlier probe version"
+                    % decided
+                    if v_ok else "the verdict half did not hold")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -21686,7 +21765,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

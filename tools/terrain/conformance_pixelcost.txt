@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_pixelcost.txt — URDRPXC1 pinned scenes.
+#
+# THE RESOLUTION DECISION, DERIVED FROM COMMITTED RECORDS RATHER THAN CHOSEN.
+#
+# Two present_probe v0.3 executions on the named machine, conditions DECLARED (the strict door's
+# specification discharged), committed under distinct digests. Every figure derives from those
+# bytes at claim time (L75).
+#
+# records — both records parse strictly; a row whose own n is under the floor is excluded and
+#           COUNTED (run 2's 720p pass 3 ran two frames before ESC — the live case); per-cell
+#           med-of-meds, between-pass spread, present bands from each cell's own chains; the
+#           pass-0 warmup elevation REPORTED as a position observation, never silently excluded.
+# verdict — FORM: the affine prediction tested against the chord, per run, with a conservative
+#           integer ruler (sum of between-pass ranges); both runs read UNDETERMINED with
+#           SIGN-CONSISTENT negative residuals — the convex suspicion is real, inside the ruler,
+#           and stated as exactly that. BUDGET, per measured cell against the 120 Hz slot:
+#           all three cells FITS — 1280x720 by CEILING (worst-run hi_total under the slot), the
+#           first evidence-derived resolution decision of the demo arc. REFUSALS, each proved on
+#           the committed bytes: a byte-copy of a record (identical digests — THE WILD-CAUGHT
+#           LAW: the operator's accidental Copy-Item produced exactly this, and the transcript is
+#           the witness), a condition-less record, an earlier probe version, and extrapolation —
+#           1920x1080 has NO verdict because it was not run, which with CONVEX unrefuted is the
+#           entire point.
+#
+# does_not_show: bands bound THIS probe's renderer on THIS machine under THESE conditions. The
+# FORM verdict cannot distinguish W*H from other monotone functions agreeing on these cells;
+# UNDETERMINED means the ruler exceeds the residual, not that the relationship is affine. The
+# budget prices raster + present only — input_transport, present_wait and panel remain unmeasured
+# (probelog's partition), so nothing here is an input-to-photon claim.
+#
+# DECLARED: MIN_N, MIN_PASSES, the ruler's construction, the budget's composition.
+
+records fc99363f819a0b1df54acd587d820e3a23f51f750adcf9055c29e48abeeacbb6
+verdict f5fc34d1e3ce62cb5734975f616fd82eaeb2634dca1c779a33ce7a77dc4a1356
