@@ -47,6 +47,15 @@ staying in the click chains where they belong. And lateness became a per-segment
 absolute schedule let a stalled segment's lag be "caught up" inside the next cell's segment, which
 then wore the blame.
 
+v0.4 kills the downscale artifact `pixelcost` v1.1 named as this instrument's specification. v0.3
+presented every cell into a fixed small window, so a 1920x1080 cell paid a StretchDIBits DOWNSCALE
+the real demo would never pay natively — leaving 1080p's present band structurally dishonest and
+its 60 Hz budget verdict UNDETERMINED. v0.4 presents 1:1 in a borderless popup covering the whole
+screen: each cell blitted at its own size, centered, source and destination dimensions equal, the
+border blacked at segment changes so a smaller cell never wears a larger cell's leftovers, and a
+cell larger than the screen REFUSES (a clipped blit measures a different operation — the same
+artifact class in a new coat). Present chains at every cell now mean what they say.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

@@ -57,6 +57,17 @@
 // the NEXT cell 'caught up' while wearing the blame (720p read late=164 as the echo of 540p's
 // stall). The deadline resyncs at each segment boundary and each row reports ITS OWN late count.
 //
+// v0.4 — THE DOWNSCALE ARTIFACT DIES (pixelcost v1.1 named this as the specification). v0.3
+// presented every cell through StretchDIBits INTO A 1280x729 WINDOW, so a 1920x1080 cell paid a
+// DOWNSCALE the real demo would never pay presenting natively — which left 1080p's present band
+// structurally dishonest and its 60 Hz budget verdict UNDETERMINED. v0.4 presents 1:1: a
+// borderless popup covering the whole screen, each cell blitted at its own size, centered, with
+// no scaling anywhere (source and destination dimensions equal), and the border cleared to black
+// at each segment change so a smaller cell never wears a larger cell's leftovers. A cell larger
+// than the screen REFUSES — a clipped blit measures a different operation and would smuggle the
+// same class of artifact back in. The window line in the log now records the SCREEN, and the
+// present chains at every cell mean what they say.
+//
 // STILL, AND ALWAYS: wall-clock class, DELIBERATELY UNGATED (the bench.py precedent); std-only
 // raw Win32 FFI, no cargo (the urdr_render_rs precedent); integer ns; lower-middle percentiles
 // (repeat's convention); an entry door that refuses unknown flags and flag-swallowing (URDRENT1);
@@ -67,7 +78,9 @@
 //   .\present_probe.exe --defect                       # must print DEFECT CAUGHT, localized to
 //                                                      # the middle cell's ODD passes, exit 0 (~54 s)
 //   .\present_probe.exe --host "ROG-Ally-X-Z2-Extreme" --power "Turbo-35W-AC" `
-//                       --scheduler "Win11-GameMode-UltimatePerf" --hz 120
+//       --scheduler "Win11-GameMode-UltimatePerf" --hz 120 `
+//       --cells 640x360,960x540,1280x720,1920x1080
+//   # CLICK IN EVERY CELL — the present bands need chains at each resolution, 1080p most of all
 //   # let it run to completion (~54 s) and click ~20 times spread across it; ESC ends early
 //   # honestly (each row carries its own n). log: present_probe_log.txt — run TWICE, keep both.
 //
@@ -128,6 +141,7 @@ extern "system" {
     fn ShowWindow(h: HANDLE, cmd: i32) -> i32;
     fn GetClientRect(h: HANDLE, r: *mut RECT) -> i32;
     fn LoadCursorW(inst: HANDLE, name: usize) -> HANDLE;
+    fn GetSystemMetrics(index: i32) -> i32;
 }
 #[link(name = "gdi32")]
 extern "system" {
@@ -135,6 +149,7 @@ extern "system" {
                      xs: i32, ys: i32, ws: i32, hs: i32,
                      bits: *const u8, bmi: *const BITMAPINFO, usage: u32, rop: u32) -> i32;
     fn GdiFlush() -> i32;
+    fn PatBlt(dc: HANDLE, x: i32, y: i32, w: i32, h: i32, rop: u32) -> i32;
 }
 #[link(name = "winmm")]
 extern "system" {
@@ -163,6 +178,10 @@ const WS_OVERLAPPEDWINDOW: u32 = 0x00CF0000;
 const WS_VISIBLE: u32 = 0x1000_0000;
 const SW_SHOW: i32 = 5;
 const IDC_ARROW: usize = 32512;
+const WS_POPUP: u32 = 0x8000_0000;
+const SM_CXSCREEN: i32 = 0;
+const SM_CYSCREEN: i32 = 1;
+const BLACKNESS: u32 = 0x0000_0042;
 
 // ---- the instants a WndProc can reach --------------------------------------------------------
 static CLICK_QPC: AtomicI64 = AtomicI64::new(0);
@@ -401,10 +420,20 @@ fn main() {
         lpszMenuName: std::ptr::null(), lpszClassName: cls.as_ptr(),
     };
     assert!(unsafe { RegisterClassW(&wc) } != 0, "RegisterClassW failed");
-    let title = wstr("urdr present probe v0.2 — click to flash, ESC to end");
+    let title = wstr("urdr present probe v0.4 — click to flash, ESC to end");
+    let (scr_w, scr_h) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
+    assert!(scr_w > 0 && scr_h > 0, "GetSystemMetrics failed");
+    for &(cw, ch) in &args.cells {
+        if cw > scr_w || ch > scr_h {
+            eprintln!("PRESENT-REFUSE: cell {cw}x{ch} exceeds the {scr_w}x{scr_h} screen — a \
+                       clipped 1:1 blit measures a different operation (the downscale artifact's \
+                       sibling); drop the cell or run on a larger panel");
+            std::process::exit(2);
+        }
+    }
     let hwnd = unsafe {
-        CreateWindowExW(0, cls.as_ptr(), title.as_ptr(), WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                        100, 100, 1296, 768, 0, 0, inst, 0)
+        CreateWindowExW(0, cls.as_ptr(), title.as_ptr(), WS_POPUP | WS_VISIBLE,
+                        0, 0, scr_w, scr_h, 0, 0, inst, 0)
     };
     assert!(hwnd != 0, "CreateWindowExW failed");
     unsafe { ShowWindow(hwnd, SW_SHOW) };
@@ -448,6 +477,9 @@ fn main() {
             // A SEGMENT IS ITS OWN PACING EPOCH: without this, a slow segment's accumulated lag
             // is 'caught up' inside the next one, which then wears the blame (the v0.2 echo).
             deadline = qpc() + ticks_per_frame;
+            // and its own CANVAS: black the border so a smaller cell never wears a larger
+            // cell's leftover pixels (outside the timed present — this is housekeeping).
+            unsafe { PatBlt(dc, 0, 0, win_w, win_h, BLACKNESS); }
         }
 
         let mut msg = MSG { hwnd: 0, message: 0, wParam: 0, lParam: 0, time: 0,
@@ -484,7 +516,10 @@ fn main() {
             bmiColors: [0; 3],
         };
         unsafe {
-            StretchDIBits(dc, 0, 0, win_w, win_h, 0, 0, cw, ch, buf.as_ptr() as *const u8,
+            // 1:1, CENTERED, NO SCALING: source and destination dimensions are equal, so the
+            // present band prices the blit the demo would actually pay (v0.4's whole point).
+            StretchDIBits(dc, (win_w - cw) / 2, (win_h - ch) / 2, cw, ch,
+                          0, 0, cw, ch, buf.as_ptr() as *const u8,
                           &bmi, DIB_RGB_COLORS, SRCCOPY);
             GdiFlush();
         }
@@ -523,7 +558,7 @@ fn main() {
     let cell_names: Vec<String> = args.cells.iter().map(|&(w, h)| format!("{w}x{h}")).collect();
     let mut log = String::new();
     log.push_str(&format!(
-        "present_probe v0.3 | host {} | power {} | scheduler {} | hz {} | window {}x{} | qpf {}\n",
+        "present_probe v0.4 | host {} | power {} | scheduler {} | hz {} | window {}x{} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, win_w, win_h, freq));
     log.push_str(&format!("timer_1ms_granted {}\n", timer_1ms_granted));
     log.push_str(&format!("cells {} | passes {} | seg {}\n", cell_names.join(","), args.passes,
