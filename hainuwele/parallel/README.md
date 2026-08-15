@@ -165,6 +165,18 @@ on an observed release, so ending requires a press that began after launch. The 
 did its quieter job the same minute — the second attempt refused to replace the one-frame
 record wearing the walk's name.
 
+v1.6 opens the fidelity spend, chosen by pictures and priced before purchase. Candidate 1 —
+height bands plus an integer lambert sun — was rendered against the committed real-walk workload
+in the headless harness before the demo changed: the altitude anchors come from a measured
+height histogram over the canon terrain rather than taste, the lighting is a per-triangle
+integer normal against a fixed sun, and all of it is VIEW-layer (the canon heights and the
+certified camera untouched, the selfcheck door unchanged). Its price on the identical committed
+workload measured statistically zero on the authoring container; the honest number is the host
+A/B the protocol runs — the committed v1.5 named log is the before, the same trace replayed
+under v1.6 with conditions declared is the after. The shipped render was proved bit-identical to
+the approved candidate frames before delivery, and the v1.6 expected chain for the committed
+walk was produced cross-OS first.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

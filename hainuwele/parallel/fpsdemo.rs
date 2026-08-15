@@ -1,7 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — P3.2a: THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.5).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.6).
+//
+// v1.6 — P3.4 OPENS: THE FIRST FIDELITY SPEND, CHOSEN BY PICTURES AND PRICED BEFORE PURCHASE.
+// Candidate 1 (height bands + integer lambert sun) was rendered against the COMMITTED real-walk
+// workload in the headless harness before this file changed: the band anchors come from a
+// measured height histogram, not taste; the lighting is a per-triangle integer normal against a
+// fixed sun; everything is VIEW-layer (the canon heights and certified camera untouched — the
+// selfcheck door still holds them to the placements' goldens at every launch). Its price on the
+// identical committed workload measured statistically ZERO on the authoring container; the
+// honest number is the host A/B this protocol runs: the committed v1.5 named log is the BEFORE,
+// this build's named replay of the SAME walk_real trace is the AFTER. Digest chains change with
+// the pixels (version-bound, as always); the committed v1.1-v1.5 chain records remain valid
+// records OF THAT RENDER PATH, and the v1.6 expected chain for walk_real ships in the delivery
+// notes, produced cross-OS before this file reached the host.
 //
 // v1.5 — THE END KEY THAT STARTS THE PROGRAM. The first attempted real walk lasted ONE frame:
 // v1.4 added Enter to the end-run set, and Enter is the key that launches the program from a
@@ -461,17 +474,63 @@ fn raster_world(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
     for gy in -VIEW..VIEW {
         for gx in -VIEW..VIEW {
             let (wx, wy) = (cam_tile_x + gx, cam_tile_y + gy);
-            let h4 = world.h(wx, wy) + world.h(wx + 1, wy) + world.h(wx, wy + 1)
-                + world.h(wx + 1, wy + 1);
-            // v1's palette had TWO defects this line replaces. (1) SATURATION: 92 + h4*6
-            // pinned every tile above half height to one flat 255, erasing the relief the
-            // canon computes. (2) BYTE CARRY: color.wrapping_add(0x00040404) on a saturated
-            // green byte carried into the RED byte — 255+4 = 0x103 — collapsing green to 3
-            // and painting every second triangle MAGENTA. A packed color is not an integer.
-            let g = 56 + h4 * 2 + ((wx ^ wy) & 1) * 8;             // full relief range, 56..200
-            let quad = [(idx(gx, gy), idx(gx + 1, gy), idx(gx, gy + 1), g),
-                        (idx(gx + 1, gy), idx(gx + 1, gy + 1), idx(gx, gy + 1), g - 10)];
-            for &(ia, ib, ic, gt) in &quad {
+            let (h00, h10) = (world.h(wx, wy), world.h(wx + 1, wy));
+            let (h01, h11) = (world.h(wx, wy + 1), world.h(wx + 1, wy + 1));
+            let h4 = h00 + h10 + h01 + h11;
+            // v1.6 — P3.4 CANDIDATE 1, GRADUATED: height bands + integer lambert sun.
+            // Anchors from the MEASURED height histogram (480x480 canon tiles: median 12,
+            // 96% below 19), piecewise-linear so band edges cannot ring; per-triangle
+            // world-space normal, fixed integer sun, one small isqrt. All VIEW-layer:
+            // the canon heights and the certified camera are untouched. Cost on the
+            // committed walk workload measured statistically ZERO on the authoring
+            // container (4.97s -> 4.91s / 1145 frames); the host A/B decides for real.
+            fn isqrt(n: i64) -> i64 {
+                if n <= 0 { return 0 }
+                let mut x = n; let mut y = (x + 1) / 2;
+                while y < x { x = y; y = (x + n / x) / 2 }
+                x
+            }
+            let havg = h4 / 4;
+            let jit = ((wx.wrapping_mul(73) ^ wy.wrapping_mul(151)) & 7) - 3;
+            // anchors from the MEASURED height distribution (median 12, 96% below 19):
+            // sand@4, grass@10, rock@16, snow@21 — piecewise-linear, so no band rings
+            let band = |h: i64| -> (i64, i64, i64) {
+                let lerp = |a: (i64, i64, i64), b: (i64, i64, i64), t_num: i64, t_den: i64| {
+                    (a.0 + (b.0 - a.0) * t_num / t_den,
+                     a.1 + (b.1 - a.1) * t_num / t_den,
+                     a.2 + (b.2 - a.2) * t_num / t_den)
+                };
+                let sand = (150 + jit, 137 + jit, 94);
+                let grass = (56 + jit * 2, 118 + jit * 2, 48 + jit);
+                let rock = (99 + jit, 86 + jit, 72 + jit);
+                let snow = (224, 227, 234);
+                if h <= 4 { sand }
+                else if h <= 10 { lerp(sand, grass, h - 4, 6) }
+                else if h <= 16 { lerp(grass, rock, h - 10, 6) }
+                else if h <= 21 { lerp(rock, snow, h - 16, 5) }
+                else { snow }
+            };
+            let lam = |ax: i64, ay: i64, az: i64, bx: i64, by: i64, bz: i64| -> i64 {
+                // normal = cross(edge1, edge2), sun L = (-2, -1, 3), lambert in 0..256
+                let (nx, ny, nz) = (ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx);
+                let (nx, ny, nz) = if nz < 0 { (-nx, -ny, -nz) } else { (nx, ny, nz) };
+                let dot = -2 * nx - ny + 3 * nz;
+                if dot <= 0 { return 0 }
+                let nn = isqrt(nx * nx + ny * ny + nz * nz);
+                let ll = 4; // isqrt(4+1+9)=3.74 -> 4 (ceil keeps lam <= 256)
+                if nn == 0 { return 0 }
+                (dot * 256 / (nn * ll)).min(256)
+            };
+            // triangle 1 world edges: (TILE,0,h10-h00), (0,TILE,h01-h00); triangle 2 from h11
+            let l1 = lam(TILE, 0, h10 - h00, 0, TILE, h01 - h00);
+            let l2 = lam(0, TILE, h11 - h10, -TILE, 0, h01 - h11);
+            let (br, bg, bb) = band(havg);
+            let lit = |l: i64, c: i64| (c * (60 + 196 * l / 256) / 160).clamp(0, 255);
+            let quad = [(idx(gx, gy), idx(gx + 1, gy), idx(gx, gy + 1),
+                         (lit(l1, br), lit(l1, bg), lit(l1, bb))),
+                        (idx(gx + 1, gy), idx(gx + 1, gy + 1), idx(gx, gy + 1),
+                         (lit(l2, br), lit(l2, bg), lit(l2, bb)))];
+            for &(ia, ib, ic, (tr, tg, tb)) in &quad {
                 let (a, mut b, mut cc) = (screen[ia], screen[ib], screen[ic]);
                 if a.0 == i64::MIN || b.0 == i64::MIN || cc.0 == i64::MIN { continue }
                 // whole-triangle screen rejection: a near tile projects to a bbox far larger
@@ -489,9 +548,9 @@ fn raster_world(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
                 if area < 0 { std::mem::swap(&mut b, &mut cc); area = -area; }
                 // depth fog toward the sky band: per-channel integer blend, deterministic
                 let d3 = ((a.2 + b.2 + cc.2) / 3).clamp(0, FAR8);
-                let dim = 8 + 24 * (FAR8 - d3) / FAR8;             // 8..32 of 32
+                let dim = 14 + 18 * (FAR8 - d3) / FAR8;            // 14..32 of 32 (softer fog)
                 let ch3 = |near: i64, sky: i64| ((near * dim + sky * (32 - dim)) / 32) as u32;
-                let col = (ch3(gt / 3 + 24, 60) << 16) | (ch3(gt, 120) << 8) | ch3(gt / 4 + 16, 190);
+                let col = (ch3(tr, 60) << 16) | (ch3(tg, 120) << 8) | ch3(tb, 190);
                 let x_lo = a.0.min(b.0).min(cc.0).max(0);
                 let x_hi = a.0.max(b.0).max(cc.0).min(w as i64 - 1);
                 let y_lo = a.1.min(b.1).min(cc.1).max(0);
@@ -1262,9 +1321,11 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.5 input trace: keys dx dy (one line per frame)\n");
+        let mut t = String::from("# fpsdemo v1.6 input trace: keys dx dy (one line per frame)
+");
         for (k, dx, dy) in &trace_rec {
-            t.push_str(&format!("{} {} {}\n", k, dx, dy));
+            t.push_str(&format!("{} {} {}
+", k, dx, dy));
         }
         std::fs::write(&args.trace_out, &t).expect("trace write failed");
     }
@@ -1274,18 +1335,22 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.5 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}\n",
+        "fpsdemo v1.6 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}
+",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, freq));
     log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | xinput_loaded {} | \
-pad_connected {}\n",
+pad_connected {}
+",
                           timer_1ms_granted, focus_foreground,
                           if args.play { if xi_get.is_some() { "true" } else { "false" } }
                           else { "n/a" },
                           if args.play { if pad_seen { "true" } else { "false" } }
                           else { "n/a" }));
-    log.push_str(&format!("frames {} | late_over_1ms {} | seg {}\n", late_ns.len(), late_over, seg));
-    log.push_str(&format!("late_ns p50 {} p95 {} p99 {}\n", l50, l95, l99));
+    log.push_str(&format!("frames {} | late_over_1ms {} | seg {}
+", late_ns.len(), late_over, seg));
+    log.push_str(&format!("late_ns p50 {} p95 {} p99 {}
+", l50, l95, l99));
     for si in 0..n_segments as usize {
         let mut v = seg_raster[si].clone();
         if v.is_empty() { continue }
@@ -1293,12 +1358,14 @@ pad_connected {}\n",
         let mut pv = seg_present[si].clone();
         pv.sort_unstable();
         log.push_str(&format!(
-            "seg {} n {} raster_ns {} {} {} present_ns {} {} {} late {}\n",
+            "seg {} n {} raster_ns {} {} {} present_ns {} {} {} late {}
+",
             si, v.len(), v[0], pct(&v, 50), v[v.len() - 1],
             pv[0], pct(&pv, 50), pv[pv.len() - 1], seg_late[si]));
     }
     for (fr, d) in &digests {
-        log.push_str(&format!("digest frame {} fnv64 {:016x}\n", fr, d));
+        log.push_str(&format!("digest frame {} fnv64 {:016x}
+", fr, d));
     }
     if args.play {
         // THE INSTRUMENT CARRIES ITS OWN CONTROL (probelog's lesson, at the input layer): the
@@ -1306,17 +1373,20 @@ pad_connected {}\n",
         // but only to someone who opened the file. The activity line puts it in the summary.
         let keyed = trace_rec.iter().filter(|&&(k, _, _)| k != 0).count();
         let moused = trace_rec.iter().filter(|&&(_, dx, dy)| dx != 0 || dy != 0).count();
-        log.push_str(&format!("trace {} frames -> {} | keyed {} | moused {} | padded {}\n",
+        log.push_str(&format!("trace {} frames -> {} | keyed {} | moused {} | padded {}
+",
                               trace_rec.len(), args.trace_out, keyed, moused, padded));
         if keyed == 0 && padded == 0 {
             log.push_str("NOTE: no key and no pad input at any poll — if you were driving the \
                           sticks, check pad_connected above: false with sticks moving means \
-                          XInput never saw the controller, which is its own finding\n");
+                          XInput never saw the controller, which is its own finding
+");
         }
     }
     if args.host == "-" {
         log.push_str("NOTE: no --host given — cost rows here are NOT_MEASURED; digests are \
-                      host-independent and stand\n");
+                      host-independent and stand
+");
     }
     std::fs::write(&args.out, &log).expect("log write failed");
     print!("{log}");
