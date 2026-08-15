@@ -1,7 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.7).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.8).
+//
+// v1.8 — THE SWEEP'S TWO CATCHES, REPAIRED. First: v1.7's log transparency lines never
+// shipped — the version line still read v1.6, no reach field, no ring lines, no prefill_tiles
+// — because an edit was applied without asserting it matched. An edit without an assert is a
+// hope; every edit in this repair asserted. Second: the sweep measured the envelope (reach 20
+// FITS 120 Hz; 500 already ~13.6-16.4 ms; 63488 ~38 ms) and thereby measured the per-vertex
+// quaternion sandwich as the ring path's dominant cost. The rotation is IDENTICAL for every
+// vertex, so v1.8 derives the rotation matrix from the CERTIFIED vrotate exactly three times
+// per frame (the basis images, Q16) and applies it per vertex in plain i64 — the certified
+// kernel still owns the rotation; the matrix is its per-frame shadow. The near path
+// (reach <= 24) still runs vrotate per vertex, UNTOUCHED: the pinned v1.6 chains remain the
+// identity contract. Ring-path chains change with the arithmetic (version-bound, as always);
+// silhouette and seam laws re-verified on the authoring container before delivery.
 //
 // v1.7 — THE REACH SWEEP, STRICTLY AN EXPERIMENT. R2b's pictures answered the architectural
 // question (reach, not local resolution, is the dominant fidelity/performance knob) and showed
@@ -751,6 +764,18 @@ fn raster_rings(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
     let reach = rings[rings.len() - 1].2;
     let farq = reach * TILE * 256;
     let qc = qconj(cam.q);
+    // v1.8: THE ROTATION IS THE SAME FOR EVERY VERTEX, so it is derived from the CERTIFIED
+    // vrotate exactly three times per frame (the basis images) and applied per vertex as a
+    // plain integer matrix in Q16 — the v1.7 sweep measured the per-vertex quaternion
+    // sandwich as the dominant cost of the ring path. The certified kernel still owns the
+    // rotation; the matrix is its per-frame shadow, and the near path (reach <= 24) still
+    // runs vrotate per vertex, untouched, holding the pinned chains.
+    let bx = fx.vrotate(qc, V3 { x: ONE, y: 0, z: 0 });
+    let by = fx.vrotate(qc, V3 { x: 0, y: ONE, z: 0 });
+    let bz = fx.vrotate(qc, V3 { x: 0, y: 0, z: ONE });
+    let m = [bx.x >> 16, by.x >> 16, bz.x >> 16,
+             bx.y >> 16, by.y >> 16, bz.y >> 16,
+             bx.z >> 16, by.z >> 16, bz.z >> 16];          // Q16, |entry| <= 65536
     let ctx = floordiv(cam.px >> 8, TILE);
     let cty = floordiv(cam.py >> 8, TILE);
     let (rx8, ry8) = (cam.px - ((ctx * TILE) << 8), cam.py - ((cty * TILE) << 8));
@@ -780,13 +805,16 @@ fn raster_rings(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
                 for (i, (px_, py_, hh)) in [(wx, wy, ha), (wx + stride, wy, hb),
                                             (wx, wy + stride, hc),
                                             (wx + stride, wy + stride, hd)].iter().enumerate() {
-                    let dxw8 = ((px_ * TILE) << 8) - cam.px;
-                    let dyw8 = ((py_ * TILE) << 8) - cam.py;
-                    let dzw8 = (hh << 8) - eye8;
-                    let r = fx.vrotate(qc, V3 { x: dxw8 << 24, y: dyw8 << 24, z: dzw8 << 24 });
-                    let d8 = r.y >> 24;
+                    let vx = ((px_ * TILE) << 8) - cam.px;          // Q8 world delta
+                    let vy = ((py_ * TILE) << 8) - cam.py;
+                    let vz = (hh << 8) - eye8;
+                    // Q8 x Q16 -> >>16 -> Q8 camera space; |v| <= reach*TILE*256 < 2^28,
+                    // |m| <= 2^16, so each product stays under 2^44 — i64 with room to spare
+                    let rx = (m[0] * vx + m[1] * vy + m[2] * vz) >> 16;
+                    let d8 = (m[3] * vx + m[4] * vy + m[5] * vz) >> 16;
+                    let rz = (m[6] * vx + m[7] * vy + m[8] * vz) >> 16;
                     if d8 < NEAR8 { clipped = true; break }
-                    scr[i] = (cx + (r.x >> 24) * f / d8, cy - (r.z >> 24) * f / d8, d8);
+                    scr[i] = (cx + rx * f / d8, cy - rz * f / d8, d8);
                 }
                 if clipped { continue }
                 let h4 = ha + hb + hc + hd;
@@ -1615,7 +1643,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.7 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.8 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -1629,10 +1657,16 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.6 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | qpf {}
-",
+        "fpsdemo v1.8 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+reach {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
-        if args.play { "play" } else { "replay" }, freq));
+        if args.play { "play" } else { "replay" }, args.reach, freq));
+    if !ladder.is_empty() {
+        for &(stride, inn, out) in &ladder {
+            log.push_str(&format!("ring stride {} tiles {}..{}\n", stride, inn, out));
+        }
+        log.push_str(&format!("prefill_tiles {}\n", prefill_tiles));
+    }
     log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | xinput_loaded {} | \
 pad_connected {}
 ",

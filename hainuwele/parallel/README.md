@@ -193,6 +193,22 @@ measurement rather than describe it — and the cache's unbounded growth is a na
 by v2's R4, not hidden. The intended shape is two modes with measured borders: a competitive
 default whose reach FITS the budget, and a photo/vista mode explicitly permitted to exceed it.
 
+v1.8 repairs the sweep's two catches. The first was the author's: v1.7's log transparency
+lines never shipped — the version line still read v1.6, with no reach field, ring lines or
+prefill count — because an edit was applied without asserting it matched; every edit in the
+repair asserted, and the lesson is the repo's own, landed at home. The second was the
+measurement's: the host sweep put the envelope on record (the v1.6 window FITS 120 Hz; five
+hundred tiles already costs a 60 Hz-class median; full reach runs near forty milliseconds) and
+thereby identified the per-vertex quaternion sandwich as the ring path's dominant cost. The
+rotation is identical for every vertex, so v1.8 derives the rotation matrix from the certified
+vrotate three times per frame — the basis images, in Q16 — and applies it per vertex in plain
+integer arithmetic; the certified kernel still owns the rotation, the matrix is its per-frame
+shadow, and the near path still runs vrotate per vertex untouched, holding the pinned chains.
+Silhouette and seam laws re-verified unchanged under the new arithmetic. The next measured
+lever is already named: the per-vertex height lookup through a hashed cache, which a
+per-ring resident grid would turn into direct indexing — that is a candidate rung, to be
+adopted the way this one was, by before/after on the committed walk.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
