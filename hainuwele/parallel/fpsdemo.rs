@@ -1,7 +1,33 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.6).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.7).
+//
+// v1.7 — THE REACH SWEEP, STRICTLY AN EXPERIMENT. R2b's pictures answered the architectural
+// question (reach, not local resolution, is the dominant fidelity/performance knob) and showed
+// the full-reach ladder is photo-mode territory on the authoring container. This version turns
+// that finding into a host-derived operating envelope under THREE SEPARATE CONTRACTS:
+//
+//   * RUNTIME — `--reach <tiles>` (default 20 = the v1.6 window) derives the ring ladder at
+//     launch by the v2 R2a machinery, ported: pixel budget FIXED at 35 so reach is the ONE
+//     variable; strides double; a stride seats only past its derived d_min; rings overlap one
+//     coarse tile. The derived ladder is PRINTED in the log, line per ring, so the derivation
+//     is checkable against hainuwele/v2/lod.py ring for ring.
+//   * PERFORMANCE — each reach setting is classified independently against the measured 120 Hz
+//     budget from its own named cost rows on the committed walk; candidate points 2000 / 10000 /
+//     63488 tiles (~6 / 30 / 190 km) are CANDIDATES, and the Ally decides. Container numbers
+//     stayed pictures; the host A/B is what turns the trade surface into evidence.
+//   * IDENTITY — reach <= 24 never enters the ring path: raster_world runs UNTOUCHED and the
+//     pinned v1.6 chains (v0-trace, walk_real, all-zero) are the regression contract, verified
+//     on the authoring container before delivery. The expanded vista must not leak sky at a
+//     ring seam — checked against a monolith render in the authoring harness (a seam pixel the
+//     monolith paints terrain and the ladder paints sky is the falsifier).
+//
+// PREFILL IS A START CONDITION, NOT A FRAME COST. The ladder's cache cold-fill runs BEFORE the
+// frame timer starts, its tile count prints in the log (`prefill_tiles`), and its wall-clock
+// goes to stderr only — mixing a 0.6-2.8 s fill into the 15 ms frame-0 convention would
+// contaminate the measurement rather than describe reality. The cache is UNBOUNDED (grows as
+// the walk pulls ring edges); that defect is named here and owned by v2's R4 rung, not hidden.
 //
 // v1.6 — P3.4 OPENS: THE FIRST FIDELITY SPEND, CHOSEN BY PICTURES AND PRICED BEFORE PURCHASE.
 // Candidate 1 (height bands + integer lambert sun) was rendered against the COMMITTED real-walk
@@ -379,6 +405,107 @@ impl World {
     }
 }
 
+// ---- v1.7: the reach ladder (R2a's machinery, ported verbatim in rule if not in tongue) ------
+//   ONE VARIABLE: reach. The pixel budget is FIXED at 35 (visibly what v1.6 already accepts at
+//   its window edge); strides double; a stride is admissible only past the distance where its
+//   octave-prefix error bound projects under the budget; rings overlap one coarse tile so seams
+//   are painted from behind. The derived ladder is PRINTED in the log so the runtime contract
+//   is checkable against the v2 model line by line.
+const LOD_PIX: i64 = 35;
+const LOD_R0: i64 = 24;
+
+fn lod_kept_mask(stride: i64) -> u32 {
+    let mut m = 0u32;
+    for (li, &(cell, _amp)) in W_LAYERS.iter().enumerate() {
+        if cell >= 2 * stride || li == 0 { m |= 1 << li }
+    }
+    m
+}
+
+fn lod_error_bound(stride: i64) -> i64 {
+    let kept = lod_kept_mask(stride);
+    let mut dropped = 0i64;
+    for (li, &(_cell, amp)) in W_LAYERS.iter().enumerate() {
+        if kept & (1 << li) == 0 { dropped += amp * VMAX }
+    }
+    floordiv(floordiv(dropped * W_HS, W_RAWMAX), H_SCALE) + 2
+}
+
+fn lod_d_min(stride: i64, focal: i64) -> i64 {
+    let e = lod_error_bound(stride);
+    (e * focal + (LOD_PIX * TILE - 1)) / (LOD_PIX * TILE)
+}
+
+fn lod_schedule(reach: i64, focal: i64) -> Vec<(i64, i64, i64)> {
+    // (stride, inner, outer) in tiles — mirrors hainuwele/v2/lod.py schedule(35, k)
+    if reach <= LOD_R0 {
+        return vec![(1, 0, reach)];
+    }
+    let mut starts: Vec<i64> = vec![0];
+    let mut k = 1usize;
+    loop {
+        let stride = 1i64 << k;
+        let prev = starts[k - 1];
+        let mut start = std::cmp::max(if prev > 0 { 2 * prev } else { LOD_R0 },
+                                      lod_d_min(stride, focal));
+        if start <= prev { start = 2 * prev }
+        if start >= reach || k >= 20 { break }
+        starts.push(start);
+        k += 1;
+    }
+    let mut rings = Vec::new();
+    for (idx, &st) in starts.iter().enumerate() {
+        let stride = 1i64 << idx;
+        let outer = if idx + 1 < starts.len() { starts[idx + 1] + stride } else { reach };
+        let inner = if idx == 0 { 0 } else { st - stride };
+        rings.push((stride, inner, outer));
+    }
+    rings
+}
+
+struct LodWorld { cache: std::collections::HashMap<(i64, i64, i64), i64> }
+impl LodWorld {
+    fn new() -> LodWorld { LodWorld { cache: std::collections::HashMap::new() } }
+    fn h(&mut self, x: i64, y: i64, stride: i64) -> i64 {
+        if let Some(&v) = self.cache.get(&(stride, x, y)) { return v }
+        let kept = lod_kept_mask(stride);
+        let mut raw = 0i64;
+        for (li, &(cell, amp)) in W_LAYERS.iter().enumerate() {
+            if kept & (1 << li) != 0 { raw += amp * noise16(W_SEED, li as i64, cell, x, y) }
+        }
+        let v = floordiv(floordiv(raw * W_HS, W_RAWMAX), H_SCALE);
+        self.cache.insert((stride, x, y), v);
+        v
+    }
+    fn prefill(&mut self, cx: i64, cy: i64, rings: &[(i64, i64, i64)]) -> u64 {
+        let mut n = 0u64;
+        for &(stride, inn, out) in rings {
+            let bx = floordiv(cx, stride) * stride;
+            let by = floordiv(cy, stride) * stride;
+            let cells = out / stride + 1;
+            for gy in -cells..=cells {
+                for gx in -cells..=cells {
+                    let (wx, wy) = (bx + gx * stride, by + gy * stride);
+                    let m = (wx - cx).abs().max((wy - cy).abs());
+                    if m >= inn.saturating_sub(stride) && m <= out + stride {
+                        self.h(wx, wy, stride);
+                        n += 1;
+                    }
+                }
+            }
+        }
+        n
+    }
+}
+
+fn isqrt64(n: i64) -> i64 {
+    if n <= 0 { return 0 }
+    let mut x = n;
+    let mut y = (x + 1) / 2;
+    while y < x { x = y; y = (x + n / x) / 2 }
+    x
+}
+
 // ---- fnv64: a DIVERGENCE DETECTOR, honestly named — not cryptographic ------------------------
 fn fnv64(data: &[u32], seed: u64) -> u64 {
     let mut h = 0xcbf29ce484222325u64 ^ seed;
@@ -592,6 +719,147 @@ fn raster_world(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
                         if r >= area { q += 1; r -= area }
                     }
                     w0r += dw0y; w1r += dw1y; w2r += dw2y;
+                }
+            }
+        }
+    }
+    let (chx, chy) = (w / 2, h / 2);
+    for dd in -8i32..9 {
+        if chx + dd >= 0 && chx + dd < w { buf[(chy * w + chx + dd) as usize] = 0x00FF_FFFF }
+        if chy + dd >= 0 && chy + dd < h { buf[((chy + dd) * w + chx) as usize] = 0x00FF_FFFF }
+    }
+}
+
+// ---- v1.7: the ring renderer — the reach experiment's raster path ----------------------------
+//   Ring 0 (stride 1) is the canon exactly; far rings sample the canon's octave prefix at their
+//   stride. Seams are covered by one coarse tile of paint-behind overlap and the z-buffer; the
+//   fog ruler is the reach itself, so aerial perspective scales with the world instead of ending
+//   at a wall. When reach <= LOD_R0 this path is NEVER entered — raster_world runs, unchanged,
+//   and the pinned v1.6 chains stand as the identity contract.
+fn raster_rings(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
+                cam: &Cam, lod: &mut LodWorld, rings: &[(i64, i64, i64)]) {
+    for y in 0..h {
+        let t = (y * 200 / h.max(1)) as u32;
+        let c = (30 << 16) | ((70 + t / 3) << 8) | (130 + t / 2).min(255);
+        let row = (y * w) as usize;
+        for x in 0..w as usize { buf[row + x] = c }
+    }
+    for z in zbuf.iter_mut().take((w * h) as usize) { *z = i32::MAX }
+
+    let f = h as i64 * 2;
+    let (cx, cy) = (w as i64 / 2, h as i64 / 2);
+    let reach = rings[rings.len() - 1].2;
+    let farq = reach * TILE * 256;
+    let qc = qconj(cam.q);
+    let ctx = floordiv(cam.px >> 8, TILE);
+    let cty = floordiv(cam.py >> 8, TILE);
+    let (rx8, ry8) = (cam.px - ((ctx * TILE) << 8), cam.py - ((cty * TILE) << 8));
+    let (u, v) = (rx8 / TILE, ry8 / TILE);
+    let (h00, h10) = (lod.h(ctx, cty, 1) << 8, lod.h(ctx + 1, cty, 1) << 8);
+    let (h01, h11) = (lod.h(ctx, cty + 1, 1) << 8, lod.h(ctx + 1, cty + 1, 1) << 8);
+    let hx0 = h00 + (h10 - h00) * u / 256;
+    let hx1 = h01 + (h11 - h01) * u / 256;
+    let eye8 = hx0 + (hx1 - hx0) * v / 256 + (3 << 8);
+
+    for &(stride, inn, out) in rings.iter().rev() {
+        let bx = floordiv(ctx, stride) * stride;
+        let by = floordiv(cty, stride) * stride;
+        let cells = out / stride + 1;
+        for gy in -cells..cells {
+            for gx in -cells..cells {
+                let (wx, wy) = (bx + gx * stride, by + gy * stride);
+                let m0 = (wx - ctx).abs().max((wy - cty).abs());
+                let m1 = (wx + stride - ctx).abs().max((wy + stride - cty).abs());
+                if m0.min(m1) > out || m0.max(m1) < inn { continue }
+                let ha = lod.h(wx, wy, stride);
+                let hb = lod.h(wx + stride, wy, stride);
+                let hc = lod.h(wx, wy + stride, stride);
+                let hd = lod.h(wx + stride, wy + stride, stride);
+                let mut scr = [(0i64, 0i64, 0i64); 4];
+                let mut clipped = false;
+                for (i, (px_, py_, hh)) in [(wx, wy, ha), (wx + stride, wy, hb),
+                                            (wx, wy + stride, hc),
+                                            (wx + stride, wy + stride, hd)].iter().enumerate() {
+                    let dxw8 = ((px_ * TILE) << 8) - cam.px;
+                    let dyw8 = ((py_ * TILE) << 8) - cam.py;
+                    let dzw8 = (hh << 8) - eye8;
+                    let r = fx.vrotate(qc, V3 { x: dxw8 << 24, y: dyw8 << 24, z: dzw8 << 24 });
+                    let d8 = r.y >> 24;
+                    if d8 < NEAR8 { clipped = true; break }
+                    scr[i] = (cx + (r.x >> 24) * f / d8, cy - (r.z >> 24) * f / d8, d8);
+                }
+                if clipped { continue }
+                let h4 = ha + hb + hc + hd;
+                let havg = h4 / 4;
+                let jit = ((wx.wrapping_mul(73) ^ wy.wrapping_mul(151)) & 7) - 3;
+                let lerp = |a: (i64, i64, i64), b: (i64, i64, i64), tn: i64, td: i64| {
+                    (a.0 + (b.0 - a.0) * tn / td, a.1 + (b.1 - a.1) * tn / td,
+                     a.2 + (b.2 - a.2) * tn / td)
+                };
+                let sand = (150 + jit, 137 + jit, 94);
+                let grass = (56 + jit * 2, 118 + jit * 2, 48 + jit);
+                let rock = (99 + jit, 86 + jit, 72 + jit);
+                let snow = (224, 227, 234);
+                let (br, bg, bb) = if havg <= 4 { sand }
+                    else if havg <= 10 { lerp(sand, grass, havg - 4, 6) }
+                    else if havg <= 16 { lerp(grass, rock, havg - 10, 6) }
+                    else if havg <= 21 { lerp(rock, snow, havg - 16, 5) }
+                    else { snow };
+                let st = stride * TILE;
+                let lam = |ax: i64, ay: i64, az: i64, bx2: i64, by2: i64, bz2: i64| -> i64 {
+                    let (nx, ny, nz) = (ay * bz2 - az * by2, az * bx2 - ax * bz2,
+                                        ax * by2 - ay * bx2);
+                    let (nx, ny, nz) = if nz < 0 { (-nx, -ny, -nz) } else { (nx, ny, nz) };
+                    let dot = -2 * nx - ny + 3 * nz;
+                    if dot <= 0 { return 0 }
+                    let nn = isqrt64(nx * nx + ny * ny + nz * nz);
+                    if nn == 0 { return 0 }
+                    (dot * 256 / (nn * 4)).min(256)
+                };
+                let l1 = lam(st, 0, hb - ha, 0, st, hc - ha);
+                let l2 = lam(0, st, hd - hb, -st, 0, hc - hd);
+                let lit = |l: i64, c: i64| (c * (60 + 196 * l / 256) / 160).clamp(0, 255);
+                let tris = [(scr[0], scr[1], scr[2], (lit(l1, br), lit(l1, bg), lit(l1, bb))),
+                            (scr[1], scr[3], scr[2], (lit(l2, br), lit(l2, bg), lit(l2, bb)))];
+                for &(a0, b0, c0, (tr, tg, tb)) in &tris {
+                    let (a, mut b, mut cc) = (a0, b0, c0);
+                    if (a.0 < 0 && b.0 < 0 && cc.0 < 0) || (a.1 < 0 && b.1 < 0 && cc.1 < 0)
+                        || (a.0 >= w as i64 && b.0 >= w as i64 && cc.0 >= w as i64)
+                        || (a.1 >= h as i64 && b.1 >= h as i64 && cc.1 >= h as i64) { continue }
+                    let mut area = (b.0 - a.0) * (cc.1 - a.1) - (b.1 - a.1) * (cc.0 - a.0);
+                    if area == 0 { continue }
+                    if area < 0 { std::mem::swap(&mut b, &mut cc); area = -area; }
+                    let d3 = ((a.2 + b.2 + cc.2) / 3).clamp(0, farq);
+                    let dim = 14 + 18 * (farq - d3) / farq;
+                    let ch3 = |near: i64, sky: i64| ((near * dim + sky * (32 - dim)) / 32) as u32;
+                    let col = (ch3(tr, 60) << 16) | (ch3(tg, 120) << 8) | ch3(tb, 190);
+                    let x_lo = a.0.min(b.0).min(cc.0).max(0);
+                    let x_hi = a.0.max(b.0).max(cc.0).min(w as i64 - 1);
+                    let y_lo = a.1.min(b.1).min(cc.1).max(0);
+                    let y_hi = a.1.max(b.1).max(cc.1).min(h as i64 - 1);
+                    if x_lo > x_hi || y_lo > y_hi { continue }
+                    let (dw0x, dw0y) = (-(b.1 - a.1), b.0 - a.0);
+                    let (dw1x, dw1y) = (-(cc.1 - b.1), cc.0 - b.0);
+                    let (dw2x, dw2y) = (-(a.1 - cc.1), a.0 - cc.0);
+                    let mut w0r = (b.0 - a.0) * (y_lo - a.1) - (b.1 - a.1) * (x_lo - a.0);
+                    let mut w1r = (cc.0 - b.0) * (y_lo - b.1) - (cc.1 - b.1) * (x_lo - b.0);
+                    let mut w2r = (a.0 - cc.0) * (y_lo - cc.1) - (a.1 - cc.1) * (x_lo - cc.0);
+                    for py in y_lo..=y_hi {
+                        let row = (py * w as i64) as usize;
+                        let (mut w0, mut w1, mut w2) = (w0r, w1r, w2r);
+                        let mut entered = false;
+                        for px in x_lo..=x_hi {
+                            if w0 >= 0 && w1 >= 0 && w2 >= 0 {
+                                entered = true;
+                                let zn = w1 * a.2 + w2 * b.2 + w0 * cc.2;
+                                let d = (zn / area) as i32;
+                                let i = row + px as usize;
+                                if d < zbuf[i] { zbuf[i] = d; buf[i] = col }
+                            } else if entered { break }
+                            w0 += dw0x; w1 += dw1x; w2 += dw2x;
+                        }
+                        w0r += dw0y; w1r += dw1y; w2r += dw2y;
+                    }
                 }
             }
         }
@@ -1000,7 +1268,7 @@ fn sha256_hex(data: &[u8]) -> String { hex(&sha256(data)) }
 struct Args {
     host: String, power: String, scheduler: String, hz: i64, frames: u32,
     res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool,
-    trace_out: String, out: String,
+    trace_out: String, out: String, reach: i64,
 }
 
 fn parse_argv() -> Result<Args, String> {
@@ -1008,7 +1276,7 @@ fn parse_argv() -> Result<Args, String> {
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
                        defect: false, selfcheck_only: false,
                        trace_out: "fpsdemo_trace.txt".into(),
-                       out: "fpsdemo_log.txt".into() };
+                       out: "fpsdemo_log.txt".into(), reach: VIEW };
     let argv: Vec<String> = std::env::args().skip(1).collect();
     let mut i = 0;
     while i < argv.len() {
@@ -1035,6 +1303,13 @@ fn parse_argv() -> Result<Args, String> {
             "--replay" => a.replay = value(&mut i)?,
             "--defect" => a.defect = true,
             "--selfcheck" => a.selfcheck_only = true,
+            "--reach" => {
+                a.reach = value(&mut i)?.parse().map_err(|_| "--reach: not an integer")?;
+                if !(8..=200_000).contains(&a.reach) {
+                    return Err(format!("--reach {} outside 8..=200000 tiles — this door \
+refuses a reach it cannot derive a ladder for", a.reach));
+                }
+            }
             "--trace-out" => a.trace_out = value(&mut i)?,
             "--out" => a.out = value(&mut i)?,
             other => return Err(format!("unknown flag {other} — this door refuses")),
@@ -1193,6 +1468,21 @@ fn main() {
     let mut cam = Cam { q: Q4 { w: ONE, x: 0, y: 0, z: 0 }, pitch_acc: 0, px: 0, py: 0 };
     let (center_x, center_y) = (scr_w / 2, scr_h / 2);
     if args.play { unsafe { SetCursorPos(center_x, center_y); } }
+    // v1.7: THE REACH LADDER, derived (one variable). reach <= LOD_R0 keeps the v1.6 path
+    // untouched — the pinned chains are the identity contract. PREFILL RUNS BEFORE THE TIMER:
+    // the cache cold-fill is a START CONDITION, printed as a count, never mixed into frame
+    // stats (a 0.6-2.8 s fill inside frame 0 would contaminate the measurement, not describe
+    // it). The elapsed fill time goes to stderr — wall-clock stays out of the log body.
+    let ladder = if args.reach > LOD_R0 { lod_schedule(args.reach, ch as i64 * 2) }
+                 else { Vec::new() };
+    let mut lodw = LodWorld::new();
+    let prefill_tiles: u64 = if !ladder.is_empty() {
+        let t0 = qpc();
+        let n = lodw.prefill(floordiv(cam.px >> 8, TILE), floordiv(cam.py >> 8, TILE), &ladder);
+        eprintln!("prefill: {} tiles in {} ms (start condition, outside frame stats)",
+                  n, ticks_to_ns(qpc() - t0, freq) / 1_000_000);
+        n
+    } else { 0 };
     let mut deadline = qpc() + ticks_per_frame;
 
     let mut frame: u32 = 0;
@@ -1274,7 +1564,11 @@ fn main() {
         let _t_tick = qpc();
         let _view = (cam.px, cam.py, cam.q.w, cam.pitch_acc);   // the view export
         let t_view = qpc();
-        raster_world(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam, &mut world);
+        if ladder.is_empty() {
+            raster_world(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam, &mut world);
+        } else {
+            raster_rings(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam, &mut lodw, &ladder);
+        }
         let t_pixels = qpc();
         unsafe {
             StretchDIBits(dc, (scr_w - cw) / 2, (scr_h - ch) / 2, cw, ch,
@@ -1321,7 +1615,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.6 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.7 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}

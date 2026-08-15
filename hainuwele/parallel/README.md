@@ -177,6 +177,22 @@ under v1.6 with conditions declared is the after. The shipped render was proved 
 the approved candidate frames before delivery, and the v1.6 expected chain for the committed
 walk was produced cross-OS first.
 
+v1.7 is the reach sweep, strictly as an experiment. R2b's harness pictures answered the
+architectural question — reach, not local terrain resolution, is the dominant knob — and showed
+the full ladder is photo-mode territory. `--reach <tiles>` (default 20, the v1.6 window) derives
+the ring ladder at launch by the v2 R2a machinery with the pixel budget fixed, so reach is the
+one variable; the derived ladder prints in the log ring for ring, checkable against the model.
+Three contracts ride separately: runtime (the derivation is deterministic and printed),
+performance (each reach classifies independently against the measured budget from its own named
+rows on the committed walk — candidate points are candidates, the host decides), and identity
+(reach at or under the v1.6 window never enters the ring path, so the pinned chains stand as
+the regression contract; and the vista may not leak sky at a ring seam, checked against a
+monolith render in the authoring harness before delivery). Prefill runs before the frame timer
+as a printed start condition — a cache cold-fill inside frame 0 would contaminate the
+measurement rather than describe it — and the cache's unbounded growth is a named defect owned
+by v2's R4, not hidden. The intended shape is two modes with measured borders: a competitive
+default whose reach FITS the budget, and a photo/vista mode explicitly permitted to exceed it.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
