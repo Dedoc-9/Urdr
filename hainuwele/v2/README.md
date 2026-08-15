@@ -22,10 +22,41 @@ visibility is a windowed terrain patch plus a z-buffer. The critique names a mec
 engine does not have. WHAT IS GENUINELY OPEN: draw distance is real. The demo draws a fixed
 window; a vista world needs a level-of-detail ladder (far terrain at coarser stride), and the
 committed v1.6 walk already measured the pressure — the vista segment of the operator's walk
-peaked near the 120 Hz slot while valley segments idled at a quarter of it. THE RUNG (queued,
-R2): an integer LOD ladder whose cost is measured per ring on the committed walk workload, with
-the falsifier that a coarsened far ring may not move any near-field pixel — silhouette-only
-error, bounded and displayed, cost rows before and after on the identical trace.
+peaked near the 120 Hz slot while valley segments idled at a quarter of it. THE RUNGS (R2, the
+distance ladder — R2a BUILT, the rest designed):
+
+R2a (`lod.py`, green under this gate) makes draw distance a DERIVED schedule. The terrain is
+layered seeded noise, so a far ring sampling only coarse layers is the canon's own octave
+prefix, and dropping fine layers has an error BOUNDED BY THE AMPLITUDE TABLE — checked against
+a measured maximum in both directions (respected, and approached, so the bound is not
+decoration). A stride is admissible only past the distance where its bound projects under a
+declared pixel budget, so the budget writes the schedule; rings overlap by one coarse tile so
+seams are painted from behind rather than stitched; and the saturated rings carry identical
+vertex counts, making total cost affine in ring count and LOGARITHMIC in reach — the O(r^2)
+fear answered by arithmetic the gate re-derives. The trade surface is the deliverable: the
+gate prints vertex totals and reach per candidate budget, and the finding it surfaces is that
+the finest noise layer is the cost driver — tight budgets force wide near rings. City scale is
+this rung as-is. R2b (queued) puts rings in the demo: harness pictures first, then the
+falsifiers — a far ring may not move any pixel ring 0 owns, no sky may leak at a seam — and
+the host A/B on the committed walk decides the working point chord-style.
+
+Planet scale (R2c, queued) is two laws on top. The HORIZON CLIP: on a curved body the horizon
+distance is derived from the declared radius and eye height, geometry beyond it is provably
+unrenderable, so a planet BOUNDS draw work where a flat map cannot — the vista problem gets
+easier, not harder, and the law asserts the work bound from the derivation. The CURVATURE
+DROP: authority stays a flat exact lattice (nothing in physics or netcode changes), and
+curvature is a VIEW-layer vertical drop of far vertices by the exact integer d*d/2R in camera
+space — with the falsifier that toggling the curvature display changes no authority digest
+(fidelity independent of integrity, the tree's cardinal invariant, at planetary scale).
+
+Galaxy scale (R2d, queued) is where R1's delta door pays off: beyond the interest bound there
+is no geometry at all, by refusal. Far content may only manifest through a FAR-FIELD CHANNEL —
+a pure deterministic function of the viewer's coarse region and view direction (a seeded
+star lattice is the first candidate), digestable, translation-covariant under R1's sweep, and
+provably an observer: reading it moves nothing. The falsifier family: the far field renders
+digest-identical under region translation, and a planted authority read inside the channel
+breaks the observer law. Scale tiers then compose the same way everything here composes —
+each tier is a lens over derived state, never a second world.
 
 ## Concern 2 — "the spatial culling paradox: per-entity occlusion collapses the server"
 

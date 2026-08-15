@@ -48,6 +48,48 @@ def main():
            f"{env['gta_v_map_km_for_scale']} km reference map, and the v2 region scheme "
            f"multiplies reach by 2^{env['v2_over_v1_factor'].bit_length() - 1} on top — range "
            f"was never the binding constraint; products were, and the delta door bounds them")
+    import lod as LD
+    b_ok, b_why = True, []
+    for stride in (1, 2, 4, 8, 32):
+        m = LD.measured_error(stride, span=32)
+        b = LD.error_bound_h(stride)
+        good = (m == 0 if stride == 1 else (m <= b and m * 4 >= b))
+        b_ok = b_ok and good
+        b_why.append(f"s{stride}:{m}/{b}")
+    record("v2-lod-bounds", b_ok,
+           "the octave-prefix error bounds hold and are not decoration (measured/bound per "
+           "stride: " + " ".join(b_why) + ") — stride 1 is the canon exactly, and every "
+           "dropped-layer bound is both respected and approached within a factor of four")
+    rings = LD.schedule(8, 10)
+    cov_ok, _where = LD.coverage_law(rings)
+    sat = (LD.d_min_tiles(8, 8) == LD.d_min_tiles(16, 8) == LD.d_min_tiles(64, 8))
+    record("v2-lod-schedule", cov_ok and sat,
+           "the 8px ladder covers its reach with paint-behind overlap at every probed seam, "
+           "and d_min SATURATES once only the coarsest layer survives — beyond that distance "
+           "stride growth is free and reach costs only rings")
+    form_ok, counts = LD.octave_cost_form(rings)
+    record("v2-lod-form", form_ok,
+           f"the saturated interior rings carry IDENTICAL vertex counts ({counts[4]}) — total "
+           f"cost is affine in ring count and therefore logarithmic in reach; the O(r^2) fear "
+           f"is answered by arithmetic the gate re-derives")
+    tt = LD.trade_table()
+    mono = all(tt[i]["verts"] > tt[i + 1]["verts"] for i in range(len(tt) - 1))
+    wp = tt[-1]
+    record("v2-lod-trade", mono and wp["pix"] == 35 and wp["verts"] < 150_000,
+           "THE TRADE SURFACE, DERIVED: " + " | ".join(
+               f"{r['pix']}px -> {r['verts']:,} verts, {r['reach_km_at_1m']:,} km reach"
+               for r in tt) + " — the fine (3,1) noise layer is the measured cost driver "
+           "(its bound forces wide near rings at tight budgets), and the 35px working point "
+           "reaches ~40x the current vertex load for ~3000x the current draw distance; R2b "
+           "chooses on pictures and a host A/B, not on this table alone")
+    record("v2-lod-selftest",
+           LD.a_stride1_prefix_is_the_canon()
+           and LD.an_overdropped_prefix_exceeds_its_bound()
+           and LD.a_ring_below_dmin_violates_the_budget()
+           and LD.a_gapped_ladder_is_caught(),
+           "four plants bite: the stride-1 prefix equals the canon (the identity control), an "
+           "over-dropped layer exceeds its stride's bound, a ring seated under its derived "
+           "d_min violates the pixel budget, and a torn overlap exposes a seam point")
     record("v2-selftest",
            RG.a_float_coordinate_refuses()
            and RG.an_absolute_leak_breaks_the_sweep()
