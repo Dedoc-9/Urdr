@@ -1,7 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.8).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.9).
+//
+// v1.9 — THE RESIDENT GRID, the lever v1.8's sweep named, adopted by before/after. Every quad
+// paid four hashed probes for corner heights and adjacent quads re-probed shared corners; each
+// ring now holds its heights in a flat Vec indexed by lattice position, refilled from the
+// backing cache only when the camera crosses that ring's stride boundary (ring k rebases every
+// 2^k tiles — the refill amortizes, and rebase frames are visible honestly in the worst
+// column). THE VALUES ARE IDENTICAL: this is a lookup restructure, not an arithmetic change,
+// so every v1.8 chain stands at every reach — verified on the authoring container against the
+// operator's own sweep digests before delivery. Grid memory is BOUNDED by the ladder; the
+// backing cache remains unbounded (R4's debt, still named, still owed).
 //
 // v1.8 — THE SWEEP'S TWO CATCHES, REPAIRED. First: v1.7's log transparency lines never
 // shipped — the version line still read v1.6, no reach field, no ring lines, no prefill_tiles
@@ -476,36 +486,69 @@ fn lod_schedule(reach: i64, focal: i64) -> Vec<(i64, i64, i64)> {
     rings
 }
 
-struct LodWorld { cache: std::collections::HashMap<(i64, i64, i64), i64> }
+// v1.9: THE RESIDENT GRID. The v1.8 sweep named the hashed height lookup as the next lever:
+// every quad paid four map probes and adjacent quads re-probed shared corners. Each ring now
+// holds its heights in a flat Vec indexed by lattice position, refilled from the backing cache
+// only when the camera crosses that ring's stride boundary (ring k rebases every 2^k tiles, so
+// the refill amortizes and the rebase spike is visible honestly in the worst column). Values
+// are IDENTICAL — this is a lookup restructure, not an arithmetic change — so every v1.8
+// chain stands, at every reach, verifiable against the operator's own sweep paste.
+struct RingGrid { stride: i64, cells: i64, base_x: i64, base_y: i64, filled: bool,
+                  side: i64, heights: Vec<i64> }
+
+fn lod_h_raw(cache: &mut std::collections::HashMap<(i64, i64, i64), i64>,
+             x: i64, y: i64, stride: i64) -> i64 {
+    if let Some(&v) = cache.get(&(stride, x, y)) { return v }
+    let kept = lod_kept_mask(stride);
+    let mut raw = 0i64;
+    for (li, &(cell, amp)) in W_LAYERS.iter().enumerate() {
+        if kept & (1 << li) != 0 { raw += amp * noise16(W_SEED, li as i64, cell, x, y) }
+    }
+    let v = floordiv(floordiv(raw * W_HS, W_RAWMAX), H_SCALE);
+    cache.insert((stride, x, y), v);
+    v
+}
+
+struct LodWorld {
+    cache: std::collections::HashMap<(i64, i64, i64), i64>,
+    grids: Vec<RingGrid>,
+}
 impl LodWorld {
-    fn new() -> LodWorld { LodWorld { cache: std::collections::HashMap::new() } }
+    fn new(rings: &[(i64, i64, i64)]) -> LodWorld {
+        let grids = rings.iter().map(|&(stride, _inn, out)| {
+            let cells = out / stride + 1;
+            let side = 2 * cells + 3;                     // corners reach cells+1 on each axis
+            RingGrid { stride, cells, base_x: 0, base_y: 0, filled: false, side,
+                       heights: vec![0; (side * side) as usize] }
+        }).collect();
+        LodWorld { cache: std::collections::HashMap::new(), grids }
+    }
     fn h(&mut self, x: i64, y: i64, stride: i64) -> i64 {
-        if let Some(&v) = self.cache.get(&(stride, x, y)) { return v }
-        let kept = lod_kept_mask(stride);
-        let mut raw = 0i64;
-        for (li, &(cell, amp)) in W_LAYERS.iter().enumerate() {
-            if kept & (1 << li) != 0 { raw += amp * noise16(W_SEED, li as i64, cell, x, y) }
+        lod_h_raw(&mut self.cache, x, y, stride)
+    }
+    fn rebase(&mut self, ri: usize, base_x: i64, base_y: i64) {
+        let g = &mut self.grids[ri];
+        if g.filled && g.base_x == base_x && g.base_y == base_y { return }
+        g.base_x = base_x;
+        g.base_y = base_y;
+        g.filled = true;
+        let (stride, cells, side) = (g.stride, g.cells, g.side);
+        for gy in -(cells + 1)..=(cells + 1) {
+            for gx in -(cells + 1)..=(cells + 1) {
+                let v = lod_h_raw(&mut self.cache, base_x + gx * stride, base_y + gy * stride,
+                                  stride);
+                let idx = ((gy + cells + 1) * side + (gx + cells + 1)) as usize;
+                self.grids[ri].heights[idx] = v;
+            }
         }
-        let v = floordiv(floordiv(raw * W_HS, W_RAWMAX), H_SCALE);
-        self.cache.insert((stride, x, y), v);
-        v
     }
     fn prefill(&mut self, cx: i64, cy: i64, rings: &[(i64, i64, i64)]) -> u64 {
         let mut n = 0u64;
-        for &(stride, inn, out) in rings {
+        for (ri, &(stride, _inn, _out)) in rings.iter().enumerate() {
             let bx = floordiv(cx, stride) * stride;
             let by = floordiv(cy, stride) * stride;
-            let cells = out / stride + 1;
-            for gy in -cells..=cells {
-                for gx in -cells..=cells {
-                    let (wx, wy) = (bx + gx * stride, by + gy * stride);
-                    let m = (wx - cx).abs().max((wy - cy).abs());
-                    if m >= inn.saturating_sub(stride) && m <= out + stride {
-                        self.h(wx, wy, stride);
-                        n += 1;
-                    }
-                }
-            }
+            self.rebase(ri, bx, by);
+            n += (self.grids[ri].side * self.grids[ri].side) as u64;
         }
         n
     }
@@ -786,9 +829,11 @@ fn raster_rings(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
     let hx1 = h01 + (h11 - h01) * u / 256;
     let eye8 = hx0 + (hx1 - hx0) * v / 256 + (3 << 8);
 
-    for &(stride, inn, out) in rings.iter().rev() {
+    for (ri, &(stride, inn, out)) in rings.iter().enumerate().rev() {
         let bx = floordiv(ctx, stride) * stride;
         let by = floordiv(cty, stride) * stride;
+        lod.rebase(ri, bx, by);
+        let (side, gcells) = (lod.grids[ri].side, lod.grids[ri].cells);
         let cells = out / stride + 1;
         for gy in -cells..cells {
             for gx in -cells..cells {
@@ -796,10 +841,13 @@ fn raster_rings(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
                 let m0 = (wx - ctx).abs().max((wy - cty).abs());
                 let m1 = (wx + stride - ctx).abs().max((wy + stride - cty).abs());
                 if m0.min(m1) > out || m0.max(m1) < inn { continue }
-                let ha = lod.h(wx, wy, stride);
-                let hb = lod.h(wx + stride, wy, stride);
-                let hc = lod.h(wx, wy + stride, stride);
-                let hd = lod.h(wx + stride, wy + stride, stride);
+                let gi = |dx: i64, dy: i64| -> usize {
+                    ((gy + dy + gcells + 1) * side + (gx + dx + gcells + 1)) as usize
+                };
+                let ha = lod.grids[ri].heights[gi(0, 0)];
+                let hb = lod.grids[ri].heights[gi(1, 0)];
+                let hc = lod.grids[ri].heights[gi(0, 1)];
+                let hd = lod.grids[ri].heights[gi(1, 1)];
                 let mut scr = [(0i64, 0i64, 0i64); 4];
                 let mut clipped = false;
                 for (i, (px_, py_, hh)) in [(wx, wy, ha), (wx + stride, wy, hb),
@@ -1503,7 +1551,7 @@ fn main() {
     // it). The elapsed fill time goes to stderr — wall-clock stays out of the log body.
     let ladder = if args.reach > LOD_R0 { lod_schedule(args.reach, ch as i64 * 2) }
                  else { Vec::new() };
-    let mut lodw = LodWorld::new();
+    let mut lodw = LodWorld::new(&ladder);
     let prefill_tiles: u64 = if !ladder.is_empty() {
         let t0 = qpc();
         let n = lodw.prefill(floordiv(cam.px >> 8, TILE), floordiv(cam.py >> 8, TILE), &ladder);
@@ -1643,7 +1691,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.8 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.9 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -1657,7 +1705,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.8 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.9 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach, freq));

@@ -209,6 +209,17 @@ lever is already named: the per-vertex height lookup through a hashed cache, whi
 per-ring resident grid would turn into direct indexing — that is a candidate rung, to be
 adopted the way this one was, by before/after on the committed walk.
 
+v1.9 adopts that candidate. Each ring holds its heights in a flat resident grid indexed by
+lattice position, refilled from the backing cache only when the camera crosses that ring's
+stride boundary — ring k rebases every 2^k tiles, the refill amortizes, and rebase frames stay
+visible honestly in the worst column. The values are identical (a lookup restructure, not an
+arithmetic change), so every v1.8 chain stands at every reach — verified on the authoring
+container against the operator's own sweep digests before delivery, first and last checkpoint
+for the five-hundred and two-thousand tile points. Container indication: roughly a third off
+mid-reach frame cost on top of v1.8's matrix; the host re-sweep says what it truly buys, and
+whether the competitive 120 Hz boundary moves past sixty tiles. Grid memory is bounded by the
+ladder; the backing cache remains unbounded — R4's debt, still named, still owed.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
