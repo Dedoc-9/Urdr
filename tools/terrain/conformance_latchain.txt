@@ -1,0 +1,14 @@
+# URDRLTC1 conformance goldens — emitted by latchain.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the record pin (RECORD_SHA256), the admitted version (present_probe v0.4 only), the
+# column order and the column->segment map, the software-timer instrument class, and the four
+# cell names are DECLARED in latchain.py; every band, count, admission and verdict is DERIVED
+# from the committed bytes at claim time (L75) through sealframe's own door, injected.
+#
+# does_not_show: a green `record` scene does not show input-to-photon latency (three segments
+# carry no evidence and the graduated verdict remains UNDETERMINED with them NAMED); nor the
+# demo's frame cost (these chains time the probe's flash frame — the honest measurand for a
+# latency floor and the wrong one for a render budget); nor anything about the record's pacing
+# (late_over_1ms is recorded and irrelevant to per-chain latency; the loop's lateness lives in
+# input_wait, recorded and never graded).
+record 5f52b8c3d8854e85d1f709c1b465da8119057f3ed055d0b3babf269827e58c52

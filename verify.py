@@ -230,6 +230,7 @@ STAGE_ORDER = (
     "probelog",
     "pixelcost",
     "fpsrecord",
+    "latchain",
     "rollbench",
     "reachable",
     "retire",
@@ -18237,6 +18238,89 @@ class Gate:
                     "walk), and a truncated log refuses typed (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def latchain(self):
+        """THE WAITING LATENCY RECORD GRADUATES THROUGH THE STRICT DOOR (URDRLTC1). Rows:
+        admit (the record, the bands, the strict admission), bound (the partial-chain law),
+        selftest (five plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import latchain as LC
+            import sealframe as SFL
+        except Exception as exc:
+            for r in ("admit", "bound", "selftest"):
+                self.record(f"latchain-{r}", False, f"import failed (latchain): {exc}")
+            return
+        a_ok = True
+        try:
+            parsed = LC.parse(LC.load())
+            pc = LC.per_cell(parsed["chains"])
+            b = LC.bands(parsed["chains"])
+            ok1, _w1 = LC.the_strict_door_admits(parsed, SFL.make_segment_log,
+                                                 SFL.ledger_from_log)
+            ok2, _w2 = LC.the_floor_cannot_be_lowered(parsed, SFL.make_segment_log,
+                                                      SFL.ledger_from_log, SFL.SEGMENTS)
+            a_ok = (len(parsed["chains"]) == 32 and all(pc[c] >= 5 for c in LC.CELLS)
+                    and parsed["host"] == "ROG-Ally-X-Z2-Extreme"
+                    and all(lo <= med <= hi for lo, med, hi in b.values())
+                    and ok1 and ok2
+                    and LC.scene_result("record") == LC.golden("record"))
+        except Exception:
+            a_ok = False
+        self.record("latchain-admit", a_ok,
+                    "THE REFUSAL WAS A SPECIFICATION AND THIS IS ITS DISCHARGE. probelog "
+                    "graduated the first click-chain record LOOSELY and pinned the strict "
+                    "door's refusal — its v0.1 record declared no power or scheduler — as the "
+                    "next instrument's specification. present_probe v0.4 carried the "
+                    "conditions, ran 32 chains across all four cells at 1:1 fullscreen "
+                    "geometry, and its record has sat committed since the envelope arc, "
+                    "preserved by pixelcost's version dispatch for exactly this rung. "
+                    "ledger_from_log(require_conditions=True) — the call probelog pinned RED — "
+                    "ADMITS it: four software-timer segments graduate with bands derived from "
+                    "the committed bytes at claim time, every chain total re-adds from its "
+                    "parts exactly, and authority_tick KEEPS its 100-biped floor against 32 "
+                    "cheaper readings, because a log may only raise a floor. CHEAP EVIDENCE "
+                    "DEBT, PAID: no new measurement hypothesis, no change to the demo — an "
+                    "existing artifact adjudicated admissible"
+                    if a_ok else "the admission did not hold")
+        b_ok, why = True, ""
+        try:
+            parsed = LC.parse(LC.load())
+            b_ok, why = LC.the_bound_rises_and_stays_a_bound(
+                parsed, SFL.make_segment_log, SFL.ledger_from_log, SFL.SEGMENTS,
+                SFL.lower_bound_ms, SFL.budget_verdict)
+        except Exception as exc:
+            b_ok, why = False, str(exc)
+        self.record("latchain-bound", b_ok,
+                    "A PARTIAL CHAIN MAY TIGHTEN A BOUND AND MAY NOT BECOME AN END-TO-END "
+                    "CLAIM — the operator's law, asserted rather than remembered: %s. "
+                    "Software-reachable latency is not input-to-photon latency. The graduated "
+                    "verdict stays UNDETERMINED with the unevidenced segments NAMED BY KIND: "
+                    "input_transport and panel need capture hardware, present_wait needs "
+                    "presentation feedback the platform must report — and grading panel with a "
+                    "software timer is IMPOSSIBLE at sealframe's door, not discouraged, which "
+                    "is what keeps this bound honest when nobody is looking" % why
+                    if b_ok else f"the partial-chain law did not hold: {why}")
+        s_ok = True
+        try:
+            parsed = LC.parse(LC.load())
+            s_ok = (LC.a_flipped_byte_refuses()
+                    and LC.a_v01_record_refuses()
+                    and LC.a_broken_sum_refuses()
+                    and LC.a_condition_stripped_log_refuses(parsed, SFL.make_segment_log,
+                                                            SFL.ledger_from_log)
+                    and LC.a_photon_claim_refuses(SFL.grade_segment))
+        except Exception:
+            s_ok = False
+        self.record("latchain-selftest", s_ok,
+                    "five plants bite: a flipped byte refuses on the pin, a v0.1 header "
+                    "refuses by version dispatch, a chain whose total does not re-add refuses "
+                    "(a sum is a claim), a condition-stripped log is refused by the SAME "
+                    "strict call that admits the real one, and a software-timer photon claim "
+                    "refuses at sealframe's own door (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -21874,7 +21958,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
