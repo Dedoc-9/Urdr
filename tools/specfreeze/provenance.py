@@ -1188,6 +1188,48 @@ DISCOVERIES = (
        "and may not be reasoned from; a successor that quietly outgrew a refusal would be worse than "
        "the refusal",
        "CORRECTION", ""),
+    # ---- the fpsdemo arc (P3.1 -> P3.2b): first host contact, measured off-host --------------
+    _d("fpsdemo:backface-floor", "MEASURE", "hainuwele/parallel/fpsdemo.rs",
+       "v1's terrain rendered correctly (the gate was green and the selfcheck matched every pin)",
+       "the operator's screenshots showed a ribbon floating in sky; the v1 trace bytes replayed "
+       "HEADLESSLY on the authoring container reproduced their 30-digest chain bit for bit, and "
+       "the replayed frames showed the floor was BACKFACE-CULLED - area > 0 kept one winding and "
+       "ground below eye level winds the other way in screen space",
+       "terrain the camera walks on is rendered two-sided; the headless replay harness (the "
+       "demo's math slice, compiled anywhere) became the arc's standing instrument: an "
+       "operator's trace plus their digest chain IS their session, examinable off-host",
+       "CORRECTION", ""),
+    _d("fpsdemo:byte-carry", "MEASURE", "hainuwele/parallel/fpsdemo.rs",
+       "wrapping_add(0x040404) on a packed color is a brightness tweak",
+       "with a saturated green byte, 255+4 = 0x103 carries into RED - every second triangle "
+       "rendered magenta; observed in the operator's replayed frames, not inferred",
+       "colors are per-channel with explicit clamps; a packed color is not an integer",
+       "CORRECTION", ""),
+    _d("fpsdemo:native-input", "MEASURE", "hainuwele/parallel/fpsdemo.rs",
+       "the demo's input model (WASD + mouse, message-queue keyboard) fits the named host",
+       "three starved recordings with the matrix pinned in committed traces: v0 moused 800 with "
+       "console foreground, v1.1/v1.2 moused 0 with the demo foreground and focus VERIFIED - "
+       "the named host is a handheld whose vendor layer swaps its sticks out of mouse emulation "
+       "the moment a fullscreen app takes focus; the keyboard was never dead, it was never there",
+       "every input channel is POLLED (GetAsyncKeyState, XInputGetState, GetCursorPos) and every "
+       "retired assumption is a REPORTED CONDITION (focus_foreground, xinput_loaded, "
+       "pad_connected, keyed/moused/padded) - L83",
+       "CORRECTION", ""),
+    _d("fpsdemo:launch-leak", "MEASURE", "spec/attest/fpsdemo-junk-1frame.txt",
+       "Enter is a safe end-run key",
+       "Enter is the key that LAUNCHES the program from a shell; still physically down at frame "
+       "0's poll, it ended the first attempted real walk at birth (frames 1 | keyed 0) - the "
+       "one-frame record is committed as the incident witness",
+       "end keys ARM on an observed release (a press must BEGIN after launch), and the witness "
+       "is refused as a workload by MIN_WORKLOAD_FRAMES - L84",
+       "MECHANISM", "fpsrecord-selftest"),
+    _d("fpsdemo:crossos-committed", "DERIVE", "tools/terrain/fpsrecord.py",
+       "cross-OS byte-identity lives in pasted terminal transcripts",
+       "the strongest claim the arc produced - identical digest chains from the operator's "
+       "Windows build and the container's Linux build - was unreadable by any gate",
+       "the named host's log and the container's chain are COMMITTED, sha256-pinned, and "
+       "compared digest for digest on every gate run; agreement is a comparison of artifacts",
+       "MECHANISM", "fpsrecord-crossos"),
 )
 
 

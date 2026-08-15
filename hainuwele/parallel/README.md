@@ -97,8 +97,7 @@ identical on the canon domain, and the selfcheck reproducing the canon digests t
 function is the proof. A launch that fails its selfcheck refuses to run: conformance is the door,
 not a comment. The selfcheck core was compiled and RUN on the authoring container before delivery
 (battery and all three canon pins matching on Linux), so the kernels are cross-OS-reproduced
-before the named host ever builds them. `fppose`/`fpclip` integration and the committed
-workload-record rung are P3.2b.
+before the named host ever builds them. `fppose`/`fpclip` integration remains queued; the committed workload-record rung shipped as `fpsrecord` (URDRFPR1, gated) — the arc's traces, chains and named log are sha256-pinned records the gate re-reads.
 
 v1.1 is what first host contact taught. The operator's v1 run was green on every claim v1 could
 check and wrong on the one it couldn't — the picture: a green-and-magenta ribbon floating in sky.
