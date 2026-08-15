@@ -17,6 +17,7 @@ this folder locates and explains, it grades nothing.
 | Document | What it is |
 |---|---|
 | **`README.md`** (this file) | The index: every file, its URDR code, gate stage, falsifiers, conformance, brief |
+| [`fpsrecord.py`](../tools/terrain/fpsrecord.py) | `URDRFPR1` | The demo's workload records as gate-read artifacts — four traces spanning the input arc, chains bound without re-execution, cross-OS agreement as a comparison of committed records | `fpsrecord` | [test](../tests/test_fpsrecord.py) | [conf](../tools/terrain/conformance_fpsrecord.txt) | [brief](../docs/fpsrecord_brief.md) |
 | [`pixelcost.py`](../tools/terrain/pixelcost.py) | `URDRPXC1` | The resolution decision derived from six committed probe records — chord-tested form, complete dual-slot budgets, lawful demotion, no extrapolation | `pixelcost` | [test](../tests/test_pixelcost.py) | [conf](../tools/terrain/conformance_pixelcost.txt) | [brief](../docs/pixelcost_brief.md) |
 | [`probelog.py`](../tools/terrain/probelog.py) | `URDRPBL1` | The first §3 log becomes evidence — present_probe's committed record graduates sealframe segments through the existing door | `probelog` | [test](../tests/test_probelog.py) | [conf](../tools/terrain/conformance_probelog.txt) | [brief](../docs/probelog_brief.md) |
 | [`WHITEPAPER.md`](WHITEPAPER.md) | The thorough treatment: the thesis, the method, the ladder, the theorems, the honest boundaries |
@@ -267,8 +268,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | [brief](../docs/wireattest_brief.md) |
 ## Status
 
-**MEASURED, as of this writing.** 128 modules under `tools/terrain/`, 210 suites, 2897 unit
-falsifiers with 0 red, 971 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 129 modules under `tools/terrain/`, 211 suites, 2910 unit
+falsifiers with 0 red, 974 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 

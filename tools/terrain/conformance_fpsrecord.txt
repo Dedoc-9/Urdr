@@ -1,0 +1,15 @@
+# URDRFPR1 conformance goldens — emitted by fpsrecord.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the eight record pins (RECORDS), the static-spawn constant e224235741921d0f, the
+# admitted trace headers (KNOWN_TRACE_VERSIONS), MIN_WORKLOAD_FRAMES = 120, and the chain->trace
+# assignment (CHAIN_OF) are DECLARED in fpsrecord.py; every activity figure, binding verdict and
+# cross-OS comparison is DERIVED from the committed bytes at claim time (L75).
+#
+# does_not_show: a green `records`/`laws` pair does not show that the log's cost rows meet any
+# budget (pixelcost owns budget verdicts; the rows are preserved, graded nowhere); nor that the
+# container chains were produced by the exact committed fpsdemo.rs (the harness is its math
+# slice — the selfcheck door and the measured host agreement are the evidence, not a hash of
+# the producer); nor that the walk felt right to the operator — a trace records what happened,
+# never whether it should have.
+records 184c9f70e1c360fae81304ddce7041545ab5731d711497d2499535c7242bb50b
+laws b9e3b17d8a33889275b6bfa664e25ab0082a280327d3e801883d62c136af8510

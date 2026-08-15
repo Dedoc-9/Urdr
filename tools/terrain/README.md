@@ -700,6 +700,8 @@ power and scheduler — pinned red as probe v0.2's specification; and input->pho
 UNDETERMINED with the missing segments partitioned by whose task they are: nothing left is
 software's alone. Born a leaf: sealframe's machinery is injected, never imported.
 
+`fpsrecord.py` — `URDRFPR1`: the demo's workload records as gate-read artifacts. Four committed input traces span the fpsdemo input arc (the focusless v0 pan, the handheld's stick-mouse pan, the one-frame Enter-kill witness refused as a workload by law, and the first real walk — 1145 frames, 757 keyed); three authoring-container digest chains are bound to their traces without re-execution (checkpoint schedule + the pinned static-spawn constant over each all-zero prefix); and the named host's own log turns cross-OS byte-identity into a comparison of committed artifacts — 20 checkpoints, two operating systems, digest for digest, re-derived from pins on every gate run. The log's cost rows are preserved, graded nowhere: budget verdicts stay `pixelcost`'s.
+
 `pixelcost.py` — `URDRPXC1`: the resolution decision, derived from committed records rather than
 chosen. Two v0.3 probe executions with conditions declared, committed under DISTINCT digests —
 distinctness is a law because reality planted its violation: an accidental Copy-Item produced two

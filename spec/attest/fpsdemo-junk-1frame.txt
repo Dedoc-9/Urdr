@@ -1,0 +1,2 @@
+# fpsdemo v1.4 input trace: keys dx dy (one line per frame)
+0 0 0

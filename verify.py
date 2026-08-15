@@ -229,6 +229,7 @@ STAGE_ORDER = (
     "reflow",
     "probelog",
     "pixelcost",
+    "fpsrecord",
     "rollbench",
     "reachable",
     "retire",
@@ -18148,6 +18149,94 @@ class Gate:
                     % decided
                     if v_ok else "the verdict half did not hold")
 
+    def fpsrecord(self):
+        """THE DEMO'S WORKLOAD BECOMES EVIDENCE (URDRFPR1). Rows: records (eight committed
+        artifacts, figures derived from bytes), crossos (host chain == container chain as a
+        comparison of committed records), selftest (six plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import fpsrecord as FR
+        except Exception as exc:
+            for r in ("records", "crossos", "selftest"):
+                self.record(f"fpsrecord-{r}", False, f"import failed (fpsrecord): {exc}")
+            return
+        r_ok = True
+        try:
+            traces, chains, log = FR._admit_all()
+            acts = {i: FR.activity(t) for i, t in traces.items()}
+            digs = [__import__("hashlib").sha256(FR.load(i).encode()).hexdigest()
+                    for i in range(len(FR.RECORDS))]
+            r_ok = (len(FR.RECORDS) == 8 and len(set(digs)) == 8
+                    and acts[0] == {"frames": 1800, "keyed": 0, "moused": 800,
+                                    "zero_prefix": 1}
+                    and acts[1] == {"frames": 1800, "keyed": 0, "moused": 1386,
+                                    "zero_prefix": 0}
+                    and acts[2] == {"frames": 1145, "keyed": 757, "moused": 310,
+                                    "zero_prefix": 236}
+                    and acts[3] == {"frames": 1, "keyed": 0, "moused": 0, "zero_prefix": 1}
+                    and all(FR.bind(traces[t], chains[c])
+                            for t, c in sorted(FR.CHAIN_OF.items()))
+                    and FR.scene_result("records") == FR.golden("records"))
+        except Exception:
+            r_ok = False
+        self.record("fpsrecord-records", r_ok,
+                    "EIGHT COMMITTED ARTIFACTS, PAIRWISE DISTINCT, EVERY FIGURE DERIVED FROM "
+                    "THE BYTES AT CLAIM TIME (L75): four input traces spanning the input arc "
+                    "(the v0 pan whose 0 keyed frames exposed the focusless window; the v1.3 "
+                    "stick-mouse pan whose pad_connected/padded/moused triple identified the "
+                    "handheld; the ONE-FRAME Enter-kill witness — v1.4's end key was the key "
+                    "that launches the program — committed as an incident and refused as a "
+                    "workload BY LAW; and the first REAL WALK, 1145 frames, 757 keyed, ended "
+                    "by an armed Esc), three container-produced digest chains, and the named "
+                    "host's own log. EACH CHAIN IS BOUND TO ITS TRACE WITHOUT RE-EXECUTION: "
+                    "checkpoint frames must be exactly the loop's schedule for that trace's "
+                    "length, and every checkpoint inside a trace's leading all-zero prefix "
+                    "must equal the pinned static-spawn constant — a chain claiming a still "
+                    "camera must open with the still frame, and walk_real exercises that law "
+                    "non-vacuously (236 zero frames, 3 checkpoints inside, all equal)"
+                    if r_ok else "the records half did not hold")
+        x_ok = True
+        try:
+            x_ok = (FR.crossos(log, chains[FR.CHAIN_OF[FR.LOG_TRACE]])
+                    and len(log["chain"]) == 20 and log["frames"] == 1145
+                    and log["fields"]["host"] == "ROG-Ally-X-Z2-Extreme"
+                    and log["fields"]["power"] != "-" and log["fields"]["scheduler"] != "-"
+                    and FR.scene_result("laws") == FR.golden("laws"))
+        except Exception:
+            x_ok = False
+        self.record("fpsrecord-crossos", x_ok,
+                    "CROSS-OS AGREEMENT IS NOW A COMPARISON OF COMMITTED ARTIFACTS, not a "
+                    "paste in a conversation: the named host's log (Windows, the operator's "
+                    "rustc, conditions DECLARED) and the authoring container's chain (Linux, "
+                    "a different compiler's codegen, the demo's math slice) narrate the SAME "
+                    "committed walk and agree on all 20 checkpoints, digest for digest. The "
+                    "chain opens with three static-spawn constants — the operator stood still "
+                    "for 236 frames before the first real walk in this project's history — "
+                    "and every figure in this row re-derives from the pinned bytes on every "
+                    "gate run. What this does NOT show, said plainly: the log's cost rows are "
+                    "PRESERVED and graded nowhere — budget verdicts belong to pixelcost's "
+                    "envelope, and feeding these rows through sealframe's door is future work"
+                    if x_ok else "the cross-OS half did not hold")
+        s_ok = True
+        try:
+            s_ok = (FR.a_flipped_byte_refuses()
+                    and FR.an_unknown_trace_version_refuses()
+                    and FR.a_one_frame_trace_is_not_a_workload()
+                    and FR.a_mismatched_chain_reddens()
+                    and FR.a_foreign_chain_refuses_binding()
+                    and FR.a_truncated_log_refuses())
+        except Exception:
+            s_ok = False
+        self.record("fpsrecord-selftest", s_ok,
+                    "six plants bite: a flipped record byte refuses on its pin, an unknown "
+                    "trace version refuses, the one-frame record refuses as a workload, one "
+                    "edited digest reddens the cross-OS agreement, a foreign chain refuses "
+                    "binding (walk_v13's 1800-frame schedule may not narrate the 1145-frame "
+                    "walk), and a truncated log refuses typed (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -21785,7 +21874,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
