@@ -187,6 +187,37 @@ def main():
            "vacuity by the non-vacuity comparison, and a near-infinite radius never clips "
            "(the flat-map degenerate control: the clip is the planet's property, not the "
            "code's habit)")
+    import farfield as FF
+    record("v2-farfield-door", FF.door_stands(),
+           "beyond the interest bound there is NO GEOMETRY, by refusal: a geometric delta "
+           "admits at DELTA_MAX and refuses one past it (voxin's law, re-asserted at this "
+           "tier), while the channel serves region deltas half a galaxy wide without "
+           "refusing — geometry inside the door, channel beyond it, nothing in between")
+    record("v2-farfield-covariance", FF.translation_covariance()
+           and FF.sky_is_not_vacuous(),
+           "the channel consumes only the DELTA between viewer region and galactic anchor — "
+           "25 seeded viewer/anchor pairs translated together by up to 2^54 regions render "
+           "digest-identical skies (R1's sweep, at the far field), and the sky genuinely "
+           "DEPENDS on its inputs (three coarse deltas, three skies — a channel that ignores "
+           "its arguments would pass a covariance sweep vacuously, so vacuity is asserted "
+           "away first)")
+    record("v2-farfield-quantum", FF.parallax_quantum(),
+           "the parallax quantum holds on both sides: a viewer moving anywhere inside one "
+           "coarse cell (2^20 regions) sees an unchanged sky — stars do not jitter as you "
+           "walk — and crossing the quantum boundary changes the digest; sub-quantum "
+           "parallax is refused by construction and DECLARED, not smuggled")
+    record("v2-farfield-observer", FF.channel_is_an_observer(),
+           "the channel is an OBSERVER: the authority transcript is byte-identical before "
+           "and after a full sky of reads, and two independently constructed channels agree "
+           "bin for bin — purity, so no hidden state survives construction")
+    record("v2-farfield-selftest",
+           FF.an_absolute_leak_breaks_the_sweep() and FF.a_peeking_channel_is_caught()
+           and FF.a_constant_sky_is_caught() and FF.a_jittering_star_is_caught()
+           and FF.an_off_sky_bin_refuses(),
+           "five plants bite: an absolute-region leak breaks the covariance sweep, a peeking "
+           "channel (a read that writes) breaks the authority transcript, a constant sky is "
+           "caught as vacuity, a sub-quantum jitter is caught by the parallax law, and an "
+           "off-sky bin refuses")
     record("v2-selftest",
            RG.a_float_coordinate_refuses()
            and RG.an_absolute_leak_breaks_the_sweep()

@@ -63,14 +63,26 @@ was pinned. does_not_show: rendering (pictures are an R2b-style demo adoption); 
 refraction/terrain self-occlusion (real terrain occludes MORE, so the work bound stands);
 scale beyond the swept tiers (the caustic law).
 
-Galaxy scale (R2d, queued) is where R1's delta door pays off: beyond the interest bound there
-is no geometry at all, by refusal. Far content may only manifest through a FAR-FIELD CHANNEL —
-a pure deterministic function of the viewer's coarse region and view direction (a seeded
-star lattice is the first candidate), digestable, translation-covariant under R1's sweep, and
-provably an observer: reading it moves nothing. The falsifier family: the far field renders
-digest-identical under region translation, and a planted authority read inside the channel
-breaks the observer law. Scale tiers then compose the same way everything here composes —
-each tier is a lens over derived state, never a second world.
+Galaxy scale (R2d, BUILT — `farfield.py`) is where R1's delta door pays off: beyond the
+interest bound there is NO geometry at all, by refusal — the rung asserts the door (DELTA_MAX
+admits, one past refuses) as the far field's founding law rather than working around it. Far
+content manifests only through the FAR-FIELD CHANNEL: a pure deterministic function of the
+viewer's COARSE region delta to a declared galactic anchor (regions >> 20 — the parallax
+quantum) and the view direction bin, a seeded star lattice serving deltas half a galaxy wide
+without refusing. Its laws are gated: TRANSLATION COVARIANCE (viewer and anchor translated
+together by up to 2^54 regions render digest-identical skies — the channel consumes only
+deltas, and an absolute-region leak inside its hash is caught by the sweep); THE PARALLAX
+QUANTUM on both sides (a viewer moving inside one coarse cell sees an unchanged sky — stars
+do not jitter as you walk — and crossing the boundary changes the digest; sub-quantum
+parallax is refused by construction and declared); THE OBSERVER LAW (the authority transcript
+is byte-identical before and after a full sky of reads, two independently built channels
+agree bin for bin, and a peeking channel that caches into authority is caught); and
+NON-VACUITY (three coarse deltas, three skies — a constant sky is decoration and is caught
+as such). The tiers compose as lenses over derived state, never a second world: near geometry
+inside the door (R2a's ladder), the planet's own ceiling (R2c's horizon), the channel beyond
+(R2d) — and the composition PICTURE is a demo adoption with its own before/after, deliberately
+not claimed here. The star lattice is a declared placeholder content choice; the laws
+constrain the channel's TYPE, not its art.
 
 ## Concern 2 — "the spatial culling paradox: per-entity occlusion collapses the server"
 
