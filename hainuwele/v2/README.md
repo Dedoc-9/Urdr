@@ -69,10 +69,27 @@ respects a per-tick budget with bounded staleness, and those laws are gated toda
 assumes the cost is unbounded because it assumes the work is per-pair occlusion; the
 architecture's actual shape is interest sets plus budgeted refresh. WHAT IS GENUINELY OPEN: the
 scaling LAW — nobody has measured cost against entity count at MMO densities on this
-substrate. THE RUNG (queued, R3): a synthetic-density sweep — entity counts stepped over
-orders of magnitude, per-tick visibility cost measured under the existing budget machinery,
-and the verdict stated the way `pixelcost` states budgets: FITS / MARGINAL / EXCEEDS at each
-measured density, never extrapolated past the swept range (the caustic law).
+substrate. THE RUNG (BUILT, R3 — `density.py`): seeded entity populations drifting on a
+toroidal tile arena, one drifting observer with a Chebyshev AoI, a bucket grid whose cell
+equals the AoI radius (the 3x3 neighborhood is a proven superset of interest), and a
+round-robin refresh scheduler spending AT MOST budget distance checks per tick — all integer,
+all seeded, wall-clock nowhere. Four laws, each with its refusing plant: THE BUDGET IS A DOOR
+(no tick exceeds it at any density; a budget-blind scheduler is caught blowing it; zero
+refuses); BOUNDED STALENESS, EXERCISED (re-check within ceil(Q_max/B) ticks, approached
+within 2x; a LIFO scheduler starves its oldest past the bound); VALUES SETTLE (movement
+frozen, the budgeted visible set equals the oracle interest set within bound+1 ticks — budget
+changes STALENESS, never settled values, R4's invariant on the time axis; and the authority
+transcript is byte-identical near-starved vs fully budgeted — visibility READS, a poisoned
+read is caught); COST IS LOCAL, NOT GLOBAL (density fixed while the world grows 16x, N 1024
+to 16,384: queue ceiling and staleness hold one constant band while the naive full-scan bill
+grows exactly linearly — per-observer cost is set by LOCAL density and budget, which is the
+measured answer to the collapse-the-server claim; a population-blind candidate set breaks the
+band). The density trade table states verdicts pixelcost's way against a declared staleness
+slot: 16 checks/tick FITS at 62/1000 occupancy and EXCEEDS at 250/1000 — the budget must
+scale with local crowding, both endpoints measured, nothing extrapolated (the caustic law).
+does_not_show: wall-clock per check (the tick-to-milliseconds mapping is a host measurement,
+R2a's graduation pattern); occlusion/manifestation (the main tree's perception firewall);
+multiple observers (per-observer cost is the claim; sharding multiplies it).
 
 ## Concern 3 — "precision vs scale: fixed-point runs out of range; origin shifting breaks it"
 

@@ -112,6 +112,47 @@ def main():
            "breaks the identity sweep, a shuffled victim picker diverges the eviction-order "
            "witness while two clean runs agree, a cap of one still answers exactly (the "
            "degenerate control), and a zero cap refuses")
+    import density as DN
+    record("v2-density-door", DN.budget_is_a_door() and DN.a_zero_budget_refuses(),
+           "the refresh budget is a DOOR: no tick spends more than "
+           f"{DN.BUDGET} distance checks at any swept density or population, and a zero "
+           "budget refuses — visibility work is bounded by construction, never by hope")
+    record("v2-density-staleness", DN.staleness_bounded_and_exercised(),
+           "a continuously-candidate entity is re-checked within ceil(Q_max/B) ticks at every "
+           "swept density, and the bound is APPROACHED within a factor of two — a ceiling "
+           "asserted and exercised, not decoration")
+    record("v2-density-settle", DN.values_settle() and DN.observer_law(),
+           "movement frozen, the budgeted visible set EQUALS the oracle interest set within "
+           "bound+1 ticks at every density — budget changes STALENESS, never the settled "
+           "values (R4's invariant on the time axis); and the authority transcript is "
+           "byte-identical with the scheduler near-starved vs fully budgeted — visibility "
+           "READS, it never writes")
+    loc_ok, loc_rows = DN.locality_band()
+    record("v2-density-locality", loc_ok,
+           "COST IS LOCAL, NOT GLOBAL — density fixed while the world grows 16x: " + " | ".join(
+               f"N {r['n']:,}: Q_max {r['q_max']}, staleness {r['stale']}, naive scan "
+               f"{r['naive']:,}" for r in loc_rows) + " — the queue ceiling and staleness "
+           "hold one constant band while the full-scan bill grows exactly linearly; "
+           "per-observer cost is set by LOCAL density and budget, which is the answer to the "
+           "collapse-the-server concern at the measured scales")
+    tt2 = DN.trade_table()
+    record("v2-density-trade", all(tt2[i]["bound"] <= tt2[i + 1]["bound"]
+                                   for i in range(len(tt2) - 1))
+           and tt2[0]["verdict"] == "FITS" and tt2[-1]["verdict"] == "EXCEEDS",
+           "THE DENSITY TRADE TABLE, DERIVED: " + " | ".join(
+               f"{r['density_permille']}/1000 tiles occupied -> bound {r['bound']} ticks, "
+               f"{r['verdict']} vs the {DN.STALENESS_SLOT}-tick slot" for r in tt2)
+           + " — at 16 checks/tick the budget carries 62/1000 density and breaks at 250/1000; "
+           "the budget must scale with LOCAL crowding, and both endpoints of that statement "
+           "are measured rows, not extrapolations (the caustic law)")
+    record("v2-density-selftest",
+           DN.a_budget_blind_scheduler_is_caught() and DN.a_starving_scheduler_is_caught()
+           and DN.a_poisoned_visibility_read_is_caught()
+           and DN.a_population_blind_candidate_set_is_caught(),
+           "four plants bite: a budget-blind scheduler blows the door, a LIFO scheduler "
+           "starves its oldest candidate past the bound, a poisoned visibility read (a "
+           "refresh that nudges what it inspects) breaks the authority transcript, and a "
+           "population-blind candidate set breaks the locality band")
     record("v2-selftest",
            RG.a_float_coordinate_refuses()
            and RG.an_absolute_leak_breaks_the_sweep()
