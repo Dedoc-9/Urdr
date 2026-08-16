@@ -220,6 +220,15 @@ mid-reach frame cost on top of v1.8's matrix; the host re-sweep says what it tru
 whether the competitive 120 Hz boundary moves past sixty tiles. Grid memory is bounded by the
 ladder; the backing cache remains unbounded — R4's debt, still named, still owed.
 
+The camera-feel verdict arrived after the v1.9 sweep: the operator walked the world across
+several versions and reported it felt good. The view and input constants are now FROZEN as
+operator-confirmed rather than author-guessed — mouse sensitivity, the pitch clamp, eye height
+and walk speed hold, and any future change to them is a deliberate act with a before/after,
+not a tuning drift. The v1.9 envelope on the named host, chains proven identical to v1.8's:
+reach 60 and 120 run the committed walk with zero late frames (the 120-tile point is six times
+the original draw distance inside the 120 Hz budget), 250 and 500 are marginal at 120 Hz and
+solid at 60 — the competitive default awaits the operator's freeze between 60 and 120.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

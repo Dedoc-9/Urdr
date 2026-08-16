@@ -107,10 +107,17 @@ edits, and the streaming problem is CACHE MANAGEMENT of derivations, which the t
 theory for already (`boundedhist` carries the Belady-optimal bounded-cache law). WHAT IS
 GENUINELY OPEN: the eviction law at the renderer — bounded memory with deterministic
 replacement, and the cardinal invariant that eviction may never touch authority state. THE
-RUNG (queued, R4): a bounded terrain cache whose falsifier is replay identity under DIFFERENT
-cache pressures — starve the cache and the digests may not move, because a cache is a VIEW
-optimization and a digest that shifts under memory pressure is an authority leak wearing a
-performance costume.
+RUNG (BUILT, R4 — `cache.py`): a bounded cache with deterministic insertion-order eviction,
+green under this gate. The laws: one seeded drift pattern under capacities from one to
+unbounded produces ONE value digest (capacity changes cost, never values — starve it and the
+digests may not move, because a digest that shifts under memory pressure is an authority leak
+wearing a performance costume); caps below the working set fill exactly and evict while a cap
+above settles at exactly the working set; and the eviction ORDER is itself a digested witness,
+so a nondeterministic victim picker is caught even though a pure backing function means it
+could never corrupt a value. The plants bite in all four directions, including the poisoned
+eviction that corrupts a survivor on the way out — the exact shape of a real eviction bug.
+The demo-side adoption replays the committed walk under the demo's own cap candidates and
+picks from a measured surface, the way the reach default was picked.
 
 ## The verdict, reframed
 

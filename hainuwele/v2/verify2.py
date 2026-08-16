@@ -90,6 +90,28 @@ def main():
            "four plants bite: the stride-1 prefix equals the canon (the identity control), an "
            "over-dropped layer exceeds its stride's bound, a ring seated under its derived "
            "d_min violates the pixel budget, and a torn overlap exposes a seam point")
+    import cache as CH
+    record("v2-cache-identity", CH.identity_under_pressure(),
+           "one seeded drift pattern under capacities from one to unbounded produces ONE "
+           "value digest — capacity changes cost, never values; eviction is a view event")
+    record("v2-cache-bounds", CH.bounds_are_tight(),
+           f"caps below the working set ({CH.working_set()} keys) fill exactly and evict; a "
+           f"cap above it settles at exactly the working set with zero evictions — both "
+           f"regimes asserted, and no cap is ever exceeded")
+    tt = CH.trade_table()
+    mono = all(tt[i]["recomputes"] >= tt[i + 1]["recomputes"] for i in range(len(tt) - 1))
+    record("v2-cache-trade", mono,
+           "THE CAP TRADE TABLE, DERIVED: " + " | ".join(
+               f"cap {r['cap']} -> {r['hit_permille']}/1000 hits, {r['recomputes']} recomputes"
+               for r in tt) + " — the demo's R4 adoption picks its budget from this surface "
+           "measured on its own committed walk, the way the reach default was picked")
+    record("v2-cache-selftest",
+           CH.a_poisoned_eviction_is_caught() and CH.a_shuffled_victim_is_caught()
+           and CH.a_cap_of_one_still_answers() and CH.a_zero_cap_refuses(),
+           "four plants bite: a poisoned eviction (corrupting a survivor on the way out) "
+           "breaks the identity sweep, a shuffled victim picker diverges the eviction-order "
+           "witness while two clean runs agree, a cap of one still answers exactly (the "
+           "degenerate control), and a zero cap refuses")
     record("v2-selftest",
            RG.a_float_coordinate_refuses()
            and RG.an_absolute_leak_breaks_the_sweep()
