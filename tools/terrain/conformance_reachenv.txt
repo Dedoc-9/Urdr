@@ -1,0 +1,12 @@
+# URDRENV1 conformance goldens — emitted by reachenv.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the eight record pins (RECORDS), the admitted version (fpsdemo v1.9), the two slot
+# constants, the swept reach set, and the pixel budget's derivation rules imported from the v2
+# model (hainuwele/v2/lod.py — R2a graduated, not copied); every band, ladder cross-check,
+# cross-OS comparison and verdict is DERIVED from the committed bytes at claim time (L75).
+#
+# does_not_show: any reach outside the swept set (no interpolation — the caustic law; 20..60
+# and beyond 500 are unmeasured intervals); present-cost budgets (pixelcost owns those for the
+# probe's geometry); the feel of any reach (the operator's verdict is recorded prose, not a
+# gate row); prefill as a frame cost (a start condition, never classified against a slot).
+envelope 0e0995ccec96c25a636f59ee39eb9c2aa93e63f3b93ea12842bf6504fe02b425

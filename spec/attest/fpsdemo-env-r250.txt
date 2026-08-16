@@ -1,0 +1,39 @@
+fpsdemo v1.9 | host ROG-Ally-X-Z2-Extreme | power Turbo-35W-AC | scheduler Win11-GameMode-UltimatePerf | hz 120 | res 1280x720 | mode replay | reach 250 | qpf 10000000
+ring stride 1 tiles 0..56
+ring stride 2 tiles 53..126
+ring stride 4 tiles 120..252
+ring stride 8 tiles 240..250
+prefill_tiles 52500
+timer_1ms_granted true | focus_foreground true | xinput_loaded n/a | pad_connected n/a
+frames 1145 | late_over_1ms 18 | seg 120
+late_ns p50 0 p95 0 p99 1948000
+seg 0 n 120 raster_ns 4893300 5005500 6032700 present_ns 184600 261500 971300 late 0
+seg 1 n 120 raster_ns 4902100 4995500 5163500 present_ns 187300 274000 1320400 late 0
+seg 2 n 120 raster_ns 4704400 5057700 10682900 present_ns 170700 262100 1558500 late 2
+seg 3 n 120 raster_ns 4771100 5222200 10681100 present_ns 181600 255400 1150000 late 2
+seg 4 n 120 raster_ns 4976800 5419800 8714200 present_ns 187900 266600 1625500 late 0
+seg 5 n 120 raster_ns 4829800 4993400 10452000 present_ns 171800 259400 1377900 late 2
+seg 6 n 120 raster_ns 4682500 5188600 7253400 present_ns 158800 265100 1688400 late 0
+seg 7 n 120 raster_ns 5252200 5647600 11600700 present_ns 169000 242700 1752300 late 6
+seg 8 n 120 raster_ns 5811100 6168100 11085200 present_ns 169300 232200 1548100 late 6
+seg 9 n 65 raster_ns 5695700 5869400 7334000 present_ns 168800 228300 1678800 late 0
+digest frame 59 fnv64 3d0e9f05b0e8e524
+digest frame 119 fnv64 3d0e9f05b0e8e524
+digest frame 179 fnv64 3d0e9f05b0e8e524
+digest frame 239 fnv64 93e936e4a697e474
+digest frame 299 fnv64 65b50abbb66317aa
+digest frame 359 fnv64 76da54a8a8840b67
+digest frame 419 fnv64 487ded7f5e8dd50d
+digest frame 479 fnv64 f1aa0f6436b7f1da
+digest frame 539 fnv64 f2cfa63eda57f879
+digest frame 599 fnv64 2fa0ff987b63d1f1
+digest frame 659 fnv64 fb0286509b804850
+digest frame 719 fnv64 30fd1b1d1310dd8a
+digest frame 779 fnv64 9d4b24f5e9ac110e
+digest frame 839 fnv64 dcfca1e726af5ec7
+digest frame 899 fnv64 71d5b3e14ec2e723
+digest frame 959 fnv64 fe31439427ad022a
+digest frame 1019 fnv64 5f41ccb82b12aa1b
+digest frame 1079 fnv64 04cf163bc65fcccb
+digest frame 1139 fnv64 0828d522cd07ecf5
+digest frame 1144 fnv64 1f29f861a8697d4e

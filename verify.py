@@ -231,6 +231,7 @@ STAGE_ORDER = (
     "pixelcost",
     "fpsrecord",
     "latchain",
+    "reachenv",
     "rollbench",
     "reachable",
     "retire",
@@ -18321,6 +18322,79 @@ class Gate:
                     "refuses at sealframe's own door (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def reachenv(self):
+        """THE REACH ENVELOPE BECOMES EVIDENCE, AND R2a GRADUATES (URDRENV1). Rows: records
+        (eight artifacts, ladders checked against the v2 model, cross-OS at every reach),
+        verdict (the derived envelope), selftest (five plants)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import reachenv as RE
+        except Exception as exc:
+            for r in ("records", "verdict", "selftest"):
+                self.record(f"reachenv-{r}", False, f"import failed (reachenv): {exc}")
+            return
+        r_ok = True
+        try:
+            logs = RE.admit()
+            r_ok = (len(logs) == 4
+                    and all(logs[r]["fields"]["host"] == "ROG-Ally-X-Z2-Extreme"
+                            for r in RE.REACHES)
+                    and all(len(logs[r]["chain"]) == 20 for r in RE.REACHES))
+        except Exception:
+            r_ok = False
+        self.record("reachenv-records", r_ok,
+                    "EIGHT COMMITTED ARTIFACTS AND TWO CONTRACTS CHECKED ON EVERY GATE RUN. "
+                    "Four named-host sweep logs of the COMMITTED walk (fpsdemo v1.9, 720p, "
+                    "conditions declared) and four authoring-container chains for the same "
+                    "trace at the same reaches. THE LADDER IS A CHECKED CONTRACT: each log "
+                    "prints its derived rings and this reader re-derives them from the v2 "
+                    "model's own machinery — hainuwele/v2/lod.py IMPORTED, not copied, R2a's "
+                    "first graduation into the main gate — refusing a record whose rings "
+                    "disagree. CROSS-OS BYTE-IDENTITY HOLDS AT EVERY REACH: host chain equals "
+                    "container chain digest for digest, twenty checkpoints per reach, four "
+                    "reaches, two operating systems, two compilers. And the four logs are "
+                    "pairwise distinct (the duplicate law, standing guard as always)"
+                    if r_ok else "the records half did not hold")
+        v_ok, verd = True, "?"
+        try:
+            env = RE.envelope(RE.admit())
+            verd = " | ".join(f"r{r}: {env[r]['at120']}@120 {env[r]['at60']}@60 "
+                              f"late {env[r]['late']}" for r in RE.REACHES)
+            v_ok = (env[60]["at120"] == "FITS" and env[60]["late"] == 0
+                    and all(env[r]["at60"] == "FITS" for r in RE.REACHES)
+                    and all(env[r]["at120"] == "MARGINAL" for r in (120, 250, 500))
+                    and RE.scene_result("envelope") == RE.golden("envelope"))
+        except Exception:
+            v_ok = False
+        self.record("reachenv-verdict", v_ok,
+                    "THE OPERATING ENVELOPE, DERIVED FROM COMMITTED BYTES — %s. Reach 60 "
+                    "(three times the original draw distance) FITS the 120 Hz slot BY CEILING "
+                    "with zero late frames on the committed walk; 120, 250 and 500 fit by "
+                    "median with ceiling excursions (MARGINAL, pixelcost's semantics exactly); "
+                    "every swept reach FITS 60 Hz outright — a 25x draw-distance 60 Hz mode "
+                    "exists on this hardware today. Said with the caustic law's discipline: "
+                    "the intervals 20..60 and past 500 are UNMEASURED, and no verdict here "
+                    "extrapolates into them. Prefill counts ride in the records as start "
+                    "conditions, classified against no slot, because a cold fill is not a "
+                    "frame" % verd
+                    if v_ok else f"the verdict half did not hold ({verd})")
+        s_ok = True
+        try:
+            s_ok = (RE.a_flipped_byte_refuses() and RE.a_tampered_ring_refuses()
+                    and RE.a_wrong_version_refuses() and RE.a_mismatched_chain_refuses()
+                    and RE.an_anonymous_record_refuses())
+        except Exception:
+            s_ok = False
+        self.record("reachenv-selftest", s_ok,
+                    "five plants bite: a flipped byte refuses on its pin, a tampered ring "
+                    "line disagrees with the derived model (the runtime contract has teeth), "
+                    "a wrong version refuses by dispatch, one edited digest breaks the "
+                    "cross-OS comparison, and an anonymous record grades nothing "
+                    "(gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -21958,7 +22032,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
