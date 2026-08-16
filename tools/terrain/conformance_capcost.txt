@@ -1,0 +1,15 @@
+# URDRCPC1 conformance goldens — emitted by capcost.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the five host record pins and the schedule-record pin (RECORDS, SCHEDULE_RECORD),
+# the admitted version (fpsdemo v1.10), the walk identity (WALK_SHA, fpsrecord's committed
+# trace) and the host build tree (HOST_COMMIT); every footprint, regime signature, oracle
+# comparison and instrument-agreement verdict is DERIVED from the committed bytes at claim
+# time (L75). The ladder rules arrive through reachenv from the v2 model, imported, never
+# copied.
+#
+# does_not_show: host timing for reach 60 below its footprint or unbounded under v1.10 (the
+# container carries those counts; v1.9's envelope record owns unbounded r60 timing); any cap
+# not swept (the caustic law); the 2x-footprint POLICY as law (the sealed evidence supports
+# "the ceiling must accommodate the ladder's live footprint" — 2x is a candidate margin on
+# THIS walk); wall-clock per eviction; universality beyond the committed walk and named host.
+captable 79c697c81e6e6c30c3fab00f64d2b35aaf1a9d234b6ac173cb09ecf6a5b31224

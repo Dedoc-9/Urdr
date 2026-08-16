@@ -232,6 +232,7 @@ STAGE_ORDER = (
     "fpsrecord",
     "latchain",
     "reachenv",
+    "capcost",
     "rollbench",
     "reachable",
     "retire",
@@ -18395,6 +18396,90 @@ class Gate:
                     "(gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def capcost(self):
+        """THE BOUNDED CACHE'S COST SURFACE BECOMES EVIDENCE (URDRCPC1). Rows: records (six
+        artifacts, footprints checked against the ladder's own arithmetic, chains against the
+        committed oracles), law (the two regimes + instrument agreement), selftest (seven
+        plants)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import capcost as CC
+        except Exception as exc:
+            for r in ("records", "law", "selftest"):
+                self.record(f"capcost-{r}", False, f"import failed (capcost): {exc}")
+            return
+        r_ok = True
+        try:
+            logs, sched = CC.admit()
+            r_ok = (len(logs) == 5 and len(sched["run"]) == 7 and len(sched["raw"]) == 2
+                    and all(logs[k]["fields"]["host"] == "ROG-Ally-X-Z2-Extreme"
+                            for k in CC.RECORDS)
+                    and all(len(logs[k]["chain"]) == 20 for k in CC.RECORDS))
+        except Exception:
+            r_ok = False
+        self.record("capcost-records", r_ok,
+                    "SIX COMMITTED ARTIFACTS, EVERY DERIVED NUMBER RECOMPUTED FROM SEALED "
+                    "BYTES. Five named-host cap-sweep logs of the COMMITTED walk (fpsdemo "
+                    "v1.10, 720p, conditions declared: reach 500 at cap 0/131072/65536/32768, "
+                    "reach 60 at 32768) and one authoring-container schedule record. Each "
+                    "log's ladder re-derives through reachenv from the v2 model; its PREFILL "
+                    "COUNT must equal the ladder's OWN footprint (sum of resident-grid areas "
+                    "— the access schedule is checked against arithmetic, never trusted from "
+                    "a label); its digest chain must equal the committed reach-record oracle "
+                    "— IDENTITY UNDER EVERY CAP, on the host, re-verified on every gate run; "
+                    "and the five logs are pairwise distinct (the duplicate law)"
+                    if r_ok else "the records half did not hold")
+        l_ok, told = True, "?"
+        try:
+            logs, sched = CC.admit()
+            fp500 = CC.footprint(logs[(500, 0)]["rings"])
+            told = (f"footprint r500 {fp500} | rail c131072 == unbounded "
+                    f"({logs[(500, 131072)]['recomputes']} recomputes, 0 evictions) | "
+                    f"c65536 {logs[(500, 65536)]['recomputes']} rec / "
+                    f"{logs[(500, 65536)]['late']} late | c32768 "
+                    f"{logs[(500, 32768)]['recomputes']} rec / "
+                    f"{logs[(500, 32768)]['late']} late")
+            l_ok = (CC.scene_result("captable") == CC.golden("captable")
+                    and CC.regime(131072, fp500) == "A" and CC.regime(65536, fp500) == "B")
+        except Exception:
+            l_ok = False
+        self.record("capcost-law", l_ok,
+                    "THE TWO-REGIME LAW AND THE ONE-SCHEDULE LAW, HELD FROM SEALED BYTES — "
+                    "%s. Regime A (cap zero or >= the ladder's live footprint): zero "
+                    "evictions, recomputes == occupancy, and the 131072 rail's counts EQUAL "
+                    "unbounded — a hard memory ceiling above the footprint rides free. "
+                    "Regime B (below the footprint): occupancy pinned at the cap, recomputes "
+                    "multiplied, late frames far above every regime-A record at the same "
+                    "reach — a DEGRADED regime, never an operating point. And the two "
+                    "instruments agree on ONE schedule: the prefilled container harness "
+                    "reproduces the host demo's counts EXACTLY at all five shared points, "
+                    "while the old no-prefill schedule differs at both regime-B points it "
+                    "shares — costs are schedule-determined even though values never move. "
+                    "Said with the caustic law's discipline: the 2x-footprint rule stays a "
+                    "CANDIDATE policy, not a law; the sealed evidence supports 'the ceiling "
+                    "must accommodate the live footprint' and nothing stronger" % told
+                    if l_ok else f"the law half did not hold ({told})")
+        s_ok = True
+        try:
+            s_ok = (CC.a_flipped_byte_refuses() and CC.a_duplicate_record_refuses()
+                    and CC.a_relabeled_cap_is_caught() and CC.a_tampered_prefill_refuses()
+                    and CC.a_prefill_free_count_claim_refuses()
+                    and CC.a_mismatched_chain_refuses()
+                    and CC.an_anonymous_record_refuses())
+        except Exception:
+            s_ok = False
+        self.record("capcost-selftest", s_ok,
+                    "seven plants bite: a flipped byte refuses on its pin, a duplicate "
+                    "record refuses pairwise-distinctness, a below-footprint execution "
+                    "relabeled with an above-footprint cap is caught by its eviction scars, "
+                    "a tampered prefill count disagrees with the ladder's own footprint, the "
+                    "no-prefill counts claimed as demo-path refuse the agreement law, one "
+                    "edited digest breaks the oracle comparison, and an anonymous record "
+                    "grades nothing (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22032,7 +22117,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

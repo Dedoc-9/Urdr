@@ -1,0 +1,9 @@
+schedule run | reach 500 | prefill_tiles 69661 | cap 0 | occupancy 76606 | recomputes 76606 | evictions 0
+schedule run | reach 500 | prefill_tiles 69661 | cap 131072 | occupancy 76606 | recomputes 76606 | evictions 0
+schedule run | reach 500 | prefill_tiles 69661 | cap 65536 | occupancy 65536 | recomputes 361294 | evictions 295758
+schedule run | reach 500 | prefill_tiles 69661 | cap 32768 | occupancy 32768 | recomputes 667554 | evictions 634786
+schedule run | reach 60 | prefill_tiles 17914 | cap 0 | occupancy 22424 | recomputes 22424 | evictions 0
+schedule run | reach 60 | prefill_tiles 17914 | cap 32768 | occupancy 22424 | recomputes 22424 | evictions 0
+schedule run | reach 60 | prefill_tiles 17914 | cap 16384 | occupancy 16384 | recomputes 445126 | evictions 428742
+schedule raw | reach 500 | prefill_tiles 0 | cap 65536 | occupancy 65536 | recomputes 348417 | evictions 282881
+schedule raw | reach 500 | prefill_tiles 0 | cap 32768 | occupancy 32768 | recomputes 636956 | evictions 604188

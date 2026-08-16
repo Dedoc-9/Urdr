@@ -1,0 +1,41 @@
+fpsdemo v1.10 | host ROG-Ally-X-Z2-Extreme | power Turbo-35W-AC | scheduler Win11-GameMode-UltimatePerf | hz 120 | res 1280x720 | mode replay | reach 500 | qpf 10000000
+ring stride 1 tiles 0..56
+ring stride 2 tiles 53..126
+ring stride 4 tiles 120..252
+ring stride 8 tiles 240..504
+ring stride 16 tiles 480..500
+prefill_tiles 69661
+cache_cap 32768 | occupancy 32768 | recomputes 667554 | evictions 634786
+timer_1ms_granted true | focus_foreground true | xinput_loaded n/a | pad_connected n/a
+frames 1145 | late_over_1ms 892 | seg 120
+late_ns p50 268462800 p95 1266468300 p99 1317728100
+seg 0 n 120 raster_ns 5783400 5909000 7046800 present_ns 188200 288300 1796300 late 2
+seg 1 n 120 raster_ns 5785100 5900400 6552000 present_ns 187000 265700 1781300 late 0
+seg 2 n 120 raster_ns 5683400 5980600 234267500 present_ns 185100 259700 1157700 late 105
+seg 3 n 120 raster_ns 5737400 6231100 231739500 present_ns 194900 274200 1826000 late 120
+seg 4 n 120 raster_ns 5902900 6383000 230221500 present_ns 186100 267600 606800 late 120
+seg 5 n 120 raster_ns 5767400 5929100 263134400 present_ns 182100 280500 827900 late 120
+seg 6 n 120 raster_ns 5689400 6189600 8160900 present_ns 197500 260300 1632600 late 120
+seg 7 n 120 raster_ns 6229100 6654600 273918900 present_ns 177800 243800 1716700 late 120
+seg 8 n 120 raster_ns 6750700 7210500 268799600 present_ns 187100 237000 1656600 late 120
+seg 9 n 65 raster_ns 6798100 6937800 8815300 present_ns 192700 241200 1173700 late 65
+digest frame 59 fnv64 11cec81fa36448c6
+digest frame 119 fnv64 11cec81fa36448c6
+digest frame 179 fnv64 11cec81fa36448c6
+digest frame 239 fnv64 5605d1a6d6895a49
+digest frame 299 fnv64 3c12cc1dcf832c06
+digest frame 359 fnv64 2ec38c9e945e6e99
+digest frame 419 fnv64 30606ca099b2209c
+digest frame 479 fnv64 5d0e8f3cb6bb21e8
+digest frame 539 fnv64 241e14f46132b06a
+digest frame 599 fnv64 034edbb044746573
+digest frame 659 fnv64 f8fc2a74b181b37a
+digest frame 719 fnv64 9eed7e6940d4e049
+digest frame 779 fnv64 32be2350608da44f
+digest frame 839 fnv64 315533259670c545
+digest frame 899 fnv64 7141fccf6eba89e1
+digest frame 959 fnv64 ba461ba6ff43b4c5
+digest frame 1019 fnv64 1b984c995003fa53
+digest frame 1079 fnv64 5a76c224776abce6
+digest frame 1139 fnv64 fa02ea4c824b916e
+digest frame 1144 fnv64 296d5bdea1bbebaf

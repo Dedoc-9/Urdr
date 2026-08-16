@@ -1230,6 +1230,17 @@ DISCOVERIES = (
        "the named host's log and the container's chain are COMMITTED, sha256-pinned, and "
        "compared digest for digest on every gate run; agreement is a comparison of artifacts",
        "MECHANISM", "fpsrecord-crossos"),
+    _d("fpsdemo:schedule-counts", "DERIVE", "tools/terrain/capcost.py",
+       "a deterministic cache's cost counts are machine-independent",
+       "the v1.10 host sweep refuted the authoring claim: the demo's FIFO recompute counts "
+       "disagreed with the harness's at every eviction point, because the demo prefills the "
+       "ladder before walking while the harness filled on first rebase - costs are "
+       "ACCESS-ORDER-determined even though every digest chain stayed identical",
+       "the harness was taught the demo's schedule (prefill first) and then reproduced the "
+       "demo's counts EXACTLY; both schedules' counts are committed, the agreement and the "
+       "difference each a gate law - an instrument must speak the machine's schedule before "
+       "it may claim the machine's costs",
+       "MECHANISM", "capcost-law"),
 )
 
 

@@ -1,0 +1,38 @@
+fpsdemo v1.10 | host ROG-Ally-X-Z2-Extreme | power Turbo-35W-AC | scheduler Win11-GameMode-UltimatePerf | hz 120 | res 1280x720 | mode replay | reach 60 | qpf 10000000
+ring stride 1 tiles 0..56
+ring stride 2 tiles 53..60
+prefill_tiles 17914
+cache_cap 32768 | occupancy 22424 | recomputes 22424 | evictions 0
+timer_1ms_granted true | focus_foreground true | xinput_loaded n/a | pad_connected n/a
+frames 1145 | late_over_1ms 0 | seg 120
+late_ns p50 0 p95 0 p99 0
+seg 0 n 120 raster_ns 2852400 2953500 4124000 present_ns 183900 290700 1822200 late 0
+seg 1 n 120 raster_ns 2845900 2939500 3130300 present_ns 188800 270900 1924600 late 0
+seg 2 n 120 raster_ns 2674100 3023900 5905600 present_ns 164700 272900 1880400 late 0
+seg 3 n 120 raster_ns 2749700 3238700 6111900 present_ns 182700 272900 1503300 late 0
+seg 4 n 120 raster_ns 2931500 3391900 5062500 present_ns 182100 281300 1586100 late 0
+seg 5 n 120 raster_ns 2784000 2984200 5552600 present_ns 186200 272600 1716300 late 0
+seg 6 n 120 raster_ns 2731200 3141000 4611500 present_ns 171000 265700 1732100 late 0
+seg 7 n 120 raster_ns 3142000 3476700 6073500 present_ns 168400 243300 1416200 late 0
+seg 8 n 120 raster_ns 3650300 3960800 6351800 present_ns 166100 240500 1609400 late 0
+seg 9 n 65 raster_ns 3478900 3655000 4648200 present_ns 178500 261300 1808300 late 0
+digest frame 59 fnv64 9df81f98f406b9e2
+digest frame 119 fnv64 9df81f98f406b9e2
+digest frame 179 fnv64 9df81f98f406b9e2
+digest frame 239 fnv64 93f2ff5aff44ffb0
+digest frame 299 fnv64 29d2c5dbbc4549f3
+digest frame 359 fnv64 dc94c760c475b711
+digest frame 419 fnv64 d66feaca78f12726
+digest frame 479 fnv64 f4df941415e2c7c1
+digest frame 539 fnv64 10d7cfafe35e0a1f
+digest frame 599 fnv64 5de4c0a8809334e8
+digest frame 659 fnv64 673924a3615fe602
+digest frame 719 fnv64 1bb88147651297e0
+digest frame 779 fnv64 8e5628cabe4351b7
+digest frame 839 fnv64 99b731a736f6dabf
+digest frame 899 fnv64 b485f2da1c412af9
+digest frame 959 fnv64 fac646149653b00a
+digest frame 1019 fnv64 f920c61279f44074
+digest frame 1079 fnv64 a8b0b231cd672e80
+digest frame 1139 fnv64 b0a43ddeff7df9af
+digest frame 1144 fnv64 92a59332cc036641
