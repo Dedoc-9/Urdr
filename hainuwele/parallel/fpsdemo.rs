@@ -544,8 +544,19 @@ impl LodWorld {
             if kept & (1 << li) != 0 { raw += amp * noise16(W_SEED, li as i64, cell, x, y) }
         }
         let v = floordiv(floordiv(raw * W_HS, W_RAWMAX), H_SCALE);
-        if self.cap > 0 && self.cache.len() >= self.cap {
-            if let Some(victim) = self.ring.pop_front() {
+        // THE CEILING IS ENFORCED HERE, LOCALLY, BY A DRAIN — not by trusting the pairing
+        // invariant (ring.len() == cache.len()) that the rest of this impl maintains. In every
+        // reachable state the loop runs 0 or 1 times, so victims, counts and chains are
+        // unchanged; if a future edit ever lets the states drift, the drain still converges to
+        // the cap and the debug assert names the corruption at its source.
+        debug_assert_eq!(self.ring.len(), self.cache.len(),
+                         "ring/cache drift — an eviction bug upstream of this miss");
+        if self.cap > 0 {
+            while self.cache.len() >= self.cap {
+                let Some(victim) = self.ring.pop_front() else {
+                    debug_assert!(false, "cache over cap with an empty ring — states drifted");
+                    break;
+                };
                 self.cache.remove(&victim);
                 self.evictions += 1;
             }
