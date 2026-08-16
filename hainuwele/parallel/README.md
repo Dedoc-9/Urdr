@@ -247,6 +247,29 @@ working set — a safety rail against unbounded growth on long sessions, not a k
 shrinking below the walk's footprint. The host cap sweep prices the thrash in milliseconds,
 and the cap freeze follows the reach pattern: swept first, then chosen from numbers.
 
+v1.11 is THE COMPETITIVE FREEZE — the operator's decision, made from the measured surface and
+shipped as the defaults. REACH 60 IS THE COMPETITIVE DEFAULT because it is the measured
+ceiling-clean operating point: the committed envelope grades it FITS at 120 Hz BY CEILING
+with zero late frames on the committed walk, the only swept reach with that property — not
+because it "feels competitive". The mode contract: COMPETITIVE (default; reach 60, 120 Hz
+budget FITS, cache rail derived, deterministic budget-safe working point) — HIGH-REACH /
+VISTA (`--reach 120`; six times the original draw distance, measured viable at 120 Hz with
+sub-millisecond overruns, chosen for sightline ambition, not guaranteed for competition) —
+PLANETARY (a derivation, not a tuning knob: v2 R2c's horizon door, awaiting its own
+adoption). THE CACHE RAIL DERIVES: absent `--cache-cap`, the cap is twice the ladder's own
+live footprint (the arithmetic capcost pins), a declared margin POLICY on the committed
+evidence, never a proven optimum; `--cache-cap 0` stays unbounded, an explicit N is honored,
+and the log declares which policy ran (`cache_policy`). Verified before delivery on the
+authoring container: the derived rail resolves to 35,828 at reach 60 and 139,322 at reach
+500, both replays of the committed walk count-identical to unbounded (zero evictions,
+recomputes equal to the working set) with digest chains byte-identical to the committed
+oracles. Compatibility, stated: pre-v1.7 traces replay against their committed chains with
+`--reach 20`, because the default moved to the frozen point. Unmeasured intervals stay
+unmeasured: reaches 20..60 and past 500, and the 1080p resolution cell — the probe's
+three-cell sweep (640x360, 1280x720, 1920x1080, 1:1 since v0.4) is the one resolution
+question P2 left open, and 1080p certification waits on that measurement, not on this
+freeze.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

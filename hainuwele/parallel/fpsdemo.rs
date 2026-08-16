@@ -1,7 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.10).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.11).
+//
+// v1.11 — THE COMPETITIVE FREEZE. The defaults stop being placeholders and become the
+// measured contract. REACH 60 IS THE COMPETITIVE DEFAULT: not because it feels right, but
+// because it is the measured ceiling-clean operating point — the committed envelope
+// (reachenv, URDRENV1) grades it FITS at 120 Hz BY CEILING with zero late frames on the
+// committed walk, the only swept reach with that property. Reach 120 remains available
+// explicitly (--reach 120) as the HIGH-REACH / VISTA mode: six times the original draw
+// distance, measured viable at 120 Hz with less margin. Planetary reach is a DERIVATION,
+// not a tuning knob (v2 R2c's horizon door), and belongs to a future adoption. THE CACHE
+// RAIL DERIVES: with no --cache-cap given, the cap is 2x the ladder's own live footprint
+// (the same resident-grid arithmetic capcost pins) — a declared MARGIN POLICY on the
+// committed evidence (both measured working sets sat within 1.3x of footprint; every
+// above-footprint cap measured count-identical to unbounded), never a proven optimum.
+// --cache-cap 0 still means unbounded, any explicit N is honored, and the log declares
+// which policy ran. COMPATIBILITY, stated: pre-v1.7 traces were recorded on the reach-20
+// path — replaying one against its committed chain now requires --reach 20, because the
+// default moved to the frozen competitive point.
 //
 // v1.10 — R4 ADOPTED: THE LAST UNBOUNDED MEMORY, BOUNDED. The committed walk measured the
 // backing cache's working sets (22k entries at reach 60 up to 111k at 2000, a quarter to a
@@ -508,6 +525,20 @@ fn lod_schedule(reach: i64, focal: i64) -> Vec<(i64, i64, i64)> {
 // chain stands, at every reach, verifiable against the operator's own sweep paste.
 struct RingGrid { stride: i64, cells: i64, base_x: i64, base_y: i64, filled: bool,
                   side: i64, heights: Vec<i64> }
+
+// v1.11 — THE COMPETITIVE FREEZE's cache policy: when no --cache-cap is given, the rail
+// derives from the ladder's own live footprint (the sum of resident-grid areas — the same
+// arithmetic capcost pins against committed records) times two: a MARGIN POLICY on measured
+// evidence, never a proven optimum. Above the footprint the rail is measured FREE — counts
+// equal unbounded, chains identical — so the derived default bounds memory without buying
+// a single recompute on the committed walk.
+fn derived_cap(rings: &[(i64, i64, i64)]) -> usize {
+    rings.iter().map(|&(stride, _inn, out)| {
+        let cells = out / stride + 1;
+        let side = 2 * cells + 3;
+        (side * side) as usize
+    }).sum::<usize>() * 2
+}
 
 // v1.10 — R4 ADOPTED (v2/cache.py's law, in the demo): the backing map is BOUNDED with
 // deterministic insertion-order eviction. A cache over a pure function is a VIEW and eviction
@@ -1390,7 +1421,9 @@ fn parse_argv() -> Result<Args, String> {
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
                        defect: false, selfcheck_only: false,
                        trace_out: "fpsdemo_trace.txt".into(),
-                       out: "fpsdemo_log.txt".into(), reach: VIEW, cache_cap: 0 };
+                       out: "fpsdemo_log.txt".into(), reach: 60, cache_cap: usize::MAX };
+                       // reach 60: THE COMPETITIVE FREEZE (measured ceiling-clean at 120 Hz);
+                       // cache_cap MAX is the sentinel for "derive the rail from the ladder"
     let argv: Vec<String> = std::env::args().skip(1).collect();
     let mut i = 0;
     while i < argv.len() {
@@ -1592,7 +1625,16 @@ fn main() {
     // it). The elapsed fill time goes to stderr — wall-clock stays out of the log body.
     let ladder = if args.reach > LOD_R0 { lod_schedule(args.reach, ch as i64 * 2) }
                  else { Vec::new() };
-    let mut lodw = LodWorld::new(&ladder, args.cache_cap);
+    // v1.11: resolve the cache policy — sentinel derives the rail, 0 stays unbounded,
+    // an explicit N is honored. The derivation runs BEFORE prefill so the door is up
+    // for every insertion the run ever makes.
+    let cache_cap = if args.cache_cap == usize::MAX {
+        if ladder.is_empty() { 0 } else { derived_cap(&ladder) }
+    } else { args.cache_cap };
+    let cache_policy = if args.cache_cap == usize::MAX {
+        if ladder.is_empty() { "compat-path" } else { "derived-rail-2x-footprint" }
+    } else if args.cache_cap == 0 { "unbounded-explicit" } else { "explicit" };
+    let mut lodw = LodWorld::new(&ladder, cache_cap);
     let prefill_tiles: u64 = if !ladder.is_empty() {
         let t0 = qpc();
         let n = lodw.prefill(floordiv(cam.px >> 8, TILE), floordiv(cam.py >> 8, TILE), &ladder);
@@ -1732,7 +1774,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.10 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.11 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -1746,7 +1788,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.10 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.11 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach, freq));
@@ -1756,8 +1798,9 @@ reach {} | qpf {}\n",
         }
         log.push_str(&format!("prefill_tiles {}\n", prefill_tiles));
         log.push_str(&format!("cache_cap {} | occupancy {} | recomputes {} | evictions {}\n",
-                              args.cache_cap, lodw.cache.len(), lodw.recomputes,
+                              cache_cap, lodw.cache.len(), lodw.recomputes,
                               lodw.evictions));
+        log.push_str(&format!("cache_policy {}\n", cache_policy));
     }
     log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | xinput_loaded {} | \
 pad_connected {}
