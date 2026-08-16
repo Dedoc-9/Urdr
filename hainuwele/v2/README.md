@@ -40,14 +40,28 @@ this rung as-is. R2b (queued) puts rings in the demo: harness pictures first, th
 falsifiers — a far ring may not move any pixel ring 0 owns, no sky may leak at a seam — and
 the host A/B on the committed walk decides the working point chord-style.
 
-Planet scale (R2c, queued) is two laws on top. The HORIZON CLIP: on a curved body the horizon
-distance is derived from the declared radius and eye height, geometry beyond it is provably
-unrenderable, so a planet BOUNDS draw work where a flat map cannot — the vista problem gets
-easier, not harder, and the law asserts the work bound from the derivation. The CURVATURE
-DROP: authority stays a flat exact lattice (nothing in physics or netcode changes), and
-curvature is a VIEW-layer vertical drop of far vertices by the exact integer d*d/2R in camera
-space — with the falsifier that toggling the curvature display changes no authority digest
-(fidelity independent of integrity, the tree's cardinal invariant, at planetary scale).
+Planet scale (R2c, BUILT — `planet.py`) is two laws on top, and they turn out to be one
+arithmetic. THE HORIZON CLIP: the model's horizon is d_h = isqrt(2Rh) exactly, an object of
+height H clears the grazing sight line iff (d − d_h)² ≤ 2RH — an exact integer inequality,
+so the visibility ceiling is a voxin door (the bound admits, one past refuses, a seeded sweep
+past it finds only darkness). Geometry beyond the door is provably unrenderable, so a planet
+BOUNDS draw work where a flat map cannot: the clip table composes the derived bound with
+R2a's own schedule and vertex counts (imported, not copied) — an eye 2 m over the earth tier
+sees 5,048 m of horizon and at most 40,743 m of peak-topped terrain, painted by 11 rings /
+130,033 vertices; even the everest extreme (340,817 m) takes 14 rings / 168,625 vertices. A
+flat map's reach is a CHOICE; a planet's is a DERIVATION — the vista problem gets easier, not
+harder. THE CURVATURE DROP: authority stays a flat exact lattice (nothing in physics, netcode
+or the delta door changes) and curvature is a VIEW-layer drop of far columns by the exact
+integer d²/2R — toggling it changes the view digest and NEVER the authority digest (both
+halves asserted; a poisoned view that writes its drop into the terrain store is caught), and
+the identity drop(d_h) == eye height (within exact floor remainders) ties the two laws
+together. The model is DECLARED: the parabolic sagitta, whose sphere-gap d⁴/8R³ is measured
+at ZERO whole tiles at every standard tier's bound and printed honestly at the everest
+extreme (6 tiles at 340 km). Mixing the sphere's secant horizon with the parabola's door was
+this rung's own first red row — the door law caught the inconsistent model before any table
+was pinned. does_not_show: rendering (pictures are an R2b-style demo adoption); atmosphere/
+refraction/terrain self-occlusion (real terrain occludes MORE, so the work bound stands);
+scale beyond the swept tiers (the caustic law).
 
 Galaxy scale (R2d, queued) is where R1's delta door pays off: beyond the interest bound there
 is no geometry at all, by refusal. Far content may only manifest through a FAR-FIELD CHANNEL —

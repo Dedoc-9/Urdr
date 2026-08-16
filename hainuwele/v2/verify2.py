@@ -153,6 +153,40 @@ def main():
            "starves its oldest candidate past the bound, a poisoned visibility read (a "
            "refresh that nudges what it inspects) breaks the authority transcript, and a "
            "population-blind candidate set breaks the locality band")
+    import planet as PL
+    record("v2-planet-horizon", PL.horizon_door() and PL.beyond_is_dark()
+           and PL.a_zero_radius_refuses(),
+           "the visibility ceiling is a VOXIN DOOR: d_h = isqrt(2Rh) exactly, an object of "
+           "height H clears the grazing line iff (d-d_h)^2 <= 2RH, the bound admits and one "
+           "past refuses at every tier, a 200-point seeded sweep past the bound finds only "
+           "darkness, and a zero radius refuses — geometry beyond the door is provably "
+           "unrenderable, in arithmetic the gate re-derives")
+    ct = PL.clip_table()
+    record("v2-planet-clip", all(r["gap_tiles"] == 0 for r in ct[:3])
+           and ct[-1]["rings"] < 16 and ct[2]["verts"] < 150_000,
+           "THE CLIP TABLE, DERIVED — a flat map's reach is a CHOICE, a planet's is a "
+           "DERIVATION: " + " | ".join(
+               f"{r['name']}: horizon {r['horizon_m']:,} m, sees to {r['bound_m']:,} m, "
+               f"{r['rings']} rings / {r['verts']:,} verts" for r in ct)
+           + " — R2a's own ladder (imported, not copied) paints the whole earth-everest "
+           "visibility bound in fewer vertices than one 4px flat ladder ring, and the "
+           "declared parabola model carries ZERO whole tiles of sphere-gap at every standard "
+           "tier's bound (the everest extreme prints its measured 6-tile gap instead of "
+           "hiding it)")
+    record("v2-planet-curvature", PL.curvature_is_a_view() and PL.horizon_identity(),
+           "curvature is a VIEW: toggling the exact d^2/2R drop changes the view digest and "
+           "NEVER the authority digest (both halves asserted — a separation with a vacuous "
+           "half is not a separation), and the two laws are one arithmetic: the drop AT the "
+           "horizon distance equals the eye height within exact floor remainders — fidelity "
+           "independent of integrity, at planetary scale")
+    record("v2-planet-selftest",
+           PL.a_poisoned_curvature_is_caught() and PL.a_drop_blind_view_is_caught()
+           and PL.a_flat_earth_never_clips(),
+           "three plants bite: a poisoned curvature (a view pass writing its drop into the "
+           "terrain store) breaks the authority digest, a drop-blind view is caught as "
+           "vacuity by the non-vacuity comparison, and a near-infinite radius never clips "
+           "(the flat-map degenerate control: the clip is the planet's property, not the "
+           "code's habit)")
     record("v2-selftest",
            RG.a_float_coordinate_refuses()
            and RG.an_absolute_leak_breaks_the_sweep()
