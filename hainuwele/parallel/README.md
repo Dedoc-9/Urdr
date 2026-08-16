@@ -229,6 +229,24 @@ reach 60 and 120 run the committed walk with zero late frames (the 120-tile poin
 the original draw distance inside the 120 Hz budget), 250 and 500 are marginal at 120 Hz and
 solid at 60 — the competitive default awaits the operator's freeze between 60 and 120.
 
+v1.10 pays R4's debt: the backing cache is bounded. `--cache-cap N` caps the height map at N
+entries with insertion-order eviction — the victim is the oldest arrival, tracked in an
+explicit ring, exactly v2/cache.py's law (a cache over a pure function is a view, and eviction
+is a view event), and zero means unbounded v1.9 behavior. THE IDENTITY CONTRACT WAS VERIFIED
+BEFORE DELIVERY against the gate's own committed oracles: the committed walk replayed at reach
+500 under caps 4096, 8192, 32768, 65536 and unbounded, and at reach 60 under caps 4096, 16384
+and unbounded, produced digest chains byte-identical to `spec/attest/fpsdemo-envchain-r500.txt`
+and `-r60.txt` in all eight sweeps — starvation to infinity, the values never moved. What the
+cap COSTS is deterministic and already measured: the walk's working set is 76,606 entries at
+reach 500 and 22,424 at reach 60, an uncapped run recomputes exactly once per entry, and every
+cap below the working set thrashes the drift pattern hard — 65,536 recomputes 4.5× the
+unbounded count, 32,768 recomputes 8.3×, 8,192 and 4,096 saturate near 17.6× (recompute counts
+are trace-determined, identical on any machine; only their wall-clock price is the host's).
+The numbers therefore say what the cap is FOR: a hard memory ceiling set ABOVE the expected
+working set — a safety rail against unbounded growth on long sessions, not a knob for
+shrinking below the walk's footprint. The host cap sweep prices the thrash in milliseconds,
+and the cap freeze follows the reach pattern: swept first, then chosen from numbers.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

@@ -1,7 +1,20 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.9).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.10).
+//
+// v1.10 — R4 ADOPTED: THE LAST UNBOUNDED MEMORY, BOUNDED. The committed walk measured the
+// backing cache's working sets (22k entries at reach 60 up to 111k at 2000, a quarter to a
+// third above prefill and climbing forever on a longer session). The v2 cache rung proved the
+// law and its plants off-host; this version carries it into the demo: --cache-cap N bounds
+// the backing map with deterministic insertion-order eviction (0, the default, keeps v1.9's
+// unbounded behavior). THE IDENTITY CONTRACT IS ABSOLUTE: a cache over a pure function is a
+// VIEW, eviction is a VIEW EVENT, and ANY cap must produce chains identical to the committed
+// reach records — verified on the authoring container against the gate's own committed oracle
+// before delivery, at caps from starvation to unbounded. The log grows one line per ladder
+// run: cache_cap | occupancy | recomputes | evictions — the cap freeze follows the reach
+// pattern, swept then chosen from numbers. Grid memory was already bounded by the ladder;
+// with this, no allocation in the demo grows without a declared bound.
 //
 // v1.9 — THE RESIDENT GRID, the lever v1.8's sweep named, adopted by before/after. Every quad
 // paid four hashed probes for corner heights and adjacent quads re-probed shared corners; each
@@ -496,35 +509,50 @@ fn lod_schedule(reach: i64, focal: i64) -> Vec<(i64, i64, i64)> {
 struct RingGrid { stride: i64, cells: i64, base_x: i64, base_y: i64, filled: bool,
                   side: i64, heights: Vec<i64> }
 
-fn lod_h_raw(cache: &mut std::collections::HashMap<(i64, i64, i64), i64>,
-             x: i64, y: i64, stride: i64) -> i64 {
-    if let Some(&v) = cache.get(&(stride, x, y)) { return v }
-    let kept = lod_kept_mask(stride);
-    let mut raw = 0i64;
-    for (li, &(cell, amp)) in W_LAYERS.iter().enumerate() {
-        if kept & (1 << li) != 0 { raw += amp * noise16(W_SEED, li as i64, cell, x, y) }
-    }
-    let v = floordiv(floordiv(raw * W_HS, W_RAWMAX), H_SCALE);
-    cache.insert((stride, x, y), v);
-    v
-}
-
+// v1.10 — R4 ADOPTED (v2/cache.py's law, in the demo): the backing map is BOUNDED with
+// deterministic insertion-order eviction. A cache over a pure function is a VIEW and eviction
+// is a VIEW EVENT: any cap must produce IDENTICAL digest chains — capacity changes cost,
+// never values — and the committed reach records are the oracle that claim is checked
+// against. --cache-cap 0 (the default) keeps the unbounded v1.9 behavior; the cap freeze
+// follows the reach pattern: sweep, measure, then choose from the numbers.
 struct LodWorld {
     cache: std::collections::HashMap<(i64, i64, i64), i64>,
+    ring: std::collections::VecDeque<(i64, i64, i64)>,
+    cap: usize,
+    recomputes: u64,
+    evictions: u64,
     grids: Vec<RingGrid>,
 }
 impl LodWorld {
-    fn new(rings: &[(i64, i64, i64)]) -> LodWorld {
+    fn new(rings: &[(i64, i64, i64)], cap: usize) -> LodWorld {
         let grids = rings.iter().map(|&(stride, _inn, out)| {
             let cells = out / stride + 1;
             let side = 2 * cells + 3;                     // corners reach cells+1 on each axis
             RingGrid { stride, cells, base_x: 0, base_y: 0, filled: false, side,
                        heights: vec![0; (side * side) as usize] }
         }).collect();
-        LodWorld { cache: std::collections::HashMap::new(), grids }
+        LodWorld { cache: std::collections::HashMap::new(),
+                   ring: std::collections::VecDeque::new(), cap,
+                   recomputes: 0, evictions: 0, grids }
     }
     fn h(&mut self, x: i64, y: i64, stride: i64) -> i64 {
-        lod_h_raw(&mut self.cache, x, y, stride)
+        if let Some(&v) = self.cache.get(&(stride, x, y)) { return v }
+        self.recomputes += 1;
+        let kept = lod_kept_mask(stride);
+        let mut raw = 0i64;
+        for (li, &(cell, amp)) in W_LAYERS.iter().enumerate() {
+            if kept & (1 << li) != 0 { raw += amp * noise16(W_SEED, li as i64, cell, x, y) }
+        }
+        let v = floordiv(floordiv(raw * W_HS, W_RAWMAX), H_SCALE);
+        if self.cap > 0 && self.cache.len() >= self.cap {
+            if let Some(victim) = self.ring.pop_front() {
+                self.cache.remove(&victim);
+                self.evictions += 1;
+            }
+        }
+        self.cache.insert((stride, x, y), v);
+        self.ring.push_back((stride, x, y));
+        v
     }
     fn rebase(&mut self, ri: usize, base_x: i64, base_y: i64) {
         let g = &mut self.grids[ri];
@@ -535,8 +563,7 @@ impl LodWorld {
         let (stride, cells, side) = (g.stride, g.cells, g.side);
         for gy in -(cells + 1)..=(cells + 1) {
             for gx in -(cells + 1)..=(cells + 1) {
-                let v = lod_h_raw(&mut self.cache, base_x + gx * stride, base_y + gy * stride,
-                                  stride);
+                let v = self.h(base_x + gx * stride, base_y + gy * stride, stride);
                 let idx = ((gy + cells + 1) * side + (gx + cells + 1)) as usize;
                 self.grids[ri].heights[idx] = v;
             }
@@ -1344,7 +1371,7 @@ fn sha256_hex(data: &[u8]) -> String { hex(&sha256(data)) }
 struct Args {
     host: String, power: String, scheduler: String, hz: i64, frames: u32,
     res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool,
-    trace_out: String, out: String, reach: i64,
+    trace_out: String, out: String, reach: i64, cache_cap: usize,
 }
 
 fn parse_argv() -> Result<Args, String> {
@@ -1352,7 +1379,7 @@ fn parse_argv() -> Result<Args, String> {
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
                        defect: false, selfcheck_only: false,
                        trace_out: "fpsdemo_trace.txt".into(),
-                       out: "fpsdemo_log.txt".into(), reach: VIEW };
+                       out: "fpsdemo_log.txt".into(), reach: VIEW, cache_cap: 0 };
     let argv: Vec<String> = std::env::args().skip(1).collect();
     let mut i = 0;
     while i < argv.len() {
@@ -1385,6 +1412,9 @@ fn parse_argv() -> Result<Args, String> {
                     return Err(format!("--reach {} outside 8..=200000 tiles — this door \
 refuses a reach it cannot derive a ladder for", a.reach));
                 }
+            }
+            "--cache-cap" => {
+                a.cache_cap = value(&mut i)?.parse().map_err(|_| "--cache-cap: not an integer")?;
             }
             "--trace-out" => a.trace_out = value(&mut i)?,
             "--out" => a.out = value(&mut i)?,
@@ -1551,7 +1581,7 @@ fn main() {
     // it). The elapsed fill time goes to stderr — wall-clock stays out of the log body.
     let ladder = if args.reach > LOD_R0 { lod_schedule(args.reach, ch as i64 * 2) }
                  else { Vec::new() };
-    let mut lodw = LodWorld::new(&ladder);
+    let mut lodw = LodWorld::new(&ladder, args.cache_cap);
     let prefill_tiles: u64 = if !ladder.is_empty() {
         let t0 = qpc();
         let n = lodw.prefill(floordiv(cam.px >> 8, TILE), floordiv(cam.py >> 8, TILE), &ladder);
@@ -1691,7 +1721,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.9 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.10 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -1705,7 +1735,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.9 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.10 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach, freq));
@@ -1714,6 +1744,9 @@ reach {} | qpf {}\n",
             log.push_str(&format!("ring stride {} tiles {}..{}\n", stride, inn, out));
         }
         log.push_str(&format!("prefill_tiles {}\n", prefill_tiles));
+        log.push_str(&format!("cache_cap {} | occupancy {} | recomputes {} | evictions {}\n",
+                              args.cache_cap, lodw.cache.len(), lodw.recomputes,
+                              lodw.evictions));
     }
     log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | xinput_loaded {} | \
 pad_connected {}
