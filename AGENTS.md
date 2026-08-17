@@ -469,9 +469,32 @@ calculus, THE WIRE PHASE, all five rungs landed and the phase SEALED: `wire` (th
 the record; the client is a verifier), `storm` (the deterministic adversarial-transport
 loom), `sealwrit` (the Lamport-signed writ; eligibility precedes admission), `driftgaze`
 (the moving client; the gap repair), `wireattest` (real UDP processes on the named host,
-recorded once, re-verified forever). Read the ledger entries newest-last in
-`spec/D5-ledger-2.md` — they are the authoritative narrative; the per-module index is
-`tools/terrain/README.md`.
+recorded once, re-verified forever). Phase V then made the world VISIBLE and PLAYED
+(`panelight` → `panewire` → `ghostsnap` → `sealframe` → `sealsession` — the windowed loop
+through the attested session), and Phase M made it MESHED (`nway` → `migrate` → `meshattest`
+→ `mesh` → `partition` → `meshsession` — MESH == MONOLITH as a theorem). Read the ledger
+entries newest-last in `spec/D5-ledger-2.md` — they are the authoritative narrative; the
+per-module index is `tools/terrain/README.md`.
+
+**The visible-evidence arc (current).** On top of the sealed phases, the parallel instruments
+became a playable demo and the demo's numbers became committed evidence. `present_probe`
+(v0 → v0.5) measured the present path honestly enough to certify a 720p/120 Hz operating
+point and, later, to seal the resolution ladder; `fpsdemo` (v0 → v1.12) grew from a replay
+skeleton into the conformance camera and canon terrain — certified kernels re-verified at
+every launch, input traces as records, digest chains byte-identical across two operating
+systems, a derived reach ladder, a bounded backing cache, and a composed far-field sky that
+may never touch a pixel the terrain owns. Each measurement worth keeping crossed the membrane
+(§4) as a committed-record rung: `fpsrecord` (the traces), `latchain` (the strict-door
+latency record), `reachenv` (the reach envelope; v2's LOD model graduated as its checker),
+`capcost` (the cap's two-regime law and the one-schedule law), `skycost` (the far field's
+price inside the competitive profile), `rescell` (the resolution ladder, where the two-run
+pair caught a one-run verdict). Three contracts are FROZEN from those numbers: view/input
+constants, competitive reach 60 (120 preserved as vista), and the derived cache rail. The
+`hainuwele/v2/` cores answered the four open-world scaling concerns under their own fast
+gate (regions, LOD, cache, density, planet horizon, far field). Open now: two operator
+decisions (the sky-on default; 1080p as a declared fidelity/photo mode), the dormant
+`fppose`/`fpclip` promotion (waits for a walk that exposes their falsifier), and the queued
+`URDRCHB1` Chebyshev net (designed, not built).
 
 ---
 

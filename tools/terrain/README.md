@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-only -->
 
-# `tools/terrain/` — the certified terrain, movement, latency, and streaming arc (T1 → Stage I)
+# `tools/terrain/` — the certified terrain, movement, latency, and streaming arc (T1 → the visible-evidence arc)
 
 The busiest module directory in the repo finally gets the index `tools/README.md` promises. Everything
 here follows one shape: a reference module with an honest docstring (measured core / declared model /

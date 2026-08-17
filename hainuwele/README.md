@@ -306,9 +306,25 @@ cohort agreement predicate is a THEOREM (Menger's min-cut) rather than a tuned t
 
 ## Current
 
-The certificate arc CLOSED at `blindscreen`; the live edge is now Stage 5 composition (`compose`) and
-the COMPLETED executable-epistemics READ pass ([`../exe_epistemics/PREDICTIONS.md`](../exe_epistemics/PREDICTIONS.md)
-— 63 preregistered joints over 19 runs). The certificate arc grew out of the authority arc and carries it. Both
+The live edge is the VISIBLE-EVIDENCE arc: the parallel instruments (`present_probe` v0.5 and the
+playable conformance demo `fpsdemo` v1.12 — certified camera, canon terrain, cross-OS replay chains,
+the composed far-field sky under the pixel-identity contract) and the committed-record rungs that
+seal what they measure (`fpsrecord`, `latchain`, `reachenv`, `capcost`, `skycost`, `rescell` — every
+named-host number re-derived from sha256-pinned bytes on every gate run). Three contracts are FROZEN
+from measurement: the view/input constants (operator-confirmed), the competitive reach (60 — the
+measured ceiling-clean 120 Hz point, with 120 as explicit vista mode), and the cache rail (derived,
+2x the ladder's live footprint, a declared margin policy). The resolution ladder is sealed (720p the
+certified competitive ceiling at 120 Hz; 1080p EXCEEDS there and is at best MARGINAL at 60 Hz by the
+conservative pair law). The `v2/` distance cores answer all four open-world scaling concerns under
+their own fast gate (regions, LOD, cache, density, planet horizon, far field — 30 rows), with R2a
+and R4 graduated into the main gate through `reachenv` and `capcost`. Open items are OPERATOR
+decisions, priced but not made: whether the competitive profile defaults the sky on, and whether
+1080p becomes a declared fidelity/photo mode. Dormant by rule: `fppose`/`fpclip` promotion waits for
+a walk that exposes their falsifier. The method that governs admission is now written down as the
+Discovery Membrane (`AGENTS.md` §4). Before this arc, the certificate arc CLOSED at `blindscreen`
+and the executable-epistemics READ pass completed
+([`../exe_epistemics/PREDICTIONS.md`](../exe_epistemics/PREDICTIONS.md) — 63 preregistered joints
+over 19 runs). The certificate arc grew out of the authority arc and carries it. Both
 are chains of scope corrections rather than stacks of features — which is the most useful thing to
 know about them. Each rung was true in its own model and each was undermined by the next one's model,
 on purpose.

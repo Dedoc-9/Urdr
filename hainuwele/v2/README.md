@@ -23,7 +23,8 @@ engine does not have. WHAT IS GENUINELY OPEN: draw distance is real. The demo dr
 window; a vista world needs a level-of-detail ladder (far terrain at coarser stride), and the
 committed v1.6 walk already measured the pressure — the vista segment of the operator's walk
 peaked near the 120 Hz slot while valley segments idled at a quarter of it. THE RUNGS (R2, the
-distance ladder — R2a BUILT, the rest designed):
+distance ladder — R2a BUILT and graduated into the main gate through `reachenv`; R2b
+DISCHARGED by the demo's own reach arc; R2c and R2d BUILT below):
 
 R2a (`lod.py`, green under this gate) makes draw distance a DERIVED schedule. The terrain is
 layered seeded noise, so a far ring sampling only coarse layers is the canon's own octave
@@ -36,9 +37,13 @@ vertex counts, making total cost affine in ring count and LOGARITHMIC in reach �
 fear answered by arithmetic the gate re-derives. The trade surface is the deliverable: the
 gate prints vertex totals and reach per candidate budget, and the finding it surfaces is that
 the finest noise layer is the cost driver — tight budgets force wide near rings. City scale is
-this rung as-is. R2b (queued) puts rings in the demo: harness pictures first, then the
-falsifiers — a far ring may not move any pixel ring 0 owns, no sky may leak at a seam — and
-the host A/B on the committed walk decides the working point chord-style.
+this rung as-is. R2b is DISCHARGED, by exactly the protocol it specified: the demo's v1.7–v1.9
+arc put the rings in the demo (harness pictures first, then the falsifiers — the sky-leak
+check decomposed bounded silhouette error from seam holes and found zero holes; a far ring
+never moved a pixel ring 0 owns), and the host A/B on the committed walk chose the 35px
+working point, which the v1.11 competitive freeze then closed. The reach envelope is sealed
+main-gate evidence (`reachenv`, which imports this folder's `lod.py` as its checker — the
+graduation this folder's charter promised).
 
 Planet scale (R2c, BUILT — `planet.py`) is two laws on top, and they turn out to be one
 arithmetic. THE HORIZON CLIP: the model's horizon is d_h = isqrt(2Rh) exactly, an object of
