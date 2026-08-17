@@ -270,6 +270,25 @@ three-cell sweep (640x360, 1280x720, 1920x1080, 1:1 since v0.4) is the one resol
 question P2 left open, and 1080p certification waits on that measurement, not on this
 freeze.
 
+v1.12 is THE COMPOSED SKY — R2d adopted as a view. `--sky` replaces the gradient with the
+far-field channel wherever the terrain does not own the pixel: world-fixed stars as a pure
+function of view direction, cube-face quantization at 1/128 evaluated per 2x2 block — v2
+R2d's channel TYPE at its limit case (stars at infinity, the parallax quantum infinite until
+regions arrive in the demo; the hash is a cheap integer mix, because the channel's LAWS are
+v2's and its art is the demo's). THE PIXEL-IDENTITY CONTRACT, verified on the authoring
+container across the committed walk at reach 60, 120 and the compat path: ZERO terrain-owned
+pixels moved in any frame with the sky on (the far field may never touch what the near field
+owns), ~9.7 million sky pixels painted over the walk (non-vacuous), sky-on replay
+deterministic (two runs, one chain), and with `--sky` off — the default — the digest chain
+is byte-identical to the committed reach-60 oracle, so every committed record stands. Sky
+cost rides INSIDE raster_ns: the host prices the feature by before/after at the frozen
+reach, the way every visual feature is priced. R2c's curvature drop is deliberately NOT
+adopted, with the arithmetic on record: at the shipped reaches an earth-radius drop computes
+below a hundredth of a tile, and adopting an invisible drop is the drop-blind vacuity
+planet.py's own plant refuses — it waits for a declared radius and a reach where it moves a
+pixel. What is composed is exactly what is claimed: the terrain silhouette over a
+world-fixed far field.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

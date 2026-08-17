@@ -1,7 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.11).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.12).
+//
+// v1.12 — THE COMPOSED SKY: R2d ADOPTED AS A VIEW. `--sky` replaces the gradient with the
+// far-field channel wherever the terrain does not own the pixel: a pure function of view
+// DIRECTION alone, world-fixed stars, cube-face quantization at 1/128 evaluated per 2x2
+// block — v2 R2d's channel TYPE at its limit case (stars at infinity; the parallax quantum
+// is infinite until regions arrive in the demo). THE PIXEL-IDENTITY CONTRACT: every
+// terrain-owned pixel is BYTE-IDENTICAL with the sky on or off — the far field may never
+// move a pixel the near field owns — verified per frame across the committed walk on the
+// authoring container, with the sky counted non-vacuous (it paints) and sky-on replay
+// deterministic (two runs, one chain). `--sky` is OFF by default, so every committed chain
+// stands untouched; its cost rides INSIDE raster_ns, so the host's before/after (sky on vs
+// off at the frozen reach) prices the feature the way every visual feature is priced. R2c's
+// curvature drop is NOT adopted, with the arithmetic on record: at the shipped reaches
+// (60/120 tiles) an earth-radius drop computes below a hundredth of a tile — adopting it
+// would be the drop-blind vacuity planet.py's own plant refuses; it waits for a declared
+// radius and a reach where it moves a pixel. The composition claimed is exactly what is
+// painted: the terrain silhouette over a world-fixed far field.
 //
 // v1.11 — THE COMPETITIVE FREEZE. The defaults stop being placeholders and become the
 // measured contract. REACH 60 IS THE COMPETITIVE DEFAULT: not because it feels right, but
@@ -1409,17 +1426,98 @@ fn sha256(data: &[u8]) -> [u8; 32] { let mut m = Sha256::new(); m.update(data); 
 fn hex(b: &[u8]) -> String { let mut s = String::new(); for x in b { s.push_str(&format!("{:02x}", x)); } s }
 
 fn sha256_hex(data: &[u8]) -> String { hex(&sha256(data)) }
+// ---- v1.12: the far field (R2d adopted as a VIEW) ---------------------------------------------
+// The sky stops being a gradient and becomes the far-field channel: a pure function of view
+// DIRECTION alone, world-fixed, painted ONLY into pixels the terrain does not own. This is
+// v2 R2d's channel type at its limit case — stars at infinity, so the parallax quantum is
+// infinite (a finite quantum becomes meaningful when regions arrive in the demo). THE
+// PIXEL-IDENTITY CONTRACT: a terrain-owned pixel (zbuf written) is BYTE-IDENTICAL with the
+// sky on or off — the far field may never move a pixel the near field owns — and --sky off
+// (the default) leaves every committed chain standing. Directions are quantized on cube
+// faces at 1/128 and evaluated per 2x2 pixel block (the sky's own declared quanta); the
+// hash is a cheap integer mix, not sha — the channel's LAWS are v2's, its art is the demo's.
+fn star_hash(a: i64, b: i64, c: i64) -> u64 {
+    let mut h = 0xcbf29ce484222325u64;
+    for v in [a, b, c] {
+        h ^= v as u64;
+        h = h.wrapping_mul(0x100000001b3);
+    }
+    h ^= h >> 29;
+    h = h.wrapping_mul(0xbf58476d1ce4e5b9);
+    h ^ (h >> 32)
+}
+
+fn star_sky(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, cam: &Cam) {
+    let qc = qconj(cam.q);
+    let bx = fx.vrotate(qc, V3 { x: ONE, y: 0, z: 0 });
+    let by = fx.vrotate(qc, V3 { x: 0, y: ONE, z: 0 });
+    let bz = fx.vrotate(qc, V3 { x: 0, y: 0, z: ONE });
+    let m = [bx.x >> 16, by.x >> 16, bz.x >> 16,
+             bx.y >> 16, by.y >> 16, bz.y >> 16,
+             bx.z >> 16, by.z >> 16, bz.z >> 16];
+    let f = h as i64 * 2;
+    let (cx, cy) = (w as i64 / 2, h as i64 / 2);
+    let mut sy = 0i32;
+    while sy < h {
+        let mut sx = 0i32;
+        while sx < w {
+            // a block fully owned by terrain skips the math entirely
+            let mut any_sky = false;
+            for oy in 0..2i32 {
+                for ox in 0..2i32 {
+                    let (px, py) = (sx + ox, sy + oy);
+                    if px < w && py < h && zbuf[(py * w + px) as usize] == i32::MAX {
+                        any_sky = true;
+                    }
+                }
+            }
+            if !any_sky { sx += 2; continue }
+            // the block-center ray, camera space (x right, y forward, z up; screen y down),
+            // lifted to world space through the transpose of the certified rotation's shadow
+            let dx = sx as i64 + 1 - cx;
+            let dz = cy - (sy as i64 + 1);
+            let wx = m[0] * dx + m[3] * f + m[6] * dz;
+            let wy = m[1] * dx + m[4] * f + m[7] * dz;
+            let wz = m[2] * dx + m[5] * f + m[8] * dz;
+            let (ax, ay, az) = (wx.abs(), wy.abs(), wz.abs());
+            let (face, dom, u1, v1) = if ax >= ay && ax >= az {
+                ((wx < 0) as i64, ax, wy, wz)
+            } else if ay >= az {
+                (2 + ((wy < 0) as i64), ay, wx, wz)
+            } else {
+                (4 + ((wz < 0) as i64), az, wx, wy)
+            };
+            let dom = dom.max(1);
+            let hh = star_hash(face, u1 * 128 / dom, v1 * 128 / dom);
+            if hh % 43 == 0 {
+                let color = if hh & 0x400 != 0 { 0x00E8E8F2 } else { 0x00A8A8C0 };
+                for oy in 0..2i32 {
+                    for ox in 0..2i32 {
+                        let (px, py) = (sx + ox, sy + oy);
+                        if px < w && py < h {
+                            let p = (py * w + px) as usize;
+                            if zbuf[p] == i32::MAX { buf[p] = color }
+                        }
+                    }
+                }
+            }
+            sx += 2;
+        }
+        sy += 2;
+    }
+}
+
 // ---- the entry door ---------------------------------------------------------------------------
 struct Args {
     host: String, power: String, scheduler: String, hz: i64, frames: u32,
-    res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool,
+    res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool, sky: bool,
     trace_out: String, out: String, reach: i64, cache_cap: usize,
 }
 
 fn parse_argv() -> Result<Args, String> {
     let mut a = Args { host: "-".into(), power: "-".into(), scheduler: "-".into(), hz: 120,
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
-                       defect: false, selfcheck_only: false,
+                       defect: false, selfcheck_only: false, sky: false,
                        trace_out: "fpsdemo_trace.txt".into(),
                        out: "fpsdemo_log.txt".into(), reach: 60, cache_cap: usize::MAX };
                        // reach 60: THE COMPETITIVE FREEZE (measured ceiling-clean at 120 Hz);
@@ -1450,6 +1548,7 @@ fn parse_argv() -> Result<Args, String> {
             "--replay" => a.replay = value(&mut i)?,
             "--defect" => a.defect = true,
             "--selfcheck" => a.selfcheck_only = true,
+            "--sky" => a.sky = true,
             "--reach" => {
                 a.reach = value(&mut i)?.parse().map_err(|_| "--reach: not an integer")?;
                 if !(8..=200_000).contains(&a.reach) {
@@ -1728,6 +1827,7 @@ fn main() {
         } else {
             raster_rings(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam, &mut lodw, &ladder);
         }
+        if args.sky { star_sky(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam); }
         let t_pixels = qpc();
         unsafe {
             StretchDIBits(dc, (scr_w - cw) / 2, (scr_h - ch) / 2, cw, ch,
@@ -1774,7 +1874,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.11 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.12 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -1788,10 +1888,11 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.11 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
-reach {} | qpf {}\n",
+        "fpsdemo v1.12 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+reach {} | sky {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
-        if args.play { "play" } else { "replay" }, args.reach, freq));
+        if args.play { "play" } else { "replay" }, args.reach,
+        if args.sky { "starfield" } else { "off" }, freq));
     if !ladder.is_empty() {
         for &(stride, inn, out) in &ladder {
             log.push_str(&format!("ring stride {} tiles {}..{}\n", stride, inn, out));
