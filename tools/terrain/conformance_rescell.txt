@@ -1,0 +1,12 @@
+# URDRRSC1 conformance goldens — emitted by rescell.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the two record pins (RECORDS), the admitted version (present_probe v0.5), the
+# two slots, and the three-cell set; every classification, agreement check, conservative
+# verdict, late corroboration and affine ratio is DERIVED from the committed bytes at claim
+# time (L75).
+#
+# does_not_show: input-to-photon latency (no clicks in either run, by protocol); unswept
+# cells (960x540 remains unmeasured — the caustic law); the demo's own 1080p behavior (the
+# probe's workload is the probe's); why 1080p exceeds (visible, not attributed); the
+# fidelity/photo-mode decision (the operator's, licensed here, not made here).
+ladder 4c4979f75ef34dc1ecf6172f9ff2d61b000609e6d1c6f5a7ccc2df7bb7cc4999

@@ -1,0 +1,25 @@
+present_probe v0.5 | host ROG-Ally-X-Z2-Extreme | power Turbo-35W-AC | scheduler Win11-GameMode-UltimatePerf | hz 120 | window 1920x1080 | qpf 10000000
+timer_1ms_granted true
+cells 640x360,1280x720,1920x1080 | passes 6 | seg 120
+frames 2160 | late_over_1ms 720 | dropped_clicks 0
+late_ns p50 0 p95 558095600 p99 682764800
+cell 640x360 pass 0 n 120 raster_ns 1479600 1646100 2253500 present_ns 67300 99200 1318300 late 0 flash 0
+cell 1280x720 pass 0 n 120 raster_ns 4354800 5021100 6606600 present_ns 173000 231500 1768300 late 0 flash 0
+cell 1920x1080 pass 0 n 120 raster_ns 10213500 13485800 14960500 present_ns 530000 589500 1908600 late 120 flash 0
+cell 1280x720 pass 1 n 120 raster_ns 4446900 5075600 6126800 present_ns 173600 223300 1446300 late 0 flash 0
+cell 1920x1080 pass 1 n 120 raster_ns 9646700 13007800 15150400 present_ns 546900 585500 1926500 late 120 flash 0
+cell 640x360 pass 1 n 120 raster_ns 1322300 1467800 1749800 present_ns 48800 78700 159500 late 0 flash 0
+cell 1920x1080 pass 2 n 120 raster_ns 9698800 11490300 14897900 present_ns 526200 596700 2097800 late 120 flash 0
+cell 640x360 pass 2 n 120 raster_ns 1295200 1456800 1595700 present_ns 52600 87900 665500 late 0 flash 0
+cell 1280x720 pass 2 n 120 raster_ns 4401500 4871900 6752100 present_ns 184300 234700 1620000 late 0 flash 0
+cell 640x360 pass 3 n 120 raster_ns 1295300 1459100 1708900 present_ns 67100 89100 761000 late 0 flash 0
+cell 1280x720 pass 3 n 120 raster_ns 4436900 4848600 6252600 present_ns 185400 234500 1631200 late 0 flash 0
+cell 1920x1080 pass 3 n 120 raster_ns 12247800 13197200 15002300 present_ns 529000 570900 2158100 late 120 flash 0
+cell 1280x720 pass 4 n 120 raster_ns 4397000 4836000 5525800 present_ns 177000 226800 1479000 late 0 flash 0
+cell 1920x1080 pass 4 n 120 raster_ns 12636300 13526900 14919000 present_ns 546400 581300 2206600 late 120 flash 0
+cell 640x360 pass 4 n 120 raster_ns 1324400 1443600 1569600 present_ns 48900 87900 1211900 late 0 flash 0
+cell 1920x1080 pass 5 n 120 raster_ns 11243300 14310200 21083600 present_ns 544100 611900 2636900 late 120 flash 0
+cell 640x360 pass 5 n 120 raster_ns 1321400 1453100 1671600 present_ns 68400 86600 268000 late 0 flash 0
+cell 1280x720 pass 5 n 120 raster_ns 4456900 5401900 6573700 present_ns 177700 244600 1822900 late 0 flash 0
+click chains (ns): input_wait authority_tick view_export frame_render present_queue total cell
+NOTE: latency chains absent (no clicks) — the cost rows above are unaffected; click during a run only if the input-latency chain is wanted

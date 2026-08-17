@@ -234,6 +234,7 @@ STAGE_ORDER = (
     "reachenv",
     "capcost",
     "skycost",
+    "rescell",
     "rollbench",
     "reachable",
     "retire",
@@ -18558,6 +18559,90 @@ class Gate:
                     "derived-rail policy refuses the freeze signature (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def rescell(self):
+        """THE RESOLUTION LADDER BECOMES EVIDENCE (URDRRSC1). Rows: records (two independent
+        sweeps, the pair law), verdict (the ladder at both slots, the convexity caution),
+        selftest (six plants)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import rescell as RC
+        except Exception as exc:
+            for r in ("records", "verdict", "selftest"):
+                self.record(f"rescell-{r}", False, f"import failed (rescell): {exc}")
+            return
+        r_ok = True
+        try:
+            r1, r2 = RC.admit()
+            r_ok = (all(len(r["cells"][c]) == 6 for r in (r1, r2) for c in RC.CELLS)
+                    and r1["fields"]["host"] == "ROG-Ally-X-Z2-Extreme"
+                    and r2["fields"]["host"] == "ROG-Ally-X-Z2-Extreme"
+                    and RC.late_corroboration(r1, r2))
+        except Exception:
+            r_ok = False
+        self.record("rescell-records", r_ok,
+                    "TWO INDEPENDENT NAMED-HOST SWEEPS OF THE SAME THREE CELLS, PAIRWISE "
+                    "DISTINCT. present_probe v0.5, 1:1 presentation (the downscale artifact "
+                    "pixelcost named is dead), six interleaved order-rotated passes per "
+                    "cell, conditions declared in both records — and the late counters "
+                    "corroborate the classification independently: every 1080p pass fully "
+                    "late in both runs (twelve of twelve), every smaller-cell pass clean. "
+                    "The question P2 left structurally open is now MEASURED twice, not "
+                    "extrapolated once"
+                    if r_ok else "the records half did not hold")
+        v_ok, told = True, "?"
+        try:
+            r1, r2 = RC.admit()
+            l120 = RC.ladder_120(r1, r2)
+            l60 = RC.ladder_60(r1, r2)
+            _h, k1, k2 = RC.affine_undershoots(r1, r2)
+            told = (f"120 Hz: 640x360 {l120['640x360']} | 1280x720 {l120['1280x720']} | "
+                    f"1920x1080 {l120['1920x1080']}; 60 Hz 1080p: run1 "
+                    f"{l60['1920x1080']['run1']} / run2 {l60['1920x1080']['run2']} -> "
+                    f"{l60['1920x1080']['verdict']}; affine ratio {k1}/{k2} permille")
+            v_ok = (l120 == {"640x360": "FITS", "1280x720": "FITS",
+                             "1920x1080": "EXCEEDS"}
+                    and l60["1920x1080"]["verdict"] == "MARGINAL"
+                    and RC.affine_undershoots(r1, r2)[0]
+                    and RC.scene_result("ladder") == RC.golden("ladder"))
+        except Exception:
+            v_ok = False
+        self.record("rescell-verdict", v_ok,
+                    "THE LADDER, DERIVED FROM SEALED BYTES AND AGREED BY BOTH RUNS — %s. "
+                    "720p is the CERTIFIED COMPETITIVE CEILING at 120 Hz (zero late frames "
+                    "in twelve passes); 1080p EXCEEDS at 120 Hz in both independent runs — "
+                    "its MEDIANS sit past the entire 8.33 ms slot before presentation is "
+                    "counted, so this is not a missing optimization at the margin. AT 60 Hz "
+                    "THE PAIR EARNED ITS KEEP: run 1 alone would have graded 1080p FITS by "
+                    "ceiling; run 2's 21.08 ms excursion makes it MARGINAL, and the "
+                    "conservative verdict carries — a one-run FITS is exactly what the "
+                    "two-run protocol exists to catch. The convexity caution is vindicated "
+                    "as arithmetic: the affine 2.25x prediction from 720p undershoots the "
+                    "measured 1080p mean median in BOTH runs — extrapolation would have "
+                    "argued about MARGINAL where measurement says EXCEEDS. 1080p is a "
+                    "fidelity/photo-mode candidate; reopening it at 120 Hz now has a "
+                    "precise target (the worst 1080p frame under 8.33 ms), and that "
+                    "decision is the operator's" % told
+                    if v_ok else f"the verdict half did not hold ({told})")
+        s_ok = True
+        try:
+            s_ok = (RC.a_flipped_byte_refuses() and RC.a_duplicate_record_refuses()
+                    and RC.an_anonymous_record_refuses()
+                    and RC.an_undeclared_cell_refuses()
+                    and RC.a_flipping_verdict_refuses_to_speak()
+                    and RC.a_one_run_fits_is_caught_by_the_pair())
+        except Exception:
+            s_ok = False
+        self.record("rescell-selftest", s_ok,
+                    "six plants bite: a flipped byte refuses on its pin, a duplicate record "
+                    "refuses distinctness, an anonymous record grades nothing, a record "
+                    "that does not declare all three cells refuses, a doctored pair that "
+                    "disagrees at 120 Hz refuses to speak rather than averaging, and the "
+                    "one-run-FITS at 60 Hz is caught by the conservative pair law — the "
+                    "catch that actually happened, kept as a live plant (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22195,7 +22280,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
