@@ -209,6 +209,29 @@ These are non-negotiable. Every rung in this repo was built under them.
     Until then its grade says exactly where it stands on the ladder, and no doc
     calls it done.
 
+### The Discovery Membrane
+
+The development process is divided into four stages: discovery, falsification, commitment,
+and runtime. Discovery is intentionally open-ended: measured consequences may expose new
+ends that were not part of the original objective. Falsification is the admission boundary:
+an emergent end may graduate only when it can be expressed as a discriminating test with a
+concrete failure condition. Commitment converts a surviving claim into a pinned contract;
+runtime then operates below the freeze line, where committed semantics do not acquire new
+meaning from subsequent discoveries.
+
+The boundary is a selectively permeable membrane rather than a wall. It is one-way for
+semantics but two-way for data: committed runtime behavior cannot be reinterpreted by
+discoveries above the freeze line, while measurements produced by that behavior continue to
+flow upward as evidence. The v2 gate provides the fast discovery-side iteration loop; the
+main gate admits only consequences that have survived falsification and are worth the cost
+of full verification. Thus discovery can remain generative without making the frozen system
+semantically unstable: heterogony is permitted above the freeze line, but only falsifiable
+heterogony may cross it.
+
+Applied: when a surprising measurement appears, it deserves — in ascending order of cost —
+a note, a v2 experiment, or a main-gate rung, and the question that decides between them is
+always the same: can it be expressed as a test that could fail, and has it?
+
 ---
 
 ## 5. How to add a rung (concrete workflow)
