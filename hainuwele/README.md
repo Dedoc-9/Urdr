@@ -19,6 +19,7 @@ this folder locates and explains, it grades nothing.
 | **`README.md`** (this file) | The index: every file, its URDR code, gate stage, falsifiers, conformance, brief |
 | [`reachenv.py`](../tools/terrain/reachenv.py) | `URDRENV1` | The reach envelope as evidence — four named sweep logs + four container chains, the ladder checked against the graduated v2 model, cross-OS at every reach, verdicts derived | `reachenv` | [test](../tests/test_reachenv.py) | [conf](../tools/terrain/conformance_reachenv.txt) | [brief](../docs/reachenv_brief.md) |
 | [`capcost.py`](../tools/terrain/capcost.py) | `URDRCPC1` | The bounded cache's cost surface as evidence — five named cap-sweep logs + the schedule record, footprints checked against the ladder's own arithmetic, the two-regime law, instrument agreement on one schedule | `capcost` | [test](../tests/test_capcost.py) | [conf](../tools/terrain/conformance_capcost.txt) | [brief](../docs/capcost_brief.md) |
+| [`skycost.py`](../tools/terrain/skycost.py) | `URDRSKY1` | The far field's price as evidence — the host's before/after pair at the frozen defaults + the container sky chain, the label checked against bytes, the freeze signature worn, cross-OS identity for the composed sky | `skycost` | [test](../tests/test_skycost.py) | [conf](../tools/terrain/conformance_skycost.txt) | [brief](../docs/skycost_brief.md) |
 | [`latchain.py`](../tools/terrain/latchain.py) | `URDRLTC1` | The waiting latency record through the strict door — probelog's pinned refusal discharged, four segments graduated, the bound rises and stays a bound | `latchain` | [test](../tests/test_latchain.py) | [conf](../tools/terrain/conformance_latchain.txt) | [brief](../docs/latchain_brief.md) |
 | [`fpsrecord.py`](../tools/terrain/fpsrecord.py) | `URDRFPR1` | The demo's workload records as gate-read artifacts — four traces spanning the input arc, chains bound without re-execution, cross-OS agreement as a comparison of committed records | `fpsrecord` | [test](../tests/test_fpsrecord.py) | [conf](../tools/terrain/conformance_fpsrecord.txt) | [brief](../docs/fpsrecord_brief.md) |
 | [`pixelcost.py`](../tools/terrain/pixelcost.py) | `URDRPXC1` | The resolution decision derived from six committed probe records — chord-tested form, complete dual-slot budgets, lawful demotion, no extrapolation | `pixelcost` | [test](../tests/test_pixelcost.py) | [conf](../tools/terrain/conformance_pixelcost.txt) | [brief](../docs/pixelcost_brief.md) |
@@ -271,8 +272,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | [brief](../docs/wireattest_brief.md) |
 ## Status
 
-**MEASURED, as of this writing.** 132 modules under `tools/terrain/`, 214 suites, 2949 unit
-falsifiers with 0 red, 983 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 133 modules under `tools/terrain/`, 215 suites, 2963 unit
+falsifiers with 0 red, 986 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 

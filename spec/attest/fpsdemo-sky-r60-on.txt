@@ -1,0 +1,39 @@
+fpsdemo v1.12 | host ROG-Ally-X-Z2-Extreme | power Turbo-35W-AC | scheduler Win11-GameMode-UltimatePerf | hz 120 | res 1280x720 | mode replay | reach 60 | sky starfield | qpf 10000000
+ring stride 1 tiles 0..56
+ring stride 2 tiles 53..60
+prefill_tiles 17914
+cache_cap 35828 | occupancy 22424 | recomputes 22424 | evictions 0
+cache_policy derived-rail-2x-footprint
+timer_1ms_granted true | focus_foreground true | xinput_loaded n/a | pad_connected n/a
+frames 1145 | late_over_1ms 0 | seg 120
+late_ns p50 0 p95 0 p99 0
+seg 0 n 120 raster_ns 3577500 3701900 4700000 present_ns 186600 283300 1655600 late 0
+seg 1 n 120 raster_ns 3565400 3690200 3935500 present_ns 193800 287000 1890400 late 0
+seg 2 n 120 raster_ns 3426300 3825800 6533900 present_ns 180000 283100 1975500 late 0
+seg 3 n 120 raster_ns 3516700 4026900 6409900 present_ns 182300 273600 1913900 late 0
+seg 4 n 120 raster_ns 3732400 4417700 5979000 present_ns 184200 294500 1834500 late 0
+seg 5 n 120 raster_ns 3501900 3765800 6638800 present_ns 186800 282200 1632200 late 0
+seg 6 n 120 raster_ns 3428500 3778500 5211500 present_ns 191200 280000 1893400 late 0
+seg 7 n 120 raster_ns 3810800 4131000 6326800 present_ns 172300 261400 1975800 late 0
+seg 8 n 120 raster_ns 4283700 4489800 6722200 present_ns 163100 232400 1697700 late 0
+seg 9 n 65 raster_ns 4073000 4236500 5209200 present_ns 169100 246800 1917300 late 0
+digest frame 59 fnv64 cbd1e22269751446
+digest frame 119 fnv64 cbd1e22269751446
+digest frame 179 fnv64 cbd1e22269751446
+digest frame 239 fnv64 a4e6de1abc5e4a2c
+digest frame 299 fnv64 fed49cb70995b478
+digest frame 359 fnv64 28cc1ba2ca815e1d
+digest frame 419 fnv64 69c23f69ae8ebf42
+digest frame 479 fnv64 0ac3867a128d8ee3
+digest frame 539 fnv64 3147997bdd100873
+digest frame 599 fnv64 6f51257c6c0097aa
+digest frame 659 fnv64 a7023614b94c655e
+digest frame 719 fnv64 94b9a2932a1c7e2e
+digest frame 779 fnv64 d2b8a802106d059b
+digest frame 839 fnv64 2f5548a60e9a9223
+digest frame 899 fnv64 6270b4f7d40f57ac
+digest frame 959 fnv64 3cd80f79072b329a
+digest frame 1019 fnv64 40807934fa817688
+digest frame 1079 fnv64 7fc50cab17c95641
+digest frame 1139 fnv64 16b415d84f8e05b0
+digest frame 1144 fnv64 613bfb5318b82729

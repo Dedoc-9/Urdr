@@ -1,0 +1,13 @@
+# URDRSKY1 conformance goldens — emitted by skycost.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the three record pins (RECORDS, SKYCHAIN), the admitted version (fpsdemo v1.12),
+# the 120 Hz slot, and the frozen point (reach 60, derived rail); every label check, freeze
+# signature, cross-OS comparison, delta and verdict is DERIVED from the committed bytes at
+# claim time (L75). The oracle chain arrives through reachenv; the footprint arithmetic
+# through capcost — imported, never copied.
+#
+# does_not_show: the sky's price at reach 120 or 1080p (unswept — the caustic law); the
+# sky's look (feel is recorded prose); per-pixel attribution (the sky rides inside raster_ns
+# by design); whether the competitive profile should default the sky ON (the operator's
+# decision — this rung prices it).
+skyprice 657b74b49777823f6576207228d12405c5f77c53380cc71563088298d1c34767

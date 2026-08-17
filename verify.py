@@ -233,6 +233,7 @@ STAGE_ORDER = (
     "latchain",
     "reachenv",
     "capcost",
+    "skycost",
     "rollbench",
     "reachable",
     "retire",
@@ -18480,6 +18481,83 @@ class Gate:
                     "grades nothing (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def skycost(self):
+        """THE FAR FIELD'S PRICE, SEALED (URDRSKY1). Rows: records (three artifacts, the sky
+        label checked against bytes, the freeze signature worn), verdict (the price and the
+        competitive-profile classification), selftest (six plants)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import skycost as SK
+        except Exception as exc:
+            for r in ("records", "verdict", "selftest"):
+                self.record(f"skycost-{r}", False, f"import failed (skycost): {exc}")
+            return
+        r_ok = True
+        try:
+            off, on = SK.admit()
+            r_ok = (off["sky"] == "off" and on["sky"] == "starfield"
+                    and off["fields"]["host"] == "ROG-Ally-X-Z2-Extreme"
+                    and len(off["chain"]) == 20 and len(on["chain"]) == 20)
+        except Exception:
+            r_ok = False
+        self.record("skycost-records", r_ok,
+                    "THREE COMMITTED ARTIFACTS AND THE LABEL CHECKED AGAINST BYTES. The "
+                    "host's before/after pair of the COMMITTED walk at the frozen "
+                    "competitive defaults (fpsdemo v1.12, reach 60, derived rail, "
+                    "conditions declared) plus the authoring container's sky-on chain. A "
+                    "record claiming `sky off` must CARRY the committed reach-60 oracle "
+                    "digest for digest — v1.12's default proven to leave every sealed "
+                    "chain standing — and a record claiming `starfield` must carry the "
+                    "container's sky chain and differ from the oracle: CROSS-OS "
+                    "BYTE-IDENTITY FOR THE COMPOSED SKY, two operating systems, one "
+                    "starfield. Both records must WEAR the freeze's signature (derived "
+                    "ladder, footprint prefill, the 2x rail, zero evictions) — a record "
+                    "off the frozen path cannot wear the freeze's name"
+                    if r_ok else "the records half did not hold")
+        v_ok, told = True, "?"
+        try:
+            off, on = SK.admit()
+            pr = SK.price(off, on)
+            dmin = min(pr["deltas_ns"]) // 1000
+            dmax = max(pr["deltas_ns"]) // 1000
+            told = (f"sky price {dmin}..{dmax} us median per segment | ceiling "
+                    f"{pr['worst_off'] / 1e6:.2f} -> {pr['worst_on'] / 1e6:.2f} ms vs the "
+                    f"8.33 ms slot | late 0 -> 0")
+            v_ok = (SK.verdict_holds()
+                    and SK.scene_result("skyprice") == SK.golden("skyprice"))
+        except Exception:
+            v_ok = False
+        self.record("skycost-verdict", v_ok,
+                    "THE PRICE, DERIVED FROM SEALED BYTES — %s. Every segment pays a "
+                    "POSITIVE median delta (a free sky would be a sky that painted "
+                    "nothing), and with the starfield on the committed walk still "
+                    "classifies FITS BY CEILING at 120 Hz with ZERO late frames: the far "
+                    "field rides INSIDE the competitive profile on the committed walk. "
+                    "Said with the caustic law's discipline: this prices reach 60 at 720p "
+                    "only — the sky at reach 120 or 1080p is unswept, and whether the "
+                    "competitive profile should default the sky ON remains the operator's "
+                    "decision, made the freeze pattern's way: from these numbers, not from "
+                    "a feeling" % told
+                    if v_ok else f"the verdict half did not hold ({told})")
+        s_ok = True
+        try:
+            s_ok = (SK.a_flipped_byte_refuses() and SK.a_relabeled_sky_is_caught()
+                    and SK.a_mismatched_chain_refuses() and SK.a_duplicate_record_refuses()
+                    and SK.an_anonymous_record_refuses()
+                    and SK.an_off_rail_record_refuses())
+        except Exception:
+            s_ok = False
+        self.record("skycost-selftest", s_ok,
+                    "six plants bite: a flipped byte refuses on its pin, the off-record "
+                    "relabeled `starfield` is caught by its own bytes (its chain equals "
+                    "the oracle, which a starfield cannot), one edited digest breaks the "
+                    "cross-OS comparison, a duplicate record refuses distinctness, an "
+                    "anonymous record grades nothing, and a record stripped of the "
+                    "derived-rail policy refuses the freeze signature (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22117,7 +22195,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
