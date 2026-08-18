@@ -1,0 +1,8 @@
+# fpsdemo stride-1 ground at the fortress tiles (world units)
+ground 14 6 16
+ground 0 -2 12
+ground -3 8 13
+ground 8 2 17
+ground 10 6 16
+ground 12 3 16
+ground 0 0 12

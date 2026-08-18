@@ -236,6 +236,7 @@ STAGE_ORDER = (
     "skycost",
     "rescell",
     "scenecost",
+    "worldbind",
     "rollbench",
     "reachable",
     "retire",
@@ -18743,6 +18744,101 @@ class Gate:
                     "margin sitting inside the instrument's own spread (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def worldbind(self):
+        """AN AUTHORED WORLD BOUND TO CERTIFIED GROUND, EXACTLY OR NOT AT ALL (URDRWBD1).
+        Rows: doors (the numeric and axis seams), world (the bound fortress, canonical records,
+        cross-language ground), selftest (seven plants)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import worldbind as WB
+        except Exception as exc:
+            for r in ("doors", "world", "selftest"):
+                self.record(f"worldbind-{r}", False, f"import failed (worldbind): {exc}")
+            return
+        d_ok = True
+        try:
+            d_ok = (WB.check_axis_map() and WB.a_mirrored_axis_map_refuses()
+                    and WB.an_inexact_coordinate_refuses()
+                    and WB.a_representable_fraction_admits()
+                    and WB.a_float_coordinate_refuses() and WB.placement_is_injective()
+                    and WB.map_axes((0, 1, 0)) == (0, 0, 1))
+        except Exception:
+            d_ok = False
+        self.record("worldbind-doors", d_ok,
+                    "THE TWO SEAMS BETWEEN THE REPOSITORIES, BOTH SHUT. Ursprung authors "
+                    "causal topology and this tree authors certified terrain; joining them "
+                    "crosses two boundaries that corrupt SILENTLY rather than failing loudly. "
+                    "THE NUMERIC SEAM: authored coordinates are decimal text bound for float32 "
+                    "on the other side, and here every one is parsed as an exact rational and "
+                    "converted by integer arithmetic — no float is constructed even "
+                    "transiently, a token merely SHAPED like a float (1e3, nan, 0x10) refuses "
+                    "on sight, and a value that cannot land exactly on the lattice is REFUSED "
+                    "RATHER THAN ROUNDED. The property rounding would destroy is asserted "
+                    "directly: placement is INJECTIVE, so two authored positions can never "
+                    "collapse to one and share a digest forever. THE AXIS SEAM: the authoring "
+                    "frame is y-up with ground plane (x, z) — measured from weltwerk's own "
+                    "editor, which writes position.set(e.x, h/2, e.z) — and this runtime is "
+                    "z-up; the map is declared and its determinant CHECKED, because a "
+                    "reflection is a different world that no content digest would ever notice"
+                    if d_ok else "a door did not hold")
+        w_ok, told = True, "?"
+        try:
+            w = WB.save()
+            told = (f"{w['spec']['world']}: {len(w['spec']['entities'])} entities, "
+                    f"{len(w['spec']['relations'])} relations, {len(w['chunks'])} chunks, "
+                    f"content {w['content_digest'][:12]}")
+            w_ok = (WB.ground_agrees_across_languages()
+                    and WB.bound_entities_stand_on_canon_ground()
+                    and WB.round_trip_is_byte_identical()
+                    and WB.canonical_under_shuffle()
+                    and WB.an_edit_dirties_only_what_it_touches()
+                    and WB.load(w)
+                    and WB.scene_result("fortress") == WB.golden("fortress"))
+        except Exception:
+            w_ok = False
+        self.record("worldbind-world", w_ok,
+                    "AN AUTHORED FORTRESS STANDING ON THE CANON — %s. The corpus is a REAL "
+                    "authored world carried verbatim from the other repository (zones, "
+                    "entities, health, typed relations, reversed edges pointing target to "
+                    "entity), and every entity's height is the certified heightfield at its "
+                    "bound tile through heightfield.noise16, IMPORTED. THE GROUND IS CHECKED "
+                    "ACROSS LANGUAGES: this binder's height equals a committed record of the "
+                    "same tiles produced by the Rust demo's own stride-1 path, so an entity "
+                    "cannot be placed on ground the renderer does not draw. The world is "
+                    "CONTENT-ADDRESSED: entities partition into chunks by lattice position, "
+                    "each canonicalized under a total order and named by its own digest, and "
+                    "loading verifies rather than trusts. CONTENT IS SPLIT FROM PROVENANCE the "
+                    "way this gate's own reconcile line splits rowset from content — "
+                    "re-ordering the authored text leaves every chunk byte-identical and the "
+                    "content digest unmoved while the manifest's authoring digest changes, so "
+                    "the record can tell an edit from a reformat. And AN EDIT DIRTIES ONLY "
+                    "WHAT IT TOUCHES: moving one entity moves exactly its chunk's digest and "
+                    "leaves the others untouched — the locality the streaming design will rest "
+                    "on, asserted here where it is cheap" % told
+                    if w_ok else f"the world half did not hold ({told})")
+        s_ok = True
+        try:
+            s_ok = (WB.a_tampered_chunk_refuses_at_load()
+                    and WB.a_subtile_placement_refuses()
+                    and WB.an_inexact_coordinate_refuses()
+                    and WB.a_mirrored_axis_map_refuses()
+                    and WB.a_float_coordinate_refuses()
+                    and WB.placement_is_injective()
+                    and WB.a_representable_fraction_admits())
+        except Exception:
+            s_ok = False
+        self.record("worldbind-selftest", s_ok,
+                    "seven plants bite: an unrepresentable coordinate refuses, a float-shaped "
+                    "token refuses on sight, the door still ADMITS what it can represent (a "
+                    "wall would pass a refusal test vacuously), placement is injective so "
+                    "rounding cannot collapse two worlds into one, a mirrored axis map "
+                    "refuses, a tampered chunk refuses at load, and a sub-tile placement "
+                    "refuses at binding even though the numeric door admits it — the door and "
+                    "the contract are separate things (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22380,7 +22476,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

@@ -1,0 +1,15 @@
+# URDRWBD1 conformance goldens — emitted by worldbind.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the corpus pin (an authored .wrk carried verbatim from weltwerk, AGPL, same
+# licence) and the ground-record pin (the Rust demo's own stride-1 heights at the bound tiles);
+# the declared frames (author y-up decimal at one unit per tile; runtime z-up exact Q8), the
+# axis map and its handedness, the chunk size, and the demo's world parameters. Every bound
+# coordinate, chunk digest, content digest and world digest is DERIVED from those bytes at
+# claim time (L75). The canon's noise arrives through heightfield.noise16 — imported, never
+# copied.
+#
+# does_not_show: rendering (no pixel is drawn here); the causal ANALYSIS of the authored graph
+# (weltwerk's lint owns reachability/SCC/bottleneck under its own discipline — relations are
+# carried as data and graded not at all); streaming or persistence at scale (addressing is
+# established, a loader is not); collision or gameplay meaning; whether the fortress is good.
+fortress ac96f91fafd132f29f52382238f039c564c06d28595c8cae47adc0f31abc357e
