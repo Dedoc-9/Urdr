@@ -1,7 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.12).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.13).
+//
+// v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
+// said those placements promote when a walk exposes their falsifier; the visual acceptance
+// target (a third-person wanderer against the far field) is that walk. `--third` puts the
+// certified biped on screen: the pose hierarchy and capsule certificate are fppose_rs's
+// bytes, the clip sampler and canonical state machine are fpclip_rs's, both batteries run
+// at every launch against the placements' own goldens (a failing launch refuses), and the
+// avatar's screen form is a DECLARED capsule impostor, z-buffered like world geometry. The
+// move keys drive the certified stepper (go on press, stop on release); the clip clock is
+// the frame count over the declared 120 Hz cadence — no wall clock anywhere. Input moves
+// the AVATAR; the render eye booms 3.5 units back along the camera's horizontal forward,
+// both standing on the eye's own bilinear ground law. NOT claimed: the one-tick-late IK
+// contract (feet ride the bilinear ground, stated); any collision between boom and terrain
+// (the boom is a fixed offset, declared); the avatar's cost (the host prices --third
+// before/after like every visual feature). --third off (the default) leaves every committed
+// chain standing; --third requires the ladder path.
 //
 // v1.12 — THE COMPOSED SKY: R2d ADOPTED AS A VIEW. `--sky` replaces the gradient with the
 // far-field channel wherever the terrain does not own the pixel: a pure function of view
@@ -1058,6 +1074,17 @@ fn selfcheck() -> bool {
                  if hit { "MATCHES PIN" } else { "MISMATCH — the terrain is NOT the canon" });
         ok &= hit;
     }
+    // v1.13: the promoted placements run their batteries at every launch, same door
+    let mut fxp = Fx::new();
+    let pse_ok = pse_battery(&mut fxp);
+    println!("selfcheck fppose battery : {}", if pse_ok { "MATCHES GOLDEN" }
+             else { "MISMATCH — the pose path is NOT the certified path" });
+    ok &= pse_ok;
+    let mut fxc = Fx::new();
+    let clp_ok = clp_battery(&mut fxc);
+    println!("selfcheck fpclip battery : {}", if clp_ok { "MATCHES GOLDEN" }
+             else { "MISMATCH — the clip path is NOT the certified path" });
+    ok &= clp_ok;
     ok
 }
 
@@ -1507,17 +1534,378 @@ fn star_sky(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, cam:
     }
 }
 
+// ---- v1.13: the wanderer (fppose + fpclip PROMOTED into the demo) -----------------------------
+// The dormancy rule said fppose/fpclip promote when a walk exposes their falsifier; a
+// third-person camera IS that walk — an avatar on screen exercises the posed hierarchy, the
+// clip sampler and the state machine every frame. The kernels below are lifted VERBATIM from
+// the certified placements (fppose_rs, fpclip_rs — the one edit is the same one heightfield
+// took: they call THIS demo's Fx, whose kernel ops are fpquat's placement bytes), and the
+// demo runs BOTH placement batteries at every launch against the same goldens the gate pins:
+// the posed-biped digest and coverage certificate (URDRPSE1) and the walk-pose + 96-tick
+// state-machine trace (URDRCLP1). A launch that fails either refuses to run third-person.
+// The avatar's SCREEN form is a capsule impostor — the certificate certifies joints and
+// capsules; the impostor is DECLARED presentation, z-buffered like world geometry.
+const PSE_PARENT: [i32; 5] = [-1, 0, 1, 1, 1];
+const PSE_NAMES: [&str; 5] = ["root", "spine", "head", "arm_l", "arm_r"];
+const PSE_OFFX: [i64; 5] = [0, 0, 0, -14, 14];
+const PSE_OFFY: [i64; 5] = [0, 0, 0, 0, 0];
+const PSE_OFFZ: [i64; 5] = [0, 24, 20, 16, 16];
+const PSE_WALK: [Q4; 5] = [
+    Q4 { w: 4294734297, x: 0, y: 44736816, z: 0 },
+    Q4 { w: 4294967296, x: 0, y: 0, z: 0 },
+    Q4 { w: 4294967296, x: 0, y: 0, z: 0 },
+    Q4 { w: 4291243873, x: -178801828, y: 0, z: 0 },
+    Q4 { w: 4291243873, x: 178801828, y: 0, z: 0 },
+];
+const PSE_REACH: [Q4; 5] = [
+    Q4 { w: 4294967296, x: 0, y: 0, z: 0 },
+    Q4 { w: 4294967296, x: 0, y: 0, z: 4294967296 },
+    Q4 { w: 4294967296, x: 0, y: 0, z: 0 },
+    Q4 { w: 4294967296, x: 0, y: 0, z: 0 },
+    Q4 { w: 4294967296, x: 0, y: 0, z: 0 },
+];
+const PSE_GOLDEN: &str = "fee3c118e2788ef72eb200ef2f6d4da691246324fec8e8018e29b69ff3101959";
+const CLP_G_POSE: &str = "73b763f88474cb0a3f02fee3e4e3624c42d7ab4ee62b3d6ae52f2fd59b5c4886";
+const CLP_G_TRACE: &str = "823a7746c286213065c5dd50b2765cb5f66680872cd376fca26e305d9c764fd3";
+const CLP_TICKS: usize = 96;
+const CLP_HZ: i64 = 240;
+
+fn pse_radius(i: usize) -> i64 { [0, 12 * ONE, 8 * ONE, 6 * ONE, 6 * ONE][i] }
+fn pse_off(i: usize) -> V3 { V3 { x: PSE_OFFX[i] * ONE, y: PSE_OFFY[i] * ONE, z: PSE_OFFZ[i] * ONE } }
+
+fn pose_world(fx: &mut Fx, pose: &[Q4; 5], swapped: bool) -> ([Q4; 5], [V3; 5]) {
+    let mut wq = [Q4 { w: 0, x: 0, y: 0, z: 0 }; 5];
+    let mut wp = [V3 { x: 0, y: 0, z: 0 }; 5];
+    for i in 0..5 {
+        if i == 0 {
+            wq[0] = fx.qnormalize(pose[0]);
+            wp[0] = pse_off(0);
+        } else {
+            let p = PSE_PARENT[i] as usize;
+            let comp = if swapped { fx.qmul(pose[i], wq[p]) } else { fx.qmul(wq[p], pose[i]) };
+            wq[i] = fx.qnormalize(comp);
+            let moved = fx.vrotate(wq[p], pse_off(i));
+            wp[i] = V3 {
+                x: fx.fin(wp[p].x + moved.x),
+                y: fx.fin(wp[p].y + moved.y),
+                z: fx.fin(wp[p].z + moved.z),
+            };
+        }
+    }
+    (wq, wp)
+}
+
+struct U256 { hi: u128, lo: u128 }
+fn mul128(a: u128, b: u128) -> U256 {
+    let (a_hi, a_lo) = (a >> 64, a & 0xFFFF_FFFF_FFFF_FFFF);
+    let (b_hi, b_lo) = (b >> 64, b & 0xFFFF_FFFF_FFFF_FFFF);
+    let ll = a_lo * b_lo;
+    let lh = a_lo * b_hi;
+    let hl = a_hi * b_lo;
+    let hh = a_hi * b_hi;
+    let mid = (ll >> 64) + (lh & 0xFFFF_FFFF_FFFF_FFFF) + (hl & 0xFFFF_FFFF_FFFF_FFFF);
+    U256 { hi: hh + (lh >> 64) + (hl >> 64) + (mid >> 64),
+           lo: (mid << 64) | (ll & 0xFFFF_FFFF_FFFF_FFFF) }
+}
+fn add256(a: U256, b: U256) -> U256 {
+    let (lo, carry) = a.lo.overflowing_add(b.lo);
+    U256 { hi: a.hi + b.hi + (carry as u128), lo }
+}
+fn le256(a: U256, b: U256) -> bool { a.hi < b.hi || (a.hi == b.hi && a.lo <= b.lo) }
+
+fn in_capsule(pt: V3, a: V3, b: V3, r: i64) -> bool {
+    let dx = b.x as i128 - a.x as i128;
+    let dy = b.y as i128 - a.y as i128;
+    let dz = b.z as i128 - a.z as i128;
+    let apx = pt.x as i128 - a.x as i128;
+    let apy = pt.y as i128 - a.y as i128;
+    let apz = pt.z as i128 - a.z as i128;
+    let dd = dx * dx + dy * dy + dz * dz;
+    let rr = (r as i128) * (r as i128);
+    if dd == 0 {
+        return apx * apx + apy * apy + apz * apz <= rr;
+    }
+    let tn = apx * dx + apy * dy + apz * dz;
+    if tn <= 0 {
+        return apx * apx + apy * apy + apz * apz <= rr;
+    }
+    if tn >= dd {
+        let bpx = pt.x as i128 - b.x as i128;
+        let bpy = pt.y as i128 - b.y as i128;
+        let bpz = pt.z as i128 - b.z as i128;
+        return bpx * bpx + bpy * bpy + bpz * bpz <= rr;
+    }
+    let ap2 = apx * apx + apy * apy + apz * apz;
+    let a256 = mul128(ap2 as u128, dd as u128);
+    let b256 = mul128(tn as u128, tn as u128);
+    let c256 = mul128(rr as u128, dd as u128);
+    le256(a256, add256(b256, c256))
+}
+fn pse_covers(joints: &[V3; 5], ca: &[V3; 5], cb: &[V3; 5]) -> bool {
+    for j in 0..5 {
+        let mut inside = false;
+        for i in 1..5 {
+            if in_capsule(joints[j], ca[i], cb[i], pse_radius(i)) { inside = true; break; }
+        }
+        if !inside { return false }
+    }
+    true
+}
+fn pse_caps(wp: &[V3; 5]) -> ([V3; 5], [V3; 5]) {
+    let mut ca = [V3 { x: 0, y: 0, z: 0 }; 5];
+    let mut cb = [V3 { x: 0, y: 0, z: 0 }; 5];
+    for i in 1..5 { ca[i] = wp[PSE_PARENT[i] as usize]; cb[i] = wp[i]; }
+    (ca, cb)
+}
+
+fn posed_digest(fx: &mut Fx, pose: &[Q4; 5], swapped: bool) -> String {
+    let (wq, wp) = pose_world(fx, pose, swapped);
+    let mut sh = Sha256::new();
+    sh.update(b"URDRPSE1");
+    for i in 0..5 {
+        for &c in &[wq[i].w, wq[i].x, wq[i].y, wq[i].z] { sh.update(&c.to_be_bytes()); }
+    }
+    for i in 0..5 {
+        for &c in &[wp[i].x, wp[i].y, wp[i].z] { sh.update(&c.to_be_bytes()); }
+    }
+    for i in 1..5 {
+        sh.update(PSE_NAMES[i].as_bytes());
+        let a = wp[PSE_PARENT[i] as usize];
+        let b = wp[i];
+        for &c in &[a.x, a.y, a.z, b.x, b.y, b.z] { sh.update(&c.to_be_bytes()); }
+        sh.update(&pse_radius(i).to_be_bytes());
+    }
+    hex(&sh.finish())
+}
+
+#[derive(Clone, Copy)]
+struct Track { n: usize, t: [i64; 5], q: [Q4; 5] }
+#[derive(Clone, Copy)]
+struct Clip { tr: [Track; 5], looped: bool }
+
+fn rotq(x: i64, y: i64, z: i64) -> Q4 { Q4 { w: ONE, x, y, z } }
+
+fn demo_idle() -> Clip {
+    let h2 = ONE / 2;
+    let e64 = ONE / 64;
+    let zero = rotq(0, 0, 0);
+    let still = Track { n: 3, t: [0, h2, ONE, 0, 0], q: [zero, zero, zero, zero, zero] };
+    let mut sway = still;
+    sway.q[1] = rotq(e64, 0, 0);
+    Clip { tr: [still, sway, sway, still, still], looped: true }
+}
+fn demo_walk() -> Clip {
+    let qt = ONE / 4;
+    let h2 = ONE / 2;
+    let e8 = ONE / 8;
+    let e64 = ONE / 64;
+    let zero = rotq(0, 0, 0);
+    let t5 = [0, qt, h2, 3 * qt, ONE];
+    let still = Track { n: 5, t: t5, q: [zero; 5] };
+    let mut swing_l = still;
+    swing_l.q[0] = rotq(e8, 0, 0); swing_l.q[2] = rotq(-e8, 0, 0); swing_l.q[4] = rotq(e8, 0, 0);
+    let mut swing_r = still;
+    swing_r.q[0] = rotq(-e8, 0, 0); swing_r.q[2] = rotq(e8, 0, 0); swing_r.q[4] = rotq(-e8, 0, 0);
+    let mut bob = still;
+    bob.q[1] = rotq(0, e64, 0); bob.q[3] = rotq(0, -e64, 0);
+    Clip { tr: [bob, still, still, swing_l, swing_r], looped: true }
+}
+
+fn sample_track(fx: &mut Fx, tr: &Track, t: i64, looped: bool) -> Q4 {
+    let t0 = tr.t[0];
+    let tk = tr.t[tr.n - 1];
+    if t < t0 { fx.refused = true; return Q4 { w: 0, x: 0, y: 0, z: 0 }; }
+    let lt = if looped {
+        t0 + ((t - t0) % (tk - t0))
+    } else {
+        if t > tk { fx.refused = true; return Q4 { w: 0, x: 0, y: 0, z: 0 }; }
+        t
+    };
+    let (mut lo, mut hi) = (0usize, tr.n);
+    while lo < hi {
+        let mid = (lo + hi) / 2;
+        if tr.t[mid] <= lt { lo = mid + 1; } else { hi = mid; }
+    }
+    let mut i = lo - 1;
+    if i >= tr.n - 1 { i = tr.n - 2; }
+    let u = fx.rdiv((lt - tr.t[i]) as i128 * ONE as i128, (tr.t[i + 1] - tr.t[i]) as i128);
+    fx.qnlerp(tr.q[i], tr.q[i + 1], u)
+}
+fn sample_pose(fx: &mut Fx, c: &Clip, t: i64) -> [Q4; 5] {
+    let mut out = [Q4 { w: 0, x: 0, y: 0, z: 0 }; 5];
+    for b in 0..5 { out[b] = sample_track(fx, &c.tr[b], t, c.looped); }
+    out
+}
+
+// states: 0=idle 1=walk ; events: 0=go 1=sprint 2=stop — the CANONICAL minimum-priority
+// resolution, lifted with its rule table (the authored-order defect is the placement's plant)
+const CLP_RULES: [(usize, usize, usize, i64); 4] =
+    [(1, 0, 1, 5), (1, 1, 1, 2), (0, 1, 0, 0), (1, 0, 2, 0)];
+const CLP_STATE_NAME: [&str; 2] = ["idle", "walk"];
+const CLP_SCRIPT: [(usize, usize); 3] = [(24, 0), (48, 1), (72, 2)];
+
+fn step_canonical(state: usize, ev: usize) -> (usize, bool) {
+    let mut best: Option<(usize, i64)> = None;
+    for &(f, to, e, pr) in CLP_RULES.iter() {
+        if f == state && e == ev {
+            if best.map_or(true, |(_, bp)| pr < bp) { best = Some((to, pr)); }
+        }
+    }
+    match best { Some((to, _)) => (to, true), None => (state, false) }
+}
+
+fn clip_trace_digest(fx: &mut Fx) -> String {
+    let clips = [demo_idle(), demo_walk()];
+    let mut sh = Sha256::new();
+    sh.update(b"URDRCLP1");
+    let (mut state, mut start, mut si) = (0usize, 0usize, 0usize);
+    for i in 0..CLP_TICKS {
+        if si < 3 && CLP_SCRIPT[si].0 == i {
+            let (ns, moved) = step_canonical(state, CLP_SCRIPT[si].1);
+            if moved { state = ns; start = i; }
+            si += 1;
+        }
+        let lt = fx.rdiv(i as i128 * ONE as i128, CLP_HZ as i128)
+               - fx.rdiv(start as i128 * ONE as i128, CLP_HZ as i128);
+        let pose = sample_pose(fx, &clips[state], lt);
+        sh.update(&(i as u64).to_be_bytes());
+        sh.update(CLP_STATE_NAME[state].as_bytes());
+        for q in pose.iter() {
+            sh.update(&q.w.to_be_bytes());
+            sh.update(&q.x.to_be_bytes());
+            sh.update(&q.y.to_be_bytes());
+            sh.update(&q.z.to_be_bytes());
+        }
+    }
+    hex(&sh.finish())
+}
+
+fn pse_battery(fx: &mut Fx) -> bool {
+    let d = posed_digest(fx, &PSE_WALK, false);
+    let (_, wp) = pose_world(fx, &PSE_WALK, false);
+    let (ca, cb) = pse_caps(&wp);
+    let (_, wpr) = pose_world(fx, &PSE_REACH, false);
+    let (ra, rb) = pse_caps(&wpr);
+    let swapped = posed_digest(fx, &PSE_WALK, true);
+    d == PSE_GOLDEN && pse_covers(&wp, &ca, &cb) && pse_covers(&wpr, &ra, &rb)
+        && swapped != PSE_GOLDEN && !fx.refused
+}
+fn clp_battery(fx: &mut Fx) -> bool {
+    let u = fx.rdiv(ONE as i128, 3);
+    let pose = sample_pose(fx, &demo_walk(), u);
+    let mut sh = Sha256::new();
+    sh.update(b"URDRCLP1");
+    for q in pose.iter() {
+        sh.update(&q.w.to_be_bytes());
+        sh.update(&q.x.to_be_bytes());
+        sh.update(&q.y.to_be_bytes());
+        sh.update(&q.z.to_be_bytes());
+    }
+    hex(&sh.finish()) == CLP_G_POSE && clip_trace_digest(fx) == CLP_G_TRACE && !fx.refused
+}
+
+// ---- the avatar on screen: ground-clamped, facing the camera's horizontal forward -------------
+// Joint positions come out of the CERTIFIED pose path in Q32.32 skeleton units (a 44-unit
+// biped); >>28 maps them to Q8 world units at 1/16 scale — a 2.75-unit wanderer against a
+// 3-unit eye. The facing basis derives from the camera matrix's forward column, normalized
+// with the exact integer isqrt; the ground clamp is the same bilinear the eye stands on. The
+// one-tick-late IK contract is NOT claimed here — feet ride the bilinear ground, stated.
+fn avatar_joints(fx: &mut Fx, lod: &mut LodWorld, cam: &Cam, m: &[i64; 9],
+                 clip_state: usize, t_q32: i64) -> ([V3; 5], i64) {
+    let clips = [demo_idle(), demo_walk()];
+    let pose = sample_pose(fx, &clips[clip_state], t_q32);
+    let (_, wp) = pose_world(fx, &pose, false);
+    // facing: the camera's horizontal forward (m[3], m[4]) normalized to Q16
+    let (fwx, fwy) = (m[3], m[4]);
+    let n2 = fwx * fwx + fwy * fwy;
+    let (f16x, f16y) = if n2 == 0 { (0, 1 << 16) } else {
+        let n = isqrt64(n2).max(1);
+        (fwx * 65536 / n, fwy * 65536 / n)
+    };
+    let (r16x, r16y) = (f16y, -f16x);              // right = forward rotated -90 about Z
+    // ground under the anchor, bilinear, Q8 (the eye's own law)
+    let ctx = floordiv(cam.px >> 8, TILE);
+    let cty = floordiv(cam.py >> 8, TILE);
+    let (rx8, ry8) = (cam.px - ((ctx * TILE) << 8), cam.py - ((cty * TILE) << 8));
+    let (u, v) = (rx8 / TILE, ry8 / TILE);
+    let (h00, h10) = (lod.h(ctx, cty, 1) << 8, lod.h(ctx + 1, cty, 1) << 8);
+    let (h01, h11) = (lod.h(ctx, cty + 1, 1) << 8, lod.h(ctx + 1, cty + 1, 1) << 8);
+    let hx0 = h00 + (h10 - h00) * u / 256;
+    let hx1 = h01 + (h11 - h01) * u / 256;
+    let ground8 = hx0 + (hx1 - hx0) * v / 256;
+    let mut out = [V3 { x: 0, y: 0, z: 0 }; 5];
+    for i in 0..5 {
+        let (lx, ly, lz) = (wp[i].x >> 28, wp[i].y >> 28, wp[i].z >> 28);   // Q8, 1/16 scale
+        out[i] = V3 {
+            x: cam.px + ((r16x * lx + f16x * ly) >> 16),
+            y: cam.py + ((r16y * lx + f16y * ly) >> 16),
+            z: ground8 + lz,
+        };
+    }
+    (out, ground8)
+}
+
+const AV_COLORS: [u32; 5] = [0, 0x00A03028, 0x00D9B48A, 0x00703830, 0x00703830];
+
+fn draw_avatar(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
+               eye: (i64, i64, i64), joints: &[V3; 5]) {
+    let f = h as i64 * 2;
+    let (cx, cy) = (w as i64 / 2, h as i64 / 2);
+    for i in 1..5 {
+        let a = joints[PSE_PARENT[i] as usize];
+        let b = joints[i];
+        let r8 = pse_radius(i) >> 28;              // Q8 world radius at the same 1/16 scale
+        let mut sp = [(0i64, 0i64, 0i64); 2];
+        let mut behind = 0;
+        for (k, j) in [a, b].iter().enumerate() {
+            let (dx, dy, dz) = (j.x - eye.0, j.y - eye.1, j.z - eye.2);
+            let rx = (m[0] * dx + m[1] * dy + m[2] * dz) >> 16;
+            let ry = (m[3] * dx + m[4] * dy + m[5] * dz) >> 16;
+            let rz = (m[6] * dx + m[7] * dy + m[8] * dz) >> 16;
+            let d8 = ry.max(NEAR8);
+            if ry < NEAR8 { behind += 1 }
+            sp[k] = (cx + rx * f / d8, cy - rz * f / d8, d8);
+        }
+        if behind == 2 { continue }
+        let rpx = (r8 * f / sp[0].2.min(sp[1].2)).max(1);
+        let x_lo = (sp[0].0.min(sp[1].0) - rpx).max(0);
+        let x_hi = (sp[0].0.max(sp[1].0) + rpx).min(w as i64 - 1);
+        let y_lo = (sp[0].1.min(sp[1].1) - rpx).max(0);
+        let y_hi = (sp[0].1.max(sp[1].1) + rpx).min(h as i64 - 1);
+        if x_lo > x_hi || y_lo > y_hi { continue }
+        let (sx, sy) = (sp[1].0 - sp[0].0, sp[1].1 - sp[0].1);
+        let l2 = sx * sx + sy * sy;
+        let rr = rpx * rpx;
+        for py in y_lo..=y_hi {
+            let row = (py * w as i64) as usize;
+            for px in x_lo..=x_hi {
+                let (vx, vy) = (px - sp[0].0, py - sp[0].1);
+                let tn = if l2 == 0 { 0 } else { (vx * sx + vy * sy).clamp(0, l2) };
+                let (qx, qy) = if l2 == 0 { (0, 0) } else { (sx * tn / l2, sy * tn / l2) };
+                let (ex, ey) = (vx - qx, vy - qy);
+                if ex * ex + ey * ey <= rr {
+                    let d = if l2 == 0 { sp[0].2 } else { sp[0].2 + (sp[1].2 - sp[0].2) * tn / l2 };
+                    let p = row + px as usize;
+                    let di = d.clamp(0, i32::MAX as i64) as i32;
+                    if di < zbuf[p] { zbuf[p] = di; buf[p] = AV_COLORS[i]; }
+                }
+            }
+        }
+    }
+}
+
 // ---- the entry door ---------------------------------------------------------------------------
 struct Args {
     host: String, power: String, scheduler: String, hz: i64, frames: u32,
     res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool, sky: bool,
+    third: bool,
     trace_out: String, out: String, reach: i64, cache_cap: usize,
 }
 
 fn parse_argv() -> Result<Args, String> {
     let mut a = Args { host: "-".into(), power: "-".into(), scheduler: "-".into(), hz: 120,
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
-                       defect: false, selfcheck_only: false, sky: false,
+                       defect: false, selfcheck_only: false, sky: false, third: false,
                        trace_out: "fpsdemo_trace.txt".into(),
                        out: "fpsdemo_log.txt".into(), reach: 60, cache_cap: usize::MAX };
                        // reach 60: THE COMPETITIVE FREEZE (measured ceiling-clean at 120 Hz);
@@ -1549,6 +1937,7 @@ fn parse_argv() -> Result<Args, String> {
             "--defect" => a.defect = true,
             "--selfcheck" => a.selfcheck_only = true,
             "--sky" => a.sky = true,
+            "--third" => a.third = true,
             "--reach" => {
                 a.reach = value(&mut i)?.parse().map_err(|_| "--reach: not an integer")?;
                 if !(8..=200_000).contains(&a.reach) {
@@ -1603,6 +1992,11 @@ fn main() {
         Ok(a) => a,
         Err(e) => { eprintln!("FPSDEMO-REFUSE: {e}"); std::process::exit(2) }
     };
+    if args.third && args.reach <= LOD_R0 {
+        eprintln!("FPSDEMO-REFUSE: --third needs the ladder path (reach > {LOD_R0}) — the \
+                   wanderer stands on the derived rings, not the compat window");
+        std::process::exit(2);
+    }
     // THE DOOR: the demo's math is the certified math, checked at every start — a launch that
     // fails its selfcheck REFUSES to run, whatever mode was asked for.
     let door = selfcheck();
@@ -1743,6 +2137,14 @@ fn main() {
     } else { 0 };
     let mut deadline = qpc() + ticks_per_frame;
 
+    // v1.13: the wanderer's state — the canonical stepper's state, its entry frame, and the
+    // per-frame camera-matrix shadow the avatar and boom share.
+    let mut av_state: usize = 0;
+    let mut av_start: u32 = 0;
+    let mut av_m: [i64; 9] = [0; 9];
+    const AV_BOOM8: i64 = 12 * 256;                // the boom: 12 units behind (the 28-degree
+                                                   // vertical FOV makes a near boom a face full
+                                                   // of cloak; 12 units frames the wanderer)
     let mut frame: u32 = 0;
     while frame < total_frames && QUIT.load(Ordering::SeqCst) == 0 {
         let seg_idx = (frame / seg) as usize;
@@ -1822,12 +2224,60 @@ fn main() {
         let _t_tick = qpc();
         let _view = (cam.px, cam.py, cam.q.w, cam.pitch_acc);   // the view export
         let t_view = qpc();
+        // v1.13: the wanderer. Input drives the AVATAR anchor (cam.px/py); the render eye
+        // booms back along the camera's horizontal forward, and the avatar's clip state
+        // machine is the certified canonical stepper driven by the move keys (go on press,
+        // stop on release — the same two-event vocabulary the trace already carries).
+        let rcam = if args.third {
+            let qc = qconj(cam.q);
+            let bxv = fx_cam.vrotate(qc, V3 { x: ONE, y: 0, z: 0 });
+            let byv = fx_cam.vrotate(qc, V3 { x: 0, y: ONE, z: 0 });
+            let bzv = fx_cam.vrotate(qc, V3 { x: 0, y: 0, z: ONE });
+            let m3 = [bxv.x >> 16, byv.x >> 16, bzv.x >> 16,
+                      bxv.y >> 16, byv.y >> 16, bzv.y >> 16,
+                      bxv.z >> 16, byv.z >> 16, bzv.z >> 16];
+            let (fwx, fwy) = (m3[3], m3[4]);
+            let n2 = fwx * fwx + fwy * fwy;
+            let (f16x, f16y) = if n2 == 0 { (0, 1 << 16) } else {
+                let n = isqrt64(n2).max(1);
+                (fwx * 65536 / n, fwy * 65536 / n)
+            };
+            let moving = keys & 0xF != 0;
+            if moving && av_state == 0 {
+                let (ns, moved) = step_canonical(av_state, 0);
+                if moved { av_state = ns; av_start = frame; }
+            } else if !moving && av_state == 1 {
+                let (ns, moved) = step_canonical(av_state, 2);
+                if moved { av_state = ns; av_start = frame; }
+            }
+            av_m = m3;
+            Cam { q: cam.q, pitch_acc: cam.pitch_acc,
+                  px: cam.px - (f16x * AV_BOOM8 >> 16),
+                  py: cam.py - (f16y * AV_BOOM8 >> 16) }
+        } else { Cam { q: cam.q, pitch_acc: cam.pitch_acc, px: cam.px, py: cam.py } };
         if ladder.is_empty() {
-            raster_world(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam, &mut world);
+            raster_world(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &rcam, &mut world);
         } else {
-            raster_rings(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam, &mut lodw, &ladder);
+            raster_rings(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &rcam, &mut lodw, &ladder);
         }
-        if args.sky { star_sky(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &cam); }
+        if args.third && !ladder.is_empty() {
+            let t_q32 = fx_cam.rdiv((frame - av_start) as i128 * ONE as i128, 120);
+            let (joints, _g8) = avatar_joints(&mut fx_cam, &mut lodw, &cam, &av_m,
+                                              av_state, t_q32);
+            // the render eye, recomputed by the eye's own bilinear law at the boom position
+            let etx = floordiv(rcam.px >> 8, TILE);
+            let ety = floordiv(rcam.py >> 8, TILE);
+            let (erx8, ery8) = (rcam.px - ((etx * TILE) << 8), rcam.py - ((ety * TILE) << 8));
+            let (eu, ev) = (erx8 / TILE, ery8 / TILE);
+            let (e00, e10) = (lodw.h(etx, ety, 1) << 8, lodw.h(etx + 1, ety, 1) << 8);
+            let (e01, e11) = (lodw.h(etx, ety + 1, 1) << 8, lodw.h(etx + 1, ety + 1, 1) << 8);
+            let ex0 = e00 + (e10 - e00) * eu / 256;
+            let ex1 = e01 + (e11 - e01) * eu / 256;
+            let eye8 = ex0 + (ex1 - ex0) * ev / 256 + (3 << 8);
+            draw_avatar(&mut buf, &mut zbuf, cw, ch, &av_m,
+                        (rcam.px, rcam.py, eye8), &joints);
+        }
+        if args.sky { star_sky(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &rcam); }
         let t_pixels = qpc();
         unsafe {
             StretchDIBits(dc, (scr_w - cw) / 2, (scr_h - ch) / 2, cw, ch,
@@ -1874,7 +2324,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.12 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.13 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -1888,11 +2338,12 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.12 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
-reach {} | sky {} | qpf {}\n",
+        "fpsdemo v1.13 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+reach {} | sky {} | third {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
-        if args.sky { "starfield" } else { "off" }, freq));
+        if args.sky { "starfield" } else { "off" },
+        if args.third { "wanderer" } else { "off" }, freq));
     if !ladder.is_empty() {
         for &(stride, inn, out) in &ladder {
             log.push_str(&format!("ring stride {} tiles {}..{}\n", stride, inn, out));

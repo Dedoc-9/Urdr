@@ -289,6 +289,45 @@ planet.py's own plant refuses — it waits for a declared radius and a reach whe
 pixel. What is composed is exactly what is claimed: the terrain silhouette over a
 world-fixed far field.
 
+THE VISUAL ACCEPTANCE TARGET, frozen as a composition rather than a specification: a
+third-person wanderer in the foreground, terrain rising to a far structure, sky behind the
+silhouette, atmosphere separating the planes. The goal is to reproduce that visual HIERARCHY
+on the committed walk while preserving terrain identity, deterministic replay, ownership
+boundaries and the competitive frame budget — and each visible element earns its way in
+through the membrane (AGENTS.md §4), with its own falsifier and its own before/after price.
+The decomposition: reach and terrain are the R2 machinery (measured); the far field is R2d's
+channel (adopted, priced); lighting is VIEW-layer work priced against the raster budget;
+vegetation and props are seeded instances whose rendering cost needs its own rung; the
+structure is the frontfps authoring canon's adoption question; atmosphere is another owned
+VIEW channel, never an excuse to hide terrain resolution; and the wanderer is the
+diagnostically valuable piece, because it crosses from world renderer into game
+presentation. The target is an acceptance test, not evidence — no distance or performance
+tier is inferred from a picture.
+
+v1.13 is THE WANDERER — fppose and fpclip PROMOTED, by their own rule. The dormancy law said
+those placements promote when a walk exposes their falsifier; the third-person camera is
+that walk. `--third` puts the certified biped on screen: the pose hierarchy, capsule
+certificate and posed-digest golden are fppose_rs's; the clip sampler, canonical state
+machine and 96-tick trace golden are fpclip_rs's; BOTH batteries now run at every launch
+beside fpquat's and the canon pins — five selfcheck doors, and a launch that fails any
+refuses to run. The move keys drive the certified stepper (go on press, stop on release),
+the clip clock is the frame count over the declared 120 Hz cadence, input moves the AVATAR
+while the render eye booms twelve units back along the camera's horizontal forward, and
+both stand on the eye's own bilinear ground law. Verified on the authoring container across
+the committed walk: with `--third` off the digest chain is byte-identical to the committed
+reach-60 oracle (every sealed record stands); third-person replay is deterministic (two
+runs, one chain) and non-vacuous (~66k avatar pixels per frame at the twelve-unit boom);
+the sky ownership law holds with the avatar present (zero owned-pixel violations — the
+avatar owns its pixels through the z-buffer like world geometry, and the far field respects
+them); and the certified substrate carried the pose path through all 1,145 frames without a
+single refusal. DECLARED, honestly: the avatar's screen form is a capsule IMPOSTOR of the
+placement corpus's five-joint biped — torso, head, two arms, no legs; the proportions are
+the certificate's geometry, not sculpted art, and a richer authored skeleton is a future
+rung with its own laws; the one-tick-late IK contract is NOT claimed (feet ride the
+bilinear ground); the boom is a fixed offset with no terrain avoidance, stated; and the
+feature's price is the host's to measure, before/after at the frozen defaults, the way
+every visual feature is priced.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders
