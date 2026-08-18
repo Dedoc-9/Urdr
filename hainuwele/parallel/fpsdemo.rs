@@ -2128,9 +2128,27 @@ fn main() {
         if ladder.is_empty() { "compat-path" } else { "derived-rail-2x-footprint" }
     } else if args.cache_cap == 0 { "unbounded-explicit" } else { "explicit" };
     let mut lodw = LodWorld::new(&ladder, cache_cap);
+    // v1.13.1: PREFILL AT THE RENDER EYE, NOT THE AVATAR. The named host's first v1.13 run
+    // caught the leak: with --third the prefill warmed the cache at the avatar's spawn tile
+    // while frame 0 rastered from the boom eye twelve units back, so the first frame paid
+    // ring rebases the prefill convention exists to keep OUT of frame stats (one 8.9 ms
+    // startup frame, the run's only late frame). The start condition now anchors where the
+    // first frame actually looks from. Values never move — the prefill only warms the cache
+    // — so every chain stands; only the start condition's honesty changed.
     let prefill_tiles: u64 = if !ladder.is_empty() {
+        let (pfx, pfy) = if args.third {
+            let qc0 = qconj(cam.q);
+            let by0 = fx_cam.vrotate(qc0, V3 { x: 0, y: ONE, z: 0 });
+            let (fwx, fwy) = (by0.x >> 16, by0.y >> 16);
+            let n2 = fwx * fwx + fwy * fwy;
+            let (f16x, f16y) = if n2 == 0 { (0, 1 << 16) } else {
+                let n = isqrt64(n2).max(1);
+                (fwx * 65536 / n, fwy * 65536 / n)
+            };
+            (cam.px - (f16x * AV_BOOM8 >> 16), cam.py - (f16y * AV_BOOM8 >> 16))
+        } else { (cam.px, cam.py) };
         let t0 = qpc();
-        let n = lodw.prefill(floordiv(cam.px >> 8, TILE), floordiv(cam.py >> 8, TILE), &ladder);
+        let n = lodw.prefill(floordiv(pfx >> 8, TILE), floordiv(pfy >> 8, TILE), &ladder);
         eprintln!("prefill: {} tiles in {} ms (start condition, outside frame stats)",
                   n, ticks_to_ns(qpc() - t0, freq) / 1_000_000);
         n
