@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.13.2).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.13.3).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -1898,7 +1898,7 @@ fn draw_avatar(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
 struct Args {
     host: String, power: String, scheduler: String, hz: i64, frames: u32,
     res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool, sky: bool,
-    third: bool,
+    third: bool, await_focus: bool,
     trace_out: String, out: String, reach: i64, cache_cap: usize,
 }
 
@@ -1906,6 +1906,7 @@ fn parse_argv() -> Result<Args, String> {
     let mut a = Args { host: "-".into(), power: "-".into(), scheduler: "-".into(), hz: 120,
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
                        defect: false, selfcheck_only: false, sky: false, third: false,
+                       await_focus: false,
                        trace_out: "fpsdemo_trace.txt".into(),
                        out: "fpsdemo_log.txt".into(), reach: 60, cache_cap: usize::MAX };
                        // reach 60: THE COMPETITIVE FREEZE (measured ceiling-clean at 120 Hz);
@@ -1938,6 +1939,7 @@ fn parse_argv() -> Result<Args, String> {
             "--selfcheck" => a.selfcheck_only = true,
             "--sky" => a.sky = true,
             "--third" => a.third = true,
+            "--await-focus" => a.await_focus = true,
             "--reach" => {
                 a.reach = value(&mut i)?.parse().map_err(|_| "--reach: not an integer")?;
                 if !(8..=200_000).contains(&a.reach) {
@@ -2063,14 +2065,41 @@ fn main() {
     // focus is DEMOTED from a dependency to a reported condition — the focus_foreground
     // line below is an instrument condition beside timer_1ms_granted, not a prerequisite.
     unsafe { SetForegroundWindow(hwnd); SetFocus(hwnd); }
-    let focus_foreground = unsafe {
+    let pump = |_x: i32| unsafe {
         let mut m = MSG { hwnd: 0, message: 0, wParam: 0, lParam: 0, time: 0,
                           pt: POINT { x: 0, y: 0 } };
         while PeekMessageW(&mut m, 0, 0, 0, PM_REMOVE) != 0 {
             TranslateMessage(&m); DispatchMessageW(&m);
         }
-        GetForegroundWindow() == hwnd
     };
+    pump(0);
+    let mut focus_foreground = unsafe { GetForegroundWindow() == hwnd };
+    // v1.13.3: AN INSTRUMENT MAY WAIT FOR ITS DECLARED CONDITIONS — BUT NEVER DEPEND ON
+    // THEM. `--await-focus` holds the run at the door until the operator clicks the window,
+    // which is what a cost record wants: measuring a background window measures a different
+    // operation. The wait is BOUNDED (30 s) and REPORTED (`focus_wait_ms`), and expiry
+    // PROCEEDS rather than hanging — because the named host is a handheld whose vendor layer
+    // can keep foreground for itself (L83's whole subject), and an instrument that could
+    // block forever on a condition it does not need is the dependency L83 retired, wearing a
+    // patience costume. The counter (L85) still reports what actually held per frame; this
+    // only improves the odds that it reads 1145/1145.
+    let mut focus_wait_ms: i64 = 0;
+    if args.await_focus && !focus_foreground {
+        eprintln!("await-focus: CLICK THE DEMO WINDOW to begin — waiting up to 30 s (the run \
+                   starts regardless when the bound expires; a wait is a courtesy, never a \
+                   dependency)");
+        let t0 = qpc();
+        loop {
+            pump(0);
+            focus_foreground = unsafe { GetForegroundWindow() == hwnd };
+            focus_wait_ms = ticks_to_ns(qpc() - t0, freq) / 1_000_000;
+            if focus_foreground || focus_wait_ms >= 30_000 { break }
+            unsafe { Sleep(20) };
+        }
+        eprintln!("await-focus: {} after {} ms", if focus_foreground { "GRANTED" }
+                  else { "NOT GRANTED — proceeding, conditions reported as measured" },
+                  focus_wait_ms);
+    }
     let dc = unsafe { GetDC(hwnd) };
     unsafe { PatBlt(dc, 0, 0, scr_w, scr_h, BLACKNESS); }
     if args.play { unsafe { ShowCursor(0); } }
@@ -2351,7 +2380,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.13.2 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.13.3 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -2365,7 +2394,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.13.2 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.13.3 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | sky {} | third {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
@@ -2382,9 +2411,10 @@ reach {} | sky {} | third {} | qpf {}\n",
         log.push_str(&format!("cache_policy {}\n", cache_policy));
     }
     log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | focus_frames {}/{} | \
-xinput_loaded {} | pad_connected {}
+focus_wait_ms {} | xinput_loaded {} | pad_connected {}
 ",
                           timer_1ms_granted, focus_foreground, focus_frames, frame,
+                          focus_wait_ms,
                           if args.play { if xi_get.is_some() { "true" } else { "false" } }
                           else { "n/a" },
                           if args.play { if pad_seen { "true" } else { "false" } }
