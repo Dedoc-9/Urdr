@@ -1,0 +1,16 @@
+# URDRSCN1 conformance goldens — emitted by scenecost.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the six host record pins and two container chain pins (RECORDS, CHAINS), the two
+# admitted versions (v1.13.2 and v1.13.3 — the delta between them is a pre-run door, and the
+# cross-sweep chain law is the EVIDENCE for that, not the assumption), the 120 Hz slot, the
+# frozen point (reach 60, derived rail), and skycost's sealed standalone sky price as the
+# corroboration target. Every verdict, headroom, instrument spread, resolution flag and price
+# band is DERIVED from the committed bytes at claim time (L75). The ladder rules arrive
+# through reachenv, the footprint arithmetic through capcost — imported, never copied.
+#
+# does_not_show: the composition at any other reach, resolution or refresh (the caustic law);
+# WHY the ceiling moved between sweeps (visible, not attributed); the look of anything (feel
+# is recorded prose); whether the competitive profile should ship either feature ON (the
+# operator's decision, priced here, not made here); input-to-photon latency (absent by
+# protocol — replay runs carry no clicks).
+scene 03d8ddff3e7203a94bd4e08b2083bb7852199d4750780465ceaa528e98401e16

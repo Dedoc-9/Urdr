@@ -235,6 +235,7 @@ STAGE_ORDER = (
     "capcost",
     "skycost",
     "rescell",
+    "scenecost",
     "rollbench",
     "reachable",
     "retire",
@@ -18643,6 +18644,105 @@ class Gate:
                     "catch that actually happened, kept as a live plant (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def scenecost(self):
+        """THE COMPOSED SCENE'S PRICE, AND A VERDICT THAT KNOWS ITS RESOLUTION (URDRSCN1).
+        Rows: records (eight artifacts, cross-OS identity for the whole composition, the
+        replay law across runs), verdict (agreement + the resolution law + the price),
+        selftest (seven plants)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import scenecost as SC
+        except Exception as exc:
+            for r in ("records", "verdict", "selftest"):
+                self.record(f"scenecost-{r}", False, f"import failed (scenecost): {exc}")
+            return
+        r_ok = True
+        try:
+            logs = SC.admit()
+            r_ok = (len(logs) == 6
+                    and all(logs[k]["fields"]["host"] == "ROG-Ally-X-Z2-Extreme"
+                            for k in SC.RECORDS)
+                    and all(len(logs[k]["chain"]) == 20 for k in SC.RECORDS))
+        except Exception:
+            r_ok = False
+        self.record("scenecost-records", r_ok,
+                    "EIGHT COMMITTED ARTIFACTS AND THE WHOLE COMPOSITION PROVEN CROSS-OS. "
+                    "Two INDEPENDENT sweeps of three configurations each on the named host "
+                    "(baseline, +wanderer, +wanderer+starfield; frozen competitive defaults, "
+                    "conditions declared, the focus counter FULL in all six — a record "
+                    "measured partly out of foreground refuses) plus the authoring "
+                    "container's chains for both composed configurations. THE HOST'S "
+                    "THIRD-PERSON AND THIRD-PERSON-PLUS-STARFIELD CHAINS EACH EQUAL THE "
+                    "CONTAINER'S, digest for digest: two operating systems, two compilers, "
+                    "one certified biped standing in one world under one sky — the pose and "
+                    "clip placements promoted into the demo reproduce bit-for-bit across "
+                    "hosts, not merely inside one. And the two sweeps of a configuration "
+                    "render IDENTICALLY, which is the replay law restated across runs: the "
+                    "pixels are a function of the trace, never of the day. Both admitted "
+                    "versions must satisfy that law, so a version that moved a pixel would "
+                    "redden this rung rather than pass unnoticed"
+                    if r_ok else "the records half did not hold")
+        v_ok, told = True, "?"
+        try:
+            logs = SC.admit()
+            vd = SC.verdicts(logs)
+            res = SC.resolution(logs)
+            spread = SC.instrument_spread(logs)
+            told = " | ".join(
+                f"{c}: {vd[c]} headroom {res[c]['min'] // 1000}..{res[c]['max'] // 1000} us "
+                f"({'resolved' if res[c]['resolved'] else 'UNRESOLVED'})" for c in SC.CONFIGS)
+            told += f" | instrument spread {spread // 1000} us"
+            v_ok = (vd == {"off": "FITS", "third": "FITS", "full": "FITS"}
+                    and res["off"]["resolved"] and res["third"]["resolved"]
+                    and not res["full"]["resolved"]
+                    and SC.price_total_positive(logs) and SC.sky_corroborates(logs)
+                    and SC.scene_result("scene") == SC.golden("scene"))
+        except Exception:
+            v_ok = False
+        self.record("scenecost-verdict", v_ok,
+                    "THE COMPOSED SCENE, PRICED — AND A VERDICT THAT KNOWS ITS OWN "
+                    "RESOLUTION: %s. Both sweeps classify all three configurations FITS at "
+                    "120 Hz (ceilings first, pixelcost's semantics, and the agreement law "
+                    "holds — a verdict that flipped between sweeps would refuse to speak). "
+                    "BUT A VERDICT IS NOT AN OPERATING POINT UNLESS ITS MARGIN IS "
+                    "DISTINGUISHABLE FROM ZERO. The instrument's own run-to-run resolution "
+                    "is MEASURED from the baseline, whose ceiling moved between two sweeps "
+                    "of the identical trace under identical conditions; a headroom smaller "
+                    "than that spread cannot be told from zero by this instrument. Terrain "
+                    "and terrain-plus-wanderer clear it by an order of magnitude and are "
+                    "RESOLVED operating points; the full composition is FITS and UNRESOLVED "
+                    "— its margin collapsed 511 us to 6.6 us between sweeps and now lives "
+                    "inside the noise, so calling it an operating point would read precision "
+                    "the measurement does not have. The price rides beside the verdict: the "
+                    "TOTAL is positive in both sweeps while individual segments are not "
+                    "(one reads 69 us FASTER than baseline — a band that never shows its "
+                    "negative tail has a thumb on it), and the starfield's increment "
+                    "measured ON TOP of the wanderer lands inside skycost's sealed "
+                    "STANDALONE price, corroborating both records without ever licensing "
+                    "addition in place of measurement" % told
+                    if v_ok else f"the verdict half did not hold ({told})")
+        s_ok = True
+        try:
+            s_ok = (SC.a_flipped_byte_refuses() and SC.a_duplicate_record_refuses()
+                    and SC.an_anonymous_record_refuses()
+                    and SC.a_short_focus_counter_refuses()
+                    and SC.a_mismatched_chain_refuses()
+                    and SC.a_disagreeing_pair_refuses_to_speak()
+                    and SC.an_unresolved_margin_is_caught())
+        except Exception:
+            s_ok = False
+        self.record("scenecost-selftest", s_ok,
+                    "seven plants bite: a flipped byte refuses on its pin, a duplicate "
+                    "refuses distinctness, an anonymous record grades nothing, a record "
+                    "whose focus counter is short of its frame count refuses (L85's "
+                    "condition, enforced), one edited digest breaks the cross-OS "
+                    "comparison, a doctored pair that disagrees at 120 Hz refuses to speak "
+                    "rather than averaging, and the resolution law catches the composition's "
+                    "margin sitting inside the instrument's own spread (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22280,7 +22380,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

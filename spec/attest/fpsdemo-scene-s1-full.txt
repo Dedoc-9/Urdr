@@ -1,0 +1,39 @@
+fpsdemo v1.13.2 | host ROG-Ally-X-Z2-Extreme | power Turbo-35W-AC | scheduler Win11-GameMode-UltimatePerf | hz 120 | res 1280x720 | mode replay | reach 60 | sky starfield | third wanderer | qpf 10000000
+ring stride 1 tiles 0..56
+ring stride 2 tiles 53..60
+prefill_tiles 17914
+cache_cap 35828 | occupancy 22577 | recomputes 22577 | evictions 0
+cache_policy derived-rail-2x-footprint
+timer_1ms_granted true | focus_foreground true | focus_frames 1145/1145 | xinput_loaded n/a | pad_connected n/a
+frames 1145 | late_over_1ms 0 | seg 120
+late_ns p50 0 p95 0 p99 0
+seg 0 n 120 raster_ns 3916400 4043200 4810400 present_ns 172800 269300 1704000 late 0
+seg 1 n 120 raster_ns 3919900 4043700 4773100 present_ns 194800 265500 1734600 late 0
+seg 2 n 120 raster_ns 3922100 4240700 6942900 present_ns 181700 267800 1864400 late 0
+seg 3 n 120 raster_ns 4301200 4467800 6918100 present_ns 183700 264300 1475600 late 0
+seg 4 n 120 raster_ns 3722300 4321800 5625300 present_ns 181400 268600 1815800 late 0
+seg 5 n 120 raster_ns 4029900 4428300 6985400 present_ns 185300 268200 1550600 late 0
+seg 6 n 120 raster_ns 4236800 4389900 6576800 present_ns 186600 262900 1941900 late 0
+seg 7 n 120 raster_ns 4272200 4951100 7498900 present_ns 183400 246300 1662400 late 0
+seg 8 n 120 raster_ns 4875100 5120100 7822300 present_ns 172400 248700 1748000 late 0
+seg 9 n 65 raster_ns 5019000 5198000 6027700 present_ns 176800 224800 1398700 late 0
+digest frame 59 fnv64 e82aab0483f4d598
+digest frame 119 fnv64 c16be073bfb70840
+digest frame 179 fnv64 e82aab0483f4d598
+digest frame 239 fnv64 df07054022ccfca7
+digest frame 299 fnv64 446267a59c2f8537
+digest frame 359 fnv64 165a85e886503a59
+digest frame 419 fnv64 57cd2a8be99e4d7f
+digest frame 479 fnv64 a90448d0f80b2f35
+digest frame 539 fnv64 66163ffcf6e335d4
+digest frame 599 fnv64 fae3b223f8bff2c3
+digest frame 659 fnv64 9710216a3a9d64cd
+digest frame 719 fnv64 edbf8b6eb00e945d
+digest frame 779 fnv64 f07c58418f64bb6b
+digest frame 839 fnv64 9ff6280ff4960740
+digest frame 899 fnv64 483b077c3e147cda
+digest frame 959 fnv64 02a6187b341be9f8
+digest frame 1019 fnv64 80da988ddf0e09d0
+digest frame 1079 fnv64 beb53bd65a7755f5
+digest frame 1139 fnv64 84f2d6254bc3e3b3
+digest frame 1144 fnv64 32d5f1077251eee6
