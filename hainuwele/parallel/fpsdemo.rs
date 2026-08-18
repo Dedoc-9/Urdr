@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.13).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.13.2).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -2160,6 +2160,7 @@ fn main() {
     let mut av_state: usize = 0;
     let mut av_start: u32 = 0;
     let mut av_m: [i64; 9] = [0; 9];
+    let mut focus_frames: u32 = 0;                 // v1.13.2: focus as a COUNT, not a guess
     const AV_BOOM8: i64 = 12 * 256;                // the boom: 12 units behind (the 28-degree
                                                    // vertical FOV makes a near boom a face full
                                                    // of cloak; 12 units frames the wanderer)
@@ -2307,6 +2308,14 @@ fn main() {
 
         seg_raster[seg_idx].push(ticks_to_ns(t_pixels - t_view, freq));
         seg_present[seg_idx].push(ticks_to_ns(t_present - t_pixels, freq));
+        // v1.13.2: A CONDITION SAMPLED ONCE IS AN ASSUMPTION THAT IT HELD THROUGHOUT. The
+        // named host's composition run reported focus_foreground false from a single
+        // start-of-run sample, which cannot say whether the window lacked focus for one
+        // frame or for all of them — and a background window is scheduled differently, so
+        // the cost record's conditions were unknown exactly where they mattered most.
+        // Focus is still a REPORTED CONDITION, never a dependency (L83 stands): it is now
+        // reported as a COUNT. Sampled here, outside both timed windows.
+        if unsafe { GetForegroundWindow() } == hwnd { focus_frames += 1 }
 
         // THE DIGEST CHAIN (replay only): byte-identity, checked not hoped. In defect mode a COPY
         // carries one flipped byte from PLANT_FRAME on — clean and planted chains must match
@@ -2342,7 +2351,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.13 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.13.2 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -2356,7 +2365,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.13 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.13.2 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | sky {} | third {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
@@ -2372,10 +2381,10 @@ reach {} | sky {} | third {} | qpf {}\n",
                               lodw.evictions));
         log.push_str(&format!("cache_policy {}\n", cache_policy));
     }
-    log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | xinput_loaded {} | \
-pad_connected {}
+    log.push_str(&format!("timer_1ms_granted {} | focus_foreground {} | focus_frames {}/{} | \
+xinput_loaded {} | pad_connected {}
 ",
-                          timer_1ms_granted, focus_foreground,
+                          timer_1ms_granted, focus_foreground, focus_frames, frame,
                           if args.play { if xi_get.is_some() { "true" } else { "false" } }
                           else { "n/a" },
                           if args.play { if pad_seen { "true" } else { "false" } }
