@@ -369,6 +369,31 @@ measured on the named host by replay A/B over a committed operator walk, castle 
 castle on, at the frozen defaults and at the vista reach — the numbers land when the pairs
 close, not before.
 
+v1.15 — THE MEASUREMENT ADMISSION CONTRACT, and it exists because a truncated replay looked
+exactly like a finished one. One run consumed 2479 of its trace's 2564 frames and printed a
+record identical in shape to a complete measurement — same header, same segments, same digest
+section, no marker anywhere — and it was caught only because three runs happened to be compared
+by hand. THE RULER WAS ALSO WRONG: `expected` used to be the number of rows the file happened to
+contain, so a damaged trace shrank the ruler to fit the workload and the run reported complete.
+The recorder now writes `# frames N` and the loader takes `expected` from that declaration,
+refusing a trace whose declaration disagrees with its rows as a FORMAT failure rather than a
+short replay; the loader already skipped `#` lines, so every older trace still loads, as
+LEGACY, which the record then states. Each run emits `measurement_class`, `replay_trace ...
+bytes <sha>` (PROVENANCE — which artifact), `replay_workload sha256 <sha>` (IDENTITY — which
+motion, over the canonical rows, so line endings cannot move it), `replay_declared`,
+`replay_frames n/expected`, `replay_focus n/n` and `replay_status`, which is the CONJUNCTION of
+every condition its class declares — never one boolean, because a door that checked frames alone
+would be the same mistake wearing a new name. `play` carries no completeness verdict at all: a
+play run produces a trace rather than a measurement, and its last frame losing focus as the
+window closes is benign. THE INSTRUMENT REPORTS AND THE GATE ADJUDICATES: `admit` recomputes
+these predicates from the record's own fields, and a disagreement between the printed verdict
+and the recomputed one is its own failure — the case where both halves are green and the pair is
+lying. DECLARED: the render path is UNTOUCHED, so every v1.14 digest chain stands; the ground
+hole under the camera (a whole-quad discard at the near plane, not a clip) is NOT fixed here and
+is named as the next rung; and movement remains frame-coupled by design — the frame is the tick,
+so world speed falls with frame rate, and the accumulator that would smooth it consumes
+wall-clock into simulated state, which replay does not survive.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

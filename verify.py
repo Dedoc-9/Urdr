@@ -239,6 +239,7 @@ STAGE_ORDER = (
     "worldbind",
     "worldgeom",
     "versionarc",
+    "admit",
     "rollbench",
     "reachable",
     "retire",
@@ -19024,6 +19025,85 @@ class Gate:
                     "CLEAN it could claim by asking nothing (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def admit(self):
+        """THE INSTRUMENT REPORTS; THE GATE ADJUDICATES (URDRADM1). Rows: corpus (every committed
+        record adjudicated from its own bytes), verdict (recomputation, the class table and the
+        finite version exemption), selftest (the plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import admit as AD
+        except Exception as exc:
+            for r in ("corpus", "verdict", "selftest"):
+                self.record(f"admit-{r}", False, f"import failed (admit): {exc}")
+            return
+        c_ok, told = True, "?"
+        try:
+            told = AD.told()
+            c_ok = (AD.no_committed_record_is_refused()
+                    and AD.scene_result("verdicts") == AD.golden("verdicts"))
+        except Exception:
+            c_ok = False
+        self.record("admit-corpus", c_ok,
+                    "EVERY COMMITTED RECORD ADJUDICATED FROM ITS OWN BYTES — %s. A replay that "
+                    "ended early looked exactly like a replay that ended: one run consumed 2479 "
+                    "of its trace's 2564 frames and printed a record identical in shape to a "
+                    "complete measurement, caught only because three runs were compared BY HAND. "
+                    "That is L85 one level up — a run ASSUMED COMPLETE is the same mistake about "
+                    "the whole run. THE RULER WAS WRONG UNDERNEATH IT: `expected` was the count "
+                    "of rows the file happened to hold, so a damaged trace shrank the ruler to "
+                    "fit the workload; v1.15 traces DECLARE their length and a declaration that "
+                    "disagrees with its rows refuses as a FORMAT failure, never as a short "
+                    "replay. The pin hashes the VERDICT SET rather than the counts, so ordinary "
+                    "commits under spec/attest/ do not drag a re-pin while the first record of a "
+                    "new KIND does" % told if c_ok else "a committed record is refused: " + told)
+        v_ok = True
+        try:
+            v_ok = (AD.a_lying_verdict_is_caught()
+                    and AD.a_truncated_replay_is_rejected()
+                    and AD.a_lost_focus_frame_is_rejected()
+                    and AD.a_complete_run_is_admitted()
+                    and AD.the_class_table_is_not_vacuous()
+                    and AD.the_boundary_is_load_bearing()
+                    and AD.the_exemption_is_finite_and_counted()
+                    and AD.the_version_extractor_is_imported())
+        except Exception:
+            v_ok = False
+        self.record("admit-verdict", v_ok,
+                    "THE PRODUCER PRINTS A VERDICT AND THIS READER RECOMPUTES IT, so DISAGREEMENT "
+                    "is a THIRD outcome and the serious one: it fires when the two "
+                    "implementations of one contract have drifted, the failure where both halves "
+                    "are individually green and the pair is lying. A reader that merely confirmed "
+                    "the string COMPLETE was present would have rebuilt the original defect one "
+                    "layer up and certified it. THE STATUS IS A CONJUNCTION over the conditions "
+                    "the measurement CLASS declares — frames and focus for `replay`, NONE for "
+                    "`play`, because a play run yields a trace rather than a measurement and its "
+                    "last frame losing focus as the window closes is benign; a door firing on "
+                    "every honest session is the warning nobody reads. THE EXEMPTION IS FINITE "
+                    "AND NAMED: records stamped below the introduction version are admitted BY "
+                    "VERSION (probelog's precedent) and COUNTED, so the boundary can be retired "
+                    "at zero instead of outliving its reason (L68) — and the version extractor "
+                    "is IMPORTED from versionarc, because a second private copy is how two "
+                    "parsers drift while both keep parsing"
+                    if v_ok else "the recomputation, the class table or the boundary failed")
+        s_ok = True
+        try:
+            s_ok = (AD.a_current_record_without_the_contract_refuses()
+                    and AD.a_legacy_record_is_exempt_by_version()
+                    and AD.a_play_record_carries_no_completeness_verdict())
+        except Exception:
+            s_ok = False
+        self.record("admit-selftest", s_ok,
+                    "the plants bite: a truncated replay REJECTED, a lost focus frame REJECTED, "
+                    "a truncated replay wearing COMPLETE caught as DISAGREEMENT (both "
+                    "directions — a clean run mislabelled INCOMPLETE is the same drift with the "
+                    "sign flipped), a current record that simply omits the contract refused "
+                    "rather than admitted, every contract field proven load-bearing by dropping "
+                    "each in turn, a pre-contract record exempt BY VERSION with a reason, and a "
+                    "play record carrying no completeness verdict at all (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22661,7 +22741,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

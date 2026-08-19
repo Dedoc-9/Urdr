@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.14).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.15).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -1939,7 +1939,7 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
         let d8 = ry.max(NEAR8);
         (cx + rx * f / d8, cy - rz * f / d8, if ry < NEAR8 { -1 } else { d8 })
     };
-    let mut tri = |buf: &mut [u32], zbuf: &mut [i32],
+    let tri = |buf: &mut [u32], zbuf: &mut [i32],
                    a: (i64, i64, i64), b: (i64, i64, i64), c: (i64, i64, i64), col: u32| {
         if a.2 < 0 || b.2 < 0 || c.2 < 0 { return }
         let (mut b, mut c) = (b, c);
@@ -2076,19 +2076,72 @@ refuses a reach it cannot derive a ladder for", a.reach));
     Ok(a)
 }
 
-fn load_trace(path: &str) -> Result<Vec<(u32, i64, i64)>, String> {
-    let text = std::fs::read_to_string(path).map_err(|e| format!("trace {path}: {e}"))?;
-    let mut out = Vec::new();
+// v1.15 — THE TRACE DECLARES ITS OWN LENGTH, AND THE TWO IDENTITIES ARE SEPARATE.
+//
+// THE NEUTRAL RULER. Until now `expected` was the number of rows the file happened to contain,
+// so `consumed == expected` established only that the program consumed everything a DAMAGED
+// trace held. A partial write or an interrupted copy shrank the ruler to match the workload and
+// the run reported complete. The ruler may not be derived from the thing it measures, so the
+// recorder writes `# frames N` and the loader takes `expected` from that declaration. The
+// loader already skipped `#` lines, so every trace written before this version still loads —
+// as LEGACY, carrying no declaration, which is a fact the record then states rather than hides.
+//
+// TWO DIGESTS, TWO MEANINGS, AND THE SPLIT IS `worldbind`'s (S19). `bytes` is PROVENANCE: which
+// artifact was this. `workload` is IDENTITY: which motion is this — taken over the canonical
+// rows, so comments, blank lines, whitespace and platform line endings cannot move it. An A/B
+// compares WORKLOAD, because a line-ending change is not a different walk; `bytes` stays because
+// a pair that agrees on the walk and disagrees on the file is a different situation from one
+// that agrees on both, and a reader who cannot tell them apart is reading a weaker record.
+//
+// AND THE SEMANTIC DIGEST COMES FROM THE SAME PARSE THAT FEEDS THE REPLAY. A second parse would
+// be a second interpretation of the trace, and the digest would then identify the workload some
+// other reader saw rather than the one this program loaded.
+struct TraceIn {
+    rows: Vec<(u32, i64, i64)>,
+    declared: Option<usize>,
+    bytes_hex: String,
+    workload_hex: String,
+}
+
+fn load_trace(path: &str) -> Result<TraceIn, String> {
+    let raw = std::fs::read(path).map_err(|e| format!("trace {path}: {e}"))?;
+    let bytes_hex = sha256_hex(&raw);
+    let text = String::from_utf8(raw).map_err(|_| format!("trace {path}: not UTF-8"))?;
+    let mut rows = Vec::new();
+    let mut declared: Option<usize> = None;
     for (ln_no, ln) in text.lines().enumerate() {
-        if ln.starts_with('#') || ln.trim().is_empty() { continue }
-        let p: Vec<&str> = ln.split_whitespace().collect();
+        let s = ln.trim();
+        if s.is_empty() { continue }
+        if let Some(rest) = s.strip_prefix("# frames ") {
+            if declared.is_some() {
+                return Err(format!("trace {path}: two `# frames` declarations"))
+            }
+            declared = Some(rest.trim().parse()
+                .map_err(|_| format!("trace {path}: `# frames` wants an integer"))?);
+            continue
+        }
+        if s.starts_with('#') { continue }
+        let p: Vec<&str> = s.split_whitespace().collect();
         if p.len() != 3 { return Err(format!("trace line {}: wants `keys dx dy`", ln_no + 1)) }
-        out.push((p[0].parse().map_err(|_| "keys")?,
-                  p[1].parse().map_err(|_| "dx")?,
-                  p[2].parse().map_err(|_| "dy")?));
+        rows.push((p[0].parse().map_err(|_| "keys")?,
+                   p[1].parse().map_err(|_| "dx")?,
+                   p[2].parse().map_err(|_| "dy")?));
     }
-    if out.is_empty() { return Err("trace is empty — nothing to replay".into()) }
-    Ok(out)
+    if rows.is_empty() { return Err("trace is empty — nothing to replay".into()) }
+    if let Some(n) = declared {
+        if n != rows.len() {
+            // A FORMAT FAILURE, NEVER A SHORT REPLAY. A trace that disagrees with itself cannot
+            // be measured against, so it refuses here rather than producing a record that would
+            // have to be adjudicated later.
+            return Err(format!("trace {path}: declares {n} frames and carries {} — a declared \
+                                length that disagrees with its rows is a FORMAT failure",
+                               rows.len()))
+        }
+    }
+    let mut canon = String::new();
+    for (k, dx, dy) in &rows { canon.push_str(&format!("{} {} {}\n", k, dx, dy)); }
+    let workload_hex = sha256_hex(canon.as_bytes());
+    Ok(TraceIn { rows, declared, bytes_hex, workload_hex })
 }
 
 fn main() {
@@ -2113,7 +2166,9 @@ fn main() {
                   URDRHF1's canon, bit for bit");
         return;
     }
-    let trace_in = if args.replay.is_empty() { Vec::new() }
+    let trace_in = if args.replay.is_empty() {
+                       TraceIn { rows: Vec::new(), declared: None,
+                                 bytes_hex: String::new(), workload_hex: String::new() } }
                    else { match load_trace(&args.replay) {
                        Ok(t) => t,
                        Err(e) => { eprintln!("FPSDEMO-REFUSE: {e}"); std::process::exit(2) } } };
@@ -2126,7 +2181,7 @@ fn main() {
                    --trace-out <fresh name> or move the old record first", args.trace_out);
         std::process::exit(2);
     }
-    let total_frames = if args.play { args.frames } else { trace_in.len() as u32 };
+    let total_frames = if args.play { args.frames } else { trace_in.rows.len() as u32 };
 
     let mut freq = 0i64;
     unsafe { QueryPerformanceFrequency(&mut freq) };
@@ -2367,7 +2422,7 @@ fn main() {
             trace_rec.push((k, mdx, mdy));
             (k, mdx, mdy)
         } else {
-            trace_in[frame as usize]
+            trace_in.rows[frame as usize]
         };
 
         let _t0 = qpc();
@@ -2509,8 +2564,11 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.14 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.15 input trace: keys dx dy (one line per frame)
 ");
+        // THE DECLARATION, written by the only party that knows the intended length.
+        t.push_str(&format!("# frames {}
+", trace_rec.len()));
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
 ", k, dx, dy));
@@ -2523,7 +2581,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.14 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.15 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | sky {} | third {} | castle {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
@@ -2550,6 +2608,54 @@ focus_wait_ms {} | xinput_loaded {} | pad_connected {}
                           else { "n/a" },
                           if args.play { if pad_seen { "true" } else { "false" } }
                           else { "n/a" }));
+
+    // v1.15 — THE MEASUREMENT ADMISSION CONTRACT. `COMPLETE` means EVERY condition this
+    // measurement class declares has passed; it does not mean the program reached the end of
+    // its input. A truncated replay used to print a record indistinguishable in shape from a
+    // finished one, and the only reason one was ever caught is that three runs were compared by
+    // hand. The conditions are emitted individually so a future one is a NAMED PREDICATE rather
+    // than another ad-hoc boolean, and the status is their conjunction.
+    //
+    // THE CLASS DECIDES WHAT COUNTS AS VALID, so this is a declaration and not an `if` ladder
+    // waiting to grow. `replay` requires strict frame equality and strict focus equality — a
+    // frame drawn to a window without the foreground is a measurement nobody was watching.
+    // `play` carries NO completeness verdict at all, because a play run produces a TRACE rather
+    // than a measurement and its final frame losing focus as the window closes is benign; a
+    // door that fired on almost every honest session is the warning nobody reads.
+    //
+    // THE INSTRUMENT REPORTS; THE GATE ADJUDICATES. The reader recomputes these predicates from
+    // the record's own fields and compares them to the status printed here. Agreement admits or
+    // rejects; DISAGREEMENT is a third and more serious outcome, because it means this contract
+    // and the reader's have drifted apart — the failure where both halves are individually green
+    // and the pair is lying.
+    log.push_str(&format!("measurement_class {}
+",
+                          if args.play { "play" } else { "replay" }));
+    if !args.replay.is_empty() {
+        let expected = trace_in.declared.unwrap_or(trace_in.rows.len());
+        let frames_ok = frame as usize == expected;
+        let focus_ok = focus_frames == frame;
+        let mut missed: Vec<&str> = Vec::new();
+        if !frames_ok { missed.push("frames") }
+        if !focus_ok { missed.push("focus") }
+        log.push_str(&format!("replay_trace {} bytes {}
+", args.replay, trace_in.bytes_hex));
+        log.push_str(&format!("replay_workload sha256 {}
+", trace_in.workload_hex));
+        log.push_str(&format!("replay_declared {}
+",
+                              match trace_in.declared {
+                                  Some(n) => n.to_string(),
+                                  None => "legacy".to_string() }));
+        log.push_str(&format!("replay_frames {}/{}
+", frame, expected));
+        log.push_str(&format!("replay_focus {}/{}
+", focus_frames, frame));
+        log.push_str(&format!("replay_status {}
+",
+                              if missed.is_empty() { "COMPLETE".to_string() }
+                              else { format!("INCOMPLETE ({})", missed.join(", ")) }));
+    }
     log.push_str(&format!("frames {} | late_over_1ms {} | seg {}
 ", late_ns.len(), late_over, seg));
     log.push_str(&format!("late_ns p50 {} p95 {} p99 {}

@@ -1,0 +1,18 @@
+# URDRADM1 conformance goldens — emitted by admit.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the completeness-introduction version, the measurement-class table with the
+# conditions each class declares, and the SET of verdicts the committed corpus produces. Every
+# verdict is DERIVED from each record's own bytes at claim time (L75) — nothing is listed.
+#
+# WHAT MOVES THIS PIN. The scene hashes the verdict SET, never the counts. Counts move on every
+# commit under spec/attest/, which would make this pin a tax on unrelated rungs and then noise.
+# The set moves only when the corpus acquires a KIND of record it did not have — the first one
+# written under the contract, or the first refusal of any sort — and those are precisely the
+# moments a human should be made to look. Changing COMPLETENESS_INTRO or the class table also
+# moves it, because both are the contract itself.
+#
+# does_not_show: that an ADMITTED record's NUMBERS are right, that its declared host, power or
+# scheduler are true, or that two admitted records measured the same workload (that is what
+# replay_workload is for, and comparing it is the caller's job) — only that a record states its
+# own completeness and that the statement survives recomputation. `admitted != correct`.
+verdicts c47cbf073a5f03edccbb770b876b614074d7ddcb820e65a36792fc61498f9577
