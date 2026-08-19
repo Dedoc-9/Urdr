@@ -237,6 +237,7 @@ STAGE_ORDER = (
     "rescell",
     "scenecost",
     "worldbind",
+    "worldgeom",
     "rollbench",
     "reachable",
     "retire",
@@ -18839,6 +18840,98 @@ class Gate:
                     "the contract are separate things (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def worldgeom(self):
+        """A CASTLE GENERATED FROM WHAT IT IS, ON GROUND IT DID NOT CHOOSE (URDRWGM1). Rows:
+        castle (the authored parts, the generated prisms, the committed record), ground (the
+        support law and the declared overhang), selftest (nine plants)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import worldgeom as WG
+        except Exception as exc:
+            for r in ("castle", "ground", "selftest"):
+                self.record(f"worldgeom-{r}", False, f"import failed (worldgeom): {exc}")
+            return
+        c_ok, told = True, "?"
+        try:
+            g = WG.generate()
+            kinds = {}
+            for pr in g["built"]["prisms"]:
+                kinds[pr["kind"]] = kinds.get(pr["kind"], 0) + 1
+            told = (f"{g['spec']['world']}: {len(g['spec']['parts'])} authored parts -> "
+                    f"{len(g['built']['prisms'])} prisms (" +
+                    ", ".join(f"{k} {v}" for k, v in sorted(kinds.items())) + ")")
+            c_ok = (WG.generation_is_deterministic()
+                    and WG.the_committed_record_is_what_generation_produces()
+                    and WG.the_octagon_is_integer_and_convex()
+                    and WG.scene_result("castle") == WG.golden("castle"))
+        except Exception:
+            c_ok = False
+        self.record("worldgeom-castle", c_ok,
+                    "AUTHORED AS WHAT ITS PARTS ARE, NEVER AS VERTICES — %s. A castle is "
+                    "declared as walls with spans and thicknesses, towers with radii, blocks "
+                    "with heights, and crenels as a flag; the mesh is DERIVED, so editing one "
+                    "height moves a hundred prisms and nobody edits a vertex. This carries "
+                    "weltwerk's own thesis (geometry is a downstream projection of the "
+                    "authored world) into a substrate that admits no float: every coordinate "
+                    "crosses worldbind's exact door, and towers are INTEGER OCTAGONS — a "
+                    "corner-cut square, declared as exactly that, because a REGULAR octagon "
+                    "has no exact integer realisation and dressing one as the other would be "
+                    "a claim the constructor cannot honour. Generation is deterministic, and "
+                    "THE COMMITTED RECORD IS RE-DERIVED: the bytes the runtime loads must be "
+                    "the bytes this generator emits, or the demo would draw a castle the gate "
+                    "never checked" % told
+                    if c_ok else f"the castle half did not hold ({told})")
+        g_ok, gtold = True, "?"
+        try:
+            g = WG.generate()
+            proj, flank = WG.towers_project(g["built"])
+            gtold = f"{proj}/{flank} flanking towers project; gate passage open"
+            g_ok = (WG.everything_is_supported(g["built"])
+                    and WG.every_part_reaches_its_height(g["built"])
+                    and proj == flank and flank > 0
+                    and WG.gate_passage_is_open(g["built"]))
+        except Exception:
+            g_ok = False
+        self.record("worldgeom-ground", g_ok,
+                    "EXTENT IS WHERE AUTHORED GEOMETRY AND CERTIFIED TERRAIN ACTUALLY COLLIDE "
+                    "— %s. A wall does not sit on a height, it crosses a slope, so every part "
+                    "is level along its length, footed below the LOWEST ground under its own "
+                    "footprint and standing its declared height above the HIGHEST. The law is "
+                    "SUPPORT rather than 'nothing floats', and that phrasing was earned: the "
+                    "first draft asserted no prism floats above the terrain, which is false of "
+                    "a merlon by design — a merlon stands on a wall. Stated as support, one "
+                    "inequality catches the floating wall AND the overhanging merlon. THE "
+                    "MACHICOLATION FORCED THE THIRD CASE: the law refused it before anyone "
+                    "declared it, which was right, because an overhang the authoring never "
+                    "claimed is indistinguishable from a mistake — so an overhang is admitted "
+                    "only when DECLARED and only when something actually carries it. And the "
+                    "military geometry is measured, not commented: every tower touching a "
+                    "curtain must project beyond it (that is the whole reason towers exist — "
+                    "shooting ALONG a wall, not only away from it), and the gate passage is "
+                    "clear because nothing was generated there rather than because something "
+                    "was subtracted" % gtold
+                    if g_ok else f"the ground half did not hold ({gtold})")
+        s_ok = True
+        try:
+            s_ok = (WG.a_floating_wall_is_caught() and WG.an_overhanging_merlon_is_caught()
+                    and WG.an_undeclared_overhang_is_caught()
+                    and WG.an_uncarried_overhang_is_caught()
+                    and WG.a_swallowed_wall_is_caught() and WG.a_hidden_tower_is_caught()
+                    and WG.a_blocked_gate_is_caught() and WG.an_unknown_key_refuses()
+                    and WG.a_concave_plan_refuses())
+        except Exception:
+            s_ok = False
+        self.record("worldgeom-selftest", s_ok,
+                    "nine plants bite: a wall lifted off its footing, a merlon slid off the "
+                    "wall that carries it, an overhang stripped of its declaration, a declared "
+                    "overhang floated clear of its corbel, a part swallowed by the slope it "
+                    "crosses, every flanking tower pulled back inside its own curtain, a "
+                    "plugged gate passage, a geometry typo that must not pass as a relation, "
+                    "and a concave plan the rasteriser may not assume away (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22476,7 +22569,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

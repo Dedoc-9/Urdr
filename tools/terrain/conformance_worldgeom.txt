@@ -1,0 +1,15 @@
+# URDRWGM1 conformance goldens — emitted by worldgeom.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the authored corpus pin (world-castle.wrk) and the generated record pin
+# (castle-geometry.txt, sha256 9d7ab0bcb124831d84ec17c2477248cdece159ab03080ab46d47c2c90918f66e); the declared frames and archetypes; the integer octagon
+# (a corner-cut square, NOT a regular octagon — a regular one has no exact integer
+# realisation); the merlon/crenel width; the footing embed. Every prism, support verdict,
+# projection count and digest is DERIVED from those bytes at claim time (L75). The exact
+# doors and the canon's ground arrive through worldbind — imported, never copied.
+#
+# does_not_show: terrain modification (the canon is immutable — no ditch, no motte; that is
+# terraform's and is not claimed); collision, contact or climbability; interiors, floors,
+# stairs or roofs; materials or lighting; the causal ANALYSIS of the authored relations
+# (weltwerk's lint owns it — relations ride as data); rendering cost (the runtime's adoption
+# is its own rung with its own before/after).
+castle 03ed856ca120b359c5d028e32c944f53dba5bdc82763901739d0a6bf35cfaf73

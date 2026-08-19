@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.13.3).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.14).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -1894,11 +1894,112 @@ fn draw_avatar(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
     }
 }
 
+// ---- v1.14: the castle (worldgeom's record, drawn) --------------------------------------------
+// A committed geometry record produced by tools/terrain/worldgeom.py from an authored .wrk —
+// authored as WHAT ITS PARTS ARE (walls, towers, blocks with spans, heights, crenels), never as
+// vertices, and generated onto the same certified ground this renderer draws. The record is
+// runtime-frame Q8 convex plan prisms; this reads them and rasters top faces and side quads
+// through the SAME projection, edge functions and z-buffer the terrain uses, so a castle
+// occupies pixels by winning depth like everything else. --castle is OFF by default and every
+// committed chain stands untouched.
+struct Prism { poly: Vec<(i64, i64)>, zb: i64, zt: i64, color: u32 }
+
+fn load_castle(path: &str) -> Result<Vec<Prism>, String> {
+    let text = std::fs::read_to_string(path).map_err(|e| format!("--castle: {e}"))?;
+    let mut out = Vec::new();
+    for ln in text.lines() {
+        if ln.starts_with('#') || ln.trim().is_empty() { continue }
+        let p: Vec<&str> = ln.split_whitespace().collect();
+        if p.len() < 6 || p[0] != "prism" { return Err("castle record line malformed".into()) }
+        let color = u32::from_str_radix(p[2], 16).map_err(|_| "castle: colour")?;
+        let zb: i64 = p[3].parse().map_err(|_| "castle: zb")?;
+        let zt: i64 = p[4].parse().map_err(|_| "castle: zt")?;
+        let n: usize = p[5].parse().map_err(|_| "castle: n")?;
+        if p.len() != 6 + 2 * n { return Err("castle: vertex count disagrees".into()) }
+        let mut poly = Vec::with_capacity(n);
+        for i in 0..n {
+            poly.push((p[6 + 2 * i].parse().map_err(|_| "castle: x")?,
+                       p[7 + 2 * i].parse().map_err(|_| "castle: y")?));
+        }
+        out.push(Prism { poly, zb, zt, color });
+    }
+    if out.is_empty() { return Err("castle record has no prisms".into()) }
+    Ok(out)
+}
+
+fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
+               eye: (i64, i64, i64), prisms: &[Prism], farq: i64) {
+    let f = h as i64 * 2;
+    let (cx, cy) = (w as i64 / 2, h as i64 / 2);
+    let project = |p: (i64, i64, i64)| -> (i64, i64, i64) {
+        let (dx, dy, dz) = (p.0 - eye.0, p.1 - eye.1, p.2 - eye.2);
+        let rx = (m[0] * dx + m[1] * dy + m[2] * dz) >> 16;
+        let ry = (m[3] * dx + m[4] * dy + m[5] * dz) >> 16;
+        let rz = (m[6] * dx + m[7] * dy + m[8] * dz) >> 16;
+        let d8 = ry.max(NEAR8);
+        (cx + rx * f / d8, cy - rz * f / d8, if ry < NEAR8 { -1 } else { d8 })
+    };
+    let mut tri = |buf: &mut [u32], zbuf: &mut [i32],
+                   a: (i64, i64, i64), b: (i64, i64, i64), c: (i64, i64, i64), col: u32| {
+        if a.2 < 0 || b.2 < 0 || c.2 < 0 { return }
+        let (mut b, mut c) = (b, c);
+        let mut area = (b.0 - a.0) * (c.1 - a.1) - (b.1 - a.1) * (c.0 - a.0);
+        if area == 0 { return }
+        if area < 0 { std::mem::swap(&mut b, &mut c); area = -area }
+        let x_lo = a.0.min(b.0).min(c.0).max(0);
+        let x_hi = a.0.max(b.0).max(c.0).min(w as i64 - 1);
+        let y_lo = a.1.min(b.1).min(c.1).max(0);
+        let y_hi = a.1.max(b.1).max(c.1).min(h as i64 - 1);
+        if x_lo > x_hi || y_lo > y_hi { return }
+        let d3 = ((a.2 + b.2 + c.2) / 3).clamp(0, farq);
+        // the same depth fog the terrain wears, so distance reads the same on both
+        let dim = 14 + 18 * (farq - d3) / farq;
+        let ch3 = |near: i64, sky: i64| ((near * dim + sky * (32 - dim)) / 32) as u32;
+        let (tr, tg, tb) = (((col >> 16) & 255) as i64, ((col >> 8) & 255) as i64,
+                            (col & 255) as i64);
+        let cc = (ch3(tr, 60) << 16) | (ch3(tg, 120) << 8) | ch3(tb, 190);
+        for py in y_lo..=y_hi {
+            let row = (py * w as i64) as usize;
+            for px in x_lo..=x_hi {
+                let w0 = (b.0 - a.0) * (py - a.1) - (b.1 - a.1) * (px - a.0);
+                let w1 = (c.0 - b.0) * (py - b.1) - (c.1 - b.1) * (px - b.0);
+                let w2 = (a.0 - c.0) * (py - c.1) - (a.1 - c.1) * (px - c.0);
+                if w0 < 0 || w1 < 0 || w2 < 0 { continue }
+                let d = (a.2 * w1 + b.2 * w2 + c.2 * w0) / area;
+                let di = d.clamp(0, i32::MAX as i64) as i32;
+                let i = row + px as usize;
+                if di < zbuf[i] { zbuf[i] = di; buf[i] = cc }
+            }
+        }
+    };
+    for pr in prisms.iter() {
+        let n = pr.poly.len();
+        // sides
+        for i in 0..n {
+            let (ax, ay) = pr.poly[i];
+            let (bx, by) = pr.poly[(i + 1) % n];
+            let p0 = project((ax, ay, pr.zb));
+            let p1 = project((bx, by, pr.zb));
+            let p2 = project((bx, by, pr.zt));
+            let p3 = project((ax, ay, pr.zt));
+            tri(buf, zbuf, p0, p1, p2, pr.color);
+            tri(buf, zbuf, p0, p2, p3, pr.color);
+        }
+        // top face, fanned from vertex 0 (convex by the generator's own refusal)
+        let t0 = project((pr.poly[0].0, pr.poly[0].1, pr.zt));
+        for i in 1..n - 1 {
+            let t1 = project((pr.poly[i].0, pr.poly[i].1, pr.zt));
+            let t2 = project((pr.poly[i + 1].0, pr.poly[i + 1].1, pr.zt));
+            tri(buf, zbuf, t0, t1, t2, pr.color);
+        }
+    }
+}
+
 // ---- the entry door ---------------------------------------------------------------------------
 struct Args {
     host: String, power: String, scheduler: String, hz: i64, frames: u32,
     res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool, sky: bool,
-    third: bool, await_focus: bool,
+    third: bool, await_focus: bool, castle: String,
     trace_out: String, out: String, reach: i64, cache_cap: usize,
 }
 
@@ -1906,7 +2007,7 @@ fn parse_argv() -> Result<Args, String> {
     let mut a = Args { host: "-".into(), power: "-".into(), scheduler: "-".into(), hz: 120,
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
                        defect: false, selfcheck_only: false, sky: false, third: false,
-                       await_focus: false,
+                       await_focus: false, castle: String::new(),
                        trace_out: "fpsdemo_trace.txt".into(),
                        out: "fpsdemo_log.txt".into(), reach: 60, cache_cap: usize::MAX };
                        // reach 60: THE COMPETITIVE FREEZE (measured ceiling-clean at 120 Hz);
@@ -1940,6 +2041,7 @@ fn parse_argv() -> Result<Args, String> {
             "--sky" => a.sky = true,
             "--third" => a.third = true,
             "--await-focus" => a.await_focus = true,
+            "--castle" => a.castle = value(&mut i)?,
             "--reach" => {
                 a.reach = value(&mut i)?.parse().map_err(|_| "--reach: not an integer")?;
                 if !(8..=200_000).contains(&a.reach) {
@@ -2189,6 +2291,12 @@ fn main() {
     let mut av_state: usize = 0;
     let mut av_start: u32 = 0;
     let mut av_m: [i64; 9] = [0; 9];
+    let castle: Vec<Prism> = if args.castle.is_empty() { Vec::new() } else {
+        match load_castle(&args.castle) {
+            Ok(p) => { eprintln!("castle: {} prisms from {}", p.len(), args.castle); p }
+            Err(e) => { eprintln!("FPSDEMO-REFUSE: {e}"); std::process::exit(2) }
+        }
+    };
     let mut focus_frames: u32 = 0;                 // v1.13.2: focus as a COUNT, not a guess
     const AV_BOOM8: i64 = 12 * 256;                // the boom: 12 units behind (the 28-degree
                                                    // vertical FOV makes a near boom a face full
@@ -2308,6 +2416,27 @@ fn main() {
         } else {
             raster_rings(&mut fx_cam, &mut buf, &mut zbuf, cw, ch, &rcam, &mut lodw, &ladder);
         }
+        if !castle.is_empty() && !ladder.is_empty() {
+            let qcc = qconj(rcam.q);
+            let cbx = fx_cam.vrotate(qcc, V3 { x: ONE, y: 0, z: 0 });
+            let cby = fx_cam.vrotate(qcc, V3 { x: 0, y: ONE, z: 0 });
+            let cbz = fx_cam.vrotate(qcc, V3 { x: 0, y: 0, z: ONE });
+            let cm = [cbx.x >> 16, cby.x >> 16, cbz.x >> 16,
+                      cbx.y >> 16, cby.y >> 16, cbz.y >> 16,
+                      cbx.z >> 16, cby.z >> 16, cbz.z >> 16];
+            let ctx = floordiv(rcam.px >> 8, TILE);
+            let cty = floordiv(rcam.py >> 8, TILE);
+            let (crx8, cry8) = (rcam.px - ((ctx * TILE) << 8), rcam.py - ((cty * TILE) << 8));
+            let (cu, cv) = (crx8 / TILE, cry8 / TILE);
+            let (c00, c10) = (lodw.h(ctx, cty, 1) << 8, lodw.h(ctx + 1, cty, 1) << 8);
+            let (c01, c11) = (lodw.h(ctx, cty + 1, 1) << 8, lodw.h(ctx + 1, cty + 1, 1) << 8);
+            let cx0 = c00 + (c10 - c00) * cu / 256;
+            let cx1 = c01 + (c11 - c01) * cu / 256;
+            let ceye = cx0 + (cx1 - cx0) * cv / 256 + (3 << 8);
+            let reach = ladder[ladder.len() - 1].2;
+            draw_castle(&mut buf, &mut zbuf, cw, ch, &cm, (rcam.px, rcam.py, ceye),
+                        &castle, reach * TILE * 256);
+        }
         if args.third && !ladder.is_empty() {
             let t_q32 = fx_cam.rdiv((frame - av_start) as i128 * ONE as i128, 120);
             let (joints, _g8) = avatar_joints(&mut fx_cam, &mut lodw, &cam, &av_m,
@@ -2380,7 +2509,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.13.3 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.14 input trace: keys dx dy (one line per frame)
 ");
         for (k, dx, dy) in &trace_rec {
             t.push_str(&format!("{} {} {}
@@ -2394,12 +2523,14 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.13.3 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
-reach {} | sky {} | third {} | qpf {}\n",
+        "fpsdemo v1.14 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+reach {} | sky {} | third {} | castle {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
         if args.sky { "starfield" } else { "off" },
-        if args.third { "wanderer" } else { "off" }, freq));
+        if args.third { "wanderer" } else { "off" },
+        if castle.is_empty() { "off".to_string() } else { format!("{}", castle.len()) },
+        freq));
     if !ladder.is_empty() {
         for &(stride, inn, out) in &ladder {
             log.push_str(&format!("ring stride {} tiles {}..{}\n", stride, inn, out));

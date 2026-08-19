@@ -1,0 +1,270 @@
+# world-castle.wrk — Blackstone, authored as ENTITIES, never as vertices.
+#
+# The authoring thesis carried over from weltwerk: geometry is a downstream PROJECTION, so a
+# castle is declared as what its parts ARE and where they stand, and the mesh is generated from
+# that. Editing `height 4` moves a hundred prisms; nobody edits a vertex.
+#
+# Frame: author y-up, ground plane (x, z), one author unit = one tile = 3 world units. The
+# avatar is ~2.75 world units, so a 4-unit wall stands ~4.4 avatar-heights — a curtain wall, not
+# a garden fence. Approach is from the WEST (the spawn lies at the origin, the castle at x=18+).
+#
+# The military logic is real and it drives the geometry:
+#   * corner towers are centred ON the corner so they PROJECT beyond both wall faces — that is
+#     what lets a defender shoot along the wall instead of only away from it;
+#   * the gatehouse is twin-towered with a machicolated block that overhangs the passage, and a
+#     barbican funnels an attacker into it;
+#   * the keep stands at the FAR end from the gate, behind its own inner ward, and its entrance
+#     is a forebuilding rather than a door at ground level;
+#   * the postern is small, and on the far side from the gate.
+
+world "Blackstone"
+
+zone bailey
+zone gate_ward
+zone inner_ward
+
+# --- the outer curtain: four walls, level-topped, footed into whatever ground they cross ------
+entity curtain_west_south:
+  zone bailey
+  archetype wall
+  span 18 -14 18 -4
+  thickness 2
+  height 4
+  crenels yes
+  batter yes
+  protects bailey
+
+entity curtain_west_north:
+  zone bailey
+  archetype wall
+  span 18 4 18 14
+  thickness 2
+  height 4
+  crenels yes
+  batter yes
+  protects bailey
+
+entity curtain_south:
+  zone bailey
+  archetype wall
+  span 18 -14 42 -14
+  thickness 2
+  height 4
+  crenels yes
+  batter yes
+  protects bailey
+
+entity curtain_north:
+  zone bailey
+  archetype wall
+  span 18 14 36 14
+  thickness 2
+  height 4
+  crenels yes
+  batter yes
+  protects bailey
+
+entity curtain_north_postern:
+  zone bailey
+  archetype wall
+  span 40 14 42 14
+  thickness 2
+  height 4
+  crenels yes
+  batter yes
+  protects postern
+
+entity curtain_east:
+  zone bailey
+  archetype wall
+  span 42 -14 42 14
+  thickness 2
+  height 4
+  crenels yes
+  batter yes
+  protects bailey
+
+# --- corner towers: centred on the corner, so they project beyond both faces ------------------
+entity tower_sw:
+  zone bailey
+  archetype tower
+  position 18 0 -14
+  radius 3
+  height 6
+  crenels yes
+  flanks curtain_west_south
+
+entity tower_nw:
+  zone bailey
+  archetype tower
+  position 18 0 14
+  radius 3
+  height 6
+  crenels yes
+  flanks curtain_west_north
+
+entity tower_se:
+  zone bailey
+  archetype tower
+  position 42 0 -14
+  radius 3
+  height 6
+  crenels yes
+  flanks curtain_south
+
+entity tower_ne:
+  zone bailey
+  archetype tower
+  position 42 0 14
+  radius 3
+  height 6
+  crenels yes
+  flanks curtain_north
+
+# --- the gatehouse: twin D-towers, a machicolated overhang, a barbican funnel -----------------
+entity gate_tower_south:
+  zone gate_ward
+  archetype tower
+  position 18 0 -4
+  radius 3
+  height 7
+  crenels yes
+  flanks gate_passage
+
+entity gate_tower_north:
+  zone gate_ward
+  archetype tower
+  position 18 0 4
+  radius 3
+  height 7
+  crenels yes
+  flanks gate_passage
+
+entity gate_machicolation:
+  zone gate_ward
+  archetype block
+  span 16 -3 21 3
+  height 2
+  base 4
+  overhang yes
+  crenels yes
+  covers gate_passage
+
+entity barbican_south:
+  zone gate_ward
+  archetype wall
+  span 12 -6 16 -3
+  thickness 2
+  height 3
+  crenels yes
+  channels gate_passage
+
+entity barbican_north:
+  zone gate_ward
+  archetype wall
+  span 12 6 16 3
+  thickness 2
+  height 3
+  crenels yes
+  channels gate_passage
+
+# --- the inner ward: a lower wall, its own narrow gate, the keep behind it --------------------
+entity inner_wall_south:
+  zone inner_ward
+  archetype wall
+  span 30 -10 30 -1
+  thickness 2
+  height 3
+  crenels yes
+  protects keep
+
+entity inner_wall_north:
+  zone inner_ward
+  archetype wall
+  span 30 1 30 10
+  thickness 2
+  height 3
+  crenels yes
+  protects keep
+
+# --- the keep: farthest from the gate, entered through a forebuilding, turreted --------------
+entity keep:
+  zone inner_ward
+  archetype block
+  span 34 -5 40 5
+  height 8
+  depends_on well
+
+entity keep_forebuilding:
+  zone inner_ward
+  archetype block
+  span 31 -2 34 2
+  height 5
+  guards keep
+
+entity keep_turret_sw:
+  zone inner_ward
+  archetype tower
+  position 34 0 -5
+  radius 1
+  height 10
+  crenels yes
+
+entity keep_turret_nw:
+  zone inner_ward
+  archetype tower
+  position 34 0 5
+  radius 1
+  height 10
+  crenels yes
+
+entity keep_turret_se:
+  zone inner_ward
+  archetype tower
+  position 40 0 -5
+  radius 1
+  height 10
+  crenels yes
+
+entity keep_turret_ne:
+  zone inner_ward
+  archetype tower
+  position 40 0 5
+  radius 1
+  height 10
+  crenels yes
+
+# --- the bailey's buildings: the ordinary life the walls exist to protect ---------------------
+entity great_hall:
+  zone bailey
+  archetype block
+  span 22 -11 28 -5
+  height 3
+  feeds bailey
+
+entity chapel:
+  zone bailey
+  archetype block
+  span 22 5 26 9
+  height 3
+
+entity bell_tower:
+  zone bailey
+  archetype tower
+  position 25 0 7
+  radius 1
+  height 6
+  crenels yes
+
+entity stables:
+  zone bailey
+  archetype block
+  span 20 10 27 13
+  height 2
+
+entity well:
+  zone bailey
+  archetype tower
+  position 26 0 0
+  radius 1
+  height 1

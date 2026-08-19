@@ -44,6 +44,6 @@
 # The `plants` digest is UNCHANGED by that repair, which is the point: the five plants never read
 # git. Only `sweep` moves, because the module gained two callables and the floor counts them.
 
-sweep 84ac8b82a093ba8a1a0d64e5c5ca6a6a14c85ed80c579991ff5219300b74d400
+sweep 7c8537cbcfa2712fc57894136d9ed1c841b4d661357ece0b4dda7c3b482c4875
 plants c168fbb2ad07ddebc736e432c4ffb2101e82dc29ac3b9bc286b8cf5c9acfe277
-retire d13cbfd0a200cec7efeeeb8db9a4bd146265c3cd8c4acc54d71586d93a4f5417
+retire 1523a24e55c562d43b8cc7dba1c1dcdbbd1fbffe3685ecb29869345c3d7ea111
