@@ -328,6 +328,47 @@ bilinear ground); the boom is a fixed offset with no terrain avoidance, stated; 
 feature's price is the host's to measure, before/after at the frozen defaults, the way
 every visual feature is priced.
 
+v1.13.1 — PREFILL AT THE RENDER EYE, NOT THE AVATAR. The wanderer's first named-host runs
+reported recompute counts the authoring container could not reproduce from the same trace.
+The cause was in the START CONDITION, not the render path: `--third` moves input to the
+avatar while the renderer draws from an eye boomed twelve units behind it, and the prefill
+was warming the tiles around the AVATAR. The opening frames then recomputed a crescent the
+prefill had never touched, and that work landed inside frame statistics where it read as
+render cost. Prefill now runs at the render eye. DECLARED: this moved the boundary of the
+declared start condition; it did not change a pixel, and the chains stand.
+
+v1.13.2 — THE CONDITION THAT WAS SAMPLED ONCE. `focus_foreground` was read at one instant
+and printed as a boolean for the whole run, so a session the operator walked away from
+reported `focus_foreground true` while most of its frames were drawn to a window that no
+longer had the foreground — and the numbers derived from those frames were quietly a
+different measurement. Focus is now COUNTED: `focus_frames n/total`, sampled every frame.
+This is L85 in the instrument that forced it — *a condition sampled once is an assumption
+that it held throughout* — and it is the reason two provisional verdicts on the wanderer
+were retracted rather than published.
+
+v1.13.3 — `--await-focus`, BECAUSE COUNTING A LOSS DOES NOT PREVENT IT. The flag holds the
+loop before frame 1 until the window owns the foreground, then runs. The wait is BOUNDED at
+thirty seconds and REPORTED as `focus_wait_ms`, so the door can never hang a session and
+never hides how long it held. DECLARED, narrowly: it protects the START of a run and
+nothing else — an operator who alt-tabs at frame 900 still loses those frames, and
+`focus_frames` remains the only thing that says so.
+
+v1.14 — THE CASTLE, DRAWN. `--castle <record>` loads the geometry record `worldgeom`
+commits (28 authored parts derived to 238 prisms, on the same certified ground this
+renderer draws) and rasters those prisms through the SAME projection, edge functions,
+z-buffer and depth fog the terrain already uses — there is no second renderer, and no
+second arithmetic. THE IDENTITY CONTRACT HOLDS: with `--castle` absent the digest chain is
+byte-identical to v1.13's, so every sealed record stands; with it present, replay is
+deterministic (two runs at reach 120, forty-three checkpoints, one chain). DECLARED, and
+this is an absence rather than a defect: the castle is DRAWN and nothing more. No movement
+law consults the prism list, so the camera walks through walls exactly as it always has —
+the terrain is solid underfoot because the eye rides its bilinear ground, and nothing else
+in this world is solid at all. Binding authored geometry to a movement law is a rung with
+its own falsifiers, not a flag. And the feature's price is UNCLAIMED HERE: it is being
+measured on the named host by replay A/B over a committed operator walk, castle off against
+castle on, at the frozen defaults and at the vista reach — the numbers land when the pairs
+close, not before.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

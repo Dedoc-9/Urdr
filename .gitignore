@@ -26,3 +26,11 @@ _g*.log
 _g*.out
 gate*.log
 gate*.txt
+
+# Replay scratch at the repo root: the demo writes a trace and a log per run, and a
+# measurement series is a dozen of them. They are NOT repository content — a trace or a
+# log becomes content only when a rung PINS it under spec/attest/ and a gate stage
+# re-reads it, which is why these patterns are ROOT-ANCHORED and leave that path free.
+/walk_*.txt
+/ab_*.txt
+/r60_*.txt
