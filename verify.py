@@ -238,6 +238,7 @@ STAGE_ORDER = (
     "scenecost",
     "worldbind",
     "worldgeom",
+    "versionarc",
     "rollbench",
     "reachable",
     "retire",
@@ -18932,6 +18933,97 @@ class Gate:
                     "and a concave plan the rasteriser may not assume away (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def versionarc(self):
+        """A VERSION THAT STAMPS EVIDENCE MUST BE DOCUMENTED (URDRVRA1). Rows: evidence (every
+        version stamped on a committed record is named in its artifact's README section),
+        declared (the version the source's own title line declares, plus the clean control),
+        selftest (the plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import versionarc as VA
+        except Exception as exc:
+            for r in ("evidence", "declared", "selftest"):
+                self.record(f"versionarc-{r}", False, f"import failed (versionarc): {exc}")
+            return
+        e_ok, told = True, "?"
+        try:
+            rows = VA.audit()
+            told = VA.told(rows)
+            e_ok = (VA.every_required_version_is_documented()
+                    and VA.the_register_is_not_vacuous()
+                    and VA.every_entry_finds_its_section()
+                    and VA.the_verdict_is_a_pure_function_of_the_inputs()
+                    and VA.scene_result("arc") == VA.golden("arc"))
+        except Exception:
+            e_ok = False
+        self.record("versionarc-evidence", e_ok,
+                    "THE UNGATED CLASS'S FIRST DOOR, AND IT GATES THE EVIDENCE RATHER THAN THE "
+                    "ARTIFACT — %s. fpsdemo and present_probe are wall-clock class: no timing "
+                    "they produce may enter this gate, so neither carries a brief, so the "
+                    "brief/falsifier/index coupling that binds every gated module cannot reach "
+                    "them. That exemption was granted for BEHAVIOUR and silently became an "
+                    "exemption from DOCUMENTATION, under which four fpsdemo versions shipped "
+                    "with no paragraph while every gate run stayed green. Committed records "
+                    "STAMP the version that produced them and this gate re-reads those records, "
+                    "so a stamped version documented nowhere makes its own record unauditable — "
+                    "v1.13.2 stamped six of them. Every stamped version, scoped to the section "
+                    "that names its artifact's code, must appear in that section as ITSELF: "
+                    "token boundaries are the mechanism, because a substring test lets v1.14 "
+                    "satisfy v1.1 exactly where a missing version is most likely to be"
+                    % told if e_ok else "a required version is undocumented: " + told)
+        d_ok = True
+        try:
+            fps = [r for r in VA.audit() if r["name"] == "fpsdemo"][0]
+            d_ok = (VA.declared(VA.REGISTER[0]) is not None
+                    and VA.the_control_is_clean()
+                    and VA.an_unstamped_documented_version_is_not_a_defect()
+                    and fps["verdict"] == "CLEAN")
+        except Exception:
+            d_ok = False
+        self.record("versionarc-declared", d_ok,
+                    "TWO INDEPENDENT SOURCES OF OBLIGATION, AND A CONTROL THAT STAYS CLEAN. "
+                    "Evidence obliges (a stamp on a committed record) and so does the source's "
+                    "own title line — the version a reader meets next is exactly the one nobody "
+                    "has written up yet — and starving the corpus proves they are separate: "
+                    "with no records at all fpsdemo still owes its declared version while "
+                    "present_probe, which declares none, owes nothing and reports VACUOUS "
+                    "rather than CLEAN (L61). THE LAW IS ONE-DIRECTIONAL BY MEASUREMENT, not by "
+                    "preference: the converse verdict was drafted and the corpus refuted it, "
+                    "because the fpsdemo section documents v1.1 through v1.8 and evidence "
+                    "stamps almost none of them — a version can be superseded before anyone "
+                    "runs a measurement worth committing, and punishing that would redden the "
+                    "tree for its own thoroughness. present_probe is the register's control: "
+                    "four stamps, four named, CLEAN under the identical sweep, because a door "
+                    "that refuses everything it is pointed at has measured nothing"
+                    if d_ok else "the declared version or the control failed")
+        s_ok = True
+        try:
+            import tempfile as _tf, shutil as _sh
+            tmp = _tf.mkdtemp(dir=os.path.join(ROOT, "tools", "terrain"))
+            try:
+                rel = os.path.relpath(tmp, ROOT)
+                s_ok = (VA.an_undocumented_stamp_is_caught()
+                        and VA.a_prefix_match_does_not_count()
+                        and VA.a_longer_version_does_not_document_its_stem()
+                        and VA.a_real_token_is_still_found()
+                        and VA.a_missing_section_refuses()
+                        and VA.a_foreign_stamp_is_not_counted()
+                        and VA.an_empty_corpus_is_vacuous(rel))
+            finally:
+                _sh.rmtree(tmp)
+        except Exception:
+            s_ok = False
+        self.record("versionarc-selftest", s_ok,
+                    "seven plants bite: a stamped version with no paragraph, a prefix match "
+                    "(v1.14 offered as v1.1), a stem match (v1.13.2 offered as v1.13), a real "
+                    "token that must STILL be found so the strictness is not vacuous, a README "
+                    "with no section for a registered code, a foreign artifact's stamp read as "
+                    "this one's, and a starved corpus that must report VACUOUS rather than the "
+                    "CLEAN it could claim by asking nothing (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22569,7 +22661,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

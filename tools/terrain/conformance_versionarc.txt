@@ -1,0 +1,20 @@
+# URDRVRA1 conformance goldens — emitted by versionarc.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the register (two ungated wall-clock artifacts, their sources and their shared
+# README), the REQUIRED VERSION SET each artifact's evidence and title line oblige, and the
+# verdict each receives. Every required set is DERIVED from the committed corpus and the
+# sources at claim time (L75) — nothing here is a copied list.
+#
+# WHAT MOVES THIS PIN, AND WHAT DELIBERATELY DOES NOT. The scene hashes the required version
+# SET and the verdicts, never the record filenames. Committing another record under a version
+# already documented leaves this golden unmoved, so no attest rung drags a re-pin behind it and
+# the pin does not decay into noise. A record stamping a version the corpus has never carried
+# DOES move it, and that is the point: a new version cannot enter the evidence corpus silently,
+# because re-pinning by hand is where a human notices.
+#
+# does_not_show: that any paragraph is TRUE, current or useful — only that a version is not a
+# stranger to its own README (`documented != accurate`); the BEHAVIOUR of either artifact (both
+# are wall-clock class and remain deliberately ungated — this door gates their evidence, never
+# their timing); and any version named only in prose the artifact's own `## ` section does not
+# contain, which is invisible here by construction.
+arc 0ab9469a04742391a8f79a6810319fd24fa59ac653250c1c74aaabf42f4349cf
