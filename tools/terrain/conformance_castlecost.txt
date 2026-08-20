@@ -1,0 +1,19 @@
+# URDRCCS1 conformance goldens — emitted by castlecost.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the eight committed named-host records and their sha256s, the FROZEN read rule (the
+# segment set, the 120 Hz slot, the invariance band), the per-segment castle deltas at both
+# reaches, and the chain-identical segments the presence bound is taken over. Every figure is
+# DERIVED from those record bytes at claim time (L75) — no number is listed here.
+#
+# WHAT MOVES THIS PIN: any edit to any of the eight records, any change to the frozen read rule,
+# or any change in the derived deltas. That is the intent — the rule was frozen BEFORE the
+# reach-60 runs existed, and a pin that did not move when the rule moved would let the rule be
+# widened afterwards to fit the answer.
+#
+# does_not_show: any figure here as a property of the CASTLE rather than of this renderer at
+# this version — the near-plane repair will move every number in these files, and they will
+# remain valid records OF THAT RENDER PATH exactly as the v1.1–v1.5 chain records did. Not a
+# claim about other hosts (one named machine, power and scheduler declared), other resolutions
+# (720p), other castles, or other walks: the workload is ONE hand-flown approach, and a walk
+# that spent longer facing the gate would move every delta. `measured != general`.
+verdict b03ee9fd83b3c7104cf7219a9e333df8935b59c0e85e398a47db3c37de84320c

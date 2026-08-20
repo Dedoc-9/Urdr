@@ -240,6 +240,7 @@ STAGE_ORDER = (
     "worldgeom",
     "versionarc",
     "admit",
+    "castlecost",
     "rollbench",
     "reachable",
     "retire",
@@ -19104,6 +19105,89 @@ class Gate:
                     "play record carrying no completeness verdict at all (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def castlecost(self):
+        """THE CASTLE'S PRICE, AND THE SEPARATION THAT OUTLIVES IT (URDRCCS1). Rows: records (the
+        eight committed named-host runs, their completeness and one-variable separation),
+        separation (the frozen verdict, the reach-invariance and both controls), presence (the
+        digest chain used as a cost oracle)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import castlecost as CC
+        except Exception as exc:
+            for r in ("records", "separation", "presence"):
+                self.record(f"castlecost-{r}", False, f"import failed (castlecost): {exc}")
+            return
+        r_ok = True
+        try:
+            r_ok = (CC.every_run_is_complete()
+                    and CC.every_pair_is_chain_identical()
+                    and CC.the_arms_differ_in_exactly_one_declared_variable()
+                    and CC.the_exemption_is_the_reason_this_check_exists()
+                    and CC.the_trace_is_the_workload_both_arms_ran()
+                    and CC.scene_result("verdict") == CC.golden("verdict"))
+        except Exception:
+            r_ok = False
+        self.record("castlecost-records", r_ok,
+                    "EIGHT NAMED-HOST RUNS, FOUR PAIRS, ONE TRACE — and the pairs are what make "
+                    "any of it readable: each arm ran twice and its two digest chains are "
+                    "IDENTICAL, so a pair that disagreed did not render the same thing twice and "
+                    "the cost columns beside it would be describing two workloads. The arms "
+                    "differ in EXACTLY ONE declared variable, checked field by field (host, "
+                    "power, scheduler, hz, res, mode, reach, sky, third, version, frames all "
+                    "equal; castle 0 against 238). THESE RECORDS ARE THE REASON admit's "
+                    "EXEMPTION EXISTS — v1.14 produced them, before the completeness contract, "
+                    "so admit can only say LEGACY-ADMITTED and this rung PAYS FOR THAT BY HAND, "
+                    "re-deriving full frames, full focus and replay mode from the fields they do "
+                    "carry; the hand-check retires the day they are re-recorded under a build "
+                    "that emits the contract"
+                    if r_ok else "a record, a pair or the one-variable separation failed")
+        s_ok, told = True, "?"
+        try:
+            told = CC.told()
+            s_ok = (CC.the_castle_exceeds_the_slot_at_both_reaches()
+                    and CC.the_castle_delta_is_reach_invariant()
+                    and CC.the_terrain_side_did_get_cheaper()
+                    and CC.the_scene_without_the_castle_fits()
+                    and CC.a_segment_outside_the_frozen_set_is_not_consulted()
+                    and CC.a_swapped_arm_is_caught())
+        except Exception:
+            s_ok = False
+        self.record("castlecost-separation", s_ok,
+                    "WORLD REACH COST AND AUTHORED-GEOMETRY FILL COST ARE INDEPENDENT AXES — %s. "
+                    "The rule was FROZEN BEFORE the reach-60 runs existed, with its segment set "
+                    "named in advance, because a verdict assembled afterwards out of whichever "
+                    "cells agree is not a verdict: segment 15, where the operator had turned away "
+                    "and castle-on comfortably FITS, is exactly the cell a post-hoc rule would "
+                    "reach for, and it ships as a plant. TWO CONTROLS CARRY THE FINDING and "
+                    "without them the invariance is worthless — the terrain arm had to actually "
+                    "get cheaper (it fell 15-20%% across nearly every segment), or reach-"
+                    "invariance would mean only that the treatment did nothing; and the scene "
+                    "WITHOUT the castle had to fit the slot at the competitive reach, or the "
+                    "comparison would be between two failures" % told
+                    if s_ok else "the frozen verdict or a control failed: " + told)
+        p_ok = True
+        try:
+            p_ok = (CC.the_cost_is_fill_not_setup()
+                    and CC.a_presence_segment_is_not_a_content_segment()
+                    and CC.presence_floor("r120") > 0)
+        except Exception:
+            p_ok = False
+        self.record("castlecost-presence", p_ok,
+                    "THE DIGEST CHAIN AS A COST ORACLE, which this repository has only ever used "
+                    "for identity. Where the castle-off and castle-on runs of ONE trace produce "
+                    "IDENTICAL framebuffer digests the castle put nothing on screen, so the cost "
+                    "difference there is what the feature costs to HAVE rather than to SHOW — a "
+                    "partition that is free, because it reads digests the demo already emits. It "
+                    "puts the presence bound two orders of magnitude below the peak, which is "
+                    "what says the optimisation target is COVERAGE and not projection. STATED "
+                    "ONE-SIDEDLY, because that is all it earns: identical framebuffers prove the "
+                    "castle contributed nothing VISIBLE, not that it did no work — a prism "
+                    "z-rejected behind terrain costs time and changes nothing — so the figure is "
+                    "an UPPER BOUND, which is the useful direction (gate can redden)"
+                    if p_ok else "the presence oracle failed")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22741,7 +22825,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
