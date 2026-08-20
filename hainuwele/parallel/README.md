@@ -394,6 +394,34 @@ is named as the next rung; and movement remains frame-coupled by design — the 
 so world speed falls with frame rate, and the accumulator that would smooth it consumes
 wall-clock into simulated state, which replay does not survive.
 
+v1.16 — THE NEAR PLANE IS CLIPPED, NOT DISCARDED, and this one was reported by an operator
+walking rather than by an instrument. The eye stands three world units above bilinear ground and
+a tile is three units wide, so the quad the camera is standing on ALWAYS has a corner at
+near-zero forward depth — and the ring renderer rejected the whole quad on the first such corner.
+That is a permanent tile-sized hole underfoot: look down, or walk onto ground that rises close,
+and you see through the floor to the sky. Raising the eye cannot help, because a vertex directly
+beneath the camera has forward depth near zero at any height. The near plane is also the one
+plane a scanline rasteriser must genuinely clip against — side planes fall out of scanning
+screen space, but depth is interpolated rather than rasterised, so there is no screen-space dodge
+for this one. Sutherland-Hodgman against a SINGLE plane now runs in camera space before
+projection: a triangle becomes nothing, a triangle, or a quad, and only survivors divide. THE
+ROUNDING IS DECLARED AND IT IS FLOOR — the same rule `floordiv` states everywhere else — applied
+to the interpolation PRODUCT per component, with no parameter materialised, because an integer
+`t` would be 0 or 1 and would collapse the cut onto a vertex; the sign is normalised so
+`floordiv` is used inside the domain where it is correct, which is a latent trap now named at the
+helper itself. A SIXTH LAUNCH DOOR proves it on every start: wholly-in-front untouched,
+wholly-behind empty, one corner out yielding a quad with two vertices exactly on the plane, two
+corners out yielding a triangle, a swept check that nothing ever reaches the divide with a depth
+the projection cannot survive, and edge-reversal symmetry. A launch that fails it refuses to run,
+like every other certified path here. DECLARED, and narrowly: this repairs the RING renderer,
+which is every current operating point. The compat window (`--reach <= 24`) keeps the discard on
+purpose, because it holds the pinned v1.6 chains as the identity contract and moving them to fix
+a hole nobody meets there would cost more than it buys; `draw_castle` also still discards, so
+castle prisms can still vanish at arm's length, and that is the next increment rather than a
+silence. CHAINS MOVE, as they always have with the pixels: every committed chain record remains
+a valid record OF ITS OWN RENDER PATH, and `reachenv`'s cross-OS byte-identity is a statement
+about those RECORDS agreeing with each other, not about the build you are running today.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

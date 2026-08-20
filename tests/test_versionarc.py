@@ -44,7 +44,7 @@ class TheEvidenceSide(unittest.TestCase):
         self.assertTrue(V.a_foreign_stamp_is_not_counted())
 
     def test_the_declared_version_is_found(self):
-        self.assertEqual(V.declared(V.REGISTER[0]), "v1.15")
+        self.assertEqual(V.declared(V.REGISTER[0]), "v1.16")
 
     def test_an_artifact_without_a_declaration_contributes_none(self):
         # present_probe's title names its code without a version — a fact about its
@@ -94,10 +94,10 @@ class TheVerdict(unittest.TestCase):
     def test_the_door_bites_on_a_readme_missing_a_required_version(self):
         # THE DEFECT THIS DOOR WAS WRITTEN FOR, PLANTED: strip v1.14 from the section and
         # the verdict must turn. Proven against the real tree at 6d450cf before the repair.
-        rd = V._read(V.REGISTER[0]["readme"]).replace("v1.15", "vX", 1)
+        rd = V._read(V.REGISTER[0]["readme"]).replace("v1.16", "vX", 1)
         rows = [r for r in V.audit(readmes={"URDRFPD1": rd}) if r["name"] == "fpsdemo"]
         self.assertEqual(rows[0]["verdict"], "UNDOCUMENTED")
-        self.assertIn("v1.15", rows[0]["missing"])
+        self.assertIn("v1.16", rows[0]["missing"])
 
     def test_the_scene_matches_its_pinned_golden(self):
         self.assertEqual(V.scene_result("arc"), V.golden("arc"))

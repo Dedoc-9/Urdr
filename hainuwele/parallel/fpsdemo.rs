@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.15).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.16).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -950,8 +950,8 @@ fn raster_rings(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
                 let hb = lod.grids[ri].heights[gi(1, 0)];
                 let hc = lod.grids[ri].heights[gi(0, 1)];
                 let hd = lod.grids[ri].heights[gi(1, 1)];
-                let mut scr = [(0i64, 0i64, 0i64); 4];
-                let mut clipped = false;
+                let mut cam4 = [(0i64, 0i64, 0i64); 4];
+                let mut any_in = false;
                 for (i, (px_, py_, hh)) in [(wx, wy, ha), (wx + stride, wy, hb),
                                             (wx, wy + stride, hc),
                                             (wx + stride, wy + stride, hd)].iter().enumerate() {
@@ -963,10 +963,12 @@ fn raster_rings(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
                     let rx = (m[0] * vx + m[1] * vy + m[2] * vz) >> 16;
                     let d8 = (m[3] * vx + m[4] * vy + m[5] * vz) >> 16;
                     let rz = (m[6] * vx + m[7] * vy + m[8] * vz) >> 16;
-                    if d8 < NEAR8 { clipped = true; break }
-                    scr[i] = (cx + rx * f / d8, cy - rz * f / d8, d8);
+                    if d8 >= NEAR8 { any_in = true }
+                    cam4[i] = (rx, d8, rz);
                 }
-                if clipped { continue }
+                // A quad entirely behind the near plane still contributes nothing; a quad with
+                // ONE corner behind it now contributes the part in front, which is the repair.
+                if !any_in { continue }
                 let h4 = ha + hb + hc + hd;
                 let havg = h4 / 4;
                 let jit = ((wx.wrapping_mul(73) ^ wy.wrapping_mul(151)) & 7) - 3;
@@ -997,9 +999,25 @@ fn raster_rings(fx: &mut Fx, buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32,
                 let l1 = lam(st, 0, hb - ha, 0, st, hc - ha);
                 let l2 = lam(0, st, hd - hb, -st, 0, hc - hd);
                 let lit = |l: i64, c: i64| (c * (60 + 196 * l / 256) / 160).clamp(0, 255);
-                let tris = [(scr[0], scr[1], scr[2], (lit(l1, br), lit(l1, bg), lit(l1, bb))),
-                            (scr[1], scr[3], scr[2], (lit(l2, br), lit(l2, bg), lit(l2, bb)))];
-                for &(a0, b0, c0, (tr, tg, tb)) in &tris {
+                let camtris = [([cam4[0], cam4[1], cam4[2]],
+                                (lit(l1, br), lit(l1, bg), lit(l1, bb))),
+                               ([cam4[1], cam4[3], cam4[2]],
+                                (lit(l2, br), lit(l2, bg), lit(l2, bb)))];
+                // CLIP FIRST, PROJECT AFTER. A projected vertex behind the near plane is
+                // meaningless, so the cut happens in camera space and only survivors divide.
+                // Each source triangle yields 0, 1 or 2 output triangles: at most four.
+                let pj = |v: CamV| (cx + v.0 * f / v.1, cy - v.2 * f / v.1, v.1);
+                let z3 = (0i64, 0i64, 0i64);
+                let mut tris = [(z3, z3, z3, z3); 4];
+                let mut ntris = 0usize;
+                for (ct, tint) in camtris.iter() {
+                    let (cl, cn) = clip_near(ct);
+                    for k in 1..cn.max(1) - 1 {
+                        tris[ntris] = (pj(cl[0]), pj(cl[k]), pj(cl[k + 1]), *tint);
+                        ntris += 1;
+                    }
+                }
+                for &(a0, b0, c0, (tr, tg, tb)) in tris[..ntris].iter() {
                     let (a, mut b, mut cc) = (a0, b0, c0);
                     if (a.0 < 0 && b.0 < 0 && cc.0 < 0) || (a.1 < 0 && b.1 < 0 && cc.1 < 0)
                         || (a.0 >= w as i64 && b.0 >= w as i64 && cc.0 >= w as i64)
@@ -1074,6 +1092,10 @@ fn selfcheck() -> bool {
                  if hit { "MATCHES PIN" } else { "MISMATCH — the terrain is NOT the canon" });
         ok &= hit;
     }
+    let clip_ok = near_clip_battery();
+    println!("selfcheck near clip      : {}", if clip_ok { "MATCHES CONTRACT" }
+             else { "MISMATCH — the near plane is NOT clipped correctly" });
+    ok &= clip_ok;
     // v1.13: the promoted placements run their batteries at every launch, same door
     let mut fxp = Fx::new();
     let pse_ok = pse_battery(&mut fxp);
@@ -1313,7 +1335,85 @@ const VMAX: i64 = 0xFFFF;              // lattice value range [0, VMAX]
 // Floored integer division for d > 0 — matches Python `//`. Rust `/` truncates toward zero, so a
 // negative numerator with a remainder is one too high; correct it down.
 fn floordiv(n: i64, d: i64) -> i64 {
+    // NOTE, because the next caller will not read this file top to bottom: this is the tree's
+    // floor division for a POSITIVE divisor. With d < 0 and n < 0 the quotient is positive and
+    // the -1 correction is wrong, so every caller normalises the sign first. Every existing
+    // call passes TILE or a ring stride; `clip_near` is the first to divide by a difference,
+    // and it normalises rather than widening this helper under the pinned callers.
     if n % d != 0 && n < 0 { n / d - 1 } else { n / d }
+}
+
+// v1.16 — THE NEAR PLANE IS CLIPPED, NOT DISCARDED.
+//
+// THE DEFECT THE OPERATOR SAW. The eye stands 3 world units above bilinear ground and a tile is
+// 3 units wide, so the quad the camera is standing on always has a corner at near-zero forward
+// depth. The ring renderer rejected the WHOLE QUAD on the first such corner (`clipped = true;
+// break`), which put a permanent tile-sized hole underfoot: look down, or walk onto ground that
+// rises close, and you see through the floor to the sky. Raising the eye cannot help, because a
+// vertex directly beneath the camera has forward depth near zero at any height. The near plane
+// is the one plane a scanline rasteriser must genuinely clip against — the side planes are
+// handled by scanning screen space, but depth is interpolated rather than rasterised, so there
+// is no screen-space dodge for this one.
+//
+// Sutherland-Hodgman against a SINGLE plane: a triangle becomes nothing, a triangle, or a quad.
+// Bounded work in one place, not a general clipper.
+//
+// THE ROUNDING IS DECLARED AND IT IS FLOOR, the same rule `floordiv` states everywhere else in
+// this tree. It is applied to the interpolation PRODUCT, per component — no parameter `t` is
+// ever materialised, because an integer t would be 0 or 1 and would collapse the cut onto a
+// vertex. One division per component, and the sign is normalised so `floordiv` is used inside
+// the domain where it is correct.
+//
+// Magnitudes: |rx|, |rz| and |d8| are bounded by reach * TILE * 256 < 2^28, so a component
+// difference times a depth difference stays under 2^56 and i64 has room.
+type CamV = (i64, i64, i64);                       // (right, forward, up) in Q8 camera space
+
+fn clip_near(tri: &[CamV; 3]) -> ([CamV; 4], usize) {
+    let mut out = [(0i64, 0i64, 0i64); 4];
+    let mut n = 0usize;
+    for i in 0..3 {
+        let a = tri[i];
+        let b = tri[(i + 1) % 3];
+        let (ain, bin) = (a.1 >= NEAR8, b.1 >= NEAR8);
+        if ain { out[n] = a; n += 1; }
+        if ain != bin {
+            let (mut num, mut den) = (NEAR8 - a.1, b.1 - a.1);
+            if den < 0 { num = -num; den = -den; }     // floordiv's domain, kept
+            out[n] = (a.0 + floordiv((b.0 - a.0) * num, den), NEAR8,
+                      a.2 + floordiv((b.2 - a.2) * num, den));
+            n += 1;
+        }
+    }
+    (out, n)
+}
+
+// THE CLIP CARRIES ITS OWN DOOR. Every other certified path in this demo proves itself at
+// launch and refuses to run if it cannot; a repair to the one plane the rasteriser must clip
+// against does not get to be the exception. Cheap enough to run on every start.
+fn near_clip_battery() -> bool {
+    let front = [(100i64, 5000i64, 40i64), (-90, 4000, 20), (30, 6000, -10)];
+    let behind = [(100i64, 10i64, 40i64), (-90, 0, 20), (30, -500, -10)];
+    let one_out = [(100i64, 10i64, 40i64), (-90, 4000, 20), (30, 6000, -10)];
+    let two_out = [(100i64, 10i64, 40i64), (-90, 0, 20), (30, 6000, -10)];
+    if clip_near(&front).1 != 3 { return false }          // wholly in front: untouched
+    if clip_near(&behind).1 != 0 { return false }         // wholly behind: nothing
+    let (o, n) = clip_near(&one_out);
+    if n != 4 { return false }                            // ONE corner out is a QUAD, not a hole
+    if (0..n).filter(|&k| o[k].1 == NEAR8).count() != 2 { return false }
+    if clip_near(&two_out).1 != 3 { return false }
+    // THE PROPERTY THE OLD PATH TRADED A HOLE FOR: nothing reaches the divide with a depth the
+    // projection cannot survive. Swept, not argued.
+    for a in [-4000i64, -1, 0, NEAR8 - 1, NEAR8, NEAR8 + 1, 90000] {
+        for b in [-3000i64, 0, NEAR8, 77777] {
+            for c in [-2i64, NEAR8, 1234567] {
+                let (o, n) = clip_near(&[(7, a, 3), (-11, b, 5), (2, c, -9)]);
+                for k in 0..n { if o[k].1 < NEAR8 { return false } }
+            }
+        }
+    }
+    // the cut does not depend on which way the edge was walked (floordiv's domain, kept)
+    clip_near(&[(0i64, 0i64, 0i64), (1000, 1024, 1000), (0, 4000, 0)]).1
+        == clip_near(&[(1000i64, 1024i64, 1000i64), (0, 0, 0), (0, 4000, 0)]).1
 }
 
 // The seeded lattice value in [0, VMAX] — sha256("URDRHF1|seed|layer|xi|yi")[:4] big-endian & VMAX.
@@ -2564,7 +2664,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.15 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.16 input trace: keys dx dy (one line per frame)
 ");
         // THE DECLARATION, written by the only party that knows the intended length.
         t.push_str(&format!("# frames {}
@@ -2581,7 +2681,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.15 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.16 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | sky {} | third {} | castle {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,

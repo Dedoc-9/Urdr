@@ -9,6 +9,14 @@ four named-host sweep logs of the COMMITTED walk at reach 60/120/250/500 (fpsdem
 conditions declared) and four authoring-container digest chains for the same trace at the same
 reaches. What graduates:
 
+  * RECORD IDENTITY, NOT CURRENT-BUILD IDENTITY (stated because v1.16 made it matter). What
+    this stage compares is two COMMITTED ARTIFACTS against each other; it never recompiles and
+    never re-renders. So the claim below is that these records agree with one another and that
+    neither has been edited since — which stays true forever — and NOT that today's build would
+    reproduce them. It would not: v1.16 clips the near plane instead of discarding the quad, and
+    chains move with the pixels as they always have. The records remain valid records OF THEIR
+    OWN RENDER PATH, exactly as the v1.1-v1.5 chain records did, and `versionarc` is what keeps
+    the version that produced them documented. `record-identical != build-identical`.
   * CROSS-OS BYTE-IDENTITY AT EVERY REACH — the host log's chain and the container's chain
     are separate committed artifacts from separate binaries on separate operating systems,
     compared digest for digest on every gate run. Twenty checkpoints per reach, four reaches.

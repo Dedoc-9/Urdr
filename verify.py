@@ -18974,7 +18974,10 @@ class Gate:
                     "that names its artifact's code, must appear in that section as ITSELF: "
                     "token boundaries are the mechanism, because a substring test lets v1.14 "
                     "satisfy v1.1 exactly where a missing version is most likely to be"
-                    % told if e_ok else "a required version is undocumented: " + told)
+                    % told if e_ok
+                    else ("a required version is undocumented, or the pinned scene moved "
+                          "(a version entering the evidence corpus moves it BY DESIGN and "
+                          "wants a hand re-pin): " + told))
         d_ok = True
         try:
             fps = [r for r in VA.audit() if r["name"] == "fpsdemo"][0]
