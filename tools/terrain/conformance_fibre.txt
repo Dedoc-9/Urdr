@@ -1,0 +1,13 @@
+# URDRFBR1 conformance golden — emitted by fibre.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the host-checkpoint reproduction count, the quotient census, and the temporal-skip
+# ceiling — every one DERIVED from the two committed records at claim time (L75).
+#
+# WHAT MOVES THIS PIN: any edit to either record. That is the intent — the whole claim is that
+# two records produced on different operating systems agree, so either changing invalidates it.
+#
+# does_not_show: that the digest is injective on the object (there are strictly more objects
+# than digests here, so it cannot be); that equal objects give equal digests (all 2564 objects
+# are DISTINCT, so the converse is untested rather than passed); or that the 8.4%% skip ceiling
+# is a property of the renderer rather than of this WALKING workload.
+fibre 3027e9c1c35d4032b67b610276f8c11ae308f55bc4738efe82d75269d2a6bfa4

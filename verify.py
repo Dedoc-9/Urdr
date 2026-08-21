@@ -241,6 +241,7 @@ STAGE_ORDER = (
     "versionarc",
     "admit",
     "castlecost",
+    "fibre",
     "rollbench",
     "reachable",
     "retire",
@@ -19192,6 +19193,81 @@ class Gate:
                     "an UPPER BOUND, which is the useful direction (gate can redden)"
                     if p_ok else "the presence oracle failed")
 
+    def fibre(self):
+        """THE OBJECT BESIDE THE DIGEST, AND ONLY ONE CLAIM MADE OF IT (URDRFBR1). Rows:
+        reproduce (every host checkpoint reproduced by the container record), census (the
+        render-induced quotient and its declared boundaries, REPORTED), selftest (the plants)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import fibre as OB
+        except Exception as exc:
+            for r in ("reproduce", "census", "selftest"):
+                self.record(f"fibre-{r}", False, f"import failed (observe): {exc}")
+            return
+        r_ok, got, want = True, 0, 0
+        try:
+            got, want = OB.reproduction_count()
+            r_ok = (OB.every_host_checkpoint_is_reproduced()
+                    and OB.scene_result("fibre") == OB.golden("fibre"))
+        except Exception:
+            r_ok = False
+        self.record("fibre-reproduce", r_ok,
+                    "THE ONE CLAIM, AND IT IS A CROSS-PLACEMENT ONE — %d of %d host checkpoints "
+                    "reproduced. Windows/rustc sealed the host record; Linux/rustc produced a "
+                    "DENSE record of the same trace at the same reach and resolution, the object "
+                    "beside the digest at EVERY frame rather than every sixtieth, and every "
+                    "checkpoint the host sealed appears there with the same digest. The harness "
+                    "is DERIVED — fibre_build.py slices the demo between the exact-integer "
+                    "helpers and the entry door, renderer and clipper and digest unedited — but "
+                    "its replay main is a TRANSCRIPTION of the per-frame sequence and could "
+                    "drift, which is exactly what this reproduction catches. Everything else "
+                    "this module computes is OUTPUT, not claim" % (got, want)
+                    if r_ok else "the container record does not reproduce the host checkpoints")
+        c_ok, told = True, "?"
+        try:
+            told = OB.told()
+            c_ok = (OB.the_equivalence_is_not_vacuous()
+                    and OB.the_digest_is_not_claimed_injective()
+                    and OB.the_structural_quotient_is_refuted()
+                    and OB.full_state_equality_is_unobserved()
+                    and OB.the_skip_ceiling_is_below_a_fifth())
+        except Exception:
+            c_ok = False
+        self.record("fibre-census", c_ok,
+                    "REPORTED, NEVER PROMOTED TO AN INVARIANT — %s. The tidy repair (declare the "
+                    "clip phase irrelevant and coarsen the object) is REFUTED BY THE CORPUS: "
+                    "seven coarse states then carry more than one digest. The two classes that "
+                    "survive show a camera standing still while the quaternion drifts by ONE ULP "
+                    "per frame, some of those frames rendering identically and some not — so the "
+                    "equivalence is not `forget a coordinate` but the FIBRES OF THE RENDER MAP, "
+                    "state advancing in increments too small to push a projected vertex across a "
+                    "pixel boundary. Two boundaries ship as predicates rather than as prose: the "
+                    "digest CANNOT be injective (strictly more objects than digests) and the "
+                    "converse is UNTESTED rather than passed (all 2564 objects are distinct, so "
+                    "`equal object implies equal digest` never fires). The temporal-skip ceiling "
+                    "rides along because it decides whether an optimisation is worth designing: "
+                    "215 of 2563 pairs, 8.4%%, on a WALKING workload with position changing in "
+                    "83.6%% of frames — and quoting it without the workload attached would be "
+                    "the inflation this ladder refuses" % told
+                    if c_ok else "a declared boundary or the census failed: " + told)
+        s_ok = True
+        try:
+            s_ok = (OB.a_flipped_digest_breaks_the_reproduction()
+                    and OB.a_missing_frame_breaks_the_reproduction()
+                    and OB.a_hostless_record_refuses()
+                    and OB.a_malformed_row_refuses()
+                    and OB.an_empty_record_refuses())
+        except Exception:
+            s_ok = False
+        self.record("fibre-selftest", s_ok,
+                    "five plants bite: a moved checkpoint digest, a deleted frame, a host record "
+                    "carrying no checkpoints at all (which would otherwise let the claim pass "
+                    "VACUOUSLY over an empty set), a row missing state fields, and a record with "
+                    "nothing but comments (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22829,7 +22905,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
