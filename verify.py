@@ -19127,7 +19127,8 @@ class Gate:
             r_ok = (CC.every_run_is_complete()
                     and CC.every_pair_is_chain_identical()
                     and CC.the_arms_differ_in_exactly_one_declared_variable()
-                    and CC.the_exemption_is_the_reason_this_check_exists()
+                    and CC.the_records_have_graduated()
+                    and CC.the_workload_still_predates_the_contract()
                     and CC.the_trace_is_the_workload_both_arms_ran()
                     and CC.scene_result("verdict") == CC.golden("verdict"))
         except Exception:

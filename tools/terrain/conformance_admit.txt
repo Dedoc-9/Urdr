@@ -15,4 +15,4 @@
 # scheduler are true, or that two admitted records measured the same workload (that is what
 # replay_workload is for, and comparing it is the caller's job) — only that a record states its
 # own completeness and that the statement survives recomputation. `admitted != correct`.
-verdicts c47cbf073a5f03edccbb770b876b614074d7ddcb820e65a36792fc61498f9577
+verdicts f3aa4760665b88d9222bc259be7712a683944129219fd199b23c8343e6e0b43f

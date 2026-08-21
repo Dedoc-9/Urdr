@@ -15,8 +15,18 @@ class TheRecords(unittest.TestCase):
     def test_every_run_is_complete(self):
         self.assertTrue(C.every_run_is_complete())
 
-    def test_the_exemption_is_the_reason_this_check_exists(self):
-        self.assertTrue(C.the_exemption_is_the_reason_this_check_exists())
+    def test_the_records_have_graduated(self):
+        self.assertTrue(C.the_records_have_graduated())
+
+    def test_the_workload_still_predates_the_contract(self):
+        self.assertTrue(C.the_workload_still_predates_the_contract())
+
+    def test_completeness_is_delegated_not_reimplemented(self):
+        # The source of truth is admit's adjudication, so a record that admit refuses must fail
+        # HERE too — no private second opinion that could disagree in silence.
+        import admit as AD
+        for n in C.RUNS.values():
+            self.assertEqual(AD.adjudicate(AD.parse_record(C._read(n))), "ADMITTED", n)
 
     def test_every_pair_is_chain_identical(self):
         self.assertTrue(C.every_pair_is_chain_identical())

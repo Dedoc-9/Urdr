@@ -26,11 +26,22 @@ contributed nothing VISIBLE, not that it did no work — a prism z-rejected behi
 time and changes nothing. The presence figure is therefore an UPPER BOUND on everything
 `draw_castle` did in those frames, which is the useful direction.
 
-THESE EIGHT RECORDS ARE THE REASON `admit`'s EXEMPTION EXISTS. They were produced by v1.14,
-before the completeness contract, so `admit` returns LEGACY-ADMITTED and can say nothing about
-them. This module pays for that by re-deriving completeness itself from the fields those records
-DO carry — full frame count, full focus count, and pairwise chain identity — and the hand-check
-retires the day they are re-recorded under a build that emits the contract.
+THE EXEMPTION SHRANK ON SCHEDULE, WHICH IS THE POINT OF HAVING BUILT IT WITH A COUNTER. v1's
+eight records were produced by v1.14, before the completeness contract, so `admit` could only
+return LEGACY-ADMITTED and this module carried a hand-rolled proof of completeness beside it.
+v1.1 re-records the same eight cells under v1.17, which is at or above `COMPLETENESS_INTRO`, so
+they carry `measurement_class`, both trace identities and `replay_status` and `admit` now returns
+ADMITTED. The parallel proof is RETIRED and completeness is DELEGATED. Eight of the corpus's
+legacy records graduated rather than another special case accumulating — an exemption that only
+ever grows is the rot L68 names, and this one is measurably smaller than it was.
+
+AND THE FINDING REPLICATED ON A CHANGED RENDERER, which is the part worth more than the numbers.
+Between v1 and v1.1 the near plane moved four-fold closer, `draw_castle` stopped discarding
+triangles at that plane and started clipping them, and terrain rasterisation grew 4-12% as the
+clip's price landed where the clip actually is. The castle's own delta moved by only -1.3% to
++7.3%, and reach-invariance TIGHTENED from the +/-8.2% it was frozen at to +/-3.7%. An
+architectural claim that survives the renderer changing beneath it is a different kind of claim
+from one measured once.
 
 `does_not_show`: any figure here as a property of the CASTLE rather than of this renderer at
 this version — the near-plane repair will move every number in these files and they will remain
@@ -75,6 +86,22 @@ RUNS = {
     ("r60", "on", "b"): "fpsdemo-castle-r60-on-b.txt",
 }
 TRACE = "fpsdemo-castle-walk.txt"
+
+
+#: RETIREMENT IS DATA, SWEPT MECHANICALLY (L68). This module's only caller lives in `verify.py`
+#: and was updated in the same commit, so nothing was left calling a name that vanished — but a
+#: rename whose reason lives only in a commit message does not travel, and the register is the
+#: place a reason travels to.
+RETIRED = {
+    "the_exemption_is_the_reason_this_check_exists": (
+        "the_records_have_graduated",
+        "v1 ASSERTED that these eight records were LEGACY-ADMITTED, because they predated the "
+        "completeness contract and `admit` had nothing to say about them. v1.1 re-recorded the "
+        "same eight cells under a build that emits the contract, so the assertion is now FALSE BY "
+        "DESIGN — and a law that becomes false because the tree improved is not a law that should "
+        "be relaxed, it is one whose successor asserts the improvement. The successor requires "
+        "every record to be ADMITTED, which is strictly stronger."),
+}
 
 
 class CastlecostError(Exception):
@@ -159,18 +186,27 @@ def presence_floor(reach="r120"):
 
 # ---- the laws ------------------------------------------------------------------------------
 def every_run_is_complete():
-    """THE EXEMPTION, PAID FOR BY HAND. These records predate v1.15's contract, so `admit` can
-    only say LEGACY-ADMITTED; completeness is re-derived here from the fields they do carry."""
-    for key in RUNS:
-        r = record(key)
-        if r["frames"] != 2564 or r["focus"] != (2564, 2564) or r["mode"] != "replay":
-            return False
-    return True
+    """DELEGATED, NOT RE-DERIVED. v1 read frames, focus and mode out of these records by hand
+    because they predated the contract and `admit` had nothing to say about them. They carry the
+    contract now, so the question belongs to the module that owns it — a second implementation of
+    completeness living here would be exactly the drift `admit`'s DISAGREEMENT verdict exists to
+    catch, one layer further out."""
+    return all(AD.adjudicate(AD.parse_record(_read(n))) == "ADMITTED" for n in RUNS.values())
 
 
-def the_exemption_is_the_reason_this_check_exists():
-    return all(AD.adjudicate(AD.parse_record(_read(n))) == "LEGACY-ADMITTED"
-               for n in RUNS.values())
+def the_records_have_graduated():
+    """THE EXEMPTION SHRANK. Not one of these eight is LEGACY-ADMITTED any more, and the count
+    `admit` reports is smaller than it was by exactly eight. An exemption nobody watches becomes
+    permanent (L68); this one is watched and it moved."""
+    verdicts = {AD.adjudicate(AD.parse_record(_read(n))) for n in RUNS.values()}
+    return verdicts == {"ADMITTED"}
+
+
+def the_workload_still_predates_the_contract():
+    """AND THE HONEST REMAINDER: the TRACE is still a v1.14 artifact, so these runs report
+    `replay_declared legacy` and their declared length is the row count, not a declaration. The
+    graduation is real and it is partial, and saying so is what stops it reading as complete."""
+    return AD.adjudicate(AD.parse_record(_read(TRACE))) == "LEGACY-ADMITTED"
 
 
 def every_pair_is_chain_identical():

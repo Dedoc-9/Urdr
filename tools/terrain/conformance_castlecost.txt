@@ -16,4 +16,4 @@
 # claim about other hosts (one named machine, power and scheduler declared), other resolutions
 # (720p), other castles, or other walks: the workload is ONE hand-flown approach, and a walk
 # that spent longer facing the gate would move every delta. `measured != general`.
-verdict b03ee9fd83b3c7104cf7219a9e333df8935b59c0e85e398a47db3c37de84320c
+verdict e0555c4dd9f27f42a15d4ae1f5a2c1f1a537985472dec46a61d9dcbf398ebf1b
