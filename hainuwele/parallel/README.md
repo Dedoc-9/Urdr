@@ -422,6 +422,33 @@ silence. CHAINS MOVE, as they always have with the pixels: every committed chain
 a valid record OF ITS OWN RENDER PATH, and `reachenv`'s cross-OS byte-identity is a statement
 about those RECORDS agreeing with each other, not about the build you are running today.
 
+v1.17 — THE PLANE MOVES TO HALF A UNIT, AND THE ADMISSIBLE RANGE STOPS BEING A SECRET. v1.16
+removed the whole-quad hole underfoot and the operator then reported seeing through the ground
+along the BOTTOM of the view. That was not a residual clipping defect, it was the near plane
+doing its job: the focal scale is `h * 2`, so the bottom edge is the ray with slope −1/4, and
+with the eye three units above ground, pitching down past about `atan(3/2)` puts the ground
+directly beneath INSIDE the plane, where nothing can be projected at all. Only moving the plane
+moves it, and at half a unit the depression angle at which that happens goes from about 56
+degrees to about 80.5 — nose to the floor. THE CONSTANT WAS CHOSEN BY MEASUREMENT, NOT BY TASTE:
+projected coordinates scale as 1/NEAR8 and the depth term as their square times the reach, so a
+nearer plane spends admissible REACH. A quarter-unit plane was computed first and it REFUSED
+1080p at reach 120 — a fidelity/reach cell this arc had explicitly frozen — so it lost to half a
+unit, which keeps 720p and 1080p at reach 60 and 120 with the worst case at 29% of the i64
+ceiling. AND THE BOUND FOUND SOMETHING OLDER THAN ITSELF: under the previous plane, `--reach 500`
+already sat within a factor of two of that ceiling and reach 1000 passed it, silently, because
+nothing looked. `projection_bound_ok` is now a typed launch refusal that names the maximum
+admissible reach for the current resolution, computed in i128 so the check cannot overflow while
+checking, and deliberately worst-case — it assumes a vertex simultaneously at maximum reach and
+at the near plane, which the geometry never produces, because a refusal that is too strict is
+visible and arguable while an overflow is silent and wrong. `draw_castle` now rides the same
+rule: v1.14 marked a vertex behind the plane with a sentinel depth and dropped the whole
+triangle, so a wall could vanish at arm's length exactly where the ground used to, and it is
+clipped now rather than discarded. Two battery cases name the frozen cells so a future edit to
+the plane cannot quietly take one away. DECLARED: the compat window (`--reach <= 24`) still
+discards, holding the pinned v1.6 chains; the four side planes are NOT clipped, and a general
+guard band waits for the fill census to show whether it is warranted rather than being built on
+anticipation. Chains move with the pixels, as always.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

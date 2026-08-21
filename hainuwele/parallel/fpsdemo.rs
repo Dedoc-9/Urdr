@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.16).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.17).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -468,7 +468,20 @@ const W_RAWMAX: i64 = 11 * VMAX;       // sum(amp) * VMAX for the layer set abov
 const H_SCALE: i64 = 16;               // DECLARED view scale: canon 0..420 -> world 0..26
 const TILE: i64 = 3;
 const VIEW: i64 = 20;
-const NEAR8: i64 = 2 * 256;            // near clip in Q8 camera units — v1's 12-unit clip threw
+// v1.17 — HALF A WORLD UNIT. At 2 units, with the eye 3 units above ground, pitching down past
+// about atan(3/2) put the ground directly beneath INSIDE the near plane, where nothing can be
+// projected at all — the operator saw it as a hole along the bottom of the view once v1.16 had
+// removed the whole-quad hole underfoot. That was the plane doing its job, not a clipping
+// defect, and only moving the plane moves it: the depression angle at which ground beneath falls
+// inside goes from ~56 degrees to ~80.5.
+//
+// THE TRADE IS REAL, BOUNDED, AND IT CHOSE THIS CONSTANT. Projected coordinates scale as
+// 1/NEAR8 and the depth term as their square times the reach, so a nearer plane spends
+// admissible REACH. A quarter-unit plane was measured first and REFUSED 1080p at reach 120 — a
+// fidelity/reach cell this arc had explicitly frozen — so it was rejected in favour of a half
+// unit, which keeps 720p and 1080p at reach 60 and 120 with the worst case at 29% of the i64
+// ceiling. See `projection_bound_ok`.
+const NEAR8: i64 = 128;                // near clip in Q8 camera units — v1's 12-unit clip threw
                                        // away the four nearest rings of ground wholesale
 const FAR8: i64 = VIEW * TILE * 256;   // patch edge in Q8 — the depth-fog ruler
 
@@ -1368,6 +1381,42 @@ fn floordiv(n: i64, d: i64) -> i64 {
 // difference times a depth difference stays under 2^56 and i64 has room.
 type CamV = (i64, i64, i64);                       // (right, forward, up) in Q8 camera space
 
+// THE OVERFLOW BOUND, AS A LAUNCH DOOR RATHER THAN AS A HOPE.
+//
+// This was reachable BEFORE this rung and nothing checked it. Camera-space Q8 coordinates are
+// bounded by `reach * TILE * 256`; a projected coordinate by `w/2 + that * f / NEAR8`; an edge
+// function by about 4 M^2; and the depth interpolation `zn` by 3 * 4 M^2 * R, the binding term.
+// At `--reach 500` under the OLD plane that product already sat within a factor of two of the
+// i64 ceiling and at reach 1000 it passed it — silently, because nothing looked. The admissible
+// range had a boundary nobody had named; this makes it explicit instead of leaving the
+// arithmetic ceiling to be met by accident.
+//
+// The check runs in i128 so THE CHECK ITSELF cannot overflow, and it REFUSES rather than trusting
+// runtime arithmetic to fail visibly. The bound is deliberately WORST-CASE and therefore
+// conservative: it assumes a vertex simultaneously at maximum reach and at the near plane, which
+// the geometry does not actually produce. A refusal that is too strict is visible and can be
+// argued with; an overflow is silent and wrong.
+fn projection_bound(reach: i64, w: i32, h: i32) -> i128 {
+    let r = (reach * TILE * 256) as i128;
+    let f = (h as i64 * 2) as i128;
+    let m = (w.max(h) as i128) / 2 + r * f / NEAR8 as i128;
+    12 * m * m * r
+}
+
+fn projection_bound_ok(reach: i64, w: i32, h: i32) -> bool {
+    projection_bound(reach, w, h) <= i64::MAX as i128
+}
+
+fn max_admissible_reach(w: i32, h: i32) -> i64 {
+    let (mut lo, mut hi) = (8i64, 200_000i64);
+    if projection_bound_ok(hi, w, h) { return hi }
+    while lo < hi {
+        let mid = (lo + hi + 1) / 2;
+        if projection_bound_ok(mid, w, h) { lo = mid } else { hi = mid - 1 }
+    }
+    lo
+}
+
 fn clip_near(tri: &[CamV; 3]) -> ([CamV; 4], usize) {
     let mut out = [(0i64, 0i64, 0i64); 4];
     let mut n = 0usize;
@@ -1411,6 +1460,17 @@ fn near_clip_battery() -> bool {
             }
         }
     }
+    // THE BOUND BITES AND IS NOT VACUOUS: the frozen cells must pass and something must refuse,
+    // or the door is either decoration or a wall. The two operating points this arc froze are
+    // named here so a future edit to the plane cannot quietly take one away.
+    if !projection_bound_ok(60, 1280, 720) { return false }
+    if !projection_bound_ok(120, 1280, 720) { return false }
+    if !projection_bound_ok(60, 1920, 1080) { return false }
+    if !projection_bound_ok(120, 1920, 1080) { return false }
+    if projection_bound_ok(200_000, 1280, 720) { return false }
+    let cap = max_admissible_reach(1280, 720);
+    if !projection_bound_ok(cap, 1280, 720) { return false }
+    if projection_bound_ok(cap + 1, 1280, 720) { return false }
     // the cut does not depend on which way the edge was walked (floordiv's domain, kept)
     clip_near(&[(0i64, 0i64, 0i64), (1000, 1024, 1000), (0, 4000, 0)]).1
         == clip_near(&[(1000i64, 1024i64, 1000i64), (0, 0, 0), (0, 4000, 0)]).1
@@ -2031,44 +2091,52 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
                eye: (i64, i64, i64), prisms: &[Prism], farq: i64) {
     let f = h as i64 * 2;
     let (cx, cy) = (w as i64 / 2, h as i64 / 2);
-    let project = |p: (i64, i64, i64)| -> (i64, i64, i64) {
+    // v1.17: the castle rides the SAME near-plane rule as the terrain. v1.14 marked a vertex
+    // behind the plane with a sentinel depth and dropped the whole triangle, which is the
+    // discard the ring renderer just stopped doing — so a wall could vanish at arm's length
+    // exactly where the ground used to. Camera space out, clipped in `tri`, projected after.
+    let project = |p: (i64, i64, i64)| -> CamV {
         let (dx, dy, dz) = (p.0 - eye.0, p.1 - eye.1, p.2 - eye.2);
         let rx = (m[0] * dx + m[1] * dy + m[2] * dz) >> 16;
         let ry = (m[3] * dx + m[4] * dy + m[5] * dz) >> 16;
         let rz = (m[6] * dx + m[7] * dy + m[8] * dz) >> 16;
-        let d8 = ry.max(NEAR8);
-        (cx + rx * f / d8, cy - rz * f / d8, if ry < NEAR8 { -1 } else { d8 })
+        (rx, ry, rz)
     };
     let tri = |buf: &mut [u32], zbuf: &mut [i32],
-                   a: (i64, i64, i64), b: (i64, i64, i64), c: (i64, i64, i64), col: u32| {
-        if a.2 < 0 || b.2 < 0 || c.2 < 0 { return }
-        let (mut b, mut c) = (b, c);
-        let mut area = (b.0 - a.0) * (c.1 - a.1) - (b.1 - a.1) * (c.0 - a.0);
-        if area == 0 { return }
-        if area < 0 { std::mem::swap(&mut b, &mut c); area = -area }
-        let x_lo = a.0.min(b.0).min(c.0).max(0);
-        let x_hi = a.0.max(b.0).max(c.0).min(w as i64 - 1);
-        let y_lo = a.1.min(b.1).min(c.1).max(0);
-        let y_hi = a.1.max(b.1).max(c.1).min(h as i64 - 1);
-        if x_lo > x_hi || y_lo > y_hi { return }
-        let d3 = ((a.2 + b.2 + c.2) / 3).clamp(0, farq);
-        // the same depth fog the terrain wears, so distance reads the same on both
-        let dim = 14 + 18 * (farq - d3) / farq;
-        let ch3 = |near: i64, sky: i64| ((near * dim + sky * (32 - dim)) / 32) as u32;
-        let (tr, tg, tb) = (((col >> 16) & 255) as i64, ((col >> 8) & 255) as i64,
-                            (col & 255) as i64);
-        let cc = (ch3(tr, 60) << 16) | (ch3(tg, 120) << 8) | ch3(tb, 190);
-        for py in y_lo..=y_hi {
-            let row = (py * w as i64) as usize;
-            for px in x_lo..=x_hi {
-                let w0 = (b.0 - a.0) * (py - a.1) - (b.1 - a.1) * (px - a.0);
-                let w1 = (c.0 - b.0) * (py - b.1) - (c.1 - b.1) * (px - b.0);
-                let w2 = (a.0 - c.0) * (py - c.1) - (a.1 - c.1) * (px - c.0);
-                if w0 < 0 || w1 < 0 || w2 < 0 { continue }
-                let d = (a.2 * w1 + b.2 * w2 + c.2 * w0) / area;
-                let di = d.clamp(0, i32::MAX as i64) as i32;
-                let i = row + px as usize;
-                if di < zbuf[i] { zbuf[i] = di; buf[i] = cc }
+                   a: CamV, b: CamV, c: CamV, col: u32| {
+        let (fan, fann) = clip_near(&[a, b, c]);
+        if fann < 3 { return }
+        let pj = |v: CamV| (cx + v.0 * f / v.1, cy - v.2 * f / v.1, v.1);
+        for k in 1..fann - 1 {
+            let (a, b, c) = (pj(fan[0]), pj(fan[k]), pj(fan[k + 1]));
+            let (mut b, mut c) = (b, c);
+            let mut area = (b.0 - a.0) * (c.1 - a.1) - (b.1 - a.1) * (c.0 - a.0);
+            if area == 0 { continue }
+            if area < 0 { std::mem::swap(&mut b, &mut c); area = -area }
+            let x_lo = a.0.min(b.0).min(c.0).max(0);
+            let x_hi = a.0.max(b.0).max(c.0).min(w as i64 - 1);
+            let y_lo = a.1.min(b.1).min(c.1).max(0);
+            let y_hi = a.1.max(b.1).max(c.1).min(h as i64 - 1);
+            if x_lo > x_hi || y_lo > y_hi { continue }
+            let d3 = ((a.2 + b.2 + c.2) / 3).clamp(0, farq);
+            // the same depth fog the terrain wears, so distance reads the same on both
+            let dim = 14 + 18 * (farq - d3) / farq;
+            let ch3 = |near: i64, sky: i64| ((near * dim + sky * (32 - dim)) / 32) as u32;
+            let (tr, tg, tb) = (((col >> 16) & 255) as i64, ((col >> 8) & 255) as i64,
+                                (col & 255) as i64);
+            let cc = (ch3(tr, 60) << 16) | (ch3(tg, 120) << 8) | ch3(tb, 190);
+            for py in y_lo..=y_hi {
+                let row = (py * w as i64) as usize;
+                for px in x_lo..=x_hi {
+                    let w0 = (b.0 - a.0) * (py - a.1) - (b.1 - a.1) * (px - a.0);
+                    let w1 = (c.0 - b.0) * (py - b.1) - (c.1 - b.1) * (px - b.0);
+                    let w2 = (a.0 - c.0) * (py - c.1) - (a.1 - c.1) * (px - c.0);
+                    if w0 < 0 || w1 < 0 || w2 < 0 { continue }
+                    let d = (a.2 * w1 + b.2 * w2 + c.2 * w0) / area;
+                    let di = d.clamp(0, i32::MAX as i64) as i32;
+                    let i = row + px as usize;
+                    if di < zbuf[i] { zbuf[i] = di; buf[i] = cc }
+                }
             }
         }
     };
@@ -2249,6 +2317,15 @@ fn main() {
         Ok(a) => a,
         Err(e) => { eprintln!("FPSDEMO-REFUSE: {e}"); std::process::exit(2) }
     };
+    if !projection_bound_ok(args.reach, args.res.0, args.res.1) {
+        eprintln!("FPSDEMO-REFUSE: --reach {} at {}x{} exceeds the projection bound — with the \
+                   near plane at {}/256 world units the edge-function and depth terms would pass \
+                   the i64 ceiling, and this door refuses rather than trusting the arithmetic to \
+                   fail visibly. Maximum admissible reach at this resolution is {}",
+                  args.reach, args.res.0, args.res.1, NEAR8,
+                  max_admissible_reach(args.res.0, args.res.1));
+        std::process::exit(2);
+    }
     if args.third && args.reach <= LOD_R0 {
         eprintln!("FPSDEMO-REFUSE: --third needs the ladder path (reach > {LOD_R0}) — the \
                    wanderer stands on the derived rings, not the compat window");
@@ -2664,7 +2741,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.16 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.17 input trace: keys dx dy (one line per frame)
 ");
         // THE DECLARATION, written by the only party that knows the intended length.
         t.push_str(&format!("# frames {}
@@ -2681,7 +2758,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.16 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.17 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | sky {} | third {} | castle {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
