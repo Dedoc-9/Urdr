@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.17).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.18).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -2064,6 +2064,54 @@ fn draw_avatar(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
 // committed chain stands untouched.
 struct Prism { poly: Vec<(i64, i64)>, zb: i64, zt: i64, color: u32 }
 
+// v1.18 — THE FILL CENSUS. `castlecost` priced the castle and bounded its SETUP at 66 us
+// against a 17.5 ms peak, so the cost is FILL. This counts where the fill goes.
+//
+// THE IDENTITY IS THE INSTRUMENT'S OWN VALIDITY CHECK, and it can fail:
+//
+//     visited = edge_reject + depth_reject + written
+//
+// with all four INDEPENDENTLY incremented — `visited` once at the top of each bbox iteration,
+// the other three at the exit each pixel actually takes. Defining `visited` as the sum would
+// make the identity a tautology, and a check that cannot fail is not a check (L61).
+//
+// THE BUCKET THAT WAS PROPOSED AND REFUSED: an `offscreen` count would be a STRUCTURAL ZERO
+// here, because the bbox is already clamped to the screen before iteration. Reporting a zero
+// the code cannot avoid would have looked like a finding. What that bucket was meant to test —
+// excessive bounding-box traversal — is counted OUTSIDE the loop instead, as the box area the
+// clamp removed, and it is reported BESIDE the identity rather than inside it because it counts
+// a different population.
+//
+// THREE CELLS FROM TWO COMPILATIONS. Without `--cfg census` the macro expands to nothing and the
+// production build contains NO counter code at all — not a runtime branch, no code — so the
+// baseline is defensible. With it, `--census` decides whether the counting runs. That separates
+// the tax of CARRYING the machinery from the tax of USING it.
+#[cfg(census)]
+#[derive(Default, Clone, Copy)]
+struct Census {
+    on: bool,
+    visited: u64,
+    edge_reject: u64,
+    depth_reject: u64,
+    written: u64,
+    bbox_away: u64,
+    triangles: u64,
+}
+
+#[cfg(not(census))]
+#[derive(Default, Clone, Copy)]
+struct Census;
+
+#[cfg(census)]
+macro_rules! cen {
+    ($c:expr, $f:ident, $n:expr) => { if $c.on { $c.$f += $n as u64 } };
+}
+
+#[cfg(not(census))]
+macro_rules! cen {
+    ($c:expr, $f:ident, $n:expr) => { let _ = &$c; };
+}
+
 fn load_castle(path: &str) -> Result<Vec<Prism>, String> {
     let text = std::fs::read_to_string(path).map_err(|e| format!("--castle: {e}"))?;
     let mut out = Vec::new();
@@ -2088,7 +2136,7 @@ fn load_castle(path: &str) -> Result<Vec<Prism>, String> {
 }
 
 fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
-               eye: (i64, i64, i64), prisms: &[Prism], farq: i64) {
+               eye: (i64, i64, i64), prisms: &[Prism], farq: i64, cen: &mut Census) {
     let f = h as i64 * 2;
     let (cx, cy) = (w as i64 / 2, h as i64 / 2);
     // v1.17: the castle rides the SAME near-plane rule as the terrain. v1.14 marked a vertex
@@ -2102,7 +2150,7 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
         let rz = (m[6] * dx + m[7] * dy + m[8] * dz) >> 16;
         (rx, ry, rz)
     };
-    let tri = |buf: &mut [u32], zbuf: &mut [i32],
+    let tri = |buf: &mut [u32], zbuf: &mut [i32], cen: &mut Census,
                    a: CamV, b: CamV, c: CamV, col: u32| {
         let (fan, fann) = clip_near(&[a, b, c]);
         if fann < 3 { return }
@@ -2113,11 +2161,20 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
             let mut area = (b.0 - a.0) * (c.1 - a.1) - (b.1 - a.1) * (c.0 - a.0);
             if area == 0 { continue }
             if area < 0 { std::mem::swap(&mut b, &mut c); area = -area }
-            let x_lo = a.0.min(b.0).min(c.0).max(0);
-            let x_hi = a.0.max(b.0).max(c.0).min(w as i64 - 1);
-            let y_lo = a.1.min(b.1).min(c.1).max(0);
-            let y_hi = a.1.max(b.1).max(c.1).min(h as i64 - 1);
+            let (ux_lo, ux_hi) = (a.0.min(b.0).min(c.0), a.0.max(b.0).max(c.0));
+            let (uy_lo, uy_hi) = (a.1.min(b.1).min(c.1), a.1.max(b.1).max(c.1));
+            let x_lo = ux_lo.max(0);
+            let x_hi = ux_hi.min(w as i64 - 1);
+            let y_lo = uy_lo.max(0);
+            let y_hi = uy_hi.min(h as i64 - 1);
             if x_lo > x_hi || y_lo > y_hi { continue }
+            // OUTSIDE THE IDENTITY, on purpose: the box the screen clamp removed before a single
+            // pixel was iterated. This is the bbox-waste question the vacuous `offscreen` bucket
+            // was meant to answer, counted where it can actually be non-zero.
+            cen!(cen, triangles, 1);
+            cen!(cen, bbox_away,
+                 (((ux_hi - ux_lo + 1) * (uy_hi - uy_lo + 1))
+                  - ((x_hi - x_lo + 1) * (y_hi - y_lo + 1))).max(0));
             let d3 = ((a.2 + b.2 + c.2) / 3).clamp(0, farq);
             // the same depth fog the terrain wears, so distance reads the same on both
             let dim = 14 + 18 * (farq - d3) / farq;
@@ -2128,14 +2185,16 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
             for py in y_lo..=y_hi {
                 let row = (py * w as i64) as usize;
                 for px in x_lo..=x_hi {
+                    cen!(cen, visited, 1);
                     let w0 = (b.0 - a.0) * (py - a.1) - (b.1 - a.1) * (px - a.0);
                     let w1 = (c.0 - b.0) * (py - b.1) - (c.1 - b.1) * (px - b.0);
                     let w2 = (a.0 - c.0) * (py - c.1) - (a.1 - c.1) * (px - c.0);
-                    if w0 < 0 || w1 < 0 || w2 < 0 { continue }
+                    if w0 < 0 || w1 < 0 || w2 < 0 { cen!(cen, edge_reject, 1); continue }
                     let d = (a.2 * w1 + b.2 * w2 + c.2 * w0) / area;
                     let di = d.clamp(0, i32::MAX as i64) as i32;
                     let i = row + px as usize;
-                    if di < zbuf[i] { zbuf[i] = di; buf[i] = cc }
+                    if di < zbuf[i] { zbuf[i] = di; buf[i] = cc; cen!(cen, written, 1); }
+                    else { cen!(cen, depth_reject, 1); }
                 }
             }
         }
@@ -2150,15 +2209,15 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
             let p1 = project((bx, by, pr.zb));
             let p2 = project((bx, by, pr.zt));
             let p3 = project((ax, ay, pr.zt));
-            tri(buf, zbuf, p0, p1, p2, pr.color);
-            tri(buf, zbuf, p0, p2, p3, pr.color);
+            tri(buf, zbuf, cen, p0, p1, p2, pr.color);
+            tri(buf, zbuf, cen, p0, p2, p3, pr.color);
         }
         // top face, fanned from vertex 0 (convex by the generator's own refusal)
         let t0 = project((pr.poly[0].0, pr.poly[0].1, pr.zt));
         for i in 1..n - 1 {
             let t1 = project((pr.poly[i].0, pr.poly[i].1, pr.zt));
             let t2 = project((pr.poly[i + 1].0, pr.poly[i + 1].1, pr.zt));
-            tri(buf, zbuf, t0, t1, t2, pr.color);
+            tri(buf, zbuf, cen, t0, t1, t2, pr.color);
         }
     }
 }
@@ -2167,7 +2226,9 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
 struct Args {
     host: String, power: String, scheduler: String, hz: i64, frames: u32,
     res: (i32, i32), play: bool, replay: String, defect: bool, selfcheck_only: bool, sky: bool,
-    third: bool, await_focus: bool, castle: String,
+    third: bool, await_focus: bool,
+    #[cfg(census)]
+    census: bool, castle: String,
     trace_out: String, out: String, reach: i64, cache_cap: usize,
 }
 
@@ -2175,7 +2236,9 @@ fn parse_argv() -> Result<Args, String> {
     let mut a = Args { host: "-".into(), power: "-".into(), scheduler: "-".into(), hz: 120,
                        frames: 1800, res: (1280, 720), play: false, replay: String::new(),
                        defect: false, selfcheck_only: false, sky: false, third: false,
-                       await_focus: false, castle: String::new(),
+                       await_focus: false,
+                       #[cfg(census)]
+                       census: false, castle: String::new(),
                        trace_out: "fpsdemo_trace.txt".into(),
                        out: "fpsdemo_log.txt".into(), reach: 60, cache_cap: usize::MAX };
                        // reach 60: THE COMPETITIVE FREEZE (measured ceiling-clean at 120 Hz);
@@ -2207,6 +2270,8 @@ fn parse_argv() -> Result<Args, String> {
             "--defect" => a.defect = true,
             "--selfcheck" => a.selfcheck_only = true,
             "--sky" => a.sky = true,
+            #[cfg(census)]
+            "--census" => a.census = true,
             "--third" => a.third = true,
             "--await-focus" => a.await_focus = true,
             "--castle" => a.castle = value(&mut i)?,
@@ -2523,6 +2588,10 @@ fn main() {
     let mut av_state: usize = 0;
     let mut av_start: u32 = 0;
     let mut av_m: [i64; 9] = [0; 9];
+    #[allow(unused_mut)]
+    let mut census = Census::default();
+    #[cfg(census)]
+    { census.on = args.census; }
     let castle: Vec<Prism> = if args.castle.is_empty() { Vec::new() } else {
         match load_castle(&args.castle) {
             Ok(p) => { eprintln!("castle: {} prisms from {}", p.len(), args.castle); p }
@@ -2667,7 +2736,7 @@ fn main() {
             let ceye = cx0 + (cx1 - cx0) * cv / 256 + (3 << 8);
             let reach = ladder[ladder.len() - 1].2;
             draw_castle(&mut buf, &mut zbuf, cw, ch, &cm, (rcam.px, rcam.py, ceye),
-                        &castle, reach * TILE * 256);
+                        &castle, reach * TILE * 256, &mut census);
         }
         if args.third && !ladder.is_empty() {
             let t_q32 = fx_cam.rdiv((frame - av_start) as i128 * ONE as i128, 120);
@@ -2741,7 +2810,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.17 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.18 input trace: keys dx dy (one line per frame)
 ");
         // THE DECLARATION, written by the only party that knows the intended length.
         t.push_str(&format!("# frames {}
@@ -2758,7 +2827,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.17 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.18 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | sky {} | third {} | castle {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
@@ -2832,6 +2901,27 @@ focus_wait_ms {} | xinput_loaded {} | pad_connected {}
 ",
                               if missed.is_empty() { "COMPLETE".to_string() }
                               else { format!("INCOMPLETE ({})", missed.join(", ")) }));
+    }
+    #[cfg(census)]
+    if census.on {
+        // THE IDENTITY IS PRINTED SO A READER CAN CHECK IT, and `census_identity` says whether
+        // it held rather than leaving the arithmetic to whoever is looking.
+        let part = census.edge_reject + census.depth_reject + census.written;
+        log.push_str(&format!("census_visited {}
+", census.visited));
+        log.push_str(&format!("census_edge_reject {}
+", census.edge_reject));
+        log.push_str(&format!("census_depth_reject {}
+", census.depth_reject));
+        log.push_str(&format!("census_written {}
+", census.written));
+        log.push_str(&format!("census_identity {}
+",
+                              if part == census.visited { "HOLDS" } else { "BROKEN" }));
+        log.push_str(&format!("census_bbox_away {}
+", census.bbox_away));
+        log.push_str(&format!("census_triangles {}
+", census.triangles));
     }
     log.push_str(&format!("frames {} | late_over_1ms {} | seg {}
 ", late_ns.len(), late_over, seg));

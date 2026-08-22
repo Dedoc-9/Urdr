@@ -449,6 +449,26 @@ discards, holding the pinned v1.6 chains; the four side planes are NOT clipped, 
 guard band waits for the fill census to show whether it is warranted rather than being built on
 anticipation. Chains move with the pixels, as always.
 
+v1.18 — THE FILL CENSUS, AND THE BUCKET IT REFUSED TO COUNT. `castlecost` priced the castle and
+bounded its SETUP at 66 microseconds against a 17.5 ms peak, so the cost is FILL and the open
+question was which kind. `--cfg census` compiles four counters into `draw_castle`'s inner loop,
+`--census` runs them, and the identity `visited = edge_reject + depth_reject + written` is the
+INSTRUMENT'S OWN VALIDITY CHECK — all four incremented independently, `visited` at the top of each
+bbox iteration and the others at the exit each pixel actually takes, so the identity can FAIL if
+the control-flow accounting is wrong. Defining `visited` as the sum would have made it a
+tautology, and a check that cannot fail is not a check. THE BUCKET THAT WAS PROPOSED AND REFUSED:
+an `offscreen` count is a STRUCTURAL ZERO here, because the bbox is clamped to the screen before
+iteration — reporting a zero the code cannot avoid would have looked like a finding. What it was
+meant to test, excessive bounding-box traversal, is counted OUTSIDE the loop instead as the box
+area the clamp removed, reported beside the identity rather than inside it because it counts a
+different population. THREE CELLS FROM TWO COMPILATIONS: without `--cfg census` the production
+build contains NO counter code at all — not a runtime branch, no code — so the baseline is
+defensible, and running the census build with the flag off measures the tax of CARRYING the
+machinery separately from the tax of USING it. DECLARED: a census run's `raster_ns` is NOT a cost
+measurement, because counters in the innermost loop perturb exactly the quantity the previous
+rungs priced; the census produces RATIOS and the A/B produces nanoseconds, and nobody may read one
+as the other. The render path is untouched in the default build, so every v1.17 chain stands.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

@@ -85,8 +85,9 @@ fn main() {
             let cx1 = c01 + (c11 - c01) * cu / 256;
             let ceye = cx0 + (cx1 - cx0) * cv / 256 + (3 << 8);
             let rr = ladder[ladder.len() - 1].2;
+            let mut cen = Census::default();
             draw_castle(&mut buf, &mut zbuf, cw, ch, &cm, (rcam.px, rcam.py, ceye),
-                        &castle, rr * TILE * 256);
+                        &castle, rr * TILE * 256, &mut cen);
         }
         if third && !ladder.is_empty() {
             let t_q32 = fx_cam.rdiv((frame - av_start) as i128 * ONE as i128, 120);
