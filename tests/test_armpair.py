@@ -83,6 +83,16 @@ class TheRetirement(unittest.TestCase):
     def test_a_restored_reference_reddens(self):
         self.assertTrue(A.a_restored_reference_reddens())
 
+    def test_these_records_predate_the_raster_stamp(self):
+        self.assertTrue(A.these_records_predate_the_raster_stamp())
+
+    def test_a_stamped_record_would_redden_that_law(self):
+        """The successor is stronger, so the deficiency law must be able to notice it arrive."""
+        name, _pin = A.RECORDS[("inc", "r60", "on", "a")]
+        self.assertNotIn("| raster ", A._read(name))
+        self.assertIn("| raster span |",
+                      "fpsdemo v1.21 | host h | qpf 1 | raster span |")
+
 
 class TheGoldens(unittest.TestCase):
     def test_both_scenes_reproduce_their_goldens(self):

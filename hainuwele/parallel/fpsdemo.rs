@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.20).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.21).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -481,6 +481,17 @@ const VIEW: i64 = 20;
 // fidelity/reach cell this arc had explicitly frozen — so it was rejected in favour of a half
 // unit, which keeps 720p and 1080p at reach 60 and 120 with the worst case at 29% of the i64
 // ceiling. See `projection_bound_ok`.
+//: v1.21 — THE RECORD SAYS WHICH RASTER PATH WROTE IT. `armpair` had to DECLARE which build
+//: produced each of v1.20's sixteen records, because the banner named version, host, power,
+//: scheduler, hz, res, mode, reach, sky, third, castle and qpf and stopped. An arm that cannot be
+//: read out of the bytes is the operator's word, and the next rung introduces another arm. The
+//: field is APPENDED after qpf on purpose: every committed parser's header regex ends at `castle`
+//: or reads `|`-separated key/value pairs, so a trailing field adds a key and moves nothing.
+#[cfg(not(castlefullrow))]
+const RASTER_PATH: &str = "span";
+#[cfg(castlefullrow)]
+const RASTER_PATH: &str = "fullrow";
+
 const NEAR8: i64 = 128;                // near clip in Q8 camera units — v1's 12-unit clip threw
                                        // away the four nearest rings of ground wholesale
 const FAR8: i64 = VIEW * TILE * 256;   // patch edge in Q8 — the depth-fog ruler
@@ -1114,6 +1125,11 @@ fn selfcheck() -> bool {
     println!("selfcheck edge recurrence: {}", if rec_ok { "MATCHES RECOMPUTATION" }
              else { "MISMATCH — the incremental edge functions are NOT the determinants" });
     ok &= rec_ok;
+    // v1.21: the premise the row-span break rests on, likewise in BOTH builds
+    let spn_ok = span_break_battery();
+    println!("selfcheck span break     : {}", if spn_ok { "VISITS THE FULL SCAN'S PIXELS" }
+             else { "MISMATCH — breaking a row drops pixels the full scan reaches" });
+    ok &= spn_ok;
     // v1.13: the promoted placements run their batteries at every launch, same door
     let mut fxp = Fx::new();
     let pse_ok = pse_battery(&mut fxp);
@@ -1530,6 +1546,59 @@ fn edge_recurrence_battery() -> bool {
         }
     }}}
     true
+}
+
+// v1.21 — THE BREAK-BASED TRAVERSAL VISITS EXACTLY THE PIXELS THE FULL SCAN DOES.
+//
+// `draw_castle` now abandons a row once it has entered the triangle's span and left it. The
+// justification is that {w0 >= 0, w1 >= 0, w2 >= 0} is an intersection of three half-planes,
+// therefore CONVEX, therefore its intersection with a horizontal line is an INTERVAL whose
+// integer points are contiguous. Its single failure mode is a row where that reasoning does not
+// apply: the break would drop pixels silently, on a walk that never produced a visible symptom.
+//
+// AN EARLIER VERSION OF THIS BATTERY ONLY COUNTED RUNS PER ROW, and it was WRONG AS A FALSIFIER
+// — the red-first check proved it. Removing the winding fix, which was the plant, does not create
+// a gap; it makes the region EMPTY, so every row reads zero runs and a run-counting battery
+// reports success. A property that no mutation of its own inputs can violate is a theorem, not a
+// check, and a battery that restates a theorem is decoration.
+//
+// So this asserts the thing `draw_castle` actually depends on: the pixel set the BREAK-BASED
+// control flow visits equals the pixel set the FULL scan visits, row by row, compared by count
+// AND by positional checksum so two different sets of the same size cannot pass. Both scans use
+// DIRECT evaluation rather than the recurrence, which is under test elsewhere. The sweep refuses
+// to be vacuous: some row must actually contain a pixel.
+//
+// DOES NOT SHOW: that `draw_castle` transcribes this control flow correctly. That is what the
+// replay equality against the retained full-row arm establishes.
+// FALSIFIER, demonstrated rather than asserted: drop the `entered` guard so a row breaks on its
+// first rejected pixel, and this reddens on every triangle whose span does not start at the
+// bounding box's left edge.
+fn span_break_battery() -> bool {
+    let pts: [(i64, i64); 6] = [(0, 0), (31, 1), (1, 29), (-17, 12), (23, -19), (5, 5)];
+    let e = |p: (i64, i64), q: (i64, i64), px: i64, py: i64|
+                (q.0 - p.0) * (py - p.1) - (q.1 - p.1) * (px - p.0);
+    let mut covered = 0u32;
+    for &p0 in pts.iter() { for &p1 in pts.iter() { for &p2 in pts.iter() {
+        let area = (p1.0 - p0.0) * (p2.1 - p0.1) - (p1.1 - p0.1) * (p2.0 - p0.0);
+        if area == 0 { continue }
+        let (a, b, c) = if area < 0 { (p0, p2, p1) } else { (p0, p1, p2) };
+        let (x_lo, y_lo) = (a.0.min(b.0).min(c.0), a.1.min(b.1).min(c.1));
+        let (x_hi, y_hi) = (a.0.max(b.0).max(c.0), a.1.max(b.1).max(c.1));
+        for py in y_lo..=y_hi {
+            let inside = |px: i64| e(a, b, px, py) >= 0 && e(b, c, px, py) >= 0
+                                   && e(c, a, px, py) >= 0;
+            let (mut fn_, mut fs) = (0u32, 0i64);
+            for px in x_lo..=x_hi { if inside(px) { fn_ += 1; fs += px } }
+            let (mut bn, mut bs, mut entered) = (0u32, 0i64, false);
+            for px in x_lo..=x_hi {
+                if inside(px) { entered = true; bn += 1; bs += px }
+                else if entered { break }
+            }
+            if fn_ != bn || fs != bs { return false }
+            covered += fn_;
+        }
+    }}}
+    covered > 0
 }
 
 // The seeded lattice value in [0, VMAX] — sha256("URDRHF1|seed|layer|xi|yi")[:4] big-endian & VMAX.
@@ -2255,10 +2324,31 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
             // the proof. `edge_recurrence_battery` still holds the ALGEBRAIC identity at every
             // launch, which is what covers the inputs the walk never visited.
             //
-            // DELIBERATELY NOT DONE HERE: `raster_rings`'s `entered`/`break` early-out, which
-            // would abandon a row once the span is left. That attacks the 58.97% edge-reject
-            // population and is the NEXT rung — stacking it here would forfeit the attribution
-            // the census exists to provide.
+            // v1.21 — THE ROW SPAN CLOSES EARLY. The census named edge_reject the largest
+            // population by far — 12.14 G of 20.59 G iterations, 58.97% — and v1.20's A/B
+            // confirmed the recurrence removed about a sixth of the castle's fill while leaving
+            // that population entirely untouched. This is the attack on it, and it is the same
+            // one `raster_rings` has carried since the terrain existed: the inside set of a
+            // CONVEX triangle on any horizontal line is an INTERVAL, so once a row has entered
+            // the span and left it, no later pixel on that row can be inside. The loop breaks.
+            //
+            // `span_contiguity_battery` proves the premise at every launch rather than trusting
+            // convexity to be obvious — a non-contiguous row would make the break drop pixels
+            // silently, which is the one failure mode this optimisation has.
+            //
+            // THE CENSUS SIGNATURE WAS PREDICTED BEFORE THIS WAS BUILT, and it is sharper than
+            // "the digest did not move": `written`, `depth_reject` and `triangles` must be
+            // IDENTICAL to v1.20's, while `visited` and `edge_reject` fall by exactly the same
+            // amount. The pixel the break happens ON is still counted as an edge reject, because
+            // its test ran; skipping that count would break the identity by one per row and
+            // raise a false alarm in the instrument.
+            //
+            // STILL NOT DONE HERE, and it is the larger half: the LEADING run of edge rejects,
+            // to the left of the span, which this cannot touch because the row has not entered
+            // yet. That boundary is solvable in closed form — the first inside pixel is at
+            // ceil(-w / dwx) for the binding edge — and it is a DIFFERENT rung. What survives
+            // in the re-census after this ships IS that population, measured rather than
+            // estimated: leading runs plus rows the triangle never reaches at all.
             let (dw0x, dw0y) = (-(b.1 - a.1), b.0 - a.0);
             let (dw1x, dw1y) = (-(c.1 - b.1), c.0 - b.0);
             let (dw2x, dw2y) = (-(a.1 - c.1), a.0 - c.0);
@@ -2268,15 +2358,24 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
             for py in y_lo..=y_hi {
                 let row = (py * w as i64) as usize;
                 let (mut w0, mut w1, mut w2) = (w0r, w1r, w2r);
+                #[cfg(not(castlefullrow))]
+                let mut entered = false;
                 for px in x_lo..=x_hi {
                     cen!(cen, visited, 1);
                     if w0 >= 0 && w1 >= 0 && w2 >= 0 {
+                        #[cfg(not(castlefullrow))]
+                        { entered = true; }
                         let d = (a.2 * w1 + b.2 * w2 + c.2 * w0) / area;
                         let di = d.clamp(0, i32::MAX as i64) as i32;
                         let i = row + px as usize;
                         if di < zbuf[i] { zbuf[i] = di; buf[i] = cc; cen!(cen, written, 1); }
                         else { cen!(cen, depth_reject, 1); }
-                    } else { cen!(cen, edge_reject, 1); }
+                    } else {
+                        cen!(cen, edge_reject, 1);
+                        // the break pixel's test RAN, so it is counted before the row closes
+                        #[cfg(not(castlefullrow))]
+                        if entered { break }
+                    }
                     w0 += dw0x; w1 += dw1x; w2 += dw2x;
                 }
                 w0r += dw0y; w1r += dw1y; w2r += dw2y;
@@ -2894,7 +2993,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.20 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.21 input trace: keys dx dy (one line per frame)
 ");
         // THE DECLARATION, written by the only party that knows the intended length.
         t.push_str(&format!("# frames {}
@@ -2911,14 +3010,14 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.20 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
-reach {} | sky {} | third {} | castle {} | qpf {}\n",
+        "fpsdemo v1.21 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+reach {} | sky {} | third {} | castle {} | qpf {} | raster {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
         if args.sky { "starfield" } else { "off" },
         if args.third { "wanderer" } else { "off" },
         if castle.is_empty() { "off".to_string() } else { format!("{}", castle.len()) },
-        freq));
+        freq, RASTER_PATH));
     if !ladder.is_empty() {
         for &(stride, inn, out) in &ladder {
             log.push_str(&format!("ring stride {} tiles {}..{}\n", stride, inn, out));

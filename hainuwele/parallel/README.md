@@ -515,6 +515,36 @@ it, not proof — and stamping the raster path is owed by v1.21, which introduce
 needs it anyway. NEXT: the span early-out, alone, against the 58.97% edge-reject population, then
 the census again.
 
+v1.21 — THE ROW SPAN CLOSES EARLY, AND THE CENSUS SIGNATURE WAS PREDICTED BEFORE IT WAS BUILT.
+The census named `edge_reject` the largest population by far (12.14 G of 20.59 G iterations,
+58.97%) and v1.20 confirmed the recurrence had left it entirely untouched. This is the attack on
+it, and it is the same one `raster_rings` has carried since the terrain existed: the inside set of
+a CONVEX triangle on any horizontal line is an INTERVAL, so once a row has entered the span and
+left it, no later pixel on that row can be inside — the loop breaks. The full-row scan is RETAINED
+under `--cfg castlefullrow` on exactly the v1.19 protocol, and retires the same way once the
+equality is green on the named host. WHAT MAKES THIS RUNG DIFFERENT FROM ITS PREDECESSOR IS THAT
+THE RESULT WAS WRITTEN DOWN FIRST. Because the break removes iterations without changing which
+pixels pass either test, the census had to move in one specific way and no other: `written`,
+`depth_reject`, `triangles` and `bbox_away` IDENTICAL to v1.20's digits, and `visited` and
+`edge_reject` falling by exactly the same amount. On the authoring container it did — 4,297,902,868
+iterations removed from both, 20.87% of all visits, 35.39% of the edge-reject population, with the
+digest chain unmoved across all 2564 frames. A prediction registered before the build and then met
+is worth more than the same numbers read off afterwards, because afterwards every number looks
+like it was expected. AND THE RESIDUAL IS THE NEXT RUNG, MEASURED RATHER THAN ESTIMATED: 7.85 G
+edge rejects survive, 48.15% of what remains, and they are the LEADING runs — pixels to the left of
+the span, which a break cannot reach because the row has not entered yet. That boundary is solvable
+in closed form rather than scanned, and it is a separate rung. THE BATTERY WAS WRONG FIRST AND THE
+RED-FIRST CHECK CAUGHT IT: a version counting inside-runs per row could not be falsified by any
+mutation of its own inputs, because removing the winding fix makes the region EMPTY rather than
+gapped and an empty row reads zero runs. A property no mutation can violate is a theorem, not a
+check. The shipped battery asserts what `draw_castle` actually depends on — the break-based
+traversal visits exactly the pixel set the full scan visits, compared by count AND positional
+checksum — and dropping the `entered` guard reddens it. CONTRACT HYGIENE, not the variable: the
+banner now carries `| raster <path>`, appended after `qpf` so every committed parser's header regex
+is untouched, so that the NEXT arm-pair claim can DERIVE which build wrote each record instead of
+declaring it. `armpair` asserts that its own sixteen records lack the field, which is what stops
+the weaker claim from being reused once stronger records exist.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

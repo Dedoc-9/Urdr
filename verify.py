@@ -19290,6 +19290,7 @@ class Gate:
                     and AP.one_workload_ran_in_every_record()
                     and AP.every_record_declares_the_same_conditions()
                     and AP.the_retired_path_is_gone_from_the_source()
+                    and AP.these_records_predate_the_raster_stamp()
                     and all(len(AP.arm_pair(r, c, k)[0]["chain"]) == 43
                             for r, c in AP.CELLS for k in AP.RUNS)
                     and AP.scene_result("equality") == AP.golden("equality"))
@@ -19309,7 +19310,11 @@ class Gate:
                     "genuinely drew; an equality asserted over sixteen copies of one file would "
                     "read green and mean nothing. One workload and one set of declared conditions "
                     "across all sixteen. AND THE RETIREMENT IS SWEPT, not narrated: the cfg name "
-                    "appears nowhere in fpsdemo.rs, so re-adding it reddens this row"
+                    "appears nowhere in fpsdemo.rs, so re-adding it reddens this row. THE ONE THING STILL "\
+                    "DECLARED HERE IS THE ARM LABEL, because these sixteen banners carry no "\
+                    "raster-path field — v1.21 adds one, and the law asserting that these "\
+                    "records LACK it is what stops the weaker claim being reused on records "\
+                    "that no longer need it"
                     if e_ok else "the equality half did not hold")
         sp_ok, told = True, "?"
         try:

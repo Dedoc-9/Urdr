@@ -304,6 +304,25 @@ def the_control_has_no_direction():
     return signs == {True, False}
 
 
+def these_records_predate_the_raster_stamp():
+    """THE DEBT, MADE MECHANICAL INSTEAD OF LEFT IN PROSE.
+
+    The arm label above is DECLARED because these sixteen banners carry no raster-path field.
+    v1.21 adds one, so records committed after it CAN name their own arm — and this law is what
+    stops the old, weaker claim from being quietly reused on records that no longer need it. It
+    asserts the deficiency it is apologising for: not one of these sixteen carries the field.
+
+    WHEN IT REDDENS, IT MUST BE REPLACED AND NOT RELAXED. A stamped record appearing under these
+    keys means the arm is derivable, and the successor law is `the arms disagree on their own
+    stamped raster path` — strictly stronger, and no longer the operator's word.
+    """
+    for key in RECORDS:
+        name, _pin = RECORDS[key]
+        if "| raster " in _read(name):
+            return False
+    return True
+
+
 def the_retired_path_is_gone_from_the_source(text=None):
     """`castleref` appears nowhere in fpsdemo.rs — the retirement is a fact about the file.
 
