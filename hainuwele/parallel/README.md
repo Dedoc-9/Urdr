@@ -469,6 +469,28 @@ measurement, because counters in the innermost loop perturb exactly the quantity
 rungs priced; the census produces RATIOS and the A/B produces nanoseconds, and nobody may read one
 as the other. The render path is untouched in the default build, so every v1.17 chain stands.
 
+v1.19 — THE EDGE FUNCTIONS INCREMENT, AND THE PATH THEY REPLACE IS KEPT AS A WITNESS. The census
+measured 20.59 G bbox iterations through `draw_castle`, so the per-pixel cost IS the cost, and the
+reference loop was rebuilding all three edge determinants from their endpoints at every one of
+them — six multiplies per pixel, where `raster_rings` twenty lines away has always carried them
+forward with `w(x+1, y) = w(x, y) + dwx` for three adds. The recurrence is now the default path.
+Over the integers it is an IDENTITY, not an approximation, so the optimisation's correctness claim
+is the strongest kind available here: THE DIGEST CHAIN DOES NOT MOVE. That is established by
+measurement in two independent ways. First, `edge_recurrence_battery` sweeps triangles over a
+window anchored at each one's own bbox corner and compares the CARRIED value against the
+RECOMPUTED one at every pixel of it, exactly; it is compiled into BOTH builds, because a config
+that could silently drop its own premise would make the reference worthless as a reference.
+Second — and this is what the rung is actually for — the recomputation is RETAINED under
+`--cfg castleref`, and the same committed trace is replayed through both builds, so the equality
+is established BY REPLAY rather than assumed: for every frame f, D_reference(f) = D_incremental(f)
+at all 43 checkpoints. The reference retires by the tree's normal protocol once that is green, not
+before. DELIBERATELY NOT DONE HERE: `raster_rings`'s `entered`/`break` early-out, which abandons a
+row once the span is left and is the obvious attack on the 58.97% edge-reject population. It is
+the NEXT rung. Stacking it here would forfeit the attribution the census was built to provide —
+the point of measure, change one thing, measure again is that the second measurement answers a
+question, and two simultaneous changes make it answer none. DOES NOT SHOW: any speedup. This rung
+ships the equality; the A/B that prices it is a separate measurement on the named host.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

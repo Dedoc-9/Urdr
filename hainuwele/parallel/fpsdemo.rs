@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.18).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.19).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -1109,6 +1109,11 @@ fn selfcheck() -> bool {
     println!("selfcheck near clip      : {}", if clip_ok { "MATCHES CONTRACT" }
              else { "MISMATCH — the near plane is NOT clipped correctly" });
     ok &= clip_ok;
+    // v1.19: the castle raster's edge recurrence, in BOTH builds — see the battery's own note
+    let rec_ok = edge_recurrence_battery();
+    println!("selfcheck edge recurrence: {}", if rec_ok { "MATCHES RECOMPUTATION" }
+             else { "MISMATCH — the incremental edge functions are NOT the determinants" });
+    ok &= rec_ok;
     // v1.13: the promoted placements run their batteries at every launch, same door
     let mut fxp = Fx::new();
     let pse_ok = pse_battery(&mut fxp);
@@ -1474,6 +1479,56 @@ fn near_clip_battery() -> bool {
     // the cut does not depend on which way the edge was walked (floordiv's domain, kept)
     clip_near(&[(0i64, 0i64, 0i64), (1000, 1024, 1000), (0, 4000, 0)]).1
         == clip_near(&[(1000i64, 1024i64, 1000i64), (0, 0, 0), (0, 4000, 0)]).1
+}
+
+// v1.19 — THE RECURRENCE IS THE RECOMPUTATION, AND IT IS PROVED IN BOTH BUILDS.
+//
+// `draw_castle`'s inner loop now carries the three edge functions forward by addition instead of
+// rebuilding each determinant from its endpoints:
+//     w(x+1, y) = w(x, y) + dwx        w(x, y+1) = w(x, y) + dwy
+// Over the integers that is an identity, and the entire correctness argument for the optimisation
+// rests on it — so it does not get to be an argument. This walks a spread of triangles over a
+// window anchored at their own bbox corner and compares the CARRIED value against the RECOMPUTED
+// one at every pixel of it, exactly.
+//
+// COMPILED INTO BOTH BUILDS ON PURPOSE. The `castleref` build proves the law it is the witness
+// for; the default build proves the law it depends on. `--cfg castleref` chooses which raster
+// path runs, not whether this door is open — a config that could silently drop its own premise
+// would make the reference worthless as a reference.
+//
+// DOES NOT SHOW: that `draw_castle` applies the recurrence correctly. That is what the replay
+// equality D_reference(f) = D_incremental(f) over the committed trace is for; this shows only
+// that the arithmetic law underneath it holds, swept rather than asserted at one point.
+// FALSIFIER: flip either delta's sign, or seed a row from the wrong corner, and this reddens.
+fn edge_recurrence_battery() -> bool {
+    let pts: [(i64, i64); 6] = [(0, 0), (37, -11), (-40, 25), (1279, 719), (-500, 640),
+                                (900, -300)];
+    let e = |p: (i64, i64), q: (i64, i64), px: i64, py: i64|
+                (q.0 - p.0) * (py - p.1) - (q.1 - p.1) * (px - p.0);
+    for &p0 in pts.iter() { for &p1 in pts.iter() { for &p2 in pts.iter() {
+        let area = (p1.0 - p0.0) * (p2.1 - p0.1) - (p1.1 - p0.1) * (p2.0 - p0.0);
+        if area == 0 { continue }
+        // the same winding fix the rasteriser makes, so the battery walks the shape it walks
+        let (a, b, c) = if area < 0 { (p0, p2, p1) } else { (p0, p1, p2) };
+        let (x_lo, y_lo) = (a.0.min(b.0).min(c.0), a.1.min(b.1).min(c.1));
+        let (dw0x, dw0y) = (-(b.1 - a.1), b.0 - a.0);
+        let (dw1x, dw1y) = (-(c.1 - b.1), c.0 - b.0);
+        let (dw2x, dw2y) = (-(a.1 - c.1), a.0 - c.0);
+        let mut w0r = e(a, b, x_lo, y_lo);
+        let mut w1r = e(b, c, x_lo, y_lo);
+        let mut w2r = e(c, a, x_lo, y_lo);
+        for py in y_lo..y_lo + 16 {
+            let (mut w0, mut w1, mut w2) = (w0r, w1r, w2r);
+            for px in x_lo..x_lo + 24 {
+                if w0 != e(a, b, px, py) { return false }
+                if w1 != e(b, c, px, py) { return false }
+                if w2 != e(c, a, px, py) { return false }
+                w0 += dw0x; w1 += dw1x; w2 += dw2x;
+            }
+            w0r += dw0y; w1r += dw1y; w2r += dw2y;
+        }
+    }}}
+    true
 }
 
 // The seeded lattice value in [0, VMAX] — sha256("URDRHF1|seed|layer|xi|yi")[:4] big-endian & VMAX.
@@ -2182,8 +2237,54 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
             let (tr, tg, tb) = (((col >> 16) & 255) as i64, ((col >> 8) & 255) as i64,
                                 (col & 255) as i64);
             let cc = (ch3(tr, 60) << 16) | (ch3(tg, 120) << 8) | ch3(tb, 190);
+            // v1.19 — THE EDGE FUNCTIONS INCREMENT. The reference path recomputed each of the
+            // three determinants from scratch at EVERY pixel: six multiplies per pixel, where
+            // `raster_rings` twenty lines away has always used the recurrence
+            //     w(x+1, y) = w(x, y) + dwx        w(x, y+1) = w(x, y) + dwy
+            // for three ADDS. The census counted 20.59 G iterations through this loop, so the
+            // per-pixel cost is the whole cost, and the terrain already carried the template.
+            //
+            // THE ARITHMETIC IS EXACT, so the recurrence is BIT-IDENTICAL to recomputation and
+            // the optimisation's correctness proof is that the digest chain does not move. The
+            // reference path is RETAINED under `--cfg castleref` so the equality can be
+            // established by replay rather than assumed, and `edge_recurrence_battery` proves
+            // the identity at every launch in both builds.
+            //
+            // DELIBERATELY NOT DONE HERE: `raster_rings`'s `entered`/`break` early-out, which
+            // would abandon a row once the span is left. That attacks the 58.97% edge-reject
+            // population and is the NEXT rung — stacking it here would forfeit the attribution
+            // this census exists to provide.
+            #[cfg(not(castleref))]
+            let (dw0x, dw0y) = (-(b.1 - a.1), b.0 - a.0);
+            #[cfg(not(castleref))]
+            let (dw1x, dw1y) = (-(c.1 - b.1), c.0 - b.0);
+            #[cfg(not(castleref))]
+            let (dw2x, dw2y) = (-(a.1 - c.1), a.0 - c.0);
+            #[cfg(not(castleref))]
+            let mut w0r = (b.0 - a.0) * (y_lo - a.1) - (b.1 - a.1) * (x_lo - a.0);
+            #[cfg(not(castleref))]
+            let mut w1r = (c.0 - b.0) * (y_lo - b.1) - (c.1 - b.1) * (x_lo - b.0);
+            #[cfg(not(castleref))]
+            let mut w2r = (a.0 - c.0) * (y_lo - c.1) - (a.1 - c.1) * (x_lo - c.0);
             for py in y_lo..=y_hi {
                 let row = (py * w as i64) as usize;
+                #[cfg(not(castleref))]
+                {
+                    let (mut w0, mut w1, mut w2) = (w0r, w1r, w2r);
+                    for px in x_lo..=x_hi {
+                        cen!(cen, visited, 1);
+                        if w0 >= 0 && w1 >= 0 && w2 >= 0 {
+                            let d = (a.2 * w1 + b.2 * w2 + c.2 * w0) / area;
+                            let di = d.clamp(0, i32::MAX as i64) as i32;
+                            let i = row + px as usize;
+                            if di < zbuf[i] { zbuf[i] = di; buf[i] = cc; cen!(cen, written, 1); }
+                            else { cen!(cen, depth_reject, 1); }
+                        } else { cen!(cen, edge_reject, 1); }
+                        w0 += dw0x; w1 += dw1x; w2 += dw2x;
+                    }
+                    w0r += dw0y; w1r += dw1y; w2r += dw2y;
+                }
+                #[cfg(castleref)]
                 for px in x_lo..=x_hi {
                     cen!(cen, visited, 1);
                     let w0 = (b.0 - a.0) * (py - a.1) - (b.1 - a.1) * (px - a.0);
@@ -2196,6 +2297,7 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
                     if di < zbuf[i] { zbuf[i] = di; buf[i] = cc; cen!(cen, written, 1); }
                     else { cen!(cen, depth_reject, 1); }
                 }
+                #[cfg(castleref)] { let _ = row; }
             }
         }
     };
@@ -2810,7 +2912,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.18 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.19 input trace: keys dx dy (one line per frame)
 ");
         // THE DECLARATION, written by the only party that knows the intended length.
         t.push_str(&format!("# frames {}
@@ -2827,7 +2929,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.18 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.19 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | sky {} | third {} | castle {} | qpf {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,
