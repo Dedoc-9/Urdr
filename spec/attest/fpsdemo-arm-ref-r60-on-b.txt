@@ -1,0 +1,81 @@
+fpsdemo v1.19 | host ROG-Ally-X-Z2-Extreme | power Turbo-35W-AC | scheduler Win11-GameMode-UltimatePerf | hz 120 | res 1280x720 | mode replay | reach 60 | sky starfield | third wanderer | castle 238 | qpf 10000000
+ring stride 1 tiles 0..56
+ring stride 2 tiles 53..60
+prefill_tiles 17914
+cache_cap 35828 | occupancy 25591 | recomputes 25591 | evictions 0
+cache_policy derived-rail-2x-footprint
+timer_1ms_granted true | focus_foreground true | focus_frames 2564/2564 | focus_wait_ms 0 | xinput_loaded n/a | pad_connected n/a
+measurement_class replay
+replay_trace spec\attest\fpsdemo-castle-walk.txt bytes 597e1a796c4e491e0a2d3403c5a452dd474b85c9e4a087cd286a0bac66be0581
+replay_workload sha256 3d8a0a1c11d331649c9dc05d663d2135697238c8704721e67f49bd0783f3fd65
+replay_declared legacy
+replay_frames 2564/2564
+replay_focus 2564/2564
+replay_status COMPLETE
+frames 2564 | late_over_1ms 2183 | seg 120
+late_ns p50 12211803800 p95 21379039800 p99 22899047200
+seg 0 n 120 raster_ns 4172800 4379200 5434700 present_ns 200300 272700 1478300 late 1
+seg 1 n 120 raster_ns 4187100 4340100 4663900 present_ns 198900 274600 1616200 late 0
+seg 2 n 120 raster_ns 4196400 5190100 8208200 present_ns 196200 256500 1743600 late 2
+seg 3 n 120 raster_ns 6185500 11382800 25637900 present_ns 196900 285500 1571500 late 96
+seg 4 n 120 raster_ns 20123100 27236000 32013400 present_ns 251900 308400 369000 late 120
+seg 5 n 120 raster_ns 14510500 22021500 28828000 present_ns 244300 298100 359700 late 120
+seg 6 n 120 raster_ns 13082000 16697600 26953300 present_ns 239200 276200 1071800 late 120
+seg 7 n 120 raster_ns 17305100 22456800 26173700 present_ns 257900 317100 525800 late 120
+seg 8 n 120 raster_ns 21048300 23243400 27826700 present_ns 245400 299600 388900 late 120
+seg 9 n 120 raster_ns 19846800 22680800 26872700 present_ns 247400 302500 365200 late 120
+seg 10 n 120 raster_ns 18265300 22223100 34167900 present_ns 233300 299700 465000 late 120
+seg 11 n 120 raster_ns 14715900 18892800 38997900 present_ns 236900 290800 384700 late 120
+seg 12 n 120 raster_ns 12339000 14693000 18096500 present_ns 210400 267000 424800 late 120
+seg 13 n 120 raster_ns 10806700 15125300 16645400 present_ns 218200 272800 1490600 late 120
+seg 14 n 120 raster_ns 9208100 11111000 15874600 present_ns 205600 266500 1592200 late 120
+seg 15 n 120 raster_ns 5338100 5704500 9840900 present_ns 198100 261600 1464200 late 120
+seg 16 n 120 raster_ns 5263900 9719600 14263800 present_ns 197500 283400 1329200 late 120
+seg 17 n 120 raster_ns 8972100 15867000 22346400 present_ns 220600 293600 1831100 late 120
+seg 18 n 120 raster_ns 16867200 24034300 31059900 present_ns 227100 301600 395800 late 120
+seg 19 n 120 raster_ns 12973200 23500500 29301500 present_ns 254600 310900 359900 late 120
+seg 20 n 120 raster_ns 18940100 21967400 25145100 present_ns 262100 321700 377600 late 120
+seg 21 n 44 raster_ns 23160100 24790000 26459700 present_ns 269400 292200 355500 late 44
+digest frame 59 fnv64 e82aab0483f4d598
+digest frame 119 fnv64 c16be073bfb70840
+digest frame 179 fnv64 e82aab0483f4d598
+digest frame 239 fnv64 3192c508832f792c
+digest frame 299 fnv64 a29bc1421c102e7e
+digest frame 359 fnv64 0a99f62b7925673b
+digest frame 419 fnv64 98ffd76daff453df
+digest frame 479 fnv64 016b84ec9d865ec6
+digest frame 539 fnv64 d3216e24b03a544d
+digest frame 599 fnv64 110f187038d61219
+digest frame 659 fnv64 8148bf06ee2d9282
+digest frame 719 fnv64 aa2ff65d5857fb9a
+digest frame 779 fnv64 5dc1994c8eedbe8b
+digest frame 839 fnv64 255726b87462bf7c
+digest frame 899 fnv64 329577c809f7b9f7
+digest frame 959 fnv64 74bef5295b4378f2
+digest frame 1019 fnv64 5fae3dcf52877d9f
+digest frame 1079 fnv64 241941496fcbf336
+digest frame 1139 fnv64 5683579d527dce5d
+digest frame 1199 fnv64 929b92212626f50b
+digest frame 1259 fnv64 7c1032da470c497f
+digest frame 1319 fnv64 ac3614c932616785
+digest frame 1379 fnv64 5566166b1ba83a3c
+digest frame 1439 fnv64 adc87ca6eb6799c0
+digest frame 1499 fnv64 24bf519771c3c15f
+digest frame 1559 fnv64 8565ece579661dbd
+digest frame 1619 fnv64 70816694f1ca1f32
+digest frame 1679 fnv64 5b4542fdc6d8c919
+digest frame 1739 fnv64 799ad8940310940d
+digest frame 1799 fnv64 bc4e6cb04b49e56f
+digest frame 1859 fnv64 85a08c85724efa27
+digest frame 1919 fnv64 37b02ea1562e88fe
+digest frame 1979 fnv64 55a240b642ede1c8
+digest frame 2039 fnv64 66266277b6a94ad5
+digest frame 2099 fnv64 35daf3cd960d5711
+digest frame 2159 fnv64 b2e5bd23ee364579
+digest frame 2219 fnv64 ef9a1398bd9ce74f
+digest frame 2279 fnv64 6d92473b5bf5e325
+digest frame 2339 fnv64 23124cf79c34bff9
+digest frame 2399 fnv64 07fd1b0773588dfc
+digest frame 2459 fnv64 964987080c674b49
+digest frame 2519 fnv64 0d36b06d1dc4317d
+digest frame 2563 fnv64 38e1387e16a749dc

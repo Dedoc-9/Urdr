@@ -491,6 +491,30 @@ the point of measure, change one thing, measure again is that the second measure
 question, and two simultaneous changes make it answer none. DOES NOT SHOW: any speedup. This rung
 ships the equality; the A/B that prices it is a separate measurement on the named host.
 
+v1.20 — THE REFERENCE RETIRES, AND ITS EVIDENCE DOES NOT GO WITH IT. The named host ran the A/B:
+sixteen records, eight arm-pairs across reach 60 and 120 with the castle on and off, and every
+pair agrees at all 43 checkpoints — so `D_reference(f) = D_incremental(f)` is now established on
+BOTH operating systems, and on the container it holds over all 2564 frames with the six census
+counters agreeing too, which is a second observable rather than the same one restated (the digest
+watches the framebuffer; the census watches control flow, and a seeding error could in principle
+move one and not the other). THE PRICE, MEASURED AT LAST: the castle's own raster p50 falls
+15.7%..23.2% over the frozen segments, median 17.9%, against a NULL-CONTROL BAND OF 5.7% that the
+instrument DERIVES rather than declares — with the castle off both arms ran identical code, so the
+spread there simply IS the measurement error. AND IT DID NOT FIX THE PROBLEM, which is the honest
+headline: the castle still overruns the 8.33 ms slot by 1.26x..2.34x in every frozen segment and
+the late-frame count does not move. Six multiplies became three adds on a population that was
+never the bottleneck. So the arm goes: dead code with no caller is its own defect, and the span
+early-out needs the INCREMENTAL path as its reference — keeping both would make that rung's
+equality three-way and its interpretation worse, not better. Deleting it would strand the
+evidence, so the records graduate to `spec/attest/` and `armpair` re-derives the equality from
+their bytes on every gate run, never recompiling. `edge_recurrence_battery` stays, because it
+covers what records cannot: the algebraic identity over triangles no walk visited. DECLARED, and
+this is the rung's weak point named rather than discovered later: the banner does not stamp the
+build configuration, so THE ARM LABEL IS THE OPERATOR'S WORD — the cost separation is evidence for
+it, not proof — and stamping the raster path is owed by v1.21, which introduces the next arm and
+needs it anyway. NEXT: the span early-out, alone, against the 58.97% edge-reject population, then
+the census again.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

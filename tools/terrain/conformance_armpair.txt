@@ -1,0 +1,25 @@
+# URDRARM1 conformance goldens — emitted by armpair.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the sixteen record pins (RECORDS), the arm labels `ref` and `inc`, the retired cfg
+# name, and the frozen segment set (TEST_SEGMENTS, chosen by castlecost BEFORE the reach-60 runs
+# existed and reused here unchanged). Every chain comparison, every separation figure and the
+# null-control band are DERIVED from the committed bytes at claim time (L75) — nothing here is a
+# copied number.
+#
+# WHAT MOVES THESE PINS. `equality` hashes the eight arm-pairs' checkpoint counts and verdicts,
+# so it moves only if a record is re-committed or a pair stops agreeing. `separation` hashes the
+# fourteen castle-only percentages and the control band to three decimals, so it moves if any
+# record's cost rows change — which is why the two scenes are separate: an equality that survives
+# a re-measurement should not be dragged into a re-pin by one.
+#
+# does_not_show: that the `ref` records came from a different binary than the `inc` records. The
+# banner stamps version, host, power, scheduler, hz, res, mode, reach, sky, third, castle and qpf
+# — not the build configuration — so THE ARM LABEL IS DECLARED BY THE OPERATOR. The cost
+# separation is evidence for that declaration, never proof of it, and the repair (stamping the
+# raster path in the banner) is owed by the rung that introduces the next arm. Nor does a green
+# pair show the optimisation correct in general: forty-three checkpoints of one walk is a sample
+# of the input space, and the ALGEBRAIC identity — held at every launch by the demo's own
+# `edge_recurrence_battery` — is what covers the rest. Nor any verdict about the 8.33 ms slot,
+# which the castle still overruns on BOTH arms; castlecost owns cost verdicts and this owns none.
+equality 125aa17c9b5937d8ea05c12e1f29f720a0fd099ab46543b990652a8006cb5cb1
+separation e5d2047aad824b7f7cd0eb7ec5d3aa7d6820e4c00fb58637c89edb9dc25ecd9b

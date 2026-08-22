@@ -242,6 +242,7 @@ STAGE_ORDER = (
     "admit",
     "castlecost",
     "fibre",
+    "armpair",
     "rollbench",
     "reachable",
     "retire",
@@ -19268,6 +19269,91 @@ class Gate:
                     "nothing but comments (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def armpair(self):
+        """THE EQUALITY OUTLIVES THE CODE THAT PROVED IT (URDRARM1). Rows: equality (eight
+        arm-pairs chain-identical, read off committed records), separation (the cost effect
+        against a control band derived from the null cells), selftest (the plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import armpair as AP
+        except Exception as exc:
+            for r in ("equality", "separation", "selftest"):
+                self.record(f"armpair-{r}", False, f"import failed (armpair): {exc}")
+            return
+        e_ok = True
+        try:
+            e_ok = (len(AP.RECORDS) == 16
+                    and AP.every_arm_pair_is_chain_identical()
+                    and AP.the_equality_is_not_vacuous()
+                    and AP.one_workload_ran_in_every_record()
+                    and AP.every_record_declares_the_same_conditions()
+                    and AP.the_retired_path_is_gone_from_the_source()
+                    and all(len(AP.arm_pair(r, c, k)[0]["chain"]) == 43
+                            for r, c in AP.CELLS for k in AP.RUNS)
+                    and AP.scene_result("equality") == AP.golden("equality"))
+        except Exception:
+            e_ok = False
+        self.record("armpair-equality", e_ok,
+                    "D_reference(f) = D_incremental(f), KEPT AFTER THE CODE THAT PROVED IT WAS "
+                    "DELETED. v1.19 retained the per-pixel recomputation under a compile-time arm "
+                    "so the incremental edge recurrence could be checked BY REPLAY rather than "
+                    "assumed from the algebra; v1.20 retires that arm, and a retirement whose "
+                    "evidence lives in a commit message does not travel. So the sixteen records "
+                    "graduate: eight arm-pairs (reach 60 and 120, castle on and off, runs a and "
+                    "b), forty-three checkpoints each, ref against inc, digest for digest, read "
+                    "off pinned bytes and never recompiled. NON-VACUOUS BY LAW — sixteen records "
+                    "pairwise distinct, four cells carrying four DIFFERENT chains, and the "
+                    "castle-on chains differing from the castle-off chains, so the castle "
+                    "genuinely drew; an equality asserted over sixteen copies of one file would "
+                    "read green and mean nothing. One workload and one set of declared conditions "
+                    "across all sixteen. AND THE RETIREMENT IS SWEPT, not narrated: the cfg name "
+                    "appears nowhere in fpsdemo.rs, so re-adding it reddens this row"
+                    if e_ok else "the equality half did not hold")
+        sp_ok, told = True, "?"
+        try:
+            told = AP.told()
+            sp_ok = (AP.the_arms_separate_where_the_castle_is_on()
+                     and AP.the_control_is_not_silently_empty()
+                     and AP.the_control_has_no_direction()
+                     and AP.scene_result("separation") == AP.golden("separation"))
+        except Exception:
+            sp_ok = False
+        self.record("armpair-separation", sp_ok,
+                    "THE EFFECT IS SEPARATED FROM ITS OWN NOISE, WITH THE INSTRUMENT MEASURING "
+                    "ITS OWN ERROR BAR: %s. The band is DERIVED from the castle-OFF cells rather "
+                    "than declared — with the castle off both arms ran identical code, so any "
+                    "difference there IS measurement error — and every one of the fourteen "
+                    "castle-on readings, on both reaches, exceeds it. The control is checked TWO "
+                    "ways, because magnitude alone cannot tell noise from a small systematic "
+                    "effect: it must be non-empty (a zero band would let the separation law pass "
+                    "by having nothing to compare) and it must have NO DIRECTION — fourteen "
+                    "control cells all leaning one way would be code layout or thermal drift "
+                    "wearing noise's clothes, and would contaminate the reading by exactly that "
+                    "much. WHAT IS NOT CLAIMED: the worst-frame column, which with two runs per "
+                    "cell is a sample and not a statistic, and which moves BOTH ways here; and "
+                    "any verdict about the 8.33 ms slot, which the castle overruns on both arms "
+                    "— this rung removed about a sixth of the castle's fill and did not fix it"
+                    % told if sp_ok else "the separation half did not hold")
+        p_ok = True
+        try:
+            p_ok = (AP.a_flipped_digest_reddens() and AP.a_crossed_pair_reddens()
+                    and AP.a_tampered_record_refuses() and AP.a_headerless_record_refuses()
+                    and AP.a_record_without_a_workload_refuses()
+                    and AP.a_restored_reference_reddens())
+        except Exception:
+            p_ok = False
+        self.record("armpair-selftest", p_ok,
+                    "six plants bite: one edited digest reddens the equality, a pair crossed "
+                    "between cells reddens it, a record edited away from its pin refuses typed, "
+                    "a headerless record refuses, a record stripped of its workload digest "
+                    "refuses, and the retirement sweep is run against a source with the cfg "
+                    "PLANTED BACK IN and reports it — reading the real file and saying CLEAN "
+                    "would prove only that today's file is clean, never that the sweep could "
+                    "say otherwise (gate can redden)"
+                    if p_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -22905,7 +22991,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

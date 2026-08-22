@@ -17,4 +17,4 @@
 # are wall-clock class and remain deliberately ungated — this door gates their evidence, never
 # their timing); and any version named only in prose the artifact's own `## ` section does not
 # contain, which is invisible here by construction.
-arc d782d27c89ac2ce8d06b2eb97b7d2a39a0dc6c9b0c29d3bf6af49dfbafc3bb38
+arc 7c6fa68ccd2ac55e71d7423e982d935d791dc6777af35e9757e4cf495eacf817
