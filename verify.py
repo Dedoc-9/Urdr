@@ -244,6 +244,7 @@ STAGE_ORDER = (
     "fibre",
     "armpair",
     "voxref",
+    "voxcoarse",
     "rollbench",
     "reachable",
     "retire",
@@ -19479,6 +19480,88 @@ class Gate:
                     "would pass this law without the tiebreak ever being consulted" % coin
                     if o_ok else "the order half did not hold")
 
+    def voxcoarse(self):
+        """HOW COARSE THE FROZEN OBSERVABLE IS (URDRVXC1). Rows: census (the fibre structure over
+        a declared lattice, re-derived from a committed record), binding (a declared sample
+        re-rendered through the live reference), selftest (the plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxcoarse as VC
+        except Exception as exc:
+            for r in ("census", "binding", "selftest"):
+                self.record(f"voxcoarse-{r}", False, f"import failed (voxcoarse): {exc}")
+            return
+        c_ok, told = True, "?"
+        try:
+            told = VC.told()
+            c_ok = (VC.the_census_is_not_vacuous()
+                    and VC.a_state_difference_is_not_an_observable_difference()
+                    and VC.the_largest_fibre_is_the_empty_view()
+                    and VC.excluding_the_empty_view_leaves_a_live_census()
+                    and VC.scene_result("census") == VC.golden("census")
+                    and VC.scene_result("witnesses") == VC.golden("witnesses"))
+        except Exception:
+            c_ok = False
+        self.record("voxcoarse-census", c_ok,
+                    "THE OBSERVABLE'S OWN DISCRIMINATING POWER, MEASURED BEFORE ANY REDUCTION "
+                    "LEANS ON IT: %s. `voxref` reported eight states and eight distinct "
+                    "observables, which was PLUMBING rather than evidence — eight frames designed "
+                    "to be maximally different are close to the worst sample for detecting "
+                    "collisions, and injectivity on them establishes only that on those eight none "
+                    "was seen. THE DISTINCTION THE RUNG IS FOR is STATE equality against "
+                    "OBSERVABLE equality: two different states sharing an O_t are two states the "
+                    "criterion cannot tell apart, and a reduction behaving differently on them is "
+                    "untested by either — not a defect, since a render map is meant to forget, but "
+                    "a BOUNDARY that has to be known before it is trusted. THE LARGEST FIBRE IS "
+                    "CHARACTERISED, NOT JUST COUNTED: it is the EMPTY VIEW, identified by "
+                    "rendering nothing rather than by taking the biggest fibre and naming it "
+                    "afterwards, and it is a fact about a lattice that sweeps far outside the "
+                    "world. The lattice is NOT redesigned to flatter the result — it was declared "
+                    "before the answer was known — so the census is DECOMPOSED instead and both "
+                    "halves are reported"
+                    % told if c_ok else "the census half did not hold")
+        b_ok = True
+        try:
+            b_ok = (VC.the_record_is_exactly_the_declared_lattice()
+                    and VC.the_record_names_this_world()
+                    and VC.the_record_is_bound_to_the_live_renderer()
+                    and VC.the_witnesses_re_render())
+        except Exception:
+            b_ok = False
+        self.record("voxcoarse-binding", b_ok,
+                    "THE RECORD IS BOUND TO THE LIVE RENDERER, NOT TRUSTED. Rendering 1728 states "
+                    "is minutes and not a gate budget, so the census is generated once and "
+                    "committed — but a committed table of digests could describe ANY renderer, so "
+                    "a DECLARED sample of its rows is re-rendered through the live `voxref` every "
+                    "run and must reproduce the record's digests exactly, and the collision "
+                    "witnesses are re-rendered too, so a fabricated collision cannot survive. The "
+                    "record must also be EXACTLY the declared lattice, every state once and in "
+                    "order: a census over a record that quietly dropped its hard states would "
+                    "report a coarseness belonging to no lattice anyone declared"
+                    if b_ok else "the binding half did not hold")
+        s_ok = True
+        try:
+            s_ok = (VC.a_flipped_digest_breaks_the_binding()
+                    and VC.a_dropped_row_reddens_the_lattice_law()
+                    and VC.a_moved_state_reddens_the_lattice_law()
+                    and VC.a_short_row_refuses()
+                    and VC.a_record_without_a_world_refuses())
+        except Exception:
+            s_ok = False
+        self.record("voxcoarse-selftest", s_ok,
+                    "five plants bite: a flipped digest breaks the re-render binding, a dropped "
+                    "row and a moved state each redden the lattice-coverage law, a short row "
+                    "refuses typed, and a record naming no world refuses. AND ONE DEFECT THAT WAS "
+                    "REAL RATHER THAN PLANTED, kept in the test suite as a regression: the census "
+                    "took its state count from `len(rows)` under BOTH censuses, so filtering out "
+                    "the empty-view fibre removed fibres and not rows, and the collided ratio was "
+                    "divided by 1728 instead of by the 603 states that see something — reported "
+                    "3.9%% where the answer is 11.3%%. A denominator that does not move with its "
+                    "numerator is the quietest way to publish a wrong ratio (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -23116,7 +23199,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

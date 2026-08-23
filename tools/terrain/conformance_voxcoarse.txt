@@ -1,0 +1,24 @@
+# URDRVXC1 conformance goldens — emitted by voxcoarse.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the lattice (6 positions per axis x 8 forward directions = 1728 states, written before
+# the answer was known), the bind sample, and the record's path. Every figure — totals, distinct
+# counts, the fibre histogram, the largest fibre, the collision witnesses — is DERIVED from the
+# committed record's rows at claim time (L75), and a DECLARED SAMPLE of those rows is RE-RENDERED
+# through the live voxref every gate run, because a committed table of digests could otherwise
+# describe any renderer at all.
+#
+# `census` hashes the two censuses — over the whole lattice and over the states that see something
+# — together with the empty observable that separates them. `witnesses` hashes the colliding state
+# pairs, so a collision cannot be reported without the states that produce it.
+#
+# does_not_show: coarseness over the whole camera state space — the lattice is finite and regular
+# and its limits are visible in the result, 1125 of 1728 states landing in the EMPTY VIEW because
+# the positions sweep far outside the world. That is a fact about the lattice and it is reported as
+# one rather than repaired, since choosing states after seeing which collide is choosing the
+# answer. Nor coarseness under any distribution of real camera motion. Nor whether a collision
+# corresponds to semantically equivalent VIEWS: two cameras that both see one flat face at the same
+# distance produce the same bytes, and whether that ought to count as the same observation is a
+# question this census does not answer. Nor anything about reductions — no culling, no meshing;
+# this measures the reference's own observable and nothing else.
+census f357195de48d5bf38bb830e3c162802467051c0818cca92ee0e0570270d16109
+witnesses 2546ea6d7ab8c0ba6634bdb0f50eaf8197936d311f53253a1d497835f34ed21e
