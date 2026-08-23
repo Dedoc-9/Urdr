@@ -19289,11 +19289,19 @@ class Gate:
                     and AP.the_equality_is_not_vacuous()
                     and AP.one_workload_ran_in_every_record()
                     and AP.every_record_declares_the_same_conditions()
-                    and AP.the_retired_path_is_gone_from_the_source()
-                    and AP.these_records_predate_the_raster_stamp()
+                    and AP.the_retired_paths_are_gone_from_the_source()
+                    and AP.the_first_generation_cannot_name_its_arms()
+                    and len(AP.RECORDS2) == 16
+                    and AP.the_second_generation_names_its_own_arms()
+                    and AP.every_second_generation_pair_is_chain_identical()
+                    and AP.the_second_generation_is_not_vacuous()
+                    and AP.the_two_generations_share_one_workload()
                     and all(len(AP.arm_pair(r, c, k)[0]["chain"]) == 43
                             for r, c in AP.CELLS for k in AP.RUNS)
-                    and AP.scene_result("equality") == AP.golden("equality"))
+                    and all(len(AP.arm_pair2(r, c, k)[0]["chain"]) == 43
+                            for r, c in AP.CELLS for k in AP.RUNS)
+                    and AP.scene_result("equality") == AP.golden("equality")
+                    and AP.scene_result("equality2") == AP.golden("equality2"))
         except Exception:
             e_ok = False
         self.record("armpair-equality", e_ok,
@@ -19310,11 +19318,15 @@ class Gate:
                     "genuinely drew; an equality asserted over sixteen copies of one file would "
                     "read green and mean nothing. One workload and one set of declared conditions "
                     "across all sixteen. AND THE RETIREMENT IS SWEPT, not narrated: the cfg name "
-                    "appears nowhere in fpsdemo.rs, so re-adding it reddens this row. THE ONE THING STILL "\
-                    "DECLARED HERE IS THE ARM LABEL, because these sixteen banners carry no "\
-                    "raster-path field — v1.21 adds one, and the law asserting that these "\
-                    "records LACK it is what stops the weaker claim being reused on records "\
-                    "that no longer need it"
+                    "are USED nowhere in fpsdemo.rs, so re-adding either reddens this row. "\
+                    "AND THE SECOND GENERATION NAMES ITS OWN ARMS: v1.21 stamped the raster path "\
+                    "into the banner, so the fullrow/span pairing is DERIVED from the bytes — "\
+                    "every record's stamp is one of the two arms, AGREES with the key it is filed "\
+                    "under (a mislabelled commit reddens instead of quietly re-pointing a pair), "\
+                    "and each cell holds exactly one of each. Generation 1 keeps its weaker law, "\
+                    "asserting that those banners CANNOT name their arms, because bytes with no "\
+                    "field cannot be retro-fitted with a stronger claim. Thirty-two records, two "\
+                    "generations, one workload throughout"
                     if e_ok else "the equality half did not hold")
         sp_ok, told = True, "?"
         try:
@@ -19322,7 +19334,11 @@ class Gate:
             sp_ok = (AP.the_arms_separate_where_the_castle_is_on()
                      and AP.the_control_is_not_silently_empty()
                      and AP.the_control_has_no_direction()
-                     and AP.scene_result("separation") == AP.golden("separation"))
+                     and AP.the_second_arms_separate_where_the_castle_is_on()
+                     and AP.the_second_control_has_no_direction()
+                     and AP.control_band2() > 0.0
+                     and AP.scene_result("separation") == AP.golden("separation")
+                     and AP.scene_result("separation2") == AP.golden("separation2"))
         except Exception:
             sp_ok = False
         self.record("armpair-separation", sp_ok,
@@ -19338,15 +19354,22 @@ class Gate:
                     "wearing noise's clothes, and would contaminate the reading by exactly that "
                     "much. WHAT IS NOT CLAIMED: the worst-frame column, which with two runs per "
                     "cell is a sample and not a statistic, and which moves BOTH ways here; and "
-                    "any verdict about the 8.33 ms slot, which the castle overruns on both arms "
-                    "— this rung removed about a sixth of the castle's fill and did not fix it"
+                    "any verdict about the 8.33 ms slot. AND THE COMPOUND FIGURE IS WITHHELD ON "
+                    "PURPOSE: the two generations ran in different sessions, and because "
+                    "generation 1's `inc` arm and generation 2's `fullrow` arm are THE SAME "
+                    "RASTERISER, their disagreement MEASURES the session drift rather than "
+                    "assuming it away. Each rung's separation is claimed; recompute-to-span "
+                    "across both is UNDERDETERMINED and is not stated as a number here"
                     % told if sp_ok else "the separation half did not hold")
         p_ok = True
         try:
             p_ok = (AP.a_flipped_digest_reddens() and AP.a_crossed_pair_reddens()
                     and AP.a_tampered_record_refuses() and AP.a_headerless_record_refuses()
                     and AP.a_record_without_a_workload_refuses()
-                    and AP.a_restored_reference_reddens())
+                    and AP.a_restored_reference_reddens()
+                    and AP.a_prose_mention_is_not_a_restoration()
+                    and AP.a_mislabelled_second_generation_record_reddens()
+                    and AP.a_second_generation_digest_edit_reddens())
         except Exception:
             p_ok = False
         self.record("armpair-selftest", p_ok,
@@ -19354,9 +19377,16 @@ class Gate:
                     "between cells reddens it, a record edited away from its pin refuses typed, "
                     "a headerless record refuses, a record stripped of its workload digest "
                     "refuses, and the retirement sweep is run against a source with the cfg "
-                    "PLANTED BACK IN and reports it — reading the real file and saying CLEAN "
-                    "would prove only that today's file is clean, never that the sweep could "
-                    "say otherwise (gate can redden)"
+                    "PLANTED BACK IN — separately for EACH retired name, since a sweep noticing "
+                    "only the first would pass a single-plant check. TWO MORE, and they are the "
+                    "interesting ones: a generation-2 record filed under one arm but STAMPED the "
+                    "other is caught, which is the entire reason the stamp exists and the thing "
+                    "generation 1 structurally could not notice; and a PROSE paragraph naming "
+                    "both retired cfgs must read CLEAN. That last one is not decoration — the "
+                    "first version of this sweep was a raw text search and called this module's "
+                    "own retirement comment a restoration, which is the failure `retire` had "
+                    "already described in writing. Reading it was not enough; it had to be "
+                    "rebuilt to be believed (gate can redden)"
                     if p_ok else "a plant failed to bite")
 
     def rollbench(self):

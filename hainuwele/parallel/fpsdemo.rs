@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-only
 // Copyright (C) 2026 Daniel J. Dillberg
 //
-// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.21).
+// fpsdemo.rs — THE CONFORMANCE CAMERA AND THE CANON TERRAIN (URDRFPD1, v1.22).
 //
 // v1.13 — THE WANDERER: fppose AND fpclip PROMOTED, BY THEIR OWN RULE. The dormancy law
 // said those placements promote when a walk exposes their falsifier; the visual acceptance
@@ -484,13 +484,16 @@ const VIEW: i64 = 20;
 //: v1.21 — THE RECORD SAYS WHICH RASTER PATH WROTE IT. `armpair` had to DECLARE which build
 //: produced each of v1.20's sixteen records, because the banner named version, host, power,
 //: scheduler, hz, res, mode, reach, sky, third, castle and qpf and stopped. An arm that cannot be
-//: read out of the bytes is the operator's word, and the next rung introduces another arm. The
-//: field is APPENDED after qpf on purpose: every committed parser's header regex ends at `castle`
-//: or reads `|`-separated key/value pairs, so a trailing field adds a key and moves nothing.
-#[cfg(not(castlefullrow))]
+//: read out of the bytes is the operator's word. The field is APPENDED after qpf on purpose:
+//: every committed parser's header regex ends at `castle` or reads `|`-separated key/value pairs,
+//: so a trailing field adds a key and moves nothing.
+//:
+//: v1.22 — IT OUTLIVES THE ARM THAT MOTIVATED IT, and that is deliberate. With `castlefullrow`
+//: retired there is only one path and the constant looks redundant; removing it would mean the
+//: NEXT arm has to re-learn the lesson on records that cannot express it, which is exactly the
+//: hole v1.20 recorded. A record that names its own conditions is the contract, not a debugging
+//: aid, so the stamp stays whether or not anything currently disagrees with it.
 const RASTER_PATH: &str = "span";
-#[cfg(castlefullrow)]
-const RASTER_PATH: &str = "fullrow";
 
 const NEAR8: i64 = 128;                // near clip in Q8 camera units — v1's 12-unit clip threw
                                        // away the four nearest rings of ground wholesale
@@ -2314,6 +2317,17 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
             // for three ADDS. The census counted 20.59 G iterations through this loop, so the
             // per-pixel cost is the whole cost, and the terrain already carried the template.
             //
+            // v1.22 — THE SECOND ARM RETIRES TOO, AND THE ARC CLOSES. `castlefullrow` held the row
+            // scan without the break so `D_fullrow(f) = D_span(f)` could be established by replay;
+            // it was, on eight arm-pairs at both reaches, and THIS TIME THE ARMS NAMED THEMSELVES
+            // — the v1.21 banner stamps the raster path, so `armpair` DERIVES the pairing from the
+            // bytes instead of being told it. Both witnesses are committed; the source now carries
+            // only the optimised implementation. What the two rungs bought, measured separately
+            // and never compounded into one MEASURED claim: recomputation -> incremental 15.7-23.2%
+            // of the castle's own fill, incremental -> span 10.9-26.1%, each against its own
+            // null-control band, with the same rasteriser drifting -4.0%..+2.3% between the two
+            // sessions — which is why the compound figure stays UNDERDETERMINED.
+            //
             // v1.20 — THE REFERENCE IS RETIRED AND ITS EVIDENCE IS COMMITTED. v1.19 kept the
             // recomputation under `--cfg <the retired arm>` so the equality could be
             // ESTABLISHED BY REPLAY rather than assumed from the algebra. It was: sixteen
@@ -2358,13 +2372,11 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
             for py in y_lo..=y_hi {
                 let row = (py * w as i64) as usize;
                 let (mut w0, mut w1, mut w2) = (w0r, w1r, w2r);
-                #[cfg(not(castlefullrow))]
                 let mut entered = false;
                 for px in x_lo..=x_hi {
                     cen!(cen, visited, 1);
                     if w0 >= 0 && w1 >= 0 && w2 >= 0 {
-                        #[cfg(not(castlefullrow))]
-                        { entered = true; }
+                        entered = true;
                         let d = (a.2 * w1 + b.2 * w2 + c.2 * w0) / area;
                         let di = d.clamp(0, i32::MAX as i64) as i32;
                         let i = row + px as usize;
@@ -2373,7 +2385,6 @@ fn draw_castle(buf: &mut [u32], zbuf: &mut [i32], w: i32, h: i32, m: &[i64; 9],
                     } else {
                         cen!(cen, edge_reject, 1);
                         // the break pixel's test RAN, so it is counted before the row closes
-                        #[cfg(not(castlefullrow))]
                         if entered { break }
                     }
                     w0 += dw0x; w1 += dw1x; w2 += dw2x;
@@ -2993,7 +3004,7 @@ fn main() {
         // Input traces are VERSION-PORTABLE by design (keys dx dy has one meaning across
         // versions; the v0 recording replays under v1.1 as a cross-version workload) while
         // digest chains are VERSION-BOUND — the chainless-record split, at the trace layer.
-        let mut t = String::from("# fpsdemo v1.21 input trace: keys dx dy (one line per frame)
+        let mut t = String::from("# fpsdemo v1.22 input trace: keys dx dy (one line per frame)
 ");
         // THE DECLARATION, written by the only party that knows the intended length.
         t.push_str(&format!("# frames {}
@@ -3010,7 +3021,7 @@ fn main() {
     let late_over = late_ns.iter().filter(|&&l| l > 1_000_000).count();
     let mut log = String::new();
     log.push_str(&format!(
-        "fpsdemo v1.21 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
+        "fpsdemo v1.22 | host {} | power {} | scheduler {} | hz {} | res {}x{} | mode {} | \
 reach {} | sky {} | third {} | castle {} | qpf {} | raster {}\n",
         args.host, args.power, args.scheduler, args.hz, cw, ch,
         if args.play { "play" } else { "replay" }, args.reach,

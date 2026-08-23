@@ -545,6 +545,29 @@ is untouched, so that the NEXT arm-pair claim can DERIVE which build wrote each 
 declaring it. `armpair` asserts that its own sixteen records lack the field, which is what stops
 the weaker claim from being reused once stronger records exist.
 
+v1.22 — THE SECOND ARM RETIRES AND THE RASTER ARC CLOSES. The named host ran the A/B: eight
+arm-pairs, `fullrow` against `span`, all identical at 43 checkpoints, and THIS TIME THE RECORDS
+NAMED THEIR OWN ARMS — the v1.21 stamp means `armpair` derives the pairing from the bytes instead
+of being told it, so a record filed under one arm but stamped the other now reddens. That was the
+debt v1.20 wrote down, and it is discharged. THE PRICE: castle-only raster p50 down 10.9%..26.1%,
+median 15.9% (p95 median 19.0%), against a derived null band of 3.8% with both signs present, and
+for the first time in this arc a frozen segment fits — r60 seg 6 at 0.98x the 8.33 ms slot. Every
+other cell is still 1.10x..2.12x over and the late-frame counts do not move, so the budget is not
+solved; one cell entering it is the first evidence that it can be. THE COMPOUND FIGURE IS
+DELIBERATELY WITHHELD. The two generations ran in different sessions — but because generation 1's
+`inc` arm and generation 2's `fullrow` arm are THE SAME RASTERISER, their disagreement MEASURES the
+drift instead of leaving it to be argued: -4.0%..+2.3% on the castle-only p50. Each rung's
+separation is MEASURED; recompute-to-span across both is UNDERDETERMINED and is stated as a number
+nowhere in the gate. AND THE RETIREMENT SWEEP WAS WRONG FIRST, IN THE EXACT WAY `retire` PREDICTED
+IN WRITING: v1.20's version searched the source for the cfg name as raw text, which was fine while
+nothing mentioned it — then v1.22 retired a second arm and explained the retirement in the comment
+beside the code it removed, and the sweep called that explanation a restoration. `retire`'s
+docstring says it plainly, that a name in a comment is a MENTION and a text sweep punishes exactly
+the documentation the law wants. Reading it was not enough; the defect had to be rebuilt to be
+believed. The sweep now matches ATTRIBUTE POSITION, and a prose paragraph naming both retired cfgs
+must read CLEAN — a falsifier pointing the opposite way from the usual one. The source now carries
+only the optimised implementation; both witnesses are committed records.
+
 ## Queued: `URDRCHB1` — the discrete Chebyshev net (designed, not built)
 
 **Motivation.** The arc establishes order-independence *by checking*: `commute` builds both orders

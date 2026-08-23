@@ -77,26 +77,55 @@ class TheSeparation(unittest.TestCase):
 
 
 class TheRetirement(unittest.TestCase):
-    def test_the_retired_path_is_gone_from_the_source(self):
-        self.assertTrue(A.the_retired_path_is_gone_from_the_source())
+    def test_the_retired_paths_are_gone_from_the_source(self):
+        self.assertTrue(A.the_retired_paths_are_gone_from_the_source())
+        self.assertEqual(len(A.RETIRED_CFGS), 2)
 
     def test_a_restored_reference_reddens(self):
         self.assertTrue(A.a_restored_reference_reddens())
 
-    def test_these_records_predate_the_raster_stamp(self):
-        self.assertTrue(A.these_records_predate_the_raster_stamp())
+    def test_the_first_generation_cannot_name_its_arms(self):
+        self.assertTrue(A.the_first_generation_cannot_name_its_arms())
 
-    def test_a_stamped_record_would_redden_that_law(self):
-        """The successor is stronger, so the deficiency law must be able to notice it arrive."""
-        name, _pin = A.RECORDS[("inc", "r60", "on", "a")]
-        self.assertNotIn("| raster ", A._read(name))
-        self.assertIn("| raster span |",
-                      "fpsdemo v1.21 | host h | qpf 1 | raster span |")
+
+class TheSecondGeneration(unittest.TestCase):
+    def test_there_are_sixteen_of_them_and_they_are_distinct(self):
+        self.assertEqual(len(A.RECORDS2), 16)
+        self.assertEqual(len({A.record2(k)["sha256"] for k in A.RECORDS2}), 16)
+
+    def test_the_arms_are_derived_from_the_bytes(self):
+        self.assertTrue(A.the_second_generation_names_its_own_arms())
+
+    def test_a_mislabelled_record_reddens(self):
+        self.assertTrue(A.a_mislabelled_second_generation_record_reddens())
+
+    def test_every_pair_is_chain_identical(self):
+        self.assertTrue(A.every_second_generation_pair_is_chain_identical())
+
+    def test_one_edited_digest_reddens_it(self):
+        self.assertTrue(A.a_second_generation_digest_edit_reddens())
+
+    def test_it_is_not_vacuous(self):
+        self.assertTrue(A.the_second_generation_is_not_vacuous())
+
+    def test_the_arms_separate_and_the_control_does_not(self):
+        self.assertTrue(A.the_second_arms_separate_where_the_castle_is_on())
+        self.assertTrue(A.the_second_control_has_no_direction())
+        self.assertGreater(A.control_band2(), 0.0)
+
+    def test_both_generations_ran_one_workload(self):
+        self.assertTrue(A.the_two_generations_share_one_workload())
+
+    def test_the_session_drift_is_derived_and_bounded(self):
+        lo, hi = A.session_drift()
+        self.assertLess(lo, 0.0)
+        self.assertGreater(hi, 0.0)
+        self.assertLess(max(abs(lo), abs(hi)), 10.0)
 
 
 class TheGoldens(unittest.TestCase):
     def test_both_scenes_reproduce_their_goldens(self):
-        for name in ("equality", "separation"):
+        for name in ("equality", "separation", "equality2", "separation2"):
             self.assertEqual(A.scene_result(name), A.golden(name))
 
     def test_an_unknown_scene_refuses(self):

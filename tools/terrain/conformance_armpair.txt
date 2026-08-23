@@ -21,5 +21,22 @@
 # of the input space, and the ALGEBRAIC identity — held at every launch by the demo's own
 # `edge_recurrence_battery` — is what covers the rest. Nor any verdict about the 8.33 ms slot,
 # which the castle still overruns on BOTH arms; castlecost owns cost verdicts and this owns none.
+#
+# THE SECOND GENERATION (v1.22). `equality2` and `separation2` cover the fullrow/span arms, and
+# they are separate pins for the same reason the first pair is: an equality that survives a
+# re-measurement should not be dragged into a re-pin by one. The DIFFERENCE from generation 1 is
+# that the arm identity is no longer declared — v1.21 stamps the raster path into the banner, so
+# `equality2` hashes the STAMPS alongside the verdicts and a mislabelled commit moves this pin.
+# `separation2` additionally hashes the SESSION DRIFT derived from generation 1's `inc` arm against
+# generation 2's `fullrow` arm, which are the same rasteriser measured months apart — so re-running
+# either generation moves it, which is correct: the drift figure is only meaningful for the exact
+# pair of sessions it was derived from.
+#
+# does_not_show, additionally, for generation 2: the compound recompute-to-span reduction. Each
+# rung's separation is MEASURED against its own null-control band; the product spans two sessions
+# whose drift is derived at -4.0%..+2.3%, and n=2 on the drift itself does not license promoting
+# the compound to a measurement. It stays UNDERDETERMINED and appears in no scene.
 equality 125aa17c9b5937d8ea05c12e1f29f720a0fd099ab46543b990652a8006cb5cb1
 separation e5d2047aad824b7f7cd0eb7ec5d3aa7d6820e4c00fb58637c89edb9dc25ecd9b
+equality2 3578e090346ff64f3badf50d3ad0dc2b7562682c8d20fc166a17281e331164ba
+separation2 41ca12d4bac72baabf361c608d245f78596bb06f79d6c156898ab6f5b543a73d
