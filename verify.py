@@ -243,6 +243,7 @@ STAGE_ORDER = (
     "castlecost",
     "fibre",
     "armpair",
+    "voxref",
     "rollbench",
     "reachable",
     "retire",
@@ -11791,7 +11792,7 @@ class Gate:
                     if red_ok else "the fixed-window plant did not refuse what the ladder survives")
 
     def voxlat(self):
-        """The integer voxel lattice (URDRVOX1), slice S1 of the city-replica arc: the certified
+        """The integer voxel lattice (URDRVXF1), slice S1 of the city-replica arc: the certified
         quantization boundary where float capture becomes exact integer authority. TWO DECIDED
         RESULTS. (1) THE LCA IDENTITY — octree common-ancestor depth for Morton keys is the count of
         LEADING agreeing 3-bit groups, because Morton hierarchy lives in the HIGH bits; a handed-down
@@ -11821,7 +11822,7 @@ class Gate:
             self.record("voxlat:scenes", False, f"reference failed: {exc}")
             return
         self.record("voxlat:scenes", ref_ok,
-                    "lca + ctz_plant + overflow + word reproduce URDRVOX1 digests"
+                    "lca + ctz_plant + overflow + word reproduce URDRVXF1 digests"
                     if ref_ok else "a voxlat scene drifted from its digest")
         law_ok = True
         try:
@@ -19389,6 +19390,95 @@ class Gate:
                     "rebuilt to be believed (gate can redden)"
                     if p_ok else "a plant failed to bite")
 
+    def voxref(self):
+        """RUNG ZERO OF THE VOXEL ARC (URDRVXF1). Rows: contract (the observable frozen before any
+        reduction exists), partition (coverage is a top-left partition and a cover is not),
+        order (draw order is observationally irrelevant, on a corpus that contains the case)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxref as VX
+        except Exception as exc:
+            for r in ("contract", "partition", "order"):
+                self.record(f"voxref-{r}", False, f"import failed (voxref): {exc}")
+            return
+        c_ok, told = True, "?"
+        try:
+            told = VX.told()
+            c_ok = (VX.the_reference_is_deterministic()
+                    and VX.the_depth_digest_is_not_redundant()
+                    and VX.every_declared_case_is_distinct()
+                    and len(VX.TRACE) == 8
+                    and VX.scene_result("contract") == VX.golden("contract")
+                    and VX.scene_result("laws") == VX.golden("laws"))
+        except Exception:
+            c_ok = False
+        self.record("voxref-contract", c_ok,
+                    "THE OBSERVABLE IS FROZEN BEFORE ANY REDUCTION EXISTS, which is the one thing "
+                    "the castle arc got by luck rather than by design: %s. O_t is the PAIR "
+                    "(colour digest, depth digest), and the pair is not decoration — a CONSTRUCTED "
+                    "witness exhibits two renders whose colour buffers are byte-identical and "
+                    "whose depth buffers are not, which is exactly the shape of an occlusion bug "
+                    "that drops a face behind a same-coloured neighbour and exactly what a "
+                    "colour-only observable would call a pass — and a MIRROR witness exhibits the "
+                    "reverse, so neither digest is a function of the other. BOTH ARE CONSTRUCTED, "
+                    "which is a repair: the first version read the property off the corpus, and a "
+                    "MAGIC collision caught by this gate's own `magicuniq` forced a rename that "
+                    "changed the world seed and deleted the coincidence. THE TRACE IS DESIGNED, NOT "
+                    "RECORDED — buried, floor-grazing, section seam, wall-flat, open air, oblique, "
+                    "corner and edge-on — because the castle's evidence was 43 checkpoints of a "
+                    "human walk and a reduction that is wrong only where the trace never goes "
+                    "passes forever. THIS RENDERER IS DELIBERATELY NAIVE: every face of every "
+                    "solid voxel, including buried ones, no culling of any kind, so that face "
+                    "culling and greedy meshing are rungs to be GATED rather than assumptions "
+                    "already baked into the thing they would be measured against" % told
+                    if c_ok else "the contract half did not hold")
+        p_ok, dbl = True, -1
+        try:
+            dbl = VX.cover_report()[0]
+            p_ok = (VX.the_coverage_is_a_partition()
+                    and VX.a_cover_double_claims_and_a_partition_does_not()
+                    and VX.partition_report()[1] > 0)
+        except Exception:
+            p_ok = False
+        self.record("voxref-partition", p_ok,
+                    "COVERAGE IS A PARTITION, AND THE CONTROL PROVES THE RULE IS DOING THE WORK. "
+                    "The castle rasteriser tests `w >= 0` on all three edges, which is a COVER: a "
+                    "pixel on an edge shared by two triangles satisfies both, and which one "
+                    "survives depends on the order they were drawn. The castle never noticed "
+                    "because the loser failed a strict depth test and both triangles carried the "
+                    "same colour — an accidental assumption a voxel world, where differently "
+                    "coloured faces meet at seams, would have inherited and paid for. The "
+                    "top-left bias makes every pixel claimed exactly ONCE, and the same sample "
+                    "rendered WITHOUT the bias double-claims %d pixels, so the law is a statement "
+                    "about the rule rather than about a sample that happens to contain no shared "
+                    "edges" % dbl if p_ok else "the partition half did not hold")
+        o_ok, coin = True, -1
+        try:
+            coin = VX._coincident_pairs()
+            o_ok = (VX.the_order_permutation_leaves_the_observable_alone()
+                    and VX.a_shuffled_order_is_a_real_shuffle()
+                    and VX.the_corpus_contains_coincident_faces())
+        except Exception:
+            o_ok = False
+        self.record("voxref-order", o_ok,
+                    "DRAW ORDER IS OBSERVATIONALLY IRRELEVANT — the third line of the frozen "
+                    "contract, PROVED rather than documented: the whole trace re-rendered under "
+                    "two DECLARED permutations (a reversal and a stride shuffle, both checked to "
+                    "be real permutations) yields identical O_t. AND THE TOP-LEFT RULE ALONE "
+                    "WOULD NOT HAVE BEEN ENOUGH, which is a finding from building it rather than "
+                    "from writing it: a partition fixes pixels shared by ADJACENT triangles and "
+                    "does nothing about two DISTINCT faces that are geometrically COINCIDENT, and "
+                    "the naive reference has %d such pairs because every two adjacent solid "
+                    "voxels contribute two faces in one plane. Those tie at exactly equal depth "
+                    "and a plain `<` would hand the pixel to whoever was drawn first. The depth "
+                    "test therefore compares (depth, face_key) where the key is the voxel's own "
+                    "coordinates and face index — a property of the WORLD, not of traversal. The "
+                    "corpus is checked to CONTAIN the case, since a world without coincidences "
+                    "would pass this law without the tiebreak ever being consulted" % coin
+                    if o_ok else "the order half did not hold")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -23026,7 +23116,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

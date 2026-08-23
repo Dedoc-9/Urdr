@@ -1,0 +1,28 @@
+# URDRVXF1 conformance goldens — emitted by voxref.py, pinned by hand, compared by the gate.
+#
+# DECLARED: the world size and seed, the section size, the framebuffer, the near plane and focal
+# scale, the six face windings, the palette, and the eight-frame adversarial trace. Everything
+# else — the world's occupancy, the primitive list, every observable, the partition and cover
+# counts, the coincidence count and the coarseness census — is DERIVED at claim time (L75).
+#
+# `contract` hashes the FROZEN CONTRACT: the constants, the world digest, the primitive count and
+# the eight observables. It moves if anything about the reference or its corpus changes, which is
+# the point — rung zero's whole job is that later reductions have something they cannot redefine,
+# so re-pinning this is a decision a human has to make on purpose.
+#
+# `laws` hashes the instrument's own readings — partition and cover claim counts, the coincidence
+# count, the census, and the depth witness — so a change that leaves every observable alone but
+# alters what the checks SEE still surfaces.
+#
+# does_not_show: anything about performance (this renderer is deliberately naive and draws every
+# face of every solid voxel, including buried ones); that the observable is FINE ENOUGH, which the
+# census REPORTS rather than certifies — and the census is REPORTED and never required, because an
+# earlier version of this file cited a corpus coincidence (depth separating fewer frames than
+# colour) as evidence that neither digest dominates, and a change of hash seed deleted it. What
+# establishes the pair is two CONSTRUCTED witnesses, one in each direction, which no reseed can
+# take away; and anything about
+# face culling, greedy meshing, T-junctions or LOD seams, which are the first REDUCTION's problem
+# and are deliberately absent, because validating a semantic foundation with the first
+# optimisation that depends on it is the circularity this rung exists to avoid.
+contract e4f1221f97eda940a768b9622380be3b406ec5a32c60d8af7f1ef2fb615ea0d1
+laws 8911edb82bab7018d64219ea67d736764a6e38c438fffe0215cb802904cec195
