@@ -245,6 +245,7 @@ STAGE_ORDER = (
     "armpair",
     "voxref",
     "voxcoarse",
+    "voxray",
     "rollbench",
     "reachable",
     "retire",
@@ -19320,7 +19321,7 @@ class Gate:
                     "genuinely drew; an equality asserted over sixteen copies of one file would "
                     "read green and mean nothing. One workload and one set of declared conditions "
                     "across all sixteen. AND THE RETIREMENT IS SWEPT, not narrated: the cfg name "
-                    "are USED nowhere in fpsdemo.rs, so re-adding either reddens this row. "\
+                    "is USED nowhere in fpsdemo.rs, so re-adding either reddens this row. "\
                     "AND THE SECOND GENERATION NAMES ITS OWN ARMS: v1.21 stamped the raster path "\
                     "into the banner, so the fullrow/span pairing is DERIVED from the bytes — "\
                     "every record's stamp is one of the two arms, AGREES with the key it is filed "\
@@ -19558,8 +19559,104 @@ class Gate:
                     "took its state count from `len(rows)` under BOTH censuses, so filtering out "
                     "the empty-view fibre removed fibres and not rows, and the collided ratio was "
                     "divided by 1728 instead of by the 603 states that see something — reported "
-                    "3.9%% where the answer is 11.3%%. A denominator that does not move with its "
+                    "3.9% where the answer is 11.3%. A denominator that does not move with its "
                     "numerator is the quietest way to publish a wrong ratio (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
+    def voxray(self):
+        """THE GEOMETRIC ORACLE (URDRVXR1), shipped REPORTED and not certifying. Rows: oracle (its
+        own invariants and the shared camera contract), correspondence (what it SAYS about the
+        reference, as a measurement), selftest (the plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxray as VX
+        except Exception as exc:
+            for r in ("oracle", "correspondence", "selftest"):
+                self.record(f"voxray-{r}", False, f"import failed (voxray): {exc}")
+            return
+        o_ok, prof = True, ()
+        try:
+            prof = VX.round_trip_profile()
+            o_ok = (VX.the_first_hit_is_first() and VX.the_hit_lies_on_its_face()
+                    and VX.the_face_agrees_with_the_entry_direction()
+                    and VX.a_miss_really_traverses_nothing()
+                    and VX.a_started_inside_voxel_has_no_entry_face()
+                    and VX.the_probe_set_is_not_vacuous()
+                    and VX.the_rays_invert_the_projection_to_within_one_pixel()
+                    and VX.the_round_trip_is_mostly_exact()
+                    and VX.the_winner_pass_agrees_with_the_render()
+                    and VX.scene_result("oracle") == VX.golden("oracle")
+                    and VX.scene_result("counterexample") == VX.golden("counterexample"))
+        except Exception:
+            o_ok = False
+        exact = dict(prof).get((0, 0), 0)
+        total = sum(n for _k, n in prof) or 1
+        self.record("voxray-oracle", o_ok,
+                    "AN ORACLE NOBODY CHECKED IS AN OPINION, so this row is about the oracle and "
+                    "not about the renderer. It answers ONE question — which solid voxel does a "
+                    "camera ray enter first, through which face, at what t — by exact integer "
+                    "voxel traversal with `t` carried as a rational and compared by cross "
+                    "multiplication: no triangles, no edge functions, no depth buffer, no "
+                    "tolerance anywhere. It shares exactly two things with `voxref`, and both are "
+                    "the SCENE rather than the renderer: the world's occupancy and the camera "
+                    "basis. Its invariants are the audit — first-hit-is-first checked by "
+                    "independent fine sampling, the hit lies ON its reported face and inside the "
+                    "voxel on the other axes, the entry direction agrees with the face normal, a "
+                    "miss traverses nothing, an interior origin gets NO invented face, and the "
+                    "probes contain both hits and misses. AND THE CAMERA IS A SHARED AUDITED "
+                    "CONTRACT: a pixel's ray projects back to within ONE pixel of itself, %.2f%% "
+                    "of them exactly. That law was first written as an EXACT inversion and was "
+                    "false — composing a Q16 basis with two floor divisions is not an involution, "
+                    "and the residual lands systematically at (-1,+1), (0,+1) or (-1,0), which is "
+                    "the signature of `//` and not of geometry"
+                    % (100.0 * exact / total) if o_ok else "the oracle's own audit did not hold")
+        c_ok, told = True, "?"
+        try:
+            told = VX.told()
+            c_ok = (VX.the_record_is_exactly_the_declared_grid()
+                    and VX.the_record_names_this_world()
+                    and VX.the_record_is_bound_to_the_live_code()
+                    and VX.the_winding_reversal_improves_correspondence()
+                    and VX.the_trace_labels_are_known_wrong()
+                    and len(VX.comparable_frames()) == len(__import__("voxref").TRACE) - 1
+                    and VX.scene_result("correspondence") == VX.golden("correspondence"))
+        except Exception:
+            c_ok = False
+        self.record("voxray-correspondence", c_ok,
+                    "REPORTED, NOT CERTIFIED — and the distinction is the whole rung: %s. What "
+                    "passes here is that the record is exactly the declared grid, names this "
+                    "world, and REPRODUCES — one whole frame under both windings is re-rendered "
+                    "and re-rayed live every run and must match its committed row. What is "
+                    "REPORTED is the correspondence itself, and no law demands it be high, "
+                    "because the reference is known defective and a gate row insisting they agree "
+                    "would be a gate row insisting on a lie. THE ONE DIRECTIONAL CLAIM: reversing "
+                    "the six face windings moves the reference CLOSER to geometric truth, which "
+                    "does not say the reversal is correct, only that the committed orientation "
+                    "test selects the wrong winding — the screen-space Y inversion reverses "
+                    "projected orientation, so the face pointing AT the camera is discarded. "
+                    "BOUNDS THAT ARE NOT FOOTNOTES: the residue is an UPPER BOUND on defect, "
+                    "since up to a pixel of ray/sample offset is folded into it; no mechanism is "
+                    "established for what survives the reversal; one declared frame is excluded "
+                    "BY DERIVATION because its eye begins inside solid, where the oracle returns "
+                    "a voxel with NO entry face — a legal answer in a different semantic domain; "
+                    "and the trace LABELS are recorded as a metadata defect, since the frame "
+                    "named `floor_flat` is the buried one and `buried` is not inside anything"
+                    % told if c_ok else "the correspondence record did not hold")
+        s_ok = True
+        try:
+            s_ok = (VX.a_zero_direction_refuses() and VX.a_tampered_row_refuses()
+                    and VX.a_shifted_ray_fails_the_inversion())
+        except Exception:
+            s_ok = False
+        self.record("voxray-selftest", s_ok,
+                    "three plants bite: a zero direction refuses typed, a row whose classes no "
+                    "longer sum to the framebuffer refuses typed, and the projection-inversion "
+                    "law is shown to REJECT a ray built for the neighbouring pixel — without "
+                    "that last one a one-pixel tolerance would accept rays that were merely "
+                    "close, and the shared-camera contract would be looser than the prose claims "
+                    "(gate can redden)"
                     if s_ok else "a plant failed to bite")
 
     def rollbench(self):
@@ -23199,7 +23296,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

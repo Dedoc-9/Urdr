@@ -1,0 +1,35 @@
+# URDRVXR1 conformance goldens — emitted by voxray.py, pinned by hand, compared by the gate.
+#
+# THIS RUNG IS A MEASUREMENT, NOT A CERTIFICATION. The reference renderer is KNOWN DEFECTIVE — a
+# reduction (face culling) disagreed with it, and tracing the disagreement produced a pixel where
+# the reference's two arms claimed different faces and the oracle claims a THIRD. What is pinned
+# here is what the oracle IS and what it SAYS, never that the reference is right.
+#
+# DECLARED: the entry-face mapping, the two windings (as-committed, and the same six faces with
+# each corner list reversed), the comparison classes, the bind frame, and the counterexample. Every
+# figure is DERIVED at claim time (L75) — the correspondence percentages, the round-trip profile,
+# the comparable-frame set, the fibre of classes per frame.
+#
+# `oracle` hashes the oracle's answers on a spread of probe rays. `counterexample` hashes the
+# disputed pixel and the oracle's verdict on it. `correspondence` hashes the committed comparison
+# record together with the derived figures and the recorded metadata defect.
+#
+# does_not_show, and these bound everything above:
+#   * THE RESIDUE IS AN UPPER BOUND, NOT A MEASUREMENT OF DEFECT. The oracle's rays invert the
+#     reference's projection to within ONE PIXEL and not exactly — 70.15% return exactly, the rest
+#     land one pixel away, systematically, from floor division rather than from geometry. Up to a
+#     pixel of ray/sample offset is folded into every correspondence figure reported here.
+#   * NO MECHANISM IS ESTABLISHED for what remains after the winding reversal. The direction of the
+#     winding finding is asserted; its size is reported and nothing is claimed about its cause.
+#   * ONE DECLARED FRAME IS NOT COMPARABLE AT ALL. `floor_flat`'s eye begins inside a solid voxel,
+#     so the oracle returns that voxel with NO entry face for every ray — a legal answer in a
+#     DIFFERENT semantic domain from "which surface does the camera see". Which definition an
+#     interior origin should get is an open question, and the frame is excluded BY DERIVATION.
+#   * THE TRACE LABELS ARE WRONG and are recorded as a metadata defect rather than repaired here:
+#     the frame named `floor_flat` is the buried one and the frame named `buried` is not inside
+#     anything. Renaming would move voxref's pinned scene for a cosmetic reason.
+#   * NOTHING ABOUT PERFORMANCE, and nothing about the observable — the oracle answers in
+#     voxel/face/t and deliberately cannot produce a framebuffer.
+oracle 3e4fa8ae25b3c617ecba33ae530e47e187eaaaded346b3be3b998cf6571cea56
+counterexample 2ead914dbc737052e939d99245303fd5bbe28d65743721262e4cfb48f975f139
+correspondence 7a1f74f69e246e58d1b2e12b3bc3453ed899bb0e55208f418a264ffb2ebef65b
