@@ -246,6 +246,7 @@ STAGE_ORDER = (
     "voxref",
     "voxcoarse",
     "voxray",
+    "voxmicro",
     "rollbench",
     "reachable",
     "retire",
@@ -19619,7 +19620,7 @@ class Gate:
                     and VX.the_record_names_this_world()
                     and VX.the_record_is_bound_to_the_live_code()
                     and VX.the_winding_reversal_improves_correspondence()
-                    and VX.the_trace_labels_are_known_wrong()
+                    and VX.the_trace_labels_were_corrected()
                     and len(VX.comparable_frames()) == len(__import__("voxref").TRACE) - 1
                     and VX.scene_result("correspondence") == VX.golden("correspondence"))
         except Exception:
@@ -19636,13 +19637,16 @@ class Gate:
                     "does not say the reversal is correct, only that the committed orientation "
                     "test selects the wrong winding — the screen-space Y inversion reverses "
                     "projected orientation, so the face pointing AT the camera is discarded. "
-                    "BOUNDS THAT ARE NOT FOOTNOTES: the residue is an UPPER BOUND on defect, "
-                    "since up to a pixel of ray/sample offset is folded into it; no mechanism is "
-                    "established for what survives the reversal; one declared frame is excluded "
-                    "BY DERIVATION because its eye begins inside solid, where the oracle returns "
-                    "a voxel with NO entry face — a legal answer in a different semantic domain; "
-                    "and the trace LABELS are recorded as a metadata defect, since the frame "
-                    "named `floor_flat` is the buried one and `buried` is not inside anything"
+                    "BOUNDS THAT ARE NOT FOOTNOTES, AND `voxmicro` IS WHERE THEY GO: the "
+                    "residue quoted here is an UPPER BOUND on defect, since up to a pixel of "
+                    "ray/sample offset is folded into it, and one declared frame is excluded BY "
+                    "DERIVATION because its eye begins inside solid, where this module's oracle "
+                    "returns a voxel with NO entry face — a legal answer in a different semantic "
+                    "domain. Both are lifted downstream: the offset is subtracted by name and the "
+                    "excluded frame comes back under declared origin semantics, so these figures "
+                    "stay as the measurement this rung actually made rather than being quietly "
+                    "restated. The trace LABELS were a metadata defect this module found and are "
+                    "now corrected, with the correction carried here as history"
                     % told if c_ok else "the correspondence record did not hold")
         s_ok = True
         try:
@@ -19657,6 +19661,137 @@ class Gate:
                     "that last one a one-pixel tolerance would accept rays that were merely "
                     "close, and the shared-camera contract would be looser than the prose claims "
                     "(gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
+    def voxmicro(self):
+        """QUALIFYING THE ORACLE AND DECOMPOSING THE RESIDUE (URDRVXM1). Rows: scenes (elementary
+        geometry with declared expectations, and the origin semantics decided against a law),
+        labels (every frame name as a checkable claim), residue (where the rasteriser lost the
+        face, with the sampling offset subtracted first), selftest (the plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxmicro as VM
+            import voxray as VX2
+        except Exception as exc:
+            for r in ("scenes", "labels", "residue", "selftest"):
+                self.record(f"voxmicro-{r}", False, f"import failed (voxmicro): {exc}")
+            return
+        sc_ok, nsc, nexp = True, 0, 0
+        try:
+            nsc = len(VM.MICRO)
+            nexp = sum(len(s["expect"]) for s in VM.MICRO)
+            sc_ok = (VM.every_scene_meets_its_expectation()
+                     and VM.the_oracle_never_reports_an_interior_face()
+                     and VM.the_opaque_origin_is_direction_blind()
+                     and VM.the_two_origins_agree_off_solid()
+                     and VM.the_instrument_agrees_with_the_reference()
+                     and VM.the_derived_vantages_match_their_pins()
+                     and VM.the_sibling_modules_escape_the_coverage_clause()
+                     and VM.scene_result("scenes") == VM.golden("scenes"))
+        except Exception:
+            sc_ok = False
+        self.record("voxmicro-scenes", sc_ok,
+                    "%d ELEMENTARY SCENES, %d DECLARED EXPECTATIONS, every answer hand-checkable "
+                    "from the cell list and the camera before anything runs: one voxel from each "
+                    "axis, two voxels sharing a face on each axis, a direct occluder, coplanar "
+                    "neighbours, edge-on and corner-on, a thin wall and a one-voxel aperture, the "
+                    "eye inside matter, the eye exactly on a cell plane, a zero-extent quad, an "
+                    "empty world. AND THE CAMERA MODEL'S OWN LIMIT IS ONE OF THEM: `voxref.basis` "
+                    "refuses a forward parallel to +z, so the two z faces are never seen head-on "
+                    "anywhere — a refusal recorded as a property rather than found later as a "
+                    "gap. THE ORIGIN SEMANTICS ARE DECIDED HERE AND AGAINST A LAW: with the eye "
+                    "inside solid the `opaque` oracle returns the same answer for every pixel, "
+                    "which `the_opaque_origin_is_direction_blind` proves, and an oracle whose "
+                    "output does not depend on the ray cannot separate a correct renderer from a "
+                    "broken one. `transparent` — the eye's OWN cell, and no other, treated as free "
+                    "— restores direction-dependence and is shown to change NOTHING wherever the "
+                    "eye is outside solid, so the excluded frame comes back without moving any of "
+                    "the others. THE THEOREM THE ORACLE MUST OBEY: it never reports a face with "
+                    "solid on the far side of its own normal, the one declared exception being "
+                    "the transparent origin's own cell. AND A BLIND SPOT IN THIS GATE'S OWN "
+                    "COVERAGE LAW, RECORDED AS A ROW RATHER THAN A PARAGRAPH: `lattice` requires "
+                    "every module carrying `scene_result` AND `SCENES` to sit in its sealed "
+                    "partition or its post-seal register, and the three earlier modules of this "
+                    "arc pin conformance scenes while naming their register nothing at all — so "
+                    "the clause asked about this module and not about them, on the strength of an "
+                    "attribute NAME. It reddens when the gap is closed, which is the point"
+                    % (nsc, nexp) if sc_ok else "an elementary scene did not answer as declared")
+        l_ok, claims = True, 0
+        try:
+            claims = len(VM.LABEL_CLAIMS)
+            l_ok = (VM.every_label_is_true_of_the_world() and VM.the_old_labels_would_fail()
+                    and VX2.the_trace_labels_were_corrected()
+                    and VM.no_declared_frame_is_supported()
+                    and VM.scene_result("labels") == VM.golden("labels"))
+        except Exception:
+            l_ok = False
+        self.record("voxmicro-labels", l_ok,
+                    "A LABEL IS NOT A COMMENT HERE. Each of the %d declared frame names carries "
+                    "ONE checkable claim evaluated against the world every run — the eye is "
+                    "inside solid, no ray escapes, a coordinate lies on a section plane, the "
+                    "centre ray enters a face whose normal is exactly the reverse of forward, and "
+                    "so on. `voxray` recorded that two of the eight described a world that no "
+                    "longer existed after the MAGIC rename reseeded occupancy; both are renamed "
+                    "and the defect stays as history rather than evaporating with the fix. "
+                    "RENAMING WOULD HAVE PREVENTED NOTHING, which is the point of the claims: "
+                    "`wall_flat` was wrong too — the comment said `from the adjacent air voxel` "
+                    "and the wall is three voxels away — and only a claim the gate evaluates "
+                    "catches the third one. THE CONTROL: restoring an old name reddens this row. "
+                    "AND A GAP REPORTED RATHER THAN LEFT AS AN ABSENCE: no declared frame stands "
+                    "on anything, so grazing incidence over a supported surface is covered only "
+                    "by `edge_on`, which floats one cell above the slab — two micro-scenes derived "
+                    "from the world supply the vantage, and moving the frozen trace belongs to the "
+                    "re-freeze rung"
+                    % claims if l_ok else "a frame label is not true of the world it names")
+        r_ok, told = True, "?"
+        try:
+            told = VM.told()
+            r_ok = (VM.the_record_is_exactly_the_derived_grid()
+                    and VM.the_record_names_this_world()
+                    and VM.the_record_is_bound_to_the_live_code()
+                    and VM.no_disagreement_is_unclassified()
+                    and VM.the_reference_still_reports_impossible_faces()
+                    and VM.the_interior_detector_bites()
+                    and VM.scene_result("residue") == VM.golden("residue"))
+        except Exception:
+            r_ok = False
+        self.record("voxmicro-residue", r_ok,
+                    "WHERE DID YOU LOSE ME: %s. `voxray` reported one number and was careful to "
+                    "call it an UPPER BOUND; an upper bound on a residue is not a diagnosis, and "
+                    "three different things were stacked inside it. They are separated here. THE "
+                    "SAMPLING OFFSET IS SUBTRACTED FIRST, and only by the exact bound the "
+                    "projection-inversion law measured — a disagreement counts as `sampling_shift` "
+                    "when the rasteriser's answer at this pixel is the oracle's answer at one of "
+                    "the eight neighbours, no wider — which makes it an upper bound on what "
+                    "sampling can explain and every other fate a LOWER bound on real defect. WHAT "
+                    "SURVIVES IS TRACED THROUGH THE REFERENCE'S OWN PIPELINE: not generated, "
+                    "near-clipped, degenerate, backfacing, off-screen, not covered at this pixel, "
+                    "or covered and beaten on depth. `unknown` is zero in every row and the "
+                    "selftest shows a removed branch landing there. AND ONE FIGURE OWES THE ORACLE "
+                    "NOTHING AT ALL: a face with solid on the far side of its own normal is "
+                    "sandwiched between two cells, so no exterior camera can see it at any "
+                    "resolution under any sampling — the count of pixels the reference awards to "
+                    "one is wrong independently of the oracle, of the <=1px offset, and of every "
+                    "exclusion. It is 14032 as committed and STILL 2040 with the winding reversed, "
+                    "which turns `a second defect is real and unexplained` from an inference into "
+                    "a measurement"
+                    % told if r_ok else "the residue record did not hold")
+        s_ok = True
+        try:
+            s_ok = (VM.a_broken_expectation_is_caught()
+                    and VM.a_missing_branch_lands_in_unknown()
+                    and VM.a_tampered_row_refuses())
+        except Exception:
+            s_ok = False
+        self.record("voxmicro-selftest", s_ok,
+                    "three plants bite: a scene whose declared faces are wrong FAILS its "
+                    "expectation, so the suite is not a list of things that happen to be true; "
+                    "removing the `depth_rejected` branch moves exactly those pixels into "
+                    "`unknown`, so a zero there means the classifier looked rather than that it "
+                    "never asked; and a row whose fates no longer sum to its own disagreement "
+                    "refuses typed (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
     def rollbench(self):
@@ -23296,7 +23431,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

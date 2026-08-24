@@ -196,16 +196,22 @@ def basis(fwd):
 #: that is wrong only where the trace never goes passes forever. Each entry is
 #: (name, eye in Q8 world units, integer forward vector).
 TRACE = (
-    #: INSIDE the solid: a face pressed against the eye, one depth across the whole screen. The
-    #: degenerate end of the domain, and the one where a wrong reduction is least visible.
-    ("buried",     (6 * Q + 128, 6 * Q + 128, 3 * Q + 128), (0, 1, 0)),
-    #: STANDING ON THE FLOOR looking along it — grazing incidence, where the fill rule is most
-    #: exercised and where cracks would appear first.
-    ("floor_flat", (1 * Q + 128, 5 * Q + 128, 1 * Q + 128), (0, 1, 0)),
+    #: ENCLOSED: an air pocket strictly inside the lattice, every ray blocked, no background pixel
+    #: anywhere. The eye is in free space and cannot see out — the maximal-occlusion end.
+    #: RENAMED (was `buried`): the label was written for the world this trace was designed against
+    #: and never re-checked after the MAGIC rename reseeded occupancy. See `voxmicro`, which turns
+    #: every label into a claim the gate evaluates instead of a comment nobody can fail.
+    ("enclosed",   (6 * Q + 128, 6 * Q + 128, 3 * Q + 128), (0, 1, 0)),
+    #: INSIDE the solid: the eye is embedded in matter. The degenerate end of the domain, where
+    #: "which surface does the camera see" has no answer until the origin semantics are declared.
+    #: RENAMED (was `floor_flat`): this frame, not the one above, is the buried one.
+    ("buried",     (1 * Q + 128, 5 * Q + 128, 1 * Q + 128), (0, 1, 0)),
     #: AT A SECTION SEAM, looking along it. Nothing in rung zero knows about sections; this frame
     #: exists so the reductions that WILL know about them are already covered by the corpus.
     ("seam",       (SECTION * Q, -9 * Q, 6 * Q + 128), (0, 1, 0)),
-    #: FACING A FLAT WALL from the adjacent air voxel: maximal occlusion, minimal visible surface.
+    #: FACING A FLAT WALL SQUARE-ON: the ray through the screen centre enters a face whose normal
+    #: is exactly the reverse of the forward vector. The wall is three voxels away and not one —
+    #: the comment used to say "the adjacent air voxel", which was the intent and not the world.
     ("wall_flat",  (1 * Q + 128, 4 * Q + 128, 2 * Q + 128), (1, 0, 0)),
     #: OPEN AIR above the world looking down: minimal occlusion, most of the depth range live.
     ("open_air",   (6 * Q + 128, -14 * Q, 20 * Q), (0, 1, -1)),

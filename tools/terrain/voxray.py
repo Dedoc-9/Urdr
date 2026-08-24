@@ -80,6 +80,14 @@ ENTRY_FACE = {(0, 1): 1, (0, -1): 0, (1, 1): 3, (1, -1): 2, (2, 1): 5, (2, -1): 
 #: returning "no hit" — a traversal that quietly gave up would look exactly like empty space.
 MAX_STEPS = 4096
 
+#: WHAT THE ORACLE ANSWERS WHEN THE EYE IS INSIDE MATTER, as declared data with both options
+#: implemented. `opaque` is this module's original and still-default behaviour: the containing
+#: voxel is hit at t = 0 with no entry face. `transparent` treats the eye's OWN cell — that one
+#: cell and no other — as free space, so the answer is the first face bounding the free space the
+#: ray can actually reach. Which one the correspondence should use is `voxmicro`'s decision, and
+#: it is made there against a law rather than here against a preference.
+ORIGINS = ("opaque", "transparent")
+
 
 class VoxrayError(Exception):
     """VOXRAY-REFUSE — a ray or a scene this oracle will not answer for."""
@@ -106,16 +114,24 @@ def _lt(p, q):
     return p[0] * q[1] < q[0] * p[1]
 
 
-def first_hit(eye, direction):
+def first_hit(eye, direction, occ=None, origin="opaque"):
     """The oracle. Returns (voxel, face, (t_num, t_den)) or None if the ray leaves the world.
 
-    `face` is None when the eye STARTS inside a solid voxel: there is no entry crossing, and
-    inventing one would be the oracle guessing.
+    `face` is None when the eye STARTS inside a solid voxel under `opaque` semantics: there is no
+    entry crossing, and inventing one would be the oracle guessing.
+
+    `occ` is the occupancy predicate, defaulting to the frozen world. It is a PARAMETER so that
+    `voxmicro` can pose elementary scenes to THIS oracle rather than write a second one — the
+    lattice bounds stay `voxref.N` either way, so a scene is a subset of the same 12^3 grid.
     """
     if direction == (0, 0, 0):
         raise VoxrayError("VOXRAY-REFUSE: a ray needs a direction")
+    if origin not in ORIGINS:
+        raise VoxrayError("VOXRAY-REFUSE: no origin semantics named %r" % origin)
+    if occ is None:
+        occ = VR.solid
     v = [eye[i] // VR.Q for i in range(3)]
-    if all(0 <= v[i] < VR.N for i in range(3)) and VR.solid(*v):
+    if origin == "opaque" and all(0 <= v[i] < VR.N for i in range(3)) and occ(*v):
         return (tuple(v), None, (0, 1))
     step, tmax, tdelta = [0, 0, 0], [None, None, None], [None, None, None]
     for i in range(3):
@@ -142,7 +158,7 @@ def first_hit(eye, direction):
         tmax[axis] = (tmax[axis][0] * tdelta[axis][1] + tdelta[axis][0] * tmax[axis][1],
                       tmax[axis][1] * tdelta[axis][1])
         if 0 <= v[axis] < VR.N:
-            if all(0 <= v[i] < VR.N for i in range(3)) and VR.solid(*v):
+            if all(0 <= v[i] < VR.N for i in range(3)) and occ(*v):
                 return (tuple(v), ENTRY_FACE[(axis, step[axis])], t)
         elif (v[axis] < 0) == (step[axis] < 0):
             return None                  # left the slab on the side it was travelling towards
@@ -270,20 +286,31 @@ def comparable_frames():
     return tuple(i for i, (_n, eye, _f) in enumerate(VR.TRACE) if not eye_is_inside_solid(eye))
 
 
-#: A METADATA DEFECT, RECORDED RATHER THAN QUIETLY CORRECTED. `voxref.TRACE`'s labels were written
-#: for the adversarial INTENT of each frame and never re-checked after the world was reseeded (the
-#: MAGIC collision forced a rename, which changed the occupancy). The frame called `floor_flat` is
-#: the one whose eye is buried in solid; the frame called `buried` is not inside anything. The
-#: labels are wrong, the geometry is fine, and the fix belongs to the rung that re-freezes the
-#: contract — renaming them here would move `voxref`'s pinned scene for a cosmetic reason.
-TRACE_LABEL_DEFECT = ("floor_flat", "buried")
+#: THE METADATA DEFECT THIS MODULE FOUND, AND THE CORRECTION THAT CLOSED IT, as (was, now).
+#: `voxref.TRACE`'s labels were written for the adversarial INTENT of each frame and never
+#: re-checked after the world was reseeded (the MAGIC collision forced a rename, which changed the
+#: occupancy). The frame called `floor_flat` was the one whose eye is buried in solid; the frame
+#: called `buried` was not inside anything. Both are renamed, and the defect stays HERE as history
+#: rather than evaporating with the fix — `voxmicro` is what stops it recurring, by turning every
+#: label into a claim the gate evaluates instead of a comment nobody can fail.
+#: Carried as (frame index, was, now) rather than as a pair of names, because the correction is a
+#: near-swap: the name `buried` moves from frame 0 to frame 1, so "the old name is gone" is not a
+#: statement that can be made about the name alone.
+TRACE_LABEL_CORRECTION = ((0, "buried", "enclosed"), (1, "floor_flat", "buried"))
 
 
-def the_trace_labels_are_known_wrong():
-    """Asserted so the defect cannot be forgotten: the frame NAMED floor_flat is the buried one."""
+def the_trace_labels_were_corrected():
+    """Each corrected frame carries its new name, `floor_flat` is gone, and the frame called
+    `buried` is the one whose eye is actually inside solid."""
+    names = [n for n, _e, _f in VR.TRACE]
+    for i, was, now in TRACE_LABEL_CORRECTION:
+        if names[i] != now:
+            return False
+        if was not in [n for _j, _w, n in TRACE_LABEL_CORRECTION] and was in names:
+            return False
     named = {n: eye for n, eye, _f in VR.TRACE}
-    return (eye_is_inside_solid(named[TRACE_LABEL_DEFECT[0]])
-            and not eye_is_inside_solid(named[TRACE_LABEL_DEFECT[1]]))
+    return (eye_is_inside_solid(named["buried"])
+            and not eye_is_inside_solid(named["enclosed"]))
 
 
 # ---- the oracle's own invariants --------------------------------------------------------------
@@ -669,7 +696,7 @@ def scene_case(name):
     if name == "correspondence":
         _w, rows = parse()
         return repr((rows, comparable_frames(), correspondence("as-committed"),
-                     correspondence("reversed"), TRACE_LABEL_DEFECT))
+                     correspondence("reversed"), TRACE_LABEL_CORRECTION))
     raise VoxrayError("VOXRAY-REFUSE: no scene named %r" % name)
 
 

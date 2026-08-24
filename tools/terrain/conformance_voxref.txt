@@ -24,5 +24,5 @@
 # face culling, greedy meshing, T-junctions or LOD seams, which are the first REDUCTION's problem
 # and are deliberately absent, because validating a semantic foundation with the first
 # optimisation that depends on it is the circularity this rung exists to avoid.
-contract e4f1221f97eda940a768b9622380be3b406ec5a32c60d8af7f1ef2fb615ea0d1
+contract 279b4e19f41d43624febbed7598e1828a803c554bba53cee8d7a3444dc115b0b
 laws 8911edb82bab7018d64219ea67d736764a6e38c438fffe0215cb802904cec195

@@ -1,0 +1,41 @@
+# URDRVXM1 conformance goldens — emitted by voxmicro.py, pinned by hand, compared by the gate.
+#
+# THIS RUNG QUALIFIES AN ORACLE AND DIAGNOSES A RESIDUE. It certifies nothing about the reference
+# renderer, which remains KNOWN DEFECTIVE; what it does is stop the defect being one number. The
+# 13% `voxray` reported was three things stacked together — a real defect, a measured <=1px
+# ray/sample offset, and one whole frame excluded because the oracle was answering a different
+# question there — and each of the three is now separated, named and counted.
+#
+# DECLARED: the twenty-four micro-scenes with their cells, cameras and expectations; the fate
+# ladder; the eight-neighbour candidate set for a sampling-explained disagreement, which is
+# exactly the bound the projection-inversion law measured and no wider; the label claims; and the
+# two derived vantages, pinned so the canonical scan cannot move the record silently.
+#
+# DERIVED at claim time (L75): every expectation verdict, every fate distribution, the residue
+# split, the interior-face counts, and the whole record grid.
+#
+# WHAT EACH GOLDEN COVERS
+#   * scenes — the declared micro-scenes themselves: cells, cameras, expectations. Fifty-five of
+#     the fifty-six declared expectations held exactly as first written; the fifty-sixth
+#     (`eye_on_boundary`) demanded that moving the ray ORIGIN by one unit leave the picture
+#     unchanged, which is false under perspective and had nothing to do with the boundary. It is
+#     restated with a control on both sides rather than relaxed.
+#   * labels — every frame name as a CHECKABLE CLAIM about the world, the correction `voxray`
+#     recorded, and the two derived vantages. A label is not a comment here: two of the eight
+#     described a world that no longer existed, `wall_flat`'s claim was false as written too, and
+#     renaming alone would have prevented none of it from happening again.
+#   * residue — the disagreement of the declared frames decomposed. The sampling offset is
+#     SUBTRACTED FIRST and reported as an upper bound on what it can explain, which makes every
+#     other fate a LOWER bound on real defect; and the interior-face count is the one figure that
+#     owes the oracle nothing at all, since a face with solid on the far side of its own normal
+#     cannot be the nearest surface along any ray from an exterior eye, at any resolution.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * NO CLAIM THAT THE REVERSED WINDING IS THE CORRECT REPAIR. It is measured to be closer and
+#     still wrong: 2040 impossible pixels survive it.
+#   * NO CLAIM THAT ELEMENTARY SCENES QUALIFY THE ORACLE FOR A REAL WORLD. They are deliberately
+#     trivial, and a reduction right on all of them can still be wrong on a full lattice.
+scenes f685c10d88b0c020e8896b4b06489896c18dc32e10a8f40ce07846979df8e996
+labels d194e6a16ac237b9a46b3732a440d6a0a03aeb90a6ac15d85e3a11ce33ef547f
+residue 5976ca86b131bdf828c3482ee2bafae26637a33dcbca2fd7eaea4a400e1118f3

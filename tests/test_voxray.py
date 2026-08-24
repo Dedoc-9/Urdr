@@ -82,15 +82,39 @@ class TheComparison(unittest.TestCase):
 
 
 class TheExcludedFrame(unittest.TestCase):
-    def test_floor_flat_is_excluded_by_derivation(self):
+    def test_the_buried_frame_is_excluded_by_derivation(self):
         names = [n for n, _e, _f in VR.TRACE]
-        self.assertNotIn(names.index("floor_flat"), VX.comparable_frames())
+        self.assertNotIn(names.index("buried"), VX.comparable_frames())
 
     def test_every_other_frame_is_comparable(self):
         self.assertEqual(len(VX.comparable_frames()), len(VR.TRACE) - 1)
 
-    def test_the_trace_labels_are_known_wrong(self):
-        self.assertTrue(VX.the_trace_labels_are_known_wrong())
+    def test_the_trace_labels_were_corrected(self):
+        self.assertTrue(VX.the_trace_labels_were_corrected())
+
+    def test_the_correction_is_kept_as_history(self):
+        """The defect does not evaporate with the fix: the old names stay pinned as data."""
+        self.assertEqual(len(VX.TRACE_LABEL_CORRECTION), 2)
+        self.assertNotIn("floor_flat", [n for n, _e, _f in VR.TRACE])
+
+
+class TheOriginSemantics(unittest.TestCase):
+    def test_opaque_is_the_default_and_invents_no_face(self):
+        eye = next(e for _n, e, _f in VR.TRACE if VX.eye_is_inside_solid(e))
+        self.assertIsNone(VX.first_hit(eye, (1, 0, 0))[1])
+
+    def test_transparent_frees_only_the_eye_s_own_cell(self):
+        eye = next(e for _n, e, _f in VR.TRACE if VX.eye_is_inside_solid(e))
+        hit = VX.first_hit(eye, (1, 0, 0), None, "transparent")
+        self.assertNotEqual(hit[0], tuple(c // VR.Q for c in eye))
+
+    def test_an_unknown_origin_refuses(self):
+        with self.assertRaises(VX.VoxrayError):
+            VX.first_hit((0, 0, 0), (1, 0, 0), None, "sideways")
+
+    def test_a_scene_occupancy_is_honoured(self):
+        """The oracle takes an occupancy so `voxmicro` need not write a second one."""
+        self.assertIsNone(VX.first_hit((0, 0, 0), (1, 1, 1), lambda x, y, z: False))
 
 
 class TheCounterexample(unittest.TestCase):

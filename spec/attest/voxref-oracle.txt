@@ -4,16 +4,16 @@
 # world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
 # NOT a certification: the reference is KNOWN defective and these numbers measure
 # how defective. Nothing here asserts that agreement ought to be high.
-as-committed 0 buried 0 6912 0 0 0 0
-as-committed 1 floor_flat 0 6912 0 0 0 0
+as-committed 0 enclosed 0 6912 0 0 0 0
+as-committed 1 buried 0 6912 0 0 0 0
 as-committed 2 seam 0 6094 806 1 0 11
 as-committed 3 wall_flat 0 6527 385 0 0 0
 as-committed 4 open_air 0 3207 2031 17 109 1548
 as-committed 5 oblique 0 3572 975 60 4 2301
 as-committed 6 corner 0 3064 513 41 3 3291
 as-committed 7 edge_on 0 4598 970 0 96 1248
-reversed 0 buried 6912 0 0 0 0 0
-reversed 1 floor_flat 0 0 6912 0 0 0
+reversed 0 enclosed 6912 0 0 0 0 0
+reversed 1 buried 0 0 6912 0 0 0
 reversed 2 seam 5994 216 690 1 0 11
 reversed 3 wall_flat 6612 46 254 0 0 0
 reversed 4 open_air 3049 539 1650 17 109 1548
