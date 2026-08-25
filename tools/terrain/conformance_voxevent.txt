@@ -1,0 +1,48 @@
+# URDRVXE1 conformance goldens — emitted by voxevent.py, pinned by hand, compared by the gate.
+#
+# THIS RUNG MEASURES THE WORLD, NEVER THE RENDERER. `voxmicro` left 2040 pixels the reference still
+# awards to faces no exterior camera can see, so anything read off the rasteriser today would be a
+# measurement of a wrong answer. Every figure here comes from `voxray.first_hit`, which is audited,
+# qualified against elementary scenes, and takes its occupancy and its lattice as parameters.
+#
+# DECLARED: the subdivision ladder (1, 2, 4, 8) and the fact that it moves no world point; the four
+# incidence-degenerate families with the counts predicted before they ran; the merge relation —
+# same face index, adjacent along an in-plane axis, taken to connected components — and the
+# simultaneous-crossing tiebreak, named here because `voxray` never named it.
+#
+# DERIVED at claim time (L75): every visible set, every merged-region count, every incidence
+# census, every growth ratio, and the whole record grid.
+#
+# WHAT EACH GOLDEN COVERS
+#   * ladder — the subdivision census. THE RESULT IS THE FIRST RUNG, NOT THE LAST: eight times the
+#     primitives moves the merged visible regions by three per cent. The far end of the ladder is
+#     CENSORED BY THE SAMPLER and says so in its own row — a frame has W*H rays and no more, the
+#     hit count is identical at every scale, and the share of hits landing on a distinct face
+#     climbs from 1.7% to 37.9%, so past s = 2 the census is measuring the sampling as much as the
+#     scene. That is `sealframe-cost-surface`'s defect arriving from the other direction: it held
+#     scene complexity still and varied resolution, this holds resolution still and varies
+#     complexity, and neither is a two-axis measurement.
+#   * degeneracy — four families where a sparse representation goes dense: coincident projected
+#     corners along a run, four-face fan-in on a coplanar wall, three concurrent edges at a
+#     corner-on cube, and exact simultaneous crossings down a lattice diagonal. Each carries the
+#     count that was predicted before it ran; the wall's first camera clipped the wall it was
+#     predicting about, so both scenes now carry the visibility precondition they always assumed.
+#   * ties — the convention `voxray` never declared. Where a ray crosses two planes at exactly one
+#     parameter the traversal keeps the lowest axis index, and that is NOT a labelling question:
+#     with only the losing candidate solid the ray misses it entirely, so the opposite convention
+#     makes a different voxel visible along the same ray. 20.1% of the declared rays enter through
+#     an edge or a corner at the finest scale.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE. No renderer runs in this module at all.
+#   * NO BOUND. A growth rate measured on one scene family says nothing about the family that was
+#     not built — Zhang, Everett, Lazard, Weibel and Whitesides (2008) measured the 3D visibility
+#     skeleton at roughly C*k*sqrt(nk) against a proven tight worst case of Theta(n^2 k^2), and the
+#     gap between those two is exactly the room a measurement cannot close.
+#   * NO CERTIFICATE. Counting how few regions the visible surface has is not producing a witness
+#     that proves the rest invisible. That rung waits for the reference repair.
+#   * NO SECOND AXIS. Resolution is frozen by `voxref`'s contract, so the confound above is
+#     reported rather than removed.
+ladder ced68972bb77b10016c5ba9716c3856c45d82f95a21bcfef8e9391ed9cfbb3df
+degeneracy b4dcde867a2e428a10d614b39b999646e55cf7988ff5004e9950db718f63190e
+ties 85dd11ee1d96669b621a25e803d7640863b7ca03a5af0f5e0c21569b422ee187

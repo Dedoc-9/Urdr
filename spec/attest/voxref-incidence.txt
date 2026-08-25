@@ -1,0 +1,45 @@
+# URDRVXE1 incidence and visible-surface census — one row per (kind, name, scale),
+# emitted by voxevent.generate(), committed as an artifact, re-derived by the gate.
+# columns: kind name scale solid_cells primitives visible_faces merged_regions hits simultaneous corner_instances corners_distinct max_fan_in
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# ORACLE-SIDE ONLY. No renderer runs here: every figure is a property of the world
+# and the camera, read through voxray.first_hit. The subdivision ladder multiplies
+# primitives by s^3 while moving no world point, so the four arms of a frame are the
+# same scene at four representations and the growth rates between them are the
+# measurement. Merged regions are COUNTED, never built.
+frame 0:enclosed 1 803 4818 2 2 6912 72 8 6 2
+frame 0:enclosed 2 6424 38544 6 2 6912 72 24 12 4
+frame 0:enclosed 4 51392 308352 20 2 6912 402 80 30 4
+frame 0:enclosed 8 411136 2466816 54 2 6912 949 216 70 4
+frame 1:buried 1 803 4818 2 2 6912 72 8 6 2
+frame 1:buried 2 6424 38544 3 3 6912 5136 8 6 3
+frame 1:buried 4 51392 308352 3 3 6912 5136 8 4 3
+frame 1:buried 8 411136 2466816 3 3 6912 5136 0 0 0
+frame 2:seam 1 803 4818 93 50 6901 551 372 173 5
+frame 2:seam 2 6424 38544 271 51 6901 1045 1084 417 6
+frame 2:seam 4 51392 308352 784 63 6901 2079 3136 1037 6
+frame 2:seam 8 411136 2466816 2407 81 6901 3484 9628 2802 6
+frame 3:wall_flat 1 803 4818 15 10 6912 22 60 33 5
+frame 3:wall_flat 2 6424 38544 36 10 6912 147 144 65 5
+frame 3:wall_flat 4 51392 308352 95 10 6912 218 380 146 5
+frame 3:wall_flat 8 411136 2466816 263 12 6912 479 1052 354 5
+frame 4:open_air 1 803 4818 208 103 5255 0 832 349 6
+frame 4:open_air 2 6424 38544 705 110 5255 0 2820 975 7
+frame 4:open_air 4 51392 308352 2375 152 5255 0 9500 2721 7
+frame 4:open_air 8 411136 2466816 5149 800 5255 0 20596 5332 6
+frame 5:oblique 1 803 4818 238 137 4607 29 952 393 6
+frame 5:oblique 2 6424 38544 748 141 4607 30 2992 1028 6
+frame 5:oblique 4 51392 308352 2221 288 4607 30 8884 2664 8
+frame 5:oblique 8 411136 2466816 4427 1404 4607 30 17708 4684 6
+frame 6:corner 1 803 4818 154 102 3618 0 616 269 5
+frame 6:corner 2 6424 38544 488 102 3618 0 1952 704 6
+frame 6:corner 4 51392 308352 1497 136 3618 0 5988 1847 8
+frame 6:corner 8 411136 2466816 3266 696 3618 0 13064 3536 7
+frame 7:edge_on 1 803 4818 80 46 5568 271 320 147 6
+frame 7:edge_on 2 6424 38544 234 48 5568 312 936 361 6
+frame 7:edge_on 4 51392 308352 705 61 5568 631 2820 963 6
+frame 7:edge_on 8 411136 2466816 2145 81 5568 1041 8580 2499 6
+degeneracy run 1 5 30 5 1 793 188 20 12 2
+degeneracy wall 1 16 96 16 1 3306 57 64 25 4
+degeneracy corner_fan 1 1 6 3 3 482 1 12 7 3
+degeneracy diagonal_block 1 8 48 12 3 1590 1 48 19 4

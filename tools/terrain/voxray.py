@@ -114,24 +114,33 @@ def _lt(p, q):
     return p[0] * q[1] < q[0] * p[1]
 
 
-def first_hit(eye, direction, occ=None, origin="opaque"):
+def first_hit(eye, direction, occ=None, origin="opaque", n=None, q=None):
     """The oracle. Returns (voxel, face, (t_num, t_den)) or None if the ray leaves the world.
 
     `face` is None when the eye STARTS inside a solid voxel under `opaque` semantics: there is no
     entry crossing, and inventing one would be the oracle guessing.
 
     `occ` is the occupancy predicate, defaulting to the frozen world. It is a PARAMETER so that
-    `voxmicro` can pose elementary scenes to THIS oracle rather than write a second one — the
-    lattice bounds stay `voxref.N` either way, so a scene is a subset of the same 12^3 grid.
+    `voxmicro` can pose elementary scenes to THIS oracle rather than write a second one.
+
+    `n` and `q` are the lattice extent and the cell size, defaulting to `voxref`'s. They are
+    parameters so that `voxevent` can pose the SAME solid region on a FINER lattice — halving `q`
+    while doubling `n` subdivides every cell without moving one world point — and still ask THIS
+    oracle rather than a second one. World coordinates are unchanged by that, so the eye, the rays
+    and the projection are all untouched.
     """
+    if n is None:
+        n = VR.N
+    if q is None:
+        q = VR.Q
     if direction == (0, 0, 0):
         raise VoxrayError("VOXRAY-REFUSE: a ray needs a direction")
     if origin not in ORIGINS:
         raise VoxrayError("VOXRAY-REFUSE: no origin semantics named %r" % origin)
     if occ is None:
         occ = VR.solid
-    v = [eye[i] // VR.Q for i in range(3)]
-    if origin == "opaque" and all(0 <= v[i] < VR.N for i in range(3)) and occ(*v):
+    v = [eye[i] // q for i in range(3)]
+    if origin == "opaque" and all(0 <= v[i] < n for i in range(3)) and occ(*v):
         return (tuple(v), None, (0, 1))
     step, tmax, tdelta = [0, 0, 0], [None, None, None], [None, None, None]
     for i in range(3):
@@ -139,9 +148,9 @@ def first_hit(eye, direction, occ=None, origin="opaque"):
         if d == 0:
             continue
         step[i] = 1 if d > 0 else -1
-        boundary = (v[i] + 1) * VR.Q if d > 0 else v[i] * VR.Q
+        boundary = (v[i] + 1) * q if d > 0 else v[i] * q
         tmax[i] = (boundary - eye[i], d) if d > 0 else (eye[i] - boundary, -d)
-        tdelta[i] = (VR.Q, abs(d))
+        tdelta[i] = (q, abs(d))
     if all(t is None for t in tmax):
         raise VoxrayError("VOXRAY-REFUSE: a direction with no non-zero component")
     for _ in range(MAX_STEPS):
@@ -157,8 +166,8 @@ def first_hit(eye, direction, occ=None, origin="opaque"):
         v[axis] += step[axis]
         tmax[axis] = (tmax[axis][0] * tdelta[axis][1] + tdelta[axis][0] * tmax[axis][1],
                       tmax[axis][1] * tdelta[axis][1])
-        if 0 <= v[axis] < VR.N:
-            if all(0 <= v[i] < VR.N for i in range(3)) and occ(*v):
+        if 0 <= v[axis] < n:
+            if all(0 <= v[i] < n for i in range(3)) and occ(*v):
                 return (tuple(v), ENTRY_FACE[(axis, step[axis])], t)
         elif (v[axis] < 0) == (step[axis] < 0):
             return None                  # left the slab on the side it was travelling towards

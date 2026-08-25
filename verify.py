@@ -247,6 +247,7 @@ STAGE_ORDER = (
     "voxcoarse",
     "voxray",
     "voxmicro",
+    "voxevent",
     "rollbench",
     "reachable",
     "retire",
@@ -19794,6 +19795,125 @@ class Gate:
                     "refuses typed (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxevent(self):
+        """DOES THE VISIBLE SURFACE GROW WITH THE GEOMETRY OR WITH THE INCIDENCES (URDRVXE1)?
+        Rows: ladder (the subdivision census and the confound in it), degeneracy (four incidence-
+        degenerate families with predicted counts), ties (the convention voxray never declared),
+        selftest (the plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxevent as VE
+        except Exception as exc:
+            for r in ("ladder", "degeneracy", "ties", "selftest"):
+                self.record(f"voxevent-{r}", False, f"import failed (voxevent): {exc}")
+            return
+        l_ok, told = True, "?"
+        try:
+            told = VE.told()
+            l_ok = (VE.the_subdivision_moves_no_point()
+                    and VE.the_primitive_ladder_is_exact()
+                    and VE.the_ordering_holds_at_every_scale()
+                    and VE.the_first_rung_is_flat()
+                    and VE.the_census_is_censored_by_the_sampler()
+                    and VE.the_record_is_exactly_the_derived_grid()
+                    and VE.the_record_names_this_world()
+                    and VE.the_record_is_bound_to_the_live_code()
+                    and VE.scene_result("ladder") == VE.golden("ladder"))
+        except Exception:
+            l_ok = False
+        self.record("voxevent-ladder", l_ok,
+                    "%s. A RASTERISER'S COST SCALES WITH PRIMITIVES AND A CAMERA OBSERVES A LOWER "
+                    "ENVELOPE, whose complexity Sharir bounds at O(n^(2+eps)) in three dimensions "
+                    "while the arrangement of viewpoints above it is tight at Theta(n^4 k^2) "
+                    "orthographic and Theta(n^6 k^3) perspective (Aronov, Broennimann, Halperin, "
+                    "Schiffenbauer 2001) — the gap between those is the only compression axis "
+                    "worth building on, and nothing here had measured where a real scene sits in "
+                    "it. THE INSTRUMENT IS EXACT AND IS PROVED SO BEFORE IT IS READ: splitting "
+                    "every solid cell into s^3 cells of the same material multiplies primitives by "
+                    "s^3 and moves NOT ONE WORLD POINT, so the entry point, the face and the "
+                    "containing coarse cell are identical at every scale — with the comparison by "
+                    "cross multiplication, because `first_hit` returns UNREDUCED rationals whose "
+                    "representation depends on the cell size and the first probe was wrong in "
+                    "exactly that way. AND THE CONFOUND IS A ROW RATHER THAN A FOOTNOTE: a frame "
+                    "has W*H rays and no more, the hit count is IDENTICAL at every scale, and the "
+                    "share of hits landing on a distinct face climbs from 1.7%% to 37.9%%, so past "
+                    "the first rung this census measures the SAMPLER as much as the scene. That is "
+                    "`sealframe-cost-surface`'s two-axis defect arriving from the other side — it "
+                    "held complexity still and varied resolution, this holds resolution still and "
+                    "varies complexity — and resolution cannot be raised here because it belongs "
+                    "to a frozen contract. So the claim is the FIRST rung and not the last, and "
+                    "the 512x figure is reported rather than asserted. NOTHING HERE READS THE "
+                    "RASTERISER: `voxmicro` left 2040 impossible pixels standing, so a compression "
+                    "law taken from the reference today would be a law about a wrong answer"
+                    % told if l_ok else "the subdivision ladder did not hold")
+        d_ok, nd = True, 0
+        try:
+            nd = len(VE.DEGENERACIES)
+            d_ok = (VE.every_degeneracy_meets_its_prediction()
+                    and VE.scene_result("degeneracy") == VE.golden("degeneracy"))
+        except Exception:
+            d_ok = False
+        self.record("voxevent-degeneracy", d_ok,
+                    "%d FAMILIES WHERE A SPARSE REPRESENTATION GOES DENSE, each with the count "
+                    "predicted before it ran: k coplanar faces in a row collapse 4k corner "
+                    "instances onto exactly 2(k+1) screen positions because the sharing is "
+                    "structural rather than projective; a k x k wall gives (k+1)^2 corners with "
+                    "four faces meeting at every interior one, the densest fan-in a single plane "
+                    "can produce; a cube down its body diagonal puts three concurrent edges "
+                    "through one point; and a block viewed along a lattice diagonal sends rays "
+                    "into edges and corners instead of faces. THE WALL'S FIRST CAMERA CLIPPED THE "
+                    "WALL IT WAS PREDICTING ABOUT — 96 pixels of a 72-pixel frame, so a whole row "
+                    "of faces never entered the visible set and five corners went with them — and "
+                    "the repair was to make the scene meet the claim's own precondition rather "
+                    "than to relax the count to whatever the clipped view produced. This is the "
+                    "half of the arc with a novelty claim attached and it is still a MEASUREMENT: "
+                    "Zhang, Everett, Lazard, Weibel and Whitesides (2008) found the 3D visibility "
+                    "skeleton at roughly C*k*sqrt(nk) against a tight worst case of Theta(n^2 k^2) "
+                    "using random and structured scenes, and what is new here is building the "
+                    "degenerate case on purpose against a byte-exact observable — not a bound"
+                    % nd if d_ok else "a degeneracy family did not meet its predicted count")
+        t_ok = True
+        try:
+            t_ok = (VE.the_tiebreak_is_the_declared_convention()
+                    and VE.a_broken_tie_misses_the_other_candidate()
+                    and VE.scene_result("ties") == VE.golden("ties"))
+        except Exception:
+            t_ok = False
+        self.record("voxevent-ties", t_ok,
+                    "A CONVENTION `voxray` NEVER DECLARED, NAMED AND COUNTED HERE. When a ray "
+                    "crosses two lattice planes at exactly one parameter — entering through an "
+                    "edge or a corner rather than a face — the traversal's strict `<` keeps the "
+                    "LOWEST AXIS INDEX. That is a choice, not a derivation, and the control shows "
+                    "it is not a labelling question: with only the LOSING candidate solid the ray "
+                    "misses it ENTIRELY, because the tie sent the traversal down the other axis "
+                    "and out of the column. The opposite convention makes a different voxel "
+                    "visible along the same ray. The population is measured rather than assumed "
+                    "safe — 20.1%% of the declared rays enter through an edge or a corner at the "
+                    "finest scale, 1.8%% at the coarsest — so the blast radius of an undeclared "
+                    "rule is a number. THE FIRST VERSION OF THIS LAW ASSERTED THE WRONG THING: it "
+                    "fired the tie ray into the frozen world and demanded an x face, and a tie "
+                    "decides which axis STEPS, not which face the eventual hit reports"
+                    if t_ok else "the simultaneous-crossing convention did not hold")
+        s_ok = True
+        try:
+            s_ok = (VE.a_shifted_subdivision_is_caught()
+                    and VE.a_wrong_corner_count_is_caught()
+                    and VE.a_relation_that_merges_nothing_is_not_this_one()
+                    and VE.a_tampered_row_refuses())
+        except Exception:
+            s_ok = False
+        self.record("voxevent-selftest", s_ok,
+                    "four plants bite: an occupancy that subdivides OFF BY ONE breaks the "
+                    "no-point-moves invariant, so the ladder is not an instrument that would "
+                    "accept any map; a run one cell longer fails the corner count written for its "
+                    "length; the merge relation is shown to sit STRICTLY between merging nothing "
+                    "and merging everything, since a relation that joined everything would report "
+                    "one region for any scene at all; and a row whose primitives no longer count "
+                    "its cells refuses typed (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -23431,7 +23551,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
