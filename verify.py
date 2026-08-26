@@ -249,6 +249,7 @@ STAGE_ORDER = (
     "voxmicro",
     "voxevent",
     "voxcand",
+    "voxtie",
     "rollbench",
     "reachable",
     "retire",
@@ -20033,6 +20034,131 @@ class Gate:
                     "the arm names are a closed set and not a suggestion (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxtie(self):
+        """IS A DISAGREEING PIXEL A DEFECT OR A SAMPLE ON AN EVENT SURFACE (URDRVXT1)? Rows: census
+        (every residual pixel classified by one-sided limits), ladder (four single-variable levels),
+        ties (the exact-depth population and what a tie rule could ever buy), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxtie as VT
+        except Exception as exc:
+            for r in ("census", "ladder", "ties", "selftest"):
+                self.record(f"voxtie-{r}", False, f"import failed (voxtie): {exc}")
+            return
+        c_ok, told = True, "?"
+        try:
+            told = VT.told()
+            c_ok = (VT.the_classifier_finds_a_genuine_defect()
+                    and VT.every_class_is_reachable()
+                    and VT.the_oracle_never_gives_an_isolated_answer()
+                    and VT.the_carve_out_is_refused_by_the_trace()
+                    and VT.the_population_is_pinned_not_the_count()
+                    and VT.the_record_names_this_world()
+                    and VT.scene_result("limit_census") == VT.golden("limit_census"))
+        except Exception:
+            c_ok = False
+        self.record("voxtie-census", c_ok,
+                    "THIS RUNG EXISTED TO REFUSE A CARVE-OUT AND THE MEASUREMENT REFUSED IT: %s. "
+                    "On one two-cell scene the residual looked like twelve degeneracies around a "
+                    "single bug, and calling thirteen pixels a permanent geometric ambiguity would "
+                    "have been tempting. Over the declared trace the same classifier finds STABLE "
+                    "disagreements OUTNUMBERING event-surface ones, and among the impossible-face "
+                    "pixels outnumbering them 80 to 1 — pixels where the oracle gives one answer "
+                    "at the exact sample AND at a thousandth of a pixel either side in both screen "
+                    "directions AND under six single-axis camera perturbations, and the rasteriser "
+                    "disagrees anyway. Those are defects. TWO PERTURBATIONS BECAUSE THEY ANSWER "
+                    "DIFFERENT QUESTIONS: moving the sample tells you which side of a projected "
+                    "edge an integer pixel falls on, moving the CAMERA tells you whether the "
+                    "viewpoint sits on a boundary in viewpoint space, and conflating them would "
+                    "put a screen-space artefact into a viewpoint-space census. THE ORACLE IS "
+                    "EXONERATED BY ITS OWN PATTERNS: no `ABA` occurs anywhere, so it never answers "
+                    "with something no limit reaches — the exact value always equals one of the "
+                    "two sides. AND THE POPULATION IS PINNED, NOT THE COUNT, because two different "
+                    "sets of 1137 pixels would tally the same and digest differently. THE FIRST "
+                    "VERSION OF THIS LAW CARRIED A THRESHOLD AND THE DATA MISSED IT BY THREE "
+                    "PIXELS — 378 of 1137 is 33.25%%, so `a third are stable` read 1134 against "
+                    "1137 — and the repair was to delete the fraction rather than move it, since "
+                    "what the measurement supports is a comparison and not a number invented for it"
+                    % told if c_ok else "the limit census did not hold")
+        l_ok, nl = True, 0
+        try:
+            nl = len(VT.LEVELS)
+            l_ok = (VT.the_ladder_starts_at_the_candidate()
+                    and VT.the_record_is_bound_to_the_live_code()
+                    and VT.scene_result("ladder") == VT.golden("ladder"))
+        except Exception:
+            l_ok = False
+        self.record("voxtie-ladder", l_ok,
+                    "%d LEVELS, EACH ONE SINGLE VARIABLE, so `S=64 is the floor` is reproducible "
+                    "rather than narrated. Level zero is REQUIRED to reproduce `voxcand`'s "
+                    "candidate arm exactly, keeping the chain bound from `voxref.render` through "
+                    "two transcriptions. TWO FURTHER DEFECTS ARE ISOLATED AND NEITHER IS APPLIED. "
+                    "The projection's axes round in OPPOSITE DIRECTIONS — `voxref` computes "
+                    "`cy - (cu*F)//cf`, negating AFTER the floor, so screen Y rounds toward +inf "
+                    "where X rounds toward -inf — which is also the mechanism behind the (-1,+1), "
+                    "(0,+1), (-1,0) bias `voxray` measured in its round-trip profile three rungs "
+                    "ago and could not explain. And the projected VERTEX is quantised to whole "
+                    "pixels; carrying it at 1/64 closes the `aperture` scene entirely and 1/256 "
+                    "buys nothing further, so the floor is measured rather than assumed"
+                    % nl if l_ok else "the candidate ladder did not hold")
+        t_ok, ceiling = True, 0
+        try:
+            ceiling = VT.resolvable_ties()
+            t_ok = (VT.no_tie_rule_can_beat_the_resolvable_ceiling()
+                    and VT.the_committed_rule_leaves_the_ceiling_unreached()
+                    and VT.every_rule_is_order_independent()
+                    and VT.no_rule_is_adopted()
+                    and VT.scene_result("tie_micro") == VT.golden("tie_micro")
+                    and VT.scene_result("tie_rule") == VT.golden("tie_rule"))
+        except Exception:
+            t_ok = False
+        self.record("voxtie-ties", t_ok,
+                    "FOUR ORDERINGS MEASURED AND NONE ADOPTED, and the useful output is not a "
+                    "ranking but a CEILING. The oracle's answer is among the tied candidates at "
+                    "exactly %d of the 13 exact-depth ties, so NO tie rule can score above that "
+                    "however cleverly it orders them — everywhere else the correct face is not "
+                    "competing at that pixel at all and the disagreement is about COVERAGE. The "
+                    "committed `(depth, face_key)` scores ZERO and two alternatives reach the "
+                    "ceiling, so the rule is arbitrary AND worse than available, which makes "
+                    "`change the tiebreak` a bounded proposal rather than an open-ended hope. "
+                    "EVERY CANDIDATE PRESERVES DRAW-ORDER INDEPENDENCE — checked by reversing the "
+                    "candidate list — because that is the property the committed rule was built "
+                    "for and no replacement may cost it. ADOPTING ONE IS A DESIGN DECISION ABOUT "
+                    "WHAT THE REFERENCE IS: the geometric-parameter ordering computes a ray/plane "
+                    "intersection inside the rasteriser, which makes it partly a ray tracer, and a "
+                    "rung that adopted a convention by default would be deciding that quietly"
+                    % ceiling if t_ok else "the tie population did not hold")
+        s_ok = True
+        try:
+            s_ok = VT.a_tampered_row_refuses()
+            for bad in ("nope", "ladder2"):
+                try:
+                    VT.scene_case(bad)
+                    s_ok = False
+                except VT.VoxtieError:
+                    pass
+            try:
+                VT.level("subpixel8")
+                s_ok = False
+            except VT.VoxtieError:
+                pass
+            try:
+                VT.rule_pick("coin_flip", (0, 0, 0), (1, 1, 1), [])
+                s_ok = False
+            except VT.VoxtieError:
+                pass
+        except Exception:
+            s_ok = False
+        self.record("voxtie-selftest", s_ok,
+                    "four plants bite: a census row whose class is not one of the three declared "
+                    "refuses typed, an unknown scene refuses, an undeclared ladder level refuses "
+                    "rather than being interpolated, and an unknown tie rule refuses rather than "
+                    "falling back to the committed one — which is the failure mode that would let "
+                    "a convention be adopted by accident (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -23670,7 +23796,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

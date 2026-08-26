@@ -1,0 +1,52 @@
+# URDRVXT1 conformance goldens — emitted by voxtie.py, pinned by hand, compared by the gate.
+#
+# THIS RUNG EXISTS TO REFUSE A CARVE-OUT, AND THE MEASUREMENT REFUSED IT. On one two-cell scene the
+# residual looked like twelve degeneracies around a single bug, and calling thirteen pixels a
+# permanent geometric ambiguity would have been tempting and wrong. Over the declared trace the
+# same classifier finds 378 STABLE disagreements against 198 on an event surface — pixels where the
+# oracle gives one answer at the exact sample and at every screen and viewpoint perturbation, and
+# the rasteriser disagrees anyway. Those are defects. A carve-out written on the small scene would
+# have excused several hundred of them.
+#
+# DECLARED: the four ladder levels and their single-variable steps; the three classes and their
+# priority (an edge or corner entry is degenerate whatever its neighbours do, because there the
+# ORACLE is already answering by convention); the sub-pixel denominator for a screen limit and the
+# world-unit epsilon for a viewpoint one; the four candidate tie orderings; and the tie scenes.
+#
+# DERIVED at claim time (L75): every classification, every one-sided pattern, every ladder reading,
+# the resolvable ceiling, and the population digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * ladder — four levels on eight frames and seven tie scenes. Level zero is REQUIRED to
+#     reproduce voxcand's candidate arm exactly, so the chain from voxref.render through two
+#     transcriptions stays bound. The projection's axis asymmetry and the vertex sub-pixel
+#     denominator are separate steps, so "S=64 is the floor" is reproducible rather than narrated.
+#   * limit_census — every disagreeing pixel of the best level, classified, with its one-sided
+#     patterns in both screen directions and its viewpoint-perturbation count. THE POPULATION IS
+#     PINNED, NOT THE COUNT: two different sets of 1137 pixels would tally the same and digest
+#     differently. No `ABA` pattern occurs anywhere, so the oracle never answers with something no
+#     limit reaches — it takes whichever side the exact ray falls on, which is what a well-defined
+#     function does at a discontinuity.
+#   * tie_micro — the thirteen exact-depth ties on the body-diagonal pair, each with its candidates,
+#     the oracle's answer and its class. One is STABLE, one is a true corner, eleven are event
+#     surface.
+#   * tie_rule — four orderings measured against the tie population and NONE ADOPTED. The useful
+#     output is not a ranking but a CEILING: the oracle's answer is among the tied candidates at
+#     exactly one of the thirteen pixels, so no tie rule can score above 1/13 however cleverly it
+#     orders them. The committed `(depth, face_key)` scores 0, and two of the alternatives reach
+#     the ceiling — so the rule is arbitrary AND worse than available, which is a bounded
+#     proposal rather than an open-ended hope.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * NO ADOPTED TIE RULE. Choosing one is a decision about what the reference IS — the
+#     geometric-parameter ordering computes a ray/plane intersection inside the rasteriser, which
+#     makes it partly a ray tracer — and a rung that adopted a convention by default would be
+#     making that decision without anyone noticing.
+#   * NO PROMOTION. `voxref` is untouched here as in `voxcand`, and the frozen census stays frozen.
+#   * NO GENERALISATION past the declared trace and the tie scenes. A classifier's verdict is about
+#     the samples it was given.
+ladder 53731a388965a875b643cc0fc9913e7c13d13837170f6649f517e61e366b7504
+limit_census 831021605fdaf62b5b5a446c35d32e49c6158834213dcb7d86f32258e0e28860
+tie_micro 8f6ed531f3e50e39fd609229459852bc2d7a43b166b8dc1ceef81bcd3efc704a
+tie_rule 23af6ae265c8a9fa3c8d3d35bcf1790d86ff4d50bf7c89bc57e9ddf07d47dbf1
