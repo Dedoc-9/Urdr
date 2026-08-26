@@ -1,0 +1,40 @@
+# URDRVXD1 conformance goldens — emitted by voxcand.py, pinned by hand, compared by the gate.
+#
+# A CANDIDATE, NEVER THE REFERENCE. Two repairs to `voxref`'s renderer have been isolated and
+# NEITHER IS APPLIED. They live here as declared arms of an experiment, because establishing a
+# repair and promoting one are different acts and this rung performs only the first. The frozen
+# contract does not move: `voxcoarse`'s 1728-state census and `voxevent`'s subdivision ladder are
+# measurements OF the committed observable, and a partial repair would invalidate them twice.
+#
+# DECLARED: the two axes and their four crossings — winding {as-committed, reversed} against
+# weights {biased, unbiased} — the committed corner and the candidate corner, the four facts a
+# repair must establish before the census may be regenerated, and the pinned verdict on
+# perspective-correct depth.
+#
+# DERIVED at claim time (L75): every arm reading, every fact verdict, the micro-scene residue, and
+# the whole record grid.
+#
+# WHAT EACH GOLDEN COVERS
+#   * arms — the 2x2, which REFUTED the prediction that motivated it. Impossible pixels: 14032
+#     committed, 2040 with the winding reversed alone, 14655 with the weights unbiased alone —
+#     WORSE than committed, and moving not one agreeing pixel — and 661 with both. The weight fix
+#     is CONDITIONAL on the winding fix: correcting the barycentric coordinates of a renderer that
+#     draws the wrong faces gives those faces more accurate depths and lets more of them win. A
+#     bundled before/after would have reported "the repair helps" and hidden that.
+#   * facts — projection PASS, orientation PASS (all six single-voxel scenes at zero impossible),
+#     visibility RED, preservation PASS. The third fact is asserted AS A FAILURE so it cannot be
+#     forgotten or rounded to zero, and that law reddens on the day the residual closes — which is
+#     the day the census may be regenerated and not one rung before.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * NO CLAIM THAT THE CANDIDATE IS CORRECT. It is measurably closer and measurably still wrong:
+#     661 impossible pixels on the declared trace, 54 across three of twenty-three micro-scenes.
+#   * NO MECHANISM FOR THE RESIDUAL. The leading hypothesis is the integer flooring of projected
+#     vertex positions, which would also account for the mean depth error and the `not_covered`
+#     population. It has no controlled experiment behind it yet, and a named hypothesis is not a
+#     finding.
+#   * NO OBSERVABLE. This module's digests carry a different MAGIC by construction, so a candidate
+#     figure cannot be mistaken for a frozen `O_t` — the substitution this rung exists to prevent.
+arms ca2c29fa5067d1d341c6914b58a0057ea33ee7dce89310ef3e2a2d447162aecf
+facts e42dd969ce6874c6701fc7fde22d15d7c600410a040e2b860209d2d47dec0d95

@@ -248,6 +248,7 @@ STAGE_ORDER = (
     "voxray",
     "voxmicro",
     "voxevent",
+    "voxcand",
     "rollbench",
     "reachable",
     "retire",
@@ -19914,6 +19915,124 @@ class Gate:
                     "its cells refuses typed (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxcand(self):
+        """A REPAIR CANDIDATE THAT IS NOT THE REFERENCE (URDRVXD1). Rows: arms (the 2x2 and what
+        each fix buys), facts (the four a repair must establish, with the third RED), preservation
+        (every law true before the repair still true after it), selftest (the plants bite)."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxcand as VC
+        except Exception as exc:
+            for r in ("arms", "facts", "preservation", "selftest"):
+                self.record(f"voxcand-{r}", False, f"import failed (voxcand): {exc}")
+            return
+        a_ok, told = True, "?"
+        try:
+            told = VC.told()
+            a_ok = (VC.the_committed_arm_reproduces_the_reference()
+                    and VC.the_candidate_is_not_the_committed_reference()
+                    and VC.the_candidate_digest_is_not_an_observable()
+                    and VC.the_committed_reference_is_untouched()
+                    and VC.the_fixes_are_not_independent()
+                    and VC.the_perspective_hypothesis_stays_refused()
+                    and VC.the_record_is_exactly_the_derived_grid()
+                    and VC.the_record_names_this_world()
+                    and VC.the_record_is_bound_to_the_live_code()
+                    and VC.scene_result("arms") == VC.golden("arms"))
+        except Exception:
+            a_ok = False
+        self.record("voxcand-arms", a_ok,
+                    "%s. TWO REPAIRS ISOLATED AND NEITHER APPLIED, because establishing a repair "
+                    "and promoting one are different acts and this rung performs only the first — "
+                    "`voxref` is asserted UNTOUCHED every run, so the 1728-state census and the "
+                    "subdivision ladder remain measurements of the thing they measured. THE "
+                    "SECOND DEFECT IS THE COVERAGE RULE LEAKING INTO THE COORDINATES: `voxref` "
+                    "adds the top-left bias to each edge value and then feeds those same values "
+                    "into the depth interpolation, but the bias decides which triangle OWNS a "
+                    "shared edge and is not a barycentric coordinate; using it as one displaces "
+                    "the interpolated depth by up to an edge unit, which at grazing incidence is "
+                    "enormous. THE 2x2 REFUTED THE PREDICTION THAT MOTIVATED IT — removing the "
+                    "bias while the winding is still wrong makes the impossible population WORSE "
+                    "and moves not one agreeing pixel, because correcting the coordinates of a "
+                    "renderer drawing the WRONG FACES just gives those faces better depths and "
+                    "lets more of them win. The weight fix is CONDITIONAL on the winding fix, "
+                    "which a bundled before/after would have hidden. AND PERSPECTIVE CORRECTION IS "
+                    "REFUSED ON EVIDENCE: once the weights are unbiased it changes no winner at "
+                    "any pixel of any declared frame, and against the oracle's exact t it is a "
+                    "tie on depth VALUES — 71.9%% within one camera unit either way. A tie that "
+                    "costs an exact rational per pixel is not an improvement, and the numbers are "
+                    "pinned so the hypothesis cannot quietly return"
+                    % told if a_ok else "the candidate arms did not hold")
+        f_ok, red = True, "?"
+        try:
+            v = VC.fact_verdicts()
+            red = ", ".join("%s %s" % (f, "PASS" if v[f] else "RED") for f in VC.FACTS)
+            f_ok = (VC.the_third_fact_is_still_red()
+                    and VC.the_census_may_not_be_regenerated_yet()
+                    and VC.scene_result("facts") == VC.golden("facts"))
+        except Exception:
+            f_ok = False
+        self.record("voxcand-facts", f_ok,
+                    "FACT THREE IS RED AND THIS ROW IS GREEN BECAUSE IT SAYS SO — %s. The four "
+                    "facts were declared BEFORE the rung: projection correctness, face "
+                    "orientation correctness, visibility correctness on the micro-scene suite, and "
+                    "preservation of the existing law chain. The candidate passes three. All six "
+                    "single-voxel axis scenes go to ZERO impossible pixels, which is orientation "
+                    "correctness demonstrated rather than argued. It does NOT pass visibility: 54 "
+                    "impossible pixels survive across three of the twenty-three renderable "
+                    "micro-scenes and 661 across the declared trace, so a third defect is real and "
+                    "unlocalized — the leading hypothesis, with no controlled experiment behind it "
+                    "yet, is the integer flooring of projected vertex positions. THE FAILURE IS "
+                    "ASSERTED AS A FAILURE so it cannot be forgotten, mis-read or rounded to zero, "
+                    "and `the_third_fact_is_still_red` REDDENS on the day the residual closes — "
+                    "which is the day the frozen census may be regenerated and not one rung before"
+                    % red if f_ok else "the fact table did not hold")
+        p_ok = True
+        try:
+            p_ok = (VC.the_candidate_is_deterministic()
+                    and VC.the_candidate_keeps_the_coverage_partition()
+                    and VC.the_candidate_keeps_order_irrelevance()
+                    and VC.the_candidate_keeps_both_witnesses())
+        except Exception:
+            p_ok = False
+        self.record("voxcand-preservation", p_ok,
+                    "EVERY LAW THAT WAS TRUE BEFORE THE REPAIR IS RE-RUN THROUGH IT, because a "
+                    "repair that fixed visibility and broke the partition would be a worse "
+                    "renderer with a better number. Under the candidate the trace is still "
+                    "deterministic; no pixel of a quad is claimed twice while dropping the bias "
+                    "still double-claims on the same sample, so the partition holds WITH its "
+                    "control rather than on a sample that happens to have no shared edges; draw "
+                    "order is still observationally irrelevant under both declared permutations, "
+                    "since the scene-identity tiebreak is untouched; and both constructed "
+                    "witnesses still exhibit their pairs, so neither digest has become a function "
+                    "of the other. The witnesses REFUSE typed if they render nothing, which is how "
+                    "the original depth witness once read green for no reason at all"
+                    if p_ok else "a law that held before the repair does not hold after it")
+        s_ok = True
+        try:
+            s_ok = (VC.a_tampered_row_refuses()
+                    and VC.scene_result("arms") == VC.golden("arms"))
+            try:
+                VC.render_arm([], (0, 0, 0), (0, 1, 0), "sideways")
+                s_ok = False
+            except VC.VoxcandError:
+                pass
+            try:
+                VC.scene_case("nope")
+                s_ok = False
+            except VC.VoxcandError:
+                pass
+        except Exception:
+            s_ok = False
+        self.record("voxcand-selftest", s_ok,
+                    "three plants bite: a row whose agreeing and disagreeing pixels no longer "
+                    "account for the framebuffer refuses typed, an unknown weight treatment "
+                    "refuses rather than silently choosing one, and an unknown scene refuses — so "
+                    "the arm names are a closed set and not a suggestion (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
         severance, the seal, the quantile ranks), provenance (the named-host law in both
@@ -23551,7 +23670,7 @@ class Gate:
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

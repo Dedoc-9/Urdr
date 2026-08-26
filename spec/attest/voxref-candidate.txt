@@ -1,0 +1,42 @@
+# URDRVXD1 repair candidate — one row per (winding, weights, frame), emitted by
+# voxcand.generate(), committed as an artifact, re-derived by the gate.
+# columns: winding weights frame name agree disagree impossible drawn
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# A CANDIDATE, NEVER THE REFERENCE. `voxref` is untouched by this rung and its frozen
+# contract still reproduces its pinned digest. These are measurements OF a proposed
+# repair, crossed as a 2x2 so each fix's contribution is separable: the winding
+# reversal voxray established, and the removal of the top-left bias from the
+# barycentric weights it was never a coordinate for. Fact three is RED at the bottom
+# of this table and the census stays frozen until it is not.
+as-committed biased 0 enclosed 0 6912 0 6912
+as-committed biased 1 buried 0 6912 0 6912
+as-committed biased 2 seam 11 6901 2450 6900
+as-committed biased 3 wall_flat 0 6912 3738 6912
+as-committed biased 4 open_air 1548 5364 2353 5347
+as-committed biased 5 oblique 2301 4611 1683 4551
+as-committed biased 6 corner 3291 3621 1030 3580
+as-committed biased 7 edge_on 1248 5664 2778 5664
+as-committed unbiased 0 enclosed 0 6912 0 6912
+as-committed unbiased 1 buried 0 6912 0 6912
+as-committed unbiased 2 seam 11 6901 2553 6900
+as-committed unbiased 3 wall_flat 0 6912 3779 6912
+as-committed unbiased 4 open_air 1548 5364 2526 5347
+as-committed unbiased 5 oblique 2301 4611 1779 4551
+as-committed unbiased 6 corner 3291 3621 1071 3580
+as-committed unbiased 7 edge_on 1248 5664 2947 5664
+reversed biased 0 enclosed 6912 0 0 6912
+reversed biased 1 buried 6912 0 0 6912
+reversed biased 2 seam 6005 907 266 6900
+reversed biased 3 wall_flat 6612 300 25 6912
+reversed biased 4 open_air 4597 2315 1073 5347
+reversed biased 5 oblique 5767 1145 300 4551
+reversed biased 6 corner 6266 646 100 3580
+reversed biased 7 edge_on 5959 953 276 5664
+reversed unbiased 0 enclosed 6912 0 0 6912
+reversed unbiased 1 buried 6912 0 0 6912
+reversed unbiased 2 seam 6173 739 77 6900
+reversed unbiased 3 wall_flat 6612 300 25 6912
+reversed unbiased 4 open_air 5436 1476 372 5347
+reversed unbiased 5 oblique 6035 877 21 4551
+reversed unbiased 6 corner 6314 598 83 3580
+reversed unbiased 7 edge_on 6153 759 83 5664
