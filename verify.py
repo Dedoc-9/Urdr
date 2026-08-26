@@ -250,6 +250,8 @@ STAGE_ORDER = (
     "voxevent",
     "voxcand",
     "voxtie",
+    "voxfate",
+    "rowtext",
     "rollbench",
     "reachable",
     "retire",
@@ -1139,7 +1141,7 @@ class Gate:
                     "3/3: a tie broken by ARRIVAL ORDER instead of the written datum is observed "
                     "breaking permutation invariance on a scene carrying an exact tie; a "
                     "bounding box shifted one subpixel column — the exact shape that cost `voxin` "
-                    "20%% of its voxels — is observed failing the no-bounding-box oracle; and the "
+                    "20% of its voxels — is observed failing the no-bounding-box oracle; and the "
                     "instrument returns to green afterwards, so the reds are the plants and not "
                     "a leaked mutation"
                     if all(plants) and len(plants) == 3 else
@@ -11798,7 +11800,7 @@ class Gate:
                     if red_ok else "the fixed-window plant did not refuse what the ladder survives")
 
     def voxlat(self):
-        """The integer voxel lattice (URDRVXF1), slice S1 of the city-replica arc: the certified
+        """The integer voxel lattice (URDRVOX1), slice S1 of the city-replica arc: the certified
         quantization boundary where float capture becomes exact integer authority. TWO DECIDED
         RESULTS. (1) THE LCA IDENTITY — octree common-ancestor depth for Morton keys is the count of
         LEADING agreeing 3-bit groups, because Morton hierarchy lives in the HIGH bits; a handed-down
@@ -11828,7 +11830,7 @@ class Gate:
             self.record("voxlat:scenes", False, f"reference failed: {exc}")
             return
         self.record("voxlat:scenes", ref_ok,
-                    "lca + ctz_plant + overflow + word reproduce URDRVXF1 digests"
+                    "lca + ctz_plant + overflow + word reproduce URDRVOX1 digests"
                     if ref_ok else "a voxlat scene drifted from its digest")
         law_ok = True
         try:
@@ -16859,9 +16861,9 @@ class Gate:
                     "would certify that 3x3 matrices exist; and behind the camera REFUSES rather "
                     "than wraps. AND THE HORIZON IS COMPUTED RATHER THAN DISCOVERED TWICE — both "
                     "framing failures were measured first: a pitch rotating the WRONG WAY gave "
-                    "93%% sky with the ground thrown thousands of pixels below the image, the "
+                    "93% sky with the ground thrown thousands of pixels below the image, the "
                     "inverted-sign class this module exists to catch, caught by LOOKING; and a "
-                    "pitch too STEEP for the focal length gave 100%% ground, which `horizon_row` "
+                    "pitch too STEEP for the focal length gave 100% ground, which `horizon_row` "
                     "now predicts (-80 for 3/4, 67 for 7/24 in a 320-pixel frame) instead of "
                     "leaving to be found again. AND THE YAW TABLE WAS WRONG IN TWO WAYS THAT EVERY "
                     "ROW ABOVE PASSED THROUGH: the first module ever to RENDER a frame with it "
@@ -17411,8 +17413,8 @@ class Gate:
         self.record("deeper-verdicts", v_ok,
                     "OUSTERHOUT'S RULE, MECHANIZED AGAINST A LIVE INSTANCE THIS ARC PRODUCED. Under "
                     "a balanced schedule the named host showed `moulded` beating `flat` at exactly "
-                    "ONE work level — ticks = 8 — in three of four workloads (-5.2%%, -2.9%%, "
-                    "-5.6%%), with `flat` winning again at 11 and 12 ticks. Three independent "
+                    "ONE work level — ticks = 8 — in three of four workloads (-5.2%, -2.9%, "
+                    "-5.6%), with `flat` winning again at 11 and 12 ticks. Three independent "
                     "workloads agreeing at one point is too orderly to file as noise and too narrow "
                     "to explain by hand — and `measure` had ALREADY PROVED IN EXACT COUNTS that the "
                     "three representations share a slope and differ only in the intercept, so a "
@@ -19892,8 +19894,8 @@ class Gate:
                     "misses it ENTIRELY, because the tie sent the traversal down the other axis "
                     "and out of the column. The opposite convention makes a different voxel "
                     "visible along the same ray. The population is measured rather than assumed "
-                    "safe — 20.1%% of the declared rays enter through an edge or a corner at the "
-                    "finest scale, 1.8%% at the coarsest — so the blast radius of an undeclared "
+                    "safe — 20.1% of the declared rays enter through an edge or a corner at the "
+                    "finest scale, 1.8% at the coarsest — so the blast radius of an undeclared "
                     "rule is a number. THE FIRST VERSION OF THIS LAW ASSERTED THE WRONG THING: it "
                     "fired the tie ray into the frozen world and demanded an x face, and a tie "
                     "decides which axis STEPS, not which face the eventual hit reports"
@@ -20158,6 +20160,184 @@ class Gate:
                     "falling back to the committed one — which is the failure mode that would let "
                     "a convention be adopted by accident (gate can redden)"
                     if s_ok else "a plant failed to bite")
+
+    def voxfate(self):
+        """CONDITION THE POPULATION, THEN ASK WHAT BROKE IT (URDRVXS1). Rows: conditioned (the fate
+        of the stable class and of nothing else, with the contaminated run beside it),
+        counterexample (the pixel this arc started from, now an instance of the dominant class),
+        cache (`voxtie`'s census materialised once per process on an invalidatable key), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxtie as VT
+            import voxfate as VS
+        except Exception as exc:
+            for r in ("conditioned", "counterexample", "cache", "selftest"):
+                self.record(f"voxfate-{r}", False, f"import failed (voxfate): {exc}")
+            return
+        k_ok, nkey = True, 0
+        try:
+            nkey = len(VT.census_key())
+            k_ok = (VT.the_cache_is_keyed_on_inputs_and_not_on_the_run()
+                    and VT.the_cache_returns_the_same_population())
+        except Exception:
+            k_ok = False
+        self.record("voxfate-cache", k_ok,
+                    "THE CLASSIFIED POPULATION IS MATERIALISED ONCE PER PROCESS, on a key of %d "
+                    "DECLARED INPUTS — world digest, level, sub-pixel denominator, viewpoint "
+                    "epsilon, semantic version — and not on `this run`. Eleven oracle queries per "
+                    "disagreeing pixel, six laws and a golden that each need the whole census, and "
+                    "now a second module conditioning on it: without this the stable-fate rung "
+                    "would pay the census eight times over. THE CACHE IS DELIBERATELY "
+                    "PROCESS-LOCAL. One that survived across runs would introduce exactly the "
+                    "stale-record failure mode this tree spends its rungs eliminating, and would "
+                    "do it while the records are still being established. MATERIALISING MUST NOT "
+                    "CHANGE THE ANSWER, checked by clearing and recomputing rather than asserted, "
+                    "and the version field exists so a change to what the CLASSES MEAN cannot be "
+                    "served from a materialisation of what they used to mean"
+                    % nkey if k_ok else "the census cache did not hold")
+        c_ok, told = True, "?"
+        try:
+            told = VS.told()
+            c_ok = (VS.the_instrument_matches_the_ladder()
+                    and VS.the_population_is_exactly_the_conditioned_class()
+                    and VS.the_answer_does_not_split()
+                    and VS.the_defect_is_coverage_not_depth()
+                    and VS.the_contamination_is_demonstrated()
+                    and VS.the_record_names_this_world()
+                    and VS.the_record_is_bound_to_the_live_code()
+                    and VS.scene_result("conditioned") == VS.golden("conditioned"))
+        except Exception:
+            c_ok = False
+        self.record("voxfate-conditioned", c_ok,
+                    "EVERY FATE DISTRIBUTION THIS ARC PRODUCED BEFORE THIS ONE WAS CONTAMINATED, "
+                    "and not slightly: `voxmicro` classified where the rasteriser loses a face "
+                    "over the WHOLE residual, which mixes real defects, samples sitting on a "
+                    "visibility event surface, and rays entering through an edge or corner where "
+                    "the ORACLE is answering by its own convention — so a mechanism read off that "
+                    "mixture is a mechanism for an average of three unrelated things. Conditioned "
+                    "on `voxtie`'s stable class and on nothing else: %s. THE CONTAMINATION IS "
+                    "DEMONSTRATED RATHER THAN ARGUED — the same classifier is run over the same "
+                    "pixels with `voxmicro`'s sampling branch ENABLED and the coverage class "
+                    "collapses, because on a population already known stable under sub-pixel "
+                    "perturbation a neighbour agreeing is not evidence, it is the question "
+                    "restated. AND THE TWO FACTS TOGETHER SAY WHAT NEITHER SAYS ALONE: sub-pixel "
+                    "stable, yet the rasteriser's answer equals the oracle's ONE WHOLE PIXEL OVER "
+                    "at most of them — that is not an ambiguity resolved differently, it is a "
+                    "whole-pixel coverage displacement. The instrument is a THIRD transcription of "
+                    "the same loop and is required to reproduce `voxtie`'s ladder winner exactly, "
+                    "so it cannot quietly measure a fourth renderer"
+                    % told if c_ok else "the conditioned census did not hold")
+        x_ok, where = True, "?"
+        try:
+            c = VS.minimal_counterexample()
+            where = "frame %d pixel %s" % (c["frame"], c["pixel"])
+            x_ok = (VS.the_counterexample_is_minimal_and_real()
+                    and VS.scene_result("counterexample") == VS.golden("counterexample"))
+        except Exception:
+            x_ok = False
+        self.record("voxfate-counterexample", x_ok,
+                    "THE MINIMAL COUNTEREXAMPLE IS THE PIXEL THIS WHOLE ARC STARTED FROM. Six "
+                    "rungs ago a face-culling experiment disagreed with the reference at %s, and "
+                    "tracing it produced an unculled winner of one voxel's INTERIOR top face "
+                    "beating a neighbour's own exposed face — impossible rather than merely "
+                    "surprising, and the reason an oracle had to exist at all. `voxray` then found "
+                    "the oracle names a THIRD answer there which neither arm had. It is now the "
+                    "first instance of the dominant class: the oracle's face IS generated, IS "
+                    "front-facing, IS on screen, REACHES the pixel loop — stage `rasterised` — and "
+                    "does not claim the pixel. The investigation returns to where it began with "
+                    "the mechanism named. WHAT THIS DOES NOT SHOW is WHY the coverage displaces: "
+                    "the candidates are the half-open top-left convention, the bounding-box "
+                    "derivation, and the sample point the fill rule effectively uses, and choosing "
+                    "between them is a binary experiment and not this rung's claim"
+                    % where if x_ok else "the counterexample did not hold")
+        s_ok = True
+        try:
+            s_ok = VS.a_tampered_row_refuses()
+            try:
+                VS.scene_case("fates")
+                s_ok = False
+            except VS.VoxfateError:
+                pass
+            for bad in ("fate not_a_fate 1 1 1", "rumour 1 2 3"):
+                try:
+                    VS.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VS.VoxfateError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("voxfate-selftest", s_ok,
+                    "four plants bite: a pixel row relabelled to a fate outside the declared "
+                    "vocabulary refuses typed, a fate row in no declared class refuses, a row of "
+                    "unknown KIND refuses rather than being skipped as a comment, and an unknown "
+                    "scene refuses — so the fate vocabulary is a closed set inherited from "
+                    "`voxmicro` and not a set of strings this module happens to emit (gate can "
+                    "redden)"
+                    if s_ok else "a plant failed to bite")
+
+    def rowtext(self):
+        """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
+        Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
+        non-format string), identity (a stage docstring's parenthesised module identity must be
+        that module's own MAGIC). Both carry plants, because both live populations are now empty
+        and a detector that has nothing to find is indistinguishable from one that cannot find."""
+        m_ok, nrec = True, 0
+        try:
+            src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+            live = literal_percent_rows(src)
+            nrec = len(_rows_by_stage())
+            planted = literal_percent_rows(
+                'class P:\n'
+                '    def stage(self):\n'
+                '        self.record("plant-a", True, "coverage is 93%% of the frame")\n'
+                '        self.record("plant-b", True, "ok %d%% here" % 5)\n'
+                '        self.record("plant-c", True, "green" if x else "red at 90%%")\n')
+            m_ok = (live == [] and [r for r, _w in planted] == ["plant-a", "plant-c"])
+        except Exception:
+            m_ok = False
+        self.record("rowtext-messages", m_ok,
+                    "ACROSS THE %d ROWS THIS GATE NAMES LITERALLY, NONE PRINTS A LITERAL `%%%%`. Five "
+                    "did. `%%%%` is the "
+                    "escape a `%%`-formatted string uses to emit one per cent sign; in a string "
+                    "that is never the LEFT operand of a `%%` it is not an escape, it is two "
+                    "characters, and the gate transcript said `93%%%%` and `20.1%%%%` for four "
+                    "rungs. THE RULE IS STRUCTURAL AND NOT TEXTUAL: the detector walks each "
+                    "`record()` call's detail EXPRESSION and collects the string constants that "
+                    "are not a format string, so the same two characters are correct in one branch "
+                    "of a conditional and a defect in the other — which is exactly the shape of "
+                    "the fifth instance, found by this detector and not by the sweep that "
+                    "retired the other four. THE PLANT CARRIES ALL THREE CASES and the middle one "
+                    "is the control: a bare literal reddens, a genuine format string does not, and "
+                    "the un-taken branch of a conditional reddens on its own"
+                    % nrec if m_ok else "the literal-per-cent detector did not hold")
+        i_ok, nclaim, nmod = True, 0, 0
+        try:
+            src = io.open(os.path.abspath(__file__), encoding="utf-8").read()
+            claims = stage_identity_claims(src)
+            magics = module_magics()
+            nclaim, nmod = len(claims), len([s for s in claims if s in magics])
+            planted = identity_mismatches({"voxlat": "URDRVXF1"}, {"voxlat": "URDRVOX1"})
+            i_ok = (identity_mismatches(claims, magics) == []
+                    and nmod > 90
+                    and [s for s, _c, _m in planted] == ["voxlat"]
+                    and identity_mismatches({"voxlat": "URDRVOX1"}, {"voxlat": "URDRVOX1"}) == [])
+        except Exception:
+            i_ok = False
+        self.record("rowtext-identity", i_ok,
+                    "%d STAGE DOCSTRINGS NAME A MODULE IDENTITY AND %d ARE CHECKABLE against a "
+                    "module of the same name, and all of them agree. One did not: `voxlat`'s "
+                    "docstring and its row both claimed URDRVXF1, which is `voxref`'s magic, while "
+                    "`voxlat.py` declares URDRVOX1 — a copied header that had a reader chasing the "
+                    "wrong module. THE RULE IS DELIBERATELY NARROW: only the FIRST parenthesised "
+                    "identity in a stage docstring, compared only against the module the stage is "
+                    "named for. A broad `no stage may mention a foreign magic` rule flags thirty "
+                    "docstrings of which twenty-nine are legitimate prose cross-references — "
+                    "`voxcand` SHOULD say it transcribes URDRVXF1 — so the broad rule would have "
+                    "been a detector whose output is a list to ignore. THE PLANT IS THE RETIRED "
+                    "DEFECT ITSELF, with its corrected form beside it as the control"
+                    % (nclaim, nmod) if i_ok else "the identity detector did not hold")
 
     def rollbench(self):
         """THE INSTRUMENT `measure` COULD NOT CONTAIN (URDRRBN1). Rows: log (the plan read by
@@ -22272,7 +22452,7 @@ class Gate:
                     "active, and the ownership arrays plus the out-of-bounds counter are unchanged "
                     "by computing the citation, so nothing feeds back. That is this repo's "
                     "cardinal invariant — replay stays byte-identical with observers active — "
-                    "asserted for the first time at the seam where the observer is 90%% of the "
+                    "asserted for the first time at the seam where the observer is 90% of the "
                     "reading, which is exactly where an unproved invariant was costing the most"
                     if obs_ok else "the observer seam did not hold")
         dom_ok = True
@@ -23793,10 +23973,117 @@ class Gate:
 
 
 
+#: `URDR` + a magic tail, parenthesised, as a stage docstring writes its module's identity.
+_ROWTEXT_IDENTITY = re.compile(r"\((URDR[A-Z0-9]{3,8})\)")
+_ROWTEXT_MAGIC = re.compile(r'^MAGIC\s*=\s*b"(URDR[A-Z0-9]+)"', re.M)
+
+
+def _unformatted_string_constants(node):
+    """Every string constant in an expression that is NOT the LEFT operand of a `%` — i.e. every
+    string whose characters reach the transcript verbatim.
+
+    STRUCTURAL, NOT TEXTUAL. `"%d%%" % n` is correct and `"93%%"` is a defect, and the two are the
+    same two characters; only the expression around them tells them apart. A conditional detail is
+    walked on BOTH branches, because the branch that is not taken today is taken the moment the row
+    reddens, and a transcript defect that only appears on failure is the worst kind."""
+    import ast as _a
+    out = []
+
+    def walk(n, is_format):
+        if isinstance(n, _a.BinOp) and isinstance(n.op, _a.Mod):
+            walk(n.left, True)
+            walk(n.right, False)
+            return
+        if isinstance(n, _a.Constant):
+            if isinstance(n.value, str) and not is_format:
+                out.append(n.value)
+            return
+        for ch in _a.iter_child_nodes(n):
+            walk(ch, False)
+
+    walk(node, False)
+    return out
+
+
+def literal_percent_rows(text):
+    """(row name, defect) for every `record()` whose detail would print a literal `%%`.
+
+    Takes SOURCE TEXT rather than reading a file, so the gate can plant the three cases — bare
+    literal, genuine format string, un-taken conditional branch — without touching disk."""
+    import ast as _a
+    out = []
+    for n in _a.walk(_a.parse(text)):
+        if not (isinstance(n, _a.Call) and isinstance(n.func, _a.Attribute)
+                and n.func.attr == "record"):
+            continue
+        detail = None
+        if len(n.args) >= 3:
+            detail = n.args[2]
+        for kw in n.keywords:
+            if kw.arg == "detail":
+                detail = kw.value
+        if detail is None:
+            continue
+        name = n.args[0].value if (n.args and isinstance(n.args[0], _a.Constant)) else "?"
+        if any("%%" in s for s in _unformatted_string_constants(detail)):
+            out.append((name, "literal-percent"))
+    return out
+
+
+def stage_identity_claims(text):
+    """stage method name -> the FIRST parenthesised `URDR....` identity in its docstring."""
+    import ast as _a
+    out = {}
+    for cls in _a.walk(_a.parse(text)):
+        if not isinstance(cls, _a.ClassDef):
+            continue
+        for fn in cls.body:
+            if not isinstance(fn, _a.FunctionDef):
+                continue
+            doc = _a.get_docstring(fn)
+            m = _ROWTEXT_IDENTITY.search(doc) if doc else None
+            if m:
+                out[fn.name] = m.group(1)
+    return out
+
+
+def module_magics():
+    """module basename -> its declared MAGIC, read from the tool tree in sorted order."""
+    out = {}
+    tools = os.path.join(ROOT, "tools")
+    for d in sorted(os.listdir(tools)):
+        sub = os.path.join(tools, d)
+        if not os.path.isdir(sub):
+            continue
+        for f in sorted(os.listdir(sub)):
+            if not f.endswith(".py"):
+                continue
+            try:
+                with io.open(os.path.join(sub, f), encoding="utf-8") as fh:
+                    t = fh.read()
+            except OSError:
+                continue
+            m = _ROWTEXT_MAGIC.search(t)
+            if m:
+                out.setdefault(f[:-3], m.group(1))
+    return out
+
+
+def identity_mismatches(claims, magics):
+    """(stage, claimed, declared) wherever a stage names an identity that is not its own module's.
+
+    NARROW BY CONSTRUCTION: a stage is only checked against a module of the SAME NAME, and only its
+    first parenthesised identity is read. A broad rule — no stage may mention a foreign magic —
+    flags thirty docstrings of which twenty-nine are legitimate cross-references, and a detector
+    whose output is a list to ignore is not a detector."""
+    return [(s, claims[s], magics[s]) for s in sorted(claims)
+            if s in magics and magics[s] != claims[s]]
+
+
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

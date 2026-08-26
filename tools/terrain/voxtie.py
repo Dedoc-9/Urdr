@@ -82,6 +82,23 @@ EYE_EPS = 1
 
 CLASSES = ("stable", "boundary", "degenerate")
 
+#: DECLARED — bumped whenever the classifier's SEMANTICS change, so a stale materialisation cannot
+#: survive a change to what the classes mean. It is part of the cache key for that reason.
+CENSUS_VERSION = 1
+
+#: THE CENSUS IS MATERIALISED ONCE PER PROCESS, NOT ONCE PER LAW. Six laws and a golden each need
+#: the classified population, and each recomputation costs eleven oracle queries per disagreeing
+#: pixel. The key is the set of inputs that can VARY within one interpreter — the world, the level
+#: being classified, the two epsilons, and the semantic version. The CODE cannot vary within a
+#: process, which is why it is not in the key and why this cache is deliberately process-local: a
+#: cache that survived across runs would introduce exactly the stale-record failure mode this tree
+#: spends its rungs eliminating, and it would do so while the records are being established.
+_CENSUS = {}
+
+
+def census_key():
+    return (VR.world_digest(), BEST, SUB, EYE_EPS, CENSUS_VERSION)
+
 #: DECLARED — the candidate ladder. Level 0 must reproduce `voxcand`'s candidate arm exactly; each
 #: level after it adds ONE change, so the ladder is a sequence of single-variable experiments and
 #: not four unrelated renderers. `sym` fixes the projection's axis asymmetry — `voxref` computes
@@ -279,10 +296,31 @@ def census_frame(frame):
 
 
 def census():
-    rows = []
-    for frame in range(len(VR.TRACE)):
-        rows.extend(census_frame(frame))
-    return rows
+    k = census_key()
+    if k not in _CENSUS:
+        rows = []
+        for frame in range(len(VR.TRACE)):
+            rows.extend(census_frame(frame))
+        _CENSUS[k] = rows
+    return _CENSUS[k]
+
+
+def the_cache_is_keyed_on_inputs_and_not_on_the_run():
+    """A materialisation keyed on "this run" would be a cache that cannot be invalidated. The key
+    names the varying inputs, and changing any of them must produce a different key — checked by
+    constructing one rather than by reading the code."""
+    live = census_key()
+    return (len(live) == 5 and live[0] == VR.world_digest() and live[1] == BEST
+            and live[2:] == (SUB, EYE_EPS, CENSUS_VERSION)
+            and census_key() == live)
+
+
+def the_cache_returns_the_same_population():
+    """Materialising must not change the answer: the cached rows are the rows."""
+    a = census()
+    _CENSUS.clear()
+    b = census()
+    return a == b
 
 
 def census_summary(rows=None):

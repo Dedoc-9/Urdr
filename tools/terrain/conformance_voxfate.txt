@@ -1,0 +1,61 @@
+# URDRVXS1 conformance goldens — emitted by voxfate.py, pinned by hand, compared by the gate.
+#
+# EVERY FATE DISTRIBUTION THIS ARC PRODUCED BEFORE THIS ONE WAS CONTAMINATED, and the contamination
+# was not small. `voxmicro` classified where the rasteriser loses a face — not generated, near
+# clipped, degenerate, backfacing, off-screen, not covered, depth rejected — over the WHOLE
+# residual, which mixes three populations that have nothing to do with each other: real defects,
+# samples sitting on a visibility event surface, and rays entering through an edge or a corner where
+# the ORACLE is answering by its own convention. A mechanism inferred from that mixture is a
+# mechanism for an average of three unrelated things.
+#
+# `voxtie` separated them. This module asks the fate question of the 378 STABLE pixels and of
+# nothing else, and the answer does not split:
+#
+#     not_covered      318   84.1%     the oracle's face WAS rasterised and did not claim the pixel
+#     depth_rejected    58   15.3%     it claimed the pixel and lost the depth test
+#     phantom            2    0.5%     the rasteriser drew where the oracle finds nothing
+#
+# and of the 80 stable pixels awarding an IMPOSSIBLE face — one sandwiched between two solid cells —
+# 78 are `not_covered`. THE SURVIVING DEFECT IS COVERAGE, and the next experiment lives entirely
+# inside the fill rule rather than in depth ordering, the projection, or the tie convention.
+#
+# DECLARED: the class conditioned on (`stable`); the fate vocabulary, held as a reference to
+# `voxmicro.REJECTS` rather than a copy so a change to the vocabulary reaches here; and the level
+# classified (`voxtie.BEST`).
+#
+# DERIVED at claim time (L75): every fate, both distributions, the impossible-face restriction, the
+# population digest, and the counterexample.
+#
+# WHAT EACH GOLDEN COVERS
+#   * conditioned — the conditioned population, the fate distribution WITH the sampling branch
+#     disabled and again WITH IT ENABLED, the restriction to impossible-face pixels, the dominant
+#     class and the population digest. THE SAMPLING BRANCH IS DISABLED AND THAT IS THE WHOLE
+#     METHODOLOGICAL POINT. `voxmicro` tests first whether the rasteriser's answer at a pixel equals
+#     the oracle's answer at an integer NEIGHBOUR, and subtracts those as explained by the measured
+#     <=1px offset. On THIS population that subtraction is circular: these pixels are already known
+#     stable under sub-pixel perturbation, so a neighbour agreeing is not evidence, it is the
+#     question restated. Both runs are pinned so the contamination is DEMONSTRATED rather than
+#     argued — with the branch enabled, 269 of the 378 are absorbed into `sampling_shift` and the
+#     coverage signal disappears entirely.
+#   * counterexample — frame, pixel, the oracle's answer, the rasteriser's winner, the stage the
+#     oracle's own face reached, and whether that face covers the pixel. IT IS THE PIXEL THIS ARC
+#     STARTED FROM: frame 4, pixel (10, 0), where six rungs ago a face-culling experiment produced
+#     an unculled winner of voxel (2,1,10)'s INTERIOR top face beating voxel (2,1,11)'s own exposed
+#     face, and where `voxray` then found the oracle names a THIRD answer neither arm had.
+#
+# AND THE TWO FACTS TOGETHER SAY SOMETHING NEITHER SAYS ALONE. Sub-pixel stable, yet the
+# rasteriser's answer equals the oracle's answer ONE WHOLE PIXEL OVER at 269 of 378. That is not a
+# sub-pixel ambiguity being resolved differently. It is a whole-pixel coverage displacement: the
+# fill rule is claiming pixels for a face the ray through the integer coordinate does not meet.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * NOT WHY THE COVERAGE DISPLACES. This module localises the class and does not explain it. The
+#     candidates are the half-open top-left convention, the bounding-box derivation, and the sample
+#     point the fill rule effectively uses; choosing between them is the next rung's binary
+#     experiment and is not claimed here.
+#   * NO GENERALISATION past the declared trace.
+#   * NO REPAIR. `voxref` is untouched here as in `voxcand` and `voxtie`, and the census stays
+#     frozen.
+conditioned 045dc7e2bed2059a74ecee6c2f133e485c66ba3dbb7e66ed1552f2dd55fd86fa
+counterexample 481be50d9e0066fb5b7d2ec7b54b3590bc53075d563c3d263601686002987c52
