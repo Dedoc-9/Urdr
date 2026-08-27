@@ -1,0 +1,79 @@
+# URDRVXN1 conformance goldens — emitted by voxconv.py, pinned by hand, compared by the gate.
+#
+# THE SAME POPULATION DERIVED TWICE, ONCE PER SAMPLE CONVENTION, AND NINE TENTHS OF IT WAS THE
+# CONVENTION. `voxfill` found that the reference's projection FLOORS — mapping a screen position into
+# a pixel REGION — while its sample point is that region's CORNER, and that the oracle inherited the
+# corner convention from the projection's algebra rather than from its rounding. It then wrote its
+# own boundary: every count in `voxtie`, `voxfate` and `voxfill` was measured with the corner sample,
+# so none of them could speak for the aligned convention. This is that debt paid.
+#
+#                                     corner        centre
+#         disagreeing pixels            1137           104
+#         stable                         378            89
+#         boundary                       198             5
+#         degenerate                     561            10
+#         impossible faces               152             4
+#
+# THE CLASS THAT COLLAPSES HARDEST IS THE ONE NO EXPERIMENT COULD HAVE ARGUED WITH. `degenerate`
+# means the exact ray crosses two or three lattice planes at ONE parameter, where the ORACLE itself
+# is answering by the convention `voxevent` named and no limit can appeal past it — the class that
+# excused 561 disagreements from ever being called defects. It falls to 10. Integer screen
+# coordinates are precisely the rays that land on lattice-plane crossings; offset the sample by half
+# a pixel and they almost all stop being degenerate. It was never a property of the world. It is a
+# property of WHERE THE RAYS WERE AIMED, and `voxevent`'s 20.1% edge-or-corner entry rate is now a
+# measurement of the sampling grid rather than of the lattice.
+#
+# THE COVERAGE DIAGNOSIS SURVIVES, WHICH IS THE POINT OF ASKING. Of the 89 surviving stable
+# disagreements: not_covered 74, depth_rejected 12, phantom 3. That is 83.1% coverage against
+# `voxfate`'s 84.1% on a population thirteen times larger — the SHARE is preserved almost exactly
+# while the population collapses, which is what a real mechanism does and what an artefact does not.
+# The law compares the two shares by integer cross-multiplication, so no percentage is invented for
+# it.
+#
+# AND THE OWNERSHIP CLASS VANISHES ENTIRELY: bias_only 215 -> 0. `voxfill` refuted the top-left
+# hypothesis by re-scoring ONE ARM under the aligned pairing; this rung refutes it a SECOND TIME by a
+# completely different route, re-deriving the population from scratch and finding that the class
+# that arm was built to explain no longer exists. THE TOP-LEFT RULE IS EXONERATED TWICE,
+# INDEPENDENTLY.
+#
+# DECLARED: the two conventions and their offsets, expressed in each denominator separately (the
+# ladder carries vertices at 1/64 of a pixel, the limit test perturbs at 1/1024) and never converted
+# between them; and the class, fate and rejection vocabularies, held as REFERENCES to the modules
+# that own them rather than copied.
+#
+# DERIVED at claim time (L75): both censuses in full — render, oracle, classifier and fate all moved
+# together — and the population digest over both.
+#
+# WHAT EACH GOLDEN COVERS
+#   * census — the two summaries side by side: disagreeing count, the three classes, the fates of
+#     the stable class, the rejection classification of the stable not_covered pixels, and the
+#     impossible-face count. THE CORNER ARM IS REQUIRED TO REPRODUCE `voxtie`'s CLASSIFIED CENSUS,
+#     `voxfate`'s CONDITIONED FATES AND `voxfill`'s REJECTION CLASSIFICATION EXACTLY — all three. A
+#     re-derivation that cannot reproduce the numbers it is re-deriving is measuring something else,
+#     and that binding is what licenses reading the centre column at all.
+#   * population — the digest over every pixel of both censuses. THE POPULATION IS PINNED, NOT THE
+#     COUNTS: two different sets of 104 pixels would tally the same and digest differently.
+#
+# THE INSTRUMENT IS A FIFTH TRANSCRIPTION of the same rasteriser loop and is bound in BOTH
+# directions — at zero offset it must equal `voxfate.instrument_level` including stages and covered
+# sets, and at either offset its winner must equal `voxfill.render_arm`'s. A chain this long is
+# exactly how a rung ends up measuring a renderer nobody declared.
+#
+# WHAT SURVIVES IS ONE MECHANISM AND NO ARM HAS TESTED IT. Every surviving not_covered pixel is
+# `outside`, and every one of them by less than a pixel: the floored projected vertex and nothing
+# else. That is a quantisation defect in the PROJECTION rather than a rule in the FILL, which is a
+# different place to look than any of `voxfill`'s three arms.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * WHICH CONVENTION IS RIGHT. This rung measures what each implies and decides nothing. Adopting
+#     one changes what the ORACLE is and reaches every record derived from `voxray`.
+#   * NOT THAT THE CENTRE CONVENTION IS CLEAN. It has 104 disagreements and 4 impossible faces,
+#     which is better and is not zero.
+#   * NO MECHANISM FOR THE SURVIVING 74, and no reading of the 4 impossible faces — four is not a
+#     distribution, and `the_impossible_population_is_too_small_to_read` states that refusal as a
+#     law so the day it is read off anyway the gate says so.
+#   * NO REPAIR. `voxref` AND `voxray` are untouched, and the frozen census stays frozen.
+#   * NO GENERALISATION past the declared trace.
+census 887c6de297368f56acfd0b27b316c237b33c4b126acc828a0f47ad49f415bf43
+population dcf05002b378573d589f518779e54e0cb8945db054a9846306a0a2c0039922f6

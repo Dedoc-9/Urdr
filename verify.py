@@ -252,6 +252,7 @@ STAGE_ORDER = (
     "voxtie",
     "voxfate",
     "voxfill",
+    "voxconv",
     "rowtext",
     "rollbench",
     "reachable",
@@ -20440,6 +20441,128 @@ class Gate:
                     "redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxconv(self):
+        """RE-DERIVE THE POPULATION UNDER BOTH CONVENTIONS (URDRVXN1), BECAUSE MOST OF IT WAS THE
+        CONVENTION. Rows: binding (the corner arm must reproduce three committed rungs exactly, or
+        the centre column may not be read at all), census (both derivations side by side), residue
+        (what survives, and the refusal to read a population of four), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxconv as VN
+        except Exception as exc:
+            for r in ("binding", "census", "residue", "selftest"):
+                self.record(f"voxconv-{r}", False, f"import failed (voxconv): {exc}")
+            return
+        b_ok = True
+        try:
+            b_ok = (VN.the_two_offsets_are_the_same_half_pixel()
+                    and VN.the_instrument_is_bound_in_both_directions()
+                    and VN.the_corner_arm_reproduces_the_committed_rungs()
+                    and VN.the_oracle_is_still_a_function()
+                    and VN.nothing_is_adopted())
+        except Exception:
+            b_ok = False
+        self.record("voxconv-binding", b_ok,
+                    "A RE-DERIVATION THAT CANNOT REPRODUCE THE NUMBERS IT RE-DERIVES IS MEASURING "
+                    "SOMETHING ELSE, so the corner arm is required to land on `voxtie`'s classified "
+                    "census, `voxfate`'s conditioned fate distribution AND `voxfill`'s rejection "
+                    "classification — all three, exactly. That binding is what licenses reading the "
+                    "centre column at all. THE INSTRUMENT IS A FIFTH TRANSCRIPTION of the same "
+                    "rasteriser loop and is bound in BOTH directions: at zero offset its winner, "
+                    "STAGES and COVERED SETS must equal `voxfate.instrument_level`'s, and at either "
+                    "offset its winner must equal `voxfill.render_arm`'s. THE TWO OFFSETS ARE THE "
+                    "SAME HALF PIXEL IN DIFFERENT DENOMINATORS — the ladder carries vertices at "
+                    "1/64 of a pixel and the limit test perturbs at 1/1024 — expressed in each and "
+                    "never converted between them, because a rasteriser and an oracle aimed at two "
+                    "different points would make every number below a comparison between a picture "
+                    "and a ray that never looked at it. AND NO `ABA` OCCURS UNDER EITHER "
+                    "CONVENTION: the property `voxtie` established for the corner sample is "
+                    "re-established rather than assumed"
+                    if b_ok else "the re-derivation is not bound to what it re-derives")
+        c_ok, told = True, "?"
+        try:
+            told = VN.told()
+            c_ok = (VN.the_population_was_mostly_the_convention()
+                    and VN.the_degeneracy_was_the_integer_sample()
+                    and VN.the_coverage_diagnosis_survives()
+                    and VN.the_ownership_class_vanishes()
+                    and VN.the_record_names_this_world()
+                    and VN.the_record_is_bound_to_the_live_code()
+                    and VN.scene_result("census") == VN.golden("census")
+                    and VN.scene_result("population") == VN.golden("population"))
+        except Exception:
+            c_ok = False
+        self.record("voxconv-census", c_ok,
+                    "`voxfill` WROTE ITS OWN BOUNDARY AND THIS IS THE DEBT PAID: %s. THE CLASS THAT "
+                    "COLLAPSES HARDEST IS THE ONE NO EXPERIMENT COULD HAVE ARGUED WITH. "
+                    "`degenerate` means the exact ray crosses two or three lattice planes at ONE "
+                    "parameter, where the ORACLE itself answers by the convention `voxevent` named "
+                    "and no limit can appeal past it — the class that excused 561 disagreements "
+                    "from ever being called defects. It was never a property of the world. Integer "
+                    "screen coordinates are PRECISELY the rays that land on lattice-plane "
+                    "crossings, and `voxevent`'s 20.1%% edge-or-corner entry rate is now a "
+                    "measurement of the sampling grid rather than of the lattice. THE COVERAGE "
+                    "DIAGNOSIS SURVIVES, WHICH IS THE POINT OF ASKING: the population collapses "
+                    "thirteenfold and the coverage SHARE does not move, which is what a real "
+                    "mechanism does and what an artefact does not — compared by integer "
+                    "cross-multiplication so no percentage is invented for it. AND THE POPULATION "
+                    "IS PINNED, NOT THE COUNTS, because two different sets of 104 pixels would "
+                    "tally the same and digest differently"
+                    % told if c_ok else "the two censuses did not hold")
+        r_ok, imp = True, 0
+        try:
+            imp = VN.summary("centre")[4]
+            r_ok = (VN.the_residue_is_pure_quantisation()
+                    and VN.the_impossible_population_is_too_small_to_read())
+        except Exception:
+            r_ok = False
+        self.record("voxconv-residue", r_ok,
+                    "WHAT SURVIVES IS ONE MECHANISM AND NO ARM HAS TESTED IT. Every surviving "
+                    "`not_covered` pixel is `outside`, and every one of them by LESS THAN A PIXEL: "
+                    "the floored projected vertex and nothing else. `bias_only` and `bbox` are both "
+                    "EMPTY here — so the defect that remains is a quantisation in the PROJECTION "
+                    "rather than a rule in the FILL, which is a different place to look than any of "
+                    "`voxfill`'s three arms. AND THE IMPOSSIBLE POPULATION IS NOW TOO SMALL TO "
+                    "READ: %d pixels, whose fates INVERT the corner reading's 78 not_covered and 2 "
+                    "depth_rejected. Four is not a distribution, and the refusal is stated AS A LAW "
+                    "rather than left to judgement, so the day someone reads a mechanism off it the "
+                    "gate says so — `the_impossible_population_is_too_small_to_read` reddens if the "
+                    "population ever grows past the point where the refusal was honest"
+                    % imp if r_ok else "the residue did not hold")
+        s_ok = True
+        try:
+            s_ok = VN.a_tampered_row_refuses()
+            try:
+                VN.offsets("gaussian")
+                s_ok = False
+            except VN.VoxconvError:
+                pass
+            for bad in ("count gaussian 1 2", "class corner elsewhere 1",
+                        "fate corner nowhere 1", "rumour corner 1 2"):
+                try:
+                    VN.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VN.VoxconvError:
+                    pass
+            try:
+                VN.scene_case("census2")
+                s_ok = False
+            except VN.VoxconvError:
+                pass
+        except Exception:
+            s_ok = False
+        self.record("voxconv-selftest", s_ok,
+                    "seven plants bite: a pixel row relabelled to a class outside the three "
+                    "declared refuses typed, a count row naming no declared CONVENTION refuses, a "
+                    "class row and a fate row outside their inherited vocabularies each refuse, a "
+                    "row of unknown kind refuses rather than being skipped as a comment, an "
+                    "undeclared convention refuses rather than defaulting to the corner — which is "
+                    "the failure mode that would silently re-measure the thing this rung exists to "
+                    "compare against — and an unknown scene refuses (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -24246,7 +24369,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
