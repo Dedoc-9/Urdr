@@ -1,0 +1,354 @@
+# URDRVXL1 fill-rule census — emitted by voxfill.generate(), committed as an artifact,
+# re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# THE POPULATION IS `voxfate`'s 318 stable not_covered pixels and nothing else. Each is
+# classified by reading the three edge functions of the ORACLE'S OWN FACE at the exact
+# sample point, so the arms are predicted before they are run.
+#   reject  <class> <count>
+#   near    <within one pixel> <beyond one pixel>
+#   padded  <bbox-class pixels admitted by a one-pixel pad> <of those, then covered>
+#   arm     <arm> <ray convention> <agree> <impossible> <covered> <won> <gained> <lost> <changed>
+#   pair    <sample> <ray> <agree> <impossible>
+#   aligned <agree> <impossible>
+#   tie     <losses decided by an exact-depth tie> <decided outright>
+#   pixel   <frame> <px> <py> <class> <edges> <near> <impossible>
+#   digest  <population digest>
+reject bbox 3
+reject outside 100
+reject bias_only 215
+reject covered 0
+near 99 1
+padded 3 0
+arm committed corner 45550 152 0 0 0 0 0
+arm committed centre 41861 152 0 0 0 0 0
+arm inclusive corner 45608 59 215 204 396 338 832
+arm inclusive centre 42589 59 215 204 736 8 832
+arm wide_bbox corner 45550 152 0 0 0 0 0
+arm wide_bbox centre 41861 152 0 0 0 0 0
+arm centre corner 42744 4 263 260 933 3739 4963
+arm centre centre 46567 4 263 260 4753 47 4963
+pair centre centre 46567 4
+pair centre corner 42744 4
+pair corner centre 41861 152
+pair corner corner 45550 152
+aligned 46560 7
+tie 236 102
+pixel 4 10 0 bias_only 0 1 1
+pixel 4 11 0 bias_only 0 1 1
+pixel 4 12 0 bias_only 0 1 1
+pixel 4 13 0 bias_only 0 1 1
+pixel 4 14 0 bias_only 0 1 1
+pixel 4 15 0 bias_only 0 1 1
+pixel 4 16 0 bias_only 0 1 1
+pixel 4 17 0 bias_only 0 1 1
+pixel 4 18 0 bias_only 0 1 1
+pixel 4 19 0 bias_only 0 1 1
+pixel 4 20 0 bias_only 0 1 1
+pixel 4 21 0 bias_only 0 1 1
+pixel 4 22 0 bias_only 0 1 1
+pixel 4 23 0 bias_only 0 1 1
+pixel 4 24 0 bias_only 0 1 1
+pixel 4 25 0 bias_only 0 1 1
+pixel 4 36 0 bias_only 0 1 0
+pixel 4 37 0 bias_only 0 1 0
+pixel 4 38 0 bias_only 0 1 0
+pixel 4 39 0 bias_only 0 1 0
+pixel 4 40 0 bias_only 0 1 0
+pixel 4 41 0 bias_only 0 1 0
+pixel 4 42 0 bias_only 0 1 0
+pixel 4 43 0 bias_only 0 1 0
+pixel 4 44 0 bias_only 0 1 0
+pixel 4 45 0 bias_only 0 1 0
+pixel 4 46 0 bias_only 0 1 0
+pixel 4 47 0 bias_only 0 1 0
+pixel 4 48 0 bias_only 0 1 0
+pixel 4 49 0 bias_only 0 1 0
+pixel 4 50 0 bias_only 0 1 0
+pixel 4 51 0 bias_only 0 1 0
+pixel 4 52 0 bias_only 0 1 0
+pixel 4 62 0 bias_only 0 1 0
+pixel 4 63 0 bias_only 0 1 0
+pixel 4 64 0 bias_only 0 1 0
+pixel 4 65 0 bias_only 0 1 0
+pixel 4 66 0 bias_only 0 1 0
+pixel 4 67 0 bias_only 0 1 0
+pixel 4 68 0 bias_only 0 1 0
+pixel 4 69 0 bias_only 0 1 0
+pixel 4 0 12 bias_only 0 1 0
+pixel 4 1 12 bias_only 0 1 0
+pixel 4 10 12 bias_only 0 1 1
+pixel 4 11 12 bias_only 0 1 1
+pixel 4 12 12 bias_only 0 1 1
+pixel 4 13 12 bias_only 0 1 1
+pixel 4 14 12 bias_only 0 1 1
+pixel 4 15 12 bias_only 0 1 1
+pixel 4 16 12 bias_only 0 1 1
+pixel 4 17 12 bias_only 0 1 1
+pixel 4 18 12 bias_only 0 1 1
+pixel 4 27 12 bias_only 0 1 0
+pixel 4 28 12 bias_only 0 1 0
+pixel 4 29 12 bias_only 0 1 0
+pixel 4 30 12 bias_only 0 1 0
+pixel 4 31 12 bias_only 0 1 0
+pixel 4 32 12 bias_only 0 1 0
+pixel 4 33 12 bias_only 0 1 0
+pixel 4 34 12 bias_only 0 1 0
+pixel 4 35 12 bias_only 0 1 0
+pixel 4 36 12 bias_only 0 1 1
+pixel 4 37 12 bias_only 0 1 1
+pixel 4 38 12 bias_only 0 1 1
+pixel 4 39 12 bias_only 0 1 1
+pixel 4 40 12 bias_only 0 1 1
+pixel 4 41 12 bias_only 0 1 1
+pixel 4 42 12 bias_only 0 1 1
+pixel 4 43 12 bias_only 0 1 1
+pixel 4 44 12 bias_only 0 1 0
+pixel 4 45 12 bias_only 0 1 0
+pixel 4 46 12 bias_only 0 1 0
+pixel 4 47 12 bias_only 0 1 0
+pixel 4 48 12 bias_only 0 1 0
+pixel 4 49 12 bias_only 0 1 0
+pixel 4 50 12 bias_only 0 1 0
+pixel 4 51 12 bias_only 0 1 0
+pixel 4 52 12 bias_only 0 1 0
+pixel 4 53 12 bias_only 0 1 1
+pixel 4 54 12 bias_only 0 1 1
+pixel 4 55 12 bias_only 0 1 1
+pixel 4 56 12 bias_only 0 1 1
+pixel 4 57 12 bias_only 0 1 1
+pixel 4 58 12 bias_only 0 1 1
+pixel 4 59 12 bias_only 0 1 1
+pixel 4 60 12 bias_only 0 1 1
+pixel 4 61 12 bias_only 0 1 0
+pixel 4 62 12 bias_only 0 1 0
+pixel 4 63 12 bias_only 0 1 0
+pixel 4 64 12 bias_only 0 1 0
+pixel 4 65 12 bias_only 0 1 0
+pixel 4 66 12 bias_only 0 1 0
+pixel 4 67 12 bias_only 0 1 0
+pixel 4 68 12 bias_only 0 1 0
+pixel 4 69 12 bias_only 0 1 0
+pixel 4 78 12 bias_only 0 1 0
+pixel 4 79 12 bias_only 0 1 0
+pixel 4 80 12 bias_only 0 1 0
+pixel 4 81 12 bias_only 0 1 0
+pixel 4 82 12 bias_only 0 1 0
+pixel 4 83 12 bias_only 0 1 0
+pixel 4 84 12 bias_only 0 1 0
+pixel 4 85 12 bias_only 0 1 0
+pixel 4 86 12 bias_only 0 1 0
+pixel 4 22 20 bias_only 0 1 0
+pixel 4 23 20 bias_only 0 1 0
+pixel 4 24 20 bias_only 0 1 0
+pixel 4 25 20 bias_only 0 1 0
+pixel 4 26 20 bias_only 0 1 0
+pixel 4 27 20 bias_only 0 1 0
+pixel 4 61 20 bias_only 0 1 0
+pixel 4 62 20 bias_only 0 1 0
+pixel 4 63 20 bias_only 0 1 0
+pixel 4 64 20 bias_only 0 1 0
+pixel 4 65 20 bias_only 0 1 0
+pixel 4 66 20 bias_only 0 1 0
+pixel 4 85 20 bias_only 0 1 1
+pixel 4 86 20 bias_only 0 1 1
+pixel 4 87 20 bias_only 0 1 1
+pixel 4 88 20 bias_only 0 1 1
+pixel 4 89 20 bias_only 0 1 1
+pixel 4 67 21 outside 1 1 0
+pixel 4 1 36 bias_only 0 1 0
+pixel 4 2 36 bias_only 0 1 0
+pixel 4 3 36 bias_only 0 1 0
+pixel 4 4 36 bias_only 0 1 0
+pixel 4 5 36 bias_only 0 1 0
+pixel 4 6 36 bias_only 0 1 0
+pixel 4 7 36 bias_only 0 1 0
+pixel 4 11 36 bias_only 0 1 0
+pixel 4 12 36 bias_only 0 1 0
+pixel 4 13 36 bias_only 0 1 0
+pixel 4 14 36 bias_only 0 1 0
+pixel 4 15 36 bias_only 0 1 0
+pixel 4 16 36 bias_only 0 1 1
+pixel 4 17 36 bias_only 0 1 1
+pixel 4 18 36 bias_only 0 1 0
+pixel 4 19 36 bias_only 0 1 0
+pixel 4 20 36 bias_only 0 1 0
+pixel 4 21 36 bias_only 0 1 0
+pixel 4 22 36 bias_only 0 1 0
+pixel 4 23 36 bias_only 0 1 1
+pixel 4 24 36 bias_only 0 1 1
+pixel 4 25 36 bias_only 0 1 1
+pixel 4 26 36 bias_only 0 1 1
+pixel 4 27 36 bias_only 0 1 1
+pixel 4 28 36 bias_only 0 1 1
+pixel 4 29 36 bias_only 0 1 1
+pixel 4 32 36 bias_only 0 1 0
+pixel 4 33 36 bias_only 0 1 0
+pixel 4 34 36 bias_only 0 1 0
+pixel 4 35 36 bias_only 0 1 0
+pixel 4 36 36 bias_only 0 1 0
+pixel 4 37 36 bias_only 0 1 0
+pixel 4 38 36 bias_only 0 1 1
+pixel 4 39 36 bias_only 0 1 1
+pixel 4 40 36 bias_only 0 1 1
+pixel 4 41 36 bias_only 0 1 1
+pixel 4 42 36 bias_only 0 1 1
+pixel 4 43 36 bias_only 0 1 1
+pixel 4 44 36 bias_only 0 1 1
+pixel 4 45 36 bias_only 0 1 1
+pixel 4 46 36 bias_only 0 1 1
+pixel 4 47 36 bias_only 0 1 1
+pixel 4 48 36 bias_only 0 1 1
+pixel 4 49 36 bias_only 0 1 1
+pixel 4 50 36 bias_only 0 1 1
+pixel 4 51 36 bias_only 0 1 1
+pixel 4 52 36 bias_only 0 1 0
+pixel 4 53 36 bias_only 0 1 0
+pixel 4 54 36 bias_only 0 1 0
+pixel 4 55 36 bias_only 0 1 0
+pixel 4 56 36 bias_only 0 1 0
+pixel 4 57 36 bias_only 0 1 0
+pixel 4 58 36 bias_only 0 1 0
+pixel 4 59 36 bias_only 0 1 0
+pixel 4 60 36 bias_only 0 1 0
+pixel 4 61 36 bias_only 0 1 0
+pixel 4 62 36 bias_only 0 1 0
+pixel 4 63 36 bias_only 0 1 0
+pixel 4 64 36 bias_only 0 1 0
+pixel 4 67 36 bias_only 0 1 0
+pixel 4 68 36 bias_only 0 1 0
+pixel 4 69 36 bias_only 0 1 0
+pixel 4 70 36 bias_only 0 1 0
+pixel 4 71 36 bias_only 0 1 0
+pixel 4 72 36 bias_only 0 1 0
+pixel 4 73 36 bias_only 0 1 0
+pixel 4 74 36 bias_only 0 1 1
+pixel 4 75 36 bias_only 0 1 1
+pixel 4 76 36 bias_only 0 1 1
+pixel 4 77 36 bias_only 0 1 1
+pixel 4 78 36 bias_only 0 1 1
+pixel 4 79 36 bias_only 0 1 1
+pixel 4 80 36 bias_only 0 1 1
+pixel 4 81 36 bias_only 0 1 0
+pixel 4 82 36 bias_only 0 1 0
+pixel 4 83 36 bias_only 0 1 0
+pixel 4 84 36 bias_only 0 1 0
+pixel 4 85 36 bias_only 0 1 0
+pixel 4 86 36 bias_only 0 1 0
+pixel 4 87 36 bias_only 0 1 0
+pixel 4 88 36 bias_only 0 1 0
+pixel 4 59 45 bias_only 0 1 0
+pixel 4 60 45 bias_only 0 1 0
+pixel 4 61 45 bias_only 0 1 0
+pixel 4 62 45 bias_only 0 1 0
+pixel 4 63 45 bias_only 0 1 0
+pixel 4 64 45 bias_only 0 1 1
+pixel 4 72 45 bias_only 0 1 0
+pixel 4 73 45 bias_only 0 1 0
+pixel 4 74 45 bias_only 0 1 0
+pixel 4 75 45 bias_only 0 1 0
+pixel 4 76 45 bias_only 0 1 0
+pixel 4 77 45 bias_only 0 1 0
+pixel 4 78 45 bias_only 0 1 0
+pixel 4 39 53 outside 1 1 0
+pixel 4 26 54 outside 0 1 0
+pixel 4 27 54 outside 0 1 0
+pixel 4 28 54 outside 0 1 0
+pixel 4 29 54 outside 0 1 0
+pixel 4 30 54 outside 0 1 0
+pixel 4 31 54 outside 0 1 0
+pixel 4 32 54 outside 0 1 0
+pixel 4 45 54 outside 0 1 0
+pixel 4 46 54 outside 0 1 0
+pixel 4 47 54 outside 0 1 0
+pixel 4 48 54 outside 0 1 0
+pixel 4 49 54 outside 0 1 0
+pixel 4 50 54 outside 0 1 0
+pixel 4 51 54 outside 0 1 0
+pixel 4 52 54 outside 0 1 0
+pixel 4 53 54 outside 0 1 0
+pixel 4 54 54 outside 0 1 0
+pixel 4 55 54 outside 0 1 0
+pixel 4 56 54 outside 0 1 0
+pixel 4 57 54 outside 0 1 0
+pixel 4 64 54 outside 0 1 0
+pixel 4 65 54 outside 0 1 0
+pixel 4 66 54 outside 0 1 0
+pixel 4 67 54 outside 0 1 0
+pixel 4 68 54 outside 0 1 0
+pixel 4 69 54 outside 0 1 0
+pixel 4 70 54 outside 0 1 0
+pixel 4 77 54 outside 0 1 0
+pixel 4 78 54 outside 0 1 0
+pixel 4 79 54 outside 0 1 0
+pixel 4 80 54 outside 0 1 0
+pixel 4 81 54 outside 0 1 0
+pixel 4 82 54 outside 0 1 0
+pixel 4 83 54 outside 0 1 0
+pixel 4 51 61 outside 1 1 0
+pixel 5 47 22 outside 1 1 0
+pixel 5 52 22 bbox 1 1 0
+pixel 5 28 23 outside 1 1 0
+pixel 5 52 23 bbox 1 1 0
+pixel 5 60 23 outside 1 1 0
+pixel 5 15 25 outside 0 1 0
+pixel 5 81 25 outside 0 1 0
+pixel 5 18 26 outside 0 1 0
+pixel 5 72 28 outside 0 1 0
+pixel 5 66 29 outside 0 1 0
+pixel 5 69 29 outside 0 1 0
+pixel 5 10 30 outside 1 1 0
+pixel 5 20 30 outside 1 1 0
+pixel 5 30 30 outside 1 1 0
+pixel 5 33 31 outside 0 1 0
+pixel 5 36 32 outside 0 1 0
+pixel 5 7 33 outside 0 1 0
+pixel 5 6 34 outside 1 1 0
+pixel 5 27 34 outside 1 1 0
+pixel 5 45 35 outside 0 1 0
+pixel 5 54 38 outside 1 1 0
+pixel 5 33 39 outside 0 1 0
+pixel 5 57 39 outside 1 1 0
+pixel 5 60 40 outside 1 1 0
+pixel 5 63 41 outside 1 1 0
+pixel 5 69 43 outside 0 1 0
+pixel 5 80 43 outside 1 1 0
+pixel 5 72 44 outside 0 1 0
+pixel 5 29 45 outside 1 1 0
+pixel 5 35 45 outside 1 1 0
+pixel 5 81 47 outside 1 1 0
+pixel 5 56 48 outside 1 1 0
+pixel 5 49 51 outside 1 1 0
+pixel 5 17 53 outside 1 1 0
+pixel 5 65 55 outside 1 1 0
+pixel 5 47 57 outside 0 1 0
+pixel 5 9 59 outside 1 1 0
+pixel 5 2 60 outside 1 1 0
+pixel 5 9 60 outside 0 1 0
+pixel 5 28 64 outside 1 1 0
+pixel 5 34 66 outside 1 1 0
+pixel 5 10 69 outside 1 1 0
+pixel 6 2 20 outside 1 1 0
+pixel 6 12 20 outside 1 1 0
+pixel 6 19 20 outside 0 1 0
+pixel 6 58 23 outside 1 1 0
+pixel 6 36 26 outside 2 0 0
+pixel 6 66 28 outside 1 1 0
+pixel 6 62 32 bbox 1 1 0
+pixel 6 44 35 outside 1 1 0
+pixel 6 44 36 outside 1 1 0
+pixel 6 52 43 outside 1 1 0
+pixel 6 29 44 outside 1 1 0
+pixel 6 52 44 outside 1 1 0
+pixel 6 23 52 outside 1 1 0
+pixel 6 31 54 outside 0 1 0
+pixel 6 46 55 outside 1 1 0
+pixel 6 61 55 outside 1 1 0
+pixel 6 58 64 outside 1 1 0
+pixel 6 63 64 outside 1 1 0
+pixel 6 55 65 outside 1 1 0
+pixel 6 55 66 outside 1 1 0
+pixel 6 65 66 outside 1 1 0
+pixel 6 44 67 outside 0 1 0
+pixel 6 36 70 outside 1 1 0
+pixel 6 60 71 outside 0 1 1
+digest 85eae1baed26d1a5dccc2ad0353be0a7c0946321a5cab3966417745bb1552332

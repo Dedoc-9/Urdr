@@ -251,6 +251,7 @@ STAGE_ORDER = (
     "voxcand",
     "voxtie",
     "voxfate",
+    "voxfill",
     "rowtext",
     "rollbench",
     "reachable",
@@ -20277,6 +20278,160 @@ class Gate:
                     "redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxfill(self):
+        """THE FILL RULE, ONE VARIABLE AT A TIME (URDRVXL1), AND THE ARM THAT WON WAS NOT ON THE
+        LIST. Rows: rejections (every coverage rejection classified algebraically before any arm
+        runs), arms (three single-variable mechanisms with the gained/lost ledger both ways),
+        conventions (the 2x2 that varies the ORACLE too, and the control that refutes this rung's
+        own leading hypothesis), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxfill as VL
+        except Exception as exc:
+            for r in ("rejections", "arms", "conventions", "selftest"):
+                self.record(f"voxfill-{r}", False, f"import failed (voxfill): {exc}")
+            return
+        r_ok, npop = True, 0
+        try:
+            npop = len(VL.population())
+            r_ok = (VL.the_control_arm_matches_the_ladder()
+                    and VL.the_decomposition_is_not_recombined()
+                    and VL.the_classification_is_exhaustive()
+                    and VL.the_rejections_are_not_a_covering_failure()
+                    and VL.the_outside_rejections_are_sub_pixel()
+                    and VL.the_bbox_excludes_only_what_the_edges_reject()
+                    and VL.the_record_names_this_world()
+                    and VL.the_record_is_bound_to_the_live_code()
+                    and VL.scene_result("rejections") == VL.golden("rejections"))
+        except Exception:
+            r_ok = False
+        self.record("voxfill-rejections", r_ok,
+                    "EVERY ONE OF THE %d COVERAGE REJECTIONS IS CLASSIFIED ALGEBRAICALLY BEFORE ANY "
+                    "ARM RUNS, by reading the three edge functions of the ORACLE'S OWN FACE at the "
+                    "exact sample point: 215 are rejected ONLY by the top-left bias (every "
+                    "rejecting edge has e == 0, so the sample sits EXACTLY on the edge), 100 are "
+                    "outside by at least one edge, and 3 never entered the candidate loop. THE "
+                    "CLASSIFICATION PREDICTS THE ARMS RATHER THAN SUMMARISING THEM. THE 100 ARE "
+                    "OUTSIDE BY ALMOST NOTHING: 99 fall short by less than one pixel, typically by "
+                    "a single sub-pixel unit at S=64, which is the quantum of the floor in the "
+                    "projection itself — and the distance is compared as an EXACT INTEGER by "
+                    "squaring, `e*e < S*S*(dx*dx + dy*dy)`, taking no square root and constructing "
+                    "no float, because a measurement that rounds cannot be evidence about a defect "
+                    "one sub-pixel unit wide. THE BBOX MECHANISM IS ELIMINATED BY A STRONGER "
+                    "STATEMENT THAN THE ONE FIRST WRITTEN: the first law said the class was EMPTY "
+                    "and the data refused it at three pixels, so the law now says the box is a "
+                    "conservative SUPERSET — all three sit one pixel right of the box, padding "
+                    "ADMITS all three, and all three still fail the edges, which is why "
+                    "`the arm changed nothing` is not vacuous here. THE DECOMPOSITION IS NOT "
+                    "RECOMBINED: 58 `depth_rejected` and 2 `phantom` are different mechanisms and "
+                    "this rung speaks for neither"
+                    % npop if r_ok else "the rejection census did not hold")
+        a_ok, told = True, "?"
+        try:
+            told = VL.told()
+            a_ok = (VL.the_ownership_arm_pays_for_what_it_buys()
+                    and VL.the_cost_lands_on_the_parked_tie_rule()
+                    and VL.every_arm_is_order_independent()
+                    and VL.no_convention_is_adopted()
+                    and VL.scene_result("arms") == VL.golden("arms"))
+        except Exception:
+            a_ok = False
+        self.record("voxfill-arms", a_ok,
+                    "THREE MECHANISMS, EACH VARIED ALONE, AND THE LEDGER IS REPORTED BOTH WAYS: %s. "
+                    "A RESCUE INSIDE THE POPULATION IS NOT A REPAIR IF IT COSTS MORE OUTSIDE IT, so "
+                    "gained and lost are counted over the WHOLE framebuffer against the control "
+                    "arm and never netted into one number — `inclusive` rescues 204 of the 318 and "
+                    "nets +58, from +396 gained against -338 lost, and a rung reporting only the "
+                    "rescue would be reporting the half of the ledger it chose. AND THE COST IS "
+                    "MEASURED RATHER THAN GUESSED: 236 of those 338 losses are pixels that become "
+                    "EXACT-DEPTH TIES, which is `voxtie`'s parked question arriving from the other "
+                    "side — dropping the bias turns the partition into a cover and hands those "
+                    "pixels to the `(depth, face_key)` rule `voxtie` measured at ZERO of its own "
+                    "resolvable ceiling. The combined arm is deliberately NOT RUN, because a "
+                    "two-variable change explains nothing. DRAW ORDER STAYS UNOBSERVABLE UNDER "
+                    "EVERY ARM, checked by reversing the primitive list, and that CORRECTS A "
+                    "BELIEF THIS TREE HAS CARRIED SINCE `voxref`: the top-left partition is not "
+                    "what deletes draw order — the `(depth, face_key)` tiebreak already does, on a "
+                    "written datum — so dropping the bias costs the cover its uniqueness without "
+                    "costing the picture its determinism"
+                    % told if a_ok else "the arm ladder did not hold")
+        c_ok, gap = True, 0
+        try:
+            t = VL.convention_table()
+            gap = t[("centre", "centre")][0] - t[("corner", "corner")][0]
+            c_ok = (VL.the_centre_ray_is_the_corner_ray_shifted_half_a_pixel()
+                    and VL.the_conventions_must_agree()
+                    and VL.the_sample_point_is_the_defect()
+                    and VL.the_ownership_rescue_is_an_artefact()
+                    and VL.scene_result("conventions") == VL.golden("conventions"))
+        except Exception:
+            c_ok = False
+        self.record("voxfill-conventions", c_ok,
+                    "THIS 2x2 VARIES THE ORACLE'S OWN CONVENTION, WHICH NO EARLIER RUNG OF THIS ARC "
+                    "HAS DONE. The oracle's ray through pixel (px, py) is DERIVED from the "
+                    "rasteriser's projection, so a convention error is invisible to any experiment "
+                    "that holds one side fixed — every rung so far has asked what the rasteriser "
+                    "got wrong. Corner sample: 45550 against a corner-ray oracle, 41861 against a "
+                    "centre-ray one. Centre sample: 42744 and 46567. BOTH CONSISTENT PAIRINGS BEAT "
+                    "BOTH MIXED ONES, which is the shape of a CONVENTION error and not of a "
+                    "renderer defect, and the aligned pairing beats the committed one by %d pixels. "
+                    "THE MECHANISM: the reference's projection FLOORS, mapping a screen position "
+                    "into a pixel REGION, while its sample point is that region's CORNER; the "
+                    "oracle inherited the corner convention from the projection's algebra rather "
+                    "than from its rounding. THE STRONGEST NUMBER NEEDS NO ORACLE AT ALL — "
+                    "`impossible` counts pixels awarded to a face sandwiched between two solid "
+                    "cells, a property of the rasteriser alone that no convention choice can argue "
+                    "with, and it falls 152 to 4 on the SAMPLE POINT ALONE. AND THE RUNG'S OWN "
+                    "LEADING HYPOTHESIS IS REFUTED BY ITS OWN CONTROL: with the conventions "
+                    "aligned, dropping the top-left bias scores 46560 against 46567 and RAISES "
+                    "impossible faces from 4 to 7 — the same single change, opposite sign — so the "
+                    "215 `bias_only` pixels were an artefact of sampling a floored triangle at its "
+                    "corner and THE TOP-LEFT RULE IS EXONERATED. NOTHING IS ADOPTED: choosing the "
+                    "centre convention changes what the ORACLE is and reaches every record derived "
+                    "from `voxray`, which is a contract decision of exactly the kind `voxtie` "
+                    "refused to take by default"
+                    % gap if c_ok else "the convention control did not hold")
+        s_ok = True
+        try:
+            s_ok = VL.a_tampered_row_refuses()
+            try:
+                VL.arm_flags("supersample")
+                s_ok = False
+            except VL.VoxfillError:
+                pass
+            _nm, _eye, _fwd = VL.VR.TRACE[0]
+            try:
+                VL.ray_at(_eye, _fwd, 0, 0, "gaussian")
+                s_ok = False
+            except VL.VoxfillError:
+                pass
+            for bad in ("arm supersample corner 1 2 3 4 5 6 7", "pair corner gaussian 1 2",
+                        "rumour 1 2 3"):
+                try:
+                    VL.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VL.VoxfillError:
+                    pass
+            try:
+                VL.scene_case("arms2")
+                s_ok = False
+            except VL.VoxfillError:
+                pass
+        except Exception:
+            s_ok = False
+        self.record("voxfill-selftest", s_ok,
+                    "six plants bite: a pixel row relabelled to a class outside the declared four "
+                    "refuses typed, an arm row naming no declared arm refuses, a pair row naming "
+                    "no declared CONVENTION refuses, a row of unknown kind refuses rather than "
+                    "being skipped as a comment, an undeclared arm refuses rather than being "
+                    "interpolated, and an undeclared ray convention refuses rather than falling "
+                    "back to the corner — which is the failure mode that would let this rung's "
+                    "whole finding be measured against the convention it was testing (gate can "
+                    "redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -24083,7 +24238,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

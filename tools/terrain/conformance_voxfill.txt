@@ -1,0 +1,74 @@
+# URDRVXL1 conformance goldens — emitted by voxfill.py, pinned by hand, compared by the gate.
+#
+# THIS RUNG WAS BUILT TO CHOOSE BETWEEN THREE FILL-RULE MECHANISMS AND THE ANSWER WAS A FOURTH THING
+# THAT WAS NOT ON THE LIST. `voxfate` localised the surviving defect to coverage: 318 of the 378
+# stable disagreements are `not_covered` — the oracle's face was rasterised, reached the pixel loop,
+# and did not claim the pixel. Three mechanisms could do that and each is varied ALONE.
+#
+# THE REJECTIONS ARE CLASSIFIED ALGEBRAICALLY BEFORE ANY ARM RUNS, by reading the three edge
+# functions of the ORACLE'S OWN FACE at the exact sample point:
+#
+#     bias_only   215   every rejecting edge has e == 0 — the sample sits EXACTLY on the edge and
+#                       only the top-left bias rejects it
+#     outside     100   some rejecting edge has e < 0 — genuinely outside the triangle, but 99 of
+#                       them by LESS THAN ONE PIXEL and typically by a single sub-pixel unit at
+#                       S=64, which is the quantum of the floor in the projection itself
+#     bbox          3   never entered the candidate loop at all
+#
+# DECLARED: the four arms and the single variable each moves; the two sample/ray conventions; the
+# rejection classes and their order, farthest from covering to closest, because a quad is two
+# triangles and the face takes the CLOSEST of its triangles' classes; and the population, inherited
+# from `voxfate` rather than restated.
+#
+# DERIVED at claim time (L75): every classification, every arm reading, the 2x2, the aligned
+# control, the tie decomposition and the population digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * rejections — the classification, the near/far split among `outside`, and the population
+#     digest. DISTANCES ARE EXACT INTEGERS: `e^2 < S^2 * (dx^2 + dy^2)` is "under one pixel" with no
+#     square root taken and no float constructed, because a measurement that rounds cannot be
+#     evidence about a defect whose size is one sub-pixel unit.
+#   * arms — all four arms against both oracle conventions, each with agreement, impossible faces,
+#     population coverage, population wins, and the GAINED/LOST split over the whole framebuffer.
+#     The split is the point: `inclusive` rescues 204 of the 318 and nets +58, because +396 gained
+#     comes with -338 lost, and 236 of those losses are pixels the `(depth, face_key)` tiebreak —
+#     which `voxtie` measured at ZERO of its own resolvable ceiling — only gets to decide because
+#     dropping the bias turned the partition into a cover. A rung reporting only the rescue would
+#     be reporting the half of the ledger it chose.
+#   * conventions — the 2x2 that decides the rung, the aligned control, and the tie decomposition.
+#
+# THE 2x2 VARIES THE ORACLE'S CONVENTION TOO, WHICH NO EARLIER RUNG OF THIS ARC HAS DONE. The
+# oracle's ray through pixel (px, py) is DERIVED from the rasteriser's own projection, so a
+# convention error is invisible to any experiment that holds one side fixed:
+#
+#                         corner-ray oracle    centre-ray oracle
+#         corner sample         45550                41861
+#         centre sample         42744               *46567*
+#
+# BOTH CONSISTENT PAIRINGS BEAT BOTH MIXED ONES — the shape of a convention error and not of a
+# renderer defect. The reference's projection FLOORS, mapping a screen position into a pixel REGION,
+# while its sample point is that region's CORNER; the oracle inherited the corner convention from
+# the projection's algebra rather than from its rounding.
+#
+# AND THE RUNG'S OWN LEADING HYPOTHESIS IS REFUTED BY ITS OWN CONTROL. With the conventions aligned,
+# dropping the top-left bias scores 46560 against 46567 and raises impossible faces from 4 to 7 —
+# the same single change, opposite sign. The 215 `bias_only` pixels were an artefact of sampling a
+# floored triangle at its corner. THE TOP-LEFT RULE IS EXONERATED.
+#
+# THE STRONGEST NUMBER NEEDS NO ORACLE AT ALL: `impossible` counts pixels awarded to a face
+# sandwiched between two solid cells, which is a property of the rasteriser alone that no convention
+# choice can argue with. It falls 152 -> 4 on the SAMPLE POINT ALONE.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * NOT THAT CENTRE SAMPLING IS CORRECT. It is better on both metrics under the pairing that
+#     assumes it, and adopting it changes what the ORACLE is — reaching every record derived from
+#     `voxray` — which is a contract decision of exactly the kind `voxtie` refused to take by
+#     default.
+#   * NOT THAT THE DIAGNOSIS SURVIVES THE CONVENTION CHANGE. The population was selected under the
+#     corner convention; re-deriving it under the centre convention is the next rung.
+#   * NO REPAIR. `voxref` AND `voxray` are both untouched, and the frozen census stays frozen.
+#   * NO GENERALISATION past the declared trace.
+rejections 57984eaf3be524832af0073e94e82f4c6a4e42496505567eeb2589409eb6d645
+arms 6f3dc252460eee7b4b98830395313408d161dc9eff1314ae16a3a484fee6efe5
+conventions 5fdaf64d45085aacaa55cf0038001ade03d6636729fa7b0e8a4434b65961969a
