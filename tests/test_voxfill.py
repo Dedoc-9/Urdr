@@ -60,6 +60,18 @@ class TheAlgebra(unittest.TestCase):
         self.assertTrue(VL._within_one_pixel(S * (S - 1), 0, 0, S, 0, S))
         self.assertFalse(VL._within_one_pixel(S * (S + 1), 0, 0, S, 0, S))
 
+    def test_every_outside_rejection_is_sub_pixel(self):
+        """Not `nearly all`. The first version reported 99 of 100 and the hundredth was its own
+        ranking defect, kept green by a law with room in it."""
+        near, far = VL.near_misses()
+        self.assertEqual(far, 0)
+        self.assertEqual(near, VL.rejection_distribution()["outside"])
+
+    def test_the_nearest_triangle_decides(self):
+        """The fix must BITE: at least one face must have two triangles of the same class whose
+        nearness differs, or ranking by nearness is decoration."""
+        self.assertTrue(VL.the_nearest_triangle_decides())
+
     def test_the_bbox_arm_is_inert_and_the_check_is_not_vacuous(self):
         """Padding must ADMIT the excluded pixels, or 'it changed nothing' proves nothing."""
         admitted, covered = VL.bbox_admitted_by_padding()

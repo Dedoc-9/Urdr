@@ -20301,6 +20301,7 @@ class Gate:
                     and VL.the_classification_is_exhaustive()
                     and VL.the_rejections_are_not_a_covering_failure()
                     and VL.the_outside_rejections_are_sub_pixel()
+                    and VL.the_nearest_triangle_decides()
                     and VL.the_bbox_excludes_only_what_the_edges_reject()
                     and VL.the_record_names_this_world()
                     and VL.the_record_is_bound_to_the_live_code()
@@ -20314,9 +20315,16 @@ class Gate:
                     "rejecting edge has e == 0, so the sample sits EXACTLY on the edge), 100 are "
                     "outside by at least one edge, and 3 never entered the candidate loop. THE "
                     "CLASSIFICATION PREDICTS THE ARMS RATHER THAN SUMMARISING THEM. THE 100 ARE "
-                    "OUTSIDE BY ALMOST NOTHING: 99 fall short by less than one pixel, typically by "
-                    "a single sub-pixel unit at S=64, which is the quantum of the floor in the "
-                    "projection itself — and the distance is compared as an EXACT INTEGER by "
+                    "OUTSIDE BY ALMOST NOTHING — ALL HUNDRED OF THEM, and the first version of "
+                    "this rung said ninety-nine and shipped it. A face is two triangles and the "
+                    "classifier takes the closest of their classes; when both landed in the SAME "
+                    "class it kept whichever came FIRST rather than whichever was NEAREST, which "
+                    "on frame 6 pixel (36, 26) kept a triangle rejecting by 1.92 px over one "
+                    "rejecting by 0.004 px. THE LAW IS WHY IT SURVIVED: it read `near > 10*far`, "
+                    "and 99 against 1 passes that as comfortably as 100 against 0, so it now "
+                    "asserts the ZERO and plants the comparison in both directions. The typical "
+                    "shortfall is a single sub-pixel unit at S=64, the quantum of the floor in "
+                    "the projection itself — and the distance is compared as an EXACT INTEGER by "
                     "squaring, `e*e < S*S*(dx*dx + dy*dy)`, taking no square root and constructing "
                     "no float, because a measurement that rounds cannot be evidence about a defect "
                     "one sub-pixel unit wide. THE BBOX MECHANISM IS ELIMINATED BY A STRONGER "

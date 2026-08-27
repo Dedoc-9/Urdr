@@ -18,17 +18,26 @@ Before any arm runs, every rejection is classified by reading the three edge fun
 oracle's own face at the exact sample:
 
     bias_only   215   every rejecting edge has e == 0 — the sample sits exactly on the edge
-    outside     100   some rejecting edge has e < 0 — genuinely outside the triangle
+    outside     100   some rejecting edge has e < 0 — every one by less than a pixel
     bbox          3   never entered the candidate loop at all
 
 That classification predicts the arms rather than summarising them, which is the difference between
 an experiment and a sweep.
 
-The 100 `outside` are outside by almost nothing: 99 fall short by less than one pixel, typically by
-a single sub-pixel unit at S=64 — the quantum of the floor in the projection itself. The distance is
-compared as an exact integer by squaring, `e² < S²(dx² + dy²)`, taking no square root and
-constructing no float, because a measurement that rounds cannot be evidence about a defect one
-sub-pixel unit wide.
+The 100 `outside` are outside by almost nothing — **all hundred of them**, and the first version of
+this rung said ninety-nine and shipped it. A face is two triangles and the classifier takes the
+closest of their classes; when both landed in the *same* class it kept whichever came first rather
+than whichever was nearest. On frame 6, pixel (36, 26) that kept a triangle rejecting by 1.92 px
+over one rejecting by 0.004 px — ordinary 13-square-pixel triangles, no sliver, no degeneracy, just
+a rank missing its second component. The law is why it survived: it read `near > 10 * far`, and 99
+against 1 passes that as comfortably as 100 against 0. A law with room in it cannot report the day
+the room is used, so it now asserts the zero and plants the comparison in both directions to prove
+the detector can still produce a non-zero.
+
+The typical shortfall is a single sub-pixel unit at S=64 — the quantum of the floor in the
+projection itself. The distance is compared as an exact integer by squaring, `e² < S²(dx² + dy²)`,
+taking no square root and constructing no float, because a measurement that rounds cannot be
+evidence about a defect one sub-pixel unit wide.
 
 ## Orient
 
@@ -87,9 +96,8 @@ both metrics under the pairing that assumes it, and adopting it changes what the
 reaching every record derived from `voxray`; that is a contract decision of exactly the kind
 `voxtie` refused to take by default. That the coverage diagnosis survives the convention change: the
 population itself was selected under the corner convention, so re-deriving it under the centre
-convention is the next rung and is not claimed here. Why the one remaining whole-pixel `outside`
-rejection survives. And nothing is repaired — `voxref` **and** `voxray` are both untouched, and the
-frozen census stays frozen.
+convention is the next rung and is not claimed here. And nothing is repaired — `voxref` **and**
+`voxray` are both untouched, and the frozen census stays frozen.
 
 ## Act
 

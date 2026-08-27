@@ -10,9 +10,9 @@
 #
 #     bias_only   215   every rejecting edge has e == 0 — the sample sits EXACTLY on the edge and
 #                       only the top-left bias rejects it
-#     outside     100   some rejecting edge has e < 0 — genuinely outside the triangle, but 99 of
-#                       them by LESS THAN ONE PIXEL and typically by a single sub-pixel unit at
-#                       S=64, which is the quantum of the floor in the projection itself
+#     outside     100   some rejecting edge has e < 0 — genuinely outside the triangle, but EVERY
+#                       ONE of them by LESS THAN ONE PIXEL and typically by a single sub-pixel unit
+#                       at S=64, which is the quantum of the floor in the projection itself
 #     bbox          3   never entered the candidate loop at all
 #
 # DECLARED: the four arms and the single variable each moves; the two sample/ray conventions; the
@@ -28,6 +28,17 @@
 #     digest. DISTANCES ARE EXACT INTEGERS: `e^2 < S^2 * (dx^2 + dy^2)` is "under one pixel" with no
 #     square root taken and no float constructed, because a measurement that rounds cannot be
 #     evidence about a defect whose size is one sub-pixel unit.
+#     THIS GOLDEN IS RE-PINNED BECAUSE THE FIRST VERSION OF IT WAS WRONG, and the correction is
+#     recorded rather than quietly applied. A face is two triangles and the classifier takes the
+#     closest of their classes; when both landed in the SAME class the first version kept whichever
+#     came FIRST rather than whichever was NEAREST. On frame 6 pixel (36, 26) that kept a triangle
+#     rejecting by 1.92 px over one rejecting by 0.004 px — ordinary 13-square-pixel triangles, no
+#     sliver and no degeneracy, just a rank missing its second component — and the record carried
+#     "one of the hundred is beyond a pixel" into a green gate, a committed artifact and a pushed
+#     commit. THE LAW IS WHY IT SURVIVED: it read `near > 10 * far`, and 99 against 1 passes that as
+#     comfortably as 100 against 0. A law with room in it cannot report the day the room is used, so
+#     the law now asserts the ZERO and plants the comparison in both directions to prove the
+#     detector can still produce a non-zero.
 #   * arms — all four arms against both oracle conventions, each with agreement, impossible faces,
 #     population coverage, population wins, and the GAINED/LOST split over the whole framebuffer.
 #     The split is the point: `inclusive` rescues 204 of the 318 and nets +58, because +396 gained
@@ -69,6 +80,6 @@
 #     corner convention; re-deriving it under the centre convention is the next rung.
 #   * NO REPAIR. `voxref` AND `voxray` are both untouched, and the frozen census stays frozen.
 #   * NO GENERALISATION past the declared trace.
-rejections 57984eaf3be524832af0073e94e82f4c6a4e42496505567eeb2589409eb6d645
+rejections 3ec276549e68a6d728bf16db74c457faf4ce4a189370c87f2421147d210afc7c
 arms 6f3dc252460eee7b4b98830395313408d161dc9eff1314ae16a3a484fee6efe5
 conventions 5fdaf64d45085aacaa55cf0038001ade03d6636729fa7b0e8a4434b65961969a

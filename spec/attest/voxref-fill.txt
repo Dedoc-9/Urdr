@@ -17,7 +17,7 @@ reject bbox 3
 reject outside 100
 reject bias_only 215
 reject covered 0
-near 99 1
+near 100 0
 padded 3 0
 arm committed corner 45550 152 0 0 0 0 0
 arm committed centre 41861 152 0 0 0 0 0
@@ -331,7 +331,7 @@ pixel 6 2 20 outside 1 1 0
 pixel 6 12 20 outside 1 1 0
 pixel 6 19 20 outside 0 1 0
 pixel 6 58 23 outside 1 1 0
-pixel 6 36 26 outside 2 0 0
+pixel 6 36 26 outside 1 1 0
 pixel 6 66 28 outside 1 1 0
 pixel 6 62 32 bbox 1 1 0
 pixel 6 44 35 outside 1 1 0
@@ -351,4 +351,4 @@ pixel 6 65 66 outside 1 1 0
 pixel 6 44 67 outside 0 1 0
 pixel 6 36 70 outside 1 1 0
 pixel 6 60 71 outside 0 1 1
-digest 85eae1baed26d1a5dccc2ad0353be0a7c0946321a5cab3966417745bb1552332
+digest 7b783843e9040e45e474a4364c8ac203f6b6701442f2dc0a2b0b7e0ebb8cd537

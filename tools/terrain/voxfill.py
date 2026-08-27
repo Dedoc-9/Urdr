@@ -15,7 +15,8 @@ functions at the exact sample point of the oracle's own face:
 
     bias_only   215   every rejecting edge has e == 0 — the sample is EXACTLY ON the edge and only
                       the top-left bias rejects it
-    outside     100   some rejecting edge has e < 0 — genuinely outside the triangle
+    outside     100   some rejecting edge has e < 0 — genuinely outside the triangle, EVERY
+                      ONE of them by less than a pixel
     bbox          3   the pixel never entered the candidate loop at all
 
 THAT DISTRIBUTION PREDICTS THE ARMS BEFORE THEY RUN, and `wide_bbox` is eliminated by a stronger
@@ -26,11 +27,20 @@ not one pixel anywhere on screen. The box is not merely tight, it is a conservat
 pixels the edge test accepts, and the arm is INERT rather than the class being absent. That
 distinction is the difference between a check that bites and a check that is vacuously green.
 
-AND THE 100 `outside` ARE OUTSIDE BY ALMOST NOTHING. 99 of them fall short by less than one pixel;
-exactly ONE is beyond it. The typical shortfall is a single SUB-PIXEL UNIT at S=64 — the quantum of
-the floor in the projection itself. Distances are compared as exact integers by squaring, never as
-floats: `e^2 < S^2 * (dx^2 + dy^2)` is the perpendicular distance under one pixel, with no square
-root taken and no rounding introduced by the measurement.
+AND THE 100 `outside` ARE OUTSIDE BY ALMOST NOTHING — ALL HUNDRED OF THEM, and the first version of
+this module said ninety-nine. That was ITS OWN DEFECT AND IT WAS PUBLISHED. A face is two triangles
+and the classifier takes the closest of their classes; when both land in the SAME class the first
+version kept whichever came first rather than whichever was nearest. On frame 6 pixel (36, 26) that
+kept a triangle rejecting by 1.92 px over one rejecting by 0.004 px on ordinary 13-square-pixel
+triangles — no sliver, no degeneracy, just a rank missing its second component — and the record
+carried `one of the hundred is beyond a pixel` into a green gate, a committed artifact and a pushed
+commit. THE WEAKER LAW IS WHY IT SURVIVED: it read `near > 10 * far`, and 99 against 1 passes that
+as comfortably as 100 against 0. A law with room in it cannot report the day the room is used.
+
+The shortfall is a single SUB-PIXEL UNIT at S=64 — the quantum of the floor in the projection
+itself. Distances are compared as exact integers by squaring, never as floats: `e^2 < S^2 *
+(dx^2 + dy^2)` is the perpendicular distance under one pixel, with no square root taken and no
+rounding introduced by the measurement.
 
 SO THE LEADING HYPOTHESIS WAS EDGE OWNERSHIP, WITH 215 OF 318 BEHIND IT, AND THE ALIGNMENT CONTROL
 REFUTED IT. Under the committed convention `inclusive` looks like the answer: 204 of the 318
@@ -65,7 +75,7 @@ THE STRONGEST NUMBER HERE NEEDS NO ORACLE AT ALL. `impossible` counts pixels awa
 sandwiched between two solid cells; it is a property of the rasteriser alone, and no convention
 choice can argue with it. It falls 152 -> 4 on the sample point ALONE.
 
-does_not_show: anything about performance. WHY the one whole-pixel `outside` rejection survives.
+does_not_show: anything about performance.
 That centre sampling is CORRECT — it is better on both metrics under the pairing that assumes it,
 and choosing it changes what the ORACLE is, which reaches every record derived from `voxray` and is
 a contract decision of exactly the kind `voxtie` refused to take by default. That the coverage
@@ -73,8 +83,10 @@ diagnosis survives the convention change: the population itself was selected und
 convention, so re-deriving it under the centre convention is the next rung and is not claimed here.
 And nothing is repaired: `voxref` and `voxray` are untouched, and the frozen census stays frozen.
 
-falsifier: `the_bbox_class_is_empty_and_the_arm_is_inert` states a prediction made from the
-classification BEFORE the arm ran and reddens if padding the box moves any pixel; and
+falsifier: `the_bbox_excludes_only_what_the_edges_reject` states a prediction made from the
+classification BEFORE the arm ran, and requires the padding to have ADMITTED the excluded pixels so
+that `the arm moved nothing` is not green by inability; `the_nearest_triangle_decides` plants the
+published ranking defect and reddens if nearness within a class never changes the answer; and
 `the_ownership_rescue_is_an_artefact` requires the SAME single change to gain under one convention
 and lose under the other, so a rung that had merely picked the biggest class would redden here.
 """
@@ -318,8 +330,13 @@ def _within_one_pixel(e, ax, ay, bx, by, S):
 def rejection_of(tris, px, py):
     """(class, rejecting edge indices, near) for the oracle's face at one pixel.
 
-    The CLOSEST class across the face's two triangles is taken, because a quad covered by either
-    triangle is covered. `near` is true when every rejecting edge falls short by less than a pixel.
+    THE RANK IS (CLASS, NEAR) AND THE SECOND COMPONENT WAS MISSING, which is how this instrument
+    published a false number. A quad is two triangles and the face takes the CLOSEST of their
+    classes; when both land in the SAME class the first version kept whichever came first. On frame
+    6 pixel (36, 26) that kept a triangle rejecting by 1.92 px over one rejecting by 0.004 px, and
+    the rung reported "one of the hundred is beyond a pixel" when none is. Ranking by nearness
+    within a class is the whole fix, and `the_nearest_triangle_decides` plants the old behaviour.
+
     A pixel outside the candidate box is `bbox` whatever its edge functions say — it was never
     tested, and calling it `outside` would attribute to geometry a rejection the loop never made.
     """
@@ -342,9 +359,40 @@ def rejection_of(tris, px, py):
             pts = ((a, b), (b, c2), (c2, a))
             near = all(_within_one_pixel(e[j], pts[j][0][0], pts[j][0][1],
                                          pts[j][1][0], pts[j][1][1], S) for j in rej)
-        if best is None or REJECTIONS.index(cls) > REJECTIONS.index(best[0]):
-            best = (cls, rej, near)
-    return best if best is not None else ("bbox", (), True)
+        rank = (REJECTIONS.index(cls), 1 if near else 0)
+        if best is None or rank > best[0]:
+            best = (rank, cls, rej, near)
+    return (best[1], best[2], best[3]) if best is not None else ("bbox", (), True)
+
+
+def the_nearest_triangle_decides():
+    """VALIDITY OF THE FIX, PLANTED. Rank by class alone — the published defect — and the near/far
+    split must MOVE. If it does not, the second rank component is decoration and this law says so."""
+    prims = VX.primitives_with("reversed")
+    _n, _sym, S = _level()
+    slack = 0
+    for f, px, py, cls, _rej, _near, _imp in rejection_census():
+        if cls != "outside":
+            continue
+        _nm, eye, fwd = VR.TRACE[f]
+        o = oracle_frame(f, "corner")[py * VR.W + px]
+        pk = (((o[0][0] * VR.N) + o[0][1]) * VR.N + o[0][2]) * 6 + o[1]
+        seen = []
+        for a, b, c2, bb, (xl, xh, yl, yh) in _triangles(prims, eye, fwd).get(pk, []):
+            if not (xl <= px <= xh and yl <= py <= yh):
+                continue
+            e = (VR._edge(a[0], a[1], b[0], b[1], px * S, py * S),
+                 VR._edge(b[0], b[1], c2[0], c2[1], px * S, py * S),
+                 VR._edge(c2[0], c2[1], a[0], a[1], px * S, py * S))
+            rej = tuple(j for j in range(3) if e[j] + bb[j] < 0)
+            if not rej or all(e[j] == 0 for j in rej):
+                continue
+            pts = ((a, b), (b, c2), (c2, a))
+            seen.append(all(_within_one_pixel(e[j], pts[j][0][0], pts[j][0][1],
+                                              pts[j][1][0], pts[j][1][1], S) for j in rej))
+        if len(seen) > 1 and not all(seen) and any(seen):
+            slack += 1
+    return slack > 0
 
 
 _REJ = {}
@@ -397,11 +445,22 @@ def the_rejections_are_not_a_covering_failure():
 
 
 def the_outside_rejections_are_sub_pixel():
-    """THE SHORTFALL IS THE QUANTUM OF THE FLOOR, NOT A GEOMETRIC MISS. Nearly every `outside`
-    rejection falls short by less than one pixel — measured by exact integer comparison, never by a
-    square root — which is what makes the sample point a candidate at all."""
+    """EVERY ONE OF THEM, NOT NEARLY ALL. The shortfall is the quantum of the floor in the
+    projection, not a geometric miss — measured by exact integer comparison and never by a square
+    root. THE FIRST VERSION OF THIS LAW READ `near > 10 * far` AND WAS GREEN ON A FALSE SPLIT: the
+    classifier kept the first triangle of a face rather than the nearest, and the record said one
+    of the hundred was beyond a pixel. It is not one. It is none, and the weaker law never noticed
+    because 99 > 10 passes as comfortably as 100 > 0.
+
+    A law asserting a zero has to prove the detector can produce a non-zero, so the exactness of the
+    comparison is planted here rather than assumed: an edge of length S rejects at S*(S+1) and
+    accepts at S*(S-1), both by integer arithmetic.
+    """
     near, far = near_misses()
-    return near > 10 * far
+    _n, _sym, S = _level()
+    bites = (_within_one_pixel(S * (S - 1), 0, 0, S, 0, S)
+             and not _within_one_pixel(S * (S + 1), 0, 0, S, 0, S))
+    return bites and far == 0 and near == rejection_distribution()["outside"] > 0
 
 
 # ---- the arms ----------------------------------------------------------------------------------------
