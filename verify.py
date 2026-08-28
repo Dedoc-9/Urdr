@@ -255,6 +255,7 @@ STAGE_ORDER = (
     "voxconv",
     "voxgrid",
     "voxslack",
+    "voxwin",
     "rowtext",
     "rollbench",
     "reachable",
@@ -20798,6 +20799,109 @@ class Gate:
                     "refuses (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxwin(self):
+        """CHASE THE WINNER, AND THE DECOMPOSITION CLOSES (URDRVXW1). Rows: winners (the ray misses
+        the face the rasteriser awarded at almost all of them), ties (the exceptions are EXACTLY the
+        exact-depth ties, by set equality), closure (374 coverage / 2 tie / 2 phantom), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxwin as VW
+        except Exception as exc:
+            for r in ("winners", "ties", "closure", "selftest"):
+                self.record(f"voxwin-{r}", False, f"import failed (voxwin): {exc}")
+            return
+        w_ok, told = True, "?"
+        try:
+            told = VW.told()
+            w_ok = (VW.the_ray_test_is_exact_and_bites()
+                    and VW.the_population_is_voxslacks_depth_class()
+                    and VW.the_winner_is_a_face_the_ray_misses()
+                    and VW.the_winner_is_the_oracle_one_pixel_over()
+                    and VW.the_record_names_this_world()
+                    and VW.the_record_is_bound_to_the_live_code()
+                    and VW.scene_result("winners") == VW.golden("winners"))
+        except Exception:
+            w_ok = False
+        self.record("voxwin-winners", w_ok,
+                    "`voxslack` NAMED THIS QUESTION IN ITS OWN does_not_show AND THIS ROW ANSWERS "
+                    "IT: %s. THE RAY/FACE TEST IS EXACT INTEGER ARITHMETIC AND NOTHING ELSE — the "
+                    "face is axis-aligned so its plane is a single lattice coordinate, the "
+                    "parameter is a rational, and every comparison multiplies through by the "
+                    "denominator with the inequality flipped when that denominator is negative. NO "
+                    "FLOAT AND NO EPSILON, because an epsilon here would be a threshold nobody "
+                    "declared deciding the question the rung exists to answer; a ray PARALLEL to "
+                    "the plane answers NEITHER, since reporting it as a hit or a miss would be the "
+                    "instrument inventing an answer. AND IT IS PLANTED IN EVERY DIRECTION — a ray "
+                    "down the middle hits, one aimed away misses, one behind the eye misses, one "
+                    "parallel answers neither — because a test that said `miss` everywhere would "
+                    "produce this rung's headline by INABILITY rather than by measurement"
+                    % told if w_ok else "the winner census did not hold")
+        t_ok, nt = True, 0
+        try:
+            nt = VW.distribution()["true_tie"]
+            t_ok = (VW.the_exceptions_are_exactly_the_exact_ties()
+                    and VW.the_ties_are_the_parked_question()
+                    and VW.scene_result("ties") == VW.golden("ties"))
+        except Exception:
+            t_ok = False
+        self.record("voxwin-ties", t_ok,
+                    "THE %d EXCEPTIONS ARE EXACTLY THE EXACT-DEPTH TIES, ASSERTED AS SET EQUALITY "
+                    "AND NOT AS A MATCHING COUNT — a count would pass while naming different "
+                    "pixels. Two INDEPENDENTLY COMPUTED classifications agree: one reads the depth "
+                    "buffer and finds a slack of zero, the other computes an exact ray/plane "
+                    "intersection and finds the ray meets both faces, and they pick out the same "
+                    "pixels. Both are adjacent cells sharing an EDGE with the ray passing exactly "
+                    "through it, which is the configuration `voxtie` measured a 1-of-13 resolvable "
+                    "ceiling on and DECLINED TO ADOPT A RULE FOR. THAT PARKED QUESTION IS NOW A "
+                    "POPULATION OF TWO on the declared trace rather than an open-ended hope — and "
+                    "the ties are PINNED AS PIXELS rather than as a count, because a count would "
+                    "not say which two"
+                    % nt if t_ok else "the tie correspondence did not hold")
+        c_ok, dec = True, {}
+        try:
+            dec = VW.decomposition()
+            c_ok = VW.the_decomposition_closes() and VW.nothing_is_altered()
+        except Exception:
+            c_ok = False
+        self.record("voxwin-closure", c_ok,
+                    "THE DECOMPOSITION CLOSES AND IT IS TIGHTER THAN THE ONE IT REPLACES: %d "
+                    "COVERAGE, %d TIE, %d PHANTOM, exhaustive and disjoint, against `voxfate`'s "
+                    "318 / 58 / 2. One mechanism accounts for %d of 378 and the rest is two named "
+                    "populations of two. WHAT THIS DOES NOT SAY is that the %d are ONE DEFECT "
+                    "rather than one CLASS — `voxconv` already showed 215 of the 318 are the corner "
+                    "sample and the remainder is the floored vertex, so `coverage` holds at least "
+                    "two mechanisms and this rung does not pretend otherwise. AND NOTHING IS "
+                    "ALTERED: no arm, no candidate, no renderer changed, no convention moved. This "
+                    "rung finishes a diagnosis and starts nothing"
+                    % (dec.get("coverage", 0), dec.get("tie", 0), dec.get("phantom", 0),
+                       dec.get("coverage", 0), dec.get("coverage", 0))
+                    if c_ok else "the decomposition did not close")
+        s_ok = True
+        try:
+            s_ok = VW.a_tampered_row_refuses()
+            for bad in ("outcome elsewhere 5", "class nowhere 5", "rumour 1 2 3"):
+                try:
+                    VW.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VW.VoxwinError:
+                    pass
+            try:
+                VW.scene_case("winners2")
+                s_ok = False
+            except VW.VoxwinError:
+                pass
+        except Exception:
+            s_ok = False
+        self.record("voxwin-selftest", s_ok,
+                    "five plants bite: a pixel row relabelled to an outcome outside the two "
+                    "declared refuses typed, an outcome row and a class row outside their declared "
+                    "sets each refuse, a row of unknown kind refuses rather than being skipped as a "
+                    "comment, and an unknown scene refuses — so the two outcomes are a CLOSED set "
+                    "and not a pair of strings this module happens to emit (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -24604,7 +24708,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

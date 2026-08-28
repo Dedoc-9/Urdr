@@ -1,0 +1,74 @@
+# URDRVXW1 winner census — emitted by voxwin.generate(), committed as an artifact,
+# re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# `voxslack` measured the LOSER's distance to every decision surface and named the
+# open question in its own does_not_show: WHICH face wrongly covers the redirected
+# class. This is that experiment, and it splits the population exactly.
+#   outcome <outcome> <count>
+#   class   <class> <count>
+#   pixel   <frame> <px> <py> <outcome> <oracle> <winner> <cell L1> <nearby>
+#   digest  <population digest>
+outcome ray_misses_winner 56
+outcome true_tie 2
+class coverage 374
+class tie 2
+class phantom 2
+pixel 4 2 12 ray_misses_winner ((0,0,9),0) ((1,0,10),3) 2 1
+pixel 4 3 12 ray_misses_winner ((0,0,9),0) ((1,0,10),3) 2 1
+pixel 4 4 12 ray_misses_winner ((0,0,9),0) ((1,0,10),3) 2 1
+pixel 4 5 12 ray_misses_winner ((1,1,9),3) ((1,0,10),3) 2 1
+pixel 4 6 12 ray_misses_winner ((1,1,9),3) ((1,0,10),3) 2 1
+pixel 4 7 12 ray_misses_winner ((1,1,9),3) ((1,0,10),3) 2 1
+pixel 4 8 12 ray_misses_winner ((1,1,9),3) ((1,0,10),3) 2 1
+pixel 4 9 12 ray_misses_winner ((1,1,9),3) ((1,0,10),3) 2 1
+pixel 4 19 12 ray_misses_winner ((2,0,9),0) ((3,0,10),3) 2 1
+pixel 4 20 12 ray_misses_winner ((2,0,9),0) ((3,0,10),3) 2 1
+pixel 4 22 12 ray_misses_winner ((2,5,6),3) ((3,0,10),3) 10 1
+pixel 4 23 12 ray_misses_winner ((2,5,6),3) ((3,0,10),3) 10 1
+pixel 4 24 12 ray_misses_winner ((3,2,7),4) ((3,0,10),3) 5 1
+pixel 4 25 12 ray_misses_winner ((3,2,7),4) ((3,0,10),3) 5 1
+pixel 4 26 12 ray_misses_winner ((3,2,7),4) ((3,0,10),3) 5 1
+pixel 4 70 12 ray_misses_winner ((9,1,9),3) ((9,0,10),3) 2 1
+pixel 4 71 12 ray_misses_winner ((9,1,9),3) ((9,0,10),3) 2 1
+pixel 4 72 12 ray_misses_winner ((9,1,9),3) ((9,0,10),3) 2 1
+pixel 4 73 12 ray_misses_winner ((9,1,9),3) ((9,0,10),3) 2 1
+pixel 4 74 12 ray_misses_winner ((9,1,9),3) ((9,0,10),3) 2 1
+pixel 4 75 12 ray_misses_winner ((9,1,9),3) ((9,0,10),3) 2 1
+pixel 4 76 12 ray_misses_winner ((10,0,9),1) ((9,0,10),3) 2 1
+pixel 4 77 12 ray_misses_winner ((10,0,9),1) ((9,0,10),3) 2 1
+pixel 4 8 36 ray_misses_winner ((0,0,5),0) ((1,0,6),3) 2 1
+pixel 4 9 36 ray_misses_winner ((0,0,5),0) ((1,0,6),3) 2 1
+pixel 4 10 36 ray_misses_winner ((0,0,5),0) ((1,0,6),3) 2 1
+pixel 4 65 36 ray_misses_winner ((9,0,5),1) ((8,0,6),3) 2 1
+pixel 4 66 36 ray_misses_winner ((9,0,5),1) ((8,0,6),3) 2 1
+pixel 4 13 54 ray_misses_winner ((0,0,0),4) ((1,0,2),3) 3 1
+pixel 4 14 54 ray_misses_winner ((0,0,0),4) ((1,0,2),3) 3 1
+pixel 4 15 54 ray_misses_winner ((1,0,0),4) ((1,0,2),3) 2 1
+pixel 4 16 54 ray_misses_winner ((1,0,0),4) ((1,0,2),3) 2 1
+pixel 4 17 54 ray_misses_winner ((1,0,0),4) ((1,0,2),3) 2 1
+pixel 4 18 54 ray_misses_winner ((1,0,0),4) ((1,0,2),3) 2 1
+pixel 4 19 54 ray_misses_winner ((1,0,0),4) ((1,0,2),3) 2 1
+pixel 4 33 54 ray_misses_winner ((4,0,0),4) ((4,0,2),3) 2 1
+pixel 4 34 54 ray_misses_winner ((4,0,0),4) ((4,0,2),3) 2 1
+pixel 4 35 54 ray_misses_winner ((4,0,0),4) ((4,0,2),3) 2 1
+pixel 4 36 54 ray_misses_winner ((4,0,0),4) ((4,0,2),3) 2 1
+pixel 4 37 54 ray_misses_winner ((4,0,0),4) ((4,0,2),3) 2 1
+pixel 4 38 54 ray_misses_winner ((4,0,0),4) ((4,0,2),3) 2 1
+pixel 4 71 54 ray_misses_winner ((10,0,0),4) ((10,0,2),3) 2 1
+pixel 4 72 54 ray_misses_winner ((10,0,0),4) ((10,0,2),3) 2 1
+pixel 4 73 54 ray_misses_winner ((10,0,0),4) ((10,0,2),3) 2 1
+pixel 4 74 54 ray_misses_winner ((10,0,0),4) ((10,0,2),3) 2 1
+pixel 4 75 54 ray_misses_winner ((10,0,0),4) ((10,0,2),3) 2 1
+pixel 4 76 54 ray_misses_winner ((11,0,1),1) ((10,0,2),3) 2 1
+pixel 5 22 54 ray_misses_winner ((0,5,10),3) ((0,3,10),1) 2 1
+pixel 5 12 62 ray_misses_winner ((0,7,8),3) ((0,6,9),1) 2 1
+pixel 5 25 64 ray_misses_winner ((1,6,8),3) ((1,4,8),1) 2 1
+pixel 6 13 23 ray_misses_winner ((8,1,10),1) ((6,2,11),2) 4 1
+pixel 6 31 25 ray_misses_winner ((4,1,11),2) ((3,2,11),2) 2 1
+pixel 6 44 31 ray_misses_winner ((2,2,11),2) ((0,4,11),4) 4 1
+pixel 6 20 34 ray_misses_winner ((5,3,9),4) ((4,4,11),2) 4 1
+pixel 6 19 38 true_tie ((3,6,10),4) ((3,5,10),2) 1 0
+pixel 6 12 45 ray_misses_winner ((2,8,11),2) ((1,9,11),4) 2 1
+pixel 6 21 46 true_tie ((1,9,11),4) ((1,8,11),2) 1 0
+pixel 6 14 61 ray_misses_winner ((2,9,10),1) ((1,9,11),2) 2 1
+digest 7b95bce2767bda31c3ba8599425dc6382ebf87edfb7b3d4c06c8c9a66caca89b

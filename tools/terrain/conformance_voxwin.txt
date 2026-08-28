@@ -1,0 +1,60 @@
+# URDRVXW1 winner census — emitted by voxwin.py, pinned by hand, compared by the gate.
+#
+# `voxslack` measured the LOSER's distance to every decision surface, found that the 58
+# `depth_rejected` pixels are not a depth defect, and named the open question in its own
+# does_not_show: WHICH face wrongly covers them. This is that experiment, and it splits the
+# population EXACTLY.
+#
+#     56    the ray through the pixel DOES NOT MEET the winner's face at all
+#      2    the ray meets BOTH faces, at exactly equal depth
+#
+# THE 56 ARE THE COVERAGE DEFECT SEEN FROM THE OTHER SIDE. The rasteriser awards the pixel to a face
+# the ray through that pixel geometrically MISSES — tested by exact integer arithmetic against the
+# face's own plane and quad extent, no float and no epsilon anywhere, because an epsilon here would
+# be a threshold nobody declared deciding the question this rung exists to answer. And the winner is
+# the ORACLE'S OWN ANSWER ONE PIXEL OVER at all 56, the same whole-pixel signature `voxfate`
+# measured at 269 of 378 and `voxfill` traced to the floored projected vertex. Nothing new is wrong;
+# the same displacement is being counted from the winner's end.
+#
+# THE 2 ARE A GENUINE GEOMETRIC TIE AND THEY MERGE A PARKED QUESTION. Both are on frame 6, both have
+# the oracle naming a cell's top face while the rasteriser names the `+y` face of the cell directly
+# below — adjacent cells sharing an edge, the ray passing exactly through it, both faces met at the
+# same parameter, `(depth, face_key)` deciding. THEY ARE PRECISELY THE TWO `exact_tie` PIXELS
+# `voxslack` FOUND, and the law asserts SET EQUALITY rather than a matching count: two independently
+# computed classifications — one from the depth buffer, one from an exact ray/plane intersection —
+# pick out the same two pixels. `voxtie`'s parked tie-rule question arrives here as a population of
+# two on the declared trace rather than an open-ended hope.
+#
+# SO THE DECOMPOSITION CLOSES, AND IT IS TIGHTER THAN THE ONE IT REPLACES:
+#
+#     374    coverage — 318 the oracle's face not claiming the pixel, 56 a wrong face claiming it
+#       2    tie      — a true edge crossing, decided by an arbitrary convention
+#       2    phantom  — the oracle returns nothing at all
+#
+# against `voxfate`'s 318 / 58 / 2. One mechanism accounts for 374 of 378 and the rest is two named
+# populations of two.
+#
+# DECLARED: the two outcomes; the three classes of the closed decomposition; and the redirected
+# class, inherited from `voxslack` rather than restated.
+#
+# DERIVED at claim time (L75): every ray/face verdict, both distributions and the population digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * winners — both distributions, the closed decomposition and the population digest. THE
+#     POPULATION IS PINNED, NOT THE COUNTS: two different sets of 56 pixels would tally the same and
+#     digest differently.
+#   * ties — the two true ties in full, with their oracle and winner faces. Pinned separately
+#     because they are the population that merges `voxtie`'s parked question into this arc, and a
+#     count would not say WHICH pixels they are.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * ANY REPAIR. No arm, no candidate, no altered renderer, no moved convention. This rung finishes
+#     a diagnosis and starts nothing.
+#   * ANY MECHANISM FOR THE 2 PHANTOMS, which stays refused at the size `voxslack` refused it.
+#   * THAT THE 374 ARE ONE DEFECT rather than one class. `voxconv` already showed 215 of the 318 are
+#     the corner sample and the remainder is the floored vertex, so `coverage` is a class with at
+#     least two mechanisms inside it and this rung does not claim otherwise.
+#   * NO GENERALISATION past the declared trace.
+winners 929979e6b14b21b4ad46ca3529bf70d13b6e077c32bbbe985ffc09513c52f7dd
+ties 23f078b6bc0e4022a974c6321713f2dd1ee7daa947acc5c98d802a1a984ca065
