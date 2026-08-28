@@ -254,6 +254,7 @@ STAGE_ORDER = (
     "voxfill",
     "voxconv",
     "voxgrid",
+    "voxslack",
     "rowtext",
     "rollbench",
     "reachable",
@@ -20680,6 +20681,123 @@ class Gate:
                     "measured — and an unknown scene refuses (gate can redden)"
                     if p_ok else "a plant failed to bite")
 
+    def voxslack(self):
+        """HOW FAR IS EACH WRONG PIXEL FROM THE LAW THAT DECIDED IT (URDRVXK1)? DIAGNOSTIC ONLY.
+        Rows: coverage (every miss within a pixel, split between two mechanisms), depth (not a
+        margin defect at all, which redirects a branch of the diagnosis), refusals (the phantoms and
+        the untouched reference), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxslack as VK
+        except Exception as exc:
+            for r in ("coverage", "depth", "refusals", "selftest"):
+                self.record(f"voxslack-{r}", False, f"import failed (voxslack): {exc}")
+            return
+        c_ok, told = True, "?"
+        try:
+            told = VK.told()
+            c_ok = (VK.the_instrument_matches_the_ladder()
+                    and VK.the_population_reproduces_voxfate()
+                    and VK.the_coverage_residue_is_entirely_within_one_pixel()
+                    and VK.the_residue_splits_at_the_bias()
+                    and VK.the_on_surface_class_is_exactly_the_bias()
+                    and VK.the_record_names_this_world()
+                    and VK.the_record_is_bound_to_the_live_code()
+                    and VK.scene_result("slack") == VK.golden("slack"))
+        except Exception:
+            c_ok = False
+        self.record("voxslack-coverage", c_ok,
+                    "THE SIGN CONVENTION IS DECLARED RATHER THAN INFERRED — positive is room, zero "
+                    "is ON the decision surface, negative is failed by that much — and every slack "
+                    "is an exact integer in the units the reference itself computes in, with a "
+                    "pixel that never reached a surface recording NOTHING rather than a zero "
+                    "pretending to be a decision the reference never made. %s. THE FIRST VERSION "
+                    "OF THIS LAW DEMANDED A `beyond` CLASS AND REDDENED: the probe behind it "
+                    "bucketed on the raw edge-function magnitude and reported 95 pixels beyond a "
+                    "pixel, but the edge function is an AREA and not a distance, and dividing by "
+                    "the edge length puts every one of them inside a pixel. The law refused to be "
+                    "satisfied by a structure that was not there BEFORE the claim was written down "
+                    "— the first time in this arc that refusal has landed on the near side of a "
+                    "commit rather than the far side. THE ZERO IS PLANTED, because a zero is only "
+                    "evidence if the instrument could have produced a non-zero: `beyond` is "
+                    "demonstrated on a synthetic triangle rather than trusted"
+                    % told if c_ok else "the coverage slack census did not hold")
+        d_ok, nd = True, 0
+        try:
+            nd = VK.distribution("depth")["a_whole_cell_or_more"]
+            d_ok = (VK.the_depth_rejections_are_not_a_margin()
+                    and VK.no_stable_pixel_should_have_won_on_depth()
+                    and VK.the_depth_rejections_are_deep_inside_coverage()
+                    and VK.scene_result("buckets") == VK.golden("buckets"))
+        except Exception:
+            d_ok = False
+        self.record("voxslack-depth", d_ok,
+                    "THE 58 DEPTH REJECTIONS ARE NOT A MARGIN DEFECT AT ALL, AND THAT REDIRECTS A "
+                    "WHOLE BRANCH OF THE DIAGNOSIS. Had they sat near zero slack the depth "
+                    "comparison would be a rounding boundary worth attacking; instead %d of 58 lose "
+                    "by a WHOLE CELL OR MORE, the median is 1.27 cells, only 2 are exact ties, and "
+                    "NOT ONE should have won — a zero asserted with the negative bucket PLANTED so "
+                    "it cannot be an inability of the instrument. Meanwhile their COVERAGE slack is "
+                    "hugely POSITIVE, median 13552, so they sit deep inside the oracle's own face "
+                    "and are nowhere near a coverage boundary either. THE DEPTH COMPARISON IS DOING "
+                    "ITS JOB: the oracle's face really is farther away and it loses honestly. SO "
+                    "WHAT IS WRONG THERE IS THAT A NEARER FACE COVERS THE PIXEL AT ALL — the same "
+                    "coverage defect seen from the WINNER's side rather than the loser's — which "
+                    "means `voxfate`'s decomposition of 318 coverage, 58 depth and 2 anomaly is "
+                    "really 376 COVERAGE and 2 anomaly, with the 58 counted at the wrong end. A "
+                    "rung that had read `depth_rejected` as a depth problem would have gone looking "
+                    "for a defect in a comparison that is behaving correctly"
+                    % nd if d_ok else "the depth slack census did not hold")
+        r_ok, nph = True, 0
+        try:
+            nph = sum(1 for r in VK.census() if r[3] == "phantom")
+            r_ok = VK.the_phantoms_are_too_few_to_read() and VK.nothing_is_altered()
+        except Exception:
+            r_ok = False
+        self.record("voxslack-refusals", r_ok,
+                    "THIS RUNG IS DIAGNOSTIC ONLY AND THE ROW SAYS SO: no arm, no candidate, no "
+                    "convention moved, no renderer changed. It measures where the CURRENT reference "
+                    "sits relative to its own decision surfaces, and a rung that had also proposed "
+                    "a repair would have collapsed diagnosis and repair into one operation — "
+                    "knowing that a number improved without knowing which law was wrong, which is "
+                    "exactly the failure this arc has spent four rungs demonstrating. AND THE %d "
+                    "PHANTOMS ARE REFUSED RATHER THAN READ: the oracle returns nothing at all "
+                    "there, two is not a distribution, and the refusal is stated AS A LAW that "
+                    "reddens if the population ever grows past the point where it was honest — the "
+                    "same refusal `voxconv` states about its four impossible faces"
+                    % nph if r_ok else "the refusals did not hold")
+        s_ok = True
+        try:
+            s_ok = VK.a_tampered_row_refuses()
+            for bad in ("reached stencil 5", "cover elsewhere 5", "depth nowhere 5",
+                        "rumour 1 2 3"):
+                try:
+                    VK.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VK.VoxslackError:
+                    pass
+            for call, arg in ((VK.reached, "stencil"), (VK.distribution, "area"),
+                              (VK.scene_case, "slack2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VK.VoxslackError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("voxslack-selftest", s_ok,
+                    "eight plants bite: a pixel row relabelled to a fate outside the inherited "
+                    "vocabulary refuses typed, a reached row naming no declared PREDICATE refuses, "
+                    "a cover row and a depth row outside their declared buckets each refuse, a row "
+                    "of unknown kind refuses rather than being skipped as a comment, an undeclared "
+                    "predicate refuses rather than returning zero, an unbucketed field refuses "
+                    "rather than being bucketed on the spot — which is the failure mode that would "
+                    "let a slack be reported in units nobody declared — and an unknown scene "
+                    "refuses (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -24486,7 +24604,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
