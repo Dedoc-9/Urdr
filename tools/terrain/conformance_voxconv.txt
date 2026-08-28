@@ -20,8 +20,15 @@
 # excused 561 disagreements from ever being called defects. It falls to 10. Integer screen
 # coordinates are precisely the rays that land on lattice-plane crossings; offset the sample by half
 # a pixel and they almost all stop being degenerate. It was never a property of the world. It is a
-# property of WHERE THE RAYS WERE AIMED, and `voxevent`'s 20.1% edge-or-corner entry rate is now a
-# measurement of the sampling grid rather than of the lattice.
+# property of WHERE THE RAYS WERE AIMED at this lattice.
+#
+# THE FIRST VERSION OF THIS PARAGRAPH OVERSTATED THAT, GREEN AND PUSHED. It said `voxevent`'s 20.1%
+# edge-or-corner entry rate is now a measurement of the sampling grid rather than of the lattice —
+# with NO SCALE ATTACHED. `voxgrid` re-derived `voxevent`'s whole ladder and the artefact share is
+# 96% at the base lattice and 50% at scale 8, because subdividing by s multiplies the plane density
+# by s. The census here is at the BASE lattice, where the collapse is nearly total; the sentence
+# generalised past it, and a claim with no scale attached is a claim with room in it. This header is
+# corrected rather than the record re-pinned: no number below moves.
 #
 # THE COVERAGE DIAGNOSIS SURVIVES, WHICH IS THE POINT OF ASKING. Of the 89 surviving stable
 # disagreements: not_covered 74, depth_rejected 12, phantom 3. That is 83.1% coverage against

@@ -38,10 +38,16 @@ answers by the convention `voxevent` named and no limit can appeal past it. It i
 excused 561 disagreements from ever being called defects. It falls to 10.
 
 Integer screen coordinates are precisely the rays that land on lattice-plane crossings. Offset the
-sample by half a pixel and they almost all stop being degenerate. The degeneracy was never a
-property of the world — it is a property of *where the rays were aimed*. `voxevent` measured 20.1%
-of declared rays entering through an edge or corner and read it as a fact about the lattice; it is a
-fact about the sampling grid.
+sample by half a pixel and they almost all stop being degenerate. At this lattice the degeneracy is
+not a property of the world; it is a property of *where the rays were aimed*.
+
+**And the first version of this paragraph overstated it, green and pushed.** It said `voxevent`'s
+20.1% edge-or-corner entry rate was a fact about the sampling grid rather than the lattice, with no
+scale attached — and the answer depends on the scale. `voxgrid` re-derived `voxevent`'s whole ladder:
+the artefact share is 96% at the base lattice (1017 crossings become 40) and 50% at scale 8 (11119
+become 5507), because subdividing by *s* multiplies the plane density by *s* and a half-pixel offset
+that dodged the coarse planes cannot dodge the fine ones. The census here is at the base lattice,
+where the collapse is nearly total. The sentence generalised past it.
 
 **The coverage diagnosis survives, and that is the point of asking.** Of the 89 surviving stable
 disagreements: `not_covered` 74, `depth_rejected` 12, `phantom` 3. That is 83.1% coverage against

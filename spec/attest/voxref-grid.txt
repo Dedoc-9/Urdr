@@ -1,0 +1,48 @@
+# URDRVXG1 sampling-grid census — emitted by voxgrid.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# `voxevent`'s incidence ladder derived AGAIN under the centre convention, because
+# `voxconv` published the claim that its 20.1%% edge-or-corner entry rate is a fact
+# about the sampling grid rather than the lattice, and that claim carried no scale.
+# It is 96%% artefact at the base lattice and 50%% at the finest, and the subdivision
+# ladder is exactly the axis that separates the two causes.
+#   rung    <convention> <scale> <column> <value>
+#   share   <scale> <corner simultaneous> <centre simultaneous> <of> <rays>
+#   digest  <population digest>
+rung corner 1 visible_faces 792
+rung corner 1 merged_regions 452
+rung corner 1 hits 46685
+rung corner 1 simultaneous 1017
+rung corner 2 visible_faces 2491
+rung corner 2 merged_regions 467
+rung corner 2 hits 46685
+rung corner 2 simultaneous 6742
+rung corner 4 visible_faces 7700
+rung corner 4 merged_regions 715
+rung corner 4 hits 46685
+rung corner 4 simultaneous 8496
+rung corner 8 visible_faces 17714
+rung corner 8 merged_regions 3079
+rung corner 8 hits 46685
+rung corner 8 simultaneous 11119
+rung centre 1 visible_faces 779
+rung centre 1 merged_regions 441
+rung centre 1 hits 46667
+rung centre 1 simultaneous 40
+rung centre 2 visible_faces 2472
+rung centre 2 merged_regions 456
+rung centre 2 hits 46667
+rung centre 2 simultaneous 5245
+rung centre 4 visible_faces 7528
+rung centre 4 merged_regions 721
+rung centre 4 hits 46667
+rung centre 4 simultaneous 5245
+rung centre 8 visible_faces 17496
+rung centre 8 merged_regions 3115
+rung centre 8 hits 46667
+rung centre 8 simultaneous 5507
+share 1 1017 40 of 55296
+share 2 6742 5245 of 55296
+share 4 8496 5245 of 55296
+share 8 11119 5507 of 55296
+digest 2ac9ae00ce85db118d444cf7f2caf41a2e564449c1f7f6644c0000eace41bba8

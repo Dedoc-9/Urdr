@@ -31,6 +31,6 @@
 # it. A DETECTOR IS HANDED WHAT IT GRADES RATHER THAN IMPORTING THE WORLD TO FETCH IT: scenes
 # pin behaviour on fixtures and the LIVE artifact is graded at the gate.
 
-structure 1d1a706a1fceba83eb3e6b4449807bad88221e89ce8352fa3a27e6e4c0e4e8bb
+structure bfcf20a94b40f1b43deb71a63c325018661c8d0bb2647d8e7d743237e5e76c0a
 counterexamples 829b7ee53e09f7bd7bb2063ec070ccab0649c1dac6885f2b14cc8d47c8cd9945
-rehearse 1e8413fc7fc305c7004547408e046545f47de6de503dc2a4236d420ca4bdd593
+rehearse 3e7e23e7f1b3cd05b1a6201d33b38847285ea507c05beb2dfffafbcfbbe67f51

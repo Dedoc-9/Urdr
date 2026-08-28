@@ -21,9 +21,17 @@ no experiment could have argued with: DEGENERATE falls 561 -> 10. That class mea
 crosses two or three lattice planes at one parameter, where the ORACLE itself answers by convention
 and no limit can appeal past it — and it was never a property of the world. Integer screen
 coordinates are exactly the rays that land on lattice-plane crossings; offset the sample by half a
-pixel and they almost all stop being degenerate. `voxevent` measured 20.1% of declared rays entering
-through an edge or corner and called it a property of the lattice. It is a property of WHERE THE
-RAYS WERE AIMED.
+pixel and they almost all stop being degenerate at THIS lattice.
+
+AND THE FIRST VERSION OF THAT PARAGRAPH OVERSTATED IT, GREEN AND PUSHED. It said `voxevent` measured
+20.1% of declared rays entering through an edge or corner and called it a property of the lattice,
+and that it is a property of where the rays were aimed. The claim carried NO SCALE, and the answer
+depends on the scale: `voxgrid` re-derived `voxevent`'s whole ladder and found the artefact share is
+96% at the base lattice (1017 crossings become 40) and 50% at scale 8 (11119 become 5507), because
+subdividing by s multiplies the plane density by s and a half-pixel offset that dodged the coarse
+planes cannot dodge the fine ones. The census below is at the base lattice, where the collapse IS
+nearly total — but the sentence generalised past it, and a claim with no scale attached is a claim
+with room in it.
 
 THE COVERAGE DIAGNOSIS SURVIVES, AND THAT IS THE POINT OF ASKING. Of the 89 surviving stable
 disagreements the fates are `not_covered` 74, `depth_rejected` 12, `phantom` 3 — 83.1% coverage

@@ -1,0 +1,66 @@
+# URDRVXG1 conformance goldens — emitted by voxgrid.py, pinned by hand, compared by the gate.
+#
+# IS THE DEGENERACY THE LATTICE OR THE SAMPLING GRID? BOTH, AND THE SUBDIVISION LADDER SEPARATES
+# THEM. `voxconv` found that nine tenths of the renderer's disagreement was the sample convention,
+# and that the class which collapsed hardest was DEGENERATE — the exact ray crossing two or three
+# lattice planes at one parameter, where the oracle answers by convention. It then said, in a green
+# gate and a pushed commit, that `voxevent`'s 20.1% edge-or-corner entry rate "is a measurement of
+# the sampling grid rather than of the lattice".
+#
+# THAT WAS AN OVERSTATEMENT AND THIS RUNG IS THE CORRECTION. The claim carried NO SCALE, and the
+# answer depends on the scale — which the subdivision ladder was built to expose and which the
+# one-liner threw away.
+#
+#         scale     corner        centre      artefact share
+#             1       1017            40                96%
+#             2       6742          5245                22%
+#             4       8496          5245                38%
+#             8      11119          5507                50%
+#
+# At the base lattice the degeneracy is almost entirely the sampling grid. At the finest scale it is
+# half. The mechanism is not mysterious — subdividing by s multiplies the plane density by s, so a
+# half-pixel offset that dodged the coarse planes cannot dodge the fine ones — but it means EDGE-AND-
+# CORNER ENTRY IS A CONVENTION ARTEFACT AT COARSE SCALES AND A GENUINE PROPERTY OF THE LATTICE AT
+# FINE ONES, and no single sentence covers both ends.
+#
+# AND `voxevent`'S ACTUAL CONCLUSIONS SURVIVE, WHICH IS THE MORE IMPORTANT HALF:
+#
+#         visible faces  s=1     792 -> 779       merged regions  s=1   452 -> 441
+#         visible faces  s=8   17714 -> 17496     merged regions  s=8  3079 -> 3115
+#         merged growth s1->s2   +3.3% -> +3.4%   faces s1->s8   x22.4 -> x22.5
+#
+# Under one convention and the other the same rung says the same thing: 8x the primitives moves the
+# merged visible regions about three per cent, and the far end is censored by the ray budget. THE
+# RAY-BUDGET CENSORING SURVIVES EXACTLY — the hit count is identical at every scale under BOTH
+# conventions (46685 and 46667), which was `voxevent`'s sharpest structural result.
+#
+# DECLARED: the two conventions and the four scales, both inherited from the rungs that own them
+# rather than restated; and the four columns re-derived — a SUBSET of `voxevent.COLUMNS` on purpose,
+# because `solid_cells` and `primitives` are properties of the subdivision and CANNOT depend on
+# where a ray was aimed. Re-deriving a column that cannot move would pad this rung's agreement with
+# agreement it did not earn, and the exclusion is checked rather than trusted.
+#
+# DERIVED at claim time (L75): both ladders in full and the artefact pairs.
+#
+# WHAT EACH GOLDEN COVERS
+#   * ladder — the four columns at four scales under both conventions. THE CORNER ARM IS REQUIRED TO
+#     REPRODUCE `voxevent`'s COMMITTED LADDER EXACTLY, all four scales and all four columns, because
+#     a re-derivation that cannot reproduce the census it re-derives is measuring something else.
+#     The frames are SUMMED PER FRAME and not unioned across them, because that is what `voxevent`
+#     does and the binding compares the two — a union would be a different statistic wearing the
+#     same name, and the first version of this probe made exactly that mistake.
+#   * share — the corner and centre simultaneous counts at each scale, kept as the PAIR and never as
+#     a single ratio, so every law compares them by integer arithmetic. A share invented here would
+#     be a number this rung would then be tempted to defend.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * WHICH CONVENTION IS RIGHT. As in `voxconv`, this rung measures and does not decide.
+#   * NO CLAIM about scales past 8 or about lattices other than this one — which is the exact
+#     failure this rung exists to correct, so it is not repeated one ladder further out.
+#   * WHY THE CENTRE COUNT IS IDENTICAL AT s=2 AND s=4. It is, at 5245 both times, and a coincidence
+#     noticed is not a mechanism found.
+#   * NO REPAIR. `voxref`, `voxray` AND `voxevent` are all untouched, and every committed record
+#     stays as it is — this rung corrects a SENTENCE written about `voxevent`, not `voxevent`.
+ladder e6a30f5c78c3d790d9540566b1a0e65e25fe5b21877980f2cab898effb5c163a
+share 4d106928ff085937e257bf7653f53328aef879436aaec5b42ff873b3b311edfd

@@ -253,6 +253,7 @@ STAGE_ORDER = (
     "voxfate",
     "voxfill",
     "voxconv",
+    "voxgrid",
     "rowtext",
     "rollbench",
     "reachable",
@@ -20502,8 +20503,13 @@ class Gate:
                     "and no limit can appeal past it — the class that excused 561 disagreements "
                     "from ever being called defects. It was never a property of the world. Integer "
                     "screen coordinates are PRECISELY the rays that land on lattice-plane "
-                    "crossings, and `voxevent`'s 20.1%% edge-or-corner entry rate is now a "
-                    "measurement of the sampling grid rather than of the lattice. THE COVERAGE "
+                    "crossings. THAT PARAGRAPH FIRST WENT OUT OVERSTATED: it said `voxevent`'s "
+                    "20.1%% edge-or-corner entry rate is a measurement of the sampling grid rather "
+                    "than of the lattice, with NO SCALE ATTACHED, and the answer depends on the "
+                    "scale — `voxgrid` re-derived that whole ladder and found the artefact share "
+                    "is 96%% at the base lattice and 50%% at scale 8, since subdividing by s "
+                    "multiplies the plane density by s. THIS census is at the base lattice, where "
+                    "the collapse IS nearly total; the sentence generalised past it. THE COVERAGE "
                     "DIAGNOSIS SURVIVES, WHICH IS THE POINT OF ASKING: the population collapses "
                     "thirteenfold and the coverage SHARE does not move, which is what a real "
                     "mechanism does and what an artefact does not — compared by integer "
@@ -20562,6 +20568,117 @@ class Gate:
                     "the failure mode that would silently re-measure the thing this rung exists to "
                     "compare against — and an unknown scene refuses (gate can redden)"
                     if s_ok else "a plant failed to bite")
+
+    def voxgrid(self):
+        """IS THE DEGENERACY THE LATTICE OR THE SAMPLING GRID (URDRVXG1)? BOTH, AND THE SUBDIVISION
+        LADDER SEPARATES THEM. Rows: binding (the corner arm must reproduce `voxevent`'s committed
+        ladder exactly), separation (the artefact share at both ends, correcting a claim this tree
+        published with no scale attached), survival (`voxevent`'s actual conclusions), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxgrid as VG
+        except Exception as exc:
+            for r in ("binding", "separation", "survival", "selftest"):
+                self.record(f"voxgrid-{r}", False, f"import failed (voxgrid): {exc}")
+            return
+        b_ok, ncol = True, 0
+        try:
+            ncol = len(VG.COLUMNS)
+            b_ok = (VG.the_ray_is_the_declared_ray()
+                    and VG.the_columns_that_cannot_move_are_not_claimed()
+                    and VG.the_corner_arm_reproduces_voxevent()
+                    and VG.nothing_is_adopted())
+        except Exception:
+            b_ok = False
+        self.record("voxgrid-binding", b_ok,
+                    "THE CORNER ARM REPRODUCES `voxevent`'s COMMITTED LADDER EXACTLY — four scales "
+                    "and all %d measured columns — because a re-derivation that cannot reproduce "
+                    "the census it re-derives is measuring something else. THE FRAMES ARE SUMMED "
+                    "PER FRAME AND NOT UNIONED ACROSS THEM, because that is what `voxevent` does "
+                    "and the binding compares the two: a union would be a different statistic "
+                    "wearing the same name, and the first version of this probe made exactly that "
+                    "mistake and had to be caught by the binding rather than by reading. THE "
+                    "COLUMNS ARE A DELIBERATE SUBSET — `solid_cells` and `primitives` are "
+                    "properties of the subdivision and CANNOT depend on where a ray was aimed, so "
+                    "re-deriving them would pad this rung's agreement with agreement it did not "
+                    "earn, and the exclusion is checked rather than trusted. The ray is "
+                    "`voxfill`'s, reused rather than re-derived and checked against `voxconv`'s "
+                    "half-pixel, so two rungs cannot aim at different points while both calling it "
+                    "`centre`"
+                    % ncol if b_ok else "the re-derivation is not bound to what it re-derives")
+        s_ok2, told = True, "?"
+        try:
+            told = VG.told()
+            s_ok2 = (VG.the_degeneracy_separates_along_the_ladder()
+                     and VG.the_record_names_this_world()
+                     and VG.the_record_is_bound_to_the_live_code()
+                     and VG.scene_result("share") == VG.golden("share"))
+        except Exception:
+            s_ok2 = False
+        self.record("voxgrid-separation", s_ok2,
+                    "THIS ROW IS A CORRECTION TO A CLAIM THIS TREE PUBLISHED GREEN: %s. THE CLAIM "
+                    "CARRIED NO SCALE, and a claim with no scale attached is a claim with room in "
+                    "it — the same shape as the two defects `voxfill` produced and had to repair. "
+                    "The law demands BOTH ENDS, an overwhelming artefact share at the base lattice "
+                    "and a bounded one at the finest, so a rung that had simply restated the "
+                    "one-liner reddens here and so would one that reversed it. AND THE SHARES ARE "
+                    "KEPT AS PAIRS OF COUNTS, never as a single ratio, so every law compares them "
+                    "by integer arithmetic — a percentage invented here would be a number this "
+                    "rung would then be tempted to defend"
+                    % told if s_ok2 else "the separation did not hold")
+        v_ok = True
+        try:
+            v_ok = (VG.the_visible_surface_is_not_the_convention()
+                    and VG.the_ray_budget_censoring_survives()
+                    and VG.scene_result("ladder") == VG.golden("ladder"))
+        except Exception:
+            v_ok = False
+        self.record("voxgrid-survival", v_ok,
+                    "AND `voxevent`'s ACTUAL CONCLUSIONS SURVIVE, WHICH IS THE MORE IMPORTANT HALF. "
+                    "Its headline is the growth of the visible surface against the growth of the "
+                    "primitives, and under both conventions the same rung says the same thing: "
+                    "visible faces 792 -> 779 and merged regions 452 -> 441 at the base lattice, "
+                    "17714 -> 17496 and 3079 -> 3115 at scale 8, with the merged growth from one "
+                    "scale to the next moving +3.3% to +3.4%. Compared by integer "
+                    "cross-multiplication within five per cent, so no percentage is invented for "
+                    "the comparison itself. THE RAY-BUDGET CENSORING SURVIVES EXACTLY: the hit "
+                    "count is identical at EVERY scale under BOTH conventions, at two different "
+                    "totals (46685 and 46667) — and the row checks the totals DIFFER, because "
+                    "`identical at every scale` would otherwise be trivially true of one number. "
+                    "That was `voxevent`'s sharpest structural result and it is untouched, so the "
+                    "damage here is bounded and named: ONE RATE in one row was "
+                    "convention-conditional and nothing else that rung claimed moves"
+                    if v_ok else "the survival check did not hold")
+        p_ok = True
+        try:
+            p_ok = VG.a_tampered_row_refuses()
+            for bad in ("rung gaussian 1 hits 5", "share 3 1 2 of 4", "rumour 1 2 3"):
+                try:
+                    VG.parse("# world x\n%s\n" % bad)
+                    p_ok = False
+                except VG.VoxgridError:
+                    pass
+            for call, arg in ((VG.ladder, "gaussian"), (VG.artefact_share, 3),
+                              (VG.scene_case, "ladder2")):
+                try:
+                    call(arg)
+                    p_ok = False
+                except VG.VoxgridError:
+                    pass
+        except Exception:
+            p_ok = False
+        self.record("voxgrid-selftest", p_ok,
+                    "seven plants bite: a rung row whose column is not one of the four declared "
+                    "refuses typed, a rung row naming no declared convention refuses, a share row "
+                    "on a scale off the declared ladder refuses, a row of unknown kind refuses "
+                    "rather than being skipped as a comment, an undeclared convention refuses "
+                    "rather than defaulting to the corner, an undeclared scale refuses rather than "
+                    "being interpolated between the rungs of the ladder — which is the failure "
+                    "mode that would let this rung answer a question about a scale it never "
+                    "measured — and an unknown scene refuses (gate can redden)"
+                    if p_ok else "a plant failed to bite")
 
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
@@ -24369,7 +24486,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
