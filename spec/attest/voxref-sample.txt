@@ -1,0 +1,426 @@
+# URDRVXA1 sample-construction audit — emitted by voxsample.generate(), committed as
+# an artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# DIAGNOSTIC ONLY. `_project` untouched, no arm, no candidate, ties and phantoms
+# quarantined.
+#   predict <id> <text>
+#   verdict <id> <HIT|MISS> <what was measured>
+#   basis   <frame> <six exact dot products>
+#   trip    <worst round-trip numerator> <denominator>
+#   place   <population> <precision> <place> <count>
+#   pixel   <frame> <px> <py> <population> <full> <committed>
+#   digest  <population digest>
+predict Q4 the three sample constructions COINCIDE EXACTLY — the coverage predicate, the barycentric interpolation and `voxray`'s inversion all name the screen point (px, py) and nothing else — so the sample location is NOT the seam
+predict Q5a every one of the 318 pixels whose face the oracle says the ray hits is INSIDE the EXACT projected triangle of that face, because the ray's screen position IS the sample point
+predict Q5b every one of the 56 winner-side pixels is OUTSIDE the exact projected triangle of the face the rasteriser awarded, agreeing pixel-for-pixel with `voxwin`'s exact WORLD-space ray/face test
+predict Q6 the seam is therefore the OBJECT and not the POINT: the coverage predicate tests a quantised triangle while the oracle tests exact geometry, and the sample point is innocent
+predict Q7 the two ties and the two phantoms are untouched and stay quarantined, since neither is a sample-construction question
+verdict Q4 MISS 5 of 8 frames carry an exactly orthonormal basis
+verdict Q5a MISS 316 of 318 inside at full precision
+verdict Q5b HIT 56 of 56 outside, set-equal to voxwin's
+verdict Q6 HIT the truncation pushes 91 out and pulls 53 in
+verdict Q7 HIT ties and phantoms untouched
+basis 0 4294967296 0 0 4294967296 0 4294967296
+basis 1 4294967296 0 0 4294967296 0 4294967296
+basis 2 4294967296 0 0 4294967296 0 4294967296
+basis 3 4294967296 0 0 4294967296 0 4294967296
+basis 4 4294967296 0 0 4295069245 0 4295069245
+basis 5 4295069245 -43690 -15447 4294879916 -39942 4294852987
+basis 6 4295204642 2554 75962 4295140682 44370 4295339298
+basis 7 4294967296 0 0 4294967296 0 4294967296
+trip 2358581256 618501965350
+place cover committed outside 93
+place cover committed backface 0
+place cover committed behind 0
+place cover committed on_edge 215
+place cover committed inside 10
+place cover full outside 2
+place cover full backface 0
+place cover full behind 0
+place cover full on_edge 0
+place cover full inside 316
+place winner committed outside 3
+place winner committed backface 0
+place winner committed behind 0
+place winner committed on_edge 28
+place winner committed inside 25
+place winner full outside 56
+place winner full backface 0
+place winner full behind 0
+place winner full on_edge 0
+place winner full inside 0
+pixel 4 61 20 cover inside on_edge
+pixel 4 56 54 cover inside outside
+pixel 4 42 12 cover inside on_edge
+pixel 4 53 12 cover inside on_edge
+pixel 4 64 12 cover inside on_edge
+pixel 4 84 36 cover inside on_edge
+pixel 4 46 0 cover inside on_edge
+pixel 4 75 45 cover inside on_edge
+pixel 4 15 12 cover inside on_edge
+pixel 4 19 0 cover inside on_edge
+pixel 4 37 36 cover inside on_edge
+pixel 4 83 12 cover inside on_edge
+pixel 4 48 54 cover inside outside
+pixel 4 22 20 cover inside on_edge
+pixel 4 45 12 cover inside on_edge
+pixel 4 34 12 cover inside on_edge
+pixel 4 38 0 cover inside on_edge
+pixel 4 67 36 cover inside on_edge
+pixel 4 78 36 cover inside on_edge
+pixel 4 78 45 cover inside on_edge
+pixel 4 23 20 cover inside on_edge
+pixel 4 67 54 cover inside outside
+pixel 4 78 54 cover inside outside
+pixel 4 29 36 cover inside on_edge
+pixel 4 40 36 cover inside on_edge
+pixel 4 29 54 cover inside outside
+pixel 4 64 20 cover inside on_edge
+pixel 4 2 36 cover inside on_edge
+pixel 4 59 36 cover inside on_edge
+pixel 4 59 45 cover inside on_edge
+pixel 4 87 36 cover inside on_edge
+pixel 4 49 0 cover inside on_edge
+pixel 4 21 36 cover inside on_edge
+pixel 4 18 12 cover inside on_edge
+pixel 4 49 36 cover inside on_edge
+pixel 4 60 36 cover inside on_edge
+pixel 4 11 0 cover inside on_edge
+pixel 4 86 12 cover inside on_edge
+pixel 4 68 0 cover inside on_edge
+pixel 4 37 12 cover inside on_edge
+pixel 4 48 12 cover inside on_edge
+pixel 4 79 36 cover inside on_edge
+pixel 4 41 0 cover inside on_edge
+pixel 4 52 0 cover inside on_edge
+pixel 4 70 54 cover inside outside
+pixel 4 81 54 cover inside outside
+pixel 4 10 12 cover inside on_edge
+pixel 4 14 0 cover inside on_edge
+pixel 4 32 36 cover inside on_edge
+pixel 4 67 12 cover inside on_edge
+pixel 4 78 12 cover inside on_edge
+pixel 4 32 54 cover inside outside
+pixel 4 67 21 cover inside inside
+pixel 4 29 12 cover inside on_edge
+pixel 4 40 12 cover inside on_edge
+pixel 4 22 0 cover inside on_edge
+pixel 4 51 36 cover inside on_edge
+pixel 4 62 36 cover inside on_edge
+pixel 4 73 36 cover inside on_edge
+pixel 4 62 45 cover inside on_edge
+pixel 4 73 45 cover inside on_edge
+pixel 4 51 54 cover inside outside
+pixel 4 86 20 cover inside on_edge
+pixel 4 13 36 cover inside on_edge
+pixel 4 24 36 cover inside on_edge
+pixel 4 35 36 cover inside on_edge
+pixel 4 59 12 cover inside on_edge
+pixel 4 43 36 cover inside on_edge
+pixel 4 54 36 cover inside on_edge
+pixel 4 82 36 cover inside on_edge
+pixel 4 54 54 cover inside outside
+pixel 4 44 0 cover inside on_edge
+pixel 4 5 36 cover inside on_edge
+pixel 4 16 36 cover inside on_edge
+pixel 4 44 36 cover inside on_edge
+pixel 4 81 12 cover inside on_edge
+pixel 4 63 0 cover inside on_edge
+pixel 4 32 12 cover inside on_edge
+pixel 4 74 36 cover inside on_edge
+pixel 4 85 36 cover inside on_edge
+pixel 4 36 0 cover inside on_edge
+pixel 4 25 0 cover inside on_edge
+pixel 4 65 54 cover inside outside
+pixel 4 89 20 cover inside on_edge
+pixel 4 27 36 cover inside on_edge
+pixel 4 51 12 cover inside on_edge
+pixel 4 62 12 cover inside on_edge
+pixel 4 27 54 cover inside outside
+pixel 4 66 0 cover inside on_edge
+pixel 4 13 12 cover inside on_edge
+pixel 4 35 12 cover inside on_edge
+pixel 4 17 0 cover inside on_edge
+pixel 4 46 36 cover inside on_edge
+pixel 4 57 36 cover inside on_edge
+pixel 4 46 54 cover inside outside
+pixel 4 57 54 cover inside outside
+pixel 4 19 36 cover inside on_edge
+pixel 4 43 12 cover inside on_edge
+pixel 4 54 12 cover inside on_edge
+pixel 4 82 12 cover inside on_edge
+pixel 4 47 0 cover inside on_edge
+pixel 4 76 36 cover inside on_edge
+pixel 4 76 45 cover inside on_edge
+pixel 4 16 12 cover inside on_edge
+pixel 4 38 36 cover inside on_edge
+pixel 4 77 36 cover inside on_edge
+pixel 4 39 0 cover inside on_edge
+pixel 4 62 20 cover inside on_edge
+pixel 4 39 36 cover inside on_edge
+pixel 4 65 12 cover inside on_edge
+pixel 4 24 20 cover inside on_edge
+pixel 4 69 0 cover inside on_edge
+pixel 4 27 12 cover inside on_edge
+pixel 4 69 36 cover inside on_edge
+pixel 4 20 0 cover inside on_edge
+pixel 4 60 45 cover inside on_edge
+pixel 4 84 12 cover inside on_edge
+pixel 4 49 54 cover inside outside
+pixel 4 11 36 cover inside on_edge
+pixel 4 46 12 cover inside on_edge
+pixel 4 57 12 cover inside on_edge
+pixel 4 50 0 cover inside on_edge
+pixel 4 68 36 cover inside on_edge
+pixel 4 68 54 cover inside outside
+pixel 4 79 54 cover inside outside
+pixel 4 12 0 cover inside on_edge
+pixel 4 41 36 cover inside on_edge
+pixel 4 52 36 cover inside on_edge
+pixel 4 52 54 cover inside outside
+pixel 4 30 54 cover inside outside
+pixel 4 26 20 cover inside on_edge
+pixel 4 65 20 cover inside on_edge
+pixel 4 3 36 cover inside on_edge
+pixel 4 14 36 cover inside on_edge
+pixel 4 38 12 cover inside on_edge
+pixel 4 71 36 cover inside on_edge
+pixel 4 27 20 cover inside on_edge
+pixel 4 0 12 cover inside on_edge
+pixel 4 22 36 cover inside on_edge
+pixel 4 33 36 cover inside on_edge
+pixel 4 23 0 cover inside on_edge
+pixel 4 23 36 cover inside on_edge
+pixel 4 49 12 cover inside on_edge
+pixel 4 60 12 cover inside on_edge
+pixel 4 42 0 cover inside on_edge
+pixel 4 64 0 cover inside on_edge
+pixel 4 82 54 cover inside outside
+pixel 4 11 12 cover inside on_edge
+pixel 4 64 36 cover inside on_edge
+pixel 4 15 0 cover inside on_edge
+pixel 4 68 12 cover inside on_edge
+pixel 4 79 12 cover inside on_edge
+pixel 4 6 36 cover inside on_edge
+pixel 4 30 12 cover inside on_edge
+pixel 4 41 12 cover inside on_edge
+pixel 4 52 12 cover inside on_edge
+pixel 4 45 0 cover inside on_edge
+pixel 4 63 36 cover inside on_edge
+pixel 4 63 45 cover inside on_edge
+pixel 4 74 45 cover inside on_edge
+pixel 4 14 12 cover inside on_edge
+pixel 4 87 20 cover inside on_edge
+pixel 4 25 36 cover inside on_edge
+pixel 4 36 36 cover inside on_edge
+pixel 4 33 12 cover inside on_edge
+pixel 4 55 36 cover inside on_edge
+pixel 4 55 54 cover inside outside
+pixel 4 66 54 cover inside outside
+pixel 4 17 36 cover inside on_edge
+pixel 4 28 36 cover inside on_edge
+pixel 4 56 36 cover inside on_edge
+pixel 4 28 54 cover inside outside
+pixel 4 18 0 cover inside on_edge
+pixel 4 51 61 cover inside inside
+pixel 4 18 36 cover inside on_edge
+pixel 4 47 36 cover inside on_edge
+pixel 4 44 12 cover inside on_edge
+pixel 4 75 36 cover inside on_edge
+pixel 4 86 36 cover inside on_edge
+pixel 4 47 54 cover inside outside
+pixel 4 37 0 cover inside on_edge
+pixel 4 48 0 cover inside on_edge
+pixel 4 77 45 cover inside on_edge
+pixel 4 77 54 cover inside outside
+pixel 4 48 36 cover inside on_edge
+pixel 4 10 0 cover inside on_edge
+pixel 4 63 12 cover inside on_edge
+pixel 4 85 12 cover inside on_edge
+pixel 4 67 0 cover inside on_edge
+pixel 4 36 12 cover inside on_edge
+pixel 4 40 0 cover inside on_edge
+pixel 4 58 36 cover inside on_edge
+pixel 4 69 54 cover inside outside
+pixel 4 20 36 cover inside on_edge
+pixel 4 55 12 cover inside on_edge
+pixel 4 66 12 cover inside on_edge
+pixel 4 31 54 cover inside outside
+pixel 4 88 36 cover inside on_edge
+pixel 4 17 12 cover inside on_edge
+pixel 4 28 12 cover inside on_edge
+pixel 4 56 12 cover inside on_edge
+pixel 4 21 0 cover inside on_edge
+pixel 4 50 36 cover inside on_edge
+pixel 4 61 36 cover inside on_edge
+pixel 4 61 45 cover inside on_edge
+pixel 4 50 54 cover inside outside
+pixel 4 39 53 cover inside inside
+pixel 4 63 20 cover inside on_edge
+pixel 4 85 20 cover inside on_edge
+pixel 4 1 36 cover inside on_edge
+pixel 4 12 36 cover inside on_edge
+pixel 4 47 12 cover inside on_edge
+pixel 4 80 36 cover inside on_edge
+pixel 4 25 20 cover inside on_edge
+pixel 4 80 54 cover inside outside
+pixel 4 39 12 cover inside on_edge
+pixel 4 70 36 cover inside on_edge
+pixel 4 81 36 cover inside on_edge
+pixel 4 66 20 cover inside on_edge
+pixel 4 58 12 cover inside on_edge
+pixel 4 69 12 cover inside on_edge
+pixel 4 51 0 cover inside on_edge
+pixel 4 62 0 cover inside on_edge
+pixel 4 31 12 cover inside on_edge
+pixel 4 13 0 cover inside on_edge
+pixel 4 24 0 cover inside on_edge
+pixel 4 42 36 cover inside on_edge
+pixel 4 53 36 cover inside on_edge
+pixel 4 64 45 cover inside on_edge
+pixel 4 53 54 cover inside outside
+pixel 4 64 54 cover inside outside
+pixel 4 4 36 cover inside on_edge
+pixel 4 15 36 cover inside on_edge
+pixel 4 50 12 cover inside on_edge
+pixel 4 61 12 cover inside on_edge
+pixel 4 43 0 cover inside on_edge
+pixel 4 72 36 cover inside on_edge
+pixel 4 83 36 cover inside on_edge
+pixel 4 72 45 cover inside on_edge
+pixel 4 83 54 cover inside outside
+pixel 4 12 12 cover inside on_edge
+pixel 4 1 12 cover inside on_edge
+pixel 4 16 0 cover inside on_edge
+pixel 4 34 36 cover inside on_edge
+pixel 4 45 36 cover inside on_edge
+pixel 4 80 12 cover inside on_edge
+pixel 4 45 54 cover inside outside
+pixel 4 7 36 cover inside on_edge
+pixel 4 65 0 cover inside on_edge
+pixel 4 88 20 cover inside on_edge
+pixel 4 26 36 cover inside on_edge
+pixel 4 26 54 cover inside outside
+pixel 4 3 12 winner outside on_edge
+pixel 4 25 12 winner outside on_edge
+pixel 4 72 54 winner outside inside
+pixel 4 76 54 winner outside inside
+pixel 4 5 12 winner outside on_edge
+pixel 4 34 54 winner outside inside
+pixel 4 71 12 winner outside on_edge
+pixel 4 7 12 winner outside on_edge
+pixel 4 14 54 winner outside inside
+pixel 4 73 12 winner outside on_edge
+pixel 4 36 54 winner outside inside
+pixel 4 20 12 winner outside on_edge
+pixel 4 77 12 winner outside on_edge
+pixel 4 75 12 winner outside on_edge
+pixel 4 18 54 winner outside inside
+pixel 4 9 12 winner outside on_edge
+pixel 4 16 54 winner outside inside
+pixel 4 38 54 winner outside inside
+pixel 4 71 54 winner outside inside
+pixel 4 22 12 winner outside on_edge
+pixel 4 73 54 winner outside inside
+pixel 4 2 12 winner outside on_edge
+pixel 4 24 12 winner outside on_edge
+pixel 4 75 54 winner outside inside
+pixel 4 4 12 winner outside on_edge
+pixel 4 70 12 winner outside on_edge
+pixel 4 9 36 winner outside on_edge
+pixel 4 6 12 winner outside on_edge
+pixel 4 66 36 winner outside on_edge
+pixel 4 26 12 winner outside on_edge
+pixel 4 33 54 winner outside inside
+pixel 4 13 54 winner outside inside
+pixel 4 35 54 winner outside inside
+pixel 4 72 12 winner outside on_edge
+pixel 4 19 12 winner outside on_edge
+pixel 4 8 12 winner outside on_edge
+pixel 4 74 12 winner outside on_edge
+pixel 4 15 54 winner outside inside
+pixel 4 37 54 winner outside inside
+pixel 4 23 12 winner outside on_edge
+pixel 4 8 36 winner outside on_edge
+pixel 4 65 36 winner outside on_edge
+pixel 4 10 36 winner outside on_edge
+pixel 4 17 54 winner outside inside
+pixel 4 76 12 winner outside on_edge
+pixel 4 19 54 winner outside inside
+pixel 4 74 54 winner outside inside
+pixel 5 34 66 cover inside outside
+pixel 5 15 25 cover outside outside
+pixel 5 18 26 cover outside outside
+pixel 5 56 48 cover inside outside
+pixel 5 60 23 cover inside outside
+pixel 5 7 33 cover inside outside
+pixel 5 63 41 cover inside outside
+pixel 5 72 28 cover inside outside
+pixel 5 52 22 cover inside outside
+pixel 5 60 40 cover inside outside
+pixel 5 10 30 cover inside outside
+pixel 5 33 31 cover inside outside
+pixel 5 36 32 cover inside outside
+pixel 5 28 64 cover inside outside
+pixel 5 9 60 cover inside outside
+pixel 5 28 23 cover inside inside
+pixel 5 81 25 cover inside outside
+pixel 5 47 22 cover inside outside
+pixel 5 81 47 cover inside outside
+pixel 5 54 38 cover inside outside
+pixel 5 57 39 cover inside outside
+pixel 5 27 34 cover inside outside
+pixel 5 30 30 cover inside outside
+pixel 5 33 39 cover inside outside
+pixel 5 2 60 cover inside outside
+pixel 5 9 59 cover inside outside
+pixel 5 10 69 cover inside inside
+pixel 5 45 35 cover inside outside
+pixel 5 6 34 cover inside outside
+pixel 5 17 53 cover inside outside
+pixel 5 29 45 cover inside outside
+pixel 5 52 23 cover inside outside
+pixel 5 47 57 cover inside outside
+pixel 5 66 29 cover inside outside
+pixel 5 20 30 cover inside outside
+pixel 5 65 55 cover inside outside
+pixel 5 69 43 cover inside outside
+pixel 5 49 51 cover inside outside
+pixel 5 69 29 cover inside outside
+pixel 5 35 45 cover inside outside
+pixel 5 80 43 cover inside outside
+pixel 5 72 44 cover inside outside
+pixel 5 25 64 winner outside inside
+pixel 5 12 62 winner outside outside
+pixel 5 22 54 winner outside outside
+pixel 6 55 66 cover inside outside
+pixel 6 29 44 cover inside inside
+pixel 6 55 65 cover inside inside
+pixel 6 36 70 cover inside outside
+pixel 6 46 55 cover inside outside
+pixel 6 66 28 cover inside inside
+pixel 6 58 23 cover inside outside
+pixel 6 23 52 cover inside outside
+pixel 6 63 64 cover inside outside
+pixel 6 44 36 cover inside outside
+pixel 6 58 64 cover inside outside
+pixel 6 52 44 cover inside outside
+pixel 6 2 20 cover inside outside
+pixel 6 44 35 cover inside outside
+pixel 6 65 66 cover inside inside
+pixel 6 36 26 cover inside outside
+pixel 6 61 55 cover inside outside
+pixel 6 31 54 cover inside outside
+pixel 6 62 32 cover inside outside
+pixel 6 60 71 cover inside outside
+pixel 6 19 20 cover inside outside
+pixel 6 44 67 cover inside outside
+pixel 6 12 20 cover inside outside
+pixel 6 52 43 cover inside inside
+pixel 6 44 31 winner outside outside
+pixel 6 13 23 winner outside inside
+pixel 6 14 61 winner outside inside
+pixel 6 31 25 winner outside inside
+pixel 6 12 45 winner outside inside
+pixel 6 20 34 winner outside inside
+digest 2247ec5f39b4aaae6e0cfe1bf6c5faa9a868b0aeab0a10823aee03c26646acb1

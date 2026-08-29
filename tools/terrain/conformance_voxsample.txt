@@ -1,0 +1,83 @@
+# URDRVXA1 sample-construction audit — emitted by voxsample.py, pinned by hand, compared by the gate.
+#
+# DIAGNOSTIC ONLY. No arm, no candidate, no altered renderer, no moved convention, and the 2 exact
+# ties and 2 phantoms stay QUARANTINED — neither is a sample-construction question.
+#
+# `voxproj` eliminated the rounding DIRECTION as the governing defect. The next question is not more
+# precision but whether the two programs are describing the same point at all. Three constructions,
+# compared exactly: the fill rule's coverage predicate, the depth barycentrics, and `voxray`'s
+# inversion of (px, py) through the camera basis.
+#
+# THE ANSWER IS NO, ON THREE OF THE EIGHT DECLARED FRAMES. The integer camera basis is EXACTLY
+# orthonormal on five and NOT on the other three — frames 4, 5 and 6 carry non-zero off-diagonal dot
+# products and three different row norms — so `ray_for_pixel` is an APPROXIMATE inverse there, not
+# an exact one, and `voxray`'s own docstring calls it a derivation by inversion without saying
+# which. The departure is bounded and now MEASURED as an exact fraction rather than read off a
+# float: under a quarter of one sub-pixel unit at the ladder's denominator.
+#
+# BUT THAT IS NOT THE SEAM, AND THE REAL ONE IS UPSTREAM OF EVERY RUNG SO FAR. Carry the Q16 basis
+# multiply at FULL PRECISION and project the faces exactly:
+#
+#     the oracle's face CONTAINS the sample at   316 of 318
+#     the winner's face EXCLUDES the sample at    56 of 56
+#
+# The second agrees PIXEL FOR PIXEL with `voxwin`'s independent world-space ray/face test — two
+# exact computations, one in screen space and one in world space, reaching the same verdict on the
+# same pixels, asserted as SET EQUALITY rather than a matching count. THE GEOMETRY IS RIGHT. The
+# projection is not lying about which face covers which pixel.
+#
+# NOW PUT BACK THE ONE TRUNCATION `voxref._project` ACTUALLY PERFORMS — the `>> 16` that turns the
+# Q16 basis multiply into an integer camera coordinate, BEFORE any screen quantisation, BEFORE the
+# fill rule, and upstream of everything this arc has examined:
+#
+#     the oracle's face:  316 inside  ->   10 inside, 215 ON THE EDGE, 93 OUTSIDE
+#     the winner's face:   56 outside ->   25 inside,  28 on the edge,  3 outside
+#
+# NINETY-ONE PIXELS ARE PUSHED OUT OF A FACE THAT GEOMETRICALLY CONTAINS THEM AND FIFTY-THREE ARE
+# PULLED INTO A FACE THAT DOES NOT, BY A SINGLE SHIFT. That is the dominant term, and no rung has
+# looked at it: `voxcand` tested winding and weights, `voxfill` tested the fill rule, `voxconv` and
+# `voxgrid` tested the sample convention, `voxproj` tested the screen-space rounding direction. The
+# camera-space truncation was upstream of all of them.
+#
+# AND IT EXPLAINS THE 215. Under the truncation they land EXACTLY ON THE EDGE — and they are exactly
+# the pixels `voxslack` measured at coverage slack -1, asserted as SET EQUALITY against an
+# independently computed population. THE TOP-LEFT CONVENTION IS NOT CREATING THAT CLASS. The
+# truncation puts the sample precisely on the edge and the convention then rejects it, which makes
+# the convention the last step in a chain rather than the cause — and `voxfill` and `voxconv` were
+# right to exonerate it twice.
+#
+# THE PREDICTION WAS WRITTEN BEFORE THE ARM RAN and is pinned as data here and in the module. Three
+# of five hit and two missed:
+#
+#     Q4   the three constructions coincide exactly              MISS   5 of 8 frames
+#     Q5a  every one of the 318 is inside at full precision      MISS   316 of 318
+#     Q5b  every one of the 56 is outside, set-equal to voxwin   HIT    56 of 56
+#     Q6   the seam is the OBJECT and not the POINT              HIT    91 out, 53 in
+#     Q7   the ties and phantoms stay quarantined                HIT    untouched
+#
+# DECLARED: the three constructions; the two precisions, differing ONLY by the `>> 16`; the five
+# places a sample can fall relative to an exact projected quad; and the five predictions.
+#
+# DERIVED at claim time (L75): every place at both precisions, the basis dot products, the exact
+# round-trip bound, every verdict, and the population digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * places — both populations at both precisions. The pair differs by ONE shift and nothing else,
+#     which is what makes it a single-variable comparison rather than two projections.
+#   * basis — the six exact dot products per frame, which frames are exactly orthonormal, and the
+#     worst round-trip offset AS AN EXACT FRACTION, because the quantity being bounded is smaller
+#     than a sub-pixel and a float would be reporting its own rounding.
+#   * verdicts — every declared prediction with its outcome; the verdict set is required to equal
+#     the declared set, so a rung cannot report its hits and lose its misses.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * ANY REPAIR. `_project` is untouched and naming a term is not fixing it.
+#   * WHETHER REMOVING THE TRUNCATION IS AFFORDABLE OR EVEN COHERENT. The reference is integer by
+#     contract and carrying full precision changes what the depth buffer holds, so that is a design
+#     question and a separate rung.
+#   * ANY MECHANISM for the two exceptions at full precision.
+#   * NO GENERALISATION past the declared trace, and the ties and phantoms stay quarantined.
+places 3a93c3c8b5c45b9ba0c0c78a9bd8ac598948a38a750e5ccbb30d8dafec32be60
+basis e0581dcfe0524161a7fab13127f61f201d852b0f205cf761cfb9f3682dea4568
+verdicts 5d9f50d6996e7e645f73cf0a560c847dffc9a3ac8de6932d846deeb1569144c0

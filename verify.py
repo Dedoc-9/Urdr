@@ -257,6 +257,7 @@ STAGE_ORDER = (
     "voxslack",
     "voxwin",
     "voxproj",
+    "voxsample",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21012,6 +21013,129 @@ class Gate:
                     "scene refuses (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxsample(self):
+        """ARE THE RASTERISER AND THE ORACLE TALKING ABOUT THE SAME SAMPLE POINT (URDRVXA1)? Rows:
+        basis (the integer camera basis is not always orthonormal, and the departure is bounded),
+        geometry (at full precision the projection is right, set-equal to `voxwin`'s world-space
+        test), truncation (the `>> 16` upstream of every rung is the dominant term), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxsample as VA
+        except Exception as exc:
+            for r in ("basis", "geometry", "truncation", "selftest"):
+                self.record(f"voxsample-{r}", False, f"import failed (voxsample): {exc}")
+            return
+        b_ok, no = True, 0
+        try:
+            no = len(VA.orthonormal_frames())
+            b_ok = (VA.the_place_test_bites_in_every_direction()
+                    and VA.the_basis_is_not_always_orthonormal()
+                    and VA.the_round_trip_departure_is_bounded()
+                    and VA.scene_result("basis") == VA.golden("basis"))
+        except Exception:
+            b_ok = False
+        self.record("voxsample-basis", b_ok,
+                    "THE THREE SAMPLE CONSTRUCTIONS DO NOT ALL COINCIDE, and this is the first rung "
+                    "to check. The fill rule's coverage predicate and the depth barycentrics read "
+                    "the SAME three edge values at the SAME point, so those two agree by "
+                    "construction; but `voxray.ray_for_pixel` inverts the pixel through the CAMERA "
+                    "BASIS, and that basis is exactly orthonormal on only %d of the declared frames "
+                    "— the rest carry non-zero off-diagonal dot products and three different row "
+                    "norms, so the inversion is APPROXIMATE there and `voxray`'s docstring calls it "
+                    "a derivation by inversion without saying which. THE DEPARTURE IS BOUNDED AND "
+                    "MEASURED AS AN EXACT FRACTION rather than read off a float, because the "
+                    "quantity being bounded is smaller than a sub-pixel and a float would be "
+                    "reporting its own rounding: under a quarter of one sub-pixel unit at the "
+                    "ladder's denominator. The place test is PLANTED in every direction — inside, "
+                    "outside and exactly-on — because a test answering one word everywhere would "
+                    "manufacture whatever this rung claims"
+                    % no if b_ok else "the basis audit did not hold")
+        g_ok, told = True, "?"
+        try:
+            told = VA.told()
+            g_ok = (VA.the_geometry_is_right_at_full_precision()
+                    and VA.the_screen_and_world_tests_agree()
+                    and VA.the_ties_and_phantoms_are_quarantined()
+                    and VA.every_prediction_has_a_verdict()
+                    and VA.the_record_carries_hits_and_misses()
+                    and VA.the_record_names_this_world()
+                    and VA.the_record_is_bound_to_the_live_code()
+                    and VA.scene_result("verdicts") == VA.golden("verdicts"))
+        except Exception:
+            g_ok = False
+        self.record("voxsample-geometry", g_ok,
+                    "%s. THE PREDICTION WAS WRITTEN BEFORE THE ARM RAN and every one of the five is "
+                    "SCORED, so the rung cannot report its hits and lose its misses. AND THE "
+                    "AGREEMENT WITH `voxwin` IS SET EQUALITY, NOT A MATCHING COUNT: the pixels this "
+                    "rung finds outside the winner's exact projected triangle in SCREEN space must "
+                    "be exactly the pixels `voxwin` found the ray to miss in WORLD space — two "
+                    "exact computations in different spaces reaching the same verdict on the same "
+                    "pixels, which a count would pass while naming different ones. THE TIES AND "
+                    "PHANTOMS ARE QUARANTINED: neither is a sample-construction question and this "
+                    "rung does not touch either"
+                    % told if g_ok else "the geometry audit did not hold")
+        t_ok = True
+        try:
+            t_ok = (VA.the_camera_truncation_is_the_dominant_term()
+                    and VA.the_on_edge_class_is_made_by_the_truncation()
+                    and VA.nothing_is_altered()
+                    and VA.scene_result("places") == VA.golden("places"))
+        except Exception:
+            t_ok = False
+        self.record("voxsample-truncation", t_ok,
+                    "THE SEAM IS UPSTREAM OF EVERY RUNG THIS ARC HAS RUN. Put back the ONE `>> 16` "
+                    "that `voxref._project` performs — the shift that turns the Q16 basis multiply "
+                    "into an integer camera coordinate, BEFORE any screen quantisation and BEFORE "
+                    "the fill rule — and 91 pixels are pushed OUT of a face that geometrically "
+                    "contains them while 53 are pulled IN to one that does not. `voxcand` tested "
+                    "winding and weights, `voxfill` tested the fill rule, `voxconv` and `voxgrid` "
+                    "tested the sample convention, `voxproj` tested the screen-space rounding "
+                    "direction; the camera-space truncation was upstream of all of them. AND IT "
+                    "EXPLAINS THE 215: under the truncation they land EXACTLY ON THE EDGE, and they "
+                    "are SET-EQUAL to `voxslack`'s coverage-slack -1 class — so the top-left "
+                    "convention is not creating that class, the truncation puts the sample "
+                    "precisely on the edge and the convention then rejects it, which makes the "
+                    "convention the LAST STEP IN A CHAIN rather than the cause and vindicates "
+                    "`voxfill` and `voxconv` for exonerating it twice. NOTHING IS ALTERED: "
+                    "`_project` is untouched, no arm is run, and NAMING A TERM IS NOT FIXING IT — "
+                    "whether the truncation can be removed at all is a design question about an "
+                    "integer contract and belongs to a separate rung"
+                    if t_ok else "the truncation audit did not hold")
+        s_ok = True
+        try:
+            s_ok = VA.a_tampered_row_refuses()
+            for bad in ("place cover double inside 1", "verdict Q9 HIT nothing", "rumour 1 2 3"):
+                try:
+                    VA.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VA.VoxsampleError:
+                    pass
+            for call, arg in ((VA.population, "elsewhere"), (VA.scene_case, "places2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VA.VoxsampleError:
+                    pass
+            try:
+                VA.distribution("cover", "double")
+                s_ok = False
+            except VA.VoxsampleError:
+                pass
+        except Exception:
+            s_ok = False
+        self.record("voxsample-selftest", s_ok,
+                    "seven plants bite: a pixel row relabelled to a place outside the five declared "
+                    "refuses typed, a place row naming an undeclared PRECISION refuses, a verdict "
+                    "row naming no declared prediction refuses, a row of unknown kind refuses "
+                    "rather than being skipped as a comment, an unknown population refuses rather "
+                    "than returning empty, an undeclared precision refuses rather than defaulting "
+                    "to the committed one — which is the failure mode that would let the whole "
+                    "comparison collapse into one arm — and an unknown scene refuses (gate can "
+                    "redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -24818,7 +24942,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
