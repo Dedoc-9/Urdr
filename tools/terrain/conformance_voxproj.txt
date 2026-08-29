@@ -1,0 +1,70 @@
+# URDRVXP1 projection candidate — emitted by voxproj.py, pinned by hand, compared by the gate.
+#
+# THE CANDIDATE LAW, PREDICTED BEFORE IT RAN, AND REFUSED ON EVIDENCE.
+#
+# The diagnosis closed at `voxwin`: 374 coverage, 2 tie, 2 phantom. `voxslack` split the coverage
+# class by signed distance — 215 failing by exactly -1, which is the top-left convention, and 103
+# failing by a real but sub-pixel amount, which is the floored projected vertex. This rung takes the
+# second of those and proposes ONE change to the coordinate construction:
+#
+#     control      the committed integer vertex quantisation — floor
+#     candidate    round-to-nearest, exact, at the same sub-pixel denominator
+#
+# ONE VARIABLE. No fill-rule change, no convention change, no combination. The two arms differ by at
+# most ONE sub-pixel unit and AGREE wherever the division is exact — checked on constructed camera
+# points in both directions rather than argued from the formula — which is what makes this a single
+# step rather than a different renderer.
+#
+# THE PREDICTION WAS WRITTEN INTO THE MODULE BEFORE A FRAME WAS RENDERED, and is pinned as DATA in
+# the module and again in this record, so the committed artifact carries what was CLAIMED as well as
+# what was measured. Five statements, each with a verdict computed separately from the arm and never
+# from the prediction's own text, and every one of them scored:
+#
+#     P1  the sub-pixel misses largely close, MORE THAN HALF     MISS   12 of 103
+#     P2  the on-surface misses do NOT close                     HIT     0 of 215
+#     P3  the winner-side misses fall in rough proportion        MISS   5.4% against 11.7%
+#     P4  no regression: the candidate gains more than it loses  MISS   +23 against -34
+#     P5  the ties and phantoms are not swallowed                HIT    both unchanged
+#
+# TWO HITS AND THREE MISSES, AND THE CANDIDATE IS REFUSED. Net agreement goes 45550 -> 45539: it is
+# ELEVEN PIXELS WORSE. Impossible faces move 152 -> 151. Twelve of the hundred and three sub-pixel
+# misses close and thirty-four pixels elsewhere break, and a repair that costs more than it buys is
+# not a repair however good its motivation.
+#
+# AND THE MISS IS THE INFORMATIVE PART. Round-to-nearest halves the worst-case quantisation error
+# and removes its systematic direction, and NINETY-ONE OF THE HUNDRED AND THREE SURVIVE IT. So the
+# sub-pixel residue is NOT a rounding-direction defect. The vertex being floored rather than rounded
+# is not what puts those samples on the wrong side of the edge; something else about the coordinate
+# construction is, and this rung has eliminated the most obvious candidate for it BY MEASUREMENT
+# rather than by argument.
+#
+# P2 IS THE HIT WORTH KEEPING. Not one of the 215 on-surface misses closed — exactly as predicted,
+# because they fail by the top-left convention and not by quantisation at all. A candidate that had
+# closed them would have been evidence the mechanism reading was wrong, and it did not.
+#
+# DECLARED: the two arms; the five predictions, pinned as data before the arm ran; and the five
+# populations, each inherited from the rung that classified it rather than restated here.
+#
+# DERIVED at claim time (L75): both arm readings, every verdict, and the digest over both.
+#
+# WHAT EACH GOLDEN COVERS
+#   * arms — both arms with agreement, impossible faces, the GAINED/LOST split over the whole
+#     framebuffer, the changed count, and how many pixels of each declared population closed. The
+#     gained/lost split is never netted into one number, because a rung reporting only the rescue
+#     would be reporting the half of the ledger it chose.
+#   * verdicts — every declared prediction with its outcome and what was measured. EVERY prediction
+#     is scored: `every_prediction_has_a_verdict` requires the verdict set to equal the declared
+#     set, so a rung cannot report its hits and lose its misses somewhere between the measurement
+#     and the record.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE.
+#   * THAT MORE PRECISION WOULD HELP. A finer sub-pixel denominator is a DIFFERENT single variable
+#     and running it here would have made this two, so it is named as the next rung and not
+#     attempted.
+#   * ANY MECHANISM for the surviving 91.
+#   * NO ADOPTION. `voxref` and `voxray` are untouched, the candidate is not promoted, the two ties
+#     are not used to tune anything, and the two phantoms stay RED rather than being folded into a
+#     carve-out — a clean repair does not get to claim success by silently changing the oracle.
+arms 9b2b7f485c59df12fb26cd254a8965713fd7f33682edd248bd5f924461e3a361
+verdicts 62d1af9785d6025bcccdcece9b12304f4403b808ec6fc4db4a9da2353c9ca6f4

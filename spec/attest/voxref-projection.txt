@@ -1,0 +1,36 @@
+# URDRVXP1 projection candidate — emitted by voxproj.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# ONE VARIABLE: the projected vertex is FLOORED in the control and ROUNDED TO NEAREST
+# in the candidate, by exact integer arithmetic, at the same sub-pixel denominator.
+# THE PREDICTION WAS WRITTEN INTO THE MODULE BEFORE A FRAME WAS RENDERED and is pinned
+# as data. Two of its five statements hit and three missed, and THE CANDIDATE IS
+# REFUSED: net agreement falls by eleven pixels.
+#   predict <id> <text>
+#   verdict <id> <HIT|MISS> <what was measured>
+#   arm     <arm> <agree> <impossible> <gained> <lost> <changed>
+#   closed  <arm> <population> <count>
+#   digest  <population digest>
+predict P1 the 103 sub-pixel `outside` coverage misses largely close — MORE THAN HALF of them — because they fail by about one quantisation unit and round-to-nearest halves the worst-case error while removing its systematic direction
+predict P2 the 215 on-surface misses DO NOT close, because they fail by exactly -1 through the top-left convention and not through quantisation at all; a candidate that closed them would be evidence the mechanism reading is wrong
+predict P3 the 56 one-pixel-over winners fall in rough proportion to the coverage misses that close, because `voxwin` showed them to be the same displacement from the other side
+predict P4 no regression: over the whole framebuffer the candidate gains more agreement than it loses
+predict P5 the 2 exact ties and the 2 phantoms remain separately classified and are NOT closed by this arm, because neither is a quantisation defect and a candidate that swallowed them would be claiming success on populations it did not address
+verdict P1 MISS 12 of 103 sub-pixel misses closed
+verdict P2 HIT 0 of 215 on-surface misses closed
+verdict P3 MISS 3 of 56 winner-side against 12 of 103 coverage
+verdict P4 MISS +23 gained against -34 lost
+verdict P5 HIT 0 ties and 0 phantoms closed
+arm control 45550 152 0 0 0
+closed control on_surface 0
+closed control sub_pixel 0
+closed control winner_miss 0
+closed control tie 0
+closed control phantom 0
+arm candidate 45539 151 23 34 60
+closed candidate on_surface 0
+closed candidate sub_pixel 12
+closed candidate winner_miss 3
+closed candidate tie 0
+closed candidate phantom 0
+digest 3393eaae83a36a7259213a8f0d2b726497855bf968cff2c21450dda20896ad15

@@ -256,6 +256,7 @@ STAGE_ORDER = (
     "voxgrid",
     "voxslack",
     "voxwin",
+    "voxproj",
     "rowtext",
     "rollbench",
     "reachable",
@@ -20902,6 +20903,115 @@ class Gate:
                     "and not a pair of strings this module happens to emit (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxproj(self):
+        """THE CANDIDATE LAW, PREDICTED BEFORE IT RAN, AND REFUSED ON EVIDENCE (URDRVXP1). Rows:
+        arm (one variable, the vertex rounding, with the control pinned to the committed renderer),
+        prediction (five statements written before the frame and every one scored), refusal (the
+        candidate is worse, and the miss is the informative part), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxproj as VP
+        except Exception as exc:
+            for r in ("arm", "prediction", "refusal", "selftest"):
+                self.record(f"voxproj-{r}", False, f"import failed (voxproj): {exc}")
+            return
+        a_ok = True
+        try:
+            a_ok = (VP.the_quantisation_is_the_only_variable()
+                    and VP.the_control_arm_matches_the_ladder()
+                    and VP.the_record_names_this_world()
+                    and VP.the_record_is_bound_to_the_live_code()
+                    and VP.scene_result("arms") == VP.golden("arms"))
+        except Exception:
+            a_ok = False
+        self.record("voxproj-arm", a_ok,
+                    "ONE VARIABLE AND ONLY ONE: the projected vertex is FLOORED in the control and "
+                    "ROUNDED TO NEAREST in the candidate, by exact integer arithmetic `(2n + d) // "
+                    "(2d)` with the depth strictly positive past the near plane, so no float is "
+                    "constructed and no tie-breaking rule is smuggled in beyond `half up`. NO "
+                    "fill-rule change, NO convention change, NO combination. THE SINGLE STEP IS "
+                    "CHECKED RATHER THAN ARGUED: the two arms must differ by AT MOST ONE sub-pixel "
+                    "unit and must AGREE wherever the division is exact, verified on constructed "
+                    "camera points in both directions — otherwise `round instead of floor` would "
+                    "be a different renderer rather than one variable moved. And the control is "
+                    "REQUIRED to reproduce `voxtie.render_level` at BEST exactly, or the candidate "
+                    "would be measured against a stranger. The GAINED and LOST counts are reported "
+                    "separately over the whole framebuffer and never netted into one number"
+                    if a_ok else "the arm did not hold")
+        p_ok, nh, nm = True, 0, 0
+        try:
+            nh, nm = len(VP.hits()), len(VP.misses())
+            p_ok = (VP.every_prediction_has_a_verdict()
+                    and VP.the_prediction_was_mostly_wrong_and_that_is_recorded()
+                    and VP.the_record_carries_the_prediction_text()
+                    and VP.scene_result("verdicts") == VP.golden("verdicts"))
+        except Exception:
+            p_ok = False
+        self.record("voxproj-prediction", p_ok,
+                    "THE PREDICTION WAS WRITTEN INTO THE MODULE BEFORE A FRAME WAS RENDERED and is "
+                    "pinned as DATA — in the module and again in the record, so the committed "
+                    "artifact carries what was CLAIMED as well as what was measured. %d of the "
+                    "five statements HIT and %d MISSED. EVERY ONE IS SCORED: the verdict set is "
+                    "required to equal the declared set, so a rung cannot report its hits and lose "
+                    "its misses somewhere between the measurement and the record, and each verdict "
+                    "is computed from the ARM and never from the prediction's own text. THE MISSES "
+                    "ARE THE RESULT AND NOT AN EMBARRASSMENT TO BE TRIMMED — a rung whose every "
+                    "prediction landed would either be lucky or would have written its predictions "
+                    "after the fact, so the law requires the record to carry misses AT ALL"
+                    % (nh, nm) if p_ok else "the prediction scoring did not hold")
+        r_ok, told = True, "?"
+        try:
+            told = VP.told()
+            r_ok = (VP.the_candidate_is_refused_on_evidence()
+                    and VP.the_mechanism_reading_survives()
+                    and VP.the_rounding_direction_is_eliminated()
+                    and VP.the_declared_populations_are_not_swallowed()
+                    and VP.nothing_is_adopted())
+        except Exception:
+            r_ok = False
+        self.record("voxproj-refusal", r_ok,
+                    "%s. THIS LAW REDDENS ON THE DAY THE CANDIDATE STARTS WINNING, which is the "
+                    "day this rung must be reopened rather than quietly kept. AND THE MISS IS THE "
+                    "INFORMATIVE PART: round-to-nearest halves the worst-case quantisation error "
+                    "and removes its systematic DIRECTION, and most of the sub-pixel residue "
+                    "survives it — so that residue is not a rounding-direction defect, and the "
+                    "most obvious candidate for it is eliminated BY MEASUREMENT rather than by "
+                    "argument. NOTHING IS ADOPTED: `voxref` and `voxray` are untouched, the "
+                    "candidate is not promoted, the two ties are not used to tune anything, and "
+                    "the two phantoms stay RED rather than being folded into a carve-out — a clean "
+                    "repair does not get to claim success by silently changing the oracle"
+                    % told if r_ok else "the refusal did not hold")
+        s_ok = True
+        try:
+            s_ok = VP.a_tampered_row_refuses()
+            for bad in ("verdict P9 HIT nothing", "arm supersample 1 2 3 4 5",
+                        "closed control elsewhere 1", "rumour 1 2 3"):
+                try:
+                    VP.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VP.VoxprojError:
+                    pass
+            for call, arg in ((VP.population, "elsewhere"), (VP.reading, "supersample"),
+                              (VP.scene_case, "arms2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VP.VoxprojError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("voxproj-selftest", s_ok,
+                    "eight plants bite: a verdict relabelled to a word outside HIT and MISS refuses "
+                    "typed, a verdict row naming no DECLARED prediction refuses, an arm row and a "
+                    "closed row outside their declared sets each refuse, a row of unknown kind "
+                    "refuses rather than being skipped as a comment, an unknown population refuses "
+                    "rather than returning empty — which is the failure mode that would let a "
+                    "prediction be scored against nothing — an unknown arm refuses, and an unknown "
+                    "scene refuses (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -24708,7 +24818,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
