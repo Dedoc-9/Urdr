@@ -260,6 +260,7 @@ STAGE_ORDER = (
     "voxsample",
     "voxcam",
     "voxwork",
+    "voxsilo",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21370,6 +21371,133 @@ class Gate:
                     "redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxsilo(self):
+        """THREE SILOS, EIGHT CELLS, AND THE FULL COMBINATION IS NOT THE BEST ONE (URDRVXH1). Rows:
+        contract (every cell byte-identical, and the refuted cull kept runnable), premise (the
+        convex-combination census and the corrected bound), lattice (the panel, the exchange rate
+        and the orthogonality fractions), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxsilo as VS
+        except Exception as exc:
+            for r in ("contract", "premise", "lattice", "selftest"):
+                self.record(f"voxsilo-{r}", False, f"import failed (voxsilo): {exc}")
+            return
+        c_ok = True
+        try:
+            c_ok = (VS.every_cell_reproduces_the_observable()
+                    and VS.the_naive_bound_is_unsound()
+                    and VS.the_lattice_is_complete()
+                    and VS.the_rung_makes_no_prediction_claim()
+                    and VS.no_wall_clock_enters_this_rung()
+                    and VS.nothing_is_promoted())
+        except Exception:
+            c_ok = False
+        self.record("voxsilo-contract", c_ok,
+                    "SILOING INVERTED FROM A FAILURE MODE INTO A METHOD, AND THE INVERSION WORKS "
+                    "BECAUSE THE LATERAL CONTRACT IS MECHANICAL. Ensor named the functional silo "
+                    "syndrome in 1988: tall structures whose only channel between functions runs "
+                    "through management authority rather than through anything measurable, so each "
+                    "optimises locally. The pathology is not the separation, it is the MISSING "
+                    "CONTRACT across it — so the renderer is split into three optimisation silos "
+                    "deliberately and the contract is one no silo may negotiate: THE OBSERVABLE IS "
+                    "BYTE-IDENTICAL, colour and depth AS LISTS, on every declared frame, in EVERY "
+                    "ONE OF THE EIGHT CELLS. A silo may change its implementation and may not "
+                    "change what is seen. AND THE CONTRACT CAUGHT AN UNSOUND OPTIMISATION ON ITS "
+                    "FIRST RUN: the refuted cull is kept RUNNABLE as a plant that must STILL MOVE "
+                    "the observable, because a refutation that cannot be executed stops being "
+                    "evidence the day someone edits around it. THIS RUNG MAKES NO PREDICTION CLAIM "
+                    "AND THAT IS A LAW: `voxproj` and `voxcam` pinned theirs as DATA before their "
+                    "arms ran and were entitled to score them; these arms ran first, so pinning one "
+                    "now would be BACK-DATING it, and the module is held to declaring none"
+                    if c_ok else "the silo contract did not hold")
+        p_ok, cen = True, (0, 0, 0)
+        try:
+            cen = VS.premise_census()
+            p_ok = (VS.the_corrected_bound_is_never_violated()
+                    and VS.the_premise_fails_on_most_pixels()
+                    and VS.scene_result("premise") == VS.golden("premise"))
+        except Exception:
+            p_ok = False
+        self.record("voxsilo-premise", p_ok,
+                    "THE PREMISE EVERY HIERARCHICAL-Z SCHEME RESTS ON IS FALSE FOR THIS RASTERISER. "
+                    "That interpolated depth is a CONVEX COMBINATION of the vertex depths is what "
+                    "licenses dropping a triangle whose nearest vertex sits behind everything in "
+                    "its box — and it fails at %d of %d covered pixels, worst shortfall %d. THE "
+                    "MECHANISM IS THE TOP-LEFT FILL RULE: the interior test is `e + bias >= 0`, so "
+                    "the biased weights sum to `area + B` with B in -3..0 while the depth STILL "
+                    "DIVIDES BY `area`, which scales the interpolation by (area+B)/area — a "
+                    "rounding-level effect on a large triangle and A FACTOR OF ONE THIRD on the "
+                    "witness, an area-3 sliver with B = -2. THE REPAIR IS ONE LINE OF ALGEBRA "
+                    "RATHER THAN A FUDGE FACTOR — with every weight non-negative the sum is at "
+                    "least zmin*(area+B) — and it is checked EXHAUSTIVELY against every covered "
+                    "pixel of every walked triangle on every frame, because a conservative bound "
+                    "checked on a sample is a conjecture"
+                    % (cen[1], cen[0], cen[2]) if p_ok else "the premise census did not hold")
+        l_ok, told = True, "?"
+        try:
+            told = VS.told()
+            l_ok = (VS.the_best_cell_is_not_the_full_combination()
+                    and VS.the_tile_arm_is_destructive_with_the_arithmetic_arm()
+                    and VS.the_tile_arm_still_retires_pixels()
+                    and VS.the_tile_and_arithmetic_arms_subtract()
+                    and VS.the_arms_are_not_all_orthogonal()
+                    and VS.the_average_triangle_is_smaller_than_a_tile()
+                    and VS.the_record_names_this_world()
+                    and VS.the_record_is_bound_to_the_live_code()
+                    and VS.scene_result("lattice") == VS.golden("lattice"))
+        except Exception:
+            l_ok = False
+        self.record("voxsilo-lattice", l_ok,
+                    "%s. REPORTED AS A PANEL AND NEVER FUSED INTO ONE NUMBER, because a divide is "
+                    "not a multiply is not a compare and a sum would invent a cost model nobody "
+                    "declared. THE EMPTY CELL IS BOUND TO `voxwork`'s FLOOR on five columns, so the "
+                    "lattice is measured against the COMMITTED RULER rather than a baseline this "
+                    "rung invented for itself — which is why the ruler shipped a rung early. AND "
+                    "THE VERDICT IS NOT THAT THE TILE TEST DOES NOT WORK: it retires exactly what "
+                    "it claims to, and it is the EXCHANGE RATE that fails, which keeps this a "
+                    "verdict about 56-pixel triangles rather than about hierarchical culling. THIS "
+                    "ROW REDDENS ON THE DAY STACKING EVERYTHING STARTS WINNING"
+                    % told if l_ok else "the lattice did not hold")
+        s_ok = True
+        try:
+            s_ok = VS.a_tampered_row_refuses()
+            for bad in ("cell GZ mul 5", "cell GA cycles 5", "omega GG 1 2", "premise 5",
+                        "best GZ", "rumour 1 2 3"):
+                try:
+                    VS.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VS.VoxsiloError:
+                    pass
+            for call, arg in ((VS.panel, ("G", "Z")), (VS.column, "cycles"),
+                              (VS.scene_case, "lattice2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VS.VoxsiloError:
+                    pass
+            for pair in (("A", "A"), ("G", "Z")):
+                try:
+                    VS.orthogonality(*pair)
+                    s_ok = False
+                except VS.VoxsiloError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("voxsilo-selftest", s_ok,
+                    "eleven plants bite: a cell row relabelled to a column outside the eight "
+                    "declared refuses typed, a cell row naming no declared cell refuses, an omega "
+                    "row naming a pair that is not one refuses, a premise row of the wrong arity "
+                    "refuses, a best row naming no declared cell refuses, a row of unknown kind "
+                    "refuses rather than being skipped as a comment, an undeclared cell refuses "
+                    "rather than falling back to the baseline — which is the failure mode that "
+                    "would let an arm be scored against itself — an unknown column refuses, an arm "
+                    "paired with ITSELF refuses rather than returning a vacuous orthogonality of "
+                    "zero, an unknown arm refuses, and an unknown scene refuses (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -25176,7 +25304,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

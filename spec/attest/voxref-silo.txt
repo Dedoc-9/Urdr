@@ -1,0 +1,87 @@
+# URDRVXH1 three silos, eight cells — emitted by voxsilo.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# ONE CONTRACT NO SILO MAY NEGOTIATE: the observable is BYTE-IDENTICAL, colour and
+# depth as LISTS, on every declared frame, in every one of the eight cells.
+# THE CONTRACT CAUGHT AN UNSOUND OPTIMISATION ON ITS FIRST RUN, and the refuted cull is
+# kept RUNNABLE as a plant that must still move the observable.
+# THE FULL COMBINATION IS NOT THE BEST CELL.
+#   arm     <arm> <the one question it may answer>
+#   cell    <cell> <column> <count>
+#   omega   <pair> <numerator> <denominator>
+#   premise <covered> <below the minimum vertex depth> <worst shortfall>
+#   best    <cheapest cell in multiplies>
+#   digest  <lattice digest>
+arm G can a whole primitive be retired without examining any of its pixels?
+arm T can a whole tile be retired without examining any of its pixels?
+arm A can the same per-pixel answer be computed with fewer multiplies?
+cell - walked 664553
+cell - covered 245183
+cell - written 65893
+cell - mul 6633411
+cell - div 506663
+cell - tiles 0
+cell - zscan 0
+cell - cmp 0
+cell T walked 569963
+cell T covered 245183
+cell T written 65893
+cell T mul 6493935
+cell T div 506663
+cell T tiles 35672
+cell T zscan 0
+cell T cmp 0
+cell G walked 267485
+cell G covered 98428
+cell G written 51712
+cell G mul 3810738
+cell G div 359908
+cell G tiles 0
+cell G zscan 289728
+cell G cmp 134441
+cell GT walked 225384
+cell GT covered 98428
+cell GT written 51712
+cell GT mul 3728136
+cell GT div 359908
+cell GT tiles 14167
+cell GT zscan 289728
+cell GT cmp 134441
+cell A walked 664553
+cell A covered 245183
+cell A written 65893
+cell A mul 3139347
+cell A div 506663
+cell A tiles 0
+cell A zscan 0
+cell A cmp 0
+cell TA walked 569963
+cell TA covered 245183
+cell TA written 65893
+cell TA mul 3810225
+cell TA div 506663
+cell TA tiles 35672
+cell TA zscan 0
+cell TA cmp 0
+cell GA walked 267485
+cell GA covered 98428
+cell GA written 51712
+cell GA mul 2396172
+cell GA div 359908
+cell GA tiles 0
+cell GA zscan 289728
+cell GA cmp 134441
+cell GTA walked 225384
+cell GTA covered 98428
+cell GTA written 51712
+cell GTA mul 2665590
+cell GTA div 359908
+cell GTA tiles 14167
+cell GTA zscan 289728
+cell GTA cmp 134441
+omega GT 56874 139476
+omega GA 2079498 2822673
+omega TA 810354 139476
+premise 245183 215300 5129
+best GA
+digest 124f435ddf661012022d926c0bc5cf705813832967f1d797c7c37b71e52c69c6

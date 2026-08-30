@@ -1,0 +1,107 @@
+# URDRVXH1 three silos, eight cells — emitted by voxsilo.py, pinned by hand, compared by the gate.
+#
+# `voxwork` built the ruler and proved it inert. THIS RUNG SPENDS IT.
+#
+# Three optimisation silos, each answering ONE question and forbidden to answer any other, measured
+# ALONE, PAIRWISE and TOGETHER — the whole 2^3 lattice — under a single contract no silo may
+# negotiate:
+#
+#     THE OBSERVABLE IS BYTE-IDENTICAL. Colour and depth, as LISTS, on every declared frame, in
+#     every one of the eight cells. A silo may change its implementation and may not change what is
+#     seen.
+#
+#     G  primitive retirement   a whole triangle skipped when it provably cannot win anywhere
+#     T  tile retirement        a whole 8x8 tile skipped by testing three edges at two corners
+#     A  arithmetic reduction   the edge functions stepped incrementally, no multiply per pixel
+#
+# THE CONTRACT CAUGHT AN UNSOUND OPTIMISATION ON ITS FIRST RUN, AND THAT IS THE FIRST RESULT.
+#
+# Every hierarchical-Z scheme rests on one premise: interpolated depth is a CONVEX COMBINATION of
+# the vertex depths, so a triangle's nearest point is the nearest of its vertices, so a triangle
+# whose nearest vertex is behind everything already in its box cannot win anywhere and may be
+# dropped untested. THAT PREMISE IS FALSE FOR THIS RASTERISER:
+#
+#     covered pixels                          245183
+#     pixels where d < min vertex depth       215300      87 in every hundred
+#     worst shortfall                           5129      zmin 7783 -> d 2654
+#
+# THE MECHANISM IS THE TOP-LEFT FILL RULE. The interior test is `e + bias >= 0`, so the biased
+# weights sum to `area + B` with B in -3..0 — and the depth still divides by `area`. The
+# interpolation is therefore scaled by (area+B)/area and is NOT a convex combination, so it can fall
+# BELOW every vertex of its own triangle. On a large triangle that is a rounding-level effect. On
+# the witness — an area-3 sliver with B = -2 — it is a factor of one third.
+#
+# THE REPAIR IS ONE LINE OF ALGEBRA RATHER THAN A FUDGE FACTOR: with every weight non-negative the
+# weighted sum is at least `zmin * (area + B)`, giving `zmin + (zmin*B)//area`, and that bound is
+# checked against EVERY covered pixel of every walked triangle on every frame rather than trusted.
+# THE NAIVE CULL IS KEPT RUNNABLE as a plant that must still MOVE the observable, because a
+# refutation that cannot be executed stops being evidence the day someone edits around it.
+#
+# AND THE LATTICE SAYS THE OBVIOUS OPTIMISATION IS THE ONE THAT DOES NOT PAY. Reported as a PANEL
+# and never fused into one number, because a divide is not a multiply is not a compare and a sum
+# would invent a cost model nobody declared:
+#
+#     cell     walked   covered   written   multiplies
+#     -        664553    245183     65893      6633411
+#     T        569963    245183     65893      6493935
+#     G        267485     98428     51712      3810738
+#     GT       225384     98428     51712      3728136
+#     A        664553    245183     65893      3139347
+#     TA       569963    245183     65893      3810225
+#     GA       267485     98428     51712      2396172
+#     GTA      225384     98428     51712      2665590
+#
+# GA IS THE CHEAPEST CELL IN MULTIPLIES AND GTA IS DEARER. Adding the tile arm to GA retires 42101
+# walked pixels and spends 269418 extra multiplies to do it — SIX AND A HALF MULTIPLIES PER PIXEL
+# RETIRED, at a moment when arm A has already made a walked pixel cost ZERO multiplies. T is
+# destructive in BOTH places it occurs, which is why both are asserted: A alone spends 3139347 and
+# TA spends 3810225; GA spends 2396172 and GTA spends 2665590.
+#
+# AND THE VERDICT IS NOT THAT THE TILE TEST DOES NOT WORK. It retires exactly what it claims to —
+# GTA walks fewer pixels than GA, and TA fewer than A — it is the EXCHANGE RATE that fails. THE
+# MECHANISM IS GEOMETRY AND NOT THE TEST, and the number comes from the ruler rather than from this
+# rung's own arithmetic: 664553 walked pixels across 11867 walked triangles is a MEAN BOUNDING BOX
+# OF 56 AGAINST A TILE OF 64. The average triangle is smaller than one tile, so the per-tile setup
+# is amortised over almost nothing. This is a verdict about 56-pixel triangles, not about
+# hierarchical culling.
+#
+# ORTHOGONALITY on multiplies SAVED, as EXACT FRACTIONS and never as decimals, because the quantity
+# decides whether two silos are redundant or destructive and a rounded one would be reporting its
+# own rounding:
+#
+#     omega(G,T) =   56874/139476     0.41   real overlap: both retire work
+#     omega(G,A) = 2079498/2822673    0.82   highly redundant
+#     omega(T,A) =  810354/139476     5.81   ABOVE ONE — not redundancy, SUBTRACTION
+#
+# THIS RUNG MAKES NO PREDICTION CLAIM, and that is a LAW rather than a sentence. `voxproj` and
+# `voxcam` pinned their predictions as DATA before their arms ran and were entitled to score them.
+# The arms here ran first, so pinning a prediction now would be BACK-DATING one — the L64 class
+# exactly. `the_rung_makes_no_prediction_claim` asserts this module declares no PREDICTION, so a
+# later edit cannot quietly add one and inherit a discipline this rung did not pay for. The next
+# rung of this arc re-earns it.
+#
+# DECLARED: the three arms and the ONE question each may answer; the eight cells in a fixed order;
+# the tile edge; the two arm-cost coefficients, so no arm's own overhead is left out of its column;
+# and the eight panel columns.
+#
+# DERIVED at claim time (L75): every panel entry, every orthogonality fraction, the premise census,
+# the exchange rate, the mean bounding box and the cheapest cell.
+#
+# WHAT EACH GOLDEN COVERS
+#   * lattice — all eight columns on all eight cells. The empty cell is BOUND to `voxwork`'s floor
+#     on five columns, so the lattice is measured against the committed ruler rather than against a
+#     baseline this rung invented for itself.
+#   * premise — the convex-combination census, the three orthogonality fractions, the cheapest cell,
+#     the exchange rate as a PAIR (never a rate) and the mean bounding box.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME. No wall clock enters this rung — counts on-gate, wall-clock off in a
+#     named-host record, the rule `voxwork` made structural and this rung is the first to inherit.
+#   * NOTHING ABOUT MEMORY TRAFFIC, CACHE BEHAVIOUR OR SIMD. That is precisely where a multiply
+#     count stops predicting a duration, and this rung has no instrument for any of them.
+#   * THAT GA IS THE FASTEST ARRANGEMENT. It is the cheapest in MULTIPLIES on THIS trace at THIS
+#     resolution with THIS geometry.
+#   * NO PREDICTION WAS MADE, and none is claimed.
+#   * NO PROMOTION. `voxref` is untouched and not one of the eight cells is adopted.
+lattice 5be1b9b5a97468d11f527ecd7d1d2d6c8abeae9221a5858d64875af81a23ac66
+premise 218470741593f8cf2b1c49f9d07f777263fb186bac397590fc627f02de3a7a55
