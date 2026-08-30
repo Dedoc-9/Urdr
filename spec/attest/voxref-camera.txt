@@ -1,0 +1,42 @@
+# URDRVXB1 camera-precision candidate — emitted by voxcam.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# ONE VARIABLE: the camera coordinate is TRUNCATED by `>> 16` in the control and
+# carried at FULL PRECISION in the candidate, with the near constant re-expressed in
+# the same unit — the same variable written down twice, proved to name the same plane.
+# THE PREDICTION WAS WRITTEN BEFORE THE ARM RAN. Four of five hit and THE CANDIDATE
+# WINS — and it is STILL NOT PROMOTED.
+#   predict  <id> <text>
+#   verdict  <id> <HIT|MISS> <what was measured>
+#   arm      <arm> <agree> <impossible> <gained> <lost> <changed>
+#   closed   <arm> <population> <count>
+#   survivor <population> <still open under the candidate>
+#   digest   <population digest>
+predict C1 the 215 on-surface misses CLOSE, because `voxsample` showed the truncation is what puts those samples exactly on the edge where the top-left convention then rejects them — remove it and they should be strictly inside
+predict C2 most of the 103 sub-pixel misses close, because `voxsample` measured 91 of them as pushed OUT of a face that geometrically contains them by this single shift
+predict C3 most of the 56 winner-side misses close, because `voxsample` measured 53 of them as pulled IN to a face that does not contain them by the same shift
+predict C4 net agreement improves SUBSTANTIALLY — gained exceeds lost by a wide margin — which is what `voxproj` failed to do and what would distinguish a real term from a plausible one
+predict C5 the 2 exact ties and the 2 phantoms do NOT close, because neither is a camera-precision defect and a candidate that swallowed them would be claiming success on populations it did not address
+verdict C1 HIT 214 of 215 on-surface closed
+verdict C2 HIT 88 of 103 sub-pixel closed
+verdict C3 HIT 53 of 56 winner-side closed
+verdict C4 HIT +357 gained against -18 lost
+verdict C5 MISS 2 of 2 ties and 0 of 2 phantoms closed
+arm control 45550 152 0 0 0
+closed control on_surface 0
+closed control sub_pixel 0
+closed control winner_miss 0
+closed control tie 0
+closed control phantom 0
+arm candidate 45889 70 357 18 381
+closed candidate on_surface 214
+closed candidate sub_pixel 88
+closed candidate winner_miss 53
+closed candidate tie 2
+closed candidate phantom 0
+survivor on_surface 1
+survivor sub_pixel 15
+survivor winner_miss 3
+survivor tie 0
+survivor phantom 2
+digest 009941439e7d8e6b3041584da99735279cec0b9e5dbad51187ade1f05da1bc90

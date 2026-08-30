@@ -1,0 +1,78 @@
+# URDRVXB1 camera-precision candidate — emitted by voxcam.py, pinned by hand, compared by the gate.
+#
+# THE CANDIDATE THAT WORKS, AND IT IS STILL NOT THE REFERENCE.
+#
+# `voxsample` found the seam and refused to touch it: `voxref._project` truncates the Q16 basis
+# multiply with a `>> 16` BEFORE any screen quantisation and BEFORE the fill rule, and that single
+# shift pushes 91 pixels out of a face that geometrically contains them while pulling 53 into one
+# that does not. This rung moves that ONE variable and measures what it buys.
+#
+#     control      the committed camera coordinate — `>> 16`, as `voxref._project` performs it
+#     candidate    the same multiply carried at FULL PRECISION
+#
+# ONE VARIABLE, WITH ONE FORCED CONSEQUENCE. The near-plane constant is expressed in camera units,
+# so changing the unit forces re-expressing the constant — the same variable written down twice, not
+# a second one. That is PROVED rather than asserted: `cf >> 16 < NEAR` and `cf < NEAR << 16` name
+# the SAME plane for every integer, checked across the sign, across the shift boundary and on both
+# sides of the plane, because a near test admitting one extra primitive would put a second change
+# inside a single-variable arm. And the candidate's coordinate must be the control's shifted back,
+# exactly, for every component of every declared vertex on every declared frame.
+#
+# THE PREDICTION WAS WRITTEN BEFORE THE ARM RAN, pinned as DATA in the module and again below.
+# FOUR OF FIVE HIT:
+#
+#     C1  the 215 on-surface misses close                   HIT    214 of 215
+#     C2  most of the 103 sub-pixel misses close            HIT     88 of 103
+#     C3  most of the 56 winner-side misses close           HIT     53 of  56
+#     C4  net agreement improves SUBSTANTIALLY              HIT   +357 against -18
+#     C5  the 2 ties and 2 phantoms do NOT close            MISS   the ties closed
+#
+# AND UNLIKE `voxproj` THIS CANDIDATE WINS. Agreement 45550 -> 45889. Impossible faces 152 -> 70.
+# Three hundred and fifty-seven pixels gained against eighteen lost — nearly twenty to one, where
+# the rounding-direction candidate managed twenty-three against thirty-four and was refused.
+#
+# THE MISS IS THE INTERESTING ONE AND IT DOES NOT CONTRADICT `voxwin`. Both exact ties closed.
+# `voxwin` established in EXACT WORLD SPACE, with no truncation anywhere, that the ray at those two
+# pixels genuinely passes through an edge shared by two faces — that remains true and is not
+# disturbed here. What was an artefact is the DEPTH TIE: the interpolated depths were exactly equal
+# only after the `>> 16`, and at full precision they separate and resolve in the oracle's favour at
+# both. So the pixels are a REAL geometric degeneracy AND the rasteriser's tie at them was
+# MANUFACTURED by the truncation, and only the second of those is repaired. `voxtie`'s parked
+# question keeps its two pixels and loses its exact-depth character.
+#
+# AND IT IS STILL NOT ADOPTED. Establishing a repair and promoting one are different acts, which is
+# `voxcand`'s doctrine and the reason that rung exists. Promotion here would move `O_t` on every
+# frame and invalidate the frozen census, the 1728-state census and the subdivision ladder at once —
+# and it would do MORE than that, because carrying full precision scales every interpolated depth by
+# 2^16, so the DEPTH half of the observable moves even at pixels whose colour does not. That is a
+# CONTRACT CHANGE, not a bug fix, and this rung does not make it.
+#
+# WHAT SURVIVES IS SMALL AND NAMED RATHER THAN ROUNDED: 1 on-surface, 15 sub-pixel, 3 winner-side,
+# the 2 phantoms still open, and 18 pixels that agreed under the control now disagree. Twenty-one of
+# the original 378 and eighteen new ones — a residue this arc has not characterised and which this
+# rung does not pretend to.
+#
+# DECLARED: the two arms; the shift, named once so both arms read the same constant; the five
+# populations, each INHERITED from the rung that classified it rather than restated here; and the
+# five predictions.
+#
+# DERIVED at claim time (L75): both arm readings, every verdict, every closed count, the survivors,
+# and the population digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * arms — both readings and every closed count. The pair differs by ONE shift and nothing else.
+#     GAINED and LOST are carried SEPARATELY and never netted, because a candidate reporting one
+#     number would be reporting the half of the ledger it chose.
+#   * verdicts — every declared prediction with its outcome, and the survivors beside it. The
+#     verdict set is required to EQUAL the declared set, so a rung that WINS cannot quietly drop the
+#     one prediction it missed — which is exactly the rung most tempted to.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT PERFORMANCE. Carrying full precision widens every camera coordinate and this
+#     rung measures no cost in time or space.
+#   * THAT THE CANDIDATE IS CORRECT — only that it is CLOSER on the declared trace.
+#   * ANY MECHANISM for the 18 losses or the 21 survivors.
+#   * WHETHER THE REFERENCE CAN CARRY FULL PRECISION AT ALL under its integer contract.
+#   * NO PROMOTION. `voxref` and `voxray` are untouched and the frozen census stays frozen.
+arms 7f28d51bee3b3ba11c8ee219fabaf008478c4158ce41da71a5309ce78526ed09
+verdicts 733b246ffb6149a10f55a11d1a8d7672c24e7100ff2bc1fe33db05cfd1eea44b

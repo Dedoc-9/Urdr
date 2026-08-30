@@ -258,6 +258,7 @@ STAGE_ORDER = (
     "voxwin",
     "voxproj",
     "voxsample",
+    "voxcam",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21136,6 +21137,123 @@ class Gate:
                     "redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxcam(self):
+        """THE CANDIDATE THAT WORKS, AND IT IS STILL NOT THE REFERENCE (URDRVXB1). Rows: arm (one
+        variable, with the forced near-plane change proved to name the same plane, and the control
+        bound to the committed renderer), win (both readings and every prediction scored), residue
+        (what the repair does NOT close, and the refusal to promote), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxcam as VB
+        except Exception as exc:
+            for r in ("arm", "win", "residue", "selftest"):
+                self.record(f"voxcam-{r}", False, f"import failed (voxcam): {exc}")
+            return
+        a_ok = True
+        try:
+            a_ok = (VB.the_arms_differ_only_by_the_shift()
+                    and VB.the_near_plane_is_the_same_plane()
+                    and VB.the_control_arm_matches_the_ladder())
+        except Exception:
+            a_ok = False
+        self.record("voxcam-arm", a_ok,
+                    "ONE VARIABLE, WITH ONE FORCED CONSEQUENCE, AND THE CONSEQUENCE IS PROVED "
+                    "RATHER THAN ASSERTED. `voxsample` found the seam and refused to touch it: "
+                    "`voxref._project` turns the Q16 basis multiply into an integer camera "
+                    "coordinate with a single `>> 16`, BEFORE any screen quantisation and BEFORE "
+                    "the fill rule. The control IS that shift and the candidate carries the "
+                    "multiply intact — checked, not claimed: the candidate's coordinate must be the "
+                    "control's shifted back, exactly, for every component of every declared vertex "
+                    "on every declared frame. The near plane is a constant in CAMERA UNITS, so "
+                    "changing the unit forces re-expressing the constant — the same variable "
+                    "written down twice, not a second one — and `cf >> 16 < NEAR` and `cf < NEAR "
+                    "<< 16` must agree for EVERY integer, across the sign, across the shift "
+                    "boundary and on both sides of the plane, because a near test admitting one "
+                    "extra primitive would put a second change inside a single-variable arm. AND "
+                    "THE CONTROL IS BOUND TO THE COMMITTED RENDERER: its winner must equal "
+                    "`voxtie.render_level`'s at BEST on every frame, or the candidate would be "
+                    "measured against a stranger"
+                    if a_ok else "the single-variable check did not hold")
+        w_ok, told = True, "?"
+        try:
+            told = VB.told()
+            w_ok = (VB.the_candidate_wins_on_evidence()
+                    and VB.every_prediction_has_a_verdict()
+                    and VB.the_record_carries_hits_and_misses()
+                    and VB.the_record_carries_the_prediction_text()
+                    and VB.the_record_names_this_world()
+                    and VB.the_record_is_bound_to_the_live_code()
+                    and VB.scene_result("arms") == VB.golden("arms")
+                    and VB.scene_result("verdicts") == VB.golden("verdicts"))
+        except Exception:
+            w_ok = False
+        self.record("voxcam-win", w_ok,
+                    "%s. THE PREDICTION WAS WRITTEN BEFORE THE ARM RAN, pinned as DATA in the "
+                    "module and again in the record, and EVERY ONE OF THE FIVE IS SCORED — because "
+                    "a rung that WINS is exactly the one most tempted to lose its miss somewhere "
+                    "between the measurement and the record. GAINED and LOST are carried SEPARATELY "
+                    "and never netted. THIS LAW REDDENS ON THE DAY THE CANDIDATE STOPS WINNING, "
+                    "which is the day the finding must be revisited rather than quietly kept"
+                    % told if w_ok else "the win did not hold")
+        r_ok, surv = True, {}
+        try:
+            surv = VB.survivors()
+            r_ok = (VB.the_survivors_are_named_not_rounded()
+                    and VB.the_tie_pixels_keep_their_geometry()
+                    and VB.the_phantoms_are_not_swallowed()
+                    and VB.nothing_is_promoted())
+        except Exception:
+            r_ok = False
+        self.record("voxcam-residue", r_ok,
+                    "WHAT THE REPAIR DOES NOT CLOSE IS NAMED RATHER THAN ROUNDED: %s still open, "
+                    "and %d pixels that agreed under the control now disagree. THE MISS IS C5 AND "
+                    "IT DOES NOT CONTRADICT `voxwin`: both exact ties closed, but what closed is "
+                    "the DEPTH TIE and not the geometry — `voxwin` established in EXACT WORLD "
+                    "SPACE, with no truncation anywhere, that the ray at those two pixels passes "
+                    "through an edge shared by two faces, and that is undisturbed; the interpolated "
+                    "depths were exactly equal only AFTER the shift. So the pixels are a REAL "
+                    "degeneracy AND the rasteriser's tie at them was MANUFACTURED, and only the "
+                    "second is repaired. The phantoms did NOT close. AND IT IS STILL NOT PROMOTED: "
+                    "establishing a repair and promoting one are different acts, and carrying full "
+                    "precision scales every interpolated depth by 2^16, so the DEPTH half of the "
+                    "observable moves even where the colour does not — a CONTRACT CHANGE, not a bug "
+                    "fix"
+                    % (", ".join("%d %s" % (surv[k], k) for k in VB.POPULATIONS if surv.get(k)),
+                       VB.reading("candidate")[3])
+                    if r_ok else "the residue audit did not hold")
+        s_ok = True
+        try:
+            s_ok = VB.a_tampered_row_refuses()
+            for bad in ("verdict C9 HIT nothing", "arm float 1 2 3 4 5",
+                        "closed candidate elsewhere 3", "survivor elsewhere 3", "rumour 1 2 3"):
+                try:
+                    VB.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VB.VoxcamError:
+                    pass
+            for call, arg in ((VB.population, "elsewhere"), (VB.near_of, "float"),
+                              (VB.reading, "float"), (VB.scene_case, "arms2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VB.VoxcamError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("voxcam-selftest", s_ok,
+                    "nine plants bite: a verdict row relabelled to a word that is neither HIT nor "
+                    "MISS refuses, a verdict row naming no declared prediction refuses, an arm row "
+                    "naming no declared arm refuses, a closed row and a survivor row naming an "
+                    "undeclared population both refuse, a row of unknown kind refuses rather than "
+                    "being skipped as a comment, an unknown population refuses rather than "
+                    "returning empty — which is the failure mode that would let a prediction be "
+                    "scored against nothing — an unknown arm has no near plane and no reading "
+                    "rather than silently falling back to the control, and an unknown scene refuses "
+                    "(gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -24942,7 +25060,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
