@@ -1,0 +1,81 @@
+# URDRVXO1 exact work floor — emitted by voxwork.py, pinned by hand, compared by the gate.
+#
+# THE FIRST RUNG OF THE PERFORMANCE ARC, AND IT OPTIMISES NOTHING.
+#
+# The correctness arc closed at `voxcam`. The performance arc's whole law is one line — SAME EXACT
+# OBSERVABLE, LESS WORK — and this rung does the first half only. A speedup cannot be claimed
+# without a ruler, and a ruler that moves the thing it measures is not a ruler, so the ruler is
+# built and PROVED INERT before any arm exists.
+#
+# THE INSTRUMENT IS THE SEVENTH TRANSCRIPTION OF THE COMMITTED LOOP and it is bound in the strongest
+# available direction: its colour and depth buffers must equal `voxref.render`'s AS LISTS, element
+# for element, on every declared frame. Not as digests, which would let two different pictures
+# collide; not on one frame, which would let a transcription drift where the trace does not go.
+#
+# THE FLOOR:
+#
+#     664553 pixels WALKED to produce 55296 output pixels.        TWELVE TIMES OVERDRAW.
+#
+# AND THE FATE OF A WALKED PIXEL IS A PARTITION, asserted as one per frame so no unit of work is
+# uncounted or counted twice, and never summed into a single wasted-work number:
+#
+#     outside the triangle   419370   63%   the three edge tests reject it
+#     covered but beaten     179290   27%   it is inside, and loses the depth compare
+#     written                 65893   10%   it changes a pixel
+#
+# NINE PIXELS IN TEN ARE WALKED TO PRODUCE NOTHING, AND THE TWO LOSSES ARE OF DIFFERENT KINDS. The
+# first is a question about a TRIANGLE'S SHAPE and is answerable for a whole tile at once. The
+# second is a question about WHAT ELSE IS IN FRONT and is answerable for a whole primitive at once.
+# Different mechanisms, different remedies — so they are counted apart and stay apart.
+#
+# THE ARITHMETIC IS MODELLED AND THE MODEL IS CHECKED AGAINST EXECUTION rather than asserted as a
+# formula that could drift: 36 multiplies per quad in the Q16 basis multiply, 8 more and 8 divides
+# in the projection's screen divide, 4 per triangle in the signed area, SIX PER WALKED PIXEL in the
+# three edge functions, and 3 multiplies plus ONE DIVIDE per covered pixel in the depth
+# interpolation. 6633411 multiplies and 506663 divides, and the closed form must EQUAL the count
+# taken from the run.
+#
+# AND ONE LAW REDDENED BEFORE IT SHIPPED, WHICH IS WHY THE SPLIT IS REPORTED AT ALL. The first
+# draft asserted that the edge functions are three quarters of the multiplies. They are 71%, not
+# 76%, and the law refused the claim. What the correction exposes is the useful part: THE SETUP IS
+# 1910544 MULTIPLIES, MORE THAN A FIFTH OF THE TOTAL — and 1387584 of those are the basis multiply
+# paid for EVERY quad including the 5859 the near test then throws away, before anything is known
+# about any of them. A performance arc that assumed the inner loop was everything would aim every
+# arm at it and leave a fifth of the work untouched. Both bounds are now asserted and both can
+# redden.
+#
+# NO WALL CLOCK APPEARS ANYWHERE IN THIS RUNG AND THAT IS ENFORCED RATHER THAN PROMISED. A timing
+# assertion inside a deterministic gate is nondeterministic and would flake, or be loosened until it
+# could not fail. This tree's standing rule is COUNTS ON-GATE AND WALL-CLOCK OFF, in a committed
+# record from a named host — `sealframe`'s own bridge. `no_wall_clock_enters_this_rung` reads this
+# module's AST and refuses a timing import, so a performance arc cannot smuggle a stopwatch into the
+# gate one rung at a time; and the detector is planted against a source that DOES import one,
+# because a law with an empty live population is indistinguishable from one that cannot look.
+#
+# DECLARED: the ten counters, each an INDEPENDENT count taken from the run; the three fates; and the
+# seven arithmetic coefficients, named once so the law and the record read the same constants.
+#
+# DERIVED at claim time (L75): every ratio, the arithmetic model, the setup/inner split, the walk
+# model, and the census digest. No percentage is stored beside a count as if it were separately
+# measured.
+#
+# WHAT EACH GOLDEN COVERS
+#   * census — all ten counters on all eight declared frames. The raw floor, per frame, because a
+#     total would let two frames whose errors cancel pass a check the individuals fail.
+#   * shape — the fate partition, the overdraw PAIR (never a ratio), the independently derived walk
+#     model, the arithmetic model and the setup/inner split. The walk model is computed from the
+#     projected bounding boxes WITHOUT running the inner loop and must EQUAL the counted walk, which
+#     is what a census that had quietly started counting something else would fail.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME. These are exact integer operation counts, and an operation count is not a
+#     duration: a division and an addition are one operation each and are not one cost each.
+#   * NOTHING ABOUT MEMORY TRAFFIC OR CACHE BEHAVIOUR, which are properties of a machine and a
+#     layout, and this rung measures neither.
+#   * THAT ANY OF THIS WORK IS REMOVABLE. Naming waste is not retiring it, and a bound on what a
+#     cheaper test could save is a different rung with an arm in it.
+#   * NO OPTIMISATION IS PROPOSED OR RUN, and no traversal is changed.
+#   * NOTHING IS ALTERED. `voxref` is untouched and `O_t` is byte-identical with the observer
+#     active, which is the only reason any number here means anything.
+census ce0c762a421c2f869e62982b8b8cdb2ae071e6ecd710ff25ed639dbe11ab5f68
+shape 4e3b969380e6c588eb3bb47b2b0e455efd6ee6d69bc091cbe0333b4492970f6b

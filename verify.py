@@ -259,6 +259,7 @@ STAGE_ORDER = (
     "voxproj",
     "voxsample",
     "voxcam",
+    "voxwork",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21254,6 +21255,121 @@ class Gate:
                     "(gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxwork(self):
+        """THE EXACT WORK FLOOR, AND A RULER PROVED NOT TO MOVE WHAT IT MEASURES (URDRVXO1). Rows:
+        floor (the census, the fate partition and the overdraw), model (model == execution, twice,
+        and the arithmetic split), clock (no wall clock enters this rung, with its plant),
+        selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxwork as VO
+        except Exception as exc:
+            for r in ("floor", "model", "clock", "selftest"):
+                self.record(f"voxwork-{r}", False, f"import failed (voxwork): {exc}")
+            return
+        f_ok, told = True, "?"
+        try:
+            told = VO.told()
+            f_ok = (VO.the_observable_is_unmoved()
+                    and VO.the_fates_partition_the_walk()
+                    and VO.the_overdraw_is_the_headline()
+                    and VO.most_of_the_walk_is_outside_the_triangle()
+                    and VO.most_of_the_coverage_loses_the_depth_test()
+                    and VO.nothing_is_optimised()
+                    and VO.the_record_names_this_world()
+                    and VO.the_record_is_bound_to_the_live_code()
+                    and VO.scene_result("census") == VO.golden("census"))
+        except Exception:
+            f_ok = False
+        self.record("voxwork-floor", f_ok,
+                    "THE PERFORMANCE ARC OPENS WITH A RULER AND NOTHING ELSE, because a speedup "
+                    "measured against a ruler that arrived in the same commit is a speedup measured "
+                    "against itself. %s. THE RULER IS PROVED INERT BEFORE ANY ARM EXISTS: this is "
+                    "the SEVENTH transcription of the committed loop in this arc and its colour and "
+                    "depth buffers must equal `voxref.render`'s AS LISTS, element for element, on "
+                    "every declared frame — not as digests, which would let two different pictures "
+                    "collide, and not on one frame, which would let a transcription drift where the "
+                    "trace does not go. An observer that changes a byte of what it observes is not "
+                    "an observer. AND THE PARTITION IS ASSERTED PER FRAME, not once in aggregate, "
+                    "because two frames whose errors cancel would satisfy a total and fail a "
+                    "partition"
+                    % told if f_ok else "the work floor did not hold")
+        m_ok, split = True, (0, 0)
+        try:
+            split = VO.arithmetic_split()
+            m_ok = (VO.the_walk_model_equals_the_run()
+                    and VO.the_arithmetic_model_equals_the_run()
+                    and VO.the_triangles_are_two_per_surviving_quad()
+                    and VO.the_inner_loop_dominates_but_the_setup_is_not_negligible()
+                    and VO.scene_result("shape") == VO.golden("shape"))
+        except Exception:
+            m_ok = False
+        self.record("voxwork-model", m_ok,
+                    "MODEL == EXECUTION, TWICE, because a cost model only ever compared to itself "
+                    "is a formula and this tree has been burned by one before. The walk is derived "
+                    "from the projected bounding boxes WITHOUT RUNNING THE INNER LOOP and must "
+                    "EQUAL the counted walk on every frame; the arithmetic is derived from seven "
+                    "declared coefficients and must equal the counted multiplies and divides. AND "
+                    "ONE LAW REDDENED BEFORE IT SHIPPED, WHICH IS WHY THE SPLIT IS REPORTED AT ALL: "
+                    "the first draft claimed the edge functions are three quarters of the "
+                    "multiplies and they are 71%%, so the law refused the claim rather than the "
+                    "claim being softened to fit. What the correction exposes is the useful part — "
+                    "THE SETUP IS %d MULTIPLIES AGAINST %d IN THE INNER LOOP, more than a fifth of "
+                    "the total, and 1387584 of those are the basis multiply paid for EVERY quad "
+                    "including the ones the near test then throws away, before anything is known "
+                    "about any of them. An arc that assumed the inner loop was everything would aim "
+                    "every arm at it and leave a fifth of the work untouched"
+                    % split if m_ok else "a model did not equal its run")
+        c_ok, imps = True, []
+        try:
+            imps = VO.timing_imports()
+            c_ok = VO.no_wall_clock_enters_this_rung() and VO.the_wall_clock_law_can_bite()
+        except Exception:
+            c_ok = False
+        self.record("voxwork-clock", c_ok,
+                    "COUNTS ON-GATE AND WALL-CLOCK OFF, MADE STRUCTURAL AT THE MOMENT A PERFORMANCE "
+                    "ARC OPENS. A timing assertion inside a deterministic gate is nondeterministic: "
+                    "it flakes, and then it is loosened until it cannot fail. This tree's standing "
+                    "rule puts wall-clock in a committed record from a NAMED HOST instead — "
+                    "`sealframe`'s own bridge, with `attest` and `probelog` as what it looks like "
+                    "when honoured — and %d timing imports are found in this module, read from its "
+                    "own AST rather than from a promise, so the rule survives an edit that adds a "
+                    "stopwatch in good faith. THE DETECTOR IS PLANTED against a source that DOES "
+                    "import one, because a law with an empty live population is indistinguishable "
+                    "from a law that cannot look"
+                    % len(imps) if c_ok else "the wall-clock refusal did not hold")
+        s_ok = True
+        try:
+            s_ok = VO.a_tampered_row_refuses()
+            for bad in ("count 0 seam cycles 5", "fate wasted 5", "walk 5", "split 5",
+                        "rumour 1 2 3"):
+                try:
+                    VO.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VO.VoxworkError:
+                    pass
+            for call, arg in ((VO.total, "cycles"), (VO.fates, len(VO.census())),
+                              (VO.scene_case, "census2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VO.VoxworkError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("voxwork-selftest", s_ok,
+                    "eight plants bite: a count row relabelled to a counter outside the ten "
+                    "declared refuses typed, a fate row naming an undeclared fate refuses, a walk "
+                    "row and a split row of the wrong arity both refuse, a row of unknown kind "
+                    "refuses rather than being skipped as a comment, an unknown counter refuses "
+                    "rather than returning zero — which is the failure mode that would let an arm "
+                    "be scored against nothing — a frame outside the declared trace refuses rather "
+                    "than returning an empty partition, and an unknown scene refuses (gate can "
+                    "redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -25060,7 +25176,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

@@ -1,0 +1,97 @@
+# URDRVXO1 exact work floor — emitted by voxwork.generate(), committed as an artifact,
+# re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# THE FIRST RUNG OF THE PERFORMANCE ARC. Its whole law is SAME EXACT OBSERVABLE, LESS
+# WORK — and this rung does the first half only: it builds the ruler and PROVES IT
+# INERT. No arm, no candidate, no altered traversal, and NO WALL CLOCK.
+#   count  <frame> <name> <counter> <count>
+#   fate   <fate> <count>
+#   walk   <walked> <output pixels>
+#   split  <setup multiplies> <inner-loop multiplies>
+#   digest <work digest>
+count 0 enclosed primitives 4818
+count 0 enclosed near_rejected 2717
+count 0 enclosed triangles 4202
+count 0 enclosed area_rejected 2270
+count 0 enclosed bbox_rejected 1877
+count 0 enclosed walked 30043
+count 0 enclosed covered 14156
+count 0 enclosed written 9314
+count 0 enclosed mul 429790
+count 0 enclosed div 30964
+count 1 buried primitives 4818
+count 1 buried near_rejected 2350
+count 1 buried triangles 4936
+count 1 buried area_rejected 2668
+count 1 buried bbox_rejected 2097
+count 1 buried walked 75233
+count 1 buried covered 33975
+count 1 buried written 10015
+count 1 buried mul 766259
+count 1 buried div 53719
+count 2 seam primitives 4818
+count 2 seam near_rejected 0
+count 2 seam triangles 9636
+count 2 seam area_rejected 5496
+count 2 seam bbox_rejected 2216
+count 2 seam walked 106696
+count 2 seam covered 39622
+count 2 seam written 10160
+count 2 seam mul 1009578
+count 2 seam div 78166
+count 3 wall_flat primitives 4818
+count 3 wall_flat near_rejected 792
+count 3 wall_flat triangles 8052
+count 3 wall_flat area_rejected 4268
+count 3 wall_flat bbox_rejected 3300
+count 3 wall_flat walked 81431
+count 3 wall_flat covered 34999
+count 3 wall_flat written 7120
+count 3 wall_flat mul 831447
+count 3 wall_flat div 67207
+count 4 open_air primitives 4818
+count 4 open_air near_rejected 0
+count 4 open_air triangles 9636
+count 4 open_air area_rejected 5493
+count 4 open_air bbox_rejected 1092
+count 4 open_air walked 98799
+count 4 open_air covered 32328
+count 4 open_air written 8943
+count 4 open_air mul 940314
+count 4 open_air div 70872
+count 5 oblique primitives 4818
+count 5 oblique near_rejected 0
+count 5 oblique triangles 9636
+count 5 oblique area_rejected 4818
+count 5 oblique bbox_rejected 2209
+count 5 oblique walked 98752
+count 5 oblique covered 29777
+count 5 oblique written 5026
+count 5 oblique mul 932379
+count 5 oblique div 68321
+count 6 corner primitives 4818
+count 6 corner near_rejected 0
+count 6 corner triangles 9636
+count 6 corner area_rejected 4818
+count 6 corner bbox_rejected 3063
+count 6 corner walked 73432
+count 6 corner covered 22772
+count 6 corner written 5373
+count 6 corner mul 759444
+count 6 corner div 61316
+count 7 edge_on primitives 4818
+count 7 edge_on near_rejected 0
+count 7 edge_on triangles 9636
+count 7 edge_on area_rejected 5586
+count 7 edge_on bbox_rejected 2232
+count 7 edge_on walked 100167
+count 7 edge_on covered 37554
+count 7 edge_on written 9942
+count 7 edge_on mul 964200
+count 7 edge_on div 76098
+fate outside 419370
+fate beaten 179290
+fate written 65893
+walk 664553 55296
+split 1910544 4722867
+digest e4bf8640f06757d7596085b3659fd4afadf9b692e23642ecb78683bd5a174e0b
