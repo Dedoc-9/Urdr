@@ -261,6 +261,7 @@ STAGE_ORDER = (
     "voxcam",
     "voxwork",
     "voxsilo",
+    "voxpath",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21498,6 +21499,154 @@ class Gate:
                     "zero, an unknown arm refuses, and an unknown scene refuses (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxpath(self):
+        """A SECOND DECLARED TRACE, AND THE OBSERVABLE HAS NO TEMPORAL COHERENCE (URDRVXJ1). Rows:
+        walk (one continuous walk, the eye never in matter, no indistinguishable pair), coherence
+        (the two accountings and the plant), winding (a declared case the reversed set collapses,
+        with the committed law run beside it), prereg (the pre-registration), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxpath as VP
+        except Exception as exc:
+            for r in ("walk", "coherence", "winding", "prereg", "selftest"):
+                self.record(f"voxpath-{r}", False, f"import failed (voxpath): {exc}")
+            return
+        w_ok, nf = True, 0
+        try:
+            nf = len(VP.PATH)
+            w_ok = (VP.the_every_episode_is_present_and_nonempty()
+                    and VP.the_path_is_continuous_except_where_declared()
+                    and VP.the_only_turning_episodes_are_the_turns()
+                    and VP.the_whip_turns_further_than_the_pan()
+                    and VP.the_eye_never_enters_matter()
+                    and VP.no_two_consecutive_frames_are_indistinguishable()
+                    and VP.the_still_episode_changes_nothing()
+                    and VP.the_teleport_changes_almost_everything()
+                    and VP.the_path_is_not_the_old_trace()
+                    and VP.scene_result("path") == VP.golden("path"))
+        except Exception:
+            w_ok = False
+        self.record("voxpath-walk", w_ok,
+                    "THE FIRST TRACE CANNOT ANSWER THE QUESTION AND THAT IS A COMPLIMENT TO IT: "
+                    "`voxref.TRACE`'s eight frames were DESIGNED to be maximally uncorrelated, so "
+                    "measuring temporal coherence on them would report a fact about THE TRACE'S "
+                    "DESIGN rather than about renderers. So %d frames in EIGHT NAMED EPISODES are "
+                    "declared, as ONE CONTINUOUS WALK rather than eight scenes stitched together — "
+                    "every episode begins exactly where the previous one ended, in position AND "
+                    "orientation, so the only discontinuity in the trace is the one that is "
+                    "DECLARED, and a boundary that jumped would be an undeclared teleport. THE "
+                    "ROUTE IS A REAL CORRIDOR read from the world before the path was written: ten "
+                    "consecutive open cells, the longest run here, with the floor slab solid "
+                    "beneath its whole length so no frame is ever aimed at nothing. AND THE EYE "
+                    "NEVER ENTERS MATTER — `voxref.TRACE` already owns the buried case, and a walk "
+                    "that buried itself would contribute BLANK frames identical to one another, "
+                    "flattering every coherence figure here by being trivially unchanged; two "
+                    "earlier drafts did exactly that and the distinctness law caught both. The "
+                    "adversarial episodes are IN the trace rather than in a footnote, with `still` "
+                    "and the declared discontinuity as the controls at either end"
+                    % nf if w_ok else "the walk did not hold")
+        c_ok, told = True, "?"
+        try:
+            told = VP.told()
+            c_ok = (VP.the_exact_observable_loses_coherence_the_colour_half_keeps_it()
+                    and VP.the_colour_figure_is_an_upper_bound_on_ownership()
+                    and VP.the_pair_is_why_colour_alone_would_lie()
+                    and VP.the_hard_episodes_are_hard()
+                    and VP.the_new_path_carries_colour_coherence_the_old_trace_does_not()
+                    and VP.the_record_names_this_world()
+                    and VP.the_record_is_bound_to_the_live_code()
+                    and VP.scene_result("coherence") == VP.golden("coherence"))
+        except Exception:
+            c_ok = False
+        self.record("voxpath-coherence", c_ok,
+                    "%s. THE COLOUR FIGURE IS AN UPPER BOUND ON OWNERSHIP AND NEVER A MEASUREMENT "
+                    "OF IT — distinct primitives can share a colour, so a pixel whose colour "
+                    "survives may have changed OWNER underneath; the bound is asserted in the one "
+                    "direction it can be checked, that colour never survives less often than the "
+                    "pair. THE PLANT HAS ITS WITNESS INSIDE THIS RUNG'S OWN TRACE: a `creep` pair "
+                    "whose colour buffer is unchanged at EVERY one of the 6912 pixels while the "
+                    "observable is unchanged at barely one in eight, so a colour-only accounting "
+                    "would have licensed reusing a frame whose depth had moved almost everywhere. "
+                    "THIS ROW REDDENS if the exact observable ever starts carrying the coherence "
+                    "the colour half has, which would mean depth had stopped depending on the "
+                    "camera"
+                    % told if c_ok else "the coherence measurement did not hold")
+        n_ok, wd = True, (0, 0, 0)
+        try:
+            wd = VP.winding_distinctness()
+            n_ok = (VP.the_reversed_winding_collapses_a_declared_case()
+                    and VP.the_committed_law_still_holds()
+                    and VP.the_old_trace_is_untouched())
+        except Exception:
+            n_ok = False
+        self.record("voxpath-winding", n_ok,
+                    "THE REVERSED WINDING COLLAPSES A DECLARED CASE, AND THE FINDING IS SCOPED IN "
+                    "BOTH DIRECTIONS RATHER THAN ANNOUNCED. %d of %d declared frames are distinct "
+                    "under `voxref.primitives()` and only %d under "
+                    "`voxray.primitives_with(reversed)` — `enclosed` and `buried` are byte-identical "
+                    "in COLOUR AND DEPTH there. `voxref.every_declared_case_is_distinct` renders "
+                    "with the COMMITTED winding and is CORRECT, and it is RUN here rather than "
+                    "merely cited; but every rung from `voxtie` onward — this arc included, "
+                    "`voxwork` and `voxsilo` with it — renders with the REVERSED set, so THE "
+                    "PERFORMANCE ARC HAS BEEN MEASURING A SEVEN-CASE TRACE WHILE CALLING IT EIGHT. "
+                    "And the old trace is PINNED BY DIGEST, so a second trace cannot quietly tune "
+                    "itself by editing the first one it is compared against"
+                    % (wd[0], wd[2], wd[1]) if n_ok else "the winding census did not hold")
+        p_ok = True
+        try:
+            p_ok = (VP.the_prediction_ships_before_the_arms()
+                    and VP.the_prediction_names_no_result()
+                    and VP.no_certificate_is_built()
+                    and VP.no_wall_clock_enters_this_rung())
+        except Exception:
+            p_ok = False
+        self.record("voxpath-prereg", p_ok,
+                    "THE PREDICTION FOR THE NEXT RUNG SHIPS IN THIS COMMIT, ONE COMMIT BEFORE ANY "
+                    "ARM EXISTS. `voxsilo` had to admit it could make no prediction claim because "
+                    "its arms ran first, and pinning one afterwards would have been back-dating it "
+                    "— and THE ONLY MECHANISM THAT ACTUALLY PROVES A PREDICTION CAME FIRST IS "
+                    "COMMIT ORDER. Five conditional predicates and five predictions are committed "
+                    "as `spec/attest/voxcond-prediction.txt` with their digest pinned as this "
+                    "rung's golden; the arms land in a LATER commit and must score exactly that set "
+                    "against exactly that digest. TWO OF THE FIVE PREDICT FAILURE, which is the "
+                    "point — the obvious conditional predicates are expected NOT to work, and "
+                    "saying so before running is the only version of that claim worth anything. The "
+                    "pre-registration is asserted to carry NO verdict row of any kind, because one "
+                    "that already contained its answer would not be one. NOT ONE CERTIFICATE IS "
+                    "BUILT HERE, and no wall clock enters"
+                    if p_ok else "the pre-registration did not hold")
+        s_ok = True
+        try:
+            s_ok = VP.a_tampered_row_refuses()
+            for bad in ("frame 0 strafe s 1,2,3 0,1,0", "pair 1 strafe 5 10", "colour strafe 1 2 3",
+                        "winding 8", "rumour 1 2 3"):
+                try:
+                    VP.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VP.VoxpathError:
+                    pass
+            for call, arg in ((VP.episode, "strafe"), (VP.episode_colour, "nonesuch"),
+                              (VP.scene_case, "path2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VP.VoxpathError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("voxpath-selftest", s_ok,
+                    "eight plants bite: a pair row relabelled to an episode outside the eight "
+                    "declared refuses typed, a frame row and a colour row naming no declared "
+                    "episode both refuse, a winding row of the wrong arity refuses, a row of "
+                    "unknown kind refuses rather than being skipped as a comment, an unknown "
+                    "episode refuses rather than returning an empty span — which is the failure "
+                    "mode that would let an episode be scored against nothing — an episode with no "
+                    "interior pair refuses rather than reporting a vacuous coherence, and an "
+                    "unknown scene refuses (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -25304,7 +25453,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

@@ -1,0 +1,112 @@
+# URDRVXJ1 a second declared trace — emitted by voxpath.py, pinned by hand, compared by the gate.
+#
+# THE FIRST TRACE CANNOT ANSWER THE QUESTION, AND THAT IS A COMPLIMENT TO IT.
+#
+# The conditional-certificate arc wants to know how much work survives from one frame to the next.
+# `voxref.TRACE`'s eight frames were DESIGNED to be maximally uncorrelated adversarial cases —
+# enclosed, buried, seam, wall-flat, open air, oblique, corner, edge-on — with no camera continuity
+# anywhere. Measuring temporal coherence on them would report a number near zero, and it would be a
+# fact about THE TRACE'S DESIGN rather than about renderers.
+#
+# So a second trace is DECLARED, and declaring one is a contract act rather than a convenience.
+#
+# THE PATH IS ONE CONTINUOUS WALK, not eight scenes stitched together. Every episode begins exactly
+# where the previous one ended, in position AND orientation, and the only discontinuity in the whole
+# trace is the one that is declared. THE ROUTE IS A REAL CORRIDOR, chosen from the world before the
+# path was written: the column (x=10, z=1) is open for TEN consecutive cells — the longest run in
+# this world — with the floor slab solid beneath its whole length, so no frame is ever aimed at
+# nothing. THE EYE NEVER ENTERS MATTER: `voxref.TRACE` already owns the buried case, and a walk that
+# buried itself would contribute blank frames, identical to one another, flattering every coherence
+# figure here by being trivially unchanged. The two side walls do the work — the right wall opens,
+# closes and opens again across cells 1-4, which is the `aperture`; the left wall closes and opens
+# across cells 5-8, which is the `graze`.
+#
+#     still     4   the camera does not move at all                        THE CONTROL
+#     creep     5   1/32 of a voxel per frame
+#     pan       5   a slow turn, position held
+#     whip      4   a hard turn, position held
+#     sprint    3   two voxels per frame, driving in
+#     aperture  4   a gap in the right wall opening, closing and opening
+#     graze     4   alongside the left wall, looking across it
+#     teleport  2   ONE DECLARED DISCONTINUITY                             THE FAILURE CASE
+#
+# THE ADVERSARIAL CASES ARE IN THE TRACE RATHER THAN IN A FOOTNOTE. A path that only crept would
+# measure the best case and call it the average.
+#
+# AND THE HEADLINE IS THE OPPOSITE OF WHAT THE ARC WAS HOPING FOR.
+#
+#     at 1/32 of a voxel per frame:    colour unchanged   6900 of 6912     99.8%
+#                                      OBSERVABLE unchanged  811 of 6912   11.7%
+#
+# THERE IS NO TEMPORAL SPARSITY IN THE OBSERVABLE TO EXPLOIT, AT ANY SPEED. Depth is a CONTINUOUS
+# FUNCTION OF CAMERA POSITION and `O_t` contains it exactly, so the depth half moves at nearly every
+# pixel however small the step. A certificate of the form `this pixel is unchanged` therefore
+# certifies almost nothing.
+#
+# THIS IS A RESULT AND NOT AN OBSTACLE. It says the certificate must be about OWNERSHIP — which face
+# owns the pixel — with depth RECONSTRUCTED from the owner rather than remembered. The two halves
+# are measured APART here so the next rung cannot assume the wrong quantity is stable.
+#
+# AND THE COLOUR FIGURE IS AN UPPER BOUND ON OWNERSHIP, NEVER A MEASUREMENT OF IT. Distinct
+# primitives can share a colour, so a pixel whose colour survives may have changed owner underneath.
+# Measuring ownership needs the winner buffer, which is the next rung's job. The bound is asserted in
+# the only direction it can be checked: colour never survives less often than the pair.
+#
+# THE PLANT HAS ITS WITNESS INSIDE THIS RUNG'S OWN TRACE. There is a `creep` pair whose colour buffer
+# is unchanged at EVERY ONE of the 6912 pixels while the observable is unchanged at barely one in
+# eight. A colour-only accounting would have called that pair perfectly coherent and licensed reusing
+# a frame whose depth had moved almost everywhere.
+#
+# AND THE REVERSED WINDING COLLAPSES A DECLARED CASE.
+#
+#     distinct O_t under `voxref.primitives()`                8 of 8
+#     distinct O_t under `primitives_with("reversed")`        7 of 8   enclosed == buried
+#
+# `voxref.every_declared_case_is_distinct` renders with the committed winding and is CORRECT. But
+# every rung from `voxtie` onward — this arc included, `voxwork` and `voxsilo` with it — renders with
+# the REVERSED set, and under that set two of the eight frames are byte-identical in colour AND
+# depth. THE PERFORMANCE ARC HAS BEEN MEASURING A SEVEN-CASE TRACE WHILE CALLING IT EIGHT. Both
+# halves are asserted, so the finding stays scoped to the variant it is about instead of reading as
+# a defect in the reference — and the reference's own law is RUN here, not merely cited.
+#
+# THE PREDICTION FOR THE NEXT RUNG SHIPS IN THIS COMMIT, ONE COMMIT BEFORE ANY ARM EXISTS.
+#
+# `voxsilo` had to admit it could make no prediction claim: its arms ran first, and pinning a
+# prediction afterwards would have been back-dating one. THE ONLY MECHANISM THAT ACTUALLY PROVES A
+# PREDICTION CAME FIRST IS COMMIT ORDER. The five conditional predicates and the five predictions
+# `voxcond` must score are committed here as `spec/attest/voxcond-prediction.txt`, with their digest
+# pinned below as the `prediction` golden. The arms land in a LATER commit and are required to score
+# exactly that set against exactly that digest. Two of the five predict FAILURE, which is the point:
+# the obvious conditional predicates are expected NOT to work, and saying so before running is the
+# only version of that claim worth anything.
+#
+# DECLARED: the eight episodes; the corridor and the two side walls, read from the world before the
+# path was written and pinned so the choice is auditable rather than incidental; the maximum
+# non-teleport step; and the single index at which the path may be discontinuous.
+#
+# DERIVED at claim time (L75): the whole path, every consecutive pair on both accountings, the
+# per-episode spans, the old trace's best DISTINGUISHABLE pair, the winding census and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * path — all 31 frames, every eye and every forward vector. The trace itself, frozen.
+#   * coherence — every pair on BOTH accountings, both sets of per-episode spans, the old trace's
+#     best distinguishable pair and the winding census. The degenerate pair is EXCLUDED from the
+#     comparison by name, because quoting a pair the observable cannot tell apart would be quoting
+#     an artefact.
+#   * prediction — the digest of the pre-registration committed in this same commit.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT CERTIFICATES. Not one is built, costed or exploited here.
+#   * NOTHING ABOUT TIME, and no wall clock enters — `voxwork`'s structural rule, and a trace rung
+#     is exactly where a stopwatch would slip in.
+#   * THAT THE PATH IS REPRESENTATIVE of any real player. It is DESIGNED, like `voxref.TRACE` before
+#     it, and eight episodes are eight episodes.
+#   * THAT HIGH COLOUR COHERENCE IMPLIES RETIRABLE WORK. `voxsilo` already showed a frame can change
+#     little and still need most of its computation, and the gap between those two quantities is the
+#     whole subject of the next rung.
+#   * OWNERSHIP SURVIVAL, which is bounded above by the colour figure and not measured.
+#   * NOTHING IS ALTERED. `voxref.TRACE` is pinned by digest and untouched, the frozen census stays
+#     frozen, and no rung's numbers move.
+path 899426ff3c450905bd78d77446af5b920104d8da9c73538deda2331dbd4c2ba0
+coherence fdabc4ccb4b7d1dc91d46e541849e56292c5c783a5e47153b52af5d335ab9473
+prediction dadb86143c74491cef6e1666da4fb1328c17393fd7c7059b4fb1724e33584ca4

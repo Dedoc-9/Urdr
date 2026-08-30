@@ -1,0 +1,46 @@
+# URDRVXJ1 -> voxcond PRE-REGISTRATION. Written and COMMITTED before any arm exists.
+#
+# `voxsilo` had to admit it could make no prediction claim: its arms ran first, and pinning a
+# prediction afterwards would have been back-dating one. THE ONLY MECHANISM THAT ACTUALLY PROVES A
+# PREDICTION CAME FIRST IS COMMIT ORDER. This file ships in the `voxpath` commit. The arms land in a
+# LATER commit and are required to score exactly this set, quoted from this file by digest.
+#
+# THE QUESTION voxcond MUST ANSWER, fixed here so it cannot drift toward whatever the arms find:
+#
+#     Under what observable conditions does a certificate retire MORE exact work than it costs to
+#     establish, test and maintain — while `O_t` remains BYTE-IDENTICAL?
+#
+# The winning condition is NOT highest reuse. It is:
+#
+#     predicate cost + establishment + maintenance  <  exact work retired,   with O_t unmoved.
+#
+# THE FIVE PREDICATES. Each is a cheap test proposed as a licence to skip exact work. Each must be
+# measured on THREE quantities and no fewer, because a scheme reporting only the third is reporting
+# the half of the ledger it chose:
+#
+#     (a) PREDICATE COST      operations spent deciding whether the condition holds
+#     (b) VALIDITY POPULATION frames or tiles on which it holds
+#     (c) WORK RETIRED        exact operations skipped because it held
+#
+predicate P1 still — the eye and the forward vector are both bit-identical to the previous frame.
+predicate P2 near_step — the eye moved less than a declared epsilon and the forward vector is unchanged.
+predicate P3 same_cell — the eye lies in the same voxel cell as the previous frame and the forward vector is unchanged.
+predicate P4 same_owner — the winning primitive of a tile is unchanged from the previous frame.
+predicate P5 same_occupancy — the set of solid voxels intersecting the view cone is unchanged.
+#
+# THE FIVE PREDICTIONS. Every one must be SCORED, and the verdict set must EQUAL this set, so a rung
+# cannot report its hits and lose its misses. Two of these predict FAILURE, which is the point: the
+# obvious conditional predicates are expected NOT to work, and saying so before running is the only
+# version of that claim worth anything.
+#
+predict D1 P1 wins and must — it retires essentially all per-frame work at negligible predicate cost. A conditional scheme that cannot win when nothing moves cannot win anywhere, so D1 is the floor rather than a result.
+predict D2 P2 is UNSOUND as stated — a sub-voxel camera move can still change `O_t`, because the projection is an integer division and a one-unit camera move can flip a pixel across an edge. A bare epsilon threshold is therefore not a certificate at all, and the arm must be caught by the byte-identity contract exactly as the naive hierarchical-Z cull was in `voxsilo`.
+predict D3 P3 is UNSOUND for the same reason as D2 and by a LARGER margin, because a whole voxel cell admits far more sub-pixel motion than any epsilon worth declaring.
+predict D4 P4 costs more than it retires — determining which primitive owns a tile IS the work, so a predicate that reads ownership cannot be cheaper than computing it, and its predicate cost must exceed its retired work.
+predict D5 the sound-and-cheap conditions certify FAR FEWER pixels than are actually coherent — `voxpath` measures raw coherence and this predicts a large gap between what survives and what any cheap predicate can PROVE survives. That gap, not the coherence, is the real subject of the arc.
+#
+# WHAT THIS PRE-REGISTRATION DOES NOT DO
+#   * It names no expected NUMBERS. A prediction carrying its own figures would be a result.
+#   * It carries NO verdict row of any kind, and `voxpath` asserts that mechanically.
+#   * It does not fix HOW a predicate is implemented, only what it claims and what must be measured.
+#   * It grants no licence to add a sixth predicate later and score it as though pre-registered.

@@ -1,0 +1,94 @@
+# URDRVXJ1 a second declared trace — emitted by voxpath.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# `voxref.TRACE`'s eight frames were designed to be maximally UNCORRELATED, so temporal
+# coherence cannot be asked of them. This trace is DECLARED, with its adversarial
+# episodes IN it rather than in a footnote, and ONE declared discontinuity.
+# A PIXEL IS UNCHANGED ONLY IF BOTH HALVES OF O_t ARE.
+#   frame   <index> <episode> <name> <eye> <forward>
+#   pair    <index> <episode> <unchanged> <total>
+#   span    <episode> <worst> <best> <total>
+#   colour  <episode> <worst> <best> <total>
+#   old     <best pair> <best colour> <total>   EXCLUDING the degenerate pair
+#   winding <distinct committed> <distinct reversed> <frames>
+#   digest  <path digest>
+frame 0 still still0 2688,-1536,384 0,64,0
+frame 1 still still1 2688,-1536,384 0,64,0
+frame 2 still still2 2688,-1536,384 0,64,0
+frame 3 still still3 2688,-1536,384 0,64,0
+frame 4 creep creep1 2688,-1528,384 0,64,0
+frame 5 creep creep2 2688,-1520,384 0,64,0
+frame 6 creep creep3 2688,-1512,384 0,64,0
+frame 7 creep creep4 2688,-1504,384 0,64,0
+frame 8 creep creep5 2688,-1496,384 0,64,0
+frame 9 pan pan1 2688,-1496,384 2,64,0
+frame 10 pan pan2 2688,-1496,384 4,64,0
+frame 11 pan pan3 2688,-1496,384 6,64,0
+frame 12 pan pan4 2688,-1496,384 8,64,0
+frame 13 pan pan5 2688,-1496,384 10,64,0
+frame 14 whip whip0 2688,-1496,384 26,64,0
+frame 15 whip whip1 2688,-1496,384 42,64,-16
+frame 16 whip whip2 2688,-1496,384 20,64,-32
+frame 17 whip whip3 2688,-1496,384 0,64,0
+frame 18 sprint sprint1 2688,-984,384 0,64,0
+frame 19 sprint sprint2 2688,-472,384 0,64,0
+frame 20 sprint sprint3 2688,40,384 0,64,0
+frame 21 aperture aper0 2688,384,384 0,64,0
+frame 22 aperture aper1 2688,640,384 0,64,0
+frame 23 aperture aper2 2688,896,384 0,64,0
+frame 24 aperture aper3 2688,1152,384 0,64,0
+frame 25 graze graze0 2688,1408,384 -16,64,0
+frame 26 graze graze1 2688,1664,384 -16,64,0
+frame 27 graze graze2 2688,1920,384 -16,64,0
+frame 28 graze graze3 2688,2176,384 -16,64,0
+frame 29 teleport tele0 -2304,5120,-1024 1,-2,1
+frame 30 teleport tele1 -2304,5184,-1024 1,-2,1
+pair 1 still 6912 6912
+pair 2 still 6912 6912
+pair 3 still 6912 6912
+pair 4 creep 826 6912
+pair 5 creep 811 6912
+pair 6 creep 813 6912
+pair 7 creep 811 6912
+pair 8 creep 811 6912
+pair 9 pan 963 6912
+pair 10 pan 1244 6912
+pair 11 pan 1654 6912
+pair 12 pan 1922 6912
+pair 13 pan 2307 6912
+pair 14 whip 2480 6912
+pair 15 whip 4824 6912
+pair 16 whip 6533 6912
+pair 17 whip 813 6912
+pair 18 sprint 392 6912
+pair 19 sprint 1214 6912
+pair 20 sprint 3639 6912
+pair 21 aperture 90 6912
+pair 22 aperture 1654 6912
+pair 23 aperture 2577 6912
+pair 24 aperture 1364 6912
+pair 25 graze 3 6912
+pair 26 graze 671 6912
+pair 27 graze 300 6912
+pair 28 graze 0 6912
+pair 29 teleport 0 6912
+pair 30 teleport 3140 6912
+span still 6912 6912 6912
+span creep 811 813 6912
+span pan 1244 2307 6912
+span whip 813 6533 6912
+span sprint 1214 3639 6912
+span aperture 1364 2577 6912
+span graze 0 671 6912
+span teleport 3140 3140 6912
+colour still 6912 6912 6912
+colour creep 6900 6912 6912
+colour pan 6058 6233 6912
+colour whip 1128 6533 6912
+colour sprint 2911 4771 6912
+colour aperture 2459 3561 6912
+colour graze 2146 2722 6912
+colour teleport 5656 5656 6912
+old 1899 5579 6912
+winding 8 7 8
+digest 2ab661d264058c178d2db03843b0a2c1cc32a0018a450713febed23727ca3c9c
