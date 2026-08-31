@@ -1,0 +1,51 @@
+# URDRVXV1 does certificate validity have structure — emitted by
+# voxmanifold.generate(), committed as an artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# THE PREDICTION WAS COMMITTED ONE COMMIT EARLIER, in `voxstate`, and is QUOTED here
+# rather than restated. Every traversal reproduces the cold baseline BYTE FOR BYTE.
+# THE PATH ROWS CARRY NO VERDICT: they were not pre-registered.
+#   order   <order> <executed> <certified tiles> <checks> <retired vs Z0>
+#   verdict <id> <HIT|MISS> <what was measured>
+#   path    <path> <cumulative executed>            MEASURED, NOT SCORED
+#   delta   <A><B><C> <W(A->B)+W(B->C)-W(A->C)>     MEASURED, NOT SCORED
+#   bound   <state> ...                             validity boundaries
+#   digest  <manifold digest>
+order Z0 22290004 0 0 0
+order Z1 20576604 273 102624 1713400
+order Z2 19496504 346 103274 2793500
+order Z3 18929412 422 104682 3360592
+verdict M1 MISS adjacent pairs certify 222 tiles over 8 pairs, non-adjacent 87 over 4
+verdict M2 HIT Z2 retires 2793500 against Z1's 1713400
+verdict M3 HIT Z3 retires 3360592 against Z2's 2793500
+verdict M4 MISS 3 of three traversals beat Z0 (Z1, Z2, Z3); against the COMMITTED REFERENCE all four still lose
+verdict M5 MISS 16 of 16 states are validity boundaries
+path ABCD 5857568
+path ACBD 5738292
+path ABDC 5775668
+path ACDB 5681528
+delta ABC 1451536
+delta ABD 1267728
+delta ACB 1409356
+delta ACD 1344824
+delta ADB 1275444
+delta ADC 1390600
+delta BAC 1394348
+delta BAD 1578156
+delta BCA 1392336
+delta BCD 1528632
+delta BDA 1273264
+delta BDC 1206792
+delta CAB 1377328
+delta CAD 1441860
+delta CBA 1468556
+delta CBD 1332260
+delta CDA 1409560
+delta CDB 1210912
+delta DAB 1575976
+delta DAC 1460820
+delta DBA 1269908
+delta DBC 1336380
+delta DCA 1325864
+delta DCB 1524512
+bound 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+digest 536165ebb1e8c184968ffba805a129cf993f0f6c86ba04f430d89e0a4699b0cc

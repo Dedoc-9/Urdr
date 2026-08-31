@@ -264,6 +264,7 @@ STAGE_ORDER = (
     "voxpath",
     "voxcond",
     "voxstate",
+    "voxmanifold",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21884,6 +21885,115 @@ class Gate:
                     "redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxmanifold(self):
+        """DOES CERTIFICATE VALIDITY HAVE STRUCTURE (URDRVXV1)? Rows: prereg (the quotation and the
+        verdict-set equality), structure (the locality that survives and the manifold that dies),
+        baseline (the two baselines and the cold-start control), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxmanifold as VM
+        except Exception as exc:
+            for r in ("prereg", "structure", "baseline", "selftest"):
+                self.record(f"voxmanifold-{r}", False, f"import failed (voxmanifold): {exc}")
+            return
+        p_ok, hits, misses = True, (), ()
+        try:
+            hits, misses = VM.hits(), VM.misses()
+            p_ok = (VM.the_prediction_is_quoted_from_the_earlier_commit()
+                    and VM.the_verdicts_match_the_committed_prediction()
+                    and VM.the_record_carries_hits_and_misses()
+                    and VM.the_path_results_carry_no_verdict()
+                    and VM.the_record_names_this_world()
+                    and VM.the_record_is_bound_to_the_live_code())
+        except Exception:
+            p_ok = False
+        self.record("voxmanifold-prereg", p_ok,
+                    "THE PREDICTION WAS COMMITTED ONE COMMIT EARLIER AND IS QUOTED, NOT RESTATED — "
+                    "`voxcond`'s precedent, applied again. %d HIT and %d MISSED (%s). AND THE PATH "
+                    "QUANTITIES CARRY NO VERDICT AND NONE IS INVENTED FOR THEM: the sub-additivity "
+                    "triples and the four declared paths were NOT in the committed "
+                    "pre-registration, so they are reported as DATA. They are evidence and they "
+                    "point one way, but turning that into a scored claim would need its own "
+                    "pre-registered rung, and this rung does not pretend it already has one"
+                    % (len(hits), len(misses), ", ".join(misses)) if p_ok
+                    else "the pre-registration did not hold")
+        s_ok, told = True, "?"
+        try:
+            told = VM.told()
+            s_ok = (VM.every_traversal_reproduces_the_cold_baseline()
+                    and VM.scene_result("orders") == VM.golden("orders")
+                    and VM.scene_result("verdicts") == VM.golden("verdicts")
+                    and VM.scene_result("paths") == VM.golden("paths")
+                    and VM.nothing_is_promoted()
+                    and VM.no_wall_clock_enters_this_rung())
+        except Exception:
+            s_ok = False
+        self.record("voxmanifold-structure", s_ok,
+                    "%s. EVERY TRAVERSAL REPRODUCES THE COLD BASELINE BYTE FOR BYTE, colour and "
+                    "depth AS LISTS, on all sixteen states — a traversal that changed what is seen "
+                    "would not be a cheaper path but a bug, and this contract has now caught an "
+                    "unsound optimisation in THREE CONSECUTIVE RUNGS. This row reddens if "
+                    "retirement ever stops rising with inheritance quality, or if a cheap interior "
+                    "ever appears — which would mean the manifold framing had become measurable "
+                    "after all, and would reopen a direction this rung closed"
+                    % told if s_ok else "the structure measurement did not hold")
+        b_ok, z0, ref = True, 0, 0
+        try:
+            z0, ref = VM.run("Z0")[1], VM.reference_cost()
+            b_ok = (VM.the_ambiguity_in_my_own_prediction_is_disclosed()
+                    and VM.each_state_inherits_only_from_its_declared_predecessor())
+        except Exception:
+            b_ok = False
+        self.record("voxmanifold-baseline", b_ok,
+                    "MY OWN PRE-REGISTRATION WAS AMBIGUOUSLY WORDED AND THE LITERAL TEXT IS SCORED. "
+                    "M4 reads `no traversal beats Z0` and then argues from the tiled loop's cost "
+                    "against the COMMITTED REFERENCE — two different baselines giving OPPOSITE "
+                    "verdicts. Scoring the reading that flatters the result is exactly what "
+                    "pre-registration exists to prevent, so M4 MISSES and BOTH numbers are "
+                    "reported: the reference over these sixteen states costs %d and the cold tiled "
+                    "loop %d, a scaffolding ratio that independently REPRODUCES `voxcond`'s 1.85 on "
+                    "a different workload — the one thing here that generalises. AND THE FIRST "
+                    "DRAFT OF THIS DISCLOSURE COMPARED THE WRONG BASELINES, setting this lattice "
+                    "against `voxcond`'s figure measured over `voxpath`'s THIRTY-ONE frames; the "
+                    "reference is now re-measured on the SIXTEEN states this rung visits, and the "
+                    "correction is on the record. THE COLD-START CONTROL IS A LAW and it is what "
+                    "separates manifold structure from a warm cache: nothing crosses between states "
+                    "but the declared predecessor's OWNER MAP, proved by re-running states in "
+                    "ISOLATION and requiring the IDENTICAL executed count"
+                    % (ref, z0) if b_ok else "the baseline disclosure did not hold")
+        t_ok = True
+        try:
+            t_ok = VM.a_tampered_row_refuses()
+            for bad in ("order Z9 1 2 3 4", "verdict M9 HIT nothing", "path DCBA 5",
+                        "delta AZQ 5", "rumour 1 2 3"):
+                try:
+                    VM.parse("# world x\n%s\n" % bad)
+                    t_ok = False
+                except VM.VoxmanifoldError:
+                    pass
+            for call, arg in ((VM.run, "Z9"), (VM.path_cost, "DCBA"),
+                              (VM.corner_index, "Z"), (VM.scene_case, "orders2")):
+                try:
+                    call(arg)
+                    t_ok = False
+                except VM.VoxmanifoldError:
+                    pass
+        except Exception:
+            t_ok = False
+        self.record("voxmanifold-selftest", t_ok,
+                    "nine plants bite: an order row relabelled to a traversal outside the four "
+                    "declared refuses typed, a verdict row naming no declared prediction refuses, a "
+                    "path row naming a permutation that is not one of the four declared refuses, a "
+                    "delta row naming no declared triple refuses, a row of unknown kind refuses "
+                    "rather than being skipped as a comment, an unknown order refuses rather than "
+                    "returning an empty run — which is the failure mode that would let a traversal "
+                    "be scored against nothing — an undeclared path refuses rather than being "
+                    "costed anyway, an unknown corner state refuses, and an unknown scene refuses "
+                    "(gate can redden)"
+                    if t_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -25690,7 +25800,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

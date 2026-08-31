@@ -1,0 +1,103 @@
+# URDRVXV1 does certificate validity have structure — emitted by voxmanifold.py, pinned by hand,
+# compared by the gate.
+#
+# THE PREDICTION WAS COMMITTED ONE COMMIT EARLIER AND IS QUOTED, NOT RESTATED.
+#
+# `voxstate` declared the lattice, the four traversals, and this rung's pre-registration. This rung
+# PARSES that file, checks its digest against the golden `voxstate` pinned, and requires its verdict
+# set to EQUAL the five ids found there. Five were registered; five are scored.
+#
+# THE QUESTION, FIXED BEFORE ANY TRAVERSAL RAN: does certificate validity form CONNECTED REGIONS in
+# state space that can be traversed more cheaply than independently solving each state?
+#
+# THE ANSWER IS YES ON LOCALITY AND NO ON THE MANIFOLD. TWO OF FIVE HIT.
+#
+# WHAT SURVIVES IS ORDINARY LOCALITY, and it is real. Retirement rises MONOTONICALLY with the
+# quality of inheritance:
+#
+#     Z1  row-major        retires 1713400
+#     Z2  zig-zag          retires 2793500
+#     Z3  nearest          retires 3360592
+#
+# Choosing a nearer predecessor retires NEARLY TWICE what taking whatever the scan order supplies
+# does. M2 and M3 both hit. Adjacency governs validity, and the zig-zag idea works.
+#
+# WHAT DIES IS THE MANIFOLD, AND IT DIES THREE SEPARATE WAYS.
+#
+#     M1 MISS   adjacent ordered pairs certify 222 tiles over 8 pairs — 27.75 each — against 87
+#               over 4 non-adjacent, or 21.75 each. A 28 PER CENT EDGE: real, but NOT the
+#               categorical difference a `connected region` implies. Validity is DIFFUSE.
+#     M5 MISS   ALL SIXTEEN OF THE SIXTEEN STATES ARE VALIDITY BOUNDARIES. Every one retires less
+#               than a quarter of its own cold cost. THERE IS NO CHEAP INTERIOR AT ALL, so there is
+#               nothing for a boundary-traversal scheme to be cheap around.
+#     the path  ZERO OF TWENTY-FOUR sub-additivity triples are negative. Reaching C by way of B
+#               ALWAYS costs more than reaching C directly from A. An intermediate state NEVER
+#               contributes reusable structure; it is only ever on the way.
+#
+# So there is no wake here — no shared structure in proof space, no interior that a few boundary
+# computations certify. THERE IS A CACHE THAT WORKS BETTER WHEN YOU INHERIT FROM SOMETHING NEARBY,
+# which is the ordinary thing, honestly measured, and worth exactly what it is.
+#
+# AND MY OWN PRE-REGISTRATION WAS AMBIGUOUSLY WORDED, WHICH IS ITSELF THE LESSON.
+#
+# M4 reads `NO traversal beats Z0 in TOTAL operations` and then argues from the tiled loop's 1.85x
+# cost against the COMMITTED REFERENCE. Those are two different baselines and they give OPPOSITE
+# verdicts. THE LITERAL TEXT IS SCORED — scoring the reading that flatters the result is exactly
+# what pre-registration exists to prevent — so M4 MISSES, and both numbers are reported:
+#
+#     the committed reference over these sixteen states     12121714
+#     Z0, the tiled loop cold                               22290004     1.84x scaffolding
+#     Z3, the best traversal                                18929412     1.56x the reference
+#
+# EVEN THE BEST TRAVERSAL IS HALF AGAIN DEARER THAN `voxref`. The 1.84x reproduces `voxcond`'s
+# independently measured 1.85x on a different workload, which is the one thing here that generalises.
+#
+# AND THE FIRST DRAFT OF THAT DISCLOSURE COMPARED THE WRONG BASELINES. It set this lattice's
+# traversals against `voxcond`'s reference figure, which was measured over `voxpath`'s THIRTY-ONE
+# frames — a different workload entirely. The reference is now re-measured on the SIXTEEN states
+# this rung actually visits. The correction is recorded because a rung that hid it would be
+# publishing its second number as if it were its first.
+#
+# THE COLD-START CONTROL IS A LAW, and it is what separates manifold structure from a warm cache.
+# Nothing crosses between states but the declared predecessor's OWNER MAP: no depth, no colour, no
+# geometry, no memo of a previous render. It is proved by re-running states in ISOLATION with only
+# that map and requiring the IDENTICAL executed count — a hidden cache would make the isolated run
+# differ from the one inside the traversal.
+#
+# EVERY TRAVERSAL REPRODUCES THE COLD BASELINE BYTE FOR BYTE, colour and depth AS LISTS, on all
+# sixteen states. A traversal that changed what is seen would not be a cheaper path but a bug, and
+# this contract has now caught an unsound optimisation in three consecutive rungs.
+#
+# THE PATH QUANTITIES CARRY NO VERDICT, AND NONE IS INVENTED FOR THEM. Sub-additivity over the
+# four-state corner and the four declared paths through it were NOT in the committed pre-registration.
+# They are reported as DATA. They are evidence and they point one way, but turning that into a scored
+# claim would need its own pre-registered rung, and this rung does not pretend it already has one.
+#
+# DECLARED: the four corner states and their cells; the four paths, two entirely adjacent and two
+# crossing the diagonal, all visiting the same states; the boundary threshold of one quarter, far
+# enough from zero that a state scraping a few tiles is not called interior and far enough from one
+# that a productive state is not called boundary; and the tile edge, INHERITED from `voxcond`.
+#
+# DERIVED at claim time (L75): every traversal's executed count, certified tiles, checks and
+# retirement; every verdict; the boundary set; every path cost; every sub-additivity triple; the
+# re-measured reference; and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * orders — all four traversals on executed, certified, checks and retired. Retirement is
+#     BASELINE MINUS EXECUTED, taken from the run, which is a quantity no unused fast path can earn.
+#   * verdicts — every declared prediction with its outcome, the boundary set, and the adjacency
+#     census the M1 verdict is computed from.
+#   * paths — the four path costs and all twenty-four sub-additivity triples. MEASURED, NOT SCORED.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NOTHING ABOUT MEMORY TRAFFIC OR CACHE LOCALITY. An operation count cannot tell a traversal
+#     advantage from a locality advantage, and this rung has no instrument for the second.
+#   * THAT A CHEAPER TRAVERSAL EXISTS beyond the four declared, or that a larger lattice would
+#     behave as this one does.
+#   * THAT THE PATH RESULTS ARE PREDICTIONS. They are measurements without a registered claim.
+#   * THAT THIS IS A SPEEDUP. Even the best traversal is half again dearer than the reference.
+#   * NO PROMOTION. `voxref` is untouched and no traversal is adopted.
+orders d9f39eaabfacdb426b4468396dfc77be91a69ca322455cb6bd8c6f5edfafd9ef
+verdicts 9f836cbdb9c4b5ba5238184070e1b294eea7945e0ccae16f54fcd6efa2c63009
+paths 9b55d42a3d8fa5b2b95efbb6c9bd2371270aaa208b9e9354729efc1f97dddaa2
