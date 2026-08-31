@@ -1,0 +1,57 @@
+# URDRVXU1 a state lattice and four ways to walk it — emitted by voxstate.generate(),
+# committed as an artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# NOT ONE CERTIFICATE IS BUILT, COSTED OR EXPLOITED HERE. This rung declares the space
+# the next one searches and measures its RAW geometry, so the next rung's answer is
+# meaningful rather than circular.
+#   state <n> <cell> <eye> <forward>
+#   near  <a> <b> <observable distance>      adjacent pairs only
+#   walk  <order> <non-adjacent inheritances> <nearest> <farthest> <total>
+#   span  <nearest> <farthest> <total>       over every adjacent pair
+#   digest <lattice digest>
+state 0 0,0 2688,-1536,384 0,64,0
+state 1 0,1 2688,-1536,384 4,64,0
+state 2 0,2 2688,-1536,384 8,64,0
+state 3 0,3 2688,-1536,384 12,64,0
+state 4 1,0 2688,-1472,384 0,64,0
+state 5 1,1 2688,-1472,384 4,64,0
+state 6 1,2 2688,-1472,384 8,64,0
+state 7 1,3 2688,-1472,384 12,64,0
+state 8 2,0 2688,-1408,384 0,64,0
+state 9 2,1 2688,-1408,384 4,64,0
+state 10 2,2 2688,-1408,384 8,64,0
+state 11 2,3 2688,-1408,384 12,64,0
+state 12 3,0 2688,-1344,384 0,64,0
+state 13 3,1 2688,-1344,384 4,64,0
+state 14 3,2 2688,-1344,384 8,64,0
+state 15 3,3 2688,-1344,384 12,64,0
+near 0 1 6048
+near 0 4 6186
+near 1 2 5306
+near 1 5 5536
+near 2 3 4647
+near 2 6 4817
+near 3 7 4241
+near 4 5 6100
+near 4 8 6329
+near 5 6 5439
+near 5 9 5609
+near 6 7 4729
+near 6 10 4961
+near 7 11 4314
+near 8 9 6246
+near 8 12 6472
+near 9 10 5542
+near 9 13 5754
+near 10 11 4904
+near 10 14 5104
+near 11 15 4442
+near 12 13 6420
+near 13 14 5671
+near 14 15 5030
+walk Z0 0 0 0 6912
+walk Z1 3 4647 6480 6912
+walk Z2 0 4241 6420 6912
+walk Z3 0 4241 6472 6912
+span 4241 6472 6912
+digest a8b6d8fef905e8c992ad0bbbfb0c099e700454494be0559f4514aeebdcb7a360

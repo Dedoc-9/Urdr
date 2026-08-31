@@ -263,6 +263,7 @@ STAGE_ORDER = (
     "voxsilo",
     "voxpath",
     "voxcond",
+    "voxstate",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21773,6 +21774,116 @@ class Gate:
                     "(gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxstate(self):
+        """A STATE LATTICE AND FOUR WAYS TO WALK IT; NO CERTIFICATE IS BUILT (URDRVXU1). Rows:
+        lattice (the state set, the four orders, the permutation law), geometry (the saturated
+        distances and the structural difference), prereg (the pre-registration and the dead
+        family), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxstate as VT
+        except Exception as exc:
+            for r in ("lattice", "geometry", "prereg", "selftest"):
+                self.record(f"voxstate-{r}", False, f"import failed (voxstate): {exc}")
+            return
+        l_ok, ns = True, 0
+        try:
+            ns = len(VT.STATES)
+            l_ok = (VT.the_orders_are_permutations_of_one_lattice()
+                    and VT.the_baseline_inherits_nothing()
+                    and VT.the_other_orders_inherit_everywhere_but_the_first()
+                    and VT.the_zigzag_is_always_adjacent_and_the_scan_is_not()
+                    and VT.every_state_is_distinct()
+                    and VT.the_world_admits_no_third_axis()
+                    and VT.scene_result("lattice") == VT.golden("lattice"))
+        except Exception:
+            l_ok = False
+        self.record("voxstate-lattice", l_ok,
+                    "A SEARCH EXPERIMENT NEEDS A SPACE TO SEARCH, and this rung declares one. %d "
+                    "camera states on the ONLY TWO AXES THIS WORLD ADMITS — position and "
+                    "orientation — because the geometry is a PURE HASH OF ITS SEED and mutating it "
+                    "to add a third would change `world_digest` and invalidate every frozen record "
+                    "in the tree; that is a limitation of the CORPUS rather than of the idea and it "
+                    "is RECORDED rather than worked around. Four traversals differing ONLY in which "
+                    "already-visited state each inherits from, ALL FOUR REQUIRED TO BE PERMUTATIONS "
+                    "OF ONE STATE SET so none can win by visiting a different or smaller lattice — "
+                    "the one property without which the next rung's comparison would be between "
+                    "four different experiments. Z1 is kept PRECISELY because its row wraps are NOT "
+                    "adjacent: without a traversal that sometimes inherits from far away, "
+                    "`adjacency helps` would have nothing to be measured against"
+                    % ns if l_ok else "the lattice did not hold")
+        g_ok, told = True, "?"
+        try:
+            told = VT.told()
+            g_ok = (VT.the_observable_distance_is_saturated()
+                    and VT.the_traversals_are_alike_in_distance_and_differ_in_structure()
+                    and VT.the_record_names_this_world()
+                    and VT.the_record_is_bound_to_the_live_code()
+                    and VT.scene_result("geometry") == VT.golden("geometry"))
+        except Exception:
+            g_ok = False
+        self.record("voxstate-geometry", g_ok,
+                    "%s. AND THE MEASUREMENT IMMEDIATELY KILLED THIS RUNG'S FIRST LAW, WHICH IS THE "
+                    "USEFUL PART: that law demanded the lattice span a WIDE RANGE of observable "
+                    "distance, on the assumption that distance is what a certificate tracks. IT IS "
+                    "NOT. This row reddens if observable distance ever stops being saturated across "
+                    "the lattice — which would mean depth had stopped depending on the camera, and "
+                    "would reopen the whole family of camera-side predicates `voxcond` closed"
+                    % told if g_ok else "the geometry did not hold")
+        p_ok = True
+        try:
+            p_ok = (VT.the_prediction_ships_before_the_traversals()
+                    and VT.the_prediction_names_no_result()
+                    and VT.adjacency_is_not_a_validity_claim()
+                    and VT.no_certificate_is_built()
+                    and VT.no_wall_clock_enters_this_rung())
+        except Exception:
+            p_ok = False
+        self.record("voxstate-prereg", p_ok,
+                    "THE PREDICTION FOR THE NEXT RUNG SHIPS IN THIS COMMIT, ONE COMMIT BEFORE ANY "
+                    "TRAVERSAL RUNS — `voxcond`'s precedent, and COMMIT ORDER is the only mechanism "
+                    "that actually proves a prediction came first. Five predictions are committed "
+                    "with their digest pinned as this rung's golden, and the pre-registration is "
+                    "asserted to carry NO verdict row of any kind. ONE OF THE FIVE PREDICTS THAT NO "
+                    "TRAVERSAL BEATS THE COLD BASELINE, because the tiled loop the certificate "
+                    "needs costs 1.85 times the reference and no rearrangement of inheritance "
+                    "changes that scaffolding — this experiment answers the STRUCTURE question and "
+                    "not the speed one. AND ADJACENCY IS DECLARED GEOMETRY, NEVER A VALIDITY CLAIM: "
+                    "`voxcond`'s refutations of the whole camera-side family are RUN here rather "
+                    "than cited, so the dead family cannot be resurrected as an assumption about "
+                    "this lattice. NOT ONE CERTIFICATE IS BUILT HERE"
+                    if p_ok else "the pre-registration did not hold")
+        s_ok = True
+        try:
+            s_ok = VT.a_tampered_row_refuses()
+            for bad in ("walk Z9 0 1 2 3", "near 1 2", "span 5", "rumour 1 2 3"):
+                try:
+                    VT.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VT.VoxstateError:
+                    pass
+            for call, arg in ((VT.order, "Z9"), (VT.state, len(VT.STATES)),
+                              (VT.order_span, "Z0"), (VT.scene_case, "lattice2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VT.VoxstateError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("voxstate-selftest", s_ok,
+                    "eight plants bite: a walk row relabelled to an order outside the four declared "
+                    "refuses typed, a near row and a span row of the wrong arity both refuse, a row "
+                    "of unknown kind refuses rather than being skipped as a comment, an unknown "
+                    "order refuses rather than returning an empty sequence — which is the failure "
+                    "mode that would let a traversal be scored against nothing — a state outside "
+                    "the lattice refuses, the COLD BASELINE refuses to report a predecessor span "
+                    "rather than returning a vacuous zero, and an unknown scene refuses (gate can "
+                    "redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -25579,7 +25690,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

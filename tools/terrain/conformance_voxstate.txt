@@ -1,0 +1,89 @@
+# URDRVXU1 a state lattice and four ways to walk it — emitted by voxstate.py, pinned by hand,
+# compared by the gate.
+#
+# NOT ONE CERTIFICATE IS BUILT, COSTED OR EXPLOITED HERE.
+#
+# `voxcond` established one sound, productive certificate — ownership, VERIFIED rather than
+# remembered — and refuted every cheap camera-side condition alongside it. The open question it left
+# is not whether a certificate can be built but whether CERTIFICATE VALIDITY HAS STRUCTURE: does it
+# form connected regions in state space that can be traversed more cheaply than solving each state
+# cold? That is a SEARCH EXPERIMENT, and a search experiment needs a space to search. This rung
+# declares one and measures its RAW geometry, so the next rung's answer is meaningful rather than
+# circular.
+#
+# TWO AXES, AND ONLY TWO ARE AVAILABLE. Position along the corridor and orientation in yaw. The
+# geometry of this world is a PURE HASH OF THE SEED, so geometry mutation and streamed-chunk state
+# cannot be varied without changing `world_digest` and invalidating every frozen record in the tree.
+# That is a limitation of the CORPUS rather than of the idea, and it is RECORDED rather than worked
+# around — a rung that quietly varied the world would have invalidated `voxref`'s census to make its
+# own lattice more interesting.
+#
+# FOUR TRAVERSALS, DIFFERING ONLY IN WHICH ALREADY-VISITED STATE EACH STATE INHERITS FROM:
+#
+#     Z0  independent    no predecessor; every state cold.            THE BASELINE
+#     Z1  row-major      the previous state in scan order — at a row wrap, NOT adjacent.
+#     Z2  zig-zag        the previous state in boustrophedon order — ALWAYS adjacent.
+#     Z3  nearest        the already-visited lattice NEIGHBOUR, breadth-first from the anchor.
+#
+# All four are required to be PERMUTATIONS OF ONE STATE SET, so no traversal can win by visiting a
+# different or smaller lattice — the one property without which the next rung's comparison would be
+# between four different experiments. Z1 is kept PRECISELY because its row wraps are not adjacent:
+# without a traversal that sometimes inherits from far away, `adjacency helps` would have nothing to
+# be measured against.
+#
+# AND THE MEASUREMENT IMMEDIATELY KILLED THIS RUNG'S FIRST LAW, WHICH IS THE USEFUL PART.
+#
+# That law demanded the lattice span a wide range of observable distance — near-identical states at
+# one end, unrelated ones at the other — on the assumption that distance is what a certificate
+# tracks. IT IS NOT:
+#
+#     every adjacent pair differs at 4241 to 6472 of 6912 pixels.
+#
+# A QUARTER OF A VOXEL SATURATES THE OBSERVABLE, exactly as `voxpath` predicted, because depth is a
+# continuous function of camera position and a thirty-second of a voxel already moves it almost
+# everywhere. THERE IS NO STEP SIZE SHORT OF ZERO AT WHICH OBSERVABLE DISTANCE DISCRIMINATES.
+#
+# That is a CONSTRAINT ON THE NEXT RUNG rather than a defect in this one, and a useful one: since
+# all distances are comparable, DISTANCE CANNOT CONFOUND a comparison between adjacent and
+# non-adjacent inheritance. The four traversals are ALIKE IN DISTANCE — Z1's worst predecessor pair
+# reaches 6480 against Z2's 6420, near enough to be the same number — and DIFFER ONLY IN STRUCTURE,
+# Z1 carrying three NON-ADJACENT inheritances against Z2's and Z3's none. Any difference the next
+# rung finds between them is therefore structural BY CONSTRUCTION, and nothing about the geometry
+# will be secretly explaining its answer.
+#
+# AND ADJACENCY IS DECLARED GEOMETRY, NEVER A VALIDITY CLAIM. `voxcond` refuted the whole family of
+# camera-side predicates — `the camera barely moved`, `the same voxel cell`, `unchanged occupancy` —
+# and proved them UNSOUND at an eighth of a voxel. Neighbours in this lattice are neighbours in the
+# DECLARED parameterisation and that licenses NOTHING about their observables.
+# `adjacency_is_not_a_validity_claim` RUNS `voxcond`'s refutations here rather than citing them, so
+# the dead family cannot be quietly resurrected as an assumption about this lattice.
+#
+# THE PREDICTION FOR THE NEXT RUNG SHIPS IN THIS COMMIT, ONE COMMIT BEFORE ANY TRAVERSAL RUNS.
+# `voxcond`'s precedent: COMMIT ORDER is the only mechanism that actually proves a prediction came
+# first. The five predictions `voxmanifold` must score are committed as
+# `spec/attest/voxmanifold-prediction.txt` with their digest pinned below as the `prediction`
+# golden, and the pre-registration is asserted to carry NO verdict row of any kind.
+#
+# DECLARED: the two axes; the 4x4 shape; the two steps; the anchor, taken from `voxpath`'s corridor
+# so the lattice sits in a world the previous rung already characterised; and the four orders.
+#
+# DERIVED at claim time (L75): every state, every adjacency, every observable distance, each order's
+# sequence and predecessor map, the spans and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * lattice — all sixteen states and all four orders with their predecessor maps. The space and
+#     the walks, frozen.
+#   * geometry — every adjacent pair's observable distance, the overall span, each order's own span
+#     and its non-adjacent inheritance count. The structure BEFORE any certificate is asked about it.
+#   * prediction — the digest of the pre-registration committed in this same commit.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT CERTIFICATES. Not one is built, costed or exploited.
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * THAT THE STEP SIZES ARE GOOD ONES. A different pair would move every figure the next rung
+#     reports, and its verdicts will be about THIS lattice.
+#   * THAT TWO AXES ARE ENOUGH to describe a real engine's state. They are what this corpus admits.
+#   * NOTHING IS ALTERED. `voxref`, `voxpath` and the frozen census are untouched.
+lattice 186ba72162bc1d4edc3ef9622d783221385fae7b9eba5bba3ecf335d11b711e0
+geometry 09f904b63337e141e68395f8766b94d2c3aedc67d9206820a3061fe8a2ee9ab9
+prediction b10f41ac96d28904de93b3b3652c7c4a35e3a432f6e8791be5d3b878e0e89879

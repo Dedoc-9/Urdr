@@ -1,0 +1,48 @@
+# URDRVXU1 -> voxmanifold PRE-REGISTRATION. Written and COMMITTED before any traversal exists.
+#
+# The `voxcond` precedent: the only mechanism that actually proves a prediction came first is COMMIT
+# ORDER. This file ships in the `voxstate` commit. The traversals land in a LATER commit and are
+# required to score exactly this set, quoted from this file by digest.
+#
+# THE QUESTION voxmanifold MUST ANSWER, fixed here so it cannot drift toward whatever the arms find:
+#
+#     Does certificate validity form CONNECTED REGIONS in state space that can be traversed more
+#     cheaply than independently solving each state?
+#
+# If no, the idea is killed. This is a SEARCH EXPERIMENT and not a renderer optimisation, and it is
+# entitled to answer NO.
+#
+# WHAT IS BEING TRAVERSED. `voxstate` declares a 4x4 lattice of camera states on two axes — POSITION
+# along the corridor and ORIENTATION in yaw. Those are the only two axes this world admits: the
+# geometry is a pure hash of the seed, so GEOMETRY MUTATION and STREAMED-CHUNK STATE cannot be varied
+# without changing `world_digest` and invalidating every frozen record in the tree. That limitation
+# is a fact about this corpus and is recorded rather than worked around.
+#
+# THE FOUR TRAVERSALS, declared in `voxstate` and differing ONLY in which already-visited state each
+# state inherits its certificate from:
+#
+#     Z0  independent    no predecessor; every state cold.            THE BASELINE
+#     Z1  row-major      the previous state in scan order, which at a row wrap is NOT adjacent.
+#     Z2  zig-zag        the previous state in boustrophedon order, ALWAYS adjacent.
+#     Z3  nearest        the already-visited lattice NEIGHBOUR, breadth-first from the anchor.
+#
+# THE CERTIFICATE IS `voxcond`'s P4 AND NOTHING ELSE. Ownership, verified — not remembered pixels,
+# which `voxpath` proved unsound. No new certificate is invented here; if a new one were introduced
+# the experiment would be measuring two things at once.
+#
+# THE FIVE PREDICTIONS. Every one must be SCORED and the verdict set must EQUAL this set.
+#
+predict M1 certificate validity forms CONNECTED regions rather than being scattered — adjacency in state space predicts validity, so the fraction of tiles certified across an adjacent pair is materially higher than across a non-adjacent pair at comparable observable distance. This is the whole hypothesis and it is entitled to fail.
+predict M2 Z2 retires more work than Z1, because Z1's row wraps inherit from a state that is far away in the lattice while Z2's predecessor is always adjacent. If this fails, adjacency is not what governs validity and M1 is in trouble regardless of how M1 itself scores.
+predict M3 Z3 retires at least as much as Z2 — choosing the nearest visited neighbour cannot be worse than taking whatever the scan order supplies, so a loss here would indicate the breadth-first order is paying for something the scan order avoids.
+predict M4 NO traversal beats Z0 in TOTAL operations. `voxcond` measured the tiled loop the certificate needs at 1.85 times the committed reference, and no rearrangement of inheritance changes that scaffolding, so this experiment answers the STRUCTURE question and not the speed one. A rung reporting a global win here would be reporting its scaffolding rather than its certificate.
+predict M5 the computational mass concentrates on validity BOUNDARIES — states at which the certificate largely fails cost near the full independent price, and they are a MINORITY of the lattice. If instead the cost is spread evenly, there is no interior to exploit and the manifold framing buys nothing.
+#
+# WHAT THIS PRE-REGISTRATION DOES NOT DO
+#   * It names no expected NUMBERS. A prediction carrying its own figures would be a result.
+#   * It carries NO verdict row of any kind, and `voxstate` asserts that mechanically.
+#   * It does not fix the lattice's step sizes as good ones. They are declared in `voxstate` and a
+#     different pair of steps would move every figure; the verdicts are about THIS lattice.
+#   * It grants no licence to add a sixth prediction later and score it as though pre-registered.
+#   * It does not promise the answer is YES. A search experiment that could only succeed would not
+#     be one.
