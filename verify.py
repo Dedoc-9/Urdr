@@ -262,6 +262,7 @@ STAGE_ORDER = (
     "voxwork",
     "voxsilo",
     "voxpath",
+    "voxcond",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21647,6 +21648,131 @@ class Gate:
                     "unknown scene refuses (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
+    def voxcond(self):
+        """FIVE CONDITIONAL CERTIFICATES, SCORED AGAINST A PREDICTION COMMITTED FIRST (URDRVXQ1).
+        Rows: prereg (the quotation from the earlier commit and the verdict-set equality), unsound
+        (the three refutations kept runnable), owner (the ownership certificate, reported on both
+        sides), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxcond as VC
+        except Exception as exc:
+            for r in ("prereg", "unsound", "owner", "selftest"):
+                self.record(f"voxcond-{r}", False, f"import failed (voxcond): {exc}")
+            return
+        p_ok, hits, misses = True, (), ()
+        try:
+            hits, misses = VC.hits(), VC.misses()
+            p_ok = (VC.the_prediction_is_quoted_from_the_earlier_commit()
+                    and VC.the_verdicts_match_the_committed_prediction()
+                    and VC.the_record_carries_hits_and_misses()
+                    and VC.every_arm_is_checked_against_the_reference()
+                    and VC.the_record_names_this_world()
+                    and VC.the_record_is_bound_to_the_live_code())
+        except Exception:
+            p_ok = False
+        self.record("voxcond-prereg", p_ok,
+                    "THE PREDICTION WAS COMMITTED ONE COMMIT EARLIER AND IS QUOTED, NOT RESTATED — "
+                    "the debt `voxsilo` opened, paid. This rung PARSES the file `voxpath` shipped, "
+                    "checks its digest against the golden that rung pinned, and requires its own "
+                    "verdict set to EQUAL the id set found there: not a superset, which would be a "
+                    "sixth predicate smuggled in, and not a subset, which would be a miss quietly "
+                    "dropped. A prediction that must be quoted from an earlier commit cannot be "
+                    "written after the result. %d HIT and %d MISSED (%s), AND THE TWO MISSES ARE "
+                    "THE RESULT: D4 said an ownership certificate would cost more than it retires "
+                    "because determining which primitive owns a tile IS the work — that is WRONG, "
+                    "and instructively so, because the certificate does not DETERMINE ownership, it "
+                    "VERIFIES a remembered owner, and verifying is far cheaper than searching; D5 "
+                    "said no cheap non-trivial condition would be both sound and productive, and P4 "
+                    "is exactly that. A pre-registration that landed all five would have been luck "
+                    "or hindsight"
+                    % (len(hits), len(misses), ", ".join(misses)) if p_ok
+                    else "the pre-registration did not hold")
+        u_ok = True
+        try:
+            u_ok = (VC.the_unsound_predicates_are_still_unsound()
+                    and VC.the_unsound_predicates_fail_for_one_reason()
+                    and VC.the_only_sound_cheap_predicate_is_the_trivial_one())
+        except Exception:
+            u_ok = False
+        self.record("voxcond-unsound", u_ok,
+                    "EVERY CHEAP CAMERA-SIDE PREDICATE IS UNSOUND, AND ALL FOR THE SAME REASON — "
+                    "THE CAMERA MOVED. `near_step` (an eighth of a voxel), `same_cell` and "
+                    "`same_occupancy` all move the observable, because depth is a CONTINUOUS "
+                    "FUNCTION OF CAMERA POSITION and `O_t` contains it exactly, so `the camera "
+                    "barely moved` licenses nothing at all: not a pixel, not a tile, not a frame. "
+                    "`voxsilo` caught the naive hierarchical-Z cull with this same byte-identity "
+                    "contract; this rung catches THREE MORE, and NONE OF THEM WOULD HAVE LOOKED "
+                    "WRONG ON INSPECTION. THE REFUTATIONS ARE KEPT RUNNABLE — each must STILL move "
+                    "the observable — because a refutation that stops being executable stops being "
+                    "evidence; and each holds on at least one pair where the observable changes "
+                    "anyway, so none is failing merely by NEVER FIRING, which would be vacuous. OF "
+                    "FIVE PROPOSED CONDITIONS EXACTLY ONE CHEAP ONE IS SOUND AND IT IS THE TRIVIAL "
+                    "ONE"
+                    if u_ok else "a refutation stopped biting")
+        o_ok, told = True, "?"
+        try:
+            told = VC.told()
+            o_ok = (VC.the_ownership_certificate_is_sound()
+                    and VC.the_fast_path_is_actually_taken()
+                    and VC.the_certificate_wins_against_the_loop_it_sits_on()
+                    and VC.the_loop_it_sits_on_loses_against_the_reference()
+                    and VC.nothing_is_promoted()
+                    and VC.no_wall_clock_enters_this_rung()
+                    and VC.scene_result("arms") == VC.golden("arms")
+                    and VC.scene_result("verdicts") == VC.golden("verdicts"))
+        except Exception:
+            o_ok = False
+        self.record("voxcond-owner", o_ok,
+                    "%s. AND THIS RUNG'S FIRST DRAFT SHIPPED THE DEFECT ITS OWN DISCIPLINE EXISTS "
+                    "TO CATCH: it computed the certificate, counted what it WOULD have saved, and "
+                    "then rasterised the whole bin anyway — so its buffers matched the reference for "
+                    "the TRIVIAL reason that it had done all the work, and its retirement was a "
+                    "formula wearing a measurement's name. It reported a 32-fold return. `retired` "
+                    "is now BASELINE MINUS EXECUTED, taken from the run, which is a quantity no "
+                    "unused fast path can earn. The second draft then compared the tiled loop "
+                    "against the UNTILED reference and reported a NEGATIVE retirement, blaming the "
+                    "certificate for the cost of the loop it sits on. Both corrections are on the "
+                    "record, because a rung that hid them would be publishing its third number as "
+                    "if it were its first"
+                    % told if o_ok else "the ownership certificate did not hold")
+        s_ok = True
+        try:
+            s_ok = VC.a_tampered_row_refuses()
+            for bad in ("arm P9 SOUND 1 2 3", "verdict D9 HIT nothing", "loop 5", "rumour 1 2 3"):
+                try:
+                    VC.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except VC.VoxcondError:
+                    pass
+            for call, arg in ((VC.panel, "P9"), (VC.quantity, "cycles"),
+                              (VC.scene_case, "arms2")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except VC.VoxcondError:
+                    pass
+            try:
+                VC.holds("P1", 0)
+                s_ok = False
+            except VC.VoxcondError:
+                pass
+        except Exception:
+            s_ok = False
+        self.record("voxcond-selftest", s_ok,
+                    "eight plants bite: an arm row relabelled to a word that is neither SOUND nor "
+                    "UNSOUND refuses typed, an arm row naming no declared predicate refuses, a "
+                    "verdict row naming no declared prediction refuses, a loop row of the wrong "
+                    "arity refuses, a row of unknown kind refuses rather than being skipped as a "
+                    "comment, an unknown predicate refuses rather than returning an empty panel — "
+                    "which is the failure mode that would let a prediction be scored against "
+                    "nothing — an unknown quantity refuses, a predicate asked about the FIRST frame "
+                    "refuses rather than comparing it to nothing, and an unknown scene refuses "
+                    "(gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -25453,7 +25579,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

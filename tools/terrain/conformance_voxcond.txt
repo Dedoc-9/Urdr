@@ -1,0 +1,100 @@
+# URDRVXQ1 conditional certificates — emitted by voxcond.py, pinned by hand, compared by the gate.
+#
+# THE PREDICTION WAS COMMITTED ONE COMMIT EARLIER AND IS QUOTED, NOT RESTATED.
+#
+# `voxpath` shipped `spec/attest/voxcond-prediction.txt` in the previous commit. This rung PARSES
+# that file, checks its digest against the golden `voxpath` pinned, and requires its own verdict set
+# to EQUAL the id set found there — not a superset, which would be a sixth predicate smuggled in,
+# and not a subset, which would be a miss quietly dropped. A prediction that must be quoted from an
+# earlier commit cannot be written after the result. That is the debt `voxsilo` opened, paid.
+#
+# THE QUESTION, FIXED BEFORE THE ARMS RAN: under what observable conditions does a certificate
+# retire MORE exact work than it costs to establish, test and maintain — while `O_t` remains
+# BYTE-IDENTICAL? Each predicate is measured on THREE quantities and RUN AS AN ARM, with the
+# resulting buffers compared to the reference AS LISTS on all 31 declared frames.
+#
+#     P1  still            SOUND, and it wins.       The trivial one.
+#     P2  near_step        UNSOUND.                  Caught by the contract.
+#     P3  same_cell        UNSOUND, worse.           Caught by the contract.
+#     P4  same_owner       SOUND, AND IT PAYS.       The prediction said it would not.
+#     P5  same_occupancy   UNSOUND.                  Sound-looking and not sufficient.
+#
+# THREE OF FIVE PREDICTIONS HIT AND TWO MISSED, AND THE TWO MISSES ARE THE RESULT.
+#
+# D4 said an ownership certificate would cost more than it retires, because determining which
+# primitive owns a tile IS the work. THAT IS WRONG, and the error is instructive: the certificate
+# does not DETERMINE ownership, it VERIFIES a remembered owner, and verifying is far cheaper than
+# searching. D5 said no cheap non-trivial condition would be both sound and productive; P4 is
+# exactly that. A pre-registration that landed all five would have been luck or hindsight.
+#
+# THE STRUCTURAL RESULT ON THE OTHER THREE: EVERY CHEAP CAMERA-SIDE PREDICATE IS UNSOUND, ALL FOR
+# THE SAME REASON — THE CAMERA MOVED. Depth is a continuous function of camera position and `O_t`
+# contains it exactly, so `the camera barely moved` licenses nothing at all: not a pixel, not a
+# tile, not a frame. `voxsilo` caught the naive hierarchical-Z cull with this same contract; this
+# rung catches three more, and NONE OF THEM WOULD HAVE LOOKED WRONG ON INSPECTION. Each of the three
+# holds on at least one pair where the observable nonetheless changes, so none is failing merely by
+# never firing — a predicate that never held would be vacuously unsound and would prove nothing.
+#
+# AND P4 IS WHY THE RUNG EXISTS. An ownership certificate does NOT license reusing a tile's pixels —
+# that is exactly the unsound move, and `voxpath` ruled it out by measuring that depth moves with
+# the camera. It licenses skipping the SEARCH for the owner while the depth is RECONSTRUCTED from
+# the owner's own plane at the current camera. The certificate is executable proof about WHO owns
+# the pixel; the value is derived rather than remembered. Soundness rests on two conditions and the
+# tile falls back to a full rasterisation unless BOTH hold: no primitive outside the owner set can
+# be nearer than the farthest depth any owner reaches in the tile, judged by `voxsilo`'s CORRECTED
+# conservative bound because the naive one is unsound and that rung proved it; and every pixel must
+# actually end up owned, which is discovered during the restricted pass rather than assumed away.
+#
+#     P4 retires 4038404 operations for 210871 spent.                        NINETEEN TIMES.
+#
+# AND THE NINETEEN TIMES MUST NEVER BE QUOTED ALONE.
+#
+# That figure is measured against the TILED LOOP the certificate sits on, which is the only
+# comparison in which the certificate is the single variable — and that loop costs 42913656
+# operations against the committed reference's 23201850. The certificate saves four million on a
+# loop that spends twenty million extra, so THE ARRANGEMENT AS A WHOLE RETIRES NOTHING. The
+# mechanism is ESTABLISHED and the implementation is NOT COMPETITIVE, and those are different
+# sentences. `the_loop_it_sits_on_loses_against_the_reference` exists so the first can never be
+# reported without the second, and it reddens on the day the tiled loop stops losing — which is the
+# day this becomes a real speedup rather than a real mechanism.
+#
+# THIS RUNG'S FIRST DRAFT SHIPPED THE DEFECT ITS OWN DISCIPLINE EXISTS TO CATCH.
+#
+# That draft computed P4's certificate, counted what it WOULD have saved, and then rasterised the
+# whole bin anyway — so its buffers matched the reference for the TRIVIAL reason that it had done
+# all the work, and its retirement was a formula wearing a measurement's name. It reported a 32-fold
+# return. `retired` is now BASELINE MINUS EXECUTED, taken from the run, which is a quantity no
+# unused fast path can earn, and `the_fast_path_is_actually_taken` requires it to be positive. The
+# second draft then compared the tiled loop against the UNTILED reference and reported a NEGATIVE
+# retirement, blaming the certificate for the cost of the loop it sits on — the single-variable
+# discipline `voxsilo` exists to enforce, applied to this rung's own instrument. Both corrections
+# are recorded because a rung that hid them would be publishing its third number as if it were its
+# first.
+#
+# DECLARED: the five predicates and five predictions, PARSED from the earlier commit; the tile edge,
+# INHERITED from `voxsilo` so the two rungs cannot drift into measuring different geometries; the
+# epsilon, an EIGHTH of a voxel — far smaller than any motion a player makes and far larger than
+# nothing, so a failure is a failure of the IDEA rather than of a badly chosen constant; and the
+# three quantities.
+#
+# DERIVED at claim time (L75): every arm's soundness, cost, population and retirement; the tiling
+# overhead pair; every verdict; and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * arms — all five predicates on all three quantities, with soundness beside them. Cost,
+#     population and retirement are carried SEPARATELY and never combined into a score.
+#   * verdicts — every declared prediction with its outcome, and the tiling overhead as a PAIR so
+#     the loop's cost is never netted into the certificate's ledger.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters — `voxwork`'s structural rule.
+#   * NOTHING ABOUT MEMORY, which is where an ownership map's storage would be paid.
+#   * THAT A CHEAPER SOUND PREDICATE DOES NOT EXIST. Five were declared and five measured, and the
+#     space of conditions is not five things.
+#   * THAT P4'S IMPLEMENTATION IS THE CHEAPEST POSSIBLE ONE. A different candidate-rejection test
+#     would move its cost, and the verdict is about THIS certificate rather than about ownership
+#     certificates in general.
+#   * THAT THIS IS A SPEEDUP. It is not. The arrangement as a whole retires nothing.
+#   * NO PROMOTION. `voxref` is untouched and not one certificate is adopted.
+arms 47c2190a4ef05254455c591e9e914126d7190136c5c87beb104128500df67c18
+verdicts b5c7f8a29a43c9b20844c94dd4103f160a91b89f2b33a7092732fb88aea3e47f

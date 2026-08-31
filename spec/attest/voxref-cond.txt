@@ -1,0 +1,23 @@
+# URDRVXQ1 conditional certificates — emitted by voxcond.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# THE PREDICTION WAS COMMITTED ONE COMMIT EARLIER, in `voxpath`, and is QUOTED here
+# rather than restated. Its digest is checked against the golden that rung pinned.
+# Each predicate is measured on THREE quantities and run as an ARM, with the resulting
+# buffers compared to the reference AS LISTS on all 31 declared frames.
+#   arm     <predicate> <SOUND|UNSOUND> <cost> <population> <retired>
+#   loop    <tiled-loop operations> <committed-reference operations>
+#   verdict <id> <HIT|MISS> <what was measured>
+#   digest  <lattice digest>
+arm P1 SOUND 180 3 2595240
+arm P2 UNSOUND 300 8 6921724
+arm P3 UNSOUND 360 9 7908562
+arm P4 SOUND 210871 555 4038404
+arm P5 UNSOUND 933120 18 14865906
+loop 42913656 23201850
+verdict D1 HIT P1 sound, 2595240 operations retired for 180 spent
+verdict D2 HIT P2 UNSOUND as predicted
+verdict D3 HIT P3 UNSOUND as predicted
+verdict D4 MISS P4 sound, 210871 spent against 4038404 retired
+verdict D5 MISS no cheap non-trivial predicate is both sound and productive (1 found)
+digest a07ad91046c1b8dded0a7cdfd0ea6f4ff69924ce2da8e79c2e3def4d5df78a97
