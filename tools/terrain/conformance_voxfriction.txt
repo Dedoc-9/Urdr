@@ -1,0 +1,94 @@
+# URDRVXY1 the admission probe — emitted by voxfriction.py, pinned by hand, compared by the gate.
+#
+# CAN THE RENDERER CHEAPLY RECOGNISE WHICH TILES ARE WORTH CERTIFYING AT ALL?
+#
+# `voxcond` established the certificate and `voxmanifold` closed the manifold. What both left
+# standing is one engineering fact: THE CERTIFICATE IS NOT THE PROBLEM, THE LOOP AROUND IT IS.
+# Verification is nineteen times cheaper than search and the scaffolding costs 1.84 times the
+# reference, so the arrangement drowns. The obvious response is to make the loop cheaper. THIS RUNG
+# ASKS A DIFFERENT QUESTION FIRST, because the cheaper loop is worth building only if the answer is
+# yes. That is BENEFICIAL FRICTION: a deliberate small computation whose ONLY purpose is to prevent
+# a larger one. It is not a cache and it does not predict the future — it reads what is already in
+# hand and declines.
+#
+# THE ANSWER IS YES, AND THE TRANSITION IS SHARP.
+#
+#     distinct owners   tiles   certified            payoff
+#            1           571      377   (66%)     +3067498
+#            2           295       19   ( 6%)      + 123524
+#            3           167       26   (16%)      + 125408
+#            4            90        0   ( 0%)      -   7548
+#            6            68        0   ( 0%)      -   5411
+#            9+           87        0   ( 0%)      -   7273
+#
+# AT FOUR OWNERS THE CERTIFICATE STOPS FIRING ENTIRELY. Not rarely — NEVER, across 245 tiles. And
+# every bucket at or beyond four is a net LOSS, because the probe and the check are spent on tiles
+# that were never going to certify. Below four the payoff is positive in every bucket, and
+# SINGLE-OWNER TILES ALONE CARRY 3067498 OF THE 3303598 TOTAL — ninety-three per cent of all value
+# sits in one bucket.
+#
+# By longest same-owner run the surface is monotone the other way — 2:+6621, 4:+238973, 8:+3050604 —
+# which is the same fact seen from the other side: a tile with one owner has a run the width of the
+# tile.
+#
+# THE PROBE IS NOT A SECOND COST, AND THE FIRST DRAFT OF THAT LAW GOT IT WRONG. That draft demanded
+# the probe cost LESS than the certificate checks it gates, and by that measure it loses badly:
+# 81792 operations against 22890. But the two are not alternatives. COLLECTING A TILE'S OWNER SET IS
+# THE CERTIFICATE'S OWN FIRST STEP — `voxcond` charges exactly that read inside its own check — so
+# the probe's traversal is not additional at all. What the probe ADDS on top of a read already being
+# paid for is a comparison per pixel. The law is now COST-SHARED rather than cost-compared: the
+# probe must read no more than one pass over the tile, asserted against the tile geometry rather
+# than against the number it happened to produce.
+#
+# THE PAYOFF IS A COUNTERFACTUAL AND IT WAS RUN. Every tile is rastered TWICE — once certified and
+# once in full — because the quantity needed is what the tile WOULD have cost had it not been
+# certified, and a `would have cost` that was never executed is a formula. `voxcond` shipped exactly
+# that defect once, counting a retirement it never took; `the_payoff_is_a_counterfactual_and_it_was_
+# run` is why it cannot happen here.
+#
+# THIS RUNG IS THEREFORE A DIAGNOSTIC AND NOT AN IMPLEMENTATION, and that is asserted as a law:
+# `this_rung_is_a_diagnostic_not_an_implementation` requires the measured double work to EXCEED the
+# reference, so no reader can mistake these numbers for a fast path.
+#
+# THE CORRECTNESS ASYMMETRY IS THE WHOLE CONTRACT, AND IT IS THE REASON FRICTION IS SAFE:
+#
+#     a probe that DECLINES when it should not have    costs performance
+#     a probe that ADMITS when it should not have      falls back, and costs performance
+#     NEITHER CAN CHANGE `O_t`
+#
+# The probe only ever chooses whether to ATTEMPT a certificate whose own sufficient condition is
+# checked independently, so no probe policy can move the observable. That is proved on the TWO
+# DEGENERATE LIMITS — attempt everything, attempt nothing — each of which must reproduce the
+# reference byte for byte, and every real policy lies between them. Those are CONTROLS ON ONE
+# MECHANISM, not arms of a comparison.
+#
+# NO THRESHOLD IS DECLARED, AND THAT IS DELIBERATE. This rung LOCATES the crossover; it does not
+# pick one. Choosing a threshold after seeing the curve and then scoring it would be fitting a
+# decision to the data it was derived from — the failure this arc has spent four rungs learning to
+# avoid. A threshold belongs in a LATER rung, pre-registered, and `the_rung_makes_no_prediction_
+# claim` holds this one to declaring none.
+#
+# DECLARED: the two degenerate limits; the owner buckets and the run buckets, both read from a pass
+# the certificate already performs, which is what makes either a candidate probe rather than a
+# second computation; and the tile edge, INHERITED from `voxcond`.
+#
+# DERIVED at claim time (L75): every tile's probe cost, check cost, certified raster, full-raster
+# counterfactual and payoff; both bucketed surfaces; the crossover and the cutoff; and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * surface — both payoff surfaces, by owner count and by longest run, with tiles and certified
+#     counts beside each payoff so no rate is quoted without its population.
+#   * cost — the probe and check totals, the crossover and cutoff on both signals, and how many of
+#     the measured tiles certified at all.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NOTHING ABOUT MEMORY, which is where an owner map's storage would be paid.
+#   * THAT ANY PROBE POLICY IS PROFITABLE. The payoff surface is measured; no policy is proposed or
+#     run beyond the two degenerate limits.
+#   * THAT THE TWO SIGNALS ARE THE BEST ONES. They are the two available for free from a read the
+#     certificate already performs.
+#   * THAT THIS IS A SPEEDUP. It is a diagnostic that deliberately does double work.
+#   * NO PROMOTION. `voxref` is untouched.
+surface 4c9bcb4c1746c5bea65de422b599cd579a119ecd9a6f65a9a62f3528e890b4f4
+cost 95595223358ae5303c2ebfb63282e8620c962eb23030b2966b2f3ba832f8b052

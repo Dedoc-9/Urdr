@@ -1,0 +1,26 @@
+# URDRVXY1 the admission probe — emitted by voxfriction.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# A DIAGNOSTIC THAT DELIBERATELY DOES DOUBLE WORK: the payoff is a COUNTERFACTUAL and
+# measuring one means running it, so every tile is rastered twice.
+# NO THRESHOLD IS DECLARED. This rung LOCATES the crossover; it does not choose it.
+#   owner <bucket> <tiles> <certified> <total payoff>
+#   run   <bucket> <tiles> <certified> <total payoff>
+#   cost  <probe operations> <certificate check operations>
+#   cross <owner crossover|none> <run crossover|none>
+#   cut   <owner cutoff|none> <run cutoff|none>    the LAST profitable bucket
+#   digest <friction digest>
+owner 1 571 377 3067498
+owner 2 295 19 123524
+owner 3 167 26 125408
+owner 4 90 0 -7548
+owner 6 68 0 -5411
+owner 9 87 0 -7273
+run 1 0 0 0
+run 2 26 1 6621
+run 4 424 43 238973
+run 8 828 378 3050604
+cost 81792 22890
+cross 1 2
+cut 3 8
+digest 29abd4ce5f504d5eae5d3a0aabe90bc790afcef061fc08515cbb2b67e56f1934

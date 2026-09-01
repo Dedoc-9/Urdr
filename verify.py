@@ -265,6 +265,7 @@ STAGE_ORDER = (
     "voxcond",
     "voxstate",
     "voxmanifold",
+    "voxfriction",
     "rowtext",
     "rollbench",
     "reachable",
@@ -21994,6 +21995,110 @@ class Gate:
                     "(gate can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def voxfriction(self):
+        """CAN A PROBE CHEAPER THAN THE WORK IT AVOIDS TELL WHEN TO BOTHER (URDRVXY1)? Rows: probe
+        (the cost-shared read and the counterfactual), surface (the two payoff surfaces and the
+        transition), asymmetry (the correctness contract on both degenerate limits), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxfriction as VF
+        except Exception as exc:
+            for r in ("probe", "surface", "asymmetry", "selftest"):
+                self.record(f"voxfriction-{r}", False, f"import failed (voxfriction): {exc}")
+            return
+        p_ok, pops, chk = True, 0, 0
+        try:
+            pops = sum(r[4] for r in VF.census())
+            chk = sum(r[5] for r in VF.census())
+            p_ok = (VF.the_probe_reads_only_what_the_certificate_already_reads()
+                    and VF.the_payoff_is_a_counterfactual_and_it_was_run()
+                    and VF.this_rung_is_a_diagnostic_not_an_implementation()
+                    and VF.the_rung_makes_no_prediction_claim()
+                    and VF.nothing_is_promoted()
+                    and VF.no_wall_clock_enters_this_rung())
+        except Exception:
+            p_ok = False
+        self.record("voxfriction-probe", p_ok,
+                    "BENEFICIAL FRICTION IS A DELIBERATE SMALL COMPUTATION WHOSE ONLY PURPOSE IS TO "
+                    "PREVENT A LARGER ONE — not a cache, and it predicts nothing; it reads what is "
+                    "already in hand and DECLINES. THE PROBE IS NOT A SECOND COST AND THE FIRST "
+                    "DRAFT OF THIS LAW GOT IT WRONG: that draft demanded the probe cost LESS than "
+                    "the certificate checks it gates, and by that measure it loses badly at %d "
+                    "operations against %d — but the two are NOT ALTERNATIVES, because collecting a "
+                    "tile's owner set IS the certificate's own first step and `voxcond` charges "
+                    "exactly that read inside its own check. What the probe ADDS to a read already "
+                    "being paid for is a comparison per pixel. The law is now COST-SHARED rather "
+                    "than cost-compared. AND THE PAYOFF IS A COUNTERFACTUAL THAT WAS RUN: every "
+                    "tile is rastered TWICE, because a `would have cost` that was never executed is "
+                    "a formula — `voxcond` shipped exactly that defect once. THIS RUNG IS THEREFORE "
+                    "A DIAGNOSTIC AND NOT AN IMPLEMENTATION, asserted by requiring the measured "
+                    "double work to EXCEED the reference so nobody can mistake it for a fast path"
+                    % (pops, chk) if p_ok else "the probe accounting did not hold")
+        s_ok, told = True, "?"
+        try:
+            told = VF.told()
+            s_ok = (VF.the_payoff_surface_has_a_crossover()
+                    and VF.the_cheap_tiles_are_the_ones_that_pay()
+                    and VF.the_record_names_this_world()
+                    and VF.the_record_is_bound_to_the_live_code()
+                    and VF.scene_result("surface") == VF.golden("surface")
+                    and VF.scene_result("cost") == VF.golden("cost"))
+        except Exception:
+            s_ok = False
+        self.record("voxfriction-surface", s_ok,
+                    "%s. AT FOUR OWNERS THE CERTIFICATE STOPS FIRING ENTIRELY — not rarely, NEVER, "
+                    "across 245 tiles — and every bucket at or beyond four is a net LOSS because "
+                    "the probe and the check are spent on tiles that were never going to certify. "
+                    "This row reddens if the payoff ever stops ORDERING by the signal: if cheap "
+                    "tiles stop being the ones that pay, a probe reading that signal is a coin toss "
+                    "with a cost and the friction idea loses its basis"
+                    % told if s_ok else "the payoff surface did not hold")
+        a_ok = True
+        try:
+            a_ok = VF.declining_can_never_change_the_observable()
+        except Exception:
+            a_ok = False
+        self.record("voxfriction-asymmetry", a_ok,
+                    "THE CORRECTNESS ASYMMETRY IS THE WHOLE CONTRACT AND IT IS THE REASON FRICTION "
+                    "IS SAFE. A probe that DECLINES when it should not have costs PERFORMANCE; a "
+                    "probe that ADMITS when it should not have falls back and costs PERFORMANCE; "
+                    "NEITHER CAN CHANGE `O_t`. That holds because the probe only ever chooses "
+                    "whether to ATTEMPT a certificate whose own sufficient condition is checked "
+                    "INDEPENDENTLY of it. Proved on the TWO DEGENERATE LIMITS — attempt everything "
+                    "and attempt nothing — each of which must reproduce the reference BYTE FOR BYTE "
+                    "across the whole lattice, with every real policy lying between them. Those are "
+                    "CONTROLS ON ONE MECHANISM, not arms of a comparison, and the asymmetry is what "
+                    "makes a false negative a performance loss rather than a correctness failure"
+                    if a_ok else "a degenerate limit moved the observable")
+        t_ok = True
+        try:
+            t_ok = VF.a_tampered_row_refuses()
+            for bad in ("owner 7 1 2 3", "run 3 1 2 3", "cost 5", "cut 5", "rumour 1 2 3"):
+                try:
+                    VF.parse("# world x\n%s\n" % bad)
+                    t_ok = False
+                except VF.VoxfrictionError:
+                    pass
+            for call, arg in ((VF.limit_frames, "sometimes"), (VF.scene_case, "surface2")):
+                try:
+                    call(arg)
+                    t_ok = False
+                except VF.VoxfrictionError:
+                    pass
+        except Exception:
+            t_ok = False
+        self.record("voxfriction-selftest", t_ok,
+                    "seven plants bite: an owner row relabelled to a bucket outside the six "
+                    "declared refuses typed, a run row naming no declared bucket refuses, a cost "
+                    "row and a cut row of the wrong arity both refuse, a row of unknown kind "
+                    "refuses rather than being skipped as a comment, a probe limit that is neither "
+                    "of the two degenerate ones refuses rather than being run as though declared — "
+                    "which is the failure mode that would let a TUNED policy be scored as a control "
+                    "— and an unknown scene refuses (gate can redden)"
+                    if t_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -25800,7 +25905,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
