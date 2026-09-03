@@ -1,0 +1,48 @@
+# URDRVTL1 the tile sweep — emitted by voxtile.generate(), committed as an artifact,
+# re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# THE TILE SIZE WAS NEVER A TUNING PARAMETER. IT WAS THE ANSWER. Three of the eight
+# declared sizes spend LESS than the committed reference, the best by 10.7 per cent,
+# with ONE strategy and NO selector. THE PREDICTION WAS COMMITTED ONE COMMIT EARLIER,
+# in `voxbreak`, and is QUOTED here rather than restated.
+# BOOKKEEPING IS CHARGED: range, index, owners, visit, complete — the five terms a
+# TILED loop pays that the untiled reference never does. UNCHARGED, the unit tile wins;
+# CHARGED, it does not, and that correction is what moved the optimum to tile 2.
+#   tile    <size> <cold+book> <certified+book> <tax> <retired> <net vs reference>
+#           <certified tiles>
+#   book    <size> <range> <index> <owners> <visit> <complete>   WARM, the five
+#   bare    <size> <cold without book> <certified without book>  the anchors
+#   verdict <id> <HIT|MISS> <what was measured>
+#   best    <lowest total> <highest retirement> <lowest total UNCHARGED>
+#   digest  <tile digest>
+tile 1 13559298 11245507 1437584 2313791 -876207 54056
+tile 2 13961755 10820264 1840041 3141491 -1301450 12581
+tile 3 15065545 11672193 2943831 3393352 -449521 5148
+tile 4 16321495 12712731 4199781 3608764 591017 2684
+tile 6 19338330 16000725 7216616 3337605 3879011 918
+tile 8 22678590 19454111 10556876 3224479 7332397 422
+tile 12 31076035 29005299 18954321 2070736 16883585 89
+tile 24 67107269 67201708 54985555 -94439 55079994 0
+book 1 276028 981957 69007 110592 55138
+book 2 276028 294364 69007 27648 51468
+book 3 276028 154150 69007 12288 47241
+book 4 276028 100408 69007 6912 44288
+book 6 276028 58803 69007 3072 34164
+book 8 276028 41823 69007 1728 28352
+book 12 276028 28324 69007 768 13680
+book 24 276028 17510 69007 192 0
+bare 1 12121714 9752785
+bare 2 13294708 10101749
+bare 3 14554072 11113479
+bare 4 15869140 12216088
+bare 6 18931420 15559651
+bare 8 22290004 19037173
+bare 12 30701908 28617492
+bare 24 66744532 66838971
+verdict T1 HIT the tax rises from 1437584 at tile 1 to 54985555 at tile 24, monotonically
+verdict T2 MISS retirement PEAKS at tile 4 (3608764) rather than falling monotonically: 1:2313791, 2:3141491, 3:3393352, 4:3608764, 6:3337605, 8:3224479, 12:2070736, 24:-94439
+verdict T3 HIT 3 of 8 declared sizes spend less than the reference (1, 2, 3); the best is tile 2 at 10820264 against 12121714
+verdict T4 HIT the total minimises at tile 2 and retirement maximises at tile 4
+verdict T5 HIT all 8 sizes reproduce the reference on all 16 states, colour and depth as lists
+best 2 4 1
+digest b966c6fbd359ccf8091eac5cecefce816ed76e900dfa148cc76e1f7949a238ce

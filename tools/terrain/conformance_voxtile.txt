@@ -1,0 +1,99 @@
+# URDRVTL1 the tile sweep — emitted by voxtile.py, pinned by hand, compared by the gate.
+#
+# THE TILE SIZE WAS NEVER A TUNING PARAMETER. IT WAS THE ANSWER.
+#
+# Every rung from `voxcond` onward concluded the arrangement loses to the committed reference, and
+# every one of those measurements was taken at ONE tile size nobody ever varied. Swept over eight
+# declared sizes, all of which divide both 96 and 72 so no partial tile at a frame edge can confound
+# the comparison:
+#
+#   tile   cold+book   certified+book        tax    retired   vs REFERENCE   certified tiles
+#      1    13559298        11245507    1437584    2313791       -876207            54056
+#      2    13961755        10820264    1840041    3141491      -1301450            12581
+#      3    15065545        11672193    2943831    3393352       -449521             5148
+#      4    16321495        12712731    4199781    3608764       +591017             2684
+#      6    19338330        16000725    7216616    3337605      +3879011              918
+#      8    22678590        19454111   10556876    3224479      +7332397              422
+#     12    31076035        29005299   18954321    2070736     +16883585               89
+#     24    67107269        67201708   54985555     -94439     +55079994                0
+#
+# The COMMITTED REFERENCE over the same sixteen states costs 12121714.
+#
+# THREE OF THE EIGHT SIZES SPEND LESS THAN IT, and the best is tile 2 at 10820264 — 1301450 under,
+# TEN POINT SEVEN PER CENT, with colour and depth byte-identical AS LISTS on all sixteen states. ONE
+# STRATEGY, ONE CONSTANT, NO SELECTOR. It is the first time in this arc that anything BUILDABLE has
+# beaten `voxref`.
+#
+# THE FIRST PASS LOOKED FAR BETTER AND WAS WRONG, AND THAT IS THE MOST IMPORTANT THING IN THE RUNG.
+# Uncharged, the UNIT tile comes out at 9752785 — nineteen and a half per cent under, and better than
+# anything the charged sweep can reach. That number cheats in five places the untiled reference never
+# pays, and each is charged here in `voxwork`'s own model of multiplies and divides:
+#
+#   term       what it is                                          tile 1     tile 8
+#   range      four divisions per triangle for its tile range      276028     276028
+#   index      one multiply per (triangle, tile) pair              981957      41823
+#   owners     one insert per triangle for the owner index          69007      69007
+#   visit      one per tile of the grid, empty or not              110592       1728
+#   complete   one read per pixel of every certified tile           55138      28352
+#                                                          TOTAL  1492722     416938
+#
+# THE UNCHARGED TERMS WERE WORTH THREE AND A HALF TIMES MORE TO THE ARM THAT WAS WINNING, which is
+# exactly how a sweep talks itself into a result. Charging all five moved the optimum from tile 1 to
+# tile 2 and cut the win from nineteen and a half per cent to 10.7. The law asserts ALL THREE parts —
+# the unit tile wins uncharged, it does not win charged, and the uncharged figure was strictly rosier
+# than anything the charged sweep reaches — so the correction cannot vanish into a tidier story.
+#
+# TWO ANCHORS PROVE THE INSTRUMENT RATHER THAN ASSUME IT.
+#   * At tile 1 the cold loop costs EXACTLY 12121714 before bookkeeping — the committed reference,
+#     to the operation — because unit binning walks precisely each triangle's own bounding box.
+#   * At tile 8 the sweep reproduces `voxbreak`'s committed 22290004 and 19037173 TO THE OPERATION,
+#     which proves this is the SAME INSTRUMENT re-parameterised and not a second measurement that
+#     drifted. A sweep that quietly re-derives its own baseline can produce any curve it likes.
+#
+# NOTHING EARLIER IS RETRACTED AND THE SCOPE IS A LAW RATHER THAN A PARAGRAPH. `voxbreak`'s
+# inequality still has NO SOLUTION at its own tile and `voxschism`'s tiled traversal still wins
+# NOTHING there — both are RUN here beside this result rather than cited — but both were verdicts
+# about a loop nobody had parameterised.
+#
+# AND THE SELECTION PROBLEM WAS THE WRONG PROBLEM. `voxschism` proved a perfect, free, UNBUILDABLE
+# selector over four strategies would save eleven per cent at the committed tile, and that no free
+# signal captures ANY of it. This rung takes 10.7 with no selector at all, so those zeros are
+# untouched — and they are re-run here to prove it.
+#
+# FOUR OF FIVE PREDICTIONS HIT, scored against the set committed one commit earlier in `voxbreak`
+# and quoted here by digest:
+#   T1 HIT   the tax rises monotonically, 1437584 to 54985555
+#   T2 MISS  retirement does NOT fall monotonically — it PEAKS at tile 4 and falls either side,
+#            because a large tile holds too many owners to certify while a small one has too little
+#            work left to retire
+#   T3 HIT   three sizes spend less than the reference — the one the pre-registration itself named
+#            as most likely to miss
+#   T4 HIT   the total minimises at tile 2 and retirement maximises at tile 4; the curves are opposed
+#   T5 HIT   no declared size moves the observable on any state
+#
+# DECLARED: the eight tile sizes; `voxbreak`'s five accounts; the five bookkeeping terms. The
+# certificate is `voxcond`'s P4 and nothing else and NOTHING about it changes with the tile size —
+# only the rectangle it is asked about. The traversal is `voxstate`'s nearest-neighbour order, held
+# FIXED across the whole sweep so the only thing varying is the tile.
+#
+# DERIVED at claim time (L75): every per-size cold and certified total with and without bookkeeping,
+# each of the five bookkeeping terms separately, the tax, the retirement, the net, the certified tile
+# count, the five verdicts, both optima, and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * sweep — the eight sizes with cold, certified, tax, retirement, net and certified tiles.
+#   * bookkeeping — the five terms per size, both bare totals, and BOTH optima, charged and
+#     uncharged, so the correction that moved the answer is pinned rather than described.
+#   * verdicts — the five scored predictions with what each measured, and both optima.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NOTHING ABOUT MEMORY, and at small tiles that omission is at its most generous: the owner map
+#     is one integer per pixel however the frame is diced, but the bin structure is not.
+#   * THAT THE OPERATION MODEL IS THE RIGHT COST. It is `voxwork`'s — multiplies and divides — and a
+#     machine where a bin insert costs more than a multiply would move the optimum.
+#   * THAT 10.7 PER CENT IS THE BEST AVAILABLE. Eight sizes are declared; between them is unsearched.
+#   * NO PROMOTION. `voxref` is untouched and nothing is adopted.
+sweep 18a657b4a4fe8d9fd886348687473cb0cfe43adab03065c8b50c18934f80c853
+bookkeeping 3a33185d79eafcd90ae89e9b5ed3706254903b9a1fa5a6135ad4ccd62e47887e
+verdicts 92a09a28d4754bb57d87068186c3a7ed307aa9a75ec5164e3da314cb3304c4d4

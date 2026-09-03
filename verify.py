@@ -268,6 +268,7 @@ STAGE_ORDER = (
     "voxfriction",
     "voxbreak",
     "voxschism",
+    "voxtile",
     "rowtext",
     "rollbench",
     "reachable",
@@ -22339,6 +22340,124 @@ class Gate:
                     "declared, and an unknown scene and golden refuse (gate can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def voxtile(self):
+        """THE TILE SIZE WAS NEVER A TUNING PARAMETER, IT WAS THE ANSWER (URDRVTL1). Rows: sweep
+        (eight sizes, the observable unmoved at every one), anchors (the unit tile IS the reference
+        and the committed tile IS `voxbreak`), result (three sizes under the reference, the earlier
+        verdicts still true at their own tile), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxtile as TL
+        except Exception as exc:
+            for r in ("sweep", "anchors", "result", "selftest"):
+                self.record(f"voxtile-{r}", False, f"import failed (voxtile): {exc}")
+            return
+        s_ok, b1, b8 = True, 0, 0
+        try:
+            b1, b8 = TL.bookkeeping(1, "warm"), TL.bookkeeping(TL.COMMITTED, "warm")
+            s_ok = (TL.the_observable_never_moves_at_any_tile_size()
+                    and TL.the_tile_sizes_divide_the_frame()
+                    and TL.the_bookkeeping_is_charged_and_it_moved_the_answer()
+                    and TL.nothing_is_promoted()
+                    and TL.no_wall_clock_enters_this_rung())
+        except Exception:
+            s_ok = False
+        self.record("voxtile-sweep", s_ok,
+                    "EIGHT TILE SIZES, EVERY ONE DIVIDING BOTH 96 AND 72 so no partial tile at a "
+                    "frame edge can confound the comparison — a sweep in which some sizes tile the "
+                    "frame evenly and others do not would be measuring two things at once and "
+                    "attributing both to the tile. THE FIRST PASS LOOKED FAR BETTER AND WAS WRONG, "
+                    "WHICH IS THE MOST IMPORTANT THING IN THIS RUNG: uncharged, the UNIT tile came "
+                    "out nineteen and a half per cent under the reference and better than anything "
+                    "the charged sweep can reach, and that number cheated in FIVE places the "
+                    "untiled reference never pays — the tile range, the bin index, the owner index, "
+                    "the per-tile visit and the completeness check. Those terms are worth %d at "
+                    "tile 1 against %d at tile %d, THREE AND A HALF TIMES MORE TO THE ARM THAT WAS "
+                    "WINNING, which is exactly how a sweep talks itself into a result. All five are "
+                    "charged in `voxwork`'s own model and REPORTED SEPARATELY rather than summed, "
+                    "because a record declaring five terms and printing one total is naming rather "
+                    "than describing. Charging them moved the optimum off the unit tile, and the "
+                    "law asserts ALL THREE parts of the correction — uncharged the unit tile wins, "
+                    "charged it does not, and the uncharged figure was strictly rosier than "
+                    "anything the charged sweep reaches — so it cannot vanish into a tidier story"
+                    % (b1, b8, TL.COMMITTED) if s_ok else "the sweep did not hold")
+        a_ok = True
+        try:
+            a_ok = (TL.the_unit_tile_is_the_reference_exactly()
+                    and TL.the_committed_tile_reproduces_voxbreaks_figures()
+                    and TL.the_prediction_is_quoted_from_the_earlier_commit()
+                    and TL.the_verdicts_match_the_committed_prediction()
+                    and TL.the_record_carries_hits_and_misses())
+        except Exception:
+            a_ok = False
+        self.record("voxtile-anchors", a_ok,
+                    "TWO ANCHORS PROVE THE INSTRUMENT RATHER THAN ASSUME IT, and a sweep needs them "
+                    "more than most measurements do, because a sweep that quietly re-derives its "
+                    "own baseline can produce ANY curve it likes. AT TILE 1 THE COLD LOOP COSTS "
+                    "EXACTLY THE COMMITTED REFERENCE before bookkeeping — 12121714, to the "
+                    "operation — because unit binning walks precisely each triangle's own bounding "
+                    "box and nothing else. AND AT TILE 8 THE SWEEP REPRODUCES `voxbreak`'s OWN "
+                    "22290004 AND 19037173 TO THE OPERATION, which proves this is the SAME "
+                    "INSTRUMENT re-parameterised rather than a second measurement that drifted. THE "
+                    "PREDICTION WAS COMMITTED ONE COMMIT EARLIER, in `voxbreak`, and is QUOTED here "
+                    "by digest rather than restated; the scored set must EQUAL the five ids found "
+                    "there, so no sixth is invented after seeing the curve and none of the five is "
+                    "quietly dropped"
+                    if a_ok else "an anchor did not hold")
+        r_ok, told = True, "?"
+        try:
+            told = TL.told()
+            r_ok = (TL.the_arrangement_gets_under_the_committed_reference()
+                    and TL.the_earlier_verdict_was_conditional_on_a_constant()
+                    and TL.no_selector_is_used()
+                    and TL.the_record_names_this_world()
+                    and TL.the_record_is_bound_to_the_live_code()
+                    and all(TL.scene_result(n) == TL.golden(n) for n in TL.SCENES))
+        except Exception:
+            r_ok = False
+        self.record("voxtile-result", r_ok,
+                    "%s. THIS ROW REDDENS THE DAY THE ARRANGEMENT STOPS BEATING THE REFERENCE, and "
+                    "also the day the earlier verdicts stop biting at their own tile — because "
+                    "holding both facts together is what makes this a re-parameterisation rather "
+                    "than a retraction" % told if r_ok else "the result did not hold")
+        t_ok = True
+        try:
+            t_ok = TL.a_tampered_row_refuses()
+            for bad in ("tile 5 1 2 3 4 5 6", "book 8 1 2", "bare 5 1 2",
+                        "verdict T9 HIT nothing", "verdict T1 MAYBE nothing", "best 2",
+                        "rumour 1 2 3"):
+                try:
+                    TL.parse("# world x\n%s\n" % bad)
+                    t_ok = False
+                except TL.VoxtileError:
+                    pass
+            for call, arg in ((TL.sweep, 5), (TL.scene_case, "sweep2"), (TL.golden, "nope")):
+                try:
+                    call(arg)
+                    t_ok = False
+                except TL.VoxtileError:
+                    pass
+            try:
+                TL.bookkeeping(8, "tepid")
+                t_ok = False
+            except TL.VoxtileError:
+                pass
+        except Exception:
+            t_ok = False
+        self.record("voxtile-selftest", t_ok,
+                    "eleven plants bite: a tile row naming a size outside the eight declared "
+                    "refuses — which is the failure mode that would let the record report a curve "
+                    "point the sweep never ran — a book row of the wrong arity refuses rather than "
+                    "being read short, a bare row naming no declared size refuses, a verdict naming "
+                    "no committed prediction refuses AND a verdict of an unknown outcome refuses, a "
+                    "best row of the wrong arity refuses, a row of unknown kind refuses rather than "
+                    "being skipped as a comment, an undeclared tile size refuses at BOTH the sweep "
+                    "and the render, an unknown bookkeeping phase refuses, and an unknown scene and "
+                    "golden refuse (gate can redden)"
+                    if t_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -26145,7 +26264,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
