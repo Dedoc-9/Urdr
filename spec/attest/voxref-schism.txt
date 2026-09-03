@@ -1,0 +1,34 @@
+# URDRVXX1 the strategy census — emitted by voxschism.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# YES ON THE POPULATIONS, NO ON THE SELECTION. Three strategies win somewhere and their
+# winning sets are DISJOINT BY OWNER COUNT; the tiled traversal wins NOTHING; and every
+# free signal captures EXACTLY ZERO of the hindsight oracle's margin.
+# THE `frame` ROW IS A PLANT AND NOT A SIGNAL: it proves the apparatus can find margin
+# when a partition is allowed to MEMORISE, which is what makes the zeros informative.
+#   strat  <strategy> <total operations> <tiles it would have won>
+#   signal <signal> <groups> <best-fixed total> <margin over the reference>
+#   plant  <frame> <groups> <best-fixed total> <margin>      MEMORISATION, NOT A SIGNAL
+#   pop    <owner bucket> <tiles> <winners> <oracle margin>
+#   totals <oracle> <reference inner> <common setup> <committed reference>
+#   split  <steno1 won> <steno1 lost> <net> INSIDE the one-owner population
+#   digest <schism digest>
+strat reference 7496434 1344
+strat normal 17664724 0
+strat steno1 14655516 349
+strat stenoN 14411893 35
+signal owners 7 7496434 0
+signal run 4 7496434 0
+signal owners_x_run 16 7496434 0
+signal exact 68 7496434 0
+plant frame 323 7215958 280476
+pop 0 450 reference:450 0
+pop 1 571 reference:222,steno1:349 1235531
+pop 2 295 reference:279,stenoN:16 48692
+pop 3 167 reference:148,stenoN:19 49183
+pop 4 90 reference:90 0
+pop 6 68 reference:68 0
+pop 9 87 reference:87 0
+totals 6163028 7496434 4625280 12121714
+split 1235531 1700567 -465036
+digest 29361c1c5af62a5a46b4c96a64a90743aa928c93ba5ef6b1f6b90060c94fad75

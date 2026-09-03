@@ -267,6 +267,7 @@ STAGE_ORDER = (
     "voxmanifold",
     "voxfriction",
     "voxbreak",
+    "voxschism",
     "rowtext",
     "rollbench",
     "reachable",
@@ -22220,6 +22221,124 @@ class Gate:
                     "can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def voxschism(self):
+        """THE POPULATIONS ARE REAL AND NO FREE SIGNAL SELECTS THEM (URDRVXX1). Rows: census (the
+        reference attributed tile by tile, every strategy actually run), populations (three winners
+        with disjoint owner counts, the tiled traversal winning nothing), selection (the oracle
+        ceiling, every free signal capturing zero, and the memorisation plant), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxschism as VC
+        except Exception as exc:
+            for r in ("census", "populations", "selection", "selftest"):
+                self.record(f"voxschism-{r}", False, f"import failed (voxschism): {exc}")
+            return
+        c_ok, inner, setup = True, 0, 0
+        try:
+            inner, setup = VC.reference_inner(), VC.setup_common()
+            c_ok = (VC.the_reference_attribution_sums_to_the_committed_total()
+                    and VC.the_setup_is_common_to_every_strategy_and_is_large()
+                    and VC.every_strategy_was_run_for_every_tile()
+                    and VC.the_committed_arrangement_reproduces_the_observable()
+                    and VC.this_rung_is_a_census_not_an_implementation()
+                    and VC.nothing_is_promoted()
+                    and VC.no_wall_clock_enters_this_rung())
+        except Exception:
+            c_ok = False
+        self.record("voxschism-census", c_ok,
+                    "WHERE THE UNTILED REFERENCE'S WORK ACTUALLY LIVES, TILE BY TILE — a "
+                    "decomposition no rung in this arc has had, and it is a PARTITION rather than "
+                    "an estimate: each walked pixel of a triangle's own bounding box belongs to "
+                    "exactly one tile, and the attributed %d plus the common setup of %d must equal "
+                    "the committed reference EXACTLY, because an attribution that did not add up "
+                    "would be an invented denominator. THE COMMON SETUP IS EXCLUDED FROM EVERY "
+                    "STRATEGY AND THAT IS A LAW RATHER THAN A FOOTNOTE: every strategy pays it "
+                    "identically so excluding it cannot change which wins a tile, but it EXCEEDS "
+                    "HALF of everything being compared, so a margin scaled against the committed "
+                    "reference without adding it back would be overstated by that ratio and both "
+                    "figures are always reported together. AND EVERY STRATEGY IS RUN FOR EVERY "
+                    "TILE, because the comparison is between COUNTERFACTUALS and a `would have "
+                    "cost` that was never executed is a formula — the defect `voxcond` shipped "
+                    "once. Only the committed arrangement writes the frame, checked against "
+                    "`voxref` with colour and depth as LISTS"
+                    % (inner, setup) if c_ok else "the census did not hold")
+        p_ok, told = True, "?"
+        try:
+            told = VC.told()
+            p_ok = (VC.the_workload_does_partition_into_populations()
+                    and VC.the_tiled_traversal_is_dominated_everywhere()
+                    and VC.the_hindsight_oracle_beats_the_reference()
+                    and VC.the_oracle_is_not_a_policy())
+        except Exception:
+            p_ok = False
+        self.record("voxschism-populations", p_ok,
+                    "%s" % told if p_ok else "the population census did not hold")
+        s_ok, plant = True, 0
+        try:
+            plant = VC.margin(VC.PLANT)
+            s_ok = (VC.no_free_signal_captures_any_of_the_margin()
+                    and VC.the_best_population_is_still_net_negative()
+                    and VC.the_zero_is_a_measurement_and_not_an_inability()
+                    and VC.the_frame_index_is_memorisation_and_is_scored_as_a_control()
+                    and VC.no_rule_is_frozen_here()
+                    and VC.the_record_names_this_world()
+                    and VC.the_record_is_bound_to_the_live_code()
+                    and all(VC.scene_result(n) == VC.golden(n) for n in VC.SCENES))
+        except Exception:
+            s_ok = False
+        self.record("voxschism-selection", s_ok,
+                    "EVERY FREE SIGNAL CAPTURES EXACTLY ZERO OF THE ORACLE'S MARGIN — four "
+                    "partitions of the two signals `voxfriction` established are free, at every "
+                    "resolution from seven groups to sixty-eight, and in every group of every one "
+                    "of them the best FIXED strategy is `reference`. THE MECHANISM IS VISIBLE "
+                    "INSIDE THE BEST POPULATION THERE IS: among the one-owner tiles `steno1` wins "
+                    "349 by 1235531 and then LOSES the other 222 by 1700567, net -465036, because "
+                    "a certificate that FAILS pays the read, the encode, the verify and its own "
+                    "owner-only raster and THEN pays the full tile anyway — each losing tile costs "
+                    "about twice what each winning tile saves. THE SIGNAL IS NOT WEAK; THE "
+                    "POPULATION IT IDENTIFIES IS UNPROFITABLE, and no sharper reading of the same "
+                    "signal can repair that. AND THE ZERO IS A MEASUREMENT AND NOT AN INABILITY: "
+                    "handed the FRAME INDEX — not a property of a tile at all but a name for which "
+                    "picture is being drawn — the same machinery finds %+d, so the apparatus CAN "
+                    "find margin and finds none in the geometry because there is none in the "
+                    "signals available. The frame index is a PLANT, never in SIGNALS, and no margin "
+                    "is claimed from it, because partitioning on it is MEMORISING THE BENCHMARK. NO "
+                    "RULE IS FROZEN HERE: choosing a threshold on the workload it came from is "
+                    "fitting, and every candidate measured to zero anyway. THIS ROW REDDENS THE DAY "
+                    "A SIGNAL WORKS, which is the result the architecture needs"
+                    % plant if s_ok else "the selection census did not hold")
+        t_ok = True
+        try:
+            t_ok = VC.a_tampered_row_refuses()
+            for bad in ("strat clever 1 2", "signal vibes 1 2 3", "plant owners 1 2 3",
+                        "pop 7 1 a:1 0", "totals 1 2", "split 1 2", "rumour 1 2 3"):
+                try:
+                    VC.parse("# world x\n%s\n" % bad)
+                    t_ok = False
+                except VC.VoxschismError:
+                    pass
+            for call, arg in ((VC.strategy_total, "clever"), (VC.partition, "vibes"),
+                              (VC.scene_case, "signals2"), (VC.golden, "nope")):
+                try:
+                    call(arg)
+                    t_ok = False
+                except VC.VoxschismError:
+                    pass
+        except Exception:
+            t_ok = False
+        self.record("voxschism-selftest", t_ok,
+                    "eleven plants bite: a strat row naming an undeclared strategy refuses, a "
+                    "signal row naming no declared signal refuses, A PLANT ROW RENAMED TO A REAL "
+                    "SIGNAL REFUSES — which is the failure mode that would let the memorisation "
+                    "control be read as a result — a pop row naming a bucket outside the inherited "
+                    "seven refuses, a totals and a split row of the wrong arity both refuse, a row "
+                    "of unknown kind refuses rather than being skipped as a comment, an undeclared "
+                    "strategy and an undeclared signal both refuse rather than being run as though "
+                    "declared, and an unknown scene and golden refuse (gate can redden)"
+                    if t_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -26026,7 +26145,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

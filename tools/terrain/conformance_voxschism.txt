@@ -1,0 +1,92 @@
+# URDRVXX1 the strategy census — emitted by voxschism.py, pinned by hand, compared by the gate.
+#
+# DOES THE WORKLOAD PARTITION INTO POPULATIONS WHERE DIFFERENT ALGORITHMS HAVE DIFFERENT POSITIVE NET
+# MARGINS — AND CAN ANYTHING CHEAP TELL WHICH POPULATION A TILE IS IN?
+#
+# THE TWO HALVES GET OPPOSITE ANSWERS, AND THAT IS THE RESULT.
+#
+# YES ON THE POPULATIONS. Four strategies costed on every one of the 1728 tiles of the lattice:
+#
+#   strategy     total operations   tiles it would have won
+#   reference             7496434      1344
+#   normal               17664724         0
+#   steno1               14655516       349    every one with exactly ONE owner
+#   stenoN               14411893        35    every one with TWO or THREE
+#
+# The winning sets are DISJOINT BY OWNER COUNT — the differentiation the architecture predicts,
+# measured rather than asserted. AND `normal`, THE TILED TRAVERSAL, WINS ZERO TILES: not merely
+# dominated on the total, which `voxbreak` already showed, but never the best strategy for a SINGLE
+# TILE anywhere. That is the mechanism behind the scaffolding tax — it is not an overhead on a good
+# idea, it is the cost of a traversal that is never the right answer.
+#
+# NO ON THE SELECTION, AND THE NUMBER IS EXACTLY ZERO. A HINDSIGHT ORACLE picking the winner per tile
+# costs 6163028 against the reference's 7496434 inner — with the common setup, 10788308 against
+# 12121714, ELEVEN PER CENT UNDER, and the first arrangement in this arc to get under the reference at
+# all. But the oracle READS THE OUTCOME. Replace it with the best FIXED rule per group:
+#
+#   signal                       groups   best-fixed total   margin captured
+#   owner cardinality                 7            7496434          ZERO
+#   longest same-owner run            4            7496434          ZERO
+#   both, bucketed                   16            7496434          ZERO
+#   both, EXACT and unbucketed       68            7496434          ZERO
+#
+# In every group of every partition, at every resolution, the best fixed strategy is `reference`.
+#
+# AND THE MECHANISM IS VISIBLE INSIDE THE BEST POPULATION THERE IS. Among the 571 ONE-OWNER tiles,
+# `steno1` wins 349 and wins them by 1235531 — then loses the other 222 by 1700567, net -465036. A
+# certificate that FAILS does not merely forgo its saving: it pays the read, the encode, the verify
+# and its own owner-only raster, and THEN pays the full tile anyway, so each losing tile costs about
+# twice what each winning tile saves. THE SIGNAL IS NOT WEAK; THE POPULATION IT IDENTIFIES IS
+# UNPROFITABLE, and no sharper reading of the same signal can repair that.
+#
+# THE ZERO IS A MEASUREMENT AND NOT AN INABILITY, AND THE `frame` ROW IS THE PLANT THAT PROVES IT.
+# Handed the FRAME INDEX — not a property of a tile at all, but a name for which picture is being
+# drawn — the same partition machinery returns +280476 across 323 groups. So the apparatus CAN find
+# margin; it finds none in the geometry because there is none in the signals available, and it finds
+# some in the frame index because that is MEMORISING THE BENCHMARK. The frame index is declared a
+# PLANT, is never in SIGNALS, and no margin is ever claimed from it.
+#
+# SO THE ARCHITECTURE'S TWO LEVELS COME APART, AND SEPARATING THEM IS THIS RUNG'S CONTRIBUTION.
+# `voxfriction` established that owner cardinality predicts WHETHER THE CERTIFICATE FIRES, sharply
+# and usefully. This rung establishes that the same signal carries NO information about WHICH
+# STRATEGY WINS. Those were one question until they were measured apart, and a regime-selective
+# renderer needs the second answered, not the first.
+#
+# NO RULE IS FROZEN HERE, and that is the discipline rather than modesty. Choosing a threshold on the
+# workload it was derived from is fitting; the honest sequence is measure, freeze the population,
+# declare the rule, then test it on a SUBSEQUENT workload. This rung performs the first two steps and
+# STOPS, because the third has nothing to declare: every candidate rule measured to exactly zero.
+#
+# DECLARED: the four strategies; the four partitions; the plant. The certificate is `voxcond`'s P4
+# and nothing else, the tile edge is INHERITED from `voxcond`, the owner and run buckets from
+# `voxfriction`, and the traversal is `voxstate`'s nearest-neighbour order.
+#
+# THE COMMON SETUP IS EXCLUDED AND THAT IS DISCLOSED AS A LAW, NOT A FOOTNOTE. Every strategy pays
+# the same 4625280 operations of projection and per-triangle setup, so excluding it cannot change
+# which strategy wins a tile — but it EXCEEDS HALF of everything being compared, so a per-tile margin
+# scaled against the committed reference without adding it back would be overstated by that ratio.
+# Both figures are always reported together.
+#
+# DERIVED at claim time (L75): every tile's owner count, longest run, admission read, encode, verify,
+# certificate raster, tiled raster and attributed reference work; every strategy total; the oracle;
+# every partition; the one-owner split; and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * strategies — the four totals, the tiles each would have won, the oracle, the attributed
+#     reference inner work and the excluded common setup.
+#   * signals — every partition's group count, best-fixed total and captured margin, INCLUDING the
+#     frame-index plant, so the zeros and the non-zero that validates them are pinned together.
+#   * populations — the owner buckets with their winners and oracle margins, and the one-owner split.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NOTHING ABOUT MEMORY.
+#   * THAT NO SIGNAL EXISTS. Four partitions of the two FREE signals are measured; a signal nobody
+#     has thought of is not ruled out. What is ruled out is the two this architecture makes free.
+#   * THAT THE FOUR STRATEGIES ARE THE RIGHT FOUR.
+#   * THAT THE ORACLE'S ELEVEN PER CENT IS REACHABLE. It is a CEILING, and the whole point of the
+#     rung is that nothing cheap reaches it.
+#   * NO PROMOTION. `voxref` is untouched.
+strategies a6e6924ca14d348f2ee204213c156cf3aa32f6501f9726ab866a20cdb20299e2
+signals 9ae058677435e471cf956c8a25b03955eeec8b98258c66ea0e0925673a8e5ccb
+populations c8c9042f1158e54267814017ba9940f5d27813ebf1e87f08ae2f3cffca616bbd
