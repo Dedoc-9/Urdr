@@ -1,0 +1,20 @@
+# URDRVXZ1 pre-registration for the TILE-SIZE SWEEP — committed by `voxbreak` ONE COMMIT BEFORE
+# any tile size but the current one has been run, because COMMIT ORDER is the only mechanism that
+# proves a prediction came first.
+#
+# WHY THIS SWEEP. `voxbreak` closed the break-even question at ONE tile size and found the deficit
+# is not the certificate but the SCAFFOLDING the certificate lives in — a tiled loop that costs the
+# committed reference several times over before a certificate is consulted. The tile size is the
+# parameter that tax is a function of, and no rung in this arc has ever varied it: every figure
+# from `voxcond` onward was taken at a single tile. This registers what is expected of the curve.
+#
+# THE MECHANISM EACH PREDICTION RESTS ON IS STATED WITH IT, so a hit that came from the wrong
+# reason is visible as one. NO RESULT IS NAMED and no number appears that is an outcome.
+#
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+
+predict T1 the scaffolding tax over the committed reference RISES as the tile grows, because the tiled raster walks the WHOLE TILE RECTANGLE for every triangle binned into it while the reference walks only that triangle's own bounding box, and `voxsilo` already measured the mean walked bounding box as SMALLER than the current tile
+predict T2 the certificate's retirement against its own cold tiled loop FALLS as the tile grows, because a larger tile holds more distinct owners, and `voxfriction` measured the payoff turning negative beyond a small owner count
+predict T3 there EXISTS a declared tile size at which the certified arrangement spends LESS than the committed reference — this is the result the arc is trying to produce and the one most likely to miss
+predict T4 the tile size that minimises the TOTAL spend is NOT the tile size that maximises the certificate's RETIREMENT, so the two curves are opposed and no single tile size is best at both
+predict T5 no declared tile size moves the observable on any state of the lattice, colour or depth compared as LISTS, because the certificate's sufficient condition is checked against the current camera and the tile is only a traversal order

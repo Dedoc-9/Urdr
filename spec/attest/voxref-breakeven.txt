@@ -1,0 +1,24 @@
+# URDRVXZ1 the break-even ledger — emitted by voxbreak.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# THE INEQUALITY HAS NO SOLUTION: every rule spends more than the committed reference.
+# AND THE SINGLE-OWNER GATE LOSES TO NO GATE AT ALL, which refutes the proposal this
+# rung was built to test. THE SIX ACCOUNTS ARE NEVER FUSED.
+#   rule  <rule> <recognise> <encode> <verify> <execute> <fallback>
+#   total <rule> <spend> <retired vs the cold tiled loop> <net vs the reference>
+#   tax   <scaffolding cost over the committed reference> <the reference>
+#   best  <the rule with the lowest spend>
+#   digest <break digest>
+rule none 0 0 0 22290004 0
+rule one 81792 562 11974 19173988 12480
+rule two 81792 988 15602 19027956 15968
+rule three 81792 1423 18338 18889124 18272
+rule all 81792 3079 22890 18889124 40288
+total none 22290004 0 10168290
+total one 19280796 3009208 7159082
+total two 19142306 3147698 7020592
+total three 19008949 3281055 6887235
+total all 19037173 3252831 6915459
+tax 10168290 12121714
+best three
+digest 7091e2cacaa32577d1820b0aa581259c5a3af930ced2275097ab4cb2f84897c9

@@ -266,6 +266,7 @@ STAGE_ORDER = (
     "voxstate",
     "voxmanifold",
     "voxfriction",
+    "voxbreak",
     "rowtext",
     "rollbench",
     "reachable",
@@ -22099,6 +22100,126 @@ class Gate:
                     "— and an unknown scene refuses (gate can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def voxbreak(self):
+        """THE BREAK-EVEN LEDGER, AND THE GATE THAT WAS PROPOSED IS THE WRONG ONE (URDRVXZ1). Rows:
+        ledger (six accounts never fused, and both baselines equal to committed numbers), refutation
+        (the single-owner gate loses to no gate at all), breakeven (no rule undercuts the reference,
+        and the deficit is the scaffolding), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxbreak as VB
+        except Exception as exc:
+            for r in ("ledger", "refutation", "breakeven", "selftest"):
+                self.record(f"voxbreak-{r}", False, f"import failed (voxbreak): {exc}")
+            return
+        l_ok, cold, ung = True, 0, 0
+        try:
+            cold, ung = VB.spend("none"), VB.spend("all")
+            l_ok = (VB.the_observable_never_moves_under_any_rule()
+                    and VB.the_none_rule_is_exactly_the_cold_tiled_loop()
+                    and VB.the_all_rule_is_exactly_the_committed_traversal()
+                    and VB.the_refuted_hypothesis_carries_no_preregistration_credit()
+                    and VB.the_prediction_ships_before_the_sweep()
+                    and VB.the_prediction_names_no_result()
+                    and VB.nothing_is_promoted()
+                    and VB.no_wall_clock_enters_this_rung())
+        except Exception:
+            l_ok = False
+        self.record("voxbreak-ledger", l_ok,
+                    "SIX ACCOUNTS KEPT SEPARATELY AND NEVER FUSED — recognise, encode, verify, "
+                    "execute, fallback, retired — because a break-even question answered with ONE "
+                    "number cannot say which term is responsible and every term here has a "
+                    "different remedy. BOTH BASELINES ARE COMMITTED NUMBERS RATHER THAN "
+                    "RE-DERIVATIONS: the `none` rule equals `voxmanifold`'s cold tiled Z0 at %d "
+                    "operation for operation, and the `all` rule's execute plus fallback equals its "
+                    "Z3, so this ledger is a DECOMPOSITION of an existing measurement and not a "
+                    "second one that might have drifted. The `none` rule pays NO admission read, "
+                    "because a statically empty gate never reads the tile and charging it would "
+                    "flatter every other rule. Every rule reproduces the reference frames with "
+                    "colour and depth compared AS LISTS across all sixteen states, the contract "
+                    "that has now caught an unsound optimisation in three consecutive rungs. AND NO "
+                    "PREDICTION IS SCORED HERE: the hypothesis this rung refutes was stated before "
+                    "the measurement but NEVER COMMITTED, so it earns no pre-registration credit — "
+                    "PRE-REGISTRATION IS COMMIT ORDER OR IT IS NOTHING — while the five predictions "
+                    "for the TILE-SIZE SWEEP ship in this commit with their digest pinned, one "
+                    "commit before that sweep exists"
+                    % cold if l_ok else "the ledger did not hold")
+        r_ok, one, three = True, 0, 0
+        try:
+            one, three = VB.spend("one"), VB.spend(VB.best())
+            r_ok = (VB.single_ownership_is_not_the_profitable_gate()
+                    and VB.the_gates_whole_gain_is_waste_avoided()
+                    and VB.best() != "one")
+        except Exception:
+            r_ok = False
+        self.record("voxbreak-refutation", r_ok,
+                    "THE SINGLE-OWNER GATE LOSES TO NO GATE AT ALL — %d operations against the "
+                    "ungated %d — which refutes by measurement the reading `voxfriction`'s surface "
+                    "invited. Single-owner tiles do carry the overwhelming share of the payoff, but "
+                    "the two- and three-owner buckets are POSITIVE TOO, and a gate admitting only "
+                    "single-owner tiles declines them, forfeits their payoff, and still pays the "
+                    "admission read on every tile it turns away. SHARING THE OVERWHELMING MAJORITY "
+                    "OF A BENEFIT IS NOT BEING THE WHOLE OF IT. AND THE MECHANISM OF THE GAIN IS "
+                    "NOT WHAT A GATE IS USUALLY FOR: the best gate at %d and NO gate EXECUTE THE "
+                    "IDENTICAL NUMBER OF OPERATIONS, so not one certificate is lost by gating and "
+                    "the entire gain is fallback, encode and verify that no longer happen. The gate "
+                    "does not choose which certificates to EARN, it predicts which attempts are "
+                    "DOOMED — a strictly smaller prize than a payoff surface makes it look, because "
+                    "the surface counts a declined tile's forgone COST while the ledger can only "
+                    "collect its forgone WASTE. The single-owner rule crosses that line the other "
+                    "way, declining tiles that would have SUCCEEDED, and its `execute` rises"
+                    % (one, ung, three) if r_ok else "the refutation did not hold")
+        b_ok, told = True, "?"
+        try:
+            told = VB.told()
+            b_ok = (VB.the_inequality_has_no_solution_on_this_loop()
+                    and VB.the_gate_pays_but_only_against_the_loop_it_lives_in()
+                    and VB.the_deficit_is_the_scaffolding_and_not_the_certificate()
+                    and VB.friction_is_smaller_than_the_certificate_it_gates()
+                    and VB.the_record_names_this_world()
+                    and VB.the_record_is_bound_to_the_live_code()
+                    and VB.scene_result("ledger") == VB.golden("ledger")
+                    and VB.scene_result("breakeven") == VB.golden("breakeven")
+                    and VB.scene_result("prediction") == VB.golden("prediction"))
+        except Exception:
+            b_ok = False
+        self.record("voxbreak-breakeven", b_ok,
+                    "%s. THIS ROW REDDENS THE DAY ANY RULE UNDERCUTS THE COMMITTED REFERENCE, which "
+                    "is the result the whole arc is trying to produce and would be the best "
+                    "possible failure of a law"
+                    % told if b_ok else "the break-even ledger did not hold")
+        t_ok = True
+        try:
+            t_ok = VB.a_tampered_row_refuses()
+            for bad in ("rule all 1 2 3", "total seven 1 2 3", "tax 5", "best nine",
+                        "rumour 1 2 3"):
+                try:
+                    VB.parse("# world x\n%s\n" % bad)
+                    t_ok = False
+                except VB.VoxbreakError:
+                    pass
+            for call, arg in ((VB.ledger, "four"), (VB.scene_case, "ledger2"),
+                              (VB.golden, "nope")):
+                try:
+                    call(arg)
+                    t_ok = False
+                except VB.VoxbreakError:
+                    pass
+        except Exception:
+            t_ok = False
+        self.record("voxbreak-selftest", t_ok,
+                    "eight plants bite: a rule row of the wrong arity refuses rather than being "
+                    "read short, a total row naming an undeclared rule refuses, a tax row of the "
+                    "wrong arity refuses, a best row naming no declared rule refuses — which is the "
+                    "failure mode that would let the record name a winner the code never measured — "
+                    "a row of unknown kind refuses rather than being skipped as a comment, an "
+                    "admission rule outside the five declared refuses rather than being run as "
+                    "though declared, and an unknown scene and an unknown golden both refuse (gate "
+                    "can redden)"
+                    if t_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -25905,7 +26026,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

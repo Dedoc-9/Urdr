@@ -1,0 +1,90 @@
+# URDRVXZ1 the break-even ledger — emitted by voxbreak.py, pinned by hand, compared by the gate.
+#
+# THE INEQUALITY HAS NO SOLUTION ON THIS LOOP, AND THE GATE THAT WAS PROPOSED IS THE WRONG ONE.
+#
+# `voxfriction` measured the payoff surface and found a sharp phase transition at four distinct
+# owners, with single-owner tiles carrying ninety-three per cent of all value. The natural reading —
+# EXPLOIT THE SINGLE-OWNER CASE FIRST, and if it cannot break even stop the branch — was stated
+# before any gated arrangement had been run. THIS RUNG BUILDS THE GATE AND KEEPS THE BOOKS.
+#
+# FIVE ADMISSION RULES, each keyed on AT MOST this many distinct owners in the predecessor's tile.
+# SIX ACCOUNTS, kept separately and NEVER FUSED, because a break-even question answered with one
+# number cannot say which term is responsible and every term here has a different remedy.
+#
+#   rule    recognise   encode   verify     execute   fallback        spend    net vs reference
+#   none            0        0        0    22290004          0     22290004         +10168290
+#   one         81792      562    11974    19173988      12480     19280796          +7159082
+#   two         81792      988    15602    19027956      15968     19142306          +7020592
+#   three       81792     1423    18338    18889124      18272     19008949          +6887235
+#   all         81792     3079    22890    18889124      40288     19037173          +6915459
+#
+# The COMMITTED REFERENCE over the same sixteen states costs 12121714.
+#
+# EVERY RULE IS UNDERWATER and the best is fifty-seven per cent dearer. The break-even this arc has
+# been chasing does not exist here, and it does not miss by a little.
+#
+# AND THE SINGLE-OWNER GATE LOSES TO NO GATE AT ALL, by 243623 operations. `voxfriction`'s own
+# surface says why: the two- and three-owner buckets are POSITIVE TOO, at +123524 and +125408, so a
+# gate admitting only single-owner tiles declines them, forfeits their payoff, and still pays the
+# admission read on every tile it turns away. SHARING THE OVERWHELMING MAJORITY OF A BENEFIT IS NOT
+# THE SAME AS BEING THE WHOLE OF IT, and the difference is worth a quarter of a million operations.
+#
+# AND THE MECHANISM OF THE GAIN IS NOT WHAT A GATE IS USUALLY FOR. The best rule and no gate at all
+# EXECUTE THE IDENTICAL 18889124 OPERATIONS: not one certificate is lost by gating, and the entire
+# 28224 gain is fallback, encode and verify that no longer happen, because every tile the gate
+# declines was going to FAIL. THE GATE DOES NOT CHOOSE WHICH CERTIFICATES TO EARN, IT PREDICTS WHICH
+# ATTEMPTS ARE DOOMED — a strictly smaller prize than the payoff surface makes it look, since the
+# surface counts a declined tile's forgone COST while the ledger can only collect its forgone WASTE.
+# The single-owner rule crosses that line the other way, declining tiles that would have SUCCEEDED,
+# and its `execute` rises by 284864 as a result.
+#
+# SO THE DEFICIT IS THE SCAFFOLDING AND NOT THE CERTIFICATE. The certificate retires 3281055 against
+# the loop it lives in and that is real work. The TILED LOOP ITSELF costs 10168290 over the reference
+# BEFORE A SINGLE CERTIFICATE IS CONSULTED — a tax more than three times everything the certificate
+# retires. No improvement to the certificate can close that, and neither can any admission gate.
+#
+# BOTH BASELINES ARE COMMITTED NUMBERS RATHER THAN RE-DERIVATIONS. The `none` rule equals
+# `voxmanifold`'s cold tiled Z0 operation for operation, and the `all` rule's execute plus fallback
+# equals its Z3, so this ledger is a DECOMPOSITION of an existing measurement and not a second one
+# that might have drifted. `none` pays NO admission read, because a statically empty gate never reads
+# the tile and charging it would have flattered every other rule.
+#
+# NO PREDICTION IS SCORED HERE. The hypothesis this rung refutes was stated before the measurement
+# but was NEVER COMMITTED to this tree, so it cannot be verified as prior by anything except my word,
+# and this arc does not score claims on my word. PRE-REGISTRATION IS COMMIT ORDER OR IT IS NOTHING;
+# the refutation stands on the measurement alone. What DOES ship early is the pre-registration for
+# the NEXT rung — five predictions about THE TILE SIZE, the parameter the scaffolding tax is a
+# function of and the one thing this arc has never varied.
+#
+# ONE LAW REDDENED BEFORE SHIPPING AND THE CORRECTION IS KEPT VISIBLE RATHER THAN TIDIED AWAY:
+# `friction_is_smaller_than_the_certificate_it_gates` first claimed the gain was four orders below
+# the scaffolding tax. It is three hundred and sixty times below it. The ordering was real and the
+# exponent I reached for was not.
+#
+# DECLARED: the five admission rules and their ceilings; the five accounts. The certificate is
+# `voxcond`'s P4 and nothing else, and the tile edge is INHERITED from `voxcond`. The traversal is
+# `voxstate`'s nearest-neighbour order, held FIXED across all five rules so the only thing varying
+# is the gate.
+#
+# DERIVED at claim time (L75): every per-rule account; the spends, retirements and nets; the
+# scaffolding tax; the best rule; and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * ledger — the five accounts for each of the five rules, unfused.
+#   * breakeven — each rule's spend, retirement against the cold tiled loop and net against the
+#     committed reference, plus the scaffolding tax, the reference and the winning rule.
+#   * prediction — the tile-size pre-registration committed in THIS rung for the next one, pinned by
+#     digest so a later rung can prove it came first.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NOTHING ABOUT MEMORY, which is where an owner map's storage would be paid and where a tiled
+#     loop's real-world case is usually made.
+#   * THAT NO GATE CAN WIN. Five are declared and measured; a sixth reading a different signal is
+#     not ruled out.
+#   * THAT THE SCAFFOLDING CANNOT BE MADE CHEAPER. Its cost is measured at ONE tile size here and
+#     the next rung varies it.
+#   * NO PROMOTION. `voxref` is untouched.
+ledger 8524a4906f36b1dd045964007f33cdb8fa5a161b76af557e05ce8586c2c48887
+breakeven fd5c7b5a15fb634b01f4a2f0b1070fe9aa20c90d2818a0010a1d86ce1908ddb4
+prediction a4e6ade39a4c84b246b5cd38bfb62d3e7535ee0133245e15bf836eb39a9ceff9
