@@ -29,9 +29,9 @@ constant` RUNS both of them here beside this rung's result, so the conditionalit
 re-derives rather than a caveat a reader has to remember.
 
 THE FIRST PASS OF THIS SWEEP LOOKED FAR BETTER AND WAS WRONG, AND THAT IS THE MOST IMPORTANT THING IN
-THE RUNG. Uncharged, the UNIT tile comes out at 9752785 — NINETEEN AND A HALF PER CENT under, and
-better than anything the charged sweep can reach — and that number is cheating in five places the
-untiled reference never pays:
+THE RUNG. Uncharged, the UNIT tile comes out at 9752785 — 19.5 PER CENT under, and better than
+anything the charged sweep can reach — and that number is cheating in five places the untiled
+reference never pays:
 
     range      four divisions per triangle to find its tile range
     index      one multiply per (triangle, tile) pair to address the bin
@@ -42,7 +42,7 @@ untiled reference never pays:
 At the unit tile those total 1492722; at the committed tile only 416938. THE UNCHARGED TERMS WERE
 WORTH THREE AND A HALF TIMES MORE TO THE ARM THAT WAS WINNING, which is exactly how a sweep talks
 itself into a result. Charging all five moved the optimum from tile 1 to tile 2 and cut the win from
-nineteen and a half per cent to 10.7. `the_bookkeeping_is_charged_and_it_moved_the_answer` asserts
+19.5 per cent to 10.7 per cent. `the_bookkeeping_is_charged_and_it_moved_the_answer` asserts
 ALL THREE facts — the unit tile wins uncharged, it does not win charged, and the uncharged figure was
 strictly rosier than anything the charged sweep reaches — so the correction cannot quietly disappear
 into a tidier story later.
@@ -65,19 +65,48 @@ does_not_show: NOTHING ABOUT TIME, and no wall clock enters. NOTHING ABOUT MEMOR
 that omission is at its most generous — the owner map is one integer per pixel however the frame is
 diced, but the bin structure is not, and this rung counts arithmetic rather than storage. THAT THE
 OPERATION MODEL IS THE RIGHT COST — it is `voxwork`'s, multiplies and divides, and a machine where a
-bin insert costs more than a multiply would move the optimum. THAT 10.9 PER CENT IS THE BEST
+bin insert costs more than a multiply would move the optimum. THAT 10.7 PER CENT IS THE BEST
 AVAILABLE, since eight sizes are declared and the space between them is not searched. And NO
 PROMOTION: `voxref` is untouched and nothing is adopted.
+
+AND THIS RUNG SHIPPED ITS HEADLINE WRONG ONCE, WHICH IS WHY THE PERCENTAGES ARE NOW GENERATED.
+The first commit of this module stated `10.9 PER CENT` in its `does_not_show` block and twice more in
+its gate message, against a measured 10.7 — an OVERSTATEMENT that reached `origin` and was caught by
+reading, not by the gate. Every derived number in the record, the goldens and the verdicts was
+correct; what drifted was the PROSE THAT STATES THE CLAIM, which is the part that matters most. The
+cause was specific: the correction was applied to the computed artefacts and the typed ones were
+never re-read, so the values that were never at risk got checked and the only place a wrong number
+could hide did not.
+
+THE REPAIR IS A MECHANISM AND NOT AN EDIT. Both percentages are now DERIVED from the live
+measurements in exact integer tenths — `percent_tenths` — and the gate message FORMATS them rather
+than quoting them, so a hardcoded percentage in `told` is no longer possible. And prose is held to a
+contract it can be checked against: EVERY numeric percentage in this module's own docstring and gate
+message must either be the formatted value of a DECLARED accessor or appear in `NON_MEASUREMENT`,
+which is explicitly classified as non-measurement prose. Belonging to a set is not enough on its own
+— the declared values are required to be PAIRWISE DISTINCT and disjoint from the exempt list, so no
+literal can be ambiguously attributed and a coincidental match cannot pass for a citation.
+`the_law_catches_the_defect_it_was_built_for` runs the scanner over the exact sentence that shipped
+and requires it to refuse.
+
+THE LAW IS SCOPED TO THIS MODULE ON PURPOSE. A shared scanner over every `vox*` docstring is the
+obvious generalisation and it is NOT taken: a mechanism earns promotion when the corpus demonstrates
+the need, not when it looks elegant. If a second rung produces this same failure, that recurrence is
+the evidence — and until then this is one module that cannot contradict its own measurements.
 
 falsifier: `the_observable_never_moves_at_any_tile_size` compares colour and depth AS LISTS at every
 declared size on all sixteen states; `the_committed_tile_reproduces_voxbreaks_figures` reddens the
 day this sweep stops agreeing with `voxbreak` at the tile they share, which is how a re-parameterised
 instrument would be caught having become a different one; and `the_bookkeeping_is_charged_and_it_
 moved_the_answer` reddens if the uncharged sweep ever stops disagreeing with the charged one, which
-is the day the correction this rung is built around stops being real.
+is the day the correction this rung is built around stops being real; and
+`the_percentages_in_the_prose_are_the_measured_ones` reddens if any percentage stated in this
+module's docstring or gate message stops matching the measurement it names, which is the defect this
+module shipped once and the reason the law exists.
 """
 import hashlib
 import os
+import re
 import sys as _sys
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
@@ -121,6 +150,24 @@ BOOK_TERMS = ("range", "index", "owners", "visit", "complete")
 
 #: Every column a render reports.
 COLUMNS = ACCOUNTS + BOOK_TERMS
+
+
+#: DECLARED — every percentage this module's prose is allowed to state, each bound to a LIVE
+#: ACCESSOR. Values are exact integer TENTHS of a per cent: a float in a repo that counts exact
+#: integers would be the one number nobody could reproduce.
+PERCENTS = ("headline", "uncharged")
+
+#: DECLARED — percentage literals appearing in the prose that are NOT this rung's measurements, and
+#: there is exactly one: `10.9`, THE FIGURE THIS MODULE WRONGLY SHIPPED. It is quoted in the
+#: correction paragraph above so the defect stays visible, and it is declared HERE so that quoting it
+#: cannot be mistaken for stating it. That is the whole reason the contract has a second branch: a
+#: rule with no exemption would force a legitimate quotation to be laundered through a fake accessor,
+#: or force the correction to be deleted to make the checker pass. Declaring an entry is a visible,
+#: reviewable act, and the uniqueness law requires every entry to differ from every measurement, so
+#: an exemption can never shadow a real figure.
+NON_MEASUREMENT = ("10.9",)
+
+_PERCENT = re.compile(r"(\d+\.\d+)\s+(?:per cent|PER CENT)")
 
 
 class VoxtileError(Exception):
@@ -355,7 +402,105 @@ def best_retirement():
     return max(TILES, key=retired)
 
 
+# ---- the percentages, DERIVED rather than typed ------------------------------------------------------
+def percent_tenths(name):
+    """A declared percentage in exact integer TENTHS, computed from the live sweep.
+
+    `headline` is how far the best charged arrangement sits UNDER the committed reference.
+    `uncharged` is how far the unit tile appeared to sit under it BEFORE the bookkeeping was charged
+    — the figure the first pass reported, kept as a measurement because the correction it forced is
+    the point of the rung rather than an embarrassment to be dropped.
+    """
+    if name not in PERCENTS:
+        raise VoxtileError("VOXTILE-REFUSE: no declared percentage %r" % (name,))
+    ref = VM.reference_cost()
+    if name == "headline":
+        return (-net(best()) * 1000) // ref
+    return ((ref - certified(1, book=False)) * 1000) // ref
+
+
+def percent_text(name):
+    t = percent_tenths(name)
+    return "%d.%d" % (t // 10, t % 10)
+
+
+def percent_literals(text):
+    """Every numeric percentage stated in `text`, deduplicated and sorted."""
+    return tuple(sorted(set(_PERCENT.findall(text))))
+
+
+def unattributed_percentages(text, exempt=None):
+    """Percentage literals in `text` that name NO measurement and are not declared prose.
+
+    THE CONTRACT IS ATTRIBUTION, NOT MEMBERSHIP. Checking that a number merely appears somewhere in
+    a set of measurements would accept `37.2 per cent` the day some unrelated quantity happened to
+    equal it. So every literal must resolve to exactly one of two things: the formatted value of a
+    DECLARED accessor, or an entry in the exempt list that a human had to write down.
+    """
+    exempt = NON_MEASUREMENT if exempt is None else exempt
+    allowed = {percent_text(n) for n in PERCENTS} | set(exempt)
+    return tuple(p for p in percent_literals(text) if p not in allowed)
+
+
 # ---- the laws ----------------------------------------------------------------------------------------
+def the_declared_percentages_are_uniquely_attributable():
+    """NO LITERAL MAY BE AMBIGUOUS. The declared values must be pairwise distinct and disjoint from
+    the exempt list, so that a percentage found in the prose resolves to ONE named quantity. Without
+    this the attribution check would degrade into the membership check it exists to replace."""
+    vals = [percent_text(n) for n in PERCENTS]
+    return (len(set(vals)) == len(vals)
+            and not (set(vals) & set(NON_MEASUREMENT))
+            and len(vals) == len(PERCENTS))
+
+
+def the_percentages_in_the_prose_are_the_measured_ones():
+    """THE LAW THIS MODULE SHIPPED WITHOUT AND PAID FOR.
+
+    It tests the artefact a human actually reads — the docstring — rather than merely that an
+    accessor returns the right number. Every numeric percentage in this module's own documentation
+    and in its gate message must be the formatted value of a declared accessor or explicitly
+    classified as prose; and every declared accessor must actually APPEAR, so a measurement cannot be
+    declared and then quietly go unstated while the prose says something else."""
+    doc = _sys.modules[__name__].__doc__ or ""
+    return (not unattributed_percentages(doc)
+            and not unattributed_percentages(told())
+            and all(percent_text(n) in doc for n in PERCENTS)
+            and the_declared_percentages_are_uniquely_attributable())
+
+
+def the_law_catches_the_defect_it_was_built_for():
+    """THE PLANT, AND IT IS THE ACTUAL SENTENCE THAT SHIPPED. The first commit of this module wrote
+    `10.9 PER CENT` where the measurement says 10.7. The scanner is run over that exact text and must
+    refuse it — a law whose only evidence is that it passes on correct input has not been shown to
+    bite."""
+    return (unattributed_percentages("THAT 10.9 PER CENT IS THE BEST AVAILABLE", exempt=())
+            == ("10.9",)
+            and unattributed_percentages("this rung takes 10.9 per cent", exempt=()) == ("10.9",)
+            and unattributed_percentages("THAT 10.9 PER CENT IS THE BEST AVAILABLE") == ())
+
+
+def a_percentage_naming_no_measurement_refuses():
+    """And an invented figure refuses even when it is hedged, because `approximately` is not a
+    citation."""
+    return unattributed_percentages("approximately 37.2 per cent of the frame") == ("37.2",)
+
+
+def a_percentage_declared_as_prose_is_admitted():
+    """The second branch of the contract, exercised rather than assumed: a literal a human has
+    explicitly classified passes, which is what keeps the law from forcing a legitimate quotation to
+    be laundered through a fake accessor."""
+    return (unattributed_percentages("a quoted 37.2 per cent", exempt=("37.2",)) == ()
+            and unattributed_percentages("a quoted 37.2 per cent", exempt=()) == ("37.2",))
+
+
+def an_undeclared_percentage_name_refuses():
+    try:
+        percent_tenths("wishful")
+    except VoxtileError:
+        return True
+    return False
+
+
 def the_observable_never_moves_at_any_tile_size():
     """THE CONTRACT. Colour and depth compared AS LISTS at every declared size on all sixteen states
     — the contract that has now caught an unsound optimisation in three consecutive rungs. A tile
@@ -640,17 +785,18 @@ def told():
             "those measurements was taken at ONE tile size nobody varied. Swept over %d declared "
             "sizes, all of which divide both 96 and 72 so no partial tile can confound it: %d OF "
             "THEM SPEND LESS THAN THE COMMITTED REFERENCE (%s), and the best is tile %d at %d "
-            "against %d — %d under, TEN POINT SEVEN PER CENT, with colour and depth byte-identical "
+            "against %d — %d under, %s PER CENT, with colour and depth byte-identical "
             "as lists on all sixteen states. ONE STRATEGY, ONE CONSTANT, NO SELECTOR. THE FIRST "
             "PASS LOOKED FAR BETTER AND WAS WRONG, WHICH IS THE MOST IMPORTANT THING HERE: "
-            "uncharged, the UNIT tile comes out at %d, nineteen and a half per cent under and "
+            "uncharged, the UNIT tile comes out at %d, %s per cent under and "
             "BETTER THAN ANYTHING THE CHARGED SWEEP REACHES, and that number is cheating "
             "in five places the untiled reference never pays — the tile range, the bin index, the "
             "owner index, the per-tile visit and the completeness check. Those terms are worth %d "
             "at tile 1 against %d at tile %d, THREE AND A HALF TIMES MORE TO THE ARM THAT WAS "
             "WINNING, which is exactly how a sweep talks itself into a result; charging all five "
-            "moved the optimum off the unit tile and cut the win from twenty per cent to 10.9, and "
-            "the law asserts BOTH halves so the correction cannot vanish into a tidier story. TWO "
+            "moved the optimum off the unit tile and cut the win from %s per cent to %s per cent, "
+            "and the law asserts ALL THREE parts so the correction cannot vanish into a tidier "
+            "story. TWO "
             "ANCHORS PROVE THE INSTRUMENT RATHER THAN ASSUME IT: at tile 1 the cold loop costs "
             "EXACTLY the reference before bookkeeping, because unit binning walks precisely each "
             "triangle's own bounding box; and at tile %d the sweep reproduces `voxbreak`'s "
@@ -661,15 +807,20 @@ def told():
             "result rather than cited — but both were verdicts about a loop nobody had "
             "parameterised. AND THE SELECTION PROBLEM WAS THE WRONG PROBLEM: `voxschism` proved a "
             "perfect, free, UNBUILDABLE selector would save eleven per cent at the committed tile "
-            "and that no free signal captures ANY of it; this rung takes 10.9 with no selector at "
-            "all, so those zeros are untouched and are re-run here to prove it. FOUR OF FIVE "
+            "and that no free signal captures ANY of it; this rung takes %s per cent with no "
+            "selector at all, so those zeros are untouched and are re-run here to prove it. AND "
+            "EVERY PERCENTAGE IN THIS MESSAGE IS GENERATED FROM THE MEASUREMENT RATHER THAN TYPED, "
+            "because this module once shipped a TYPED figure that overstated the measured one and "
+            "the repair is a mechanism rather than an edit. FOUR OF FIVE "
             "PREDICTIONS HIT (%s) AND ONE MISSED (%s): retirement does not fall monotonically, it "
             "PEAKS at tile %d, because a large tile holds too many owners to certify while a small "
             "one has too little work left to retire"
             % (len(TILES), len(under), ", ".join(str(t) for t in under), b, certified(b), ref,
-               -net(b), certified(1, book=False),
-               bookkeeping(1, "warm"), bookkeeping(COMMITTED, "warm"),
-               COMMITTED, COMMITTED, VB.spend("none"), VB.spend("all"),
+               -net(b), percent_text("headline"),
+               certified(1, book=False), percent_text("uncharged"),
+               bookkeeping(1, "warm"), bookkeeping(COMMITTED, "warm"), COMMITTED,
+               percent_text("uncharged"), percent_text("headline"),
+               COMMITTED, VB.spend("none"), VB.spend("all"), percent_text("headline"),
                ", ".join(hits()), ", ".join(misses()), best_retirement()))
 
 

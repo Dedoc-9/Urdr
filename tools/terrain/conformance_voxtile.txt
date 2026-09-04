@@ -25,9 +25,9 @@
 # beaten `voxref`.
 #
 # THE FIRST PASS LOOKED FAR BETTER AND WAS WRONG, AND THAT IS THE MOST IMPORTANT THING IN THE RUNG.
-# Uncharged, the UNIT tile comes out at 9752785 — nineteen and a half per cent under, and better than
-# anything the charged sweep can reach. That number cheats in five places the untiled reference never
-# pays, and each is charged here in `voxwork`'s own model of multiplies and divides:
+# Uncharged, the UNIT tile comes out at 9752785 — 19.5 per cent under, and better than anything the
+# charged sweep can reach. That number cheats in five places the untiled reference never pays, and
+# each is charged here in `voxwork`'s own model of multiplies and divides:
 #
 #   term       what it is                                          tile 1     tile 8
 #   range      four divisions per triangle for its tile range      276028     276028
@@ -39,7 +39,7 @@
 #
 # THE UNCHARGED TERMS WERE WORTH THREE AND A HALF TIMES MORE TO THE ARM THAT WAS WINNING, which is
 # exactly how a sweep talks itself into a result. Charging all five moved the optimum from tile 1 to
-# tile 2 and cut the win from nineteen and a half per cent to 10.7. The law asserts ALL THREE parts —
+# tile 2 and cut the win from 19.5 per cent to 10.7 per cent. The law asserts ALL THREE parts —
 # the unit tile wins uncharged, it does not win charged, and the uncharged figure was strictly rosier
 # than anything the charged sweep reaches — so the correction cannot vanish into a tidier story.
 #
@@ -94,6 +94,17 @@
 #     machine where a bin insert costs more than a multiply would move the optimum.
 #   * THAT 10.7 PER CENT IS THE BEST AVAILABLE. Eight sizes are declared; between them is unsearched.
 #   * NO PROMOTION. `voxref` is untouched and nothing is adopted.
+#
+# CORRECTION. This module's FIRST COMMIT stated `10.9 PER CENT` where the measurement says 10.7 — an
+# overstatement that reached `origin`. Every derived number here was correct; the PROSE drifted,
+# because the correction was applied to the computed artefacts and the typed ones were never re-read.
+# Both percentages are now DERIVED in exact integer tenths and the gate message FORMATS them; every
+# numeric percentage in the module's docstring and message must be the formatted value of a DECLARED
+# accessor or an explicitly classified exemption. ATTRIBUTION, NOT MEMBERSHIP: declared values must be
+# pairwise distinct and disjoint from the exemptions, so a coincidental match cannot pass for a
+# citation. The one exemption is `10.9` itself, quoted so the defect stays visible and declared so
+# quoting it cannot be mistaken for stating it. THE GOLDENS BELOW ARE UNCHANGED BY THE CORRECTION,
+# which is the point: no measurement moved, only the sentences that describe them.
 sweep 18a657b4a4fe8d9fd886348687473cb0cfe43adab03065c8b50c18934f80c853
 bookkeeping 3a33185d79eafcd90ae89e9b5ed3706254903b9a1fa5a6135ad4ccd62e47887e
 verdicts 92a09a28d4754bb57d87068186c3a7ed307aa9a75ec5164e3da314cb3304c4d4

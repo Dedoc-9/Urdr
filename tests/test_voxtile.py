@@ -109,6 +109,83 @@ class TheBookkeeping(unittest.TestCase):
         self.assertGreater(TL.bookkeeping(1, "warm"), 3 * TL.bookkeeping(TL.COMMITTED, "warm"))
 
 
+class ThePercentages(unittest.TestCase):
+    """The law this module shipped without and paid for. It tests the artefact a human READS."""
+
+    def test_the_percentages_in_the_prose_are_the_measured_ones(self):
+        self.assertTrue(TL.the_percentages_in_the_prose_are_the_measured_ones())
+
+    def test_the_declared_percentages_are_uniquely_attributable(self):
+        """Attribution, not membership: no literal may resolve to more than one named quantity."""
+        self.assertTrue(TL.the_declared_percentages_are_uniquely_attributable())
+
+    def test_the_law_catches_the_defect_it_was_built_for(self):
+        """Run over the exact sentence that shipped: `10.9 PER CENT` against a measured 10.7."""
+        self.assertTrue(TL.the_law_catches_the_defect_it_was_built_for())
+        self.assertEqual(
+            TL.unattributed_percentages("THAT 10.9 PER CENT IS THE BEST AVAILABLE", exempt=()),
+            ("10.9",))
+
+    def test_a_percentage_naming_no_measurement_refuses(self):
+        self.assertTrue(TL.a_percentage_naming_no_measurement_refuses())
+
+    def test_a_percentage_declared_as_prose_is_admitted(self):
+        """The second branch, exercised rather than assumed."""
+        self.assertTrue(TL.a_percentage_declared_as_prose_is_admitted())
+
+    def test_the_quoted_defect_is_declared_and_is_not_a_measurement(self):
+        """`10.9` appears in the correction paragraph and is DECLARED prose, never a measurement."""
+        self.assertIn("10.9", TL.NON_MEASUREMENT)
+        self.assertNotIn("10.9", {TL.percent_text(n) for n in TL.PERCENTS})
+
+    def test_every_declared_percentage_actually_appears_in_the_prose(self):
+        """A measurement cannot be declared and then quietly go unstated."""
+        for n in TL.PERCENTS:
+            self.assertIn(TL.percent_text(n), TL.__doc__)
+
+    def test_the_gate_message_states_only_generated_percentages(self):
+        self.assertEqual(TL.unattributed_percentages(TL.told()), ())
+        self.assertIn(TL.percent_text("headline"), TL.told())
+        self.assertIn(TL.percent_text("uncharged"), TL.told())
+
+    def test_the_percentages_are_exact_integer_tenths(self):
+        """A float here would be the one number in this repo nobody could reproduce."""
+        for n in TL.PERCENTS:
+            self.assertIsInstance(TL.percent_tenths(n), int)
+
+    def test_the_reported_percentage_never_overstates(self):
+        """TRUNCATION, NOT ROUNDING, and it is checked in exact integer arithmetic: the reported
+        tenths must bracket the true ratio from BELOW. A figure that rounded up would be a small
+        inflation of exactly the kind this law exists to prevent."""
+        ref = VM.reference_cost()
+        for n, margin in (("headline", -TL.net(TL.best())),
+                          ("uncharged", ref - TL.certified(1, book=False))):
+            t = TL.percent_tenths(n)
+            self.assertLessEqual(t * ref, margin * 1000)
+            self.assertLess(margin * 1000, (t + 1) * ref)
+
+    def test_the_headline_is_the_best_arrangements_margin(self):
+        self.assertEqual(TL.percent_tenths("headline"),
+                         (-TL.net(TL.best()) * 1000) // VM.reference_cost())
+
+    def test_the_uncharged_figure_is_the_one_the_first_pass_reported(self):
+        self.assertEqual(TL.percent_tenths("uncharged"),
+                         ((VM.reference_cost() - TL.certified(1, book=False)) * 1000)
+                         // VM.reference_cost())
+        self.assertGreater(TL.percent_tenths("uncharged"), TL.percent_tenths("headline"))
+
+    def test_an_undeclared_percentage_name_refuses(self):
+        self.assertTrue(TL.an_undeclared_percentage_name_refuses())
+        with self.assertRaises(TL.VoxtileError):
+            TL.percent_tenths("wishful")
+
+    def test_the_law_is_scoped_to_this_module(self):
+        """A shared scanner is the obvious generalisation and is deliberately NOT taken: promotion
+        waits on a second occurrence of the failure, not on the mechanism looking elegant."""
+        self.assertEqual(TL.percent_literals("no percentages here"), ())
+        self.assertEqual(TL.percent_literals("1.5 per cent and 1.5 PER CENT"), ("1.5",))
+
+
 class TheResult(unittest.TestCase):
     def test_the_arrangement_gets_under_the_committed_reference(self):
         """The first time in this arc that anything BUILDABLE has beaten the reference."""

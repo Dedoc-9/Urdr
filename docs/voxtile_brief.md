@@ -38,9 +38,8 @@ one constant, **no selector**. It is the first time in this arc that anything bu
 `voxref`.
 
 **The first pass looked far better and was wrong, and that is the most important thing in the rung.**
-Uncharged, the *unit* tile comes out at 9,752,785 — nineteen and a half per cent under, and better
-than anything the charged sweep can reach. That number cheats in five places the untiled reference
-never pays:
+Uncharged, the *unit* tile comes out at 9,752,785 — 19.5 per cent under, and better than anything
+the charged sweep can reach. That number cheats in five places the untiled reference never pays:
 
 | term | what it is | tile 1 | tile 8 |
 |---|---|---|---|
@@ -83,10 +82,37 @@ at 4; the curves really are opposed). T5. **T2 misses**, and its miss is the use
 does not fall monotonically, it *peaks at tile 4* and falls either side — a large tile holds too many
 owners to certify, a small tile has too little work left to retire.
 
+## Correction
+
+**This module shipped its headline wrong once, and the repair is a mechanism rather than an edit.**
+The first commit stated `10.9 per cent` in its `does_not_show` block and twice in its gate message,
+against a measured 10.7 — an overstatement that reached `origin` and was caught by reading, not by
+the gate. Every derived number in the record, the goldens and the verdicts was correct; what drifted
+was the *prose that states the claim*, which is the part that matters most.
+
+The cause was specific and worth writing down: the correction was applied to the computed artefacts
+and the typed ones were never re-read. The values that were never at risk got checked, and the only
+place a wrong number could hide did not.
+
+Both percentages are now **derived** from the live measurements in exact integer tenths
+(`percent_tenths`), and the gate message *formats* them rather than quoting them. Prose is held to a
+contract: every numeric percentage in the module's docstring and gate message must either be the
+formatted value of a declared accessor or appear in `NON_MEASUREMENT`, explicitly classified as
+non-measurement prose. **Attribution, not membership** — the declared values must be pairwise
+distinct and disjoint from the exemptions, so a coincidental match cannot pass for a citation. The
+single exemption is `10.9` itself, quoted in the correction paragraph so the defect stays visible and
+declared so quoting it cannot be mistaken for stating it.
+`the_law_catches_the_defect_it_was_built_for` runs the scanner over the exact sentence that shipped.
+
+The law is **scoped to this module on purpose**. A shared scanner over every `vox*` docstring is the
+obvious generalisation and is not taken: a mechanism earns promotion when the corpus demonstrates the
+need, not when it looks elegant. If a second rung produces this same failure, that recurrence is the
+evidence.
+
 ## Act
 
 `tools/terrain/voxtile.py`, gate stage `voxtile` (four rows: sweep / anchors / result / selftest),
-red-first `tests/test_voxtile.py` (47 falsifiers), and the committed record
+red-first `tests/test_voxtile.py` (61 falsifiers), and the committed record
 `spec/attest/voxref-tile.txt`.
 
 `does_not_show`: nothing about time, and no wall clock enters. Nothing about memory — and at small

@@ -22412,16 +22412,38 @@ class Gate:
             r_ok = (TL.the_arrangement_gets_under_the_committed_reference()
                     and TL.the_earlier_verdict_was_conditional_on_a_constant()
                     and TL.no_selector_is_used()
+                    and TL.the_percentages_in_the_prose_are_the_measured_ones()
+                    and TL.the_declared_percentages_are_uniquely_attributable()
+                    and TL.the_law_catches_the_defect_it_was_built_for()
                     and TL.the_record_names_this_world()
                     and TL.the_record_is_bound_to_the_live_code()
                     and all(TL.scene_result(n) == TL.golden(n) for n in TL.SCENES))
         except Exception:
             r_ok = False
         self.record("voxtile-result", r_ok,
-                    "%s. THIS ROW REDDENS THE DAY THE ARRANGEMENT STOPS BEATING THE REFERENCE, and "
-                    "also the day the earlier verdicts stop biting at their own tile — because "
-                    "holding both facts together is what makes this a re-parameterisation rather "
-                    "than a retraction" % told if r_ok else "the result did not hold")
+                    "%s. AND THE PROSE IS NOW HELD TO THE MEASUREMENT BY A LAW, BECAUSE THIS MODULE "
+                    "SHIPPED ITS HEADLINE WRONG ONCE: its first commit stated a typed percentage "
+                    "that OVERSTATED the measured one, in the `does_not_show` block and twice in "
+                    "this very message, and every derived number in the record and the goldens was "
+                    "correct while the PROSE THAT STATES THE CLAIM drifted — the part that matters "
+                    "most. The repair is a MECHANISM AND NOT AN EDIT: both percentages are DERIVED "
+                    "in exact integer tenths and this message FORMATS them rather than quoting "
+                    "them, and every numeric percentage in the module's own docstring and in this "
+                    "message must either be the formatted value of a DECLARED accessor or appear in "
+                    "an explicitly classified exempt list. ATTRIBUTION, NOT MEMBERSHIP: the "
+                    "declared values are required to be pairwise distinct and disjoint from the "
+                    "exemptions, so a coincidental match cannot pass for a citation, and the ONE "
+                    "exemption is the wrong figure itself, quoted in the correction paragraph so "
+                    "the defect stays visible and declared so quoting it cannot be mistaken for "
+                    "stating it. The law is proved to BITE against the exact sentence that "
+                    "shipped. IT IS SCOPED TO THIS MODULE ON PURPOSE — a shared scanner over every "
+                    "docstring is the obvious generalisation and is NOT taken, because a mechanism "
+                    "earns promotion when the corpus demonstrates the need rather than when it "
+                    "looks elegant. THIS ROW REDDENS THE DAY THE ARRANGEMENT STOPS BEATING THE "
+                    "REFERENCE, the day the earlier verdicts stop biting at their own tile — "
+                    "because holding both facts together is what makes this a re-parameterisation "
+                    "rather than a retraction — and the day any percentage in the prose stops "
+                    "matching the measurement it names" % told if r_ok else "the result did not hold")
         t_ok = True
         try:
             t_ok = TL.a_tampered_row_refuses()
@@ -22433,7 +22455,8 @@ class Gate:
                     t_ok = False
                 except TL.VoxtileError:
                     pass
-            for call, arg in ((TL.sweep, 5), (TL.scene_case, "sweep2"), (TL.golden, "nope")):
+            for call, arg in ((TL.sweep, 5), (TL.scene_case, "sweep2"), (TL.golden, "nope"),
+                              (TL.percent_tenths, "wishful")):
                 try:
                     call(arg)
                     t_ok = False
@@ -22444,18 +22467,30 @@ class Gate:
                 t_ok = False
             except TL.VoxtileError:
                 pass
+            try:
+                TL.render(0, 5, None)
+                t_ok = False
+            except TL.VoxtileError:
+                pass
+            if (TL.a_percentage_naming_no_measurement_refuses()
+                    and TL.a_percentage_declared_as_prose_is_admitted()) is False:
+                t_ok = False
         except Exception:
             t_ok = False
         self.record("voxtile-selftest", t_ok,
-                    "eleven plants bite: a tile row naming a size outside the eight declared "
+                    "fifteen plants bite: a tile row naming a size outside the eight declared "
                     "refuses — which is the failure mode that would let the record report a curve "
                     "point the sweep never ran — a book row of the wrong arity refuses rather than "
                     "being read short, a bare row naming no declared size refuses, a verdict naming "
                     "no committed prediction refuses AND a verdict of an unknown outcome refuses, a "
                     "best row of the wrong arity refuses, a row of unknown kind refuses rather than "
                     "being skipped as a comment, an undeclared tile size refuses at BOTH the sweep "
-                    "and the render, an unknown bookkeeping phase refuses, and an unknown scene and "
-                    "golden refuse (gate can redden)"
+                    "and the render, an unknown bookkeeping phase refuses, an UNDECLARED "
+                    "PERCENTAGE NAME refuses, an invented figure refuses even when hedged with "
+                    "`approximately` because a hedge is not a citation, a figure a human has "
+                    "EXPLICITLY CLASSIFIED as prose is admitted so the exemption branch is "
+                    "exercised rather than assumed, and an unknown scene and golden refuse (gate "
+                    "can redden)"
                     if t_ok else "a plant failed to bite")
 
     def rowtext(self):
