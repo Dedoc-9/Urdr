@@ -1,0 +1,30 @@
+# URDRRUN1 pre-registration for the STREAM rung — committed by `voxrun` ONE COMMIT BEFORE any
+# stream exists, because COMMIT ORDER is the only mechanism that proves a prediction came first.
+#
+# WHY THIS EXISTS. `voxrun` measured the run structure of ownership and what becomes of a
+# predecessor's runs in the current frame, and found the failure mode is FRAGMENTATION rather than
+# DISAPPEARANCE. That is an opening and not a result: a stream that demands whole-run survival can
+# collect only what survives whole, while one that re-anchors on fragmentation has far more in front
+# of it — and NOTHING HAS BEEN BUILT OR PRICED. This registers what a stream rung must satisfy and
+# what it is expected to find, before any of it is constructed.
+#
+# THE SAFETY CONTRACT IS NOT A PREDICTION AND IS NOT SCORED. A stream may never move `O_t`, and it
+# may never read the CURRENT owner map to build the runs it claims to retire — that would be a
+# precomputed answer table wearing the word `certificate`. Both are preconditions of the experiment
+# running at all, not results it may report.
+#
+# THE ACCOUNTING IS THE ONE THIS ARC ALREADY USES. A stream is admissible only if
+#     C_construct + C_transition + C_verify + C_advance  <  W_retired
+# with the ordinary exact fallback intact and byte-identical. `voxrun` RECORDS each of those terms
+# and never combines them; combining them is the stream rung's whole job.
+#
+# THE MECHANISM EACH PREDICTION RESTS ON IS STATED WITH IT, so a hit that came from the wrong reason
+# is visible as one. NO RESULT IS NAMED and no number appears that is an outcome.
+#
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+
+predict R1 a stream that requires WHOLE-RUN survival retires strictly less run-length than the surviving share `voxrun` measured, because verifying a run cannot be free and every verified run that turns out to have fragmented is paid for and discarded
+predict R2 a stream that RE-ANCHORS on fragmentation retires more run-length than one that does not, because `voxrun` found the owner still present in the span of a fragmented run rather than gone from it
+predict R3 the same stream retires a SMALLER share of run-length on the adversarial corpus than on the lattice, because `voxrun` measured the lattice as the more compressible of the two and every survival figure is scoped to it
+predict R4 neither stream satisfies the admissibility inequality at the tile size `voxcond` declared, because `voxtile` showed that loop costs the committed reference several times over before any certificate is consulted and a stream does not change the loop
+predict R5 no stream moves the observable at any declared tile size or on either corpus, colour and depth compared as LISTS, because the fallback is exact and a stream only ever chooses what to attempt

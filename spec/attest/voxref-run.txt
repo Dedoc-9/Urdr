@@ -1,0 +1,28 @@
+# URDRRUN1 the run census — emitted by voxrun.generate(), committed as an artifact,
+# re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# THE PREDECESSOR'S STRUCTURE DOES NOT DISAPPEAR. IT FRAGMENTS. Nothing is built and no
+# economics are claimed: the stream variables are RECORDED AND NEVER COMBINED.
+# SURVIVAL is measured on the LATTICE, which has an adjacency; the adversarial corpus
+# has none and is the CONTROL that scopes how flattering the lattice is.
+#   struct <corpus> <population> observations runs mean_tenths median p90 p99 max singletons cover2 cover4 cover8 cover16
+#   fate   <fate> <runs> <run length> <mean length in tenths>
+#   share  <fate> <tenths by count> <tenths by length>
+#   stream <variable> <value>          RECORDED, NEVER COMBINED
+#   digest <run digest>
+struct adversarial all 55296 7425 74 3 15 95 96 2682 52614 48860 41439 29488
+struct adversarial covered 45395 7085 64 2 14 95 95 2655 42740 39052 31820 20532
+struct lattice all 110592 9346 118 7 27 37 50 3010 107582 104952 102193 94158
+struct lattice covered 84046 8136 103 3 26 28 28 2998 81048 78518 76191 70233
+fate survived 4052 43178 106
+fate fragmented 3025 55778 184
+fate disappeared 1762 4724 26
+share survived 458 416
+share fragmented 342 537
+share disappeared 199 45
+stream construct 8839
+stream transition 8839
+stream verify 103680
+stream advance 103680
+stream retired 43178
+digest b04c9c4304814001e7e2f0a68defa17fe5adf2b56e304865fdc6d98efd2be346

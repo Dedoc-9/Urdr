@@ -1,0 +1,119 @@
+# URDRRUN1 the run census — emitted by voxrun.py, pinned by hand, compared by the gate.
+#
+# THE PREDECESSOR'S STRUCTURE DOES NOT DISAPPEAR. IT FRAGMENTS.
+#
+# The arc's next hypothesis is amortization: not whether a certificate can pay for itself ONCE, but
+# whether ONE proof can retire a SEQUENCE of work. That needs ownership to arrive in runs, and those
+# runs to be knowable BEFORE the work they would retire. This rung measures both and builds nothing.
+#
+#   by RUN LENGTH, across the lattice's declared traversal (15 predecessor -> current pairs)
+#     SURVIVED       4052 runs    43178 length    41.6%   mean 10.6   the whole span still one owner
+#     FRAGMENTED     3025 runs    55778 length    53.7%   mean 18.4   the owner still there, not alone
+#     DISAPPEARED    1762 runs     4724 length     4.5%   mean  2.6   the owner gone from the span
+#
+# THE FAILURE MODE IS FRAGMENTATION AND NOT DISAPPEARANCE, AND NOTHING IN THIS ARC HAS DISTINGUISHED
+# THOSE TWO BEFORE. They are not degrees of the same thing and they call for OPPOSITE mechanisms. A
+# run that DISAPPEARS is information that arrived too late; the only answer is to abandon it. A run
+# that FRAGMENTS is information still PRESENT — the owner still holds part of the span — and the
+# answer would be to RE-ANCHOR. A stream demanding whole-run survival collects 41.6 per cent of
+# predecessor run-length; one that could re-anchor has 95.5 per cent in front of it. NEITHER IS
+# PRICED HERE.
+#
+# AND THE FATE IS LENGTH-ORDERED, WHICH IS THE FINDING THAT COSTS THE MOST. Mean run length rises
+# strictly across the three fates — 2.6 disappeared, 10.6 survived, 18.4 fragmented — so the runs a
+# stream would most want are exactly the runs least likely to arrive whole. The count ordering and
+# the length ordering disagree about survival for this reason: survival wins by RUNS and fragmentation
+# wins by LENGTH. A census that reported either alone would have reported the wrong shape.
+#
+# AND THIS IS NOT WHAT THE SATURATION RESULT WOULD HAVE PREDICTED. `voxstate` measured every adjacent
+# pair of lattice states differing at 4241 to 6472 of 6912 pixels and concluded OBSERVABLE DISTANCE
+# SATURATES. It does, and that stands. But depth changing at nearly every pixel does NOT fragment the
+# ownership carried on it, and the two were never measured apart until now.
+#
+# THE CEILING AND THE CORPUS IT WAS MEASURED ON ARE REPORTED TOGETHER, because a run census on a
+# tight camera grid flatters itself:
+#
+#   corpus       population   obs      runs   mean   med  p90  p99  max  singles  >=16 coverage
+#   adversarial  all        55296      7425   7.4      3   15   95   96     2682     53%
+#   adversarial  covered    45395      7085   6.4      2   14   95   95     2655     45%
+#   lattice      all       110592      9346  11.8      7   27   37   50     3010     85%
+#   lattice      covered    84046      8136  10.3      3   26   28   28     2998     84%
+#
+# THE LATTICE IS ROUGHLY HALF AGAIN AS COMPRESSIBLE AS THE ADVERSARIAL CORPUS, so every survival
+# figure here is optimistic against a corpus built to be hard. That is a LAW rather than a caveat.
+#
+# TWO CORPORA, AND EACH ANSWERS THE QUESTION IT CAN. Survival needs ADJACENCY, and `voxtrace8`'s
+# frames have none — they were built to be maximally uncorrelated, so a survival figure across them
+# would measure the corpus's DESIGN and report a number that looked like a finding. Survival is
+# therefore measured on `voxstate`'s sixteen-state lattice under its declared nearest-neighbour
+# traversal, which is also where every certificate in this arc actually runs. RUN STRUCTURE is
+# measured on BOTH, so the scoping is visible rather than assumed.
+#
+# BACKGROUND IS COUNTED AND ALSO COUNTED SEPARATELY. A run of background is a run of NOBODY, and
+# folding it in would report compressibility no owner certificate can claim — but a background pixel
+# is still walked by every triangle binned over it, so excluding it would understate the work a
+# sequential consumer traverses. Both populations, never fused.
+#
+# THE QUANTITY IS CONSTRUCTIBLE, WHICH IS THE WHOLE POINT. The predecessor's owner map is available
+# BEFORE the current frame's work, so a stream built from it reads something it legitimately has —
+# the distinction between a certificate and a precomputed answer table. The current map is read only
+# to SCORE what happened, never to build the runs being scored.
+#
+# NO ECONOMICS ARE CLAIMED. The stream variables are RECORDED AND NEVER COMBINED:
+#
+#   construct    8839    one encoding per predecessor run
+#   transition   8839    one advance decision per run boundary
+#   verify     103680    a whole-span check reads every pixel of the run
+#   advance    103680    observations a consumer would step over
+#   retired     43178    length whose owner is unchanged throughout
+#
+# This rung does not add these up, does not compare them, does not price a run and does not license
+# anything. `C_construct + C_transition + C_verify + C_advance < W_retired` is the inequality a LATER
+# rung must score, and its pre-registration ships here one commit early.
+#
+# AND THIS MODULE IMPORTS NEITHER CORPUS, which `voxbaggage` learned the hard way one commit ago. It
+# imports `voxref` and `voxray` only — depth three — and carries both corpora as FIXTURES the gate
+# proves against the live `voxtrace8` and `voxstate`, where the gate may import them and this module
+# may not. The owner maps come from `voxray.render_winners`, which `voxray`'s own law binds to
+# `voxref.render`, so no rasteriser is transcribed here either.
+#
+# EVERY PERCENTAGE IN THIS MODULE'S PROSE IS ATTRIBUTED, which `voxtile` learned four commits ago
+# after shipping three stale figures to origin, two of them inflating. The law here is the same one
+# and it is local for the same reason: each percentage literal in the docstring must resolve to
+# exactly ONE declared accessor — survived, fragmented, disappeared, not_disappeared — or be listed
+# as non-measurement prose. Attribution, not membership: matching some declared value is not enough,
+# the declared values are pairwise distinct and the exemption list is disjoint from them.
+#
+# DECLARED: the winding (INHERITED, never redeclared); the two corpora and the traversal, carried as
+# fixtures; the two populations; the coverage thresholds; the three fates; the five stream variables;
+# the four attributed percentages.
+#
+# DERIVED at claim time (L75): every owner map; every run; the full structure panel for both corpora
+# and both populations; the three fates by count and by length; the mean length of each fate in exact
+# tenths; the shares in exact tenths; the five stream variables; and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * structure — both corpora, both populations, every column, so the ceiling and the control that
+#     scopes it are pinned together.
+#   * survival — the three fates by count and by length, their shares in exact tenths, and the mean
+#     length of each, so the length ordering is pinned and not merely asserted in prose.
+#   * stream — the five variables, recorded separately and never combined.
+#   * prediction — the stream pre-registration committed in THIS rung for the next one, pinned by
+#     digest so a later rung can prove it came first.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NOTHING ABOUT WHETHER A STREAM PAYS. 41.6 per cent of run-length surviving is NOT 41.6 per
+#     cent of work retired: verifying a run costs, and the depth must still be reconstructed.
+#   * THAT RE-ANCHORING IS POSSIBLE. That fragmentation leaves the owner present is a fact about the
+#     data, not a mechanism, and nobody has built one.
+#   * THAT THE LATTICE IS REPRESENTATIVE. It is measurably not, and by how much is reported.
+#   * THAT SCANLINE RUNS ARE THE RIGHT UNIT. They are the unit a sequential consumer would advance
+#     through; a two-dimensional region census is a different rung.
+#   * WHY the fate is length-ordered. That long runs fragment more is MEASURED here; that it follows
+#     from a longer span having more chances to be split is a plausible story and is not tested.
+#   * NO PROMOTION. `voxref` is untouched and nothing is adopted.
+structure 84f6d588ba5774c1a81cacab73bf79f6e00350fc5deba5a5ea565f3137a45f03
+survival 452230f3920612320d087b5d9111d697225b0e31b4fc6733e7af6fc75e298cb5
+stream 8747a5d343baf8b9ac4f866a13ae13e180a5f8b1ae4e814385b3ebcfbac5b1cb
+prediction 69bd9d5ea92bb5df0592f1b80283a14b4c81fe2d816bd03a4bbf4451711993ea

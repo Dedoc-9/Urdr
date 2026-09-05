@@ -271,6 +271,7 @@ STAGE_ORDER = (
     "voxtile",
     "voxtrace8",
     "voxbaggage",
+    "voxrun",
     "rowtext",
     "rollbench",
     "reachable",
@@ -22750,6 +22751,142 @@ class Gate:
                     "golden refuse (gate can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def voxrun(self):
+        """DOES OWNERSHIP ARRIVE IN RUNS, AND ARE THOSE RUNS KNOWABLE BEFORE THE WORK THEY WOULD
+        RETIRE (URDRRUN1)? Rows: structure (the run census on both corpora and both populations,
+        with the scoping control), survival (what becomes of a predecessor's runs, by count and by
+        length, and the length ordering of the three fates), stream (the four cost variables and the
+        one work variable, recorded and never combined), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxrun as RN
+            import voxtrace8 as _T8
+            import voxstate as _VT
+        except Exception as exc:
+            for r in ("structure", "survival", "stream", "selftest"):
+                self.record(f"voxrun-{r}", False, f"import failed (voxrun): {exc}")
+            return
+        s_ok, la, ad = True, None, None
+        try:
+            la, ad = RN.structure("lattice"), RN.structure("adversarial")
+            s_ok = (RN.the_fixtures_match_the_live_corpora(_T8, _VT)
+                    and RN.neither_corpus_is_imported()
+                    and RN.no_rasteriser_is_transcribed()
+                    and RN.the_runs_partition_every_scanline()
+                    and RN.the_populations_are_reported_apart()
+                    and RN.the_lattice_is_more_coherent_than_the_adversarial_corpus()
+                    and RN.scene_result("structure") == RN.golden("structure"))
+        except Exception:
+            s_ok = False
+        self.record("voxrun-structure", s_ok,
+                    "OWNERSHIP DOES ARRIVE IN RUNS, AND THE CEILING IS REPORTED WITH THE CORPUS IT "
+                    "WAS MEASURED ON, because a run census on a tight camera grid flatters itself: "
+                    "the lattice means %d.%02d pixels a run and puts %d per cent of its observations "
+                    "in runs of sixteen or longer, against %d.%02d and %d per cent on `voxtrace8`'s "
+                    "eight ADVERSARIAL frames — THE LATTICE IS ROUGHLY HALF AGAIN AS COMPRESSIBLE, "
+                    "so every survival figure this rung reports is optimistic against a corpus built "
+                    "to be hard, and that is stated as a LAW rather than as a caveat a reader has to "
+                    "remember. BACKGROUND IS COUNTED AND ALSO COUNTED SEPARATELY and the two "
+                    "populations are never fused, because a run of background is compressibility no "
+                    "owner certificate can claim while a background pixel is still walked by every "
+                    "triangle binned over it. AND THIS MODULE IMPORTS NEITHER CORPUS, which "
+                    "`voxbaggage` learned one commit ago against the sealed depth ceiling: it sits "
+                    "at depth three on `voxref` and `voxray` alone and carries both corpora as "
+                    "FIXTURES this row re-derives from the LIVE `voxtrace8` and `voxstate`, where "
+                    "the gate may import them and the census may not"
+                    % (la["mean_tenths"] // 10, (la["mean_tenths"] % 10) * 10,
+                       100 * la["cover16"] // la["observations"],
+                       ad["mean_tenths"] // 10, (ad["mean_tenths"] % 10) * 10,
+                       100 * ad["cover16"] // ad["observations"])
+                    if s_ok else "the run structure did not hold")
+        v_ok, told = True, "?"
+        try:
+            told = RN.told()
+            v_ok = (RN.the_survival_classes_are_exhaustive_and_disjoint()
+                    and RN.long_runs_fragment_rather_than_disappear()
+                    and RN.the_longest_runs_are_the_ones_that_break()
+                    and RN.the_finding_is_not_the_saturation_result()
+                    and RN.the_percentages_in_the_prose_are_the_measured_ones()
+                    and RN.the_percentage_law_catches_the_drift_it_was_built_for()
+                    and RN.the_record_names_this_world()
+                    and RN.the_record_is_bound_to_the_live_code()
+                    and RN.scene_result("survival") == RN.golden("survival"))
+        except Exception:
+            v_ok = False
+        self.record("voxrun-survival", v_ok,
+                    "%s. AND EVERY PERCENTAGE ABOVE IS ATTRIBUTED RATHER THAN MERELY CHECKED, which "
+                    "`voxtile` had to teach this arc by shipping three stale figures to origin, two "
+                    "of them inflating: each percentage literal in the prose must resolve to exactly "
+                    "ONE declared accessor or be listed as non-measurement, the declared values are "
+                    "pairwise distinct, and a figure that merely happened to match some measured "
+                    "quantity would still refuse" % told
+                    if v_ok else "the survival census did not hold")
+        m_ok = True
+        try:
+            m_ok = (RN.no_economics_are_claimed()
+                    and RN.no_wall_clock_enters_this_rung()
+                    and RN.the_prediction_ships_before_the_stream()
+                    and RN.the_prediction_names_no_result()
+                    and RN.scene_result("stream") == RN.golden("stream")
+                    and RN.scene_result("prediction") == RN.golden("prediction"))
+        except Exception:
+            m_ok = False
+        self.record("voxrun-stream", m_ok,
+                    "THE FIVE STREAM VARIABLES ARE RECORDED AND NEVER COMBINED, and this row "
+                    "REDDENS the day they are: `no_economics_are_claimed` walks this module's own "
+                    "AST and refuses any expression that puts two of them on opposite sides of an "
+                    "operator or a comparison — checked structurally rather than by substring, "
+                    "because the docstring legitimately QUOTES the inequality a later rung must "
+                    "score and a text search cannot tell a quotation from a computation. "
+                    "`C_construct + C_transition + C_verify + C_advance < W_retired` is that later "
+                    "rung's to evaluate, and the PRE-REGISTRATION of what it must satisfy ships in "
+                    "THIS commit, one before any stream exists, pinned by digest so commit order — "
+                    "the only mechanism that can — proves the prediction came first. A census that "
+                    "concluded with a business case would be the business it exists to decide on"
+                    if m_ok else "the stream accounting did not hold")
+        t_ok = True
+        try:
+            t_ok = RN.a_tampered_row_refuses()
+            for bad in ("fate thrived 1 2 3", "share thrived 1 2", "stream wishful 1",
+                        "struct wishful all 1 2 3 4 5 6 7 8", "rumour 1 2 3"):
+                try:
+                    RN.parse("# world x\n%s\n" % bad)
+                    t_ok = False
+                except RN.VoxrunError:
+                    pass
+            for call, arg in ((RN.stream_variable, "wishful"), (RN.mean_length_tenths, "thrived"),
+                              (RN.percent_text, "wishful"), (RN.scene_case, "runs2"),
+                              (RN.golden, "nope")):
+                try:
+                    call(arg)
+                    t_ok = False
+                except RN.VoxrunError:
+                    pass
+            for call, args in ((RN.owner_map, ("wishful", 0)),
+                               (RN.structure, ("lattice", "hopeful"))):
+                try:
+                    call(*args)
+                    t_ok = False
+                except RN.VoxrunError:
+                    pass
+            if RN.unattributed_percentages("53.8 per cent", exempt=()) != ("53.8",):
+                t_ok = False
+        except Exception:
+            t_ok = False
+        self.record("voxrun-selftest", t_ok,
+                    "fourteen plants bite: a fate row naming no declared fate refuses AND a share "
+                    "row naming one refuses, a stream row naming no declared variable refuses, a "
+                    "column row naming no measured column refuses, a row of unknown kind refuses "
+                    "rather than being skipped as a comment, an undeclared corpus, population, "
+                    "stream variable, fate and percentage all refuse rather than returning a "
+                    "default, an unknown scene and golden refuse, AND THE PERCENTAGE SCANNER IS "
+                    "SHOWN TO BITE ON A DRIFTED FIGURE rather than merely passing on a correct one, "
+                    "which is the plant that would have caught `voxtile`'s defect four commits ago "
+                    "(gate can redden)"
+                    if t_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -26556,7 +26693,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
