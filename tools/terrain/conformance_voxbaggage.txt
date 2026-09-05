@@ -1,0 +1,122 @@
+# URDRBAG1 the baggage census — emitted by voxbaggage.py, pinned by hand, compared by the gate.
+#
+# WHICH EXECUTED OPERATIONS EXIST ONLY BECAUSE WE ARE MEASURING?
+#
+# Every rung of the performance arc charges its candidate honestly. What none of them asked is
+# whether the charged work is work the PROMOTED renderer would do, or work that exists because an
+# EXPERIMENT is being run around it. This rung is an accounting pass: nothing is altered, nothing is
+# stripped, no loop is transcribed and no economics are claimed.
+#
+# THE COLD ARM OF `voxtile` BUILDS AN OWNER INDEX IT NEVER READS.
+#
+# `by_key` has exactly ONE read site in `voxtile.render` and that site is dominated by a
+# `prev_key is not None` guard, so on a cold render — the arm that establishes the BASELINE every
+# retirement is measured against — the index is constructed and never touched, at 69007 operations
+# per tile size.
+#
+#   term        category        cold charged    warm charged
+#   recognise   proof                      0          651104
+#   encode      proof                      0          128642
+#   verify      proof                      0         1297630
+#   execute     essential          194507498       171006184
+#   fallback    fallback                   0          153828
+#   range       essential            2208224         2208224
+#   index       essential            1677339         1677339
+#   owners      scaffolding           552056          552056     <- DEAD on the cold arm
+#   visit       essential             163200          163200
+#   complete    proof                      0          274331
+#
+#   structure   reads   reachable cold   live on cold
+#   by_key          1                0          False
+#   bins            2                2          True      <- the CONTROL
+#
+# THE MEASUREMENT IS STATIC AND MECHANICAL, NOT AN OPINION AND NOT A SECOND LOOP. `liveness` walks
+# the subject's own AST and asks whether every read of a named structure is dominated by the
+# cold-path guard. It comes with its own control: the SAME analysis run against `bins` must report it
+# LIVE. An analyser that called everything dead would produce this rung's headline by INABILITY
+# rather than by measurement.
+#
+# WHAT IS DERIVED AND WHAT IS DECLARED ARE KEPT APART, and that boundary is the whole integrity of a
+# classification. LIVENESS is DERIVED — a fact about the code. CATEGORY is DECLARED — an argument
+# about what a live operation is for, shipped with its reason so a later rung has something to
+# disagree with. A declared category is never presented as though it had been measured.
+#
+# THE BLAST RADIUS IS NARROW AND IT RUNS IN THE FLATTERING DIRECTION. `tax` and `retired` are each
+# overstated by 69007 at every tile size, because the baseline pays for something it does not use —
+# which makes the scaffolding look worse and the certificate look better. `net` IS UNAFFECTED, since
+# the warm arm legitimately pays for an index it legitimately reads, so `voxtile`'s headline and all
+# five of its verdicts stand EXACTLY. Subtracting a constant from every point cannot reorder them,
+# and that is CHECKED rather than argued.
+#
+#   tile   corrected tax   corrected retired      (voxtile's committed figures are unchanged)
+#      1         1368577             2244784
+#      2         1771034             3072484
+#      3         2874824             3324345
+#      4         4130774             3539757
+#      6         7147609             3268598
+#      8        10487869             3155472
+#     12        18885314             2001729
+#     24        54916548             -163446
+#
+# NOTHING IS CORRECTED. The fixed pair ships BESIDE the committed one, because a measurement of a
+# wasteful implementation is evidence ABOUT that implementation, and deleting it deletes the evidence
+# this census is made of — the same reason `voxtrace8` shipped beside `voxwork` rather than editing.
+#
+# THE OBVIOUS SUSPECT IS CLEARED ON STRUCTURAL GROUNDS. `complete` — the per-pixel check after an
+# owner-only raster — looks like instrumentation and is PROOF. If the ownership condition were
+# SUFFICIENT the owner-only raster would always fill the tile and no check would be needed; the check
+# is load-bearing precisely because the condition is NECESSARY BUT NOT SUFFICIENT. So the removable
+# layer, if a larger one exists, is in DISCOVERY and INDEXING rather than in verification.
+#
+# AND THE REMOVABLE LAYER IS NOT A SPEEDUP, WHICH IS THE ANSWER THIS CENSUS EXISTS TO GIVE. The
+# hypothesis was that measured cost might hide a large removable layer worth more than the next
+# algorithmic idea. There IS one, it is mechanically provable rather than argued — and it is charged
+# TO THE BASELINE, so removing it does not make the renderer faster, it makes the REPORTED RETIREMENT
+# SMALLER. The dead work totals 552056 across the whole sweep against 2351707 charged to PROOF,
+# roughly a quarter the size of machinery that cannot be removed at all. A removable layer that lives
+# in the baseline is a correction to a CLAIM and never a gain in a RENDERER, and telling those apart
+# is what a census is for.
+#
+# DECLARED: the two arms; the five categories; the claim and reason for each of the ten charged
+# terms; the two structures analysed and the cold-path guard; and the subject's terms, tile sizes,
+# counts, tax, retirement and optima, CARRIED AS A FIXTURE rather than imported — see below.
+#
+# DERIVED at claim time (L75): the liveness of each structure from the subject's AST; every charged
+# count per term per arm; the dead cost per tile; the corrected tax and retirement; and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * terms — every charged term with its declared category and both arms' counts.
+#   * liveness — each analysed structure's read count, cold-reachable read count and verdict,
+#     including the CONTROL, so the headline and the proof that the analyser works are pinned
+#     together.
+#   * corrected — the corrected tax and retirement per tile beside the dead cost they differ by.
+#   * prediction — the stripping pre-registration committed in THIS rung for the next one, pinned by
+#     digest so a later rung can prove it came first.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * THAT THE DEAD INDEX IS THE ONLY DEAD WORK. Two structures are analysed, and the analysis is
+#     sound for STRUCTURES — not for arithmetic that is computed and discarded, which this
+#     instrument cannot see.
+#   * THAT A DECLARED CATEGORY IS CORRECT. It is an argument with a reason attached, and the
+#     stripping rung is where each one becomes falsifiable.
+#   * THAT ANY CATEGORY IS SAFE TO REMOVE. The pre-registration states what removal must preserve
+#     and scores nothing.
+#   * NO PROMOTION AND NO CORRECTION. `voxtile` is untouched and its record still binds.
+#
+# AND THIS MODULE DOES NOT IMPORT ITS SUBJECT, WHICH THE LATTICE HAD TO TEACH IT. The first draft
+# imported `voxtile` to read its sweep and sat at import-depth 14 against a sealed ceiling of 13. The
+# depth proof reddened, and it was RIGHT ABOUT MORE THAN DEPTH — exactly as it was for `confound` and
+# `pedigree`, which learned the same lesson twice before: A CENSUS SHOULD BE HANDED WHAT IT COUNTS
+# RATHER THAN IMPORT THE WORLD TO FETCH IT. The ceiling is a MEASUREMENT and not a budget, so it does
+# not move to admit the module that just failed it. The liveness analysis never needed the import at
+# all — it reads the subject's SOURCE by path, which is the whole point of a static analysis, and
+# importing a module to analyse its text was the tell. The counts arrive as ARGUMENTS, the scenes pin
+# on a FIXTURE, and the fixture is proved a pinned observation rather than a guess by re-deriving
+# every carried figure from the live subject AT THE GATE, where the gate may import it and this
+# module may not. NOT ONE GOLDEN DIGEST BELOW MOVED across that restructure, which is the evidence
+# that what changed was the dependency graph and not the measurement.
+terms bb7b45d5b79f21c23921d03d954e5d8812e72aa6497fc924b61e7fb7be33fa4f
+liveness 2cce3f6e69d6c3cd720c50b4001e6d34608a9b3f8a76f9abb19b3edbe11678b9
+corrected eb1a809d7795a874616e03113b7699e338002e75bef80d9db2197e7fd759442f
+prediction 3c93c7d249f71708c4e4a5ef191f974b9c43ace3281683b1ec1a05011272b1df

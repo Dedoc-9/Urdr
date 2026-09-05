@@ -556,7 +556,7 @@ confusions were a drifted working directory.
 # wrapper composes in CI as well as in conversation.
 # ---------------------------------------------------------------------------------------
 
-# THE GATE (CI). Expect "GATE PASSED", 4089 unit falsifiers / 1121 rows, and run it
+# THE GATE (CI). Expect "GATE PASSED", 4142 unit falsifiers / 1125 rows, and run it
 # TWICE — the two outputs must be BYTE-IDENTICAL (determinism is a row, not a hope):
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate1.txt 2>&1
 PYTHONHASHSEED=0 PYTHONUTF8=1 python verify.py > gate2.txt 2>&1

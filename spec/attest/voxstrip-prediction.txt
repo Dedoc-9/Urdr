@@ -1,0 +1,24 @@
+# URDRBAG1 pre-registration for the STRIPPING rung — committed by `voxbaggage` ONE COMMIT BEFORE
+# anything is stripped, because COMMIT ORDER is the only mechanism that proves a prediction came
+# first.
+#
+# WHY THIS EXISTS. `voxbaggage` classifies every charged term of the tiled loop as essential, proof,
+# fallback, instrumentation or scaffolding, and DERIVES one fact rather than declaring it: the cold
+# arm builds an owner index it never reads. A classification is worth having only if something can
+# be done with it and only if the doing can go wrong. This registers what a stripping rung must
+# preserve and what it is expected to find, before any operation is removed.
+#
+# THE SAFETY CONTRACT IS NOT A PREDICTION AND IS NOT SCORED. Stripping may never move `O_t`. That is
+# a precondition of the experiment running at all, not a result it may report — a stripping rung that
+# changed the observable would be abandoned rather than written up.
+#
+# THE MECHANISM EACH PREDICTION RESTS ON IS STATED WITH IT, so a hit that came from the wrong reason
+# is visible as one. NO RESULT IS NAMED and no number appears that is an outcome.
+#
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+
+predict S1 removing the DEAD owner index from the cold arm changes NO charged count other than its own, because a structure that is never read cannot affect a result, and this is the one removal the census DERIVED rather than argued
+predict S2 the corrected baseline REDUCES the reported retirement at every declared tile size and reduces the reported scaffolding tax by the same constant, because both are differences taken against a baseline that was paying for the dead index
+predict S3 no category other than `scaffolding` can be removed without moving the observable, because `proof` terms are load-bearing for the certificate, `fallback` is required for correctness when the certificate fails, and `essential` terms produce the frame
+predict S4 the total operations classified `scaffolding` are a SMALLER share of the arrangement than the terms classified `proof`, so the removable layer is not where the arc's remaining deficit lives
+predict S5 stripping every removable operation leaves the arrangement's standing against the committed reference unchanged in DIRECTION at every declared tile size, because the removable work is charged to the baseline rather than to the candidate

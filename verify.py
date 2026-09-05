@@ -270,6 +270,7 @@ STAGE_ORDER = (
     "voxschism",
     "voxtile",
     "voxtrace8",
+    "voxbaggage",
     "rowtext",
     "rollbench",
     "reachable",
@@ -22612,6 +22613,143 @@ class Gate:
                     "and golden refuse (gate can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def voxbaggage(self):
+        """WHICH EXECUTED OPERATIONS EXIST ONLY BECAUSE WE ARE MEASURING (URDRBAG1)? Rows: liveness
+        (derived from the subject's AST, with its own control), classification (every charged term
+        carries a declared category and a reason), answer (the removable layer is not a speedup),
+        selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxbaggage as BG
+        except Exception as exc:
+            for r in ("liveness", "classification", "answer", "selftest"):
+                self.record(f"voxbaggage-{r}", False, f"import failed (voxbaggage): {exc}")
+            return
+        l_ok, dead = True, 0
+        try:
+            import voxtile as _TL
+            dead = BG.dead_cost(_TL.COMMITTED)
+            l_ok = (BG.the_subject_is_not_imported()
+                    and BG.the_fixture_matches_the_live_subject(_TL)
+                    and BG.the_analysis_can_tell_the_two_apart()
+                    and BG.the_dead_structure_is_still_dead()
+                    and BG.the_control_is_read_on_both_paths()
+                    and BG.the_dead_work_is_charged_and_it_is_not_nothing())
+        except Exception:
+            l_ok = False
+        self.record("voxbaggage-liveness", l_ok,
+                    "THE COLD ARM OF `voxtile` BUILDS AN OWNER INDEX IT NEVER READS, and is charged "
+                    "%d operations a tile size for it. `by_key` has exactly ONE read site in the "
+                    "subject's own AST and that site is dominated by the `prev_key` guard only the "
+                    "warm arm satisfies, so on the arm that establishes the BASELINE every "
+                    "retirement is measured against, the index is constructed and never touched. "
+                    "THE MEASUREMENT IS STATIC AND MECHANICAL, NOT AN OPINION AND NOT A SECOND "
+                    "LOOP: it walks the subject's AST rather than transcribing the rasteriser a "
+                    "tenth time, and CONSTRUCTION IS NOT COUNTED AS A READ, because counting the "
+                    "`setdefault` that builds the index would call every structure live. AND IT "
+                    "COMES WITH ITS OWN CONTROL: the SAME analysis run against `bins` — read on "
+                    "both arms — must report it LIVE, because an analyser that called everything "
+                    "dead would produce this row's headline by INABILITY rather than by "
+                    "measurement. AND THIS MODULE DOES NOT IMPORT ITS SUBJECT, WHICH THE LATTICE "
+                    "HAD TO TEACH IT: the first draft imported `voxtile` to read its sweep and sat "
+                    "at import-depth 14 against a sealed ceiling of 13, the depth proof reddened, "
+                    "and it was RIGHT ABOUT MORE THAN DEPTH — a census should be HANDED what it "
+                    "counts rather than import the world to fetch it, which `confound` and "
+                    "`pedigree` each learned before it. The ceiling is a MEASUREMENT and not a "
+                    "budget and does not move to admit the module that just failed it. The counts "
+                    "arrive as ARGUMENTS and the carried FIXTURE is proved a pinned observation "
+                    "rather than a guess by re-deriving every figure from the live subject HERE, "
+                    "where the gate may import it and the module may not — and NOT ONE GOLDEN "
+                    "DIGEST MOVED across that restructure, which is the evidence that what changed "
+                    "was the dependency graph and not the measurement"
+                    % dead if l_ok else "the liveness analysis did not hold")
+        c_ok = True
+        try:
+            c_ok = (BG.every_charged_term_carries_a_claim()
+                    and BG.the_categories_are_declared_and_the_liveness_is_derived()
+                    and BG.the_proof_terms_are_not_instrumentation()
+                    and BG.only_the_baseline_is_overstated()
+                    and BG.the_correction_changes_no_verdict())
+        except Exception:
+            c_ok = False
+        self.record("voxbaggage-classification", c_ok,
+                    "WHAT IS DERIVED AND WHAT IS DECLARED ARE KEPT APART, and that boundary is the "
+                    "whole integrity of a classification: LIVENESS is a FACT about the code, "
+                    "CATEGORY is an ARGUMENT about what a live operation is for, and each of the "
+                    "ten charged terms ships with its reason so a later rung has something to "
+                    "disagree with. A declared category is never presented as though it had been "
+                    "measured. THE OBVIOUS SUSPECT IS CLEARED ON STRUCTURAL GROUNDS: `complete`, "
+                    "the per-pixel check after an owner-only raster, looks like instrumentation and "
+                    "is PROOF — if the ownership condition were SUFFICIENT the raster would always "
+                    "fill the tile and no check would be needed, so the check is load-bearing "
+                    "precisely because the condition is NECESSARY BUT NOT SUFFICIENT, and the "
+                    "removable layer is in DISCOVERY and INDEXING rather than in verification. THE "
+                    "BLAST RADIUS IS NARROW AND RUNS IN THE FLATTERING DIRECTION: `tax` and "
+                    "`retired` are each overstated because the BASELINE pays for what it does not "
+                    "use, which makes the scaffolding look worse and the certificate look better — "
+                    "but `net` IS UNAFFECTED, so `voxtile`'s headline and all five verdicts stand "
+                    "EXACTLY, and subtracting a constant from every point cannot reorder them, "
+                    "which is CHECKED rather than argued"
+                    if c_ok else "the classification did not hold")
+        a_ok, told = True, "?"
+        try:
+            told = BG.told()
+            a_ok = (BG.the_removable_layer_is_not_a_speedup()
+                    and BG.no_economics_are_claimed()
+                    and BG.nothing_is_promoted()
+                    and BG.no_wall_clock_enters_this_rung()
+                    and BG.the_prediction_ships_before_the_stripping()
+                    and BG.the_prediction_names_no_result()
+                    and BG.the_record_names_this_world()
+                    and BG.the_record_is_bound_to_the_live_code()
+                    and all(BG.scene_result(n) == BG.golden(n) for n in BG.SCENES))
+        except Exception:
+            a_ok = False
+        self.record("voxbaggage-answer", a_ok,
+                    "%s. THIS ROW REDDENS if this module ever grows a figure that prices a category "
+                    "or claims a speedup, which is the boundary between a census and the business "
+                    "it exists to decide on" % told if a_ok else "the answer did not hold")
+        t_ok = True
+        try:
+            t_ok = BG.a_tampered_row_refuses()
+            for bad in ("term wishful proof 1 2", "term owners delicious 1 2",
+                        "live wishful 1 0 False", "fix 5 1 2", "rumour 1 2 3"):
+                try:
+                    BG.parse("# world x\n%s\n" % bad)
+                    t_ok = False
+                except BG.VoxbaggageError:
+                    pass
+            for call, arg in ((BG.liveness, "wishful"), (BG.claim, "wishful"),
+                              (BG.scene_case, "terms2"), (BG.golden, "nope")):
+                try:
+                    call(arg)
+                    t_ok = False
+                except BG.VoxbaggageError:
+                    pass
+            for a, b, c in (("cold", "wishful", BG.FIXTURE), ("tepid", "visit", BG.FIXTURE),
+                            ("cold", "visit", {})):
+                try:
+                    BG.charged(a, b, c)
+                    t_ok = False
+                except BG.VoxbaggageError:
+                    pass
+        except Exception:
+            t_ok = False
+        self.record("voxbaggage-selftest", t_ok,
+                    "thirteen plants bite: a term row naming no charged term refuses AND one naming "
+                    "no declared CATEGORY refuses — the second is the failure mode that would let "
+                    "the record invent a classification the module does not hold — a live row "
+                    "naming no analysed structure refuses, a fix row naming a tile outside the "
+                    "declared sweep refuses, a row of unknown kind refuses rather than being "
+                    "skipped as a comment, an undeclared structure, term, path and claim all refuse "
+                    "rather than returning a default, A COUNT MAP THAT DOES NOT NAME THE TERM "
+                    "REFUSES rather than defaulting to zero — which is the failure mode that would "
+                    "let a missing measurement read as an absent cost — and an unknown scene and "
+                    "golden refuse (gate can redden)"
+                    if t_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -26418,7 +26556,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

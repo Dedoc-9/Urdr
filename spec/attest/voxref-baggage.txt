@@ -1,0 +1,31 @@
+# URDRBAG1 the baggage census — emitted by voxbaggage.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# WHICH EXECUTED OPERATIONS EXIST ONLY BECAUSE WE ARE MEASURING? An accounting pass:
+# nothing is altered, nothing is stripped, no economics are claimed.
+# LIVENESS IS DERIVED from the subject's AST; CATEGORY IS DECLARED and is an argument.
+#   term    <term> <declared category> <cold charged> <warm charged>
+#   live    <structure> <reads> <reads reachable cold> <live on cold>
+#   fix     <tile> <corrected tax> <corrected retired>   BESIDE voxtile's, not instead
+#   digest  <baggage digest>
+term recognise proof 0 651104
+term encode proof 0 128642
+term verify proof 0 1297630
+term execute essential 194507498 171006184
+term fallback fallback 0 153828
+term range essential 2208224 2208224
+term index essential 1677339 1677339
+term owners scaffolding 552056 552056
+term visit essential 163200 163200
+term complete proof 0 274331
+live by_key 1 0 False
+live bins 2 2 True
+fix 1 1368577 2244784
+fix 2 1771034 3072484
+fix 3 2874824 3324345
+fix 4 4130774 3539757
+fix 6 7147609 3268598
+fix 8 10487869 3155472
+fix 12 18885314 2001729
+fix 24 54916548 -163446
+digest e2452f71a94fb86bf7db2a674c1311f527a1e8ae86dae3a3a6b5fef34aaf0d45
