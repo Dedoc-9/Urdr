@@ -1,0 +1,48 @@
+# URDRTR81 the corrected corpus — emitted by voxtrace8.generate(), committed as an
+# artifact, re-derived by the gate.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# THE ARC MEASURED SEVEN CASES AND CALLED THEM EIGHT. Re-measured on a corpus that
+# really has eight, EVERY INHERITED FINDING SURVIVES. Nothing historical is edited:
+# this record ships BESIDE `voxwork`'s and `voxsilo`'s, which are untouched.
+#   drop    <index> <name>            of the collapsed pair, the eye INSIDE SOLID
+#   search  <x> <y> <z> <candidates examined>   FIRST-MATCH in raster order
+#   frame   <index> <name> <eye> <forward>
+#   floor   <counter> <total on the corrected corpus> <total on the old trace>
+#   cell    <cell> walked covered written mul div tiles zscan cmp
+#   finding <id> <SURVIVES|BREAKS> <what was measured>
+#   digest  <trace digest>
+drop 1 buried
+search 0 0 1 2
+frame 0 enclosed 1664 1664 896 0 1 0
+frame 1 seam 1024 -2304 1664 0 1 0
+frame 2 wall_flat 384 1152 640 1 0 0
+frame 3 open_air 1664 -3584 5120 0 1 -1
+frame 4 oblique -2048 -2048 4608 2 2 -1
+frame 5 corner -1536 4608 4608 1 -2 -1
+frame 6 edge_on 1664 -2560 384 0 1 0
+frame 7 first_free 128 128 384 0 1 0
+floor primitives 38544 38544
+floor near_rejected 3909 5859
+floor triangles 69270 65370
+floor area_rejected 37533 35417
+floor bbox_rejected 19729 18086
+floor walked 661225 664553
+floor covered 241972 245183
+floor written 61899 65893
+floor mul 6635010 6633411
+floor div 519052 506663
+cell - 661225 241972 61899 6635010 519052 0 0 0
+cell T 572706 241972 61899 6537180 519052 36107 0 0
+cell G 267101 97744 49262 3837582 374824 0 288896 135881
+cell GT 226302 97744 49262 3763416 374824 14219 288896 135881
+cell A 661225 241972 61899 3167910 519052 0 0 0
+cell TA 572706 241972 61899 3843546 519052 36107 0 0
+cell GA 267101 97744 49262 2425194 374824 0 288896 135881
+cell GTA 226302 97744 49262 2696490 374824 14219 288896 135881
+finding best_cell SURVIVES GA costs 2425194 against GTA's 2696490; the old corpus said 2396172 against 2665590
+finding bound_sound SURVIVES every cell carrying the corrected depth bound reproduces the observable
+finding overdraw SURVIVES 661225 walked per 55296 output pixels against the old 664553 per 55296 — still over ten times its own output, and moved by under a twentieth
+finding silo_contract SURVIVES all 8 cells reproduce colour and depth as lists on all 8 frames
+finding tile_destructive SURVIVES TA costs 3843546 against A's 3167910, so the tile arm still makes the arithmetic arm worse
+finding tile_retires SURVIVES T walks 572706 against the plain loop's 661225
+digest 4ae9fb573e1d3fe8beb75b1d05ae5e8f89f470f318a3554551e5be2f31df7cf7

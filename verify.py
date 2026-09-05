@@ -269,6 +269,7 @@ STAGE_ORDER = (
     "voxbreak",
     "voxschism",
     "voxtile",
+    "voxtrace8",
     "rowtext",
     "rollbench",
     "reachable",
@@ -22493,6 +22494,124 @@ class Gate:
                     "can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def voxtrace8(self):
+        """THE ARC MEASURED SEVEN CASES AND CALLED THEM EIGHT (URDRTR81). Rows: corpus (the defect
+        re-run, the declared drop and first-match search, eight distinct observables), findings (six
+        inherited claims re-evaluated on the corrected corpus), history (nothing edited, the
+        instruments imported rather than reimplemented), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxtrace8 as T8
+        except Exception as exc:
+            for r in ("corpus", "findings", "history", "selftest"):
+                self.record(f"voxtrace8-{r}", False, f"import failed (voxtrace8): {exc}")
+            return
+        c_ok, seen, drop = True, 0, 0
+        try:
+            _f, seen = T8.search()
+            drop = T8.dropped()
+            c_ok = (T8.the_defect_is_real_and_is_re_run()
+                    and T8.the_drop_rule_selects_exactly_one_frame()
+                    and T8.the_dropped_frame_is_already_excluded_elsewhere()
+                    and T8.the_seven_kept_frames_are_verbatim()
+                    and T8.the_replacement_is_the_first_qualifying_candidate()
+                    and T8.the_search_is_reported_honestly()
+                    and T8.all_eight_cases_are_distinct())
+        except Exception:
+            c_ok = False
+        self.record("voxtrace8-corpus", c_ok,
+                    "THE DEFECT IS RE-RUN RATHER THAN CITED, because citing a finding is not "
+                    "running it: `voxref.TRACE` declares EIGHT adversarial frames and the "
+                    "reference's own distinctness law is CORRECT about the COMMITTED winding — but "
+                    "`voxray`'s oracle established that winding is the DEFECTIVE one, and under the "
+                    "CORRECTED winding every rung from `voxtie` onward uses, two of the eight "
+                    "produce byte-identical colour AND depth. THE EIGHTH CASE IS OBTAINED BY "
+                    "PROCEDURE AND THE PROCEDURE MATTERS MORE THAN THE FRAME. DROP: of the "
+                    "collapsed pair, the frame whose eye is INSIDE SOLID — frame %d — a rule that "
+                    "selects UNIQUELY and applies a judgement the tree already holds, since "
+                    "`voxray.comparable_frames` excludes that frame BY DERIVATION already; and "
+                    "nothing observable is lost, because under the corrected winding the two frames "
+                    "ARE one picture. SEARCH: voxel centres in RASTER ORDER with the forward held "
+                    "at the dropped frame's own — one fewer degree of freedom — taking the FIRST "
+                    "candidate in free space whose picture differs from all seven kept, PROVED "
+                    "first-match by re-scanning and requiring every earlier candidate to fail, "
+                    "which is how a hand-picked frame would be caught since a frame chosen for its "
+                    "effect on a number is almost never the first that qualifies. THE SEARCH "
+                    "EXAMINED %d CANDIDATES AND THAT IS STATED RATHER THAN GLOSSED: a one-line "
+                    "search must not read as a thorough one, and a short one is evidence the "
+                    "criterion is EASY TO SATISFY rather than that the frame is special. The seven "
+                    "kept frames are INHERITED TUPLES and not re-typed coordinates, so a "
+                    "transcription slip cannot enter"
+                    % (drop, seen) if c_ok else "the corpus did not hold")
+        f_ok, told = True, "?"
+        try:
+            told = T8.told()
+            f_ok = (T8.the_findings_survive_the_corrected_corpus()
+                    and T8.every_cell_reproduces_the_observable_on_the_new_trace()
+                    and T8.the_record_names_this_world()
+                    and T8.the_record_is_bound_to_the_live_code()
+                    and all(T8.scene_result(n) == T8.golden(n) for n in T8.SCENES))
+        except Exception:
+            f_ok = False
+        self.record("voxtrace8-findings", f_ok,
+                    "%s. THIS ROW REDDENS THE DAY ANY INHERITED FINDING STOPS HOLDING on eight live "
+                    "cases, which would be a far more interesting result than the one it reports"
+                    % told if f_ok else "a finding did not survive")
+        h_ok = True
+        try:
+            h_ok = (T8.the_committed_records_are_untouched()
+                    and T8.the_instruments_are_imported_and_not_reimplemented()
+                    and T8.nothing_is_promoted()
+                    and T8.no_wall_clock_enters_this_rung())
+        except Exception:
+            h_ok = False
+        self.record("voxtrace8-history", h_ok,
+                    "NOTHING HISTORICAL IS EDITED AND THAT IS CHECKED RATHER THAN PROMISED: "
+                    "`voxwork`'s and `voxsilo`'s OWN binding laws are RUN here, so this rung cannot "
+                    "ship while having quietly corrected the records it re-measures. Their figures "
+                    "are what those rungs actually measured, and A RECORD EDITED TO MATCH A LATER "
+                    "CORPUS IS A RECORD THAT HAS STOPPED BEING EVIDENCE — so this rung's record "
+                    "ships BESIDE theirs. AND THE INSTRUMENTS ARE IMPORTED RATHER THAN "
+                    "REIMPLEMENTED, proved from this module's own AST: every number comes from "
+                    "`voxwork.instrument` and `voxsilo.render_cell` called directly, the module "
+                    "contains NO edge function and NO per-pixel loop, and the eight-case "
+                    "measurement therefore runs the IDENTICAL code path as the seven-case one so "
+                    "any difference is a difference in the TRACE. This is the eighth transcription "
+                    "of that loop the arc has NOT written"
+                    if h_ok else "the history was not preserved")
+        t_ok = True
+        try:
+            t_ok = T8.a_tampered_row_refuses()
+            for bad in ("drop 1", "search 0 0 1", "frame 0 a 1 2 3", "floor strolled 1 2",
+                        "cell ZZ 1 2 3 4 5 6 7 8", "finding wishful SURVIVES nothing",
+                        "finding overdraw MAYBE nothing", "rumour 1 2 3"):
+                try:
+                    T8.parse("# world x\n%s\n" % bad)
+                    t_ok = False
+                except T8.Voxtrace8Error:
+                    pass
+            for call, arg in ((T8.cell_total, "ZZ"), (T8.scene_case, "trace2"),
+                              (T8.golden, "nope")):
+                try:
+                    call(arg)
+                    t_ok = False
+                except T8.Voxtrace8Error:
+                    pass
+        except Exception:
+            t_ok = False
+        self.record("voxtrace8-selftest", t_ok,
+                    "twelve plants bite: a drop, search, frame, floor or cell row of the wrong "
+                    "arity or naming nothing declared all refuse — the cell plant is the one that "
+                    "would otherwise let the record report a silo the lattice does not contain — a "
+                    "finding naming no declared claim refuses AND a finding of an unknown verdict "
+                    "refuses, which is the failure mode that would let a BREAK be recorded as "
+                    "neither survived nor broken, a row of unknown kind refuses rather than being "
+                    "skipped as a comment, an undeclared cell name refuses, and an unknown scene "
+                    "and golden refuse (gate can redden)"
+                    if t_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -26299,7 +26418,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

@@ -1,0 +1,88 @@
+# URDRTR81 the corrected corpus — emitted by voxtrace8.py, pinned by hand, compared by the gate.
+#
+# THE ARC MEASURED SEVEN CASES AND CALLED THEM EIGHT. RE-MEASURED, NOTHING CHANGES.
+#
+# `voxpath` found the defect and scoped it precisely: `voxref.TRACE` declares eight adversarial
+# frames and `voxref.every_declared_case_is_distinct` is CORRECT that all eight are distinct — under
+# the COMMITTED winding. But `voxray`'s oracle established the committed winding is the DEFECTIVE
+# one, so every rung from `voxtie` onward renders with `primitives_with("reversed")`, and under the
+# CORRECTED winding `enclosed` and `buried` produce byte-identical colour AND depth. `voxwork` and
+# `voxsilo` — the rungs that fixed the work floor and found the silo lattice's best cell — were
+# never re-run on a corpus that really has eight.
+#
+# HOW THE EIGHTH CASE IS OBTAINED, AND THE PROCEDURE MATTERS MORE THAN THE FRAME:
+#
+#   DROP    of the collapsed pair, the frame whose eye is INSIDE SOLID. That is frame 1, `buried`,
+#           and the rule selects it UNIQUELY. `voxray.comparable_frames` already excludes it BY
+#           DERIVATION, so this rung applies a judgement the tree holds rather than inventing one.
+#           Nothing observable is lost: under the corrected winding the two frames ARE one picture.
+#   SEARCH  voxel centres in RASTER ORDER, forward held at (0,1,0) — the dropped frame's own —
+#           taking the FIRST candidate in free space whose observable differs from all seven kept.
+#           First-match in a fixed order, so the frame cannot have been chosen for its effect on a
+#           number.
+#
+# THE SEARCH EXAMINED TWO CANDIDATES. The centre of cell (0,0,0) is inside solid; cell (0,0,1) at
+# eye (128,128,384) qualifies. THAT IS EVIDENCE THE CRITERION IS EASY TO SATISFY AND NOT THAT THE
+# FRAME IS SPECIAL — a one-line search must not read as a thorough one, and the count is REPORTED in
+# the record rather than glossed.
+#
+# THE RESULTING TRACE IS DISTINCT UNDER BOTH WINDINGS, eight of eight either way.
+#
+# EVERY INHERITED FINDING SURVIVES:
+#
+#   finding            old corpus              corrected corpus        verdict
+#   overdraw           664553 / 55296          661225 / 55296          SURVIVES
+#   best silo cell     GA 2396172 < GTA 2665590    GA 2425194 < GTA 2696490    SURVIVES
+#   tile destructive   TA > A                  TA 3843546 > A 3167910  SURVIVES
+#   tile retires       T walks fewer           572706 < 661225         SURVIVES
+#   bound sound        never violated          never violated          SURVIVES
+#   silo contract      8 cells reproduce       8 cells x 8 frames      SURVIVES
+#
+# A NULL RESULT IS THE POINT AND IT IS ONLY WORTH HAVING BECAUSE IT COULD HAVE GONE THE OTHER WAY.
+# The silo lattice's headline — THE FULL COMBINATION IS NOT THE BEST ONE — is the most surprising
+# thing this arc has produced, and it was measured on a corpus with a redundant frame. If it had
+# depended on that frame it would have been an artefact. It does not.
+#
+# AND THE SILO CONTRACT IS RE-TESTED ON GEOMETRY IT HAS NEVER SEEN, which is the part that could
+# have found a real bug rather than a bookkeeping one: a silo unsound in a way the seven-case trace
+# could not expose would fail there. All eight cells pass on all eight frames.
+#
+# NOTHING HISTORICAL IS EDITED. `voxref.TRACE` is untouched and its own distinctness law is RUN here
+# and still green; `voxwork`'s and `voxsilo`'s committed records are untouched and THEIR OWN binding
+# laws are RUN here and still green. This record ships BESIDE theirs. A record edited to match a
+# later corpus is a record that has stopped being evidence.
+#
+# AND THE INSTRUMENTS ARE IMPORTED RATHER THAN REIMPLEMENTED. Every number comes from
+# `voxwork.instrument` and `voxsilo.render_cell` called directly, so the eight-case measurement runs
+# the IDENTICAL code path as the seven-case one and any difference is a difference in the TRACE.
+# Proved from this module's own AST: it contains no edge function and no per-pixel loop. This is the
+# eighth transcription of that loop the arc has NOT written.
+#
+# DECLARED: the winding (INHERITED from `voxray`, never redeclared); the search forward vector, held
+# at the dropped frame's own so the search has one fewer degree of freedom; the six inherited
+# findings re-tested. The counters are `voxwork`'s and the columns and cells are `voxsilo`'s.
+#
+# DERIVED at claim time (L75): the collapsed pair; the dropped frame; the search and its candidate
+# count; the eight-frame trace; the work floor on it beside the old totals; all eight silo cells over
+# all eight columns; the six verdicts; and the digest.
+#
+# WHAT EACH GOLDEN COVERS
+#   * trace — the eight frames, the dropped index, the search result and candidate count, and the
+#     distinct-observable count under BOTH windings.
+#   * floor — every `voxwork` counter on the corrected corpus, the overdraw pair, and the fates.
+#   * panel — all eight `voxsilo` cells over all eight columns, and the best cell.
+#   * findings — the six inherited claims with their verdicts and what each measured.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * THAT THE EIGHTH FRAME IS ADVERSARIAL. It restores DISTINCTNESS and nothing else is claimed for
+#     it; the seven inherited frames carry the adversarial intent and this one carries a search rule.
+#   * THAT SEVEN CASES WERE TOO FEW for any particular conclusion. This rung tests whether the
+#     conclusions MOVE, finds they do not, and that is the whole claim.
+#   * THAT THE OLD FIGURES WERE WRONG. They measured eight renders of seven distinct pictures, which
+#     is exactly what they said they did once `voxpath` corrected the count.
+#   * NO PROMOTION. `voxref` is untouched and nothing is adopted.
+trace 11e1d161c6bfa5722127a9cf4b1c7ae522ec4608a87669219d7b21c8497e7008
+floor 9561a268b4030452998f04c1078173b83df64f8b1db4dc809ec73a7c6992151b
+panel 37c1640206816cb3b66528c04fbd58712a483934c1cd9356116497e5b39b4ac6
+findings 8c38afd6cd335c13da201544cf7e484bdacfcaf211a213e356453a1559068e34
