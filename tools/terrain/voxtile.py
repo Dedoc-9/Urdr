@@ -114,6 +114,7 @@ ROOT = os.path.dirname(os.path.dirname(_HERE))
 if _HERE not in _sys.path:
     _sys.path.insert(0, _HERE)
 
+import attributed as AT                                     # noqa: E402
 import voxref as VR                                          # noqa: E402
 import voxray as VX                                          # noqa: E402
 import voxwork as VO                                         # noqa: E402
@@ -419,14 +420,29 @@ def percent_tenths(name):
     return ((ref - certified(1, book=False)) * 1000) // ref
 
 
+def percent_exact(name):
+    """A declared percentage as the EXACT rational (numerator, denominator) it is measured from.
+
+    Handed to the shared law so that the RENDERING and its CHECK do not share an implementation: a
+    formatter that rounds the wrong way cannot certify itself.
+    """
+    if name not in PERCENTS:
+        raise VoxtileError("VOXTILE-REFUSE: no declared percentage %r" % (name,))
+    ref = VM.reference_cost()
+    if name == "headline":
+        return (-net(best()), ref)
+    return (ref - certified(1, book=False), ref)
+
+
 def percent_text(name):
     t = percent_tenths(name)
     return "%d.%d" % (t // 10, t % 10)
 
 
 def percent_literals(text):
-    """Every numeric percentage stated in `text`, deduplicated and sorted."""
-    return tuple(sorted(set(_PERCENT.findall(text))))
+    """Every numeric percentage stated in `text`, deduplicated and sorted — DELEGATED to the shared
+    law, which also matches INTEGER percentages the local regex never did."""
+    return tuple(sorted(set(AT.literals(text))))
 
 
 def unattributed_percentages(text, exempt=None):
@@ -436,10 +452,14 @@ def unattributed_percentages(text, exempt=None):
     a set of measurements would accept `37.2 per cent` the day some unrelated quantity happened to
     equal it. So every literal must resolve to exactly one of two things: the formatted value of a
     DECLARED accessor, or an entry in the exempt list that a human had to write down.
+
+    THE RULE IS NOW SHARED. This module wrote it locally after shipping three stale figures; the
+    next rung to carry percentages produced the same failure class, and that recurrence promoted it
+    to `attributed`. What is left here is the DECLARATION — which quantities this module measures
+    and which literals are quotations — because that part is genuinely local.
     """
     exempt = NON_MEASUREMENT if exempt is None else exempt
-    allowed = {percent_text(n) for n in PERCENTS} | set(exempt)
-    return tuple(p for p in percent_literals(text) if p not in allowed)
+    return AT.unattributed(text, {n: percent_text(n) for n in PERCENTS}, exempt)
 
 
 # ---- the laws ----------------------------------------------------------------------------------------
@@ -462,8 +482,10 @@ def the_percentages_in_the_prose_are_the_measured_ones():
     classified as prose; and every declared accessor must actually APPEAR, so a measurement cannot be
     declared and then quietly go unstated while the prose says something else."""
     doc = _sys.modules[__name__].__doc__ or ""
-    return (not unattributed_percentages(doc)
-            and not unattributed_percentages(told())
+    declared = {n: percent_text(n) for n in PERCENTS}
+    exact = {n: percent_exact(n) for n in PERCENTS}
+    return (AT.holds(doc, declared, NON_MEASUREMENT, exact)
+            and AT.holds(told(), declared, NON_MEASUREMENT, exact)
             and all(percent_text(n) in doc for n in PERCENTS)
             and the_declared_percentages_are_uniquely_attributable())
 

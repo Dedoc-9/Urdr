@@ -17,8 +17,14 @@ THOSE TWO BEFORE. They are not degrees of the same thing; they call for opposite
 that DISAPPEARS is information that arrived too late and the only answer is to abandon it. A run that
 FRAGMENTS is information that is still THERE — the owner still holds part of the span — and the
 answer would be to re-anchor rather than abandon. A stream that demands WHOLE-RUN survival collects
-41.6 per cent of predecessor run-length; a stream that could re-anchor has 95.5 per cent in front of
+41.6 per cent of predecessor run-length; a stream that could re-anchor has 95.4 per cent in front of
 it. THIS RUNG PRICES NEITHER.
+
+(That figure shipped as 95.5 and was WRONG BY CONSTRUCTION. It was rendered as one thousand tenths
+minus the TRUNCATED disappearing share, and subtracting a floor from a constant is a ceiling, so it
+rounded UP — on the most flattering number in the rung. The measurement is 95.443673 per cent. It
+was caught by the promoted law `attributed`, one commit later, and the correction is kept visible
+here rather than quietly applied.)
 
 AND THE FATE IS ORDERED BY LENGTH, WHICH CUTS AGAINST THE OPTIMISTIC READING AND IS THE MOST
 DECISION-RELEVANT THING HERE. The three classes have monotonically increasing mean run length:
@@ -101,6 +107,7 @@ ROOT = os.path.dirname(os.path.dirname(_HERE))
 if _HERE not in _sys.path:
     _sys.path.insert(0, _HERE)
 
+import attributed as AT                                     # noqa: E402
 import voxref as VR                                          # noqa: E402
 import voxray as VX                                          # noqa: E402
 
@@ -161,17 +168,27 @@ STREAM = ("construct", "transition", "verify", "advance", "retired")
 
 #: DECLARED — every percentage this module's prose may state, each bound to a LIVE accessor.
 #: `voxtile` shipped a typed percentage that drifted from its measurement and built this contract to
-#: stop it; THIS RUNG IS THE SECOND OCCURRENCE OF THE SAME FAILURE — the first draft of this
-#: docstring said 53.8 and 4.6 against a measured 53.7 and 4.5 — so the contract is carried here too
-#: rather than left as one module's local fix. Whether it should be lifted to a shared check is a
-#: decision about the corpus and not one this rung takes.
-PERCENTS = ("survived", "fragmented", "disappeared", "not_disappeared")
+#: stop it; THIS RUNG WAS THE SECOND OCCURRENCE OF THE SAME FAILURE — the first draft of this
+#: docstring said 53.8 and 4.6 against a measured 53.7 and 4.5 — and that recurrence is what
+#: promoted the contract to the shared law `attributed`, which this module now DELEGATES to rather
+#: than carrying a third copy of. The two coverage figures joined the declaration when the shared
+#: law widened the scan to INTEGER percentages, which the local regex had never matched.
+PERCENTS = ("survived", "fragmented", "disappeared", "not_disappeared",
+            "cover_lattice", "cover_adversarial")
 
-#: DECLARED — percentage literals in the prose that are NOT this rung's measurements. Empty: every
-#: numeric percentage stated here is generated from one.
-NON_MEASUREMENT = ()
+#: DECLARED — the precision each percentage is printed to. The shared law checks a rendering at ITS
+#: OWN precision, so a coverage figure may be a whole number and a share a tenth, and neither is
+#: forced to borrow the other's digits.
+PLACES = {"survived": 1, "fragmented": 1, "disappeared": 1, "not_disappeared": 1,
+          "cover_lattice": 0, "cover_adversarial": 0}
 
-_PERCENT = re.compile(r"(\d+\.\d+)\s+(?:per cent|PER CENT)")
+#: DECLARED — percentage literals in the prose that are not one of this module's DECLARED
+#: RENDERINGS. There is exactly one: the full decimal expansion of `not_disappeared`, quoted in the
+#: correction paragraph so the rounding defect is legible. It is a measurement and it is not a
+#: rendering, which is precisely what the exemption branch is for — a rule with no exemption would
+#: force the correction to be deleted to make the checker pass. The shared law requires every
+#: exemption to differ from every declared value, so an exemption can never shadow a real figure.
+NON_MEASUREMENT = ("95.443673",)
 
 
 class VoxrunError(Exception):
@@ -396,42 +413,75 @@ def long_runs_fragment_rather_than_disappear():
             and survival_share("survived") + survival_share("fragmented") > 900)
 
 
-def percent_text(name):
-    """A declared percentage, formatted from the live measurement in exact integer tenths."""
+def percent_exact(name):
+    """A declared percentage as the EXACT rational (numerator, denominator) it is measured from.
+
+    THE COMPLEMENT IS TAKEN ON THE EXACT VALUE AND NOT ON THE ROUNDED ONE, which is the defect this
+    module shipped: `not_disappeared` was rendered as 1000 minus the TRUNCATED disappearing share,
+    and subtracting a floor from a constant is a CEILING. It printed 95.5 where the measurement is
+    95.443673, rounding up by construction on the most flattering figure in the rung.
+    """
     if name not in PERCENTS:
         raise VoxrunError("VOXRUN-REFUSE: no declared percentage %r" % (name,))
-    t = (1000 - survival_share("disappeared") if name == "not_disappeared"
-         else survival_share(name))
-    return "%d.%d" % (t // 10, t % 10)
+    if name == "cover_lattice":
+        s = structure("lattice")
+        return (s["cover16"], s["observations"])
+    if name == "cover_adversarial":
+        s = structure("adversarial")
+        return (s["cover16"], s["observations"])
+    sv = survival()
+    total = sum(sv[f][1] for f in FATES)
+    if name == "not_disappeared":
+        return (total - sv["disappeared"][1], total)
+    return (sv[name][1], total)
+
+
+def percent_text(name):
+    """A declared percentage TRUNCATED at its declared precision, in exact integer arithmetic.
+
+    Truncation and never rounding, so every printed digit is a digit the measurement actually has
+    and the printed magnitude never exceeds the measured one. `attributed.truncates` re-derives this
+    independently at the gate, so the rendering and its check do not share an implementation.
+    """
+    num, den = percent_exact(name)
+    scale = 10 ** PLACES[name]
+    t = (100 * num * scale) // den
+    return "%d" % t if scale == 1 else "%d.%0*d" % (t // scale, PLACES[name], t % scale)
 
 
 def unattributed_percentages(text, exempt=None):
-    """Percentage literals naming NO measurement and not declared prose. ATTRIBUTION, NOT
-    MEMBERSHIP: every literal must resolve to one DECLARED accessor or to an entry a human wrote."""
+    """Percentage literals naming NO measurement and not declared prose — DELEGATED to the shared
+    law. ATTRIBUTION, NOT MEMBERSHIP: every literal must resolve to one DECLARED accessor or to an
+    entry a human wrote."""
     exempt = NON_MEASUREMENT if exempt is None else exempt
-    allowed = {percent_text(n) for n in PERCENTS} | set(exempt)
-    return tuple(p for p in sorted(set(_PERCENT.findall(text))) if p not in allowed)
+    return AT.unattributed(text, {n: percent_text(n) for n in PERCENTS}, exempt)
 
 
 def the_percentages_in_the_prose_are_the_measured_ones():
-    """THE SECOND OCCURRENCE OF A FAILURE `voxtile` ALREADY PAID FOR, AND IT IS CARRIED HERE FOR
-    THAT REASON. The first draft of this docstring stated 53.8 and 4.6 against a measured 53.7 and
-    4.5 — caught by reading, not by a law. Every numeric percentage in this module's own prose and
-    gate message must now be the formatted value of a declared accessor or an explicit exemption,
-    and the declared values must be pairwise distinct so no literal is ambiguously attributed."""
+    """THE SECOND OCCURRENCE OF A FAILURE `voxtile` ALREADY PAID FOR, AND THE RECURRENCE IS WHAT
+    PROMOTED IT. The first draft of this docstring stated 53.8 and 4.6 against a measured 53.7 and
+    4.5 — caught by reading, not by a law. The contract now lives in `attributed` and this module
+    hands it the declarations: every percentage literal in this prose and in the gate message must
+    resolve to exactly one declared accessor, the declared values must be pairwise distinct, the
+    exemptions disjoint from them, and every rendering must be the EXACT TRUNCATION of the
+    measurement it names."""
     doc = _sys.modules[__name__].__doc__ or ""
-    vals = [percent_text(n) for n in PERCENTS]
-    return (not unattributed_percentages(doc)
-            and not unattributed_percentages(told())
-            and len(set(vals)) == len(vals)
+    declared = {n: percent_text(n) for n in PERCENTS}
+    exact = {n: percent_exact(n) for n in PERCENTS}
+    return (AT.holds(doc, declared, NON_MEASUREMENT, exact)
+            and AT.holds(told(), declared, NON_MEASUREMENT, exact)
             and all(percent_text(n) in doc for n in ("survived", "fragmented", "disappeared")))
 
 
 def the_percentage_law_catches_the_drift_it_was_built_for():
-    """The plant, and it is the exact figure the first draft got wrong."""
+    """The plants, and each is a figure this module or its predecessor actually got wrong: the drift
+    that was typed here, the hedge that must not rescue one, and THE ROUNDED COMPLEMENT — 95.5
+    against a measured 95.443673 — which is the defect the promoted law found in the pushed rung."""
     return (unattributed_percentages("FRAGMENTED 53.8 per cent", exempt=()) == ("53.8",)
             and unattributed_percentages("approximately 37.2 per cent", exempt=()) == ("37.2",)
-            and unattributed_percentages("a quoted 37.2 per cent", exempt=("37.2",)) == ())
+            and unattributed_percentages("a quoted 37.2 per cent", exempt=("37.2",)) == ()
+            and not AT.truncates("95.5", *percent_exact("not_disappeared"))
+            and AT.truncates(percent_text("not_disappeared"), *percent_exact("not_disappeared")))
 
 
 def the_finding_is_not_the_saturation_result():
@@ -688,8 +738,8 @@ def told():
             "nearly every pixel does NOT fragment the ownership carried on it, and the two were "
             "never measured apart until now. THE CEILING IS REPORTED WITH THE CORPUS IT WAS "
             "MEASURED ON, because a run census on a tight camera grid flatters itself: the lattice "
-            "means %s pixels a run against the ADVERSARIAL corpus's %s, and %d per cent of its "
-            "observations sit in runs of sixteen or longer against %d per cent — THE LATTICE IS "
+            "means %s pixels a run against the ADVERSARIAL corpus's %s, and %s per cent of its "
+            "observations sit in runs of sixteen or longer against %s per cent — THE LATTICE IS "
             "ROUGHLY HALF AGAIN AS COMPRESSIBLE, so every survival figure here is optimistic "
             "against a corpus built to be hard. Survival is measured on the lattice because "
             "survival needs an ADJACENCY and the adversarial frames have none, having been built to "
@@ -699,15 +749,14 @@ def told():
             "walked by every triangle binned over it. AND NO ECONOMICS ARE CLAIMED: the stream "
             "variables are RECORDED AND NEVER COMBINED, %s per cent of run-length surviving is NOT "
             "%s per cent of work retired, and the inequality is a LATER rung's to score"
-            % (_tenths(survival_share("survived")), _tenths(survival_share("fragmented")),
-               _tenths(survival_share("disappeared")), _tenths(survival_share("survived")),
-               _tenths(1000 - survival_share("disappeared")),
+            % (percent_text("survived"), percent_text("fragmented"),
+               percent_text("disappeared"), percent_text("survived"),
+               percent_text("not_disappeared"),
                _tenths(mean_length_tenths("disappeared")), _tenths(mean_length_tenths("survived")),
                _tenths(mean_length_tenths("fragmented")),
                _tenths(la["mean_tenths"]), _tenths(ad["mean_tenths"]),
-               100 * la["cover16"] // la["observations"],
-               100 * ad["cover16"] // ad["observations"],
-               _tenths(survival_share("survived")), _tenths(survival_share("survived"))))
+               percent_text("cover_lattice"), percent_text("cover_adversarial"),
+               percent_text("survived"), percent_text("survived")))
 
 
 def scene_case(name):

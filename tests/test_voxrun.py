@@ -188,10 +188,27 @@ class ThePercentages(unittest.TestCase):
         self.assertTrue(RN.the_percentage_law_catches_the_drift_it_was_built_for())
         self.assertEqual(RN.unattributed_percentages("53.8 per cent", exempt=()), ("53.8",))
 
-    def test_every_declared_percentage_is_an_exact_integer_tenth(self):
+    def test_every_declared_percentage_is_rendered_at_its_declared_precision(self):
+        """The shared law checks a rendering at ITS OWN precision, so a coverage figure may be a
+        whole number and a share a tenth. What must hold is that the rendering carries exactly the
+        digits the declaration says and no more."""
+        import attributed as AT
         for n in RN.PERCENTS:
-            whole, tenth = RN.percent_text(n).split(".")
-            self.assertTrue(whole.isdigit() and len(tenth) == 1)
+            with self.subTest(percent=n):
+                whole, _, frac = RN.percent_text(n).partition(".")
+                self.assertTrue(whole.isdigit())
+                self.assertEqual(len(frac), RN.PLACES[n])
+                self.assertTrue(AT.truncates(RN.percent_text(n), *RN.percent_exact(n)))
+
+    def test_the_complement_is_taken_on_the_exact_value(self):
+        """THE DEFECT THIS MODULE SHIPPED. `not_disappeared` was one thousand tenths minus the
+        TRUNCATED disappearing share, and a constant minus a floor is a ceiling: it printed 95.5
+        where the measurement is 95.443673. The complement is now taken on the exact rational."""
+        sv = RN.survival()
+        total = sum(sv[f][1] for f in RN.FATES)
+        self.assertEqual(RN.percent_exact("not_disappeared"),
+                         (total - sv["disappeared"][1], total))
+        self.assertEqual(RN.percent_text("not_disappeared"), "95.4")
 
     def test_the_declared_percentages_are_pairwise_distinct(self):
         vals = [RN.percent_text(n) for n in RN.PERCENTS]

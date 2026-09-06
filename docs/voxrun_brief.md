@@ -54,7 +54,7 @@ consumer traverses. Both populations, side by side, never fused.
 thing — they call for **opposite mechanisms**. A run that *disappears* is information that arrived too
 late, and the only answer is to abandon it. A run that *fragments* is information still **present** —
 the owner still holds part of the span — and the answer would be to **re-anchor**. A stream demanding
-whole-run survival collects 41.6 per cent of predecessor run-length; one that could re-anchor has 95.5
+whole-run survival collects 41.6 per cent of predecessor run-length; one that could re-anchor has 95.4
 per cent in front of it. **This rung prices neither.**
 
 **And the fate is ordered by length, which cuts against the optimistic reading and is the most
@@ -124,13 +124,21 @@ figures to origin, two of them inflating, and the fix was not to compare known p
 their sources — it was to enumerate **every** percentage literal in the prose and require each one to
 resolve to exactly **one** declared accessor, or be listed as non-measurement. Matching *some*
 measured quantity is not enough; the declared values are pairwise distinct and the exemption list is
-disjoint from them. That law is carried here in local form, with a plant that shows it biting on a
-drifted figure rather than merely passing on a correct one.
+disjoint from them. That law was carried here in local form; **this rung's own recurrence of the
+failure is what promoted it**, and the module now delegates to the shared law `attributed`, keeping
+only the declaration — which quantities are measured and which literals are quotations.
+
+**And the promoted law found a defect in this rung as it was pushed.** The share that does *not*
+disappear shipped as 95.5 per cent against a measurement of 95.443673. It was rendered as one thousand
+tenths minus the **truncated** disappearing share, and subtracting a floor from a constant is a
+ceiling — so it rounded *up* by construction, on the most flattering figure in the rung. It now reads
+95.4, taken from the exact complement. **No measurement was wrong and not one golden digest moved**,
+which is the evidence that the defect lived in a rendering and never in the census.
 
 ## Act
 
 `tools/terrain/voxrun.py`, gate stage `voxrun` (four rows: structure / survival / stream / selftest),
-red-first `tests/test_voxrun.py` (59 falsifiers), the committed record `spec/attest/voxref-run.txt`,
+red-first `tests/test_voxrun.py` (60 falsifiers), the committed record `spec/attest/voxref-run.txt`,
 and — one commit early — `spec/attest/voxstream-prediction.txt`.
 
 `does_not_show`: **nothing about time**, and no wall clock enters. **Nothing about whether a stream

@@ -16,7 +16,7 @@
 # run that DISAPPEARS is information that arrived too late; the only answer is to abandon it. A run
 # that FRAGMENTS is information still PRESENT — the owner still holds part of the span — and the
 # answer would be to RE-ANCHOR. A stream demanding whole-run survival collects 41.6 per cent of
-# predecessor run-length; one that could re-anchor has 95.5 per cent in front of it. NEITHER IS
+# predecessor run-length; one that could re-anchor has 95.4 per cent in front of it. NEITHER IS
 # PRICED HERE.
 #
 # AND THE FATE IS LENGTH-ORDERED, WHICH IS THE FINDING THAT COSTS THE MOST. Mean run length rises
@@ -77,16 +77,22 @@
 # may not. The owner maps come from `voxray.render_winners`, which `voxray`'s own law binds to
 # `voxref.render`, so no rasteriser is transcribed here either.
 #
-# EVERY PERCENTAGE IN THIS MODULE'S PROSE IS ATTRIBUTED, which `voxtile` learned four commits ago
-# after shipping three stale figures to origin, two of them inflating. The law here is the same one
-# and it is local for the same reason: each percentage literal in the docstring must resolve to
-# exactly ONE declared accessor — survived, fragmented, disappeared, not_disappeared — or be listed
-# as non-measurement prose. Attribution, not membership: matching some declared value is not enough,
-# the declared values are pairwise distinct and the exemption list is disjoint from them.
+# EVERY PERCENTAGE IN THIS MODULE'S PROSE IS ATTRIBUTED, AND THE LAW IS NO LONGER LOCAL. `voxtile`
+# wrote it after shipping three stale figures to origin, two of them inflating; THIS rung produced
+# the same failure class in its first draft, and that recurrence promoted it to the shared law
+# `attributed`, which this module now DELEGATES to. What stays here is the DECLARATION — which
+# quantities are measured and which literals are quotations — because that part is genuinely local.
+#
+# AND THE PROMOTED LAW IMMEDIATELY FOUND A DEFECT IN THIS RUNG AS IT WAS PUSHED. The share that does
+# NOT disappear shipped as 95.5 per cent against a measurement of 95.443673: it was rendered as one
+# thousand tenths minus the TRUNCATED disappearing share, and subtracting a floor from a constant is
+# a CEILING, so it rounded UP by construction — on the most flattering figure in the rung. It now
+# reads 95.4, taken from the exact complement. NO MEASUREMENT WAS WRONG AND NOT ONE GOLDEN DIGEST
+# MOVED, which is the evidence that the defect lived in a rendering and never in the census.
 #
 # DECLARED: the winding (INHERITED, never redeclared); the two corpora and the traversal, carried as
 # fixtures; the two populations; the coverage thresholds; the three fates; the five stream variables;
-# the four attributed percentages.
+# the six attributed percentages and the precision each is printed to.
 #
 # DERIVED at claim time (L75): every owner map; every run; the full structure panel for both corpora
 # and both populations; the three fates by count and by length; the mean length of each fate in exact

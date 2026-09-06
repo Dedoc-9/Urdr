@@ -272,6 +272,7 @@ STAGE_ORDER = (
     "voxtrace8",
     "voxbaggage",
     "voxrun",
+    "attributed",
     "rowtext",
     "rollbench",
     "reachable",
@@ -22887,6 +22888,181 @@ class Gate:
                     "(gate can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def attributed(self):
+        """A PERCENTAGE IN SHIPPED PROSE IS A CLAIM, AND EVERY DIGIT OF IT IS TOO (URDRATB1). Rows:
+        attribution (every literal resolves to exactly one declared accessor, uniquely, across every
+        audited subject), truncation (every printed digit is a true digit of the measurement — the
+        property that found a live defect in the commit before this one), coverage (the subjects are
+        DERIVED from the tree rather than listed), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import attributed as AT
+            import voxrun as _RN
+            import voxtile as _TL
+        except Exception as exc:
+            for r in ("attribution", "truncation", "coverage", "selftest"):
+                self.record(f"attributed-{r}", False, f"import failed (attributed): {exc}")
+            return
+        subjects = {"voxrun": _RN, "voxtile": _TL}
+
+        def audit(mod):
+            declared = {n: mod.percent_text(n) for n in mod.PERCENTS}
+            exact = {n: mod.percent_exact(n) for n in mod.PERCENTS}
+            doc = mod.__doc__ or ""
+            return (AT.audit(doc, declared, mod.NON_MEASUREMENT, exact)
+                    + AT.audit(mod.told(), declared, mod.NON_MEASUREMENT, exact))
+
+        a_ok, nlit = True, 0
+        try:
+            for name, mod in sorted(subjects.items()):
+                nlit += len(AT.literals(mod.__doc__ or ""))
+                if audit(mod):
+                    a_ok = False
+            a_ok = (a_ok and AT.an_invented_value_refuses()
+                    and AT.a_hedge_does_not_rescue_an_unattributed_literal()
+                    and AT.an_integer_percentage_is_audited()
+                    and AT.a_value_declared_twice_refuses()
+                    and AT.an_exemption_that_shadows_a_measurement_refuses()
+                    and AT.the_law_is_not_a_prose_linter()
+                    and AT.scene_result("properties") == AT.golden("properties"))
+        except Exception:
+            a_ok = False
+        self.record("attributed-attribution", a_ok,
+                    "ALL %d PERCENTAGE LITERALS IN THE AUDITED PROSE RESOLVE TO EXACTLY ONE DECLARED "
+                    "LIVE ACCESSOR, and this law exists because the same defect happened TWICE: "
+                    "`voxtile` shipped three stale figures to origin, two of them inflating, and the "
+                    "NEXT rung to carry percentages produced the same failure class in its first "
+                    "draft — 53.8 and 4.6 against a measured 53.7 and 4.5. A defect that recurs in "
+                    "the next independent rung is a property of the PRACTICE and not a module's "
+                    "accident, so it is answered ONCE here rather than copied a third time. "
+                    "ATTRIBUTION AND NOT MEMBERSHIP: a figure that merely coincides with some other "
+                    "measured quantity is still unattributed, the declared values are pairwise "
+                    "DISTINCT so `exactly one` is not a fiction, and the exemptions are DISJOINT "
+                    "from them so a quotation can never shadow a drifted measurement. A HEDGE DOES "
+                    "NOT RESCUE AN UNATTRIBUTED FIGURE — `approximately` is a claim about PRECISION "
+                    "and this law is about PROVENANCE. AND THE SCAN ENUMERATES rather than checks: "
+                    "a law that verified the percentages it was told about could never see the one "
+                    "nobody told it about, which is exactly how both live defects survived reading. "
+                    "IT IS NOT A PROSE LINTER and that is a property rather than a promise — the "
+                    "same scan over a sentence dense with counts, digests, pixel totals and a "
+                    "version number reports NOTHING" % nlit
+                    if a_ok else "the attribution law did not hold")
+        t_ok, txt = True, "?"
+        try:
+            txt = _RN.percent_text("not_disappeared")
+            t_ok = (AT.a_complement_of_a_truncated_value_refuses()
+                    and AT.a_rounded_figure_refuses_even_when_it_rounds_down()
+                    and AT.the_precision_is_the_prose_s_and_not_the_law_s()
+                    and AT.no_float_decides_a_last_digit()
+                    and all(AT.truncates(m.percent_text(n), *m.percent_exact(n))
+                            for m in subjects.values() for n in m.PERCENTS))
+        except Exception:
+            t_ok = False
+        self.record("attributed-truncation", t_ok,
+                    "EVERY PRINTED DIGIT IS A TRUE DIGIT: a rendering must be the exact value "
+                    "TRUNCATED at the precision it is printed to, never rounded, so it can neither "
+                    "assert precision the measurement lacks nor exceed the magnitude it measured. "
+                    "AND THIS PROPERTY FOUND A LIVE DEFECT IN THE COMMIT THAT PRECEDED IT, which is "
+                    "why it is here rather than on a list of checks it would be nice to have: "
+                    "`voxrun` shipped 95.5 PER CENT as the run-length that does NOT disappear "
+                    "against a measurement of 95.443673, because the accessor took the complement "
+                    "of an ALREADY-TRUNCATED share — one thousand tenths minus forty-five — and "
+                    "SUBTRACTING A FLOOR FROM A CONSTANT IS A CEILING, so the figure rounded UP by "
+                    "construction on precisely the number the arc had just been warned not to let "
+                    "become a headline. It now reads %s. NO MEASUREMENT WAS WRONG AND NOT ONE GOLDEN "
+                    "DIGEST MOVED — the defect was in a RENDERING, which is the only place this law "
+                    "looks — and the correction is carried in the subject's prose rather than "
+                    "quietly applied. NEAREST-ROUNDING IS NOT TRUNCATION even when it agrees: "
+                    "41.645448 gives 41.6 either way and 53.798225 gives 53.8 or 53.7, and only one "
+                    "of those is a digit the measurement has. NO FLOAT DECIDES A LAST DIGIT, proved "
+                    "on this module's own AST, because a law about the final digit may not be "
+                    "settled by a representation that loses it" % txt
+                    if t_ok else "the truncation law did not hold")
+        c_ok, subs = True, ()
+        try:
+            subs = AT.SUBJECTS
+            c_ok = (AT.the_subjects_are_every_module_that_declares_them()
+                    and AT.this_module_imports_no_subject()
+                    and set(subs) == set(subjects)
+                    and AT.the_record_names_this_world()
+                    and AT.the_record_is_bound_to_the_live_code()
+                    and AT.scene_result("subjects") == AT.golden("subjects")
+                    and AT.scene_result("record") == AT.golden("record"))
+        except Exception:
+            c_ok = False
+        self.record("attributed-coverage", c_ok,
+                    "THE SUBJECTS ARE DERIVED AND NOT LISTED — %s, read STATICALLY out of the "
+                    "terrain directory's source by looking for a top-level `PERCENTS` declaration — "
+                    "so a later module cannot declare percentages and quietly escape the audit, "
+                    "which is the whole difference between a law and a list a human keeps. AND THIS "
+                    "MODULE IMPORTS NONE OF ITS SUBJECTS: depth ONE on the stdlib alone, with the "
+                    "declarations handed in by the gate, because `voxbaggage` paid the sealed depth "
+                    "ceiling to learn that pattern one arc ago and a SHARED law that cost depth "
+                    "would tax every module that adopted it. THE SCAN ALSO WIDENED TO INTEGER "
+                    "PERCENTAGES, which both local contracts had missed — not because integers are "
+                    "safer but because the first regex happened to require a decimal point, and "
+                    "`voxrun` had shipped two figures through that hole. Both were already correct, "
+                    "which is the honest thing to report: the hole was real and nothing had yet "
+                    "fallen through it" % ", ".join(subs)
+                    if c_ok else "the coverage clause did not hold")
+        s_ok = True
+        try:
+            s_ok = AT.a_tampered_row_refuses()
+            for bad in ("property wishful", "subject voxwishful", "form per centum", "rumour 1"):
+                try:
+                    AT.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except AT.AttributedError:
+                    pass
+            for text in ("property attribution\n", "# world x\n"):
+                try:
+                    AT.parse(text)
+                    s_ok = False
+                except AT.AttributedError:
+                    pass
+            for args in (("50", 1, 0), ("fifty", 1, 2), ("-1.5", 1, 2)):
+                try:
+                    AT.truncates(*args)
+                    s_ok = False
+                except AT.AttributedError:
+                    pass
+            for call, arg in ((AT.scene_case, "wishful"), (AT.golden, "wishful")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except AT.AttributedError:
+                    pass
+            try:
+                AT.audit("10.7 per cent", [("a", "10.7")])
+                s_ok = False
+            except AT.AttributedError:
+                pass
+            if AT.audit("10.7 per cent", {"a": "10.7"}, (), {}) != (
+                    ("truncation", "a declares no exact measurement"),):
+                s_ok = False
+            for mod, err in ((_RN, _RN.VoxrunError), (_TL, _TL.VoxtileError)):
+                try:
+                    mod.percent_exact("wishful")
+                    s_ok = False
+                except err:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("attributed-selftest", s_ok,
+                    "sixteen plants bite: a record row naming no declared property, no audited "
+                    "subject or no declared surface form refuses, a row of unknown kind refuses "
+                    "rather than being skipped as a comment, a record naming no world and one with "
+                    "no rows both refuse, a zero denominator refuses rather than dividing, two "
+                    "shapes that are not percentage literals refuse rather than being coerced, an "
+                    "unknown scene and golden refuse, a declaration that is not a mapping refuses "
+                    "rather than being iterated as pairs, A DECLARED ACCESSOR WITH NO EXACT "
+                    "MEASUREMENT IS REPORTED rather than skipped — which is the failure mode that "
+                    "would let an unverifiable rendering pass as verified — and an undeclared "
+                    "percentage name refuses in BOTH audited subjects (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def rowtext(self):
         """THE GATE'S OWN TRANSCRIPT IS A CERTIFIED ARTEFACT (URDRRWT1), so its defects are defects.
         Rows: messages (no row prints a literal `%%`, which is a format escape that reached a
@@ -26693,7 +26869,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

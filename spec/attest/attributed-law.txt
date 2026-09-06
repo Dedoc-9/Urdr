@@ -1,0 +1,16 @@
+# URDRATB1 the measurement-attribution law — emitted by attributed.py.
+# world fa1a3705777eb72f6d47f519b47bfb9cc3124e461d35b887b5ec6c162cdb4e08
+
+property attribution
+property distinct
+property disjoint
+property invented
+property hedged
+property truncation
+subject voxrun
+subject voxtile
+form per cent
+form PER CENT
+form percent
+form %
+digest 230a590abb07e90fd9fb754f98d0f29970a5a603e8247d34dfb46ad15540c6b2

@@ -1,0 +1,87 @@
+# URDRATB1 the measurement-attribution law — emitted by attributed.py, pinned by hand, compared by
+# the gate.
+#
+# A PERCENTAGE IN SHIPPED PROSE IS A CLAIM, AND EVERY DIGIT OF IT IS TOO.
+#
+# THIS LAW EXISTS BECAUSE THE SAME DEFECT HAPPENED TWICE. `voxtile` shipped three stale percentages
+# to origin, two of them inflating, because the prose was typed beside numbers that were computed.
+# It answered with a LOCAL contract. The next rung to carry percentages, `voxrun`, produced the SAME
+# failure class in its first draft — 53.8 and 4.6 against a measured 53.7 and 4.5 — and its own copy
+# of the contract caught it. A defect that recurs in the next independent rung is not a module's
+# accident; it is a property of the practice, and it is answered ONCE here rather than copied a
+# third time.
+#
+# THE LAW IS DELIBERATELY NARROW AND IS NOT A PROSE LINTER:
+#
+#   Every quantitative percentage literal in shipped measurement prose must resolve to exactly one
+#   named LIVE measurement accessor, or be explicitly classified as NON-MEASUREMENT.
+#
+# It checks no grammar, no tone, and no other numeral. `the_law_is_not_a_prose_linter` proves that
+# by running the scan over a sentence dense with counts, digests, pixel totals and a version number
+# and requiring it to report NOTHING.
+#
+# SIX PROPERTIES, EACH A FAILURE THAT WAS AVAILABLE WITHOUT IT:
+#
+#   attribution   a literal resolves to ONE accessor. Membership is not attribution — `appears among
+#                 the measured values` would pass a figure that merely coincides with an unrelated
+#                 quantity.
+#   distinct      the declared values are pairwise distinct, or `exactly one` is a fiction.
+#   disjoint      no exemption equals a declared value, or an exemption can SHADOW a measurement.
+#   invented      a value resolving to nothing REFUSES. This caught both live drifts, and it is why
+#                 the scan ENUMERATES literals instead of checking known ones: a checker that
+#                 verifies the percentages it was told about cannot see the one nobody told it about.
+#   hedged        `approximately`, `roughly`, `about`, `nearly` and their kin do not rescue an
+#                 unattributed literal. A hedge is a claim about PRECISION; this law is about
+#                 PROVENANCE, and a figure with no source is not sourced by being softened.
+#   truncation    EVERY PRINTED DIGIT IS A TRUE DIGIT. A rendering must be the exact value TRUNCATED
+#                 at the precision it is printed to, never rounded — so it can neither assert
+#                 precision the measurement lacks nor exceed the magnitude it measured.
+#
+# THE TRUNCATION PROPERTY FOUND A LIVE DEFECT IN THE COMMIT THAT PRECEDED THIS ONE, which is why it
+# is here rather than on a list of things it would be nice to check. `voxrun` shipped 95.5 per cent
+# as the run-length that does NOT disappear. The measurement is 95.443673 per cent. The accessor
+# computed the complement of an ALREADY-TRUNCATED value — one thousand tenths minus forty-five —
+# and subtracting a floor from a constant is a CEILING, so the figure rounded UP by construction, on
+# precisely the number the arc had just been warned not to let become a headline. NO MEASUREMENT WAS
+# WRONG AND NOT ONE GOLDEN DIGEST MOVED: the defect was in a rendering, which is the only place this
+# law looks, and the correction is carried in `voxrun`'s prose rather than quietly applied.
+#
+# THE SCAN WIDENED, AND THE WIDENING WAS NOT COSMETIC. Both local contracts matched `\d+\.\d+` and
+# therefore audited DECIMAL percentages only — not because integers are safer but because the first
+# regex happened to require a point. `voxrun` had shipped `85 per cent` and `53 per cent` through
+# that hole. Both are now declared accessors, and both were already correct, which is the honest
+# outcome to report: the hole was real and nothing had fallen through it yet.
+#
+# THE SUBJECTS ARE DERIVED, NOT LISTED. A module opts in by declaring `PERCENTS`, and the subject
+# enumeration is read STATICALLY out of the terrain directory's source, so a later module cannot
+# declare percentages and quietly escape the audit. That is the whole difference between a law and a
+# list, and `the_subjects_are_every_module_that_declares_them` is where it is enforced.
+#
+# AND THIS MODULE IMPORTS NONE OF ITS SUBJECTS. Depth one, stdlib only, declarations handed in by
+# the gate — `voxbaggage` paid the sealed depth ceiling to learn that pattern one arc ago, and a
+# SHARED law that cost depth would be a tax on every module that adopted it. NO FLOAT DECIDES A LAST
+# DIGIT either: a law about the final digit may not be settled by a representation that loses it, so
+# the arithmetic is integer throughout and that is proved on this module's own AST.
+#
+# WHAT EACH GOLDEN COVERS
+#   * properties — the six properties, the surface forms, the hedges and the scanner's own pattern,
+#     so a silent widening or narrowing of what counts as a percentage moves a digest.
+#   * subjects — the derived enumeration, so a module joining or leaving the audit is visible.
+#   * record — the committed record verbatim.
+#
+# does_not_show, and these bound everything above:
+#   * WHICH DIRECTION A SENTENCE'S CLAIM RUNS. Truncation guarantees every printed digit is real and
+#     that a magnitude is never inflated; it does NOT know that `only 4.5 per cent disappeared` is
+#     flattered by a smaller figure while `53.7 per cent fragmented` is flattered by a larger one. A
+#     polarity declaration would close that and would be an ARGUMENT about each sentence rather than
+#     a fact about each number — a different rung.
+#   * NOT THE WHOLE TREE. Only modules that DECLARE percentages are audited; a module with
+#     percentages in its prose and no declaration is outside this law's scope, which the coverage
+#     clause makes visible rather than hiding.
+#   * NOTHING ABOUT ANY OTHER NUMERAL. Counts, costs and digests in prose are uncovered, and the
+#     evidence for this law is about percentages.
+#   * NOT THAT THE PROSE IS TRUE. A correctly attributed figure in a sentence that misreads it
+#     passes here and always will.
+properties 60469699c148903ce23006459fa88fb6d9a64765291cbca34fd2ad41494346f8
+subjects 24892d907deb6d027d82bc165cd29d7c4dced2b6683fb24e3df69f7c165dc1c1
+record e78ee912b20866b1e838c5af83732f5a670377780cb0bf0b38eb2dc95b0c341c
