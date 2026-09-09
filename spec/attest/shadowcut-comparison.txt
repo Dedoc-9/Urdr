@@ -1,0 +1,16 @@
+# URDRSHC1 the shadow comparison — emitted by shadowcut.py. The subject is UNCHANGED.
+# world 32433625f4b517451417818e59e70d458fa7a57925bfe4d27aa398839402b100
+
+case 3 1 1 1 9 9 pinned
+case 4 1 1 1 16 16 pinned
+case 4 2 2 2 16 16 pinned
+case 5 1 1 1 25 25 pinned
+case 5 2 2 2 25 25 pinned
+case 5 3 3 3 25 25 extension
+case 6 2 2 2 36 36 extension
+case 6 3 3 3 36 36 extension
+case 6 4 None 4 36 36 extension
+verdict agree 8
+verdict undecided 1
+verdict diverge 0
+digest 3ccad001aa9fdd31b711d094c12a848b507ee712eeb5ac9bce2d0fbf30fb08c2

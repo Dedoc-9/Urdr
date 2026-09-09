@@ -1,0 +1,94 @@
+# URDRSHC1 the shadow comparison — emitted by shadowcut.py, pinned by hand, compared by the gate.
+#
+# THE PROPOSED REMEDY ANSWERS A DIFFERENT QUESTION.
+#
+# `cohort` decides its min-cut by enumerating every subset of the wall up to `CUT_SEARCH_MAX = 3` and
+# returns `None` above that. The weak-spots list names the fix: "the honest fix is a max-flow
+# formulation on the vertex-split graph — the shape `auditgraph` already uses." THIS RUNG BUILDS THAT
+# FORMULATION FAITHFULLY AND MEASURES IT, AND IT DOES NOT COMPUTE THE QUANTITY `cohort` IS AFTER.
+#
+# NOTHING IN `cohort` IS CHANGED. `CUT_SEARCH_MAX` is still 3, `min_cut` is still the enumeration,
+# and this module IMPORTS both rather than transcribing either. A shadow adjudicator that edits its
+# subject is not a shadow, and one that reimplements the law it is checking is grading its own copy.
+#
+#   wall            bounded    shortest    maxflow    cross-section    scope
+#   (n=3, t=1)            1           1          9                9    pinned
+#   (n=4, t=1)            1           1         16               16    pinned
+#   (n=4, t=2)            2           2         16               16    pinned
+#   (n=5, t=1)            1           1         25               25    pinned
+#   (n=5, t=2)            2           2         25               25    pinned
+#   (n=5, t=3)            3           3         25               25    extension  (AT the cap)
+#   (n=6, t=2)            2           2         36               36    extension
+#   (n=6, t=3)            3           3         36               36    extension  (AT the cap)
+#   (n=6, t=4)         None           4         36               36    extension  (PAST the cap)
+#
+#   agree 8    undecided 1    diverge 0
+#
+# THE MAX-FLOW COLUMN IS THE CROSS-SECTION AND NOTHING ELSE. It does not move when the wall gets
+# thicker, because it is not measuring the wall: it counts how many INDEPENDENT TUNNELS could be
+# driven through the cross-section at once, one per cell of a layer. `cohort` asks what ONE tunnel
+# COSTS. Those are dual questions, and the duality is the whole problem.
+#
+# WHY THE SHAPE IS WRONG, AND `cohort` HAD ALREADY MEASURED THE REASON. The quantity `min_cut`
+# computes is a minimum-weight PATH — the fewest wall cells lying on any face-to-face route, since
+# deleting exactly those opens it, and any deletion that opens the wall contains some route's wall
+# cells. Max-flow computes a minimum CUT. Turning a min-weight path into a min cut is planar duality,
+# and `cohort.hex_duality_fails_in_3d` is an EXISTING LAW OF THE VERY MODULE the remedy was proposed
+# for, measured on a 7-cube, stating that the two-dimensional Z2 duality does not lift to three. THE
+# REMEDY REACHED FOR A DUALITY ITS OWN SUBJECT HAD ALREADY REFUTED, one law away in the same file.
+#
+# The refutation is UNPACKED rather than handed back: `hex_duality_fails_in_3d` returns a TRIPLE, and
+# a non-empty tuple is truthy whatever it contains, so a law that returned it directly could never
+# fail. The first draft of `the_duality_it_needed_was_already_refuted` did exactly that.
+#
+# THE ACTUAL FIX IS SMALLER THAN THE PROPOSED ONE. A minimum-weight path over node weights of ZERO
+# for free and ONE for wall is decided by a 0-1 BFS in linear time with no cap at all.
+#
+# THE BOUND IS INACTIVE ON THE PINNED CORPUS AND ACTIVE IMMEDIATELY OUTSIDE IT. Across the five cases
+# `cohort.gap_table` actually pins, every answer is decided and the two formulations agree — so the
+# `None` branch is unreachable there and THE PINNED GAP FIGURES WERE NEVER ARTEFACTS OF THE SEARCH
+# HORIZON, which is the reassurance the shadow was built to be able to withhold. One step outside, at
+# a wall of thickness four, the enumeration returns `None` and the path oracle returns 4.
+# `CUT_SEARCH_MAX` is not a dormant limit; it is one ordinary wall away.
+#
+# EVERY ANSWER IS WITNESSED BY THE SUBJECT'S OWN PRIMITIVE. The path oracle does not merely report a
+# number: it returns the wall cells it would delete, and the law removes exactly that set and asks
+# `cohort.free_reaches` — the production flood fill — whether the wall opened, then removes one cell
+# fewer and requires that it did NOT. The oracle proposes and the SUBJECT adjudicates, so a defect in
+# the oracle's own bookkeeping cannot certify itself.
+#
+# DECLARED: the subject; the three oracles and which one SHIPS; the pinned cases and the extension,
+# chosen to straddle the horizon from both sides rather than to flatter it; the three verdicts, with
+# `undecided` kept distinct from both agreement and divergence because an enumeration declining to
+# answer is a third thing and collapsing it into either would be the inflation this rung exists to
+# avoid.
+#
+# DERIVED at claim time: every wall; the subject's own bounded answer; the path oracle's answer and
+# its witness cells; the vertex-split max-flow; the cross-section; the verdict census.
+#
+# WHAT EACH GOLDEN COVERS
+#   * comparison — every case under every oracle with its cross-section, so no formulation can be
+#     re-specified without moving a digest.
+#   * witnesses — the exact cells each reported cut would delete, so an answer cannot drift from the
+#     evidence that justified it.
+#   * verdicts — the census, so `undecided` cannot quietly become `agree`.
+#   * record — the committed record verbatim.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING IS PROMOTED AND NO PRODUCTION LAW MOVES. `cohort` is untouched and its record still
+#     binds. Whether to replace the enumeration, keep it with a stated theorem, or keep it with a
+#     declared corpus bound is the ADJUDICATION rung's decision and not this one's.
+#   * THAT THE PATH ORACLE IS OPTIMAL BEYOND THE ENUMERATION'S REACH. Its upper bounds are witnessed
+#     cell-by-cell by the subject; its LOWER bounds are exhaustively confirmed only where the
+#     enumeration reaches, which is three. Past three, minimality rests on the 0-1 BFS reduction
+#     being correct — an argument stated here, not a measurement taken here.
+#   * THAT MAX-FLOW IS USELESS. It answers the tunnel-COUNT question exactly. That question is simply
+#     not the one `cohort` asks, and a formulation is not wrong for answering what it answers.
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NOTHING ABOUT NON-SPANNING WALLS beyond the one plant that fixes the sign, and nothing about
+#     walls that are not the declared spanning slab: a corpus of irregular geometries is a different
+#     rung.
+comparison 3ccad001aa9fdd31b711d094c12a848b507ee712eeb5ac9bce2d0fbf30fb08c2
+witnesses be94dc421dd746afce23ca572a44df123915f5b16413bdc5474de23db70022f6
+verdicts 923e898f02bd14a01df1d05c8913b29bb8ae8b04fd93d59cc73e01ef6d90c454
+record 81793f4ee7db61928fb9d6db7e42b2d20d0e9085b6712b71ef42c20f2e3373e2

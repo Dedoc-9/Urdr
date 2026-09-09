@@ -605,6 +605,15 @@ def ledger_absent_modules(root):
     is not this rung's business; what this rung refuses is that the SIZE of the debt drift silently.
     The names are reported so the debt is legible, and the count is gated so it cannot rot upward.
 
+    NAMED IS WEAKER THAN ENTERED, and saying otherwise would overstate what this measures. A module
+    counts as present the moment ANY sentence in either volume mentions it, which includes another
+    module's entry quoting it in passing. `shadowcut` demonstrated it on arrival: its own entry
+    quotes a sentence mentioning `auditgraph`, and the count fell from 21 to 20 although
+    `auditgraph` still has no entry of its own. This is therefore a FLOOR on the debt rather than
+    the debt. A stricter test would have to recognise an entry HEADER, and the volumes carry at
+    least two header shapes, so the strict form would trade a stable under-count for a brittle
+    over-count. The weak form is kept and the weakness is stated.
+
     MATCHED ON A WORD BOUNDARY AND NOT AS A SUBSTRING, because a bare substring test errs in the
     FLATTERING direction: a short module name occurring inside a longer word -- `sea` inside
     `sealframe` -- would report an absent module as PRESENT and quietly shrink the reported debt.

@@ -184,6 +184,7 @@ STAGE_ORDER = (
     "tilemin",
     "inputset",
     "cohort",
+    "shadowcut",
     "autoroute",
     "blindscreen",
     "anamorphosis",
@@ -4862,7 +4863,12 @@ class Gate:
                     "documentation debt and is not this row's business; what IS refused is that the "
                     "SIZE of the debt drift, which `doc-population` now guards, and that the debt "
                     "stay abstract, which this enumeration ends. A headline count of a backlog can "
-                    "be corrected without anyone learning which items are in it"
+                    "be corrected without anyone learning which items are in it. AND NAMED IS "
+                    "WEAKER THAN ENTERED: a module counts as present the moment ANY sentence "
+                    "mentions it, including another entry quoting it in passing, so this is a "
+                    "FLOOR on the debt rather than the debt — `shadowcut` demonstrated it on "
+                    "arrival, its own entry quoting a sentence that names `auditgraph` and "
+                    "dropping the count by one although `auditgraph` still has no entry of its own"
                     % (len(missing), ", ".join("`%s`" % m for m in missing)))
 
         # ---- brief-falsifiers: a brief that cannot be refuted is prose ----------------------
@@ -14321,6 +14327,124 @@ class Gate:
                     "undecided cut, charges nothing) and a thickness that does not fit its world "
                     "refuses rather than silently clipping"
                     if pol_ok else "a cohort policy declaration did not hold")
+
+    def shadowcut(self):
+        """THE PROPOSED REMEDY ANSWERS A DIFFERENT QUESTION (URDRSHC1). A SHADOW adjudicator for
+        `cohort`'s bounded min-cut: the subject is imported and unchanged, two independent
+        formulations run beside it, and every answer is witnessed by the subject's own primitive.
+        Rows: comparison (the three oracles, agreeing where the bound decides), horizon (the bound
+        is inactive on the pinned corpus and active one wall outside it), remedy (vertex-split
+        max-flow measures the cross-section and not the wall), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import shadowcut as SC
+        except Exception as exc:
+            for r in ("comparison", "horizon", "remedy", "selftest"):
+                self.record(f"shadowcut-{r}", False, f"import failed (shadowcut): {exc}")
+            return
+        c_ok, cs = True, {}
+        try:
+            cs = dict(SC.verdict_census())
+            c_ok = (SC.the_production_law_is_untouched()
+                    and SC.the_bounded_search_is_not_transcribed_here()
+                    and SC.nothing_is_promoted()
+                    and SC.no_wall_clock_enters_this_rung()
+                    and SC.the_witness_is_adjudicated_by_the_subject()
+                    and SC.the_two_oracles_agree_wherever_the_bound_decides()
+                    and SC.a_breached_wall_is_zero_under_both()
+                    and SC.the_oracles_track_geometry_and_not_the_thickness_parameter()
+                    and SC.scene_result("comparison") == SC.golden("comparison")
+                    and SC.scene_result("witnesses") == SC.golden("witnesses"))
+        except Exception:
+            c_ok = False
+        self.record("shadowcut-comparison", c_ok,
+                    "TWO INDEPENDENT FORMULATIONS RUN BESIDE THE SHIPPED ONE AND THE SUBJECT IS "
+                    "UNCHANGED: %d cases AGREE, %d UNDECIDED, %d DIVERGE. `CUT_SEARCH_MAX` is still "
+                    "3, `min_cut` is still the enumeration, and this module IMPORTS both rather than "
+                    "transcribing either — a shadow that edits its subject is not a shadow, and one "
+                    "that reimplements the law it checks is grading its own copy. EVERY ANSWER IS "
+                    "WITNESSED BY THE SUBJECT'S OWN PRIMITIVE: the path oracle returns the wall "
+                    "cells it would delete, and the law removes exactly that set and asks "
+                    "`cohort.free_reaches` whether the wall opened, then removes ONE CELL FEWER and "
+                    "requires that it did NOT — so both the sufficiency and the minimality of every "
+                    "witness are adjudicated by the production flood fill, and a defect in the "
+                    "oracle's own bookkeeping cannot certify itself. AND `undecided` IS KEPT "
+                    "DISTINCT FROM BOTH: an enumeration declining to answer is a third thing, and "
+                    "collapsing it into agreement is exactly the inflation a shadow exists to avoid"
+                    % (cs.get("agree", -1), cs.get("undecided", -1), cs.get("diverge", -1))
+                    if c_ok else "the shadow comparison did not hold")
+        h_ok = True
+        try:
+            h_ok = (SC.the_bound_is_inactive_on_the_pinned_corpus()
+                    and SC.the_bound_is_active_immediately_outside_it()
+                    and SC.scene_result("verdicts") == SC.golden("verdicts"))
+        except Exception:
+            h_ok = False
+        self.record("shadowcut-horizon", h_ok,
+                    "THE BOUND IS INACTIVE ON THE PINNED CORPUS AND ACTIVE IMMEDIATELY OUTSIDE IT. "
+                    "Across every case `cohort.gap_table` actually pins, the enumeration decides and "
+                    "the independent path oracle agrees — so the `None` branch is unreachable there "
+                    "and THE PINNED GAP FIGURES WERE NEVER ARTEFACTS OF THE SEARCH HORIZON, which is "
+                    "the reassurance this shadow was built to be able to WITHHOLD. One step outside, "
+                    "at a wall of thickness four, the enumeration returns `None` while the path "
+                    "oracle answers 4. `CUT_SEARCH_MAX` is therefore not a dormant limit: it is one "
+                    "ordinary wall away, and the extension cases were chosen to straddle it from "
+                    "BOTH sides — two sitting exactly AT the cap and one past it — rather than to "
+                    "flatter either verdict"
+                    if h_ok else "the horizon measurement did not hold")
+        r_ok, told = True, "?"
+        try:
+            told = SC.told()
+            r_ok = (SC.the_max_flow_formulation_answers_a_different_question()
+                    and SC.the_duality_it_needed_was_already_refuted()
+                    and SC.the_record_names_this_world()
+                    and SC.the_record_is_bound_to_the_live_code()
+                    and SC.scene_result("record") == SC.golden("record"))
+        except Exception:
+            r_ok = False
+        self.record("shadowcut-remedy", r_ok, told if r_ok else "the remedy measurement did not hold")
+        s_ok = True
+        try:
+            s_ok = SC.a_tampered_row_refuses()
+            for bad in ("case 99 1 1 1 9 9 pinned", "case 3 1 1 1 9 9 wishful",
+                        "verdict thrived 1", "rumour 1"):
+                try:
+                    SC.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except SC.ShadowcutError:
+                    pass
+            for text in ("verdict agree 8\n", "# world x\n"):
+                try:
+                    SC.parse(text)
+                    s_ok = False
+                except SC.ShadowcutError:
+                    pass
+            for call, arg in ((SC.witness, (99, 1)), (SC.cross_section, (99, 1)),
+                              (SC.scene_case, "wishful"), (SC.golden, "wishful")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except SC.ShadowcutError:
+                    pass
+            for args in ((SC.CASES[0], "wishful"), ((99, 1), "shortest")):
+                try:
+                    SC.answer(*args)
+                    s_ok = False
+                except SC.ShadowcutError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("shadowcut-selftest", s_ok,
+                    "thirteen plants bite: a case row naming no declared case refuses AND one naming "
+                    "no declared SCOPE refuses — the second is what would let an extension case be "
+                    "recorded as pinned and turn a statement about the world into one about the "
+                    "shipped corpus — a verdict row naming no declared verdict refuses, a row of "
+                    "unknown kind refuses rather than being skipped as a comment, a record naming no "
+                    "world and one with no rows both refuse, and an undeclared case, oracle, scene "
+                    "and golden all refuse rather than returning a default (gate can redden)"
+                    if s_ok else "a plant failed to bite")
 
     def autoroute(self):
         """Decide at the cheapest level that can decide (URDRAUT1) — inputset's taxonomy and cohort's
@@ -27085,7 +27209,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
