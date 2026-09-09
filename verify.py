@@ -4744,7 +4744,7 @@ class Gate:
             self.record("doc-currency", False, f"import failed: {exc}")
             self.record("doc-currency-selftest", False, "checker did not load")
             return
-        N_OWN = 9  # rows THIS method records below — keep == the record() count
+        N_OWN = 12  # rows THIS method records below — keep == the record() count
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
                               len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
@@ -4806,6 +4806,64 @@ class Gate:
                     "is one this repo actually carried, so the checker is a live falsifier rather "
                     "than decoration"
                     if red_x else "the staleness extension failed to catch a planted stale shape")
+
+        # ---- the POPULATION class: the count a claim is taken OVER, which nobody was reading ----
+        try:
+            pop = DC.population(ROOT)
+            pop_probs = DC.population_problems(ROOT, pop)
+            exempt_ok = DC.exemption_is_derived(ROOT)
+            pop_ok = (not pop_probs) and exempt_ok
+        except Exception as exc:
+            pop, pop_probs, exempt_ok, pop_ok = {}, [("population", "error", str(exc), "")], False, False
+        self.record("doc-population", pop_ok,
+                    "EVERY POPULATION A COUNT IS TAKEN OVER IS NOW WATCHED, and this class was "
+                    "invisible INSIDE a sentence this file already checked. `_ABSENCE` matches `1 of "
+                    "103 modules have no design brief` and compares the ONE to the live complement; "
+                    "the 103 sits in a NON-CAPTURING group and was compared to nothing. The "
+                    "numerator was guarded and the denominator was not, in the same regex, so the "
+                    "population drifted from 103 to %d while the class that reads that exact "
+                    "sentence stayed green the whole time. Every other class watches a count of "
+                    "things that EXIST or a count of things that are ABSENT; this one watches the "
+                    "THIRD quantity in the sentence, and each half of each idiom is captured "
+                    "SEPARATELY so neither can ride along unread inside the other's validation. "
+                    "Live: %d terrain modules, %d briefed, %d pinned conformance corpora, %d "
+                    "modules named in neither ledger volume. AND THE EXEMPTION IS THE ACCESSOR'S "
+                    "RATHER THAN THE PROSE'S: `%d of %d` is DERIVED as the module count minus the "
+                    "declared `BRIEF_EXEMPT` set, which must EQUAL the measured absence — so no "
+                    "sentence carries a magic number, a module that quietly loses its brief appears "
+                    "as an absence nobody declared, and a name left in the exemption after its brief "
+                    "is written appears as an exemption nothing supports"
+                    % (pop.get("modules", -1), pop.get("modules", -1), pop.get("briefed", -1),
+                       pop.get("corpora", -1), pop.get("ledger_absent", -1),
+                       pop.get("briefed", -1), pop.get("modules", -1))
+                    if pop_ok else "stale population: " + "; ".join(
+                        "%s says %s=%d (live %d)" % (d, k, g, e) for d, k, g, e in pop_probs[:5])
+                    + ("" if exempt_ok else "; the declared brief exemption is not the measured absence"))
+        try:
+            pop_red = DC.population_defect_is_caught(ROOT) \
+                and DC.the_old_class_could_not_have_caught_it(ROOT)
+        except Exception:
+            pop_red = False
+        self.record("doc-population-selftest", pop_red,
+                    "five planted population shapes are caught — one per watched key — AND the "
+                    "non-vacuity that actually matters: the SAME planted sentence PASSES the older "
+                    "`_ABSENCE` class and FAILS this one, which is the proof that the new class is "
+                    "not a second reading of a quantity already guarded. If that ever stops holding, "
+                    "the two classes have converged and one is redundant, which would itself be "
+                    "worth knowing (gate can redden)"
+                    if pop_red else "a planted population shape was not caught")
+        try:
+            missing = DC.ledger_absent_modules(ROOT)
+        except Exception:
+            missing = ()
+        self.record("doc-ledger-absence", True,
+                    "SURFACED RATHER THAN FORCED, AND NAMED RATHER THAN COUNTED: %d terrain modules "
+                    "are named in NEITHER D5 ledger volume — %s. Writing those entries is "
+                    "documentation debt and is not this row's business; what IS refused is that the "
+                    "SIZE of the debt drift, which `doc-population` now guards, and that the debt "
+                    "stay abstract, which this enumeration ends. A headline count of a backlog can "
+                    "be corrected without anyone learning which items are in it"
+                    % (len(missing), ", ".join("`%s`" % m for m in missing)))
 
         # ---- brief-falsifiers: a brief that cannot be refuted is prose ----------------------
         live_rows = frozenset(n for n, _ok, _d in self.rows) | {

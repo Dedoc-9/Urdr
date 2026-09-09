@@ -518,3 +518,190 @@ def extension_defect_is_caught(root, live, suites, gate_rows=None):
     ab = _ABSENCE.search(absence_defect_text())
     absence_ok = bool(ab) and int(ab.group(1)) != absence_count(root)
     return word_ok and suite_ok and status_ok and succ_ok and remains_ok and absence_ok
+
+
+# =====================================================================================================
+# THE POPULATION CLASS — the seventh, and it was invisible INSIDE a sentence this file already checked
+# =====================================================================================================
+#
+# `_ABSENCE` matches `1 of 103 modules have no design brief` and compares group(1) — the ONE — to the
+# live complement. The `103` sits in a NON-CAPTURING group and is compared to nothing. So the
+# numerator was guarded, the denominator was not, in the same regex, and the population figure drifted
+# from 103 to 173 while the class that reads that exact sentence stayed green the whole time.
+#
+# Every class above watches a count of things that EXIST or a count of things that are ABSENT. This
+# one watches the POPULATION such a count is taken over, which is the third quantity in the sentence
+# and the only one nobody was reading.
+
+#: DECLARED — modules exempt from the brief obligation, each with the reason it is exempt.
+#: THE EXEMPTION IS THE ACCESSOR'S AND NOT THE PROSE'S. `172 of 173` is DERIVED as
+#: `len(module_names) - len(BRIEF_EXEMPT)` over `len(module_names)`, so no sentence carries a magic
+#: number, and a module entering or leaving the exemption moves both halves of every claim at once.
+BRIEF_EXEMPT = {
+    "bench": "a measurement harness and not a law. It measures wall-clock, which may never enter a "
+             "byte-identical gate, so no gate stage imports it, it records no rows, and there is "
+             "nothing for a brief's falsifier to name. Unbriefed BY RULE rather than by omission.",
+}
+
+
+def module_names(root):
+    """Every terrain module, from the filesystem."""
+    try:
+        return tuple(sorted(f[:-3] for f in os.listdir(os.path.join(root, "tools", "terrain"))
+                            if f.endswith(".py")))
+    except OSError:
+        return ()
+
+
+def brief_names(root):
+    """Every module carrying a `docs/<name>_brief.md`."""
+    try:
+        return frozenset(f[:-len("_brief.md")] for f in os.listdir(os.path.join(root, "docs"))
+                         if f.endswith("_brief.md"))
+    except OSError:
+        return frozenset()
+
+
+def corpus_names(root):
+    """Every pinned conformance corpus under `tools/terrain/`."""
+    try:
+        return tuple(sorted(f for f in os.listdir(os.path.join(root, "tools", "terrain"))
+                            if f.startswith("conformance_") and f.endswith(".txt")))
+    except OSError:
+        return ()
+
+
+def unbriefed_modules(root):
+    """Modules with no brief — the set `BRIEF_EXEMPT` must equal, or one of them is an omission."""
+    briefs = brief_names(root)
+    return tuple(m for m in module_names(root) if m not in briefs)
+
+
+def _named_in(text, name):
+    """Is `name` present in `text` as a WHOLE WORD? Scanned without a regex, on purpose.
+
+    A `re.*` call inside a function body whose pattern is not a bound NAME creates an object per
+    call and binds it nowhere, so `reflow`'s namespace walk cannot reach it -- and `reflow` reddened
+    on exactly that when this was first written with `re.search`. The rule is right: an unreachable
+    matcher is one the inter-word-space law can never check. This scan has the same semantics and
+    nothing to discover.
+    """
+    def part(ch):
+        return ch.isalnum() or ch == "_"
+    i = text.find(name)
+    while i != -1:
+        before = text[i - 1] if i else ""
+        after = text[i + len(name)] if i + len(name) < len(text) else ""
+        if not (before and part(before)) and not (after and part(after)):
+            return True
+        i = text.find(name, i + 1)
+    return False
+
+
+def ledger_absent_modules(root):
+    """Terrain modules named in NEITHER D5 ledger volume.
+
+    SURFACED RATHER THAN FORCED. A missing ledger entry is documentation debt and writing 21 of them
+    is not this rung's business; what this rung refuses is that the SIZE of the debt drift silently.
+    The names are reported so the debt is legible, and the count is gated so it cannot rot upward.
+
+    MATCHED ON A WORD BOUNDARY AND NOT AS A SUBSTRING, because a bare substring test errs in the
+    FLATTERING direction: a short module name occurring inside a longer word -- `sea` inside
+    `sealframe` -- would report an absent module as PRESENT and quietly shrink the reported debt.
+    The two forms were compared at the moment this was tightened and agreed exactly, both giving 21,
+    so the change repairs a mechanism rather than silently re-baselining a number.
+    """
+    text = ""
+    for rel in ("spec/D5-ledger.md", "spec/D5-ledger-2.md"):
+        try:
+            with open(os.path.join(root, rel), encoding="utf-8") as fh:
+                text += fh.read()
+        except OSError:
+            return ()
+    return tuple(m for m in module_names(root) if not _named_in(text, m))
+
+
+def population(root):
+    """The live populations every count in the prose is taken OVER."""
+    mods = module_names(root)
+    return {"modules": len(mods),
+            "briefed": len(mods) - len(unbriefed_modules(root)),
+            "corpora": len(corpus_names(root)),
+            "ledger_absent": len(ledger_absent_modules(root))}
+
+
+def exemption_is_derived(root):
+    """The declared exemption must EQUAL the derived absence, or `172 of 173` is a magic number.
+
+    This is what keeps the exception honest in both directions: a module that quietly loses its brief
+    shows up as an absence nobody declared, and a name left in `BRIEF_EXEMPT` after its brief is
+    written shows up as an exemption nothing supports.
+    """
+    return frozenset(unbriefed_modules(root)) == frozenset(BRIEF_EXEMPT)
+
+
+# Each entry captures ONE half of one idiom, so the halves are watched separately and neither can
+# ride along unread inside a sentence the other half validates.
+_POPULATION_PATTERNS = [
+    (re.compile(r"(\d+)\s+modules\s+under\s+`?tools/terrain"), "modules"),
+    (re.compile(r"\d+\s+of\s+(\d+)\s+modules\s+have\s+no\s+(?:design\s+)?brief", re.I), "modules"),
+    (re.compile(r"(\d+)\s+of\s+\d+\s+modules\s+briefed", re.I), "briefed"),
+    (re.compile(r"\d+\s+of\s+(\d+)\s+modules\s+briefed", re.I), "modules"),
+    (re.compile(r"all\s+(\d+)\s+pinned\s+conformance\s+corpora", re.I), "corpora"),
+    (re.compile(r"(\d+)\s+modules\s+are\s+named\s+in\s+neither\s+ledger", re.I), "ledger_absent"),
+]
+
+
+def scan_population(text):
+    for pat, key in _POPULATION_PATTERNS:
+        for m in pat.finditer(text):
+            yield key, int(m.group(1))
+
+
+def population_problems(root, pop=None):
+    """Every population figure in the tracked docs, checked against the live tree."""
+    pop = population(root) if pop is None else pop
+    out = []
+    for rel in _md_files(root):
+        try:
+            with open(os.path.join(root, rel), encoding="utf-8") as fh:
+                flat = _prose(fh.read())
+        except OSError:
+            continue
+        for key, got in scan_population(flat):
+            if got != pop[key]:
+                out.append((rel, key, got, pop[key]))
+    return out
+
+
+def population_defect_text(pop):
+    """THE PLANT, AND IT IS THE DEFECT THIS FILE SHIPPED. A denominator off by one inside the very
+    idiom `_ABSENCE` already reads — the numerator correct, the population wrong."""
+    return "Right now %d of %d modules have no design brief." % (
+        len(BRIEF_EXEMPT), pop["modules"] + 1)
+
+
+def the_old_class_could_not_have_caught_it(root):
+    """The non-vacuity that matters: the SAME sentence passes `_ABSENCE` and fails the new class.
+
+    `_ABSENCE` compares only the numerator, so a wrong population is invisible to it. If this ever
+    returns False the two classes have converged and one of them is redundant — which would itself
+    be worth knowing.
+    """
+    pop = population(root)
+    text = population_defect_text(pop)
+    old = _ABSENCE.search(text)
+    old_passes = bool(old) and int(old.group(1)) == absence_count(root)
+    new_catches = any(got != pop[k] for k, got in scan_population(text))
+    return old_passes and new_catches
+
+
+def population_defect_is_caught(root):
+    """True iff every planted population shape is flagged — one per watched key."""
+    pop = population(root)
+    plants = ["%d modules under `tools/terrain/`" % (pop["modules"] + 1),
+              "%d of %d modules briefed" % (pop["briefed"] + 1, pop["modules"]),
+              "all %d pinned conformance corpora" % (pop["corpora"] + 1),
+              "%d modules are named in neither ledger volume" % (pop["ledger_absent"] + 1),
+              population_defect_text(pop)]
+    return all(any(got != pop[k] for k, got in scan_population(t)) for t in plants)

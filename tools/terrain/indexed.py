@@ -94,7 +94,7 @@ OUTCOMES = (COVERED, UNINDEXED)
 #: cleaner file hide under slack in the other.
 INDEXES = (
     ("tools/terrain/README.md", 13),
-    ("hainuwele/README.md", 2),
+    ("hainuwele/README.md", 0),
 )
 
 #: RETAINED so a caller naming one index still means the ladder. The laws below take a path.
@@ -106,8 +106,12 @@ STAGES_FROM = "verify.py"
 
 #: THE PIN for the ladder, retained by name. A RATCHET: it may FALL and never RISE. These thirteen
 #: predate this arc; writing entries for findings one would be paraphrasing rather than reporting is
-#: how an index fills with filler, so the debt is NAMED. `hainuwele/README.md` carries its own pin
-#: of 2 (`caustic`, `voxin`) for the same reason and by the same rule.
+#: how an index fills with filler, so the debt is NAMED. `hainuwele/README.md` carried its own pin
+#: of 2 (`caustic`, `voxin`) and THE DOC PASS PAID IT — both are now indexed, so the ratchet fell to
+#: ZERO, which is what a ratchet is for. Their rows say `no pinned corpus` rather than linking one,
+#: because neither module has a corpus and a link to a file that does not exist is a claim that
+#: it does; both were added to the conformance-gaps list in the same pass, which nothing had
+#: asked of them before because an unindexed module is not audited by the index's own bullets.
 DEBT_CEILING = 13
 
 #: The total across every index — the number the gate reports, kept derived rather than typed.
