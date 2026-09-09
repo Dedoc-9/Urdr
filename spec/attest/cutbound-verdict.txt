@@ -1,0 +1,12 @@
+# URDRCBD1 the cohort adjudication — emitted by cutbound.py. THE VERDICT IS RETAIN.
+# world de84b7ca1753a8b6e27b6e9953f2bf922a051836e3acf6de437555ec64b99e0a
+
+verdict retain the enumeration; its refusal is a proof and the path oracle is a witness source, not a decision procedure
+bracket 5 2 2 2 exhaustion
+bracket 6 3 3 3 exhaustion
+bracket 6 4 4 4 meeting
+bracket 6 5 4 5 bracketed
+corrected certifiable
+corrected charge_for_gap
+charge 3 3
+digest 32c247c1eaac2b0117457691187ca26a38a7eae39b77eed16c1db6989608c8f4

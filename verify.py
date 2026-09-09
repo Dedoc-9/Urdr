@@ -185,6 +185,7 @@ STAGE_ORDER = (
     "inputset",
     "cohort",
     "shadowcut",
+    "cutbound",
     "autoroute",
     "blindscreen",
     "anamorphosis",
@@ -14284,7 +14285,8 @@ class Gate:
             pol_ok = pol_ok and CO.charge_is_monotone_non_increasing()
             pol_ok = pol_ok and CO.the_peak_is_not_adopted() == (12, 12, False)
             pol_ok = pol_ok and (CO.WALL_MIN_K, CO.BASE_CHARGE) == (2, 12)
-            pol_ok = pol_ok and CO.charge_for_gap(None) == 0
+            pol_ok = pol_ok and CO.charge_for_gap(None) == \
+                CO.BASE_CHARGE // (CO.CUT_SEARCH_MAX + 1) > 0
             pol_ok = pol_ok and CO.TooThin("x").code != CO.CohortError("x").code
             pol_ok = pol_ok and not issubclass(CO.TooThin, CO.CohortError)
             try:
@@ -14324,7 +14326,8 @@ class Gate:
                     "against k on a real corpus, and if cost is maximal at k=1 rather than k=0 the "
                     "peaked schedule is correct and this constant is wrong. The charge admits only "
                     "non-negative ints (a float, a str, a bool and a negative all refuse; None, an "
-                    "undecided cut, charges nothing) and a thickness that does not fit its world "
+                    "undecided cut, charges its PROVEN LOWER BOUND rather than nothing, which is "
+                    "`cutbound`'s correction) and a thickness that does not fit its world "
                     "refuses rather than silently clipping"
                     if pol_ok else "a cohort policy declaration did not hold")
 
@@ -14444,6 +14447,120 @@ class Gate:
                     "unknown kind refuses rather than being skipped as a comment, a record naming no "
                     "world and one with no rows both refuse, and an undeclared case, oracle, scene "
                     "and golden all refuse rather than returning a default (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
+    def cutbound(self):
+        """A REFUSAL IS A PROOF, AND THE PRODUCTION LAW WAS THROWING IT AWAY (URDRCBD1). The cohort
+        adjudication. Rows: bracket (what the cap actually costs — nothing up to CUT_SEARCH_MAX + 1,
+        where exhaustion and witness MEET), correction (the two consumers that read a refusal as an
+        absence, both flattering), verdict (RETAIN: replacing would have weakened the provenance),
+        selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import cutbound as CB
+        except Exception as exc:
+            for r in ("bracket", "correction", "verdict", "selftest"):
+                self.record(f"cutbound-{r}", False, f"import failed (cutbound): {exc}")
+            return
+        b_ok, cen = True, ()
+        try:
+            cen = CB.census()
+            b_ok = (CB.the_refusal_is_a_proven_lower_bound()
+                    and CB.the_exhaustion_and_the_witness_meet_one_wall_past_the_cap()
+                    and CB.the_theorem_is_only_needed_past_the_meeting_point()
+                    and CB.every_provenance_class_is_populated()
+                    and CB.no_wall_clock_enters_this_rung()
+                    and CB.scene_result("brackets") == CB.golden("brackets"))
+        except Exception:
+            b_ok = False
+        self.record("cutbound-bracket", b_ok,
+                    "A REFUSAL IS AN EXHAUSTIVE PROOF AND NOT AN ABSENCE: `min_cut` returning None "
+                    "means every subset up to the cap was tried and none opened the wall, so k is at "
+                    "LEAST the cap plus one. Paired with a witness the cap costs NOTHING up to that "
+                    "value — %s — because at the thickness-four wall the exhaustion proves the floor, "
+                    "the witness proves the ceiling, and THEY LAND ON THE SAME INTEGER, so the answer "
+                    "is decided with no appeal to the reduction at all. Only one wall further does a "
+                    "real interval open, and even then it is a BRACKET rather than a blank. Every "
+                    "provenance class is populated, because a classification with an empty class is a "
+                    "distinction nobody has met, and the boundary between what the theorem must reach "
+                    "and what it need not is ENFORCED by a law rather than described in a sentence"
+                    % ", ".join("%s %s %s" % (c, iv, p) for c, iv, p in cen)
+                    if b_ok else "the bracket did not hold")
+        c_ok, ch = True, -1
+        try:
+            ch = CB.CO.charge_for_gap(None)
+            c_ok = (CB.the_charge_no_longer_reads_a_refusal_as_free()
+                    and CB.the_undercharge_had_a_range_and_it_was_flattering()
+                    and CB.the_old_branch_certified_a_wall_the_floor_refuses()
+                    and CB.the_floor_is_applied_to_the_bound_and_not_skipped()
+                    and CB.the_correction_changes_no_pinned_figure()
+                    and CB.scene_result("corrections") == CB.golden("corrections"))
+        except Exception:
+            c_ok = False
+        self.record("cutbound-correction", c_ok,
+                    "READING THE REFUSAL AS AN ABSENCE COST TWO DEFECTS IN THE SHIPPED LAW AND BOTH "
+                    "WERE FLATTERING. THE CHARGE UNDERCHARGED: `charge_for_gap(None)` returned 0, so "
+                    "a wall the search could not decide cost NOTHING, where the proven bound bills "
+                    "%d — at the shipped constants every gap from 4 to 12 was billed zero against an "
+                    "honest 1 to 3. The charge is monotone NON-INCREASING, so the largest value the "
+                    "proof permits sits at the bound itself and taking it can only OVERSTATE what an "
+                    "unknown-but-large gap costs, which is the conservative direction. AND THE FLOOR "
+                    "WAS CLEARED BY ACCIDENT: `certifiable` returned True on None without consulting "
+                    "`WALL_MIN_K` at all, right at the shipped constants only because two of them "
+                    "happen to be ordered that way — lower the cap to zero and None means merely k >= "
+                    "1, and the old branch certifies a ONE-THICK WALL the floor exists to refuse, a "
+                    "case REPRODUCED here rather than imagined. NOT ONE PINNED FIGURE MOVES: the "
+                    "bound is inactive across everything `cohort.gap_table` pins, so both defects "
+                    "lived on a path the shipped corpus never walks and both would have bitten on the "
+                    "first wall past it — which is what makes this a repair and not a re-baselining"
+                    % ch if c_ok else "the correction did not hold")
+        v_ok, told = True, "?"
+        try:
+            told = CB.told()
+            v_ok = (CB.no_new_algorithm_enters_the_production_path()
+                    and CB.the_subject_still_enumerates()
+                    and CB.the_record_names_this_world()
+                    and CB.the_record_is_bound_to_the_live_code()
+                    and CB.scene_result("record") == CB.golden("record"))
+        except Exception:
+            v_ok = False
+        self.record("cutbound-verdict", v_ok, told if v_ok else "the verdict did not hold")
+        s_ok = True
+        try:
+            s_ok = CB.a_tampered_row_refuses()
+            for bad in ("bracket 9 9 1 1 exhaustion", "bracket 5 2 2 2 wishful",
+                        "corrected wishful", "rumour 1"):
+                try:
+                    CB.parse("# world x\n%s\n" % bad)
+                    s_ok = False
+                except CB.CutboundError:
+                    pass
+            for text in ("corrected certifiable\n", "# world x\n"):
+                try:
+                    CB.parse(text)
+                    s_ok = False
+                except CB.CutboundError:
+                    pass
+            for call, arg in ((CB.bracket, (9, 9)), (CB.interval, (9, 9)),
+                              (CB.provenance, (9, 9)), (CB.scene_case, "wishful"),
+                              (CB.golden, "wishful")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except CB.CutboundError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("cutbound-selftest", s_ok,
+                    "twelve plants bite: a bracket row naming no declared case refuses AND one "
+                    "naming no declared PROVENANCE refuses — the second is what would let a "
+                    "`bracketed` interval be recorded as `meeting` and turn an argument into a proof "
+                    "— a corrected row naming no corrected consumer refuses, a row of unknown kind "
+                    "refuses rather than being skipped as a comment, a record naming no world and "
+                    "one with no rows both refuse, and an undeclared case, scene and golden all "
+                    "refuse rather than returning a default (gate can redden)"
                     if s_ok else "a plant failed to bite")
 
     def autoroute(self):
@@ -27209,7 +27326,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

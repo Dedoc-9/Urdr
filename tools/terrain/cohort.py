@@ -268,10 +268,19 @@ def at_or_above_the_gap_disagreement_becomes_possible(n=4, thick=2):
 
 def certifiable(wall, n):
     """POLICY: a wall whose own min-cut is below the floor is refused. TooThin is not an integrity
-    fault — the report is honest and the wall is fragile."""
+    fault — the report is honest and the wall is fragile.
+
+    A REFUSAL FROM THE SEARCH IS A PROVEN LOWER BOUND, NOT AN ABSENCE. `min_cut` returning None
+    means every subset up to `CUT_SEARCH_MAX` was tried and none opened the wall, so k is at LEAST
+    `CUT_SEARCH_MAX + 1`. The floor is applied to that bound rather than skipped. Same verdict at
+    the shipped constants — 4 clears a floor of 2 — but for a SOUND reason instead of an accidental
+    one: the previous branch certified because nothing was known, and it would have certified a
+    one-thick wall outright had the cap ever been lowered to zero, since `None` would then mean only
+    "k >= 1" while the floor demands 2. `cutbound` measures that latent case.
+    """
     k = min_cut(wall, n)
     if k is None:
-        return True
+        k = CUT_SEARCH_MAX + 1          # PROVEN lower bound, from the exhaustion above it
     if k < WALL_MIN_K:
         raise TooThin(f"min-cut {k} below the certifiable floor {WALL_MIN_K}")
     return True
@@ -295,7 +304,14 @@ def charge_for_gap(k, base=BASE_CHARGE):
     perturbations are screened. The criticality peak is NOT adopted and NOT refuted; it was never
     measured here, and monotone is the conservative default in the absence of that measurement."""
     if k is None:
-        return 0
+        # A REFUSAL IS A PROVEN LOWER BOUND, AND THE CHARGE MUST READ IT AS ONE. `None` means the
+        # exhaustion found no cut at or below `CUT_SEARCH_MAX`, so k >= CUT_SEARCH_MAX + 1. Charging
+        # ZERO read it as "nothing is known" and UNDERCHARGED every wall whose true gap lies between
+        # CUT_SEARCH_MAX + 1 and BASE_CHARGE — at the shipped constants, a wall with k of 4 to 12 was
+        # billed 0 where the honest range is 1 to 3. The charge is monotone NON-INCREASING in k, so
+        # the largest value consistent with the proof sits at the bound itself, and that is the
+        # conservative choice: it can only ever OVERSTATE what an unknown-but-large gap costs.
+        return base // (CUT_SEARCH_MAX + 1)
     if type(k) is not int or k < 0:
         raise CohortError(f"gap must be a non-negative int or None, got {k!r}")
     return base // max(k, 1)

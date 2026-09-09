@@ -176,7 +176,14 @@ class PolicyIsDeclaredNotDerived(unittest.TestCase):
         for bad in (-1, "2", 2.0, True):
             with self.assertRaises(CO.CohortError):
                 CO.charge_for_gap(bad)
-        self.assertEqual(CO.charge_for_gap(None), 0, "an undecided cut charges nothing")
+        # CORRECTED by `cutbound`: a refusal is a PROVEN lower bound, not an absence. An
+        # undecided wall has k >= CUT_SEARCH_MAX + 1, and the monotone charge bills the
+        # largest value that bound permits rather than zero. Billing nothing undercharged
+        # every gap from the bound up to BASE_CHARGE, which is the flattering direction.
+        self.assertEqual(CO.charge_for_gap(None),
+                         CO.BASE_CHARGE // (CO.CUT_SEARCH_MAX + 1),
+                         "an undecided cut bills its proven lower bound")
+        self.assertGreater(CO.charge_for_gap(None), 0)
 
     def test_the_floor_is_stated_as_policy(self):
         self.assertEqual(CO.WALL_MIN_K, 2)

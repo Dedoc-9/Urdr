@@ -1,0 +1,88 @@
+# URDRCBD1 the cohort adjudication — emitted by cutbound.py, pinned by hand, compared by the gate.
+#
+# A REFUSAL IS A PROOF, AND THE PRODUCTION LAW WAS THROWING IT AWAY.
+#
+# `shadowcut` settled which algorithm computes the right quantity. THE ADJUDICATION IS THEREFORE NOT
+# "WHICH ALGORITHM WINS" but what `CUT_SEARCH_MAX = 3` actually COSTS — and it costs far less than it
+# looked, while reading it as a limit rather than as EVIDENCE cost two live defects instead.
+#
+# THE VERDICT: RETAIN THE ENUMERATION. Replacing it with the path oracle would have produced the SAME
+# NUMBERS WITH STRICTLY WEAKER PROVENANCE: a refusal is a theorem about the wall, a witness is a
+# witness. The stronger-looking formulation would have destroyed the better evidence, which is the
+# opposite of what "the honest fix" sounded like two rungs ago.
+#
+# WHAT `None` MEANS. `min_cut` tries every subset of the wall from size 1 to `CUT_SEARCH_MAX` and
+# returns `None` when none opens it. That is not an absence of information: IT IS AN EXHAUSTIVE PROOF
+# THAT k >= CUT_SEARCH_MAX + 1. Paired with a witness, three provenance classes fall out:
+#
+#   wall         bounded  witness   proven interval   provenance
+#   (n=5, t=2)         2        2            [2, 2]   exhaustion
+#   (n=6, t=3)         3        3            [3, 3]   exhaustion
+#   (n=6, t=4)      None        4            [4, 4]   MEETING — the two proofs coincide
+#   (n=6, t=5)      None        5            [4, 5]   bracketed — only the theorem closes it
+#
+# SO THE CAP COSTS NOTHING UP TO `CUT_SEARCH_MAX + 1`. At the thickness-four wall the exhaustion
+# proves the lower bound, the witness proves the upper bound, and they land on the same integer — the
+# answer is DECIDED with no appeal to the reduction at all. Only from k >= CUT_SEARCH_MAX + 2 does a
+# real interval open, and even then it is a BRACKET rather than a blank. Every provenance class is
+# populated, because a classification with an empty class is a distinction nobody has met.
+#
+# THE THEOREM IS STATED BECAUSE IT IS AN ARGUMENT AND NOT A MEASUREMENT. A set S of wall cells opens
+# the wall exactly when some face-to-face route has all of its wall cells inside S: deleting the wall
+# cells ON a route opens that route, and any deletion that opens the wall leaves SOME route free,
+# whose wall cells it must therefore contain. Hence min |S| equals the minimum over routes of the wall
+# cells on the route — what a 0-1 BFS computes. THIS ARGUMENT IS WHAT CLOSES A BRACKET AND NOTHING
+# ELSE DOES, and the boundary is ENFORCED by a law rather than described in a sentence.
+#
+# AND READING THE REFUSAL AS AN ABSENCE COST TWO DEFECTS IN THE SHIPPED LAW, BOTH FLATTERING:
+#
+#   * THE CHARGE UNDERCHARGED. `charge_for_gap(None)` returned 0, so a wall the search could not
+#     decide cost NOTHING, while the proven bound bills `BASE_CHARGE // (CUT_SEARCH_MAX + 1)` = 3. At
+#     the shipped constants every gap from 4 to 12 was billed 0 against an honest 1 to 3. The charge
+#     is monotone NON-INCREASING, so the largest value consistent with the proof sits at the bound
+#     itself; taking it can only ever OVERSTATE what an unknown-but-large gap costs, which is the
+#     conservative direction.
+#   * THE FLOOR WAS CLEARED BY ACCIDENT. `certifiable` returned True on `None` without consulting
+#     `WALL_MIN_K` at all. At the shipped constants the verdict is right — 4 clears a floor of 2 —
+#     but only because two constants happen to be ordered that way. Lower the cap to zero and `None`
+#     means merely k >= 1, and the old branch certifies a ONE-THICK WALL the floor exists to refuse.
+#     That case is REPRODUCED here rather than imagined.
+#
+# NOT ONE PINNED FIGURE MOVES. `shadowcut` established that the bound is inactive across everything
+# `cohort.gap_table` pins, so both corrected branches are unreachable on the shipped corpus: the
+# defects lived on a path the corpus never walks and both would have bitten on the first wall past
+# it. A correction that changes no observable and repairs a live defect is the shape this arc looks
+# for, and it is the reason this is a repair rather than a re-baselining.
+#
+# THE SUBJECT IS ASKED ONCE. Three of these walls are already in `shadowcut`'s swept corpus and its
+# answers come from the SAME `cohort.min_cut` call, so re-running the enumeration here would spend a
+# minute of gate time to obtain a number the tree already holds — and would create a second path to
+# the same fact for a later rung to find disagreeing.
+#
+# DECLARED: the four walls, chosen so every provenance class is non-empty rather than to make the cap
+# look harmless; the three provenance classes; the THEOREM, quoted so a later rung can disagree with a
+# sentence rather than with an implementation; the two corrected consumers, each with what it did
+# wrong.
+#
+# DERIVED at claim time: every bracket and its provenance; the witness cells; the corrected charge;
+# the pinned tables, re-read to prove they did not move.
+#
+# WHAT EACH GOLDEN COVERS
+#   * brackets — every interval with its provenance, so a class cannot be quietly reclassified.
+#   * corrections — the corrected charge, the thin-wall verdicts and BOTH pinned tables, so a repair
+#     that moved a shipped figure would move a digest.
+#   * record — the committed record verbatim.
+#
+# does_not_show, and these bound everything above:
+#   * NOT THAT THE BRACKET IS TIGHT past the meeting point. From k >= 5 the interval is real and only
+#     the theorem closes it, which is stated and not measured.
+#   * NOT THAT THE CHARGE CURVE IS RIGHT. The criticality-peak question is untouched; this rung
+#     corrects only WHICH k the charge is evaluated at, never the shape of `B // k`.
+#   * NOT THAT RAISING THE CAP IS UNNECESSARY. That is a cost question this rung does not price, and
+#     the meeting point simply moves with the cap.
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NO NEW ALGORITHM ENTERS THE PRODUCTION PATH. `min_cut` is still the enumeration, and the path
+#     oracle stays in `shadowcut` as a witness source rather than a decision procedure.
+brackets a0b74e45cb16eb5cc51205702f3ac5aebe7fd8e90ddb7732aba0cf7511374906
+corrections 17b7d1889cc73bda1c2ce65b7861036610e4cf2dda69b3d2c03de129954e2d4a
+record 4ae7ee6112ade35d0cf90961008512c7b03904e327baefad9bfc40b03a8ad704
