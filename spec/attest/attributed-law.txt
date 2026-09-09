@@ -7,10 +7,11 @@ property disjoint
 property invented
 property hedged
 property truncation
+subject voxreanchor
 subject voxrun
 subject voxtile
 form per cent
 form PER CENT
 form percent
 form %
-digest 230a590abb07e90fd9fb754f98d0f29970a5a603e8247d34dfb46ad15540c6b2
+digest 25ba45398dfaea6a10b11025d5da9265f5e82946c7ad717756b3ecceedcd2bb6

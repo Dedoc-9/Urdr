@@ -1,0 +1,112 @@
+# URDRRAN1 the re-anchoring arms — emitted by voxreanchor.py, pinned by hand, compared by the gate.
+#
+# AMORTIZATION WORKS AND THE PREDECESSOR IS NOT WHAT PAYS.
+#
+# `voxrun` found that a predecessor's ownership runs FRAGMENT rather than disappear and read that as
+# an opening: a stream able to RE-ANCHOR has far more in front of it than one demanding whole-run
+# survival. This rung builds three arms and one CONTROL, prices them in separate accounts, and scores
+# the pre-registration the census shipped one commit early. The opening is real. IT IS NOT THE
+# PREDECESSOR'S.
+#
+#   over the lattice's 15 predecessor -> current pairs, 103680 observations
+#   arm          discover  construct  transition   verify  reanchor   retired   unit total
+#   baseline       103680          0           0        0         0         0       103680
+#   whole_run       60502       8839        8839    66516         0     43178       144696
+#   reanchor         7038       8839        8839   103680      7038     96642       135434
+#   coherent         8674       1080        1080   102600      7594     95006       121028   CONTROL
+#
+# THE CONTROL TAKES NO PREDECESSOR AT ALL — it anchors on the first pixel of each CURRENT scanline,
+# verifies forward and re-anchors wherever verification breaks — and it retires 95006 of the 96642
+# the predecessor-seeded arm retires, 98.3 per cent of the result, for 1080 constructions against
+# 8839. The predecessor buys 1636 observations, 1.5 per cent of the frame, and costs 7759 additional
+# constructions and 1080 additional verifications.
+#
+# THE BREAK-EVEN VERIFICATION COST SAYS IT WITHOUT A COST MODEL. Let one verification cost `v`
+# discoveries; an arm beats the baseline exactly when v is under its bar:
+#
+#   whole_run   v < 2125/5543   = 0.383
+#   reanchor    v < 35963/51840 = 0.693
+#   coherent    v < 21313/25650 = 0.830    THE LOOSEST BAR IS THE ARM WITH NO PREDECESSOR
+#
+# The predecessor makes the inequality HARDER to clear, which is the opposite of what the census's
+# fragmentation result invited. OWNERSHIP IS COMPRESSIBLE AND THE COMPRESSIBILITY IS SPATIAL RATHER
+# THAN TEMPORAL: essentially all of the available amortization is scanline coherence WITHIN the
+# current frame, which needs no previous frame to exploit. The arc's amortization hypothesis
+# survives; its temporal premise does not.
+#
+# THE CONTROL IS THE WHOLE RUNG. Without it, 96642 against 43178 reads as a triumph for the stream
+# hypothesis. `the_control_takes_no_predecessor` is proved on the module's own AST — the control's
+# function CANNOT receive a predecessor map — so the comparison is structural rather than a courtesy.
+#
+# THE DISPOSITION OF THE PRE-REGISTRATION, AND TWO OF THE FIVE WERE NOT VALID OBJECTS:
+#
+#   R1  MISS       whole-run retires EXACTLY the surviving share, not strictly less
+#   R2  HIT        NOT AS STATED — 63.8 per cent retired under the named mechanism, and a control
+#                  with no predecessor obtains 98.3 per cent of the result
+#   R3  VOID       names a predecessor-seeded stream on a corpus with no adjacency
+#   R4  HIT        NOT AS STATED — the inequality fails on the stream's OWN accounts, before the
+#                  tile loop the prediction blamed is consulted at all
+#   R5  WITHDRAWN  the record's own header declares the safety contract not a prediction and not
+#                  scored, and R5 registers it as one
+#
+# R1 IS THE INSTRUCTIVE MISS. Its stated mechanism — verification is not free, and a run that turns
+# out to have fragmented is paid for and discarded — is TRUE, and both halves are visible in the
+# accounts (66516 verifications, 60502 discoveries). It acts on COST. The claim was about
+# RETIREMENT, and retirement under an all-or-nothing policy is exactly the surviving run-length the
+# census measured. THE PREDICTION FUSED TWO ACCOUNTS THE CENSUS HAD DELIBERATELY RECORDED APART, in
+# the record the census itself shipped.
+#
+# NEITHER INVALID PREDICTION WAS FOUND BY INSPECTING THE RECORD. Both were found by trying to score
+# it — R3 by looking for the corpus it names and finding the census's own scoping law in the way, R5
+# by reading the header that governs it. A pre-registration is not proof-read into validity.
+#
+# THE ORIGINAL RECORD IS NOT EDITED. `spec/attest/voxstream-prediction.txt` stands byte-for-byte as
+# committed and is quoted here by the digest `voxrun` pinned; the dispositions live in a SEPARATE
+# record. A pre-registration whose unit of analysis is refuted is evidence ABOUT the refutation, and
+# rewriting it to match what was learned would delete the only thing commit order buys.
+#
+# THE ANCHOR YIELD, which the census could not ask because it had no anchors:
+#
+#   predecessor runs retiring >= 1 observation   7444 of 8839
+#                              >= 2              5519
+#                              >= 4              4657
+#                              >= 8              4317
+#                              >=16              3526
+#
+# DECLARED: the corpus and traversal (INHERITED from `voxrun`, never restated); the four arms and
+# which of them is the CONTROL; the five cost accounts and the one work account; the yield
+# thresholds; the five registered identifiers, read out of the committed record rather than retyped;
+# the four dispositions and the three mechanism verdicts; the reference attributes this rung may
+# touch; the seven attributed percentages.
+#
+# DERIVED at claim time: every owner map and run decomposition (from `voxrun`); every account of
+# every arm; the unit-cost totals; the break-even ratios in exact integer thousandths; the anchor
+# yields; the retirement attributable to the predecessor's own owner; the control on both corpora.
+#
+# WHAT EACH GOLDEN COVERS
+#   * arms — every account of every arm, so no arm can be re-specified without moving a digest.
+#   * dispositions — the disposition and mechanism of all five registered predictions with their
+#     reasons, so a verdict cannot be softened after the fact.
+#   * economics — the break-even ratios, the unit totals, the anchor yields and the mechanism split.
+#   * control — the control on BOTH corpora, so the lattice's flattery is pinned beside the finding.
+#   * record — the committed disposition record verbatim.
+#
+# does_not_show, and these bound everything above:
+#   * NOTHING ABOUT TIME, and no wall clock enters.
+#   * NOT WHAT A VERIFICATION ACTUALLY COSTS. The unit-cost totals are a CONVENTION carried from
+#     `voxrun`'s recorded variables, and the break-even ratios are reported precisely so a reader can
+#     price a verification differently and reach their own verdict. Measuring that ratio inside a
+#     real rasteriser is a different rung.
+#   * NOT THAT NO STREAM CAN PAY. Three arms were built and none clears its own bar at unit cost,
+#     which is a fact about these three and not about the space they sit in.
+#   * NOT THAT THE PREDECESSOR IS USELESS FOR ANYTHING. It is useless for THIS, and 1636
+#     observations is a real if small quantity.
+#   * THAT THE LATTICE IS REPRESENTATIVE. It measurably is not, so the control is also measured on
+#     the adversarial corpus, where it retires 86.5 per cent against the lattice's 91.6.
+#   * NO PROMOTION. `voxref` is READ ONLY for its two dimensions and its world digest — enumerated
+#     and checked on the AST — no arm is proposed for the renderer, and nothing is adopted.
+arms 70a280303d9fd4b7a4066c3ce4e4494ac7047df5d2776463c7dc2f28c2c6470d
+dispositions 37c8eac2b3e5f892f98c7f4ce2f19bfbd2250949546b3d1d448a4fadd5b47171
+economics 051b018101ad438e6feefce0d99f7f76c2a7278c3cc54611cd2049e6a693fc58
+control b42d379224a672281bf1fcb4bcb1b5b862fda43ee7e93135cd6c2a7a366ef6f7
+record 9c3ae4342dfcaf0b8a98a1a26f5b483378a837950abb1d5b349da0a77bf4b17d

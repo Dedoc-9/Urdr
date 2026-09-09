@@ -57,6 +57,12 @@
 # declare percentages and quietly escape the audit. That is the whole difference between a law and a
 # list, and `the_subjects_are_every_module_that_declares_them` is where it is enforced.
 #
+# AND IT BIT ON ITS FIRST OPPORTUNITY — ON THE GATE, NOT ON A MODULE. One rung after this law
+# shipped, `voxreanchor` declared percentages of its own; the derived enumeration picked it up
+# immediately and the coverage row REDDENED, because the gate stage was still importing a hardcoded
+# pair of subjects written by hand when the law was built. The stage now imports whatever the
+# enumeration names. A coverage clause whose consumer keeps its own list is a list with extra steps.
+#
 # AND THIS MODULE IMPORTS NONE OF ITS SUBJECTS. Depth one, stdlib only, declarations handed in by
 # the gate — `voxbaggage` paid the sealed depth ceiling to learn that pattern one arc ago, and a
 # SHARED law that cost depth would be a tax on every module that adopted it. NO FLOAT DECIDES A LAST
@@ -83,5 +89,5 @@
 #   * NOT THAT THE PROSE IS TRUE. A correctly attributed figure in a sentence that misreads it
 #     passes here and always will.
 properties 60469699c148903ce23006459fa88fb6d9a64765291cbca34fd2ad41494346f8
-subjects 24892d907deb6d027d82bc165cd29d7c4dced2b6683fb24e3df69f7c165dc1c1
-record e78ee912b20866b1e838c5af83732f5a670377780cb0bf0b38eb2dc95b0c341c
+subjects a3c8909d8beadeacad84c439b662a38c82ab76f7f1493fad24ecb4888bcb7a35
+record a0aac7c53c0d816ce283cad77524895bb590d1b1055508d171a380c9e83f5db1

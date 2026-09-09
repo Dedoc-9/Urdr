@@ -111,8 +111,20 @@ class TheCoverage(unittest.TestCase):
     def test_the_subjects_are_derived_from_the_tree(self):
         self.assertTrue(AT.the_subjects_are_every_module_that_declares_them())
 
-    def test_both_live_declarers_are_audited(self):
-        self.assertEqual(set(AT.SUBJECTS), {"voxrun", "voxtile"})
+    def test_every_subject_actually_declares_percentages(self):
+        """The PROPERTY, not the membership. An earlier draft of this test pinned the subject set to
+        `{voxrun, voxtile}` by hand — a list, inside the suite for the law whose whole point is that
+        the enumeration is derived — and it reddened the moment `voxreanchor` declared percentages
+        one rung later. It was right to redden and wrong to exist."""
+        import importlib
+        self.assertGreaterEqual(len(AT.SUBJECTS), 2)
+        for name in AT.SUBJECTS:
+            with self.subTest(subject=name):
+                mod = importlib.import_module(name)
+                self.assertTrue(hasattr(mod, "PERCENTS"))
+                self.assertTrue(hasattr(mod, "percent_text"))
+                self.assertTrue(hasattr(mod, "percent_exact"))
+                self.assertTrue(hasattr(mod, "NON_MEASUREMENT"))
 
     def test_this_module_imports_no_subject(self):
         self.assertTrue(AT.this_module_imports_no_subject())

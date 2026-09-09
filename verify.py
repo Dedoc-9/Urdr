@@ -20,6 +20,7 @@ Checks, in order (all sorted, all deterministic):
 
 Exit 0 iff every check passes. Output ends with 'GATE PASSED' or 'GATE FAILED'.
 """
+import importlib
 import inspect
 import io
 import time as _time
@@ -272,6 +273,7 @@ STAGE_ORDER = (
     "voxtrace8",
     "voxbaggage",
     "voxrun",
+    "voxreanchor",
     "attributed",
     "rowtext",
     "rollbench",
@@ -22888,6 +22890,158 @@ class Gate:
                     "(gate can redden)"
                     if t_ok else "a plant failed to bite")
 
+    def voxreanchor(self):
+        """AMORTIZATION WORKS AND THE PREDECESSOR IS NOT WHAT PAYS (URDRRAN1). Rows: arms (three
+        candidates and one control, priced in separate accounts, every one reproducing the
+        observable exactly), finding (the control's break-even bar is the loosest, so the previous
+        frame makes the inequality harder to clear), disposition (all five registered predictions
+        disposed, mechanism scored apart from outcome, the original record unedited), selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import voxreanchor as RA
+        except Exception as exc:
+            for r in ("arms", "finding", "disposition", "selftest"):
+                self.record(f"voxreanchor-{r}", False, f"import failed (voxreanchor): {exc}")
+            return
+        a_ok, wr, re_, co = True, 0, 0, 0
+        try:
+            wr = RA.spend("whole_run", RA.WORK)
+            re_ = RA.spend("reanchor", RA.WORK)
+            co = RA.spend(RA.CONTROL, RA.WORK)
+            a_ok = (RA.the_arms_reproduce_the_observable_exactly()
+                    and RA.the_arms_are_seeded_by_the_predecessor_and_never_by_the_current_map()
+                    and RA.whole_run_retires_exactly_the_surviving_share()
+                    and RA.no_arm_satisfies_the_admissibility_inequality()
+                    and RA.no_economics_are_claimed_beyond_the_declared_convention()
+                    and RA.no_wall_clock_enters_this_rung()
+                    and RA.nothing_is_promoted()
+                    and RA.scene_result("arms") == RA.golden("arms"))
+        except Exception:
+            a_ok = False
+        self.record("voxreanchor-arms", a_ok,
+                    "THREE ARMS AND ONE CONTROL, PRICED IN SEPARATE ACCOUNTS over the lattice's "
+                    "declared traversal, and EVERY ONE REPRODUCES THE OBSERVABLE EXACTLY as a LIST "
+                    "— which is the precondition of every number here and is CHECKED AND NOT "
+                    "SCORED, exactly as the pre-registration's own header says and exactly as its "
+                    "R5 forgot. Whole-run retires %d, re-anchoring %d, and the CONTROL %d. WHOLE-RUN "
+                    "RETIRES EXACTLY THE SURVIVING RUN-LENGTH the census measured, which is why R1 "
+                    "missed: its stated mechanism — verification is not free and a fragmented run is "
+                    "paid for and discarded — is TRUE and visible in the accounts, and it acts on "
+                    "COST while the claim was about WORK. THE ANCHOR IS ALWAYS PAID FOR: a break "
+                    "costs a discovery and only then is the new owner adopted, so no arm reads the "
+                    "current map for free and none is a precomputed answer table. The accounts are "
+                    "summed ONLY by the declared unit-cost convention, which is checked on this "
+                    "module's AST, and `voxref` is READ ONLY for its two dimensions and its world "
+                    "digest — an enumerated allowlist, also checked on the AST, after the first "
+                    "draft of that law searched its own source for the literal it forbade and "
+                    "reddened on its own search string"
+                    % (wr, re_, co) if a_ok else "the arms did not hold")
+        f_ok, bars, gain, anchors = True, {}, 0, 0
+        try:
+            bars = {a: RA.breakeven_permille(a) for a in RA.ARMS if a != "baseline"}
+            gain = RA.spend("reanchor", RA.WORK) - RA.spend(RA.CONTROL, RA.WORK)
+            anchors = RA.spend("reanchor", "construct") - RA.spend(RA.CONTROL, "construct")
+            f_ok = (RA.the_predecessor_does_not_pay()
+                    and RA.the_predecessor_buys_something_and_it_is_small()
+                    and RA.the_percentages_in_the_prose_are_the_measured_ones()
+                    and RA.scene_result("economics") == RA.golden("economics")
+                    and RA.scene_result("control") == RA.golden("control"))
+        except Exception:
+            f_ok = False
+        self.record("voxreanchor-finding", f_ok,
+                    "THE CONTROL TAKES NO PREDECESSOR AT ALL and it wins the bar. Let one "
+                    "verification cost `v` discoveries; an arm beats the baseline when `v` is under "
+                    "its break-even, in thousandths: whole-run %d, the predecessor-seeded arm %d, "
+                    "THE CONTROL %d. THE PREDECESSOR MAKES THE INEQUALITY HARDER TO CLEAR, which is "
+                    "the opposite of what the census's fragmentation result invited. It buys %d "
+                    "observations and costs %d additional constructions, so under any cost model in "
+                    "which building an anchor is not free it is a NET LOSS. OWNERSHIP IS "
+                    "COMPRESSIBLE AND THE COMPRESSIBILITY IS SPATIAL RATHER THAN TEMPORAL: "
+                    "essentially all of the available amortization is scanline coherence WITHIN the "
+                    "current frame, which needs no previous frame to exploit — the arc's "
+                    "amortization hypothesis survives and its TEMPORAL PREMISE DOES NOT. THE "
+                    "CONTROL IS THE WHOLE RUNG: without it, re-anchoring against whole-run reads as "
+                    "a triumph, and `the_control_takes_no_predecessor` is proved on the AST — its "
+                    "function CANNOT receive a previous frame — so the comparison is structural "
+                    "rather than a courtesy. AND THE LATTICE STILL FLATTERS: the control is measured "
+                    "on the adversarial corpus too, where it retires a smaller share, so the "
+                    "scoping is pinned beside the finding rather than left as a caveat"
+                    % (bars.get("whole_run", 0), bars.get("reanchor", 0), bars.get(RA.CONTROL, 0),
+                       gain, anchors)
+                    if f_ok else "the finding did not hold")
+        d_ok, told = True, "?"
+        try:
+            told = RA.told()
+            d_ok = (RA.every_registered_prediction_has_exactly_one_disposition()
+                    and RA.the_registered_identifiers_are_the_records_own()
+                    and RA.the_original_record_is_unmodified()
+                    and RA.the_mechanism_is_scored_apart_from_the_outcome()
+                    and RA.the_record_names_this_world()
+                    and RA.the_record_is_bound_to_the_live_code()
+                    and RA.scene_result("dispositions") == RA.golden("dispositions")
+                    and RA.scene_result("record") == RA.golden("record"))
+        except Exception:
+            d_ok = False
+        self.record("voxreanchor-disposition", d_ok,
+                    "%s. NO REGISTERED PREDICTION IS LEFT SILENT: the disposition set must EQUAL the "
+                    "registered set, the identifiers are READ OUT of the committed record rather "
+                    "than retyped, every entry carries a reason, and MECHANISM IS SCORED APART FROM "
+                    "OUTCOME because the record's own header demands that a hit from the wrong "
+                    "reason be visible as one. NEITHER INVALID PREDICTION WAS FOUND BY INSPECTING "
+                    "THE RECORD — both were found by trying to SCORE it, R3 by looking for the "
+                    "corpus it names and meeting the census's own scoping law, R5 by reading the "
+                    "header that governs it — so a pre-registration is not proof-read into validity"
+                    % told if d_ok else "the disposition did not hold")
+        s_ok = True
+        try:
+            s_ok = RA.a_tampered_row_refuses()
+            head = "# world x\n# original y\n"
+            for bad in ("dispose R9 hit as_stated why", "dispose R1 wishful as_stated why",
+                        "dispose R1 hit wishful why", "arm wishful discover=1",
+                        "breakeven baseline 1", "breakeven wishful 1", "yield 3 1", "rumour 1"):
+                try:
+                    RA.parse(head + bad + "\n")
+                    s_ok = False
+                except RA.VoxreanchorError:
+                    pass
+            for text in ("dispose R1 miss as_stated why\n", "# world x\n# original y\n"):
+                try:
+                    RA.parse(text)
+                    s_ok = False
+                except RA.VoxreanchorError:
+                    pass
+            for call, arg in ((RA.spend, "wishful"), (RA.breakeven_permille, "baseline"),
+                              (RA.anchor_yield, 3), (RA.control_on, "wishful"),
+                              (RA.percent_text, "wishful"), (RA.percent_exact, "wishful"),
+                              (RA.scene_case, "wishful"), (RA.golden, "wishful")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except RA.VoxreanchorError:
+                    pass
+            try:
+                RA.spend("reanchor", "wishful")
+                s_ok = False
+            except RA.VoxreanchorError:
+                pass
+        except Exception:
+            s_ok = False
+        self.record("voxreanchor-selftest", s_ok,
+                    "twenty plants bite: a dispose row naming no registered prediction, no declared "
+                    "disposition or no declared mechanism refuses — the second and third are the "
+                    "failure modes that would let a verdict be softened after the fact — an arm row "
+                    "naming no declared arm refuses, a breakeven row naming the BASELINE refuses "
+                    "because the baseline is the thing arms are measured against rather than an arm, "
+                    "a yield row naming no declared threshold refuses, a row of unknown kind refuses "
+                    "rather than being skipped as a comment, a record naming no world and one naming "
+                    "no ORIGINAL both refuse — the second is what would let the dispositions float "
+                    "free of the record they dispose — and an undeclared arm, account, threshold, "
+                    "corpus, percentage, scene and golden all refuse rather than returning a default "
+                    "(gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def attributed(self):
         """A PERCENTAGE IN SHIPPED PROSE IS A CLAIM, AND EVERY DIGIT OF IT IS TOO (URDRATB1). Rows:
         attribution (every literal resolves to exactly one declared accessor, uniquely, across every
@@ -22901,11 +23055,15 @@ class Gate:
             import attributed as AT
             import voxrun as _RN
             import voxtile as _TL
+            # THE SUBJECTS ARE IMPORTED FROM THE DERIVED ENUMERATION, never from a list written
+            # here. `voxreanchor` declared percentages one rung after this law shipped and the
+            # coverage clause REDDENED THIS ROW because the gate was still auditing a hardcoded
+            # pair — the law biting on its first opportunity, on the gate rather than on a module.
+            subjects = {n: importlib.import_module(n) for n in AT.SUBJECTS}
         except Exception as exc:
             for r in ("attribution", "truncation", "coverage", "selftest"):
                 self.record(f"attributed-{r}", False, f"import failed (attributed): {exc}")
             return
-        subjects = {"voxrun": _RN, "voxtile": _TL}
 
         def audit(mod):
             declared = {n: mod.percent_text(n) for n in mod.PERCENTS}
@@ -26869,7 +27027,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

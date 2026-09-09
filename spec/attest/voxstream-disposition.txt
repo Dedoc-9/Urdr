@@ -1,0 +1,24 @@
+# URDRRAN1 the disposition of the stream pre-registration — emitted by voxreanchor.py.
+# The original record is NOT edited; it is quoted here by the digest `voxrun` pinned.
+# world 29afd3369106966070bace50a9cb9e084607c14f9dc44c9bbd97a4fcc503715b
+# original 69bd9d5ea92bb5df0592f1b80283a14b4c81fe2d816bd03a4bbf4451711993ea
+
+dispose R1 miss as_stated whole-run retirement is EXACTLY the surviving run-length, not strictly less; the stated mechanism is true and acts on COST, and the claim was about RETIREMENT
+dispose R2 hit not_as_stated re-anchoring retires more, but only 63.8 per cent of it under the named mechanism and 98.3 per cent of it is obtained by a control with no predecessor
+dispose R3 void not_scored names the SAME STREAM on the adversarial corpus, where `voxrun`'s own scoping law establishes there is no adjacency and therefore no predecessor to seed one
+dispose R4 hit not_as_stated no arm satisfies the inequality, but it fails on the stream's OWN accounts before the tile loop the prediction blamed is consulted at all
+dispose R5 withdrawn not_scored the record's own header declares the safety contract NOT a prediction and NOT scored, and R5 registers it as one; scoring it would be a free win on a precondition
+
+arm baseline discover=103680 construct=0 transition=0 verify=0 reanchor=0 retired=0
+arm whole_run discover=60502 construct=8839 transition=8839 verify=66516 reanchor=0 retired=43178
+arm reanchor discover=7038 construct=8839 transition=8839 verify=103680 reanchor=7038 retired=96642
+arm coherent discover=8674 construct=1080 transition=1080 verify=102600 reanchor=7594 retired=95006
+breakeven whole_run 383
+breakeven reanchor 693
+breakeven coherent 830
+yield 1 7444
+yield 2 5519
+yield 4 4657
+yield 8 4317
+yield 16 3526
+digest 70a280303d9fd4b7a4066c3ce4e4494ac7047df5d2776463c7dc2f28c2c6470d
