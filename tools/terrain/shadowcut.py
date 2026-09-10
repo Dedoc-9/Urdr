@@ -82,6 +82,7 @@ if _HERE not in _sys.path:
     _sys.path.insert(0, _HERE)
 
 import cohort as CO                                             # noqa: E402
+import cutpin as CP                                             # noqa: E402
 
 MAGIC = b"URDRSHC1"
 
@@ -231,7 +232,11 @@ def sweep():
         for n, t in CASES:
             w = _wall(n, t)
             k, cells = shortest_cut(w, n)
-            _SWEEP[(n, t)] = {"bounded": CO.min_cut(w, n), "shortest": k,
+            # THE EXPENSIVE EXHAUSTION IS CONSUMED FROM THE PIN, NOT RE-DERIVED. `cutpin`
+            # re-proves sizes 1 and 2 from scratch every run and carries only size 3, so the
+            # trusted increment is ONE INTEGER and the pin refuses outright if any source it
+            # binds has changed. For every other wall this is the subject's own call.
+            _SWEEP[(n, t)] = {"bounded": CP.answer_for((n, t)), "shortest": k,
                               "maxflow": maxflow_cut(w, n), "witness": cells,
                               "section": n * n}
     return _SWEEP

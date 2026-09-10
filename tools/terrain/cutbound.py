@@ -82,6 +82,7 @@ if _HERE not in _sys.path:
     _sys.path.insert(0, _HERE)
 
 import cohort as CO                                             # noqa: E402
+import cutpin as CP                                             # noqa: E402
 import shadowcut as SC                                          # noqa: E402
 
 MAGIC = b"URDRCBD1"
@@ -139,7 +140,7 @@ def bracket(case):
     # its answers come from the SAME `cohort.min_cut` call; re-running the enumeration here would
     # spend a minute of gate time to obtain a number the tree already holds, and would introduce a
     # second path to the same fact for a later rung to find disagreeing.
-    decided = (SC.answer(case, "bounded") if case in SC.CASES else CO.min_cut(w, n))
+    decided = (SC.answer(case, "bounded") if case in SC.CASES else CP.answer_for(case))
     hi, cells = SC.shortest_cut(w, n)
     if decided is not None:
         lo, prov = decided, "exhaustion"
@@ -182,7 +183,7 @@ def the_refusal_is_a_proven_lower_bound():
         lo, hi, prov, cells = bracket(case)
         if prov == "exhaustion":
             continue
-        if CO.min_cut(w, n) is not None:
+        if CP.answer_for(case) is not None:
             return False
         if not (lo == CO.CUT_SEARCH_MAX + 1 and hi > CO.CUT_SEARCH_MAX):
             return False

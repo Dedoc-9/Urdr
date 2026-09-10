@@ -1,0 +1,7 @@
+# URDRCPN1 the pinned exhaustion — emitted by cutpin.py under regeneration ONLY.
+# Sizes 1, 2 are re-proved on every ordinary run; this record carries 3.
+# provenance d1ad0fabdbe176d3653024c90684510488404714ab613aca42b753bc8a5facf4
+
+refused 6 4 3
+refused 6 5 3
+digest cc922704f014acfc608a7ee9fdc7a7de0f6f014e2b722b5f40a2980740ae1c34

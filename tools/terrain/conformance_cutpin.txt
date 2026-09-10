@@ -1,0 +1,79 @@
+# URDRCPN1 the pinned exhaustion — emitted by cutpin.py, pinned by hand, compared by the gate.
+#
+# THE EXPENSIVE HALF OF A PROOF IS PINNED, AND WHAT IS TRUSTED IS ONE INTEGER.
+#
+# `shadowcut` and `cutbound` rest on an EXHAUSTION: `cohort.min_cut` trying every subset of a wall up
+# to `CUT_SEARCH_MAX` and refusing. That refusal is the best evidence in the arc — and re-deriving it
+# cost about 134 seconds on every gate run, on two walls, in both stages and both suites, on every
+# patch whether or not anything near `cohort` had changed, DOUBLED because the gate is run twice.
+#
+# THE ANSWER IS NOT TO DELETE THE WITNESS OR WEAKEN THE CLASS LAW. `(6,5)` is the only wall that
+# populates `cutbound`'s `bracketed` class; dropping it would turn a runtime problem into an
+# EPISTEMIC REGRESSION, because the class would become a distinction nobody has met. The answer is to
+# separate CERTIFICATION EVIDENCE from ROUTINE EXECUTION and to be exact about which is which.
+#
+# EXHAUSTION IS GRADED BY SUBSET SIZE AND THE COST IS NOT FLAT:
+#
+#   wall         size 1     size 2      size 3
+#   (n=6, t=4)    0.01s      0.96s      46.00s
+#   (n=6, t=5)    0.02s      1.47s      88.31s
+#
+# So sizes ONE and TWO are RE-PROVED FROM SCRATCH ON EVERY RUN, for about two and a half seconds, and
+# only SIZE THREE is consumed from the pin. THE TRUSTED INCREMENT IS EXACTLY ONE INTEGER: every run
+# re-derives `no cut of size 2 or below exists`, and the pin supplies only the step from there to `no
+# cut of size 3 or below exists`. That is the whole of what is taken on trust, and naming it is the
+# point — `the_trusted_increment_is_one_integer` asserts the arithmetic rather than the sentence.
+#
+# THE PIN CARRIES ITS OWN PROVENANCE AND GOES STALE LOUDLY. The record binds a digest over the LIVE
+# SOURCE of every function that could change the answer — `min_cut`, `free_reaches`, `spanning_wall`,
+# `world` — together with `CUT_SEARCH_MAX` and the case list. Change any of them and the digest moves,
+# `the_pin_is_current` refuses, `refusal` refuses rather than returning a cached answer, and the gate
+# reddens demanding regeneration. THE BINDING IS TO SOURCE TEXT rather than to a version number,
+# because a version is something a person has to remember to bump and a cache whose invalidation
+# depends on memory is not an invalidation.
+#
+# THE PIN MAY ONLY RECORD A REFUSAL. These walls are pinned precisely because the enumeration
+# declines, and a record asserting a NUMBER would assert something the cheap re-proof cannot check. A
+# pin that could carry any answer would be a place to PUT an answer.
+#
+# AND THE CHEAP RE-PROOF IS A DELIBERATE TRANSCRIPTION, BOUND TO ITS SUBJECT. To exhaust ONE size
+# without paying for every size below the cap, this module writes its own subset walk — exactly the
+# duplication `shadowcut` refused to commit. The difference is that this one is CHECKED: on five
+# walls the subject can decide, plus a breached wall where the answer is zero and no walk happens at
+# all, the transcription's reconstruction must equal `cohort.min_cut` exactly. A drifting copy is
+# caught by the module it drifted from.
+#
+# WHAT IT BOUGHT, measured: `test_shadowcut` fell from 101s to 2.7s and `test_cutbound` from 233s to
+# 2.0s, and NOT ONE GOLDEN DIGEST MOVED across either module — which is the evidence that what
+# changed was where the answer came from and not what the answer is.
+#
+# AND THE TREE REFUSED THIS RUNG'S FIRST ENTRY POINT, CORRECTLY. The regeneration path began as a
+# `--regenerate` flag read off `argv`, and `entry`'s census REDDENED: it pins the thirteen production
+# modules that slice `argv` across forty sites and may not GROW, so a new positional reader refuses
+# immediately while the existing debt is paid down deliberately. The honest answer was not to raise a
+# ceiling for a rare operation but to NOT INCUR THE DEBT — regeneration now keys off the certification
+# switch this module already declares, so there is no second way to ask and no new command line to get
+# wrong. The census is back at thirteen modules and forty sites, exactly at its pin.
+#
+# DECLARED: the two pinned walls and why each is load-bearing; the sizes re-proved every run; the
+# certification switch; the four sources the provenance digest binds.
+#
+# DERIVED at claim time: the pinned sizes, from the re-proved sizes and the subject's cap; the
+# provenance digest, from live source; every affordable exhaustion; the transcription's agreement.
+#
+# WHAT EACH GOLDEN COVERS
+#   * pin — the walls, the split between re-proved and pinned sizes, the cap and the bound sources,
+#     so a silent widening of what is trusted moves a digest.
+#   * record — the committed record verbatim.
+#
+# does_not_show, and these bound everything above:
+#   * NOT THAT THE PINNED SIZE WAS RE-DERIVED THIS RUN. That is the entire point, and the
+#     certification row is recorded SKIPPED and honestly labelled rather than passed quietly.
+#   * NOT THAT THE PIN IS UNFORGEABLE. A record edited together with the sources it binds would carry
+#     a matching digest, so this defends against DRIFT and not against an author who means it.
+#   * NOT THAT THE COST MODEL GENERALISES. Three sizes on two walls were measured; the growth past
+#     that is unmeasured here.
+#   * NOTHING ABOUT TIME AS A CLAIM. The timings above decided a design and are not evidence for any
+#     law, and no wall clock enters any gated predicate.
+pin f931f37761080d094b027bce228d58c1dac6ee72762c8e73de5b769902d4a9dd
+record 5c235e3bd8743e8a1648f7f7277d51e3a85d0f1f378b8749659dc55313cd0d66

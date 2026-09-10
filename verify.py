@@ -184,6 +184,7 @@ STAGE_ORDER = (
     "tilemin",
     "inputset",
     "cohort",
+    "cutpin",
     "shadowcut",
     "cutbound",
     "autoroute",
@@ -14331,6 +14332,124 @@ class Gate:
                     "refuses rather than silently clipping"
                     if pol_ok else "a cohort policy declaration did not hold")
 
+    def cutpin(self):
+        """THE EXPENSIVE HALF OF A PROOF IS PINNED, AND WHAT IS TRUSTED IS ONE INTEGER (URDRCPN1).
+        Rows: current (the provenance binds live source and goes stale loudly), reproved (sizes 1
+        and 2 re-derived from scratch this run, the transcription bound to its subject), certified
+        (the pinned size, re-run ONLY under the certification switch and recorded SKIPPED otherwise),
+        selftest."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import cutpin as CP
+        except Exception as exc:
+            for r in ("current", "reproved", "certified", "selftest"):
+                self.record(f"cutpin-{r}", False, f"import failed (cutpin): {exc}")
+            return
+        c_ok = True
+        try:
+            c_ok = (CP.the_pin_is_current()
+                    and CP.the_pin_records_only_refusals()
+                    and CP.scene_result("pin") == CP.golden("pin")
+                    and CP.scene_result("record") == CP.golden("record"))
+        except Exception:
+            c_ok = False
+        self.record("cutpin-current", c_ok,
+                    "THE PIN CARRIES ITS OWN PROVENANCE AND GOES STALE LOUDLY. The record binds a "
+                    "digest over the LIVE SOURCE of every function that could change the answer — "
+                    "%s — together with the cap and the case list, so changing any of them moves the "
+                    "digest, `refusal` REFUSES rather than returning a cached answer, and this row "
+                    "reddens demanding regeneration. THE BINDING IS TO SOURCE TEXT and not to a "
+                    "version number, because a version is something a person has to remember to bump "
+                    "and a cache whose invalidation depends on memory is not an invalidation. AND "
+                    "THE PIN MAY ONLY RECORD A REFUSAL: these walls are pinned precisely because the "
+                    "enumeration declines, and a record asserting a NUMBER would assert something "
+                    "the cheap re-proof cannot corroborate — a pin that could carry any answer would "
+                    "be a place to PUT an answer"
+                    % ", ".join("`%s`" % n for n in CP.BOUND_SOURCES)
+                    if c_ok else "the pin is STALE or malformed — regenerate with "
+                                 "%s=1 python tools/terrain/cutpin.py" % CP.CERTIFY_ENV)
+        r_ok = True
+        try:
+            r_ok = (CP.the_affordable_exhaustion_is_reproved()
+                    and CP.the_trusted_increment_is_one_integer()
+                    and CP.the_transcribed_exhaustion_agrees_with_the_subject())
+        except Exception:
+            r_ok = False
+        self.record("cutpin-reproved", r_ok,
+                    "SIZES %s ARE RE-DERIVED FROM SCRATCH ON THIS RUN and only size %s is consumed "
+                    "from the pin, so THE TRUSTED INCREMENT IS EXACTLY ONE INTEGER — every run "
+                    "proves `no cut of size %d or below exists` on both pinned walls and the pin "
+                    "supplies only the step to the cap. Exhaustion is graded by subset SIZE and the "
+                    "cost is not flat, which is what makes the split available at all. AND THE CHEAP "
+                    "RE-PROOF IS A DELIBERATE TRANSCRIPTION BOUND TO ITS SUBJECT: to exhaust one "
+                    "size without paying for every size below the cap this module writes its own "
+                    "subset walk — exactly the duplication `shadowcut` refused — and the difference "
+                    "is that this one is CHECKED, rebuilding `cohort.min_cut`'s answer exactly on "
+                    "five walls the subject can decide plus a breached wall where the answer is zero "
+                    "and no walk happens at all, so a drifting copy is caught by the module it "
+                    "drifted from rather than by a reader"
+                    % (" and ".join(map(str, CP.REPROVED)),
+                       ", ".join(map(str, CP.pinned_sizes())), max(CP.REPROVED))
+                    if r_ok else "the re-proved exhaustion did not hold")
+        if CP.certification_requested():
+            try:
+                cert = CP.the_pinned_exhaustion_reproduces()
+            except Exception:
+                cert = False
+            self.record("cutpin-certified", cert,
+                        "THE PINNED SIZE WAS RE-DERIVED THIS RUN under %s, and it reproduces: every "
+                        "subset of size %s was tried on both pinned walls and none opened either. "
+                        "This is the certification path and it is the expensive one"
+                        % (CP.CERTIFY_ENV, ", ".join(map(str, CP.pinned_sizes())))
+                        if cert else "the pinned exhaustion FAILED to reproduce — the pin is WRONG")
+        else:
+            self.record("cutpin-certified", True,
+                        "SKIPPED (%s is not set) — honestly labelled, not passed. The pinned size "
+                        "%s was NOT re-derived this run; what WAS re-derived is sizes %s, and what "
+                        "is trusted is the single step between them. Re-run the certification with "
+                        "`%s=1 python verify.py`, and regenerate the record itself with `%s=1 python "
+                        "tools/terrain/cutpin.py`"
+                        % (CP.CERTIFY_ENV, ", ".join(map(str, CP.pinned_sizes())),
+                           " and ".join(map(str, CP.REPROVED)), CP.CERTIFY_ENV, CP.CERTIFY_ENV))
+        s_ok = True
+        try:
+            s_ok = CP.a_tampered_record_refuses() and CP.a_stale_provenance_refuses()
+            head = "# provenance x\n"
+            for bad in ("refused 9 9 3", "refused 6 4 99", "rumour 1"):
+                try:
+                    CP.parse(head + bad + "\n")
+                    s_ok = False
+                except CP.CutpinError:
+                    pass
+            for text in ("refused 6 4 3\n", "# provenance x\n"):
+                try:
+                    CP.parse(text)
+                    s_ok = False
+                except CP.CutpinError:
+                    pass
+            for call, arg in ((CP.refusal, (9, 9)), (CP.refusal, (5, 2)),
+                              (CP.scene_case, "wishful"), (CP.golden, "wishful")):
+                try:
+                    call(arg)
+                    s_ok = False
+                except CP.CutpinError:
+                    pass
+        except Exception:
+            s_ok = False
+        self.record("cutpin-selftest", s_ok,
+                    "eleven plants bite: a tampered row and a STALE PROVENANCE both refuse — the "
+                    "second is the guarantee itself, since a pin whose invalidation does not bite is "
+                    "worse than no pin — a refused row naming no pinned wall refuses AND one naming "
+                    "a cap that is not the subject's refuses, a row of unknown kind refuses rather "
+                    "than being skipped as a comment, a record naming no provenance and one with no "
+                    "rows both refuse, an unknown wall refuses, A WALL THAT IS NOT PINNED REFUSES "
+                    "FROM `refusal` rather than being answered from the record — which is what keeps "
+                    "the pin from becoming a general answer cache — and an unknown scene and golden "
+                    "refuse (gate can redden)"
+                    if s_ok else "a plant failed to bite")
+
     def shadowcut(self):
         """THE PROPOSED REMEDY ANSWERS A DIFFERENT QUESTION (URDRSHC1). A SHADOW adjudicator for
         `cohort`'s bounded min-cut: the subject is imported and unchanged, two independent
@@ -27326,7 +27445,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

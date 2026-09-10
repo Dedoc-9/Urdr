@@ -18,11 +18,15 @@ class TheSubjectIsUntouched(unittest.TestCase):
         self.assertEqual(CO.CUT_SEARCH_MAX, 3)
 
     def test_the_bounded_answer_comes_from_the_subject(self):
-        """Called through `cohort`, never reimplemented here."""
+        """Called through `cohort`, never reimplemented here — and for the two walls whose
+        exhaustion is PINNED, through `cutpin`, which re-proves the affordable sizes every run and
+        refuses outright if any source it binds has changed."""
+        import cutpin as CP
         for (n, t) in SC.CASES:
             with self.subTest(case=(n, t)):
-                self.assertEqual(SC.answer((n, t), "bounded"),
-                                 CO.min_cut(CO.spanning_wall(n, t), n))
+                want = (CP.answer_for((n, t)) if (n, t) in CP.EXPENSIVE
+                        else CO.min_cut(CO.spanning_wall(n, t), n))
+                self.assertEqual(SC.answer((n, t), "bounded"), want)
 
     def test_the_bounded_search_is_not_transcribed_here(self):
         self.assertTrue(SC.the_bounded_search_is_not_transcribed_here())

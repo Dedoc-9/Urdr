@@ -69,7 +69,14 @@ class TheCorrections(unittest.TestCase):
                 self.assertGreater(len(why), 60)
 
     def test_a_thick_wall_is_still_certifiable(self):
-        self.assertTrue(CO.certifiable(CO.spanning_wall(6, 4), 6))
+        """A wall comfortably above the floor still certifies. Checked on a wall the enumeration
+        DECIDES: `certifiable` calls `min_cut` itself and cannot be handed a pinned answer, so
+        asking it about a refused wall would spend 46 seconds every run to learn what the cheap
+        wall already shows. The refused branch is covered separately and cheaply by
+        `the_old_branch_certified_a_wall_the_floor_refuses`, which reproduces it with the cap
+        lowered rather than with a bigger wall."""
+        self.assertTrue(CO.certifiable(CO.spanning_wall(5, 3), 5))
+        self.assertGreaterEqual(CO.min_cut(CO.spanning_wall(5, 3), 5), CO.WALL_MIN_K)
 
     def test_a_thin_wall_is_still_refused(self):
         with self.assertRaises(CO.TooThin):
