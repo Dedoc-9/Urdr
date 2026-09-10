@@ -1,0 +1,66 @@
+# URDRSES1 conformance — MEMBERSHIP IS A PROPERTY OF THE EVENT, NOT OF THE ROOM. The Stage 5 SESSION
+# law `compose` declared as its successor, built on a peer set that CHANGES. Session IS
+# worldpeer.WorldPeer with ONE precondition added; nothing below the interface line moved.
+#
+# THE QUESTION, AND IT HAS EXACTLY TWO ANSWERS. An event arrives from a peer who WAS a member when
+# the event happened and is NOT one now. Either membership is evaluated at the EVENT's tick or at the
+# RECEIVER's head. Both are implementable and both are defensible in prose. They are not two
+# policies: evaluated at the head, admission depends on WHEN THE ENVELOPE HAPPENED TO ARRIVE, so two
+# conforming peers holding the identical event set land on different worlds.
+#
+#     membership at the EVENT tick     1 distinct chain   == the batch oracle
+#     membership at the HEAD           3 distinct chains  != the batch oracle
+#
+#     Four delivery schedules, eleven identical envelopes, 22 rollbacks, 0 refusals on the law arm.
+#     The oracle is INDEPENDENT: worldstep.simulate in batch on the calendar-filtered log, which
+#     knows nothing about sessions, rollback or delivery order.
+#
+# THE SECOND WRONG DESIGN LANDS ON THE FIRST WRONG WORLD. Departure implemented by striking the peer
+# from the ROSTER produces the SAME three chains as the head-time defect, digest for digest, on the
+# same schedules. The only thing separating them is the typed refusal -- AUTH-REFUSE from the
+# eviction, SESSION-REFUSE from the head-time test, same events, same world. The codes carry the
+# information the state does not. THE ROSTER AND THE CALENDAR ANSWER DIFFERENT QUESTIONS AND CANNOT
+# BE MERGED: a departed peer's signature must still verify, or the session's own history stops being
+# checkable.
+#
+# THE ADMITTED SET IS LOAD-BEARING IN BOTH DIRECTIONS IN TIME, and only one direction is easy to see:
+#
+#     cuts where an admitted event is still QUEUED (tick >= head)   10 of 10 diverge
+#     cuts where every admitted event has already been APPLIED       9 of 43 diverge
+#
+#     Forward it is certain; backward it is contingent on a later rollback reaching past the cut. A
+#     suite built on late deliveries alone -- the schedule that LOOKS like the interesting one --
+#     would meet the defect at roughly one cut in five. Priced, not asserted.
+#
+# SEGMENTATION UNDER A CHANGING PEER SET: 0 divergences over every cut of every in-horizon schedule
+# (53 cuts). `compose` proved this over a fixed log; here the log arrives out of order, through
+# rollbacks, while the peer set changes.
+#
+# THREE PLANTS, NO TWO SHARING A FAILURE MODE:
+#
+#     drop_known     the admitted set dropped from the snapshot     19 of 53
+#     perturb_live   one word moved in the LIVE state only          27 of 53
+#     perturb_all    the same word moved in the retained snapshots  53 of 53
+#
+#     perturb_live is ERASED wherever a later rollback restores from a retained snapshot, so its
+#     bite rate measures exactly that; perturb_all cannot be erased and must bite everywhere, which
+#     is what makes a reported 0 on the clean arm mean something.
+#
+# WHAT THE SNAPSHOT MUST CARRY IS DERIVED, NOT REMEMBERED. RESUMABLE | CONFIGURATION must equal the
+# self.X assignments of WorldPeer.__init__ AND Session.__init__ read from the AST, reaching ACROSS
+# the inheritance seam so a field added to the base class reddens here. pos, vel, K and H are
+# assigned ONLY through tuple targets, so the naive node.targets[0].attr walk finds neither of the
+# two fields the session's state IS -- proved as a property rather than avoided by care.
+#
+# does_not_show: that a peer is a BODY -- w["n"] is fixed and a peer AUTHORS inputs to a fixed body
+# set, so joining is not spawning and nothing here bears on structural resize; that the CALENDAR is
+# agreed -- it is pre-session common knowledge exactly as the roster is, and a calendar distributed
+# at runtime is a consensus problem not touched here; that convergence survives the rollback horizon
+# -- it does NOT, and the witness is exhibited rather than hidden: the same event set under a
+# past-horizon schedule ROLLBACK-REFUSES three events every in-horizon schedule admits, so D12's
+# composed sentence is conditional on a delivery-schedule property the sentence does not name; that
+# peers CONTEST a body -- each peer here drives its own.
+converge b6b7893de9cad1913bcc96c28a4d036ccddec18dfa00f64645176581f95a83d3
+defects 3036b6dd0e6973d97f966bf87cd61db48608ec5f17874e875ca6489862d37085
+segment 543d28a435f4b888e622410f0c1734c8d5fd4b28c00c07f6e67f993721bb8377
+state 83383fb50d816cade78229043b74343f18e8e8368f5710391041bc7356931e1b

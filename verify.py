@@ -74,6 +74,7 @@ STAGE_ORDER = (
     "netcode_world",
     "netcode_worldpeer",
     "compose",
+    "session",
     "edgeattr",
     "netcode_region",
     "regionprop",
@@ -3933,6 +3934,175 @@ class Gate:
                     "cut (39 of 39) — that is the hidden-state defect the law exists to catch, and it "
                     "is precisely the one a perturbation plant would never exercise"
                     if pl_ok else "a compose plant did not bite")
+
+    # -- Stage 5: the session, where the peer set changes ----------------------
+    def session(self):
+        """MEMBERSHIP IS A PROPERTY OF THE EVENT, NOT OF THE ROOM (URDRSES1) — the SESSION law
+        `compose` declared as its successor. Rows: scenes, convergence, defects, membership,
+        segmentation, plants, state, horizon."""
+        for d in (os.path.join(ROOT, "tools", "netcode"),
+                  os.path.join(ROOT, "tools", "physics")):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import session as SE
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("session", False, f"import failed: {exc}")
+            return
+        try:
+            ref_ok = all(SE.scene_result(n) == SE.golden(n) for n in SE.SCENES)
+            ref_ok = ref_ok and SE.emitted_matches_pinned()
+        except Exception as exc:
+            self.record("session:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("session:scenes", ref_ok,
+                    "four URDRSES1 scenes reproduce their digests, and the pinned corpus is exactly "
+                    "what `--emit` produces"
+                    if ref_ok else "a session scene drifted from its digest")
+
+        cv_ok = True
+        try:
+            cv_ok = SE.the_convergence_law() == (1, True, 22, 0)
+        except Exception:
+            cv_ok = False
+        self.record("session-convergence", cv_ok,
+                    "THE SESSION LAW: the identical eleven envelopes, delivered under four different "
+                    "schedules to a world whose PEER SET CHANGES, land on ONE chain — and that chain "
+                    "is the batch oracle's. The oracle is independent by construction: "
+                    "`worldstep.simulate` on the calendar-filtered log, a batch simulator that knows "
+                    "nothing about sessions, delivery order, rollback or membership. MEASURED: 1 "
+                    "distinct chain over 22 rollbacks and 0 refusals, equal to the oracle. That is "
+                    "the successor `compose` named in its own closing sentence — one persistent world "
+                    "standing on all the slices at once, with actors joining and leaving"
+                    if cv_ok else "the session did not converge")
+
+        df_ok = True
+        try:
+            h_d, h_eq, h_codes = SE.the_head_time_defect()
+            e_d, e_eq, e_codes = SE.the_eviction_defect()
+            agree = SE.the_two_defects_agree_on_the_world_and_differ_on_the_reason()
+            df_ok = (h_d == 3 and not h_eq and e_d == 3 and not e_eq
+                     and agree == (4, 4, 3, 1) and h_codes != e_codes
+                     and SE.the_defect_differs_by_one_expression()[2]
+                     and SE.the_gate_only_adds_a_precondition()
+                     and SE.the_subject_is_untouched())
+        except Exception:
+            df_ok = False
+        self.record("session-defects", df_ok,
+                    "AN EVENT ARRIVES FROM A PEER WHO WAS A MEMBER WHEN IT HAPPENED AND IS NOT ONE "
+                    "NOW, and there are exactly two answers: evaluate membership at the EVENT's tick, "
+                    "or at the RECEIVER's head. They are not two policies — ONE OF THEM IS NOT A "
+                    "POLICY AT ALL. At the head, admission depends on when the envelope happened to "
+                    "arrive, so the same event set gives 3 DISTINCT CHAINS instead of 1, and it fails "
+                    "silently because each peer is internally consistent and has nothing to compare "
+                    "against. THE SECOND WRONG DESIGN LANDS ON THE FIRST WRONG WORLD: implementing "
+                    "departure by striking the peer from the ROSTER produces the SAME three chains, "
+                    "digest for digest, on all 4 schedules — and the ONLY thing separating the two is "
+                    "the typed refusal, AUTH-REFUSE from the eviction against SESSION-REFUSE from the "
+                    "head-time test, on the 3 schedules where either refuses at all (the fourth "
+                    "delivers nothing late, so neither does). The codes carry information the state "
+                    "does not, and the roster and the calendar answer different questions: a departed "
+                    "peer's signature must still verify, or the session's own history stops being "
+                    "checkable. ANTI-STRAWMAN: the defect is THIS implementation with the evaluation "
+                    "instant moved — both `_admit` bodies unparse to `return self._gate(e, X)`, and "
+                    "substituting one X into the other makes them EQUAL"
+                    if df_ok else "a session defect arm did not behave as measured")
+
+        mb_ok = True
+        try:
+            total, refused, codes = SE.the_membership_refusals()
+            census = dict(SE.the_departed_peer_census())
+            mb_ok = (refused == total and total == 12 and codes == ("SESSION-REFUSE",)
+                     and sum(census[n] for n in SE.IN_HORIZON) == 5
+                     and census["ordered"] == 0 and census["departed"] == 3)
+        except Exception:
+            mb_ok = False
+        self.record("session-membership", mb_ok,
+                    "THE CALENDAR REFUSES, AND WHAT IT REFUSES IS NOT WHAT ARRIVED LATE. An event "
+                    "outside its author's interval is SESSION-REFUSE at every head it can be "
+                    "delivered at (12 of 12, one code), while an event INSIDE the interval whose "
+                    "author has since LEFT is admitted and rolled back into. Those two are exactly "
+                    "what a single \"is this peer here?\" check conflates. NON-VACUITY OF THE SHARP "
+                    "CASE: the corpus carries 5 in-window deliveries that arrive after their author "
+                    "left, 3 of them in the schedule built for it and 0 in the control — a law about "
+                    "departed peers proved on a corpus containing none would be a law about nothing"
+                    if mb_ok else "the membership refusals or the departed-peer census moved")
+
+        sg_ok = True
+        try:
+            sg_ok = SE.the_segmentation_law() == (
+                ("ordered", 0, 15), ("late", 0, 14), ("departed", 0, 12),
+                ("interleaved", 0, 12))
+        except Exception:
+            sg_ok = False
+        self.record("session-segmentation", sg_ok,
+                    "SEGMENTATION SURVIVES A CHANGING PEER SET. `compose` proved a run cut at any "
+                    "tick and resumed from that tick's snapshot reproduces the tail, over a FIXED "
+                    "log; here the log arrives out of order, through rollbacks, while peers join and "
+                    "leave. Cut the live session after ANY step, snapshot it, resume a FRESH session "
+                    "from the snapshot: 0 divergences over 53 cuts across four schedules"
+                    if sg_ok else "the session segmentation law did not hold")
+
+        pl_ok = True
+        try:
+            pl_ok = SE.the_plants() == (("drop_known", 19, 53), ("perturb_live", 27, 53),
+                                        ("perturb_all", 53, 53))
+            pl_ok = pl_ok and SE.the_admitted_set_is_load_bearing_in_both_directions() == (
+                10, 10, 9, 43)
+        except Exception:
+            pl_ok = False
+        self.record("session-plants", pl_ok,
+                    "THREE PLANTS, NO TWO SHARING A FAILURE MODE, and the interesting one is PRICED "
+                    "rather than asserted. Dropping the ADMITTED SET from the snapshot bites at 19 of "
+                    "53 cuts — and the split says why: `known` holds the pending FUTURE and the "
+                    "replayable PAST, so a cut with an admitted event still QUEUED loses it every "
+                    "time (10 of 10), while a cut where everything is already APPLIED only diverges "
+                    "if a LATER rollback reaches past it (9 of 43). A suite built on late deliveries "
+                    "alone — the schedule that LOOKS like the interesting one — would meet the defect "
+                    "at roughly one cut in five. Moving one word of the LIVE state alone bites at 27 "
+                    "of 53, and the misses are MECHANISM rather than luck: a rollback restores from a "
+                    "retained snapshot the plant never touched. Moving the same word in the retained "
+                    "snapshots too cannot be erased and bites at 53 of 53, which is what makes the "
+                    "clean arm's 0 mean anything"
+                    if pl_ok else "a session plant did not bite as measured")
+
+        st_ok = True
+        try:
+            closed, size, undeclared, invented = SE.the_state_population_is_closed()
+            only, all_in, state_fields = SE.the_walk_would_miss_the_fields_the_law_is_about()
+            st_ok = (closed and size == 12 and undeclared == () and invented == ()
+                     and all_in and state_fields and only == ("H", "K", "pos", "vel")
+                     and not set(SE.RESUMABLE) & set(SE.CONFIGURATION))
+        except Exception:
+            st_ok = False
+        self.record("session-state", st_ok,
+                    "WHAT A SNAPSHOT MUST CARRY IS DERIVED, NOT REMEMBERED. `RESUMABLE | "
+                    "CONFIGURATION` must EQUAL the `self.X` assignments of `WorldPeer.__init__` AND "
+                    "`Session.__init__`, read from the AST — the closure shape `exempt` uses for "
+                    "briefs, applied to session state, and reaching ACROSS the inheritance seam so a "
+                    "field added to the BASE class reddens here. 12 fields, 0 undeclared, 0 invented, "
+                    "every exemption with a reason. IT IS NOT DECORATIVE: `pos`, `vel`, `K` and `H` "
+                    "reach `self` ONLY through tuple targets, so the naive `node.targets[0].attr` "
+                    "walk finds NEITHER of the two fields the session's state IS — proved as a "
+                    "property rather than avoided by care"
+                    if st_ok else "the session state population is not closed")
+
+        hz_ok = True
+        try:
+            hz_ok = SE.the_horizon_bounds_the_convergence_claim() == (
+                8, 3, ("ROLLBACK-REFUSE",), True)
+        except Exception:
+            hz_ok = False
+        self.record("session-horizon", hz_ok,
+                    "THE SCOPE OF THE CLAIM, EXHIBITED RATHER THAN STATED. The same eleven envelopes "
+                    "delivered from the far end of the run leave the rollback horizon, and 3 events "
+                    "that every in-horizon schedule ADMITS are ROLLBACK-REFUSED instead. D12's "
+                    "composed sentence — the identical witness chain OR the same typed refusal — is "
+                    "therefore conditional on a delivery-schedule property the sentence does not "
+                    "name. NOT A DEFECT: `worldpeer` grades K/H as operational. A boundary, carried "
+                    "by a witness pair — the SAME event, admitted under one schedule and refused "
+                    "under another — which is what makes the condition real rather than theoretical"
+                    if hz_ok else "the horizon witness moved")
 
 
     # -- Stage 5: which edges carry which laws ---------------------------------
@@ -27445,7 +27615,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
