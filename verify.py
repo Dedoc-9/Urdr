@@ -301,6 +301,7 @@ STAGE_ORDER = (
     "voxin_placement",
     "authority",
     "exempt",
+    "disposition",
     "lattice",
     "epistemics_apparatus",
     "doc_currency",
@@ -4606,6 +4607,162 @@ class Gate:
                     "excusing, which is what makes the `law` field more than decoration; and the "
                     "register is green again afterwards, so the reds are detection not leakage"
                     if ok else "a planted rot did not redden: %r" % (plants,))
+
+    # -- forward commitments: a pre-registration is a debt ---------------------
+    def disposition(self):
+        """A PRE-REGISTRATION IS A DEBT, AND NOTHING IN THIS TREE WAS COLLECTING (URDRDSP1) —
+        `retire`'s forward twin. Rows: scenes, population, register, coverage, pending, plants."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import disposition as DP
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("population", "register", "coverage", "pending", "plants"):
+                self.record(f"disposition-{r}", False, f"import failed: {exc}")
+            return
+        live_rows = frozenset(n for n, _ok, _d in self.rows)
+
+        ref_ok = True
+        try:
+            ref_ok = (all(DP.scene_result(n) == DP.golden(n) for n in DP.SCENES)
+                      and DP.disposition_digest() == DP.golden("disposition"))
+        except Exception as exc:
+            self.record("disposition:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("disposition:scenes", ref_ok,
+                    "three URDRDSP1 scenes and the top digest reproduce their pins"
+                    if ref_ok else "a disposition scene drifted from its digest")
+
+        pop_ok, pop = True, (False, (), (), -1)
+        try:
+            pop = DP.the_two_derivations_agree()
+            pop_ok = pop[0] and pop[1] == () and pop[2] == () and pop[3] == 5
+            pop_ok = pop_ok and len(DP.population()) == 5
+            reg = DP.registrations()
+            pop_ok = pop_ok and all(DP.prediction_ids(r) for r in reg)
+        except Exception:
+            pop_ok = False
+        self.record("disposition-population", pop_ok,
+                    "THE POPULATION IS DERIVED TWICE AND THE TWO MUST AGREE. Once from the DISK — "
+                    "every `spec/attest/*-prediction.txt`. Once from the CODE — every top-level "
+                    "`PREDICTION_RECORD` binding in the swept source, read off the AST. That is not "
+                    "belt-and-braces: one derivation alone cannot tell an ORPHAN record (committed, "
+                    "bound by nothing) from a DANGLING binding (named in code, absent from disk), "
+                    "and those are different defects with different repairs. 5 records, 5 bindings, "
+                    "0 orphans, 0 dangling. A binding to a computed path, to a non-record path, or a "
+                    "record registered twice each REFUSE rather than being skipped"
+                    if pop_ok else "the prediction population derivations disagree")
+
+        reg_ok, cen = True, {}
+        try:
+            probs = DP.problems(live_rows)
+            cen = DP.census()
+            reg_ok = (not probs and set(DP.REGISTER) == set(DP.population())
+                      and len(cen[DP.STATE_DISCHARGED]) == 4 and len(cen[DP.STATE_PENDING]) == 1
+                      and DP.STATE_PENDING not in DP.TERMINAL
+                      and all(e[1] not in (DP.registrations().get(r),)
+                              for r, e in DP.REGISTER.items() if e[0] == DP.STATE_DISCHARGED))
+        except Exception:
+            reg_ok = False
+        self.record("disposition-register", reg_ok,
+                    "EVERY DISCOVERABLE PREDICTION RECORD CARRIES EXACTLY ONE DISPOSITION, AND EVERY "
+                    "TERMINAL ONE NAMES THE MECHANISM THAT DISCHARGED IT — checked against this "
+                    "run's own LIVE row set, so a disposition citing a row that no longer exists "
+                    "reddens. `retire` watches BACKWARD commitments (a withdrawn law must have no "
+                    "callers); this is its forward twin, and the mechanism was already right and "
+                    "already LOCAL: `voxreanchor` carries "
+                    "`every_registered_prediction_has_exactly_one_disposition` FOR ITS OWN RECORD. "
+                    "4 DISCHARGED, 1 PENDING. AND THE DISCHARGER IS DERIVED, which is the part that "
+                    "could not be a list: a module discharges a record when it CALLS that record's "
+                    "registrar's `prediction_text()`, resolved through the file's own import "
+                    "aliases. A REGISTRAR THEREFORE CANNOT SCORE ITS OWN RECORD, structurally — the "
+                    "derivation recognises only a CROSS-MODULE call, so a registrar scoring itself "
+                    "calls the function bare, matches nothing, and leaves its record PENDING. The "
+                    "back-dating the whole commit-order mechanism exists to prevent cannot produce a "
+                    "green row"
+                    if reg_ok else "the disposition register is not closed: %r"
+                    % (DP.problems(live_rows)[:3],))
+
+        cov_ok = True
+        try:
+            cov = DP.coverage()
+            cov_ok = (len(cov) == 4 and all(m == () and c == 5 for _r, _a, c, m in cov)
+                      and DP.the_id_scan_reads_code_and_not_prose() == ((), ("G1", "G2"))
+                      and DP.a_registrar_cannot_score_itself() == (True, False, True)
+                      and DP.every_record_is_tamper_pinned_by_its_registrar() == (5, 5, ()))
+        except Exception:
+            cov_ok = False
+        self.record("disposition-coverage", cov_ok,
+                    "PER-PREDICTION COVERAGE, READ FROM CODE WITH DOCSTRINGS STRIPPED. Every id a "
+                    "discharged record declares must reach its discharger OUTSIDE its prose — 5 of 5 "
+                    "on all four, because a module naming the ids only in a docstring would satisfy "
+                    "a naive scan and would have scored nothing (`claim != code`). This is where the "
+                    "record-level law composes onto the prediction-level one `voxreanchor` already "
+                    "carried, and the two granularities are kept apart: a record is DISCHARGED when "
+                    "every prediction in it reached a scorer, which is why `voxstream` counts as "
+                    "discharged although two of its five were void and withdrawn rather than scored. "
+                    "AND THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED: every registrar already "
+                    "pins its record's SHA-256 in its own conformance corpus, so re-pinning here "
+                    "would create a second path to the same fact for a later rung to find "
+                    "disagreeing — the mistake `cutbound` refused. What is added is the CLOSURE, 5 "
+                    "of 5 registrars exposing `prediction_digest` and pinning it"
+                    if cov_ok else "a discharged record is not covered in full")
+
+        pen_ok = True
+        try:
+            mods = {m for m, _s in DP._sources()}
+            pen_ok = (DP.the_pending_ceiling_is_the_live_reading()
+                      and DP.pending_records() == ("voxstrip",)
+                      and DP.REGISTER["voxstrip"][1] not in mods
+                      and "voxstrip" not in DP.dischargers())
+        except Exception:
+            pen_ok = False
+        self.record("disposition-pending", pen_ok,
+                    "`spec/attest/voxstrip-prediction.txt` WAS REGISTERED BY `voxbaggage`, DECLARES "
+                    "S1 THROUGH S5, IS READ BY NOTHING, AND NOTHING WOULD EVER HAVE SAID SO — the "
+                    "gate was green for every commit since. That is the failure class this rung "
+                    "answers and it is the same shape the session rung exposed one commit earlier: a "
+                    "finite population exists structurally and no law required every member to reach "
+                    "a disposition. WHY PENDING IS A RATCHET AND NOT A HARD FAILURE, because it is a "
+                    "CHOICE: making it red on arrival left two ways to land — do the deferred "
+                    "stripping work, or declare the record RETIRED. The second is available and is "
+                    "INFLATION, since S1 through S5 are still well-formed, still answerable, and no "
+                    "architectural decision has rendered them inapplicable, so retiring them to make "
+                    "a gate green would launder the debt the law was built to find. So the debt is "
+                    "NAMED, PINNED AT THE LIVE READING (1, equality not slack) and may only FALL — "
+                    "and it carries the tooth a ratchet normally lacks: A PENDING RECORD NAMES ITS "
+                    "COUNTERPARTY AND THAT COUNTERPARTY MUST NOT EXIST. The day a module named "
+                    "`voxstrip` ships without reading the record, this row reddens. It cannot be "
+                    "discharged quietly and it cannot be stepped over"
+                    if pen_ok else "the pending ratchet moved, or its counterparty now exists")
+
+        pl_ok = True
+        try:
+            plants = DP.plants_bite()
+            states = DP.every_state_is_reached()
+            pl_ok = (len(plants) == 10 and all(b for _n, b in plants)
+                     and all(r for _s, _n, r in states)
+                     and dict((s, n) for s, n, _r in states)[DP.STATE_RETIRED] == 0
+                     and dict((s, n) for s, n, _r in states)[DP.STATE_SUPERSEDED] == 0
+                     and DP.problems() == [])
+        except Exception:
+            pl_ok = False
+        self.record("disposition-plants", pl_ok,
+                    "TEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting and none leaking: "
+                    "an undeclared record, an invented one, a discharger that does not read the "
+                    "record, a registrar scoring itself, a disposition naming a DEAD gate row, a "
+                    "PENDING entry whose counterparty already exists, a PENDING entry something "
+                    "already reads, a disposition with no reason, an unknown state, and an EMPTY "
+                    "register (L61 — a census that can return one value certifies nothing). Each "
+                    "runs against a SUBSTITUTED register so the live one is never edited, and the "
+                    "instrument is proved green again afterwards. AND TWO OF THE FOUR STATES ARE "
+                    "EMPTY IN THE LIVE REGISTER, REPORTED RATHER THAN HIDDEN: L61 says a class "
+                    "nobody has met is a distinction nobody has met, and `retire`'s precedent is the "
+                    "answer — a state earns its place by being REACHED, live or by a plant that "
+                    "constructs it. RETIRED and SUPERSEDED are reached by plants; DISCHARGED and "
+                    "PENDING are live"
+                    if pl_ok else "a disposition plant did not bite: %r" % (DP.plants_bite(),))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -27615,7 +27772,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("disposition", "session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

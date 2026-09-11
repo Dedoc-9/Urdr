@@ -1,0 +1,79 @@
+# URDRDSP1 conformance — A PRE-REGISTRATION IS A DEBT, AND NOTHING IN THIS TREE WAS COLLECTING.
+#
+# `retire` watches BACKWARD commitments: a law withdrawn must have no callers. This is its forward
+# twin. Five pre-registrations sit under spec/attest/, each committed one commit BEFORE the arms that
+# score it, because commit order is the only thing that proves a prediction came first. voxreanchor
+# carries `every_registered_prediction_has_exactly_one_disposition` FOR ITS OWN RECORD, and four
+# records have been scored that way.
+#
+#     spec/attest/voxstrip-prediction.txt HAS NOT, AND NOTHING WOULD EVER HAVE SAID SO.
+#
+# Registered by voxbaggage, declares S1 through S5, read by no module, and the gate was green for
+# every commit since. A FINITE POPULATION EXISTS STRUCTURALLY AND NO LAW REQUIRED EVERY MEMBER TO
+# REACH A DISPOSITION -- the same shape the session rung exposed one commit earlier.
+#
+# THE LAW: every discoverable prediction record must carry EXACTLY ONE disposition, and every
+# terminal disposition must NAME THE MECHANISM that discharged, retired or superseded it.
+#
+# THE POPULATION IS DERIVED TWICE AND THE TWO MUST AGREE -- once from the DISK (every
+# spec/attest/*-prediction.txt) and once from the CODE (every top-level PREDICTION_RECORD binding,
+# read off the AST). One derivation alone cannot tell an ORPHAN record (committed, bound by nothing)
+# from a DANGLING binding (named in code, absent from disk), and those are different defects with
+# different repairs. Five records, five bindings, agreeing.
+#
+#   record        state       registrar    discharger   row
+#   voxcond       DISCHARGED  voxpath      voxcond      voxcond-prereg
+#   voxmanifold   DISCHARGED  voxstate     voxmanifold  voxmanifold-prereg
+#   voxstream     DISCHARGED  voxrun       voxreanchor  voxreanchor-disposition
+#   voxtile       DISCHARGED  voxbreak     voxtile      voxtile-result
+#   voxstrip      PENDING     voxbaggage   --           --
+#
+# THE DISCHARGER IS DERIVED, WHICH IS THE PART THAT COULD NOT BE A LIST. A module discharges a record
+# when it CALLS that record's registrar's `prediction_text()`, resolved through the file's OWN import
+# aliases. AND A REGISTRAR CANNOT DISCHARGE ITS OWN RECORD, STRUCTURALLY: the derivation recognises
+# only a CROSS-MODULE call, so a registrar scoring itself calls `prediction_text()` bare, matches
+# nothing, and leaves its record PENDING. The back-dating the whole mechanism exists to prevent
+# cannot produce a green row. Proved on a constructed self-scoring / cross-scoring pair.
+#
+# PER-PREDICTION COVERAGE IS READ FROM CODE WITH DOCSTRINGS STRIPPED. Every id a discharged record
+# declares must reach its discharger outside its prose -- 5 of 5 on all four. A module naming the ids
+# only in a docstring would satisfy a naive scan and would have scored nothing (`claim != code`).
+#
+# TWO OF THE FOUR STATES ARE EMPTY IN THE LIVE REGISTER AND THAT IS REPORTED RATHER THAN HIDDEN. L61:
+# a class nobody has met is a distinction nobody has met, and `retire`'s precedent is the answer --
+# a state earns its place by being REACHED, live or by a plant that constructs it. RETIRED and
+# SUPERSEDED are reached by plants; DISCHARGED and PENDING are live.
+#
+# WHY PENDING IS A RATCHET AND NOT A HARD FAILURE, STATED PLAINLY BECAUSE IT IS A CHOICE. Making
+# PENDING red on arrival left two ways to land: do the deferred stripping work, or declare voxstrip
+# RETIRED. The second is available and is INFLATION -- S1 through S5 are still well-formed, still
+# answerable, and no architectural decision has rendered them inapplicable, so retiring them to make
+# a gate green would launder the debt the law was built to find. So the debt is NAMED, PINNED AT THE
+# LIVE READING, and may only FALL -- and it carries the tooth a ratchet normally lacks: A PENDING
+# RECORD NAMES ITS COUNTERPARTY AND THAT COUNTERPARTY MUST NOT EXIST. The day a module named
+# `voxstrip` ships without reading the record, this row reddens. It cannot be discharged quietly and
+# it cannot be stepped over.
+#
+# THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED. Every registrar already pins its record's
+# SHA-256 in its own conformance corpus. Re-pinning here would create a second path to the same fact
+# for a later rung to find disagreeing -- the mistake `cutbound` refused. What is added is the
+# CLOSURE: every registered record must have a registrar exposing `prediction_digest` AND a
+# conformance corpus that pins it. 5 of 5, derived.
+#
+# TEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting: an undeclared record, an invented one,
+# a discharger that does not read the record, a registrar scoring itself, a disposition naming a dead
+# gate row, a PENDING entry whose counterparty already exists, a PENDING entry something already
+# reads, a disposition with no reason, an unknown state, and an EMPTY register (L61 -- a census that
+# can return one value certifies nothing).
+#
+# does_not_show: that a discharged prediction was scored WELL -- `disposed != adjudicated`, and a
+# discharger naming all five ids in code satisfies this law completely whatever verdicts it recorded,
+# exactly as `indexed` catches the module nobody wrote up and not the module written up badly; that a
+# prediction MADE is a prediction REGISTERED -- the population is PREDICTION_RECORD bindings, so a
+# claim about the future written in a docstring and never given a record is invisible here; that
+# PENDING will ever end -- what is forbidden is SILENCE and GROWTH, not procrastination; and nothing
+# about the CONTENT of any record, which each registrar's own digest pin already protects.
+population fed6143cebfba2ad83e8ca6beee2859c21bef7d5cfbfab1fd530e74639d40a41
+register c8bff9baddfd37b1742980bb142ab5880ae2d0deafe86848524ace3282d48d83
+bounds 3c34ed1b843159675a2bfd26a5d1bc649c75694aeac09769f5a1c80c0c03be2e
+disposition 99234350674268b3f5405218e1d2d6daa3146da2309e315cec2d2d8247365f2b
