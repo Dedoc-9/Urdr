@@ -150,9 +150,65 @@ class TheClosure(unittest.TestCase):
 
 
 class ThePending(unittest.TestCase):
-    def test_the_ratchet_is_the_live_reading(self):
+    def test_the_ratchet_is_the_live_reading_over_the_debt(self):
         self.assertTrue(DP.the_pending_ceiling_is_the_live_reading())
-        self.assertEqual(len(DP.pending_records()), DP.PENDING_CEILING)
+        self.assertEqual(len(DP.debt_records()), DP.PENDING_CEILING)
+
+    def test_the_two_classes_partition_the_pending_set(self):
+        ok, pend, debt, flight, phantom = DP.the_two_pending_classes_partition()
+        self.assertTrue(ok, f"phantom={phantom}")
+        self.assertEqual(debt + flight, pend)
+        self.assertEqual(phantom, ())
+        self.assertFalse(set(DP.debt_records()) & set(DP.in_flight_records()))
+
+    def test_exhaustiveness_is_structural_rather_than_checked(self):
+        """In flight is DEFINED as the complement, so nothing can fall out of both. Stated as
+        structure rather than dressed up as a checked property."""
+        import inspect
+        src = inspect.getsource(DP.in_flight_records)
+        self.assertIn("- set(PENDING_DEBT)", src)
+
+    def test_a_phantom_debt_entry_is_caught(self):
+        """The direction a laundering attempt would actually take: park a name where the ratchet
+        counts it and the pending set does not."""
+        keep = DP.PENDING_DEBT
+        try:
+            DP.PENDING_DEBT = tuple(keep) + ("voxcond",)
+            self.assertTrue(any(k == "phantom-debt" for _r, k, _d in DP.problems()))
+        finally:
+            DP.PENDING_DEBT = keep
+        self.assertEqual(DP.problems(), [])
+
+    def test_a_registration_in_flight_is_permitted(self):
+        """THE REPAIR. v1.0 made this impossible: the intermediate state commit-order registration
+        REQUIRES raised the count against an equality."""
+        probe = dict(DP.REGISTER)
+        probe["ghost"] = (DP.STATE_PENDING, "ghostscore", "", "z" * 45)
+        keep = DP.REGISTER
+        try:
+            DP.REGISTER = probe
+            self.assertEqual(DP.in_flight_records(), ("ghost",))
+            self.assertTrue(DP.the_pending_ceiling_is_the_live_reading())
+            self.assertTrue(DP.the_two_pending_classes_partition()[0])
+        finally:
+            DP.REGISTER = keep
+
+    def test_it_cannot_be_laundered_into_debt_instead_of_discharged(self):
+        probe = dict(DP.REGISTER)
+        probe["ghost"] = (DP.STATE_PENDING, "ghostscore", "", "z" * 45)
+        keep_r, keep_d = DP.REGISTER, DP.PENDING_DEBT
+        try:
+            DP.REGISTER = probe
+            DP.PENDING_DEBT = tuple(keep_d) + ("ghost",)
+            self.assertFalse(DP.the_pending_ceiling_is_the_live_reading())
+        finally:
+            DP.REGISTER, DP.PENDING_DEBT = keep_r, keep_d
+
+    def test_the_only_exit_from_in_flight_is_discharge(self):
+        vanish, become, state = DP.the_only_exit_from_in_flight_is_discharge()
+        self.assertTrue(vanish, "a pending record could fall out of both classes")
+        self.assertTrue(become, "in flight could be laundered into debt")
+        self.assertTrue(state, "its state could be changed to something uncounted")
 
     def test_the_pending_record_is_the_one_nothing_reads(self):
         disc = DP.dischargers()

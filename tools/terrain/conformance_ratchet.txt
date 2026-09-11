@@ -1,0 +1,76 @@
+# URDRRAT1 conformance — THE DIRECTION IS THE WHOLE WORD, AND NOTHING WAS ENFORCING IT.
+#
+# Three rungs pin a debt count and promise it may only fall. None enforces the falling.
+#
+#     entry        mods <= CEILING and sites <= CEILING   a <=, so slack is tolerated and invisible
+#     indexed      len(holes[p]) == n                     equality, no slack, no direction
+#     disposition  len(pending) == PENDING_CEILING        equality, no slack, no direction
+#
+# All three compare the pin to a live reading AT AN INSTANT, and an instant has no direction. The
+# monotonicity that makes the word `ratchet` mean anything lived in prose and in the author's care.
+#
+# THE FINDING THAT FORCED IT. `disposition` shipped two commits earlier and its equality made a NEW
+# PRE-REGISTRATION IMPOSSIBLE: commit-order registration requires an intermediate state where a
+# record is pending and its discharger does not exist, and that state raises the count. The only way
+# through was to raise the ceiling in the registering commit, which the same module's prose forbids.
+# A law written to protect the tree's strongest instrument FORBADE the instrument.
+#
+# THE DERIVATION INVERTS, AND THAT IS THE DESIGN DECISION. The first attempt derived ratchets
+# STRUCTURALLY -- a module-level integer compared against a non-constant -- and returned 78
+# candidates: verdict codes (R_ADMIT = 0), policy numbers (MIN_PEERS = 5), physical bounds
+# (T_MAX = 4096). THE SHAPE OF A COMPARISON IS NOT WHAT MAKES SOMETHING A RATCHET. A ratchet is a
+# declared debt quantity plus a declared monotone direction plus a baseline plus an enforcement, and
+# only the quantity has a syntax. So the CLAIM is derived from shipped prose and the CONSTANT is
+# declared -- `attributed`'s shape. That population is small and exact:
+#
+#     entry        OWNS    CENSUS_CEILING_MODULES, CENSUS_CEILING_SITES   FALL   13, 40
+#     indexed      OWNS    INDEXES                                        FALL   15 -> 13
+#     disposition  OWNS    PENDING_CEILING                                FALL   1
+#     cutpin       CITES   quotes `entry`'s ratchet; owns none
+#     pixelcost    FIGURE  the word as a metaphor about claim grades
+#     lattice      FIGURE  the word in passing
+#     ratchet      CITES   names every phrase BECAUSE IT DECLARES THE VOCABULARY; owns none
+#
+# THE BOUNDARY CASES ARE REAL RATHER THAN CONSTRUCTED (L61). `cutpin` QUOTES `entry`'s ratchet to
+# explain why it removed a CLI rather than raise a ceiling -- a law that could not tell a citation
+# from a promise would demand a baseline from a module that has no ratchet. `pixelcost` says
+# something true and unrelated: "a claim that cannot be demoted by more evidence is a ratchet, and
+# ratchets are for debts, not claims" -- this module's own principle, from a module that owns none.
+# AND THIS LAW MATCHES ITSELF, the fourth guard in this arc to do so after `lift`'s `exp(`,
+# `retire`'s `HEAD` and `reflow`'s own regex list: it contains every phrase because it DECLARES the
+# vocabulary. The honest response is to classify it, never to exclude it -- excluding itself would
+# be the one move that makes the population a choice rather than a reading.
+#
+# HISTORY IS READ, NOT ASSERTED. Each OWNS entry pins a BASELINE COMMIT and the value the constant
+# held there. The blob is fetched, its SHA-256 checked against the pin, the constant re-read from
+# those bytes, and the recorded baseline required to EQUAL what the blob says -- so the record cannot
+# lie about history and a substituted artifact REFUSES rather than passing. The reference is a FIXED
+# revision and this module may not name HEAD in a git argument at all, checked on its own source:
+# a falsifier anchored to a moving reference passes only from where it was written (`retire`'s
+# lesson, inherited whole).
+#
+# FOUR VERDICTS, AND TWO ARE ABOUT THE ENVIRONMENT RATHER THAN THE CLAIM:
+#
+#     HELD         the baseline was read and the direction holds
+#     BROKEN       the baseline was read and the direction does NOT hold
+#     UNAVAILABLE  git could not produce the object -- a shallow clone, not a falsification
+#     MISSED       the object came back and the mechanism could not read the constant out of it
+#
+#     Collapsing UNAVAILABLE into either would make environmental incompleteness look like a passing
+#     historical check, or like an actual refutation. It is neither.
+#
+# NON-VACUOUS ON A LIVE ENTRY, NOT ONLY ON A PLANT: `indexed`'s ratchet has actually MOVED, 15 at
+# baseline (13 ladder + 2 hainuwele) against 13 today. A direction law whose every subject sat still
+# would be reporting that nothing had happened.
+#
+# does_not_show: that a ratchet's VALUE is right -- a debt of thirteen may be the wrong thirteen, and
+# this law only refuses its growth; that the promise vocabulary is COMPLETE, a module promising
+# monotonicity in other words being invisible here, which is why the vocabulary is DECLARED where it
+# can be read rather than hidden in a regex; that a baseline is the EARLIEST such value rather than
+# the earliest PINNED one, so an author who pinned a lenient baseline gets a lenient law; and nothing
+# about non-numeric debts -- a SET that may only shrink is a different law, and `disposition` carries
+# its own partition rather than pretending this one covers it.
+population 7f1136bb44a64cbd0bbd988a16dec082975446fb64feb5c77fbde2c372cb7d6d
+history aa7da4150d02141574185c6fd983dce792b107749f6aeb4e63f23c234eaedcb4
+bounds ddadce8b4df8f8c66bedd2cd3826c28e4a7728c51e79e03c1a85e9f58b25e17a
+ratchet 8de40ef5a38d90e81a79eac3ec58b0e9b20070a103c3ddbab727025911e6d026

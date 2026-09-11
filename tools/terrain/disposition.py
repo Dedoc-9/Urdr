@@ -61,10 +61,32 @@ PENDING red on arrival would have left exactly two ways to land this rung: do th
 work, or declare `voxstrip` RETIRED. The second is available and is inflation — S1 through S5 are
 still well-formed, still answerable, and no architectural decision has rendered them inapplicable;
 retiring them to make a gate green is laundering the debt the law was built to find. SO THE DEBT IS
-NAMED, PINNED AT THE LIVE READING, AND MAY ONLY FALL, in the shape `entry` and `indexed` already use
-— and it is given the one tooth a ratchet normally lacks: A PENDING RECORD NAMES ITS COUNTERPARTY,
-AND THAT COUNTERPARTY MUST NOT EXIST. The day a module named `voxstrip` ships without reading the
-record, this row reddens. It cannot be discharged quietly and it cannot be stepped over.
+NAMED, PINNED AT THE LIVE READING, AND MAY ONLY FALL — and it is given the one tooth a ratchet
+normally lacks: A PENDING RECORD NAMES ITS COUNTERPARTY, AND THAT COUNTERPARTY MUST NOT EXIST. The
+day a module named `voxstrip` ships without reading the record, this row reddens.
+
+v1.1 (2026-09-11) — THE LAW FORBADE THE MECHANISM IT WAS BUILT TO PROTECT, AND THAT IS THE FINDING.
+v1.0 counted EVERY pending record against the ceiling. Commit-order registration requires an
+intermediate state where a record exists and its discharger does not — that IS the mechanism — so the
+count must rise for exactly one commit, and the equality forbade it. The only way through was to
+raise the ceiling in the registering commit, which this module's own prose forbids. A NEW
+PRE-REGISTRATION WAS THEREFORE IMPOSSIBLE, and nothing said so, because nothing was reading the
+direction either way. `ratchet` (URDRRAT1) is the answer to the second half and this is the first.
+
+    AGED DEBT              declared, registered long ago, counterparty never built. RATCHETED.
+    COMMITMENT IN FLIGHT   newly registered, discharger due, counterparty named and ABSENT.
+
+THE TWO PARTITION THE PENDING SET, and the exhaustive half is STRUCTURAL rather than checked: in
+flight is DEFINED as the complement of the declared debt, so no record can fall out of both and none
+can be in both. What is checked is the half construction cannot give — a PHANTOM debt entry, declared
+as debt while not pending, which is the direction a laundering attempt would actually take.
+
+AND THE ONLY EXIT FROM IN FLIGHT IS DISCHARGE, which is a THEOREM about the other two laws rather
+than a third law. A record in flight has three conceivable next states: VANISH is closed by the
+partition; BECOME DEBT is closed by the ratchet, since declaring it debt grows a count whose ceiling
+is the live reading and whose direction `ratchet` holds at FALL against history; DISCHARGE is what
+remains. So a registration is permitted, cannot evaporate, and cannot be laundered into indefinite
+debt — while nothing here claims it must be discharged SOON, which is in `does_not_show`.
 
 A NOTE ON THE STATE CONSTANTS, BECAUSE THE RENAME IS A FINDING AND NOT A STYLE CHOICE. The four
 states are bound as `STATE_*` rather than as bare words because `retire` treats a module-level
@@ -95,8 +117,10 @@ module written up badly; that a prediction MADE is a prediction REGISTERED — t
 `PREDICTION_RECORD` bindings, so a claim about the future written in a docstring and never given a
 record is invisible here, which is a real bound and the reason the derivation is pinned to a
 structural marker rather than to prose; that PENDING will ever end — what is forbidden is SILENCE and
-GROWTH, not procrastination; and nothing about the CONTENT of any record, which each registrar's own
-digest pin already protects."""
+GROWTH, not procrastination, and v1.1 adds a second bound of the same kind: the exit from IN FLIGHT
+is proved to be discharge alone, and its TIMELINESS is not bounded at all, so a commitment may stay
+in flight indefinitely provided it never becomes debt and never vanishes; and nothing about the
+CONTENT of any record, which each registrar's own digest pin already protects."""
 import ast
 import hashlib
 import os as _os
@@ -120,8 +144,18 @@ STATE_PENDING = "PENDING"
 STATES = (STATE_DISCHARGED, STATE_RETIRED, STATE_SUPERSEDED, STATE_PENDING)
 TERMINAL = (STATE_DISCHARGED, STATE_RETIRED, STATE_SUPERSEDED)
 
-#: THE PENDING RATCHET, pinned at the LIVE reading rather than above it. A ceiling with slack is one
-#: the next un-discharged registration fits under without anyone deciding to let it.
+#: DECLARED — the AGED DEBT: records that were registered and whose counterparty was never built.
+#: A pending record NOT named here is a COMMITMENT IN FLIGHT: newly registered, its discharger due,
+#: and permitted to exist because the tree's commit-order mechanism REQUIRES that state. The two
+#: together must PARTITION the pending set exactly — not two convenient descriptions of it — or a
+#: record could be reclassified out of both and counted by neither.
+PENDING_DEBT = ("voxstrip",)
+
+#: THE PENDING RATCHET, over the DEBT alone, pinned at the live reading. v1.0 counted ALL pending
+#: records and thereby made a new pre-registration impossible: registration must precede scoring by
+#: one commit, so the count must rise for one commit, and the equality forbade it. The ceiling now
+#: binds only the debt, and `ratchet` (URDRRAT1) enforces its DIRECTION against history, which is
+#: what the word was promising all along.
 PENDING_CEILING = 1
 
 
@@ -399,6 +433,10 @@ def problems(live_rows=frozenset()):
         if missing:
             bad.append((record, "coverage",
                         f"{agent} never names {', '.join(missing)} outside its prose"))
+    for record in sorted(set(PENDING_DEBT) - set(pending_records())):
+        bad.append((record, "phantom-debt",
+                    "declared as AGED DEBT and is not pending — a name parked where the ratchet "
+                    "counts it and the pending set does not"))
     return bad
 
 
@@ -406,10 +444,84 @@ def pending_records():
     return tuple(sorted(r for r, e in REGISTER.items() if e[0] == STATE_PENDING))
 
 
+def debt_records():
+    """The AGED DEBT: pending, and declared as debt."""
+    return tuple(sorted(set(PENDING_DEBT) & set(pending_records())))
+
+
+def in_flight_records():
+    """A COMMITMENT IN FLIGHT: pending, and NOT declared as debt — newly registered with its
+    discharger due. This state is not a concession; the commit-order mechanism REQUIRES it."""
+    return tuple(sorted(set(pending_records()) - set(PENDING_DEBT)))
+
+
+def the_two_pending_classes_partition():
+    """THE LAUNDERING PATH, AND WHICH HALF OF IT IS STRUCTURAL RATHER THAN CHECKED — stated that way
+    because a law that cannot fail is not a law.
+
+    EXHAUSTIVE AND DISJOINT BY CONSTRUCTION: in-flight is DEFINED as the complement of the declared
+    debt within the pending set, so no record can fall out of both and none can be in both. That is
+    the right shape — it makes the reclassification path impossible rather than caught — and it is
+    reported here as structure, not as evidence.
+
+    WHAT IS ACTUALLY CHECKED is the half construction cannot give: a PHANTOM debt entry, declared as
+    debt while not pending at all. That is the direction a laundering attempt would take — park a
+    name in the debt list where the ratchet counts it and the pending set does not.
+
+    Returns (partitions, pending, debt, in_flight, phantom)."""
+    pend, debt, flight = set(pending_records()), set(debt_records()), set(in_flight_records())
+    phantom = tuple(sorted(set(PENDING_DEBT) - pend))
+    return ((debt | flight) == pend and not (debt & flight) and not phantom,
+            len(pend), len(debt), len(flight), phantom)
+
+
 def the_pending_ceiling_is_the_live_reading():
-    """A RATCHET AT THE LIVE READING, NOT ABOVE IT. Equality, not `<=`: a ceiling with slack is one
-    the next un-discharged registration fits under without anyone deciding to let it."""
-    return len(pending_records()) == PENDING_CEILING
+    """A RATCHET AT THE LIVE READING, NOT ABOVE IT, and over the DEBT rather than over everything
+    pending. Equality, not `<=`: a ceiling with slack is one the next un-discharged registration
+    fits under without anyone deciding to let it. The DIRECTION is enforced by `ratchet`."""
+    return len(debt_records()) == PENDING_CEILING
+
+
+def the_only_exit_from_in_flight_is_discharge():
+    """A THEOREM ABOUT THE OTHER TWO LAWS RATHER THAN A THIRD LAW. A record in flight has exactly
+    three conceivable next states and two of them are already closed:
+
+      VANISH   -> refused by the partition: every pending record is debt or in flight, and a record
+                  that is neither reddens `partition` rather than disappearing.
+      BECOME   -> refused by the ratchet: moving into `PENDING_DEBT` GROWS the debt, the ceiling is
+      DEBT        the live reading, and `ratchet` holds its direction at FALL against history.
+      DISCHARGE-> the only remaining exit.
+
+    So a registration cannot be laundered into indefinite debt and cannot quietly evaporate; what is
+    NOT claimed is that it must be discharged SOON — see `does_not_show`. Returns
+    (vanish_closed, become_debt_closed, state_change_closed)."""
+    probe = dict(REGISTER)
+    probe["ghost"] = (STATE_PENDING, "ghostscore", "", "z" * 45)
+
+    # VANISH — structural: in-flight is the complement, so a pending record is in exactly one class.
+    keep_reg = REGISTER
+    try:
+        globals()["REGISTER"] = probe
+        pend = set(pending_records())
+        vanish = (set(debt_records()) | set(in_flight_records())) == pend and "ghost" in pend
+    finally:
+        globals()["REGISTER"] = keep_reg
+
+    # BECOME DEBT — the ratchet: declaring it debt makes the debt count exceed the live ceiling.
+    keep_debt = PENDING_DEBT
+    try:
+        globals()["REGISTER"] = probe
+        globals()["PENDING_DEBT"] = tuple(PENDING_DEBT) + ("ghost",)
+        become = not the_pending_ceiling_is_the_live_reading()
+    finally:
+        globals()["PENDING_DEBT"] = keep_debt
+        globals()["REGISTER"] = keep_reg
+
+    # CHANGE ITS STATE to something that is neither terminal nor pending — the closure refuses it.
+    sneaky = dict(REGISTER)
+    sneaky["voxstrip"] = ("PARKED", "voxstrip", "", "z" * 45)
+    state_closed = any(k == "state" for _r, k, _d in _probe_problems(sneaky))
+    return vanish, become, state_closed
 
 
 def census():
@@ -530,6 +642,13 @@ def plants_bite():
     probe["voxcond"] = ("THRIVED", "voxcond", "voxcond-prereg", "y" * 41)
     out.append(("unknown-state", any(k == "state" for _r, k, _d in _probe_problems(probe))))
 
+    keep = PENDING_DEBT
+    try:
+        globals()["PENDING_DEBT"] = tuple(PENDING_DEBT) + ("voxcond",)
+        out.append(("phantom-debt", any(k == "phantom-debt" for _r, k, _d in problems())))
+    finally:
+        globals()["PENDING_DEBT"] = keep
+
     out.append(("empty-register", bool(_probe_problems({}))))
     return tuple(out)
 
@@ -566,9 +685,11 @@ def scene_case(name):
         return "%s|%s|%s" % (sorted((r, REGISTER[r][:3]) for r in sorted(REGISTER)),
                              sorted(census().items()), coverage())
     if name == "bounds":
-        return "%s|%s|%s|%s" % (the_pending_ceiling_is_the_live_reading(),
-                                every_record_is_tamper_pinned_by_its_registrar(),
-                                every_state_is_reached(), plants_bite())
+        return "%s|%s|%s|%s|%s|%s" % (the_pending_ceiling_is_the_live_reading(),
+                                      every_record_is_tamper_pinned_by_its_registrar(),
+                                      every_state_is_reached(),
+                                      the_two_pending_classes_partition(),
+                                      the_only_exit_from_in_flight_is_discharge(), plants_bite())
     raise DispositionError(f"no scene named {name!r}")
 
 

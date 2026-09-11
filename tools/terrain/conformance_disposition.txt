@@ -50,9 +50,29 @@
 # answerable, and no architectural decision has rendered them inapplicable, so retiring them to make
 # a gate green would launder the debt the law was built to find. So the debt is NAMED, PINNED AT THE
 # LIVE READING, and may only FALL -- and it carries the tooth a ratchet normally lacks: A PENDING
-# RECORD NAMES ITS COUNTERPARTY AND THAT COUNTERPARTY MUST NOT EXIST. The day a module named
-# `voxstrip` ships without reading the record, this row reddens. It cannot be discharged quietly and
-# it cannot be stepped over.
+# RECORD NAMES ITS COUNTERPARTY AND THAT COUNTERPARTY MUST NOT EXIST.
+#
+# v1.1 (2026-09-11) -- THE LAW FORBADE THE MECHANISM IT WAS BUILT TO PROTECT. v1.0 counted EVERY
+# pending record against the ceiling. Commit-order registration REQUIRES an intermediate state where
+# a record exists and its discharger does not, so the count must rise for exactly one commit, and the
+# equality forbade it. The only way through was to raise the ceiling in the registering commit, which
+# this module's own prose forbids. A NEW PRE-REGISTRATION WAS THEREFORE IMPOSSIBLE, and nothing said
+# so, because nothing was reading the direction either way. `ratchet` (URDRRAT1) answers the second
+# half; this is the first.
+#
+#     AGED DEBT             declared, registered long ago, counterparty never built. RATCHETED.
+#     COMMITMENT IN FLIGHT  newly registered, discharger due, counterparty named and ABSENT.
+#
+# THE TWO PARTITION THE PENDING SET, and the exhaustive half is STRUCTURAL rather than checked: in
+# flight is DEFINED as the complement of the declared debt, so no record can fall out of both and
+# none can be in both. What is CHECKED is the half construction cannot give -- a PHANTOM debt entry,
+# declared as debt while not pending, which is the direction a laundering attempt would take.
+#
+# AND THE ONLY EXIT FROM IN FLIGHT IS DISCHARGE -- a THEOREM about the other two laws rather than a
+# third law. VANISH is closed by the partition; BECOME DEBT is closed by the ratchet, since declaring
+# it debt grows a count whose ceiling is the live reading and whose direction `ratchet` holds at FALL
+# against history; DISCHARGE is what remains. A registration is permitted, cannot evaporate, and
+# cannot be laundered into indefinite debt.
 #
 # THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED. Every registrar already pins its record's
 # SHA-256 in its own conformance corpus. Re-pinning here would create a second path to the same fact
@@ -60,20 +80,23 @@
 # CLOSURE: every registered record must have a registrar exposing `prediction_digest` AND a
 # conformance corpus that pins it. 5 of 5, derived.
 #
-# TEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting: an undeclared record, an invented one,
-# a discharger that does not read the record, a registrar scoring itself, a disposition naming a dead
-# gate row, a PENDING entry whose counterparty already exists, a PENDING entry something already
-# reads, a disposition with no reason, an unknown state, and an EMPTY register (L61 -- a census that
-# can return one value certifies nothing).
+# ELEVEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting: an undeclared record, an invented
+# one, a discharger that does not read the record, a registrar scoring itself, a disposition naming
+# a dead gate row, a PENDING entry whose counterparty already exists, a PENDING entry something
+# already reads, a disposition with no reason, an unknown state, a PHANTOM DEBT entry declared as
+# debt while not pending, and an EMPTY register (L61 -- a census that can return one value
+# certifies nothing).
 #
 # does_not_show: that a discharged prediction was scored WELL -- `disposed != adjudicated`, and a
 # discharger naming all five ids in code satisfies this law completely whatever verdicts it recorded,
 # exactly as `indexed` catches the module nobody wrote up and not the module written up badly; that a
 # prediction MADE is a prediction REGISTERED -- the population is PREDICTION_RECORD bindings, so a
 # claim about the future written in a docstring and never given a record is invisible here; that
-# PENDING will ever end -- what is forbidden is SILENCE and GROWTH, not procrastination; and nothing
+# PENDING will ever end -- what is forbidden is SILENCE and GROWTH, not procrastination, and
+# v1.1 adds a bound of the same kind: the EXIT from in flight is proved to be discharge alone
+# and its TIMELINESS is not bounded at all; and nothing
 # about the CONTENT of any record, which each registrar's own digest pin already protects.
 population fed6143cebfba2ad83e8ca6beee2859c21bef7d5cfbfab1fd530e74639d40a41
 register c8bff9baddfd37b1742980bb142ab5880ae2d0deafe86848524ace3282d48d83
-bounds 3c34ed1b843159675a2bfd26a5d1bc649c75694aeac09769f5a1c80c0c03be2e
-disposition 99234350674268b3f5405218e1d2d6daa3146da2309e315cec2d2d8247365f2b
+bounds 2fecfede1d795283ff56bd6f6e7ea03e8eb74b7fcc301b95a126b828a4c66de8
+disposition fbca1dd3f821cfd8a18377c35d1420d737bab0249f0e98b11243a5665b91e72b

@@ -302,6 +302,7 @@ STAGE_ORDER = (
     "authority",
     "exempt",
     "disposition",
+    "ratchet",
     "lattice",
     "epistemics_apparatus",
     "doc_currency",
@@ -4719,8 +4720,12 @@ class Gate:
         pen_ok = True
         try:
             mods = {m for m, _s in DP._sources()}
+            part = DP.the_two_pending_classes_partition()
             pen_ok = (DP.the_pending_ceiling_is_the_live_reading()
-                      and DP.pending_records() == ("voxstrip",)
+                      and DP.debt_records() == ("voxstrip",)
+                      and DP.in_flight_records() == ()
+                      and part == (True, 1, 1, 0, ())
+                      and DP.the_only_exit_from_in_flight_is_discharge() == (True, True, True)
                       and DP.REGISTER["voxstrip"][1] not in mods
                       and "voxstrip" not in DP.dischargers())
         except Exception:
@@ -4739,16 +4744,27 @@ class Gate:
                     "a gate green would launder the debt the law was built to find. So the debt is "
                     "NAMED, PINNED AT THE LIVE READING (1, equality not slack) and may only FALL — "
                     "and it carries the tooth a ratchet normally lacks: A PENDING RECORD NAMES ITS "
-                    "COUNTERPARTY AND THAT COUNTERPARTY MUST NOT EXIST. The day a module named "
-                    "`voxstrip` ships without reading the record, this row reddens. It cannot be "
-                    "discharged quietly and it cannot be stepped over"
+                    "COUNTERPARTY AND THAT COUNTERPARTY MUST NOT EXIST. v1.1 REPAIRS WHAT v1.0 "
+                    "FORBADE: counting EVERY pending record made a new pre-registration impossible, "
+                    "because commit-order registration REQUIRES an intermediate state where a record "
+                    "exists and its discharger does not, so the count must rise for one commit and "
+                    "the equality forbade it. Pending now splits into AGED DEBT (declared, ratcheted, "
+                    "direction held against history by `ratchet`) and a COMMITMENT IN FLIGHT "
+                    "(permitted, counterparty named and absent). The two PARTITION the pending set, "
+                    "and the exhaustive half is STRUCTURAL rather than checked — in flight IS the "
+                    "complement, so nothing can fall out of both — while the half construction "
+                    "cannot give IS checked: a PHANTOM debt entry, declared as debt while not "
+                    "pending, which is the direction a laundering attempt would take. AND THE ONLY "
+                    "EXIT FROM IN FLIGHT IS DISCHARGE, a theorem about the other two laws rather "
+                    "than a third law: VANISH is closed by the partition, BECOME DEBT is closed by "
+                    "the ratchet, and discharge is what remains"
                     if pen_ok else "the pending ratchet moved, or its counterparty now exists")
 
         pl_ok = True
         try:
             plants = DP.plants_bite()
             states = DP.every_state_is_reached()
-            pl_ok = (len(plants) == 10 and all(b for _n, b in plants)
+            pl_ok = (len(plants) == 11 and all(b for _n, b in plants)
                      and all(r for _s, _n, r in states)
                      and dict((s, n) for s, n, _r in states)[DP.STATE_RETIRED] == 0
                      and dict((s, n) for s, n, _r in states)[DP.STATE_SUPERSEDED] == 0
@@ -4756,11 +4772,12 @@ class Gate:
         except Exception:
             pl_ok = False
         self.record("disposition-plants", pl_ok,
-                    "TEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting and none leaking: "
-                    "an undeclared record, an invented one, a discharger that does not read the "
-                    "record, a registrar scoring itself, a disposition naming a DEAD gate row, a "
-                    "PENDING entry whose counterparty already exists, a PENDING entry something "
-                    "already reads, a disposition with no reason, an unknown state, and an EMPTY "
+                    "ELEVEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting and none "
+                    "leaking: an undeclared record, an invented one, a discharger that does not "
+                    "read the record, a registrar scoring itself, a disposition naming a DEAD gate "
+                    "row, a PENDING entry whose counterparty already exists, a PENDING entry "
+                    "something already reads, a disposition with no reason, an unknown state, a "
+                    "PHANTOM DEBT entry declared as debt while not pending, and an EMPTY "
                     "register (L61 — a census that can return one value certifies nothing). Each "
                     "runs against a SUBSTITUTED register so the live one is never edited, and the "
                     "instrument is proved green again afterwards. AND TWO OF THE FOUR STATES ARE "
@@ -4770,6 +4787,115 @@ class Gate:
                     "constructs it. RETIRED and SUPERSEDED are reached by plants; DISCHARGED and "
                     "PENDING are live"
                     if pl_ok else "a disposition plant did not bite: %r" % (DP.plants_bite(),))
+
+    # -- the direction of every declared ratchet, enforced against history -----
+    def ratchet(self):
+        """THE DIRECTION IS THE WHOLE WORD, AND NOTHING WAS ENFORCING IT (URDRRAT1). Rows: scenes,
+        population, history, plants."""
+        p = os.path.join(ROOT, "tools", "terrain")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        try:
+            import ratchet as RT
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("population", "history", "plants"):
+                self.record(f"ratchet-{r}", False, f"import failed: {exc}")
+            return
+
+        ref_ok = True
+        try:
+            ref_ok = (all(RT.scene_result(n) == RT.golden(n) for n in RT.SCENES)
+                      and RT.ratchet_digest() == RT.golden("ratchet"))
+        except Exception as exc:
+            self.record("ratchet:scenes", False, f"reference failed: {exc}")
+            return
+        self.record("ratchet:scenes", ref_ok,
+                    "three URDRRAT1 scenes and the top digest reproduce their pins"
+                    if ref_ok else "a ratchet scene drifted from its digest")
+
+        pop_ok = True
+        try:
+            structural, prose, owners = RT.the_structural_heuristic_is_refuted()
+            c = RT.census()
+            pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
+                      and structural == 78 and prose == 7 and owners == 3
+                      and all(c[k] for k in RT.KINDS)
+                      and RT.a_citation_is_not_a_promise() == (True, False)
+                      and RT.the_law_matches_itself() == (True, True, True))
+        except Exception:
+            pop_ok = False
+        self.record("ratchet-population", pop_ok,
+                    "THE CLAIM IS DERIVED AND THE CONSTANT IS DECLARED, WHICH IS THE INVERSION THIS "
+                    "RUNG RESTS ON. The first attempt derived ratchets STRUCTURALLY — a module-level "
+                    "integer compared against a non-constant — and returned 78 candidates against 3 "
+                    "real owners: verdict codes (`R_ADMIT = 0`), policy numbers (`MIN_PEERS = 5`), "
+                    "physical bounds (`T_MAX = 4096`). THE SHAPE OF A COMPARISON IS NOT WHAT MAKES "
+                    "SOMETHING A RATCHET — a ratchet is a declared debt quantity plus a declared "
+                    "monotone direction plus a baseline plus an enforcement, and only the quantity "
+                    "has a syntax. The refuted heuristic is kept as a FALSIFIER rather than as a "
+                    "story. So the PROMISE is read out of shipped prose (7 modules) and each must "
+                    "resolve to a declared classification, `attributed`'s shape. THREE CLASSES, ALL "
+                    "POPULATED AND ALL WITH REAL BOUNDARY CASES (L61): `entry`, `indexed` and "
+                    "`disposition` OWN one; `cutpin` CITES `entry`'s while owning none, and a law "
+                    "that could not tell a citation from a promise would demand history about a "
+                    "constant that does not exist; `pixelcost` and `lattice` use the word as a "
+                    "FIGURE — `a claim that cannot be demoted by more evidence is a ratchet, and "
+                    "ratchets are for debts, not claims`, which is this law's own principle stated "
+                    "by a module that owns none. AND THE LAW MATCHES ITSELF, the fourth guard in "
+                    "this arc to do so, because it contains every phrase BY DECLARING THE "
+                    "VOCABULARY — classified rather than excluded, since excluding itself would "
+                    "make the population a choice rather than a reading"
+                    if pop_ok else "the ratchet promise population is not closed")
+
+        hist_ok, verds = True, ()
+        try:
+            verds = RT.verdicts()
+            hist_ok = (RT.the_directions_hold() and len(verds) == 3
+                       and all(v in (RT.HELD, RT.UNAVAILABLE) for _m, v, _l, _b in verds))
+            live = [v for _m, v, _l, _b in verds if v != RT.UNAVAILABLE]
+            if live:
+                hist_ok = hist_ok and ("indexed" in [m for m, _b, _l in RT.moved()])
+            hist_ok = hist_ok and RT.the_reference_is_pinned_not_moving()
+        except Exception:
+            hist_ok = False
+        self.record("ratchet-history", hist_ok,
+                    "HISTORY IS READ, NOT ASSERTED. Each owner pins a BASELINE COMMIT and the value "
+                    "its constant held there; the blob is fetched, its SHA-256 checked against the "
+                    "pin, the constant re-read from those bytes, and the recorded baseline required "
+                    "to EQUAL what the blob actually says — so the register cannot lie about "
+                    "history and a substituted artifact REFUSES rather than passing. The reference "
+                    "is a FIXED revision and this module may not name `HEAD` in a git argument at "
+                    "all, checked on its own source: a falsifier anchored to a moving reference "
+                    "passes only from where it was written, which is the defect `retire` shipped "
+                    "and repaired. FOUR VERDICTS AND TWO ARE ABOUT THE ENVIRONMENT RATHER THAN THE "
+                    "CLAIM — HELD, BROKEN, UNAVAILABLE (git could not produce the object: a shallow "
+                    "clone, not a falsification) and MISSED (it came back and the mechanism could "
+                    "not read the constant). Collapsing UNAVAILABLE into either would make "
+                    "environmental incompleteness look like a passing historical check or like an "
+                    "actual refutation, and it is neither. AND THE LAW IS NON-VACUOUS ON A LIVE "
+                    "ENTRY RATHER THAN ONLY ON A PLANT: `indexed`'s ratchet has actually MOVED, 15 "
+                    "at its baseline against 13 today, because the hainuwele index was completed. A "
+                    "direction law whose every subject sat still would be reporting that nothing "
+                    "had happened"
+                    if hist_ok else "a ratchet direction did not hold: %r" % (verds,))
+
+        pl_ok = True
+        try:
+            plants = RT.plants_bite()
+            pl_ok = (len(plants) == 10 and all(b for _n, b in plants)
+                     and RT.problems() == [])
+        except Exception:
+            pl_ok = False
+        self.record("ratchet-plants", pl_ok,
+                    "TEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting and none leaking: "
+                    "a module that promises and is undeclared, a declaration that promises nothing, "
+                    "a baseline naming a MOVING reference, an UNSEALED baseline, an unknown "
+                    "direction, a CITATION carrying a baseline it has no right to, a classification "
+                    "with no reason, an EMPTY register (L61), and the direction predicate itself in "
+                    "both senses — FALL admitting equal and lower while refusing higher, RISE the "
+                    "mirror. Each runs against a SUBSTITUTED register so the live one is never "
+                    "edited, and the instrument is proved green again afterwards"
+                    if pl_ok else "a ratchet plant did not bite: %r" % (RT.plants_bite(),))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -27779,7 +27905,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("disposition", "session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("ratchet", "disposition", "session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",
