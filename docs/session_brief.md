@@ -108,9 +108,13 @@ That trap is asserted as a property, not avoided by hand.
 
 **The scope is exhibited, not stated.** The same eleven envelopes delivered from the far end of the
 run leave the rollback horizon, and three events every in-horizon schedule admits are
-`ROLLBACK-REFUSE`d instead. D12's composed sentence is therefore **conditional on a delivery-schedule
-property the sentence does not name**. That is not a defect — `worldpeer` grades K/H as operational —
-but it is a boundary, and it ships with a witness pair rather than a caveat.
+`ROLLBACK-REFUSE`d instead. D12's composed sentence was therefore **conditional on a
+delivery-schedule property it did not name** — and now names it: the erratum of 2026-09-11 states the
+horizon condition and cites this rung's `session-horizon` row as the witness. Not a defect in any
+implementation and not a new constraint either: `urdr-netcode-rollback 0.1` §2 had carried the
+condition exactly all along, and the composed sentence dropped the qualifier while composing. Read
+strictly, the disjunction is between an implementation and the canonical timeline; it holds
+*pairwise* between two peers only under the stated condition.
 
 **`does_not_show`.** That a peer is a **body**: `w["n"]` is fixed, a peer *authors inputs* to a fixed
 body set, so joining is not spawning and nothing here bears on structural resize. That the calendar

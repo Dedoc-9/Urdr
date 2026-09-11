@@ -257,9 +257,24 @@ byte-identical, and a falsifier pins `simulate_trace`'s frames equal to
 Immutable under `urdr-netcode-worldpeer 0.1` except through a versioned successor:
 
 1. **The contract itself.** Given the same authored world, the same authenticated
-   input transcript, and the same initial snapshot, every conforming implementation
-   either converges to the identical witness chain or produces the same typed
-   refusal; no intermediate divergence silently persists.
+   input transcript, the same initial snapshot, **and a delivery schedule that
+   stays inside the rollback horizon**, every conforming implementation either
+   converges to the identical witness chain or produces the same typed refusal;
+   no intermediate divergence silently persists.
+
+   *Erratum, 2026-09-11 — the antecedent was always there and was not written
+   down.* This clause read without the horizon condition until `session`
+   (`URDRSES1`) exhibited a witness pair for it: the **same** transcript, under
+   two delivery schedules, admitted by one peer and `ROLLBACK-REFUSE`d by
+   another, because whether an input is admitted at all depends on where the
+   head stood when the envelope arrived. The condition is not new and nothing in
+   any implementation changes — `urdr-netcode-rollback 0.1` §2 already carries it
+   exactly ("the admitted chain is identical for every `K, H` — only the refusal
+   horizon moves"), and this sentence dropped the qualifier while composing. Read
+   strictly, the disjunction is between an implementation and the canonical
+   timeline; it holds **pairwise between two peers** only under the stated
+   condition. `K` and `H` remain operational, never semantic. Witness: gate row
+   `session-horizon`.
 2. **The world pin (URDRWPN1 — N5's one new law).** `SHA-256("URDRWPN1" | n |
    per-body pos, vel (Q32.32 words) | radii | statics count + AABBs | floor, ceil,
    left, right | grav n,d | e n,d | T — each signed i64 BE)`. Everything the tick

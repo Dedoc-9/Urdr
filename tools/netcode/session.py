@@ -75,9 +75,13 @@ resize; that the CALENDAR is agreed — it is pre-session common knowledge exact
 and a calendar distributed at runtime is a consensus problem not touched here; that convergence
 survives the rollback horizon — it does NOT, and the witness is exhibited rather than hidden
 (`the_horizon_bounds_the_convergence_claim`): the same event set under a past-horizon schedule
-ROLLBACK-REFUSES three events that every in-horizon schedule admits, so D12's composed sentence is
-conditional on a delivery-schedule property the sentence does not name; that peers CONTEST a body —
-each peer here drives its own."""
+ROLLBACK-REFUSES three events that every in-horizon schedule admits. D12's composed sentence was
+conditional on a delivery-schedule property it did not name and NOW NAMES IT — the erratum of
+2026-09-11 states the horizon condition and cites this rung's `session-horizon` row as the witness,
+and `urdr-netcode-rollback 0.1` §2 had carried the condition exactly all along ("the admitted chain
+is identical for every K, H — only the refusal horizon moves"), which is what makes this a qualifier
+dropped while composing rather than a new constraint; that peers CONTEST a body — each peer here
+drives its own."""
 import ast
 import hashlib
 import inspect

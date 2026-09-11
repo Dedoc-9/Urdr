@@ -57,8 +57,11 @@
 # agreed -- it is pre-session common knowledge exactly as the roster is, and a calendar distributed
 # at runtime is a consensus problem not touched here; that convergence survives the rollback horizon
 # -- it does NOT, and the witness is exhibited rather than hidden: the same event set under a
-# past-horizon schedule ROLLBACK-REFUSES three events every in-horizon schedule admits, so D12's
-# composed sentence is conditional on a delivery-schedule property the sentence does not name; that
+# past-horizon schedule ROLLBACK-REFUSES three events every in-horizon schedule admits. D12's composed
+# sentence WAS conditional on a delivery-schedule property it did not name and NOW NAMES IT -- the
+# erratum of 2026-09-11 states the horizon condition and cites the session-horizon row as its
+# witness, and urdr-netcode-rollback 0.1 section 2 had carried the condition exactly all along, so
+# what happened is a qualifier dropped WHILE COMPOSING rather than a new constraint; that
 # peers CONTEST a body -- each peer here drives its own.
 converge b6b7893de9cad1913bcc96c28a4d036ccddec18dfa00f64645176581f95a83d3
 defects 3036b6dd0e6973d97f966bf87cd61db48608ec5f17874e875ca6489862d37085

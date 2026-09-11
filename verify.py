@@ -4098,11 +4098,18 @@ class Gate:
                     "THE SCOPE OF THE CLAIM, EXHIBITED RATHER THAN STATED. The same eleven envelopes "
                     "delivered from the far end of the run leave the rollback horizon, and 3 events "
                     "that every in-horizon schedule ADMITS are ROLLBACK-REFUSED instead. D12's "
-                    "composed sentence — the identical witness chain OR the same typed refusal — is "
-                    "therefore conditional on a delivery-schedule property the sentence does not "
-                    "name. NOT A DEFECT: `worldpeer` grades K/H as operational. A boundary, carried "
-                    "by a witness pair — the SAME event, admitted under one schedule and refused "
-                    "under another — which is what makes the condition real rather than theoretical"
+                    "composed sentence — the identical witness chain OR the same typed refusal — was "
+                    "therefore conditional on a delivery-schedule property it did not name, AND NOW "
+                    "NAMES IT: the erratum of 2026-09-11 in `spec/D12-versions.md` states the "
+                    "horizon condition and cites THIS row as the witness. NOT A DEFECT IN ANY "
+                    "IMPLEMENTATION and not a new constraint either — `urdr-netcode-rollback 0.1` §2 "
+                    "had carried the condition exactly all along (the admitted chain is identical "
+                    "for every K, H, only the refusal horizon moves), and the composed sentence "
+                    "dropped the qualifier while composing. Read strictly the disjunction is between "
+                    "an implementation and the canonical timeline; it holds PAIRWISE between two "
+                    "peers only under the stated condition. Carried by a witness pair — the SAME "
+                    "event, admitted under one schedule and refused under another — which is what "
+                    "makes the condition real rather than theoretical"
                     if hz_ok else "the horizon witness moved")
 
 
