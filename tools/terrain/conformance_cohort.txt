@@ -110,6 +110,40 @@
 # that k computed to CUT_SEARCH_MAX = 3 is the min-cut of walls needing a larger cut, since the
 # enumeration is decided only to that size; peer discovery latency, which is wall-clock and outside
 # every gate here; that centrality means anything, since it is measured and deliberately unwired.
+#
+# prediction -- THE CHARGE-CURVE FALSIFIER IS NOW PRE-REGISTERED, one commit before the measurement
+#   exists. The peak has been an OPEN QUESTION with a stated and unrun protocol for several rungs, and
+#   the risk in finally running it is not that the answer is hard but that the expectation would be
+#   written after it. `spec/attest/cohort-prediction.txt` registers C1-C5 and this digest pins the
+#   record, so editing it once the numbers are in REDDENS.
+#
+#   IT DOES NOT REGISTER "THERE WILL BE A PEAK". Registering the borrowed metaphor would score the
+#   metaphor rather than the system, and the rung immediately before this one is the reason to be
+#   careful: it went looking for a named peak in a regulated field, measured the trajectory, and found
+#   the excursion ran the other way. A NAMED PHENOMENON CAN DISAPPEAR WHEN THE SYSTEM IS MEASURED.
+#   What is registered is a FAMILY -- MONOTONE, PEAKED, NEITHER, read off the successive differences
+#   of a cost component -- with the classifier SHIPPED HERE rather than with the measurement, so the
+#   measuring rung cannot pick the rule that flatters its numbers. The three are exhaustive and
+#   mutually exclusive over sign patterns and `the_registered_outcomes_partition` proves it, so the
+#   NEITHER arm is structural rather than a place to put an inconvenient result.
+#
+#   THE MEASURAND IS COUNTED, NEVER TIMED -- wall clock is MEASURED-on-named-host here and ungated by
+#   rule, so a timing curve could not enter a gate at all. Two components, reported side by side and
+#   never summed (`panel != scalar`): the `free_reaches` evaluations `min_cut` performs, and the peers
+#   `verify_cohort` fetches. Fusing them would need a weight, and the weight would decide the shape.
+#
+#   AND THE SCHEDULE HAS NO CONSUMER ON THE VERIFICATION PATH, read from the AST and not from memory:
+#   `charge_for_gap` is called only by `charge_table` and `the_peak_is_not_adopted`, while
+#   `verify_cohort` charges a flat EDGE_COST through `budget.charge`. So the experiment cannot
+#   instrument a production path -- there is none -- and must compare SHAPES. C4 is the arm that can
+#   refute the registration: if the schedule does match a measured component's shape it is a model
+#   after all and this account is wrong.
+#
+#   does_not_show: NOTHING about the outcome, which does not exist yet; and nothing about PHYSICAL
+#   criticality -- the corpus is the synthetic `spanning_wall` family in which |wall| = thick * n**2
+#   and k = thick, so k and volume are confounded by construction, and C5 registers a control for
+#   exactly that rather than pretending the confound away.
 gap 04431e2a5c000ed15fb55a1032797c9bcf2a0a54c77a54dd8c9e550a004a7c0e
 protocol a3f610d086253f16340a16aa32f304666c15c94bd8cc41b0f5c1b9f24eab0b2c
 refuted 69a656a3f8a4706371b1150dd341bf3a15f9f4fb14468b6f69f1d6777ecfdfa2
+prediction 6bc53b400a9ebb99df6d7b5282d852f2252aa0cbdd95445cb2ac0110c7f9d020

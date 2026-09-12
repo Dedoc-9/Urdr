@@ -181,6 +181,13 @@ REGISTER = {
                "ceiling for a rare operation — a citation of someone else's promise, not one of "
                "its own, and a law that could not tell those apart would demand a baseline from a "
                "module that has no ratchet"),
+    "cohort": (CITES, (), "", "", "", (),
+               "cites `disposition`'s ratchet while pre-registering its charge-curve measurement, to "
+               "say why a commitment in flight is not the aged debt whose direction is held at FALL "
+               "— someone else's constant again, and a module that owns no debt count of its own. "
+               "THE THIRD CONSECUTIVE RUNG this law has pulled in from prose written for an "
+               "unrelated purpose, after `blindscreen` and the structural newcomer in `criticality`: "
+               "three in three is no longer an anecdote about one module's wording"),
     "pixelcost": (FIGURE, (), "", "", "", (),
                   "uses the word as a metaphor about claim grades — `a claim that cannot be "
                   "demoted by more evidence is a ratchet, and ratchets are for debts, not claims` "

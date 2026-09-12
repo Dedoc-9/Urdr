@@ -65,6 +65,7 @@ is findable, and that population is small and exact:
 | `disposition` | `OWNS` | `PENDING_CEILING` | `FALL` |
 | `cutpin` | `CITES` | — | — |
 | `blindscreen` | `CITES` | — | — |
+| `cohort` | `CITES` | — | — |
 | `pixelcost` | `FIGURE` | — | — |
 | `lattice` | `FIGURE` | — | — |
 | `ratchet` | `CITES` | — | — |
@@ -85,6 +86,12 @@ a reading rather than a list**: a hand-maintained roster would have stayed at se
 within a day, and the module that tripped it had no idea this law existed. The cost of the reading
 is exactly this — every rung that uses the word must classify itself — and the cost is the
 mechanism.
+
+**Then a ninth, then a structural one, on three consecutive rungs.** `cohort` cited the same
+constant for the same reason while pre-registering a cost measurement; `criticality` arrived on the
+*structural* side instead (below). Three rungs running, this law has pulled in the commit that was
+being written, every time from prose composed for something else. One instance is an anecdote about
+a module's wording; three is the reading working.
 
 **And this law matches itself**, the fourth guard in this arc to do so after `lift`'s `exp(`,
 `retire`'s `HEAD` and `reflow`'s own regex list. It contains every phrase in the vocabulary *because

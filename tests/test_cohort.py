@@ -11,6 +11,10 @@
     boundary reduction does not exist, and the Hex Z2 duality is two-dimensional.
   FIRST-AGREEMENT IS CHERRY-PICKING — it verifies a cohort of one; the threshold rule refuses.
   THE CENTRALITY DIVIDEND IS THE REFUND PUMP. The graph is a real observable, wired to nothing.
+  AND THE CHARGE-CURVE FALSIFIER IS PRE-REGISTERED — C1-C5 shipped one commit before the
+    measurement, registering a FAMILY of competing shapes rather than the borrowed peak, with the
+    classifier shipped alongside so the measuring rung cannot pick the rule. These falsifiers guard
+    the RECORD and never a result; there is no result yet, and asserting one would be the defect.
 
 Every test can go red (L5); the plants bite before any golden pins (L15)."""
 import inspect
@@ -269,6 +273,87 @@ class TheCentralityDividendIsRefused(unittest.TestCase):
         self.assertEqual(len(edges), 15)
         self.assertEqual(edges, tuple(sorted(edges)), "deterministic order")
         self.assertGreater(CO.centrality(1), 0)
+
+
+class TheChargeCurveIsPreRegistered(unittest.TestCase):
+    """The peak has been an open question with a stated, unrun protocol for several rungs. The risk
+    in finally running it is not that the answer is hard but that the EXPECTATION WOULD BE WRITTEN
+    AFTER IT, so the record ships first and these falsifiers guard the record."""
+
+    def test_the_record_is_read_from_the_committed_file(self):
+        self.assertEqual(CO.registered_predictions(), ("C1", "C2", "C3", "C4", "C5"))
+        self.assertTrue(CO.the_prediction_ships_before_the_measurement())
+        self.assertEqual(CO.PREDICTION_RECORD,
+                         os.path.join("spec", "attest", "cohort-prediction.txt"))
+
+    def test_it_does_not_register_the_borrowed_metaphor(self):
+        """Registering `there will be a peak` would score the statistical-mechanics analogy rather
+        than the system. The record names all three shapes, carries an arm that can refute it, and
+        carries an arm on which both candidate hypotheses become inapplicable rather than false."""
+        shapes, refuting, neither = CO.the_registration_does_not_predict_the_borrowed_metaphor()
+        self.assertTrue(shapes, "the record must name MONOTONE, PEAKED and NEITHER")
+        self.assertTrue(refuting, "a registration with no refutable arm predicts nothing")
+        self.assertTrue(neither, "the inapplicable case must be registered, not discovered later")
+
+    def test_the_three_shapes_partition_every_sign_pattern(self):
+        """EXHAUSTIVE AND MUTUALLY EXCLUSIVE, so no measurement can escape classification and the
+        NEITHER arm is structural rather than a place to put an inconvenient result."""
+        ok, seen, bad = CO.the_registered_outcomes_partition()
+        self.assertTrue(ok)
+        self.assertEqual(bad, ())
+        self.assertEqual(seen, ("MONOTONE", "NEITHER", "PEAKED"))
+        self.assertEqual(set(CO.SHAPES), set(seen))
+
+    def test_the_classifier_ships_with_the_registration(self):
+        """If the rule arrived with the numbers, the rule could be chosen to fit them."""
+        self.assertEqual(CO.classify_shape((3, 2, 1)), CO.SHAPE_MONOTONE)
+        self.assertEqual(CO.classify_shape((2, 2, 2)), CO.SHAPE_MONOTONE)
+        self.assertEqual(CO.classify_shape((1, 3, 2)), CO.SHAPE_PEAKED)
+        self.assertEqual(CO.classify_shape((1, 2, 3)), CO.SHAPE_NEITHER)
+        self.assertEqual(CO.classify_shape((3, 1, 2)), CO.SHAPE_NEITHER)
+        with self.assertRaises(CO.CohortError):
+            CO.classify_shape((1,))
+
+    def test_a_record_naming_a_result_is_caught(self):
+        """The plant that must bite (L15): a prediction file that names an outcome is a post-hoc
+        note wearing a prediction's clothes."""
+        real = CO.prediction_text
+        try:
+            CO.prediction_text = lambda: "predict C1 x\npredict C2 y\n"
+            self.assertFalse(CO.the_prediction_ships_before_the_measurement())
+            CO.prediction_text = lambda: real().replace("NO RESULT IS NAMED", "RESULTS BELOW")
+            self.assertFalse(CO.the_prediction_ships_before_the_measurement())
+            CO.prediction_text = lambda: real().replace("predict C5", "predict C4")
+            self.assertFalse(CO.the_prediction_ships_before_the_measurement())
+        finally:
+            CO.prediction_text = real
+        self.assertTrue(CO.the_prediction_ships_before_the_measurement())
+
+    def test_the_schedule_has_no_consumer_on_the_verification_path(self):
+        """THE APPARATUS FACT THAT SHAPES THE EXPERIMENT, read from the AST rather than from memory
+        — the specific error this session already paid for once. The experiment cannot instrument a
+        production path because there is none, so it must compare SHAPES."""
+        callers, vcalls, on_path = \
+            CO.the_charge_schedule_has_no_consumer_on_the_verification_path()
+        self.assertEqual(callers, ("charge_table", "the_peak_is_not_adopted"))
+        self.assertFalse(on_path, "charge_for_gap is not called by verify_cohort")
+        self.assertIn("_BG.charge", vcalls, "the flat EDGE_COST is what the path actually charges")
+        self.assertIn("peers_agree", vcalls)
+
+    def test_the_record_digest_is_a_pinned_scene(self):
+        """Pinning it here is what makes the commit-order claim checkable by a reader who has only
+        the tree: the record cannot be edited once the numbers are in without reddening."""
+        self.assertIn("prediction", CO.SCENES)
+        self.assertEqual(CO.scene_result("prediction"), CO.golden("prediction"))
+        real, was = CO.prediction_text, CO.prediction_digest()
+        try:
+            CO.prediction_text = lambda: real() + "\n# appended later\n"
+            self.assertNotEqual(CO.prediction_digest(), was, "the record digest is not live")
+            self.assertNotEqual(CO.scene_result("prediction"), CO.golden("prediction"),
+                                "an edited record must move the PINNED scene, not just the digest")
+        finally:
+            CO.prediction_text = real
+        self.assertEqual(CO.scene_result("prediction"), CO.golden("prediction"))
 
 
 if __name__ == "__main__":

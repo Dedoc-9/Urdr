@@ -32,6 +32,7 @@
 #     disposition  OWNS    PENDING_CEILING                                FALL   1
 #     cutpin       CITES   quotes `entry`'s ratchet; owns none
 #     blindscreen  CITES   quotes `disposition`'s ratchet while registering; owns none
+#     cohort       CITES   cites the same constant while pre-registering; owns none
 #     pixelcost    FIGURE  the word as a metaphor about claim grades
 #     lattice      FIGURE  the word in passing
 #     ratchet      CITES   names every phrase BECAUSE IT DECLARES THE VOCABULARY; owns none
@@ -43,6 +44,12 @@
 # three rows until it was classified. A hand-maintained roster would have stayed at seven and been
 # wrong within a day. The cost of a reading is that every rung using the word must classify itself,
 # and that cost IS the mechanism.
+#
+# THEN A NINTH, AND A STRUCTURAL ONE, ON THREE CONSECUTIVE RUNGS. `cohort` cited the same constant
+# for the same reason while pre-registering a cost measurement, and `criticality` arrived on the
+# STRUCTURAL side instead. Three rungs running, this law has pulled in the commit that was being
+# written, each time from prose composed for something else. One instance is an anecdote about a
+# module's wording; three is the reading working.
 #
 # THE BOUNDARY CASES ARE REAL RATHER THAN CONSTRUCTED (L61). `cutpin` QUOTES `entry`'s ratchet to
 # explain why it removed a CLI rather than raise a ceiling -- a law that could not tell a citation
@@ -102,7 +109,7 @@
 # the earliest PINNED one, so an author who pinned a lenient baseline gets a lenient law; and nothing
 # about non-numeric debts -- a SET that may only shrink is a different law, and `disposition` carries
 # its own partition rather than pretending this one covers it.
-population 5cf05235fbd2cb573213eee052c6041e07f74f49991743ad92e87de2b3089c26
+population 453e69273fe6fb49a0b508ef4a22c0aa5fdaa7de3de645ec0b3848c8accc852b
 history 58aa0aea69453013e595767025c5ea55e740cd9dcd8b20be16da9079b6e807ab
 bounds 4b7a6f376a101170006ce792f5770faa8090a2a5c659c8f9f47ddc23677a841c
-ratchet 57309ad2df625aabaecc3e6c1520454a586f663dde2686a48b467daacab6aa2c
+ratchet 1cbd8c13466f28feaa51aeddfaf735393b861ef3b68f4525c2452b7925cfed24

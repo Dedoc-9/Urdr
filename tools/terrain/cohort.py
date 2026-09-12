@@ -538,6 +538,117 @@ def the_graph_is_unwired():
     return cp, vp, any("central" in p for p in cp + vp)
 
 
+# ---- the charge-curve pre-registration, shipped before the measurement -------------------------------------
+#: THE PEAK HAS BEEN AN OPEN QUESTION WITH A STATED, UNRUN FALSIFIER FOR SEVERAL RUNGS. Registering the
+#: predictions HERE, one commit before the measurement exists, is what stops the answer from being read
+#: back into the expectation. `disposition` (URDRDSP1) holds this record as a COMMITMENT IN FLIGHT
+#: until the measuring rung scores it; that state is legal because a commitment in flight is not the
+#: aged debt whose count is held at FALL, which is the repair `ratchet` and `disposition` v1.1 landed.
+PREDICTION_RECORD = _os.path.join("spec", "attest", "cohort-prediction.txt")
+
+#: The shape vocabulary, DECLARED so a measured curve cannot be classified after the fact. Read off
+#: the successive differences of a cost component across ascending k.
+SHAPE_MONOTONE = "MONOTONE"      # every difference <= 0 — the shape the shipped schedule has
+SHAPE_PEAKED = "PEAKED"          # first difference > 0, every later one <= 0 — maximal at k = 1
+SHAPE_NEITHER = "NEITHER"        # any other sign pattern — exhaustive by construction
+SHAPES = (SHAPE_MONOTONE, SHAPE_PEAKED, SHAPE_NEITHER)
+
+
+def prediction_text():
+    with open(_os.path.join(_HERE, "..", "..", PREDICTION_RECORD), encoding="utf-8") as fh:
+        return fh.read()
+
+
+def prediction_digest():
+    return hashlib.sha256(MAGIC + b"|pred|" + prediction_text().encode()).hexdigest()
+
+
+def registered_predictions():
+    """The ids the record itself declares, read out of the committed file rather than retyped — a
+    restatement is a copy, and a copy can drift from the thing it claims to describe."""
+    return tuple(ln.split()[1] for ln in prediction_text().split("\n")
+                 if ln.startswith("predict "))
+
+
+def classify_shape(costs):
+    """The declared classifier, shipped WITH the registration rather than with the measurement, so the
+    measuring rung cannot choose the rule that flatters its numbers. `costs` is the component read at
+    ascending k."""
+    d = [b - a for a, b in zip(costs, costs[1:])]
+    if not d:
+        raise CohortError("a shape needs at least two readings")
+    if all(x <= 0 for x in d):
+        return SHAPE_MONOTONE
+    if d[0] > 0 and all(x <= 0 for x in d[1:]):
+        return SHAPE_PEAKED
+    return SHAPE_NEITHER
+
+
+def the_registered_outcomes_partition(probes=((3, 2, 1), (1, 3, 2), (1, 2, 3), (2, 2, 2),
+                                              (3, 1, 2), (1, 3, 1), (2, 1, 3))):
+    """EXHAUSTIVE AND MUTUALLY EXCLUSIVE, PROVED RATHER THAN PROMISED. Every possible sign pattern
+    lands in exactly one class, so no measurement can escape classification and the NEITHER arm is
+    structural rather than a place to put an inconvenient result. Returns (all_classified,
+    classes_seen, unclassified)."""
+    seen, bad = set(), []
+    for p in probes:
+        s = classify_shape(p)
+        if s not in SHAPES:
+            bad.append(p)
+        seen.add(s)
+    return not bad, tuple(sorted(seen)), tuple(bad)
+
+
+def the_charge_schedule_has_no_consumer_on_the_verification_path():
+    """THE APPARATUS FACT THAT SHAPES THE EXPERIMENT, read from the AST rather than from memory.
+
+    `charge_for_gap` is called only by reporting helpers; `verify_cohort` charges a flat `EDGE_COST`
+    per fetch through `budget.charge` and never consults the schedule. So the measurement CANNOT be
+    'instrument the production path and read the curve off it' — there is no such path — and must
+    count the decision procedure's own work and compare its SHAPE against the schedule's.
+
+    Returns (callers_of_the_schedule, verify_cohort_calls, schedule_is_on_the_path)."""
+    import ast as _ast
+    with open(_os.path.join(_HERE, "cohort.py"), encoding="utf-8") as fh:
+        tree = _ast.parse(fh.read())
+    callers = set()
+    for fn in [n for n in _ast.walk(tree) if isinstance(n, _ast.FunctionDef)]:
+        for node in _ast.walk(fn):
+            if isinstance(node, _ast.Call) and isinstance(node.func, _ast.Name) \
+                    and node.func.id == "charge_for_gap":
+                callers.add(fn.name)
+    vfn = next(n for n in _ast.walk(tree)
+               if isinstance(n, _ast.FunctionDef) and n.name == "verify_cohort")
+    vcalls = {n.func.id for n in _ast.walk(vfn)
+              if isinstance(n, _ast.Call) and isinstance(n.func, _ast.Name)}
+    vcalls |= {f"{n.func.value.id}.{n.func.attr}" for n in _ast.walk(vfn)
+               if isinstance(n, _ast.Call) and isinstance(n.func, _ast.Attribute)
+               and isinstance(n.func.value, _ast.Name)}
+    return tuple(sorted(callers)), tuple(sorted(vcalls)), "charge_for_gap" in vcalls
+
+
+def the_prediction_ships_before_the_measurement():
+    """COMMIT ORDER IS THE ONLY MECHANISM THAT PROVES A PREDICTION CAME FIRST. The record is committed
+    in THIS rung and the measurement lands in a LATER one; the ids are parsed out of the file, and the
+    record is required to carry the sentence that forbids a result appearing in it."""
+    ids = registered_predictions()
+    txt = prediction_text()
+    return (ids == ("C1", "C2", "C3", "C4", "C5") and len(set(ids)) == len(ids)
+            and "NO RESULT IS NAMED" in txt
+            and "THIS RECORD DOES NOT PREDICT A PEAK" in txt)
+
+
+def the_registration_does_not_predict_the_borrowed_metaphor():
+    """The record registers a FAMILY of competing outcomes and an arm for none of them, rather than
+    the peak the statistical-mechanics analogy suggests. Scoring the metaphor instead of the system is
+    the specific failure this is written against. Returns (names_all_three_shapes, has_a_refuting_arm,
+    has_a_neither_arm)."""
+    txt = prediction_text()
+    return (all(s in txt for s in SHAPES),
+            "CAN REFUTE THE REGISTRATION" in txt,
+            "inapplicable rather than false" in txt)
+
+
 # ---- digests + scenes ------------------------------------------------------------------------------------------
 def co_digest(name, payload):
     hh = hashlib.sha256(); hh.update(MAGIC)
@@ -569,8 +680,15 @@ def _scene_refuted():
                                 f"{dividend_has_no_safe_useful_setting()}:{the_graph_is_unwired()}")
 
 
-_SCENES = {"gap": _scene_gap, "protocol": _scene_protocol, "refuted": _scene_refuted}
-SCENES = ("gap", "protocol", "refuted")
+def _scene_prediction():
+    return co_digest("prediction", f"{prediction_digest()}:{registered_predictions()}:"
+                                   f"{the_registered_outcomes_partition()}:"
+                                   f"{the_charge_schedule_has_no_consumer_on_the_verification_path()}")
+
+
+_SCENES = {"gap": _scene_gap, "protocol": _scene_protocol, "refuted": _scene_refuted,
+           "prediction": _scene_prediction}
+SCENES = ("gap", "protocol", "refuted", "prediction")
 
 
 def scene_result(name):

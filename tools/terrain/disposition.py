@@ -28,15 +28,15 @@ THE POPULATION IS DERIVED TWICE AND THE TWO MUST AGREE. Once from the DISK — e
 `spec/attest/*-prediction.txt`. Once from the CODE — every top-level `PREDICTION_RECORD` binding in
 the swept source, read off the AST. Requiring equality is not belt-and-braces: one derivation alone
 cannot tell an ORPHAN record (committed, bound by nothing) from a DANGLING binding (named in code,
-absent from disk), and those are different defects with different repairs. Six records, six
+absent from disk), and those are different defects with different repairs. Seven records, seven
 bindings, agreeing.
 
 THE DISCHARGER IS DERIVED TOO, and this is the part that could not be a list. A module discharges a
 record when it CALLS that record's registrar's `prediction_text()` — resolved through the AST's own
 import aliases, so `import voxrun as RN` followed by `RN.prediction_text()` is found and a name that
 merely looks similar is not. Measured: voxcond, voxmanifold, voxtile and voxreanchor, each against
-the record it scores, and NOTHING against `voxstrip` or against `blindscreen`, which is newly
-registered and whose discharger is not built yet.
+the record it scores, and NOTHING against `voxstrip`, `blindscreen` or `cohort` -- the last two
+newly registered, with their dischargers not built yet.
 
     A REGISTRAR CANNOT DISCHARGE ITS OWN RECORD, AND THE REASON IS STRUCTURAL RATHER THAN ASSERTED.
 
@@ -94,6 +94,13 @@ after this repair landed, and it sits IN FLIGHT with `blindabsolute` named as it
 absent from the tree. That is the evidence the repair was for: a live pre-registration surviving the
 commit-order interval WITHOUT raising a ratcheted ceiling, which v1.0 made impossible.
 
+AND NOW A SECOND, WHICH IS DIFFERENT EVIDENCE FROM THE FIRST. `cohort` registered C1-C5 for the
+charge-curve measurement, so IN FLIGHT carries TWO members at once. One showed the interval was
+survivable; two show the class is a POPULATION rather than a special case, and an equality over ALL
+pending could not have represented this state at ANY ceiling value -- the count would have had to
+rise twice while its direction was held at FALL. The two share only the mechanism, their subjects
+being unrelated, which is the right way for a second instance to arrive.
+
 A NOTE ON THE STATE CONSTANTS, BECAUSE THE RENAME IS A FINDING AND NOT A STYLE CHOICE. The four
 states are bound as `STATE_*` rather than as bare words because `retire` treats a module-level
 `RETIRED` as A DECLARATION OF A RETIREMENT REGISTER, tree-wide, and REFUSES one that is not a mapping
@@ -107,8 +114,8 @@ AND THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED. Every registrar already 
 SHA-256 in its own conformance corpus, so editing a pre-registration after the fact is already
 caught. Re-pinning them here would create a second path to the same fact for a later rung to find
 disagreeing — the mistake `cutbound` refused. What is added is the CLOSURE: every registered record
-must have a registrar that exposes `prediction_digest` AND a conformance corpus that pins it. Six of
-six, derived.
+must have a registrar that exposes `prediction_digest` AND a conformance corpus that pins it. Seven
+of seven, derived.
 
 GRADE (honest, D5). MEASURED: the two population derivations and their agreement; the discharger map
 over the live tree; per-prediction coverage of every discharged record, read from CODE with
@@ -197,6 +204,13 @@ REGISTER = {
                     "exists. A COMMITMENT IN FLIGHT rather than debt: this is the first registration "
                     "to pass through the repaired machinery, and the evidence it carries is that the "
                     "commit-order interval is survivable WITHOUT raising a ratcheted ceiling"),
+    "cohort": (STATE_PENDING, "chargecurve", "",
+               "C1-C5 registered by `cohort` itself for the CHARGE-CURVE measurement, whose protocol "
+               "has been stated and unrun for several rungs. A COMMITMENT IN FLIGHT, and the SECOND "
+               "one live at once — the first time this partition has carried more than a single "
+               "member, which is a state the ratcheted equality could not represent at all. The "
+               "record registers a FAMILY of competing shapes rather than the borrowed peak, and "
+               "ships the classifier WITH ITSELF so the measuring rung cannot choose the rule"),
     "voxstrip": (STATE_PENDING, "voxstrip", "",
                  "S1-S5 registered by `voxbaggage` and read by nothing. NOT RETIRED: every one of "
                  "the five is still well-formed and still answerable, and no architectural decision "

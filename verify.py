@@ -4645,8 +4645,8 @@ class Gate:
         pop_ok, pop = True, (False, (), (), -1)
         try:
             pop = DP.the_two_derivations_agree()
-            pop_ok = pop[0] and pop[1] == () and pop[2] == () and pop[3] == 6
-            pop_ok = pop_ok and len(DP.population()) == 6
+            pop_ok = pop[0] and pop[1] == () and pop[2] == () and pop[3] == 7
+            pop_ok = pop_ok and len(DP.population()) == 7
             reg = DP.registrations()
             pop_ok = pop_ok and all(DP.prediction_ids(r) for r in reg)
         except Exception:
@@ -4667,7 +4667,7 @@ class Gate:
             probs = DP.problems(live_rows)
             cen = DP.census()
             reg_ok = (not probs and set(DP.REGISTER) == set(DP.population())
-                      and len(cen[DP.STATE_DISCHARGED]) == 4 and len(cen[DP.STATE_PENDING]) == 2
+                      and len(cen[DP.STATE_DISCHARGED]) == 4 and len(cen[DP.STATE_PENDING]) == 3
                       and DP.STATE_PENDING not in DP.TERMINAL
                       and all(e[1] not in (DP.registrations().get(r),)
                               for r, e in DP.REGISTER.items() if e[0] == DP.STATE_DISCHARGED))
@@ -4681,9 +4681,11 @@ class Gate:
                     "callers); this is its forward twin, and the mechanism was already right and "
                     "already LOCAL: `voxreanchor` carries "
                     "`every_registered_prediction_has_exactly_one_disposition` FOR ITS OWN RECORD. "
-                    "4 DISCHARGED, 2 PENDING — 1 AGED DEBT AND 1 IN FLIGHT, which are different "
-                    "objects and only the first is ratcheted. AND THE DISCHARGER IS DERIVED, which "
-                    "is the part that "
+                    "4 DISCHARGED, 3 PENDING — 1 AGED DEBT AND 2 IN FLIGHT, which are different "
+                    "objects and only the first is ratcheted. THE SECOND IN-FLIGHT MEMBER IS ITSELF "
+                    "EVIDENCE: this partition has never carried more than one before, and a ratcheted "
+                    "equality over ALL pending could not represent the state at all. AND THE "
+                    "DISCHARGER IS DERIVED, which is the part that "
                     "could not be a list: a module discharges a record when it CALLS that record's "
                     "registrar's `prediction_text()`, resolved through the file's own import "
                     "aliases. A REGISTRAR THEREFORE CANNOT SCORE ITS OWN RECORD, structurally — the "
@@ -4700,7 +4702,7 @@ class Gate:
             cov_ok = (len(cov) == 4 and all(m == () and c == 5 for _r, _a, c, m in cov)
                       and DP.the_id_scan_reads_code_and_not_prose() == ((), ("G1", "G2"))
                       and DP.a_registrar_cannot_score_itself() == (True, False, True)
-                      and DP.every_record_is_tamper_pinned_by_its_registrar() == (6, 6, ()))
+                      and DP.every_record_is_tamper_pinned_by_its_registrar() == (7, 7, ()))
         except Exception:
             cov_ok = False
         self.record("disposition-coverage", cov_ok,
@@ -4715,8 +4717,8 @@ class Gate:
                     "AND THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED: every registrar already "
                     "pins its record's SHA-256 in its own conformance corpus, so re-pinning here "
                     "would create a second path to the same fact for a later rung to find "
-                    "disagreeing — the mistake `cutbound` refused. What is added is the CLOSURE, 6 "
-                    "of 6 registrars exposing `prediction_digest` and pinning it"
+                    "disagreeing — the mistake `cutbound` refused. What is added is the CLOSURE, 7 "
+                    "of 7 registrars exposing `prediction_digest` and pinning it"
                     if cov_ok else "a discharged record is not covered in full")
 
         pen_ok = True
@@ -4725,9 +4727,11 @@ class Gate:
             part = DP.the_two_pending_classes_partition()
             pen_ok = (DP.the_pending_ceiling_is_the_live_reading()
                       and DP.debt_records() == ("voxstrip",)
-                      and DP.in_flight_records() == ("blindscreen",)
-                      and part == (True, 2, 1, 1, ())
+                      and DP.in_flight_records() == ("blindscreen", "cohort")
+                      and part == (True, 3, 1, 2, ())
                       and DP.REGISTER["blindscreen"][1] not in mods
+                      and DP.REGISTER["cohort"][1] not in mods
+                      and "cohort" not in DP.dischargers()
                       and DP.the_only_exit_from_in_flight_is_discharge() == (True, True, True)
                       and DP.REGISTER["voxstrip"][1] not in mods
                       and "voxstrip" not in DP.dischargers())
@@ -4821,7 +4825,7 @@ class Gate:
             structural, prose, owners = RT.the_structural_heuristic_is_refuted()
             c = RT.census()
             pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
-                      and structural == 79 and prose == 8 and owners == 3
+                      and structural == 79 and prose == 9 and owners == 3
                       and all(c[k] for k in RT.KINDS)
                       and RT.a_citation_is_not_a_promise() == (True, False)
                       and RT.the_law_matches_itself() == (True, True, True))
@@ -4836,7 +4840,7 @@ class Gate:
                     "SOMETHING A RATCHET — a ratchet is a declared debt quantity plus a declared "
                     "monotone direction plus a baseline plus an enforcement, and only the quantity "
                     "has a syntax. The refuted heuristic is kept as a FALSIFIER rather than as a "
-                    "story. So the PROMISE is read out of shipped prose (8 modules) and each must "
+                    "story. So the PROMISE is read out of shipped prose (9 modules) and each must "
                     "resolve to a declared classification, `attributed`'s shape. THREE CLASSES, ALL "
                     "POPULATED AND ALL WITH REAL BOUNDARY CASES (L61): `entry`, `indexed` and "
                     "`disposition` OWN one; `cutpin` CITES `entry`'s while owning none, and a law "
@@ -4847,11 +4851,14 @@ class Gate:
                     "by a module that owns none. AND THE LAW MATCHES ITSELF, the fourth guard in "
                     "this arc to do so, because it contains every phrase BY DECLARING THE "
                     "VOCABULARY — classified rather than excluded, since excluding itself would "
-                    "make the population a choice rather than a reading. THE EIGHTH ENTRY IS "
-                    "EVIDENCE RATHER THAN GROWTH: `blindscreen` was pulled in ONE COMMIT after this "
-                    "law shipped, by prose written for an unrelated rung that happened to quote "
-                    "this ratchet while explaining why a commitment in flight is legal — a list "
-                    "would not have noticed, and the population noticed because it is a READING. "
+                    "make the population a choice rather than a reading. THREE CONSECUTIVE RUNGS "
+                    "HAVE NOW BEEN PULLED IN BY THIS LAW FROM PROSE WRITTEN FOR SOMETHING ELSE, "
+                    "which is the population being a READING and no longer an anecdote about one "
+                    "module's wording: `blindscreen` (8th) quoting this ratchet to say why a "
+                    "commitment in flight is legal, `cohort` (9th) citing it for the same reason "
+                    "while pre-registering a cost measurement, and `criticality` arriving on the "
+                    "STRUCTURAL side instead. A hand-kept roster would have stayed at seven and been "
+                    "wrong within a day, three times over. "
                     "AND THE REFUTED HEURISTIC GREW TOO, WHICH IS THE SAME EVIDENCE FROM THE OTHER "
                     "SIDE: it returned 78 when it was written and returns 79 now, the newcomer "
                     "being `criticality`'s `DEFICIT_CEIL = 0` — an upper bound on a measured "
@@ -14642,8 +14649,8 @@ class Gate:
             self.record("cohort:scenes", False, f"reference failed: {exc}")
             return
         self.record("cohort:scenes", ref_ok,
-                    "gap + protocol + refuted reproduce URDRCOH1 digests, and the pinned corpus is "
-                    "exactly what `--emit` produces"
+                    "gap + protocol + refuted + prediction reproduce URDRCOH1 digests, and the pinned "
+                    "corpus is exactly what `--emit` produces"
                     if ref_ok else "a cohort scene drifted from its digest")
         plan_ok = True
         try:
@@ -14861,6 +14868,57 @@ class Gate:
                     "`cutbound`'s correction) and a thickness that does not fit its world "
                     "refuses rather than silently clipping"
                     if pol_ok else "a cohort policy declaration did not hold")
+
+        pre_ok = True
+        try:
+            callers, vcalls, on_path = \
+                CO.the_charge_schedule_has_no_consumer_on_the_verification_path()
+            pre_ok = (CO.the_prediction_ships_before_the_measurement()
+                      and CO.registered_predictions() == ("C1", "C2", "C3", "C4", "C5")
+                      and CO.the_registration_does_not_predict_the_borrowed_metaphor()
+                      == (True, True, True)
+                      and CO.the_registered_outcomes_partition()
+                      == (True, ("MONOTONE", "NEITHER", "PEAKED"), ())
+                      and CO.classify_shape((3, 2, 1)) == CO.SHAPE_MONOTONE
+                      and CO.classify_shape((1, 3, 2)) == CO.SHAPE_PEAKED
+                      and CO.classify_shape((1, 2, 3)) == CO.SHAPE_NEITHER
+                      # THE SCHEDULE IS NOT ON THE PATH, read from the AST rather than remembered.
+                      and callers == ("charge_table", "the_peak_is_not_adopted")
+                      and not on_path and "_BG.charge" in vcalls
+                      and CO.scene_result("prediction") == CO.golden("prediction"))
+            # THAT NO SCORER READS THIS RECORD YET IS `disposition`'s FACT AND IS ASSERTED THERE,
+            # in `disposition-pending`. Restating it here would create a second path to one fact for
+            # a later rung to find disagreeing — the mistake `cutbound` refused.
+        except Exception:
+            pre_ok = False
+        self.record("cohort-prereg", pre_ok,
+                    "THE CHARGE-CURVE FALSIFIER IS PRE-REGISTERED, ONE COMMIT BEFORE THE MEASUREMENT. "
+                    "`cohort` ships `B // max(k, 1)` and says plainly why the borrowed criticality "
+                    "peak is NOT adopted — it was never measured here, so 'the measurement ruled it "
+                    "out' would be an inflation — and the protocol has been STATED AND UNRUN for "
+                    "several rungs. The risk in finally running it is not that the answer is hard but "
+                    "that the EXPECTATION WOULD BE WRITTEN AFTER IT, so C1-C5 are committed first and "
+                    "the record's digest is pinned as this module's fourth scene: editing it once the "
+                    "numbers are in REDDENS. IT DOES NOT REGISTER `THERE WILL BE A PEAK`, which would "
+                    "score the borrowed metaphor rather than the system — and the rung immediately "
+                    "before this one is why that matters, having gone looking for a named peak in a "
+                    "regulated field, measured the trajectory, and found the excursion ran the other "
+                    "way. A NAMED PHENOMENON CAN DISAPPEAR WHEN THE SYSTEM IS MEASURED. What is "
+                    "registered is a FAMILY — MONOTONE, PEAKED, NEITHER over the successive "
+                    "differences of a cost component — EXHAUSTIVE AND MUTUALLY EXCLUSIVE by "
+                    "construction and proved so here, so the NEITHER arm is structural rather than a "
+                    "place to put an inconvenient result; and THE CLASSIFIER SHIPS WITH THE "
+                    "REGISTRATION rather than with the measurement, so the measuring rung cannot pick "
+                    "the rule that flatters its numbers. THE MEASURAND IS COUNTED, NEVER TIMED — wall "
+                    "clock is MEASURED-on-named-host here and ungated by rule — and its two "
+                    "components are reported side by side and never summed, since fusing them needs a "
+                    "weight and the weight would decide the shape (`panel != scalar`). AND THE "
+                    "SCHEDULE HAS NO CONSUMER ON THE VERIFICATION PATH, read from the AST: "
+                    "`charge_for_gap` is called only by `charge_table` and `the_peak_is_not_adopted` "
+                    "while `verify_cohort` charges a flat EDGE_COST through `budget.charge` — so the "
+                    "experiment cannot instrument a production path, because there is none, and C4 is "
+                    "the arm that can refute this registration outright"
+                    if pre_ok else "the cohort pre-registration did not hold")
 
     def cutpin(self):
         """THE EXPENSIVE HALF OF A PROOF IS PINNED, AND WHAT IS TRUSTED IS ONE INTEGER (URDRCPN1).

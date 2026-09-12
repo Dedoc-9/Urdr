@@ -213,7 +213,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`citation.py`](../tools/terrain/citation.py) | `URDRCIT1` | Deterministic cross-tick citation protocol | `citation` | [test](../tests/test_citation.py) | [conf](../tools/terrain/conformance_citation.txt) | [brief](../docs/citation_brief.md) |
 | [`clockauth.py`](../tools/terrain/clockauth.py) | `URDRCLK1` | Clock-authority: bounds the client's asserted VIEW-TICK | `clockauth` | [test](../tests/test_clockauth.py) | [conf](../tools/terrain/conformance_clockauth.txt) | [brief](../docs/clockauth_brief.md) |
 | [`clslo.py`](../tools/terrain/clslo.py) | `URDRLAT3` | Per-CLASS worst-case latency SLO (T3.34) | `clslo` | [test](../tests/test_clslo.py) | [conf](../tools/terrain/conformance_clslo.txt) | [brief](../docs/clslo_brief.md) |
-| [`cohort.py`](../tools/terrain/cohort.py) | `URDRCOH1` | The COHORT fetch protocol with the gap DERIVED — agreement is Menger's min-cut, not a threshold | `cohort` | [test](../tests/test_cohort.py) | [conf](../tools/terrain/conformance_cohort.txt) | [brief](../docs/cohort_brief.md) |
+| [`cohort.py`](../tools/terrain/cohort.py) | `URDRCOH1` | The COHORT fetch protocol with the gap DERIVED — agreement is Menger's min-cut, not a threshold. AND THE CHARGE-CURVE FALSIFIER IS NOW PRE-REGISTERED: C1-C5 shipped one commit before the measurement, registering a FAMILY (MONOTONE / PEAKED / NEITHER over the successive differences of a counted cost component) rather than the borrowed statistical-mechanics peak, with the classifier shipped alongside so the measuring rung cannot pick the rule and a NEITHER arm that is structural rather than a refuge. C4 is the arm that can refute the registration. IN FLIGHT with `chargecurve` due | `cohort` | [test](../tests/test_cohort.py) | [conf](../tools/terrain/conformance_cohort.txt) | [brief](../docs/cohort_brief.md) |
 | [`commute.py`](../tools/terrain/commute.py) | `URDRCMU1` | Commutation certificate (T3.41) — the proof-object turn | `commute` | [test](../tests/test_commute.py) | [conf](../tools/terrain/conformance_commute.txt) | [brief](../docs/commute_brief.md) |
 | [`commuteprop.py`](../tools/terrain/commuteprop.py) | `URDRCPS1` | Property-based falsifier for the commute diamond (Tier-2) | `commuteprop` | [test](../tests/test_commuteprop.py) | [conf](../tools/terrain/conformance_commuteprop.txt) | [brief](../docs/commuteprop_brief.md) |
 | [`confound.py`](../tools/terrain/confound.py) | `URDRCNF1` | A treatment axis iterated outermost is a PROXY FOR ELAPSED TIME — the balanced schedule, and a cell is not an experiment | `confound` | [test](../tests/test_confound.py) | [conf](../tools/terrain/conformance_confound.txt) | [brief](../docs/confound_brief.md) |
@@ -319,8 +319,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | [brief](../docs/wireattest_brief.md) |
 ## Status
 
-**MEASURED, as of this writing.** 178 modules under `tools/terrain/`, 262 suites, 4564 unit
-falsifiers with 0 red, 1172 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 178 modules under `tools/terrain/`, 262 suites, 4571 unit
+falsifiers with 0 red, 1173 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 

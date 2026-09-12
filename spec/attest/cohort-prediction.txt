@@ -1,0 +1,61 @@
+# URDRCOH1 pre-registration for the CHARGE-CURVE rung — committed by `cohort` ONE COMMIT BEFORE the
+# measurement exists, because COMMIT ORDER is the only mechanism that proves a prediction came first.
+#
+# WHY THIS EXISTS. `cohort` ships the budget charge `B // max(k, 1)` — MONOTONE, not peaked at k = 1 —
+# and says plainly why: the criticality peak borrowed from statistical mechanics "was never measured
+# here", so monotone is the conservative default and "the measurement ruled out the peak" would be an
+# inflation. The falsification protocol has been stated and unrun for several rungs:
+#
+#     MEASURE END-TO-END VERIFICATION COST AGAINST k ON A REAL CORPUS; IF COST IS MAXIMAL AT k = 1
+#     RATHER THAN AT k = 0, THE PEAKED CHARGE IS THE CORRECT SCHEDULE AND THIS CONSTANT IS WRONG.
+#
+# THIS RECORD DOES NOT PREDICT A PEAK. Registering "there will be a peak" would bake the borrowed
+# metaphor into the prediction and score the metaphor rather than the system. What is registered is a
+# FAMILY OF COMPETING OUTCOMES with the feature that separates them, and an arm for the case that none
+# of the proposed curves describes what is measured — which is not a hedge: the rung immediately
+# before this one went looking for a named peak in a regulated field, measured the trajectory, and
+# found the excursion ran the other way. A NAMED PHENOMENON CAN DISAPPEAR WHEN THE SYSTEM IS MEASURED.
+#
+# THE MEASURAND IS COUNTED, NEVER TIMED. Wall clock is MEASURED-on-named-host in this tree and is
+# ungated by rule, so a timing curve could not enter a gate at all. The cost of deciding a wall is the
+# number of `free_reaches` evaluations `min_cut` performs on it; the cost of the protocol is the number
+# of peers `verify_cohort` fetches. Both are deterministic integers under PYTHONHASHSEED=0.
+#
+# THE TWO COMPONENTS ARE REPORTED SIDE BY SIDE AND NEVER SUMMED (`panel != scalar`). Fusing them would
+# require a weight, a weight would be chosen, and the chosen weight would decide the shape.
+#
+# THE CORPUS IS THE `spanning_wall(n, thick)` FAMILY, which is SYNTHETIC and declared as such by the
+# module already. It is what exists. `|wall| = thick * n**2` and `k = thick`, so k and wall volume are
+# CONFOUNDED BY CONSTRUCTION in this family — C5 registers a control for exactly that, and no arm here
+# claims to settle a question about physical criticality.
+#
+# THE SHAPE VOCABULARY, declared here so a result cannot be classified after the fact. Over the
+# measured k values in ascending order, take the successive differences of a cost component:
+#
+#     MONOTONE   every difference <= 0                      (the shape the shipped schedule has)
+#     PEAKED     the first difference > 0, every later <= 0  (maximal at k = 1, the alternative)
+#     NEITHER    any other sign pattern                      (exhaustive by construction)
+#
+# The three are EXHAUSTIVE AND MUTUALLY EXCLUSIVE over sign patterns, so every possible measurement
+# lands in exactly one and no outcome can escape classification. `the_registered_outcomes_partition`
+# proves that here rather than promising it.
+#
+# THE APPARATUS FACT THAT SHAPES THE EXPERIMENT, measured from the AST and not from memory: the charge
+# schedule HAS NO CONSUMER ON THE VERIFICATION PATH. `charge_for_gap` is called only by `charge_table`
+# and `the_peak_is_not_adopted`, both reporting helpers; `verify_cohort` charges a flat `EDGE_COST`
+# per fetch through `budget.charge` and never consults the schedule. So the experiment CANNOT be
+# "instrument the production path and read the curve off it" — there is no such path — and must
+# measure the decision procedure's own work and compare its SHAPE against the schedule's.
+#
+# THE MECHANISM EACH PREDICTION RESTS ON IS STATED WITH IT, so a hit that came from the wrong reason is
+# visible as one. NO RESULT IS NAMED and no number below is an outcome.
+
+predict C1 the DECISION COST is MONOTONE in the sense above only if it never rises, and it is predicted to RISE with k and therefore to be classified NEITHER — because `min_cut` returns at the first subset size that opens the wall, so the work of certifying gap k CONTAINS the work of refuting every smaller gap and each larger k adds a strictly positive term to a partial sum of binomial coefficients; if the decision cost instead falls in k the account of what `min_cut` does is wrong, and that is what this arm risks
+
+predict C2 the PROTOCOL COST is CONSTANT in k across the shipped honest population, because agreement is verdict EQUALITY and the population's capture noise is constructed to lie below the gap, so every honest peer agrees at every k and the loop terminates on the threshold rather than on the wall; this is the arm most likely to be an artifact of the FIXTURE rather than a fact about the protocol, and it is registered so that it can be said to be one
+
+predict C3 the two components have OPPOSITE or UNRELATED k-dependence, so no single scalar represents "verification cost" in this system and the question as originally posed — is the charge curve monotone or peaked — presumes one curve where there are two; this is the arm on which BOTH candidate hypotheses become inapplicable rather than false, and it fails if the two components turn out to share a shape
+
+predict C4 the shipped schedule `B // max(k, 1)` matches the shape of NEITHER measured component over the measured range, so it is a POLICY rather than a model of cost, and the honest repair is to relabel it rather than to replace one curve with another; THIS IS THE ARM THAT CAN REFUTE THE REGISTRATION — if the schedule does match a measured component's shape it is a model after all, the peak question is well posed as asked, and this account is wrong
+
+predict C5 k and wall VOLUME are confounded in this corpus and the confound BITES rather than being hypothetical: varying `n` at fixed `thick` changes the decision cost while holding k, so a cost curve read against k in this family is also a curve against volume and the two cannot be separated within it; if holding k while varying n leaves the decision cost unchanged, the confound does not bite and this caution is wrong
