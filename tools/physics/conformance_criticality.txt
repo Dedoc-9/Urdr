@@ -4,6 +4,20 @@
 # doppler: SUPERCRITICAL keff0=2.0 regulated by Doppler feedback (reflecting) — the population
 #   self-limits to a BOUNDED steady critical state, 120 generations. Without Doppler the same
 #   start explodes and FIELD-REFUSEs at the i64 ceiling (the non-vacuity defect).
+# steady : THE CLOSED FORM, READ ACROSS A PANEL RATHER THAN AT ONE POINT. `n* = (k0-1)*n_ref` per
+#   cell is what `k_eff = 1` solves to; the two digests above pin TRACES, and a trace digest is an
+#   IDENTITY -- it reproduces whatever the operator does, including a rest point that is the wrong
+#   number for a right-looking reason. This digest covers five (k0, n_ref) pairs: linearity in
+#   n_ref (50 -> 100 doubles the rest point), linearity in k0-1 (2 -> 3 doubles it), and a
+#   fractional k0 = 3/2 landing on a fractional multiple. MEASURED: every member reaches the
+#   rational rest point to the LAST BIT of Q32.32 -- three exactly, two one ulp low, none high,
+#   because mul_k truncates -- and the deficit is a FIXED POINT of the rounded operator, identical
+#   at 100 generations and at 800 rather than still converging. The measured rest points AND their
+#   ulp deficits are inside the digest, so the READING is pinned and not merely the verdict.
+#   NON-VACUITY: a regulator with the feedback density scaled by two is still bounded, still
+#   steady and still never refuses -- every property the gate held before this line -- and rests
+#   107374182401 ulps away, eleven orders of magnitude outside the one-ulp bound.
 # name  trace_digest
 galton 064f7cfc1f5bf7c0d11daa730b1bd0c1ba192ea698e5ac596ac59034d784221b
 doppler 8439d5a69063233436049f3b6bbcd96a0e3a2a26f405c25a384ab2c4e59f4fdc
+steady a66553e0a0b27b046b3553373006d9b365a7687df0ae1fb60512498f6a750078

@@ -40,8 +40,18 @@ non-constant — and returned **78 candidates** against three real owners: verdi
 
 A ratchet is *a declared debt quantity, plus a declared monotone direction, plus a baseline, plus an
 enforcement* — and only the quantity has a syntax. The refuted heuristic is kept as a falsifier
-rather than as a story: `the_structural_heuristic_is_refuted` re-derives all 78 every run, so the
-inversion stays justified by measurement rather than by this paragraph.
+rather than as a story: `the_structural_heuristic_is_refuted` re-derives the whole population every
+run, so the inversion stays justified by measurement rather than by this paragraph.
+
+**And it has already grown.** The reading returned 78 when it was written and returns **79** today.
+The newcomer is `criticality`'s `DEFICIT_CEIL = 0` — an upper bound on a measured rounding deficit,
+written two rungs later, in a different directory, for a reason with nothing to do with debt, and
+landing squarely in the *physical bounds* class above. A new instance of an already-refuted reading,
+arriving unprompted, is better evidence than the original count was.
+
+> The refuted heuristic is blind as well as over-inclusive: `DEFICIT_FLOOR = -1` is a `UnaryOp` and
+> not a `Constant`, so the structural scan cannot see a negative module-level integer at all. That
+> is recorded, not repaired — nothing depends on this reading being good.
 
 So the **claim** is derived and the **constant** is declared — `attributed`'s shape, where the scan
 enumerates the assertions in shipped prose and each must resolve to something live. A direction is

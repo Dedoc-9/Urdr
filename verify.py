@@ -4821,7 +4821,7 @@ class Gate:
             structural, prose, owners = RT.the_structural_heuristic_is_refuted()
             c = RT.census()
             pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
-                      and structural == 78 and prose == 8 and owners == 3
+                      and structural == 79 and prose == 8 and owners == 3
                       and all(c[k] for k in RT.KINDS)
                       and RT.a_citation_is_not_a_promise() == (True, False)
                       and RT.the_law_matches_itself() == (True, True, True))
@@ -4851,7 +4851,16 @@ class Gate:
                     "EVIDENCE RATHER THAN GROWTH: `blindscreen` was pulled in ONE COMMIT after this "
                     "law shipped, by prose written for an unrelated rung that happened to quote "
                     "this ratchet while explaining why a commitment in flight is legal — a list "
-                    "would not have noticed, and the population noticed because it is a READING"
+                    "would not have noticed, and the population noticed because it is a READING. "
+                    "AND THE REFUTED HEURISTIC GREW TOO, WHICH IS THE SAME EVIDENCE FROM THE OTHER "
+                    "SIDE: it returned 78 when it was written and returns 79 now, the newcomer "
+                    "being `criticality`'s `DEFICIT_CEIL = 0` — an upper bound on a measured "
+                    "rounding deficit, written two rungs later in a different directory for a "
+                    "reason that has nothing to do with debt, and landing squarely in the "
+                    "PHYSICAL BOUNDS class this row already names. A NEW INSTANCE OF AN ALREADY "
+                    "REFUTED READING, arriving unprompted, is worth more than the original count: "
+                    "the structural population is re-derived every run precisely so the inversion "
+                    "keeps being justified by measurement rather than by this paragraph"
                     if pop_ok else "the ratchet promise population is not closed")
 
         hist_ok, verds = True, ()
@@ -5936,6 +5945,54 @@ class Gate:
                     "Doppler regulates the keff=2.0 explosion (bounded); removing it FIELD-REFUSEs "
                     "(regulator load-bearing; gate can redden)" if (on_ok and off_refuses)
                     else f"non-vacuity failed: regulated_ok={on_ok} unregulated_refuses={off_refuses}")
+
+        cf_ok, panel, defs = True, (), ()
+        try:
+            panel = C.the_steady_state_matches_the_closed_form()
+            defs, same = C.the_rest_point_is_a_fixed_point_of_the_ROUNDED_operator()
+            bare, decays, _end, rest = C.doppler_moves_the_critical_point()
+            turns, trough_g, trough, start, mx, mx_is_rest = C.the_approach_has_one_turning_point()
+            bounded, steady, no_refuse, miss = C.a_stronger_regulator_is_bounded_steady_AND_WRONG()
+            cf_ok = (len(panel) == 5 and all(r[4] for r in panel)
+                     and sorted(set(r[3] for r in panel)) == [-1, 0]
+                     and same and set(defs) == {-1}
+                     and C.panel_digest() == C.golden("steady")
+                     # the critical point MOVES: bare k0=1 stationary, regulated k0=1 decays to a
+                     # rest point the closed form puts at zero.
+                     and bare and decays and rest == 0
+                     # the excursion is DOWNWARD and there is exactly one turn.
+                     and turns == (2,) and trough < start and mx_is_rest and trough_g == 2
+                     # AND THE PLANT SATISFIES EVERY PROPERTY THE GATE HELD BEFORE THIS ROW.
+                     and bounded and steady and no_refuse
+                     and abs(miss) > 10 ** 11)
+        except Exception:
+            cf_ok = False
+        self.record("criticality-closedform", cf_ok,
+                    "THE CLOSED FORM IS CODE NOW, AND UNTIL IT WAS A DIGEST WAS STANDING IN FOR A "
+                    "LAW. `n* = (k0-1)*n_ref` per cell is what `k_eff = 1` solves to; this module "
+                    "asserted it in a docstring while the gate pinned a TRACE DIGEST of ONE "
+                    "supercritical scene. A TRACE DIGEST IS AN IDENTITY — it reproduces whatever "
+                    "the operator does, including a rest point that is the wrong number for a "
+                    "right-looking reason. A law has a SHAPE, so it is read across a PANEL of 5 "
+                    "pairs (`panel != scalar`): linear in `n_ref`, linear in `k0-1`, exact at "
+                    "`k0 = 3/2`. MEASURED: every member lands on the rational rest point TO THE "
+                    "LAST BIT of Q32.32 — 3 exactly and 2 one ulp low, NEVER high, because "
+                    "`mul_k` truncates — and that deficit is a FIXED POINT of the rounded operator "
+                    "rather than an unfinished convergence, identical at 100 generations and at "
+                    "800. TWO FINDINGS FELL OUT OF WRITING IT DOWN. DOPPLER MOVES THE CRITICAL "
+                    "POINT: `k0 = 1` is stationary for the BARE operator and DECAYS through the "
+                    "regulator every generation, because the closed form puts its rest point at "
+                    "ZERO — criticality needs `k0 > 1` once the feedback is on, which the prose "
+                    "was silent about rather than wrong. AND THE EXCURSION IS DOWNWARD: seeding "
+                    "1000 into one cell against `n_ref = 50` opens the feedback at about a tenth, "
+                    "so the total CRASHES to under a third of its start by generation 2, turns "
+                    "exactly ONCE, and rises to the rest point without passing it — there is no "
+                    "peak to bound, measured rather than assumed. NON-VACUITY: a regulator with "
+                    "the feedback density scaled by two is BOUNDED, STEADY and NEVER REFUSES — "
+                    "every property this gate held before this row — and rests 107374182401 ulps "
+                    "away, eleven orders of magnitude outside the one-ulp bound"
+                    if cf_ok else
+                    "the closed-form panel did not hold: panel=%r deficits=%r" % (panel, defs))
 
     # -- 2p2. toric code — the first NEW detector admitted under D17 -------------
     def toric(self):

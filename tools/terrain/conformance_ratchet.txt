@@ -18,7 +18,11 @@
 # THE DERIVATION INVERTS, AND THAT IS THE DESIGN DECISION. The first attempt derived ratchets
 # STRUCTURALLY -- a module-level integer compared against a non-constant -- and returned 78
 # candidates: verdict codes (R_ADMIT = 0), policy numbers (MIN_PEERS = 5), physical bounds
-# (T_MAX = 4096). THE SHAPE OF A COMPARISON IS NOT WHAT MAKES SOMETHING A RATCHET. A ratchet is a
+# (T_MAX = 4096). IT RETURNS 79 NOW, AND THE NEWCOMER IS THE POINT: `criticality`'s
+# DEFICIT_CEIL = 0, an upper bound on a measured rounding deficit written two rungs later in a
+# different directory for a reason with nothing to do with debt -- a fresh instance of an already
+# refuted reading, arriving unprompted, which is better evidence than the original count.
+# THE SHAPE OF A COMPARISON IS NOT WHAT MAKES SOMETHING A RATCHET. A ratchet is a
 # declared debt quantity plus a declared monotone direction plus a baseline plus an enforcement, and
 # only the quantity has a syntax. So the CLAIM is derived from shipped prose and the CONSTANT is
 # declared -- `attributed`'s shape. That population is small and exact:
