@@ -72,14 +72,30 @@ itself would be the one move that turns the population from a reading into a cho
 
 ## Decide
 
-**History is read, not asserted.** Each `OWNS` entry pins a baseline commit and the value its
-constant held there. The blob is fetched, its SHA-256 checked against the pin, the constant re-read
-from those bytes, and the recorded baseline required to **equal** what the blob actually says — so
-the register cannot lie about history, and a substituted artifact *refuses* rather than passing.
+**History is read, not asserted.** Each `OWNS` entry pins a baseline **blob, by its own git object
+id**, and the value its constant held in it. The blob is fetched, its SHA-256 checked against the
+seal, the constant re-read from those bytes, and the recorded baseline required to **equal** what the
+blob actually says — so the register cannot lie about history, and a substituted artifact *refuses*.
 
-The mechanism is `retire`'s, inherited whole including the lesson that produced it: the reference is
-a **fixed** revision and this module may not name `HEAD` in a git argument at all, checked on its own
-source. *A falsifier anchored to a moving reference passes only from where it was written.*
+**v1.0 pinned a commit, and that is why it failed on an operator's disk.** It fetched
+`git show <commit>:<path>`, which resolved here and named nothing there. This tree ships as patches
+applied with `git am`; every replay mints a **different commit id for identical content**, so a
+baseline pinned to the author's commit names an object the recipient has never had. `retire`'s lesson
+was that `HEAD` is a fact about the *checkout*. The half nobody had written down:
+
+> A commit id is a fact about the **replay**. Only a blob id is a fact about the **content**.
+
+**And the verdicts are not in the pinned digest** — the second half of the same lesson. v1.0 put
+`verdicts()` inside the pinned `history` scene, and a verdict can be `UNAVAILABLE`, which is a fact
+about whether git can be reached from this process rather than a fact about the repository.
+
+> A conformance pin is a claim about the tree. A verdict that depends on the environment is a claim
+> about the machine. Mixing them makes the pin unreproducible.
+
+So the scenes pin the declared baselines and the live values, the verdicts move to a gate row, and
+`no_pinned_scene_reads_the_environment` walks `scene_case`'s AST to prove no pinned scene reaches an
+environmental accessor. **Measured:** every digest is byte-identical with git reachable and with git
+removed from `PATH` entirely.
 
 **Four verdicts, and two of them are about the environment rather than the claim.**
 

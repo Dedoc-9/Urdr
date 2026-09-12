@@ -45,14 +45,20 @@ module that has no ratchet. `pixelcost` uses the word to say something true and 
 that cannot be demoted by more evidence is a ratchet, and ratchets are for debts, not claims" — which
 is the principle this module enforces, stated by a module that owns none.
 
-HISTORY IS READ, NOT ASSERTED. Each OWNS entry pins a BASELINE COMMIT and the value the constant held
-there. The blob is fetched, its SHA-256 checked against the pin, the constant re-read from those
-bytes, and the recorded baseline value required to EQUAL what the blob actually says — so the record
-cannot lie about history, and a substituted artifact REFUSES rather than passing. Then the live value
-is compared to the baseline in the declared direction. The mechanism is `retire`'s, taken whole
-including the lesson that produced it: the reference is a FIXED revision and this module may not name
-`HEAD` in a git argument at all, checked on its own source, because a falsifier anchored to a moving
-reference passes only from where it was written.
+HISTORY IS READ, NOT ASSERTED. Each OWNS entry pins a BASELINE BLOB — by its own git object id — and
+the value the constant held in it. The blob is fetched, its SHA-256 checked against the seal, the
+constant re-read from those bytes, and the recorded baseline value required to EQUAL what the blob
+actually says, so the record cannot lie about history and a substituted artifact REFUSES rather than
+passing. Then the live value is compared to the baseline in the declared direction.
+
+v1.1 (2026-09-11) — THE BASELINE IS ADDRESSED BY CONTENT, AND v1.0's WAS NOT. The first version
+fetched `git show <commit>:<path>`. It passed here and FAILED on an operator's disk, and the reason
+is the delivery path: this tree ships as patches applied with `git am`, every replay mints a
+DIFFERENT commit id for identical content, and a baseline pinned to the author's commit names an
+object the recipient has never had. `retire`'s lesson was that `HEAD` is a fact about the CHECKOUT;
+the half nobody had written down is that A COMMIT ID IS A FACT ABOUT THE REPLAY. Only a BLOB id is a
+fact about the CONTENT, and that is what a baseline needed to be. `the_reference_is_pinned_not_moving`
+now requires a 40-hex object id and refuses any commit-ish name.
 
 FOUR VERDICTS, AND TWO OF THEM ARE ABOUT THE ENVIRONMENT RATHER THAN THE CLAIM.
 
@@ -65,6 +71,20 @@ Collapsing `UNAVAILABLE` into either of the others would make environmental inco
 a passing historical check, or like an actual refutation. It is neither. `retire` split them for the
 same reason and this module inherits the distinction rather than re-deciding it.
 
+AND THE VERDICTS ARE NOT IN THE PINNED DIGEST, WHICH IS THE SECOND HALF OF THE SAME LESSON. v1.0 put
+`verdicts()` inside the pinned `history` scene — and a verdict can be UNAVAILABLE, which is a fact
+about whether git can be reached from this process rather than a fact about the repository. The pin
+was therefore reproducible only on the machine that minted it.
+
+    A CONFORMANCE PIN IS A CLAIM ABOUT THE TREE. A VERDICT THAT DEPENDS ON THE ENVIRONMENT IS A CLAIM
+    ABOUT THE MACHINE. MIXING THEM MAKES THE PIN UNREPRODUCIBLE.
+
+So the scenes pin the DECLARED baselines and the LIVE values, the verdicts move to a GATE ROW that
+accepts HELD or UNAVAILABLE and fails on BROKEN or MISSED, and
+`no_pinned_scene_reads_the_environment` walks `scene_case`'s AST to prove no pinned scene reaches an
+environmental accessor. MEASURED: the three scene digests and the top digest are BYTE-IDENTICAL with
+git reachable and with git removed from `PATH` entirely.
+
 AND THE LAW IS NON-VACUOUS ON A LIVE ENTRY, NOT ONLY ON A PLANT. `indexed`'s ratchet has actually
 MOVED: 15 at its baseline (13 for the ladder plus 2 for hainuwele) against 13 today, because the
 hainuwele index was completed. A direction law whose every subject sat still would be reporting that
@@ -73,7 +93,9 @@ nothing had happened.
 GRADE (honest, D5). MEASURED: the promise population derived from shipped prose; the baseline value
 of every OWNS entry read out of its pinned blob and equal to its record; the live value of each; the
 three-class census. ESTABLISHED: the register is CLOSED against the derived population; every OWNS
-entry's direction HELD against history; the `HEAD` self-guard; every plant bites. DECLARED: the
+entry's direction HELD against history; the blob-id reference guard; that no pinned
+scene reaches an environmental accessor, proved on the AST and MEASURED by re-deriving every
+digest with git removed from `PATH`; every plant bites. DECLARED: the
 promise vocabulary, the direction of each ratchet, and which of the six modules owns one — the first
 is a choice about how promises get written here, and the second and third are judgements labelled as
 such. does_not_show: that a ratchet's VALUE is right — a debt of thirteen may be the wrong thirteen,
@@ -86,6 +108,7 @@ non-numeric debts — a set that may only shrink is a different law, and `dispos
 partition rather than pretending this one covers it."""
 import ast
 import hashlib
+import inspect
 import os as _os
 
 _HERE = _os.path.dirname(_os.path.abspath(__file__))
@@ -131,23 +154,28 @@ class RatchetError(Exception):
 #: only from where it was written, which is the defect `retire` shipped and repaired.
 REGISTER = {
     "entry": (OWNS, ("CENSUS_CEILING_MODULES", "CENSUS_CEILING_SITES"), FALL,
-              "0936596",
+              "4cf78043e7d3e6cdf0ddf11484c801b4f615cf02",
               "765972593c6225a0cc658abe092ec4392f8de56214f519d965b95b7657d6d7d7",
               (13, 40),
               "the argv-slicing census — thirteen production modules across forty sites, named as "
-              "debt to be paid down deliberately rather than repaired in one untested sweep"),
+              "debt to be paid down deliberately rather than repaired in one untested sweep. "
+              "The baseline blob was introduced by the commit titled `confound + entry`; that "
+              "title is for a reader and the OID is the reference"),
     "indexed": (OWNS, ("INDEXES",), FALL,
-                "f5ceaa0",
+                "5da6aa5de32577a14c0724ad5d213ecb2fcc32ed",
                 "09134c04495a9ffafff9e9c1dcdf50af5a260ebde498edb453b73a73358fa403",
                 (15,),
                 "the per-document index debt, summed across the register — it has actually MOVED, "
-                "15 at baseline against 13 today, because the hainuwele index was completed"),
+                "15 at baseline against 13 today, because the hainuwele index was completed. "
+                "The baseline blob was introduced by `reflow + indexed v1.1`"),
     "disposition": (OWNS, ("PENDING_CEILING",), FALL,
-                    "b10afed",
+                    "358fb50f8f4d0315dd4185235b57e3d72fcbfcb4",
                     "181aa42f846163bf1807a744c3ff71dfab1df6f97f9766fa9c450af87611d705",
                     (1,),
                     "the count of registered predictions that are AGED DEBT — a commitment in "
-                    "flight is not counted here, which is the repair this rung carries"),
+                    "flight is not counted here, which is the repair this rung carries. The "
+                    "baseline blob is `disposition` v1.0 as it shipped, and pinning it by "
+                    "COMMIT rather than by blob is exactly what broke on an operator's disk"),
     "cutpin": (CITES, (), "", "", "", (),
                "quotes `entry`'s ratchet to explain why it removed a CLI rather than raise a "
                "ceiling for a rare operation — a citation of someone else's promise, not one of "
@@ -261,15 +289,24 @@ def live_values(mod):
 
 # ---- history -----------------------------------------------------------------------------------------
 def baseline_source(mod):
-    """The pinned blob, or None when git cannot produce it. A blob that comes back and does NOT hash
-    to the pin REFUSES: if git hands something over, it must be the pinned bytes, or the evidence is
-    not the evidence. Line endings are normalised to LF before digesting, so the seal is not
-    secretly measuring the checkout's `.gitattributes`."""
+    """The pinned blob, fetched BY ITS OWN OBJECT ID rather than through a commit, or None when git
+    cannot produce it.
+
+    THE BASELINE IS ADDRESSED BY CONTENT, AND THE FIRST VERSION WAS NOT. v1.0 fetched
+    `git show <commit>:<path>`, which worked in the author's clone and FAILED on an operator's disk,
+    because a commit hash covers its committer TIMESTAMP: this tree is delivered as patches applied
+    with `git am`, every replay mints a DIFFERENT commit id for identical content, and a baseline
+    pinned to the author's id names an object the recipient has never had. A blob id is a hash of the
+    CONTENT ALONE, so it is the same object in every clone that holds it — which is what a baseline
+    needed to be all along.
+
+    A blob that comes back and does NOT hash to the SHA-256 seal REFUSES: if git hands something
+    over it must be the pinned bytes, or the evidence is not the evidence. Line endings are
+    normalised to LF before digesting, so the seal is not secretly measuring `.gitattributes`."""
     import subprocess
-    _k, _c, _d, rev, want, _v, _w = REGISTER[mod]
-    path = _module_path(mod)
+    _k, _c, _d, oid, want, _v, _w = REGISTER[mod]
     try:
-        got = subprocess.run(["git", "show", f"{rev}:{path}"],
+        got = subprocess.run(["git", "cat-file", "blob", oid],
                              capture_output=True, cwd=_ROOT)
     except Exception:                                          # noqa: BLE001  no git here
         return None
@@ -279,7 +316,7 @@ def baseline_source(mod):
     dig = hashlib.sha256(raw).hexdigest()
     if dig != want:
         raise RatchetError(
-            f"the pinned baseline blob {rev}:{path} hashes to {dig[:12]}, not {want[:12]} — a "
+            f"the pinned baseline blob {oid[:12]} hashes to {dig[:12]}, not {want[:12]} — a "
             f"historical artifact that has moved is not evidence about history, and substituting "
             f"one silently is the forgery this seal exists to refuse")
     return raw.decode("utf-8")
@@ -367,8 +404,12 @@ def problems():
             bad.append((mod, "constant", "OWNS must name at least one constant"))
         if direction not in DIRECTIONS:
             bad.append((mod, "direction", f"unknown direction {direction!r}"))
-        if rev.upper() in ("HEAD", "@") or not rev:
-            bad.append((mod, "reference", "the baseline must be a FIXED revision, never HEAD"))
+        if len(rev) != 40 or any(c not in "0123456789abcdef" for c in rev):
+            bad.append((mod, "reference",
+                        "the baseline must be a 40-hex BLOB object id — content-addressed, so the "
+                        "same object in every clone. A commit id covers its committer timestamp and "
+                        "is minted afresh by every `git am`, so it names nothing on the recipient's "
+                        "disk"))
         if len(sha) != 64:
             bad.append((mod, "seal", "the baseline blob must be sealed by a SHA-256"))
         if len(recorded) != len(names):
@@ -382,11 +423,19 @@ def the_register_is_closed():
 
 # ---- non-vacuity ---------------------------------------------------------------------------------------
 def the_reference_is_pinned_not_moving():
-    """`retire`'s lesson, mechanized here rather than trusted. This module may not name `HEAD` in a
-    git argument AT ALL — checked on its own source, because a behavioural test cannot stop the next
-    author reaching for the convenient thing."""
+    """`retire`'s lesson, mechanized here rather than trusted, AND TAKEN ONE STEP FURTHER THAN
+    `retire` TOOK IT. Every baseline must be a 40-hex BLOB OBJECT ID — content-addressed, therefore
+    the same object in every clone — and not a commit-ish name of any kind. A commit hash covers its
+    committer timestamp, so under patch delivery the same content mints a different id on each
+    machine and the pin names an object the recipient never had. `HEAD` is a fact about the checkout;
+    a COMMIT id is a fact about the replay; only a BLOB id is a fact about the content. This module
+    may not name `HEAD` in a git argument at all, checked on its own source, because a behavioural
+    test cannot stop the next author reaching for the convenient thing."""
     for _m, e in REGISTER.items():
-        if e[0] == OWNS and (e[3].upper() in ("HEAD", "@") or len(e[4]) != 64):
+        if e[0] != OWNS:
+            continue
+        oid = e[3]
+        if len(oid) != 40 or any(c not in "0123456789abcdef" for c in oid) or len(e[4]) != 64:
             return False
     with open(_os.path.abspath(__file__), encoding="utf-8") as fh:
         tree = ast.parse(fh.read())
@@ -524,16 +573,57 @@ def _probe(probe):
 
 
 # ---- scenes ---------------------------------------------------------------------------------------------
+def _called_names(fn):
+    src = inspect.getsource(fn)
+    out = set()
+    for node in ast.walk(ast.parse(src.lstrip())):
+        if isinstance(node, ast.Call):
+            f = node.func
+            if isinstance(f, ast.Name):
+                out.add(f.id)
+            elif isinstance(f, ast.Attribute):
+                out.add(f.attr)
+    return out
+
+
+#: The accessors whose answer depends on the MACHINE rather than on the tree. A pinned digest that
+#: reaches any of them is not reproducible off the machine it was pinned on.
+ENVIRONMENTAL = ("verdict", "verdicts", "baseline_source", "moved", "the_directions_hold")
+
+
+def no_pinned_scene_reads_the_environment():
+    """THE SECOND HALF OF THE SAME LESSON, MECHANIZED. v1.0 put `verdicts()` inside the pinned
+    `history` scene, and a verdict can be UNAVAILABLE — a fact about whether git can be reached from
+    this process, not a fact about the repository. The pin was therefore reproducible only on the
+    machine that minted it, and it duly reddened on an operator's disk.
+
+        A CONFORMANCE PIN IS A CLAIM ABOUT THE TREE. A VERDICT THAT DEPENDS ON THE ENVIRONMENT IS A
+        CLAIM ABOUT THE MACHINE. MIXING THEM MAKES THE PIN UNREPRODUCIBLE.
+
+    So the scenes pin the DECLARED baselines and the LIVE values, and the verdicts are asserted by a
+    GATE ROW that accepts HELD or UNAVAILABLE and fails on BROKEN or MISSED. Checked on the AST of
+    `scene_case` rather than promised, because the next author will reach for the convenient thing.
+    Returns (clean, reached)."""
+    reached = tuple(sorted(_called_names(scene_case) & set(ENVIRONMENTAL)))
+    return not reached, reached
+
+
 def scene_case(name):
     if name == "population":
         return "%s|%s|%s" % (sorted(promises().items()), sorted(census().items()),
                              sorted((m, REGISTER[m][:3]) for m in sorted(REGISTER)))
     if name == "history":
-        return "%s|%s|%s" % (verdicts(), moved(), the_directions_hold())
+        # PINNED: the DECLARED baselines and the LIVE values, both facts about the tree.
+        # NOT PINNED: the verdicts — see `no_pinned_scene_reads_the_environment`.
+        return "%s|%s" % (
+            [(m, REGISTER[m][1], REGISTER[m][2], REGISTER[m][3], REGISTER[m][4],
+              tuple(REGISTER[m][5])) for m in owners()],
+            [(m, live_values(m)) for m in owners()])
     if name == "bounds":
-        return "%s|%s|%s|%s|%s" % (the_register_is_closed(), the_reference_is_pinned_not_moving(),
-                                   a_citation_is_not_a_promise(), the_law_matches_itself(),
-                                   plants_bite())
+        return "%s|%s|%s|%s|%s|%s" % (the_register_is_closed(),
+                                      the_reference_is_pinned_not_moving(),
+                                      a_citation_is_not_a_promise(), the_law_matches_itself(),
+                                      no_pinned_scene_reads_the_environment(), plants_bite())
     raise RatchetError(f"no scene named {name!r}")
 
 
@@ -576,6 +666,7 @@ if __name__ == "__main__":
     print("structural refuted :", the_structural_heuristic_is_refuted())
     print("citation != promise:", a_citation_is_not_a_promise())
     print("matches itself     :", the_law_matches_itself())
+    print("scenes are portable:", no_pinned_scene_reads_the_environment())
     print("plants             :", plants_bite())
     print("problems           :", problems())
     for n in SCENES:

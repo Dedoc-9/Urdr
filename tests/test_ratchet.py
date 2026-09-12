@@ -117,13 +117,55 @@ class TheHistory(unittest.TestCase):
     def test_the_reference_is_pinned_not_moving(self):
         self.assertTrue(RT.the_reference_is_pinned_not_moving())
 
-    def test_no_baseline_names_head(self):
+    def test_every_baseline_is_a_content_addressed_blob_id(self):
+        """A COMMIT ID IS A FACT ABOUT THE REPLAY. This tree ships as patches applied with `git am`,
+        so identical content mints a different commit id on every machine and a commit-pinned
+        baseline names an object the recipient never had — which is exactly how v1.0 passed here and
+        failed on an operator's disk. Only a BLOB id is a fact about the content."""
         for mod, entry in RT.REGISTER.items():
             if entry[0] != RT.OWNS:
                 continue
             with self.subTest(module=mod):
-                self.assertNotIn(entry[3].upper(), ("HEAD", "@"))
+                oid = entry[3]
+                self.assertEqual(len(oid), 40)
+                self.assertTrue(all(c in "0123456789abcdef" for c in oid))
+                self.assertNotIn(oid.upper(), ("HEAD", "@"))
                 self.assertEqual(len(entry[4]), 64)
+
+    def test_a_commit_ish_baseline_is_refused(self):
+        keep = dict(RT.REGISTER)
+        try:
+            e = list(RT.REGISTER["entry"])
+            e[3] = "0936596"
+            RT.REGISTER["entry"] = tuple(e)
+            self.assertTrue(any(k == "reference" for _m, k, _d in RT.problems()))
+            self.assertFalse(RT.the_reference_is_pinned_not_moving())
+        finally:
+            RT.REGISTER.clear()
+            RT.REGISTER.update(keep)
+        self.assertEqual(RT.problems(), [])
+
+    def test_no_pinned_scene_reads_the_environment(self):
+        """A conformance pin is a claim about the TREE; a verdict that depends on whether git can be
+        reached is a claim about the MACHINE. v1.0 mixed them and the pin was reproducible only
+        where it was minted."""
+        clean, reached = RT.no_pinned_scene_reads_the_environment()
+        self.assertTrue(clean, f"a pinned scene reaches {reached}")
+        self.assertEqual(reached, ())
+
+    def test_the_digests_do_not_move_when_git_is_unreachable(self):
+        """MEASURED rather than argued: re-derive every pinned digest with git removed from PATH."""
+        import os
+        before = [RT.scene_result(n) for n in RT.SCENES] + [RT.ratchet_digest()]
+        keep = os.environ.get("PATH", "")
+        try:
+            os.environ["PATH"] = "/nonexistent-for-this-test"
+            RT._CACHE.clear()
+            after = [RT.scene_result(n) for n in RT.SCENES] + [RT.ratchet_digest()]
+        finally:
+            os.environ["PATH"] = keep
+            RT._CACHE.clear()
+        self.assertEqual(before, after)
 
     def test_the_recorded_baseline_is_what_the_blob_says(self):
         """The register may not restate history — `verdict` refuses when the two disagree."""

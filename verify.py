@@ -4856,18 +4856,24 @@ class Gate:
             if live:
                 hist_ok = hist_ok and ("indexed" in [m for m, _b, _l in RT.moved()])
             hist_ok = hist_ok and RT.the_reference_is_pinned_not_moving()
+            hist_ok = hist_ok and RT.no_pinned_scene_reads_the_environment() == (True, ())
         except Exception:
             hist_ok = False
         self.record("ratchet-history", hist_ok,
-                    "HISTORY IS READ, NOT ASSERTED. Each owner pins a BASELINE COMMIT and the value "
-                    "its constant held there; the blob is fetched, its SHA-256 checked against the "
-                    "pin, the constant re-read from those bytes, and the recorded baseline required "
-                    "to EQUAL what the blob actually says — so the register cannot lie about "
-                    "history and a substituted artifact REFUSES rather than passing. The reference "
-                    "is a FIXED revision and this module may not name `HEAD` in a git argument at "
-                    "all, checked on its own source: a falsifier anchored to a moving reference "
-                    "passes only from where it was written, which is the defect `retire` shipped "
-                    "and repaired. FOUR VERDICTS AND TWO ARE ABOUT THE ENVIRONMENT RATHER THAN THE "
+                    "HISTORY IS READ, NOT ASSERTED. Each owner pins a BASELINE BLOB BY ITS OWN OBJECT "
+                    "ID and the value its constant held in it; the blob is fetched, its SHA-256 "
+                    "checked against the seal, the constant re-read from those bytes, and the "
+                    "recorded baseline required to EQUAL what the blob actually says — so the "
+                    "register cannot lie about history and a substituted artifact REFUSES rather "
+                    "than passing. THE BASELINE IS ADDRESSED BY CONTENT, AND v1.0's WAS NOT: it "
+                    "fetched `git show <commit>:<path>`, passed in the author's container and "
+                    "FAILED on an operator's disk, because this tree ships as patches applied with "
+                    "`git am` and every replay mints a DIFFERENT commit id for identical content, "
+                    "so a commit-pinned baseline names an object the recipient never had. "
+                    "`retire`'s lesson was that `HEAD` is a fact about the CHECKOUT; the half "
+                    "nobody had written down is that A COMMIT ID IS A FACT ABOUT THE REPLAY, and "
+                    "only a BLOB id is a fact about the CONTENT. AND THE VERDICTS ARE NOT IN THE "
+                    "PINNED DIGEST, which is the second half of the same lesson — a conformance pin is a claim about the TREE and a verdict that depends on whether git can be reached is a claim about the MACHINE, so the scenes pin the declared baselines and the live values while this row carries the verdicts, and `no_pinned_scene_reads_the_environment` walks `scene_case`'s AST to prove no pinned scene reaches an environmental accessor. FOUR VERDICTS AND TWO ARE ABOUT THE ENVIRONMENT RATHER THAN THE "
                     "CLAIM — HELD, BROKEN, UNAVAILABLE (git could not produce the object: a shallow "
                     "clone, not a falsification) and MISSED (it came back and the mechanism could "
                     "not read the constant). Collapsing UNAVAILABLE into either would make "
