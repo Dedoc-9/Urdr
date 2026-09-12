@@ -584,9 +584,55 @@ def _scene_valuation():
                                   f"{every_candidate_is_falsified_with_a_witness()}")
 
 
+# ---- the pre-registration, shipped one commit before the candidates ------------------------------------
+#: The ABSOLUTENESS rung's pre-registration, committed HERE so that COMMIT ORDER — the only mechanism
+#: that proves a prediction came first — is what carries it. `disposition` (URDRDSP1) holds this
+#: record as a COMMITMENT IN FLIGHT until a later rung scores it; `ratchet` (URDRRAT1) is what makes
+#: that state legal, since counting it as debt would raise a ceiling whose direction is held at FALL.
+PREDICTION_RECORD = _os.path.join("spec", "attest", "blindscreen-prediction.txt")
+
+
+def prediction_text():
+    with open(_os.path.join(_HERE, "..", "..", PREDICTION_RECORD), encoding="utf-8") as fh:
+        return fh.read()
+
+
+def prediction_digest():
+    return hashlib.sha256(MAGIC + b"|pred|" + prediction_text().encode()).hexdigest()
+
+
+def registered_predictions():
+    """The ids the record itself declares, read out of the committed file rather than retyped."""
+    return tuple(ln.split()[1] for ln in prediction_text().split("\n")
+                 if ln.startswith("predict "))
+
+
+def the_criterion_is_refined_by_this_module_s_own_fifth_witness():
+    """THE PRE-REGISTRATION IS DERIVED FROM THE CRITERION ALREADY HERE, NOT FROM A NEW INVARIANT.
+
+    This module argued two-pointedness THROUGH valuation theory and measured three of the cheap four
+    satisfying inclusion-exclusion while the verdict violates it. Then it found `free_components` —
+    NOT a valuation, 29 violations of 400 — and that fell too. So valuation-ness is not what did the
+    work; ABSOLUTENESS is, and the refinement is licensed by this module's own witness rather than
+    imported. Returns (verdict_is_not_a_valuation, free_components_is_not_a_valuation,
+    free_components_was_refuted_anyway)."""
+    census = {row[0]: row for row in valuation_census()}
+    return (not census["verdict"][3], not census["free_components"][3],
+            any(r[0] == "free_components" for r in falsification_record()))
+
+
+def the_prediction_ships_before_the_candidates():
+    """COMMIT ORDER IS THE ONLY MECHANISM THAT PROVES A PREDICTION CAME FIRST. The record is committed
+    in THIS rung and the candidates land in a LATER one, which is why the ids are parsed out of the
+    file rather than restated here — a restatement is a copy and a copy can drift."""
+    ids = registered_predictions()
+    return (ids == ("B1", "B2", "B3", "B4", "B5") and len(set(ids)) == len(ids)
+            and "NO RESULT IS NAMED" in prediction_text())
+
+
 _SCENES = {"blind": _scene_blind, "conjunction": _scene_conjunction, "cost": _scene_cost,
-           "valuation": _scene_valuation}
-SCENES = ("blind", "conjunction", "cost", "valuation")
+           "valuation": _scene_valuation, "prediction": prediction_digest}
+SCENES = ("blind", "conjunction", "cost", "valuation", "prediction")
 
 
 @_memo(maxsize=None)

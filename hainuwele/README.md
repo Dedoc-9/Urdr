@@ -201,7 +201,7 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`auditgraph.py`](../tools/terrain/auditgraph.py) | `URDRAGR1` | The exclusion price (kappa) — all-pairs is the only unbreakable audit topology | `auditgraph` | [test](../tests/test_auditgraph.py) | [conf](../tools/terrain/conformance_auditgraph.txt) | [brief](../docs/auditgraph_brief.md) |
 | [`autoroute.py`](../tools/terrain/autoroute.py) | `URDRAUT1` | Decide at the cheapest level that can decide — the fetch plan minus every atom provably unread | `autoroute` | [test](../tests/test_autoroute.py) | [conf](../tools/terrain/conformance_autoroute.txt) | [brief](../docs/autoroute_brief.md) |
 | [`bench.py`](../tools/terrain/bench.py) | `—` | Wall-clock harness (T3.29) — MEASURED-on-named-host, deliberately UNGATED | `—` | — | — | — |
-| [`blindscreen.py`](../tools/terrain/blindscreen.py) | `URDRBLS1` | Cheapness is not soundness — four cheap invariants AND their conjunction blind to the verdict | `blindscreen` | [test](../tests/test_blindscreen.py) | [conf](../tools/terrain/conformance_blindscreen.txt) | [brief](../docs/blindscreen_brief.md) |
+| [`blindscreen.py`](../tools/terrain/blindscreen.py) | `URDRBLS1` | Cheapness is not soundness — four cheap invariants AND their conjunction blind to the verdict. AND IT NOW PRE-REGISTERS ITS OWN SUCCESSOR: B1-B5 for the ABSOLUTENESS rung, derived from this module's own criterion — `free_components` was NOT a valuation and fell anyway, so ABSOLUTENESS rather than valuation-ness is what predicts refutability. B3 is the arm that can refute the registration. The FIRST record to pass through the repaired commit-order machinery, IN FLIGHT with `blindabsolute` due | `blindscreen` | [test](../tests/test_blindscreen.py) | [conf](../tools/terrain/conformance_blindscreen.txt) | [brief](../docs/blindscreen_brief.md) |
 | [`bombtest.py`](../tools/terrain/bombtest.py) | `URDRBMB1` | Interaction-free tamper detection — certify an illegal step WITHOUT running it | `bombtest` | [test](../tests/test_bombtest.py) | [conf](../tools/terrain/conformance_bombtest.txt) | [brief](../docs/bombtest_brief.md) |
 | [`boundedhist.py`](../tools/terrain/boundedhist.py) | `URDRBHO1` | Bounded-history optimizer (look-ahead with teeth; Belady vs LRU) | `boundedhist` | [test](../tests/test_boundedhist.py) | [conf](../tools/terrain/conformance_boundedhist.txt) | [brief](../docs/boundedhist_brief.md) |
 | [`budget.py`](../tools/terrain/budget.py) | `URDRBGT1` | The defect budget as a first-class resource — pure subtraction, a refund voids the bound | `budget` | [test](../tests/test_budget.py) | [conf](../tools/terrain/conformance_budget.txt) | [brief](../docs/budget_brief.md) |
@@ -319,8 +319,8 @@ ungated (wall-clock is MEASURED-on-named-host and may never enter the gate). Two
 | [`wireattest.py`](../tools/terrain/wireattest.py) | `URDRWAT1` | THE REALITY ATTESTATION (T3.51, W5) — real sockets | `wireattest` | [test](../tests/test_wireattest.py) | — | [brief](../docs/wireattest_brief.md) |
 ## Status
 
-**MEASURED, as of this writing.** 178 modules under `tools/terrain/`, 262 suites, 4551 unit
-falsifiers with 0 red, 1170 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
+**MEASURED, as of this writing.** 178 modules under `tools/terrain/`, 262 suites, 4556 unit
+falsifiers with 0 red, 1171 gate rows, 0 FAIL. The gate prints `GATE PASSED` twice byte-identically
 under `PYTHONHASHSEED=0`. The kernel has been FROZEN for the whole arc: no rung here has added a
 glyph, and every one carries a D1 §20 ruling saying so.
 

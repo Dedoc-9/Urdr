@@ -43,7 +43,15 @@
 #
 # The `plants` digest is UNCHANGED by that repair, which is the point: the five plants never read
 # git. Only `sweep` moves, because the module gained two callables and the floor counts them.
+#
+# AND `sweep` MOVES ON EVERY RUNG, WHICH IS A PROPERTY OF THE FLOOR RATHER THAN A DEFECT. The
+# declared-not-discovered floor counts MODULE-LEVEL CALLABLES TREE-WIDE against retirements declared,
+# so any commit adding a function to any swept module changes it. That is what makes the floor a real
+# ratio rather than a decoration -- it is the denominator of `declared != discovered` -- and the price
+# is that this file is re-pinned by every rung. The `plants` digest, which is what actually
+# demonstrates the four verdicts, has not moved since it was written. WHEN `sweep` ALONE CHANGES AND
+# `plants` DOES NOT, NOTHING ABOUT THE LAW HAS CHANGED; only the tree it is measured against grew.
 
-sweep 63330ccd3ebdd4f706c8560c9d704e7c6b8caa9f87f12add2af2a006d617f2bf
+sweep 5cb90d8cddd1353092626959f82cc253fe8b93f24869d918397e89ce5163bdae
 plants c168fbb2ad07ddebc736e432c4ffb2101e82dc29ac3b9bc286b8cf5c9acfe277
-retire 0613ae23a596df86fd95ab0307d58448b2f10566be585947f5d49614dc7766a4
+retire cd75573eda1ea607bd802631aad8bcecdfd844173d70e63264ade8ad8e231026

@@ -13,6 +13,10 @@
   A CELL-COUNT SCREEN CLEARS 8 OF 8 PEERS AND 3 OF THEM WRONGLY, with the population asserted to
     exercise both arms.
   THE ROUTER TAKES NO BLIND INVARIANT — a signature check, not a promise.
+  AND THE ABSOLUTENESS RUNG IS PRE-REGISTERED HERE — B1-B5 shipped one commit before any candidate
+    exists, ids PARSED from the committed record rather than restated, digest pinned as a scene.
+    These falsifiers guard the RECORD and never a result; there is no result yet, and a test
+    asserting one would be the defect the registration exists to prevent.
 
 Every test can go red (L5); the plants bite before any golden pins (L15)."""
 import os
@@ -203,6 +207,66 @@ class TheFalsificationRecordIsScoped(unittest.TestCase):
         row = next(r for r in BS.falsification_record() if r[0] == "free_components")
         self.assertIn("two-pointed", row[3])
         self.assertIn("corpus did NOT contain", row[4])
+
+
+class ThePreRegistrationShipsFirst(unittest.TestCase):
+    """THE RECORD IS COMMITTED ONE COMMIT BEFORE ANY CANDIDATE EXISTS. Commit order is the only
+    mechanism that proves a prediction came first, so these falsifiers guard the RECORD, never a
+    result — there is no result yet, and a test asserting one would be the defect."""
+
+    def test_the_record_is_read_from_the_committed_file(self):
+        """The ids are PARSED out of the shipped record rather than restated here: a restatement is
+        a copy, and a copy can drift from the thing it claims to describe."""
+        self.assertEqual(BS.registered_predictions(), ("B1", "B2", "B3", "B4", "B5"))
+        self.assertTrue(BS.the_prediction_ships_before_the_candidates())
+        self.assertEqual(BS.PREDICTION_RECORD,
+                         os.path.join("spec", "attest", "blindscreen-prediction.txt"))
+
+    def test_a_record_that_names_a_result_is_caught(self):
+        """The plant that must bite (L15). A prediction file naming an outcome is a post-hoc note
+        wearing a prediction's clothes, and the guard is the one sentence that says so."""
+        real = BS.prediction_text
+        try:
+            BS.prediction_text = lambda: "predict B1 x\npredict B2 y\n"
+            self.assertFalse(BS.the_prediction_ships_before_the_candidates())
+            BS.prediction_text = lambda: real().replace("NO RESULT IS NAMED", "RESULTS BELOW")
+            self.assertFalse(BS.the_prediction_ships_before_the_candidates())
+        finally:
+            BS.prediction_text = real
+        self.assertTrue(BS.the_prediction_ships_before_the_candidates())
+
+    def test_a_duplicated_id_is_caught(self):
+        real = BS.prediction_text
+        try:
+            BS.prediction_text = lambda: real().replace("predict B5", "predict B4")
+            self.assertFalse(BS.the_prediction_ships_before_the_candidates())
+        finally:
+            BS.prediction_text = real
+
+    def test_the_refinement_is_licensed_by_this_module_s_own_witness(self):
+        """ABSOLUTENESS rather than valuation-ness. The registered criterion is a REFINEMENT of the
+        one already shipped here, and what licenses it is the fifth witness this module found against
+        its own expectation: `free_components` is not a valuation and fell anyway."""
+        verdict_not, free_not, free_fell = \
+            BS.the_criterion_is_refined_by_this_module_s_own_fifth_witness()
+        self.assertTrue(verdict_not, "the breach verdict is not a valuation")
+        self.assertTrue(free_not, "free_components is not a valuation either")
+        self.assertTrue(free_fell, "and it was refuted regardless")
+        row = next(r for r in BS.valuation_census() if r[0] == "free_components")
+        self.assertGreater(row[2], 0, "a non-zero violation count is what 'not a valuation' means")
+
+    def test_the_record_digest_is_a_pinned_scene(self):
+        """Pinning it HERE is what makes the commit-order claim checkable by a reader who has only
+        the tree: the record cannot be edited after the candidates land without reddening."""
+        self.assertIn("prediction", BS.SCENES)
+        self.assertEqual(BS.scene_result("prediction"), BS.golden("prediction"))
+        real = BS.prediction_text
+        try:
+            BS.prediction_text = lambda: real() + "\n# appended later\n"
+            self.assertNotEqual(BS.prediction_digest(), BS.golden("prediction"))
+        finally:
+            BS.prediction_text = real
+        self.assertEqual(BS.prediction_digest(), BS.golden("prediction"))
 
 
 if __name__ == "__main__":

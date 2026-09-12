@@ -19,14 +19,15 @@
 # spec/attest/*-prediction.txt) and once from the CODE (every top-level PREDICTION_RECORD binding,
 # read off the AST). One derivation alone cannot tell an ORPHAN record (committed, bound by nothing)
 # from a DANGLING binding (named in code, absent from disk), and those are different defects with
-# different repairs. Five records, five bindings, agreeing.
+# different repairs. Six records, six bindings, agreeing.
 #
 #   record        state       registrar    discharger   row
 #   voxcond       DISCHARGED  voxpath      voxcond      voxcond-prereg
 #   voxmanifold   DISCHARGED  voxstate     voxmanifold  voxmanifold-prereg
 #   voxstream     DISCHARGED  voxrun       voxreanchor  voxreanchor-disposition
 #   voxtile       DISCHARGED  voxbreak     voxtile      voxtile-result
-#   voxstrip      PENDING     voxbaggage   --           --
+#   voxstrip      PENDING     voxbaggage   --           --   AGED DEBT
+#   blindscreen   PENDING     blindscreen  --           --   IN FLIGHT (blindabsolute due)
 #
 # THE DISCHARGER IS DERIVED, WHICH IS THE PART THAT COULD NOT BE A LIST. A module discharges a record
 # when it CALLS that record's registrar's `prediction_text()`, resolved through the file's OWN import
@@ -74,11 +75,16 @@
 # against history; DISCHARGE is what remains. A registration is permitted, cannot evaporate, and
 # cannot be laundered into indefinite debt.
 #
+# AND THE FIRST REAL REGISTRATION HAS NOW PASSED THROUGH IT. `blindscreen` registered B1-B5 one commit
+# after this repair landed, and it sits IN FLIGHT with `blindabsolute` named as its counterparty and
+# absent from the tree. That is the evidence the repair was for: a live pre-registration surviving the
+# commit-order interval WITHOUT raising a ratcheted ceiling, which v1.0 made impossible.
+#
 # THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED. Every registrar already pins its record's
 # SHA-256 in its own conformance corpus. Re-pinning here would create a second path to the same fact
 # for a later rung to find disagreeing -- the mistake `cutbound` refused. What is added is the
 # CLOSURE: every registered record must have a registrar exposing `prediction_digest` AND a
-# conformance corpus that pins it. 5 of 5, derived.
+# conformance corpus that pins it. 6 of 6, derived.
 #
 # ELEVEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting: an undeclared record, an invented
 # one, a discharger that does not read the record, a registrar scoring itself, a disposition naming
@@ -96,7 +102,7 @@
 # v1.1 adds a bound of the same kind: the EXIT from in flight is proved to be discharge alone
 # and its TIMELINESS is not bounded at all; and nothing
 # about the CONTENT of any record, which each registrar's own digest pin already protects.
-population fed6143cebfba2ad83e8ca6beee2859c21bef7d5cfbfab1fd530e74639d40a41
-register c8bff9baddfd37b1742980bb142ab5880ae2d0deafe86848524ace3282d48d83
-bounds 2fecfede1d795283ff56bd6f6e7ea03e8eb74b7fcc301b95a126b828a4c66de8
-disposition fbca1dd3f821cfd8a18377c35d1420d737bab0249f0e98b11243a5665b91e72b
+population 980ac6b828991d1fa066b0101c569123ab702484194964cc40f10e9b1b6570c2
+register d137d4c8700f2198f1220fac14f58a19ef20fe4c2422490ad9c17665e1588e97
+bounds 9529d40b7fb43996e1641e7181c55bad72d45e56b46e1d486c27960a7de6d2c7
+disposition 0265fd76b6dadc9b9771dc52a495eeaff98a43b68a59fc535e8c0605ade15322

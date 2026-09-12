@@ -28,14 +28,15 @@ THE POPULATION IS DERIVED TWICE AND THE TWO MUST AGREE. Once from the DISK — e
 `spec/attest/*-prediction.txt`. Once from the CODE — every top-level `PREDICTION_RECORD` binding in
 the swept source, read off the AST. Requiring equality is not belt-and-braces: one derivation alone
 cannot tell an ORPHAN record (committed, bound by nothing) from a DANGLING binding (named in code,
-absent from disk), and those are different defects with different repairs. Five records, five
+absent from disk), and those are different defects with different repairs. Six records, six
 bindings, agreeing.
 
 THE DISCHARGER IS DERIVED TOO, and this is the part that could not be a list. A module discharges a
 record when it CALLS that record's registrar's `prediction_text()` — resolved through the AST's own
 import aliases, so `import voxrun as RN` followed by `RN.prediction_text()` is found and a name that
 merely looks similar is not. Measured: voxcond, voxmanifold, voxtile and voxreanchor, each against
-the record it scores, and NOTHING against `voxstrip`.
+the record it scores, and NOTHING against `voxstrip` or against `blindscreen`, which is newly
+registered and whose discharger is not built yet.
 
     A REGISTRAR CANNOT DISCHARGE ITS OWN RECORD, AND THE REASON IS STRUCTURAL RATHER THAN ASSERTED.
 
@@ -88,6 +89,11 @@ is the live reading and whose direction `ratchet` holds at FALL against history;
 remains. So a registration is permitted, cannot evaporate, and cannot be laundered into indefinite
 debt — while nothing here claims it must be discharged SOON, which is in `does_not_show`.
 
+AND THE FIRST REAL REGISTRATION HAS NOW PASSED THROUGH IT. `blindscreen` registered B1-B5 one commit
+after this repair landed, and it sits IN FLIGHT with `blindabsolute` named as its counterparty and
+absent from the tree. That is the evidence the repair was for: a live pre-registration surviving the
+commit-order interval WITHOUT raising a ratcheted ceiling, which v1.0 made impossible.
+
 A NOTE ON THE STATE CONSTANTS, BECAUSE THE RENAME IS A FINDING AND NOT A STYLE CHOICE. The four
 states are bound as `STATE_*` rather than as bare words because `retire` treats a module-level
 `RETIRED` as A DECLARATION OF A RETIREMENT REGISTER, tree-wide, and REFUSES one that is not a mapping
@@ -101,8 +107,8 @@ AND THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED. Every registrar already 
 SHA-256 in its own conformance corpus, so editing a pre-registration after the fact is already
 caught. Re-pinning them here would create a second path to the same fact for a later rung to find
 disagreeing — the mistake `cutbound` refused. What is added is the CLOSURE: every registered record
-must have a registrar that exposes `prediction_digest` AND a conformance corpus that pins it. Five of
-five, derived.
+must have a registrar that exposes `prediction_digest` AND a conformance corpus that pins it. Six of
+six, derived.
 
 GRADE (honest, D5). MEASURED: the two population derivations and their agreement; the discharger map
 over the live tree; per-prediction coverage of every discharged record, read from CODE with
@@ -186,6 +192,11 @@ REGISTER = {
                   "R1-R5 disposed with the DISPOSITION and the MECHANISM scored separately, two of "
                   "the five not valid objects under the re-anchoring decision and recorded as void "
                   "and withdrawn rather than left unscored — the precedent this law generalises"),
+    "blindscreen": (STATE_PENDING, "blindabsolute", "",
+                    "B1-B5 registered by `blindscreen` itself, one commit before any new candidate "
+                    "exists. A COMMITMENT IN FLIGHT rather than debt: this is the first registration "
+                    "to pass through the repaired machinery, and the evidence it carries is that the "
+                    "commit-order interval is survivable WITHOUT raising a ratcheted ceiling"),
     "voxstrip": (STATE_PENDING, "voxstrip", "",
                  "S1-S5 registered by `voxbaggage` and read by nothing. NOT RETIRED: every one of "
                  "the five is still well-formed and still answerable, and no architectural decision "

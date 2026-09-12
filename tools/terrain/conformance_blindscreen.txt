@@ -134,7 +134,23 @@
 # cannot; that no VALUATION can decide breach, which is the conjecture the criterion suggests and not a
 # result; anything about the Hadwiger or Ludwig-Reitzner theorems beyond citing their shape;
 # any chemical fact beyond the cited attributions.
+#
+# THE ABSOLUTENESS RUNG IS PRE-REGISTERED HERE, one commit before any new candidate exists, because
+# commit order is the only mechanism that proves a prediction came first. B1-B5 ship as
+# spec/attest/blindscreen-prediction.txt with their digest pinned below, and the ids are PARSED from
+# that file rather than restated -- a restatement is a copy and a copy can drift.
+#
+# THE PREDICTIONS ARE DERIVED FROM THIS MODULE'S OWN CRITERION. This rung argued two-pointedness
+# THROUGH valuation theory, then found `free_components` -- NOT a valuation, 29 violations of 400 --
+# and it fell anyway. SO VALUATION-NESS IS NOT THE OPERATIVE PROPERTY: what the five share is being
+# ABSOLUTE functionals of the occupancy alone, with nowhere to put the designated face pair. That
+# refinement is licensed by this module's OWN fifth witness rather than imported.
+#
+# AND THE REGISTRATION CARRIES AN ARM THAT CAN REFUTE IT: B3 predicts a cheap TWO-POINTED candidate is
+# NOT refuted by the criterion's mechanism, so a two-pointed candidate falling to an equal-value
+# opposite-verdict pair would show the criterion wrong about what it explains.
 blind 467c5c50fb70267ceffba7299b560695b0ff9f0f74dc459b186c4d92d078bc2b
 conjunction 521f488eeb20818756c77f2689fbd967ae6d416f45cff1bb881d21011a9a7db9
 cost a4c0815d0b9541e67387709a081e44cd726a2b8ba50ba325d2e6a0a5bc701277
 valuation 22c35d24965b329b8ae5d39551d6e7dcfe6326bc52974b96d4957f4a89e65485
+prediction 4edbcbb81853830c51eaa103ae0b4a2a0488b72a92a7515394c4aab5a9d32b4c

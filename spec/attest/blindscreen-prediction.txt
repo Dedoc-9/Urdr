@@ -1,0 +1,42 @@
+# URDRBLS1 pre-registration for the ABSOLUTENESS rung — committed by `blindscreen` ONE COMMIT BEFORE
+# any new candidate exists, because COMMIT ORDER is the only mechanism that proves a prediction came
+# first.
+#
+# WHY THIS EXISTS. `blindscreen` refuted five candidates and then said what it had: "a criterion that
+# explains the four refutations and predicts the fifth." The criterion as written is TWO-POINTEDNESS,
+# argued through valuation theory —
+#
+#     A VALUATION ASSIGNS ONE NUMBER TO ONE SET. BREACH ASKS WHETHER TWO DESIGNATED FACES LIE IN THE
+#     SAME FREE COMPONENT.
+#
+# — and the module measured three of its four cheap invariants SATISFYING inclusion-exclusion while
+# the breach verdict VIOLATES it. But the fifth refutation, which the module found itself and recorded
+# against its own expectation, does not fit that account: `free_components` is NOT a valuation (29
+# violations of 400) and it fell anyway.
+#
+#     SO VALUATION-NESS IS NOT THE OPERATIVE PROPERTY. What `free_components` shares with the other
+#     four is that it is an ABSOLUTE functional — one value determined by the occupancy ALONE, with
+#     nowhere to put the designated face pair. That is the criterion this rung registers, and it is a
+#     REFINEMENT of `blindscreen`'s own, derived from `blindscreen`'s own fifth witness.
+#
+# THE CRITERION IS NOT A PREDICTION AND IS NOT SCORED. It is a reason, graded as one by the module
+# that wrote it, and what would close the gap is a Hadwiger-style classification for lattice
+# valuations under this arc's symmetry group. No such classification exists here. What is scored below
+# is what the criterion PREDICTS, not whether the criterion is true.
+#
+# THE SAFETY CONTRACT IS NOT A PREDICTION AND IS NOT SCORED. A refutation needs exactly one witness,
+# so every negative here is sound whatever the corpus contains; and no status stronger than FALSIFIED
+# or OPEN may enter the record, because five counterexamples are five counterexamples and an
+# impossibility theorem is a different object. Both are preconditions of the experiment running at
+# all, not results it may report.
+#
+# THE MECHANISM EACH PREDICTION RESTS ON IS STATED WITH IT, so a hit that came from the wrong reason
+# is visible as one. NO RESULT IS NAMED and no number appears that is an outcome.
+#
+# world 4 (WORLD = 4, the pinned lattice `blindscreen` already sweeps)
+
+predict B1 every NEW candidate that is ABSOLUTE — computable from the occupancy alone, its signature taking no designated face pair — is refuted by an equal-value opposite-verdict pair, whether or not it satisfies inclusion-exclusion, because breach is a relative property of a set TOGETHER WITH a choice of boundary pair and an absolute functional has nowhere to put that choice
+predict B2 among the new absolute candidates at least one SATISFIES inclusion-exclusion and at least one VIOLATES it, and BOTH are refuted, which is the discriminating outcome: if only the valuations fell, valuation-ness would remain the operative property and this rung's refinement would be unnecessary
+predict B3 a cheap TWO-POINTED candidate — one whose signature takes the face pair — is NOT refuted by this criterion's mechanism, and if such a candidate is nevertheless refuted by an equal-value opposite-verdict pair then the criterion is wrong about what it explains, which is the arm of this registration that can fail
+predict B4 for at least one new candidate the existing 545-occupancy corpus does NOT contain the witness and a hand-built pair is required, because every corpus member is wall-like so its free space always touches both faces, and `free_components` already demonstrated that a family whose discriminating case is not wall-like is structurally absent from it
+predict B5 no new candidate is DECISIVE, the decisive measurand remains connectivity, and the cost order and the decisiveness order remain different orders — which is the prediction most likely to miss, because B3 leaves open that a cheap two-pointed candidate could settle breach and nothing here forbids one existing

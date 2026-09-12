@@ -54,6 +54,7 @@ is findable, and that population is small and exact:
 | `indexed` | `OWNS` | `INDEXES` | `FALL` |
 | `disposition` | `OWNS` | `PENDING_CEILING` | `FALL` |
 | `cutpin` | `CITES` | — | — |
+| `blindscreen` | `CITES` | — | — |
 | `pixelcost` | `FIGURE` | — | — |
 | `lattice` | `FIGURE` | — | — |
 | `ratchet` | `CITES` | — | — |
@@ -64,6 +65,16 @@ rather than raise a ceiling — a law that could not tell a citation from a prom
 history about a constant that does not exist. `pixelcost` uses the word to say something true and
 unrelated: *"a claim that cannot be demoted by more evidence is a ratchet, and ratchets are for
 debts, not claims"* — this module's own principle, stated by a module that owns none.
+
+**The eighth entry arrived one commit later and was not written for this law.** `blindscreen`
+registered a prediction and explained, in its own prose, that a commitment in flight is legal
+*because counting it as debt would raise a ceiling whose direction is held at `FALL`* — a sentence
+about `disposition`'s constant, written for a rung about lattice breach. The scan pulled it in
+immediately and reddened three rows until it was classified `CITES`. **That is the population being
+a reading rather than a list**: a hand-maintained roster would have stayed at seven and been wrong
+within a day, and the module that tripped it had no idea this law existed. The cost of the reading
+is exactly this — every rung that uses the word must classify itself — and the cost is the
+mechanism.
 
 **And this law matches itself**, the fourth guard in this arc to do so after `lift`'s `exp(`,
 `retire`'s `HEAD` and `reflow`'s own regex list. It contains every phrase in the vocabulary *because

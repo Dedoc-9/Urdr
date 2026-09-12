@@ -4645,8 +4645,8 @@ class Gate:
         pop_ok, pop = True, (False, (), (), -1)
         try:
             pop = DP.the_two_derivations_agree()
-            pop_ok = pop[0] and pop[1] == () and pop[2] == () and pop[3] == 5
-            pop_ok = pop_ok and len(DP.population()) == 5
+            pop_ok = pop[0] and pop[1] == () and pop[2] == () and pop[3] == 6
+            pop_ok = pop_ok and len(DP.population()) == 6
             reg = DP.registrations()
             pop_ok = pop_ok and all(DP.prediction_ids(r) for r in reg)
         except Exception:
@@ -4667,7 +4667,7 @@ class Gate:
             probs = DP.problems(live_rows)
             cen = DP.census()
             reg_ok = (not probs and set(DP.REGISTER) == set(DP.population())
-                      and len(cen[DP.STATE_DISCHARGED]) == 4 and len(cen[DP.STATE_PENDING]) == 1
+                      and len(cen[DP.STATE_DISCHARGED]) == 4 and len(cen[DP.STATE_PENDING]) == 2
                       and DP.STATE_PENDING not in DP.TERMINAL
                       and all(e[1] not in (DP.registrations().get(r),)
                               for r, e in DP.REGISTER.items() if e[0] == DP.STATE_DISCHARGED))
@@ -4681,7 +4681,9 @@ class Gate:
                     "callers); this is its forward twin, and the mechanism was already right and "
                     "already LOCAL: `voxreanchor` carries "
                     "`every_registered_prediction_has_exactly_one_disposition` FOR ITS OWN RECORD. "
-                    "4 DISCHARGED, 1 PENDING. AND THE DISCHARGER IS DERIVED, which is the part that "
+                    "4 DISCHARGED, 2 PENDING — 1 AGED DEBT AND 1 IN FLIGHT, which are different "
+                    "objects and only the first is ratcheted. AND THE DISCHARGER IS DERIVED, which "
+                    "is the part that "
                     "could not be a list: a module discharges a record when it CALLS that record's "
                     "registrar's `prediction_text()`, resolved through the file's own import "
                     "aliases. A REGISTRAR THEREFORE CANNOT SCORE ITS OWN RECORD, structurally — the "
@@ -4698,7 +4700,7 @@ class Gate:
             cov_ok = (len(cov) == 4 and all(m == () and c == 5 for _r, _a, c, m in cov)
                       and DP.the_id_scan_reads_code_and_not_prose() == ((), ("G1", "G2"))
                       and DP.a_registrar_cannot_score_itself() == (True, False, True)
-                      and DP.every_record_is_tamper_pinned_by_its_registrar() == (5, 5, ()))
+                      and DP.every_record_is_tamper_pinned_by_its_registrar() == (6, 6, ()))
         except Exception:
             cov_ok = False
         self.record("disposition-coverage", cov_ok,
@@ -4713,8 +4715,8 @@ class Gate:
                     "AND THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED: every registrar already "
                     "pins its record's SHA-256 in its own conformance corpus, so re-pinning here "
                     "would create a second path to the same fact for a later rung to find "
-                    "disagreeing — the mistake `cutbound` refused. What is added is the CLOSURE, 5 "
-                    "of 5 registrars exposing `prediction_digest` and pinning it"
+                    "disagreeing — the mistake `cutbound` refused. What is added is the CLOSURE, 6 "
+                    "of 6 registrars exposing `prediction_digest` and pinning it"
                     if cov_ok else "a discharged record is not covered in full")
 
         pen_ok = True
@@ -4723,8 +4725,9 @@ class Gate:
             part = DP.the_two_pending_classes_partition()
             pen_ok = (DP.the_pending_ceiling_is_the_live_reading()
                       and DP.debt_records() == ("voxstrip",)
-                      and DP.in_flight_records() == ()
-                      and part == (True, 1, 1, 0, ())
+                      and DP.in_flight_records() == ("blindscreen",)
+                      and part == (True, 2, 1, 1, ())
+                      and DP.REGISTER["blindscreen"][1] not in mods
                       and DP.the_only_exit_from_in_flight_is_discharge() == (True, True, True)
                       and DP.REGISTER["voxstrip"][1] not in mods
                       and "voxstrip" not in DP.dischargers())
@@ -4818,7 +4821,7 @@ class Gate:
             structural, prose, owners = RT.the_structural_heuristic_is_refuted()
             c = RT.census()
             pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
-                      and structural == 78 and prose == 7 and owners == 3
+                      and structural == 78 and prose == 8 and owners == 3
                       and all(c[k] for k in RT.KINDS)
                       and RT.a_citation_is_not_a_promise() == (True, False)
                       and RT.the_law_matches_itself() == (True, True, True))
@@ -4833,7 +4836,7 @@ class Gate:
                     "SOMETHING A RATCHET — a ratchet is a declared debt quantity plus a declared "
                     "monotone direction plus a baseline plus an enforcement, and only the quantity "
                     "has a syntax. The refuted heuristic is kept as a FALSIFIER rather than as a "
-                    "story. So the PROMISE is read out of shipped prose (7 modules) and each must "
+                    "story. So the PROMISE is read out of shipped prose (8 modules) and each must "
                     "resolve to a declared classification, `attributed`'s shape. THREE CLASSES, ALL "
                     "POPULATED AND ALL WITH REAL BOUNDARY CASES (L61): `entry`, `indexed` and "
                     "`disposition` OWN one; `cutpin` CITES `entry`'s while owning none, and a law "
@@ -4844,7 +4847,11 @@ class Gate:
                     "by a module that owns none. AND THE LAW MATCHES ITSELF, the fourth guard in "
                     "this arc to do so, because it contains every phrase BY DECLARING THE "
                     "VOCABULARY — classified rather than excluded, since excluding itself would "
-                    "make the population a choice rather than a reading"
+                    "make the population a choice rather than a reading. THE EIGHTH ENTRY IS "
+                    "EVIDENCE RATHER THAN GROWTH: `blindscreen` was pulled in ONE COMMIT after this "
+                    "law shipped, by prose written for an unrelated rung that happened to quote "
+                    "this ratchet while explaining why a commitment in flight is legal — a list "
+                    "would not have noticed, and the population noticed because it is a READING"
                     if pop_ok else "the ratchet promise population is not closed")
 
         hist_ok, verds = True, ()
@@ -15628,7 +15635,7 @@ class Gate:
         and the hole autoroute left open: a cascade that cannot tell 'this tier DECIDES' from 'this tier
         is all I can afford' will eventually accept a screen because it is cheap. Four cheap invariants
         are each blind to the breach verdict AND so is their conjunction, with connectivity separating
-        the same pair as a positive control. Rows: scenes, blind, conjunction, cost."""
+        the same pair as a positive control. Rows: scenes, blind, conjunction, cost, valuation, prereg."""
         if os.path.join(ROOT, "tools", "terrain") not in sys.path:
             sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
         try:
@@ -15644,7 +15651,8 @@ class Gate:
             self.record("blindscreen:scenes", False, f"reference failed: {exc}")
             return
         self.record("blindscreen:scenes", ref_ok,
-                    "blind + conjunction + cost reproduce URDRBLS1 digests, and the pinned corpus is "
+                    "blind + conjunction + cost + valuation + prediction reproduce URDRBLS1 digests, and "
+                    "the pinned corpus is "
                     "exactly what `--emit` produces"
                     if ref_ok else "a blindscreen scene drifted from its digest")
         bl_ok = True
@@ -15788,6 +15796,36 @@ class Gate:
                     "and the free_components row carries its own corpus limitation so the next "
                     "topological candidate is not swept the same insufficient way"
                     if val_ok else "the blindscreen valuation census did not hold")
+
+        pre_ok = True
+        try:
+            pre_ok = (BS.the_prediction_ships_before_the_candidates()
+                      and BS.registered_predictions() == ("B1", "B2", "B3", "B4", "B5")
+                      and BS.the_criterion_is_refined_by_this_module_s_own_fifth_witness()
+                      == (True, True, True)
+                      and BS.scene_result("prediction") == BS.golden("prediction"))
+        except Exception:
+            pre_ok = False
+        self.record("blindscreen-prereg", pre_ok,
+                    "THE ABSOLUTENESS RUNG IS PRE-REGISTERED HERE, ONE COMMIT BEFORE ANY NEW CANDIDATE "
+                    "EXISTS, because commit order is the only mechanism that proves a prediction came "
+                    "first. B1-B5 ship as `spec/attest/blindscreen-prediction.txt` with their digest "
+                    "pinned in this rung's conformance corpus, and the ids are PARSED from that file "
+                    "rather than restated, since a restatement is a copy and a copy can drift. AND THE "
+                    "PREDICTIONS ARE DERIVED FROM THIS MODULE'S OWN CRITERION RATHER THAN FROM A NEW "
+                    "INVARIANT: this rung argued two-pointedness THROUGH valuation theory, then found "
+                    "`free_components` — NOT a valuation, 29 violations of 400 — and it fell anyway. "
+                    "SO VALUATION-NESS IS NOT THE OPERATIVE PROPERTY; what the five share is being "
+                    "ABSOLUTE functionals of the occupancy alone, with nowhere to put the designated "
+                    "face pair, and that refinement is licensed by this module's OWN fifth witness. "
+                    "The registration carries an arm that can refute it: B3 predicts a cheap "
+                    "TWO-POINTED candidate is NOT refuted by the criterion's mechanism, so a "
+                    "two-pointed candidate falling to an equal-value opposite-verdict pair would show "
+                    "the criterion wrong about what it explains. This is also the FIRST registration "
+                    "to pass through the machinery `disposition` v1.1 and `ratchet` repaired — it sits "
+                    "as a COMMITMENT IN FLIGHT with `blindabsolute` named and absent, which is the "
+                    "state v1.0 made impossible"
+                    if pre_ok else "the blindscreen pre-registration did not hold")
 
 
     def rannull(self):

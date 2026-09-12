@@ -181,13 +181,20 @@ class ThePending(unittest.TestCase):
 
     def test_a_registration_in_flight_is_permitted(self):
         """THE REPAIR. v1.0 made this impossible: the intermediate state commit-order registration
-        REQUIRES raised the count against an equality."""
+        REQUIRES raised the count against an equality.
+
+        The assertion is the DELTA rather than the whole set, because the live register now carries a
+        real commitment in flight (`blindscreen`) and a plant that asserted the absolute membership
+        would be testing the live population instead of the mechanism — the same conflation this
+        module's own `plants leave the live register alone` test exists to prevent."""
+        before = DP.in_flight_records()
         probe = dict(DP.REGISTER)
         probe["ghost"] = (DP.STATE_PENDING, "ghostscore", "", "z" * 45)
         keep = DP.REGISTER
         try:
             DP.REGISTER = probe
-            self.assertEqual(DP.in_flight_records(), ("ghost",))
+            self.assertEqual(set(DP.in_flight_records()) - set(before), {"ghost"})
+            self.assertNotIn("ghost", before)
             self.assertTrue(DP.the_pending_ceiling_is_the_live_reading())
             self.assertTrue(DP.the_two_pending_classes_partition()[0])
         finally:

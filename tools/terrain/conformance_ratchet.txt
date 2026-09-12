@@ -27,9 +27,18 @@
 #     indexed      OWNS    INDEXES                                        FALL   15 -> 13
 #     disposition  OWNS    PENDING_CEILING                                FALL   1
 #     cutpin       CITES   quotes `entry`'s ratchet; owns none
+#     blindscreen  CITES   quotes `disposition`'s ratchet while registering; owns none
 #     pixelcost    FIGURE  the word as a metaphor about claim grades
 #     lattice      FIGURE  the word in passing
 #     ratchet      CITES   names every phrase BECAUSE IT DECLARES THE VOCABULARY; owns none
+#
+# THE EIGHTH ENTRY ARRIVED ONE COMMIT LATER AND WAS NOT WRITTEN FOR THIS LAW. `blindscreen` registered
+# a prediction and explained, in its own prose, that a commitment in flight is legal BECAUSE counting
+# it as debt would raise a ceiling whose direction is held at FALL -- a sentence about `disposition`'s
+# constant, written for a rung about lattice breach. The scan pulled it in immediately and reddened
+# three rows until it was classified. A hand-maintained roster would have stayed at seven and been
+# wrong within a day. The cost of a reading is that every rung using the word must classify itself,
+# and that cost IS the mechanism.
 #
 # THE BOUNDARY CASES ARE REAL RATHER THAN CONSTRUCTED (L61). `cutpin` QUOTES `entry`'s ratchet to
 # explain why it removed a CLI rather than raise a ceiling -- a law that could not tell a citation
@@ -89,7 +98,7 @@
 # the earliest PINNED one, so an author who pinned a lenient baseline gets a lenient law; and nothing
 # about non-numeric debts -- a SET that may only shrink is a different law, and `disposition` carries
 # its own partition rather than pretending this one covers it.
-population 7f1136bb44a64cbd0bbd988a16dec082975446fb64feb5c77fbde2c372cb7d6d
+population 5cf05235fbd2cb573213eee052c6041e07f74f49991743ad92e87de2b3089c26
 history 58aa0aea69453013e595767025c5ea55e740cd9dcd8b20be16da9079b6e807ab
 bounds 4b7a6f376a101170006ce792f5770faa8090a2a5c659c8f9f47ddc23677a841c
-ratchet 3a67f26d47dd4af02baeb8cde89ce93b16ea789120621698b257be4840b5c799
+ratchet 57309ad2df625aabaecc3e6c1520454a586f663dde2686a48b467daacab6aa2c

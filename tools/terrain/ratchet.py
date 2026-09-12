@@ -188,6 +188,13 @@ REGISTER = {
     "lattice": (FIGURE, (), "", "", "", (),
                 "uses the word in passing about the proof-lattice pin; it declares no debt count "
                 "and promises no direction, so there is nothing here for a direction law to hold"),
+    "blindscreen": (CITES, (), "", "", "", (),
+                    "quotes `ratchet`'s promise while registering its own successor — it explains "
+                    "that a COMMITMENT IN FLIGHT is legal because counting it as debt would raise a "
+                    "ceiling whose direction is held at FALL, which is a citation of someone else's "
+                    "constant and not a promise about one of its own. CAUGHT BY THIS LAW WITHIN ONE "
+                    "COMMIT of the law shipping, on prose written for an unrelated purpose, which is "
+                    "the population being a reading rather than a list"),
     "ratchet": (CITES, (), "", "", "", (),
                 "THIS LAW MATCHES ITSELF, which is the fourth time a guard in this arc has — after "
                 "`lift`'s `exp(`, `retire`'s `HEAD` and `reflow`'s own regex list. It names every "
