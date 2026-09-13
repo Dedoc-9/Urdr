@@ -307,6 +307,7 @@ STAGE_ORDER = (
     "lattice",
     "epistemics_apparatus",
     "doc_currency",
+    "rowclosure",
 )
 
 #: THE GRADING RATCHET, read from the filesystem at pin time and lowered only by an
@@ -5244,8 +5245,15 @@ class Gate:
             self.record("doc-currency-selftest", False, "checker did not load")
             return
         N_OWN = 12  # rows THIS method records below — keep == the record() count
+        # AND THE ROWS THAT COME AFTER. This stage is no longer last: `rowclosure` runs behind it,
+        # because a closure over the live row set has to see the whole set. That ordering used to
+        # be an invisible assumption ("doc_currency is last"); it is now a DECLARATION, and
+        # `rowclosure-declared` checks it against the stages that actually follow — so a future
+        # stage appended after this one reddens rather than quietly shortening the count.
+        N_AFTER = 5  # rows recorded by stages ordered AFTER this one (rowclosure)
         live = DC.live_counts(ROOT, getattr(self, "n_falsifiers", -1),
-                              len(self.rows) + N_OWN, getattr(self, "n_detectors", -1))
+                              len(self.rows) + N_OWN + N_AFTER,
+                              getattr(self, "n_detectors", -1))
         probs = DC.problems(ROOT, live)
         ok = (not probs) and live["fals"] >= 0
         if ok:
@@ -27961,6 +27969,161 @@ class Gate:
             self.record(name, ok, detail)
         ok, detail = FC.selftest(ROOT, manifest)
         self.record("spec-freeze-selftest", ok, detail)
+
+    def rowclosure(self):
+        """ROW POPULATION PROVENANCE (URDRRWC1) — the gate's own transcript, closed both ways, with
+        every row accounted to HOW it came to exist. Runs LAST because a closure over the live row
+        set has to see the whole set. Rows: declared (every declaration fired or is a row that
+        exists to be absent), live (every row is declared or corpus-enumerated), absence (the
+        negative class, and that its members CANNOT pass), corpus (each family's cardinality against
+        its declared source), plants (all four directions proved to bite). `ROWS_FLOOR` is untouched
+        by this stage and still guards the degenerate direction it was minted for."""
+        sdir = os.path.join(ROOT, "tools", "specfreeze")
+        if sdir not in sys.path:
+            sys.path.insert(0, sdir)
+        OWN = ("rowclosure-declared", "rowclosure-live", "rowclosure-absence",
+               "rowclosure-corpus", "rowclosure-plants")
+        try:
+            import rowclosure as RC
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("declared", "live", "absence", "corpus", "plants"):
+                self.record(f"rowclosure-{r}", False, f"import failed (rowclosure): {exc}")
+            return
+        # THE LIVE SET IS THIS RUN'S, plus the rows this stage is about to record. Deriving the
+        # tail from declarations would be circular — the declarations are what is under test.
+        live = frozenset(n for n, _ok, _d in self.rows) | frozenset(OWN)
+        # A CLOSURE OVER THE LIVE SET CANNOT GRADE A SUBSET, and saying so is better than four
+        # confusing reds: under `--only` almost every declaration is legitimately absent. The rows
+        # still record FALSE — a stage that could not measure did not pass — but they name the
+        # reason, which is what `subset-withhold-honest` insists withholding must do.
+        if len(live) < ROWS_FLOOR:
+            for r in OWN:
+                self.record(r, False,
+                            "SUBSET RUN (%d rows < floor %d): this stage closes the LIVE row "
+                            "population against the gate's declarations and can only do that on a "
+                            "full run. Not a finding about the closure" % (len(live), ROWS_FLOOR))
+            return
+
+        d_ok, d_bad, part = True, (), {}
+        try:
+            part = RC.partition(live)
+            d_ok, d_bad = RC.declared_to_live(live)
+            # AND THE ORDERING `doc_currency` DECLARES IS THE ONE THAT HOLDS: exactly this stage's
+            # rows follow it, so its N_AFTER is a checked declaration rather than a hidden guess.
+            d_ok = (d_ok and part["declared_closes"]
+                    and STAGE_ORDER[-1] == "rowclosure"
+                    and STAGE_ORDER.index("doc_currency") == len(STAGE_ORDER) - 2
+                    and len(OWN) == 5)
+        except Exception:
+            d_ok = False
+        self.record("rowclosure-declared", d_ok,
+                    "EVERY STATIC DECLARATION EITHER FIRED OR IS A ROW THAT EXISTS TO BE ABSENT — "
+                    "%d declarations, %d live, %d absent-by-declaration, and the identity closes "
+                    "exactly. The declaration set is read from `verify.py`'s OWN SOURCE, the refusal "
+                    "`indexed` makes for the same reason: a list kept here would be a second answer "
+                    "to a question the gate already answers. AND THE ORDERING IS NOW DECLARED "
+                    "RATHER THAN ASSUMED — this stage runs last so the closure sees the whole set, "
+                    "which makes `doc_currency` no longer last, so its row total gained an explicit "
+                    "`N_AFTER` that this row checks against the stages that actually follow. A "
+                    "future stage appended behind this one reddens instead of quietly shortening a "
+                    "count"
+                    % (part.get("declared", -1), part.get(RC.DECLARED_LIVE, -1),
+                       part.get(RC.DECLARED_ABSENT, -1))
+                    if d_ok else f"a declaration is neither live nor absent-by-contract: {d_bad[:5]}")
+
+        l_ok, l_bad, dyn = True, (), (0, 0, ())
+        try:
+            l_ok, l_bad = RC.live_to_declared(live)
+            dyn = RC.the_dynamic_sites_declare_nothing_new()
+            l_ok = (l_ok and part["live_closes"] and dyn[2] == () and dyn[0] == dyn[1])
+        except Exception:
+            l_ok = False
+        self.record("rowclosure-live", l_ok,
+                    "EVERY LIVE ROW IS EITHER STATICALLY DECLARED OR GENERATED FROM A NAMED CORPUS "
+                    "— %d live, %d of them declared, %d corpus-enumerated across %d declared "
+                    "families, and the identity closes exactly. AND THE GAP IS NOT A PARSER "
+                    "PROBLEM, which is the tempting and wrong reading: every f-string row name that "
+                    "expands against a LITERAL sequence is already in the literal set (%d of %d), "
+                    "because those sites are the import-guard MIRROR of names the happy path "
+                    "declares literally. What is live without a static declaration comes from a "
+                    "site enumerating a RUNTIME CORPUS — a mechanism, not an artifact of how hard "
+                    "the source is to read"
+                    % (part.get("live", -1), part.get(RC.DECLARED_LIVE, -1),
+                       part.get(RC.CORPUS, -1), len(RC.FAMILIES), dyn[1], dyn[0])
+                    if l_ok else f"a live row is neither declared nor claimed by a family: {l_bad[:5]}")
+
+        a_ok, guard, vac = True, (), ()
+        try:
+            guard, vac = RC.absence_split()
+            victim, before, after = RC.an_absence_declaration_that_could_pass_is_caught()
+            a_ok = (len(guard) + len(vac) == len(RC.absence_names())
+                    and len(guard) == 135 and len(vac) == 16
+                    and not before and after
+                    and all(n not in live for n in RC.absence_names()))
+        except Exception:
+            a_ok = False
+        self.record("rowclosure-absence", a_ok,
+                    "A ROW THAT EXISTS TO BE ABSENT IS NOT A ROW THAT FAILED TO APPEAR, AND "
+                    "NOTHING COULD TELL THEM APART BEFORE. %d declarations record `False` at EVERY "
+                    "site they have, so none of them can pass: %d sit inside an `except` (an import "
+                    "guard) and %d on the happy path behind an emptiness test — `if not files: "
+                    "record(..., False, 'no examples found (vacuous)'); return`. Different causes, "
+                    "one contract. THE CLASS IS ABOUT WHAT THE DECLARATION PERMITS AND NOT ABOUT "
+                    "WHAT THIS RUN DID: give one of them a second site recording True and it LEAVES "
+                    "the absent set, which is what separates a designed absence from a row that "
+                    "merely happened to be false today"
+                    % (len(guard) + len(vac), len(guard), len(vac))
+                    if a_ok else f"the absence class did not hold: guard={len(guard)} vacuity={len(vac)}")
+
+        c_ok, cen = True, ()
+        try:
+            cen = RC.family_census(live)
+            c_ok = (len(cen) == 18 and all(row[6] for row in cen)
+                    and sum(row[5] for row in cen) == part.get(RC.CORPUS, -1))
+        except Exception:
+            c_ok = False
+        self.record("rowclosure-corpus", c_ok,
+                    "EVERY CORPUS-GENERATED FAMILY NAMES A COUNTABLE SOURCE AND ITS CARDINALITY "
+                    "AGREES — %d families, %d rows, zero unexplained. The sources are DECLARED "
+                    "because a name cannot tell you where it came from: %d example programs read "
+                    "twice (once by the checker, once by the composite oracle), 45 refusal-manifest "
+                    "entries, 5 generators at two rows each, 11 scene corpora read from their own "
+                    "modules, the detector manifest inside this gate, and the freeze manifest — "
+                    "whose 27 declared entries produce 28 rows, because `magics-distinct` is "
+                    "CROSS-CUTTING and belongs to no entry. THAT +1 IS NAMED RATHER THAN ABSORBED, "
+                    "since a cardinality check that quietly tolerates an off-by-one is a check that "
+                    "has stopped counting"
+                    % (len(cen), sum(row[5] for row in cen),
+                       next((r[1] for r in cen if r[0] == "example:"), -1))
+                    if c_ok else f"a corpus family's cardinality disagrees: "
+                                 f"{[r for r in cen if not r[6]][:3]}")
+
+        p_ok = True
+        try:
+            victim2, caught2 = RC.a_corpus_family_that_miscounts_is_caught(live)
+            _v, before3, after3 = RC.an_absence_declaration_that_could_pass_is_caught()
+            p_ok = (RC.an_unclassified_live_row_is_caught(live)
+                    and RC.a_declaration_that_never_fires_is_caught(live)
+                    and caught2 and (not before3) and after3
+                    # and the probes leave the live register exactly as they found it
+                    and RC.problems(live) == []
+                    and RC.classify("rowclosure-declared", live) == RC.DECLARED_LIVE
+                    and RC.classify("example:" + "actors_one_digest.urdr", live) == RC.CORPUS
+                    and RC.classify("not-a-row", live) == RC.UNCLASSIFIED)
+        except Exception:
+            p_ok = False
+        self.record("rowclosure-plants", p_ok,
+                    "ALL FOUR DIRECTIONS ARE OBSERVED REJECTING RATHER THAN ASSUMED TO. An "
+                    "UNCLASSIFIED live row breaks live->declared; a DECLARATION THAT COULD PASS AND "
+                    "NEVER DOES breaks declared->live; an ABSENCE DECLARATION GIVEN A PASSING SITE "
+                    "leaves the negative class; a FAMILY MISSING ONE ROW breaks its cardinality. "
+                    "Each is planted in a SYNTHETIC copy of the gate's source or a copy of the live "
+                    "set, never in the register itself, so a probe cannot leave a row behind — and "
+                    "that the live register is unchanged afterwards is asserted rather than trusted. "
+                    "`ROWS_FLOOR` IS UNTOUCHED BY THIS STAGE: the floor answers whether the gate ran "
+                    "at all, this answers where each row came from, and the incident that minted the "
+                    "floor is not a reason to pretend it now covers a question it never did"
+                    if p_ok else "a rowclosure probe did not bite")
 
     # -- report ----------------------------------------------------------------
     def report(self) -> int:
