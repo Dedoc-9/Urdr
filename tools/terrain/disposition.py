@@ -34,9 +34,9 @@ bindings, agreeing.
 THE DISCHARGER IS DERIVED TOO, and this is the part that could not be a list. A module discharges a
 record when it CALLS that record's registrar's `prediction_text()` — resolved through the AST's own
 import aliases, so `import voxrun as RN` followed by `RN.prediction_text()` is found and a name that
-merely looks similar is not. Measured: voxcond, voxmanifold, voxtile, voxreanchor and chargecurve,
-each against the record it scores, and NOTHING against `voxstrip` or `blindscreen` -- the first an
-aged debt, the second newly registered with its discharger not built yet.
+merely looks similar is not. Measured: voxcond, voxmanifold, voxtile, voxreanchor, chargecurve and
+blindabsolute, each against the record it scores, and NOTHING against `voxstrip`, which is the aged
+debt and the only pending record left.
 
     A REGISTRAR CANNOT DISCHARGE ITS OWN RECORD, AND THE REASON IS STRUCTURAL RATHER THAN ASSERTED.
 
@@ -89,19 +89,29 @@ is the live reading and whose direction `ratchet` holds at FALL against history;
 remains. So a registration is permitted, cannot evaporate, and cannot be laundered into indefinite
 debt — while nothing here claims it must be discharged SOON, which is in `does_not_show`.
 
-AND THE FIRST REAL REGISTRATION HAS NOW PASSED THROUGH IT. `blindscreen` registered B1-B5 one commit
-after this repair landed, and it sits IN FLIGHT with `blindabsolute` named as its counterparty and
-absent from the tree. That is the evidence the repair was for: a live pre-registration surviving the
-commit-order interval WITHOUT raising a ratcheted ceiling, which v1.0 made impossible.
+AND BOTH REAL REGISTRATIONS HAVE NOW PASSED ALL THE WAY THROUGH IT. `blindscreen` registered B1-B5
+one commit after this repair landed and sat IN FLIGHT with `blindabsolute` named and absent — the
+evidence the repair was for, a live pre-registration surviving the commit-order interval WITHOUT
+raising a ratcheted ceiling, which v1.0 made impossible. `blindabsolute` has since scored it and it is
+DISCHARGED.
 
-AND THE FULL ROUND TRIP HAS NOW BEEN MADE, IN CONSECUTIVE COMMITS. `cohort` registered C1-C5 for
+AND THE ROUND TRIP HAS NOW BEEN MADE TWICE, AT TWO DIFFERENT SPEEDS. `cohort` registered C1-C5 for
 the charge-curve measurement, which briefly made IN FLIGHT carry TWO members at once -- a state an
 equality over ALL pending could not have represented at ANY ceiling value, since the count would have
-had to rise twice while its direction was held at FALL. One commit later `chargecurve` scored the
-record and it is DISCHARGED. REGISTER, INTERVAL, MEASUREMENT, DISPOSITION, with the classifier frozen
-in the registering commit: that is the whole instrument running once end to end, and it is what the
-v1.1 repair was for. `blindscreen` remains in flight, which is the honest picture -- an interval that
-CAN close quickly is not an interval that must.
+had to rise twice while its direction was held at FALL -- and `chargecurve` scored it one commit
+later. `blindscreen` took four. REGISTER, INTERVAL, MEASUREMENT, DISPOSITION, with the classifier or
+the criterion frozen in the registering commit both times.
+
+    IN FLIGHT IS NOW EMPTY AND THE AGED DEBT IS UNCHANGED AT ONE, which is the honest shape of what
+    the repair bought: it permitted an interval, both registrations that used it closed, and the one
+    record that was debt before is debt still. The ratchet moved nothing because nothing was
+    laundered through it.
+
+AND A DISCHARGE IS NOT A VINDICATION. `blindscreen`'s record closed with ALL FIVE of its predictions
+MISSED, including the arm it had named in advance as the one that could refute its own criterion.
+This register recorded the commitment as met and has no opinion about whether the prediction was
+right — which is exactly what makes it bookkeeping rather than advocacy, and why a rung may report
+that its own criterion failed without any law here objecting.
 
 A NOTE ON THE STATE CONSTANTS, BECAUSE THE RENAME IS A FINDING AND NOT A STYLE CHOICE. The four
 states are bound as `STATE_*` rather than as bare words because `retire` treats a module-level
@@ -201,11 +211,12 @@ REGISTER = {
                   "R1-R5 disposed with the DISPOSITION and the MECHANISM scored separately, two of "
                   "the five not valid objects under the re-anchoring decision and recorded as void "
                   "and withdrawn rather than left unscored — the precedent this law generalises"),
-    "blindscreen": (STATE_PENDING, "blindabsolute", "",
-                    "B1-B5 registered by `blindscreen` itself, one commit before any new candidate "
-                    "exists. A COMMITMENT IN FLIGHT rather than debt: this is the first registration "
-                    "to pass through the repaired machinery, and the evidence it carries is that the "
-                    "commit-order interval is survivable WITHOUT raising a ratcheted ceiling"),
+    "blindscreen": (STATE_DISCHARGED, "blindabsolute", "blindabsolute-scoring",
+                    "B1-B5 registered by `blindscreen` itself and scored by `blindabsolute`, ALL "
+                    "FIVE MISSED — including B3, the arm the record named in advance as the one "
+                    "that could refute the registration. A DISCHARGE IS NOT A VINDICATION: this "
+                    "register records that the commitment was met, never that the prediction was "
+                    "right, and the distinction is the whole reason it is bookkeeping"),
     "cohort": (STATE_DISCHARGED, "chargecurve", "chargecurve-scoring",
                "C1-C5 registered by `cohort` one commit earlier and scored by `chargecurve`, four "
                "held and one missed — and the miss is the useful one, C2 having registered a "

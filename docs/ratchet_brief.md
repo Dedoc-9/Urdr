@@ -65,6 +65,7 @@ is findable, and that population is small and exact:
 | `disposition` | `OWNS` | `PENDING_CEILING` | `FALL` |
 | `cutpin` | `CITES` | — | — |
 | `blindscreen` | `CITES` | — | — |
+| `blindabsolute` | `CITES` | — | — |
 | `cohort` | `CITES` | — | — |
 | `pixelcost` | `FIGURE` | — | — |
 | `lattice` | `FIGURE` | — | — |
@@ -87,7 +88,7 @@ within a day, and the module that tripped it had no idea this law existed. The c
 is exactly this — every rung that uses the word must classify itself — and the cost is the
 mechanism.
 
-**Then a ninth, then a structural one, on three consecutive rungs.** `cohort` cited the same
+**Then a ninth, a tenth, and a structural one, on four consecutive rungs.** `cohort` cited the same
 constant for the same reason while pre-registering a cost measurement; `criticality` arrived on the
 *structural* side instead (below). Three rungs running, this law has pulled in the commit that was
 being written, every time from prose composed for something else. One instance is an anecdote about

@@ -27,7 +27,7 @@
 #   voxstream     DISCHARGED  voxrun       voxreanchor  voxreanchor-disposition
 #   voxtile       DISCHARGED  voxbreak     voxtile      voxtile-result
 #   voxstrip      PENDING     voxbaggage   --           --   AGED DEBT
-#   blindscreen   PENDING     blindscreen  --           --   IN FLIGHT (blindabsolute due)
+#   blindscreen   DISCHARGED  blindscreen  blindabsolute blindabsolute-scoring
 #   cohort        DISCHARGED  cohort       chargecurve  chargecurve-scoring
 #
 # THE DISCHARGER IS DERIVED, WHICH IS THE PART THAT COULD NOT BE A LIST. A module discharges a record
@@ -81,14 +81,22 @@
 # absent from the tree. That is the evidence the repair was for: a live pre-registration surviving the
 # commit-order interval WITHOUT raising a ratcheted ceiling, which v1.0 made impossible.
 #
-# AND THE FULL ROUND TRIP HAS NOW BEEN MADE, IN CONSECUTIVE COMMITS. `cohort` registered C1-C5 for the
-# charge-curve measurement, which briefly made IN FLIGHT carry TWO members at once -- a state an
+# AND THE ROUND TRIP HAS NOW BEEN MADE TWICE, AT TWO DIFFERENT SPEEDS. `cohort` registered C1-C5 for
+# the charge-curve measurement, which briefly made IN FLIGHT carry TWO members at once -- a state an
 # equality over ALL pending could not have represented at any ceiling value, since the count would have
-# had to rise twice while its direction was held at FALL. One commit later `chargecurve` scored the
-# record and it is DISCHARGED. REGISTER, INTERVAL, MEASUREMENT, DISPOSITION, with the classifier frozen
-# in the registering commit: the whole instrument running once, end to end, which is what the v1.1
-# repair was for. `blindscreen` remains in flight, which is the honest picture -- an interval that CAN
-# close quickly is not an interval that must.
+# had to rise twice while its direction was held at FALL -- and `chargecurve` scored it one commit
+# later. `blindscreen` took four. REGISTER, INTERVAL, MEASUREMENT, DISPOSITION, with the classifier or
+# the criterion frozen in the registering commit both times.
+#
+#     IN FLIGHT IS NOW EMPTY AND THE AGED DEBT IS UNCHANGED AT ONE, which is the honest shape of what
+#     the repair bought: it permitted an interval, both registrations that used it closed, and the one
+#     record that was debt before is debt still. Nothing was laundered through the ratchet.
+#
+# AND A DISCHARGE IS NOT A VINDICATION. `blindscreen`'s record closed with ALL FIVE of its predictions
+# MISSED, including the arm it named in advance as the one that could refute its own criterion. This
+# register recorded the commitment as MET and has no opinion about whether the prediction was RIGHT --
+# which is what makes it bookkeeping rather than advocacy, and why a rung can report that its own
+# criterion failed without any law here objecting.
 #
 # THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED. Every registrar already pins its record's
 # SHA-256 in its own conformance corpus. Re-pinning here would create a second path to the same fact
@@ -112,7 +120,7 @@
 # v1.1 adds a bound of the same kind: the EXIT from in flight is proved to be discharge alone
 # and its TIMELINESS is not bounded at all; and nothing
 # about the CONTENT of any record, which each registrar's own digest pin already protects.
-population 76688cc62dbc89ec5b6bf5104b53f3570d00609f7ffd977451a9643f04c61846
-register c1ec0e2c08b968528911fc407433e24d9bd18aa574541ab0a04ce6a2a3f8c06c
-bounds e13ee722cb45b4d1b02b8dc1d779a1041cb6c812fbe04f49101fcb2f34bb11fd
-disposition 03e45124d620cc10db868e424d57ed96655a762f4409f351c8da23e5c3bb14ef
+population ab9c0b4372beeab9045a70b7dd41b3f3af0dc576aa1f2a82a398f1e13a0bb5a0
+register 363bc7c454449f7769e7938b029dc9c311455932c9db60ca6ed0a11511248bfa
+bounds 0b1187ce120a28ef2aa73d31f506378f11662f9ea5b5b4385b5c6c9c183caf36
+disposition e2664f93c0cd6d38216d05746d999d54053887f1708ed6ff2120ac49234bf265

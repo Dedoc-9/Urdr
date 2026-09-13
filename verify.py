@@ -191,6 +191,7 @@ STAGE_ORDER = (
     "cutbound",
     "autoroute",
     "blindscreen",
+    "blindabsolute",
     "anamorphosis",
     "throttle",
     "schedule",
@@ -4669,7 +4670,7 @@ class Gate:
             probs = DP.problems(live_rows)
             cen = DP.census()
             reg_ok = (not probs and set(DP.REGISTER) == set(DP.population())
-                      and len(cen[DP.STATE_DISCHARGED]) == 5 and len(cen[DP.STATE_PENDING]) == 2
+                      and len(cen[DP.STATE_DISCHARGED]) == 6 and len(cen[DP.STATE_PENDING]) == 1
                       and DP.STATE_PENDING not in DP.TERMINAL
                       and all(e[1] not in (DP.registrations().get(r),)
                               for r, e in DP.REGISTER.items() if e[0] == DP.STATE_DISCHARGED))
@@ -4683,13 +4684,18 @@ class Gate:
                     "callers); this is its forward twin, and the mechanism was already right and "
                     "already LOCAL: `voxreanchor` carries "
                     "`every_registered_prediction_has_exactly_one_disposition` FOR ITS OWN RECORD. "
-                    "5 DISCHARGED, 2 PENDING — 1 AGED DEBT AND 1 IN FLIGHT, which are different "
-                    "objects and only the first is ratcheted. AND THE FULL ROUND TRIP HAS NOW BEEN "
-                    "MADE IN CONSECUTIVE COMMITS: `cohort` registered, which briefly put TWO in "
-                    "flight at once — a state an equality over ALL pending could not represent at "
-                    "ANY ceiling value, the count having had to rise twice while its direction was "
-                    "held at FALL — and `chargecurve` scored it one commit later. REGISTER, "
-                    "INTERVAL, MEASUREMENT, DISPOSITION. AND THE "
+                    "6 DISCHARGED, 1 PENDING — the aged debt — AND IN FLIGHT IS NOW EMPTY. The "
+                    "round trip has been made TWICE at two different speeds: `cohort` registered, "
+                    "briefly putting TWO in flight at once — a state an equality over ALL pending "
+                    "could not represent at ANY ceiling value, the count having had to rise twice "
+                    "while its direction was held at FALL — and was scored one commit later, while "
+                    "`blindscreen` took four. THAT THE DEBT IS UNCHANGED AT ONE IS THE HONEST SHAPE "
+                    "OF WHAT THE REPAIR BOUGHT: an interval was permitted, both users of it closed, "
+                    "and nothing was laundered through the ratchet. AND A DISCHARGE IS NOT A "
+                    "VINDICATION — `blindscreen`'s record closed with ALL FIVE predictions MISSED, "
+                    "including the arm it named in advance as the one that could refute its own "
+                    "criterion, and this register has no opinion about that, which is what makes it "
+                    "bookkeeping rather than advocacy. AND THE "
                     "DISCHARGER IS DERIVED, which is the part that "
                     "could not be a list: a module discharges a record when it CALLS that record's "
                     "registrar's `prediction_text()`, resolved through the file's own import "
@@ -4704,7 +4710,7 @@ class Gate:
         cov_ok = True
         try:
             cov = DP.coverage()
-            cov_ok = (len(cov) == 5 and all(m == () and c == 5 for _r, _a, c, m in cov)
+            cov_ok = (len(cov) == 6 and all(m == () and c == 5 for _r, _a, c, m in cov)
                       and DP.the_id_scan_reads_code_and_not_prose() == ((), ("G1", "G2"))
                       and DP.a_registrar_cannot_score_itself() == (True, False, True)
                       and DP.every_record_is_tamper_pinned_by_its_registrar() == (7, 7, ()))
@@ -4713,7 +4719,7 @@ class Gate:
         self.record("disposition-coverage", cov_ok,
                     "PER-PREDICTION COVERAGE, READ FROM CODE WITH DOCSTRINGS STRIPPED. Every id a "
                     "discharged record declares must reach its discharger OUTSIDE its prose — 5 of 5 "
-                    "on all five, because a module naming the ids only in a docstring would satisfy "
+                    "on all six, because a module naming the ids only in a docstring would satisfy "
                     "a naive scan and would have scored nothing (`claim != code`). This is where the "
                     "record-level law composes onto the prediction-level one `voxreanchor` already "
                     "carried, and the two granularities are kept apart: a record is DISCHARGED when "
@@ -4732,14 +4738,14 @@ class Gate:
             part = DP.the_two_pending_classes_partition()
             pen_ok = (DP.the_pending_ceiling_is_the_live_reading()
                       and DP.debt_records() == ("voxstrip",)
-                      and DP.in_flight_records() == ("blindscreen",)
-                      and part == (True, 2, 1, 1, ())
-                      and DP.REGISTER["blindscreen"][1] not in mods
-                      # AND THE ONE THAT LEFT: `cohort` is DISCHARGED, its discharger EXISTS, and
-                      # the exit it took is the only one the theorem below permits.
+                      and DP.in_flight_records() == ()
+                      and part == (True, 1, 1, 0, ())
+                      # AND BOTH THAT LEFT TOOK THE ONLY EXIT THE THEOREM BELOW PERMITS.
                       and DP.REGISTER["cohort"][0] == DP.STATE_DISCHARGED
                       and DP.dischargers().get("cohort") == ("chargecurve",)
-                      and "chargecurve" in mods
+                      and DP.REGISTER["blindscreen"][0] == DP.STATE_DISCHARGED
+                      and DP.dischargers().get("blindscreen") == ("blindabsolute",)
+                      and "chargecurve" in mods and "blindabsolute" in mods
                       and DP.the_only_exit_from_in_flight_is_discharge() == (True, True, True)
                       and DP.REGISTER["voxstrip"][1] not in mods
                       and "voxstrip" not in DP.dischargers())
@@ -4833,7 +4839,7 @@ class Gate:
             structural, prose, owners = RT.the_structural_heuristic_is_refuted()
             c = RT.census()
             pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
-                      and structural == 79 and prose == 9 and owners == 3
+                      and structural == 79 and prose == 10 and owners == 3
                       and all(c[k] for k in RT.KINDS)
                       and RT.a_citation_is_not_a_promise() == (True, False)
                       and RT.the_law_matches_itself() == (True, True, True))
@@ -4848,7 +4854,7 @@ class Gate:
                     "SOMETHING A RATCHET — a ratchet is a declared debt quantity plus a declared "
                     "monotone direction plus a baseline plus an enforcement, and only the quantity "
                     "has a syntax. The refuted heuristic is kept as a FALSIFIER rather than as a "
-                    "story. So the PROMISE is read out of shipped prose (9 modules) and each must "
+                    "story. So the PROMISE is read out of shipped prose (10 modules) and each must "
                     "resolve to a declared classification, `attributed`'s shape. THREE CLASSES, ALL "
                     "POPULATED AND ALL WITH REAL BOUNDARY CASES (L61): `entry`, `indexed` and "
                     "`disposition` OWN one; `cutpin` CITES `entry`'s while owning none, and a law "
@@ -15034,6 +15040,155 @@ class Gate:
                     "committed file, so scoring an unregistered id or leaving a registered one "
                     "unscored both redden"
                     if s_ok else f"the chargecurve scoring did not hold: {disp!r}")
+
+    def blindabsolute(self):
+        """THE ABSOLUTENESS RUNG (URDRBAB1) — `blindscreen`'s registered criterion, TESTED, and it
+        went 0 for 5. Rows: candidates (the five declared subjects and their structural
+        absoluteness), scoring (B1-B5 against the committed record), discharge (the registration
+        interval closed through `disposition`'s derived path), plants (the search proved able to
+        return nothing and to find a known witness)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import blindabsolute as BA
+            import blindscreen as BS3
+            import disposition as DP3
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("candidates", "scoring", "discharge", "plants"):
+                self.record(f"blindabsolute-{r}", False, f"import failed (blindabsolute): {exc}")
+            return
+
+        c_ok, cen = True, ()
+        try:
+            cen = BA.census()
+            sig = BA.absoluteness_is_structural()
+            c_ok = (all(BA.scene_result(n) == BA.golden(n) for n in BA.SCENES)
+                    and BA.emitted_matches_pinned()
+                    and len(cen) == 5 and all(row[3] for row in sig)
+                    and sum(1 for r in cen if r[1] == BA.ABSOLUTE) == 4
+                    and sum(1 for r in cen if r[1] == BA.TWO_POINTED) == 1
+                    # THE MEASURED READING, PINNED so a silent flip reddens.
+                    and tuple((r[0], r[2], r[3]) for r in cen) == (
+                        ("euler_characteristic", True, "CORPUS"),
+                        ("odd_parity_count", True, "CORPUS"),
+                        ("largest_free_component", False, "NONE"),
+                        ("occupied_components", True, "CORPUS"),
+                        ("face_free_pair", True, "CORPUS"))
+                    and BA.decisiveness() == (("largest_free_component",), True))
+        except Exception:
+            c_ok = False
+        self.record("blindabsolute-candidates", c_ok,
+                    "FIVE SUBJECTS DECLARED FROM THE CRITERION BEFORE ANYTHING WAS MEASURED, which "
+                    "is the whole methodological content: a candidate set chosen after seeing which "
+                    "way the verdicts fell would be a set chosen to make the predictions hit. FOUR "
+                    "ABSOLUTE — `euler_characteristic` (the canonical lattice valuation, Hadwiger's "
+                    "own family, which the record names as what would CLOSE its gap), "
+                    "`odd_parity_count` (a restricted cardinality, additive by construction), "
+                    "`largest_free_component` and `occupied_components` (topological, the dual of "
+                    "the fifth witness) — and ONE cheap TWO-POINTED subject, `face_free_pair`. "
+                    "ABSOLUTENESS IS PROVED STRUCTURALLY RATHER THAN PROMISED: an absolute "
+                    "candidate's signature CANNOT RECEIVE the face pair, `sealframe`'s neutral-ruler "
+                    "discipline applied to a measurand, and the difference is read off "
+                    "`inspect.signature`. MEASURED: four refuted from the corpus, ONE SURVIVOR"
+                    if c_ok else f"the candidate census did not hold: {cen!r}")
+
+        s_ok, sc = True, ()
+        try:
+            sc = BA.score()
+            verdicts = {i: v for i, v, _w in sc}
+            surv = BA.the_survivor_is_in_the_state_the_fifth_witness_WAS_in()
+            cand = BA.the_candidate_level_predictions_were_also_scored()
+            s_ok = (BA.problems() == []
+                    and BA.every_registered_prediction_has_exactly_one_disposition()
+                    == (True, (), ())
+                    and set(verdicts) == set(BS3.registered_predictions())
+                    and verdicts == {"B1": BA.MISSED, "B2": BA.MISSED, "B3": BA.MISSED,
+                                     "B4": BA.MISSED, "B5": BA.MISSED}
+                    and all(w.strip() for _i, _v, w in sc)
+                    and BA.the_record_is_unedited() == (True, True)
+                    and BA.the_criterion_is_not_repaired_here() == (True, True, True)
+                    and surv == (("largest_free_component",), True, True, True)
+                    and [r[0] for r in cand if not r[3]] == ["euler_characteristic"])
+        except Exception:
+            s_ok = False
+        self.record("blindabsolute-scoring", s_ok,
+                    "EVERY ONE OF THE FIVE REGISTERED PREDICTIONS MISSED, AND THE REFUTING ARM IS "
+                    "AMONG THEM. B3 said in advance that if a cheap TWO-POINTED candidate were "
+                    "nevertheless refuted by an equal-value opposite-verdict pair then the criterion "
+                    "is WRONG ABOUT WHAT IT EXPLAINS — and `face_free_pair`, whose signature takes "
+                    "the designated axis, is refuted from the corpus at divergence 16. B1 MISSED "
+                    "because `largest_free_component` is ABSOLUTE and SURVIVED, so absoluteness does "
+                    "not imply refutability; B2 followed it; B4 missed because every refutation came "
+                    "from the corpus and no construction was needed; B5 missed on the same survivor, "
+                    "though both of its CONNECTIVITY halves held. THE CRITERION IS NOT REPAIRED "
+                    "HERE, structurally: this module defines no criterion of its own and alters "
+                    "nothing in `blindscreen`, because a rung that discovered its criterion was "
+                    "wrong and rewrote it in the same commit would be reporting a criterion nobody "
+                    "ever tested. THE DIAGNOSIS SITS BESIDE THE VERDICTS AND NOT INSTEAD OF THEM: "
+                    "the one survivor is TOPOLOGICAL, and `free_components` sat in exactly this "
+                    "state before its construction was found — no corpus witness, because every "
+                    "member is wall-like — so the survival is a statement about the SEARCH before it "
+                    "is one about the candidate, and extending that search is deliberately left to a "
+                    "rung that registers it first. AND A CANDIDATE-LEVEL EXPECTATION MISSED TOO: "
+                    "`euler_characteristic` was declared a valuation and VIOLATES "
+                    "inclusion-exclusion 8 of 400, because the vertex, edge and face sets of a "
+                    "cell-set INTERSECTION are not the intersections of those sets"
+                    if s_ok else f"the scoring did not hold: {sc!r}")
+
+        d_ok = True
+        try:
+            live = frozenset(n for n, _o, _d in self.rows) | {"blindabsolute-scoring"}
+            d_ok = (DP3.REGISTER["blindscreen"][0] == DP3.STATE_DISCHARGED
+                    and DP3.dischargers().get("blindscreen") == ("blindabsolute",)
+                    and DP3.REGISTER["blindscreen"][2] in live
+                    and "blindscreen" not in DP3.in_flight_records()
+                    and "blindscreen" not in DP3.debt_records()
+                    and DP3.the_pending_ceiling_is_the_live_reading()
+                    and DP3.the_two_pending_classes_partition() == (True, 1, 1, 0, ())
+                    and DP3.the_only_exit_from_in_flight_is_discharge() == (True, True, True)
+                    and "blindabsolute" in {m for m, _s in DP3._sources()})
+        except Exception:
+            d_ok = False
+        self.record("blindabsolute-discharge", d_ok,
+                    "THE INTERVAL CLOSES THROUGH THE DERIVED PATH AND NOT BY DECLARATION. "
+                    "`blindscreen` registered B1-B5, sat IN FLIGHT with `blindabsolute` named and "
+                    "ABSENT, and is now DISCHARGED — its discharger DERIVED from the fact that this "
+                    "module CALLS `blindscreen.prediction_text()` cross-module, so the same call "
+                    "does the scoring and proves it was done. A REGISTRAR STILL CANNOT SCORE ITSELF. "
+                    "IN FLIGHT is now EMPTY and the aged debt is unchanged at one, which is the "
+                    "honest shape: the repair permitted an interval, both registrations that used it "
+                    "have closed, and the one record that was debt before is debt still. AND A "
+                    "DISCHARGE IS NOT A VINDICATION — this record closed with every prediction "
+                    "MISSED, and the register neither knows nor cares, which is what makes it "
+                    "bookkeeping rather than advocacy"
+                    if d_ok else "the blindscreen registration did not discharge cleanly")
+
+        p_ok = True
+        try:
+            p_ok = (BA.a_candidate_that_is_not_blind_is_not_refuted()
+                    and BA.the_search_finds_a_known_witness() == (True, True, True)
+                    and BA.an_unregistered_id_cannot_be_scored() == (True, True)
+                    and BA.kind_of("face_free_pair") == BA.TWO_POINTED
+                    and BA.kind_of("euler_characteristic") == BA.ABSOLUTE)
+            try:
+                BA.kind_of("not-a-candidate")
+                p_ok = False
+            except BA.BlindAbsoluteError:
+                pass
+        except Exception:
+            p_ok = False
+        self.record("blindabsolute-plants", p_ok,
+                    "THE SEARCH IS PROVED ABLE TO RETURN NOTHING, without which `refuted` would mean "
+                    "only that it ran: CONNECTIVITY — two-pointed and decisive — has no equal-value "
+                    "opposite-verdict pair in the corpus OR in the construction, which is the "
+                    "positive control that makes the one survivor a reading rather than an artifact "
+                    "of a search that always finds something. AND IT REPRODUCES TWO ANSWERS "
+                    "`blindscreen` ALREADY PUBLISHED: `cell_count` is refuted from the corpus, while "
+                    "`free_components` is NOT and needs the construction — so this module's search "
+                    "agrees with the module whose record it is scoring, on both polarities. An "
+                    "unregistered id cannot enter the scored set, and an undeclared candidate name "
+                    "REFUSES rather than returning a kind"
+                    if p_ok else "a blindabsolute control did not hold")
 
     def cutpin(self):
         """THE EXPENSIVE HALF OF A PROOF IS PINNED, AND WHAT IS TRUSTED IS ONE INTEGER (URDRCPN1).
@@ -28334,7 +28489,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("chargecurve", "ratchet", "disposition", "session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disposition", "session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

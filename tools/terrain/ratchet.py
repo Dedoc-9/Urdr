@@ -181,6 +181,12 @@ REGISTER = {
                "ceiling for a rare operation — a citation of someone else's promise, not one of "
                "its own, and a law that could not tell those apart would demand a baseline from a "
                "module that has no ratchet"),
+    "blindabsolute": (CITES, (), "", "", "", (),
+                      "names this law only to cite its SELF-REFERENCE as precedent — its own "
+                      "not-repaired guard first tested its own text and failed on itself, the same "
+                      "shape as a vocabulary scan matching the module that declares the vocabulary. "
+                      "A citation of a LESSON rather than of a constant, and the FOURTH consecutive "
+                      "rung this population has pulled in from prose written for something else"),
     "cohort": (CITES, (), "", "", "", (),
                "cites `disposition`'s ratchet while pre-registering its charge-curve measurement, to "
                "say why a commitment in flight is not the aged debt whose direction is held at FALL "

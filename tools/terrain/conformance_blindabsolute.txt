@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_blindabsolute.txt -- URDRBAB1 pinned scenes. THE ABSOLUTENESS RUNG, AND IT WENT 0 FOR 5.
+#
+# `blindscreen` registered B1-B5 one commit before any new candidate existed, refining its own
+# criterion from TWO-POINTEDNESS to ABSOLUTENESS on the strength of its fifth witness. This module
+# declared four absolute candidates and one cheap two-pointed one FROM that criterion, before
+# measuring anything, and scored the record.
+#
+#   EVERY ONE OF THE FIVE REGISTERED PREDICTIONS MISSED.
+#
+#   B1 MISSED  `largest_free_component` is ABSOLUTE and SURVIVED the search. Absoluteness does not
+#              imply refutability, which is the core claim of the registered criterion.
+#   B2 MISSED  a consequence of B1: the discriminating split needs both halves to fall and the
+#              non-valuation half did not.
+#   B3 MISSED  THE REFUTING ARM FIRED. `face_free_pair` is two-pointed -- its SIGNATURE takes the
+#              designated axis -- and it is refuted by an equal-value opposite-verdict pair from the
+#              corpus, divergence 16. The record said in advance that this outcome means the criterion
+#              is WRONG ABOUT WHAT IT EXPLAINS. It is.
+#   B4 MISSED  every refutation came from the 545-occupancy corpus; no construction was needed. The
+#              corpus was NOT insufficient for these candidates.
+#   B5 MISSED  a new candidate survived, so "no new candidate is decisive" fails -- though
+#              connectivity does still separate the pair and the cost and decisiveness orders still
+#              disagree, so the two halves of B5 that are about CONNECTIVITY both held.
+#
+# THE CRITERION IS NOT REPAIRED HERE, AND THAT IS DELIBERATE. A rung that discovered its own criterion
+# was wrong and rewrote it in the same commit would be reporting a criterion nobody ever tested. The
+# refutation is the result. Interpretation and any successor criterion belong to a later rung, with
+# its own registration.
+#
+# THE DIAGNOSIS, BESIDE THE VERDICTS AND NOT INSTEAD OF THEM. B1 and B5 both miss on ONE survivor, and
+# its survival is a statement about the SEARCH before it is a statement about the candidate.
+# `blindscreen`'s own fifth witness sat in exactly this state: `free_components` had no witness in the
+# corpus either, because every member is wall-like, and a CONSTRUCTION was required. The construction
+# reused here is the one committed for THAT candidate, not one aimed at this one. Extending the search
+# is the obvious next question and is deliberately NOT asked here -- a hunt begun after seeing which
+# verdict it would flip is a hunt whose outcome was chosen.
+#
+# AND A CANDIDATE-LEVEL PREDICTION MISSED TOO, recorded because it was declared in advance.
+# `euler_characteristic` was expected to SATISFY inclusion-exclusion -- it is the canonical lattice
+# valuation, Hadwiger's own family -- and it VIOLATES it, 8 of 400. The reason is exact: the vertex,
+# edge and face sets of a cell-set INTERSECTION are not the intersections of the vertex, edge and face
+# sets, so chi is additive over cell-set unions and not over cell-set intersections. The other three
+# candidate-level expectations held.
+#
+# AND THE NOT-REPAIRED GUARD FAILED ON ITSELF FIRST. Its first draft asked whether certain
+# substrings appeared in this module's body, and they appeared because the guard NAMES them --
+# the same self-reference `ratchet` met when its vocabulary scan matched the module that declares
+# the vocabulary, and `reflow` met with its own regex list. Repaired the way this tree keeps
+# arriving at: read the STRUCTURE, not the text. It now walks the AST and asserts that nothing
+# here ASSIGNS into `blindscreen`, so the module being scored cannot be edited by the module
+# doing the scoring -- which is the thing actually worth forbidding.
+#
+# candidates -- the five declared subjects with refutation source and divergence, the structural
+#               absoluteness check (an absolute candidate's signature CANNOT receive the face pair),
+#               the unscored two-pointed subject, and the decisiveness reading.
+# scoring    -- B1-B5 with the reading that produced each, the closure of the scored set against the
+#               set the committed record declares, the not-repaired-here guard, and the two diagnoses.
+#
+# does_not_show: that the criterion is FALSE in general -- one two-pointed candidate falling and one
+# absolute candidate surviving are two counterexamples, and a counterexample is not a classification;
+# what would settle it is the Hadwiger-style result the record itself names as absent. That the
+# candidate set is EXHAUSTIVE over absolute functionals, which nobody can enumerate. That the survivor
+# IS decisive -- it survived a bounded search, which is the weaker fact and is the one reported. And
+# nothing about world sizes other than the pinned WORLD = 4 lattice.
+candidates 922614e7a165e43704bf7f794c67345c3b393d19a7432cf9b8c387eaaddcd544
+scoring 4ca38ffb036155499ceb3eb4e2ba91b0d8c56b8bc28253a8a7780e6908f95fd7
