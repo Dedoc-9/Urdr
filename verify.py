@@ -185,6 +185,7 @@ STAGE_ORDER = (
     "tilemin",
     "inputset",
     "cohort",
+    "chargecurve",
     "cutpin",
     "shadowcut",
     "cutbound",
@@ -4667,7 +4668,7 @@ class Gate:
             probs = DP.problems(live_rows)
             cen = DP.census()
             reg_ok = (not probs and set(DP.REGISTER) == set(DP.population())
-                      and len(cen[DP.STATE_DISCHARGED]) == 4 and len(cen[DP.STATE_PENDING]) == 3
+                      and len(cen[DP.STATE_DISCHARGED]) == 5 and len(cen[DP.STATE_PENDING]) == 2
                       and DP.STATE_PENDING not in DP.TERMINAL
                       and all(e[1] not in (DP.registrations().get(r),)
                               for r, e in DP.REGISTER.items() if e[0] == DP.STATE_DISCHARGED))
@@ -4681,10 +4682,13 @@ class Gate:
                     "callers); this is its forward twin, and the mechanism was already right and "
                     "already LOCAL: `voxreanchor` carries "
                     "`every_registered_prediction_has_exactly_one_disposition` FOR ITS OWN RECORD. "
-                    "4 DISCHARGED, 3 PENDING — 1 AGED DEBT AND 2 IN FLIGHT, which are different "
-                    "objects and only the first is ratcheted. THE SECOND IN-FLIGHT MEMBER IS ITSELF "
-                    "EVIDENCE: this partition has never carried more than one before, and a ratcheted "
-                    "equality over ALL pending could not represent the state at all. AND THE "
+                    "5 DISCHARGED, 2 PENDING — 1 AGED DEBT AND 1 IN FLIGHT, which are different "
+                    "objects and only the first is ratcheted. AND THE FULL ROUND TRIP HAS NOW BEEN "
+                    "MADE IN CONSECUTIVE COMMITS: `cohort` registered, which briefly put TWO in "
+                    "flight at once — a state an equality over ALL pending could not represent at "
+                    "ANY ceiling value, the count having had to rise twice while its direction was "
+                    "held at FALL — and `chargecurve` scored it one commit later. REGISTER, "
+                    "INTERVAL, MEASUREMENT, DISPOSITION. AND THE "
                     "DISCHARGER IS DERIVED, which is the part that "
                     "could not be a list: a module discharges a record when it CALLS that record's "
                     "registrar's `prediction_text()`, resolved through the file's own import "
@@ -4699,7 +4703,7 @@ class Gate:
         cov_ok = True
         try:
             cov = DP.coverage()
-            cov_ok = (len(cov) == 4 and all(m == () and c == 5 for _r, _a, c, m in cov)
+            cov_ok = (len(cov) == 5 and all(m == () and c == 5 for _r, _a, c, m in cov)
                       and DP.the_id_scan_reads_code_and_not_prose() == ((), ("G1", "G2"))
                       and DP.a_registrar_cannot_score_itself() == (True, False, True)
                       and DP.every_record_is_tamper_pinned_by_its_registrar() == (7, 7, ()))
@@ -4708,7 +4712,7 @@ class Gate:
         self.record("disposition-coverage", cov_ok,
                     "PER-PREDICTION COVERAGE, READ FROM CODE WITH DOCSTRINGS STRIPPED. Every id a "
                     "discharged record declares must reach its discharger OUTSIDE its prose — 5 of 5 "
-                    "on all four, because a module naming the ids only in a docstring would satisfy "
+                    "on all five, because a module naming the ids only in a docstring would satisfy "
                     "a naive scan and would have scored nothing (`claim != code`). This is where the "
                     "record-level law composes onto the prediction-level one `voxreanchor` already "
                     "carried, and the two granularities are kept apart: a record is DISCHARGED when "
@@ -4727,11 +4731,14 @@ class Gate:
             part = DP.the_two_pending_classes_partition()
             pen_ok = (DP.the_pending_ceiling_is_the_live_reading()
                       and DP.debt_records() == ("voxstrip",)
-                      and DP.in_flight_records() == ("blindscreen", "cohort")
-                      and part == (True, 3, 1, 2, ())
+                      and DP.in_flight_records() == ("blindscreen",)
+                      and part == (True, 2, 1, 1, ())
                       and DP.REGISTER["blindscreen"][1] not in mods
-                      and DP.REGISTER["cohort"][1] not in mods
-                      and "cohort" not in DP.dischargers()
+                      # AND THE ONE THAT LEFT: `cohort` is DISCHARGED, its discharger EXISTS, and
+                      # the exit it took is the only one the theorem below permits.
+                      and DP.REGISTER["cohort"][0] == DP.STATE_DISCHARGED
+                      and DP.dischargers().get("cohort") == ("chargecurve",)
+                      and "chargecurve" in mods
                       and DP.the_only_exit_from_in_flight_is_discharge() == (True, True, True)
                       and DP.REGISTER["voxstrip"][1] not in mods
                       and "voxstrip" not in DP.dischargers())
@@ -14919,6 +14926,106 @@ class Gate:
                     "experiment cannot instrument a production path, because there is none, and C4 is "
                     "the arm that can refute this registration outright"
                     if pre_ok else "the cohort pre-registration did not hold")
+
+    def chargecurve(self):
+        """THE REGISTERED EXPERIMENT, RUN (URDRCHG1). `cohort` registered C1-C5 against its own
+        stated-and-unrun charge-curve protocol one commit earlier, WITH the classifier, so the rule
+        could not be chosen once the numbers arrived. This scores them. Rows: panel (both cost
+        components, their shapes through the frozen classifier, the volume control), scoring (the
+        five dispositions, the closure against the registered set, and the finding)."""
+        if os.path.join(ROOT, "tools", "terrain") not in sys.path:
+            sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
+        try:
+            import chargecurve as CC
+            import cohort as CO2
+        except Exception as exc:
+            for r in ("panel", "scoring"):
+                self.record(f"chargecurve-{r}", False, f"import failed (chargecurve): {exc}")
+            return
+        p_ok, rows = True, ()
+        try:
+            rows = CC.panel()
+            p_ok = (all(CC.scene_result(n) == CC.golden(n) for n in CC.SCENES)
+                    and CC.emitted_matches_pinned()
+                    and tuple(r[1] for r in rows) == (0, 1, 2, 3)
+                    and tuple(r[3] for r in rows) == (1, 2, 49, 1778)
+                    and tuple(r[4] for r in rows) == (5, 6, 5, 5)
+                    and CC.decision_shape() == CO2.SHAPE_NEITHER
+                    and CC.protocol_shape() == CO2.SHAPE_PEAKED
+                    and CC.schedule_shape() == CO2.SHAPE_MONOTONE
+                    and CC.volume_control() == ((4, 2, 2, 32, 49), (5, 2, 2, 50, 76))
+                    and all(same for _t, same in
+                            CC.the_peer_construction_reproduces_the_shipped_one()))
+        except Exception:
+            p_ok = False
+        self.record("chargecurve-panel", p_ok,
+                    "TWO COST COMPONENTS, COUNTED AND NEVER TIMED, REPORTED SIDE BY SIDE AND NEVER "
+                    "SUMMED (`panel != scalar`) — fusing them would need a weight, the weight would "
+                    "be chosen, and the chosen weight would decide the shape. THE SHIPPED "
+                    "PROCEDURES ARE INSTRUMENTED RATHER THAN REIMPLEMENTED: the decision cost "
+                    "counts `free_reaches` calls by wrapping the function `min_cut` actually calls, "
+                    "and the protocol cost is `verify_cohort`'s own return, because a falsifier "
+                    "that does not run the thing it measures guards a copy. MEASURED across "
+                    "k = 0,1,2,3: decision 1, 2, 49, 1778 — NEITHER; protocol 5, 6, 5, 5 — PEAKED; "
+                    "the shipped schedule 12, 12, 6, 4 — MONOTONE. Every verdict comes from "
+                    "`cohort.classify_shape`, frozen one commit earlier and NOT re-chosen here, "
+                    "which is the half of pre-registration a record of predictions alone does not "
+                    "cover. AND THE PEER FIXTURE IS DERIVED FROM THE SHIPPED ONE rather than "
+                    "invented: `cohort.peer_population` takes a THICKNESS and so cannot express a "
+                    "BREACHED submitter, which is the k = 0 point, so the construction is lifted to "
+                    "take an OCCUPANCY and proved identical on every wall where both are defined. "
+                    "The C5 control holds k = 2 and moves the world from 4 to 5: 49 to 76"
+                    if p_ok else f"the chargecurve panel did not hold: {rows!r}")
+        s_ok, disp = True, ()
+        try:
+            disp = CC.dispositions()
+            verdicts = {i: v for i, v, _w in disp}
+            homo = CC.outcome_homogeneous_protocol()
+            k1 = CC.the_k1_reading_is_a_different_event()
+            adopt = CC.the_shipped_falsifier_would_have_adopted_the_peak()
+            s_ok = (CC.problems() == []
+                    and CC.every_registered_prediction_has_exactly_one_disposition()
+                    == (True, (), ())
+                    and set(verdicts) == set(CO2.registered_predictions())
+                    and verdicts == {"C1": CC.HELD, "C2": CC.MISSED, "C3": CC.HELD,
+                                     "C4": CC.HELD, "C5": CC.HELD}
+                    and all(w.strip() for _i, _v, w in disp)
+                    and CC.the_record_is_unedited() == (True, True)
+                    # THE DIAGNOSIS, beside the verdict and never instead of it.
+                    and homo == ((0, 2, 3), (5, 5, 5), CO2.SHAPE_MONOTONE)
+                    and k1 == (0, 16, 16, CO2.FAILED, (CO2.VERIFIED,))
+                    # AND THE FINDING: the shipped one-line falsifier's antecedent HOLDS.
+                    and adopt == (5, 6, True, False))
+        except Exception:
+            s_ok = False
+        self.record("chargecurve-scoring", s_ok,
+                    "FOUR HELD AND ONE MISSED — AND THE HEADLINE IS NEITHER OF THOSE. `cohort`'s "
+                    "shipped one-line protocol says: if cost is maximal at k = 1 rather than at "
+                    "k = 0, the peaked charge is correct and the constant is wrong. TAKEN AT ITS "
+                    "WORD AGAINST THE PROTOCOL COMPONENT, THE ANTECEDENT HOLDS — 6 fetches at k = 1 "
+                    "against 5 at k = 0 — so a reading of that sentence with the numbers in hand "
+                    "and no registration to answer to ADOPTS THE PEAK. It should not, for two "
+                    "reasons a committed prediction makes natural to state and a post-hoc reading "
+                    "makes easy to skip: the component that peaks is NOT the one the schedule is a "
+                    "schedule for, and the k = 1 reading is a FAILED verification exhausting the "
+                    "peer list rather than a dearer success. Restricted to the members whose "
+                    "OUTCOME is the same, the protocol cost is FLAT — 5, 5, 5, MONOTONE. THE "
+                    "INFLATION WAS AVAILABLE, CHEAP, AND ONE SENTENCE AWAY, which is the whole "
+                    "value of having registered a FAMILY rather than the metaphor. C2 MISSED and "
+                    "the miss is the useful one: it registered a constant protocol cost because the "
+                    "fixture's capture noise lies BELOW the gap, and at k = 1 there is no below-gap "
+                    "noise to have — the sub-gap set is EMPTY, all 16 one-cell peers sit AT the gap "
+                    "where `cohort`'s own law says disagreement is possible, all 16 disagree, and "
+                    "the loop exhausts the list to COHORT_FAILED. The record flagged that arm as "
+                    "most likely a FIXTURE artifact and it is one, in the direction of the fixture "
+                    "being under-specified rather than over-tuned. C4 WAS THE ARM THAT COULD REFUTE "
+                    "THE REGISTRATION AND DID NOT: the schedule matches neither component, so "
+                    "`B // max(k, 1)` is a POLICY rather than a model of cost — which licenses "
+                    "RELABELLING it and nothing more, and `BASE_CHARGE` is untouched by this rung. "
+                    "The scored set is closed against the REGISTERED set read out of `cohort`'s "
+                    "committed file, so scoring an unregistered id or leaving a registered one "
+                    "unscored both redden"
+                    if s_ok else f"the chargecurve scoring did not hold: {disp!r}")
 
     def cutpin(self):
         """THE EXPENSIVE HALF OF A PROOF IS PINNED, AND WHAT IS TRUSTED IS ONE INTEGER (URDRCPN1).
@@ -28064,7 +28171,7 @@ def identity_mismatches(claims, magics):
 #: Briefs REQUIRED to carry a falsifier marker. Pinned as data so that DELETING a marker reddens
 #: rather than silently passing by absence — the failure mode of every "check the things that opt in"
 #: rule.
-BRIEFS_REQUIRING_A_FALSIFIER = ("ratchet", "disposition", "session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
+BRIEFS_REQUIRING_A_FALSIFIER = ("chargecurve", "ratchet", "disposition", "session", "cutpin", "cutbound", "shadowcut", "voxreanchor", "attributed", "voxrun", "voxbaggage", "voxtrace8", "voxtile", "voxschism", "voxbreak", "voxfriction", "voxmanifold", "voxstate", "voxcond", "voxpath", "voxsilo", "voxwork", "voxcam", "voxsample", "voxproj", "voxwin", "voxslack", "voxgrid", "voxconv", "voxfill", "voxfate", "voxtie", "voxcand", "voxevent", "voxmicro", "voxray", "voxcoarse", "voxref", "armpair", "caustic", "pixelcost", "fpsrecord", "latchain", "reachenv", "capcost", "skycost", "rescell", "scenecost", "worldbind", "worldgeom", "versionarc", "admit", "castlecost", "fibre", "probelog", "reflow", "worldbasis", "contact", "stride", "lift", "vantage", "framing", "vouch", "retain", "mould", "measure", "rollbench", "reachable", "retire", "confound", "entry", "repeat", "deeper", "attest", "pedigree", "rehearse", "indexed", "inputset", "cohort", "autoroute", "blindscreen", "tilemin",
                                "partition", "worldregion",
                                "chunkstate", "chunkload", "migrate", "rannull",
                                "storecost", "persist", "resurrect",

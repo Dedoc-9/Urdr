@@ -34,9 +34,9 @@ bindings, agreeing.
 THE DISCHARGER IS DERIVED TOO, and this is the part that could not be a list. A module discharges a
 record when it CALLS that record's registrar's `prediction_text()` — resolved through the AST's own
 import aliases, so `import voxrun as RN` followed by `RN.prediction_text()` is found and a name that
-merely looks similar is not. Measured: voxcond, voxmanifold, voxtile and voxreanchor, each against
-the record it scores, and NOTHING against `voxstrip`, `blindscreen` or `cohort` -- the last two
-newly registered, with their dischargers not built yet.
+merely looks similar is not. Measured: voxcond, voxmanifold, voxtile, voxreanchor and chargecurve,
+each against the record it scores, and NOTHING against `voxstrip` or `blindscreen` -- the first an
+aged debt, the second newly registered with its discharger not built yet.
 
     A REGISTRAR CANNOT DISCHARGE ITS OWN RECORD, AND THE REASON IS STRUCTURAL RATHER THAN ASSERTED.
 
@@ -94,12 +94,14 @@ after this repair landed, and it sits IN FLIGHT with `blindabsolute` named as it
 absent from the tree. That is the evidence the repair was for: a live pre-registration surviving the
 commit-order interval WITHOUT raising a ratcheted ceiling, which v1.0 made impossible.
 
-AND NOW A SECOND, WHICH IS DIFFERENT EVIDENCE FROM THE FIRST. `cohort` registered C1-C5 for the
-charge-curve measurement, so IN FLIGHT carries TWO members at once. One showed the interval was
-survivable; two show the class is a POPULATION rather than a special case, and an equality over ALL
-pending could not have represented this state at ANY ceiling value -- the count would have had to
-rise twice while its direction was held at FALL. The two share only the mechanism, their subjects
-being unrelated, which is the right way for a second instance to arrive.
+AND THE FULL ROUND TRIP HAS NOW BEEN MADE, IN CONSECUTIVE COMMITS. `cohort` registered C1-C5 for
+the charge-curve measurement, which briefly made IN FLIGHT carry TWO members at once -- a state an
+equality over ALL pending could not have represented at ANY ceiling value, since the count would have
+had to rise twice while its direction was held at FALL. One commit later `chargecurve` scored the
+record and it is DISCHARGED. REGISTER, INTERVAL, MEASUREMENT, DISPOSITION, with the classifier frozen
+in the registering commit: that is the whole instrument running once end to end, and it is what the
+v1.1 repair was for. `blindscreen` remains in flight, which is the honest picture -- an interval that
+CAN close quickly is not an interval that must.
 
 A NOTE ON THE STATE CONSTANTS, BECAUSE THE RENAME IS A FINDING AND NOT A STYLE CHOICE. The four
 states are bound as `STATE_*` rather than as bare words because `retire` treats a module-level
@@ -204,13 +206,13 @@ REGISTER = {
                     "exists. A COMMITMENT IN FLIGHT rather than debt: this is the first registration "
                     "to pass through the repaired machinery, and the evidence it carries is that the "
                     "commit-order interval is survivable WITHOUT raising a ratcheted ceiling"),
-    "cohort": (STATE_PENDING, "chargecurve", "",
-               "C1-C5 registered by `cohort` itself for the CHARGE-CURVE measurement, whose protocol "
-               "has been stated and unrun for several rungs. A COMMITMENT IN FLIGHT, and the SECOND "
-               "one live at once — the first time this partition has carried more than a single "
-               "member, which is a state the ratcheted equality could not represent at all. The "
-               "record registers a FAMILY of competing shapes rather than the borrowed peak, and "
-               "ships the classifier WITH ITSELF so the measuring rung cannot choose the rule"),
+    "cohort": (STATE_DISCHARGED, "chargecurve", "chargecurve-scoring",
+               "C1-C5 registered by `cohort` one commit earlier and scored by `chargecurve`, four "
+               "held and one missed — and the miss is the useful one, C2 having registered a "
+               "constant protocol cost on a mechanism the fixture cannot supply at k = 1. THE "
+               "FASTEST ROUND TRIP THROUGH THIS REGISTER SO FAR, registered and discharged in "
+               "consecutive commits, which is the shape the commit-order interval was repaired to "
+               "permit rather than merely to tolerate"),
     "voxstrip": (STATE_PENDING, "voxstrip", "",
                  "S1-S5 registered by `voxbaggage` and read by nothing. NOT RETIRED: every one of "
                  "the five is still well-formed and still answerable, and no architectural decision "

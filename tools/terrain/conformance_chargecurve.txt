@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# conformance_chargecurve.txt -- URDRCHG1 pinned scenes. THE REGISTERED EXPERIMENT, RUN.
+#
+# `cohort` shipped `B // max(k, 1)` and carried, for several rungs, a stated and UNRUN protocol:
+# measure end-to-end verification cost against k on a real corpus; if cost is maximal at k = 1 rather
+# than at k = 0, the peaked charge is correct. One commit ago it registered C1-C5 against that
+# measurement, WITH the classifier, so the rule could not be chosen once the numbers arrived. This is
+# the measurement.
+#
+#   THE HEADLINE IS NOT WHICH ARM HELD. IT IS THAT THE SHIPPED ONE-LINE FALSIFIER, TAKEN AT ITS WORD,
+#   WOULD HAVE ADOPTED THE PEAKED CHARGE.
+#
+# The protocol component IS maximal at k = 1: 6 fetches against 5 everywhere else. Read that sentence
+# with the numbers in hand and no registration to answer to, and the peak is adopted. It should not
+# be, for two reasons a committed prediction makes it natural to state and a post-hoc reading makes it
+# easy to skip: the component that peaks is NOT the one the schedule is a schedule for, and the k = 1
+# reading is a FAILED verification exhausting the peer list rather than a dearer success. Restricted
+# to the members whose outcome is the same, the protocol cost is FLAT -- 5, 5, 5.
+#
+# panel   -- both cost components over the declared corpus in ascending k, their three shape verdicts
+#            read through `cohort.classify_shape` (frozen one rung earlier, never re-chosen here), and
+#            the C5 volume control. MEASURED: decision 1, 2, 49, 1778 (NEITHER); protocol 5, 6, 5, 5
+#            (PEAKED); the shipped schedule 12, 12, 6, 4 (MONOTONE).
+# scoring -- the five dispositions with their mechanisms, the closure of the scored set against the
+#            REGISTERED set read out of `cohort`'s committed file, the outcome-homogeneous subpanel,
+#            the k = 1 diagnosis, and the finding above.
+#
+# FOUR HELD AND ONE MISSED, and the miss is the useful one. C2 registered that the protocol cost is
+# constant in k because the population's capture noise lies BELOW the gap. At k = 1 there is no
+# below-gap noise to have: the sub-gap set is EMPTY (`cohort`'s census runs over range(1, max(k, 1))),
+# all 16 one-cell peers are AT the gap where that module's own law says disagreement is possible, all
+# 16 disagree, agreement never reaches the threshold and the loop exhausts the list to COHORT_FAILED.
+# The record flagged C2 as most likely a FIXTURE artifact and it is one -- in the direction of the
+# fixture being under-specified rather than over-tuned, which is not the direction that was feared.
+#
+# C4 WAS THE ARM THAT COULD REFUTE THE REGISTRATION AND IT DID NOT. The schedule matches neither
+# measured component, so it is a POLICY rather than a model of cost. That licenses RELABELLING it and
+# nothing more: the measurement says what the charge is NOT. `BASE_CHARGE` is untouched by this rung.
+#
+# THE SHIPPED PROCEDURES ARE INSTRUMENTED, NOT REIMPLEMENTED. The decision cost counts `free_reaches`
+# calls by wrapping the function `min_cut` actually calls; the protocol cost is `verify_cohort`'s own
+# return. A falsifier that does not run the thing it measures guards a copy.
+#
+# THE PEER FIXTURE IS DERIVED FROM THE SHIPPED ONE. `cohort.peer_population` takes a thickness and so
+# cannot express a BREACHED submitter, which is the k = 0 point; `peers_for` takes an occupancy and
+# applies the same construction, proved identical on every wall where both are defined. That
+# extension is what exposed C2.
+#
+# does_not_show: that the charge is the RIGHT policy -- C4 says what it is not; that these are the
+# only costs that matter, a deployment's being latency and bytes, neither countable in a
+# byte-identical gate; that the peak is absent in any system other than this one, the corpus being
+# synthetic and k confounded with wall volume BY CONSTRUCTION, which C5 measures rather than waves
+# away (holding k = 2 and moving the world from 4 to 5 moves the decision cost 49 -> 76); and NOTHING
+# about whether a different peer fixture, one carrying genuine below-gap noise at k = 1, would leave
+# the protocol cost flat -- the obvious next question, and not answered here.
+panel bf1c3cfaac0278072af5eebff7f36fec12893a5d284d0eaa9844bb91a4794689
+scoring 0b57e20392bf32670e24444b3008a8a3804c8fe60085155b6d78aedc4489add7

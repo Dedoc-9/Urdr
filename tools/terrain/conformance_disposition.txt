@@ -28,7 +28,7 @@
 #   voxtile       DISCHARGED  voxbreak     voxtile      voxtile-result
 #   voxstrip      PENDING     voxbaggage   --           --   AGED DEBT
 #   blindscreen   PENDING     blindscreen  --           --   IN FLIGHT (blindabsolute due)
-#   cohort        PENDING     cohort       --           --   IN FLIGHT (chargecurve due)
+#   cohort        DISCHARGED  cohort       chargecurve  chargecurve-scoring
 #
 # THE DISCHARGER IS DERIVED, WHICH IS THE PART THAT COULD NOT BE A LIST. A module discharges a record
 # when it CALLS that record's registrar's `prediction_text()`, resolved through the file's OWN import
@@ -81,13 +81,14 @@
 # absent from the tree. That is the evidence the repair was for: a live pre-registration surviving the
 # commit-order interval WITHOUT raising a ratcheted ceiling, which v1.0 made impossible.
 #
-# AND NOW A SECOND ONE, WHICH IS A DIFFERENT PIECE OF EVIDENCE FROM THE FIRST. `cohort` registered
-# C1-C5 for the charge-curve measurement, so IN FLIGHT carries TWO members at once for the first time.
-# The first registration showed the interval was survivable; two show that the class is a POPULATION
-# rather than a special case, and an equality over ALL pending could not have represented this state
-# at any ceiling value -- the count would have had to rise twice while its direction was held at FALL.
-# The two are unrelated in subject (a lattice-breach criterion and a cost-curve shape) and share only
-# the mechanism, which is the right way for a second instance to arrive.
+# AND THE FULL ROUND TRIP HAS NOW BEEN MADE, IN CONSECUTIVE COMMITS. `cohort` registered C1-C5 for the
+# charge-curve measurement, which briefly made IN FLIGHT carry TWO members at once -- a state an
+# equality over ALL pending could not have represented at any ceiling value, since the count would have
+# had to rise twice while its direction was held at FALL. One commit later `chargecurve` scored the
+# record and it is DISCHARGED. REGISTER, INTERVAL, MEASUREMENT, DISPOSITION, with the classifier frozen
+# in the registering commit: the whole instrument running once, end to end, which is what the v1.1
+# repair was for. `blindscreen` remains in flight, which is the honest picture -- an interval that CAN
+# close quickly is not an interval that must.
 #
 # THE TAMPER GUARD IS CLOSED OVER RATHER THAN COPIED. Every registrar already pins its record's
 # SHA-256 in its own conformance corpus. Re-pinning here would create a second path to the same fact
@@ -111,7 +112,7 @@
 # v1.1 adds a bound of the same kind: the EXIT from in flight is proved to be discharge alone
 # and its TIMELINESS is not bounded at all; and nothing
 # about the CONTENT of any record, which each registrar's own digest pin already protects.
-population 16448d87f935b101dcb07ebc9d1baefe88925696f23b8923014e7025cce4c947
-register fd10737daffc2a063f9594d914fb26729d5f28815f7356535dbb6253d53504dc
-bounds 3e293b708606502665397803f676655fe1eba2314633262d4c7f2c3f8c0b97e3
-disposition 6c9202e3e287450825a0b76dc187a8824795469ee58b06be7bc2b35a7e7fb485
+population 76688cc62dbc89ec5b6bf5104b53f3570d00609f7ffd977451a9643f04c61846
+register c1ec0e2c08b968528911fc407433e24d9bd18aa574541ab0a04ce6a2a3f8c06c
+bounds e13ee722cb45b4d1b02b8dc1d779a1041cb6c812fbe04f49101fcb2f34bb11fd
+disposition 03e45124d620cc10db868e424d57ed96655a762f4409f351c8da23e5c3bb14ef
