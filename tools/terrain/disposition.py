@@ -421,9 +421,25 @@ def coverage():
 
 
 # ---- the closure ----------------------------------------------------------------------------------
-def problems(live_rows=frozenset()):
+def problems(live_rows=None):
     """Every way the register can be wrong, as (record, kind, detail) — never as an exception, so
-    the gate can report all of them at once rather than the first."""
+    the gate can report all of them at once rather than the first.
+
+    AN EMPTY LIVE SET IS EVIDENCE, AND `None` IS THE ABSENCE OF EVIDENCE — which used to be the
+    same value. `live_rows=frozenset()` read as "no rows to check" and SKIPPED the dead-row clause,
+    so a caller holding an empty set (every `--only` run, where the gate takes the set before
+    recording anything) got a clean answer to a question that was never asked. THE SKIP WAS
+    DECLARED RATHER THAN FORGOTTEN — `test_a_dead_row_is_caught_only_when_the_live_set_is_supplied`
+    pinned it — but the declaration lived in a test docstring while the gate row's own detail said,
+    in capitals, that a disposition citing a dead row REDDENS, and nothing reconciled the two.
+
+        `subsetred` measured it as VACUOUS: L23's checker-that-cannot-fail arriving through the
+        POPULATION rather than through the predicate.
+
+    Now the skip must be ASKED FOR. `None` means no row evidence was offered and the clause is
+    skipped; a frozenset — empty or not — is evidence, and against an empty one every cited row is
+    dead, which is a FINDING. A caller with no evidence has to say so, and a caller that cannot say
+    so has to withhold."""
     bad = []
     try:
         pop = set(population())
@@ -449,12 +465,12 @@ def problems(live_rows=frozenset()):
                             f"{agent!r} does not read this record"))
             if agent == reg.get(record):
                 bad.append((record, "self", "the registrar may not score its own record"))
-            if live_rows and row not in live_rows:
+            if live_rows is not None and row not in live_rows:
                 bad.append((record, "row", f"names a row that is not live: {row!r}"))
         elif state in (STATE_RETIRED, STATE_SUPERSEDED):
             if not row:
                 bad.append((record, "row", f"{state} must name the row that records the decision"))
-            elif live_rows and row not in live_rows:
+            elif live_rows is not None and row not in live_rows:
                 bad.append((record, "row", f"names a row that is not live: {row!r}"))
             if state == STATE_SUPERSEDED and agent not in on_disk():
                 bad.append((record, "successor", f"successor record {agent!r} is not on disk"))
@@ -570,7 +586,10 @@ def census():
     return {s: tuple(v) for s, v in out.items()}
 
 
-def the_law_holds(live_rows=frozenset()):
+def the_law_holds(live_rows=None):
+    """`None` is the DECLARED skip of the dead-row clause, matching `problems()`. A caller that
+    holds a live set passes it; a caller that holds an EMPTY one is offering evidence, not asking
+    to skip."""
     return not problems(live_rows)
 
 

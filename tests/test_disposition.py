@@ -141,12 +141,24 @@ class TheClosure(unittest.TestCase):
         seen = [r for v in c.values() for r in v]
         self.assertEqual(len(seen), len(set(seen)))
 
-    def test_a_dead_row_is_caught_only_when_the_live_set_is_supplied(self):
-        """The row check is skipped when no live set is available (a subset run), which is stated
-        rather than silently relied on."""
-        self.assertEqual(DP.problems(frozenset()), [])
+    def test_an_empty_live_set_is_evidence_and_None_is_the_absence_of_evidence(self):
+        """THIS TEST USED TO PIN THE DEFECT. It read `problems(frozenset()) == []` under the name
+        `a dead row is caught only when the live set is supplied`, and its docstring called the
+        skip "stated rather than silently relied on" — but the statement lived HERE, while the gate
+        row's own detail said in capitals that a disposition citing a dead row REDDENS, and nothing
+        reconciled the two. Under `--only` the live set is empty at the moment it is taken, so the
+        clause the row advertises could never run and the row was green anyway. `subsetred`
+        measured that as VACUOUS.
+
+        The skip is still legitimate and is now ASKED FOR: `None` is the absence of evidence, an
+        empty frozenset IS evidence, and against it every cited row is dead."""
+        self.assertEqual([k for _r, k, _d in DP.problems(None) if k == "row"], [])
+        empty = [k for _r, k, _d in DP.problems(frozenset()) if k == "row"]
+        self.assertTrue(empty, "an empty live set must be read as evidence, not as a skip")
         bad = DP.problems(frozenset({"nothing-real"}))
         self.assertTrue(any(k == "row" for _r, k, _d in bad))
+        self.assertEqual(len(empty), len([k for _r, k, _d in bad if k == "row"]),
+                         "an empty set and a set naming nothing real are the same evidence")
 
 
 class ThePending(unittest.TestCase):

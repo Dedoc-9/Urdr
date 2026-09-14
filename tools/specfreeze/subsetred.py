@@ -53,13 +53,27 @@ THE TWO DEFECTS RUN IN OPPOSITE DIRECTIONS AND THE QUIET ONE IS WORSE.
                          L23's checker-that-cannot-fail arriving through the population rather than
                          through the predicate.
 
-NOTHING IS REPAIRED HERE, AND THAT IS THE DESIGN. A rung that classified the population, chose the
-canonical policy and fixed two different failure mechanisms in one commit could not say whether its
-machinery detects the defects INDEPENDENTLY of the repairs. What ships is the pre-repair behavioural
-baseline: the population frozen, each member's disposition declared, every declaration checked
-against what the stage ACTUALLY DOES under a simulated subset, and both defects recorded as live
-readings that REDDEN THIS MODULE'S OWN ROW ON THE DAY THEY ARE FIXED. `rowclosure`'s five reasoned
-reds are preserved exactly as they are; they are a legitimate answer, not a uniformity problem.
+v1.0 REPAIRED NOTHING, AND v1.1 REPAIRS EXACTLY TWO. Classifying the population, choosing a policy
+and fixing two failure mechanisms in ONE commit could not have said whether the machinery detects
+the defects INDEPENDENTLY of the repairs, so v1.0 shipped the pre-repair behavioural baseline and
+v1.1 moves it deliberately. The before half is frozen in `BASELINE` at rowset 46f8e434ded3abcd and
+BOTH DIRECTIONS of the move are checked: a member that moved without being declared repaired
+reddens, and a declared repair that did not move reddens. `invariant_detectors` MISATTRIBUTED ->
+WITHHELD; `disposition` VACUOUS -> WITHHELD; everything else reads what it read before.
+
+    THE PLANTS THAT DETECTED BOTH DEFECTS ARE SYNTHETIC AND SIT OUTSIDE THE PRODUCTION PATH, which
+    is the only reason they are still evidence after the code they were written against changed.
+
+`rowclosure`'s five reasoned reds are preserved exactly as they are — a legitimate answer, not a
+uniformity problem — and `field` is left UNREPAIRED as the positive control: a DERIVED population
+does not imply every accumulated read is a defect.
+
+AND THE `disposition` SKIP WAS DECLARED RATHER THAN FORGOTTEN. A unit test named
+`test_a_dead_row_is_caught_only_when_the_live_set_is_supplied` pinned the old behaviour and called
+it "stated rather than silently relied on" — but the statement lived in a test while the gate row's
+own detail said the opposite in capitals, and nothing reconciled the two. THE SUITE WAS DEFENDING
+THE VACUITY. The skip is still legitimate and must now be ASKED FOR: `None` is the absence of
+evidence, an empty frozenset IS evidence, and a caller that cannot say which has to withhold.
 
 `does_not_show`: that WITHHOLD or QUALIFIED is the right policy — the law admits both and the choice
 belongs to a later rung under a frozen contract. That the population is COMPLETE: it is every stage
@@ -130,17 +144,23 @@ REGISTER = {
                       "...) | {\"blindabsolute-scoring\"}` — so the only row its claim needs is one "
                       "it contributes itself. The subset IS the complete population of that claim, "
                       "which is why green is honest here and nowhere else in this table"),
-    "invariant_detectors": (MISATTRIBUTED,
-                            "eleven rows read `role 'reference' names unrecorded row 'X'` and the "
-                            "summary reads `a detector is not D17-compliant` — the DETECTOR "
-                            "REGISTER'S vocabulary, for rows that eleven other stages simply did "
-                            "not run. The truncation is never named. DEFECT, recorded not repaired"),
-    "disposition": (VACUOUS,
-                    "its dead-row check is guarded `if live_rows and row not in live_rows`, and "
-                    "`live_rows` is taken before this stage records anything, so under a subset it "
-                    "is EMPTY and the guard short-circuits. The row's own text says in capitals "
-                    "that a disposition citing a row that no longer exists reddens; under `--only` "
-                    "it cannot. DEFECT, recorded not repaired — and the quiet one"),
+    "invariant_detectors": (WITHHELD,
+                            "REPAIRED. Its D17 lint resolves every declared role against "
+                            "THIS RUN'S live row set, so under a subset eleven rows blamed "
+                            "the DETECTOR REGISTER — in the register's own vocabulary — for "
+                            "rows eleven other stages had not run. It now withholds those "
+                            "eleven and the summary, and KEEPS the selftest, which runs "
+                            "against a synthetic role map and needs no live population: "
+                            "withholding the one claim a subset CAN support would be the "
+                            "same silence in the other direction"),
+    "disposition": (WITHHELD,
+                    "REPAIRED, and the repair is in two places because the defect was. "
+                    "`problems()` no longer reads an EMPTY live set as `no rows to check`: "
+                    "`None` is the absence of evidence and a frozenset IS evidence, so the "
+                    "skip must now be asked for. And the stage, which takes its live set "
+                    "before recording anything, withholds `disposition-register` when it "
+                    "holds none rather than reporting the clause clean. Its other five rows "
+                    "are still graded — they read the filesystem, not the run"),
     "field": (STALE_NUMBER,
               "reaches the accumulated state ONLY through `getattr(self, \"n_falsifiers\", 0)` and "
               "only into a detail string, so its VERDICT is subset-safe and its PROSE is not: the "
@@ -148,6 +168,54 @@ REGISTER = {
               "total rendered as a measurement. Invisible to a classifier reading `self.<attr>` "
               "alone. DEFECT, recorded not repaired"),
 }
+
+
+#: THE FROZEN PRE-REPAIR BASELINE, measured at rowset `46f8e434ded3abcd` and kept as DATA rather
+#: than in a commit message, so the transition is IN THE TREE and checkable. A rung that repaired
+#: and classified in one commit could not have said whether its machinery detects the defects
+#: independently of the repairs; this is the before half of that chain.
+BASELINE_ROWSET = "46f8e434ded3abcd"
+BASELINE = {
+    "doc_currency": WITHHELD,
+    "rowclosure": QUALIFIED,
+    "blindabsolute": CLOSED,
+    "field": STALE_NUMBER,
+    "invariant_detectors": MISATTRIBUTED,
+    "disposition": VACUOUS,
+}
+
+#: DECLARED — exactly the members this repair rung moves. Everything else must read the same as it
+#: did at the baseline, and a member that moved without being named here is a change nobody
+#: declared. `field` is deliberately NOT repaired: it is the positive control, the member that
+#: proves a DERIVED population does not imply every accumulated read needs fixing, and its class is
+#: real rather than cosmetic — a green VERDICT whose PROSE carries a run total is neither CLOSED
+#: nor a defect in the verdict, and flattening it into `subset-safe` would erase the one thing the
+#: second access form bought.
+REPAIRED = ("disposition", "invariant_detectors")
+
+
+def the_transition():
+    """(member, baseline, declared, moved). The repair rung's own evidence."""
+    return tuple((m, BASELINE[m], REGISTER[m][0], BASELINE[m] != REGISTER[m][0])
+                 for m in sorted(REGISTER))
+
+
+def the_repairs_are_declared():
+    """Every member that moved is NAMED as repaired, and every named repair actually moved — both
+    directions, so a silent reclassification is as visible as a silent regression."""
+    moved = tuple(m for m, _b, _d, mv in the_transition() if mv)
+    return moved == tuple(sorted(REPAIRED)), moved, tuple(sorted(REPAIRED))
+
+
+def the_baseline_defects_were_the_ones_repaired():
+    """The two defects that moved were defects AT THE BASELINE, and what they moved TO is
+    legitimate. A repair that turned one defect into another would pass a bare `they differ`."""
+    return all(BASELINE[m] in DEFECTS and REGISTER[m][0] in LEGITIMATE for m in REPAIRED)
+
+
+def the_positive_control_did_not_move():
+    """`field` reads the same before and after, which is what makes it a control."""
+    return BASELINE["field"] == REGISTER["field"][0] == STALE_NUMBER
 
 
 class SubsetredError(Exception):
@@ -376,7 +444,7 @@ def scene_case(name, source=None):
                 % (",".join(both), ",".join(attr_only), ",".join(missed),
                    ",".join(prose_only_readers(source)), population_is_declared(source)[0]))
     if name == "register":
-        return "|".join("%s=%s" % (s, REGISTER[s][0]) for s in sorted(REGISTER))
+        return "|".join("%s:%s->%s" % (m, b, d) for m, b, d, _mv in the_transition())
     raise SubsetredError(f"no scene named {name!r}")
 
 

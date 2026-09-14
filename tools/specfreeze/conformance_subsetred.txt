@@ -64,6 +64,42 @@
 # it. Corrected before anything was built, and kept here because a discipline nobody records is a
 # discipline nobody repeats.
 #
+#
+# v1.1 (2026-09-14) — THE TWO DEFECTS ARE REPAIRED, AND THE BEFORE HALF IS FROZEN AS DATA. The
+# baseline above was measured at rowset 46f8e434ded3abcd and is now carried in `BASELINE`, so this
+# is a repair with a baseline rather than a repair with a story. `invariant_detectors`
+# MISATTRIBUTED -> WITHHELD; `disposition` VACUOUS -> WITHHELD; every other member reads exactly
+# what it read before, and BOTH DIRECTIONS are checked — a member that moved without being declared
+# repaired reddens, and a declared repair that did not move reddens.
+#
+#   invariant_detectors  withholds the ten detector rows and the summary, and KEEPS the selftest,
+#                        which runs against a synthetic role map and needs no live population.
+#                        Withholding the one claim a subset CAN support would be the same silence
+#                        in the other direction.
+#   disposition          repaired in TWO places, because the defect was. `problems()` no longer
+#                        reads an EMPTY live set as `no rows to check`: `None` is the absence of
+#                        evidence, a frozenset IS evidence, and against an empty one every cited
+#                        row is dead. And the stage, which takes its live set before recording
+#                        anything, WITHHOLDS `disposition-register` when it holds none. Its other
+#                        five rows are still graded — they read the filesystem, not the run.
+#
+# THE SKIP WAS DECLARED RATHER THAN FORGOTTEN, which the repair preserves. A unit test named
+# `test_a_dead_row_is_caught_only_when_the_live_set_is_supplied` pinned the old behaviour and its
+# docstring called it "stated rather than silently relied on" — but the statement lived in a test
+# while the gate row's own detail said the opposite in capitals, and nothing reconciled the two.
+# THE SUITE WAS DEFENDING THE VACUITY. The skip is still legitimate and must now be ASKED FOR.
+#
+# THE PROBE NOW READS THE OTHER WAY ROUND, which is the acceptance test: the planted dead row is
+# INVISIBLE to an empty live set before the repair and FOUND after it, while the explicit `None`
+# still skips. The frozen plants that detected both defects are SYNTHETIC and sit outside the
+# production path, so the repair could not teach them what to expect.
+#
+# `field` IS NOT REPAIRED, ON PURPOSE. It is the positive control — the member that proves a
+# DERIVED population does not imply every accumulated read is a defect — and its class is real
+# rather than cosmetic: a green VERDICT whose PROSE carries a run total is neither CLOSED nor a
+# defect in the verdict. Flattening it into `subset-safe` would erase the one thing the second
+# access form bought.
+#
 # does_not_show: that WITHHOLD or QUALIFIED is RIGHT — the law admits both and the choice belongs
 # to a later rung under a frozen contract; that the population is COMPLETE, it being every stage
 # reading the five declared names in the two declared forms, so a third form (a `vars()` sweep, an
@@ -71,6 +107,6 @@
 # locally closed on THIS claim and proved by one probe and nothing more; that the three legitimate
 # members are WELL written, only that each faces the truncation and answers it visibly; and nothing
 # about parallel or sharded execution, which does not exist here yet.
+register ca5541734466fced511e68b601db5c19ffedcddffbc57bc96d81f554b8a1b1b1
 population e04266bd3989e12515f38a58cc757e1062f5ecb55838f765dd2c7d767b10d817
-register e63661f0e5f16a91159b3f408e2d9003886d2310949d39a5c2f8a071b0b31d83
-subsetred 3ef5697095cbf0fe01bd09d552c716a1926ff9d7a0414fc70a24578c364f093b
+subsetred 9ada6e9f0c5e5b0aaaa0e8a27f7c86f35ea7e06416c49a45ff1caf70f3f7d9ac

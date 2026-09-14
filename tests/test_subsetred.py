@@ -7,8 +7,11 @@
   GREENNESS IS NOT EVIDENCE OF SUBSET-SAFETY — the classifier separates a green that is locally
     closed from a green whose check was skipped and a green whose prose carries a run total.
   BOTH DIRECTIONS ARE PLANTED: a red that blames the repository, and a pass that went quiet.
-  AND NOTHING IS REPAIRED HERE — the three defects are asserted AS defects, because a suite that
-    demanded they be fixed would be a suite that could not record a baseline.
+  AND THE TRANSITION IS FROZEN AS DATA — the pre-repair reading is `BASELINE`, both directions of
+    the move are checked, and the plants that detected the two defects are SYNTHETIC, so the repair
+    could not teach them what to expect.
+  `field` IS LEFT UNREPAIRED, as the positive control: a DERIVED population does not imply every
+    accumulated read is a defect.
 
 Every test can go red (L5); the plants bite before any golden pins (L15)."""
 import io
@@ -109,34 +112,68 @@ class ThePlantsBite(unittest.TestCase):
         self.assertEqual(unreached, ())
 
 
-class TheDefectsAreRecordedAndNotRepaired(unittest.TestCase):
-    def test_the_three_defects_are_the_declared_baseline(self):
-        """ASSERTED AS DEFECTS. This is a PRE-REPAIR baseline: the day a later rung fixes one, this
-        test and `subsetred-behaviour` both redden, which is what keeps the move deliberate rather
-        than silent."""
-        self.assertEqual(SR.defects(), ("disposition", "field", "invariant_detectors"))
-        for s in SR.defects():
-            self.assertIn(SR.REGISTER[s][0], SR.DEFECTS)
+class TheTransitionIsFrozenAsData(unittest.TestCase):
+    """The repair rung's own evidence. A repair with a baseline rather than a repair with a story."""
 
-    def test_the_three_legitimate_answers_are_kept_apart(self):
+    def test_the_baseline_is_the_measured_pre_repair_reading(self):
+        self.assertEqual(SR.BASELINE_ROWSET, "46f8e434ded3abcd")
+        self.assertEqual(SR.BASELINE["invariant_detectors"], SR.MISATTRIBUTED)
+        self.assertEqual(SR.BASELINE["disposition"], SR.VACUOUS)
+        self.assertEqual(set(SR.BASELINE), set(SR.REGISTER))
+
+    def test_exactly_the_declared_members_moved(self):
+        """BOTH DIRECTIONS: a member that moved without being declared repaired reddens, and a
+        declared repair that did not move reddens. A silent reclassification is as visible as a
+        silent regression."""
+        ok, moved, declared = SR.the_repairs_are_declared()
+        self.assertTrue(ok, f"moved={moved} declared={declared}")
+        self.assertEqual(moved, ("disposition", "invariant_detectors"))
+
+    def test_a_defect_did_not_become_another_defect(self):
+        """A repair turning MISATTRIBUTED into VACUOUS would satisfy a bare `they differ`."""
+        self.assertTrue(SR.the_baseline_defects_were_the_ones_repaired())
+        for m in SR.REPAIRED:
+            self.assertIn(SR.BASELINE[m], SR.DEFECTS, m)
+            self.assertIn(SR.REGISTER[m][0], SR.LEGITIMATE, m)
+
+    def test_the_positive_control_did_not_move(self):
+        """`field` is left unrepaired ON PURPOSE: it is the evidence that a DERIVED population does
+        not imply every accumulated read is a defect. Its class is real rather than cosmetic — a
+        green VERDICT whose PROSE carries a run total is neither CLOSED nor a defect in the
+        verdict — so flattening it into `subset-safe` would erase what the second access form
+        bought."""
+        self.assertTrue(SR.the_positive_control_did_not_move())
+        self.assertEqual(SR.defects(), ("field",))
+
+    def test_the_three_legitimate_answers_are_still_kept_apart(self):
         """The law admits WITHHOLD and QUALIFIED and refuses to choose: `rowclosure`'s reasoned
-        reds are preserved exactly as they are, not made uniform with `doc_currency`'s withhold."""
+        reds were NOT made uniform with the withholds."""
         self.assertEqual(SR.REGISTER["doc_currency"][0], SR.WITHHELD)
         self.assertEqual(SR.REGISTER["rowclosure"][0], SR.QUALIFIED)
         self.assertEqual(SR.REGISTER["blindabsolute"][0], SR.CLOSED)
+        self.assertEqual(SR.REGISTER["invariant_detectors"][0], SR.WITHHELD)
+        self.assertEqual(SR.REGISTER["disposition"][0], SR.WITHHELD)
 
     def test_every_declaration_carries_a_reason(self):
-        for s, (d, why) in SR.REGISTER.items():
-            self.assertIn(d, SR.DISPOSITIONS, s)
-            self.assertGreater(len(why), 80, f"{s} has a disposition and no reason")
+        for s_, (d, why) in SR.REGISTER.items():
+            self.assertIn(d, SR.DISPOSITIONS, s_)
+            self.assertGreater(len(why), 80, f"{s_} has a disposition and no reason")
+
+    def test_the_frozen_plants_still_detect_both_defects_after_the_repair(self):
+        """THE ACCEPTANCE TEST. The plants are SYNTHETIC and sit outside the production path, so
+        the repair could not teach them what outcome to expect — which is the only reason they are
+        still evidence that the machinery detects the defects independently of the fixes."""
+        self.assertTrue(SR.a_misattributed_red_is_caught())
+        self.assertTrue(SR.a_vacuous_pass_is_caught())
 
 
 class TheFalseGreenIsDemonstrated(unittest.TestCase):
-    def test_the_dead_row_check_does_not_run_against_an_empty_live_set(self):
-        """THE PROBE, and the defect it names. A record is planted into a COPY of `disposition`'s
-        register citing a row that cannot exist; its own `problems()` sees NOTHING against the
-        empty live set a subset supplies, and sees it against a non-empty one. The subset removed
-        the condition under which the checker can observe its own failure."""
+    def test_an_empty_live_set_is_evidence_and_only_None_skips(self):
+        """THE PROBE, READING THE OTHER WAY ROUND AFTER THE REPAIR. A record is planted into a COPY
+        of `disposition`'s register citing a row that cannot exist. Before: the empty live set a
+        subset supplies was read as `no rows to check` and the planted row was INVISIBLE. After: an
+        empty frozenset is EVIDENCE and finds it, while the explicit `None` still skips — the skip
+        is legitimate and must now be asked for."""
         sys.path.insert(0, os.path.join(ROOT, "tools", "terrain"))
         import disposition as DP
         saved = DP.REGISTER
@@ -145,13 +182,17 @@ class TheFalseGreenIsDemonstrated(unittest.TestCase):
             e = saved[rec]
             DP.REGISTER = dict(saved)
             DP.REGISTER[rec] = (e[0], e[1], "a-row-that-cannot-exist", e[3])
+            skipped = DP.problems(None)
             empty = [x for x in DP.problems(frozenset()) if x[1] == "row"]
             full = [x for x in DP.problems(frozenset(["a-different-row"])) if x[1] == "row"]
         finally:
             DP.REGISTER = saved
-        self.assertEqual(empty, [], "the check fired under a subset — the defect is gone")
-        self.assertTrue(any(p[2].endswith("'a-row-that-cannot-exist'") for p in full),
+        self.assertTrue(any("a-row-that-cannot-exist" in p[2] for p in empty),
+                        "an empty live set must be read as EVIDENCE, not as a skip — the defect is back")
+        self.assertTrue(any("a-row-that-cannot-exist" in p[2] for p in full),
                         "the check did not fire on a full population either — the probe is inert")
+        self.assertEqual([x for x in skipped if x[1] == "row"], [],
+                         "the DECLARED skip must still skip; only `None` may")
         self.assertEqual(DP.REGISTER, saved, "the probe edited the live register")
 
 

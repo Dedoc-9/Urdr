@@ -4710,7 +4710,22 @@ class Gate:
                     "record registered twice each REFUSE rather than being skipped"
                     if pop_ok else "the prediction population derivations disagree")
 
+        # AN EMPTY LIVE SET IS NOT EVIDENCE THAT EVERY CITED ROW IS ALIVE. `live_rows` is taken
+        # before this stage records anything, so under `--only` it is empty — and `problems()` used
+        # to read that as "no row evidence offered" and SKIP the dead-row clause, leaving this row
+        # GREEN while the check it advertises in capitals could not run. `subsetred` measured that
+        # as VACUOUS. The skip was DECLARED rather than forgotten — a unit test named
+        # `test_a_dead_row_is_caught_only_when_the_live_set_is_supplied` pinned it — but the
+        # declaration lived in a test docstring and this row's own text said the opposite with no
+        # qualification, and nothing reconciled the two. Now the skip must be ASKED FOR (`None`),
+        # an empty frozenset is EVIDENCE, and a stage with no evidence WITHHOLDS.
         reg_ok, cen = True, {}
+        reg_withheld = not live_rows and self.subset_withholds(
+            "disposition-register",
+            "the dead-row clause resolves every disposition's cited row against THIS RUN'S live "
+            "set, and under --only that set is empty before this stage records anything. Reading "
+            "it as `no rows to check` is how the clause went vacuous. The stage's other rows are "
+            "graded: they read the filesystem, not the run. Run the full gate.")
         try:
             probs = DP.problems(live_rows)
             cen = DP.census()
@@ -4721,7 +4736,8 @@ class Gate:
                               for r, e in DP.REGISTER.items() if e[0] == DP.STATE_DISCHARGED))
         except Exception:
             reg_ok = False
-        self.record("disposition-register", reg_ok,
+        if not reg_withheld:
+            self.record("disposition-register", reg_ok,
                     "EVERY DISCOVERABLE PREDICTION RECORD CARRIES EXACTLY ONE DISPOSITION, AND EVERY "
                     "TERMINAL ONE NAMES THE MECHANISM THAT DISCHARGED IT — checked against this "
                     "run's own LIVE row set, so a disposition citing a row that no longer exists "
@@ -5280,7 +5296,8 @@ class Gate:
             with open(os.path.join(ROOT, "verify.py"), encoding="utf-8") as fh:
                 src = fh.read()
         except Exception as exc:  # pragma: no cover - import guard
-            for r in ("population", "behaviour", "probe", "plants"):
+            for r in ("population", "behaviour", "transition", "probe",
+                      "plants"):
                 self.record(f"subsetred-{r}", False, f"import failed (subsetred): {exc}")
             return
 
@@ -5329,76 +5346,111 @@ class Gate:
                 reds = tuple(d for _n, ok, d in g.rows if not ok)
                 probe = None
                 if member == "disposition":
-                    # THE PROBE: plant a DEAD row into a COPY of the register and ask whether the
-                    # stage's own predicate still sees it. Under an EMPTY live set it does not.
+                    # THE PROBE, AND IT NOW READS THE OTHER WAY ROUND. A DEAD row is planted into a
+                    # COPY of the register and the stage's own predicate is asked three times: with
+                    # NO evidence offered (`None`, the declared skip), with an EMPTY live set, and
+                    # with a live set naming something else. Before the repair the empty set was
+                    # read as the skip and reported NOTHING; it is evidence now, so the planted row
+                    # is found there too, and only the explicit `None` skips.
                     _reg = DP.REGISTER
                     try:
                         rec = "blindscreen"
                         e = _reg[rec]
                         DP.REGISTER = dict(_reg)
                         DP.REGISTER[rec] = (e[0], e[1], "a-row-that-cannot-exist", e[3])
+                        planted = "a-row-that-cannot-exist"
+                        skipped = [x for x in DP.problems(None) if x[1] == "row"]
                         empty = [x for x in DP.problems(frozenset()) if x[1] == "row"]
                         full = [x for x in DP.problems(frozenset(["a-different-row"]))
                                 if x[1] == "row"]
                     finally:
                         DP.REGISTER = _reg
+                    found = lambda rows: any(planted in x[2] for x in rows)   # noqa: E731
                     probe = bool(empty)
-                    probe_rows.append(("disposition", len(empty), len(full)))
+                    probe_rows.append(("disposition", len(skipped), len(empty), len(full),
+                                       found(empty), found(full), DP.REGISTER == _reg))
                 elif member == "blindabsolute":
                     probe = "blindabsolute-scoring" in {n for n, _o, _d in g.rows}
-                    probe_rows.append(("blindabsolute", int(probe), int(probe)))
+                    probe_rows.append(("blindabsolute", 0, int(probe), int(probe),
+                                       probe, probe, True))
                 obs[member] = (len(g.rows), reds, len(g.withheld), probe)
         except Exception as exc:
             self.record("subsetred-behaviour", False, f"observation failed: {exc}")
+            self.record("subsetred-transition", False, "observation failed")
             self.record("subsetred-probe", False, "observation failed")
             self.record("subsetred-plants", False, "observation failed")
             return
 
         agree, disagreeing = SR.the_declarations_match_the_behaviour(obs)
         live_defects = SR.defects()
-        beh_ok = (agree and live_defects == ("disposition", "field", "invariant_detectors"))
+        beh_ok = (agree and live_defects == ("field",))
         self.record("subsetred-behaviour", beh_ok,
                     "EVERY DECLARATION IS CHECKED AGAINST WHAT THE STAGE ACTUALLY DOES, by running "
-                    "each member on a FRESH Gate with the subset flag set. THE SIX ANSWER THE SAME "
-                    "SITUATION SIX WAYS AND THREE ARE WRONG. Legitimate: `doc_currency` WITHHOLDS "
-                    "and prints why; `rowclosure` reddens all five rows and each detail names the "
-                    "subset, the floor and `Not a finding about the closure` — a stage that could "
-                    "not measure did not pass, said out loud; `blindabsolute` is CLOSED, unioning "
-                    "its own row name into the live set so the subset IS the complete population "
-                    "of its claim. DEFECTS, RECORDED AND NOT REPAIRED: `invariant_detectors` "
-                    "MISATTRIBUTES — eleven rows blame the detector register in the register's own "
-                    "vocabulary for rows eleven other stages did not run; `disposition` is VACUOUS; "
-                    "`field` carries a STALE NUMBER, green while its prose prints `across all 0 "
-                    "falsifiers`. GREENNESS IS NOT EVIDENCE OF SUBSET-SAFETY — three of the six are "
-                    "green and one of them is right. The law admits WITHHOLD and QUALIFIED and "
-                    "refuses to choose between them, because the tree has not established one and "
-                    "encoding a preference as a law is how a policy becomes unfalsifiable"
+                    "each member on a FRESH Gate with the subset flag set. Six stages read "
+                    "accumulated run state and each now answers a truncated population VISIBLY: "
+                    "`doc_currency` and, after this rung, `invariant_detectors` and `disposition` "
+                    "WITHHOLD and say why; `rowclosure` reddens all five of its rows with each "
+                    "detail naming the subset, the floor and `Not a finding about the closure`; "
+                    "`blindabsolute` is CLOSED, unioning its own row name into the live set so the "
+                    "subset IS the complete population of its claim. THE LAW ADMITS WITHHOLD AND "
+                    "QUALIFIED AND REFUSES TO CHOOSE BETWEEN THEM \u2014 `rowclosure`'s reasoned reds "
+                    "are a legitimate answer and were NOT made uniform with the withholds, because "
+                    "encoding a preference as a law is how a policy stops being falsifiable. WHAT "
+                    "REMAINS IS ONE MEMBER AND IT IS THE POSITIVE CONTROL: `field` reaches "
+                    "accumulated state only through `getattr(self, \"n_falsifiers\", 0)` and only "
+                    "into a DETAIL STRING, so its verdict is subset-safe while its prose prints "
+                    "`across all 0 falsifiers`. Left unrepaired on purpose \u2014 it is the evidence "
+                    "that a DERIVED population does not imply every accumulated read is a defect"
                     if beh_ok else
                     "declaration disagrees with behaviour: %s (defects=%s)"
                     % (disagreeing, live_defects))
 
+        moved_ok, moved, declared_repairs = SR.the_repairs_are_declared()
+        tr_ok = (moved_ok and SR.the_baseline_defects_were_the_ones_repaired()
+                 and SR.the_positive_control_did_not_move()
+                 and SR.BASELINE_ROWSET == "46f8e434ded3abcd")
+        self.record("subsetred-transition", tr_ok,
+                    "THE BEFORE HALF IS FROZEN AS DATA, so this is a repair with a baseline rather "
+                    "than a repair with a story. Measured at rowset %s: `invariant_detectors` "
+                    "MISATTRIBUTED and `disposition` VACUOUS, both now WITHHELD, and EVERY OTHER "
+                    "MEMBER READS EXACTLY WHAT IT READ BEFORE. Both directions are checked \u2014 a "
+                    "member that moved without being declared repaired reddens, and a declared "
+                    "repair that did not move reddens \u2014 so a silent reclassification is as "
+                    "visible as a silent regression. AND WHAT THEY MOVED TO IS CHECKED TO BE "
+                    "LEGITIMATE, because a repair turning one defect into another would satisfy a "
+                    "bare `they differ`. The frozen plants that detected both defects are "
+                    "SYNTHETIC and sit outside the production path, so the repair could not teach "
+                    "them what to expect: %s"
+                    % (SR.BASELINE_ROWSET, ", ".join("%s %s->%s" % (m, b, d)
+                                                     for m, b, d, mv in SR.the_transition() if mv))
+                    if tr_ok else
+                    "the transition is not as declared: moved=%s declared=%s" % (moved, declared_repairs))
+
         dis = [r for r in probe_rows if r[0] == "disposition"]
         bla = [r for r in probe_rows if r[0] == "blindabsolute"]
-        probe_ok = (len(dis) == 1 and dis[0][1] == 0 and dis[0][2] > 0
-                    and len(bla) == 1 and bla[0][1] == 1)
+        probe_ok = (len(dis) == 1 and len(bla) == 1
+                    and dis[0][1] == 0 and dis[0][2] > 0 and dis[0][3] > 0
+                    and dis[0][4] and dis[0][5] and dis[0][6]
+                    and bla[0][4])
         self.record("subsetred-probe", probe_ok,
-                    "THE FALSE GREEN, DEMONSTRATED RATHER THAN READ OFF THE SOURCE, AND WITH ITS "
-                    "CONTROL. A DEAD row is planted into a COPY of `disposition`'s register — a "
-                    "record made to cite `a-row-that-cannot-exist` — and its own `problems()` is "
-                    "asked twice: with the EMPTY live set a subset supplies it reports %d dead-row "
-                    "problems, and with a NON-EMPTY one it reports %d. The guard is `if live_rows "
-                    "and row not in live_rows`, and `live_rows` is taken BEFORE this stage records "
-                    "anything, so under `--only` it is empty and the check never runs. THE SUBSET "
-                    "REMOVED THE CONDITION UNDER WHICH THE CHECKER CAN OBSERVE ITS OWN FAILURE — "
-                    "L23's checker-that-cannot-fail arriving through the POPULATION rather than "
-                    "through the predicate, in a row whose own text says in capitals that a "
-                    "disposition citing a row that no longer exists reddens. The register is "
-                    "restored on the raising path as well as the returning one, so the probe "
-                    "cannot leave the live one edited. AND THE CONTRAST IS THE OTHER HALF: "
-                    "`blindabsolute` is green under the same truncation because it CONTRIBUTES the "
-                    "one row its claim needs, which is what local closure looks like when it is "
-                    "real"
-                    % (dis[0][1], dis[0][2]) if probe_ok else
+                    "THE FALSE GREEN, DEMONSTRATED RATHER THAN READ OFF THE SOURCE, AND THE PROBE "
+                    "NOW READS THE OTHER WAY ROUND. A record is planted into a COPY of "
+                    "`disposition`'s register citing `a-row-that-cannot-exist`, and its own "
+                    "`problems()` is asked three times. BEFORE: an EMPTY live set was read as `no "
+                    "rows to check`, the clause was skipped, and the planted row was invisible \u2014 "
+                    "while the gate row's own detail said in capitals that a disposition citing a "
+                    "dead row REDDENS. AFTER: `None` is the absence of evidence and skips (%d "
+                    "problems), an empty frozenset IS evidence and finds it (%d), a live set "
+                    "naming something else finds it (%d), and the planted row is located in both "
+                    "evidence cases. THE SKIP IS STILL LEGITIMATE AND MUST NOW BE ASKED FOR, which "
+                    "is the whole repair: a caller with no evidence has to say so, and a caller "
+                    "that cannot say so has to WITHHOLD. The register is restored on the raising "
+                    "path as well as the returning one and is asserted unchanged afterwards, so "
+                    "the probe cannot leave the live one edited. AND THE CONTRAST IS THE OTHER "
+                    "HALF: `blindabsolute` is green under the same truncation because it "
+                    "CONTRIBUTES the one row its claim needs, which is what local closure looks "
+                    "like when it is real"
+                    % (dis[0][1], dis[0][2], dis[0][3]) if probe_ok else
                     "the probe did not behave as declared: %s" % (probe_rows,))
 
         live_classes, unreached = SR.every_disposition_is_reachable(obs)
@@ -28273,10 +28325,24 @@ class Gate:
                     return False, f"role '{role}' row {row!r} did not pass"
             return True, "all four roles declared, recorded, passing"
 
+        # THE D17 LINT RESOLVES EVERY DECLARED ROLE AGAINST THIS RUN'S LIVE ROW SET, so under
+        # `--only` the ten detector rows and the summary blamed the REGISTER for rows that eleven
+        # other stages simply did not run — a red certain in advance AND naming the wrong cause,
+        # which is worse, because it can be acted on. `subsetred` measured it as MISATTRIBUTED and
+        # this is the repair. The SELFTEST stays: it runs against a synthetic role map and needs no
+        # live population, so withholding it would discard the one claim a subset CAN support.
+        withheld = self.subset_withholds(
+            "invariant-detectors + :<detector> (%d rows)" % (len(manifest) + 1),
+            "every declared role is resolved against THIS RUN'S live row set; under --only the "
+            "stages that record those rows did not run, so an unrecorded row is the subset and "
+            "NOT a D17 defect. The selftest is graded because it needs no live population. Run "
+            "the full gate.")
         allok = True
         for det, rolemap in manifest.items():
             ok, why = check(rolemap)
             allok = allok and ok
+            if withheld:
+                continue
             self.record(f"invariant-detectors:{det}", ok,
                         "reference · invariance · defect · refusal — all present" if ok else why)
         # non-vacuity: the checker MUST reject broken declarations, else the lint is toothless.
@@ -28290,9 +28356,10 @@ class Gate:
         self.record("invariant-detectors-selftest", nv,
                     "checker rejects a missing role, a dangling row, and a failed row (gate can redden)"
                     if nv else "the lint checker is vacuous")
-        self.record("invariant-detectors", allok and nv,
-                    f"D17: all {len(manifest)} detectors declare 4 roles, each recorded + passing"
-                    if allok and nv else "a detector is not D17-compliant")
+        if not withheld:
+            self.record("invariant-detectors", allok and nv,
+                        f"D17: all {len(manifest)} detectors declare 4 roles, each recorded + "
+                        f"passing" if allok and nv else "a detector is not D17-compliant")
 
     # -- 2n. the D12 freeze manifest: docs must match reality -------------------
     def spec_freeze(self):
