@@ -187,6 +187,16 @@ REGISTER = {
                       "shape as a vocabulary scan matching the module that declares the vocabulary. "
                       "A citation of a LESSON rather than of a constant, and the FOURTH consecutive "
                       "rung this population has pulled in from prose written for something else"),
+    "subsetred": (CITES, (), "", "", "", (),
+                  "cites this law by NAME to borrow its shape — a population DERIVED from the "
+                  "source and a disposition DECLARED beside it — while classifying how six "
+                  "stages answer a truncated population. It owns no debt count and pins no "
+                  "direction; what it borrowed was the ARGUMENT, not the constant. THE FIFTH "
+                  "CONSECUTIVE RUNG this population has pulled in from prose written for "
+                  "something else, and the first to be caught by the word `ratchet` itself "
+                  "rather than by a promise phrase — the vocabulary reaching a module that "
+                  "was only citing the precedent, which is what makes classifying cheaper "
+                  "than excluding"),
     "cohort": (CITES, (), "", "", "", (),
                "cites `disposition`'s ratchet while pre-registering its charge-curve measurement, to "
                "say why a commitment in flight is not the aged debt whose direction is held at FALL "

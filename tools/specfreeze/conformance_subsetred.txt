@@ -1,0 +1,76 @@
+# URDRSSR1 conformance — AN INCOMPLETE POPULATION MAY NOT SILENTLY ALTER A RUN-SCOPED CLAIM.
+#
+# `verify.py --only <stage>` runs one stage. Six stages read ACCUMULATED run state — a total over
+# the whole run rather than a value from the filesystem — so under a subset their claims quantify
+# over a population the run does not supply. Nothing in the tree said what they must do about it,
+# and MEASURED, THEY ANSWER THE SAME SITUATION SIX WAYS:
+#
+#     doc_currency         WITHHELD        declines through `subset_withholds` and prints why
+#     rowclosure           QUALIFIED       reddens 5 rows, each naming the subset and the floor
+#     blindabsolute        CLOSED          green, and honestly: it unions its OWN row name in
+#     invariant_detectors  MISATTRIBUTED   reddens 11 rows and blames the detector register
+#     disposition          VACUOUS         green, because the check was SKIPPED
+#     field                STALE-NUMBER    green, and its prose prints "across all 0 falsifiers"
+#
+# THE LAW GOVERNS EPISTEMIC STATUS AND NOT POLICY. WITHHOLD and QUALIFIED are both legitimate and
+# this rung refuses to choose between them: the tree has not established one, and encoding a
+# preference as a law is how a policy stops being falsifiable. What is excluded is narrow —
+# SUBSET+GREEN unless the claim is proved locally closed, and SUBSET+RED whose detail blames the
+# REPOSITORY rather than the truncation.
+#
+# GREENNESS IS NOT EVIDENCE OF SUBSET-SAFETY. Three of the six are green under a subset and exactly
+# one is right. `blindabsolute` unions `{"blindabsolute-scoring"}` into the live set before reading
+# it, so the only row its claim needs is one it contributes itself and the subset IS the complete
+# population of that claim. The other two greens are defects wearing the same colour.
+#
+# THE ATTRIBUTE FORM ALONE IS BLIND, MEASURED. A classifier reading `self.rows` finds FIVE stages.
+# Reading `getattr(self, "n_falsifiers", 0)` as well finds SIX, and the newcomer is `field` —
+# whose accumulated read reaches a DETAIL STRING and no predicate, so its VERDICT is subset-safe
+# and its PROSE is not. The same read wearing a different syntax, in a stage nobody would have
+# looked at. Both forms are DECLARED where they can be audited, and the blindness is re-derived on
+# every run rather than asserted here.
+#
+# THE TWO DEFECTS RUN IN OPPOSITE DIRECTIONS AND THE QUIET ONE IS WORSE.
+#
+#   invariant_detectors — FALSE RED. Eleven rows read "role 'reference' names unrecorded row 'X'"
+#   and the summary reads "a detector is not D17-compliant". Those are findings about the DETECTOR
+#   REGISTER, in the register's own vocabulary, when what happened is that eleven other stages did
+#   not run. A red certain in advance is not evidence; a red naming the wrong cause is worse,
+#   because it can be acted on — and because it trains an operator to dismiss the legitimate ones.
+#
+#   disposition — FALSE GREEN. The dead-row check is guarded `if live_rows and row not in
+#   live_rows`, and `live_rows` is taken BEFORE the stage records anything, so under a subset it is
+#   EMPTY, the guard short-circuits, and the check does not run. DEMONSTRATED rather than read off
+#   the source: a record is planted into a COPY of the register citing `a-row-that-cannot-exist`,
+#   and its own `problems()` reports ZERO dead-row problems against the empty live set and four
+#   against a non-empty one. THE SUBSET REMOVED THE CONDITION UNDER WHICH THE CHECKER CAN OBSERVE
+#   ITS OWN FAILURE — L23's checker-that-cannot-fail arriving through the POPULATION rather than
+#   through the predicate, in a row whose own text says in capitals that a disposition citing a row
+#   that no longer exists reddens.
+#
+# NOTHING IS REPAIRED HERE, AND THAT IS THE DESIGN. A rung that classified the population, chose
+# the canonical policy and fixed two different failure mechanisms in one commit could not say
+# whether its machinery detects the defects INDEPENDENTLY of the repairs. What ships is the
+# PRE-REPAIR BEHAVIOURAL BASELINE, so the next rung has a before/repair/falsify chain rather than a
+# combined discovery-and-repair patch — and `subsetred-behaviour` REDDENS the day a defect moves,
+# which is how the baseline stays deliberate. `rowclosure`'s five reasoned reds are preserved
+# exactly as they are: a legitimate answer, not a uniformity problem.
+#
+# AND THE MEASUREMENT DISCIPLINE IS PART OF THE RECORD. The first reading of this population was
+# taken from the bare `[FAIL]` markers a subset run prints, and reported `rowclosure` as carrying
+# the same defect as `invariant_detectors`. It does not: its five reds each carry a 174-character
+# detail naming the subset and the floor. Reading the marker and not the diagnostic is `claim !=
+# code` committed by the reader — the failure this tree exists to catch, in the act of reporting on
+# it. Corrected before anything was built, and kept here because a discipline nobody records is a
+# discipline nobody repeats.
+#
+# does_not_show: that WITHHOLD or QUALIFIED is RIGHT — the law admits both and the choice belongs
+# to a later rung under a frozen contract; that the population is COMPLETE, it being every stage
+# reading the five declared names in the two declared forms, so a third form (a `vars()` sweep, an
+# alias bound elsewhere) would be invisible; that `blindabsolute` is safe for every input, it being
+# locally closed on THIS claim and proved by one probe and nothing more; that the three legitimate
+# members are WELL written, only that each faces the truncation and answers it visibly; and nothing
+# about parallel or sharded execution, which does not exist here yet.
+population e04266bd3989e12515f38a58cc757e1062f5ecb55838f765dd2c7d767b10d817
+register e63661f0e5f16a91159b3f408e2d9003886d2310949d39a5c2f8a071b0b31d83
+subsetred 3ef5697095cbf0fe01bd09d552c716a1926ff9d7a0414fc70a24578c364f093b

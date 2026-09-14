@@ -69,6 +69,7 @@ is findable, and that population is small and exact:
 | `cohort` | `CITES` | — | — |
 | `pixelcost` | `FIGURE` | — | — |
 | `lattice` | `FIGURE` | — | — |
+| `subsetred` | `CITES` | — | — |
 | `ratchet` | `CITES` | — | — |
 
 **The boundary cases are real rather than constructed**, which is what makes three classes evidence

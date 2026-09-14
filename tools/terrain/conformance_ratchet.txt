@@ -36,6 +36,7 @@
 #     blindabsolute CITES  cites this law's own SELF-REFERENCE as precedent; owns none
 #     pixelcost    FIGURE  the word as a metaphor about claim grades
 #     lattice      FIGURE  the word in passing
+#     subsetred    CITES   cites this law's NAME while borrowing its shape; owns none
 #     ratchet      CITES   names every phrase BECAUSE IT DECLARES THE VOCABULARY; owns none
 #
 # THE EIGHTH ENTRY ARRIVED ONE COMMIT LATER AND WAS NOT WRITTEN FOR THIS LAW. `blindscreen` registered
@@ -46,7 +47,7 @@
 # wrong within a day. The cost of a reading is that every rung using the word must classify itself,
 # and that cost IS the mechanism.
 #
-# THEN A NINTH, A TENTH, AND A STRUCTURAL ONE, ON FOUR CONSECUTIVE RUNGS. `cohort` cited the same constant
+# THEN FOUR MORE, ON FIVE CONSECUTIVE RUNGS, AND THE LAST WAS CAUGHT BY THIS LAW'S OWN NAME. `cohort` cited the same constant
 # for the same reason while pre-registering a cost measurement, and `criticality` arrived on the
 # STRUCTURAL side instead. Three rungs running, this law has pulled in the commit that was being
 # written, each time from prose composed for something else. One instance is an anecdote about a
@@ -110,7 +111,7 @@
 # the earliest PINNED one, so an author who pinned a lenient baseline gets a lenient law; and nothing
 # about non-numeric debts -- a SET that may only shrink is a different law, and `disposition` carries
 # its own partition rather than pretending this one covers it.
-population d7feeb38d3fdb9065374060b2314b01f7c9701101a3c95da348e05b87ec9fe43
+population b39474009d1fe34c8b20eead4fbac1701a12647e3f51c84ab68c8079e46ee561
 history 58aa0aea69453013e595767025c5ea55e740cd9dcd8b20be16da9079b6e807ab
 bounds 4b7a6f376a101170006ce792f5770faa8090a2a5c659c8f9f47ddc23677a841c
-ratchet 0397daf167f2f924d13c72f1c6a8da81b0cf8d14b8e0f451e044149240b76e64
+ratchet fb5348f251401435f6887c3cdf77e84c04a8c3dbc7a9adbdf54b263cd7fb194c

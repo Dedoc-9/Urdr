@@ -22,6 +22,7 @@ Exit 0 iff every check passes. Output ends with 'GATE PASSED' or 'GATE FAILED'.
 """
 import importlib
 import inspect
+import contextlib
 import io
 import time as _time
 import os
@@ -307,6 +308,7 @@ STAGE_ORDER = (
     "ratchet",
     "lattice",
     "epistemics_apparatus",
+    "subsetred",
     "doc_currency",
     "rowclosure",
 )
@@ -4882,7 +4884,7 @@ class Gate:
             structural, prose, owners = RT.the_structural_heuristic_is_refuted()
             c = RT.census()
             pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
-                      and structural == 79 and prose == 10 and owners == 3
+                      and structural == 79 and prose == 11 and owners == 3
                       and all(c[k] for k in RT.KINDS)
                       and RT.a_citation_is_not_a_promise() == (True, False)
                       and RT.the_law_matches_itself() == (True, True, True))
@@ -4897,7 +4899,7 @@ class Gate:
                     "SOMETHING A RATCHET — a ratchet is a declared debt quantity plus a declared "
                     "monotone direction plus a baseline plus an enforcement, and only the quantity "
                     "has a syntax. The refuted heuristic is kept as a FALSIFIER rather than as a "
-                    "story. So the PROMISE is read out of shipped prose (10 modules) and each must "
+                    "story. So the PROMISE is read out of shipped prose (11 modules) and each must "
                     "resolve to a declared classification, `attributed`'s shape. THREE CLASSES, ALL "
                     "POPULATED AND ALL WITH REAL BOUNDARY CASES (L61): `entry`, `indexed` and "
                     "`disposition` OWN one; `cutpin` CITES `entry`'s while owning none, and a law "
@@ -5261,6 +5263,161 @@ class Gate:
             "a repair does not bite: certificate=%s vacuous-demo=%s scanner=%s coupling-guard=%s "
             "coupling-clean=%s"
             % (cert_bites, vacuous_old, scanner_bites, coupling_bites, coupling_clean))
+
+    def subsetred(self):
+        """AN INCOMPLETE POPULATION MAY NOT SILENTLY ALTER A RUN-SCOPED CLAIM (URDRSSR1).
+
+        The population is DERIVED from this file's own AST and each member's disposition is
+        DECLARED; this stage supplies the OBSERVATIONS the declarations are graded against, by
+        running every member on a FRESH Gate with `SUBSET_ONLY` set. Nothing is repaired: the two
+        defects and the stale number are the pre-repair baseline, and these rows redden the day a
+        later rung moves them. Rows: population, behaviour, probe, plants."""
+        sdir = os.path.join(ROOT, "tools", "specfreeze")
+        if sdir not in sys.path:
+            sys.path.insert(0, sdir)
+        try:
+            import subsetred as SR
+            with open(os.path.join(ROOT, "verify.py"), encoding="utf-8") as fh:
+                src = fh.read()
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("population", "behaviour", "probe", "plants"):
+                self.record(f"subsetred-{r}", False, f"import failed (subsetred): {exc}")
+            return
+
+        attr_only, both, missed = SR.the_attribute_form_alone_is_blind(src)
+        decl_ok, underived, undeclared = SR.population_is_declared(src)
+        try:
+            pinned = (SR.emitted_matches_pinned(src)
+                      and all(SR.scene_result(x, src) == SR.golden(x) for x in SR.SCENES))
+        except Exception:
+            pinned = False
+        pop_ok = (decl_ok and missed == ("field",) and len(both) == 6 and len(attr_only) == 5
+                  and SR.prose_only_readers(src) == ("field",) and pinned)
+        self.record("subsetred-population", pop_ok,
+                    "THE POPULATION IS DERIVED AND THE ATTRIBUTE FORM ALONE IS BLIND. %d stages "
+                    "read accumulated run state — a total over the WHOLE run rather than a value "
+                    "from the filesystem — so under `--only` their claims quantify over a "
+                    "population the run does not supply. Reading `self.rows` finds %d; reading "
+                    "`getattr(self, \"n_falsifiers\", 0)` as well finds %d, and the newcomer is "
+                    "%s, whose accumulated read reaches a DETAIL STRING and no predicate. THE SAME "
+                    "READ WEARING A DIFFERENT SYNTAX, in a stage nobody would have looked at — "
+                    "which is why both forms are DECLARED and this row re-derives the blindness "
+                    "every run instead of asserting it. Every derived member carries a declared "
+                    "disposition and every declaration names a derived member, so the register "
+                    "cannot drift from the source in either direction"
+                    % (len(both), len(attr_only), len(both), ", ".join(missed))
+                    if pop_ok else
+                    "population/register disagree: missed=%s underived=%s undeclared=%s"
+                    % (missed, underived, undeclared))
+
+        obs, probe_rows = {}, []
+        try:
+            tdir = os.path.join(ROOT, "tools", "terrain")
+            if tdir not in sys.path:
+                sys.path.insert(0, tdir)
+            import disposition as DP
+            _saved_only = SUBSET_ONLY
+            for member in sorted(SR.REGISTER):
+                globals()["SUBSET_ONLY"] = member
+                g = Gate()
+                _buf = io.StringIO()
+                try:
+                    with contextlib.redirect_stdout(_buf), contextlib.redirect_stderr(_buf):
+                        getattr(g, member)()
+                finally:
+                    globals()["SUBSET_ONLY"] = _saved_only
+                reds = tuple(d for _n, ok, d in g.rows if not ok)
+                probe = None
+                if member == "disposition":
+                    # THE PROBE: plant a DEAD row into a COPY of the register and ask whether the
+                    # stage's own predicate still sees it. Under an EMPTY live set it does not.
+                    _reg = DP.REGISTER
+                    try:
+                        rec = "blindscreen"
+                        e = _reg[rec]
+                        DP.REGISTER = dict(_reg)
+                        DP.REGISTER[rec] = (e[0], e[1], "a-row-that-cannot-exist", e[3])
+                        empty = [x for x in DP.problems(frozenset()) if x[1] == "row"]
+                        full = [x for x in DP.problems(frozenset(["a-different-row"]))
+                                if x[1] == "row"]
+                    finally:
+                        DP.REGISTER = _reg
+                    probe = bool(empty)
+                    probe_rows.append(("disposition", len(empty), len(full)))
+                elif member == "blindabsolute":
+                    probe = "blindabsolute-scoring" in {n for n, _o, _d in g.rows}
+                    probe_rows.append(("blindabsolute", int(probe), int(probe)))
+                obs[member] = (len(g.rows), reds, len(g.withheld), probe)
+        except Exception as exc:
+            self.record("subsetred-behaviour", False, f"observation failed: {exc}")
+            self.record("subsetred-probe", False, "observation failed")
+            self.record("subsetred-plants", False, "observation failed")
+            return
+
+        agree, disagreeing = SR.the_declarations_match_the_behaviour(obs)
+        live_defects = SR.defects()
+        beh_ok = (agree and live_defects == ("disposition", "field", "invariant_detectors"))
+        self.record("subsetred-behaviour", beh_ok,
+                    "EVERY DECLARATION IS CHECKED AGAINST WHAT THE STAGE ACTUALLY DOES, by running "
+                    "each member on a FRESH Gate with the subset flag set. THE SIX ANSWER THE SAME "
+                    "SITUATION SIX WAYS AND THREE ARE WRONG. Legitimate: `doc_currency` WITHHOLDS "
+                    "and prints why; `rowclosure` reddens all five rows and each detail names the "
+                    "subset, the floor and `Not a finding about the closure` — a stage that could "
+                    "not measure did not pass, said out loud; `blindabsolute` is CLOSED, unioning "
+                    "its own row name into the live set so the subset IS the complete population "
+                    "of its claim. DEFECTS, RECORDED AND NOT REPAIRED: `invariant_detectors` "
+                    "MISATTRIBUTES — eleven rows blame the detector register in the register's own "
+                    "vocabulary for rows eleven other stages did not run; `disposition` is VACUOUS; "
+                    "`field` carries a STALE NUMBER, green while its prose prints `across all 0 "
+                    "falsifiers`. GREENNESS IS NOT EVIDENCE OF SUBSET-SAFETY — three of the six are "
+                    "green and one of them is right. The law admits WITHHOLD and QUALIFIED and "
+                    "refuses to choose between them, because the tree has not established one and "
+                    "encoding a preference as a law is how a policy becomes unfalsifiable"
+                    if beh_ok else
+                    "declaration disagrees with behaviour: %s (defects=%s)"
+                    % (disagreeing, live_defects))
+
+        dis = [r for r in probe_rows if r[0] == "disposition"]
+        bla = [r for r in probe_rows if r[0] == "blindabsolute"]
+        probe_ok = (len(dis) == 1 and dis[0][1] == 0 and dis[0][2] > 0
+                    and len(bla) == 1 and bla[0][1] == 1)
+        self.record("subsetred-probe", probe_ok,
+                    "THE FALSE GREEN, DEMONSTRATED RATHER THAN READ OFF THE SOURCE, AND WITH ITS "
+                    "CONTROL. A DEAD row is planted into a COPY of `disposition`'s register — a "
+                    "record made to cite `a-row-that-cannot-exist` — and its own `problems()` is "
+                    "asked twice: with the EMPTY live set a subset supplies it reports %d dead-row "
+                    "problems, and with a NON-EMPTY one it reports %d. The guard is `if live_rows "
+                    "and row not in live_rows`, and `live_rows` is taken BEFORE this stage records "
+                    "anything, so under `--only` it is empty and the check never runs. THE SUBSET "
+                    "REMOVED THE CONDITION UNDER WHICH THE CHECKER CAN OBSERVE ITS OWN FAILURE — "
+                    "L23's checker-that-cannot-fail arriving through the POPULATION rather than "
+                    "through the predicate, in a row whose own text says in capitals that a "
+                    "disposition citing a row that no longer exists reddens. The register is "
+                    "restored on the raising path as well as the returning one, so the probe "
+                    "cannot leave the live one edited. AND THE CONTRAST IS THE OTHER HALF: "
+                    "`blindabsolute` is green under the same truncation because it CONTRIBUTES the "
+                    "one row its claim needs, which is what local closure looks like when it is "
+                    "real"
+                    % (dis[0][1], dis[0][2]) if probe_ok else
+                    "the probe did not behave as declared: %s" % (probe_rows,))
+
+        live_classes, unreached = SR.every_disposition_is_reachable(obs)
+        pl_ok = (SR.a_misattributed_red_is_caught() and SR.a_vacuous_pass_is_caught()
+                 and SR.a_withheld_stage_is_not_graded_on_its_rows()
+                 and SR.an_unknown_disposition_refuses() and unreached == ())
+        self.record("subsetred-plants", pl_ok,
+                    "BOTH DIRECTIONS ARE OBSERVED REJECTING RATHER THAN ASSUMED TO. A red whose "
+                    "detail blames the repository reads MISATTRIBUTED while the SAME shape naming "
+                    "the subset reads QUALIFIED — the classifier separates the cause from the "
+                    "colour. A green observation whose probe did not bite reads VACUOUS while the "
+                    "identical observation with the probe biting reads CLOSED, so greenness alone "
+                    "never earns the safe verdict. Withholding outranks row-counting: a stage that "
+                    "DECLINED recorded no rows and that is not the same fact as one that passed. "
+                    "An undeclared member REFUSES typed rather than being skipped. AND EVERY "
+                    "DISPOSITION IS REACHED (L61): %s live in the register, the rest by plants — "
+                    "a class nobody has met is a distinction nobody has met"
+                    % (", ".join(live_classes),)
+                    if pl_ok else "a subsetred plant did not bite (unreached=%s)" % (unreached,))
 
     def doc_currency(self):
         """The tracked docs must quote the LIVE counts — docs must match reality
