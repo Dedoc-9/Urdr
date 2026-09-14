@@ -37,9 +37,10 @@ refusal totality over floats, out-of-range coordinates, degenerate and malformed
 with `voxlat.tri_box_overlap` on every emitted voxel. DECLARED: that a triangle soup is the right
 import surface — meshes and splats both reduce to one, but that reduction is the caller's and is not
 performed here. does_not_show: that the geometry is CORRECT or that it resembles any real place;
-splat/point-cloud ingestion (the caller quantizes); any renderer; cross-placement — URDRVXI1 is a
-Python reference with no Rust or C99 port, so every figure here is single-implementation, exactly as
-`voxlat`'s is.
+splat/point-cloud ingestion (the caller quantizes); any renderer; and that the CROSS-PLACEMENT agreement is
+evidence about the LATTICE rather than about the TRANSCRIPTION — `voxin_rs` carries this scene
+copied by hand, so until the pin below the two placements could only be checked against each
+other.
 
     PYTHONHASHSEED=0 python3 tools/terrain/voxin.py
 """
@@ -267,6 +268,132 @@ SCENE = (
 )
 
 
+# ---- THE COMMITTED AUTHORITY ---------------------------------------------------------------------
+#: UNTIL THIS RUNG THERE WAS NONE, AND NOTHING IN THE TREE COULD HAVE SAID SO. `voxin:scenes`
+#: computed the occupancy digest TWICE and compared it to ITSELF -- determinism, which is a property
+#: of the RUN and not of the import -- `voxin-placement` compared the Rust to the LIVE Python, and
+#: every falsifier below was live-against-live too: permutation invariance, determinism, and two
+#: different scenes differing. A repository-wide search for a committed literal of this digest
+#: returned ZERO. So a change to `SCENE` or to the overlap rule moved the entire population together
+#: and nothing reddened.
+#:
+#: MEASURED, WITH AN INERT CONTROL. Moving one coordinate by ONE leaves the digest unchanged and
+#: therefore proves nothing -- it is kept below and reported as proving nothing, because a plant that
+#: does not move the measurand is not a plant. Dropping a triangle (51 -> 39 voxels) and moving one
+#: coordinate by EIGHT (51 -> 59) both MOVE it, and under either one the four voxin rows and all
+#: eighteen unit falsifiers stayed GREEN.
+#:
+#: AND A SECOND COPY IS NOT A PIN. `voxin_rs/voxin.rs` carries this scene transcribed by hand -- its
+#: own comment says `transcribed from voxin.SCENE` -- so the placement established agreement between
+#: two LIVE computations rather than agreement with an authority, and on a host without `rustc` it
+#: records True, SKIPPED and honestly labelled, which is correct and also means that host cannot
+#: falsify the relation at all. `armpair` and `retire` keep finding this shape: two hand-kept copies
+#: agreeing is a fact about the transcription. Both implementations now read ONE committed value.
+#:
+#: The sharpest form of the defect: `voxin-placement-selftest` already pinned `41`, the voxel count
+#: the port's PLANTED defect produces -- so THE DEFECTIVE VALUE WAS COMMITTED AND THE CORRECT ONE
+#: WAS NOT. That literal is left exactly where it is; it is a property of the port's own plant.
+SCENES = ("census", "plants")
+
+
+def _shift(scene, tri, vert, axis, delta):
+    out = [[list(v) for v in t] for t in scene]
+    out[tri][vert][axis] += delta
+    return tuple(tuple(tuple(v) for v in t) for t in out)
+
+
+def plant_scenes():
+    """(label, planted scene, IS THE MEASURAND EXPECTED TO MOVE). The first is INERT on purpose."""
+    return (("one coordinate by one", _shift(SCENE, 0, 0, 0, 1), False),
+            ("one triangle dropped", tuple(SCENE[:-1]), True),
+            ("one coordinate by eight", _shift(SCENE, 0, 0, 0, 8), True))
+
+
+def scene_case(name):
+    if name == "census":
+        keys = occupancy(SCENE)
+        return ("voxels=%d|digest=%s|bits=%d|limit=%d|perm=%s|oracle=%s"
+                % (len(keys), occupancy_digest(SCENE), admissible_coord_bits(), coord_limit(),
+                   occupancy_is_permutation_invariant(SCENE),
+                   occupancy_agrees_with_voxlat(SCENE, keys=set(keys))))
+    if name == "plants":
+        return ("spurious=%s|omitted=%s|overbound=%s|float=%s|degenerate=%s|%s"
+                % (spurious_key_is_caught(), omitted_key_is_caught(),
+                   over_bound_geometry_is_refused(), float_is_refused(), degenerate_is_refused(),
+                   "|".join("%s:%s:%s" % (lab, len(occupancy(sc)),
+                                          occupancy_digest(sc) != occupancy_digest(SCENE))
+                            for lab, sc, _m in plant_scenes())))
+    raise VoxinError(f"no scene named {name!r}")
+
+
+def scene_result(name):
+    return hashlib.sha256(MAGIC + b"|" + name.encode() + b"|"
+                          + scene_case(name).encode()).hexdigest()
+
+
+def voxin_digest():
+    return hashlib.sha256(MAGIC + b"|" + "|".join(scene_result(n)
+                                                  for n in SCENES).encode()).hexdigest()
+
+
+def golden(name):
+    """READ from the committed corpus. An unpinned name REFUSES typed rather than returning a
+    default -- a golden reader that answers a question it was never asked is an answer cache."""
+    with open(_os.path.join(_HERE, "conformance_voxin.txt"), encoding="utf-8") as fh:
+        for ln in fh:
+            ln = ln.strip()
+            if ln and not ln.startswith("#"):
+                nm, dig = ln.split()
+                if nm == name:
+                    return dig
+    raise VoxinError(f"no golden named {name!r}")
+
+
+def committed_occupancy():
+    """THE CROSS-LANGUAGE AUTHORITY: the exact string both implementations print. Pinned RAW rather
+    than folded into a scene digest, because the Rust emits this value and cannot emit a scene."""
+    return golden("occupancy")
+
+
+def the_import_matches_the_committed_authority():
+    """The claim this rung adds, and the only one the old reading could not make."""
+    return occupancy_digest(SCENE) == committed_occupancy()
+
+
+def the_plants_behave_as_declared():
+    """(label, voxels, moved, declared, agrees). The inert one is REPORTED, never hidden: a suite
+    whose every plant bites has not shown that a plant CAN fail to bite."""
+    live = occupancy_digest(SCENE)
+    return tuple((lab, len(occupancy(sc)), occupancy_digest(sc) != live, want,
+                  (occupancy_digest(sc) != live) == want)
+                 for lab, sc, want in plant_scenes())
+
+
+def the_pin_catches_what_the_old_reading_could_not():
+    """THE WHOLE CONTENT OF THE RUNG, as a measurement rather than an argument. Under each plant that
+    MOVES the measurand, the old reading -- the digest compared to itself -- still HOLDS, and the
+    committed authority does NOT. (label, determinism_holds, matches_pin)."""
+    return tuple((lab, occupancy_digest(sc) == occupancy_digest(sc),
+                  occupancy_digest(sc) == committed_occupancy())
+                 for lab, sc, want in plant_scenes() if want)
+
+
+def an_unpinned_name_refuses():
+    try:
+        golden("not-a-pinned-scene")
+    except VoxinError as exc:
+        return exc.code == "VOXIN-REFUSE"
+    return False
+
+
+def emitted_matches_pinned():
+    """The corpus is what this module EMITS, so no hex is hand-inscribed; the file stays FROZEN
+    rather than regenerated by the gate, because a golden the gate rewrites cannot detect drift."""
+    return (all(scene_result(n) == golden(n) for n in SCENES)
+            and voxin_digest() == golden("voxin")
+            and occupancy_digest(SCENE) == golden("occupancy"))
+
+
 def main():
     print("VOXIN — the import boundary: geometry becomes lattice occupancy, or is REFUSED")
     print()
@@ -289,8 +416,23 @@ def main():
     print("RED  a float coordinate is refused, never rounded  : %s" % float_is_refused())
     print("RED  a degenerate triangle is refused              : %s" % degenerate_is_refused())
     print()
+    print("committed occupancy authority                     : %s" % committed_occupancy())
+    print("LAW  the import matches the committed authority    : %s"
+          % the_import_matches_the_committed_authority())
+    for lab, n, moved, want, ok in the_plants_behave_as_declared():
+        print("PLANT %-24s voxels=%-4d moved=%-5s declared=%-5s %s"
+              % (lab, n, moved, want, "OK" if ok else "DISAGREES"))
+    for lab, det, pin in the_pin_catches_what_the_old_reading_could_not():
+        print("      %-24s determinism=%-5s matches_pin=%s" % (lab, det, pin))
+    print()
+    for n in SCENES:
+        print(n, scene_result(n))
+    print("occupancy", occupancy_digest(SCENE))
+    print("voxin", voxin_digest())
+    print()
     print("does_not_show: that the geometry is CORRECT or resembles any real place; splat ingestion")
-    print("(the caller quantizes); any renderer; cross-placement — Python reference only.")
+    print("(the caller quantizes); any renderer; that cross-placement agreement is about the")
+    print("LATTICE rather than about a hand TRANSCRIPTION — the pin is what separates them.")
     return 0
 
 

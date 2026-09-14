@@ -140,5 +140,78 @@ class AgainstTheOracle(unittest.TestCase):
             self.assertEqual(VX.morton(x, y, z, VI.LEVELS), k)
 
 
+class TheCommittedAuthority(unittest.TestCase):
+    """UNTIL THIS RUNG THERE WAS NONE. Every reader of the occupancy digest — this suite included —
+    compared one live computation to another: determinism, permutation invariance, two scenes
+    differing. None of them is a claim about WHICH lattice the pinned scene imports to."""
+
+    def test_the_corpus_pins_every_name_the_module_emits(self):
+        for name in VI.SCENES:
+            self.assertEqual(VI.scene_result(name), VI.golden(name), name)
+        self.assertEqual(VI.occupancy_digest(VI.SCENE), VI.golden("occupancy"))
+        self.assertEqual(VI.voxin_digest(), VI.golden("voxin"))
+        self.assertTrue(VI.emitted_matches_pinned())
+
+    def test_the_import_matches_the_authority(self):
+        self.assertTrue(VI.the_import_matches_the_committed_authority())
+
+    def test_the_raw_occupancy_is_pinned_because_the_port_emits_it(self):
+        """The Rust prints an occupancy digest and cannot print a scene case, so the authority both
+        implementations read has to be pinned RAW."""
+        text = open(os.path.join(_T, "conformance_voxin.txt"), encoding="utf-8").read()
+        self.assertIn(VI.occupancy_digest(VI.SCENE), text)
+
+    def test_an_unpinned_name_refuses_rather_than_defaulting(self):
+        self.assertTrue(VI.an_unpinned_name_refuses())
+        with self.assertRaises(VI.VoxinError):
+            VI.golden("not-a-pinned-scene")
+
+
+class ThePlantsAndTheInertControl(unittest.TestCase):
+    def test_the_declared_plants_behave_as_declared(self):
+        rows = VI.the_plants_behave_as_declared()
+        self.assertEqual(len(rows), 3)
+        for label, _voxels, moved, declared, agrees in rows:
+            self.assertTrue(agrees, f"{label}: moved={moved} declared={declared}")
+
+    def test_the_inert_plant_is_inert_and_is_kept_for_that(self):
+        """L15 the other way round: a suite whose every plant bites has not shown that a plant CAN
+        fail to bite. Moving one coordinate by one leaves the measurand still, so it proves nothing
+        — and it is reported as proving nothing rather than quietly replaced by one that works."""
+        inert = [r for r in VI.the_plants_behave_as_declared() if not r[3]]
+        self.assertEqual(len(inert), 1)
+        label, voxels, moved, _declared, _agrees = inert[0]
+        self.assertFalse(moved, f"{label} moved the measurand — it is no longer the control")
+        self.assertEqual(voxels, len(VI.occupancy(VI.SCENE)))
+
+    def test_the_observable_plants_move_the_measurand(self):
+        moving = [r for r in VI.the_plants_behave_as_declared() if r[3]]
+        self.assertEqual([(r[0], r[1]) for r in moving],
+                         [("one triangle dropped", 39), ("one coordinate by eight", 59)])
+        for label, _voxels, moved, _declared, _agrees in moving:
+            self.assertTrue(moved, label)
+
+    def test_the_old_reading_survives_every_plant_the_pin_catches(self):
+        """THE RUNG, AS A MEASUREMENT. Determinism still HOLDS under each observable plant and the
+        committed authority does NOT — which is the whole difference a pin buys, and the reason the
+        four green rows could not have said anything was wrong."""
+        caught = VI.the_pin_catches_what_the_old_reading_could_not()
+        self.assertEqual(len(caught), 2)
+        for label, determinism_holds, matches_pin in caught:
+            self.assertTrue(determinism_holds, f"{label}: the old reading should still hold")
+            self.assertFalse(matches_pin, f"{label}: the pin failed to catch it")
+
+
+class TheBoundaryStatementWasStale(unittest.TestCase):
+    def test_the_does_not_show_no_longer_denies_the_port_that_shipped(self):
+        """`voxin_rs` landed four days after that sentence was written, with a live gate row. A
+        module's own `does_not_show` denying a port the same tree ships is `claim != code` inside
+        the sentence whose job is to bound the claim."""
+        doc = VI.__doc__ or ""
+        self.assertNotIn("no Rust or C99 port", doc)
+        self.assertTrue(os.path.exists(os.path.join(_T, "voxin_rs", "voxin.rs")),
+                        "the port this correction is about must actually exist")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

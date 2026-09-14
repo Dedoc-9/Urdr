@@ -4287,20 +4287,34 @@ class Gate:
         try:
             import voxin as VI
         except Exception as exc:  # pragma: no cover - import guard
-            for r in ("voxin:scenes", "voxin-law", "voxin-property", "voxin-selftest"):
+            for r in ("voxin:scenes", "voxin-law", "voxin-property", "voxin-selftest",
+                      "voxin-pin"):
                 self.record(r, False, f"import failed: {exc}")
             return
 
         d1 = VI.occupancy_digest(VI.SCENE)
         d2 = VI.occupancy_digest(VI.SCENE)
         keys = VI.occupancy(VI.SCENE)
-        scenes_ok = (d1 == d2 and len(keys) > 0)
+        pinned = VI.the_import_matches_the_committed_authority()
+        emitted = VI.emitted_matches_pinned()
+        scenes_ok = (d1 == d2 and len(keys) > 0 and pinned and emitted
+                     and all(VI.scene_result(x) == VI.golden(x) for x in VI.SCENES))
         self.record("voxin:scenes", scenes_ok,
-                    "the pinned %d-triangle scene imports to %d occupied voxels and re-digests "
-                    "IDENTICALLY (%s...) — determinism x2, and non-empty, without which every "
-                    "invariance law below would hold vacuously (L61)"
+                    "the pinned %d-triangle scene imports to %d occupied voxels and MATCHES THE "
+                    "COMMITTED AUTHORITY (%s...) — which until this rung it did not, because there "
+                    "was none. This row compared the digest to ITSELF: determinism x2, a property "
+                    "of the RUN rather than a claim about WHICH lattice the scene imports to, and "
+                    "every other reader in the tree was live-against-live too (the placement "
+                    "against the live Python, the suite's permutation invariance and determinism "
+                    "against themselves). A repo-wide search for a committed literal of this digest "
+                    "returned ZERO, so a change to SCENE or to the overlap rule moved the whole "
+                    "population together and nothing reddened. Determinism and non-emptiness are "
+                    "KEPT as conjuncts — non-empty because every invariance law below would "
+                    "otherwise hold vacuously (L61) — and the authority is what the row now asserts"
                     % (len(VI.SCENE), len(keys), d1[:12])
-                    if scenes_ok else "scene digest unstable or empty")
+                    if scenes_ok else
+                    "scene unstable, empty, or adrift from the pin: determinism=%s pinned=%s "
+                    "emitted=%s" % (d1 == d2, pinned, emitted))
 
         derived = VI.bound_is_derived_not_restated()
         perm = VI.occupancy_is_permutation_invariant(VI.SCENE)
@@ -4344,6 +4358,30 @@ class Gate:
                     "— an importer that admits everything has no boundary to certify"
                     if bites else
                     "a plant does not bite: over-bound=%s float=%s degenerate=%s" % (over, flt, deg))
+
+        plants = VI.the_plants_behave_as_declared()
+        caught = VI.the_pin_catches_what_the_old_reading_could_not()
+        inert = [r for r in plants if not r[3]]
+        moving = [r for r in plants if r[3]]
+        pin_ok = (all(r[4] for r in plants) and len(inert) == 1 and len(moving) == 2
+                  and all(det and not matched for _lab, det, matched in caught)
+                  and len(caught) == 2 and VI.an_unpinned_name_refuses())
+        self.record("voxin-pin", pin_ok,
+                    "THE DIFFERENCE THE PIN BUYS, RE-MEASURED RATHER THAN ARGUED: under EACH plant "
+                    "that moves the measurand the old reading STILL HOLDS — the digest equals "
+                    "itself, determinism intact — and the committed authority does NOT. %s. A "
+                    "SECOND COPY IS NOT A PIN, which is why the placement never closed this: "
+                    "`voxin_rs` carries the scene under its own comment, `transcribed from "
+                    "voxin.SCENE`, so that row compared two LIVE computations and on a host without "
+                    "rustc recorded True/SKIPPED — correct, and also unable to falsify anything. "
+                    "AND THE CONTROL IS REPORTED AS A CONTROL: moving one coordinate by ONE leaves "
+                    "the digest UNCHANGED at %d voxels and proves nothing, kept because a suite "
+                    "whose every plant bites has not shown that a plant CAN fail to bite. An "
+                    "unpinned name REFUSES typed rather than returning a default"
+                    % ("; ".join("%s -> %d voxels" % (r[0], r[1]) for r in moving),
+                       inert[0][1] if inert else -1)
+                    if pin_ok else
+                    "the pin evidence did not hold: plants=%r caught=%r" % (plants, caught))
 
     def voxin_placement(self):
         """The voxin_rs CROSS-PLACEMENT, RE-VERIFIED LIVE — the arc's central claim is not that this
@@ -4399,20 +4437,25 @@ class Gate:
             self.record("voxin-placement-selftest", False, "port did not run")
             return
 
-        agree = (out.get("voxin-scene-digest") == py_digest
+        committed = VI.committed_occupancy()
+        agree = (out.get("voxin-scene-digest") == committed and py_digest == committed
                  and out.get("voxin-scene-voxels") == str(py_keys))
         self.record(
             "voxin-placement", agree,
             "a std-only Rust build sharing NO code with the Python reproduces the URDRVXI1 occupancy "
-            "digest BIT-FOR-BIT (%s..., %d voxels) — an independent toolchain, hand-rolled SHA-256, "
+            "digest BIT-FOR-BIT (%s..., %d voxels) — and BOTH ARE NOW COMPARED AGAINST THE COMMITTED "
+            "AUTHORITY rather than against each other, which is the repair this rung makes: the Rust "
+            "carries the scene TRANSCRIBED BY HAND, so two live computations agreeing was a fact about "
+            "the transcription, and a drift moving both left nothing to redden. An independent toolchain, hand-rolled SHA-256, "
             "its own Morton encoder and its own exact-integer Akenine-Moller overlap test, "
             "recompiled LIVE this run so re-pinning either side forces the other to keep up. This is "
             "the front of the pipeline becoming implementation-independent: the milestone is a world "
             "reproduced on another machine, and until now the importer existed in one language"
             % (py_digest[:12], py_keys)
             if agree else
-            "placement DIVERGES: rust=%s/%s python=%s/%d"
-            % (out.get("voxin-scene-digest"), out.get("voxin-scene-voxels"), py_digest, py_keys))
+            "placement DIVERGES from the committed authority %s: rust=%s/%s python=%s/%d"
+            % (committed[:12], out.get("voxin-scene-digest"), out.get("voxin-scene-voxels"),
+               py_digest, py_keys))
 
         perm = out.get("voxin-permutation-invariant") == "true"
         bites = out.get("voxin-plant-bites") == "true"

@@ -59,14 +59,61 @@ boundary to certify:
   silently would be an authority act with no record.
 - **A degenerate triangle** is refused.
 
+## The pin, and what it replaced
+
+*Added 2026-09-13. The module shipped with no conformance corpus and nothing in the tree could have
+said so.*
+
+Four readers of the occupancy digest existed and **all four compared a live computation to another
+live computation**: `voxin:scenes` computed the digest twice and compared it to itself;
+`voxin-placement` compared the Rust to the live Python; the suite asserted permutation invariance,
+determinism, and that two different scenes differ. A repository-wide search for a committed literal
+of the digest returned **zero**.
+
+Determinism is a property of the *run*. Permutation invariance is a property of the *function*.
+Neither is a claim about **which lattice the pinned scene imports to** — so a change to `SCENE` or to
+the overlap rule moved the whole population together and the gate stayed green.
+
+**Demonstrated, with an inert control.** A plant that leaves the measurand still proves nothing, so
+it is reported as proving nothing rather than replaced by one that works:
+
+| plant | voxels | measurand moved |
+|---|---|---|
+| one coordinate by one | 51 | **no** — the control |
+| one triangle dropped | 39 | yes |
+| one coordinate by eight | 59 | yes |
+
+Under either observable plant the four `voxin` rows stayed green and all eighteen unit falsifiers
+stayed green. `voxin-pin` re-runs that comparison every pass: under each plant that moves the
+measurand, **determinism still holds and the committed authority does not**.
+
+> **A second copy is not a pin.** `voxin_rs/voxin.rs` carries the scene under its own comment,
+> *"transcribed from voxin.SCENE"*, so the placement established agreement between two live
+> computations — a fact about the transcription. On a host without `rustc` it records `True`,
+> SKIPPED and honestly labelled, which is correct and also means that host cannot falsify the
+> relation at all. `armpair` and `retire` keep finding this shape. Both implementations now read one
+> committed value.
+
+The sharpest form of it: `voxin-placement-selftest` already pinned `41`, the voxel count the port's
+**planted defect** produces. The defective value was committed and the correct one was not. That
+literal is left where it is — it is a property of the port's own plant.
+
+**And this brief's own `does_not_show` had stopped being true.** It read *"URDRVXI1 is a Python
+reference with no Rust or C99 port"*, in both this document and the module docstring, while
+`voxin_rs` landed four days later with a live gate row. A boundary statement repeated in two shipped
+documents and wrong in both is `claim ≠ code` inside the sentence whose job is to bound the claim.
+
 ## does_not_show
 
 That the geometry is CORRECT, or that it resembles any real place — this admits geometry, it does
 not validate it. Splat or point-cloud ingestion: the caller quantizes, and that reduction is not
 performed here. Any renderer. Performance at city scale: the traversal is a bounding-box walk and
-its cost has not been measured on anything large. **Cross-placement** — URDRVXI1 is a Python
-reference with no Rust or C99 port, so every figure is single-implementation, exactly as `voxlat`'s
-is. A world that imports is not a world that is right. `integrity ≠ truth`.
+its cost has not been measured on anything large. That the **cross-placement** agreement is evidence
+about the lattice rather than about the transcription: `voxin_rs` carries this scene copied by hand,
+so until the pin below the two placements could only be checked against each other. That the pinned
+lattice is the **right** one — it is the one this importer produces, and a wrong-but-stable import
+would be pinned just as firmly, which is what `voxin-law`, `voxin-property` and the `voxlat` oracle
+are for. A world that imports is not a world that is right. `integrity ≠ truth`.
 
 ## Falsifier
 
