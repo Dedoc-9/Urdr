@@ -303,6 +303,7 @@ STAGE_ORDER = (
     "voxin",
     "voxin_placement",
     "gamegen",
+    "descent",
     "authority",
     "exempt",
     "disposition",
@@ -5204,6 +5205,111 @@ class Gate:
                     "anywhere. The retro-admission falsifier D24 registered is discharged on the "
                     "first module it was written for" % (sorted(found),)
                     if layer_ok else "the layer boundary is not held: imports=%r" % (found,))
+
+    def descent(self):
+        """THE STAIRS ARE CONNECTED, OR THEY ARE NOT, AND THE WITNESS IS A PATH (URDRDSC1) — the
+        second game-layer vertical slice, D24 §3's topology row made a law. Rows: scenes, witness,
+        sealed, oracles, domain. It CONSUMES `gamegen` and `gamegen` does not know it exists; the
+        grid is the graph; the output is a PATH verified independently of the search; and a sealed
+        room fails this witness while passing every one of `gamegen`'s predicates."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import descent as DE
+            import gamegen as GG
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("descent:scenes", "descent-witness", "descent-sealed",
+                      "descent-oracles", "descent-domain"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (DE.emitted_matches_pinned()
+                         and all(DE.scene_result(n) == DE.golden(n) for n in DE.SCENES)
+                         and DE.descent_digest() == DE.golden("descent-digest")
+                         and DE.an_unpinned_name_refuses())
+        except Exception as exc:
+            scenes_ok = False
+            scenes_ok = repr(exc)
+        self.record("descent:scenes", scenes_ok is True,
+                    "three URDRDSC1 scenes and the top digest reproduce from what the module emits; "
+                    "the eight witness rows are `gamegen`'s own corpus read through this witness, so "
+                    "a drift in either module moves a pin; an unpinned name refuses typed"
+                    if scenes_ok is True else "a descent scene drifted: %r" % (scenes_ok,))
+
+        try:
+            rows = DE.witness_rows()
+            verified = all(DE.verify_path(GG.generate(s, d), DE.descent_path(GG.generate(s, d)))[0]
+                           for s, d in DE.CORPUS)
+            sweep_bad = [s for s in range(128) if not DE.is_connected(GG.generate(s, 1))]
+            wit_ok = (len(rows) == 8 and all(n > 0 for _nm, n, _dg in rows)
+                      and verified and not sweep_bad)
+        except Exception as exc:
+            wit_ok, rows, sweep_bad = False, repr(exc), None
+        self.record("descent-witness", wit_ok,
+                    "THE OUTPUT IS A PATH, VERIFIED INDEPENDENTLY OF THE SEARCH. `descent_path` runs "
+                    "a deterministic BFS and `verify_path` checks the result WITHOUT re-running it — "
+                    "every step orthogonally adjacent, every cell traversable, the ends the two "
+                    "stairs — so the expensive half is the search and the trusted half is checking a "
+                    "walk (`cutpin`'s shape). Over the eight-level corpus every level has a verified "
+                    "up->down path (lengths %s), and over a 128-level sweep every ordinary level is "
+                    "connected. THE GRID IS THE GRAPH, derived on every call and stored nowhere: "
+                    "there is no second canonical representation of the dungeon because the level "
+                    "already is one, and `gamegen` says nothing about traversability — its stairs "
+                    "connect BY CONSTRUCTION, and construction is not a witness, which is why this "
+                    "row exists"
+                    % ("/".join(str(n) for _nm, n, _dg in rows) if wit_ok else "?")
+                    if wit_ok else "the witness did not verify: rows=%r sweep_bad=%r"
+                    % (rows, sweep_bad))
+
+        try:
+            sealed_ok = all(DE.the_sealed_room_is_rejected(GG.generate(s, d)) for s, d in DE.CORPUS)
+        except Exception as exc:
+            sealed_ok = False
+            _ = repr(exc)
+        self.record("descent-sealed", sealed_ok,
+                    "THE COUNTEREXAMPLE IS A SEALED ROOM, and it is rejected on every corpus level "
+                    "while the ordinary level is accepted — both directions. `seal_down` walls the "
+                    "one-cell margin around the stairs-down room, severing every corridor mouth "
+                    "while leaving the room interior, both stairs, the border and the alphabet "
+                    "intact, so the sealed level is INSIDE this witness's domain (two stairs, each "
+                    "in a room) and OUTSIDE the generator's ordinary output. A planted violation "
+                    "that fell outside the input domain would prove nothing about the witness; this "
+                    "one is a level the witness must, and does, refuse a path for"
+                    if sealed_ok else "the sealed room was not rejected on some level")
+
+        try:
+            pairs = [DE.the_oracles_do_not_collapse(GG.generate(s, d)) for s, d in DE.CORPUS]
+            oracles_ok = all(gg and df for gg, df in pairs)
+        except Exception as exc:
+            oracles_ok, pairs = False, repr(exc)
+        self.record("descent-oracles", oracles_ok,
+                    "THE TWO ORACLES DO NOT COLLAPSE, asserted on every run rather than argued. A "
+                    "sealed level FAILS this witness while PASSING every one of `gamegen`'s "
+                    "structural predicates — `gamegen.is_well_formed(sealed)` is True — so a level "
+                    "can be GENERATION-CORRECT IN EVERY WAY THE GENERATOR'S ORACLE CAN SEE AND STILL "
+                    "BE UNTRAVERSABLE. Topology is therefore a separate law and not a corollary of "
+                    "generation, and neither rung borrows the other's oracle: `gamegen` certifies "
+                    "that a level is canonical and reproducible, `descent` that a property of it "
+                    "holds, and the sealed room is where the two claims visibly come apart"
+                    if oracles_ok else "the oracle-separation did not hold: %r" % (pairs,))
+
+        try:
+            absent, doubled = DE.domain_is_total(GG.generate(*DE.CORPUS[0]))
+            forge = DE.verify_rejects_a_forgery(GG.generate(*DE.CORPUS[0]))
+            dom_ok = absent and doubled and forge == (True, True, True, True)
+        except Exception as exc:
+            dom_ok, forge = False, repr(exc)
+        self.record("descent-domain", dom_ok,
+                    "THE INPUT DOMAIN IS EXPLICIT AND NARROWER THAN 'ANY GRID': exactly one "
+                    "stairs-up and one stairs-down, else a typed DESCENT-REFUSE — an absent endpoint "
+                    "and a doubled one each refuse. And `verify_path` is no rubber stamp: a good "
+                    "path verifies while a skipped-cell jump, a step onto a wall and a path not "
+                    "ending at the stairs are each rejected, so a search that returned garbage could "
+                    "not pass the trusted half. The witness answers only the question it was asked, "
+                    "on only the levels where the question is well-posed"
+                    if dom_ok else "the domain or verifier was not total: forge=%r" % (forge,))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -28982,7 +29088,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
-    "voxin", "gamegen",
+    "voxin", "gamegen", "descent",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

@@ -175,7 +175,12 @@ landed; the answer is the module's own, bound as data and read by the named row.
 | module | the §1 answer | layer | evidence | landed |
 |---|---|---|---|---|
 | `gamegen` (URDRGEN1) | affects canonical game state — one level from `(seed, depth)` | CORE — imports `hashlib`, `os`; nothing under `tools/` | `gamegen-layer` (imports read off the AST; `LAYER` and `D24_ANSWER` bound as data) | 2026-09-15, one commit after D24 |
+| `descent` (URDRDSC1) | affects canonical game state — a topology property of a generated level | CORE — imports `gamegen` and stdlib (`collections`, `hashlib`, `os`); the dependency runs one way | `descent-witness` / `descent-oracles` (imports read off both ASTs; a sealed level fails the witness while passing `gamegen`) | 2026-09-15, one rung after `gamegen` |
 
 `gamegen` is §7's generator and supplies exactly one field of §2's shape (generated dungeon state,
-for one level). It claims nothing from §3 beyond generation and invariance — topology, with its
-reachability witness and planted sealed room, is not asserted by it — and nothing from §4.
+for one level). It claims nothing from §3 beyond generation and invariance. `descent` is §3's
+topology row: it reads a `gamegen` level and witnesses that the stairs down are reachable from the
+stairs up with a concrete path, and a planted sealed room reddens — the two directions §3 named. It
+consumes `gamegen` and adds no claim `gamegen` makes; the sealed room is where generation-correctness
+and traversability visibly come apart, which is the two-oracle discipline of §4 holding one layer
+down. Neither claims anything from §4's un-oracled list.
