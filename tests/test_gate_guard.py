@@ -78,6 +78,18 @@ class TruncationFailureMode(unittest.TestCase):
                   encoding="utf-8").read()
         self.assertIn('grep -q "^GATE PASSED$"', wf)
 
+    def test_repo_workflow_fetches_the_history_the_gate_reads(self):
+        """The evidence environment, read as data. `ratchet` fetches each baseline by
+        blob id; a depth-1 checkout holds only the objects HEAD reaches, so the
+        non-vacuity witness is SKIPPED there rather than certified — honestly, since
+        ratchet v1.2, but certified nowhere. Runs #594-#604 were red on every cell
+        for the un-repaired version of exactly that. This line is what makes the
+        badge certify the witness; drop it and this test says so, where a green
+        SKIPPED row would not."""
+        wf = open(os.path.join(ROOT, ".github", "workflows", "verify.yml"),
+                  encoding="utf-8").read()
+        self.assertIn("fetch-depth: 0", wf)
+
 
 class ReportVacuityGuard(unittest.TestCase):
     def _healthy_rows(self, n):

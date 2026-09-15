@@ -21,6 +21,18 @@ jobs:
       PYTHONHASHSEED: "0"
     steps:
       - uses: actions/checkout@v4
+        with:
+          # THE FULL HISTORY, BECAUSE THE GATE READS IT. `ratchet` pins each baseline
+          # by blob object id and fetches it with `git cat-file blob`; the default
+          # depth-1 checkout holds exactly the objects HEAD reaches, so historical
+          # baselines read UNAVAILABLE and the non-vacuity witness (`indexed`,
+          # 15 -> 13) is SKIPPED rather than certified. Runs #594-#604 (2026-09-11
+          # 23:41 UTC onward) were red on every cell for that reason while the same
+          # tree was green on a full clone; ratchet v1.2 made a depth-1 gate
+          # classify honestly, and THIS line makes the badge certify the witness
+          # instead of skipping it forever. `tests/test_gate_guard.py` reads this
+          # file as data and reddens if the line goes. Cost: the pack is ~13 MiB.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
