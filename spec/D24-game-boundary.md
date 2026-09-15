@@ -2,12 +2,13 @@
 
 # D24 — The game-layer boundary contract (what is canonical, and what is only a view of it)
 
-Status: **DECLARED — a boundary, not a subsystem.** No game module exists at the commit that writes
+Status: **DECLARED — a boundary, not a subsystem.** No game module existed at the commit that wrote
 this. D24 draws the line the *first* game module will be held to, before there is one to hold, for
 the same reason `voxpath` registered its predictions one commit before its arms existed: a line
 drawn after the code is a description of the code, and a line drawn before it is a contract. Its
 correctness test is **retro-admission**, D17's shape — when the first game-layer module lands it
 must classify cleanly under §1, or D24 is wrong and is amended *before* the module is graded.
+**Discharged once** (§9): the first module classified without amendment.
 
 The target is an action RPG in the shape of *FATE* (WildTangent, 2005): real-time combat in a fully
 3D dungeon of randomized levels, depth bounded at 2 147 483 647, a companion animal that fights,
@@ -165,3 +166,16 @@ current measurement; that §3's table is complete, it being the subsystems FATE'
 *visibly* require and not a design; that the §4 list is exhaustive, only that everything on it lacks
 an oracle today; and nothing about what the game should *be* — D24 decides where a claim may
 stand, never what to build.
+
+## 9. Admitted modules
+
+The register the retro-admission clause writes to. One row per game-layer module, in the order they
+landed; the answer is the module's own, bound as data and read by the named row.
+
+| module | the §1 answer | layer | evidence | landed |
+|---|---|---|---|---|
+| `gamegen` (URDRGEN1) | affects canonical game state — one level from `(seed, depth)` | CORE — imports `hashlib`, `os`; nothing under `tools/` | `gamegen-layer` (imports read off the AST; `LAYER` and `D24_ANSWER` bound as data) | 2026-09-15, one commit after D24 |
+
+`gamegen` is §7's generator and supplies exactly one field of §2's shape (generated dungeon state,
+for one level). It claims nothing from §3 beyond generation and invariance — topology, with its
+reachability witness and planted sealed room, is not asserted by it — and nothing from §4.
