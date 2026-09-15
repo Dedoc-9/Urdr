@@ -178,3 +178,47 @@ rather than hidden in a regex. That a baseline is the **earliest** such value �
 **timely**: the exit is proved to be discharge alone and its promptness is not bounded at all. And
 nothing about non-numeric debts — a *set* that may only shrink is a different law, which is why
 `disposition` carries its own partition rather than pretending this one covers it.
+
+## v1.2 — the witness is keyed on its own verdict, and v1.1's was keyed on anyone's
+
+*2026-09-15. Earned from a live defect: eleven consecutive red CI runs on a green tree.*
+
+The non-vacuity clause above was enforced as *if any verdict is live, require `indexed` in
+`moved()`*. That clause knew two environments — a full clone, where every baseline reads, and a
+checkout with no git, where none does — and `actions/checkout@v4` runs the gate in a third: a
+**depth-1 clone**, which holds exactly the objects `HEAD` reaches. Measured in one:
+
+| entry | verdict | why |
+|---|---|---|
+| `entry` | `HELD` | its baseline blob **is** the blob at `HEAD`, so a shallow clone has it |
+| `indexed` | `UNAVAILABLE` | historical blob, absent |
+| `disposition` | `UNAVAILABLE` | historical blob, absent |
+
+One live verdict, and it is not the witness. The clause demanded a witness from a blob it had just
+been told was absent, and the row read *"a ratchet direction did not hold"* when no direction had
+failed — a **misattributed red** in `subsetred`'s exact sense, arriving through the population of
+*readable objects* rather than the population of rows. The gate on the operator's disk and in the
+author's container stayed green throughout, both being full clones: `disk-pass != CI-pass`. The
+unit suite carried the same blindness in its own words and reddened alongside.
+
+> Partial availability is a third environment, and the witness is one entry, not a quorum.
+
+**What changed.** The witness is *declared* (`WITNESS = "indexed"`) and its state is read off its
+own verdict by a pure function over a verdict tuple: `WITNESSED` (read, and moved), `UNWITNESSED`
+(its blob could not be read here — the new gate row `ratchet-witness` records `SKIPPED` and names
+the blob, the shape this tree already uses for a placement without `rustc`), `VACUOUS` (read, and
+nothing moved — the only one that is a failure of the law). `ratchet-history` keeps the directions
+and loses the clause, so one row makes one claim. Both readings are frozen as data
+(`SHALLOW_READING`, `FULL_READING`), the v1.1 clause is kept as a falsifier that reddens on the
+depth-1 reading every run, and four plants over frozen tuples enter the `bounds` scene. Two unit
+tests — the non-vacuity test and the recorded-baseline test, which used to skip the *whole*
+population at the first unreadable blob — are repaired with the row.
+
+**What this rung does not repair, on purpose.** The evidence environment. A gate that classifies a
+shallow clone honestly still certifies less in one than in a full clone; whether canonical CI should
+hold the full history is a fact about the workflow and lives in its own commit.
+
+**`does_not_show` (added).** That `UNWITNESSED` is rare — every depth-1 clone reads it until the
+workflow fetches history. That the witness is the *right* entry — it is the one that has moved, a
+declaration labelled as such. And nothing about a fourth environment: a clone holding the witness's
+blob and not `entry`'s is classified `WITNESSED` by construction and has been met by no one.

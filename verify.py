@@ -4950,9 +4950,10 @@ class Gate:
             verds = RT.verdicts()
             hist_ok = (RT.the_directions_hold() and len(verds) == 3
                        and all(v in (RT.HELD, RT.UNAVAILABLE) for _m, v, _l, _b in verds))
-            live = [v for _m, v, _l, _b in verds if v != RT.UNAVAILABLE]
-            if live:
-                hist_ok = hist_ok and ("indexed" in [m for m, _b, _l in RT.moved()])
+            # v1.2: the non-vacuity witness is `ratchet-witness`'s claim, kept apart because it
+            # depends on whether ONE particular blob is readable here. The v1.1 clause that lived
+            # on this line — `if any verdict is live, require the witness in moved()` — reddened
+            # eleven CI runs on a depth-1 clone and is kept in `ratchet.py` as a falsifier.
             hist_ok = hist_ok and RT.the_reference_is_pinned_not_moving()
             hist_ok = hist_ok and RT.no_pinned_scene_reads_the_environment() == (True, ())
         except Exception:
@@ -4976,29 +4977,85 @@ class Gate:
                     "clone, not a falsification) and MISSED (it came back and the mechanism could "
                     "not read the constant). Collapsing UNAVAILABLE into either would make "
                     "environmental incompleteness look like a passing historical check or like an "
-                    "actual refutation, and it is neither. AND THE LAW IS NON-VACUOUS ON A LIVE "
-                    "ENTRY RATHER THAN ONLY ON A PLANT: `indexed`'s ratchet has actually MOVED, 15 "
-                    "at its baseline against 13 today, because the hainuwele index was completed. A "
-                    "direction law whose every subject sat still would be reporting that nothing "
-                    "had happened"
+                    "actual refutation, and it is neither — AND PARTIAL AVAILABILITY IS STILL AN "
+                    "ENVIRONMENT, PER ENTRY (v1.2): a depth-1 clone holds `entry`'s baseline, which "
+                    "is the blob at HEAD, and not the two historical ones, and this row reads that "
+                    "as one HELD and two UNAVAILABLE rather than as anything about the repository. "
+                    "The non-vacuity witness is `ratchet-witness`'s claim, kept apart because it "
+                    "depends on whether one particular blob is readable here"
                     if hist_ok else "a ratchet direction did not hold: %r" % (verds,))
+
+        # v1.2 — THE WITNESS, ON ITS OWN ROW, KEYED ON ITS OWN VERDICT. `if any verdict is live,
+        # require `indexed` in moved()` knew a full clone and a checkout with no git, and reddened
+        # for eleven consecutive CI runs in a third environment: `actions/checkout@v4`'s depth-1
+        # clone, where `entry` reads HELD (its baseline IS the blob at HEAD) and the witness reads
+        # UNAVAILABLE — one live verdict, not the witness, and a red saying "a ratchet direction
+        # did not hold" when none had. The gate on the operator's disk and in the author's
+        # container stayed green throughout, both being full clones. `disk-pass != CI-pass`.
+        w_state, w_plant = None, False
+        try:
+            w_state = RT.witness()
+            w_plant = (RT.the_any_live_clause_was_blind(RT.SHALLOW_READING)
+                       == (True, RT.UNWITNESSED)
+                       and RT.the_any_live_clause_was_blind(RT.FULL_READING)
+                       == (False, RT.WITNESSED)
+                       and RT.the_two_readings_are_one_tree()
+                       and RT.WITNESS in RT.owners())
+        except Exception:
+            w_state = None
+        if w_state == RT.WITNESSED:
+            self.record("ratchet-witness", w_plant,
+                        "THE LAW IS NON-VACUOUS ON A LIVE ENTRY RATHER THAN ONLY ON A PLANT: "
+                        "`indexed`'s ratchet has actually MOVED, 15 at its baseline against 13 "
+                        "today, because the hainuwele index was completed — read off the witness's "
+                        "OWN verdict, which is the v1.2 repair. A direction law whose every subject "
+                        "sat still would be reporting that nothing had happened. AND THE CLAUSE "
+                        "THAT REPLACED v1.1's IS JUSTIFIED BY THE COUNTEREXAMPLE, RE-DERIVED: on "
+                        "the frozen depth-1 reading the old clause reddens and the witness reads "
+                        "UNWITNESSED; on the frozen full reading the old clause is quiet and the "
+                        "witness reads WITNESSED; the two readings agree on every live value and "
+                        "every baseline and differ only in which blobs git could hand over"
+                        if w_plant else "the witness clause's own falsifiers did not hold")
+        elif w_state == RT.UNWITNESSED:
+            self.record("ratchet-witness", w_plant,
+                        "SKIPPED (`%s`'s baseline blob %s is not in this clone — a depth-1 "
+                        "checkout holds only the objects HEAD reaches) — honestly labelled, not "
+                        "passed. The witness's OWN verdict is UNAVAILABLE, so this row asserts "
+                        "nothing about whether the law is non-vacuous here; it does NOT redden, "
+                        "because a blob git cannot produce is an environment and not a "
+                        "falsification, and it does NOT read green, because SKIPPED is counted. "
+                        "What IS re-derived here: on the frozen depth-1 reading the v1.1 clause "
+                        "reddens and the v1.2 witness reads UNWITNESSED, and on the frozen full "
+                        "reading it reads WITNESSED. Run this gate in a full clone to certify the "
+                        "witness"
+                        % (RT.WITNESS, RT.witness_blob()[:12])
+                        if w_plant else "the witness clause's own falsifiers did not hold")
+        else:
+            self.record("ratchet-witness", False,
+                        "the law is VACUOUS here — the witness read %r: %r" % (w_state, verds))
 
         pl_ok = True
         try:
             plants = RT.plants_bite()
-            pl_ok = (len(plants) == 10 and all(b for _n, b in plants)
+            pl_ok = (len(plants) == 14 and all(b for _n, b in plants)
                      and RT.problems() == [])
         except Exception:
             pl_ok = False
         self.record("ratchet-plants", pl_ok,
-                    "TEN PLANTS, ONE PER WAY THE REGISTER GOES WRONG, all biting and none leaking: "
-                    "a module that promises and is undeclared, a declaration that promises nothing, "
-                    "a baseline naming a MOVING reference, an UNSEALED baseline, an unknown "
-                    "direction, a CITATION carrying a baseline it has no right to, a classification "
-                    "with no reason, an EMPTY register (L61), and the direction predicate itself in "
-                    "both senses — FALL admitting equal and lower while refusing higher, RISE the "
-                    "mirror. Each runs against a SUBSTITUTED register so the live one is never "
-                    "edited, and the instrument is proved green again afterwards"
+                    "FOURTEEN PLANTS, all biting and none leaking. TEN, one per way the register "
+                    "goes wrong: a module that promises and is undeclared, a declaration that "
+                    "promises nothing, a baseline naming a MOVING reference, an UNSEALED baseline, "
+                    "an unknown direction, a CITATION carrying a baseline it has no right to, a "
+                    "classification with no reason, an EMPTY register (L61), and the direction "
+                    "predicate itself in both senses — FALL admitting equal and lower while "
+                    "refusing higher, RISE the mirror. Each runs against a SUBSTITUTED register so "
+                    "the live one is never edited, and the instrument is proved green again "
+                    "afterwards. AND FOUR FOR THE WITNESS (v1.2), over FROZEN verdict tuples that "
+                    "reach no git: the depth-1 reading is UNWITNESSED and not red where the v1.1 "
+                    "clause reddened, the full reading is WITNESSED, an unmoved or MISSED witness "
+                    "is VACUOUS, and a verdict tuple with no witness in it REFUSES typed — the "
+                    "first of these being a real environmental counterexample that reddened CI "
+                    "eleven times before it was read, not an edge case invented for the rung"
                     if pl_ok else "a ratchet plant did not bite: %r" % (RT.plants_bite(),))
 
     def lattice(self):

@@ -90,15 +90,43 @@ MOVED: 15 at its baseline (13 for the ladder plus 2 for hainuwele) against 13 to
 hainuwele index was completed. A direction law whose every subject sat still would be reporting that
 nothing had happened.
 
+v1.2 (2026-09-15) — THE WITNESS IS KEYED ON ITS OWN VERDICT, AND v1.1's WAS KEYED ON ANYONE'S. The
+paragraph above was enforced as `if any verdict is live, require the witness in moved()`, and that
+clause knew two environments: a full clone, where every baseline reads, and a checkout with no git,
+where none does. IT REDDENED FOR ELEVEN CONSECUTIVE CI RUNS IN A THIRD ONE. `actions/checkout@v4`
+makes a DEPTH-1 clone, which holds exactly the objects HEAD reaches: `entry`'s baseline blob IS the
+blob at HEAD, so it reads HELD; `indexed`'s and `disposition`'s are historical, so they read
+UNAVAILABLE. One live verdict, and it is not the witness — so the clause demanded a witness from a
+blob it had just been told was absent, and reported "a ratchet direction did not hold" when no
+direction had failed. That is a MISATTRIBUTED red in `subsetred`'s exact sense, arriving through
+the population of READABLE OBJECTS rather than the population of rows: an incomplete population
+silently altering a run-scoped claim, and blaming the repository for it. The gate on the operator's
+disk and in the author's container stayed green the whole time, because both are full clones.
+
+    PARTIAL AVAILABILITY IS A THIRD ENVIRONMENT, AND THE WITNESS IS ONE ENTRY, NOT A QUORUM.
+
+So the witness is now a DECLARED entry (`WITNESS`), its state is read off ITS OWN verdict by a pure
+function over a verdict tuple (`witness_of`), and it has three values — WITNESSED (read, and moved),
+UNWITNESSED (its baseline could not be read here: an environment, and the gate row records SKIPPED
+and says which blob), VACUOUS (read, and nothing has moved: the only one that is a failure of the
+law). The depth-1 reading and the full-clone reading are FROZEN AS DATA (`SHALLOW_READING`,
+`FULL_READING`), measured the same day on the same tree; they agree on every live value and every
+baseline and differ only in which blobs git could hand over, which is the whole finding in six
+tuples. The v1.1 clause is KEPT AS A FALSIFIER (`the_any_live_clause_was_blind`): on the frozen
+depth-1 reading it reddens and `witness_of` reads UNWITNESSED, re-derived on every run, so the
+repair stays justified by the counterexample that forced it rather than by this paragraph. Two unit
+tests carried the same blindness in their own words and are repaired with the row.
+
 GRADE (honest, D5). MEASURED: the promise population derived from shipped prose; the baseline value
 of every OWNS entry read out of its pinned blob and equal to its record; the live value of each; the
-three-class census. ESTABLISHED: the register is CLOSED against the derived population; every OWNS
-entry's direction HELD against history; the blob-id reference guard; that no pinned
-scene reaches an environmental accessor, proved on the AST and MEASURED by re-deriving every
-digest with git removed from `PATH`; every plant bites. DECLARED: the
-promise vocabulary, the direction of each ratchet, and which of the six modules owns one — the first
-is a choice about how promises get written here, and the second and third are judgements labelled as
-such. does_not_show: that a ratchet's VALUE is right — a debt of thirteen may be the wrong thirteen,
+three-class census; the depth-1 and full-clone readings, frozen. ESTABLISHED: the register is
+CLOSED against the derived population; every OWNS entry's direction HELD against history; the
+blob-id reference guard; that no pinned scene reaches an environmental accessor, proved on the AST
+and MEASURED by re-deriving every digest with git removed from `PATH`; that the v1.1 witness
+clause reddens on the depth-1 reading and the v1.2 one does not; every plant bites. DECLARED: the
+promise vocabulary, the direction of each ratchet, which of the six modules owns one, and WHICH
+entry is the witness — the first is a choice about how promises get written here, and the others
+are judgements labelled as such. does_not_show: that a ratchet's VALUE is right — a debt of thirteen may be the wrong thirteen,
 and this law only refuses its growth; that the promise vocabulary is COMPLETE, since a module
 promising monotonicity in words not on the list is invisible here exactly as `disposition` is blind
 to a prediction never given a record, which is why the vocabulary is declared where it can be read
@@ -393,20 +421,99 @@ def verdicts():
     return tuple((m,) + verdict(m) for m in owners())
 
 
+def directions_hold_of(verds):
+    """Pure, over a verdict tuple: every OWNS entry either HELD, or UNAVAILABLE because git could not
+    produce its baseline. BROKEN and MISSED are failures; UNAVAILABLE is an environment, not a
+    claim — and PARTIAL availability is still an environment, per entry (v1.2)."""
+    return all(v in (HELD, UNAVAILABLE) for _m, v, _l, _b in verds)
+
+
 def the_directions_hold():
-    """Every OWNS entry either HELD, or UNAVAILABLE because git could not be reached. BROKEN and
-    MISSED are failures; UNAVAILABLE is an environment, not a claim."""
-    return all(v in (HELD, UNAVAILABLE) for _m, v, _l, _b in verdicts())
+    return directions_hold_of(verdicts())
+
+
+def moved_of(verds):
+    """Pure, over a verdict tuple: the entries whose value has actually CHANGED since baseline."""
+    out = []
+    for mod, v, live, base in verds:
+        if v in (HELD, BROKEN) and tuple(live) != tuple(base):
+            out.append((mod, tuple(base), tuple(live)))
+    return tuple(out)
 
 
 def moved():
     """The entries whose value has actually CHANGED since baseline. A direction law whose every
     subject sat still would be reporting that nothing had happened."""
-    out = []
-    for mod, v, live, base in verdicts():
-        if v in (HELD, BROKEN) and tuple(live) != tuple(base):
-            out.append((mod, tuple(base), tuple(live)))
-    return tuple(out)
+    return moved_of(verdicts())
+
+
+# ---- the witness (v1.2) ---------------------------------------------------------------------------------
+#: DECLARED — the OWNS entry whose ratchet has actually MOVED, which is what keeps the direction law
+#: from being vacuous. NAMED rather than searched for: "whichever entry happens to have moved" is a
+#: property of the run, and a witness is a declaration about the tree.
+WITNESS = "indexed"
+
+WITNESSED = "WITNESSED"        # the witness's baseline was read and its value has moved
+UNWITNESSED = "UNWITNESSED"    # the witness's baseline could not be read HERE — an environment
+VACUOUS = "VACUOUS"            # the witness's baseline was read and nothing has moved — a failure
+WITNESS_STATES = (WITNESSED, UNWITNESSED, VACUOUS)
+
+#: THE TWO READINGS, FROZEN AS DATA. Both measured 2026-09-15 on the same tree (rowset
+#: 51aa7cdf4c381344): FULL_READING in a full clone, SHALLOW_READING in one made the way
+#: `actions/checkout@v4` makes one — `git clone --depth 1` — which holds exactly the objects HEAD
+#: reaches. `entry`'s baseline blob IS the blob at HEAD, so a shallow clone has it; the other two
+#: baselines are historical and it does not. Every live value and every baseline agrees between the
+#: two; only the verdicts differ, and that difference is the whole finding.
+FULL_READING = (("disposition", HELD, (1,), (1,)),
+                ("entry", HELD, (13, 40), (13, 40)),
+                ("indexed", HELD, (13,), (15,)))
+SHALLOW_READING = (("disposition", UNAVAILABLE, (1,), (1,)),
+                   ("entry", HELD, (13, 40), (13, 40)),
+                   ("indexed", UNAVAILABLE, (13,), (15,)))
+
+
+def witness_of(verds):
+    """Pure, over a verdict tuple: the state of the declared witness, READ OFF ITS OWN VERDICT and
+    nobody else's. A MISSED witness lands as VACUOUS — the history row already reddens on MISSED, and
+    a witness whose constant could not be read has witnessed nothing. Refuses typed when the witness
+    is not among the verdicts: a law that cannot find its witness has no business reporting a state."""
+    by = {m: (v, tuple(live), tuple(base)) for m, v, live, base in verds}
+    if WITNESS not in by:
+        raise RatchetError(f"the witness {WITNESS!r} is not among the verdicts {sorted(by)}")
+    v, live, base = by[WITNESS]
+    if v == UNAVAILABLE:
+        return UNWITNESSED
+    if v in (HELD, BROKEN) and live != base:
+        return WITNESSED
+    return VACUOUS
+
+
+def witness():
+    return witness_of(verdicts())
+
+
+def witness_blob():
+    """The object id the witness's baseline is pinned to — what a SKIPPED row names."""
+    return REGISTER[WITNESS][3]
+
+
+def the_any_live_clause_was_blind(verds=SHALLOW_READING):
+    """THE v1.1 CLAUSE, KEPT AS A FALSIFIER RATHER THAN DELETED: `if any verdict is live, require
+    the witness in moved()`. On the frozen depth-1 reading it REDDENS — `entry` is live, `indexed` is
+    not, and no direction failed — while `witness_of` reads UNWITNESSED. Returns
+    (old_clause_red, new_state), re-derived every run so the repair stays justified by the
+    counterexample that forced it."""
+    live = [v for _m, v, _l, _b in verds if v != UNAVAILABLE]
+    old_red = bool(live) and WITNESS not in [m for m, _b, _l in moved_of(verds)]
+    return old_red, witness_of(verds)
+
+
+def the_two_readings_are_one_tree():
+    """The frozen readings agree on every live value and every baseline; only the verdicts differ.
+    Proved on the data rather than promised, so a future re-mint that edits one and not the other
+    reddens."""
+    strip = lambda r: tuple((m, tuple(l), tuple(b)) for m, _v, l, b in r)   # noqa: E731
+    return strip(FULL_READING) == strip(SHALLOW_READING) and FULL_READING != SHALLOW_READING
 
 
 # ---- the closure -------------------------------------------------------------------------------------
@@ -589,6 +696,25 @@ def plants_bite():
                 and _direction_holds(FALL, 13, 13) and _direction_holds(FALL, 12, 13)))
     out.append(("rise-is-not-fall", _direction_holds(RISE, 14, 13)
                 and not _direction_holds(RISE, 12, 13)))
+
+    # THE WITNESS (v1.2): four plants over FROZEN verdict tuples, none of which reaches git.
+    # The depth-1 reading is a REAL environmental counterexample, not an edge case invented to
+    # satisfy the rung: it reddened CI eleven times before it was read.
+    out.append(("shallow-reading-is-unwitnessed-not-red",
+                the_any_live_clause_was_blind(SHALLOW_READING) == (True, UNWITNESSED)
+                and directions_hold_of(SHALLOW_READING)))
+    out.append(("full-reading-is-witnessed",
+                the_any_live_clause_was_blind(FULL_READING) == (False, WITNESSED)
+                and directions_hold_of(FULL_READING)))
+    out.append(("unmoved-witness-is-vacuous",
+                witness_of(((WITNESS, HELD, (13,), (13,)),)) == VACUOUS
+                and witness_of(((WITNESS, MISSED, (13,), (15,)),)) == VACUOUS))
+    try:
+        witness_of((("entry", HELD, (13, 40), (13, 40)),))
+        absent_refuses = False
+    except RatchetError:
+        absent_refuses = True
+    out.append(("absent-witness-refuses", absent_refuses and the_two_readings_are_one_tree()))
     return tuple(out)
 
 
@@ -618,7 +744,8 @@ def _called_names(fn):
 
 #: The accessors whose answer depends on the MACHINE rather than on the tree. A pinned digest that
 #: reaches any of them is not reproducible off the machine it was pinned on.
-ENVIRONMENTAL = ("verdict", "verdicts", "baseline_source", "moved", "the_directions_hold")
+ENVIRONMENTAL = ("verdict", "verdicts", "baseline_source", "moved", "the_directions_hold",
+                 "witness")
 
 
 def no_pinned_scene_reads_the_environment():
@@ -691,6 +818,8 @@ if __name__ == "__main__":
     print()
     print("moved              :", moved())
     print("directions hold    :", the_directions_hold())
+    print("witness            :", WITNESS, witness(), witness_blob()[:12])
+    print("v1.1 clause blind  :", the_any_live_clause_was_blind())
     print("register closed    :", the_register_is_closed())
     print("reference pinned   :", the_reference_is_pinned_not_moving())
     print("structural refuted :", the_structural_heuristic_is_refuted())

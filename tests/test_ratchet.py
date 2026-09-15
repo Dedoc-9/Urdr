@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 # Copyright (C) 2026 Daniel J. Dillberg
-"""ratchet (URDRRAT1) — the direction is the whole word, and nothing was enforcing it."""
+"""ratchet (URDRRAT1) — the direction is the whole word, and nothing was enforcing it.
+
+v1.2: the non-vacuity WITNESS is keyed on its own verdict; two tests here carried the v1.1
+blindness in their own words and are repaired with the row (`TheHistory`), and the depth-1 reading
+that reddened CI is frozen and re-derived (`TheWitness`)."""
 import os
 import sys
 import unittest
@@ -107,12 +111,18 @@ class TheHistory(unittest.TestCase):
         self.assertNotIn(RT.UNAVAILABLE, (RT.HELD, RT.BROKEN))
 
     def test_the_law_is_non_vacuous_on_a_live_entry(self):
-        """A direction law whose every subject sat still would report that nothing happened."""
-        moved = RT.moved()
-        if not [v for _m, v, _l, _b in RT.verdicts() if v != RT.UNAVAILABLE]:
-            self.skipTest("git unavailable in this checkout")
-        self.assertTrue(moved, "no ratchet has ever moved — the law is vacuous here")
-        self.assertIn("indexed", [m for m, _b, _l in moved])
+        """A direction law whose every subject sat still would report that nothing happened.
+
+        v1.2: KEYED ON THE WITNESS'S OWN VERDICT. This test used to skip only when NO verdict was
+        live and otherwise demanded `indexed` in `moved()` — the same blindness as the gate row, in
+        the test's own words — and so it FAILED in a depth-1 clone where `entry` reads HELD and the
+        witness reads UNAVAILABLE. The skip now names the blob it could not read."""
+        w = RT.witness()
+        if w == RT.UNWITNESSED:
+            self.skipTest("%s's baseline blob %s is not in this clone (a depth-1 checkout?) — "
+                          "UNWITNESSED, honestly labelled" % (RT.WITNESS, RT.witness_blob()[:12]))
+        self.assertEqual(w, RT.WITNESSED, "no ratchet has ever moved — the law is vacuous here")
+        self.assertIn(RT.WITNESS, [m for m, _b, _l in RT.moved()])
 
     def test_the_reference_is_pinned_not_moving(self):
         self.assertTrue(RT.the_reference_is_pinned_not_moving())
@@ -168,14 +178,25 @@ class TheHistory(unittest.TestCase):
         self.assertEqual(before, after)
 
     def test_the_recorded_baseline_is_what_the_blob_says(self):
-        """The register may not restate history — `verdict` refuses when the two disagree."""
+        """The register may not restate history — `verdict` refuses when the two disagree.
+
+        v1.2: PARTIAL AVAILABILITY CHECKS THE READABLE ONES. This test used to skip the WHOLE
+        population at the first unreadable blob, so in a depth-1 clone it read nothing at all when
+        `entry`'s baseline was sitting right there at HEAD. Now it checks every blob git can produce
+        and skips only when it could produce none, naming the ones it could not."""
+        unread = []
+        checked = 0
         for mod in RT.owners():
             src = RT.baseline_source(mod)
             if src is None:
-                self.skipTest("git unavailable in this checkout")
+                unread.append(mod)
+                continue
             with self.subTest(module=mod):
                 got = tuple(RT.constant_value(src, n) for n in RT.REGISTER[mod][1])
                 self.assertEqual(got, tuple(RT.REGISTER[mod][5]))
+                checked += 1
+        if not checked:
+            self.skipTest("no baseline blob is readable in this checkout: %s" % (unread,))
 
     def test_a_substituted_blob_refuses(self):
         keep = dict(RT.REGISTER)
@@ -224,7 +245,69 @@ class ThePlants(unittest.TestCase):
                 self.assertTrue(bit, f"{name} did not bite")
 
     def test_there_is_a_plant_for_each_failure_kind(self):
-        self.assertGreaterEqual(len(RT.plants_bite()), 10)
+        self.assertEqual(len(RT.plants_bite()), 14)
+
+
+class TheWitness(unittest.TestCase):
+    """v1.2 — PARTIAL AVAILABILITY IS A THIRD ENVIRONMENT, AND THE WITNESS IS ONE ENTRY, NOT A
+    QUORUM. Everything here runs over FROZEN verdict tuples and reaches no git, so it reads the same
+    in a full clone, a depth-1 clone, and a checkout with no git at all."""
+
+    def test_the_v11_clause_reddens_on_the_depth_1_reading_and_the_witness_does_not(self):
+        """THE COUNTEREXAMPLE THAT FORCED THE RUNG, re-derived rather than remembered: `entry` live,
+        `indexed` unavailable, no direction failed — and the old clause reads red."""
+        old_red, state = RT.the_any_live_clause_was_blind(RT.SHALLOW_READING)
+        self.assertTrue(old_red, "the v1.1 clause no longer reddens on the reading that reddened CI")
+        self.assertEqual(state, RT.UNWITNESSED)
+        self.assertTrue(RT.directions_hold_of(RT.SHALLOW_READING),
+                        "the depth-1 reading is not a direction failure and must not read as one")
+
+    def test_the_full_reading_is_witnessed_under_both_clauses(self):
+        self.assertEqual(RT.the_any_live_clause_was_blind(RT.FULL_READING), (False, RT.WITNESSED))
+        self.assertEqual([m for m, _b, _l in RT.moved_of(RT.FULL_READING)], [RT.WITNESS])
+
+    def test_the_witness_is_keyed_on_its_own_verdict_and_not_on_anyones(self):
+        """The same reading with the witness readable and `entry` withheld must be WITNESSED: what
+        matters is the witness's blob, not how many blobs there are."""
+        flipped = (("disposition", RT.UNAVAILABLE, (1,), (1,)),
+                   ("entry", RT.UNAVAILABLE, (13, 40), (13, 40)),
+                   ("indexed", RT.HELD, (13,), (15,)))
+        self.assertEqual(RT.witness_of(flipped), RT.WITNESSED)
+        self.assertEqual(RT.witness_of(RT.SHALLOW_READING), RT.UNWITNESSED)
+
+    def test_an_unmoved_or_missed_witness_is_vacuous(self):
+        self.assertEqual(RT.witness_of(((RT.WITNESS, RT.HELD, (13,), (13,)),)), RT.VACUOUS)
+        self.assertEqual(RT.witness_of(((RT.WITNESS, RT.MISSED, (13,), (15,)),)), RT.VACUOUS)
+        self.assertEqual(RT.witness_of(((RT.WITNESS, RT.BROKEN, (16,), (15,)),)), RT.WITNESSED,
+                         "a BROKEN witness has still MOVED — the history row carries the failure")
+
+    def test_a_reading_without_the_witness_refuses_typed(self):
+        with self.assertRaises(RT.RatchetError):
+            RT.witness_of((("entry", RT.HELD, (13, 40), (13, 40)),))
+        with self.assertRaises(RT.RatchetError):
+            RT.witness_of(())
+
+    def test_the_two_frozen_readings_are_one_tree_read_in_two_environments(self):
+        """Every live value and every baseline agrees; only the verdicts differ. A re-mint that
+        edits one reading and not the other reddens here."""
+        self.assertTrue(RT.the_two_readings_are_one_tree())
+        for (m1, _v1, l1, b1), (m2, _v2, l2, b2) in zip(RT.FULL_READING, RT.SHALLOW_READING):
+            self.assertEqual((m1, l1, b1), (m2, l2, b2))
+
+    def test_the_frozen_readings_match_the_live_register(self):
+        """The frozen data are not a story: each entry's recorded baseline is what the register
+        says, and its live value is what the tree says today."""
+        for m, _v, live, base in RT.FULL_READING:
+            with self.subTest(module=m):
+                self.assertEqual(tuple(base), tuple(RT.REGISTER[m][5]))
+                self.assertEqual(tuple(live), tuple(RT.live_values(m)))
+
+    def test_the_witness_is_a_declared_owner_and_its_state_is_one_of_three(self):
+        self.assertIn(RT.WITNESS, RT.owners())
+        self.assertEqual(len(RT.witness_blob()), 40)
+        self.assertIn(RT.witness(), RT.WITNESS_STATES)
+        self.assertIn("witness", RT.ENVIRONMENTAL,
+                      "a live witness reaches git and may not enter a pinned scene")
 
     def test_an_empty_register_certifies_nothing(self):
         self.assertTrue(any(n == "empty-register" and b for n, b in RT.plants_bite()))

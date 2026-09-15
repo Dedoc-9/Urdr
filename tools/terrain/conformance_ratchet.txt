@@ -111,7 +111,49 @@
 # the earliest PINNED one, so an author who pinned a lenient baseline gets a lenient law; and nothing
 # about non-numeric debts -- a SET that may only shrink is a different law, and `disposition` carries
 # its own partition rather than pretending this one covers it.
+#
+#
+# v1.2 (2026-09-15) -- THE WITNESS IS KEYED ON ITS OWN VERDICT, AND v1.1's WAS KEYED ON ANYONE'S.
+# The NON-VACUOUS paragraph above was enforced as `if any verdict is live, require indexed in
+# moved()`. That clause knew two environments -- a full clone, where every baseline reads, and a
+# checkout with no git, where none does -- and IT REDDENED FOR ELEVEN CONSECUTIVE CI RUNS IN A THIRD
+# ONE (verify #594 through #604, 2026-09-11 23:41 UTC onward, every matrix cell). actions/checkout@v4
+# makes a DEPTH-1 clone, which holds exactly the objects HEAD reaches. MEASURED in one:
+#
+#     disposition  UNAVAILABLE   live (1,)      baseline (1,)      historical blob, absent
+#     entry        HELD          live (13, 40)  baseline (13, 40)  its baseline IS the blob at HEAD
+#     indexed      UNAVAILABLE   live (13,)     baseline (15,)     historical blob, absent
+#
+# One live verdict, and it is not the witness. So the clause demanded a witness from a blob it had
+# just been told was absent, and the row read "a ratchet direction did not hold" when no direction
+# had failed -- a MISATTRIBUTED red in `subsetred`'s exact sense, through the population of READABLE
+# OBJECTS rather than the population of rows. The gate on the operator's disk and in the author's
+# container stayed green the whole time, both being full clones: disk-pass != CI-pass. The unit
+# suite carried the same blindness in its own words and reddened alongside; two rows, one mechanism.
+#
+#     PARTIAL AVAILABILITY IS A THIRD ENVIRONMENT, AND THE WITNESS IS ONE ENTRY, NOT A QUORUM.
+#
+# The witness is now DECLARED (`WITNESS = "indexed"`), its state read off ITS OWN verdict by a pure
+# function over a verdict tuple: WITNESSED (read, and moved), UNWITNESSED (its blob could not be
+# read here -- the gate row `ratchet-witness` records SKIPPED and names the blob), VACUOUS (read, and
+# nothing moved -- the only failure of the law). `ratchet-history` keeps the directions and loses the
+# clause; the witness has its own row, so one row makes one claim and the environment-dependent one
+# carries the SKIP shape this tree already uses for a placement without `rustc`. Both readings are
+# FROZEN AS DATA (`SHALLOW_READING`, `FULL_READING`), the v1.1 clause is KEPT AS A FALSIFIER that
+# reddens on the depth-1 reading every run, and the `bounds` scene grew four plants over frozen
+# tuples that reach no git -- which is why `bounds` and the top digest are re-minted below and
+# `population` and `history` are not. MEASURED: every digest below is identical in the full clone
+# and in the depth-1 clone; the pins are still claims about the tree.
+#
+# WHAT THIS RUNG DOES NOT REPAIR IS THE EVIDENCE ENVIRONMENT, ON PURPOSE. A gate that classifies a
+# shallow clone honestly still certifies less in one than in a full clone; whether canonical CI
+# should hold the full history is a fact about the workflow, recorded in its own commit.
+#
+# does_not_show (added): that UNWITNESSED is rare -- every depth-1 clone reads it until the workflow
+# fetches history; that the witness is the RIGHT entry, it being the one that has moved and a
+# declaration labelled as such; and nothing about a fourth environment, a clone that holds the
+# witness's blob and not `entry`'s being classified WITNESSED by construction and met by no one yet.
 population b39474009d1fe34c8b20eead4fbac1701a12647e3f51c84ab68c8079e46ee561
 history 58aa0aea69453013e595767025c5ea55e740cd9dcd8b20be16da9079b6e807ab
-bounds 4b7a6f376a101170006ce792f5770faa8090a2a5c659c8f9f47ddc23677a841c
-ratchet fb5348f251401435f6887c3cdf77e84c04a8c3dbc7a9adbdf54b263cd7fb194c
+bounds c70af6448f0c403ebac18519b1243aff6aaa5043b1d30a6bd9fde363db290c93
+ratchet b917fafa3f666d9ebffc8e1918b35d7b8c8c3c0ac805db8dbfe73f7344e83bab
