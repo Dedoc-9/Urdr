@@ -14,12 +14,12 @@ Measured against the tree at the `descent` commit (the numbers are the live gate
 
 | quantity | value | source |
 |---|---|---|
-| terrain modules (`tools/terrain/*.py`) | 182 | filesystem |
-| test suites | 268 | `verify.py` discovery |
-| unit falsifiers | 4723 | this run's `testsRun` |
-| gate rows | 1201 | live gate |
-| pinned conformance corpora | 175 | filesystem |
-| modules briefed | 181 / 182 (`bench` unbriefable by rule) | derived |
+| terrain modules (`tools/terrain/*.py`) | 183 | filesystem |
+| test suites | 269 | `verify.py` discovery |
+| unit falsifiers | 4745 | this run's `testsRun` |
+| gate rows | 1205 | live gate |
+| pinned conformance corpora | 176 | filesystem |
+| modules briefed | 182 / 183 (`bench` unbriefable by rule) | derived |
 | modules in neither D5 ledger volume | 15 (surfaced by name every run) | derived |
 | population problems | none | `doc_currency.population_problems` |
 
@@ -53,7 +53,7 @@ rule is *measure first, then name and build*, so each name is finalized at its o
 
 | # | rung (working name) | D24 grounding | consumes | falsifier shape |
 |---|---|---|---|---|
-| 1 | **transition** | §2 the first `D_n → D_{n+1}` | `descent` | a step onto a `descent`-traversable cell is admitted; a step into a wall refuses typed; the step is a function of (state, input) alone |
+| 1 | **transition** — LANDED as `move` (URDRMOV1) | §2 the first `D_n → D_{n+1}` | `descent` | a step onto a `descent`-traversable cell is MOVED; a wall/off-grid step is BLOCKED (`D_{n+1} = D_n`, the pair KINEMA Plant A consumes); malformed input is a typed REFUSE; the step is a pure function of (state, input) |
 | 2 | **entity** | §2 entity state | transition | position/health/inventory as canonical fields; a view-only field entering the digest reddens; identical fields = identical entity |
 | 3 | **rngstream** | §2 RNG state | entity | the stream advances *only* on canonical actions; a non-canonical read that moves it reddens; same actions → same stream |
 | 4 | **descend** | §3 depth bound *at a door* | `gamegen`, transition | stepping onto stairs-down advances depth by one under the int32 bound and refuses past `DEPTH_MAX`; the new level reproduces `gamegen`'s digest |
@@ -155,4 +155,4 @@ and reproducible. The value of stating the ladder and the marketability case now
 value of a preregistration: it fixes the contract *before* the implementation can define it
 retroactively, and it lets the commercial claims be checked against the gate as each rung lands,
 rather than asserted ahead of the evidence. The next substantive rung is **transition** (§2 rung 1),
-built on `descent`; KINEMA is the destination, not the next step.
+built on `descent`, has LANDED as `move` (URDRMOV1) — the name finalized on measurement, since the kernel already owns *transition* (`transition_witness`). The next substantive rung is **entity** (§2 rung 2): the canonical entity state as a digestable field. KINEMA is still the destination, not the next step.

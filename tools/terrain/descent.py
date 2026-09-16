@@ -84,7 +84,12 @@ class DescentError(Exception):
         self.code = "DESCENT-REFUSE"
 
 
-def _traversable(level, x, y):
+def traversable(level, x, y):
+    """THE AUTHORITATIVE TRAVERSABILITY PREDICATE — public, so a movement law consumes it rather
+    than re-deriving `cell in TRAVERSABLE` in a second place. A cell is traversable iff it is on the
+    grid and its glyph is floor, stairs-up or stairs-down. This is the one place the traversal model
+    lives; `move` (URDRMOV1) asks this rather than reinventing it, which is what keeps movement
+    truth single-sourced."""
     return 0 <= x < level.w and 0 <= y < level.h \
         and level.cells[y][x:x + 1] in TRAVERSABLE
 
@@ -120,7 +125,7 @@ def descent_path(level):
         cx, cy = cur
         for dx, dy in STEPS:
             nxt = (cx + dx, cy + dy)
-            if nxt not in parent and _traversable(level, *nxt):
+            if nxt not in parent and traversable(level, *nxt):
                 parent[nxt] = cur
                 dq.append(nxt)
     if down not in parent:
@@ -150,7 +155,7 @@ def verify_path(level, path):
         if (abs(ax - bx), abs(ay - by)) not in ((1, 0), (0, 1)):
             return False, f"step {(ax, ay)}->{(bx, by)} is not an orthogonal move"
     for (x, y) in path:
-        if not _traversable(level, x, y):
+        if not traversable(level, x, y):
             return False, f"cell {(x, y)} is not traversable"
     return True, "a verified walk"
 

@@ -176,6 +176,7 @@ landed; the answer is the module's own, bound as data and read by the named row.
 |---|---|---|---|---|
 | `gamegen` (URDRGEN1) | affects canonical game state — one level from `(seed, depth)` | CORE — imports `hashlib`, `os`; nothing under `tools/` | `gamegen-layer` (imports read off the AST; `LAYER` and `D24_ANSWER` bound as data) | 2026-09-15, one commit after D24 |
 | `descent` (URDRDSC1) | affects canonical game state — a topology property of a generated level | CORE — imports `gamegen` and stdlib (`collections`, `hashlib`, `os`); the dependency runs one way | `descent-witness` / `descent-oracles` (imports read off both ASTs; a sealed level fails the witness while passing `gamegen`) | 2026-09-15, one rung after `gamegen` |
+| `move` (URDRMOV1) | affects canonical game state — the first authoritative transition `D_n → D_{n+1}` | CORE — imports `gamegen`, `descent`, stdlib; consumes `descent.traversable`, reinvents nothing | `move-authority` / `move-blocked` (a wall step is a legal BLOCKED fixed point, the pair Plant A consumes; a sealed mouth flips MOVED→BLOCKED) | 2026-09-16, one rung after `descent` |
 
 `gamegen` is §7's generator and supplies exactly one field of §2's shape (generated dungeon state,
 for one level). It claims nothing from §3 beyond generation and invariance. `descent` is §3's
@@ -183,4 +184,4 @@ topology row: it reads a `gamegen` level and witnesses that the stairs down are 
 stairs up with a concrete path, and a planted sealed room reddens — the two directions §3 named. It
 consumes `gamegen` and adds no claim `gamegen` makes; the sealed room is where generation-correctness
 and traversability visibly come apart, which is the two-oracle discipline of §4 holding one layer
-down. Neither claims anything from §4's un-oracled list.
+down. Neither claims anything from §4's un-oracled list. `move` is the first authoritative transition: it puts an entity on a level and steps it one cell, producing the `D_n → D_{n+1}` that §5's renderer boundary — KINEMA (D25) — will one day refine. It establishes that a wall step is a legal BLOCKED outcome (`D_{n+1} = D_n`), the authoritative pair D25's Plant A consumes, rather than a typed refusal, and it single-sources movement legality in `descent.traversable`, promoted to public here so authority is consumed and never reinvented.

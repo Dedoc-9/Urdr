@@ -304,6 +304,7 @@ STAGE_ORDER = (
     "voxin_placement",
     "gamegen",
     "descent",
+    "move",
     "authority",
     "exempt",
     "disposition",
@@ -5310,6 +5311,108 @@ class Gate:
                     "not pass the trusted half. The witness answers only the question it was asked, "
                     "on only the levels where the question is well-posed"
                     if dom_ok else "the domain or verifier was not total: forge=%r" % (forge,))
+
+    def move(self):
+        """THE FIRST AUTHORITATIVE D_n -> D_{n+1}: one step, MOVED or BLOCKED (URDRMOV1) — the third
+        game-layer vertical slice and the first that MOVES anything. Rows: scenes, authority, blocked,
+        domain. It CONSUMES `descent.traversable` (promoted to public for this) and does not reinvent
+        it; a wall step is BLOCKED (D_{n+1} = D_n), which is the pair KINEMA's Plant A consumes, while
+        malformed input is a typed REFUSE."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import move as MV
+            import descent as DE2
+            import gamegen as GG2
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("move:scenes", "move-authority", "move-blocked", "move-domain"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (MV.emitted_matches_pinned()
+                         and all(MV.scene_result(n) == MV.golden(n) for n in MV.SCENES)
+                         and MV.move_digest() == MV.golden("move-digest")
+                         and MV.an_unpinned_name_refuses())
+        except Exception as exc:
+            scenes_ok = False
+            _ = repr(exc)
+        self.record("move:scenes", scenes_ok,
+                    "three URDRMOV1 scenes and the top digest reproduce from what the module emits; "
+                    "the corpus is `gamegen`'s own eight levels stepped through this authority, so a "
+                    "drift in `gamegen`, `descent` or `move` moves a pin; an unpinned name refuses typed"
+                    if scenes_ok else "a move scene drifted")
+
+        try:
+            rows_ok = True
+            for s2, d2 in MV.CORPUS:
+                lv = GG2.generate(s2, d2)
+                p = MV.spawn(lv)
+                rows_ok = rows_ok and all(MV.a_step_agrees_with_descent(lv, p, c) for c in MV.DIRECTIONS)
+                found, tracked = MV.a_sealed_mouth_blocks_a_step_that_moved(s2, d2)
+                rows_ok = rows_ok and found and tracked
+            auth_ok = (rows_ok and MV.the_directions_are_descents()
+                       and set(MV.DIRECTIONS.values()) == set(DE2.STEPS))
+        except Exception:
+            auth_ok = False
+        self.record("move-authority", auth_ok,
+                    "THE STEP CONSUMES `descent`'s AUTHORITY, IT DOES NOT REINVENT IT. On every corpus "
+                    "level the outcome is MOVED iff `descent.traversable` says the target cell is, and "
+                    "BLOCKED otherwise — legality single-sourced in `descent`, the predicate promoted "
+                    "to public one change earlier for exactly this rather than re-deriving `cell in "
+                    "TRAVERSABLE` in a second place. PROVED ON A COUNTEREXAMPLE, not asserted: "
+                    "`descent.seal_down` changes `descent`'s answer, and the SAME step that MOVED is "
+                    "now BLOCKED wherever the seal walled its target, so the move law tracks the "
+                    "topology authority rather than a copy of it. And the four directions this module "
+                    "moves along ARE `descent.STEPS` re-labelled — the adjacency it moves on is the "
+                    "one `descent` traverses, checked not assumed"
+                    if auth_ok else "the step did not agree with descent's authority")
+
+        try:
+            blk_ok = True
+            for s2, d2 in MV.CORPUS:
+                lv = GG2.generate(s2, d2)
+                p = MV.spawn(lv)
+                blk_ok = blk_ok and all(MV.a_blocked_step_is_a_fixed_point(lv, p, c) for c in MV.DIRECTIONS)
+                blk_ok = blk_ok and all(MV.a_moved_step_changes_the_state(lv, p, c) for c in MV.DIRECTIONS)
+                saw, well = MV.a_walk_reaches_a_wall_and_blocks(lv)
+                blk_ok = blk_ok and saw and well
+        except Exception:
+            blk_ok = False
+        self.record("move-blocked", blk_ok,
+                    "BLOCKED IS A LEGAL OUTCOME, NOT AN ERROR, and this is the row KINEMA depends on. "
+                    "A wall step returns D_{n+1} = D_n — a fixed point in the position AND in the "
+                    "canonical state digest — which is precisely the authoritative pair D25's Plant A "
+                    "consumes: `the authority refused a move, D_n = D_{n+1}, so a rendered A->B must be "
+                    "rejected`. If a wall step threw instead of returning, that plant would have "
+                    "nothing to read. A MOVED step, by contrast, moves both the position and the "
+                    "digest, so a real step is observable in canonical state and not only in a view. "
+                    "And a DIRECT witness, not one manufactured by sealing: the level is bounded by a "
+                    "wall border, so a walk in a fixed direction from the spawn BLOCKS at a wall with a "
+                    "well-formed fixed point on every corpus level"
+                    if blk_ok else "a blocked step was not a fixed point, or a walk never blocked")
+
+        try:
+            lv = GG2.generate(*MV.CORPUS[0])
+            refuse = MV.refuse_is_total(lv)
+            dom_ok = (refuse == (True, True) and MV.the_spawn_is_descents_endpoint(lv)
+                      and MV.state_bytes(lv, MV.spawn(lv)).startswith(b"URDRMOV1|lvl:")
+                      and GG2.level_digest(lv).encode() in MV.state_bytes(lv, MV.spawn(lv)))
+        except Exception:
+            dom_ok, refuse = False, None
+        self.record("move-domain", dom_ok,
+                    "THE REFUSE DOMAIN IS FOR MALFORMED INPUT, KEPT APART FROM BLOCKED. A command that "
+                    "is not one of the four directions, and a state whose entity is off the grid, on a "
+                    "wall, or not an integer pair, each refuse typed MOVE-REFUSE — never silently read "
+                    "as a blocked move, because `where does this step land` is not well-posed for an "
+                    "entity standing in a wall. The spawn is `descent`'s stairs-up, traversable by "
+                    "construction. AND IDENTITY IS DERIVED FROM THE EXISTING MACHINERY, NOT A PARALLEL "
+                    "RULE: the canonical state names the level by its EXISTING `gamegen.level_digest` "
+                    "(`worldbind`'s content-addressed precedent) and adds the one new field in the "
+                    "same idiom, `URDRMOV1|lvl:<level_digest>|pos:x,y` — the level's identity is what "
+                    "it already was, and only the entity position is new"
+                    if dom_ok else "the refuse domain or the derived identity did not hold: %r" % (refuse,))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29091,7 +29194,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
-    "voxin", "gamegen", "descent",
+    "voxin", "gamegen", "descent", "move",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
