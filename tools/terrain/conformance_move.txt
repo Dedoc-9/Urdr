@@ -48,7 +48,7 @@
 # that refines this pair; that a BLOCKED step advances a turn or action log (`actionlog`'s rung);
 # that an entity is more than a position (health, inventory, facing are later D24 §2 fields); and
 # nothing about WHY a level is traversable, which is `descent`'s claim and which this module consults.
-moves 759850e84cda31620afc79d165091e46f4c513e28c4870077165c7f3aa228e53
+moves 8f1686b3e608c66b275196cf693ddaf3813252d49b3df2aae3715ea974ede06a
 authority 38a8cf5c52ea1d5528e4e325f139a4b2712697169c30c7d538f1d942e2ed7b17
 domain a75f0cda6b3f1c1b91a51a40f4303f58dbcc3fc61b21b4ecd4fbae6f583d74ca
-move-digest d70675b29e6f92285532c78f1756acb1cc7f673686b94885aeb86f9cc1e35472
+move-digest 31de7db1d217bcd3ca4c54b087d34f6683f9ea452a54f3ca76d978214c3627ed

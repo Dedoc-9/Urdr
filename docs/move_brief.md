@@ -58,13 +58,11 @@ wherever the seal walled its target — so `move` is a thin authority over `desc
 
 The canonical state is the level plus the entity position. The level's identity is **already**
 `gamegen.level_digest` (SHA-256 of `URDRGEN1|s:|d:|WxH|rooms:…|rows`), so `move` **names the level by
-that digest** — `worldbind`'s content-addressed precedent — and adds the one new field in the same
-`MAGIC|field:value` idiom:
+that digest** — `worldbind`'s content-addressed precedent — and names the **entity** by its `entity.entity_digest` (the `entity` rung, URDRETY1, made the position a content-addressed component in the same vocabulary):
 
-    state_digest = SHA-256( URDRMOV1|lvl:<level_digest>|pos:x,y )
+    state_digest = SHA-256( URDRMOV1|lvl:<level_digest>|ent:<entity_digest> )
 
-No parallel identity rule: the level's identity is what it already was, and only the entity position
-is new. A view-only quantity a later camera might carry — a fractional interpolated position, a
+No parallel identity rule and no second form: the level and the entity are both content-addressed, so `statecanon` composes them the same way. (When `move` first shipped it inlined `pos:x,y`; the `entity` rung one commit later replaced that with `ent:<entity_digest>` so there is one vocabulary through to `statecanon`.) A view-only quantity a later camera might carry — a fractional interpolated position, a
 facing for animation — is not canonical and never reaches this digest; the integer cell is, because
 it is what the next authoritative step reads. A MOVED step changes the digest; a BLOCKED step does
 not.

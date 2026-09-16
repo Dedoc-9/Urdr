@@ -35,7 +35,7 @@ IDENTITY IS DERIVED FROM THE EXISTING MACHINERY, NOT A PARALLEL RULE. The canoni
 level plus the entity position. The level's canonical identity is already `gamegen.level_digest`
 (SHA-256 of `URDRGEN1|s:|d:|WxH|rooms:...|rows`), so this module NAMES THE LEVEL BY THAT DIGEST —
 `worldbind`'s content-addressed precedent — and adds the one new field, the position, in the same
-`MAGIC|field:value` idiom: `state_digest = SHA-256(URDRMOV1|lvl:<level_digest>|pos:x,y)`. Nothing else
+`MAGIC|field:value` idiom, and the entity is a CONTENT-ADDRESSED component: `state_digest = SHA-256(URDRMOV1|lvl:<level_digest>|ent:<entity_digest>)`. Nothing else
 enters. A view-only quantity a later camera might carry (a fractional interpolated position, a facing
 for animation) is NOT canonical and never reaches this digest; the entity's integer cell IS, because
 it is what the next authoritative step reads.
@@ -64,12 +64,13 @@ if _HERE not in __import__("sys").path:
     __import__("sys").path.insert(0, _HERE)
 import gamegen as _G                                                      # noqa: E402
 import descent as _D                                                     # noqa: E402
+import entity as _E                                                      # noqa: E402
 
 MAGIC = b"URDRMOV1"
 
 LAYER = "CORE"
 D24_ANSWER = "affects canonical game state — the first authoritative transition"
-ALLOWED_IMPORTS = ("hashlib", "os", "gamegen", "descent")
+ALLOWED_IMPORTS = ("hashlib", "os", "gamegen", "descent", "entity")
 
 #: The movement model — DECLARED. Four orthogonal directions, named, each a (dx, dy) over the grid
 #: (y grows downward). The set is exactly `descent.STEPS`, re-labelled, so the adjacency this module
@@ -132,9 +133,13 @@ def apply(level, pos, commands):
 
 # ---- identity, DERIVED from the existing machinery ------------------------------------------------------
 def state_bytes(level, pos):
-    """The canonical state identity: the level named by its EXISTING `gamegen.level_digest`, plus the
-    one new field. No parallel identity rule — the level's identity is what it already was."""
-    return b"%s|lvl:%s|pos:%d,%d" % (MAGIC, _G.level_digest(level).encode(), pos[0], pos[1])
+    """The canonical state identity, in ONE content-addressed vocabulary: the level named by its
+    EXISTING `gamegen.level_digest`, and the entity named by its `entity.entity_digest` — not an
+    inline `pos:x,y`. The position is the entity's, so it is the ENTITY component that carries it, and
+    `move`'s state references that component the same way it references the level. When a later rung
+    earns an entity field (health, inventory), `move`'s `D_n` reflects it through this digest with no
+    change here — the reason the identity became the entity-derived component rather than a wrap."""
+    return b"%s|lvl:%s|ent:%s" % (MAGIC, _G.level_digest(level).encode(), _E.digest_at(pos).encode())
 
 
 def state_digest(level, pos):

@@ -108,13 +108,16 @@ class MovedChangesCanonicalState(unittest.TestCase):
                 with self.subTest(seed=s, cmd=c):
                     self.assertTrue(M.a_moved_step_changes_the_state(lv, p, c))
 
-    def test_identity_names_the_level_by_its_existing_digest(self):
-        """Derived, not parallel: the state bytes carry `gamegen.level_digest`, not a re-serialized
-        level."""
+    def test_identity_names_the_level_and_the_entity_by_their_digests(self):
+        """One content-addressed vocabulary: the state bytes carry `gamegen.level_digest` AND the
+        entity's `entity.entity_digest`, not a re-serialized level or an inline `pos:x,y`. The entity
+        component carries the position, and `move` references it the same way it references the level."""
+        import entity as E
         sb = M.state_bytes(LV, P)
         self.assertIn(G.level_digest(LV).encode(), sb)
         self.assertTrue(sb.startswith(b"URDRMOV1|lvl:"))
-        self.assertIn(b"|pos:%d,%d" % (P[0], P[1]), sb)
+        self.assertIn(b"|ent:" + E.digest_at(P).encode(), sb)
+        self.assertNotIn(b"|pos:", sb)
 
     def test_two_positions_on_one_level_have_distinct_state_digests(self):
         o, nxt = M.step(LV, P, "E")

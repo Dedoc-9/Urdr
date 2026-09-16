@@ -305,6 +305,7 @@ STAGE_ORDER = (
     "gamegen",
     "descent",
     "move",
+    "entity",
     "authority",
     "exempt",
     "disposition",
@@ -5409,10 +5410,131 @@ class Gate:
                     "entity standing in a wall. The spawn is `descent`'s stairs-up, traversable by "
                     "construction. AND IDENTITY IS DERIVED FROM THE EXISTING MACHINERY, NOT A PARALLEL "
                     "RULE: the canonical state names the level by its EXISTING `gamegen.level_digest` "
-                    "(`worldbind`'s content-addressed precedent) and adds the one new field in the "
-                    "same idiom, `URDRMOV1|lvl:<level_digest>|pos:x,y` — the level's identity is what "
-                    "it already was, and only the entity position is new"
+                    "(`worldbind`'s content-addressed precedent) and names the entity by its "
+                    "`entity.entity_digest` in the same idiom, `URDRMOV1|lvl:<level_digest>|"
+                    "ent:<entity_digest>` — the level's identity is what it already was, and the "
+                    "entity is a content-addressed component (the `entity` rung one commit later "
+                    "replaced the first draft's inline `pos:x,y` so there is ONE vocabulary through "
+                    "to `statecanon`)"
                     if dom_ok else "the refuse domain or the derived identity did not hold: %r" % (refuse,))
+
+    def entity(self):
+        """THE CANONICAL ENTITY, A CONTENT-ADDRESSED COMPONENT IN ONE IDENTITY VOCABULARY (URDRETY1)
+        — the fourth game-layer vertical slice, and it MOVES nothing, it NAMES something. Rows:
+        scenes, identity, laws. `move` produced the first `D_n -> D_{n+1}` and, for want of an
+        entity, INLINED the entity's sole field into its state identity; this rung makes the entity a
+        content-addressed record so `move` names it by digest, and there is ONE vocabulary from the
+        level through the entity to `statecanon` — no second serialization for a later rung to
+        translate. Only POSITION is earned, so the record is position-only and forward-compatible; a
+        view-only quantity cannot reach the digest because it is not a declared field."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import entity as EN
+            import move as MV3
+            import gamegen as GG3
+            import descent as DE3
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("entity:scenes", "entity-identity", "entity-laws"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (EN.emitted_matches_pinned()
+                         and all(EN.scene_result(n) == EN.golden(n) for n in EN.SCENES)
+                         and EN.entity_digest_scene() == EN.golden("entity-digest")
+                         and EN.an_unpinned_name_refuses())
+        except Exception as exc:
+            scenes_ok = False
+            _ = repr(exc)
+        self.record("entity:scenes", scenes_ok,
+                    "the two URDRETY1 scenes (`record`, `laws`) and the top `entity-digest` reproduce "
+                    "from what the module emits; the `record` corpus is the eight `gamegen` spawns "
+                    "read through `descent`, so a drift in `gamegen`, `descent` or `entity` moves a "
+                    "pin, and an unpinned name refuses typed"
+                    if scenes_ok else "an entity scene drifted")
+
+        try:
+            lv = GG3.generate(*MV3.CORPUS[0])
+            p = MV3.spawn(lv)
+            sb = MV3.state_bytes(lv, p)
+            id_ok = (sb.startswith(b"URDRMOV1|lvl:")
+                     and (b"|ent:" + EN.digest_at(p).encode()) in sb
+                     and b"|pos:" not in sb
+                     and EN.at(p).get("pos") == p
+                     and EN.entity_bytes(EN.at(p)) == b"URDRETY1|" + b"pos:%d,%d" % p
+                     and EN.entity_digest(EN.at(p)) == EN.digest_at(p)
+                     and EN.digest_at(p) != EN.digest_at((p[0] + 1, p[1])))
+            # a MOVED step moves the entity digest; a BLOCKED step is a fixed point in it
+            for c in MV3.DIRECTIONS:
+                outcome, nxt = MV3.step(lv, p, c)
+                if outcome == MV3.MOVED:
+                    id_ok = id_ok and EN.digest_at(p) != EN.digest_at(nxt)
+                else:
+                    id_ok = id_ok and EN.digest_at(p) == EN.digest_at(nxt)
+        except Exception:
+            id_ok = False
+        self.record("entity-identity", id_ok,
+                    "ONE VOCABULARY, NOT TWO — the property `move`'s refactor exists to hold. `move` "
+                    "names the entity by its `entity.entity_digest` exactly as it names the level by "
+                    "`gamegen.level_digest`: its state bytes carry `URDRMOV1|lvl:<level_digest>|"
+                    "ent:<entity_digest>` and NO inline `pos:x,y`, so `statecanon` will compose the "
+                    "entity the same way it composes the level and nothing needs translating. Had "
+                    "`move` kept an inline position while `statecanon` referenced a digest, those "
+                    "would be two serializations of one entity — the reconciliation a content-"
+                    "addressed vocabulary exists to forbid. The position `move` spawns IS the position "
+                    "the record holds, the canonical bytes are `URDRETY1|pos:x,y`, and a MOVED step "
+                    "moves the entity digest while a BLOCKED step leaves it a fixed point — so the "
+                    "entity digest tracks canonical state, not a view of it"
+                    if id_ok else "move did not name the entity by its digest, or the digest did not track the step")
+
+        try:
+            import ast
+            with open(os.path.join(gdir, "entity.py"), encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
+            top, allimp = set(), set()
+            for node in tree.body:                       # module scope — the record's substrate
+                if isinstance(node, ast.Import):
+                    top.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    top.add((node.module or "").split(".")[0])
+            for node in ast.walk(tree):                   # full walk — includes the lazy scene corpus
+                if isinstance(node, ast.Import):
+                    allimp.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    allimp.add((node.module or "").split(".")[0])
+            stdlib = getattr(sys, "stdlib_module_names", frozenset(top))
+            laws_ok = (EN.FIELDS == ("pos",) and EN.only_position_is_declared()
+                       and set(EN._SERIALIZERS) == set(EN.FIELDS)
+                       and EN.an_undeclared_field_refuses()
+                       and EN.a_malformed_position_refuses()
+                       and EN.the_fields_are_walked_in_declared_order()
+                       and EN.a_new_field_does_not_reformat_position() == (True, True)
+                       and EN.equal_fields_are_the_same_entity((3, 4))
+                       # the layer boundary, read from the AST by this row and not by the module:
+                       and top == set(EN.ALLOWED_IMPORTS) and top == {"hashlib", "os"}
+                       and top <= set(stdlib) and EN.LAYER == "CORE"
+                       and EN.D24_ANSWER == "affects canonical game state — the canonical entity component"
+                       # the record depends on nothing under tools/ at load; the corpus is lazy:
+                       and {"gamegen", "descent"} <= allimp and not ({"gamegen", "descent"} & top))
+        except Exception:
+            laws_ok = False
+        self.record("entity-laws", laws_ok,
+                    "ONLY POSITION IS EARNED, AND THE RECORD SAYS SO: `FIELDS == (\"pos\",)`, each "
+                    "declared field has a serializer, and NOTHING else may enter — an undeclared "
+                    "keyword and a malformed position each REFUSE typed ENTITY-REFUSE, which is what "
+                    "keeps a view-only quantity (a facing for animation, an interpolated sub-cell "
+                    "position) out of canonical identity by construction rather than by convention. "
+                    "The fields are walked in DECLARED order, so the digest is a function of the "
+                    "declared vocabulary and reproduces across hosts. FORWARD-COMPATIBLE, so growth "
+                    "costs no re-mint: extending the field set leaves the `pos:x,y` bytes byte-"
+                    "identical and only APPENDS a new segment. And the layer boundary holds, read "
+                    "from the AST by this row: the record's module-scope imports are exactly "
+                    "`(hashlib, os)` — standard library, nothing under tools/ — while `gamegen` and "
+                    "`descent` are reached only LAZILY by the scene corpus, so the record couples to "
+                    "no game module at load and the dependency runs one way"
+                    if laws_ok else "an entity law or the layer boundary did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29194,7 +29316,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
-    "voxin", "gamegen", "descent", "move",
+    "voxin", "gamegen", "descent", "move", "entity",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

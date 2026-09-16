@@ -35,6 +35,6 @@
 # LINE, because a register naming the library call while the operator comes through `argv` measures
 # a path nobody takes — which is exactly how v1.1's repair shipped unreachable.
 
-census c26101ffe812ba5da46b9f5000afcaa71eee27b4a3f77a27b7ad90ce2f73ac2a
+census 53bc8ecdbb13fa6edb62f09be0976da67de7946030bead6a09b8c575318e175f
 plants dcf74c103807fd710c97258a2863eba738abd45e599f33b1eb2acce3e8127546
-reachable 0429d1136cd1e27be8688a83be0430a4d5e715ce1d03f6a19c0dd25b9c2fb85e
+reachable e5d66b15f6bea980455cdb7870a410baa1a0871e9b3ec9427fd7ca191ea13aa4
