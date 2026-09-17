@@ -10,16 +10,16 @@ roadmap is a list of debts, not of achievements.*
 
 ## 1. Where we are — the documentation-currency sweep
 
-Measured against the tree at the `rngstream` commit (the numbers are the live gate's own, not asserted):
+Measured against the tree at the `descend` commit (the numbers are the live gate's own, not asserted):
 
 | quantity | value | source |
 |---|---|---|
-| terrain modules (`tools/terrain/*.py`) | 185 | filesystem |
-| test suites | 271 | `verify.py` discovery |
-| unit falsifiers | 4797 | this run's `testsRun` |
-| gate rows | 1211 | live gate |
-| pinned conformance corpora | 178 | filesystem |
-| modules briefed | 184 / 185 (`bench` unbriefable by rule) | derived |
+| terrain modules (`tools/terrain/*.py`) | 186 | filesystem |
+| test suites | 272 | `verify.py` discovery |
+| unit falsifiers | 4816 | this run's `testsRun` |
+| gate rows | 1214 | live gate |
+| pinned conformance corpora | 179 | filesystem |
+| modules briefed | 185 / 186 (`bench` unbriefable by rule) | derived |
 | modules in neither D5 ledger volume | 15 (surfaced by name every run) | derived |
 | population problems | none | `doc_currency.population_problems` |
 
@@ -28,7 +28,7 @@ reproduces across CPython 3.10–3.14 on Windows and Linux, full clone and depth
 roadmap adds no gate rows**: it is documentation, so the rung that lands it must reproduce the gate
 output above unchanged — the cleanest possible check that a planning artifact smuggles in no claim.
 
-The five game-layer rungs that exist:
+The six game-layer rungs that exist:
 
 - **`gamegen` (URDRGEN1)** — seed + depth → canonical level → digest. The first module admitted under
   D24 §1, CORE, stdlib-only. Depth kept as three claims (representation / admission / generation).
@@ -47,10 +47,15 @@ The five game-layer rungs that exist:
   change, rooted at the run's `seed` through a domain-separated root, with an explicit `(n, R_n)`
   identity. A read cannot advance it by construction; `move` is measured to leave it a fixed point;
   the synthetic action is verification-only and `loot` is the first real consumer.
+- **`descend` (URDRDEP1)** — the authoritative depth transition. From the down-stairs of the level at
+  depth *d* it produces the level at *d+1* from the same seed, the entity arriving at that level's
+  stairs-up (`move.spawn`). It consumes `gamegen`'s depth authority (the `DEPTH_MAX` ceiling refusal is
+  inherited, no second depth law) and `descent`'s stair locators; its one new refusal is descending off
+  the down-stairs; it touches no RNG (the successor is fully determined by seed and depth+1).
 
 And the two boundary contracts:
 
-- **D24** — the game-layer boundary (canonical state vs. view), with §9 now recording five admitted
+- **D24** — the game-layer boundary (canonical state vs. view), with §9 now recording six admitted
   modules.
 - **D25** — the KINEMA preregistration (this rung), the view-side refinement membrane, DECLARED and
   prospective.
@@ -59,19 +64,20 @@ And the two boundary contracts:
 
 KINEMA refines an authoritative transition `D_n → D_{n+1}`. Between `descent` and KINEMA there are
 **eleven rungs**, each grounded in D24 §2 (the canonical-state shape) and §3 (what enters the
-verification regime). The first three have LANDED: `move` (rung 1) produced the first authoritative
+verification regime). The first four have LANDED: `move` (rung 1) produced the first authoritative
 `D_n → D_{n+1}`, `entity` (rung 2) made the entity a content-addressed component so the whole ladder
-speaks one identity vocabulary, and `rngstream` (rung 3) added the first *stateful* canonical
-component, the deterministic RNG stream — eight rungs remain before KINEMA. Working names only for the
-unbuilt rungs; the tree's rule is *measure first, then name and build*, so each name is finalized at
-its own rung (as `transition` finalized to `move`).
+speaks one identity vocabulary, `rngstream` (rung 3) added the first *stateful* canonical component (the
+deterministic RNG stream), and `descend` (rung 4) added the first transition that changes depth — seven
+rungs remain before KINEMA. Working names only for the unbuilt rungs; the tree's rule is *measure
+first, then name and build*, so each name is finalized at its own rung (as `transition` finalized to
+`move`).
 
 | # | rung (working name) | D24 grounding | consumes | falsifier shape |
 |---|---|---|---|---|
 | 1 | **transition** — LANDED as `move` (URDRMOV1) | §2 the first `D_n → D_{n+1}` | `descent` | a step onto a `descent`-traversable cell is MOVED; a wall/off-grid step is BLOCKED (`D_{n+1} = D_n`, the pair KINEMA Plant A consumes); malformed input is a typed REFUSE; the step is a pure function of (state, input) |
 | 2 | **entity** — LANDED as `entity` (URDRETY1) | §2 entity state | transition | the entity is a content-addressed record; identical declared fields = identical entity; only position is earned (`FIELDS = ("pos",)`); an undeclared (view-only) field refuses typed rather than entering the digest; `move` names the entity by its digest, so there is one identity vocabulary through to `statecanon` |
 | 3 | **rngstream** — LANDED as `rngstream` (URDRRNG1) | §2 RNG state | entity | the first *stateful* canonical component: rooted at the run's `seed` domain-separated, advanced only by canonical actions with an explicit `(n, R_n)` identity; a read cannot advance it (structural); same seed + same actions → same stream, a different action sequence diverges; `move` is measured to leave it a fixed point |
-| 4 | **descend** | §3 depth bound *at a door* | `gamegen`, transition | stepping onto stairs-down advances depth by one under the int32 bound and refuses past `DEPTH_MAX`; the new level reproduces `gamegen`'s digest |
+| 4 | **descend** — LANDED as `descend` (URDRDEP1) | §3 depth bound *at a door* | `gamegen`, transition | from the down-stairs the successor is `gamegen.generate(seed, d+1)` at that level's stairs-up (`move.spawn`); the `DEPTH_MAX` ceiling refuses `GAMEGEN-REFUSE` before generating (inherited, no second depth law); the new level reproduces `gamegen`'s digest; descending off the down-stairs refuses; no RNG consumed |
 | 5 | **loot** | §3 loot generation | rngstream, `gamegen` | seed + level + source → deterministic drop, pinned corpus, an independent expected result; a mutated table diverges |
 | 6 | **combat** | §3 combat *arithmetic* | entity, rngstream | damage/mitigation/hit obey the declared formula (formula is data); a planted off-by-one reddens. *Not* "combat is balanced" (§4) |
 | 7 | **heirloom** | §3 heirloom progression | entity, `ratchet` | retirement inherits a quantity that grows by a declared fraction each generation; direction + baseline enforced, a shrink reddens |
@@ -164,10 +170,10 @@ the heirloom ratchet, the deterministic loot) is a gated falsifier rather than a
 
 ## 5. The discipline note
 
-This roadmap is a list of debts. Three of §2's eleven rungs now exist — `move` (rung 1), `entity`
-(rung 2) and `rngstream` (rung 3) — eight remain; KINEMA does not exist; §4's benefits are
-prospective. What exists is `gamegen`, `descent`, `move`, `entity`, `rngstream`, and two boundary
-contracts, all gated and reproducible. The value of stating the ladder and the marketability case now
+This roadmap is a list of debts. Four of §2's eleven rungs now exist — `move` (rung 1), `entity`
+(rung 2), `rngstream` (rung 3) and `descend` (rung 4) — seven remain; KINEMA does not exist; §4's
+benefits are prospective. What exists is `gamegen`, `descent`, `move`, `entity`, `rngstream`,
+`descend`, and two boundary contracts, all gated and reproducible. The value of stating the ladder and the marketability case now
 is the same as the value of a preregistration: it fixes the contract *before* the implementation can
 define it retroactively, and it lets the commercial claims be checked against the gate as each rung
 lands, rather than asserted ahead of the evidence. Rung 1 LANDED as `move` (URDRMOV1) — the name
@@ -175,7 +181,9 @@ finalized on measurement, since the kernel already owns *transition* (`transitio
 LANDED as `entity` (URDRETY1): the canonical entity as a content-addressed component, so `move` names
 it by its digest and there is one identity vocabulary through to `statecanon`. Rung 3 LANDED as
 `rngstream` (URDRRNG1): the first *stateful* canonical component, the deterministic RNG stream rooted
-at the run's `seed`, advanced only by canonical actions, its digest entering canonical identity. The
-next substantive rung is **descend** (§2 rung 4): stepping onto stairs-down advances depth by one
-under the int32 bound, the new level reproducing `gamegen`'s digest. KINEMA is still the destination,
-not the next step.
+at the run's `seed`, advanced only by canonical actions, its digest entering canonical identity. Rung 4
+LANDED as `descend` (URDRDEP1): the first transition that changes depth — from the down-stairs the
+successor is `gamegen.generate(seed, d+1)` at that level's stairs-up, the `DEPTH_MAX` ceiling inherited
+from `gamegen`, no RNG consumed. The next substantive rung is **loot** (§2 rung 5): the first real
+consumer of `rngstream` — seed + level + source → a deterministic drop, an independent expected result,
+a mutated table diverging. KINEMA is still the destination, not the next step.

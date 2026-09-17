@@ -307,6 +307,7 @@ STAGE_ORDER = (
     "move",
     "entity",
     "rngstream",
+    "descend",
     "authority",
     "exempt",
     "disposition",
@@ -5633,6 +5634,107 @@ class Gate:
                     "boundary explicitly rather than moving `move` underneath it"
                     if iso_ok else "the move-isolation boundary did not hold: %r"
                     % ((fixed, moved, decoupled) if 'fixed' in dir() else 'error',))
+
+    def descend(self):
+        """THE AUTHORITATIVE DEPTH TRANSITION: from the down-stairs to the next floor (URDRDEP1) — the
+        sixth game-layer vertical slice, and the single `D_n -> D_{n+1}` that changes DEPTH. Rows:
+        scenes, transition, boundary. It consumes `gamegen` (depth authority + successor generation),
+        `descent` (the stair locators) and the successor's own spawn; it owns exactly one new refusal
+        (descend off the down-stairs); it inherits the ceiling from `gamegen` without a second depth
+        law; and it touches no `rngstream`."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import descend as DP
+            import gamegen as GG5
+            import descent as DE5
+            import move as MV5
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("descend:scenes", "descend-transition", "descend-boundary"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (DP.emitted_matches_pinned()
+                         and all(DP.scene_result(n) == DP.golden(n) for n in DP.SCENES)
+                         and DP.descend_digest() == DP.golden("descend")
+                         and DP.an_unpinned_name_refuses())
+        except Exception as exc:
+            scenes_ok = False
+            _ = repr(exc)
+        self.record("descend:scenes", scenes_ok,
+                    "the three URDRDEP1 scenes (`transition`, `boundary`, `laws`) and the top digest "
+                    "reproduce from what the module emits; `transition` pins the successor depth, its "
+                    "stairs-up and the successor's canonical identity in the one `move` vocabulary per "
+                    "corpus member, `boundary` pins both sides of the depth ceiling, and an unpinned "
+                    "name refuses typed"
+                    if scenes_ok else "a descend scene drifted")
+
+        try:
+            base = [(s, d) for s, d in DP.CORPUS if d < GG5.DEPTH_MAX]
+            tr_ok = True
+            for s, d in base:
+                tr_ok = tr_ok and DP.the_successor_position_is_the_authoritative_spawn(s, d)
+                tr_ok = tr_ok and DP.the_successor_reproduces_gamegen(s, d)
+                tr_ok = tr_ok and DP.descending_off_the_down_stairs_refuses(s, d)
+                # the successor identity IS the existing (level, entity) vocabulary — no second form
+                lv, down = GG5.generate(s, d), DE5.endpoints(GG5.generate(s, d))[1]
+                level_next, pos_next = DP.descend(lv, down)
+                tr_ok = tr_ok and (DP.successor_state_digest(lv, down)
+                                   == MV5.state_digest(level_next, pos_next))
+                tr_ok = tr_ok and pos_next == MV5.spawn(level_next)
+            tr_ok = (tr_ok and DP.a_malformed_level_is_descents_refusal_not_ours()
+                     and DP.this_module_touches_no_rng()
+                     and DP.refuse_is_total() == (True, True, True))
+        except Exception:
+            tr_ok = False
+        self.record("descend-transition", tr_ok,
+                    "THE DEPTH TRANSITION, CONSUMING AUTHORITY IT DOES NOT OWN. From the down-stairs of "
+                    "the level at depth d (located by `descent.endpoints`, not re-found here), the "
+                    "successor is `gamegen.generate(seed, d+1)` — the SAME seed one deeper, its identity "
+                    "the unchanged `gamegen.level_digest` — and the entity ARRIVES at that level's "
+                    "stairs-up, which IS `move.spawn(level')`, consumed rather than re-proved traversable "
+                    "(the old down-stairs coordinate has no authority in the independently-generated "
+                    "successor, and is not even reliably traversable there). The successor's canonical "
+                    "identity is composed in the ONE existing `(level, entity)` vocabulary "
+                    "(`move.state_digest`), so descend introduces no second serialization. Ownership is "
+                    "crisp: descending off the down-stairs refuses typed DESCEND-REFUSE (this module's "
+                    "one new refusal), a malformed level surfaces `descent`'s DESCENT-REFUSE rather than "
+                    "ours, and this module imports no `rngstream` — the successor is fully determined by "
+                    "(seed, d+1), so a descent consumes no draw"
+                    if tr_ok else "a descend transition or ownership law did not hold")
+
+        try:
+            # the ceiling, on both sides of the boundary
+            ceil = all(DP.the_ceiling_refuses_without_generating(s) == (True, True, True)
+                       for s, d in DP.CORPUS if d == GG5.DEPTH_MAX)
+            below = DP.the_boundary_below_the_ceiling_descends()
+            # the ceiling refusal is gamegen's code, raised before a successor is generated
+            lvmax, downmax = GG5.generate(7, GG5.DEPTH_MAX), DE5.endpoints(GG5.generate(7, GG5.DEPTH_MAX))[1]
+            code_ok = False
+            try:
+                DP.descend(lvmax, downmax)
+            except GG5.GamegenError as exc:
+                code_ok = exc.code == "GAMEGEN-REFUSE"
+            # no second depth law: descend names no bare DEPTH_MAX
+            import ast
+            with open(os.path.join(gdir, "descend.py"), encoding="utf-8") as fh:
+                names = {n.id for n in ast.walk(ast.parse(fh.read())) if isinstance(n, ast.Name)}
+            bd_ok = ceil and below and code_ok and "DEPTH_MAX" not in names
+        except Exception:
+            bd_ok = False
+        self.record("descend-boundary", bd_ok,
+                    "THE DEPTH CEILING IS `gamegen`'s, INHERITED, AND THE ORDERING IS THE CLAIM. At "
+                    "d = DEPTH_MAX a descent refuses `GAMEGEN-REFUSE` — gamegen's own code, not a "
+                    "descend code — BEFORE any successor is generated (descend asks "
+                    "`gamegen.check_params(seed, d+1)` first) and WITHOUT mutating the input level, so "
+                    "the boundary is enforced through the existing authority rather than by a second "
+                    "depth law: this module names no bare `DEPTH_MAX` at all (read off its AST). And the "
+                    "OTHER side of the boundary is a positive witness, not only a refusal: from "
+                    "DEPTH_MAX - 1 a descent produces depth DEPTH_MAX, its identity exactly "
+                    "`gamegen.generate(seed, DEPTH_MAX)` — the ceiling tested from both sides"
+                    if bd_ok else "the descend depth-boundary law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29414,7 +29516,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
-    "voxin", "gamegen", "descent", "move", "entity", "rngstream",
+    "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
