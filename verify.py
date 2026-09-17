@@ -306,6 +306,7 @@ STAGE_ORDER = (
     "descent",
     "move",
     "entity",
+    "rngstream",
     "authority",
     "exempt",
     "disposition",
@@ -4904,7 +4905,7 @@ class Gate:
             structural, prose, owners = RT.the_structural_heuristic_is_refuted()
             c = RT.census()
             pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
-                      and structural == 79 and prose == 11 and owners == 3
+                      and structural == 80 and prose == 11 and owners == 3
                       and all(c[k] for k in RT.KINDS)
                       and RT.a_citation_is_not_a_promise() == (True, False)
                       and RT.the_law_matches_itself() == (True, True, True))
@@ -4938,15 +4939,17 @@ class Gate:
                     "while pre-registering a cost measurement, and `criticality` arriving on the "
                     "STRUCTURAL side instead. A hand-kept roster would have stayed at seven and been "
                     "wrong within a day, three times over. "
-                    "AND THE REFUTED HEURISTIC GREW TOO, WHICH IS THE SAME EVIDENCE FROM THE OTHER "
-                    "SIDE: it returned 78 when it was written and returns 79 now, the newcomer "
-                    "being `criticality`'s `DEFICIT_CEIL = 0` — an upper bound on a measured "
-                    "rounding deficit, written two rungs later in a different directory for a "
-                    "reason that has nothing to do with debt, and landing squarely in the "
-                    "PHYSICAL BOUNDS class this row already names. A NEW INSTANCE OF AN ALREADY "
-                    "REFUTED READING, arriving unprompted, is worth more than the original count: "
-                    "the structural population is re-derived every run precisely so the inversion "
-                    "keeps being justified by measurement rather than by this paragraph"
+                    "AND THE REFUTED HEURISTIC GREW TWICE MORE, WHICH IS THE SAME EVIDENCE FROM THE "
+                    "OTHER SIDE: it returned 78 when it was written, 79 at `criticality`'s "
+                    "`DEFICIT_CEIL = 0` (an upper bound on a measured rounding deficit), and 80 now "
+                    "at `rngstream`'s `SEED_BITS = 64` — a bit-width REPRESENTATION constant flagged "
+                    "only because the RNG stream's `seed_domain_matches_gamegen` law compares it to "
+                    "`gamegen.SEED_BITS` to prove the two seed domains are single-sourced. It has "
+                    "nothing to do with a debt and lands squarely in the PHYSICAL BOUNDS class this "
+                    "row already names. A NEW INSTANCE OF AN ALREADY REFUTED READING, arriving "
+                    "unprompted from a rung built for something else entirely, is worth more than the "
+                    "original count: the structural population is re-derived every run precisely so "
+                    "the inversion keeps being justified by measurement rather than by this paragraph"
                     if pop_ok else "the ratchet promise population is not closed")
 
         hist_ok, verds = True, ()
@@ -5535,6 +5538,101 @@ class Gate:
                     "`descent` are reached only LAZILY by the scene corpus, so the record couples to "
                     "no game module at load and the dependency runs one way"
                     if laws_ok else "an entity law or the layer boundary did not hold")
+
+    def rngstream(self):
+        """THE CANONICAL RNG STREAM, THE FIRST STATEFUL CANONICAL COMPONENT (URDRRNG1) — the fifth
+        game-layer vertical slice. Rows: scenes, advance, isolation. `gamegen` draws statelessly; this
+        holds a STREAM whose advancing is itself a canonical state change (D24 §2's "RNG state,
+        advanced only by canonical actions"), rooted at the run's seed through a domain-separated
+        root, with an explicit `(n, R_n)` identity. A read cannot advance it by construction, and
+        `move` — which imports nothing of this and carries no stream — leaves it a fixed point. The
+        synthetic action is verification-only; `loot` is the first real consumer."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import rngstream as RN
+            import gamegen as GG4
+            import move as MV4
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("rngstream:scenes", "rngstream-advance", "rngstream-isolation"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (RN.emitted_matches_pinned()
+                         and all(RN.scene_result(n) == RN.golden(n) for n in RN.SCENES)
+                         and RN.rngstream_digest() == RN.golden("rngstream")
+                         and RN.an_unpinned_name_refuses())
+        except Exception as exc:
+            scenes_ok = False
+            _ = repr(exc)
+        self.record("rngstream:scenes", scenes_ok,
+                    "the three URDRRNG1 scenes (`root`, `trace`, `laws`) and the top digest reproduce "
+                    "from what the module emits; `root` pins R_0 and I_0 per corpus seed, `trace` pins "
+                    "the full prefix trace (n, I_n) for a fixed seed and a synthetic action sequence — "
+                    "the golden replay/prefix vector and the FROZEN v1 representation lock — and an "
+                    "unpinned name refuses typed"
+                    if scenes_ok else "an rngstream scene drifted")
+
+        try:
+            adv_ok = True
+            for s in RN.SEEDS:
+                adv_ok = adv_ok and RN.the_root_is_domain_separated(s)
+                adv_ok = adv_ok and RN.an_advance_changes_the_state(s)
+                adv_ok = adv_ok and RN.a_read_does_not_advance(s)
+                adv_ok = adv_ok and RN.identical_actions_give_the_identical_stream(s, RN.ACTIONS)
+                adv_ok = adv_ok and RN.composition_matches_every_prefix(s, RN.ACTIONS)
+            # index binding, action commitment, single-sourced seed domain, and a public
+            # cross-check that R_0 is NOT gamegen's derivation of the same seed
+            adv_ok = (adv_ok and RN.the_index_is_bound_into_identity(RN.SEEDS[0])
+                      and RN.different_actions_diverge(RN.SEEDS[0])
+                      and RN.seed_domain_matches_gamegen()
+                      and all(RN.root(s).r.hex() != GG4.digest_of(s, 1) for s in RN.SEEDS)
+                      and RN.refuse_is_total() == (True, True, True, True))
+        except Exception:
+            adv_ok = False
+        self.record("rngstream-advance", adv_ok,
+                    "THE STREAM LAW. The stream roots at the run's `seed` through a DOMAIN-SEPARATED "
+                    "root — R_0 = SHA-256(b\"rngstream/v1\"|s:seed), single-sourced with `gamegen`'s "
+                    "seed domain and provably NOT `gamegen`'s own derivation of that seed, so canonical "
+                    "randomness and generation cannot be confused. Advancing is a CANONICAL ACTION: it "
+                    "moves the coordinate, the value AND the identity `(n, R_n)`, and the stream "
+                    "COMMITS to the action — a different action diverges, so replay depends on WHICH "
+                    "actions and not only how many. A READ NEVER ADVANCES, by construction (`Stream` is "
+                    "immutable, reads return values), which is D24 §2's \"advanced only by canonical "
+                    "actions\" made structural. Incremental and batch advancement agree AT EVERY "
+                    "PREFIX, the same value at a different `n` is a different identity, and malformed "
+                    "seeds, actions, bounds and streams refuse typed RNG-REFUSE"
+                    if adv_ok else "an rngstream advance/stream law did not hold")
+
+        try:
+            fixed, moved, decoupled = RN.move_leaves_the_stream_a_fixed_point(RN.SEEDS[0])
+            # structural decoupling read from move's AST, not from a promise
+            import ast
+            with open(os.path.join(gdir, "move.py"), encoding="utf-8") as fh:
+                mv_imports = set()
+                for node in ast.walk(ast.parse(fh.read())):
+                    if isinstance(node, ast.Import):
+                        mv_imports.update(a.name.split(".")[0] for a in node.names)
+                    elif isinstance(node, ast.ImportFrom):
+                        mv_imports.add((node.module or "").split(".")[0])
+            iso_ok = (fixed and moved and decoupled and "rngstream" not in mv_imports
+                      and "rngstream" not in set(MV4.ALLOWED_IMPORTS))
+        except Exception:
+            iso_ok = False
+        self.record("rngstream-isolation", iso_ok,
+                    "MOVE IS NOT CONTAMINATED — a boundary compatibility invariant, not a universal "
+                    "law. `move` consumes no randomness today, and it neither imports this module (read "
+                    "from its AST, not promised) nor carries a stream, so a move action CANNOT advance "
+                    "the stream. Measured on a reference assembly `(level, entity, stream)`: stepping "
+                    "the four `move` directions leaves the stream a FIXED POINT in `(n, R_n)` while the "
+                    "entity actually moves (non-vacuity), so the synthetic verification action is not "
+                    "the only evidence the stream advances, and movement is not made to consume RNG to "
+                    "satisfy this rung. A later rung that changes what advances the stream revises this "
+                    "boundary explicitly rather than moving `move` underneath it"
+                    if iso_ok else "the move-isolation boundary did not hold: %r"
+                    % ((fixed, moved, decoupled) if 'fixed' in dir() else 'error',))
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29316,7 +29414,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
-    "voxin", "gamegen", "descent", "move", "entity",
+    "voxin", "gamegen", "descent", "move", "entity", "rngstream",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

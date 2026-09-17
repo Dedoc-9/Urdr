@@ -52,6 +52,6 @@
 # demonstrates the four verdicts, has not moved since it was written. WHEN `sweep` ALONE CHANGES AND
 # `plants` DOES NOT, NOTHING ABOUT THE LAW HAS CHANGED; only the tree it is measured against grew.
 
-sweep 30c10e2c2463a03257904b994f25de5f30f0b9f12e94dd7ac561fd6e11fee34a
+sweep 2a2890c39c966f93449a800155b52d38f98b1c3a11cd7edd8efec01cdf9b11fa
 plants c168fbb2ad07ddebc736e432c4ffb2101e82dc29ac3b9bc286b8cf5c9acfe277
-retire 900564c71d2d5dbc2574cb8e5c96ff9b3420dc21799ba303c155cee2cb849890
+retire 00a5aa9d87b8f29a8cc2fb3debe622fd794d1199697406718b7e44fb03fd97ca
