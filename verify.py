@@ -308,6 +308,7 @@ STAGE_ORDER = (
     "entity",
     "rngstream",
     "descend",
+    "loot",
     "authority",
     "exempt",
     "disposition",
@@ -5735,6 +5736,121 @@ class Gate:
                     "DEPTH_MAX - 1 a descent produces depth DEPTH_MAX, its identity exactly "
                     "`gamegen.generate(seed, DEPTH_MAX)` — the ceiling tested from both sides"
                     if bd_ok else "the descend depth-boundary law did not hold")
+
+    def loot(self):
+        """THE FIRST CANONICAL GAMEPLAY CONSUMER OF THE RNG STREAM: source + stream -> drop (URDRLOO1)
+        — the seventh game-layer vertical slice. Rows: scenes, consume, isolation. It answers
+        `rngstream`'s open question with its first concrete instance: a loot event ADVANCES the stream.
+        `(source, R_n) -> (drop, R_{n+1})`: `peek` derives a uniform selection from a frozen table, ONE
+        `advance` folding the source consumes it, and loot OWNS that advance. Any canonical `(level,
+        pos)` is a source (no traversability rule); the drop is item-only; nothing mutates and no second
+        RNG is used."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import loot as LO
+            import gamegen as GG6
+            import move as MV6
+            import rngstream as RN6
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("loot:scenes", "loot-consume", "loot-isolation"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (LO.emitted_matches_pinned()
+                         and all(LO.scene_result(n) == LO.golden(n) for n in LO.SCENES)
+                         and LO.loot_digest() == LO.golden("loot")
+                         and LO.an_unpinned_name_refuses())
+        except Exception as exc:
+            scenes_ok = False
+            _ = repr(exc)
+        self.record("loot:scenes", scenes_ok,
+                    "the three URDRLOO1 scenes (`drops`, `consume`, `laws`) and the top digest reproduce "
+                    "from what the module emits; `drops` pins the selected item, its drop digest and the "
+                    "successor stream per corpus source (each seed at the stairs-down, stairs-up AND a "
+                    "wall cell), `consume` pins a replay trace over a fixed event sequence, and an "
+                    "unpinned name refuses typed"
+                    if scenes_ok else "a loot scene drifted")
+
+        try:
+            base = [(s, d) for s, d in LO.CORPUS]
+            cons_ok = True
+            for s, d in base:
+                cons_ok = cons_ok and LO.the_same_source_and_stream_reproduce(s, d)
+                cons_ok = cons_ok and LO.a_second_call_consumes_the_successor(s, d)
+                cons_ok = cons_ok and LO.distinct_sources_do_not_collapse(s, d)
+                cons_ok = cons_ok and LO.the_selection_matches_an_independent_oracle(s, d)
+                cons_ok = cons_ok and LO.a_replay_reconstructs_drops_and_streams(s, d)
+                cons_ok = cons_ok and LO.a_wall_is_a_valid_source(s, d)
+                # the transition IS peek-to-derive + one advance folding the source, checked here
+                lv, pos = LO._src(s, d)
+                st = RN6.root(lv.seed)
+                drop, st1 = LO.loot(lv, pos, st)
+                sid = MV6.state_digest(lv, pos)
+                cons_ok = cons_ok and drop == LO.TABLE[RN6.peek(st, sid, len(LO.TABLE))]
+                cons_ok = cons_ok and st1 == RN6.advance(st, b"loot:" + sid.encode())
+            cons_ok = cons_ok and LO.rngstream_does_not_depend_on_loot()
+        except Exception:
+            cons_ok = False
+        self.record("loot-consume", cons_ok,
+                    "THE FIRST REAL CONSUMER OF THE RNG STREAM, and the transition is `(source, R_n) -> "
+                    "(drop, R_{n+1})`, NOT `seed -> drop`: the stream is stateful, so the same source at "
+                    "a different position gives a different drop, and the seed enters only through R_0. "
+                    "`peek` DERIVES the uniform selection over the frozen table (a READ of R_n, no "
+                    "advance); ONE `advance` folding `b\"loot:\" + S` CONSUMES the event; and LOOT OWNS "
+                    "that advance — it returns the successor stream, so the operation that claims to "
+                    "consume randomness is the one that changes it, and a later `actionlog` records this "
+                    "already-produced transition rather than performing the advance. Proved: a second "
+                    "sequential loot consumes R_{n+1} not R_n; two distinct `(level, pos)` sources at one "
+                    "R_n do not collapse (the source is folded into the advance); the selected index "
+                    "equals an INDEPENDENT re-derivation straight from the SHA construction, not this "
+                    "module; a replay from the same R_0 reconstructs the same drops and streams; a WALL "
+                    "is a valid source (no traversability rule); and `rngstream` imports no `loot`, so "
+                    "the two authorities have separable failure surfaces"
+                    if cons_ok else "a loot consumption law did not hold")
+
+        try:
+            iso_ok = True
+            for s, d in [(s, d) for s, d in LO.CORPUS]:
+                iso_ok = iso_ok and LO.a_peek_does_not_advance(s, d)
+                iso_ok = iso_ok and LO.only_the_rng_advances(s, d)
+                iso_ok = iso_ok and LO.a_table_mutation_changes_only_the_selected_slot(s, d)
+            # the drop's identity is the item alone; the table is uniform, frozen and non-degenerate
+            item0 = LO.TABLE[0]
+            iso_ok = (iso_ok and LO.drop_bytes(item0) == b"URDRLOO1|item:" + item0.encode()
+                      and isinstance(LO.TABLE, tuple) and len(LO.TABLE) >= 8
+                      and len(set(LO.TABLE)) == len(LO.TABLE)
+                      and LO.refuse_is_total() == (True, True, True))
+            # the layer boundary, read off the AST at module scope: no `descent`, and the declared
+            # substrate is exactly `(hashlib, os, gamegen, move, rngstream)`
+            import ast
+            with open(os.path.join(gdir, "loot.py"), encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
+            top = set()
+            for node in tree.body:
+                if isinstance(node, ast.Import):
+                    top.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    top.add((node.module or "").split(".")[0])
+            iso_ok = (iso_ok and top == set(LO.ALLOWED_IMPORTS)
+                      and "descent" not in top and LO.LAYER == "CORE")
+        except Exception:
+            iso_ok = False
+        self.record("loot-isolation", iso_ok,
+                    "STATE ISOLATION AND EARNED SCOPE. After a loot event the level digest is unchanged, "
+                    "the source position is unchanged, and ONLY the RNG advances (the input stream is a "
+                    "fixed point, the successor a new object): loot GENERATES a drop the way `gamegen` "
+                    "generates a level, it does not mutate `level` or `entity`, and there is no inventory "
+                    "field for a drop to enter yet. What is EARNED is one UNIFORM selection from a frozen, "
+                    "non-degenerate table and nothing more — no rarity, weighting or quantity — and the "
+                    "drop's identity is the SELECTED ITEM alone (`URDRLOO1|item:<id>`), with the source "
+                    "and stream in the TRANSITION, not the result. A table mutation at the SELECTED slot "
+                    "changes the drop while a mutation elsewhere does not. The layer is stdlib plus "
+                    "`gamegen`/`move`/`rngstream`, read off the AST at module scope — and NOTABLY no "
+                    "`descent`, because traversability is not a loot rule; a wall is a valid source"
+                    if iso_ok else "a loot isolation or scope law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29516,7 +29632,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
-    "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend",
+    "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

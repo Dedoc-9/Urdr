@@ -10,7 +10,7 @@ roadmap is a list of debts, not of achievements.*
 
 ## 1. Where we are — the documentation-currency sweep
 
-Measured against the tree at the `descend` commit (the numbers are the live gate's own, not asserted):
+Measured against the tree at the `loot` commit (the numbers are the live gate's own, not asserted):
 
 | quantity | value | source |
 |---|---|---|
@@ -28,7 +28,7 @@ reproduces across CPython 3.10–3.14 on Windows and Linux, full clone and depth
 roadmap adds no gate rows**: it is documentation, so the rung that lands it must reproduce the gate
 output above unchanged — the cleanest possible check that a planning artifact smuggles in no claim.
 
-The six game-layer rungs that exist:
+The seven game-layer rungs that exist:
 
 - **`gamegen` (URDRGEN1)** — seed + depth → canonical level → digest. The first module admitted under
   D24 §1, CORE, stdlib-only. Depth kept as three claims (representation / admission / generation).
@@ -52,10 +52,15 @@ The six game-layer rungs that exist:
   stairs-up (`move.spawn`). It consumes `gamegen`'s depth authority (the `DEPTH_MAX` ceiling refusal is
   inherited, no second depth law) and `descent`'s stair locators; its one new refusal is descending off
   the down-stairs; it touches no RNG (the successor is fully determined by seed and depth+1).
+- **`loot` (URDRLOO1)** — the first canonical consumer of the RNG stream. From a source `(level, pos)`
+  and the current `R_n` it derives a uniform selection over a frozen table by a `peek`, and one `advance`
+  folding the source produces `R_{n+1}` — `(source, R_n) → (drop, R_{n+1})`, the first real action that
+  advances `URDRRNG1`. It owns the advance, changes no state but the RNG (no inventory field yet, so the
+  drop is a generated result), and requires no traversability of the source.
 
 And the two boundary contracts:
 
-- **D24** — the game-layer boundary (canonical state vs. view), with §9 now recording six admitted
+- **D24** — the game-layer boundary (canonical state vs. view), with §9 now recording seven admitted
   modules.
 - **D25** — the KINEMA preregistration (this rung), the view-side refinement membrane, DECLARED and
   prospective.
@@ -64,13 +69,13 @@ And the two boundary contracts:
 
 KINEMA refines an authoritative transition `D_n → D_{n+1}`. Between `descent` and KINEMA there are
 **eleven rungs**, each grounded in D24 §2 (the canonical-state shape) and §3 (what enters the
-verification regime). The first four have LANDED: `move` (rung 1) produced the first authoritative
+verification regime). The first five have LANDED: `move` (rung 1) produced the first authoritative
 `D_n → D_{n+1}`, `entity` (rung 2) made the entity a content-addressed component so the whole ladder
 speaks one identity vocabulary, `rngstream` (rung 3) added the first *stateful* canonical component (the
-deterministic RNG stream), and `descend` (rung 4) added the first transition that changes depth — seven
-rungs remain before KINEMA. Working names only for the unbuilt rungs; the tree's rule is *measure
-first, then name and build*, so each name is finalized at its own rung (as `transition` finalized to
-`move`).
+deterministic RNG stream), `descend` (rung 4) added the first transition that changes depth, and `loot`
+(rung 5) is the first real consumer of the RNG stream — six rungs remain before KINEMA. Working names
+only for the unbuilt rungs; the tree's rule is *measure first, then name and build*, so each name is
+finalized at its own rung (as `transition` finalized to `move`).
 
 | # | rung (working name) | D24 grounding | consumes | falsifier shape |
 |---|---|---|---|---|
@@ -78,7 +83,7 @@ first, then name and build*, so each name is finalized at its own rung (as `tran
 | 2 | **entity** — LANDED as `entity` (URDRETY1) | §2 entity state | transition | the entity is a content-addressed record; identical declared fields = identical entity; only position is earned (`FIELDS = ("pos",)`); an undeclared (view-only) field refuses typed rather than entering the digest; `move` names the entity by its digest, so there is one identity vocabulary through to `statecanon` |
 | 3 | **rngstream** — LANDED as `rngstream` (URDRRNG1) | §2 RNG state | entity | the first *stateful* canonical component: rooted at the run's `seed` domain-separated, advanced only by canonical actions with an explicit `(n, R_n)` identity; a read cannot advance it (structural); same seed + same actions → same stream, a different action sequence diverges; `move` is measured to leave it a fixed point |
 | 4 | **descend** — LANDED as `descend` (URDRDEP1) | §3 depth bound *at a door* | `gamegen`, transition | from the down-stairs the successor is `gamegen.generate(seed, d+1)` at that level's stairs-up (`move.spawn`); the `DEPTH_MAX` ceiling refuses `GAMEGEN-REFUSE` before generating (inherited, no second depth law); the new level reproduces `gamegen`'s digest; descending off the down-stairs refuses; no RNG consumed |
-| 5 | **loot** | §3 loot generation | rngstream, `gamegen` | seed + level + source → deterministic drop, pinned corpus, an independent expected result; a mutated table diverges |
+| 5 | **loot** — LANDED as `loot` (URDRLOO1) | §3 loot generation | rngstream, `gamegen`, `move` | `(source, R_n) → (drop, R_{n+1})`: `S = move.state_digest(level, pos)`, `peek` derives a uniform selection over a frozen table, one `advance` folding the source consumes the event; the selection matches an independent SHA oracle; a mutated table diverges at the selected slot; a wall is a valid source; only the RNG advances |
 | 6 | **combat** | §3 combat *arithmetic* | entity, rngstream | damage/mitigation/hit obey the declared formula (formula is data); a planted off-by-one reddens. *Not* "combat is balanced" (§4) |
 | 7 | **heirloom** | §3 heirloom progression | entity, `ratchet` | retirement inherits a quantity that grows by a declared fraction each generation; direction + baseline enforced, a shrink reddens |
 | 8 | **actionlog** | §2 authoritative action history | transition, entity | the ordered inputs replay consumes; a reordered log that changes the run reddens; the log is replay's sole input |
@@ -170,10 +175,10 @@ the heirloom ratchet, the deterministic loot) is a gated falsifier rather than a
 
 ## 5. The discipline note
 
-This roadmap is a list of debts. Four of §2's eleven rungs now exist — `move` (rung 1), `entity`
-(rung 2), `rngstream` (rung 3) and `descend` (rung 4) — seven remain; KINEMA does not exist; §4's
-benefits are prospective. What exists is `gamegen`, `descent`, `move`, `entity`, `rngstream`,
-`descend`, and two boundary contracts, all gated and reproducible. The value of stating the ladder and the marketability case now
+This roadmap is a list of debts. Five of §2's eleven rungs now exist — `move` (rung 1), `entity`
+(rung 2), `rngstream` (rung 3), `descend` (rung 4) and `loot` (rung 5) — six remain; KINEMA does not
+exist; §4's benefits are prospective. What exists is `gamegen`, `descent`, `move`, `entity`,
+`rngstream`, `descend`, `loot`, and two boundary contracts, all gated and reproducible. The value of stating the ladder and the marketability case now
 is the same as the value of a preregistration: it fixes the contract *before* the implementation can
 define it retroactively, and it lets the commercial claims be checked against the gate as each rung
 lands, rather than asserted ahead of the evidence. Rung 1 LANDED as `move` (URDRMOV1) — the name
@@ -184,6 +189,9 @@ it by its digest and there is one identity vocabulary through to `statecanon`. R
 at the run's `seed`, advanced only by canonical actions, its digest entering canonical identity. Rung 4
 LANDED as `descend` (URDRDEP1): the first transition that changes depth — from the down-stairs the
 successor is `gamegen.generate(seed, d+1)` at that level's stairs-up, the `DEPTH_MAX` ceiling inherited
-from `gamegen`, no RNG consumed. The next substantive rung is **loot** (§2 rung 5): the first real
-consumer of `rngstream` — seed + level + source → a deterministic drop, an independent expected result,
-a mutated table diverging. KINEMA is still the destination, not the next step.
+from `gamegen`, no RNG consumed. Rung 5 LANDED as `loot` (URDRLOO1): the first real consumer of
+`rngstream` — `(source, R_n) → (drop, R_{n+1})`, a uniform selection over a frozen table by a `peek`
+plus one `advance` folding the source, checked against an independent SHA oracle, with a mutated table
+diverging and only the RNG advancing. The next substantive rung is **combat** (§2 rung 6): damage,
+mitigation and hit obey a declared formula (the formula is data), a planted off-by-one reddens — *not*
+"combat is balanced". KINEMA is still the destination, not the next step.
