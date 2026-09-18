@@ -309,6 +309,7 @@ STAGE_ORDER = (
     "rngstream",
     "descend",
     "loot",
+    "combat",
     "authority",
     "exempt",
     "disposition",
@@ -4907,7 +4908,7 @@ class Gate:
             structural, prose, owners = RT.the_structural_heuristic_is_refuted()
             c = RT.census()
             pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
-                      and structural == 80 and prose == 11 and owners == 3
+                      and structural == 81 and prose == 11 and owners == 3
                       and all(c[k] for k in RT.KINDS)
                       and RT.a_citation_is_not_a_promise() == (True, False)
                       and RT.the_law_matches_itself() == (True, True, True))
@@ -4941,17 +4942,19 @@ class Gate:
                     "while pre-registering a cost measurement, and `criticality` arriving on the "
                     "STRUCTURAL side instead. A hand-kept roster would have stayed at seven and been "
                     "wrong within a day, three times over. "
-                    "AND THE REFUTED HEURISTIC GREW TWICE MORE, WHICH IS THE SAME EVIDENCE FROM THE "
-                    "OTHER SIDE: it returned 78 when it was written, 79 at `criticality`'s "
-                    "`DEFICIT_CEIL = 0` (an upper bound on a measured rounding deficit), and 80 now "
-                    "at `rngstream`'s `SEED_BITS = 64` — a bit-width REPRESENTATION constant flagged "
-                    "only because the RNG stream's `seed_domain_matches_gamegen` law compares it to "
-                    "`gamegen.SEED_BITS` to prove the two seed domains are single-sourced. It has "
-                    "nothing to do with a debt and lands squarely in the PHYSICAL BOUNDS class this "
-                    "row already names. A NEW INSTANCE OF AN ALREADY REFUTED READING, arriving "
-                    "unprompted from a rung built for something else entirely, is worth more than the "
-                    "original count: the structural population is re-derived every run precisely so "
-                    "the inversion keeps being justified by measurement rather than by this paragraph"
+                    "AND THE REFUTED HEURISTIC GREW THREE TIMES MORE, WHICH IS THE SAME EVIDENCE FROM "
+                    "THE OTHER SIDE: it returned 78 when it was written, 79 at `criticality`'s "
+                    "`DEFICIT_CEIL = 0` (an upper bound on a measured rounding deficit), 80 at "
+                    "`rngstream`'s `SEED_BITS = 64` (a bit-width REPRESENTATION constant compared to "
+                    "`gamegen.SEED_BITS` to prove the two seed domains are single-sourced), and 81 "
+                    "now at `combat`'s `STAT_MAX = 255` — the declared byte domain of the "
+                    "damage-resolution law, flagged only because `_is_stat` compares an input against "
+                    "it (`0 <= v <= STAT_MAX`). It is an INPUT-DOMAIN bound, squarely in the PHYSICAL "
+                    "BOUNDS class this row already names, with nothing to do with a debt. THREE "
+                    "SUCCESSIVE GAME-LAYER RUNGS have now each dropped one structural candidate "
+                    "unprompted, which is worth more than the original count: the structural "
+                    "population is re-derived every run precisely so the inversion keeps being "
+                    "justified by measurement rather than by this paragraph"
                     if pop_ok else "the ratchet promise population is not closed")
 
         hist_ok, verds = True, ()
@@ -5851,6 +5854,112 @@ class Gate:
                     "`gamegen`/`move`/`rngstream`, read off the AST at module scope — and NOTABLY no "
                     "`descent`, because traversability is not a loot rule; a wall is a valid source"
                     if iso_ok else "a loot isolation or scope law did not hold")
+
+    def combat(self):
+        """THE CERTIFIED DAMAGE-RESOLUTION LAW: a derived result, not persistent state (URDRCMB1) — the
+        eighth game-layer vertical slice, and the first that is a CERTIFIED ARITHMETIC LAW rather than a
+        state transition. Rows: scenes, resolution, isolation. D24 §3's gateable sentence ("damage
+        calculation is deterministic and obeys the declared formula") and nothing of §4's "combat is
+        balanced". The formula is `damage = max(0, attack - defense)` over `0..STAT_MAX`; the transition
+        fork was settled B (a pure function, no entity mutation, no health field earned), and the smallest
+        law is deterministic so there is NO `rngstream` edge."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import combat as CB
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("combat:scenes", "combat-resolution", "combat-isolation"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (CB.emitted_matches_pinned()
+                         and all(CB.scene_result(n) == CB.golden(n) for n in CB.SCENES)
+                         and CB.combat_digest() == CB.golden("combat")
+                         and CB.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("combat:scenes", scenes_ok,
+                    "the two URDRCMB1 scenes (`table`, `laws`) and the top digest reproduce from what the "
+                    "module emits; `table` pins STAT_MAX, a declared (attack, defense) grid and the frozen "
+                    "boundary tuples each with its resolved damage, `laws` pins the falsifier booleans, and "
+                    "an unpinned name refuses typed"
+                    if scenes_ok else "a combat scene drifted")
+
+        try:
+            res_ok = (CB.resolve_matches_the_independent_oracle()
+                      and CB.the_frozen_boundary_tuples_match()
+                      and CB.a_fully_mitigated_attack_is_exactly_zero()
+                      and CB.an_overcoming_attack_is_exactly_the_difference()
+                      and CB.damage_is_monotone()
+                      and CB.two_inputs_produce_different_results()
+                      and CB.a_planted_mutation_reddens())
+            # the law itself, checked here against a THIRD independent oracle written in this stage
+            # (a loop, sharing no code with resolve's `max` or the module's `min` oracle)
+            def _loop(a, d):
+                x = a
+                for _ in range(d):
+                    if x > 0:
+                        x -= 1
+                return x
+            spot = [(0, 0), (5, 5), (6, 5), (5, 6), (10, 3), (255, 254), (255, 0), (0, 255), (128, 64)]
+            res_ok = res_ok and all(CB.resolve(a, d) == _loop(a, d) for a, d in spot)
+        except Exception:
+            res_ok = False
+        self.record("combat-resolution", res_ok,
+                    "THE DECLARED FORMULA IS OBEYED, and the resolution is checked against a NEUTRAL RULER, "
+                    "not against itself: `resolve(attack, defense) = max(0, attack - defense)` equals an "
+                    "INDEPENDENT `attack - min(attack, defense)` oracle over the whole `0..STAT_MAX` square "
+                    "AND a third loop-based oracle written in this stage on a spot set, and a corpus of "
+                    "FROZEN LITERAL boundary tuples (sharing no code with `resolve`) matches — so a `+1`, a "
+                    "`<`-vs-`<=`, or a floor-clamp mutation is caught by a ruler that could not inherit the "
+                    "same bug. Mitigation is exact subtraction above a FLOOR OF ZERO (a fully-mitigated "
+                    "attack deals nothing; a minimum-damage rule is a later rung's); damage is monotone; "
+                    "the law is not constant; and each of three planted mutations "
+                    "(`max(0,.)->max(1,.)`, `a-d -> a-d+1`, dropped exact-tie damage) reddens against the "
+                    "oracle, so the falsifier is non-vacuous — this is D24 §3's gateable sentence, never §4"
+                    if res_ok else "a combat resolution law did not hold")
+
+        try:
+            iso_ok = CB.refuse_is_total() == (True, True) and CB.the_module_is_a_stdlib_leaf()
+            # malformed and out-of-range inputs refuse typed; the domain excludes bool
+            for bad in (-1, CB.STAT_MAX + 1, 1.0, "5", None, True):
+                try:
+                    CB.resolve(bad, 0); iso_ok = False
+                except CB.CombatError as exc:
+                    iso_ok = iso_ok and exc.code == "COMBAT-REFUSE"
+            # the layer boundary, read off the AST at module scope: stdlib only, no game modules,
+            # no result representation claimed yet
+            import ast
+            with open(os.path.join(gdir, "combat.py"), encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
+            top = set()
+            for node in tree.body:
+                if isinstance(node, ast.Import):
+                    top.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    top.add((node.module or "").split(".")[0])
+            iso_ok = (iso_ok and top == set(CB.ALLOWED_IMPORTS) and top == {"hashlib", "os"}
+                      and not ({"entity", "move", "rngstream", "gamegen", "descent"} & top)
+                      and CB.LAYER == "CORE"
+                      and not hasattr(CB, "damage_bytes") and not hasattr(CB, "damage_digest"))
+        except Exception:
+            iso_ok = False
+        self.record("combat-isolation", iso_ok,
+                    "EARNED SCOPE AND A CLEAN LAYER. combat is a PURE FUNCTION: it mutates nothing, persists "
+                    "nothing, and its declared substrate is stdlib ONLY (`hashlib`, `os`) — no `entity`, no "
+                    "`move`, no `rngstream`, read off its own AST — because the transition fork was settled "
+                    "B (a derived result, not `(attacker, defender) -> (attacker', defender')`) and the "
+                    "smallest law is deterministic, so importing the stream because it exists is refused. "
+                    "Persistent HP is DEFERRED: `entity.FIELDS == (\"pos\",)` and the construction chain "
+                    "`entity.at(pos) -> entity.digest_at(pos) -> move.state_bytes` means adding a health "
+                    "field would BREAK `move`, so it belongs at the rung where persistence is required. What "
+                    "is EARNED is one integer resolution and nothing more — no minimum-damage floor, no "
+                    "division, no hit/miss, no randomness — and the result has NO canonical representation "
+                    "yet (a damage integer is not named by anything), so the conformance corpus IS the "
+                    "identity. Malformed or out-of-range inputs (bool excluded) refuse typed COMBAT-REFUSE"
+                    if iso_ok else "a combat isolation or scope law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29632,7 +29741,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
-    "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot",
+    "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

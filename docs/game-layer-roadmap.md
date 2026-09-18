@@ -69,13 +69,14 @@ And the two boundary contracts:
 
 KINEMA refines an authoritative transition `D_n → D_{n+1}`. Between `descent` and KINEMA there are
 **eleven rungs**, each grounded in D24 §2 (the canonical-state shape) and §3 (what enters the
-verification regime). The first five have LANDED: `move` (rung 1) produced the first authoritative
+verification regime). The first six have LANDED: `move` (rung 1) produced the first authoritative
 `D_n → D_{n+1}`, `entity` (rung 2) made the entity a content-addressed component so the whole ladder
 speaks one identity vocabulary, `rngstream` (rung 3) added the first *stateful* canonical component (the
-deterministic RNG stream), `descend` (rung 4) added the first transition that changes depth, and `loot`
-(rung 5) is the first real consumer of the RNG stream — six rungs remain before KINEMA. Working names
-only for the unbuilt rungs; the tree's rule is *measure first, then name and build*, so each name is
-finalized at its own rung (as `transition` finalized to `move`).
+deterministic RNG stream), `descend` (rung 4) added the first transition that changes depth, `loot`
+(rung 5) is the first real consumer of the RNG stream, and `combat` (rung 6) is the first certified
+arithmetic law — a derived damage result, not a state transition — five rungs remain before KINEMA.
+Working names only for the unbuilt rungs; the tree's rule is *measure first, then name and build*, so each
+name is finalized at its own rung (as `transition` finalized to `move`).
 
 | # | rung (working name) | D24 grounding | consumes | falsifier shape |
 |---|---|---|---|---|
@@ -84,7 +85,7 @@ finalized at its own rung (as `transition` finalized to `move`).
 | 3 | **rngstream** — LANDED as `rngstream` (URDRRNG1) | §2 RNG state | entity | the first *stateful* canonical component: rooted at the run's `seed` domain-separated, advanced only by canonical actions with an explicit `(n, R_n)` identity; a read cannot advance it (structural); same seed + same actions → same stream, a different action sequence diverges; `move` is measured to leave it a fixed point |
 | 4 | **descend** — LANDED as `descend` (URDRDEP1) | §3 depth bound *at a door* | `gamegen`, transition | from the down-stairs the successor is `gamegen.generate(seed, d+1)` at that level's stairs-up (`move.spawn`); the `DEPTH_MAX` ceiling refuses `GAMEGEN-REFUSE` before generating (inherited, no second depth law); the new level reproduces `gamegen`'s digest; descending off the down-stairs refuses; no RNG consumed |
 | 5 | **loot** — LANDED as `loot` (URDRLOO1) | §3 loot generation | rngstream, `gamegen`, `move` | `(source, R_n) → (drop, R_{n+1})`: `S = move.state_digest(level, pos)`, `peek` derives a uniform selection over a frozen table, one `advance` folding the source consumes the event; the selection matches an independent SHA oracle; a mutated table diverges at the selected slot; a wall is a valid source; only the RNG advances |
-| 6 | **combat** | §3 combat *arithmetic* | entity, rngstream | damage/mitigation/hit obey the declared formula (formula is data); a planted off-by-one reddens. *Not* "combat is balanced" (§4) |
+| 6 | **combat** — LANDED as `combat` (URDRCMB1) | §3 combat *arithmetic* | — (a stdlib leaf) | `resolve(attack, defense) = max(0, attack − defense)` over `0..STAT_MAX` — the smallest law that still mitigates; checked exhaustively against an independent `a−min(a,d)` oracle and frozen literal tuples (not itself), a planted off-by-one reddening. Settled a DERIVED result (not `(attacker, defender) → (attacker′, defender′)`): persistent health would break `move`'s position-only construction, so it is deferred and combat generates a damage integer. Deterministic, so NO `rngstream` edge. *Not* "combat is balanced" (§4) |
 | 7 | **heirloom** | §3 heirloom progression | entity, `ratchet` | retirement inherits a quantity that grows by a declared fraction each generation; direction + baseline enforced, a shrink reddens |
 | 8 | **actionlog** | §2 authoritative action history | transition, entity | the ordered inputs replay consumes; a reordered log that changes the run reddens; the log is replay's sole input |
 | 9 | **persist** | §3 persistence | the state fields | a run serializes/restores/re-binds bit-identically; a truncated or tampered save refuses typed |
@@ -192,6 +193,13 @@ successor is `gamegen.generate(seed, d+1)` at that level's stairs-up, the `DEPTH
 from `gamegen`, no RNG consumed. Rung 5 LANDED as `loot` (URDRLOO1): the first real consumer of
 `rngstream` — `(source, R_n) → (drop, R_{n+1})`, a uniform selection over a frozen table by a `peek`
 plus one `advance` folding the source, checked against an independent SHA oracle, with a mutated table
-diverging and only the RNG advancing. The next substantive rung is **combat** (§2 rung 6): damage,
-mitigation and hit obey a declared formula (the formula is data), a planted off-by-one reddens — *not*
-"combat is balanced". KINEMA is still the destination, not the next step.
+diverging and only the RNG advancing. Rung 6 LANDED as `combat` (URDRCMB1): the first certified
+arithmetic law — `resolve(attack, defense) = max(0, attack − defense)` over a declared byte domain, the
+smallest law that still mitigates, checked exhaustively against an independent `a−min(a,d)` oracle and
+frozen literal tuples (never itself) with a planted off-by-one reddening. The transition fork was settled
+toward a DERIVED result rather than `(attacker, defender) → (attacker′, defender′)`: persistent health
+would break `move`'s position-only construction, so it is deferred and combat generates a damage integer
+the way `loot` generated a drop; deterministic, so no `rngstream` edge, a stdlib leaf. The next
+substantive rung is **heirloom** (§3 rung 7): retirement inherits a quantity that grows by a declared
+fraction each generation, direction and baseline enforced, a shrink reddening. KINEMA is still the
+destination, not the next step.
