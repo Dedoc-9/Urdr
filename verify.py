@@ -310,6 +310,7 @@ STAGE_ORDER = (
     "descend",
     "loot",
     "combat",
+    "heirloom",
     "authority",
     "exempt",
     "disposition",
@@ -5960,6 +5961,117 @@ class Gate:
                     "yet (a damage integer is not named by anything), so the conformance corpus IS the "
                     "identity. Malformed or out-of-range inputs (bool excluded) refuse typed COMBAT-REFUSE"
                     if iso_ok else "a combat isolation or scope law did not hold")
+
+    def heirloom(self):
+        """THE CERTIFIED GENERATIONAL-GROWTH LAW: a derived quantity, not persistent state (URDRHEI1) — the
+        ninth game-layer vertical slice, and the second certified ARITHMETIC LAW (after `combat`). Rows:
+        scenes, growth, isolation. D24 §3's heirloom progression, gateable as "the growth is deterministic
+        and obeys the declared fraction" and never §4's "the progression is balanced". The formula is
+        `heir(q) = q + (q * NUM) // DEN` (NUM/DEN = 1/8), monotone NON-DECREASING; the transition fork was
+        settled `quantity -> quantity'` (a pure function, no persistence, no entity field, because the game
+        layer has no persistence substrate and adding a progression field would break `move`), so it is a
+        stdlib leaf that imports nothing under tools/."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import heirloom as HL
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("heirloom:scenes", "heirloom-growth", "heirloom-isolation"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (HL.emitted_matches_pinned()
+                         and all(HL.scene_result(n) == HL.golden(n) for n in HL.SCENES)
+                         and HL.heirloom_digest() == HL.golden("heirloom")
+                         and HL.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("heirloom:scenes", scenes_ok,
+                    "the two URDRHEI1 scenes (`table`, `laws`) and the top digest reproduce from what the "
+                    "module emits; `table` pins NUM/DEN, a declared quantity grid, the frozen boundary tuples "
+                    "each with its grown successor, and a golden generational sequence, `laws` pins the "
+                    "falsifier booleans, and an unpinned name refuses typed"
+                    if scenes_ok else "a heirloom scene drifted")
+
+        try:
+            grow_ok = (HL.heir_matches_the_independent_oracles()
+                       and HL.the_frozen_boundary_tuples_match()
+                       and HL.growth_never_shrinks()
+                       and HL.the_generational_sequence_is_monotone()
+                       and HL.growth_is_strict_above_the_threshold()
+                       and HL.two_inputs_produce_different_results()
+                       and HL.a_planted_mutation_reddens())
+            # the law itself, checked here against a THIRD independent oracle written in this stage
+            # (accumulate the fractional growth in a loop; no floor division, no combined numerator)
+            def _accrue(q):
+                acc, g = q * HL.NUM, 0
+                while acc >= HL.DEN:
+                    acc -= HL.DEN
+                    g += 1
+                return q + g
+            spot = [0, 1, 7, 8, 9, 16, 64, 100, 128, 200, 255]
+            grow_ok = grow_ok and all(HL.heir(q) == _accrue(q) for q in spot)
+            # generations are a COMPUTED sequence, monotone and unbounded (not capped by the corpus bound)
+            seq = HL.generations(HL.CORPUS_MAX, 5)
+            grow_ok = grow_ok and seq[-1] > HL.CORPUS_MAX and all(seq[i + 1] >= seq[i] for i in range(len(seq) - 1))
+        except Exception:
+            grow_ok = False
+        self.record("heirloom-growth", grow_ok,
+                    "THE DECLARED FRACTION IS OBEYED, and the growth is checked against a NEUTRAL RULER, not "
+                    "itself: `heir(q) = q + (q * NUM) // DEN` (NUM/DEN = 1/8) equals an INDEPENDENT "
+                    "combined-numerator oracle `(q*(DEN+NUM))//DEN` AND a count-of-multiples oracle that uses "
+                    "NO floor division AND a third loop-accrual oracle written in this stage, over the whole "
+                    "`0..CORPUS_MAX` corpus, and a corpus of FROZEN LITERAL boundary tuples (sharing no code "
+                    "with `heir`) matches — so a shrink, a replace-not-grow, or an off-by-one is caught by a "
+                    "ruler that could not inherit the same bug. THE DIRECTION IS ENFORCED: growth is monotone "
+                    "NON-DECREASING (`heir(q) >= q` for every q; the generational sequence never falls), "
+                    "STRICTLY positive for `q >= DEN/NUM` and EXACTLY zero below it — the intentional "
+                    "zero-growth region of the declared fraction, asserted rather than hidden, and a "
+                    "minimum-growth `max(1, ...)` clamp is a DEFERRED law whose mutation reddens here. The "
+                    "generations are a COMPUTED sequence, monotone and unbounded (not capped by the corpus). "
+                    "Each of four planted mutations (shrink, replace, off-by-one, deferred min-growth-1) "
+                    "reddens against the oracle, so the falsifier is non-vacuous — D24 §3's gateable "
+                    "sentence, never §4"
+                    if grow_ok else "a heirloom growth law did not hold")
+
+        try:
+            iso_ok = HL.refuse_is_total() == (True, True) and HL.the_module_is_a_stdlib_leaf()
+            for bad in (-1, 1.0, "5", None, True):
+                try:
+                    HL.heir(bad); iso_ok = False
+                except HL.HeirloomError as exc:
+                    iso_ok = iso_ok and exc.code == "HEIRLOOM-REFUSE"
+            import ast
+            with open(os.path.join(gdir, "heirloom.py"), encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
+            top = set()
+            for node in tree.body:
+                if isinstance(node, ast.Import):
+                    top.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    top.add((node.module or "").split(".")[0])
+            iso_ok = (iso_ok and top == set(HL.ALLOWED_IMPORTS) and top == {"hashlib", "os"}
+                      and not ({"entity", "persist", "rngstream", "move", "gamegen", "descent"} & top)
+                      and HL.LAYER == "CORE"
+                      and not hasattr(HL, "quantity_bytes") and not hasattr(HL, "heir_digest"))
+        except Exception:
+            iso_ok = False
+        self.record("heirloom-isolation", iso_ok,
+                    "EARNED SCOPE AND A CLEAN LAYER. heirloom is a PURE FUNCTION: it mutates nothing, persists "
+                    "nothing, and its declared substrate is stdlib ONLY (`hashlib`, `os`) — no `entity`, "
+                    "`persist`, `rngstream` or any game/verification module, read off its own AST — because "
+                    "the transition fork was settled `quantity -> quantity'` (a derived result), NOT "
+                    "`persistent_state -> persistent_state'`. The measurement found NO game-layer persistence "
+                    "substrate (the `persist` rung is unbuilt; the existing persist.py/URDRLAT5 is another "
+                    "arc), so making a container inside heirloom would be architectural invention; where the "
+                    "quantity LIVES, entity binding and persistence are DEFERRED. What is EARNED is one "
+                    "monotone growth law and nothing more — no minimum-growth floor, no randomness — and the "
+                    "result has NO canonical representation yet (a grown quantity is not named by anything), "
+                    "so the conformance corpus IS the identity. Malformed or negative inputs (bool excluded) "
+                    "refuse typed HEIRLOOM-REFUSE"
+                    if iso_ok else "a heirloom isolation or scope law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29741,7 +29853,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "sealframe", "sealsession", "sealwrit",
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
-    "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat",
+    "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

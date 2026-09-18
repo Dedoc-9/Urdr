@@ -69,14 +69,15 @@ And the two boundary contracts:
 
 KINEMA refines an authoritative transition `D_n → D_{n+1}`. Between `descent` and KINEMA there are
 **eleven rungs**, each grounded in D24 §2 (the canonical-state shape) and §3 (what enters the
-verification regime). The first six have LANDED: `move` (rung 1) produced the first authoritative
+verification regime). The first seven have LANDED: `move` (rung 1) produced the first authoritative
 `D_n → D_{n+1}`, `entity` (rung 2) made the entity a content-addressed component so the whole ladder
 speaks one identity vocabulary, `rngstream` (rung 3) added the first *stateful* canonical component (the
 deterministic RNG stream), `descend` (rung 4) added the first transition that changes depth, `loot`
-(rung 5) is the first real consumer of the RNG stream, and `combat` (rung 6) is the first certified
-arithmetic law — a derived damage result, not a state transition — five rungs remain before KINEMA.
-Working names only for the unbuilt rungs; the tree's rule is *measure first, then name and build*, so each
-name is finalized at its own rung (as `transition` finalized to `move`).
+(rung 5) is the first real consumer of the RNG stream, `combat` (rung 6) is the first certified arithmetic
+law (a derived damage result, not a state transition), and `heirloom` (rung 7) is the second — a derived
+generational-growth quantity — four rungs remain before KINEMA. Working names only for the unbuilt rungs;
+the tree's rule is *measure first, then name and build*, so each name is finalized at its own rung (as
+`transition` finalized to `move`).
 
 | # | rung (working name) | D24 grounding | consumes | falsifier shape |
 |---|---|---|---|---|
@@ -86,7 +87,7 @@ name is finalized at its own rung (as `transition` finalized to `move`).
 | 4 | **descend** — LANDED as `descend` (URDRDEP1) | §3 depth bound *at a door* | `gamegen`, transition | from the down-stairs the successor is `gamegen.generate(seed, d+1)` at that level's stairs-up (`move.spawn`); the `DEPTH_MAX` ceiling refuses `GAMEGEN-REFUSE` before generating (inherited, no second depth law); the new level reproduces `gamegen`'s digest; descending off the down-stairs refuses; no RNG consumed |
 | 5 | **loot** — LANDED as `loot` (URDRLOO1) | §3 loot generation | rngstream, `gamegen`, `move` | `(source, R_n) → (drop, R_{n+1})`: `S = move.state_digest(level, pos)`, `peek` derives a uniform selection over a frozen table, one `advance` folding the source consumes the event; the selection matches an independent SHA oracle; a mutated table diverges at the selected slot; a wall is a valid source; only the RNG advances |
 | 6 | **combat** — LANDED as `combat` (URDRCMB1) | §3 combat *arithmetic* | — (a stdlib leaf) | `resolve(attack, defense) = max(0, attack − defense)` over `0..STAT_MAX` — the smallest law that still mitigates; checked exhaustively against an independent `a−min(a,d)` oracle and frozen literal tuples (not itself), a planted off-by-one reddening. Settled a DERIVED result (not `(attacker, defender) → (attacker′, defender′)`): persistent health would break `move`'s position-only construction, so it is deferred and combat generates a damage integer. Deterministic, so NO `rngstream` edge. *Not* "combat is balanced" (§4) |
-| 7 | **heirloom** | §3 heirloom progression | entity, `ratchet` | retirement inherits a quantity that grows by a declared fraction each generation; direction + baseline enforced, a shrink reddens |
+| 7 | **heirloom** — LANDED as `heirloom` (URDRHEI1) | §3 heirloom progression | — (a stdlib leaf) | `heir(q) = q + (q · NUM) // DEN`, `NUM/DEN = 1/8` — monotone non-decreasing growth by a declared fraction, checked exhaustively against an independent combined-numerator oracle and a floor-free count oracle (not itself), a planted shrink/off-by-one reddening. Settled a DERIVED quantity (not `persistent_retirement_state → …'`): the measurement found no game-layer persistence substrate (the `persist` rung is unbuilt; the existing `persist.py` is a different arc), and a progression field would break `move`, so where the quantity lives is deferred and generations are a computed sequence. Predicted `entity`/`ratchet` deps superseded by measurement. *Not* "the progression is balanced" (§4) |
 | 8 | **actionlog** | §2 authoritative action history | transition, entity | the ordered inputs replay consumes; a reordered log that changes the run reddens; the log is replay's sole input |
 | 9 | **persist** | §3 persistence | the state fields | a run serializes/restores/re-binds bit-identically; a truncated or tampered save refuses typed |
 | 10 | **replay** | §3 replay / lockstep | actionlog, persist, `lockstep.canon` | two peers assembling the same action union in different orders produce the same run; replay is byte-identical with observers active |
@@ -199,7 +200,15 @@ smallest law that still mitigates, checked exhaustively against an independent `
 frozen literal tuples (never itself) with a planted off-by-one reddening. The transition fork was settled
 toward a DERIVED result rather than `(attacker, defender) → (attacker′, defender′)`: persistent health
 would break `move`'s position-only construction, so it is deferred and combat generates a damage integer
-the way `loot` generated a drop; deterministic, so no `rngstream` edge, a stdlib leaf. The next
-substantive rung is **heirloom** (§3 rung 7): retirement inherits a quantity that grows by a declared
-fraction each generation, direction and baseline enforced, a shrink reddening. KINEMA is still the
+the way `loot` generated a drop; deterministic, so no `rngstream` edge, a stdlib leaf. Rung 7 LANDED as
+`heirloom` (URDRHEI1): the second certified arithmetic law — `heir(q) = q + (q · NUM) // DEN` with
+`NUM/DEN = 1/8`, monotone non-decreasing growth by a declared fraction (an integer ratio with floor
+division, not a `Fraction`), checked exhaustively against an independent combined-numerator oracle and a
+floor-free count-of-multiples oracle and frozen literal tuples, a planted shrink or off-by-one reddening.
+The transition fork was again settled toward a DERIVED quantity rather than a persistent retirement state:
+the measurement found no game-layer persistence substrate (the `persist` rung is unbuilt; the existing
+`persist.py` is a different arc), and a progression field would break `move`, so where the quantity lives
+is deferred and the generations are a computed sequence — a stdlib leaf whose predicted `entity`/`ratchet`
+dependencies are superseded by measurement. The next substantive rung is **actionlog** (§2 rung 8): the
+ordered inputs replay consumes, a reordered log that changes the run reddening. KINEMA is still the
 destination, not the next step.
