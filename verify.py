@@ -311,6 +311,7 @@ STAGE_ORDER = (
     "loot",
     "combat",
     "heirloom",
+    "actionlog",
     "authority",
     "exempt",
     "disposition",
@@ -6072,6 +6073,119 @@ class Gate:
                     "so the conformance corpus IS the identity. Malformed or negative inputs (bool excluded) "
                     "refuse typed HEIRLOOM-REFUSE"
                     if iso_ok else "a heirloom isolation or scope law did not hold")
+
+    def actionlog(self):
+        """THE AUTHORITATIVE RECOVERABLE ACTION HISTORY: order composed, actions readable back (URDRACT1) —
+        the tenth game-layer vertical slice, the first SEQUENCE/ORDER rung and the first CONSUMER (not a
+        stdlib leaf) since `loot`. Rows: scenes, order, isolation. D24 §2's "authoritative action history".
+        It COMPOSES `rngstream`'s ordered fold rather than duplicating it: the log's order-committing digest
+        IS `rngstream.apply` from a declared seed-independent root, `append` is one `rngstream.advance`, and
+        the tokens stay opaque (no `move`/`entity` interpretation earned). RECOVERABILITY is the capability
+        the stream lacks; the stream-agreement law is the external ruler."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import actionlog as AL
+            import rngstream as RN8
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("actionlog:scenes", "actionlog-order", "actionlog-isolation"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (AL.emitted_matches_pinned()
+                         and all(AL.scene_result(n) == AL.golden(n) for n in AL.SCENES)
+                         and AL.actionlog_digest() == AL.golden("actionlog")
+                         and AL.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("actionlog:scenes", scenes_ok,
+                    "the two URDRACT1 scenes (`log`, `laws`) and the top digest reproduce from what the "
+                    "module emits; `log` pins a corpus of logs (empty, single, move-like, loot-like, mixed "
+                    "str/bytes, and an explicit reorder pair) each with its count, entries and digest, `laws` "
+                    "pins the falsifier booleans, and an unpinned name refuses typed"
+                    if scenes_ok else "an actionlog scene drifted")
+
+        try:
+            ord_ok = (AL.str_and_bytes_are_the_same_action()
+                      and AL.append_is_immutable_and_order_sensitive()
+                      and AL.the_empty_log_has_a_canonical_identity()
+                      and all(AL.entries_recover_the_appended_order(a) for a in AL.CORPUS)
+                      and all(AL.each_append_is_one_advance(AL.from_actions(a), "Z") for a in AL.CORPUS)
+                      and all(AL.the_log_reproduces_a_run_stream(s, acts) for s, acts in AL.AGREE)
+                      and all(AL.a_reordered_log_diverges_the_run_stream(s, acts) for s, acts in AL.AGREE)
+                      and AL.a_reorder_changes_the_committed_state("A", "B")
+                      and AL.a_reorder_changes_the_committed_state("N", b"loot:x"))
+            # the digest IS rngstream's fold from the declared root, checked here independently of the module
+            for seq in AL.CORPUS:
+                log = AL.from_actions(seq)
+                if AL.digest(log) != RN8.stream_digest(RN8.apply(AL.LOG_ROOT, AL.entries(log))):
+                    ord_ok = False
+            # the external ruler, recomputed in this stage: folding the log through a run seed reproduces the
+            # run's stream, and a reorder diverges it — checked against rngstream, not actionlog's own digest
+            seed, acts = 0xABCDEF, ("loot:p", "loot:q", "v0")
+            log = AL.from_actions(acts)
+            fwd = RN8.stream_digest(RN8.apply(RN8.root(seed), AL.entries(log)))
+            direct = RN8.stream_digest(RN8.apply(RN8.root(seed), tuple(
+                a if isinstance(a, bytes) else a.encode() for a in acts)))
+            rev = RN8.stream_digest(RN8.apply(RN8.root(seed), AL.entries(log)[::-1]))
+            ord_ok = ord_ok and fwd == direct and fwd != rev
+        except Exception:
+            ord_ok = False
+        self.record("actionlog-order", ord_ok,
+                    "ORDER IS COMPOSED, NOT DUPLICATED, and CERTIFIED BY AN AUTHORITY THIS MODULE DOES NOT "
+                    "OWN. The log's order-committing digest IS `rngstream.apply` from a declared, "
+                    "seed-independent, domain-separated root (`LOG_ROOT = Stream(0, SHA(URDRACT1|root))`), and "
+                    "`append` is EXACTLY one `rngstream.advance` — no second hash chain. `[A,B]` and `[B,A]` "
+                    "commit to DIFFERENT states while a `str`/`bytes` equivalence commits to the SAME state "
+                    "(one vocabulary, `rngstream`'s). THE EXTERNAL RULER: folding the logged actions through "
+                    "`rngstream.apply(root(seed), entries)` REPRODUCES that run's stream and a reordered log "
+                    "DIVERGES it — so a reorder is caught by the STREAM, not by agreeing with actionlog's own "
+                    "digest — recomputed in this stage against `rngstream` directly. It is a recoverable "
+                    "SOURCE SEQUENCE that reproduces a stream, NOT a claim to be the unique preimage of an "
+                    "arbitrary stream state (the transition is one-way). Entries recover the exact appended "
+                    "order — the capability the stream lacks"
+                    if ord_ok else "an actionlog order or agreement law did not hold")
+
+        try:
+            iso_ok = (AL.refuse_is_total() == (True, True)
+                      and AL.the_ordering_builds_no_second_chain()
+                      and AL.rngstream_does_not_depend_on_actionlog())
+            for bad in (0, None, ("v",), 1.0, [1]):
+                try:
+                    AL.append(AL.empty(), bad); iso_ok = False
+                except AL.ActionlogError as exc:
+                    iso_ok = iso_ok and exc.code == "ACTIONLOG-REFUSE"
+            # the layer boundary, read off the AST at module scope: rngstream + stdlib, no move/entity, and
+            # no result-object invention beyond the recoverable entries
+            import ast
+            with open(os.path.join(gdir, "actionlog.py"), encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
+            top = set()
+            for node in tree.body:
+                if isinstance(node, ast.Import):
+                    top.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    top.add((node.module or "").split(".")[0])
+            iso_ok = (iso_ok and top == set(AL.ALLOWED_IMPORTS) and top == {"hashlib", "os", "rngstream"}
+                      and not ({"move", "entity", "gamegen", "descent", "persist"} & top)
+                      and AL.LAYER == "CORE")
+        except Exception:
+            iso_ok = False
+        self.record("actionlog-isolation", iso_ok,
+                    "EARNED SCOPE AND A CLEAN LAYER. actionlog is the first CONSUMER (not a leaf) since `loot`: "
+                    "its declared substrate is `rngstream` plus stdlib (`hashlib`, `os`) — no `move`, no "
+                    "`entity`, no `persist`, read off its AST — because the tokens are OPAQUE (no canonical "
+                    "action vocabulary has been earned; `move`'s commands do not advance the stream and there "
+                    "is no typed command type) and it imports nothing to make the log look game-specific. The "
+                    "ORDERING builds no second hash chain (the ordering functions carry no `hashlib`; the only "
+                    "`hashlib.sha256` is the root constant, read off the AST). What is DEFERRED: that the log "
+                    "is replay's sole input (replay is unbuilt), that it survives a process (persistence is "
+                    "`persist`'s, rung 9), a typed vocabulary, and entity/snapshot binding. A malformed action "
+                    "or a malformed log refuses typed ACTIONLOG-REFUSE, and `rngstream` imports no `actionlog` "
+                    "so the two authorities have separable failure surfaces"
+                    if iso_ok else "an actionlog isolation or scope law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29854,6 +29968,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
+    "actionlog",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

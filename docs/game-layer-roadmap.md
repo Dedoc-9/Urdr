@@ -69,15 +69,16 @@ And the two boundary contracts:
 
 KINEMA refines an authoritative transition `D_n → D_{n+1}`. Between `descent` and KINEMA there are
 **eleven rungs**, each grounded in D24 §2 (the canonical-state shape) and §3 (what enters the
-verification regime). The first seven have LANDED: `move` (rung 1) produced the first authoritative
+verification regime). The first eight have LANDED: `move` (rung 1) produced the first authoritative
 `D_n → D_{n+1}`, `entity` (rung 2) made the entity a content-addressed component so the whole ladder
 speaks one identity vocabulary, `rngstream` (rung 3) added the first *stateful* canonical component (the
 deterministic RNG stream), `descend` (rung 4) added the first transition that changes depth, `loot`
 (rung 5) is the first real consumer of the RNG stream, `combat` (rung 6) is the first certified arithmetic
-law (a derived damage result, not a state transition), and `heirloom` (rung 7) is the second — a derived
-generational-growth quantity — four rungs remain before KINEMA. Working names only for the unbuilt rungs;
-the tree's rule is *measure first, then name and build*, so each name is finalized at its own rung (as
-`transition` finalized to `move`).
+law (a derived damage result, not a state transition), `heirloom` (rung 7) is the second — a derived
+generational-growth quantity — and `actionlog` (rung 8) is the first sequence/order rung, the recoverable
+ordered action history that composes `rngstream`'s fold — three rungs remain before KINEMA. Working names
+only for the unbuilt rungs; the tree's rule is *measure first, then name and build*, so each name is
+finalized at its own rung (as `transition` finalized to `move`).
 
 | # | rung (working name) | D24 grounding | consumes | falsifier shape |
 |---|---|---|---|---|
@@ -88,7 +89,7 @@ the tree's rule is *measure first, then name and build*, so each name is finaliz
 | 5 | **loot** — LANDED as `loot` (URDRLOO1) | §3 loot generation | rngstream, `gamegen`, `move` | `(source, R_n) → (drop, R_{n+1})`: `S = move.state_digest(level, pos)`, `peek` derives a uniform selection over a frozen table, one `advance` folding the source consumes the event; the selection matches an independent SHA oracle; a mutated table diverges at the selected slot; a wall is a valid source; only the RNG advances |
 | 6 | **combat** — LANDED as `combat` (URDRCMB1) | §3 combat *arithmetic* | — (a stdlib leaf) | `resolve(attack, defense) = max(0, attack − defense)` over `0..STAT_MAX` — the smallest law that still mitigates; checked exhaustively against an independent `a−min(a,d)` oracle and frozen literal tuples (not itself), a planted off-by-one reddening. Settled a DERIVED result (not `(attacker, defender) → (attacker′, defender′)`): persistent health would break `move`'s position-only construction, so it is deferred and combat generates a damage integer. Deterministic, so NO `rngstream` edge. *Not* "combat is balanced" (§4) |
 | 7 | **heirloom** — LANDED as `heirloom` (URDRHEI1) | §3 heirloom progression | — (a stdlib leaf) | `heir(q) = q + (q · NUM) // DEN`, `NUM/DEN = 1/8` — monotone non-decreasing growth by a declared fraction, checked exhaustively against an independent combined-numerator oracle and a floor-free count oracle (not itself), a planted shrink/off-by-one reddening. Settled a DERIVED quantity (not `persistent_retirement_state → …'`): the measurement found no game-layer persistence substrate (the `persist` rung is unbuilt; the existing `persist.py` is a different arc), and a progression field would break `move`, so where the quantity lives is deferred and generations are a computed sequence. Predicted `entity`/`ratchet` deps superseded by measurement. *Not* "the progression is balanced" (§4) |
-| 8 | **actionlog** | §2 authoritative action history | transition, entity | the ordered inputs replay consumes; a reordered log that changes the run reddens; the log is replay's sole input |
+| 8 | **actionlog** — LANDED as `actionlog` (URDRACT1) | §2 authoritative action history | `rngstream` | the ordered inputs replay will consume, recoverable where the stream discards them; order composed via `rngstream.apply` from a declared seed-independent root (`append` is one `rngstream.advance`, no second hash chain), `[A,B]` ≠ `[B,A]` while `str`/`bytes` agree; the log reproduces a run's stream and a reorder diverges it, certified against `rngstream`. Tokens opaque (no typed vocabulary earned), so no `move`/`entity`; predicted `transition`/`entity` deps superseded by measurement. The log is replay's sole input is DEFERRED until `replay` exists |
 | 9 | **persist** | §3 persistence | the state fields | a run serializes/restores/re-binds bit-identically; a truncated or tampered save refuses typed |
 | 10 | **replay** | §3 replay / lockstep | actionlog, persist, `lockstep.canon` | two peers assembling the same action union in different orders produce the same run; replay is byte-identical with observers active |
 | 11 | **statecanon** | §2 the assembled snapshot | all of the above | seed + world identity + dungeon + entity + RNG + action history digested as one `D_n`; a view quantity in the digest reddens; the snapshot round-trips |
@@ -209,6 +210,15 @@ The transition fork was again settled toward a DERIVED quantity rather than a pe
 the measurement found no game-layer persistence substrate (the `persist` rung is unbuilt; the existing
 `persist.py` is a different arc), and a progression field would break `move`, so where the quantity lives
 is deferred and the generations are a computed sequence — a stdlib leaf whose predicted `entity`/`ratchet`
-dependencies are superseded by measurement. The next substantive rung is **actionlog** (§2 rung 8): the
-ordered inputs replay consumes, a reordered log that changes the run reddening. KINEMA is still the
-destination, not the next step.
+dependencies are superseded by measurement. Rung 8 LANDED as `actionlog` (URDRACT1): the first sequence/order
+rung and the first consumer since `loot`, the authoritative recoverable action history. `rngstream` already
+commits to the ordered history but DISCARDS the actions (its transition is one-way), so `actionlog` owns
+RECOVERABILITY — the actions readable back, which `replay` will need. Order is COMPOSED, not reinvented: the
+log digest IS `rngstream.apply` from a declared seed-independent root, `append` is one `rngstream.advance`,
+and there is no second hash chain; a reorder is certified against the STREAM (folding the log through a run
+seed reproduces that run's stream, a reorder diverges it) rather than against actionlog's own digest — a
+recoverable source sequence that reproduces a stream, not a unique preimage. Tokens stay opaque (no canonical
+action vocabulary earned), so it imports no `move`/`entity`; the "replay consumes only this" claim,
+persistence and typed actions are deferred. The next substantive rung is **persist** (§3 rung 9):
+serialize/restore/re-bind a run bit-identically, a truncated or tampered save refusing typed. KINEMA is still
+the destination, not the next step.
