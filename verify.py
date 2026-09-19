@@ -316,6 +316,7 @@ STAGE_ORDER = (
     "enact",
     "rerun",
     "statecanon",
+    "kinema",
     "authority",
     "exempt",
     "disposition",
@@ -6657,6 +6658,170 @@ class Gate:
                     "and importing neither (read off the AST), plus no `lockstep` (single-peer, Slice A); none "
                     "of the three neighbouring laws absorbs another"
                     if bnd_ok else "a statecanon boundary / framing / ownership law did not hold")
+
+    def kinema(self):
+        """THE ONE-WAY OBSERVER-SPACE REFINEMENT OF AN AUTHORITATIVE TRANSITION (URDRKIN1) — the fifteenth
+        game-layer vertical slice, D25's cinematic membrane, and the FIRST game-layer VIEW module. Rows:
+        scenes, refine, membrane. It is HANDED a real `enact` transition (D_n -> D_{n+1}) that `statecanon`
+        identifies, and refines the POSITION between the endpoints in the frozen Q32.32 substrate; it never
+        computes the successor it observes (imports no move/descend/loot/enact, reaches no .step/.dispatch/
+        .apply, read off its FULL AST). Containment consumes `descent.traversable`; a forged pair refuses. The
+        membrane is one-way: the observer-presence differential shows the canonical transcript is byte-identical
+        whether or not KINEMA is exercised (D25 §14)."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import kinema as KN
+            import gamegen as GG15
+            import descent as DC15
+            import move as MV15
+            import rngstream as RN15
+            import entity as EN15
+            import actionlog as AL15
+            import enact as EA15
+            import savegame as SG15
+            import statecanon as SC15
+            import rerun as RP15
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("kinema:scenes", "kinema-refine", "kinema-membrane"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (KN.emitted_matches_pinned()
+                         and all(KN.scene_result(n) == KN.golden(n) for n in KN.SCENES)
+                         and KN.kinema_digest() == KN.golden("kinema")
+                         and KN.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("kinema:scenes", scenes_ok,
+                    "the two URDRKIN1 scenes (`refinement`, `membrane`) and the top digest reproduce from what "
+                    "the module emits; `refinement` pins a corpus of real `descent`-traversable move edges by "
+                    "their exact G(alpha) frame sequence (alpha, refined Q32.32, floored cell, carried "
+                    "witnesses, class), and `membrane` pins the falsifier booleans; an unpinned name refuses "
+                    "typed KINEMA-REFUSE"
+                    if scenes_ok else "a kinema scene drifted")
+
+        # build a REAL authoritative MOVE transition through enact, identified at both ends by statecanon
+        def _real_move(seed, depth):
+            lvl = GG15.generate(seed, depth)
+            up = DC15.endpoints(lvl)[0]
+            for c in ("N", "S", "E", "W"):
+                if MV15.step(lvl, up, c)[0] == MV15.MOVED:
+                    s0 = (lvl, up, RN15.root(seed))
+                    tok = EA15.encode("MOVE", c)
+                    s1, _o = EA15.dispatch(s0, tok)
+                    dn = SC15.d_n(s0[0], EN15.at(s0[1]), s0[2], AL15.empty())
+                    dn1 = SC15.d_n(s1[0], EN15.at(s1[1]), s1[2], AL15.append(AL15.empty(), tok))
+                    return s0, s1, dn, dn1
+            return None
+
+        try:
+            ref_ok = (all(KN.endpoints_land_exactly(s, d) for s, d in KN.SEEDS)
+                      and all(KN.every_sample_is_contained(s, d) for s, d in KN.SEEDS)
+                      and all(KN.the_level_cut_is_not_interpolated(s, d) for s, d in KN.SEEDS)
+                      and all(KN.the_fixed_point_is_stationary(s, d) for s, d in KN.SEEDS)
+                      and all(KN.the_witness_is_carried_verbatim(s, d) for s, d in KN.SEEDS))
+            # recompute the refinement against a live enact transition + real statecanon identities
+            rm = _real_move(0xABCDE, 3)
+            s0, s1, dn, dn1 = rm
+            self_cls = KN.classify(s0[0], s0[1], s1[0], s1[1])
+            fs = KN.frames(s0[0], s0[1], dn, s1[0], s1[1], dn1, 11, 6)
+            ref_ok = (ref_ok and self_cls == KN.MOVED
+                      and KN.floor_cell(fs[0].refined) == s0[1]
+                      and KN.floor_cell(fs[-1].refined) == s1[1]
+                      and fs[0].alpha == 0 and fs[-1].alpha == KN.ONE
+                      and all(KN.floor_cell(f.refined) in (s0[1], s1[1]) for f in fs)
+                      and all(f.witness_n == dn and f.witness_m == dn1 and f.source_tick == 11 for f in fs))
+            # a real DESCEND is a discrete level cut; a real LOOT is a spatial fixed point
+            lvl_d = GG15.generate(7, 2)
+            down = DC15.endpoints(lvl_d)[1]
+            sd, _dep = EA15.dispatch((lvl_d, down, RN15.root(7)), EA15.encode("DESCEND"))
+            ref_ok = ref_ok and KN.classify(lvl_d, down, sd[0], sd[1]) == KN.LEVELCUT
+            up_l = DC15.endpoints(lvl_d)[0]
+            sl, _drop = EA15.dispatch((lvl_d, up_l, RN15.root(7)), EA15.encode("LOOT"))
+            ref_ok = ref_ok and KN.classify(lvl_d, up_l, sl[0], sl[1]) == KN.FIXED
+        except Exception:
+            ref_ok = False
+        self.record("kinema-refine", ref_ok,
+                    "THE VIEW REFINES A REAL TRANSITION AND AGREES WITH THE AUTHORITY AT THE ENDPOINTS. Handed "
+                    "a live `enact` MOVE (D_n -> D_{n+1}) identified at both ends by `statecanon`, KINEMA lands "
+                    "alpha=0 on A and alpha=ONE on B exactly and keeps every Q32.32 sample floored within "
+                    "{A, B} (recomputed here over the corpus and against the live transition); it carries both "
+                    "endpoint witnesses VERBATIM (equal to the real statecanon digests). Only a MOVED "
+                    "transition is spatially refined: a real DESCEND classifies LEVELCUT (a discrete two-frame "
+                    "cut, not interpolated across the level change) and a real LOOT classifies FIXED (a spatial "
+                    "fixed point) — the three transition kinds have different temporal semantics"
+                    if ref_ok else "a kinema refinement / endpoint / classification law did not hold")
+
+        try:
+            mem_ok = (all(KN.a_forged_wall_crossing_refuses(s, d) for s, d in KN.SEEDS)
+                      and all(KN.a_forged_nonadjacent_refuses(s, d) for s, d in KN.SEEDS)
+                      and all(KN.sampling_is_view_only(s, d) for s, d in KN.SEEDS)
+                      and all(KN.refuse_is_total(s, d) == (True, True, True) for s, d in KN.SEEDS)
+                      and KN.the_membrane_is_one_way())
+            # the one-way guard reads the FULL AST (function-local imports included) and is direction-aware,
+            # with a positive control — recomputed here
+            mem_ok = (mem_ok and KN._source_is_one_way(open(os.path.join(gdir, "kinema.py"),
+                                                            encoding="utf-8").read())
+                      and not KN._source_is_one_way(
+                          "def f(s, t):\n    import enact as _E\n    return _E.dispatch(s, t)\n")
+                      and not KN._source_is_one_way("import move\n")
+                      and not KN._source_is_one_way("x = y.step(1)\n"))
+            # the declared substrate, read off the AST, and the VIEW layer
+            import ast as _ast
+            with open(os.path.join(gdir, "kinema.py"), encoding="utf-8") as fh:
+                ktree = _ast.parse(fh.read())
+            ktop = set()
+            for node in _ast.walk(ktree):
+                if isinstance(node, _ast.Import):
+                    ktop.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, _ast.ImportFrom):
+                    ktop.add((node.module or "").split(".")[0])
+            mem_ok = (mem_ok and ktop == set(KN.ALLOWED_IMPORTS)
+                      and not ({"move", "descend", "loot", "enact", "statecanon", "rerun", "lockstep"} & ktop)
+                      and KN.LAYER == "VIEW")
+            # the FORBIDDEN direction: no CORE game module imports kinema (a reverse CORE -> VIEW edge)
+            for name in ("gamegen", "descent", "move", "entity", "rngstream", "descend", "loot",
+                         "combat", "heirloom", "actionlog", "savegame", "enact", "rerun", "statecanon"):
+                with open(os.path.join(gdir, name + ".py"), encoding="utf-8") as fh:
+                    ctree = _ast.parse(fh.read())
+                ctop = set()
+                for node in _ast.walk(ctree):
+                    if isinstance(node, _ast.Import):
+                        ctop.update(a.name.split(".")[0] for a in node.names)
+                    elif isinstance(node, _ast.ImportFrom):
+                        ctop.add((node.module or "").split(".")[0])
+                mem_ok = mem_ok and "kinema" not in ctop
+            # THE OBSERVER-PRESENCE DIFFERENTIAL (D25 §14): the canonical transcript is byte-identical whether
+            # or not KINEMA is exercised. Capture the canonical component identities and a replay verdict,
+            # exercise the observer over real transitions, and require every one unchanged.
+            before = (SC15.statecanon_digest(), RP15.rerun_digest(), EA15.enact_digest(),
+                      SG15.savegame_digest(), GG15.digest_of(0xABCDE, 3))
+            rec, _toks, _f = RP15._saved_run(0xABCDE, 3, 3, 2)
+            verdict_before = RP15.verdict(rec)
+            s0, s1, dn, dn1 = _real_move(0xABCDE, 3)
+            KN.frames(s0[0], s0[1], dn, s1[0], s1[1], dn1, 0, 144)     # exercise the observer, heavily sampled
+            after = (SC15.statecanon_digest(), RP15.rerun_digest(), EA15.enact_digest(),
+                     SG15.savegame_digest(), GG15.digest_of(0xABCDE, 3))
+            mem_ok = mem_ok and after == before and RP15.verdict(rec) == verdict_before
+        except Exception:
+            mem_ok = False
+        self.record("kinema-membrane", mem_ok,
+                    "THE MEMBRANE IS ONE-WAY AND THE OBSERVER ACQUIRES NO AUTHORITY. A forged wall-crossing "
+                    "(Plant A — a BLOCKED move presented as motion, target a wall) and a forged non-adjacent "
+                    "pair (Plant B) both refuse typed KINEMA-REFUSE against `descent.traversable`, the real "
+                    "topology, never a mock. The one-way guard reads KINEMA's OWN FULL AST — function-local "
+                    "imports INCLUDED, closing the escape hatch the tree's top-level-only guards leave open — "
+                    "and is direction-aware: it imports exactly its declared substrate (no move/descend/loot/"
+                    "enact/statecanon/rerun/lockstep) and reaches no .step/.dispatch/.apply mutator, with a "
+                    "synthetic forbidden module rejected as the positive control; and no CORE module imports "
+                    "kinema (the forbidden CORE -> VIEW direction). THE OBSERVER-PRESENCE DIFFERENTIAL (§14): "
+                    "exercising KINEMA over live transitions at 144 samples leaves the canonical component "
+                    "identities and the `rerun` replay verdict BYTE-IDENTICAL — the existence of the observer "
+                    "does not alter the certified simulation. The sample count is view-only (Plant D)"
+                    if mem_ok else "a kinema membrane / forgery / one-way / differential law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -30439,7 +30604,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog", "savegame", "enact", "rerun", "statecanon",
+    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

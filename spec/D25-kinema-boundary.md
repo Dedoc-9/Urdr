@@ -12,6 +12,22 @@ lands it must classify cleanly under §2 and satisfy the falsifiers of §10, or 
 amended *before* the module is graded. The implementation does not get to define the contract after
 the fact.
 
+> **LANDED — 2026-09-19 (URDRKIN1).** `kinema` now satisfies this preregistration by RETRO-ADMISSION and
+> the contract below was NOT amended to admit it. It classifies cleanly under §2 (it PRODUCES a view of
+> canonical state; it does not AFFECT state), consumes a real `enact` transition `D_n → D_{n+1}` that
+> `statecanon` identifies rather than synthesising one, refines the entity POSITION in observer space over
+> the frozen Q32.32 substrate (never the digest), consumes `descent.traversable` for containment (§4), and
+> bites the §10 plants: Plant A (a BLOCKED move presented as motion, target a wall) and the realizable form
+> of Plant B (a forged non-adjacent/wall-crossing pair) refuse `KINEMA-REFUSE`; Plant C is the full-AST
+> direction-aware one-way guard (which also closes the function-local import escape hatch the tree's earlier
+> guards left open) plus the observer-presence differential of §14; Plant D is sampling invariance; Plant E
+> is the one-ULP perturbation, observable on the moving axis. Two §10 items are honestly recorded as NOT
+> realizable under the currently earned single-cell MOVE vocabulary and are DEFERRED rather than
+> manufactured: the literal `A─X─B` intermediate-wall containment (there is no cell between two adjacent
+> cells) and a bounded-i64 arithmetic model (§6 — a cross-placement obligation, the arithmetic is graded
+> reference on the frozen radix until then). The prospective text below is preserved as the contract
+> `kinema` was admitted against.
+
 Capability: `URDRKIN1` (proposed). Substrate: Q32.32 fixed-point view coordinates (proposed).
 Authority: the existing canonical discrete game state — `gamegen` (URDRGEN1) and its topology witness
 `descent` (URDRDSC1). Position in D24: **view-side refinement under §5 and §6**; no authority crosses
