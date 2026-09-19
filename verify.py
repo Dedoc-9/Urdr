@@ -313,6 +313,7 @@ STAGE_ORDER = (
     "heirloom",
     "actionlog",
     "savegame",
+    "enact",
     "authority",
     "exempt",
     "disposition",
@@ -6303,6 +6304,127 @@ class Gate:
                     "tree's `sha256`). Disk I/O, the assembled canonical D_n, replay-based reconstruction, "
                     "multi-entity rosters and manifests/windows are DEFERRED to later authorities"
                     if iso_ok else "a savegame integrity or isolation law did not hold")
+
+    def enact(self):
+        """THE TYPED ACTION AUTHORITY: A KIND, A PAYLOAD, AND ONE DISPATCH TO THE TRANSITION (URDRENA1) —
+        the twelfth game-layer vertical slice, the prerequisite between `actionlog` and `replay` (the chain is
+        now `actionlog -> typed action authority -> replay`). Rows: scenes, dispatch, neutral. The action
+        KINDS are EXACTLY the three canonical state transitions established by code sweep (MOVE -> move.step,
+        DESCEND -> descend.descend, LOOT -> loot.loot); `combat`/`heirloom` are pure derivations, excluded.
+        Dispatch BINDS the authorities and reimplements nothing; the RNG advances only on LOOT; ordering is
+        `actionlog`'s append order; the neutral ruler is `savegame`, which stored the components INDEPENDENTLY
+        of any dispatch."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import enact as EA
+            import move as MV12
+            import descend as DE12
+            import loot as LO12
+            import actionlog as AL12
+            import savegame as SG12
+            import gamegen as GG12
+            import entity as EN12
+            import rngstream as RN12
+            import descent as DC12
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("enact:scenes", "enact-dispatch", "enact-neutral"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (EA.emitted_matches_pinned()
+                         and all(EA.scene_result(n) == EA.golden(n) for n in EA.SCENES)
+                         and EA.enact_digest() == EA.golden("enact")
+                         and EA.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("enact:scenes", scenes_ok,
+                    "the two URDRENA1 scenes (`vocabulary`, `laws`) and the top digest reproduce from what the "
+                    "module emits; `vocabulary` pins the canonical token table (each kind and each move "
+                    "direction -> token hex), the kinds set, the move directions and the per-kind RNG-advance "
+                    "count, and `laws` pins the falsifier booleans; an unpinned name refuses typed"
+                    if scenes_ok else "an enact scene drifted")
+
+        try:
+            disp_ok = (EA.the_kinds_are_exactly_the_state_transitions()
+                       and EA.the_excluded_modules_are_pure_derivations()
+                       and EA.a_token_round_trips()
+                       and all(EA.move_dispatch_matches_the_authority(s, d) for s, d in EA.CORPUS)
+                       and all(EA.descend_dispatch_matches_the_authority(s, d) for s, d in EA.CORPUS)
+                       and all(EA.loot_dispatch_matches_the_authority(s, d) for s, d in EA.CORPUS)
+                       and all(EA.only_loot_advances_the_stream(s, d) for s, d in EA.CORPUS)
+                       and all(EA.a_bad_token_is_ours_a_bad_state_is_the_authoritys(s, d) for s, d in EA.CORPUS)
+                       and EA.the_router_reimplements_nothing()
+                       and EA.refuse_is_total() == (True, True))
+            # recompute one dispatch of each kind here, against each authority called DIRECTLY
+            lvl = GG12.generate(0, 1)
+            up, down = DC12.endpoints(lvl)
+            st = RN12.root(0)
+            (l_m, p_m, s_m), info_m = EA.dispatch((lvl, up, st), EA.encode("MOVE", "E"))
+            eo, ep = MV12.step(lvl, up, "E")
+            (l_l, p_l, s_l), info_l = EA.dispatch((lvl, up, st), EA.encode("LOOT"))
+            edrop, es = LO12.loot(lvl, up, st)
+            (l_d, p_d, s_d), info_d = EA.dispatch((lvl, down, st), EA.encode("DESCEND"))
+            el, epd = DE12.descend(lvl, down)
+            disp_ok = (disp_ok and p_m == ep and info_m == eo and s_m == st            # MOVE: no RNG
+                       and s_l == es and info_l == edrop and s_l.n == st.n + 1          # LOOT: +1 advance
+                       and p_d == epd and GG12.level_digest(l_d) == GG12.level_digest(el) and s_d == st  # DESCEND: no RNG
+                       and (EA.rng_advances("MOVE"), EA.rng_advances("DESCEND"),
+                            EA.rng_advances("LOOT")) == (0, 0, 1))
+            # a bad token is ours; a valid token on a bad state is the authority's
+            try:
+                EA.decode(b"Q"); own_ok = False
+            except EA.EnactError as exc:
+                own_ok = exc.code == "ENACT-REFUSE"
+            disp_ok = disp_ok and own_ok
+        except Exception:
+            disp_ok = False
+        self.record("enact-dispatch", disp_ok,
+                    "THE KINDS ARE EXACTLY THE STATE TRANSITIONS AND DISPATCH BINDS THEM. A code sweep fixes "
+                    "the vocabulary to MOVE/DESCEND/LOOT — the only CORE functions that take a canonical "
+                    "component and return an updated one — and `combat`/`heirloom` are excluded as pure "
+                    "derivations (they import no `gamegen`/`entity`/`rngstream`, read off their AST). A "
+                    "dispatched MOVE/DESCEND/LOOT EQUALS its authority (`move.step`/`descend.descend`/"
+                    "`loot.loot`) called directly, recomputed here; the router reimplements no transition "
+                    "(read off the AST). RNG ATTACHES BY KIND: the stream advances only on LOOT (0 for MOVE "
+                    "and DESCEND), so a recorded action is not a draw. A malformed TOKEN refuses typed "
+                    "ENACT-REFUSE while a valid token on a bad STATE surfaces the AUTHORITY's code"
+                    if disp_ok else "an enact dispatch / rng / ownership / router law did not hold")
+
+        try:
+            neu_ok = (all(EA.the_ordering_is_actionlog_append(s, d) for s, d in EA.CORPUS)
+                      and all(EA.the_dispatch_reproduces_the_savegame_ruler(s, d) for s, d in EA.CORPUS))
+            # recompute the neutral-ruler chain here against the INDEPENDENT savegame store, single-floor
+            toks = (EA.encode("LOOT"), EA.encode("MOVE", "E"), EA.encode("MOVE", "S"), EA.encode("LOOT"))
+            lvl0 = GG12.generate(0xABCDE, 3)
+            up0 = DC12.endpoints(lvl0)[0]
+            (lf, pf, sf), _i = EA.apply((lvl0, up0, RN12.root(0xABCDE)), toks)
+            rec = SG12.serialize(0xABCDE, 3, pf, sf, AL12.from_actions(toks))
+            s_r, d_r, level_r, ent_r, stream_r, log_r = SG12.restore(rec)
+            lvl_re = GG12.generate(s_r, d_r)
+            (lx, px, sx), _j = EA.apply((lvl_re, DC12.endpoints(lvl_re)[0], RN12.root(s_r)), AL12.entries(log_r))
+            neu_ok = (neu_ok and GG12.level_digest(lx) == GG12.level_digest(level_r)
+                      and EN12.digest_at(px) == EN12.entity_digest(ent_r) and sx == stream_r)
+            # corruption diverges: flip a recorded move direction
+            bad = list(AL12.entries(log_r))
+            for i, t in enumerate(bad):
+                if t == EA.encode("MOVE", "E"):
+                    bad[i] = EA.encode("MOVE", "W"); break
+            (lc, pc, sc), _k = EA.apply((lvl_re, DC12.endpoints(lvl_re)[0], RN12.root(s_r)), bad)
+            neu_ok = neu_ok and not (pc == px and sc == sx)
+        except Exception:
+            neu_ok = False
+        self.record("enact-neutral", neu_ok,
+                    "ORDERING IS `actionlog`'S APPEND ORDER AND THE NEUTRAL RULER IS `savegame`. A token "
+                    "sequence recovers through an `actionlog` in append order, and the full actionlog -> "
+                    "decode -> dispatch chain reproduces the level/entity/stream that `savegame` stored "
+                    "INDEPENDENTLY of any dispatch (recomputed here on a single floor), each identity checked "
+                    "against its OWN authority; a CORRUPTED token DIVERGES that reproduction, so the check is "
+                    "not vacuous. Cross-peer canonical ordering (`lockstep.canon`'s `(tick, peer, seq)`) is "
+                    "unearned by game actions and DEFERRED to `replay`; this rung is single-peer"
+                    if neu_ok else "the enact ordering or savegame neutral-ruler chain did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -30085,7 +30207,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog", "savegame",
+    "actionlog", "savegame", "enact",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
