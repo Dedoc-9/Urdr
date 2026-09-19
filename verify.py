@@ -314,6 +314,7 @@ STAGE_ORDER = (
     "actionlog",
     "savegame",
     "enact",
+    "rerun",
     "authority",
     "exempt",
     "disposition",
@@ -6425,6 +6426,106 @@ class Gate:
                     "not vacuous. Cross-peer canonical ordering (`lockstep.canon`'s `(tick, peer, seq)`) is "
                     "unearned by game actions and DEFERRED to `replay`; this rung is single-peer"
                     if neu_ok else "the enact ordering or savegame neutral-ruler chain did not hold")
+
+    def rerun(self):
+        """THE RECOVERED ACTION HISTORY MUST REPRODUCE THE INDEPENDENTLY STORED STATE (URDRRRN1) — the
+        thirteenth game-layer vertical slice, D24 §3's replay rung and a CERTIFICATION LAYER, not a new
+        simulation authority. Rows: scenes, reproduce, bind. From a saved run it reconstructs the ORIGIN from
+        earned state (seed, depth − DESCEND count, spawn, root — Slice B closed), folds the recovered history
+        through `enact`, and certifies the fold reproduces the state `savegame` stored INDEPENDENTLY. The
+        discriminator is (pos, stream); depth equality is tautological. It adds no transition or RNG
+        authority; single-peer (cross-peer `lockstep.canon` is Slice A, deferred)."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import rerun as RP
+            import savegame as SG13
+            import actionlog as AL13
+            import enact as EA13
+            import gamegen as GG13
+            import rngstream as RN13
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("rerun:scenes", "rerun-reproduce", "rerun-bind"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (RP.emitted_matches_pinned()
+                         and all(RP.scene_result(n) == RP.golden(n) for n in RP.SCENES)
+                         and RP.rerun_digest() == RP.golden("rerun")
+                         and RP.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("rerun:scenes", scenes_ok,
+                    "the two URDRRRN1 scenes (`reconstruction`, `laws`) and the top digest reproduce from "
+                    "what the module emits; `reconstruction` pins a corpus of runs by reconstructed origin "
+                    "depth, replay verdict and final (pos, stream) identity, and `laws` pins the falsifier "
+                    "booleans; an unpinned name refuses typed"
+                    if scenes_ok else "a replay scene drifted")
+
+        try:
+            rep_ok = (all(RP.a_run_reproduces_and_recovers_its_origin(s, d, f, l) for s, d, f, l in RP.CORPUS)
+                      and all(RP.a_deep_single_floor_run_reproduces(s, d) for s, d, _f, _l in RP.CORPUS)
+                      and all(RP.the_empty_log_replays_to_the_origin(s, d) for s, d, _f, _l in RP.CORPUS)
+                      and all(RP.only_loot_advances_across_a_replay(s, d) for s, d, _f, _l in RP.CORPUS))
+            # recompute a from-origin reproduction here, against the INDEPENDENT savegame components
+            rec, toks, (lvl, pos, strm) = RP._saved_run(0xABCDE, 3, 3, 2)
+            seed, depth, level_r, ent_r, stream_r, log = SG13.restore(rec)
+            depth0 = depth - RP.descend_count(log)
+            origin = RP.reconstruct_origin(seed, depth, log)
+            (flvl, fpos, fstrm), _ = EA13.apply(origin, AL13.entries(log))
+            v, _state = RP.replay(rec)
+            rep_ok = (rep_ok and v == RP.REPRODUCED and depth0 == 3
+                      and fpos == ent_r.get("pos") and fstrm == stream_r
+                      and GG13.level_digest(flvl) == GG13.level_digest(level_r)
+                      and GG13.level_digest(origin[0]) == GG13.level_digest(GG13.generate(seed, depth0)))
+        except Exception:
+            rep_ok = False
+        self.record("rerun-reproduce", rep_ok,
+                    "THE ORIGIN RECONSTRUCTS FROM EARNED STATE AND THE FOLD REPRODUCES THE INDEPENDENTLY "
+                    "STORED SAVEGAME. depth0 = savegame.depth − (DESCEND count in the actionlog) — depth "
+                    "moves only via descend, +1 — with level0 = gamegen.generate(seed, depth0), "
+                    "pos0 = move.spawn(level0), stream0 = rngstream.root(seed); no origin field is added to "
+                    "savegame and no hidden record is minted (Slice B closed). Folding the recovered history "
+                    "through `enact` from that origin reproduces the stored (level, pos, stream) bit-for-bit, "
+                    "recomputed here for a multi-floor run and holding across the corpus for deep single-floor "
+                    "runs (arbitrary start depth) and the empty log (which replays to the origin snapshot); a "
+                    "replayed run's stream advances only by its LOOT count"
+                    if rep_ok else "a replay reproduction or origin-reconstruction law did not hold")
+
+        try:
+            bind_ok = (all(RP.a_corrupted_history_diverges(s, d) for s, d, _f, _l in RP.CORPUS)
+                       and all(RP.a_reordered_history_diverges(s, d) for s, d, _f, _l in RP.CORPUS)
+                       and all(RP.a_deleted_action_diverges(s, d) for s, d, _f, _l in RP.CORPUS)
+                       and all(RP.an_inconsistent_pair_diverges(s, d) for s, d, _f, _l in RP.CORPUS)
+                       and all(RP.the_discriminator_is_pos_and_stream(s, d) == (True, True, True)
+                               for s, d, _f, _l in RP.CORPUS)
+                       and all(RP.origin_underflow_refuses(s, d) for s, d, _f, _l in RP.CORPUS)
+                       and all(RP.a_bogus_descend_surfaces_the_authority(s, d) for s, d, _f, _l in RP.CORPUS)
+                       and RP.a_malformed_record_is_savegames_refusal()
+                       and all(RP.a_malformed_token_is_enacts_refusal(s, d) for s, d, _f, _l in RP.CORPUS)
+                       and RP.the_fold_adds_no_authority())
+            # the binding is replay's, not savegame's: savegame accepts an inconsistent pair, replay diverges
+            r2, toks2, _f2 = RP._saved_flat_run(0, 1, 4, 3)
+            incon = RP._tamper_log(r2, list(toks2)[:-1])
+            SG13.restore(incon)                              # savegame is happy with the mismatched log
+            bind_ok = bind_ok and RP.verdict(incon) == RP.DIVERGED
+        except Exception:
+            bind_ok = False
+        self.record("rerun-bind", bind_ok,
+                    "REPLAY PERFORMS THE BINDING SAVEGAME DECLINES TO. `savegame` stores the log and the "
+                    "(pos, stream) INDEPENDENTLY (a mismatched pair restores without complaint), so replay is "
+                    "the law that catches it: a corrupted, reordered or deleted history and an envelope-valid "
+                    "record whose log does not fold to its stored state all DIVERGE against the independently "
+                    "stored ruler. The discriminator is (pos, stream) — depth equality is TAUTOLOGICAL "
+                    "because depth0 is derived from the stored depth, so it is never the ruler. Ownership "
+                    "stays crisp: origin underflow is replay's own RERUN-REFUSE, while a bogus DESCEND "
+                    "(DESCEND-REFUSE), a malformed token (ENACT-REFUSE) and a malformed record "
+                    "(SAVEGAME-REFUSE) surface their owning authority; the fold is `enact.apply` and mints no "
+                    "transition or RNG (read off the AST). Single-peer; cross-peer union (`lockstep.canon`'s "
+                    "(tick, peer, seq)) is unearned and DEFERRED (Slice A)"
+                    if bind_ok else "a replay binding / divergence / ownership law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -30207,7 +30308,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog", "savegame", "enact",
+    "actionlog", "savegame", "enact", "rerun",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
