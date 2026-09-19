@@ -69,16 +69,18 @@ And the two boundary contracts:
 
 KINEMA refines an authoritative transition `D_n → D_{n+1}`. Between `descent` and KINEMA there are
 **eleven rungs**, each grounded in D24 §2 (the canonical-state shape) and §3 (what enters the
-verification regime). The first eight have LANDED: `move` (rung 1) produced the first authoritative
+verification regime). The first nine have LANDED: `move` (rung 1) produced the first authoritative
 `D_n → D_{n+1}`, `entity` (rung 2) made the entity a content-addressed component so the whole ladder
 speaks one identity vocabulary, `rngstream` (rung 3) added the first *stateful* canonical component (the
 deterministic RNG stream), `descend` (rung 4) added the first transition that changes depth, `loot`
 (rung 5) is the first real consumer of the RNG stream, `combat` (rung 6) is the first certified arithmetic
 law (a derived damage result, not a state transition), `heirloom` (rung 7) is the second — a derived
-generational-growth quantity — and `actionlog` (rung 8) is the first sequence/order rung, the recoverable
-ordered action history that composes `rngstream`'s fold — three rungs remain before KINEMA. Working names
-only for the unbuilt rungs; the tree's rule is *measure first, then name and build*, so each name is
-finalized at its own rung (as `transition` finalized to `move`).
+generational-growth quantity — `actionlog` (rung 8) is the first sequence/order rung, the recoverable
+ordered action history that composes `rngstream`'s fold, and `persist` (rung 9) LANDED as `savegame`, the
+durable serialization of the earned canonical components (its own module/glyph, distinct from the MMO
+`persist.py`) — two rungs remain before KINEMA. Working names only for the unbuilt rungs; the tree's rule is
+*measure first, then name and build*, so each name is finalized at its own rung (as `transition` finalized to
+`move`, and `persist` to `savegame`).
 
 | # | rung (working name) | D24 grounding | consumes | falsifier shape |
 |---|---|---|---|---|
@@ -90,7 +92,7 @@ finalized at its own rung (as `transition` finalized to `move`).
 | 6 | **combat** — LANDED as `combat` (URDRCMB1) | §3 combat *arithmetic* | — (a stdlib leaf) | `resolve(attack, defense) = max(0, attack − defense)` over `0..STAT_MAX` — the smallest law that still mitigates; checked exhaustively against an independent `a−min(a,d)` oracle and frozen literal tuples (not itself), a planted off-by-one reddening. Settled a DERIVED result (not `(attacker, defender) → (attacker′, defender′)`): persistent health would break `move`'s position-only construction, so it is deferred and combat generates a damage integer. Deterministic, so NO `rngstream` edge. *Not* "combat is balanced" (§4) |
 | 7 | **heirloom** — LANDED as `heirloom` (URDRHEI1) | §3 heirloom progression | — (a stdlib leaf) | `heir(q) = q + (q · NUM) // DEN`, `NUM/DEN = 1/8` — monotone non-decreasing growth by a declared fraction, checked exhaustively against an independent combined-numerator oracle and a floor-free count oracle (not itself), a planted shrink/off-by-one reddening. Settled a DERIVED quantity (not `persistent_retirement_state → …'`): the measurement found no game-layer persistence substrate (the `persist` rung is unbuilt; the existing `persist.py` is a different arc), and a progression field would break `move`, so where the quantity lives is deferred and generations are a computed sequence. Predicted `entity`/`ratchet` deps superseded by measurement. *Not* "the progression is balanced" (§4) |
 | 8 | **actionlog** — LANDED as `actionlog` (URDRACT1) | §2 authoritative action history | `rngstream` | the ordered inputs replay will consume, recoverable where the stream discards them; order composed via `rngstream.apply` from a declared seed-independent root (`append` is one `rngstream.advance`, no second hash chain), `[A,B]` ≠ `[B,A]` while `str`/`bytes` agree; the log reproduces a run's stream and a reorder diverges it, certified against `rngstream`. Tokens opaque (no typed vocabulary earned), so no `move`/`entity`; predicted `transition`/`entity` deps superseded by measurement. The log is replay's sole input is DEFERRED until `replay` exists |
-| 9 | **persist** | §3 persistence | the state fields | a run serializes/restores/re-binds bit-identically; a truncated or tampered save refuses typed |
+| 9 | **persist** — LANDED as `savegame` (URDRSAV1) | §3 persistence | `gamegen`, `entity`, `rngstream`, `actionlog` | the earned canonical components `(seed, depth, pos, (n,R_n), actionlog)` serialize/restore/re-bind bit-identically — each independently recoverable (the level regenerated from seed/depth, no cells stored) and verified against its own digest; every flip/truncation and a re-sealed wrong-component refuse typed `SAVEGAME-REFUSE`. Persist STORES state; replay derives it (the stream is restored directly, never by folding the log). Own module/glyph because `persist.py`/URDRLAT5 is the MMO rollback-window arc — only the tree's `SHA(MAGIC\|content)` vocabulary is reused, not that module. NOT the assembled canonical `D_n` (statecanon's); disk I/O deferred |
 | 10 | **replay** | §3 replay / lockstep | actionlog, persist, `lockstep.canon` | two peers assembling the same action union in different orders produce the same run; replay is byte-identical with observers active |
 | 11 | **statecanon** | §2 the assembled snapshot | all of the above | seed + world identity + dungeon + entity + RNG + action history digested as one `D_n`; a view quantity in the digest reddens; the snapshot round-trips |
 | — | **KINEMA (URDRKIN1)** | D24 §5/§6, D25 | statecanon | reads `D_n`, `D_{n+1}`; refines for display; the D25 plant set (§10) |
@@ -219,6 +221,15 @@ and there is no second hash chain; a reorder is certified against the STREAM (fo
 seed reproduces that run's stream, a reorder diverges it) rather than against actionlog's own digest — a
 recoverable source sequence that reproduces a stream, not a unique preimage. Tokens stay opaque (no canonical
 action vocabulary earned), so it imports no `move`/`entity`; the "replay consumes only this" claim,
-persistence and typed actions are deferred. The next substantive rung is **persist** (§3 rung 9):
-serialize/restore/re-bind a run bit-identically, a truncated or tampered save refusing typed. KINEMA is still
-the destination, not the next step.
+persistence and typed actions are deferred. Rung 9 LANDED as `savegame` (URDRSAV1): D24 §3 persistence, the
+durable content-addressed serialization of the earned canonical components `(seed, depth, pos, (n,R_n),
+actionlog)`, each independently recoverable and reconstructed DIRECTLY on restore (the level regenerated from
+seed/depth, the entity from pos, the stream from (n,R_n), the log from its entries), each verified against its
+own digest, with every flip/truncation and a re-sealed wrong-component refusing typed. It has its own module
+and glyph because `persist.py`/URDRLAT5 is the MMO rollback-window arc bound to `storecost`/`horizon` and not
+reusable as a game-state API — only the tree's `SHA(MAGIC|content)` content-addressing vocabulary is reused.
+Persist STORES canonical state; replay derives it — the stream is restored directly, never by folding the log,
+so the boundary into `replay` is not crossed — and the record is a durable serialization of the earned
+components, NOT the assembled canonical `D_n`, which `statecanon` earns later. The next substantive rung is
+**replay** (§3 rung 10): two peers assembling the same action union in different orders produce the same run,
+replay byte-identical with observers active. KINEMA is still the destination, not the next step.

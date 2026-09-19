@@ -312,6 +312,7 @@ STAGE_ORDER = (
     "combat",
     "heirloom",
     "actionlog",
+    "savegame",
     "authority",
     "exempt",
     "disposition",
@@ -6186,6 +6187,122 @@ class Gate:
                     "or a malformed log refuses typed ACTIONLOG-REFUSE, and `rngstream` imports no `actionlog` "
                     "so the two authorities have separable failure surfaces"
                     if iso_ok else "an actionlog isolation or scope law did not hold")
+
+    def savegame(self):
+        """THE DURABLE SERIALIZATION OF THE EARNED CANONICAL COMPONENTS: persist stores state (URDRSAV1) —
+        the eleventh game-layer vertical slice, D24 §3's persistence rung (chain role "persist"). Rows:
+        scenes, roundtrip, isolation. It has its own module/glyph because `persist.py`/URDRLAT5 is the MMO
+        rollback-window arc (bound to `storecost`/`horizon`), not a game-state API; what is reused is the
+        tree's content-addressing vocabulary, not that module. PERSIST STORES STATE; REPLAY DERIVES IT — each
+        component is serialized independently and reconstructed DIRECTLY, never by folding the actionlog."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import savegame as SG
+            import gamegen as GG9
+            import entity as EN9
+            import rngstream as RN9
+            import actionlog as AL9
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("savegame:scenes", "savegame-roundtrip", "savegame-isolation"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (SG.emitted_matches_pinned()
+                         and all(SG.scene_result(n) == SG.golden(n) for n in SG.SCENES)
+                         and SG.savegame_digest() == SG.golden("savegame")
+                         and SG.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("savegame:scenes", scenes_ok,
+                    "the two URDRSAV1 scenes (`snapshot`, `laws`) and the top digest reproduce from what the "
+                    "module emits; `snapshot` pins a corpus of snapshots (gamegen seeds/depths, arbitrary "
+                    "positions, independent logs and streams) each with its record length and content address, "
+                    "`laws` pins the falsifier booleans, and an unpinned name refuses typed"
+                    if scenes_ok else "a savegame scene drifted")
+
+        try:
+            rt_ok = (all(SG.a_snapshot_round_trips(*c) for c in SG.CORPUS)
+                     and all(SG.restore_yields_usable_typed_state(*c) for c in SG.CORPUS)
+                     and SG.persist_is_not_replay(0, 1, (3, 4))
+                     and all(SG.the_level_is_regenerated_not_stored(*c) for c in SG.CORPUS)
+                     and SG.length_framing_is_unambiguous(0, 1, (2, 2)))
+            # recompute the round-trip and the re-bind here, against each component's OWN authority
+            seed, depth, pos = 0xABCDEF, 4, (5, 6)
+            st = RN9.apply(RN9.root(seed), ("loot:p", "loot:q"))
+            lg = AL9.from_actions(("N", "loot:p", "S", "loot:q"))
+            rec = SG.serialize(seed, depth, pos, st, lg)
+            s2, d2, level, ent, stream, log = SG.restore(rec)
+            rt_ok = (rt_ok and s2 == seed and d2 == depth
+                     and GG9.level_digest(level) == GG9.level_digest(GG9.generate(seed, depth))
+                     and ent.get("pos") == pos and EN9.entity_digest(ent) == EN9.entity_digest(EN9.at(pos))
+                     and stream == st and RN9.stream_digest(stream) == RN9.stream_digest(st)
+                     and AL9.entries(log) == AL9.entries(lg)
+                     and SG.serialize(s2, d2, ent.get("pos"), stream, log) == rec)
+            # persist is not replay, recomputed here: the stored stream differs from folding the log
+            folded = RN9.apply(RN9.root(seed), AL9.entries(lg))
+            rt_ok = rt_ok and RN9.stream_digest(stream) != RN9.stream_digest(folded)
+        except Exception:
+            rt_ok = False
+        self.record("savegame-roundtrip", rt_ok,
+                    "PERSIST STORES STATE, RESTORE RE-BINDS IT, AND PERSIST IS NOT REPLAY. The record "
+                    "round-trips BIT-FOR-BIT and `restore` yields USABLE TYPED state — a `gamegen.Level` "
+                    "REGENERATED from `(seed, depth)` (the record stores no cells; its size is independent of "
+                    "level dimensions), an `entity` reconstructed from `pos`, an `rngstream.Stream` "
+                    "reconstructed from `(n, R_n)`, and an `actionlog` from its entries — each verified against "
+                    "its OWN identity authority (`level_digest`/`entity_digest`/`stream_digest`/`actionlog "
+                    "digest`), not savegame's envelope alone. THE STREAM IS RESTORED DIRECTLY: a log that folds "
+                    "to a DIFFERENT stream still restores the STORED stream, so re-deriving state from the "
+                    "action history (replay's rung) is never crossed here. Length framing is unambiguous — a "
+                    "token that mimics a component encoding round-trips — because framing is by length, not "
+                    "delimiter. This is a durable serialization of the earned components, NOT the assembled "
+                    "canonical D_n (statecanon's)"
+                    if rt_ok else "a savegame round-trip, re-bind or persist-not-replay law did not hold")
+
+        try:
+            iso_ok = (SG.refuse_is_total() == (True, True)
+                      and SG.every_single_byte_flip_refuses(0, 1, (3, 4))
+                      and SG.every_truncation_refuses(0, 1, (3, 4))
+                      and SG.a_resealed_wrong_component_refuses(0, 1, (3, 4))
+                      and SG.does_not_import_persist_or_mint_identity()
+                      and SG.is_not_the_assembled_canonical_state())
+            for bad in (None, 0, b"short", b"X" * 400):
+                try:
+                    SG.restore(bad); iso_ok = False
+                except SG.SavegameError as exc:
+                    iso_ok = iso_ok and exc.code == "SAVEGAME-REFUSE"
+            # the layer boundary, read off the AST at module scope: it imports the component stack and stdlib,
+            # and CRUCIALLY no `persist`/`storecost`/`horizon` (no MMO rollback-window model)
+            import ast
+            with open(os.path.join(gdir, "savegame.py"), encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
+            top = set()
+            for node in tree.body:
+                if isinstance(node, ast.Import):
+                    top.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    top.add((node.module or "").split(".")[0])
+            iso_ok = (iso_ok and top == set(SG.ALLOWED_IMPORTS)
+                      and top == {"hashlib", "os", "gamegen", "entity", "rngstream", "actionlog"}
+                      and not ({"persist", "storecost", "horizon"} & top)
+                      and SG.LAYER == "CORE")
+        except Exception:
+            iso_ok = False
+        self.record("savegame-isolation", iso_ok,
+                    "TWO-LAYER INTEGRITY AND A CLEAN LAYER. Every single-byte flip and every truncation of a "
+                    "real record refuses typed SAVEGAME-REFUSE (the envelope digest, before any "
+                    "reconstruction), and a validly RE-SEALED record whose stored component identity was "
+                    "altered refuses PER-COMPONENT (the check-block binds each recoverable input to its own "
+                    "authority) — a digest/content mismatch never silently reconstructs something else. THE "
+                    "MMO MODEL IS NOT INHERITED: it imports the component stack "
+                    "(`gamegen`/`entity`/`rngstream`/`actionlog`) plus stdlib and CRUCIALLY no `persist.py`, "
+                    "`storecost` or `horizon` (read off its AST), so the URDRLAT5 rollback-window model is not "
+                    "dragged in, and it mints no new identity mechanism (its only `hashlib` reach is the "
+                    "tree's `sha256`). Disk I/O, the assembled canonical D_n, replay-based reconstruction, "
+                    "multi-entity rosters and manifests/windows are DEFERRED to later authorities"
+                    if iso_ok else "a savegame integrity or isolation law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -29968,7 +30085,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog",
+    "actionlog", "savegame",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
