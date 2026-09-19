@@ -315,6 +315,7 @@ STAGE_ORDER = (
     "savegame",
     "enact",
     "rerun",
+    "statecanon",
     "authority",
     "exempt",
     "disposition",
@@ -6526,6 +6527,136 @@ class Gate:
                     "transition or RNG (read off the AST). Single-peer; cross-peer union (`lockstep.canon`'s "
                     "(tick, peer, seq)) is unearned and DEFERRED (Slice A)"
                     if bind_ok else "a replay binding / divergence / ownership law did not hold")
+
+    def statecanon(self):
+        """THE ASSEMBLED CANONICAL IDENTITY D_n OVER THE FOUR EARNED COMPONENT IDENTITIES (URDRSTC1) — the
+        fourteenth game-layer vertical slice and D24 §2's assembled-state rung. Rows: scenes, assembly,
+        boundary. Every rung before earned an identity for ONE component (`gamegen.level_digest`,
+        `entity.entity_digest`, `rngstream.stream_digest`, `actionlog.digest`); this rung earns EXACTLY ONE new
+        authority — the single canonical identity `D_n` — by COMPOSING those four. It reimplements none of
+        them, mints exactly one new SHA (the composition), includes the action history, adds no separate
+        seed/depth field (they ride inside `level_digest`), and absorbs neither `savegame` nor `rerun`."""
+        import hashlib                                     # local: verify.py has no top-level one
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import statecanon as SC
+            import gamegen as GG14
+            import entity as EN14
+            import rngstream as RN14
+            import actionlog as AL14
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("statecanon:scenes", "statecanon-assembly", "statecanon-boundary"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (SC.emitted_matches_pinned()
+                         and all(SC.scene_result(n) == SC.golden(n) for n in SC.SCENES)
+                         and SC.statecanon_digest() == SC.golden("statecanon")
+                         and SC.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("statecanon:scenes", scenes_ok,
+                    "the two URDRSTC1 scenes (`assembly`, `laws`) and the top digest reproduce from what the "
+                    "module emits; `assembly` pins a corpus of runs (gamegen seeds/depths, arbitrary "
+                    "positions, INDEPENDENT log/stream token sequences) by their assembled `D_n`, and `laws` "
+                    "pins the falsifier booleans; an unpinned name refuses typed"
+                    if scenes_ok else "a statecanon scene drifted")
+
+        try:
+            asm_ok = (all(SC.d_n_is_the_composition_of_the_four_identities(*c) for c in SC.CORPUS)
+                      and all(SC.each_component_moves_d_n(*c) for c in SC.CORPUS)
+                      and all(SC.history_is_in_the_identity(s, d, p) for s, d, p, _l, _st in SC.CORPUS)
+                      and all(SC.d_n_depends_only_on_identity(*c) for c in SC.CORPUS)
+                      and SC.the_assembly_composes_the_four_authorities())
+            # recompute the composition here, INDEPENDENTLY, from each component's own public identity function
+            level = GG14.generate(0xABCDE, 3)
+            ent = EN14.at((5, 6))
+            stream = RN14.apply(RN14.root(0xABCDE), ("loot:p", "loot:q"))
+            log = AL14.from_actions(("E", "loot:p", "S", "loot:q"))
+            independent = hashlib.sha256(b"%s|lvl:%s|ent:%s|rng:%s|log:%s" % (
+                SC.MAGIC, GG14.level_digest(level).encode(), EN14.entity_digest(ent).encode(),
+                RN14.stream_digest(stream).encode(), AL14.digest(log).encode())).hexdigest()
+            asm_ok = asm_ok and SC.d_n(level, ent, stream, log) == independent
+            # each of the four authorities is load-bearing: mutating any one moves D_n
+            base = SC.d_n(level, ent, stream, log)
+            asm_ok = (asm_ok
+                      and base != SC.d_n(GG14.generate(0xABCDE, 4), ent, stream, log)      # level
+                      and base != SC.d_n(level, EN14.at((6, 6)), stream, log)              # entity
+                      and base != SC.d_n(level, ent, RN14.advance(stream, b"z"), log)       # stream
+                      and base != SC.d_n(level, ent, stream, AL14.append(log, "N")))        # log
+            # the history is in the identity: same (level, entity, stream), different log -> different D_n
+            fixed_stream = RN14.root(0xABCDE)
+            asm_ok = asm_ok and (SC.d_n(level, ent, fixed_stream, AL14.from_actions(("N", "S")))
+                                 != SC.d_n(level, ent, fixed_stream, AL14.from_actions(("S", "N"))))
+        except Exception:
+            asm_ok = False
+        self.record("statecanon-assembly", asm_ok,
+                    "D_n IS THE COMPOSITION OF THE FOUR EARNED IDENTITIES, AND THE STRUCTURE ENFORCES IT. "
+                    "`D_n = SHA-256(MAGIC | lvl:<level_digest> | ent:<entity_digest> | rng:<stream_digest> | "
+                    "log:<actionlog digest>)`, recomputed here INDEPENDENTLY from each component's own public "
+                    "identity function; mutating ANY one of the four components moves `D_n` (each authority is "
+                    "load-bearing), and two runs at the same (level, entity, stream) reached by DIFFERENT "
+                    "histories have DIFFERENT `D_n` — the action history is part of the identity (the ratified "
+                    "choice), and no separate seed/depth field is added because `level_digest` already commits "
+                    "to both. Read off the AST, the assembly (`d_n_preimage` + `d_n`) reaches all four "
+                    "component-identity authorities, mints EXACTLY ONE `sha256`, reaches none of the "
+                    "components' raw serializations and advances no RNG — so a mutant that reproduced the same "
+                    "`D_n` while BYPASSING an authority reddens on the structure, not merely on the output"
+                    if asm_ok else "a statecanon assembly / composition / structure law did not hold")
+
+        try:
+            bnd_ok = (all(SC.the_framing_is_injective(s, d, p) for s, d, p, _l, _st in SC.CORPUS)
+                      and SC.a_view_field_cannot_reach_d_n()
+                      and SC.statecanon_absorbs_no_neighbor())
+            # a view-only field cannot enter `entity`, so it can never reach D_n
+            try:
+                EN14.Entity(pos=(0, 0), facing="N"); view_refused = False
+            except EN14.EntityError:
+                view_refused = True
+            bnd_ok = bnd_ok and view_refused
+            # the labelled framing is injective: swapping two component identities changes the preimage
+            level = GG14.generate(0, 1); ent = EN14.at((3, 4))
+            stream = RN14.apply(RN14.root(0), ("loot:a",)); log = AL14.from_actions(("N", "loot:a"))
+            digs = (GG14.level_digest(level), EN14.entity_digest(ent),
+                    RN14.stream_digest(stream), AL14.digest(log))
+            pre = SC.d_n_preimage(level, ent, stream, log)
+            swapped = b"%s|lvl:%s|ent:%s|rng:%s|log:%s" % (
+                SC.MAGIC, digs[1].encode(), digs[0].encode(), digs[2].encode(), digs[3].encode())
+            bnd_ok = (bnd_ok and pre != swapped
+                      and all(len(x) == 64 and "|" not in x for x in digs))
+            # ownership: it exposes no savegame API and no rerun API, and imports neither, read off the AST
+            for nm in ("serialize", "restore", "address", "replay", "verdict", "reconstruct_origin"):
+                bnd_ok = bnd_ok and not hasattr(SC, nm)
+            import ast
+            with open(os.path.join(gdir, "statecanon.py"), encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
+            top = set()
+            for node in tree.body:
+                if isinstance(node, ast.Import):
+                    top.update(a.name.split(".")[0] for a in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    top.add((node.module or "").split(".")[0])
+            bnd_ok = (bnd_ok and top == set(SC.ALLOWED_IMPORTS)
+                      and top == {"hashlib", "os", "gamegen", "entity", "rngstream", "actionlog"}
+                      and not ({"savegame", "rerun", "lockstep"} & top)
+                      and SC.LAYER == "CORE")
+        except Exception:
+            bnd_ok = False
+        self.record("statecanon-boundary", bnd_ok,
+                    "THE AUTHORITY/VIEW BOUNDARY, THE INJECTIVE FRAMING, AND CRISP OWNERSHIP. A view-only "
+                    "quantity (facing/camera/interp) cannot enter `entity` (`FIELDS == (\"pos\",)` refuses any "
+                    "undeclared field), so it can never reach `entity_digest` and therefore never reach `D_n`. "
+                    "The labelled, fixed-width, `|`-delimited framing is INJECTIVE in the four identities — "
+                    "each is 64 hex chars with no `|`, and swapping two component identities changes the "
+                    "preimage — so no aliasing collapses two distinct runs before the hash. Ownership stays "
+                    "crisp: `statecanon` answers only 'what is the canonical identity?', exposing no "
+                    "serialize/restore/address (savegame's) and no replay/verdict/reconstruct_origin (rerun's) "
+                    "and importing neither (read off the AST), plus no `lockstep` (single-peer, Slice A); none "
+                    "of the three neighbouring laws absorbs another"
+                    if bnd_ok else "a statecanon boundary / framing / ownership law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -30308,7 +30439,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog", "savegame", "enact", "rerun",
+    "actionlog", "savegame", "enact", "rerun", "statecanon",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
