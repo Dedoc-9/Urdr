@@ -115,8 +115,18 @@ topology is disposable while canonical simulation is not**: the observer collect
 destroyed, reordered, duplicated or omitted (N=0 included) with the canonical transcript byte-identical,
 agreement across panes is by provenance not pixels, permutation invariance is canonical-only (ordering
 is never certified as authority), and the observer's window configuration cannot reach `D_n`. **WINDOW-1**
-— a window event becoming a typed `enact` action — is the deliberately separate next membrane, held back
-so display topology is proved completely authority-free before input is introduced.
+— a window event becoming a typed `enact` action — has now landed as `cue` (URDRCUE1), the input-side
+mirror of `chorus`: a raw window/device event crosses into the certified world as `raw event → bind() →
+typed enact token → enact → D_{n+1}`, and its first law is **focus identity is non-authoritative** —
+holding the binding table and the raw key sequence fixed and varying only which window receives each event
+yields a byte-identical token stream, so the canonical replay is byte-identical (proven at the gate against
+a real `enact`/`savegame`/`rerun` core). The membrane owns binding, not gameplay interpretation: `bind` is
+a pure map sealed against canonical state, the token vocabulary is single-sourced in `enact`'s codec, the
+binding table is data, and refusal is a three-tier ladder (`CUE-REFUSE` for an unbound/malformed event,
+`ENACT-REFUSE` for a bad payload, and the authority's own `DESCEND-REFUSE` downstream for a valid-but-illegal
+token). Focus arbitration, stateful/timed input and a raw-event history channel are deferred or rejected, so
+the input membrane — like the display membrane before it — is proved authority-free before anything is built
+on top of it.
 
 ## 3. KINEMA blueprint, in brief
 

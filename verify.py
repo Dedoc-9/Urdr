@@ -318,6 +318,7 @@ STAGE_ORDER = (
     "statecanon",
     "kinema",
     "chorus",
+    "cue",
     "authority",
     "exempt",
     "disposition",
@@ -6955,6 +6956,133 @@ class Gate:
                     "boundary). A forged transition refuses KINEMA-REFUSE (inherited via `descent.traversable`) "
                     "and a malformed collection refuses CHORUS-REFUSE"
                     if top_ok else "a chorus topology / permutation / disposable / staleness law did not hold")
+
+    def cue(self):
+        """THE ONE-WAY INPUT MEMBRANE: A RAW WINDOW/DEVICE EVENT BECOMES A TYPED ENACT TOKEN (URDRCUE1) — the
+        seventeenth game-layer vertical slice, WINDOW-1 of the observer-composition arc, and the input-side
+        mirror of `chorus`. Rows: scenes, bind, focus. Its invariant: FOCUS IDENTITY IS NON-AUTHORITATIVE;
+        THE CANONICAL ACTION STREAM IS DETERMINED BY THE INPUT, NOT BY WHICH WINDOW ORIGINATED IT. `bind` is a
+        PURE map from a raw event to a typed `enact` token, delegating the token vocabulary to `enact`'s codec
+        and never reaching `enact.dispatch`/`enact.apply` nor importing move/descend/loot/statecanon/rerun/
+        savegame/lockstep. The two halves this module cannot prove are checked here against a live
+        enact/savegame/rerun core: a valid-but-illegal token is refused DOWNSTREAM by the authority, and a
+        rerouted-focus token stream replays BYTE-IDENTICALLY."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import cue as CU
+            import enact as EA17
+            import gamegen as GG17
+            import descent as DC17
+            import move as MV17
+            import rngstream as RN17
+            import actionlog as AL17
+            import savegame as SV17
+            import rerun as RP17
+            import statecanon as SC17
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("cue:scenes", "cue-bind", "cue-focus"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (CU.emitted_matches_pinned()
+                         and all(CU.scene_result(n) == CU.golden(n) for n in CU.SCENES)
+                         and CU.cue_digest() == CU.golden("cue")
+                         and CU.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("cue:scenes", scenes_ok,
+                    "the two URDRCUE1 scenes (`binding`, `focus`) and the top digest reproduce from what the "
+                    "module emits; `binding` pins the concrete map (each raw key -> the token bytes it emits "
+                    "and the kind/payload it decodes to), the table-is-data check, the different-table-changes-"
+                    "the-tokens check, and the two bind-time refusal ownerships; `focus` pins per-key focus-"
+                    "blindness, the focus-identity differential, the full-AST one-way guard, and total typed "
+                    "refusal; an unpinned name refuses typed CUE-REFUSE"
+                    if scenes_ok else "a cue scene drifted")
+
+        def _record_from_tokens(seed, depth, tokens):
+            origin = RP17._spawn_origin(seed, depth)
+            (lvl, pos, strm), _infos = EA17.apply(origin, tokens)
+            return SV17.serialize(seed, lvl.depth, pos, strm, AL17.from_actions(tokens))
+
+        try:
+            bind_ok = (all(CU.bind_ignores_focus(k) for k, _v in CU.DEFAULT_BINDINGS)
+                       and CU.the_binding_table_is_data()
+                       and CU.a_different_binding_table_changes_the_tokens() == (True, True, True)
+                       and CU.an_unbound_event_is_our_refusal()
+                       and CU.a_malformed_event_is_our_refusal()
+                       and CU.a_bad_payload_surfaces_enacts_refusal())
+            # every default key binds to a token whose codec round-trips (the vocabulary is enact's)
+            for key, (kind, payload) in CU.DEFAULT_BINDINGS:
+                tok = CU.bind(CU.Event("_", key))
+                bind_ok = bind_ok and EA17.decode(tok) == (kind, payload)
+            # TIER 3 (the authority's, downstream): a valid token cue emits, refused by the authority in a
+            # state where its gameplay legality is false — a DESCEND from a cell that is not the down-stairs.
+            lvl = GG17.generate(0xABCDE, 3)
+            up, down = DC17.endpoints(lvl)
+            tok = CU.bind(CU.Event("wA", ">"))
+            bind_ok = bind_ok and EA17.kind_of(tok) == EA17.DESCEND and up != down
+            try:
+                EA17.dispatch((lvl, up, RN17.root(0xABCDE)), tok)
+                tier3 = False
+            except Exception as exc:
+                tier3 = getattr(exc, "code", "") == "DESCEND-REFUSE"
+            bind_ok = bind_ok and tier3
+        except Exception:
+            bind_ok = False
+        self.record("cue-bind", bind_ok,
+                    "BIND IS A REAL, PURE MAP WHOSE VOCABULARY IS ENACT'S, AND THE REFUSAL LADDER HAS THREE "
+                    "OWNERS. Every default key binds to a token whose `enact` codec round-trips; `bind` ignores "
+                    "`focus` and reads no canonical state; the binding table is DATA and a DIFFERENT table "
+                    "changes the tokens (the map is real; configuration is not focus authority). THE THREE-TIER "
+                    "REFUSAL LADDER: an unbound or malformed EVENT is CUE-REFUSE (this membrane's); a "
+                    "bound-but-malformed PAYLOAD is ENACT-REFUSE (the codec's); and a syntactically valid token "
+                    "cue happily emits — a DESCEND off the down-stairs — is refused DOWNSTREAM by the AUTHORITY "
+                    "(DESCEND-REFUSE, through `enact.dispatch`), never by cue, checked here against the live "
+                    "core so cue is proved to adjudicate no gameplay legality at all"
+                    if bind_ok else "a cue bind / vocabulary / refusal-ladder law did not hold")
+
+        try:
+            ti, rd, bu = CU.focus_identity_is_non_authoritative()
+            focus_ok = ti and rd and bu and CU.the_membrane_is_one_way() and CU.refuse_is_total()
+            # THE CANONICAL HALF, against a REAL enact/savegame/rerun core: reproduce a legal run's tokens from
+            # raw keys, route them through TWO genuinely different focus assignments, and require a
+            # BYTE-IDENTICAL record and verdict — focus rerouting cannot alter the canonical action stream.
+            rec0, toks, _f = RP17._saved_flat_run(0xABCDE, 3, 4, 2)
+            core = (SC17.statecanon_digest(), RP17.rerun_digest(), EA17.enact_digest(),
+                    GG17.digest_of(0xABCDE, 3), RP17.verdict(rec0))
+            inv = {CU.bind(CU.Event("_", k)): k for k, _v in CU.DEFAULT_BINDINGS}
+            keys = tuple(inv[t] for t in toks)
+            n = len(keys)
+            fa = tuple(("wA" if i % 2 == 0 else "wB") for i in range(n))
+            fb = tuple(("wB" if i % 2 == 0 else "wA") for i in range(n))
+            tokens_a = CU.bind_stream(CU.route(keys, fa))
+            tokens_b = CU.bind_stream(CU.route(keys, fb))
+            focus_ok = (focus_ok and fa != fb and len(set(fa)) >= 2
+                        and tokens_a == tokens_b == tuple(toks))
+            recA = _record_from_tokens(0xABCDE, 3, tokens_a)
+            recB = _record_from_tokens(0xABCDE, 3, tokens_b)
+            focus_ok = (focus_ok and recA == recB == rec0
+                        and RP17.verdict(recA) == RP17.verdict(recB) == RP17.verdict(rec0))
+            after = (SC17.statecanon_digest(), RP17.rerun_digest(), EA17.enact_digest(),
+                     GG17.digest_of(0xABCDE, 3), RP17.verdict(rec0))
+            focus_ok = focus_ok and after == core
+        except Exception:
+            focus_ok = False
+        self.record("cue-focus", focus_ok,
+                    "FOCUS IDENTITY ALONE IS NON-AUTHORITATIVE. Hold the binding table and the raw key sequence "
+                    "fixed and vary ONLY which focus/window receives each event: the emitted token stream is "
+                    "byte-identical, with the two routes genuinely different and each using more than one focus "
+                    "(non-vacuous). The membrane is one-way — read off the full AST it imports exactly its "
+                    "declared substrate (`enact` for its codec only), reaches no `.dispatch`/`.apply`/`.d_n`/"
+                    "`.step`, with a positive control. THE CANONICAL HALF, against a LIVE enact/savegame/rerun "
+                    "core: a legal run's tokens reproduced from raw keys and routed through two genuinely "
+                    "different focus assignments yield a BYTE-IDENTICAL saved record and `rerun` verdict "
+                    "(equal to the run rerun built independently), and the canonical core fingerprint is "
+                    "unperturbed — focus rerouting cannot alter the canonical action stream"
+                    if focus_ok else "a cue focus / one-way / canonical-differential law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -30737,7 +30865,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema", "chorus",
+    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema", "chorus", "cue",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
