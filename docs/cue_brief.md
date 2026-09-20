@@ -76,7 +76,27 @@ refused **downstream** by the authority because its gameplay legality is false �
 against a real `enact.dispatch`, because this module must not (and does not) reach dispatch. So `cue` emits
 tokens and adjudicates none; it never quietly becomes a gameplay validator.
 
-## 7. The membrane is one-way (WINDOW-0 §7, mirrored on the input side)
+## 7. Stateless stream composition (the input-path tripwire)
+
+Binding a *sequence* of events is a **stateless homomorphism over concatenation**, wherever the constituent
+bindings succeed:
+
+    bind_stream(E₁ ++ E₂) == bind_stream(E₁) ++ bind_stream(E₂)
+
+with the empty stream mapping to the empty token stream, duplicates duplicating, and **refusal atomic at the
+batch boundary** (any unbound/malformed event refuses the *whole* batch `CUE-REFUSE`, no partial result). The
+claim is deliberately **not** "total": it is a homomorphism only where the bindings succeed, and refusal is
+atomic — the statement aligned with the measured refusal behaviour.
+
+The **positive control** is the point, not decoration: a synthetic **stateful** binder that folds the previous
+event into its output breaks concatenation, so the gate REDs on that shape rather than the implementation
+merely satisfying its own definition. And this law **does not earn timed input — it forbids its silent
+arrival**. The day chords/repeat/hold/modifier state enters the membrane, concatenation ceases to hold, this
+falsifier reddens, and the system is forced to acknowledge that a new state/time coordinate has entered rather
+than letting it drift in. `Event(focus, key)` carries no temporal field today (measured), so that coordinate
+would have to be minted deliberately — the same one `enact` and `cue` both refused.
+
+## 8. The membrane is one-way (WINDOW-0 §7, mirrored on the input side)
 
 `the_membrane_is_one_way` reads this module's **own full AST** — function-local imports included — and is
 direction-aware: it imports exactly `ALLOWED_IMPORTS` (`enact` among them, **for its codec only**), imports
@@ -86,7 +106,7 @@ reach `enact.dispatch`, `enact.apply`, nest a `statecanon`/`rerun` import, call 
 a bare `.d_n`/`.dispatch` are each rejected, while the read-only `enact.encode`/`enact.decode` path is
 accepted.
 
-## 8. Where it stops (deferred / rejected on purpose)
+## 9. Where it stops (deferred / rejected on purpose)
 
 **Deferred**: stateful/timed input (chords, key-repeat, hold-timing, modifiers-as-state) — these need a time
 coordinate the game layer has not earned, the same one `enact` refused to mint; a raw-event history channel
@@ -96,13 +116,15 @@ any window-manager authority that *decides* focus (which window is focused is a 
 here — the authority `chorus` already refused); any canonical-state-dependent binding; an input loop/runtime;
 and window identity in `Dₙ`.
 
-## 9. Grade
+## 10. Grade
 
 **MEASURED**: `bind` is pure in the raw event and ignores `focus`; focus identity alone is non-authoritative
 (same bindings + same keys + rerouted focus → byte-identical tokens, routes genuinely different, each focus
 used); a different binding table changes the tokens (the map is real; configuration is not focus authority);
 the binding table is data; an unbound/malformed event refuses `CUE-REFUSE` while a malformed payload surfaces
-`ENACT-REFUSE`. **ESTABLISHED**: the membrane is one-way (full-AST, direction-aware, `enact` codec only, no
+`ENACT-REFUSE`; and stream binding is a stateless homomorphism over concatenation where the bindings succeed
+(empty→empty, duplicates duplicate, refusal atomic), with a stateful-binder positive control that breaks it.
+**ESTABLISHED**: the membrane is one-way (full-AST, direction-aware, `enact` codec only, no
 authority import in any scope, no `.dispatch`/`.apply`/`.d_n`/`.step`, positive control); no CORE module
 imports `cue`. **DECLARED**: the token vocabulary is `enact`'s; `focus` is a routing label; the binding table
 is the declared default; single peer.
@@ -121,7 +143,9 @@ rerouted yields a byte-identical token stream, the routes genuinely differ and e
 `bind` ignores focus per key; the full-AST one-way guard bites its positive controls; refusal is total), with
 `cue:scenes` (the two scenes and the top digest reproduce, an unpinned name refuses typed `CUE-REFUSE`) and
 `cue-bind` (`bind` is a real pure map whose vocabulary is `enact`'s; the binding table is data; a different
-table changes the tokens; the three-tier refusal ladder — an unbound/malformed event is `CUE-REFUSE`, a bad
-payload is `ENACT-REFUSE`, and against a **real** `enact`/`savegame`/`rerun` core a valid-but-illegal token is
-refused downstream by the authority while a rerouted-focus token stream replays byte-identically) alongside;
-`tests/test_cue.py`.
+table changes the tokens; **stateless stream composition** — `bind_stream` is a homomorphism over
+concatenation where the bindings succeed, empty→empty, duplicates duplicate, refusal atomic at the batch
+boundary, with a stateful-binder positive control that breaks it; and the three-tier refusal ladder — an
+unbound/malformed event is `CUE-REFUSE`, a bad payload is `ENACT-REFUSE`, and against a **real**
+`enact`/`savegame`/`rerun` core a valid-but-illegal token is refused downstream by the authority while a
+rerouted-focus token stream replays byte-identically) alongside; `tests/test_cue.py`.

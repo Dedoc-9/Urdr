@@ -249,6 +249,65 @@ def refuse_is_total():
             and a_bad_payload_surfaces_enacts_refusal())
 
 
+# ---- stateless stream composition -----------------------------------------------------------------------
+def _distributes(make_binder, e1, e2):
+    """Does `make_binder` distribute over concatenation? `make_binder` is a FACTORY, so each of the three
+    passes (E1++E2, E1, E2) gets a FRESH binder — a stateless binder distributes, a binder that carries
+    state ACROSS the batch boundary does not (its whole-stream E2 portion sees an E1 predecessor its fresh
+    E2 pass never does)."""
+    bw = make_binder()
+    whole = tuple(bw(e) for e in list(e1) + list(e2))          # one binder across the whole stream
+    bl = make_binder()
+    left = tuple(bl(e) for e in e1)                            # a fresh binder for E1 alone
+    br = make_binder()
+    right = tuple(br(e) for e in e2)                           # a fresh binder for E2 alone
+    return whole == left + right
+
+
+def _stateful_binder():
+    """THE POSITIVE CONTROL — a synthetic binder that FOLDS THE PREVIOUS EVENT into its output, the exact
+    statefulness this law forbids. It remembers the last key, so a stream's first event depends on what
+    preceded it; concatenation therefore fails for it, and the gate REDs on this shape rather than trusting
+    the current implementation to satisfy its own definition."""
+    prev = [None]
+
+    def b(event):
+        tok = bind(event)
+        if prev[0] is not None:
+            tok = tok + prev[0].encode("ascii", "replace")     # output depends on history -> NOT stateless
+        prev[0] = event.key
+        return tok
+    return b
+
+
+def stream_composition_is_stateless(e1=None, e2=None):
+    """STATELESS STREAM COMPOSITION. On any stream whose constituent bindings SUCCEED, binding is a
+    HOMOMORPHISM over concatenation — `bind_stream(E1 ++ E2) == bind_stream(E1) ++ bind_stream(E2)` — the
+    empty stream maps to the empty token stream, duplicates duplicate, and REFUSAL IS ATOMIC at the batch
+    boundary (any unbound/malformed event refuses the WHOLE batch `CUE-REFUSE`, with no partial result). The
+    law is NOT total over the raw-event domain: it is a homomorphism only where the bindings succeed, and
+    refusal is atomic. Positive control: a synthetic STATEFUL binder that folds the previous event breaks
+    concatenation, so this is a live tripwire — the day chords/repeat/hold/modifier state enters the membrane,
+    concatenation ceases to hold and the gate forces that new state/time coordinate to be acknowledged rather
+    than drifting in silently. Returns (homomorphism, empty_identity, duplicates_duplicate, refusal_atomic,
+    real_bind_is_stateless, stateful_control_breaks)."""
+    if e1 is None:
+        e1 = route(("Up", "g"), ("wA", "wB"))
+    if e2 is None:
+        e2 = route(("Right", "Down", "g"), ("wB", "wA", "wA"))
+    homomorphism = bind_stream(list(e1) + list(e2)) == bind_stream(e1) + bind_stream(e2)
+    empty_identity = bind_stream(()) == () and bind_stream([]) == ()
+    duplicates = bind_stream(list(e1) + list(e1)) == bind_stream(e1) + bind_stream(e1)
+    refusal_atomic = False
+    try:
+        bind_stream((Event("wA", "Up"), Event("wA", "\x00-no-such-key"), Event("wA", "g")))
+    except CueError as exc:
+        refusal_atomic = exc.code == "CUE-REFUSE"
+    real_stateless = _distributes(lambda: bind, e1, e2)
+    control_breaks = not _distributes(_stateful_binder, e1, e2)
+    return (homomorphism, empty_identity, duplicates, refusal_atomic, real_stateless, control_breaks)
+
+
 # ---- the one-way membrane guard (full AST, direction-aware) ---------------------------------------------
 def _import_top(tree):
     top = set()
@@ -309,13 +368,14 @@ def _binding_row():
 
 def scene_case(name):
     if name == "binding":
-        return ("map=%s||data=%s|configdiff=%s|unbound=%s|malformed=%s|badpayload=%s"
+        return ("map=%s||data=%s|configdiff=%s|unbound=%s|malformed=%s|badpayload=%s|compose=%s"
                 % (_binding_row(),
                    the_binding_table_is_data(),
                    a_different_binding_table_changes_the_tokens(),
                    an_unbound_event_is_our_refusal(),
                    a_malformed_event_is_our_refusal(),
-                   a_bad_payload_surfaces_enacts_refusal()))
+                   a_bad_payload_surfaces_enacts_refusal(),
+                   stream_composition_is_stateless()))
     if name == "focus":
         return ("ignore=%s|focus=%s|oneway=%s|refuse=%s"
                 % (tuple(bind_ignores_focus(k) for k, _v in DEFAULT_BINDINGS),
@@ -379,6 +439,8 @@ def main():
     print("a bad payload is enact's refusal    :", a_bad_payload_surfaces_enacts_refusal())
     print("the membrane is one-way             :", the_membrane_is_one_way())
     print("refuse is total                     :", refuse_is_total())
+    print("stateless stream composition        :", stream_composition_is_stateless(),
+          "(homo, empty, dup, atomic, real-stateless, control-breaks)")
     print()
     for n in SCENES:
         print(n, scene_result(n))

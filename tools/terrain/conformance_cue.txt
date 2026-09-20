@@ -34,8 +34,12 @@
 # not reach `enact.dispatch` -- so `cue` never becomes a gameplay validator.
 #
 # The `binding` scene pins the concrete map (each raw key -> the token bytes it emits and the kind/payload it
-# decodes to), the binding-table-is-data check, the different-table-changes-the-tokens check, and the two
-# bind-time refusal ownerships (unbound/malformed = ours, bad payload = enact's). The `focus` scene pins the
+# decodes to), the binding-table-is-data check, the different-table-changes-the-tokens check, the two
+# bind-time refusal ownerships (unbound/malformed = ours, bad payload = enact's), and STATELESS STREAM
+# COMPOSITION (binding is a homomorphism over concatenation where the bindings succeed -- empty->empty,
+# duplicates duplicate, refusal atomic at the batch boundary -- with a stateful-binder positive control that
+# breaks concatenation, so a future chord/repeat/hold state cannot enter the membrane silently). The `focus`
+# scene pins the
 # per-key focus-blindness, the central focus-identity differential (tokens identical, routes differ, both
 # focuses used), the full-AST one-way guard, and total typed refusal. Both scenes and the top digest are what
 # the module EMITS.
@@ -44,7 +48,9 @@
 # non-authoritative (same bindings + same keys + rerouted focus -> byte-identical tokens, routes genuinely
 # different, each focus used); a different binding table changes the tokens (the map is real; configuration is
 # not focus authority); the binding table is data; an unbound/malformed event refuses `CUE-REFUSE` while a
-# malformed payload surfaces `ENACT-REFUSE`. ESTABLISHED: the membrane is one-way (full-AST, direction-aware,
+# malformed payload surfaces `ENACT-REFUSE`; and stream binding is a STATELESS homomorphism over concatenation
+# where the bindings succeed (empty->empty, duplicates duplicate, refusal atomic), a stateful-binder control
+# breaking the law. ESTABLISHED: the membrane is one-way (full-AST, direction-aware,
 # `enact` codec only, no authority import in any scope, no `.dispatch`/`.apply`/`.d_n`/`.step`, positive
 # control); no CORE module imports `cue`. DECLARED: the token vocabulary is `enact`'s; `focus` is a routing
 # label; the binding table is the declared default; single peer.
@@ -53,6 +59,6 @@
 # differential across a real `enact`/`savegame`/`rerun` core (the gate's, not the module's); stateful/timed
 # input, chords, key-repeat, modifiers-as-state; focus arbitration / any window-manager authority; a raw-event
 # history channel; OS-native input, gamepads, and any wall-clock or frame budget (all deferred or rejected).
-binding adbc13433a48178f0d02711cd0b578eb02c6a52bb0230887e06e95370337c86d
+binding 1a36c7be0612b192d697cc31090d76ca44940e05a7a118724798e0648b0cc3c8
 focus c26a5f0bd1f9726daac2bf88473a2508e4c3d262469f56dce6adbd4bf5e0bac9
-cue 9e4ed3affe3c5862cc1016f05ce03cbe47efacd66f7a5d5a34dd19b0c83bbe5c
+cue 1e8e5070c1f459253cf0a3dda3528f5b89e7ad942aa30d7a3a99dc3e796592e6

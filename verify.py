@@ -7013,7 +7013,8 @@ class Gate:
                        and CU.a_different_binding_table_changes_the_tokens() == (True, True, True)
                        and CU.an_unbound_event_is_our_refusal()
                        and CU.a_malformed_event_is_our_refusal()
-                       and CU.a_bad_payload_surfaces_enacts_refusal())
+                       and CU.a_bad_payload_surfaces_enacts_refusal()
+                       and CU.stream_composition_is_stateless() == (True, True, True, True, True, True))
             # every default key binds to a token whose codec round-trips (the vocabulary is enact's)
             for key, (kind, payload) in CU.DEFAULT_BINDINGS:
                 tok = CU.bind(CU.Event("_", key))
@@ -7041,8 +7042,14 @@ class Gate:
                     "bound-but-malformed PAYLOAD is ENACT-REFUSE (the codec's); and a syntactically valid token "
                     "cue happily emits — a DESCEND off the down-stairs — is refused DOWNSTREAM by the AUTHORITY "
                     "(DESCEND-REFUSE, through `enact.dispatch`), never by cue, checked here against the live "
-                    "core so cue is proved to adjudicate no gameplay legality at all"
-                    if bind_ok else "a cue bind / vocabulary / refusal-ladder law did not hold")
+                    "core so cue is proved to adjudicate no gameplay legality at all. AND STREAM BINDING IS A "
+                    "STATELESS HOMOMORPHISM over concatenation where the bindings succeed — bind_stream(E1++E2) "
+                    "== bind_stream(E1)++bind_stream(E2), empty->empty, duplicates duplicate, and refusal is "
+                    "ATOMIC at the batch boundary — with a synthetic STATEFUL binder (folding the previous "
+                    "event) breaking concatenation as the positive control, so a future chord/repeat/hold "
+                    "state cannot enter the input membrane silently: the day concatenation ceases to hold, this "
+                    "row REDs and forces the new state/time coordinate to be acknowledged"
+                    if bind_ok else "a cue bind / vocabulary / refusal-ladder / stream-composition law did not hold")
 
         try:
             ti, rd, bu = CU.focus_identity_is_non_authoritative()

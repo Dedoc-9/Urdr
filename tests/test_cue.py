@@ -188,6 +188,32 @@ class Differential(unittest.TestCase):
         self.assertEqual(before, after)
 
 
+class Composition(unittest.TestCase):
+    """Stateless stream composition: binding is a homomorphism over concatenation where the bindings succeed;
+    refusal is atomic at the batch boundary; a stateful binder breaks the law (the positive control)."""
+    def test_the_law_holds_in_full(self):
+        self.assertEqual(C.stream_composition_is_stateless(), (True, True, True, True, True, True))
+
+    def test_homomorphism_over_concatenation(self):
+        e1 = C.route(("Up", "g"), ("wA", "wB"))
+        e2 = C.route(("Right", "Down"), ("wB", "wA"))
+        self.assertEqual(C.bind_stream(list(e1) + list(e2)), C.bind_stream(e1) + C.bind_stream(e2))
+        self.assertEqual(C.bind_stream(()), ())                 # empty identity
+        self.assertEqual(C.bind_stream(list(e1) + list(e1)), C.bind_stream(e1) + C.bind_stream(e1))  # dup
+
+    def test_refusal_is_atomic_at_the_batch_boundary(self):
+        with self.assertRaises(C.CueError) as cm:
+            C.bind_stream((C.Event("wA", "Up"), C.Event("wA", "\x00-nope"), C.Event("wA", "g")))
+        self.assertEqual(cm.exception.code, "CUE-REFUSE")       # one bad event refuses the WHOLE batch
+
+    def test_stateful_binder_breaks_concatenation(self):
+        # POSITIVE CONTROL: the real (stateless) bind distributes; a binder that folds the previous event does not
+        e1 = C.route(("Up", "g"), ("wA", "wB"))
+        e2 = C.route(("Right", "Down", "g"), ("wB", "wA", "wA"))
+        self.assertTrue(C._distributes(lambda: C.bind, e1, e2))
+        self.assertFalse(C._distributes(C._stateful_binder, e1, e2))
+
+
 class Conformance(unittest.TestCase):
     def test_emitted_matches_pinned(self):
         self.assertTrue(C.emitted_matches_pinned())
