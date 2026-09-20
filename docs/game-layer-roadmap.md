@@ -108,6 +108,16 @@ and its one-way view refinement, all fifteen game-layer rungs on fixed corpora b
 gate.** What grows above the membrane next — voxels, developer-mode authoring, wireframes, camera
 systems — does so as views, and by the D25 §11/§14 guarantees cannot become canonical authority.
 
+The first growth above the membrane has landed: the **observer-composition arc**, whose **WINDOW-0**
+rung is `chorus` (URDRCHO1). It composes N disposable observers over one authoritative transition into
+a Scene, purely by repeated `kinema` application, and certifies the arc's first law — **observer
+topology is disposable while canonical simulation is not**: the observer collection may be created,
+destroyed, reordered, duplicated or omitted (N=0 included) with the canonical transcript byte-identical,
+agreement across panes is by provenance not pixels, permutation invariance is canonical-only (ordering
+is never certified as authority), and the observer's window configuration cannot reach `D_n`. **WINDOW-1**
+— a window event becoming a typed `enact` action — is the deliberately separate next membrane, held back
+so display topology is proved completely authority-free before input is introduced.
+
 ## 3. KINEMA blueprint, in brief
 
 *(Full contract: `spec/D25-kinema-boundary.md`. This is the one-page shape.)*

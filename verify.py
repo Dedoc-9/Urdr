@@ -317,6 +317,7 @@ STAGE_ORDER = (
     "rerun",
     "statecanon",
     "kinema",
+    "chorus",
     "authority",
     "exempt",
     "disposition",
@@ -6822,6 +6823,138 @@ class Gate:
                     "identities and the `rerun` replay verdict BYTE-IDENTICAL — the existence of the observer "
                     "does not alter the certified simulation. The sample count is view-only (Plant D)"
                     if mem_ok else "a kinema membrane / forgery / one-way / differential law did not hold")
+
+    def chorus(self):
+        """THE COMPOSITION OF N DISPOSABLE OBSERVERS OVER ONE AUTHORITATIVE TRANSITION (URDRCHO1) — the
+        sixteenth game-layer vertical slice, WINDOW-0 of the observer-composition arc, and the second
+        game-layer VIEW module. Rows: scenes, compose, topology. Its invariant: OBSERVER TOPOLOGY IS
+        DISPOSABLE; CANONICAL SIMULATION IS NOT. It composes a Scene = ((observer_id, Frame-set), …) purely by
+        repeated `kinema` application; it computes no `D_n`, calls no authority, and imports none of
+        move/descend/loot/enact/statecanon/rerun/savegame/lockstep. The canonical half of the topology
+        differential — mutating the observer collection, N=0 included, leaves the real core byte-identical —
+        is checked here against a live enact/statecanon/rerun core."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import chorus as CH
+            import kinema as KN16
+            import gamegen as GG16
+            import descent as DC16
+            import move as MV16
+            import rngstream as RN16
+            import entity as EN16
+            import actionlog as AL16
+            import enact as EA16
+            import statecanon as SC16
+            import rerun as RP16
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("chorus:scenes", "chorus-compose", "chorus-topology"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            scenes_ok = (CH.emitted_matches_pinned()
+                         and all(CH.scene_result(n) == CH.golden(n) for n in CH.SCENES)
+                         and CH.chorus_digest() == CH.golden("chorus")
+                         and CH.an_unpinned_name_refuses())
+        except Exception:
+            scenes_ok = False
+        self.record("chorus:scenes", scenes_ok,
+                    "the two URDRCHO1 scenes (`composition`, `topology`) and the top digest reproduce from "
+                    "what the module emits; `composition` pins a corpus of Scenes (per pane: observer_id, "
+                    "provenance, frame count, a digest of the refined samples), `topology` pins the falsifier "
+                    "booleans; an unpinned name refuses typed CHORUS-REFUSE"
+                    if scenes_ok else "a chorus scene drifted")
+
+        def _real_transition(seed, depth):
+            lvl = GG16.generate(seed, depth)
+            up = DC16.endpoints(lvl)[0]
+            for c in ("N", "S", "E", "W"):
+                if MV16.step(lvl, up, c)[0] == MV16.MOVED:
+                    s0 = (lvl, up, RN16.root(seed))
+                    tok = EA16.encode("MOVE", c)
+                    s1, _o = EA16.dispatch(s0, tok)
+                    dn = SC16.d_n(s0[0], EN16.at(s0[1]), s0[2], AL16.empty())
+                    dn1 = SC16.d_n(s1[0], EN16.at(s1[1]), s1[2], AL16.append(AL16.empty(), tok))
+                    return (lvl, up, dn, lvl, s1[1], dn1)
+            return None
+
+        try:
+            cmp_ok = (all(CH.composition_is_repeated_observation(s, d) for s, d in CH.SEEDS)
+                      and all(CH.panes_of_one_transition_agree_on_provenance(s, d) for s, d in CH.SEEDS)
+                      and CH.the_membrane_is_one_way())
+            # recompute against a LIVE enact transition + real statecanon witnesses
+            txn = _real_transition(0xABCDE, 3)
+            _ln, _pn, dn, _lm, _pm, dn1 = txn
+            scene = CH.compose(txn, (CH.ObserverSpec("main", 5, 6, ("bounds", 0, 0)),
+                                     CH.ObserverSpec("mini", 5, 144, ("z", 2))))
+            provs = {CH.provenance(p) for p in scene}
+            cmp_ok = (cmp_ok and len(scene) == 2 and len(provs) == 1
+                      and next(iter(provs)) == (5, dn, dn1, KN16.MOVED)
+                      and scene[0][1] == CH.observe(txn, CH.ObserverSpec("main", 5, 6, ("bounds", 0, 0))))
+            # THE CANONICAL TOPOLOGY DIFFERENTIAL (N=0 included): mutating the observer collection leaves the
+            # real core byte-identical. N=0 is the core computed with NO chorus involvement at all.
+            rec, _toks, _f = RP16._saved_run(0xABCDE, 3, 3, 2)
+            core = (SC16.statecanon_digest(), RP16.rerun_digest(), EA16.enact_digest(),
+                    GG16.digest_of(0xABCDE, 3), RP16.verdict(rec))
+            for n in (1, 2, 7, 40):
+                CH.compose(txn, [CH.ObserverSpec("o%d" % i, i, 144, ("bounds", i, i)) for i in range(n)])
+            CH.compose(txn, [CH.ObserverSpec("d", 0, 6, None)] * 5)      # duplicate
+            CH.compose(txn, [])                                          # omit all (N=0)
+            after = (SC16.statecanon_digest(), RP16.rerun_digest(), EA16.enact_digest(),
+                     GG16.digest_of(0xABCDE, 3), RP16.verdict(rec))
+            cmp_ok = cmp_ok and after == core
+        except Exception:
+            cmp_ok = False
+        self.record("chorus-compose", cmp_ok,
+                    "COMPOSITION IS REPEATED OBSERVATION, AND THE OBSERVER LAYER ACQUIRES NO AUTHORITY. "
+                    "`compose(transition, specs)` is exactly repeated `kinema` application — one pane per spec, "
+                    "each equal to the observer applied alone — recomputed here against a LIVE `enact` "
+                    "transition whose endpoints `statecanon` identifies; panes of one transition share the "
+                    "provenance (source_tick, witnesses, class) while different sample counts give different "
+                    "pixels (agreement is provenance, not pixels). The membrane is one-way: read off the full "
+                    "AST (function-local imports included) it imports exactly its declared substrate, no "
+                    "authority module, and reaches no `.d_n` (no `D_n` ingestion) or `.dispatch`/`.apply`/"
+                    "`.step` mutator, with a positive control. THE CANONICAL TOPOLOGY DIFFERENTIAL: mutating "
+                    "the observer collection — N in {0,1,2,7,40}, duplicate, omit-all — leaves the canonical "
+                    "component identities and the `rerun` verdict BYTE-IDENTICAL, with N=0 the core computed "
+                    "with no observer at all, so the observer layer is genuinely optional"
+                    if cmp_ok else "a chorus composition / agreement / one-way / differential law did not hold")
+
+        try:
+            top_ok = (all(CH.topology_is_a_list_operation(s, d) for s, d in CH.SEEDS)
+                      and all(CH.the_empty_scene_is_pure(s, d) for s, d in CH.SEEDS)
+                      and all(CH.the_window_config_is_disposable(s, d) for s, d in CH.SEEDS)
+                      and all(CH.a_stale_and_a_current_pane_differ_by_provenance(s, d) for s, d in CH.SEEDS)
+                      and all(CH.a_forged_transition_in_the_collection_refuses(s, d) for s, d in CH.SEEDS)
+                      and all(CH.refuse_is_total(s, d) == (True, True, True) for s, d in CH.SEEDS))
+            # permutation invariance is CANONICAL-ONLY: the multiset is invariant, ordering is NOT certified
+            for s, d in CH.SEEDS:
+                multiset_ok, ordering_differs = CH.the_provenance_multiset_is_permutation_invariant(s, d)
+                top_ok = top_ok and multiset_ok and ordering_differs
+            # a bad collection and a forged transition surface their typed refusals
+            txn = _real_transition(0xABCDE, 3)
+            try:
+                CH.compose(txn, (("not", "a", "spec"),)); bad = False
+            except CH.ChorusError as exc:
+                bad = exc.code == "CHORUS-REFUSE"
+            top_ok = top_ok and bad
+        except Exception:
+            top_ok = False
+        self.record("chorus-topology", top_ok,
+                    "OBSERVER TOPOLOGY IS DISPOSABLE. Add / remove / reorder / duplicate / omit specs and the "
+                    "Scene's panes and their provenance multiset follow the spec list exactly (a pure function "
+                    "of the transition and the collection); the empty Scene is pure (N=0). PERMUTATION "
+                    "INVARIANCE IS CANONICAL-ONLY: reordering leaves the provenance MULTISET identical while "
+                    "the ordered Scene is deliberately NOT certified equal — ordering is not an earned observer "
+                    "law. The `window` blob (bounds/focus/z-order/camera/zoom/layout) and `observer_id` are "
+                    "DISPOSABLE: two specs differing only there produce byte-identical Frame-sets, reaching "
+                    "neither the Frames nor any canonical value. STALENESS IS PROVENANCE: a stale and a current "
+                    "pane differ by provenance and neither synthesises a between-state (kinema's one-transition "
+                    "boundary). A forged transition refuses KINEMA-REFUSE (inherited via `descent.traversable`) "
+                    "and a malformed collection refuses CHORUS-REFUSE"
+                    if top_ok else "a chorus topology / permutation / disposable / staleness law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -30604,7 +30737,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema",
+    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema", "chorus",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
