@@ -34,3 +34,9 @@ gate*.txt
 /walk_*.txt
 /ab_*.txt
 /r60_*.txt
+
+# Generator credentials and scratch (imagegen): the key file is read by the executor and by nothing in
+# this repository; the executor and its history are per-machine scratch, never repository content.
+.env
+.imagegen/
+.imagegen-history.jsonl

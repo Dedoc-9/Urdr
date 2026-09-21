@@ -18,8 +18,28 @@ nothing; every authority claim is delegated downward.
     python play.py --seed 0xABCDE --depth 1
 
 Keys: move with the arrow keys, `WASD`, or `HJKL`; `g` to loot the current cell; `>` to descend the
-down-stairs; `S` to save; `R` to verify the run replays; `q` to quit. On Windows, run it from a real
-console window (not a redirected pipe) so single-key input works.
+down-stairs; `S` to save; `R` to verify the run replays; `P` to photograph — write a first-person
+frame of the current state (see below); `q` to quit. On Windows, run it from a real console window
+(not a redirected pipe) so single-key input works.
+
+## The first-person frame (`vista`)
+
+`P` writes a 1920×1080 PNG of the current state into `launcher/assets/` — a first-person view of the
+certified level from the player's cell, rendered by `tools/terrain/vista.py` (URDRVIS1): one ray per
+column through the certified `voxray` oracle into a `raster` URDRFB1 index frame, coloured by a table.
+The frame is rendered **after** `enact` has adjudicated the turn, from the certified level and
+position plus the launcher's own view-side **facing** — the last MOVE's cardinal, or `vista`'s
+`default_facing` (toward the landmark `>`) at a new level. The facing lives beside the game dict,
+never inside it: it is not in a save, not in `D_n`, not needed by a replay. Destroy every frame and
+the run is the same run (`--selftest` prints the frame digest under the unmoved `D_n` to show it).
+
+Without a terminal:
+
+    python play.py --snapshot out.png --seed 0xABCDE --depth 1 [--facing N|E|S|W]
+
+renders the initial state's frame and exits. `vista` is verified against its own pinned corpus the
+first time a photograph is taken (it renders its whole corpus, about ten seconds), not at launch —
+verify-what-you-consume, at the moment of consumption.
 
 Determinism check (no input, byte-reproducible):
 
@@ -47,7 +67,9 @@ The one-liner (most version-robust). On macOS/Linux the `--add-data` separator i
       --hidden-import entity --hidden-import rngstream --hidden-import descend \
       --hidden-import loot --hidden-import cue --hidden-import enact \
       --hidden-import statecanon --hidden-import actionlog --hidden-import savegame \
-      --hidden-import rerun \
+      --hidden-import rerun --hidden-import vista --hidden-import voxray \
+      --hidden-import voxref --hidden-import raster \
+      --paths tools/render --add-data "tools/render:tools/render" \
       play.py
 
 On Windows PowerShell the separator is a semicolon and the line continuation is a backtick:
@@ -58,7 +80,9 @@ On Windows PowerShell the separator is a semicolon and the line continuation is 
       --hidden-import entity --hidden-import rngstream --hidden-import descend `
       --hidden-import loot --hidden-import cue --hidden-import enact `
       --hidden-import statecanon --hidden-import actionlog --hidden-import savegame `
-      --hidden-import rerun `
+      --hidden-import rerun --hidden-import vista --hidden-import voxray `
+      --hidden-import voxref --hidden-import raster `
+      --paths tools/render --add-data "tools/render;tools/render" `
       play.py
 
 Or use the bundled spec (a convenience — adjust for your PyInstaller version if the `EXE(...)`
@@ -66,8 +90,8 @@ signature differs):
 
     pyinstaller launcher/urdl.spec
 
-The result is `dist/urdl` (or `dist\urdl.exe`). It bundles every `tools/terrain` module **and its
-pinned `conformance_*.txt` golden**, because the launcher's load-time self-check reads those goldens;
+The result is `dist/urdl` (or `dist\urdl.exe`). It bundles every `tools/terrain` and `tools/render`
+module **and its pinned `conformance*.txt` golden**, because the launcher's self-check reads those goldens;
 `play.py` resolves them from the bundle automatically when frozen. Run it:
 
     ./dist/urdl --seed 0xABCDE --depth 1

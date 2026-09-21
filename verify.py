@@ -319,6 +319,7 @@ STAGE_ORDER = (
     "kinema",
     "chorus",
     "cue",
+    "vista",
     "authority",
     "exempt",
     "disposition",
@@ -7090,6 +7091,140 @@ class Gate:
                     "(equal to the run rerun built independently), and the canonical core fingerprint is "
                     "unperturbed — focus rerouting cannot alter the canonical action stream"
                     if focus_ok else "a cue focus / one-way / canonical-differential law did not hold")
+
+    def vista(self):
+        """THE FIRST-PERSON FRAME OF THE CERTIFIED DUNGEON (URDRVIS1) — the eighteenth game-layer vertical slice
+        and its first picture with a third axis: one ray per column through the certified `voxray` oracle into a
+        URDRFB1 index frame (`raster.Framebuffer`), coloured by a table. Rows: scenes, readback, contract, oneway.
+        Its invariant: THE FRAME IS A FUNCTION OF (LEVEL, POS, FACING) THAT READS BACK TO THE LEVEL AND CHANGES
+        NOTHING. The eye is TAKEN from `pos`, never derived; the facing is view state beside the run, never in it;
+        the half this module cannot prove — that a frame rendered every turn leaves `D_n` byte-identical — is
+        checked here against a live enact/statecanon core."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import vista as VS
+            import gamegen as GG18
+            import descent as DC18
+            import enact as EA18
+            import actionlog as AL18
+            import statecanon as SC18
+            import entity as ET18
+            import rerun as RP18
+            import raster as RS18
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("vista:scenes", "vista-readback", "vista-contract", "vista-oneway"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        frames = {}
+        try:
+            for n in VS.SCENES:
+                lvl, pos, facing = VS.scene_view(n)
+                frames[n] = (lvl, pos, facing, VS.frame(lvl, pos, facing))
+            scenes_ok = (VS.emitted_matches_pinned()
+                         and all(VS.scene_result(n) == VS.golden(n) for n in VS.SCENES)
+                         and VS.vista_digest() == VS.golden("vista")
+                         and VS.an_unpinned_name_refuses()
+                         and all(fb.serialize().startswith(RS18.MAGIC) and VS.frame_digest(fb) == fb.digest()
+                                 for _l, _p, _f, fb in frames.values()))
+        except Exception:
+            scenes_ok = False
+        self.record("vista:scenes", scenes_ok,
+                    "the four URDRVIS1 scenes (`corridor`, `room`, `landmark`, `pointblank`) and the top digest "
+                    "reproduce from what the module emits — each pins the view, the URDRFB1 frame digest, the class "
+                    "census with its denominator, the framing verdict, population, the centre-column read-back "
+                    "triple and the function-of-the-view triple; the frame's identity IS `raster`'s law (the "
+                    "serialization carries URDRFB1's MAGIC and the digest is the framebuffer's own); an unpinned "
+                    "name refuses typed VISTA-REFUSE"
+                    if scenes_ok else "a vista scene drifted")
+
+        try:
+            readback_ok = all(VS.the_centre_column_is_a_straight_walk(l, p, f, fb) == (True, True, True)
+                              for l, p, f, fb in frames.values())
+            lvl0, pos0, fac0, _fb0 = frames["corridor"]
+            readback_ok = readback_ok and VS.a_planted_eye_is_caught(lvl0, pos0, fac0) is True
+            for seed in (1, 2):                                       # a sweep beyond the corpus, all four facings
+                lvl = GG18.generate(seed, 1)
+                pos = DC18.endpoints(lvl)[0]
+                for facing in VS.FACINGS:
+                    readback_ok = readback_ok and VS.the_centre_column_is_a_straight_walk(lvl, pos, facing) == (True, True, True)
+            readback_ok = readback_ok and VS.the_frame_is_a_function_of_the_view(lvl0, pos0, fac0) == (True, True, True)
+        except Exception:
+            readback_ok = False
+        self.record("vista-readback", readback_ok,
+                    "THE CENTRE COLUMN IS A STRAIGHT WALK: for every corpus frame and a sweep of two more levels "
+                    "under all four facings, the strip at the centre column is the first wall a plain walk over "
+                    "`level.cells` meets `k` cells ahead, its rows are exactly those whose centres fall between the "
+                    "wall's projected edges `960/(2k-1)` about the horizon, and every floor row below it carries "
+                    "the class of the walked cell at that row's depth — a check ON the picture, from the world, "
+                    "whose verdict flows nowhere; the planted eye (one cell behind) is CAUGHT; and the frame is a "
+                    "function of the view (same view reproduces; turned or moved differs)"
+                    if readback_ok else "a vista read-back / planted-eye / function-of-the-view law did not hold")
+
+        try:
+            contract_ok = VS.the_lut_keeps_classes_apart() == (True, True)
+            contract_ok = contract_ok and all(VS.census_verdict(fb) == "WELL_FRAMED" and VS.the_frame_is_populated(fb)
+                                              for n, (_l, _p, _f, fb) in frames.items() if n != "pointblank")
+            _l, _p, _f, fbp = frames["pointblank"]
+            contract_ok = (contract_ok and VS.census_verdict(fbp) == "DEGENERATE:wall"
+                           and not VS.the_frame_is_populated(fbp)
+                           and VS.census(fbp)["total"] == VS.W * VS.H)
+            contract_ok = contract_ok and VS.refuse_is_total()
+        except Exception:
+            contract_ok = False
+        self.record("vista-contract", contract_ok,
+                    "THE IMAGING CONTRACT IS A TABLE AND IT KEEPS THE CLASSES APART: at every depth band and level "
+                    "depth the floor stays warm, every wall entry stays cool, `>` stays teal and `<` magenta — haze "
+                    "and depth tint are achromatic so a hue family never moves — with a planted floor-warm wall "
+                    "entry refused; the three well-framed corpus frames are populated (sky, wall, floor all present) "
+                    "and the deliberately point-blank frame is named DEGENERATE:wall by the census rule (the rule "
+                    "accepts AND bites); refusal is total over the listed malformed inputs"
+                    if contract_ok else "a vista contract / census / refusal law did not hold")
+
+        try:
+            import ast
+            oneway_ok = VS.the_membrane_is_one_way() and VS.LAYER == "VIEW"
+            with open(os.path.join(gdir, "vista.py"), encoding="utf-8") as fh:
+                oneway_ok = oneway_ok and VS._import_top(ast.parse(fh.read())) == set(VS.ALLOWED_IMPORTS)
+            for name in ("gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat",
+                         "heirloom", "actionlog", "savegame", "enact", "rerun", "statecanon"):
+                with open(os.path.join(gdir, name + ".py"), encoding="utf-8") as fh:
+                    oneway_ok = oneway_ok and "vista" not in VS._import_top(ast.parse(fh.read()))
+            # THE LIVE-CORE HALF: a scripted run's per-turn D_n with a frame rendered after every turn equals the
+            # run with none; the level object a frame read is byte-identical afterwards.
+            _rec, toks, _f = RP18._saved_flat_run(0xABCDE, 3, 4, 2)
+
+            def run(render):
+                state = RP18._spawn_origin(0xABCDE, 3)
+                log = AL18.empty()
+                facing = VS.default_facing(state[0])
+                out = []
+                for tok in toks:
+                    (lvl, pos, strm), _info = EA18.dispatch(state, tok)
+                    state = (lvl, pos, strm)
+                    log = AL18.append(log, tok)
+                    if render:
+                        kind, payload = EA18.decode(tok)
+                        if kind == EA18.MOVE:
+                            facing = payload
+                        VS.frame(lvl, pos, facing)
+                    out.append(SC18.d_n(lvl, ET18.at(pos), strm, log))
+                return tuple(out), GG18.canon_bytes(state[0])
+            a, b = run(False), run(True)
+            oneway_ok = oneway_ok and a == b and len(a[0]) > 0
+        except Exception:
+            oneway_ok = False
+        self.record("vista-oneway", oneway_ok,
+                    "THE VIEW IS ONE-WAY: read off the full AST `vista` imports exactly its declared substrate "
+                    "(`gamegen`, `descent` read-only; `voxray` the oracle; `raster` the frame) and no transition, "
+                    "identity, log or stream authority in any scope, reaching no `.step`/`.dispatch`/`.apply`/"
+                    "`.d_n`/`.serialize`/`.restore`, with positive controls; no CORE module imports it; and against "
+                    "a LIVE enact/statecanon core a scripted run's per-turn `D_n` sequence and final level bytes are "
+                    "BYTE-IDENTICAL with a frame rendered after every turn (facing carried beside the run as view "
+                    "state) and with none — destroy every frame and the run is the same run"
+                    if oneway_ok else "a vista one-way / live-core law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -30872,7 +31007,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema", "chorus", "cue",
+    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema", "chorus", "cue", "vista",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

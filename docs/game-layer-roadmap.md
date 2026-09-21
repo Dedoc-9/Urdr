@@ -128,6 +128,19 @@ token). Focus arbitration, stateful/timed input and a raw-event history channel 
 the input membrane — like the display membrane before it — is proved authority-free before anything is built
 on top of it.
 
+**LANDSCAPE-1** — the first picture of the certified level with a third axis — has landed as `vista` (URDRVIS1),
+the fourth game-layer VIEW module. The measurement pass before it (LANDSCAPE-0) found the game layer's only
+depiction to be the launcher's text grid and found two certified substrates nothing had pointed at a level —
+`voxray.first_hit` (the exact ray oracle) and `raster.Framebuffer` (the URDRFB1 frame) — and `vista` composes them:
+one ray per column, the strip and the floor exact floors of rationals, an 8-bit index frame coloured by a table.
+Its law is that **the frame is a function of `(level, pos, facing)` that reads back to the level and changes
+nothing**: the eye is taken from `pos` (a wall cell refuses), the facing is view state beside the run, the centre
+column is a straight walk over `level.cells` with the planted eye caught, the table keeps the classes apart at every
+band and depth, the census accepts and bites, and a scripted run's `D_n` is byte-identical with a frame rendered
+every turn and with none. The launcher (`play.py --snapshot`, key `P`) is its consumer. What grows on it next —
+pitch and yaw, `kinema`-driven motion, texture and props, generative dressing over the certified layout — grows as
+VIEW, under the same read-back and one-way laws.
+
 ## 3. KINEMA blueprint, in brief
 
 *(Full contract: `spec/D25-kinema-boundary.md`. This is the one-page shape.)*

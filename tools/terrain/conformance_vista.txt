@@ -1,0 +1,55 @@
+# URDRVIS1 conformance -- THE FIRST-PERSON FRAME OF THE CERTIFIED DUNGEON, AND THE EYE IS TAKEN, NEVER DERIVED.
+#
+# The eighteenth game-layer vertical slice (LANDSCAPE-1) and the fourth game-layer VIEW module: the first
+# picture of the certified level with a third axis. One ray per column through the certified `voxray` oracle
+# (the exact Amanatides-Woo traversal) into a `raster.Framebuffer` URDRFB1 INDEX frame, the strip's rows exactly
+# those whose centres fall between the wall's projected edges (`h = 64*t_den/t_num`, exact floors), the floor an
+# exact inverse projection, the colour a separate table. The Wolfenstein construction -- walls one cell tall,
+# eye at half height, no pitch -- reproduced, not discovered, over a world it never touches. Its one invariant:
+# THE FRAME IS A FUNCTION OF (LEVEL, POS, FACING) THAT READS BACK TO THE LEVEL AND CHANGES NOTHING.
+#
+# DIRECTION (one-way): (level, pos, facing) -> frame -> index bytes -> lut -> PNG, never picture -> authority.
+# The eye is TAKEN from `pos` (a wall cell REFUSES); the facing is VIEW state kept beside the run, never in it
+# (`default_facing`, toward `>`, is a pure function of the level); `frame`'s signature cannot receive a `D_n`,
+# a stream or a log. `the_membrane_is_one_way` reads this module's OWN full AST (function-local imports
+# included): exactly the declared substrate (`gamegen`/`descent` read-only, `voxray`, `raster`, stdlib), no
+# transition/identity/log/stream authority in any scope, no `.step`/`.dispatch`/`.apply`/`.d_n`/`.serialize`/
+# `.restore`, with positive controls. The live-core half -- per-turn `D_n` byte-identical with a frame rendered
+# every turn and with none -- is the gate's (`vista-oneway`).
+#
+# THE READ-BACK LAW INFERS NOTHING. `the_centre_column_is_a_straight_walk` recomputes by a plain walk over
+# `level.cells` which wall the centre ray must hit `k` cells ahead and reads the frame back: the strip's voxel
+# is that wall, its rows are exactly those whose centres lie between `960/(2k-1)` about the horizon, and every
+# floor row below carries the walked cell's class at that row's depth. A check ON the picture FROM the world,
+# whose verdict flows nowhere; the planted eye (one cell behind) is caught.
+#
+# THE IMAGING CONTRACT IS A TABLE. `lut(depth)` is the only place colour exists; haze and depth tint are
+# ACHROMATIC so a hue family never moves with distance or depth; `the_lut_keeps_classes_apart` reads off the
+# table that floor stays warm, every wall entry cool, `>` teal and `<` magenta at every band and depth, with a
+# planted floor-warm wall entry refused. Hue encodes class; value and saturation encode light and distance.
+#
+# Each scene pins the view (seed/depth/pos/facing), the URDRFB1 frame digest, the class census with its
+# denominator, the framing verdict (`framing`'s DOMINANCE rule: WELL_FRAMED or DEGENERATE named by class),
+# population, the centre-column read-back triple and the function-of-the-view triple. `corridor` looks north
+# from the spawn of level 0/1; `room` looks east from the mid-path cell of 12345/7; `landmark` looks east down
+# the row of `>` on 0xC0FFEE/2 with the destination in view; `pointblank` faces the nearest wall from the last
+# cell before it on 0/1 -- the deliberately DEGENERATE frame, so the census rule is seen to bite as well as to
+# accept. All four and the top digest are what the module EMITS. Re-pin only when the camera, the layout or the
+# corpus is CHANGED ON PURPOSE; a drift here is a moved picture.
+#
+# GRADE (honest, D5). MEASURED: the corpus frames reproduce, hash-seed-independent; the read-back law holds
+# over the corpus and a sweep with the planted control caught; the table keeps the classes apart with its
+# planted control; the well-framed frames are populated and the point-blank frame is DEGENERATE:wall by name;
+# the live-core `D_n` identity (the gate's). ESTABLISHED: the AST is one-way; no CORE module imports `vista`.
+# DECLARED: the frame size (1920x1080), focal (960), cell subdivision (256), eye height (128), 32 depth bands,
+# the face-light order (south, west, north, east) and the palette.
+#
+# does_not_show: pitch, free yaw, smooth motion (`kinema` Frames are the next rung's input); textures, props,
+# wall relief, sky detail; any second placement of THIS module (only its substrate, `raster`, is cross-placed);
+# any wall-clock or frame budget (a frame is a photograph, not a loop); and that the picture is beautiful --
+# the read-back and the table are readability floors, not a ceiling.
+corridor 2593eca01ae9cdcf180845632d3604374b6265cab8376396e2e3acccc9132770
+room 656fb541db21f28a6044c3f84486f4b6e6b02bf78afb5beb83f0a86b9d056b06
+landmark a1a5c5663dc9430f8acaf1086f6186e8e6386d31c6b74603c526cbb6c5050ad1
+pointblank ce68233e923da986af41907179819238620f288183f939e4843a541e8240235d
+vista 658ecfca6dcfe95c7b1abe7aa33ad7e86e3204c3ef6380e5c322fc18c751c0c5
