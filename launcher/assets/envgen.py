@@ -13,26 +13,37 @@ What this does, in order, and what it refuses to do:
      the 1920x1080 frame (box-filtered to 1536x864, padded 80 rows top and bottom — no aspect distortion, an
      exact 5:4 map back), and a MASK derived from the frame's own class map (sky kept opaque, walls and floor
      editable) so the generator can only paint where the certified frame says there is wall or floor.
-  3. Calls the imagegen executor (`.imagegen/generate.cjs`, gpt-image-1 edits endpoint, `--input-fidelity high`)
-     ONCE, and writes `<name>.provenance.json`: reference digests, mask sha256, the prompt and its sha256, every
-     parameter, the executor's sha256, the output's sha256 and dimensions. Generation itself is NOT deterministic
-     and this record does not pretend it is; it makes the experiment attributable, not reproducible.
+  3. Makes ONE generator call, through one of two backends, and writes `<name>.provenance.json`: reference
+     digests, mask sha256, the prompt and its sha256, every parameter, the executor's sha256, the output's
+     sha256 and dimensions. Generation itself is NOT deterministic and this record does not pretend it is; it
+     makes the experiment attributable, not reproducible.
+       --backend openai   the imagegen executor (`.imagegen/generate.cjs`, gpt-image-1 edits, mask honoured,
+                          `--input-fidelity high`; needs Node >= 20 and OPENAI_API_KEY in `.env`; paid)
+       --backend gemini   Google's `gemini-2.5-flash-image` through its REST endpoint from the stdlib (no SDK;
+                          GEMINI_API_KEY in `.env`; free tier). It takes no mask, so the sky is protected by the
+                          prompt here and by `envfit`'s class composite afterwards; the certified 1920x1080
+                          frame is sent as-is and a 16:9 output is requested.
 
 Nothing here reads or writes canonical state: the frame is a VIEW, the generator's output is a picture, and the
 only thing that can map it back onto the certified frame is `envfit.py`, which masks by the frame's classes.
 
-Run from the repository root (needs Node >= 20 and OPENAI_API_KEY in a root `.env` — never pass the key here):
+Run from the repository root (keys live in a root `.env`, one `NAME=value` per line — never pass a key here):
 
-    python launcher/assets/envgen.py --reference launcher/assets/first.png --seed 0xABCDE --depth 1 --facing W
-    python launcher/assets/envgen.py ... --dry-run     # prepare the inputs and the command, call nothing
+    python launcher/assets/envgen.py --reference launcher/assets/first.png --backend gemini
+    python launcher/assets/envgen.py --reference launcher/assets/first.png --backend openai
+    python launcher/assets/envgen.py ... --dry-run     # prepare the inputs and the request, call nothing
 """
 import argparse
+import base64
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 import sys
 import time
+import urllib.error
+import urllib.request
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.dirname(os.path.dirname(_HERE))
@@ -45,6 +56,8 @@ import gamegen                                                          # noqa: 
 import descent                                                          # noqa: E402
 
 EXECUTOR = os.path.join(_ROOT, ".imagegen", "generate.cjs")
+GEMINI_MODEL = "gemini-2.5-flash-image"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/%s:generateContent" % GEMINI_MODEL
 GEN_W, GEN_H = 1536, 1024                      # the closest gpt-image-1 size to 16:9; letterboxed, never distorted
 FIT_W, FIT_H = 1536, 864                       # 1920x1080 * 4/5 — an exact rational scale
 PAD = (GEN_H - FIT_H) // 2                     # 80 rows of sky above, 80 rows of floor below
@@ -140,6 +153,60 @@ def letterbox(rgb_fit, top_rgb, bottom_rgb):
     return row_top * PAD + rgb_fit + row_bot * PAD
 
 
+def read_env_key(name):
+    """`NAME=value` from the process environment, else from the root `.env` (a BOM and whitespace tolerated).
+    Returned to the caller only to be placed in a request header; never printed, never recorded."""
+    v = os.environ.get(name)
+    if v:
+        return v.strip()
+    path = os.path.join(_ROOT, ".env")
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8-sig") as fh:
+            for ln in fh:
+                ln = ln.strip()
+                if ln.startswith(name + "="):
+                    return ln[len(name) + 1:].strip().strip('"').strip("'")
+    return None
+
+
+def gemini_generate(png_bytes, prompt, key, aspect="16:9"):
+    """One `generateContent` call with the frame inline. Returns (image_bytes, mime, response_meta) or raises
+    RuntimeError with the server's message. The aspect request is dropped and the call retried once if the
+    server rejects `imageConfig` (older API surfaces)."""
+    def body(with_aspect):
+        req = {"contents": [{"parts": [{"text": prompt},
+                                       {"inline_data": {"mime_type": "image/png",
+                                                        "data": base64.b64encode(png_bytes).decode("ascii")}}]}],
+               "generationConfig": {"responseModalities": ["IMAGE"]}}
+        if with_aspect:
+            req["generationConfig"]["imageConfig"] = {"aspectRatio": aspect}
+        return json.dumps(req).encode("utf-8")
+    last = None
+    for with_aspect in (True, False):
+        r = urllib.request.Request(GEMINI_URL, data=body(with_aspect), method="POST",
+                                   headers={"content-type": "application/json", "x-goog-api-key": key})
+        try:
+            with urllib.request.urlopen(r, timeout=180) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            msg = exc.read().decode("utf-8", "replace")[:600]
+            last = "HTTP %d: %s" % (exc.code, msg)
+            if with_aspect and exc.code == 400 and "imageConfig" in msg:
+                continue                                        # retry without the aspect request
+            raise RuntimeError(last)
+        except urllib.error.URLError as exc:
+            raise RuntimeError("network: %s" % exc.reason)
+        for cand in data.get("candidates", []):
+            for part in cand.get("content", {}).get("parts", []):
+                blob = part.get("inlineData") or part.get("inline_data")
+                if blob and blob.get("data"):
+                    meta = {"model": GEMINI_MODEL, "aspect_requested": aspect if with_aspect else None,
+                            "finish_reason": cand.get("finishReason"), "usage": data.get("usageMetadata")}
+                    return base64.b64decode(blob["data"]), blob.get("mimeType") or blob.get("mime_type"), meta
+        raise RuntimeError("no image in the response (%s)" % json.dumps(data)[:400])
+    raise RuntimeError(last or "no response")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="envgen", description="one environment treatment over a verified certified frame")
     ap.add_argument("--reference", default=os.path.join("launcher", "assets", "first.png"),
@@ -150,7 +217,9 @@ def main(argv=None):
     ap.add_argument("--name", default="env_wallfloor_v1", help="asset name (history id, output stem)")
     ap.add_argument("--quality", choices=("low", "medium", "high"), default="high")
     ap.add_argument("--keep", choices=("sky", "none"), default="sky", help="what the mask keeps opaque")
-    ap.add_argument("--dry-run", action="store_true", help="prepare inputs and print the command; call nothing")
+    ap.add_argument("--backend", choices=("openai", "gemini"), default="openai",
+                    help="openai: gpt-image-1 edits via the Node executor (paid); gemini: gemini-2.5-flash-image via REST (free tier)")
+    ap.add_argument("--dry-run", action="store_true", help="prepare inputs and print the request; call nothing")
     args = ap.parse_args(argv)
     seed = int(args.seed, 0)
     os.chdir(_ROOT)
@@ -210,8 +279,13 @@ def main(argv=None):
         generator_input=dict(path=ref_path, size=[GEN_W, GEN_H], fit=[FIT_W, FIT_H], pad_rows=PAD, file_sha256=pngio.file_sha256(ref_path)),
         mask=dict(path=mask_path, keep=args.keep, file_sha256=pngio.file_sha256(mask_path) if mask_path else None),
         prompt=dict(path=prompt_path, sha256=hashlib.sha256(PROMPT.encode("utf-8")).hexdigest(), text=PROMPT),
-        params=dict(model="gpt-image-1", endpoint="images/edits", size="%dx%d" % (GEN_W, GEN_H), quality=args.quality, input_fidelity="high"),
-        executor=dict(path=os.path.relpath(EXECUTOR, _ROOT), sha256=pngio.file_sha256(EXECUTOR) if os.path.exists(EXECUTOR) else None),
+        backend=args.backend,
+        params=(dict(model="gpt-image-1", endpoint="images/edits", size="%dx%d" % (GEN_W, GEN_H), quality=args.quality, input_fidelity="high")
+                if args.backend == "openai" else
+                dict(model=GEMINI_MODEL, endpoint="generateContent", input="the 1920x1080 frame as-is", aspect_requested="16:9",
+                     mask="none (no mask support): sky protected by the prompt and by envfit's class composite")),
+        executor=(dict(path=os.path.relpath(EXECUTOR, _ROOT), sha256=pngio.file_sha256(EXECUTOR) if os.path.exists(EXECUTOR) else None)
+                  if args.backend == "openai" else dict(path="launcher/assets/envgen.py (stdlib urllib)", sha256=pngio.file_sha256(os.path.abspath(__file__)))),
         output=None, deterministic=False,
         note="generation is not deterministic; this record attributes the picture to its inputs, it does not reproduce it",
     )
@@ -219,25 +293,60 @@ def main(argv=None):
     if args.dry_run:
         with open(prov_path, "w", encoding="utf-8") as fh:
             json.dump(provenance, fh, indent=1)
-        print("[envgen] DRY RUN — would run:\n  " + " ".join("'%s'" % c if " " in c else c for c in cmd[:6]) + " ...")
+        if args.backend == "openai":
+            print("[envgen] DRY RUN — would run:\n  " + " ".join("'%s'" % c if " " in c else c for c in cmd[:6]) + " ...")
+        else:
+            print("[envgen] DRY RUN — would POST the 1920x1080 frame + prompt to %s (aspect 16:9), key from GEMINI_API_KEY" % GEMINI_URL)
         print("[envgen] provenance (without output) -> %s" % prov_path)
         return 0
-    if not os.path.exists(EXECUTOR):
-        sys.stderr.write("ENVGEN-REFUSE: executor missing at %s (materialise .imagegen/generate.cjs first)\n" % EXECUTOR)
-        return 2
-    print("[envgen] generating (one call, ~15-30 s)...")
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if args.backend == "openai":
+        if not os.path.exists(EXECUTOR):
+            sys.stderr.write("ENVGEN-REFUSE: executor missing at %s (materialise .imagegen/generate.cjs first)\n" % EXECUTOR)
+            return 2
+        if shutil.which("node") is None:
+            sys.stderr.write("ENVGEN-REFUSE: `node` is not on PATH (Node >= 20 is needed for the openai backend; "
+                             "install it, or use --backend gemini)\n")
+            return 2
+        if not read_env_key("OPENAI_API_KEY"):
+            sys.stderr.write("ENVGEN-REFUSE: OPENAI_API_KEY is not set (put `OPENAI_API_KEY=...` in the root .env)\n")
+            return 2
+        print("[envgen] generating (one call, ~15-30 s)...")
+        proc = subprocess.run(cmd, capture_output=True, text=True)
+        try:
+            result = json.loads(proc.stdout.strip().splitlines()[-1])
+        except Exception:
+            sys.stderr.write("ENVGEN-REFUSE: executor produced no JSON\n%s\n%s\n" % (proc.stdout[-800:], proc.stderr[-800:]))
+            return 2
+        if not result.get("success"):
+            sys.stderr.write("ENVGEN-REFUSE: %s\n" % result.get("error"))
+            return 2
+        result_meta = dict(bytes=result.get("bytes"), executor_result=result)
+    else:
+        key = read_env_key("GEMINI_API_KEY")
+        if not key:
+            sys.stderr.write("ENVGEN-REFUSE: GEMINI_API_KEY is not set (put `GEMINI_API_KEY=...` in the root .env; "
+                             "a free key comes from aistudio.google.com)\n")
+            return 2
+        with open(args.reference, "rb") as fh:
+            ref_bytes = fh.read()
+        print("[envgen] generating (one call to %s, ~10-30 s)..." % GEMINI_MODEL)
+        try:
+            img, mime, result_meta = gemini_generate(ref_bytes, PROMPT + " Keep the sky exactly as it is.", key)
+        except RuntimeError as exc:
+            sys.stderr.write("ENVGEN-REFUSE: %s\n" % exc)
+            return 2
+        del key
+        if mime and "png" not in mime:
+            out_path = os.path.join("launcher", "assets", args.name + (".jpg" if "jpeg" in mime or "jpg" in mime else ".bin"))
+        with open(out_path, "wb") as fh:
+            fh.write(img)
+        result_meta = dict(bytes=len(img), mime=mime, response=result_meta)
     try:
-        result = json.loads(proc.stdout.strip().splitlines()[-1])
-    except Exception:
-        sys.stderr.write("ENVGEN-REFUSE: executor produced no JSON\n%s\n%s\n" % (proc.stdout[-800:], proc.stderr[-800:]))
+        ow, oh, och, _opx = pngio.read_png(out_path)
+    except Exception as exc:
+        sys.stderr.write("ENVGEN-REFUSE: the generator returned something pngio cannot read (%s) — saved at %s\n" % (exc, out_path))
         return 2
-    if not result.get("success"):
-        sys.stderr.write("ENVGEN-REFUSE: %s\n" % result.get("error"))
-        return 2
-    ow, oh, och, _opx = pngio.read_png(out_path)
-    provenance["output"] = dict(path=out_path, file_sha256=pngio.file_sha256(out_path), size=[ow, oh], channels=och,
-                                bytes=result.get("bytes"), executor_result=result)
+    provenance["output"] = dict(path=out_path, file_sha256=pngio.file_sha256(out_path), size=[ow, oh], channels=och, **result_meta)
     with open(prov_path, "w", encoding="utf-8") as fh:
         json.dump(provenance, fh, indent=1)
     print("[envgen] generated %s (%dx%d, %d channels) — provenance -> %s" % (out_path, ow, oh, och, prov_path))

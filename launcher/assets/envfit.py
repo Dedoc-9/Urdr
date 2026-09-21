@@ -3,9 +3,12 @@
 # Copyright (C) 2026 Daniel J. Dillberg
 """envfit — map a generated environment treatment BACK onto the certified frame, and measure it (off-gate).
 
-The generator returns a 1536x1024 picture. This tool re-renders the certified frame from the provenance record's
-view, verifies the generated file is the one the record names, maps it back to 1920x1080 (crop the 80-row pads,
-scale 1536x864 -> 1920x1080 by the exact inverse 4:5 — bilinear, integer weights), and COMPOSITES BY CLASS: a
+The generator returns a picture: 1536x1024 letterboxed from the openai backend, or whatever size the gemini
+backend chose (a 16:9 output is requested). This tool re-renders the certified frame from the provenance record's
+view, verifies the generated file is the one the record names, maps it back to 1920x1080 — the openai geometry by
+cropping the 80-row pads and the exact inverse 4:5; any exact 16:9 picture by a bilinear resample; any other
+aspect by a centred 16:9 crop first, FLAGGED as `aspect_mismatch` because the generator then changed the
+geometry — and COMPOSITES BY CLASS: a
 pixel takes the generated colour only where the certified frame says wall / floor / `<` / `>`; sky and ink keep
 the frame's own colour. The certified silhouette therefore survives by construction — anything the generator
 invented across a class boundary is clipped, not adopted. Canonical state is not read or written anywhere.
@@ -72,6 +75,53 @@ def upscale_4_5(rgb, w, h, out_w, out_h):
     return bytes(out)
 
 
+def resample_bilinear(rgb, w, h, out_w, out_h):
+    """Any size -> any size, bilinear, integer weights: the source coordinate of output centre i is
+    ((2i+1)*w - out_w) / (2*out_w), kept as a fraction with denominator 2*out_w."""
+    out = bytearray(out_w * out_h * 3)
+
+    def taps(n_out, n_in):
+        d = 2 * n_out
+        t = []
+        for i in range(n_out):
+            num = (2 * i + 1) * n_in - n_out
+            if num < 0:
+                t.append((0, 0, d, 0))
+                continue
+            i0 = num // d
+            f = num - i0 * d
+            i1 = min(i0 + 1, n_in - 1)
+            i0 = min(i0, n_in - 1)
+            t.append((i0, i1, d - f, f))
+        return t, d
+    (tx, dx), (ty, dy) = taps(out_w, w), taps(out_h, h)
+    norm = dx * dy
+    for j in range(out_h):
+        y0, y1, wy0, wy1 = ty[j]
+        r0, r1 = y0 * w * 3, y1 * w * 3
+        o = j * out_w * 3
+        for i in range(out_w):
+            x0, x1, wx0, wx1 = tx[i]
+            a, b, c, e = r0 + x0 * 3, r0 + x1 * 3, r1 + x0 * 3, r1 + x1 * 3
+            w00, w01, w10, w11 = wy0 * wx0, wy0 * wx1, wy1 * wx0, wy1 * wx1
+            for k in range(3):
+                out[o + i * 3 + k] = (rgb[a + k] * w00 + rgb[b + k] * w01 + rgb[c + k] * w10 + rgb[e + k] * w11 + norm // 2) // norm
+    return bytes(out)
+
+
+def crop_16_9(rgb, w, h):
+    """Centred crop to the largest 16:9 window inside w x h."""
+    if w * 9 >= h * 16:
+        cw, ch = (h * 16) // 9, h
+    else:
+        cw, ch = w, (w * 9) // 16
+    x0, y0 = (w - cw) // 2, (h - ch) // 2
+    out = bytearray()
+    for r in range(y0, y0 + ch):
+        out += rgb[(r * w + x0) * 3:(r * w + x0 + cw) * 3]
+    return bytes(out), cw, ch
+
+
 def lum(rgb, idx):
     return (54 * rgb[idx] + 183 * rgb[idx + 1] + 19 * rgb[idx + 2]) // 256
 
@@ -108,12 +158,19 @@ def main(argv=None):
         return 2
     gw, gh, gch, gpx = pngio.read_png(gen_path)
     grgb = pngio.to_rgb(gw, gh, gch, gpx)
-    if (gw, gh) != (GEN_W, GEN_H):
-        sys.stderr.write("ENVFIT-REFUSE: generated picture is %dx%d, expected %dx%d\n" % (gw, gh, GEN_W, GEN_H))
-        return 2
-    # map back: crop the pads, upscale 4:5
-    crop = grgb[PAD * GEN_W * 3:(PAD + FIT_H) * GEN_W * 3]
-    mapped = upscale_4_5(crop, FIT_W, FIT_H, vista.W, vista.H)
+    aspect_mismatch = False
+    if (gw, gh) == (GEN_W, GEN_H):                                  # the openai letterbox: crop the pads, exact 4:5
+        crop = grgb[PAD * GEN_W * 3:(PAD + FIT_H) * GEN_W * 3]
+        mapped = upscale_4_5(crop, FIT_W, FIT_H, vista.W, vista.H)
+        geometry = "letterbox 1536x1024 -> crop pads -> exact 4:5"
+    elif gw * 9 == gh * 16:                                          # an exact 16:9 picture: resample
+        mapped = resample_bilinear(grgb, gw, gh, vista.W, vista.H)
+        geometry = "16:9 %dx%d -> bilinear resample" % (gw, gh)
+    else:                                                            # anything else: centred 16:9 crop, flagged
+        crop, cw, ch = crop_16_9(grgb, gw, gh)
+        mapped = resample_bilinear(crop, cw, ch, vista.W, vista.H)
+        geometry = "%dx%d -> centred 16:9 crop %dx%d -> bilinear resample (ASPECT MISMATCH)" % (gw, gh, cw, ch)
+        aspect_mismatch = True
 
     # composite by class
     W, H = vista.W, vista.H
@@ -176,7 +233,8 @@ def main(argv=None):
             diff += abs(mapped[k] - ref[k]) + abs(mapped[k + 1] - ref[k + 1]) + abs(mapped[k + 2] - ref[k + 2])
     report = dict(
         name=args.name, generated=dict(path=gen_path, size=[gw, gh], channels=gch, alpha=gch == 4),
-        mapped=dict(path=mapped_path, size=[W, H]), composite=dict(path=fit_path, editable_pixels=edit_px, kept_pixels=W * H - edit_px),
+        mapped=dict(path=mapped_path, size=[W, H], geometry=geometry, aspect_mismatch=aspect_mismatch),
+        composite=dict(path=fit_path, editable_pixels=edit_px, kept_pixels=W * H - edit_px),
         boundary_agreement=dict(wall_floor_gradient_ratio=round(boundary_ratio, 2), columns=n_on,
                                 reading="ratio >> 1: the picture has an edge where the certified wall/floor boundary is; ~1: it ignored the layout"),
         corner_agreement=dict(gradient_ratio=round(corner_ratio, 2), corners=len(corner_cols)),

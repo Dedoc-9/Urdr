@@ -13,17 +13,23 @@ never the output.**
 | File | What it does |
 |---|---|
 | `pngio.py` | a stdlib PNG codec (read RGB/RGBA/grey, write RGB/RGBA); identity is always the pixel sha256 |
-| `envgen.py` | verifies a reference PNG IS the certified frame (re-rendered through `vista`), derives the generator's inputs from the frame alone (a 1536×1024 letterboxed copy and a class mask that keeps the sky), calls the imagegen executor once, and writes `<name>.provenance.json` |
-| `envfit.py` | maps the generated picture back onto the 1920×1080 frame (crop the pads, exact 4:5 scale), composites BY CLASS (generated colour only where the frame says wall/floor/`<`/`>`; sky and ink keep the frame's colour), and measures boundary agreement, class read-back and treatment magnitude into `<name>.fit.json` |
+| `envgen.py` | verifies a reference PNG IS the certified frame (re-rendered through `vista`), derives the generator's inputs from the frame alone (a 1536×1024 letterboxed copy and a class mask that keeps the sky), makes ONE generator call through the chosen backend, and writes `<name>.provenance.json` |
+| `envfit.py` | maps the generated picture back onto the 1920×1080 frame (the letterbox by pad-crop and exact 4:5; any 16:9 picture by bilinear resample; any other aspect by a centred crop, flagged), composites BY CLASS (generated colour only where the frame says wall/floor/`<`/`>`; sky and ink keep the frame's colour), and measures boundary agreement, class read-back and treatment magnitude into `<name>.fit.json` |
 
-The executor is `.imagegen/generate.cjs` at the repository root — gitignored, materialised from the reviewed
-imagegen skill source; it needs Node ≥ 20 and `OPENAI_API_KEY` in a root `.env` (also gitignored). The key is
-read by the executor and by nothing in this repository; never pass it on a command line.
+Two backends, chosen with `--backend`; both read their key from a root `.env` (gitignored, one `NAME=value` per
+line) and from nothing else — never pass a key on a command line:
 
-    python play.py --snapshot launcher/assets/first.png          # the certified frame (seed 0xABCDE, depth 1, facing W)
-    python launcher/assets/envgen.py --reference launcher/assets/first.png --dry-run   # inputs + command, no call
-    python launcher/assets/envgen.py --reference launcher/assets/first.png             # the one call
-    python launcher/assets/envfit.py --name env_wallfloor_v1                           # map back + measure
+- `gemini` — Google's `gemini-2.5-flash-image` through its REST endpoint from the stdlib (no SDK); `GEMINI_API_KEY`,
+  free tier from aistudio.google.com. No mask support: the certified 1920×1080 frame is sent as-is with a 16:9
+  output requested, the sky is protected by the prompt, and `envfit`'s class composite restores it regardless.
+- `openai` — gpt-image-1's edits endpoint through the imagegen executor `.imagegen/generate.cjs` at the repository
+  root (gitignored, materialised from the reviewed skill source; needs Node ≥ 20); `OPENAI_API_KEY`; paid. The mask
+  is honoured and the input is the letterboxed 1536×1024 copy.
+
+    python play.py --snapshot launcher/assets/first.png                                  # the certified frame (0xABCDE, 1, W)
+    python launcher/assets/envgen.py --reference launcher/assets/first.png --backend gemini --dry-run   # inputs + request, no call
+    python launcher/assets/envgen.py --reference launcher/assets/first.png --backend gemini             # the one call
+    python launcher/assets/envfit.py --name env_wallfloor_v1                                            # map back + measure
 
 What the fit measures, calibrated on this tree: the reference itself round-tripped scores a wall/floor
 boundary-gradient ratio of 458.8 with class read-back 1.0/1.0 and a treatment magnitude of 0.3 (resampling);
