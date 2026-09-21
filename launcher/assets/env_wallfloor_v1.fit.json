@@ -1,0 +1,43 @@
+{
+ "name": "env_wallfloor_v1",
+ "generated": {
+  "path": "launcher\\assets\\env_wallfloor_v1.png",
+  "size": [
+   1365,
+   768
+  ],
+  "channels": 3,
+  "alpha": false
+ },
+ "mapped": {
+  "path": "launcher\\assets\\env_wallfloor_v1_mapped1080.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "geometry": "1365x768 -> centred 16:9 crop 1365x767 -> bilinear resample (ASPECT MISMATCH)",
+  "aspect_mismatch": true
+ },
+ "composite": {
+  "path": "launcher\\assets\\env_wallfloor_v1_fit.png",
+  "editable_pixels": 1369408,
+  "kept_pixels": 704192
+ },
+ "boundary_agreement": {
+  "wall_floor_gradient_ratio": 1.04,
+  "columns": 1920,
+  "reading": "ratio >> 1: the picture has an edge where the certified wall/floor boundary is; ~1: it ignored the layout"
+ },
+ "corner_agreement": {
+  "gradient_ratio": 1.5,
+  "corners": 39
+ },
+ "class_readback": {
+  "wall_cool_fraction": 0.46,
+  "floor_warm_fraction": 0.662
+ },
+ "treatment_magnitude": {
+  "mean_abs_rgb_diff_in_editable": 42.6
+ },
+ "canonical_state_touched": false
+}
