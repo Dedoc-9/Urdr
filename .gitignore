@@ -40,3 +40,11 @@ gate*.txt
 .env
 .imagegen/
 .imagegen-history.jsonl
+
+# Launcher photographs and the environment tools' derived intermediates: regenerated from the certified
+# frame by `play.py --snapshot` / `envgen.py`, so never repository content. Generated treatments and their
+# provenance/fit records are NOT ignored — keeping one is a choice, made per file.
+launcher/assets/vista_*.png
+launcher/assets/*_ref1536.png
+launcher/assets/*_mask1536.png
+launcher/assets/*_mapped1080.png
