@@ -62,7 +62,8 @@ GEN_W, GEN_H = 1536, 1024                      # the closest gpt-image-1 size to
 FIT_W, FIT_H = 1536, 864                       # 1920x1080 * 4/5 — an exact rational scale
 PAD = (GEN_H - FIT_H) // 2                     # 80 rows of sky above, 80 rows of floor below
 
-PROMPT = (
+PROMPTS = {}
+PROMPTS["v1"] = (
     "Repaint this first-person view of a stone dungeon corridor as painted fantasy concept art. Keep the exact "
     "layout: every wall edge, every corner and the boundary between floor and walls stay precisely where they are; "
     "add no doors, arches, openings, objects, creatures, figures, text or watermark. Walls: weathered cut-stone "
@@ -71,6 +72,42 @@ PROMPT = (
     "with distance toward the far end so depth reads clearly. Painterly brushwork with dark ink-outlined edges, "
     "rich but readable contrast between the warm floor and the cool walls. No sky changes."
 )
+#: v2 — the geometry-locked wording, after v1 measured a median 14 px drift of the wall/floor boundary and a
+#: 22 percent vertical stretch: the camera, horizon, silhouettes, boundaries, openings, corners and vanishing
+#: structure are named one by one as things that do not move, and the change is confined to surface appearance.
+PROMPTS["v2"] = (
+    "Overpaint this exact first-person view of a stone dungeon corridor as painted fantasy concept art. This is a "
+    "surface treatment only. Keep the camera, the perspective and the horizon exactly where they are (the horizon "
+    "is at exactly half the image height). Keep every wall silhouette, every boundary between wall and floor, every "
+    "corridor opening, every perspective corner and the far-end vanishing structure precisely in place; do not "
+    "reframe, crop, zoom, tilt, or change any wall height. Change only surface appearance: weathered cut-stone "
+    "masonry with moss, damp streaks and chipped mortar on the walls; worn flagstones with dust, cracks and small "
+    "rubble on the floor; warm torchlight from the left, cool blue-grey shadow on the right; atmospheric haze that "
+    "deepens with distance so depth reads clearly; painterly brushwork with dark ink-outlined edges. Add no doors, "
+    "arches, openings, objects, creatures, figures, text or watermark. Leave the sky exactly as it is. Output at the "
+    "same aspect ratio as the input."
+)
+PROMPT = PROMPTS["v1"]
+
+
+def structure_plate(fb):
+    """The certified frame with its ink outlines thickened to three pixels — every edge the picture must keep,
+    drawn as a line drawing over the flat colours. A stronger structural cue for a generator than the 1-px ink."""
+    W, H = vista.W, vista.H
+    table = vista.lut(1)
+    px = bytearray()
+    for v in fb.buf:
+        px += bytes(table[v])
+    ink = [i for i, v in enumerate(fb.buf) if v == vista.INK]
+    for i in ink:
+        y, x = divmod(i, W)
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                yy, xx = y + dy, x + dx
+                if 0 <= yy < H and 0 <= xx < W:
+                    k = (yy * W + xx) * 3
+                    px[k:k + 3] = bytes((0, 0, 0))
+    return bytes(px)
 
 
 def view_of(seed, depth, facing):
@@ -217,12 +254,15 @@ def main(argv=None):
     ap.add_argument("--name", default="env_wallfloor_v1", help="asset name (history id, output stem)")
     ap.add_argument("--quality", choices=("low", "medium", "high"), default="high")
     ap.add_argument("--keep", choices=("sky", "none"), default="sky", help="what the mask keeps opaque")
+    ap.add_argument("--prompt", choices=tuple(PROMPTS), default="v1", help="which prompt wording (v1: the first run; v2: geometry-locked)")
     ap.add_argument("--backend", choices=("openai", "gemini"), default="openai",
                     help="openai: gpt-image-1 edits via the Node executor (paid); gemini: gemini-2.5-flash-image via REST (free tier)")
     ap.add_argument("--dry-run", action="store_true", help="prepare inputs and print the request; call nothing")
     args = ap.parse_args(argv)
     seed = int(args.seed, 0)
     os.chdir(_ROOT)
+    global PROMPT
+    PROMPT = PROMPTS[args.prompt]
 
     # 1. the certified frame, verified
     lvl, pos, facing = view_of(seed, args.depth, args.facing)
@@ -260,9 +300,11 @@ def main(argv=None):
     prompt_path = os.path.join("launcher", "assets", args.name + ".prompt.txt")
     with open(prompt_path, "w", encoding="utf-8") as fh:
         fh.write(PROMPT + "\n")
+    structure_path = os.path.join("launcher", "assets", args.name + "_structure.png")
+    pngio.write_png(structure_path, vista.W, vista.H, 3, structure_plate(fb))
     editable = sum(1 for c in classes if c in ("wall", "floor", "down", "up"))
-    print("[envgen] inputs: %s (letterboxed %dx%d), mask %s, editable region %d of %d frame pixels (classes wall/floor/down/up)"
-          % (ref_path, GEN_W, GEN_H, mask_path or "none", editable, vista.W * vista.H))
+    print("[envgen] inputs: %s (letterboxed %dx%d), mask %s, structure plate %s, prompt %s, editable region %d of %d frame pixels"
+          % (ref_path, GEN_W, GEN_H, mask_path or "none", structure_path, args.prompt, editable, vista.W * vista.H))
 
     # 3. the one call
     out_path = os.path.join("launcher", "assets", args.name + ".png")
@@ -278,7 +320,9 @@ def main(argv=None):
                        vista_pinned_digest=vista.golden("vista"), verified=True),
         generator_input=dict(path=ref_path, size=[GEN_W, GEN_H], fit=[FIT_W, FIT_H], pad_rows=PAD, file_sha256=pngio.file_sha256(ref_path)),
         mask=dict(path=mask_path, keep=args.keep, file_sha256=pngio.file_sha256(mask_path) if mask_path else None),
-        prompt=dict(path=prompt_path, sha256=hashlib.sha256(PROMPT.encode("utf-8")).hexdigest(), text=PROMPT),
+        prompt=dict(version=args.prompt, path=prompt_path, sha256=hashlib.sha256(PROMPT.encode("utf-8")).hexdigest(), text=PROMPT),
+        structure_plate=dict(path=structure_path, file_sha256=pngio.file_sha256(structure_path),
+                             note="the frame with 3-px ink outlines; for a manual run, an alternative input to the flat frame"),
         backend=args.backend,
         params=(dict(model="gpt-image-1", endpoint="images/edits", size="%dx%d" % (GEN_W, GEN_H), quality=args.quality, input_fidelity="high")
                 if args.backend == "openai" else
