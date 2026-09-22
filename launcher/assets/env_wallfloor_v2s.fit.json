@@ -18,30 +18,30 @@
   "geometry": "16:9 1365x768 -> bilinear resample (no crop)"
  },
  "layout_raw": {
-  "band_contrast_ratio": 1.0,
-  "median_signed_offset_px": 14,
-  "median_abs_offset_px": 17,
-  "within_8px": 0.28,
-  "within_16px": 0.477,
+  "band_contrast_ratio": 2.85,
+  "median_signed_offset_px": -2,
+  "median_abs_offset_px": 8,
+  "within_8px": 0.503,
+  "within_16px": 0.785,
   "columns": 1920,
   "reading": "the picture as generated against the certified wall/floor boundary: the ratio >> 1 and most columns within 8 px = the layout was kept; the signed offset is where the picture's boundary sits relative to the certified one (+ = lower on screen)"
  },
  "drift": {
-  "vertical_scale_percent": 105,
-  "vertical_shift_px": 2,
+  "vertical_scale_percent": 99,
+  "vertical_shift_px": -2,
   "reading": "scale about the horizon and shift of the picture's wall/floor boundary relative to the certified one"
  },
  "layout_registered": {
-  "band_contrast_ratio": 1.71,
-  "median_signed_offset_px": 4,
-  "median_abs_offset_px": 10,
-  "within_8px": 0.45,
-  "within_16px": 0.612,
+  "band_contrast_ratio": 2.44,
+  "median_signed_offset_px": 2,
+  "median_abs_offset_px": 8,
+  "within_8px": 0.591,
+  "within_16px": 0.782,
   "columns": 1920,
   "reading": "the same oracle after undoing the drift: whether the treatment is usable as an asset once registered to the certified geometry"
  },
  "corner_agreement": {
-  "band_contrast_ratio": 1.22,
+  "band_contrast_ratio": 0.84,
   "corners": 39
  },
  "composite": {
@@ -51,11 +51,11 @@
   "source": "registered picture"
  },
  "class_readback": {
-  "wall_cool_fraction": 0.407,
-  "floor_warm_fraction": 0.815
+  "wall_cool_fraction": 0.011,
+  "floor_warm_fraction": 0.987
  },
  "treatment_magnitude": {
-  "mean_abs_rgb_diff_in_editable": 52.4
+  "mean_abs_rgb_diff_in_editable": 56.2
  },
  "calibration": {
   "reference": "band ratio 19.97, offset 0, within_8px 0.996 (drift 98-100 percent, +0..+3 px)",
