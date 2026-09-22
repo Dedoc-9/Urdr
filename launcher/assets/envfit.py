@@ -31,9 +31,17 @@ These are measurements of a picture, not laws; the only law is that the composit
 A picture whose aspect is not 16:9 (nor the 1536x1024 letterbox) is REFUSED rather than cropped: a crop would
 invent a framing the generator did not make.
 
+The report BINDS what it measured: the file and pixel sha of the scored picture and the content sha of the
+provenance record it was scored under. Two pictures are refused before any measurement — the reference frame
+itself, and a picture whose pixels another `<name>.fit.json` in this folder already reports (the first v2s push
+had measured a byte copy of v2 under the plate's name, and nothing in the report could show it).
+
     python launcher/assets/envfit.py --name env_wallfloor_v1
+    python launcher/assets/envfit.py --name env_wallfloor_v2s --generated launcher/assets/env_wallfloor_v2s.png
 """
 import argparse
+import glob
+import hashlib
 import json
 import os
 import sys
@@ -166,6 +174,32 @@ def main(argv=None):
     gw, gh, gch, gpx = pngio.read_png(gen_path)
     grgb = pngio.to_rgb(gw, gh, gch, gpx)
     W, H = vista.W, vista.H
+    # ---- bind the picture to the record before measuring it -------------------------------------------------
+    # The first v2s push measured a byte copy of the v2 picture under the v2s name and nothing in the report
+    # could show it: the report named a path and a size, not the bytes. Now the report carries the file and
+    # pixel sha of what was scored and the content sha of the provenance record it was scored under, and two
+    # pictures are refused outright: the reference itself (no treatment to measure) and a picture another named
+    # run in this folder already reports (a duplicate run is not a second experiment).
+    gen_file_sha = pngio.file_sha256(gen_path)
+    gen_pixel_sha = pngio.pixel_sha256(grgb)
+    prov_sha = hashlib.sha256(json.dumps(prov, sort_keys=True, separators=(",", ":")).encode("utf-8")).hexdigest()
+    if (gw, gh) == (W, H) and gen_pixel_sha == prov["reference"]["pixel_sha256"]:
+        sys.stderr.write("ENVFIT-REFUSE: %s is the reference frame itself (pixel sha %s); there is no treatment to measure\n"
+                         % (gen_path, gen_pixel_sha[:12]))
+        return 2
+    for other in sorted(glob.glob(os.path.join("launcher", "assets", "*.fit.json"))):
+        other_name = os.path.basename(other)[:-len(".fit.json")]
+        if other_name == args.name:
+            continue
+        try:
+            with open(other, encoding="utf-8") as fh:
+                other_sha = (json.load(fh).get("generated") or {}).get("pixel_sha256")
+        except (OSError, ValueError):
+            continue
+        if other_sha and other_sha == gen_pixel_sha:
+            sys.stderr.write("ENVFIT-REFUSE: %s has the same pixels as the picture already measured as %s (pixel sha %s); "
+                             "a duplicate is not a second run\n" % (gen_path, other_name, gen_pixel_sha[:12]))
+            return 2
     if (gw, gh) == (GEN_W, GEN_H):                                  # the openai letterbox: crop the pads, exact 4:5
         crop = grgb[PAD * GEN_W * 3:(PAD + FIT_H) * GEN_W * 3]
         mapped = upscale_4_5(crop, FIT_W, FIT_H, W, H)
@@ -335,9 +369,14 @@ def main(argv=None):
         if c in EDITABLE:
             diff += (abs(registered_px[k] - ref[k]) + abs(registered_px[k + 1] - ref[k + 1])
                      + abs(registered_px[k + 2] - ref[k + 2]))
+    def posix(path):                                                 # the report reads the same on every host
+        return path.replace(os.sep, "/")
     report = dict(
-        name=args.name, generated=dict(path=gen_path, size=[gw, gh], channels=gch, alpha=gch == 4),
-        mapped=dict(path=mapped_path, size=[W, H], geometry=geometry),
+        name=args.name,
+        generated=dict(path=posix(gen_path), size=[gw, gh], channels=gch, alpha=gch == 4, file_sha256=gen_file_sha, pixel_sha256=gen_pixel_sha),
+        provenance=dict(path=posix(prov_path), content_sha256=prov_sha, reference_pixel_sha256=prov["reference"]["pixel_sha256"],
+                        prompt_version=(prov.get("prompt") or {}).get("version"), prompt_sha256=(prov.get("prompt") or {}).get("sha256")),
+        mapped=dict(path=posix(mapped_path), size=[W, H], geometry=geometry),
         layout_raw=dict(**raw, reading="the picture as generated against the certified wall/floor boundary: the "
                         "ratio >> 1 and most columns within 8 px = the layout was kept; the signed offset is where "
                         "the picture's boundary sits relative to the certified one (+ = lower on screen)"),
@@ -345,7 +384,7 @@ def main(argv=None):
         layout_registered=dict(**registered, reading="the same oracle after undoing the drift: whether the treatment "
                                "is usable as an asset once registered to the certified geometry"),
         corner_agreement=dict(band_contrast_ratio=round(corner_ratio, 2), corners=len(corner_cols)),
-        composite=dict(path=fit_path, editable_pixels=edit_px, kept_pixels=W * H - edit_px, source="registered picture"),
+        composite=dict(path=posix(fit_path), editable_pixels=edit_px, kept_pixels=W * H - edit_px, source="registered picture"),
         class_readback=dict(wall_cool_fraction=round(wall_cool / max(n_wall, 1), 3), floor_warm_fraction=round(floor_warm / max(n_floor, 1), 3)),
         treatment_magnitude=dict(mean_abs_rgb_diff_in_editable=round(diff / max(edit_px * 3, 1), 1)),
         calibration=dict(reference="band ratio 19.97, offset 0, within_8px 0.996 (drift 98-100 percent, +0..+3 px)",

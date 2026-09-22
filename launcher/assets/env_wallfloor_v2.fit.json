@@ -1,16 +1,25 @@
 {
  "name": "env_wallfloor_v2",
  "generated": {
-  "path": "launcher\\assets\\env_wallfloor_v2.png",
+  "path": "launcher/assets/env_wallfloor_v2.png",
   "size": [
    1365,
    768
   ],
   "channels": 3,
-  "alpha": false
+  "alpha": false,
+  "file_sha256": "89287bb5b8cdf63c9b4f40a752ed631a2148e1b19bcf79941f0358ec1bffc289",
+  "pixel_sha256": "9b385edce86eaeba54c7ce3398ec2850ef401710845d74f6794b101ce5a2e461"
+ },
+ "provenance": {
+  "path": "launcher/assets/env_wallfloor_v2.provenance.json",
+  "content_sha256": "edaa0036b2d7bb2d9f601c382c0d2d7f8ab979d456ea8a4ef166aaffa3033f88",
+  "reference_pixel_sha256": "0bef7c1ee0a299bed50df62c0d81f5daf39e34cb981a4e9dc87fa94b1ee72d35",
+  "prompt_version": "v2",
+  "prompt_sha256": "94640f7a61af52ebde0af598558cb6e167547008eed00bb8d956823578361b26"
  },
  "mapped": {
-  "path": "launcher\\assets\\env_wallfloor_v2_mapped1080.png",
+  "path": "launcher/assets/env_wallfloor_v2_mapped1080.png",
   "size": [
    1920,
    1080
@@ -45,7 +54,7 @@
   "corners": 39
  },
  "composite": {
-  "path": "launcher\\assets\\env_wallfloor_v2_fit.png",
+  "path": "launcher/assets/env_wallfloor_v2_fit.png",
   "editable_pixels": 1369408,
   "kept_pixels": 704192,
   "source": "registered picture"

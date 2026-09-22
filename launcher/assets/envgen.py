@@ -20,7 +20,7 @@ What this does, in order, and what it refuses to do:
        --backend openai   the imagegen executor (`.imagegen/generate.cjs`, gpt-image-1 edits, mask honoured,
                           `--input-fidelity high`; needs Node >= 20 and OPENAI_API_KEY in `.env`; paid)
        --backend gemini   Google's `gemini-2.5-flash-image` through its REST endpoint from the stdlib (no SDK;
-                          GEMINI_API_KEY in `.env`; free tier). It takes no mask, so the sky is protected by the
+                          GEMINI_API_KEY in `.env`; paid — image models have no free API tier; the free route is the Gemini app by hand). It takes no mask, so the sky is protected by the
                           prompt here and by `envfit`'s class composite afterwards; the certified 1920x1080
                           frame is sent as-is and a 16:9 output is requested.
 
@@ -256,7 +256,7 @@ def main(argv=None):
     ap.add_argument("--keep", choices=("sky", "none"), default="sky", help="what the mask keeps opaque")
     ap.add_argument("--prompt", choices=tuple(PROMPTS), default="v1", help="which prompt wording (v1: the first run; v2: geometry-locked)")
     ap.add_argument("--backend", choices=("openai", "gemini"), default="openai",
-                    help="openai: gpt-image-1 edits via the Node executor (paid); gemini: gemini-2.5-flash-image via REST (free tier)")
+                    help="openai: gpt-image-1 edits via the Node executor (paid); gemini: gemini-2.5-flash-image via REST (paid)")
     ap.add_argument("--dry-run", action="store_true", help="prepare inputs and print the request; call nothing")
     args = ap.parse_args(argv)
     seed = int(args.seed, 0)
@@ -369,7 +369,7 @@ def main(argv=None):
         key = read_env_key("GEMINI_API_KEY")
         if not key:
             sys.stderr.write("ENVGEN-REFUSE: GEMINI_API_KEY is not set (put `GEMINI_API_KEY=...` in the root .env; "
-                             "a free key comes from aistudio.google.com)\n")
+                             "a key comes from aistudio.google.com; image models are paid — the free route is the Gemini app by hand)\n")
             return 2
         with open(args.reference, "rb") as fh:
             ref_bytes = fh.read()

@@ -19,9 +19,12 @@ never the output.**
 Two backends, chosen with `--backend`; both read their key from a root `.env` (gitignored, one `NAME=value` per
 line) and from nothing else — never pass a key on a command line:
 
-- `gemini` — Google's `gemini-2.5-flash-image` through its REST endpoint from the stdlib (no SDK); `GEMINI_API_KEY`,
-  free tier from aistudio.google.com. No mask support: the certified 1920×1080 frame is sent as-is with a 16:9
-  output requested, the sky is protected by the prompt, and `envfit`'s class composite restores it regardless.
+- `gemini` — Google's `gemini-2.5-flash-image` through its REST endpoint from the stdlib (no SDK); `GEMINI_API_KEY`;
+  paid (image models have no free API tier). No mask support: the certified 1920×1080 frame is sent as-is with a
+  16:9 output requested, the sky is protected by the prompt, and `envfit`'s class composite restores it regardless.
+- the MANUAL route, free: `envgen … --dry-run` writes the inputs and the provenance record; attach the frame (or the
+  structure plate) in the Gemini app with the printed prompt, save the picture into this folder under the run's
+  name, and score it with `envfit --name <name> --generated <file>`. The treatments committed here were made this way.
 - `openai` — gpt-image-1's edits endpoint through the imagegen executor `.imagegen/generate.cjs` at the repository
   root (gitignored, materialised from the reviewed skill source; needs Node ≥ 20); `OPENAI_API_KEY`; paid. The mask
   is honoured and the input is the letterboxed 1536×1024 copy.
@@ -43,8 +46,24 @@ the drift search (shift −21 → 0.974); rolled by 100 rows it scores 0.77 / 0.
 as it should be. The v1 treatment measured under it: ratio 0.87, median offset +14 px (its boundary sits lower
 on screen), 0.153 within 8 px and 0.413 within 16; drift scale 122 percent, shift −31; registered 0.431 / 0.561
 — the layout's topology was kept, its metric geometry was not, and registration recovers less than half of it.
+v2 (the geometry-locked prompt over the flat frame): ratio 1.0, offset +14 px, 0.28 within 8 px, 0.477 within
+16; drift 105 percent / +2 px; registered 0.45 / 0.612; read-back 0.407 / 0.815; magnitude 52.4. v2s (the same
+prompt over the 3-px structure plate): ratio 2.85, offset −2 px, 0.503 within 8 px, 0.785 within 16; drift
+99 percent / −2 px; registered 0.591 / 0.782; corner agreement 0.84; read-back 0.011 / 0.987; magnitude 56.2.
+The plate is what held the geometry (and it cost obedience: v2s roofed the sky over and dropped the cool-wall
+family; the composite restores the sky, the generator did not). The residual is the generator's brush — within a
+wall primitive the boundary wanders 6–7 px about its own line — plus a shortened far corridor (15–42 px low)
+that no scale about the horizon removes. The conclusion, as ratified: generative overpaint is a useful
+appearance generator but is not a geometry-preserving renderer input. The next direction is a tile path
+(geometry from `vista`, appearance from a flat generated tile); it is a hypothesis until its own measurement.
 Generation is not deterministic: the provenance record makes a picture attributable to its inputs, it does not
 reproduce it. No tool here reads or writes canonical state.
+
+The report binds what it measured. Each `.fit.json` carries the file and pixel sha256 of the scored picture and
+the content sha256 of the provenance record, and `envfit` refuses the reference frame itself and any picture
+another `.fit.json` in this folder already reports — because the first v2s push had measured a byte copy of v2
+under the plate's name, and a report that names a path and a size cannot show that. Compare pictures by
+`pixel_sha256`, never by file bytes (PNG containers differ by host).
 
 Prompts are versioned (`--prompt v1|v2`): v2 is the geometry-locked wording written after v1's measurement,
 naming the camera, the horizon, every silhouette, boundary, opening, corner and the vanishing structure as

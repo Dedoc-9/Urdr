@@ -7,7 +7,16 @@
    768
   ],
   "channels": 3,
-  "alpha": false
+  "alpha": false,
+  "file_sha256": "7ac1870961c3a4c2522d22c5c31f856328269c531f58933d25f4daf7a5bacd5a",
+  "pixel_sha256": "d4fdef489cccc3d85e4eaadba0cbf925d4c6e371a4cd822293561d5e656b3189"
+ },
+ "provenance": {
+  "path": "launcher/assets/env_wallfloor_v1.provenance.json",
+  "content_sha256": "23eadba6252edcf74b69a4edbe3fd7724c8889e6e683232cdd8ea55f873a453b",
+  "reference_pixel_sha256": "0bef7c1ee0a299bed50df62c0d81f5daf39e34cb981a4e9dc87fa94b1ee72d35",
+  "prompt_version": null,
+  "prompt_sha256": "3753478aca3f9c928c5ea12a62aa5af42b81b020ea2de5a3aeaa5b0655a2ccc6"
  },
  "mapped": {
   "path": "launcher/assets/env_wallfloor_v1_mapped1080.png",
