@@ -1,0 +1,67 @@
+{
+ "name": "env_wallfloor_v2",
+ "generated": {
+  "path": "launcher\\assets\\env_wallfloor_v2.png",
+  "size": [
+   1365,
+   768
+  ],
+  "channels": 3,
+  "alpha": false
+ },
+ "mapped": {
+  "path": "launcher\\assets\\env_wallfloor_v2_mapped1080.png",
+  "size": [
+   1920,
+   1080
+  ],
+  "geometry": "16:9 1365x768 -> bilinear resample (no crop)"
+ },
+ "layout_raw": {
+  "band_contrast_ratio": 1.0,
+  "median_signed_offset_px": 14,
+  "median_abs_offset_px": 17,
+  "within_8px": 0.28,
+  "within_16px": 0.477,
+  "columns": 1920,
+  "reading": "the picture as generated against the certified wall/floor boundary: the ratio >> 1 and most columns within 8 px = the layout was kept; the signed offset is where the picture's boundary sits relative to the certified one (+ = lower on screen)"
+ },
+ "drift": {
+  "vertical_scale_percent": 105,
+  "vertical_shift_px": 2,
+  "reading": "scale about the horizon and shift of the picture's wall/floor boundary relative to the certified one"
+ },
+ "layout_registered": {
+  "band_contrast_ratio": 1.71,
+  "median_signed_offset_px": 4,
+  "median_abs_offset_px": 10,
+  "within_8px": 0.45,
+  "within_16px": 0.612,
+  "columns": 1920,
+  "reading": "the same oracle after undoing the drift: whether the treatment is usable as an asset once registered to the certified geometry"
+ },
+ "corner_agreement": {
+  "band_contrast_ratio": 1.22,
+  "corners": 39
+ },
+ "composite": {
+  "path": "launcher\\assets\\env_wallfloor_v2_fit.png",
+  "editable_pixels": 1369408,
+  "kept_pixels": 704192,
+  "source": "registered picture"
+ },
+ "class_readback": {
+  "wall_cool_fraction": 0.407,
+  "floor_warm_fraction": 0.815
+ },
+ "treatment_magnitude": {
+  "mean_abs_rgb_diff_in_editable": 52.4
+ },
+ "calibration": {
+  "reference": "band ratio 19.97, offset 0, within_8px 0.996 (drift 98-100 percent, +0..+3 px)",
+  "reference_rolled_25_rows": "band ratio 0.10, offset -25, within_8px 0.026; registered: shift -21, within_8px 0.974",
+  "reference_rolled_100_rows": "band ratio 0.77, within_8px 0.214 (beyond the +-48 search: not recoverable, as it should be)",
+  "note": "measured on this tree with these constants; the earlier raw-gradient ratio was texture-confounded on painted pictures and is retired"
+ },
+ "canonical_state_touched": false
+}

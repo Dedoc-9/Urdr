@@ -1,0 +1,65 @@
+{
+ "name": "env_wallfloor_v2",
+ "created_utc": "2026-09-22T00:38:31Z",
+ "reference": {
+  "path": "launcher\\assets\\first.png",
+  "file_sha256": "fc6c9f7848c8204630460261dbcbeef8798a91a6e0940a7e878fefd3b8ccba7b",
+  "pixel_sha256": "0bef7c1ee0a299bed50df62c0d81f5daf39e34cb981a4e9dc87fa94b1ee72d35",
+  "frame_digest_urdrfb1": "9bb45bf393a6340af432c080b87e9a85e57810a7b46deb792247e11b633e18cf",
+  "view": {
+   "seed": "0xABCDE",
+   "depth": 1,
+   "pos": [
+    34,
+    28
+   ],
+   "facing": "W"
+  },
+  "vista_pinned_digest": "658ecfca6dcfe95c7b1abe7aa33ad7e86e3204c3ef6380e5c322fc18c751c0c5",
+  "verified": true
+ },
+ "generator_input": {
+  "path": "launcher\\assets\\env_wallfloor_v2_ref1536.png",
+  "size": [
+   1536,
+   1024
+  ],
+  "fit": [
+   1536,
+   864
+  ],
+  "pad_rows": 80,
+  "file_sha256": "1c655b9d4657a22e84deb259a8334d64d8f13acd7393563e8be5378b7c647ab7"
+ },
+ "mask": {
+  "path": "launcher\\assets\\env_wallfloor_v2_mask1536.png",
+  "keep": "sky",
+  "file_sha256": "6f4d8c26a586e091575484f79ef0025574b21e20a61c360b950ed8884ea69f8d"
+ },
+ "prompt": {
+  "version": "v2",
+  "path": "launcher\\assets\\env_wallfloor_v2.prompt.txt",
+  "sha256": "94640f7a61af52ebde0af598558cb6e167547008eed00bb8d956823578361b26",
+  "text": "Overpaint this exact first-person view of a stone dungeon corridor as painted fantasy concept art. This is a surface treatment only. Keep the camera, the perspective and the horizon exactly where they are (the horizon is at exactly half the image height). Keep every wall silhouette, every boundary between wall and floor, every corridor opening, every perspective corner and the far-end vanishing structure precisely in place; do not reframe, crop, zoom, tilt, or change any wall height. Change only surface appearance: weathered cut-stone masonry with moss, damp streaks and chipped mortar on the walls; worn flagstones with dust, cracks and small rubble on the floor; warm torchlight from the left, cool blue-grey shadow on the right; atmospheric haze that deepens with distance so depth reads clearly; painterly brushwork with dark ink-outlined edges. Add no doors, arches, openings, objects, creatures, figures, text or watermark. Leave the sky exactly as it is. Output at the same aspect ratio as the input."
+ },
+ "structure_plate": {
+  "path": "launcher\\assets\\env_wallfloor_v2_structure.png",
+  "file_sha256": "646cd605d129ca2b48d15b6f7768220ddfde80f9a56d6666aa023442752388b8",
+  "note": "the frame with 3-px ink outlines; for a manual run, an alternative input to the flat frame"
+ },
+ "backend": "gemini",
+ "params": {
+  "model": "gemini-2.5-flash-image",
+  "endpoint": "generateContent",
+  "input": "the 1920x1080 frame as-is",
+  "aspect_requested": "16:9",
+  "mask": "none (no mask support): sky protected by the prompt and by envfit's class composite"
+ },
+ "executor": {
+  "path": "launcher/assets/envgen.py (stdlib urllib)",
+  "sha256": "84cf670c5182a52900af352c56c6d19ac13ab3e8a232032017693ff11f2765fc"
+ },
+ "output": null,
+ "deterministic": false,
+ "note": "generation is not deterministic; this record attributes the picture to its inputs, it does not reproduce it"
+}
