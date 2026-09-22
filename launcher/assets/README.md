@@ -85,11 +85,15 @@ corpus frame and on the witness frame above: pixel sha256 `0bef7c1e…`).
 | File | What it does |
 |---|---|
 | `tiles/wall.png`, `tiles/floor.png` | the tiles the launcher reads (256×256 RGB); a missing file is the identity for its class, a malformed one refuses |
-| `tilefit.py` | the validator a generated square passes to become one of those files: REFUSES a non-square or a side that is not a multiple of 256; reduces an exact multiple by an integer box mean; reports seam continuity across the wrap (the wrap's mean difference against the interior's — a flat or periodic tile reads 1.0, `mantle`'s odd-count checker reads far above the declared 2.0) and the colour family; writes `<class>.png` and `<class>.png.tile.json` |
+| `tilefit.py` | the validator a generated square passes to become one of those files: REFUSES a non-square or a side that is not a multiple of 256; reduces an exact multiple by an integer box mean; reports seam continuity across the wrap (the wrap's mean difference against the interior's — a flat or periodic tile reads 1.0, `mantle`'s odd-count checker reads far above the declared 2.0), WHICH edge carries a band and whether a wrap is a luminance step or a texture mismatch, how `mantle` wraps the class (a wall tile wraps in u only; the floor on both axes), and the colour family; writes `<class>.png` and `<class>.png.tile.json` |
+| `tilegen.py` | the same, generated here: one prompt per class, versioned (`--prompt v1|v2`); a `--dry-run` that writes the prompt and the request and calls nothing; otherwise ONE paid call to a Gemini image model (`GEMINI_API_KEY` from the root `.env`; no free tier exists for image models — the Gemini app is the free route, and its picture goes through `tilefit --source`), the response walked for the PNG, provenance written, and `tilefit` run on the result (`--place` to install it) |
+| `tiles/*_source*.png`, `*.provenance.json`, `*.tile.json` | the instances and their records; the first pair (v1, from the app) is placed under a NOT_TILEABLE verdict — a band along each source's bottom edge — and is not a passing asset |
 
     python launcher/assets/tilefit.py --selfcheck                                   # the calibration tiles
     python launcher/assets/tilefit.py --class wall --source my_wall_1024.png --dry-run
     python launcher/assets/tilefit.py --class wall --source my_wall_1024.png        # place it
+    python launcher/assets/tilegen.py --class floor --prompt v2 --dry-run           # the request, no call
+    python launcher/assets/tilegen.py --class floor --prompt v2 --place             # one paid call, fitted, placed
     python play.py --snapshot out.png --facing W                                     # the frame wearing it
 
 The picture prints two witnesses: the frame's URDRFB1 digest, which no tile can move, and the picture's pixel

@@ -16,6 +16,15 @@ This tool is the gate a generated picture passes to become that file. It refuses
     is reported, never enforced: a visible seam is the user's call, an untileable tile is not a corrupt one.
   * colour family — the fraction of texels reading cool (B > R) and warm (R > B); informative only. `mantle`'s
     class law is about the table and holds for any tile; whether a wall tile LOOKS like a wall is not a law.
+  * edge bands — WHICH edge carries a seam, and of what kind: for each of the four edges, the mean luminance of
+    the outer 6 texels against the next 10 inward (a framed or shadowed border shows as a band; the first
+    generated pair had a 35-55 luminance band along the bottom edge and nothing along the others), and for each
+    wrap the share of its difference that is a plain luminance step (DC) rather than texture — a step is a
+    border or a gradient, texture is a structural mismatch. Diagnosis, not verdict: the 2.0 line is unchanged.
+  * how `mantle` wraps the class — a wall face is exactly one tile tall, so a wall tile wraps in u ONLY (its
+    top edge meets sky or ink, its bottom edge meets floor, never its own top); the floor wraps on both axes.
+    Reported beside the verdict so a reader knows which seam a picture can show; the verdict itself stays the
+    declared two-axis rule for every class.
 
 It writes `<out>` (default `launcher/assets/tiles/<class>.png`) and `<out>.tile.json`: the source's file and
 pixel sha256, the reduction, the seam ratios and verdict, the families, the output's pixel sha256, and T.
@@ -78,6 +87,53 @@ def seam_ratios(rgb, side):
     return rc, rr, round(1000 * inner_c / (side * 3)), round(1000 * inner_r / (side * 3))
 
 
+def _lum(rgb, i):
+    return (54 * rgb[i] + 183 * rgb[i + 1] + 19 * rgb[i + 2]) // 256
+
+
+def edge_bands(rgb, side, outer=6, inner=10):
+    """Per edge, mean luminance of the outer `outer` texels and of the next `inner` texels inward, and their
+    difference (outer minus inner): a border, shadow or bevel along an edge shows as a band."""
+    def row_mean(y):
+        return sum(_lum(rgb, (y * side + x) * 3) for x in range(side)) / side
+
+    def col_mean(x):
+        return sum(_lum(rgb, (y * side + x) * 3) for y in range(side)) / side
+    out = {}
+    for name, means in (("top", [row_mean(y) for y in range(outer + inner)]),
+                        ("bottom", [row_mean(side - 1 - y) for y in range(outer + inner)]),
+                        ("left", [col_mean(x) for x in range(outer + inner)]),
+                        ("right", [col_mean(side - 1 - x) for x in range(outer + inner)])):
+        o = sum(means[:outer]) / outer
+        i = sum(means[outer:]) / inner
+        out[name] = dict(outer=round(o, 1), inner=round(i, 1), band=round(o - i, 1))
+    return out
+
+
+def wrap_anatomy(rgb, side):
+    """For each wrap (rows: last row against first; columns: last column against first), the mean SIGNED
+    luminance difference (a step: a border or a gradient), the mean absolute difference, and the step's share
+    of the absolute difference in percent — 100 means the wrap is a pure luminance step, 0 means pure texture."""
+    def rows():
+        d = [_lum(rgb, ((side - 1) * side + x) * 3) - _lum(rgb, x * 3) for x in range(side)]
+        return d
+
+    def cols():
+        return [_lum(rgb, (y * side + side - 1) * 3) - _lum(rgb, (y * side) * 3) for y in range(side)]
+    out = {}
+    for name, d in (("rows", rows()), ("columns", cols())):
+        signed = sum(d) / side
+        absd = sum(abs(v) for v in d) / side
+        out[name] = dict(mean_signed=round(signed, 1), mean_abs=round(absd, 1),
+                         step_share_percent=(round(100 * abs(signed) / absd) if absd else 0))
+    return out
+
+
+#: How `mantle` consumes each class's wrap: a wall face is one tile tall (v spans it once), so only u wraps.
+WRAPS = {"wall": "u only (a face is one tile tall: the top edge meets sky or ink, the bottom edge meets floor)",
+         "floor": "u and v (cells repeat on both world axes)"}
+
+
 def families(rgb):
     n = len(rgb) // 3
     cool = sum(1 for i in range(n) if rgb[i * 3 + 2] > rgb[i * 3])
@@ -113,7 +169,9 @@ def selfcheck():
                        ("oriented checker", mantle.oriented_tile(*mantle.WALL_ORIENTED))):
         rc, rr, ic, ir = seam_ratios(tile, T)
         verdict = "TILEABLE" if rc <= SEAM_THRESHOLD_TENTHS and rr <= SEAM_THRESHOLD_TENTHS else "NOT_TILEABLE"
-        rows.append(dict(tile=name, seam_ratio_columns=rc / 10, seam_ratio_rows=rr / 10, verdict=verdict, families=families(tile)))
+        rows.append(dict(tile=name, seam_ratio_columns=rc / 10, seam_ratio_rows=rr / 10, verdict=verdict, families=families(tile),
+                         edge_bands={k: v["band"] for k, v in edge_bands(tile, T).items()},
+                         wrap_step_share_percent={k: v["step_share_percent"] for k, v in wrap_anatomy(tile, T).items()}))
     # the reduction is exact: a 2x upscale of the periodic tile reduces back to itself
     src = periodic_tile()
     up = bytearray()
@@ -164,6 +222,9 @@ def main(argv=None):
                   threshold=SEAM_THRESHOLD_TENTHS / 10, verdict=verdict,
                   reading="the wrap's mean difference against the interior's; near 1 is seamless; reported, not enforced"),
         families=dict(cool_fraction=cool, warm_fraction=warm, reading="informative: B>R and R>B texel fractions"),
+        edge_bands=dict(**edge_bands(tile, T), reading="outer 6 texels against the next 10, luminance; a band is a border, shadow or bevel along that edge"),
+        wrap_anatomy=dict(**wrap_anatomy(tile, T), reading="the wrap's mean signed step and its share of the wrap difference: a step is a border or gradient, the rest is texture"),
+        mantle_wraps=WRAPS[args.cls],
         output=dict(path=out.replace(os.sep, "/"), size=[T, T], pixel_sha256=pngio.pixel_sha256(tile), written=not args.dry_run),
         canonical_state_touched=False,
     )
