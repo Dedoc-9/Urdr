@@ -141,6 +141,21 @@ every turn and with none. The launcher (`play.py --snapshot`, key `P`) is its co
 pitch and yaw, `kinema`-driven motion, texture and props, generative dressing over the certified layout — grows as
 VIEW, under the same read-back and one-way laws.
 
+**LANDSCAPE-2 and LANDSCAPE-3** — where appearance may come from — went measure-first. Three generative
+overpaints of the cross-host witness frame (`launcher/assets`, v1/v2/v2s, measured by `envfit`'s band-contrast
+oracle) established that a generator asked to keep a certified layout keeps its topology and, with a structure
+plate, most of its global geometry, but not its metric geometry: 0.503 of columns within 8 px, the far corridor
+drawn short, every boundary wandering by the width of a brush. Ratified: *generative overpaint is a useful
+appearance generator but is not a geometry-preserving renderer input.* The tile path was then measured before it
+was built (TILE-0: the exact (u, v) normalisation agrees with `vista`'s own selections everywhere; a mutated tile
+changes pixels and neither the URDRFB1 digest nor `D_n`; the table's colours as tiles reproduce the certified
+pixels exactly) and landed as `mantle` (URDRMNT1), the fifth game-layer VIEW module: geometry from `vista`,
+appearance from a flat 256×256 tile, the table's own operations applied to the texel, and **the identity tile is
+the certified frame** — the regression law the rung ships with. `play.py` photographs through it; a missing tile
+is the identity; `launcher/assets/tilefit.py` validates a generated square. Declared and deferred, each its own
+measured rung: a filtered level per depth band (far floor and grazing walls alias without it), generated tiles
+as replaceable VIEW assets, variety within a class, the sky, and only then pitch and yaw.
+
 ## 3. KINEMA blueprint, in brief
 
 *(Full contract: `spec/D25-kinema-boundary.md`. This is the one-page shape.)*

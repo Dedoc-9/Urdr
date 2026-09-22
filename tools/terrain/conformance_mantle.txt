@@ -1,0 +1,63 @@
+# URDRMNT1 conformance -- THE TILE PATH: GEOMETRY FROM VISTA, APPEARANCE FROM A FLAT TILE, AND THE IDENTITY
+# TILE IS THE CERTIFIED FRAME.
+#
+# The nineteenth game-layer vertical slice (LANDSCAPE-3) and the fifth game-layer VIEW module: a view over a
+# view. Two experiments had said where appearance may NOT come from -- a generator asked to overpaint the
+# certified frame kept its topology and lost its metric geometry (LANDSCAPE-2, v1/v2/v2s; the ratified words:
+# generative overpaint is a useful appearance generator but is not a geometry-preserving renderer input). Here
+# the geometry is `vista`'s and is asked of no one: per column the voxel, the entered face and the exact ray
+# parameter, per floor pixel the exact world point -- what `vista` holds at selection and discards -- become
+# exact rational texture coordinates (u, v) on a FLAT tile; the texel replaces the table's base colour and
+# receives exactly the table's own operations (depth tint, near-darkening, haze by band). A texel is one world
+# unit (T = Q = 256). Its one invariant: THE PICTURE IS THE CERTIFIED FRAME WEARING A TILE -- THE FRAME IS READ,
+# NEVER WRITTEN, AND THE IDENTITY TILE IS THE FRAME ITSELF.
+#
+# DIRECTION (one-way): (level, pos, facing, tiles) -> vista frame -> RGB bytes -> PNG, never picture -> frame
+# -> authority. `picture` renders the frame through `vista` and reads it; `the_lookup_moves_no_index` shows
+# the frame's URDRFB1 digest equal to a FRESH frame's after a picture (the level's canonical bytes unchanged),
+# with the one-index write on a copy shown to move the digest. `the_membrane_is_one_way` reads this module's
+# OWN full AST: exactly the declared substrate (`gamegen` read, `vista`, `raster`, stdlib), no transition/
+# identity/log/stream authority in any scope -- not even `descent` or `voxray`, which `vista` answers for --
+# no `.step`/`.dispatch`/`.apply`/`.d_n`/`.serialize`/`.restore`, with positive controls. The live-core half
+# (per-turn `D_n` byte-identical with a picture made every turn and with none) is the gate's (`mantle-oneway`).
+#
+# THE IDENTITY LAW. `the_identity_tiles_reproduce_the_frame`: the table's own colours as tiles (four flat wall
+# tiles, one per light family; the flat floor) give `vista.png_bytes`' pixels EXACTLY -- the certified emission
+# is the tile path at the identity, and the tile path is a strict generalisation of it; the planted one-unit
+# perturbation of every flat tile is caught. `a_missing_tile_is_the_identity`: `tile_set()` IS the identity,
+# a set with one class missing keeps the identity for that class, a malformed tile is refused typed -- the
+# asset contract LANDSCAPE-2's M1 found absent: no file, no crash, no different geometry.
+#
+# THE COORDINATE LAW. `u` along the face with a DECLARED sign per entered face (to the right of the viewer who
+# faces it head-on; a face is only ever entered from its outside, so the table is view-free); `v` the height
+# below the top edge; floor (u, v) the world point's fractional cell coordinate -- all integer arithmetic over
+# the rationals `vista` holds. `a_texel_is_seen_where_its_face_is` reads the consequences off a frame: `u`
+# never falls across a wall primitive and falls at every coplanar seam, `v` grows downward, and in the rows
+# one screen row samples finely enough the floor's texel wraps at a cell change and nowhere else; the mirrored
+# sign table is caught. `the_classes_stay_apart`: with a flat blue wall and a flat warm floor EVERY wall pixel
+# reads cool and EVERY floor pixel warm after light and haze; the tiles swapped fail both.
+#
+# Each scene pins the view (`vista`'s four, unchanged), the URDRFB1 frame digest AND the identity picture's
+# pixel sha256 side by side (two witnesses, never one), the oriented picture's pixel sha256 with its tile
+# digest (the DECLARED synthetic tile: a checker with a red origin block, a green u band, a yellow v band), and
+# the identity, lookup and coordinate law tuples over the same frame. All four and the top digest are what
+# the module EMITS. Re-pin only when the tile size, the sign table, the synthetic tile or `vista`'s corpus is
+# CHANGED ON PURPOSE; a drift here is a moved picture or a moved frame, and the two witnesses say which.
+#
+# GRADE (honest, D5). MEASURED: the corpus pictures reproduce, hash-seed-independent; the identity law with
+# its planted control; the no-write law with its planted control; the coordinate law with its mirrored
+# control; the class law with its swapped control; the missing-tile contract; the live-core `D_n` identity
+# (the gate's). ESTABLISHED: the AST is one-way; no CORE module imports `mantle`. DECLARED: the texel size
+# (one world unit), the per-face sign table, the light scaling derived from the table's wall families
+# (1000/828/607/429 permille), the synthetic tiles.
+#
+# does_not_show: any GENERATED tile (a tile is bytes here; its file, its validation and its provenance are
+# the launcher's, off-gate); FILTERING -- one screen column covers from a sixth of a texel to fifty texels on
+# one frame and one screen row skips more than half a cell of far floor, so an unfiltered lookup aliases there
+# and a filtered level is its own rung, not this one; stairs (`<`/`>` stay the table's); the sky; pitch, yaw,
+# motion; any wall-clock; and that the picture is beautiful -- the laws are floors, not a ceiling.
+corridor c6780408c1b8fb01e91417b9e859db6c371b1c48cd5c229a5b477ec65f43d506
+room 423622c951c10ea1b30bc477c99d41967e94c87bdff242c982f705d19d6945ae
+landmark 7b248480d7e15529eb0f4a4ab765f2b8dc3d6e6b5d374bd1ba36bbe3a8788d89
+pointblank 00ae4e6363ccb11f228d5320d361fe5312a3703345232e482f81761afd2a2ad1
+mantle acb494bd2851ddf6c213b8bd8973e7368c8bfb37a1352b8b2ab618e3efadf88f

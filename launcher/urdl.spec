@@ -14,27 +14,30 @@ import os
 
 TERRAIN = os.path.join("tools", "terrain")
 RENDER = os.path.join("tools", "render")
+ASSETS = os.path.join("launcher", "assets")
 
 # Bundle every terrain module AND its pinned conformance golden: the launcher's load-time digest
 # self-check reads each `conformance_<name>.txt`, and `play.py` resolves them from the bundle
-# (sys._MEIPASS) when frozen. `tools/render` carries `raster` (the URDRFB1 frame `vista` draws into).
+# (sys._MEIPASS) when frozen. `tools/render` carries `raster` (the URDRFB1 frame `vista` draws into);
+# `launcher/assets` carries `pngio`, the codec `play.py` reads tile files with (the tiles themselves are
+# read from the launcher's working tree at run time, never from the bundle).
 datas = [
     (os.path.join(d, f), d)
     for d in (TERRAIN, RENDER)
     for f in sorted(os.listdir(d))
     if f.endswith(".py") or (f.startswith("conformance") and f.endswith(".txt"))
-]
+] + [(os.path.join(ASSETS, "pngio.py"), ASSETS)]
 
 # The modules `play.py` adds to sys.path at runtime — named so the frozen analysis includes them.
 hiddenimports = [
     "gamegen", "move", "descent", "entity", "rngstream", "descend", "loot",
     "cue", "enact", "statecanon", "actionlog", "savegame", "rerun",
-    "vista", "voxray", "voxref", "raster",
+    "vista", "voxray", "voxref", "raster", "mantle", "pngio",
 ]
 
 a = Analysis(
     ["play.py"],
-    pathex=[TERRAIN, RENDER],
+    pathex=[TERRAIN, RENDER, ASSETS],
     binaries=[],
     datas=datas,
     hiddenimports=hiddenimports,

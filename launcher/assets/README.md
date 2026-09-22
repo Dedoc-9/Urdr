@@ -54,8 +54,9 @@ The plate is what held the geometry (and it cost obedience: v2s roofed the sky o
 family; the composite restores the sky, the generator did not). The residual is the generator's brush — within a
 wall primitive the boundary wanders 6–7 px about its own line — plus a shortened far corridor (15–42 px low)
 that no scale about the horizon removes. The conclusion, as ratified: generative overpaint is a useful
-appearance generator but is not a geometry-preserving renderer input. The next direction is a tile path
-(geometry from `vista`, appearance from a flat generated tile); it is a hypothesis until its own measurement.
+appearance generator but is not a geometry-preserving renderer input. The tile path that followed — geometry
+from `vista`, appearance from a flat tile — is `tools/terrain/mantle.py` (URDRMNT1), measured first and then
+built; see "Tiles" below.
 Generation is not deterministic: the provenance record makes a picture attributable to its inputs, it does not
 reproduce it. No tool here reads or writes canonical state.
 
@@ -71,7 +72,30 @@ things that do not move, and confining the change to surface appearance. `envgen
 `<name>_structure.png`, the frame with its ink outlines thickened to 3 px — an alternative input for a manual
 run, to test whether a line drawing constrains a generator better than flat colour does.
 
+## Tiles (`mantle`, URDRMNT1)
+
+The launcher's pictures are the certified frame WEARING TILES: `mantle` keeps what `vista` knows at selection —
+per column the voxel, the entered face and the exact ray parameter; per floor pixel the exact world point —
+one step longer, as exact rational texture coordinates on a flat 256×256 tile (one world unit per texel), and
+applies the table's own depth tint, near-darkening and haze to the texel. The generator's task is therefore an
+orthographic square with no geometry to keep. With no tiles the picture is the identity, pixel for pixel what
+`vista`'s table paints (the module's own law, `the_identity_tiles_reproduce_the_frame`, checks it on every
+corpus frame and on the witness frame above: pixel sha256 `0bef7c1e…`).
+
+| File | What it does |
+|---|---|
+| `tiles/wall.png`, `tiles/floor.png` | the tiles the launcher reads (256×256 RGB); a missing file is the identity for its class, a malformed one refuses |
+| `tilefit.py` | the validator a generated square passes to become one of those files: REFUSES a non-square or a side that is not a multiple of 256; reduces an exact multiple by an integer box mean; reports seam continuity across the wrap (the wrap's mean difference against the interior's — a flat or periodic tile reads 1.0, `mantle`'s odd-count checker reads far above the declared 2.0) and the colour family; writes `<class>.png` and `<class>.png.tile.json` |
+
+    python launcher/assets/tilefit.py --selfcheck                                   # the calibration tiles
+    python launcher/assets/tilefit.py --class wall --source my_wall_1024.png --dry-run
+    python launcher/assets/tilefit.py --class wall --source my_wall_1024.png        # place it
+    python play.py --snapshot out.png --facing W                                     # the frame wearing it
+
+The picture prints two witnesses: the frame's URDRFB1 digest, which no tile can move, and the picture's pixel
+sha256. Filtering is not part of `mantle` (far floor and grazing walls alias without it; a later rung).
+
 Committed here: the tools, this README, and — when you choose to keep them — generated treatments with their
-`.provenance.json`, `.fit.json` and `.prompt.txt`. Photographs (`vista_*.png`) and the derived intermediates
+`.provenance.json`, `.fit.json` and `.prompt.txt`, and tiles with their `.tile.json`. Photographs (`vista_*.png`) and the derived intermediates
 (`*_ref1536.png`, `*_mask1536.png`, `*_mapped1080.png`, `*_structure.png`) are gitignored: they are regenerated
 by the tools.

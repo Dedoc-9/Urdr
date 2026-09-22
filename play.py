@@ -24,13 +24,16 @@ Keys:
     g       loot the current cell
     >       descend the down-stairs
     S       save to the save file          R   verify the run replays (rerun)
-    P       photograph: write a first-person frame (vista) of the current state to launcher/assets/
+    P       photograph: write a first-person picture (vista + mantle) of the current state to launcher/assets/
     q       quit
-    python play.py --snapshot out.png [--facing N|E|S|W]   # render the initial state's frame and exit
+    python play.py --snapshot out.png [--facing N|E|S|W]   # render the initial state's picture and exit
 The first-person frame is `vista` (URDRVIS1): a VIEW rendered AFTER `enact` has adjudicated the turn, from
 the certified level and position plus the launcher's own view-side FACING (the last MOVE's cardinal, or
 `vista.default_facing` at a new level). The facing lives beside the game dict, never inside it: destroy
-every frame and the run is the same run.
+every frame and the run is the same run. The PICTURE is `mantle` (URDRMNT1): the frame wearing the tiles
+found in launcher/assets/tiles/ (wall.png, floor.png; one world unit per texel) or, when there are none,
+the identity -- exactly `vista`'s own colours. Two witnesses are printed for every picture: the frame's
+URDRFB1 digest (geometry) and the picture's pixel sha256 (appearance).
 A single-file binary (urdl / urdl.exe) is an optional local build -- see launcher/README.md.
 """
 import argparse
@@ -57,18 +60,26 @@ import actionlog                                                       # noqa: E
 import savegame                                                        # noqa: E402
 import rerun                                                           # noqa: E402
 import vista                                                           # noqa: E402  (the first-person VIEW)
+import mantle                                                          # noqa: E402  (the tile path: a VIEW over the view)
+_ASSETS = os.path.join(_HERE, "launcher", "assets")
+if _ASSETS not in sys.path:
+    sys.path.insert(0, _ASSETS)
+import pngio                                                           # noqa: E402  (a stdlib PNG codec, off-gate)
 
 #: The sealed modules this driver CONSUMES. The launch-time self-check asks each one whether its
 #: emitted digest still matches its OWN pinned conformance golden; the launcher carries no goldens.
 CERTIFIED = ("gamegen", "move", "descent", "entity", "rngstream",
              "cue", "enact", "statecanon", "actionlog", "savegame", "rerun")
-#: Consumed only when a photograph is taken, and verified THEN (its self-check renders its whole corpus,
-#: about ten seconds): verify-what-you-consume, at the moment of consumption.
-CERTIFIED_LAZY = ("vista",)
+#: Consumed only when a photograph is taken, and verified THEN (each self-check renders its whole corpus,
+#: about half a minute together): verify-what-you-consume, at the moment of consumption.
+CERTIFIED_LAZY = ("vista", "mantle")
 _LAZY_VERIFIED = set()
 
 SAVE_FILE = "urdr_save.bin"
 ASSETS_DIR = os.path.join(_HERE, "launcher", "assets")
+#: The tiles a picture wears, if present: `wall.png` and `floor.png`, each mantle.T x mantle.T RGB (one world
+#: unit per texel). A missing file is the identity for its class (mantle's contract); a malformed one REFUSES.
+TILES_DIR = os.path.join(ASSETS_DIR, "tiles")
 
 #: Physical keypress -> the cue RAW KEY it stands for, or a launcher command. The four directions,
 #: `g` and `>` are cue raw keys handed verbatim to `cue.bind`; save/verify/quit are the driver's own.
@@ -127,18 +138,44 @@ def new_view(g):
     return {"facing": vista.default_facing(g["lvl"])}
 
 
-def photograph(g, view, path=None):
-    """Write a first-person frame of the CURRENT state (after the turn has been adjudicated) as a PNG.
-    Pure in (level, pos, facing); the file is the only effect."""
+def load_tiles():
+    """The launcher's tile set: `launcher/assets/tiles/wall.png` and `floor.png` when they exist, decoded by
+    `pngio` and handed to `mantle.tile_set` (which refuses a wrong size typed). None when neither exists —
+    the identity. The file is read here, off-gate; `mantle` only ever sees bytes."""
+    found = {}
+    for cls in mantle.CLASSES:
+        p = os.path.join(TILES_DIR, cls + ".png")
+        if not os.path.exists(p):
+            continue
+        w, h, ch, px = pngio.read_png(p)
+        if (w, h) != (mantle.T, mantle.T):
+            raise LaunchError("tile %s is %dx%d; a mantle tile is %dx%d (one world unit per texel) -- see launcher/assets/tilefit.py"
+                              % (p, w, h, mantle.T, mantle.T))
+        found[cls] = pngio.to_rgb(w, h, ch, px)
+    if not found:
+        return None
+    try:
+        return mantle.tile_set(wall=found.get("wall"), floor=found.get("floor"))
+    except mantle.MantleError as exc:
+        raise LaunchError("tile refused: %s" % exc)
+
+
+def photograph(g, view, path=None, tiles=None):
+    """Write a first-person picture of the CURRENT state (after the turn has been adjudicated) as a PNG: the
+    `vista` frame wearing `tiles` (the launcher's tile files when `tiles` is None, the identity when there are
+    none). Pure in (level, pos, facing, tiles); the file is the only effect. Returns the path and BOTH
+    witnesses: the frame's URDRFB1 digest and the picture's pixel sha256."""
     verify_view()
-    fb = vista.frame(g["lvl"], g["pos"], view["facing"])
+    if tiles is None:
+        tiles = load_tiles()
+    fb, rgb = mantle.picture(g["lvl"], g["pos"], view["facing"], tiles)
     if path is None:
         os.makedirs(ASSETS_DIR, exist_ok=True)
         path = os.path.join(ASSETS_DIR, "vista_%s_%d_turn%04d_%s.png"
                             % (("%x" % g["seed"]), g["lvl"].depth, g["turn"], view["facing"]))
     with open(path, "wb") as fh:
-        fh.write(vista.png_bytes(fb, vista.lut(g["lvl"].depth)))
-    return path, vista.frame_digest(fb)
+        fh.write(mantle.png_bytes(rgb))
+    return path, vista.frame_digest(fb), mantle.pixel_sha256(rgb)
 
 
 def canonical_id(g):
@@ -268,10 +305,11 @@ def play(seed, depth):
         elif act == "verify":
             verify_run(g)
         elif act == "photo":
-            if "vista" not in _LAZY_VERIFIED:
-                print("[urdl] verifying the view module before its first photograph (renders its corpus, about ten seconds)...")
-            path, dig = photograph(g, view)
-            g["msg"] = "Photographed facing %s -> %s (frame %s...)." % (view["facing"], os.path.relpath(path, _HERE), dig[:12])
+            if "mantle" not in _LAZY_VERIFIED:
+                print("[urdl] verifying the view modules before their first picture (each renders its corpus, about half a minute)...")
+            path, dig, pix = photograph(g, view)
+            g["msg"] = ("Photographed facing %s -> %s (frame %s... pixels %s...)."
+                        % (view["facing"], os.path.relpath(path, _HERE), dig[:12], pix[:12]))
         else:
             g["msg"] = "Unknown key. move WASD/HJKL/arrows, g loot, > descend, S save, R verify, P photo, q quit."
     print("\nYou leave the dungeon after %d turns. Final D_n: %s" % (g["turn"], canonical_id(g)))
@@ -295,24 +333,28 @@ def selftest(seed=0xABCDE, depth=1):
           % (n, seed, depth, g["turn"], len(actionlog.entries(g["log"]))))
     print("SELFTEST D_n=%s" % canonical_id(g))
     print("SELFTEST rerun=%s" % (rerun.verdict(rec),))
-    fb = vista.frame(g["lvl"], g["pos"], view["facing"])            # the view, after the run: D_n above is unmoved
+    fb, rgb = mantle.picture(g["lvl"], g["pos"], view["facing"])     # the view, after the run, in the IDENTITY tiles
     print("SELFTEST vista facing=%s frame=%s %s" % (view["facing"], vista.frame_digest(fb), vista.census_verdict(fb)))
+    print("SELFTEST mantle tiles=identity pixels=%s" % mantle.pixel_sha256(rgb))   # the launcher's tile files are NOT read here
     # (the view's own corpus self-check is NOT run here — it is the gate's and `photograph`'s; a selftest is a digest line)
     return 0
 
 
 def snapshot(seed, depth, path, facing=None):
-    """Render the INITIAL state's first-person frame to `path` and exit — the off-gate consumer of `vista`
-    that needs no terminal. The facing defaults to `vista.default_facing` (toward the landmark)."""
+    """Render the INITIAL state's first-person picture to `path` and exit — the off-gate consumer of `vista`
+    and `mantle` that needs no terminal. The facing defaults to `vista.default_facing` (toward the landmark);
+    the tiles are the launcher's files when present, the identity when not."""
     n = verify_core()
     g = new_game(seed, depth)
     view = new_view(g)
     if facing is not None:
         view["facing"] = facing
-    out, dig = photograph(g, view, path)                             # verifies `vista` before the first frame
+    tiles = load_tiles()
+    out, dig, pix = photograph(g, view, path, tiles)                 # verifies `vista` and `mantle` before the first picture
     print("SNAPSHOT modules=%d+%d seed=0x%X depth=%d facing=%s D_0=%s"
           % (n, len(CERTIFIED_LAZY), seed, depth, view["facing"], canonical_id(g)))
     print("SNAPSHOT frame=%s -> %s" % (dig, out))
+    print("SNAPSHOT pixels=%s tiles=%s" % (pix, "identity" if tiles is None else mantle.tiles_digest(tiles)))
     return 0
 
 
@@ -321,7 +363,7 @@ def main(argv=None):
     ap.add_argument("--seed", default="0xABCDE", help="world seed (hex 0x... or decimal)")
     ap.add_argument("--depth", type=int, default=1, help="starting depth (1..DEPTH_MAX)")
     ap.add_argument("--selftest", action="store_true", help="run the deterministic scripted self-test and exit")
-    ap.add_argument("--snapshot", metavar="PATH", help="write the initial state's first-person frame (PNG) and exit")
+    ap.add_argument("--snapshot", metavar="PATH", help="write the initial state's first-person picture (PNG) and exit")
     ap.add_argument("--facing", choices=vista.FACINGS, help="camera facing for --snapshot (default: toward the landmark)")
     args = ap.parse_args(argv)
     try:

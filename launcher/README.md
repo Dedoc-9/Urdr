@@ -19,7 +19,7 @@ nothing; every authority claim is delegated downward.
 
 Keys: move with the arrow keys, `WASD`, or `HJKL`; `g` to loot the current cell; `>` to descend the
 down-stairs; `S` to save; `R` to verify the run replays; `P` to photograph — write a first-person
-frame of the current state (see below); `q` to quit. On Windows, run it from a real console window
+picture of the current state (see below); `q` to quit. On Windows, run it from a real console window
 (not a redirected pipe) so single-key input works.
 
 ## The first-person frame (`vista`)
@@ -37,9 +37,34 @@ Without a terminal:
 
     python play.py --snapshot out.png --seed 0xABCDE --depth 1 [--facing N|E|S|W]
 
-renders the initial state's frame and exits. `vista` is verified against its own pinned corpus the
-first time a photograph is taken (it renders its whole corpus, about ten seconds), not at launch —
-verify-what-you-consume, at the moment of consumption.
+renders the initial state's picture and exits. `vista` and `mantle` are verified against their own
+pinned corpora the first time a photograph is taken (each renders its whole corpus, about half a
+minute together), not at launch — verify-what-you-consume, at the moment of consumption.
+
+## The picture: tiles (`mantle`)
+
+What `P` and `--snapshot` write is the frame **wearing tiles**, through `tools/terrain/mantle.py`
+(URDRMNT1): per column `vista` already knows the voxel, the entered face and the exact ray parameter,
+and per floor pixel the exact world point; `mantle` turns those into exact texture coordinates on a
+flat tile and applies the table's own depth tint, near-darkening and haze to the texel. Geometry
+comes from `vista` alone; a tile is an orthographic square with nothing to keep. With no tiles the
+picture is the identity — pixel for pixel what `vista`'s table paints, which the module's own law
+checks — so a tree without tiles photographs exactly what it did before.
+
+The tiles are `launcher/assets/tiles/wall.png` and `launcher/assets/tiles/floor.png`, each 256×256
+RGB (one world unit per texel; the wall tile is shaded once per light family by the table's own
+ratios). A missing file is the identity for its class; a malformed one refuses (`LAUNCH-REFUSE`) —
+never a silent substitute. Put a generated picture there through its validator, which refuses a
+non-square or non-multiple size, reduces an exact multiple by an integer box mean, and reports seam
+continuity across the wrap and the colour family:
+
+    python launcher/assets/tilefit.py --class wall --source my_wall_1024.png
+    python launcher/assets/tilefit.py --class floor --source my_floor_512.png
+
+Every picture prints two witnesses side by side: the frame's URDRFB1 digest (the geometry, which no
+tile can move) and the picture's pixel sha256 (the appearance). Compare pictures by the pixel sha,
+never by PNG bytes. Stairs, sky and ink keep the table's colours; filtering (far floor and grazing
+walls alias without it) is a later rung.
 
 Determinism check (no input, byte-reproducible):
 
@@ -68,8 +93,9 @@ The one-liner (most version-robust). On macOS/Linux the `--add-data` separator i
       --hidden-import loot --hidden-import cue --hidden-import enact \
       --hidden-import statecanon --hidden-import actionlog --hidden-import savegame \
       --hidden-import rerun --hidden-import vista --hidden-import voxray \
-      --hidden-import voxref --hidden-import raster \
+      --hidden-import voxref --hidden-import raster --hidden-import mantle --hidden-import pngio \
       --paths tools/render --add-data "tools/render:tools/render" \
+      --paths launcher/assets --add-data "launcher/assets/pngio.py:launcher/assets" \
       play.py
 
 On Windows PowerShell the separator is a semicolon and the line continuation is a backtick:
@@ -81,8 +107,9 @@ On Windows PowerShell the separator is a semicolon and the line continuation is 
       --hidden-import loot --hidden-import cue --hidden-import enact `
       --hidden-import statecanon --hidden-import actionlog --hidden-import savegame `
       --hidden-import rerun --hidden-import vista --hidden-import voxray `
-      --hidden-import voxref --hidden-import raster `
+      --hidden-import voxref --hidden-import raster --hidden-import mantle --hidden-import pngio `
       --paths tools/render --add-data "tools/render;tools/render" `
+      --paths launcher/assets --add-data "launcher/assets/pngio.py;launcher/assets" `
       play.py
 
 Or use the bundled spec (a convenience — adjust for your PyInstaller version if the `EXE(...)`

@@ -320,6 +320,7 @@ STAGE_ORDER = (
     "chorus",
     "cue",
     "vista",
+    "mantle",
     "authority",
     "exempt",
     "disposition",
@@ -7225,6 +7226,144 @@ class Gate:
                     "BYTE-IDENTICAL with a frame rendered after every turn (facing carried beside the run as view "
                     "state) and with none — destroy every frame and the run is the same run"
                     if oneway_ok else "a vista one-way / live-core law did not hold")
+
+    def mantle(self):
+        """THE TILE PATH (URDRMNT1) — the nineteenth game-layer vertical slice and the fifth game-layer VIEW
+        module: geometry from `vista` (per column the voxel, face and exact t; per floor pixel the exact world
+        point), appearance from a FLAT tile by exact rational texture coordinates, the table's own operations
+        applied to the texel. Rows: scenes, identity, coordinate, oneway. Its invariant: THE PICTURE IS THE
+        CERTIFIED FRAME WEARING A TILE — the frame is read, never written, and the identity tile is the frame
+        itself. The half this module cannot prove — that a picture made every turn leaves `D_n` byte-identical —
+        is checked here against a live enact/statecanon core."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import mantle as MN
+            import vista as VS19
+            import gamegen as GG19
+            import descent as DC19
+            import enact as EA19
+            import actionlog as AL19
+            import statecanon as SC19
+            import entity as ET19
+            import rerun as RP19
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("mantle:scenes", "mantle-identity", "mantle-coordinate", "mantle-oneway"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        ctx = {}
+        try:
+            for n in MN.SCENES:
+                lvl, pos, facing = MN.scene_view(n)
+                ctx[n] = (lvl, pos, facing, (VS19.frame(lvl, pos, facing), MN._strips(lvl, pos, facing)))
+            scenes_ok = (MN.emitted_matches_pinned()
+                         and all(MN.scene_result(n) == MN.golden(n) for n in MN.SCENES)
+                         and MN.mantle_digest() == MN.golden("mantle")
+                         and MN.an_unpinned_name_refuses()
+                         and MN.SCENES == VS19.SCENES
+                         and all("|frame=" in MN.scene_case(n) and "|identity=" in MN.scene_case(n)
+                                 and "|oriented=" in MN.scene_case(n) for n in MN.SCENES))
+        except Exception:
+            scenes_ok = False
+        self.record("mantle:scenes", scenes_ok,
+                    "the four URDRMNT1 scenes (`vista`'s views, unchanged) and the top digest reproduce from what "
+                    "the module emits — each pins the view, the URDRFB1 frame digest AND the identity picture's "
+                    "pixel sha256 side by side (two witnesses, never one), the oriented picture's pixel sha256 with "
+                    "its tile digest, and the identity, lookup and coordinate law tuples over the same frame; an "
+                    "unpinned name refuses typed MANTLE-REFUSE"
+                    if scenes_ok else "a mantle scene drifted")
+
+        try:
+            oriented = MN.tile_set(wall=MN.oriented_tile(*MN.WALL_ORIENTED), floor=MN.oriented_tile(*MN.FLOOR_ORIENTED))
+            identity_ok = all(MN.the_identity_tiles_reproduce_the_frame(l, p, f, c) == (True, True)
+                              for l, p, f, c in ctx.values())
+            identity_ok = identity_ok and all(MN.the_lookup_moves_no_index(l, p, f, oriented, c) == (True, True, True)
+                                              for l, p, f, c in ctx.values())
+            identity_ok = identity_ok and MN.a_missing_tile_is_the_identity() == (True, True, True)
+            # the cross-host witness frame (ledger, LANDSCAPE-2): its identity picture IS the witnessed pixels
+            wl = GG19.generate(0xABCDE, 1)
+            wfb, wrgb = MN.picture(wl, (34, 28), "W")
+            identity_ok = (identity_ok and VS19.frame_digest(wfb).startswith("9bb45bf393a6340a")
+                           and MN.pixel_sha256(wrgb).startswith("0bef7c1ee0a299be")
+                           and wrgb == MN.table_pixels(wfb, 1))
+        except Exception:
+            identity_ok = False
+        self.record("mantle-identity", identity_ok,
+                    "THE IDENTITY TILE IS THE CERTIFIED FRAME: on every corpus frame the table's own colours as "
+                    "tiles reproduce `vista.png_bytes`' pixels EXACTLY (the certified emission is the tile path at "
+                    "the identity) with the one-unit perturbation of every flat tile caught; after a picture the "
+                    "frame has a FRESH frame's URDRFB1 digest and the level's canonical bytes are unchanged, with "
+                    "the one-index write on a copy moving the digest; a missing tile is the identity for its class "
+                    "and a malformed tile refuses typed; and the cross-host witness frame (0xABCDE/1, (34, 28), W) "
+                    "pictures to the witnessed pixel sha256 0bef7c1e..."
+                    if identity_ok else "a mantle identity / no-write / missing-tile law did not hold")
+
+        try:
+            coord_ok = all(MN.a_texel_is_seen_where_its_face_is(l, p, f, c) == (True,) * 5 for l, p, f, c in ctx.values())
+            for seed in (1, 2):                                       # a sweep beyond the corpus, all four facings
+                lvl = GG19.generate(seed, 1)
+                pos = DC19.endpoints(lvl)[0]
+                for facing in VS19.FACINGS:
+                    coord_ok = coord_ok and MN.a_texel_is_seen_where_its_face_is(lvl, pos, facing) == (True,) * 5
+            l0, p0, f0, _c0 = ctx["corridor"]
+            coord_ok = coord_ok and MN.the_classes_stay_apart(l0, p0, f0) == (True, True, True)
+            coord_ok = coord_ok and MN.refuse_is_total()
+        except Exception:
+            coord_ok = False
+        self.record("mantle-coordinate", coord_ok,
+                    "A TEXEL IS SEEN WHERE ITS FACE IS: for every corpus frame and a sweep of two more levels under "
+                    "all four facings, `u` never falls across a wall primitive and falls at every coplanar seam, "
+                    "`v` grows downward, and in the rows one screen row samples finely enough the floor's texel "
+                    "wraps at a cell change and nowhere else — the mirrored sign table is CAUGHT; the classes stay "
+                    "apart (every wall pixel cool, every floor pixel warm through light and haze, the swapped tiles "
+                    "failing both); refusal is total over the listed malformed inputs and `vista`'s refusals stay "
+                    "`vista`'s"
+                    if coord_ok else "a mantle coordinate / class / refusal law did not hold")
+
+        try:
+            import ast
+            oneway_ok = MN.the_membrane_is_one_way() and MN.LAYER == "VIEW"
+            with open(os.path.join(gdir, "mantle.py"), encoding="utf-8") as fh:
+                oneway_ok = oneway_ok and MN._import_top(ast.parse(fh.read())) == set(MN.ALLOWED_IMPORTS)
+            for name in ("gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat",
+                         "heirloom", "actionlog", "savegame", "enact", "rerun", "statecanon", "vista"):
+                with open(os.path.join(gdir, name + ".py"), encoding="utf-8") as fh:
+                    oneway_ok = oneway_ok and "mantle" not in MN._import_top(ast.parse(fh.read()))
+            # THE LIVE-CORE HALF: a scripted run's per-turn D_n with a picture made after every turn equals the
+            # run with none; the final level bytes are byte-identical.
+            _rec, toks, _f = RP19._saved_flat_run(0xABCDE, 3, 4, 2)
+
+            def run(render):
+                state = RP19._spawn_origin(0xABCDE, 3)
+                log = AL19.empty()
+                facing = VS19.default_facing(state[0])
+                out = []
+                for tok in toks:
+                    (lvl, pos, strm), _info = EA19.dispatch(state, tok)
+                    state = (lvl, pos, strm)
+                    log = AL19.append(log, tok)
+                    if render:
+                        kind, payload = EA19.decode(tok)
+                        if kind == EA19.MOVE:
+                            facing = payload
+                        MN.picture(lvl, pos, facing, oriented)
+                    out.append(SC19.d_n(lvl, ET19.at(pos), strm, log))
+                return tuple(out), GG19.canon_bytes(state[0])
+            a, b = run(False), run(True)
+            oneway_ok = oneway_ok and a == b and len(a[0]) > 0
+        except Exception:
+            oneway_ok = False
+        self.record("mantle-oneway", oneway_ok,
+                    "THE VIEW OVER A VIEW IS ONE-WAY: read off the full AST `mantle` imports exactly its declared "
+                    "substrate (`gamegen` read; `vista` the frame and its geometry; `raster` the frame type) and no "
+                    "transition, identity, log or stream authority in any scope — not even `descent` or `voxray`, "
+                    "which `vista` answers for — reaching no `.step`/`.dispatch`/`.apply`/`.d_n`/`.serialize`/"
+                    "`.restore`, with positive controls; no CORE module and not `vista` imports it; and against a "
+                    "LIVE enact/statecanon core a scripted run's per-turn `D_n` sequence and final level bytes are "
+                    "BYTE-IDENTICAL with a picture made after every turn and with none"
+                    if oneway_ok else "a mantle one-way / live-core law did not hold")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -31007,7 +31146,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "splitview", "stormprop", "terrain_bridge",
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
-    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema", "chorus", "cue", "vista",
+    "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema", "chorus", "cue", "vista", "mantle",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")
