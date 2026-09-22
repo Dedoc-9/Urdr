@@ -1,0 +1,41 @@
+{
+ "tile_class": "wall",
+ "T": 256,
+ "source": {
+  "path": "launcher/assets/tiles/wall_source.png",
+  "size": [
+   1024,
+   1024
+  ],
+  "channels": 3,
+  "file_sha256": "857d643b9c4145c2a2f4931cb022d57aba925b0283877cc22fe6ad0e0144ab61",
+  "pixel_sha256": "65668a2e184ecedc47cfbb03c6a5bd6a7a59a12c328a8e0e8d4f2ce63c04775f"
+ },
+ "reduction": "exact box mean over 4x4 blocks",
+ "seam": {
+  "ratio_columns": 0.6,
+  "ratio_rows": 7.3,
+  "interior_mean_permille": [
+   5991,
+   7997
+  ],
+  "threshold": 2.0,
+  "verdict": "NOT_TILEABLE",
+  "reading": "the wrap's mean difference against the interior's; near 1 is seamless; reported, not enforced"
+ },
+ "families": {
+  "cool_fraction": 0.873,
+  "warm_fraction": 0.117,
+  "reading": "informative: B>R and R>B texel fractions"
+ },
+ "output": {
+  "path": "launcher/assets/tiles/wall.png",
+  "size": [
+   256,
+   256
+  ],
+  "pixel_sha256": "37adbacabb5bf98eed4cc21b5f6a7425e4e94a161cd3840aefd4cfdb442ee4c9",
+  "written": true
+ },
+ "canonical_state_touched": false
+}
