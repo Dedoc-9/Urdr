@@ -123,6 +123,21 @@ depth band is its own measured rung, not an implementation detail of this one. A
 Variety within a class (a VIEW-side function of (voxel, face), never a world attribute — `gamegen`'s
 cells carry no material). Stairs, the sky, pitch, yaw, motion, any wall-clock.
 
+## 9a. The placement (STUDIO-0)
+
+`tools/terrain/mantle_rs/mantle.rs` ports the tile path std-only — vista's traversal in reduced
+rationals (the crossing parameter on axis i is `(k·Q − eye_i)/|d_i|` with a fixed denominator, the
+same rational voxray carries unreduced; every derived quantity is a floor of a rational and so
+invariant), the strip and floor fills, the URDRFB1 digest, and mantle's texture coordinates and
+per-band maps — as one binary that reads a scene (the level, eye, facing, table, maps and tiles are
+INPUT, written by `mantle_rs/gen_vectors.py` from the Python modules) and prints the two witnesses. The
+gate row `mantle-placement` compiles it live and compares both witnesses to the Python modules'
+live values over the corpus scenes in both tile sets and the cross-host witness view, twice; the
+selftest mirrors the sign table and shows every oriented picture move while no frame digest and no
+identity picture does. Wall-clock is off-gate: `studio/studio0.py --bench` on a named host, the witnesses
+checked before any number is printed, p50/p95/p99/max per phase against the 60/144/240 Hz budgets —
+renderer time, never input-to-photon (latchain's boundary).
+
 ## 10. Grade
 
 MEASURED: the corpus pictures reproduce (pixel sha256 beside the URDRFB1 digest), hash-seed-
@@ -133,8 +148,9 @@ AST; no CORE import. DECLARED: the texel size, the sign table, the light ratios,
 
 ## does_not_show
 
-A generated tile; filtering; stairs, sky, pitch, yaw, motion; a second placement of this module; any
-frame budget. That the picture is beautiful — the laws are floors, not a ceiling.
+A generated tile; filtering; stairs, sky, pitch, yaw, motion; any frame budget inside the gate (the
+placement's wall-clock is an off-gate record on a named host). That the picture is beautiful — the
+laws are floors, not a ceiling.
 
 ## Falsifier
 

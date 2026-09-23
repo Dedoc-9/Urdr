@@ -321,6 +321,7 @@ STAGE_ORDER = (
     "cue",
     "vista",
     "mantle",
+    "mantle_placement",
     "authority",
     "exempt",
     "disposition",
@@ -7364,6 +7365,95 @@ class Gate:
                     "LIVE enact/statecanon core a scripted run's per-turn `D_n` sequence and final level bytes are "
                     "BYTE-IDENTICAL with a picture made after every turn and with none"
                     if oneway_ok else "a mantle one-way / live-core law did not hold")
+
+    def mantle_placement(self):
+        """The mantle_rs cross-placement, RE-VERIFIED LIVE — STUDIO-0's instrument: vista's frame (the URDRVXR1
+        traversal in reduced rationals, the strip and the floor as floors of rationals, the URDRFB1 index
+        frame) and mantle's picture (exact texture coordinates, the table's per-band maps on the texel) ported
+        std-only as one binary that reads a scene and prints TWO witnesses, the frame digest and the picture's
+        pixel sha256. Over the four URDRMNT1 scenes in both tile sets and the cross-host witness view, both
+        witnesses must equal what the Python modules compute LIVE, twice. Non-vacuity: a mirrored sign table
+        must move the oriented pixels and must NOT move the frame — the two witnesses are shown distinct.
+        Wall-clock is NOT measured here (studio/studio0.py --bench, off-gate, on a named host). Requires rustc;
+        SKIPPED rows keep the count host-stable."""
+        import shutil
+        import subprocess
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        hdir = os.path.join(tdir, "mantle_rs")
+        for d in (tdir, hdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import gen_vectors as ST
+            import vista as VS20
+            import mantle as MN20
+            import gamegen as GG20
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("mantle-placement", False, f"import failed: {exc}")
+            self.record("mantle-placement-selftest", False, "gen_vectors did not load")
+            return
+        rustc = shutil.which("rustc")
+        src = ST.SRC
+        if not rustc or not os.path.exists(src):
+            why = "rustc not found" if not rustc else "mantle.rs missing"
+            self.record("mantle-placement", True,
+                        f"SKIPPED ({why}) — mantle_rs was NOT re-verified this run; the STUDIO-0 placement claim "
+                        f"is unchecked here (install rustc to enable)")
+            self.record("mantle-placement-selftest", True, f"SKIPPED ({why})")
+            return
+        views = [VS20.scene_view(n) for n in MN20.SCENES]
+        views.append((GG20.generate(ST.WITNESS["seed"], ST.WITNESS["depth"]), ST.WITNESS["pos"], ST.WITNESS["facing"]))
+        sets = (("identity", MN20.identity_tiles()), ("oriented", ST.oriented_tiles()))
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                inputs = []
+                for i, (lvl, pos, facing) in enumerate(views):
+                    for label, tiles in sets:
+                        path = os.path.join(td, "s%d_%s.bin" % (i, label))
+                        with open(path, "wb") as fh:
+                            fh.write(ST.scene_input(lvl, pos, facing, tiles))
+                        fd, ps = ST.python_witnesses(lvl, pos, facing, tiles)
+                        inputs.append((path, label, fd, ps))
+
+                def verdicts(source):
+                    exe = ST.compile_rust(rustc, os.path.join(td, "mantle_live"), ("-O",), source)
+                    if exe is None:
+                        return None
+                    return [ST.run(exe, path) for path, _l, _fd, _ps in inputs]
+
+                got = verdicts(None)
+                got2 = verdicts(None)
+                place_ok = (got is not None and got2 is not None
+                            and all(g.get("selfcheck") == "OK" and g.get("frame") == fd and g.get("pixels") == ps
+                                    for g, (_p, _l, fd, ps) in zip(got, inputs))
+                            and all(g.get("frame") == h.get("frame") and g.get("pixels") == h.get("pixels")
+                                    for g, h in zip(got, got2)))
+                real = open(src, encoding="utf-8").read()
+                anchor_line = "const U_SIGN: [i64; 6] = [-1, 1, 0, 0, 1, -1];"
+                mutated = real.replace(anchor_line, "const U_SIGN: [i64; 6] = [1, -1, 0, 0, -1, 1];", 1) if anchor_line in real else None
+                mgot = verdicts(mutated) if mutated else None
+                # the mirrored sign table: every ORIENTED picture diverges, no frame digest moves, identity pictures stay
+                caught = (mgot is not None
+                          and all(g.get("frame") == fd for g, (_p, _l, fd, _ps) in zip(mgot, inputs))
+                          and all(g.get("pixels") != ps for g, (_p, label, _fd, ps) in zip(mgot, inputs) if label == "oriented")
+                          and all(g.get("pixels") == ps for g, (_p, label, _fd, ps) in zip(mgot, inputs) if label == "identity"))
+        except Exception:
+            place_ok = False
+            caught = False
+        self.record("mantle-placement", place_ok,
+                    "mantle_rs recompiles and reproduces, twice, BOTH witnesses of the tile path over the four URDRMNT1 "
+                    "scenes in the identity and the oriented tiles and over the cross-host witness view (0xABCDE/1, "
+                    "(34, 28), W): the URDRFB1 frame digest (vista's traversal, strip and floor, in reduced rationals) "
+                    "and the picture's pixel sha256 (mantle's exact texture coordinates and per-band maps) equal what "
+                    "the Python modules compute LIVE — ten scenes, twenty witnesses, bit for bit; the level, the table, "
+                    "the maps and the tiles are INPUT, so the placement is exactly the per-frame work"
+                    if place_ok else "mantle_rs did NOT reproduce the live witnesses")
+        self.record("mantle-placement-selftest", caught,
+                    "a mirrored sign table in the port moves every oriented picture's pixel sha256 and moves NO frame "
+                    "digest and NO identity picture — the live re-verification is load-bearing and the two witnesses "
+                    "are shown to be distinct quantities (gate can redden)"
+                    if caught else "the mutated port did not diverge as it must, or the sign anchor moved")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart

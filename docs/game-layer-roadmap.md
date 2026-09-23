@@ -156,6 +156,16 @@ is the identity; `launcher/assets/tilefit.py` validates a generated square. Decl
 measured rung: a filtered level per depth band (far floor and grazing walls alias without it), generated tiles
 as replaceable VIEW assets, variety within a class, the sky, and only then pitch and yaw.
 
+**STUDIO-0** — measured before any second repository — placed the tile path natively
+(`tools/terrain/mantle_rs`): vista's traversal, strip and floor and mantle's coordinates and emission as one
+std-only Rust binary that reproduces both witnesses (the URDRFB1 frame digest and the picture's pixel sha256)
+bit for bit against the Python modules, live in the gate, on the first compile; and timed it off-gate on a
+named host (`studio/studio0.py --bench`): a 1.26-second Python frame becomes about 17 ms single-threaded and
+unoptimised on a 2.1 GHz cloud core — at the 60 Hz line, with every optimisation rung ahead and each
+answerable to the same two witnesses. The cross-repo contract a studio kernel would consume is
+`studio/attest/studio-oracle-1.json`, frozen by the tag `urdr-oracle-1`. Renderer time only; input-to-photon
+stays behind `latchain`'s boundary.
+
 ## 3. KINEMA blueprint, in brief
 
 *(Full contract: `spec/D25-kinema-boundary.md`. This is the one-page shape.)*

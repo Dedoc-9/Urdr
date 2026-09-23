@@ -1,0 +1,92 @@
+{
+ "name": "studio0-bench",
+ "host": "linux-xeon-2p1ghz-cloud",
+ "python": "3.11.15",
+ "os": "Linux",
+ "machine": "x86_64",
+ "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+ "flags": [
+  "-C",
+  "opt-level=3"
+ ],
+ "samples": 200,
+ "warmup": 20,
+ "view": {
+  "seed": "0xABCDE",
+  "depth": 1,
+  "pos": [
+   34,
+   28
+  ],
+  "facing": "W"
+ },
+ "results": {
+  "identity": {
+   "frame_digest": "9bb45bf393a6340af432c080b87e9a85e57810a7b46deb792247e11b633e18cf",
+   "pixels_sha256": "0bef7c1ee0a299bed50df62c0d81f5daf39e34cb981a4e9dc87fa94b1ee72d35",
+   "frame_us": {
+    "p50": 5871,
+    "p95": 7988,
+    "p99": 9221,
+    "max": 14139
+   },
+   "pixels_us": {
+    "p50": 10789,
+    "p95": 14488,
+    "p99": 17023,
+    "max": 17664
+   },
+   "total_us": {
+    "p50": 16675,
+    "p95": 23357,
+    "p99": 25263,
+    "max": 27218
+   },
+   "bench": "bench_samples 200 warmup 20 same_witnesses OK",
+   "host_line": "host os=linux arch=x86_64 cpu=\"Intel(R) Xeon(R) Processor @ 2.10GHz\""
+  },
+  "oriented": {
+   "frame_digest": "9bb45bf393a6340af432c080b87e9a85e57810a7b46deb792247e11b633e18cf",
+   "pixels_sha256": "9c97e2cb5a3275d7bbd7ecd7977ca1e9a17bc11cba2aae9172d28f748ab05458",
+   "frame_us": {
+    "p50": 6121,
+    "p95": 7518,
+    "p99": 8816,
+    "max": 11909
+   },
+   "pixels_us": {
+    "p50": 11048,
+    "p95": 13689,
+    "p99": 17294,
+    "max": 24171
+   },
+   "total_us": {
+    "p50": 17286,
+    "p95": 20458,
+    "p99": 26101,
+    "max": 32952
+   },
+   "bench": "bench_samples 200 warmup 20 same_witnesses OK",
+   "host_line": "host os=linux arch=x86_64 cpu=\"Intel(R) Xeon(R) Processor @ 2.10GHz\""
+  }
+ },
+ "budgets_us": {
+  "60Hz": 16667,
+  "144Hz": 6944,
+  "240Hz": 4167
+ },
+ "verdict": {
+  "identity": {
+   "60Hz": "over",
+   "144Hz": "over",
+   "240Hz": "over"
+  },
+  "oriented": {
+   "60Hz": "over",
+   "144Hz": "over",
+   "240Hz": "over"
+  }
+ },
+ "reading": "per-frame work only (traversal + strip + floor fill, then the texel pass); no window, no present, no disk, no input; p99 against the budgets; this is renderer time, NOT input-to-photon latency (latchain: input_transport, present_wait and panel need capture hardware)",
+ "created_utc": "2026-09-23T10:21:03Z"
+}
