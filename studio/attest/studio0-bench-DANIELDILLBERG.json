@@ -1,0 +1,92 @@
+{
+ "name": "studio0-bench",
+ "host": "DANIELDILLBERG",
+ "python": "3.14.5",
+ "os": "Windows",
+ "machine": "AMD64",
+ "rustc": "rustc 1.96.1 (31fca3adb 2026-06-26)",
+ "flags": [
+  "-C",
+  "opt-level=3"
+ ],
+ "samples": 200,
+ "warmup": 20,
+ "view": {
+  "seed": "0xABCDE",
+  "depth": 1,
+  "pos": [
+   34,
+   28
+  ],
+  "facing": "W"
+ },
+ "results": {
+  "identity": {
+   "frame_digest": "9bb45bf393a6340af432c080b87e9a85e57810a7b46deb792247e11b633e18cf",
+   "pixels_sha256": "0bef7c1ee0a299bed50df62c0d81f5daf39e34cb981a4e9dc87fa94b1ee72d35",
+   "frame_us": {
+    "p50": 4184,
+    "p95": 4554,
+    "p99": 4764,
+    "max": 5578
+   },
+   "pixels_us": {
+    "p50": 7560,
+    "p95": 8201,
+    "p99": 8927,
+    "max": 11102
+   },
+   "total_us": {
+    "p50": 11752,
+    "p95": 12857,
+    "p99": 13481,
+    "max": 16680
+   },
+   "bench": "bench_samples 200 warmup 20 same_witnesses OK",
+   "host_line": "host os=windows arch=x86_64 cpu=\"AMD64 Family 26 Model 36 Stepping 0, AuthenticAMD\""
+  },
+  "oriented": {
+   "frame_digest": "9bb45bf393a6340af432c080b87e9a85e57810a7b46deb792247e11b633e18cf",
+   "pixels_sha256": "9c97e2cb5a3275d7bbd7ecd7977ca1e9a17bc11cba2aae9172d28f748ab05458",
+   "frame_us": {
+    "p50": 4163,
+    "p95": 4320,
+    "p99": 4431,
+    "max": 4900
+   },
+   "pixels_us": {
+    "p50": 7552,
+    "p95": 7782,
+    "p99": 8206,
+    "max": 8721
+   },
+   "total_us": {
+    "p50": 11727,
+    "p95": 12153,
+    "p99": 12475,
+    "max": 12855
+   },
+   "bench": "bench_samples 200 warmup 20 same_witnesses OK",
+   "host_line": "host os=windows arch=x86_64 cpu=\"AMD64 Family 26 Model 36 Stepping 0, AuthenticAMD\""
+  }
+ },
+ "budgets_us": {
+  "60Hz": 16667,
+  "144Hz": 6944,
+  "240Hz": 4167
+ },
+ "verdict": {
+  "identity": {
+   "60Hz": "within",
+   "144Hz": "over",
+   "240Hz": "over"
+  },
+  "oriented": {
+   "60Hz": "within",
+   "144Hz": "over",
+   "240Hz": "over"
+  }
+ },
+ "reading": "per-frame work only (traversal + strip + floor fill, then the texel pass); no window, no present, no disk, no input; p99 against the budgets; this is renderer time, NOT input-to-photon latency (latchain: input_transport, present_wait and panel need capture hardware)",
+ "created_utc": "2026-09-23T21:07:34Z"
+}
