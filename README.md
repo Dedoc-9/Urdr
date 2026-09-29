@@ -22,10 +22,10 @@ fixed-point** real-time path (a Q32.32 stepper that settles contact stacks and s
 pendulums where the exact path would overflow i64), a fixed-point renderer (2D fill → 3D depth
 → exact perspective), and a reactive continuum (advection-diffusion, Marangoni surface tension,
 a two-way field↔body coupling loop) — in which every admitted output is either bit-identical
-across independent implementations or explicitly refused. **35** single-file Rust placements
+across independent implementations or explicitly refused. **36** single-file Rust placements
 (core / render / physics / math / fixed-point dynamics / the N1–N5 netcode stack + regional authority / the seven-stage frontfps ladder / persistent homology / toric / rigidity) reproduce the reference's kernel,
 frame, physics, field, exact-math, fixed-point-dynamics, netcode-transcript, signed-input, authored-world, regional-composition, the FPS/MMO authoring canon, the persistent-homology / OOB witness, and the invariant-detector digests bit-for-bit
-on fixed corpora, behind a **5149-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
+on fixed corpora, behind a **5170-test gate** — and the math spine, the netcode region, the frontfps ladder, and the toric/rigidity/homology detectors carry **14** C99 placements, so
 rank/determinant/injectivity/reconstruction and the detector verdicts agree across **three languages on two OSes**. For the systems-level overview, read the **[OSDI-style paper →
 `docs/PAPER.md`](docs/PAPER.md)**; for what is *actually proved* versus planned, the
 **[theorem catalog → `docs/THEOREMS.md`](docs/THEOREMS.md)**; the layer contracts are in
@@ -539,7 +539,7 @@ Each main-tree folder carries its own README with the detail.
 | `urdr.py` | CLI: `run` / `check` / `fmt` a program | — |
 | `verify.py` | The gate: unit falsifiers + examples (×2) + oracle + modules + rejections + tamper self-test | — |
 | [`hainuwele/`](hainuwele/) | **The terrain/MMO arc, indexed and narrated** — the live per-module index for all 103 `tools/terrain/` modules (code, gate stage, falsifiers, conformance, brief), the whitepaper, per-rung dev notes, and the dated city-scale design studies. It locates and explains; it grades nothing | [`hainuwele/README.md`](hainuwele/README.md) |
-| [`exe_epistemics/`](exe_epistemics/) | **The executable-epistemics arc — the repo reading itself under preregistration.** Credences over what each module's central law would turn out to be are frozen in an append-only ledger BEFORE the module is read, then resolved against live gate rows; scored against a rolling empirical null under two independent proper scoring rules. 63 joints over 19 runs; **the READ pass is COMPLETE**, 198 of 199 modules briefed. Carries the frozen probe corpora, the MDL model-cost term, and one measurement it REFUSED to perform from inside itself. Off-gate by design: it scores the gate | [`exe_epistemics/PREDICTIONS.md`](exe_epistemics/PREDICTIONS.md) |
+| [`exe_epistemics/`](exe_epistemics/) | **The executable-epistemics arc — the repo reading itself under preregistration.** Credences over what each module's central law would turn out to be are frozen in an append-only ledger BEFORE the module is read, then resolved against live gate rows; scored against a rolling empirical null under two independent proper scoring rules. 63 joints over 19 runs; **the READ pass is COMPLETE**, 199 of 200 modules briefed. Carries the frozen probe corpora, the MDL model-cost term, and one measurement it REFUSED to perform from inside itself. Off-gate by design: it scores the gate | [`exe_epistemics/PREDICTIONS.md`](exe_epistemics/PREDICTIONS.md) |
 | [`scripts/`](scripts/) | `run_gates.py` (the `gates.txt` manifest runner) + `gate_once.py`, which asserts the literal tail line rather than the exit code — a truncated `verify.py` once ran ZERO checks and exited 0 | — |
 | [`LESSONS.md`](LESSONS.md) | The discipline laws L1–L64 — twelve inherited, the rest paid for in this repo — each with where it is enforced | — |
 | [`SURPRISES.md`](SURPRISES.md) | The research-redirection ledger: the times reading CHANGED the planned work, each as a plan / finding / redirection triple | — |
@@ -549,7 +549,7 @@ Each main-tree folder carries its own README with the detail.
 ## What the manifold / engine can do — and what it's for
 
 Two properties are unusual in combination, and everything below follows from them: **the whole
-pipeline is bit-reproducible across independent implementations** (35 Rust placements + 14 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
+pipeline is bit-reproducible across independent implementations** (36 Rust placements + 14 C99 runtimes agree with the Python reference on stated corpora), and **a claim cannot outrun its evidence
 at the type level** (over-grading does not typecheck; `MEASURED` is minted only by a verifier).
 The "manifold" is the observer/atlas layer (D7–D10) — the theorem `Recoverable(A) ⟺ ∩ᵢ ker(Aᵢ) =
 {0}` made computable and data-parameterized (nD is a data choice) — sitting under a physics + render
@@ -793,7 +793,7 @@ frozen), **N4.1** (body-body contact, cross-placed), **D15** (view-export contra
   URDRAOI1) while interest-filtered wire replication stays declared. Graded by the same bit-for-bit
   composition discipline as D16 — not a new primitive.
 - **Third-language placements of the remaining layers.** The math spine, the whole netcode stack, and the
-  toric and rigidity detectors are multi-runtime (Python + Rust + C99, two OSes — **35 Rust + 14 C99
+  toric and rigidity detectors are multi-runtime (Python + Rust + C99, two OSes — **36 Rust + 14 C99
   placements**); the frontier is extending a third runtime to the kernel / render / physics corpora.
 - **Friction + rotation/shapes + sphere-sphere CCD** — the `DECLARED` next physics rungs (D11 §3.5).
 - **Perspective-correct interpolation** (1/z barycentric) for filled, occluded perspective triangles.

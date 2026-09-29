@@ -9,6 +9,16 @@ define them after the fact — D25's move, one rung over. Nothing here is MEASUR
 is a **candidate**, graded DECLARED. Its correctness test is **retro-admission**: when `bearing` lands it
 must satisfy §4 as written, or D26 is amended *before* the module is graded, and the amendment says why.
 
+> **LANDED (URDRBRG1).** `bearing` satisfies this preregistration by RETRO-ADMISSION, and the contract below was
+> NOT amended to admit it. F1 `bearing-anchors`, F2 `bearing-table` (all 360,000 ids, the five plants caught by
+> the structural checker alone), F3 `bearing-claw`, F4 the table digest folded into URDRBRG1's identity, F5 the
+> refusals, F6 `bearing:corpus` (the 13 registered bearings from the witness and corridor views), F7
+> `bearing-oneway`, F8 `bearing-placement` (live on the gate's host; the named-host clause stays open until the
+> owner's Windows recompile). Two readings are recorded, not amended: the mirror plant of F1 is judged over the
+> four anchors together, because a view whose geometry is mirror-symmetric at one anchor cannot tell a mirror
+> there; and the generator shrinks each interval inward by 2⁻¹⁶⁰ before the smallest-denominator search, so the
+> chosen pair lies inside the true interval. The prospective text below is preserved as the contract.
+
 Capability: `URDRBRG1` (proposed). Layer: **VIEW** under D24 §1 — it renders; it reads a `Level`, an
 integer cell `pos` and a bearing, and the bearing is view state beside the run, never in it. Authority
 is unchanged: `gamegen` (URDRGEN1) and `descent` (URDRDSC1). Frozen anchors: `vista` (URDRVIS1) and

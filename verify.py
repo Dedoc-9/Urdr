@@ -322,6 +322,8 @@ STAGE_ORDER = (
     "vista",
     "mantle",
     "mantle_placement",
+    "bearing",
+    "bearing_placement",
     "authority",
     "exempt",
     "disposition",
@@ -4920,7 +4922,7 @@ class Gate:
             structural, prose, owners = RT.the_structural_heuristic_is_refuted()
             c = RT.census()
             pop_ok = (RT.the_register_is_closed() and set(RT.promises()) == set(RT.REGISTER)
-                      and structural == 81 and prose == 11 and owners == 3
+                      and structural == 82 and prose == 11 and owners == 3
                       and all(c[k] for k in RT.KINDS)
                       and RT.a_citation_is_not_a_promise() == (True, False)
                       and RT.the_law_matches_itself() == (True, True, True))
@@ -7454,6 +7456,226 @@ class Gate:
                     "digest and NO identity picture — the live re-verification is load-bearing and the two witnesses "
                     "are shown to be distinct quantities (gate can redden)"
                     if caught else "the mutated port did not diverge as it must, or the sign anchor moved")
+
+    def bearing(self):
+        """THE HEADING REFINEMENT (URDRBRG1, VIEW-YAW-0) — admitted against the preregistration
+        spec/D26-bearing-boundary.md, written and committed before the module. Any bearing, the eye still at a
+        cell centre: an integer id in [0, 360000) names a registered canonical primitive Pythagorean triple, and
+        the frame and the picture are `vista`'s and `mantle`'s arithmetic at that triple, the hypotenuse
+        entering exactly four expressions. Rows: corpus, table, anchors, claw, oneway. The vocabulary is DATA
+        checked by its own invariants — never regenerated here — and the four anchors are held to the frozen
+        modules computed live beside it."""
+        gdir = os.path.join(ROOT, "tools", "terrain")
+        if gdir not in sys.path:
+            sys.path.insert(0, gdir)
+        try:
+            import bearing as BR
+            import vista as VS21
+            import mantle as MN21
+            import gamegen as GG21
+            import enact as EA21
+            import actionlog as AL21
+            import statecanon as SC21
+            import entity as ET21
+            import rerun as RP21
+        except Exception as exc:  # pragma: no cover - import guard
+            for r in ("bearing:corpus", "bearing-table", "bearing-anchors", "bearing-claw", "bearing-oneway"):
+                self.record(r, False, f"import failed: {exc}")
+            return
+
+        try:
+            corpus_ok = (BR.emitted_matches_pinned() and BR.an_unpinned_name_refuses()
+                         and BR.table_digest() == BR.golden("table")
+                         and len(BR.ADVERSARIAL) == 13 and sorted(BR.VIEWS) == ["corridor", "witness"]
+                         and all("|triple=" in BR.case(n, k) and "|frame=" in BR.case(n, k)
+                                 and "|identity=" in BR.case(n, k) and "|oriented=" in BR.case(n, k)
+                                 for n in sorted(BR.VIEWS) for k in BR.ADVERSARIAL))
+        except Exception:
+            corpus_ok = False
+        self.record("bearing:corpus", corpus_ok,
+                    "the URDRBRG1 corpus reproduces from what the module emits: the digest of all 360,000 registered "
+                    "triples in id order, and for the 13 adversarial bearings (beside every anchor, the diagonal and "
+                    "its neighbours, two generic ids) seen from `vista`'s witness view and its corridor scene — 26 "
+                    "cases — the view, the id, its triple, the URDRFB1 frame digest and both pictures' pixel sha256 "
+                    "side by side, and the top digest that folds the table's; an unpinned name refuses typed "
+                    "BEARING-REFUSE"
+                    if corpus_ok else "a bearing corpus case or the table digest drifted")
+
+        try:
+            table_ok = (BR.the_table_holds() == (True, True, True, True)
+                        and BR.planted_table_defects_are_caught() == (True,) * 5
+                        and BR.refuse_is_total()
+                        and len(BR.octant()) == BR.OCTANT + 1
+                        and max(BR.direction(k)[2] for k in range(BR.OCTANT + 1)) > 1 << 32)
+        except Exception:
+            table_ok = False
+        self.record("bearing-table", table_ok,
+                    "THE VOCABULARY IS DATA AND THE CHECKER IS NOT THE PROVER: the committed octant (45,001 pairs, "
+                    "sha256 pinned in the module) holds by its own invariants over ALL 360,000 ids — every pair "
+                    "canonical (0 <= p < q, gcd 1), id 0 north and the four anchors the cardinals, every triple "
+                    "Pythagorean and primitive with C >= 1, and every consecutive pair, the wrap included, turning "
+                    "clockwise by less than a right angle by exact cross and dot products — with the program that "
+                    "chose the pairs never run; five planted defects (a pair dropped, a non-primitive pair, p and q "
+                    "swapped, a sign flipped, two pairs exchanged) are each refused by the structural checker alone, "
+                    "without the pin; a missing or altered file, an id out of range or not an integer, a bool, a "
+                    "wall cell and a non-Level all refuse typed BEARING-REFUSE; the largest hypotenuse exceeds 2^32"
+                    if table_ok else "a bearing table law, plant or refusal did not hold")
+
+        try:
+            oriented = MN21.tile_set(wall=MN21.oriented_tile(*MN21.WALL_ORIENTED),
+                                     floor=MN21.oriented_tile(*MN21.FLOOR_ORIENTED))
+            views = [VS21.scene_view(n)[:2] for n in VS21.SCENES] + [BR.view("witness")]
+            anchors_ok = all(BR.the_anchors_are_the_frozen_frames(l, p, (MN21.identity_tiles(), oriented)) == (True, True)
+                             for l, p in views)
+            anchors_ok = anchors_ok and all(BR.a_mirrored_camera_is_caught(l, p) for l, p in views)
+            wl, wp = BR.view("witness")
+            wfb, wrgb = BR.picture(wl, wp, 3 * BR.QUARTER)
+            anchors_ok = (anchors_ok and VS21.frame_digest(wfb).startswith("9bb45bf393a6340a")
+                          and MN21.pixel_sha256(wrgb).startswith("0bef7c1ee0a299be"))
+        except Exception:
+            anchors_ok = False
+        self.record("bearing-anchors", anchors_ok,
+                    "AT C = 1 THE LAW IS THE FROZEN ONE: at the four anchors (0, 90000, 180000, 270000), over `vista`'s "
+                    "four corpus views and the witness view, the frame's URDRFB1 digest equals `vista.frame`'s and "
+                    "the picture's bytes equal `mantle.picture`'s in the identity AND the oriented tiles, both frozen "
+                    "modules computed LIVE beside this one; the witness view at 270000 pictures to the witnessed "
+                    "frame 9bb45bf3... and pixels 0bef7c1e...; and a module with screen-right mirrored to (B, -A) "
+                    "fails the anchor law at every one of the five views (the law can redden)"
+                    if anchors_ok else "a bearing anchor frame or picture is not the frozen one, or the mirror was not caught")
+
+        try:
+            claw_ok = True
+            for name in sorted(BR.VIEWS):
+                l, p = BR.view(name)
+                claw_ok = claw_ok and BR.the_c_law_reads_back(l, p, BR.ADVERSARIAL) == (True, True)
+        except Exception:
+            claw_ok = False
+        self.record("bearing-claw", claw_ok,
+                    "THE HYPOTENUSE ENTERS FOUR EXPRESSIONS AND THEY READ BACK: at all 13 adversarial bearings from "
+                    "both views, every column's strip edge rows and depth band, and the floor cells of the registered "
+                    "rows, recomputed from the hit point by the dot-product definition (P - E).(A, B)/C — a second "
+                    "computation, not the module's shortcut — equal the module's; a module that drops C from the "
+                    "depth (the frozen expression used verbatim off the anchors) is caught at every one of them"
+                    if claw_ok else "a bearing strip or floor cell did not read back, or the frozen depth was not caught")
+
+        try:
+            import ast
+            oneway_ok = BR.the_membrane_is_one_way() and BR.LAYER == "VIEW"
+            with open(os.path.join(gdir, "bearing.py"), encoding="utf-8") as fh:
+                oneway_ok = oneway_ok and BR._import_top(ast.parse(fh.read())) == set(BR.ALLOWED_IMPORTS)
+            for name in ("gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat",
+                         "heirloom", "actionlog", "savegame", "enact", "rerun", "statecanon", "vista", "mantle"):
+                with open(os.path.join(gdir, name + ".py"), encoding="utf-8") as fh:
+                    oneway_ok = oneway_ok and "bearing" not in BR._import_top(ast.parse(fh.read()))
+            _rec, toks, _f = RP21._saved_flat_run(0xABCDE, 3, 4, 2)
+
+            def run(render):
+                state = RP21._spawn_origin(0xABCDE, 3)
+                log = AL21.empty()
+                out = []
+                for i, tok in enumerate(toks):
+                    (lvl, pos, strm), _info = EA21.dispatch(state, tok)
+                    state = (lvl, pos, strm)
+                    log = AL21.append(log, tok)
+                    if render:
+                        BR.picture(lvl, pos, (i * 12347) % BR.YAW_MOD)
+                    out.append(SC21.d_n(lvl, ET21.at(pos), strm, log))
+                return tuple(out), GG21.canon_bytes(state[0])
+            a, b = run(False), run(True)
+            oneway_ok = oneway_ok and a == b and len(a[0]) > 0
+        except Exception:
+            oneway_ok = False
+        self.record("bearing-oneway", oneway_ok,
+                    "THE BEARING IS VIEW STATE: read off the full AST `bearing` imports exactly its declared "
+                    "substrate (`gamegen` and `descent` read, `voxray` the traversal, `raster` the frame type, "
+                    "`vista` and `mantle` the frozen law it reuses) and no transition, identity, log or stream "
+                    "authority in any scope, with positive controls; no CORE module and neither `vista` nor `mantle` "
+                    "imports it; and against a LIVE enact/statecanon core a scripted run's per-turn `D_n` sequence and "
+                    "final level bytes are BYTE-IDENTICAL with a picture made at a bearing after every turn and with none"
+                    if oneway_ok else "a bearing one-way / live-core law did not hold")
+
+    def bearing_placement(self):
+        """The bearing_rs cross-placement (D26 F8), RE-VERIFIED LIVE: `bearing`'s frame and picture at a
+        registered triple, ported std-only from mantle_rs with 128-bit integers where a product needs them, as
+        one binary reading a scene (the triple is INPUT, from the committed table) and printing the frame digest
+        and the pixel sha256. Over the bearing corpus — 13 adversarial bearings from two views, in the identity
+        and the oriented tiles — both witnesses must equal the values `bearing` computed LIVE in this run (the
+        `bearing:corpus` cases), from two separate compiles. Non-vacuity: a port that drops C from the depth
+        must move every frame. Wall-clock is not measured. Requires rustc; SKIPPED rows keep the count
+        host-stable."""
+        import shutil
+        import tempfile
+        tdir = os.path.join(ROOT, "tools", "terrain")
+        hdir = os.path.join(tdir, "bearing_rs")
+        for d in (tdir, hdir):
+            if d not in sys.path:
+                sys.path.insert(0, d)
+        try:
+            import bearing_vectors as BV
+            import bearing as BR22
+            import mantle as MN22
+        except Exception as exc:  # pragma: no cover - import guard
+            self.record("bearing-placement", False, f"import failed: {exc}")
+            self.record("bearing-placement-selftest", False, "bearing_vectors did not load")
+            return
+        rustc = shutil.which("rustc")
+        if not rustc or not os.path.exists(BV.SRC):
+            why = "rustc not found" if not rustc else "bearing.rs missing"
+            self.record("bearing-placement", True,
+                        f"SKIPPED ({why}) — bearing_rs was NOT re-verified this run; the D26 F8 placement claim "
+                        f"is unchecked here (install rustc to enable)")
+            self.record("bearing-placement-selftest", True, f"SKIPPED ({why})")
+            return
+        oriented = MN22.tile_set(wall=MN22.oriented_tile(*MN22.WALL_ORIENTED), floor=MN22.oriented_tile(*MN22.FLOOR_ORIENTED))
+        sets = (("identity", MN22.identity_tiles()), ("oriented", oriented))
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                inputs = []
+                for name in sorted(BR22.VIEWS):
+                    lvl, pos = BR22.view(name)
+                    for k in BR22.ADVERSARIAL:
+                        fields = dict(f.split("=", 1) for f in BR22.case(name, k).split("|"))
+                        for label, tiles in sets:
+                            path = os.path.join(td, "%s_%d_%s.bin" % (name, k, label))
+                            with open(path, "wb") as fh:
+                                fh.write(BV.scene_input(lvl, pos, k, tiles))
+                            inputs.append((path, label, fields["frame"], fields[label]))
+
+                def verdicts(source, tag):
+                    exe = BV.compile_rust(rustc, os.path.join(td, "bearing_" + tag), ("-O",), source)
+                    if exe is None:
+                        return None
+                    return [BV.run(exe, path) for path, _l, _fd, _ps in inputs]
+
+                got = verdicts(None, "a")
+                got2 = verdicts(None, "b")
+                place_ok = (got is not None and got2 is not None and len(inputs) == 52
+                            and all(g.get("selfcheck") == "OK" and g.get("frame") == fd and g.get("pixels") == ps
+                                    for g, (_p, _l, fd, ps) in zip(got, inputs))
+                            and all(g.get("frame") == h.get("frame") and g.get("pixels") == h.get("pixels")
+                                    for g, h in zip(got, got2)))
+                real = open(BV.SRC, encoding="utf-8").read()
+                anchor_line = "let h2d = 2 * focal * self.c * tn;"
+                mutated = real.replace(anchor_line, "let h2d = 2 * focal * tn;", 1) if real.count(anchor_line) == 1 else None
+                mgot = verdicts(mutated, "m") if mutated else None
+                caught = (mgot is not None
+                          and all(g.get("frame") != fd for g, (_p, _l, fd, _ps) in zip(mgot, inputs)))
+        except Exception:
+            place_ok = False
+            caught = False
+        self.record("bearing-placement", place_ok,
+                    "bearing_rs recompiles twice and reproduces BOTH witnesses of the heading refinement over the "
+                    "bearing corpus — 13 adversarial bearings (hypotenuses up to 2^33) from the witness and corridor "
+                    "views in the identity and the oriented tiles, 52 scenes, 104 witnesses — equal to the URDRFB1 "
+                    "frame digests and pixel sha256 `bearing` computed LIVE this run, bit for bit; the triple, the "
+                    "level, the table, the maps and the tiles are INPUT, so the placement is exactly the per-frame "
+                    "work, in i128 where a product exceeds 64 bits"
+                    if place_ok else "bearing_rs did NOT reproduce the live witnesses")
+        self.record("bearing-placement-selftest", caught,
+                    "a port that drops the hypotenuse from the depth (the frozen strip expression at a non-anchor "
+                    "bearing) moves the frame digest of every one of the 52 scenes — the live re-verification is "
+                    "load-bearing (gate can redden)"
+                    if caught else "the mutated port did not diverge as it must, or the depth anchor moved")
 
     def lattice(self):
         """The scoped, coverage-qualified proof-lattice pin (READ-2 step 2). Three claims kept apart
@@ -31237,6 +31459,7 @@ BRIEFS_REQUIRING_A_FALSIFIER = ("blindabsolute", "chargecurve", "ratchet", "disp
                                "terrain_view", "tierview", "tilecert", "wireattest",
     "voxin", "gamegen", "descent", "move", "entity", "rngstream", "descend", "loot", "combat", "heirloom",
     "actionlog", "savegame", "enact", "rerun", "statecanon", "kinema", "chorus", "cue", "vista", "mantle",
+    "bearing",
 )
 
 _BRIEF_FALSIFIER = re.compile(r"<!--\s*brief-falsifier:\s*([A-Za-z0-9_:.\-]+)\s*-->")

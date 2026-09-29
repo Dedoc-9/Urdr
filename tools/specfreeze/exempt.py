@@ -164,8 +164,9 @@ EXEMPTIONS = (
         "emits conformance vectors for a cross-placement port; its output is checked by "
         "the placement stage that consumes it, so the generator is upstream of the law "
         "rather than a bearer of one. Empties when vector generation moves into the "
-        "placement source itself.",
-        lambda m, p: p.endswith("_rs/gen_vectors.py")),
+        "placement source itself. `bearing_rs`'s generator is the same class under a unique "
+        "basename, because two modules named gen_vectors on one sys.path shadow each other.",
+        lambda m, p: p.endswith("_rs/gen_vectors.py") or p.endswith("_rs/bearing_vectors.py")),
     Exemption(
         "brief", "prose-brief",
         "a brief file EXISTS and deliberately carries no `brief-falsifier` marker: it "

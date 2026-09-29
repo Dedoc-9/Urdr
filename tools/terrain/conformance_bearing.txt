@@ -1,0 +1,51 @@
+# URDRBRG1 conformance -- THE HEADING REFINEMENT OF THE FIRST-PERSON FRAME: ANY BEARING, THE EYE STILL AT A
+# CELL CENTRE (VIEW-YAW-0), admitted against the preregistration spec/D26-bearing-boundary.md.
+#
+# A bearing is an integer id in [0, 360000) -- millidegrees clockwise from north, frontfps's yaw identity --
+# naming one canonical primitive Pythagorean triple (A, B, C); the four cardinals are anchors that reproduce
+# `vista`'s frames and `mantle`'s pictures byte for byte. The vocabulary is DATA: the octant's (p, q) pairs in
+# bearing_octant.txt with a pinned sha256, extended by exact symmetry, checked by its own invariants and never
+# regenerated. The law is vista's and mantle's arithmetic at the triple; the hypotenuse C enters exactly four
+# expressions (the depth, the band, the wall's row height, the floor point).
+#
+# Rows below: `table` is the digest of all 360,000 triples in id order (D26 F4 folds it into the identity);
+# `<view>:<id>` pins, for the adversarial bearings (beside every anchor, the diagonal and its neighbours, two
+# generic ids) seen from `vista`'s witness view and its corridor scene, the view, the id, its triple, the
+# URDRFB1 frame digest and both pictures' pixel sha256 (identity and oriented tiles); `bearing` is the top.
+#
+# GRADE (honest, D5). MEASURED: these digests reproduce, hash-seed-independent; the table law over all 360,000
+# ids with its five planted defects caught; the anchor law over vista's corpus; the C law read back from the
+# hit point with its plant caught. ESTABLISHED: the AST is one-way; no CORE module imports `bearing`. DECLARED:
+# the quarter-millidegree angle bound of the octant (its endpoints are irrational and are not evaluated here),
+# and every constant `vista` and `mantle` declare.
+#
+# does_not_show: movement between cell centres, pitch, eye height, motion or smoothness, any frame budget, that
+# the table is the best possible, and a second placement of this module (bearing_rs is its own row).
+table 05886654f0e187dcec7be90d7474f0485b99e31cd488b206f3de359fb2eef574
+corridor:1 d9f1fc63a08f45762a0eeabede020ff20a5cff67a0178c2c7067ea8c55c47d4a
+corridor:89999 5a6b6a9d92f863e54add4622c82ecb34a5cee48f194c5f1e269710a14b5d5243
+corridor:90001 ec08b0187ef3fa1dca7defc9962fd275dd6c7e2373e62a7197b1702c5f5768d0
+corridor:179999 2dc6e3818419bdb478e912bec3066438cde21ff1f4aa06a2388afd90cf30ff81
+corridor:180001 80526f20c3b2f9e6d8818e9e181855d7c1cc20f987c29a66f5273f597a8ede7f
+corridor:269999 4a699c2e900f7658f1cc1922c94ebbf62e6bc3616c94af23eb8723a0be3067a1
+corridor:270001 3445eeb2331ca9d433dc37df7f62ffe6780deb99a01b52ec6b876b57c513665d
+corridor:359999 7319dc1744ee581bcb8d7413b6da393ed6041fcc50a99906dbab31e3f26e7339
+corridor:44999 575a112407e5316f90ba133a5b9f109d4e52fa9852fa3f5ce152350bfd3de219
+corridor:45000 fcb720704395624b242a76441cef077607636ebf4b30f340733eed51a87d0dce
+corridor:45001 d9619c17a33dcb7c224f9325fdaf486c84686483ec016366f39f3099864ee6dc
+corridor:30000 3d8facd99b45a2c0ee02099a99027eaea4b0dbee507082db10ab5e5fa6e90da4
+corridor:123457 2448f658d27f5b3f620497e0170ae1a4b42244773a99f2f6d8b04de629157b66
+witness:1 f60ab934dbe5e898c694e4923a3f7b264d6a0bb2b9f51a5da0b64acce5b57f00
+witness:89999 2ab2106e5533e3b96ada38a0c08991f399edb3bd866816e3a46b005e7fa79c56
+witness:90001 4a59f3eb1eac154cbb9efce1e381d75e94ba0aa8181a4eccf2adaee169537487
+witness:179999 728a003112372db50408627576bd5bf71c3214e7e2a0f04838894709367bc34f
+witness:180001 70a2a1ac804024d81184f787024bd794abd343ceb9579a51bc6f9fe8cc4b0217
+witness:269999 3fcfe65ee13976257f091c149094466b3bf3388ba494e134b5b128efdf7c9b91
+witness:270001 ee663cccbd143e002dcca45a68b6b77acb52cda78179e99948fa619413db43c0
+witness:359999 d3c978fd6804296099aab4e4f74b2318f82578f82c776972f62e08095cd1691b
+witness:44999 834a3a72f47673f88a0dec46579ddc936cfee23c2b35e0e6d35355c6f815fa72
+witness:45000 c29428a3d7017d2e970092c24d80f56ca59ff69e058af4c379c7b1b3f401e349
+witness:45001 8ca832148fe18edaee7b5cd60efd3a231ae5e400bc23525fc668ea796582fbcf
+witness:30000 a5623a804dd30c9b8e21418b4deb2192bb107248d2c1b7ee7e4456b1ab775980
+witness:123457 41766059f967c780f4c80687455f945766466a6885ecdd5ff7666b8edde9a86d
+bearing 399f452c5a7fe3106a868a82a2bd74edd4efac663a8ba23054aa14940cf27506
