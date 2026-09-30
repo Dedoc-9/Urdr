@@ -166,6 +166,12 @@ answerable to the same two witnesses. The cross-repo contract a studio kernel wo
 `studio/attest/studio-oracle-1.json`, frozen by the tag `urdr-oracle-1`. Renderer time only; input-to-photon
 stays behind `latchain`'s boundary.
 
+The camera then turned: `bearing` (URDRBRG1, preregistered as D26) renders from any of 360,000 registered
+rational headings — millidegree ids naming primitive Pythagorean triples, the four cardinals its anchors and
+`vista`'s and `mantle`'s frames there byte for byte — with the eye still at a cell centre, placed natively in
+`tools/terrain/bearing_rs`. Its contract for consumers is `studio/attest/studio-oracle-2.json`, frozen by the tag
+`urdr-oracle-2`. Movement between cell centres, pitch and eye height are not opened by it.
+
 ## 3. KINEMA blueprint, in brief
 
 *(Full contract: `spec/D25-kinema-boundary.md`. This is the one-page shape.)*

@@ -13,11 +13,19 @@ must satisfy §4 as written, or D26 is amended *before* the module is graded, an
 > NOT amended to admit it. F1 `bearing-anchors`, F2 `bearing-table` (all 360,000 ids, the five plants caught by
 > the structural checker alone), F3 `bearing-claw`, F4 the table digest folded into URDRBRG1's identity, F5 the
 > refusals, F6 `bearing:corpus` (the 13 registered bearings from the witness and corridor views), F7
-> `bearing-oneway`, F8 `bearing-placement` (live on the gate's host; the named-host clause stays open until the
-> owner's Windows recompile). Two readings are recorded, not amended: the mirror plant of F1 is judged over the
-> four anchors together, because a view whose geometry is mirror-symmetric at one anchor cannot tell a mirror
-> there; and the generator shrinks each interval inward by 2⁻¹⁶⁰ before the smallest-denominator search, so the
-> chosen pair lies inside the true interval. The prospective text below is preserved as the contract.
+> `bearing-oneway`, F8 `bearing-placement` (live on the gate's Linux host, and ADMITTED on the owner's named
+> Windows host, DANIELDILLBERG: `verify.py --only bearing` green in all seven rows, and the placement's own rows
+> under `--emit-rows` carrying the live evidence — 13 bearings, 52 scenes, 104 witnesses, recompiled twice — and
+> the defect caught in all 52, not a SKIPPED row). Two readings are recorded, not amended: the mirror plant of F1
+> is judged over the four anchors together, because a view whose geometry is mirror-symmetric at one anchor
+> cannot tell a mirror there; and the generator shrinks each interval inward by 2⁻¹⁶⁰ before the
+> smallest-denominator search, so the chosen pair lies inside the true interval. §6 is then executed as
+> written: `studio/attest/studio-oracle-2.json` (written by `studio/studio0.py --oracle2`, refusing unless the
+> live module equals its pinned corpus and the anchor at W equals studio-oracle-1's three hashes) carries the
+> vocabulary (the octant's sha256, the expansion rule, the table digest), the law, URDRBRG1's identity and all
+> 26 corpus cases with their witnesses, each digest recomputable from the record and the octant file alone; the
+> tag `urdr-oracle-2` goes on the commit that carries it (the owner's box does it). The prospective text below
+> is preserved as the contract.
 
 Capability: `URDRBRG1` (proposed). Layer: **VIEW** under D24 §1 — it renders; it reads a `Level`, an
 integer cell `pos` and a bearing, and the bearing is view state beside the run, never in it. Authority

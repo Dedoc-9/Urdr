@@ -18,7 +18,7 @@ the gate that re-verifies it live, because that is what makes it a placement rat
       ├── exact frame / pixel witnesses
       ├── CORE authority
       └── VIEW geometry / material semantics
-            ↓ frozen tag (urdr-oracle-1)
+            ↓ frozen tags (urdr-oracle-1: the four cardinal cameras; urdr-oracle-2: the bearing camera)
     Studio — native kernel → window/present shell → 1080p output
 
 The gauntlet every optimisation rung answers, with two instruments that are never fused: the placement rows
@@ -30,14 +30,16 @@ semantics are re-earned.
 
 | File | What it is |
 |---|---|
-| `studio0.py` | the STUDIO-0 driver: `--oracle` writes the cross-repo contract; `--bench N --host NAME` compiles the placement in release, checks its witnesses against the Python modules, and records per-phase p50/p95/p99/max on the named host |
+| `studio0.py` | the STUDIO-0 driver: `--oracle` writes the cross-repo contract; `--oracle2` writes the bearing camera's, refusing unless the live module equals its pinned corpus; `--bench N --host NAME` compiles the placement in release, checks its witnesses against the Python modules, and records per-phase p50/p95/p99/max on the named host |
 | `attest/studio-oracle-1.json` | the frozen contract: the view, `D_0`, the URDRFB1 frame digest, the identity picture's pixel sha256, the oriented picture and tile digest, the identity laws, the camera, the index layout, the corpus goldens, the kernel input format, the Python witnessed |
+| `attest/studio-oracle-2.json` | the bearing camera (D26 §6): studio-oracle-1 by its sha256 (still holding, unchanged), the registered vocabulary (the octant file's sha256, the expansion rule, the table digest), the law's four C expressions, URDRBRG1's identity, the anchor witness at W, the 26 corpus cases with every witness, the kernel input format (URDRBRGI); every digest recomputable from the record and `tools/terrain/bearing_octant.txt` alone |
 | `attest/studio0-bench-<host>.json` | one bench record per named host; the verdict against 60 / 144 / 240 Hz is renderer time, never latency |
 | `STUDIO-0.md` | the measurement that precedes the repository decision: the fat, the closure classified, the placement, the first number, the decision rule |
 
 ## Running
 
     python studio/studio0.py --oracle                      # rewrite the contract from the live modules
+    python studio/studio0.py --oracle2                     # the bearing camera's contract (about 3 minutes)
     python studio/studio0.py --bench 200 --warm 20 --host $env:COMPUTERNAME     # PowerShell; needs rustc
 
 ## What decides the next step

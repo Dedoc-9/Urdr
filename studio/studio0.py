@@ -12,6 +12,11 @@ target on the owner's hardware? Two records answer it, both computed live from t
     its tile digest, the frame and picture identity laws, the camera constants, the index layout, the corpus
     goldens, the kernel's input format, the Python witnessed. A studio kernel reproduces these before it claims
     anything; the tag `urdr-oracle-1` freezes the tree they were taken from.
+  * `--oracle2` writes `studio/attest/studio-oracle-2.json` (D26 §6): the bearing camera -- the registered
+    vocabulary (the octant file's sha256, the expansion rule, the table digest), the law's statement, the bearing
+    corpus with every witness (26 cases, each a triple, a frame digest and two pixel sha256), URDRBRG1's identity,
+    the anchor witness at W equal to studio-oracle-1's, and the kernel's input format. It refuses to write unless
+    the live module equals its pinned corpus; the tag `urdr-oracle-2` freezes the tree it was taken from.
   * `--bench N` compiles `tools/terrain/mantle_rs/mantle.rs` in release (`-C opt-level=3`; `--native` adds
     `-C target-cpu=native`, declared in the record), renders the witness view in the identity tiles and in the
     oriented tiles N times after a warm-up, and writes `studio/attest/studio0-bench-<host>.json`: p50/p95/p99/max
@@ -22,6 +27,7 @@ target on the owner's hardware? Two records answer it, both computed live from t
     capture hardware). Wall-clock is MEASURED-on-named-host and never enters the gate.
 
     python studio/studio0.py --oracle
+    python studio/studio0.py --oracle2
     python studio/studio0.py --bench 200 --host "my-desktop"
 """
 import argparse
@@ -89,6 +95,104 @@ def write_oracle(path):
     return record
 
 
+def write_oracle2(path):
+    """The bearing camera's contract (D26 §6), computed live: the registered vocabulary and its digests, the
+    law's statement, the bearing corpus with every witness a native kernel reproduces, the anchor witness that
+    ties it to studio-oracle-1, and the kernel's input format. Refuses to write unless the live module equals its
+    pinned corpus (`bearing.emitted_matches_pinned`) and the anchor equals studio-oracle-1's three hashes."""
+    import hashlib
+    import bearing
+    o1_path = os.path.join("studio", "attest", "studio-oracle-1.json")
+    with open(o1_path, "rb") as fh:
+        o1_raw = fh.read()
+    o1 = json.loads(o1_raw.decode("utf-8"))
+    with open(os.path.join("tools", "terrain", bearing.OCTANT_FILE), "rb") as fh:
+        octant_sha = hashlib.sha256(fh.read()).hexdigest()
+    if octant_sha != bearing.OCTANT_SHA256 or not bearing.emitted_matches_pinned():
+        raise SystemExit("STUDIO0-REFUSE: the live bearing module does not equal its pinned corpus; no record is written")
+    pairs = bearing.octant()
+    lvl = gamegen.generate(WITNESS["seed"], WITNESS["depth"])
+    west = 3 * bearing.QUARTER
+    fb, rgb = bearing.picture(lvl, WITNESS["pos"], west)
+    _fb2, rgb2 = bearing.picture(lvl, WITNESS["pos"], west, GV.oriented_tiles())
+    anchor = dict(bearing=west, triple=list(bearing.direction(west)), frame_digest_urdrfb1=vista.frame_digest(fb),
+                  identity_pixels_sha256=mantle.pixel_sha256(rgb), oriented_pixels_sha256=mantle.pixel_sha256(rgb2))
+    if (anchor["frame_digest_urdrfb1"], anchor["identity_pixels_sha256"], anchor["oriented_pixels_sha256"]) != (
+            o1["frame_digest_urdrfb1"], o1["identity_pixels_sha256"], o1["oriented_pixels_sha256"]):
+        raise SystemExit("STUDIO0-REFUSE: the bearing camera at W is not studio-oracle-1's witness; no record is written")
+    views = {}
+    for name in sorted(bearing.VIEWS):
+        v_lvl, v_pos = bearing.view(name)
+        views[name] = dict(seed="0x%X" % v_lvl.seed, depth=v_lvl.depth, pos=list(v_pos),
+                           source="bearing.VIEWS" if bearing.VIEWS[name] else "vista.scene_view(%r)" % name)
+    cases = []
+    for name in sorted(bearing.VIEWS):
+        for k in bearing.ADVERSARIAL:
+            f = dict(x.split("=", 1) for x in bearing.case(name, k).split("|"))
+            cases.append(dict(view=name, bearing=k, triple=list(bearing.direction(k)), frame_digest_urdrfb1=f["frame"],
+                              identity_pixels_sha256=f["identity"], oriented_pixels_sha256=f["oriented"],
+                              case=bearing.case_result(name, k)))
+    record = dict(
+        name="studio-oracle-2",
+        note="The bearing camera, frozen for consumers (D26 §6): any heading from the registered vocabulary, the eye "
+             "still at a cell centre. studio-oracle-1 still holds, unchanged, at the tag that carries this file; this "
+             "record adds the camera beyond the four cardinals. Nothing earlier than that tag may be imported as it.",
+        extends=dict(record="studio/attest/studio-oracle-1.json", sha256=hashlib.sha256(o1_raw).hexdigest(),
+                     holds="vista, mantle, voxray and raster are untouched; at the four anchors the bearing camera is "
+                           "vista's frame and mantle's picture byte for byte (row bearing-anchors)"),
+        capability="URDRBRG1",
+        vocabulary=dict(
+            ids="an integer k with 0 <= k < 360000: millidegrees clockwise from north (frontfps's yaw identity); out "
+                "of range or not an integer is refused (BEARING-REFUSE), never normalized",
+            yaw_mod=bearing.YAW_MOD,
+            triple="each id names one primitive (A, B, C), A^2 + B^2 = C^2, C >= 1; forward (A/C, B/C) in the "
+                   "level's (x, z) axes, z growing south; screen-right (-B/C, A/C); the renderer consumes the triple",
+            anchors={str(k): dict(facing=f, triple=list(bearing.direction(k))) for k, f in sorted(bearing.ANCHORS.items())},
+            octant_file="tools/terrain/" + bearing.OCTANT_FILE,
+            octant_format="45,001 lines 'p q' for k = 0..45000, 0 <= p < q, gcd(p, q) = 1",
+            octant_sha256=octant_sha,
+            octant_rule="t_k = p/q is the rational of smallest denominator in [tan((theta_k - tau)/2), "
+                        "tan((theta_k + tau)/2)], tau a quarter millidegree; provenance studio/bearing_octant_gen.py, "
+                        "never re-run by the gate (the table is checked by its own invariants, row bearing-table)",
+            expansion="k = 90000*turns + r; r <= 45000: (2pq, -(q^2 - p^2), p^2 + q^2) from pair r; 45000 < r < "
+                      "90000: (q^2 - p^2, -2pq, p^2 + q^2) from pair 90000 - r; reduce by the gcd; then each quarter "
+                      "turn (A, B) -> (-B, A)",
+            largest_hypotenuse=max(bearing._triple_of(pairs, k)[2] for k in range(bearing.OCTANT + 1)),
+            table_digest=bearing.table_digest(),
+            table_digest_rule="sha256(b'URDRBRG1|table|' + b'A,B,C;' for every id 0..359999 in order)",
+        ),
+        law=dict(
+            ray="column c: D = (A*b - B*a, B*b + A*a), a = 2c + 1 - W, b = 2*FOCAL (C times the unit ray, integer)",
+            c_enters_exactly=["the depth 2*FOCAL*C*t (strip edges h = FOCAL*EYE_Y / (2*FOCAL*C*t))",
+                              "the depth band floor(2*FOCAL*C*t / Q), capped as in vista",
+                              "the wall's row height y = EYE_Y + (2*CY - 2r - 1)*C*t (the v coordinate)",
+                              "the floor point E + D*EYE_Y / (kk*C), kk = 2(r - CY) + 1"],
+            everything_else="vista's and mantle's arithmetic unchanged; at C = 1 each expression is the frozen one",
+            camera="studio-oracle-1's camera, frame, picture and index_layout, unchanged",
+        ),
+        identity=dict(bearing=bearing.bearing_digest(),
+                      rule="case = sha256(b'URDRBRG1|' + row), row = 'view=<name>/<seed>/<depth>/(<x>, <z>)|"
+                           "bearing=<k>|triple=<A>,<B>,<C>|frame=<hex>|identity=<hex>|oriented=<hex>' with seed and "
+                           "depth in decimal; bearing = sha256(b'URDRBRG1|' + '|'.join([table_digest] + the cases in "
+                           "view-name order, then corpus.adversarial order))"),
+        anchor_witness=dict(view="studio-oracle-1's view", **anchor),
+        corpus=dict(views=views, adversarial=list(bearing.ADVERSARIAL), cases=cases),
+        kernel_input="tools/terrain/bearing_rs/bearing.rs header: URDRBRGI | u32 w | u32 rows | cells | i32 pos_x | "
+                     "i32 pos_z | i64 A | i64 B | i64 C | u32 depth | table | wall_map | floor_map | tiles "
+                     "(little-endian); 128-bit integers where a product exceeds 64 bits",
+        witnessed=dict(python=platform.python_version(), implementation=platform.python_implementation(),
+                       os=platform.system(), machine=platform.machine(),
+                       placement="bearing_rs reproduces all 104 corpus witnesses, recompiled twice, with its defect "
+                                 "caught (rows bearing-placement, bearing-placement-selftest) on the gate's Linux host "
+                                 "and on the owner's Windows host (D26 F8)"),
+        created_utc=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    )
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(record, fh, indent=1)
+    return record
+
+
 def bench(n, warm, host, flags):
     rustc = shutil.which("rustc")
     if not rustc:
@@ -145,8 +249,16 @@ def main(argv=None):
     ap.add_argument("--host", default=platform.node() or "unnamed", help="the host's name in the record")
     ap.add_argument("--native", action="store_true", help="add -C target-cpu=native (declared in the record)")
     ap.add_argument("--oracle", action="store_true", help="write studio/attest/studio-oracle-1.json")
+    ap.add_argument("--oracle2", action="store_true", help="write studio/attest/studio-oracle-2.json (the bearing camera)")
     args = ap.parse_args(argv)
     os.chdir(_ROOT)
+    if args.oracle2:
+        rec = write_oracle2(os.path.join("studio", "attest", "studio-oracle-2.json"))
+        print(json.dumps({k: rec[k] for k in ("extends", "identity", "anchor_witness")}, indent=1))
+        print("table %s  octant %s  cases %d" % (rec["vocabulary"]["table_digest"], rec["vocabulary"]["octant_sha256"],
+                                                   len(rec["corpus"]["cases"])))
+        print("[studio0] -> studio/attest/studio-oracle-2.json")
+        return 0
     if args.oracle:
         rec = write_oracle(os.path.join("studio", "attest", "studio-oracle-1.json"))
         print(json.dumps({k: rec[k] for k in ("view", "D_0", "frame_digest_urdrfb1", "identity_pixels_sha256")}, indent=1))
@@ -155,7 +267,7 @@ def main(argv=None):
     if args.bench:
         flags = ["-C", "opt-level=3"] + (["-C", "target-cpu=native"] if args.native else [])
         return bench(args.bench, args.warm, args.host, tuple(flags))
-    ap.error("give --bench N or --oracle")
+    ap.error("give --bench N, --oracle or --oracle2")
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@
 //     pixels <sha256>     the sha256 of the 1920x1080 RGB picture    (appearance)
 //
 // The scene carries the bearing's triple (A, B, C), A^2 + B^2 = C^2, as INPUT — the registered table is the Python
-// module's (bearing_octant.txt, checked there by its own invariants); gen_vectors.py writes the triple beside the
+// module's (bearing_octant.txt, checked there by its own invariants); bearing_vectors.py writes the triple beside the
 // level, the eye, the colour table, the per-band maps and the tiles, so the kernel is exactly the per-frame work.
 // The ray at column c is D = (A*b - B*a, B*b + A*a), a = 2c + 1 - W, b = 2*FOCAL: C times the unit ray, integer.
 // The hypotenuse enters exactly four expressions (D26 §3): the depth 2*FOCAL*C*t (strip edges), the depth band,
